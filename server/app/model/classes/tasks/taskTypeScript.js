@@ -48,7 +48,6 @@ scriptTaskSchema.methods.getNodes = function() {
 };
 
 scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexusData, blueprintIds, envId, onExecute, onComplete) {
-    logger.debug("===================== this.executionOrder========= ", JSON.stringify(this));
     var self = this;
     if (this.executionOrder === "SERIAL") {
         // SERIAL EXECUTION
@@ -433,6 +432,7 @@ function removeScriptFile(filePath) {
 }
 
 function serialExecution(self, userName, baseUrl, choiceParam, nexusData, blueprintIds, envId, onExecute, onComplete) {
+    var executionCompleteId = uuid.v4();
     var instanceIds = self.nodeIds;
     var scriptDetails = self.scriptDetails;
     if (!(instanceIds && instanceIds.length)) {
@@ -843,14 +843,13 @@ function serialExecution(self, userName, baseUrl, choiceParam, nexusData, bluepr
                     })(scriptDetails[j]);
                 }
             });
-            /*if (flag) {
-                if (typeof onExecute === 'function') {
-                    onExecute(null, {
-                        instances: [instance]
-                    });
-                    return;
-                }
-            }*/
+            if (typeof onExecute === 'function') {
+                onExecute(null, {
+                    instances: [instance],
+                    refId: executionCompleteId
+                });
+                return;
+            }
         });
     };
 
@@ -859,11 +858,6 @@ function serialExecution(self, userName, baseUrl, choiceParam, nexusData, bluepr
     function taskComplete(err, obj) {
         count1++;
         if (err) {
-            if (typeof onExecute === 'function') {
-                onExecute(null, {
-                    instances: instanceList
-                });
-            }
             instanceOnCompleteHandler(err.message, 1, err.instanceId, err.chefClientExecutionId, err.actionLogId);
             logger.debug("Encountered with Error: ", err);
             return;
@@ -873,11 +867,6 @@ function serialExecution(self, userName, baseUrl, choiceParam, nexusData, bluepr
             ecuteTask(instanceIds[count1], taskComplete);
         } else {
             logger.debug("Task success");
-            if (typeof onExecute === 'function') {
-                onExecute(null, {
-                    instances: instanceList
-                });
-            }
             instanceOnCompleteHandler(null, 0, obj.instanceId, obj.chefClientExecutionId, obj.actionLogId);
         }
     }

@@ -214,6 +214,7 @@ function runTask(self, userName, baseUrl, choiceParam, appData, blueprintIds, en
         var overallStatus = 0;
         var instanceResultList = [];
         var executionIds = [];
+        var executionCompleteId = uuid.v4();
 
         function instanceOnCompleteHandler(err, status, instanceId, executionId, actionId) {
             logger.debug('Instance onComplete fired', count);
@@ -250,6 +251,7 @@ function runTask(self, userName, baseUrl, choiceParam, appData, blueprintIds, en
             }
         }
         var instanceList = [];
+
         function execute(id, callback) {
 
             var obj = {};
@@ -769,6 +771,15 @@ function runTask(self, userName, baseUrl, choiceParam, appData, blueprintIds, en
                                         });
                                         instancesDao.updateActionLog(instance._id, actionLog._id, true, timestampEnded);
 
+                                        obj.instanceId = instance._id;
+                                        obj.actionLogId = actionLog._id;
+                                        obj.chefClientExecutionId = chefClientExecution.id;
+                                        obj.message = "Task execution success.";
+                                        obj.status = 0;
+                                        callback(null, obj);
+
+                                        //instanceOnCompleteHandler(null, 0, instance._id, chefClientExecution.id, actionLog._id);
+
                                         // Update Instance with docker status.
                                         var _docker = new Docker();
                                         _docker.checkDockerStatus(instance._id, function(err, retCode) {
@@ -786,16 +797,6 @@ function runTask(self, userName, baseUrl, choiceParam, appData, blueprintIds, en
 
                                             }
                                         });
-
-
-                                        obj.instanceId = instance._id;
-                                        obj.actionLogId = actionLog._id;
-                                        obj.chefClientExecutionId = chefClientExecution.id;
-                                        obj.message = "Task execution success.";
-                                        obj.status = 0;
-                                        callback(null, obj);
-
-                                        //instanceOnCompleteHandler(null, 0, instance._id, chefClientExecution.id, actionLog._id);
                                         return;
                                     } else {
 
@@ -848,6 +849,14 @@ function runTask(self, userName, baseUrl, choiceParam, appData, blueprintIds, en
                                             });
                                             instancesDao.updateActionLog(instance._id, actionLog._id, true, timestampEnded);
 
+                                            obj.instanceId = instance._id;
+                                            obj.actionLogId = actionLog._id;
+                                            obj.chefClientExecutionId = chefClientExecution.id;
+                                            obj.message = "Invalid credentials";
+                                            obj.status = 1;
+                                            callback(obj, null);
+                                            //instanceOnCompleteHandler(null, 0, instance._id, chefClientExecution.id, actionLog._id);
+
                                             var _docker = new Docker();
                                             _docker.checkDockerStatus(instance._id, function(err, retCode) {
                                                 if (err) {
@@ -864,16 +873,7 @@ function runTask(self, userName, baseUrl, choiceParam, appData, blueprintIds, en
 
                                                 }
                                             });
-
-
-                                            obj.instanceId = instance._id;
-                                            obj.actionLogId = actionLog._id;
-                                            obj.chefClientExecutionId = chefClientExecution.id;
-                                            obj.message = "Invalid credentials";
-                                            obj.status = 1;
-                                            return callback(obj, null);
-                                            //instanceOnCompleteHandler(null, 0, instance._id, chefClientExecution.id, actionLog._id);
-
+                                            return;
                                         } else {
                                             instanceLog.endedOn = new Date().getTime();
                                             instanceLog.actionStatus = "failed";
@@ -1359,13 +1359,12 @@ function runTask(self, userName, baseUrl, choiceParam, appData, blueprintIds, en
                     });
                 }
 
-                /*if (flag) {
-                    if (typeof onExecute === 'function') {
-                        onExecute(null, {
-                            instances: [instance],
-                        });
-                    }
-                }*/
+                if (typeof onExecute === 'function') {
+                    onExecute(null, {
+                        instances: [instance],
+                        refId: executionCompleteId
+                    });
+                }
             });
         };
 
@@ -1374,25 +1373,14 @@ function runTask(self, userName, baseUrl, choiceParam, appData, blueprintIds, en
         function taskComplete(err, obj) {
             count++;
             if (err) {
-                if (typeof onExecute === 'function') {
-                    onExecute(null, {
-                        instances: instanceList,
-                    });
-                }
                 instanceOnCompleteHandler(err.message, 1, err.instanceId, err.chefClientExecutionId, err.actionLogId);
                 logger.debug("Encountered with Error: ", err);
-                return;
             }
             if (count < instanceIds.length) {
                 logger.debug("execute with task: ");
                 execute(instanceIds[count], taskComplete);
             } else {
-                logger.debug("Task success");
-                if (typeof onExecute === 'function') {
-                    onExecute(null, {
-                        instances: instanceList,
-                    });
-                }
+                logger.debug("Task success============================== ",JSON.stringify(obj));
                 instanceOnCompleteHandler(null, 0, obj.instanceId, obj.chefClientExecutionId, obj.actionLogId);
             }
         }

@@ -56,7 +56,8 @@ var taskHistorySchema = new Schema({
     bgName: String,
     projectName: String,
     envName: String,
-    taskName: String
+    taskName: String,
+    refId: String
 });
 
 taskHistorySchema.plugin(mongoosePaginate);
@@ -243,6 +244,77 @@ taskHistorySchema.statics.updateHistory = function updateHistory(hId, historyDat
         }
         callback(null, updatedData);
         return;
+    });
+};
+
+taskHistorySchema.statics.createNewOrUpdate = function(refId, historyData, callback) {
+    var self = this;
+    TaskHistory.find({
+        refId: refId
+    }, function(err, data) {
+        if (err) {
+            logger.error("Failed to gettaskhistory :: ", err);
+            callback(err, null);
+            return;
+        }
+        logger.debug("Got taskHistory: ", JSON.stringify(historyData));
+        if (data && data.length) {
+            var tHistory = data[0];
+            if (historyData.nodeIdsWithActionLog && historyData.nodeIdsWithActionLog[0]) {
+                self.update({
+                    refId: refId
+                }, {
+                    $set: {
+                        status: historyData.status
+                    },
+                    $push: {
+                        nodeIdsWithActionLog: historyData.nodeIdsWithActionLog[0]
+                    }
+                }, {
+                    upsert: false
+                }, function(err, updatedData) {
+                    if (err) {
+                        logger.debug("Failed to update: ", err);
+                        callback(err, null);
+                        return;
+                    }
+                    logger.debug("createNewOrUpdate called: ", JSON.stringify(updatedData));
+                    callback(null, updatedData);
+                    return;
+                });
+            } else {
+                self.update({
+                    refId: refId
+                }, {
+                    $set: {
+                        status: historyData.status
+                    }
+                }, {
+                    upsert: false
+                }, function(err, updatedData) {
+                    if (err) {
+                        logger.debug("Failed to update: ", err);
+                        callback(err, null);
+                        return;
+                    }
+                    logger.debug("createNewOrUpdate called: ", JSON.stringify(updatedData));
+                    callback(null, updatedData);
+                    return;
+                });
+            }
+
+
+        } else {
+            var taskHistory = new self(historyData);
+            taskHistory.save(function(err, tHistory) {
+                logger.debug('saving task history ==>');
+                if (err) {
+                    callback(err, null);
+                    return;
+                }
+                callback(null, tHistory);
+            });
+        }
     });
 };
 

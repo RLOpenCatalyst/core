@@ -207,7 +207,6 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
             taskHistoryData = taskHistoryEntry;
         }
 
-        logger.debug("Task last run timestamp updated", JSON.stringify(taskExecuteData));
         self.lastRunTimestamp = timestamp;
         self.lastTaskStatus = TASK_STATUS.RUNNING;
         self.save(function(err, data) {
@@ -232,6 +231,9 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                     actionLogId: taskExecuteData.instances[i].tempActionLogId
                 }
                 taskHistoryData.nodeIdsWithActionLog.push(obj);
+            }
+            if (taskExecuteData.refId) {
+                taskHistoryData.refId = taskExecuteData.refId;
             }
         }
 
@@ -275,11 +277,23 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
         }
         // hack for composite task
         if (taskHistoryEntry) {
-            taskHistoryData.save();
-            taskHistory = taskHistoryData;
+            //taskHistoryData.save();
+            //taskHistory = taskHistoryData;
+            TaskHistory.createNewOrUpdate(taskHistoryData.refId, taskHistoryData, function(err, tData) {
+                if (err) {
+                    logger.error("Failed to create history: ", err);
+                }
+                logger.debug("successfully task history created. ", JSON.stringify(tData));
+            });
         } else {
             taskHistory = new TaskHistory(taskHistoryData);
-            taskHistory.save();
+            //taskHistory.save();
+            TaskHistory.createNewOrUpdate(taskHistoryData.refId, taskHistoryData, function(err, tData) {
+                if (err) {
+                    logger.error("Failed to create history: ", err);
+                }
+                logger.debug("successfully task history created. ", JSON.stringify(tData));
+            });
         }
 
         callback(null, taskExecuteData, taskHistory);
@@ -306,7 +320,14 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                 }
 
             }
-            taskHistory.save();
+            //taskHistory.save();
+            taskHistory.nodeIdsWithActionLog = null;
+            TaskHistory.createNewOrUpdate(taskHistory.refId, taskHistory, function(err, tData) {
+                if (err) {
+                    logger.error("Failed to create history: ", err);
+                }
+                logger.debug("successfully task history created. ", JSON.stringify(tData));
+            });
         }
 
         if (typeof onComplete === 'function') {
@@ -512,7 +533,7 @@ taskSchema.statics.getTasksByOrgBgProjectAndEnvId = function(jsonData, callback)
             if (err) {
                 var err = new Error('Internal server error');
                 err.status = 500;
-                return callback(err,null);
+                return callback(err, null);
             }
             callback(null, tasks);
         });
@@ -535,15 +556,15 @@ taskSchema.statics.getTasksByOrgBgProjectAndEnvId = function(jsonData, callback)
     }
 };
 
-taskSchema.statics.getScriptTypeTask = function(callback){
+taskSchema.statics.getScriptTypeTask = function(callback) {
     this.find({
         "taskConfig.taskType": "script"
     }, function(err, tasks) {
         if (err) {
             logger.error(err);
             callback(err, null);
-        }else{
-            callback(null,tasks);
+        } else {
+            callback(null, tasks);
         }
     });
 };
