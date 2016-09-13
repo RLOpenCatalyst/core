@@ -249,8 +249,8 @@ function downloadUpdatedCSVFile(provider, next) {
 
 function instanceIdList(instances,callback){
     var instanceIds=[];
-    var length = instances.managed.length + instances.unmanaged.length;
-    if(instances.managed.length === 0 && instances.unmanaged.length === 0){
+    var length = instances.managed.length + instances.unmanaged.length + instances.unassigned.length;
+    if(instances.managed.length === 0 && instances.unmanaged.length === 0 && instances.unassigned.length === 0){
         callback(null,instanceIds);
     }else{
         if(instances.managed.length > 0){
@@ -259,8 +259,13 @@ function instanceIdList(instances,callback){
             }
         }
         if(instances.unmanaged.length > 0){
-            for(var i = 0; i < instances.unmanaged.length; i++){
-                instanceIds.push(instances.unmanaged[i].platformId);
+            for(var j = 0; j < instances.unmanaged.length; j++){
+                instanceIds.push(instances.unmanaged[j].platformId);
+            }
+        }
+        if(instances.unassigned.length > 0){
+            for(var k = 0; k < instances.unassigned.length; k++){
+                instanceIds.push(instances.unassigned[k].platformId);
             }
         }
         if(instanceIds.length === length){
