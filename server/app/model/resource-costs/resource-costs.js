@@ -61,6 +61,7 @@ var ResourceCostsSchema = new Schema({
         type: Number,
         required: false
     },
+    // @TODO To be changed to Number
     aggregateResourceCost:{
         type:String,
         required:false,
@@ -137,6 +138,53 @@ ResourceCostsSchema.statics.getResourceCostUpdatedTime = function(callback) {
             }
         });
 };
+
+ResourceCostsSchema.statics.getLatestCost = function getLatestCost(query, callback) {
+    ResourceCosts.aggregate(
+        [
+            { $match: {$and: query} },
+            {
+                $sort: {
+                    startTime: -1
+                }
+            },
+            { $limit: 1 }
+        ],
+        function(err, resourceCostEntries) {
+            if (err) {
+                logger.error(err)
+                callback(err, null)
+            } else {
+                if(resourceCostEntries.length === 0) {
+                    callback(null, null)
+                } else {
+                    callback(null, resourceCostEntries[0])
+                }
+            }
+        }
+    )
+}
+
+ResourceCostsSchema.statics.getCostsList = function getCostsList(query, callback) {
+    ResourceCosts.aggregate(
+        [
+            { $match: {$and: query }},
+            {
+                $sort: {
+                    startTime: 1
+                }
+            }
+        ],
+        function(err, costEntries) {
+            if (err) {
+                logger.error(err)
+                callback(err, null)
+            } else {
+                callback(null,costEntries)
+            }
+        }
+    )
+}
 
 var ResourceCosts = mongoose.model('ResourceCost', ResourceCostsSchema);
 module.exports = ResourceCosts;
