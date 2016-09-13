@@ -6,13 +6,9 @@ var Tasks = require('_pr/model/classes/tasks/tasks.js');
 var crontab = require('node-crontab');
 
 
-var TaskSync = Object.create(CatalystCronJob);
-//TaskSync.interval = '*/5 * * * *';
-TaskSync.execute = taskSync;
+var taskSync = module.exports = {};
 
-module.exports = TaskSync;
-
-function taskSync() {
+taskSync.executeScheduledTasks = function executeScheduledTasks() {
     Tasks.getScheduledTask(function(err, tasks) {
         if (err) {
             logger.error("Failed to fetch Tasks: ", err);
@@ -22,16 +18,7 @@ function taskSync() {
         if (tasks && tasks.length) {
             for (var i = 0; i < tasks.length; i++) {
                 (function(i) {
-                    crontab.scheduleJob(tasks[i].cron, function() {
-                        taskService.executeTask(tasks[i]._id, tasks[i].userName, "", "", "", function(err, historyData) {
-                            if (err === 404) {
-                                logger.error("Task not found.", err);
-                            } else if (err) {
-                                logger.error("Failed to execute task.", err);
-                            }
-                            logger.debug("Task Execution Success: ", tasks[i].name);
-                        });
-                    });
+                       taskService.executeScheduleJob(tasks[i]);
                 })(i);
             }
         }else{
