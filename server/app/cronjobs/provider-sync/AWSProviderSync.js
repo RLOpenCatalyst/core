@@ -236,6 +236,7 @@ function tagMappingForInstances(instances,provider,next){
                                     break;
                                 }
                             }
+
                             if (catalystProjectId && catalystEnvironmentId) {
                                 assignmentFound = true;
                             }
@@ -260,7 +261,9 @@ function tagMappingForInstances(instances,provider,next){
                                             ip: instance.ip,
                                             os: instance.os,
                                             state: instance.state,
-                                            network: instance.network,
+                                            subnetId: instance.SubnetId,
+                                            vpcId: instance.VpcId,
+                                            privateIpAddress: instance.PrivateIpAddress,
                                             tags: instance.tags,
                                             environmentTag: instance.environmentTag,
                                             projectTag: instance.projectTag
