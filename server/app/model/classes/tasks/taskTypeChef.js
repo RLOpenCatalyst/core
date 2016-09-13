@@ -1380,7 +1380,7 @@ function runTask(self, userName, baseUrl, choiceParam, appData, blueprintIds, en
                 logger.debug("execute with task: ");
                 execute(instanceIds[count], taskComplete);
             } else {
-                logger.debug("Task success============================== ",JSON.stringify(obj));
+                logger.debug("Task success: ",JSON.stringify(obj));
                 instanceOnCompleteHandler(null, 0, obj.instanceId, obj.chefClientExecutionId, obj.actionLogId);
             }
         }

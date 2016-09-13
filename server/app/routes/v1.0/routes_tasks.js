@@ -38,7 +38,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
     app.all('/tasks/*', sessionVerification);
 
     app.get('/tasks/history/list/all', function(req, res) {
-        logger.debug("------------------ ",JSON.stringify(TaskHistory));
+        logger.debug("------------------ ", JSON.stringify(TaskHistory));
         TaskHistory.listHistory(function(err, tHistories) {
             if (err) {
                 res.status(500).send(errorResponses.db.error);
@@ -166,9 +166,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
                             return;
                         }
                         if (deleteCount) {
-                            TaskHistory.removeByTaskId(req.params.taskId,function(err,removed){
-                                if(err){
-                                    logger.error("Failed to remove history: ",err);
+                            TaskHistory.removeByTaskId(req.params.taskId, function(err, removed) {
+                                if (err) {
+                                    logger.error("Failed to remove history: ", err);
                                 }
                             });
                             res.send({
@@ -494,6 +494,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 return;
             }
             if (updateCount) {
+                if (updateCount.isScheduled && updateCount.cron) {
+                    taskService.executeScheduleJob(updateCount);
+                }
                 res.send({
                     updateCount: updateCount
                 });

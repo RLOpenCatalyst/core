@@ -129,6 +129,9 @@ var taskSchema = new Schema({
     },
     cron: {
         type: String
+    },
+    cronJobId: {
+        type: String
     }
 });
 taskSchema.plugin(mongoosePaginate);
@@ -692,9 +695,13 @@ taskSchema.statics.updateTaskById = function(taskId, taskData, callback) {
             callback(err, null);
             return;
         }
-        logger.debug('Updated task:' + JSON.stringify(Tasks));
-        callback(null, updateCount);
-
+        logger.debug('Updated task:' + JSON.stringify(updateCount));
+        Tasks.find({_id: new ObjectId(taskId) },function(err,task){
+            if(err){
+               return callback(err, null);
+            }
+            return callback(null,task[0]);
+        });
     });
 
 };
@@ -863,6 +870,26 @@ taskSchema.statics.getScheduledTask = function(callback) {
             return;
         }
         return callback(null, data);
+    });
+};
+
+taskSchema.statics.updateCronJobId = function(taskId, jobId, callback) {
+    Tasks.update({
+        "_id": new ObjectId(taskId)
+    }, {
+        $set: {
+            cronJobId: jobId
+        }
+    }, {
+        upsert: false
+    }, function(err, updateCount) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        logger.debug('Updated task:' + updateCount);
+        callback(null, updateCount);
+
     });
 };
 

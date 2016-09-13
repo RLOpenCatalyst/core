@@ -61,8 +61,8 @@ module.exports.start = function start() {
 	var appSyncJobId
 		= crontab.scheduleJob(appSync.getInterval(), appSync.execute);
 
-	logger.info('Task Sync started with interval ==> '+ taskSync.getInterval());
+	/*logger.info('Task Sync started with interval ==> '+ taskSync.getInterval());
 	var taskSyncJobId
-		= crontab.scheduleJob(taskSync.getInterval(), taskSync.execute);
+		= crontab.scheduleJob(taskSync.getInterval(), taskSync.execute);*/
 
 }

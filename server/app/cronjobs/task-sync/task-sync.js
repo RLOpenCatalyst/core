@@ -7,7 +7,7 @@ var crontab = require('node-crontab');
 
 
 var TaskSync = Object.create(CatalystCronJob);
-TaskSync.interval = '*/5 * * * *';
+//TaskSync.interval = '*/5 * * * *';
 TaskSync.execute = taskSync;
 
 module.exports = TaskSync;

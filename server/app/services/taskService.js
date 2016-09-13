@@ -20,6 +20,7 @@ var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
 var TaskHistory = require('_pr/model/classes/tasks/taskHistory');
 var instancesDao = require('_pr/model/classes/instance/instance');
+var crontab = require('node-crontab');
 
 const errorType = 'taskService';
 
@@ -168,10 +169,10 @@ taskService.getTaskActionList = function getTaskActionList(jsonData, callback) {
                                                 data.jenkinsLog = "/jenkins/" + data.jenkinsServerId + "/jobs/" + data.jobName + "/builds/" + data.buildNumber + "/output";
                                                 histories.docs[i].executionResults.push(data);
                                             } else {
-                                                if(data.blueprintExecutionResults && data.blueprintExecutionResults.length){
+                                                if (data.blueprintExecutionResults && data.blueprintExecutionResults.length) {
                                                     data.blueprintExecutionResults[0].result[0].actionId = data.blueprintExecutionResults[0].result[0].actionLogId;
                                                     data.executionResults = data.blueprintExecutionResults[0].result;
-                                                    
+
                                                 }
                                                 var c = 0;
                                                 for (var k = 0; k < data.executionResults.length; k++) {
@@ -214,3 +215,24 @@ taskService.getTaskActionList = function getTaskActionList(jsonData, callback) {
         }
     });
 };
+
+
+taskService.executeScheduleJob = function executeScheduleJob(task) {
+    logger.debug("Task cton::::: ",task.cron);
+    crontab.cancelJob(task.cronJobId);
+    var jobId = crontab.scheduleJob(task.cron, function() {
+        taskService.executeTask(task._id, task.userName, "", "", "", function(err, historyData) {
+            if (err === 404) {
+                logger.error("Task not found.", err);
+            } else if (err) {
+                logger.error("Failed to execute task.", err);
+            }
+            logger.debug("Task Execution Success: ", task.name);
+        });
+        taskDao.updateCronJobId(task._id, jobId, function(err, updatedData) {
+            if (err) {
+                logger.error("Failed to update task: ", err);
+            }
+        });
+    });
+}
