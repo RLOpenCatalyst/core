@@ -229,21 +229,21 @@ function tagMappingForInstances(instances,provider,next){
                             && ((bgTag.name in instance.tags) || (projectTag.name in instance.tags) || (environmentTag.name in instance.tags))) {
 
                             for (var y = 0; y < bgTag.catalystEntityMapping.length; y++) {
-                                if (bgTag.catalystEntityMapping[y].tagValue === instance.bgTag || bgTag.catalystEntityMapping[y].tagValue === instance.tags[bgTag.name]) {
+                                if (bgTag.catalystEntityMapping[y].tagValue === instance.tags[bgTag.name]) {
                                     catalystBgId = bgTag.catalystEntityMapping[y].catalystEntityId;
                                     catalystBgName = bgTag.catalystEntityMapping[y].catalystEntityName;
                                     break;
                                 }
                             }
                             for (var y = 0; y < projectTag.catalystEntityMapping.length; y++) {
-                                if (projectTag.catalystEntityMapping[y].tagValue === instance.projectTag || projectTag.catalystEntityMapping[y].tagValue === instance.tags[projectTag.name]) {
+                                if ( projectTag.catalystEntityMapping[y].tagValue === instance.tags[projectTag.name]) {
                                     catalystProjectId = projectTag.catalystEntityMapping[y].catalystEntityId;
                                     catalystProjectName = projectTag.catalystEntityMapping[y].catalystEntityName;
                                     break;
                                 }
                             }
                             for (var y = 0; y < environmentTag.catalystEntityMapping.length; y++) {
-                                if (environmentTag.catalystEntityMapping[y].tagValue === instance.environmentTag || environmentTag.catalystEntityMapping[y].tagValue === instance.tags[environmentTag.name]) {
+                                if (environmentTag.catalystEntityMapping[y].tagValue === instance.tags[environmentTag.name]) {
                                     catalystEnvironmentId = environmentTag.catalystEntityMapping[y].catalystEntityId;
                                     catalystEnvironmentName = environmentTag.catalystEntityMapping[y].catalystEntityName;
                                     break;
@@ -276,9 +276,7 @@ function tagMappingForInstances(instances,provider,next){
                                             os: instance.os,
                                             state: instance.state,
                                             network: instance.network,
-                                            tags: instance.tags,
-                                            environmentTag: instance.environmentTag,
-                                            projectTag: instance.projectTag
+                                            tags: instance.tags
                                         }
                                         assignedInstanceList.push(assignedInstanceObj);
                                         assignedInstanceObj = {};

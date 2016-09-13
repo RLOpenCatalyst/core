@@ -38,24 +38,6 @@ var UnassignedInstancesSchema = new Schema({
     },
     providerType: String,
     providerData: Schema.Types.Mixed,
-    bgTag: {
-        type: String,
-        required: false,
-        trim: true,
-        default: null
-    },
-    projectTag: {
-        type: String,
-        required: false,
-        trim: true,
-        default: null
-    },
-    environmentTag: {
-        type: String,
-        required: false,
-        trim: true,
-        default: null
-    },
     platformId: String,
     ip: {
         type: String,
@@ -201,16 +183,10 @@ UnassignedInstancesSchema.statics.updateInstanceStatus = function updateInstance
         updateObj['state'] = instance.state;
         updateObj['isDeleted'] = true;
         updateObj['tags'] = instance.tags;
-        updateObj['bgTag'] = instance.bgTag;
-        updateObj['environmentTag'] = instance.environmentTag;
-        updateObj['projectTag'] = instance.projectTag;
     }else{
         updateObj['state'] = instance.state;
         updateObj['isDeleted'] = false;
         updateObj['tags'] = instance.tags;
-        updateObj['bgTag'] = instance.bgTag;
-        updateObj['environmentTag'] = instance.environmentTag;
-        updateObj['projectTag'] = instance.projectTag;
     }
     UnassignedInstances.update({
         "_id": ObjectId(instanceId)

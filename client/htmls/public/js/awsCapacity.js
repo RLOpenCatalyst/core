@@ -233,31 +233,27 @@ $(document).ready(function() {
             "columns": [{
                 "data": "platformId",
                 "orderable": true
-            }, {
-                "data": "orgName",
-                "orderable": false,
-                "render": function(data) {
-                    return data ? data : '';
+            },  {"data": "" ,"orderable" : true ,
+                "render":function(data, type, full, meta) {
+                    return full.orgName?full.orgName:'-';
                 }
-            }, {
-                "data": "bgName",
-                "orderable": false,
-                "render": function(data) {
-                    return data ? data : '';
+            },
+                {"data": "" ,"orderable" : true ,
+                    "render":function(data, type, full, meta) {
+                        return full.bgName?full.bgName:'-';
+                    }
+                },
+                {"data": "" ,"orderable" : true,
+                    "render":function(data, type, full, meta) {
+                        return full.projectName?full.projectName:'-';
+                    }
+                },
+                {"data": "","orderable" : true,
+                    "render":function(data, type, full, meta) {
+                        return full.environmentName?full.environmentName:'-';
+                    }
                 }
-            }, {
-                "data": "projectName",
-                "orderable": false,
-                "render": function(data) {
-                    return data ? data : '';
-                }
-            }, {
-                "data": "environmentName",
-                "orderable": true,
-                "render": function(data) {
-                    return data ? data : '';
-                }
-            }, {
+                , {
                 "data": "instanceIP",
                 "orderable": true
             }, {
@@ -283,25 +279,27 @@ $(document).ready(function() {
             "columns": [{
                 "data": "platformId",
                 "orderable": true
-            }, {
-                "data": "orgName",
-                "orderable": false,
-                "render": function(data) {
-                    return data ? data : '';
+            },  {"data": "" ,"orderable" : true ,
+                "render":function(data, type, full, meta) {
+                    return full.orgName?full.orgName:'-';
                 }
-            }, {
-                "data": "projectName",
-                "orderable": false,
-                "render": function(data) {
-                    return data ? data : '';
-                }
-            }, {
-                "data": "environmentName",
-                "orderable": true,
-                "render": function(data) {
-                    return data ? data : '';
-                }
-            }, {
+            },
+                {"data": "" ,"orderable" : true ,
+                    "render":function(data, type, full, meta) {
+                        return full.bgName?full.bgName:'-';
+                    }
+                },
+                {"data": "" ,"orderable" : true,
+                    "render":function(data, type, full, meta) {
+                        return full.projectName?full.projectName:'-';
+                    }
+                },
+                {"data": "","orderable" : true,
+                    "render":function(data, type, full, meta) {
+                        return full.environmentName?full.environmentName:'-';
+                    }
+                },
+                 {
                 "data": "ip",
                 "orderable": true,
                 "render": function(data, type, full) {
@@ -320,17 +318,48 @@ $(document).ready(function() {
 
     function getUnassignedInstancesWithProjectAndEnv() {
         var urlManagedNoProvider, urlManagedProvider;
+        var envProjectMappingObject = {};
         if (orgProviderId) {
             urlManagedNoProvider = "../tracked-instances?category=unassigned&filterBy=orgId:" + orgId + ' ' + "providerId:" + orgProviderId;
+            $.get('/providers/'+ orgProviderId +'/tag-mappings', function(tagsListSelected) {
+                if (tagsListSelected) {
+                    for (var i = 0; i < tagsListSelected.length; i++) {
+                        var objcatalystEntityType = tagsListSelected[i].catalystEntityType;
+                        var objtagName = tagsListSelected[i].tagName;
+                        if (objcatalystEntityType == 'project') {
+                            envProjectMappingObject['project'] = objtagName;
+                        }
+                        if (objcatalystEntityType == 'environment') {
+                            envProjectMappingObject['environment'] = objtagName;
+                        }
+                        if (objcatalystEntityType == 'bgName') {
+                            envProjectMappingObject['bgName'] = objtagName;
+                        }
+                    }
+                    getUnassignedInstancesWithTagMapping(envProjectMappingObject,urlManagedNoProvider);
+                }
+            }).fail(function(jxhr) {
+                var msg = "Tag mappings not loaded as behaved unexpectedly.";
+                if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                    msg = jxhr.responseJSON.message;
+                } else if (jxhr.responseText) {
+                    msg = jxhr.responseText;
+                }
+                bootbox.alert(msg);
+            });
         } else {
             urlManagedProvider = "../tracked-instances?category=unassigned&filterBy=orgId:" + orgId;
+            getUnassignedInstancesWithTagMapping(envProjectMappingObject,urlManagedProvider);
         }
+    }
+
+    function getUnassignedInstancesWithTagMapping(envProjectMappingObject,url){
         $('.footer').removeClass('hidden');
         $('#instanceUnassignedTable').DataTable({
             "processing": true,
             "serverSide": true,
             "destroy": true,
-            "ajax": (urlManagedNoProvider) ? urlManagedNoProvider : urlManagedProvider,
+            "ajax": url,
             "createdRow": function(row, data) {
                 $(row).attr({
                     "instanceId": data._id,
@@ -359,45 +388,43 @@ $(document).ready(function() {
             },
                 {"data": "" ,"orderable" : false,
                     "render": function(data, type, full) {
-                        if(full.bgTag !== null){
-                            var tagValue = full.bgTag;
-                            return '<input class="form-control bgTagName" type="text" value="' + tagValue + '"/>';
+                        if(full.tags && envProjectMappingObject.bgName && full.tags[envProjectMappingObject.bgName]) {
+                            var tagValue = full.tags[envProjectMappingObject.bgName];
+                            return '<input class="form-control bgTagName"  type="text" value="' + tagValue + '"/>';
                         }else{
-                            return '<input class="form-control bgTagName" type="text" placeholder="Enter a bg tag value" value=""/>';
+                            return '<input class="form-control bgTagName" type="text" value=""/>';
+                        }
+                    }
+                },
+                {"data": "" ,"orderable" : false,
+                    "render": function(data, type, full) {
+                        if(full.tags && envProjectMappingObject.project && full.tags[envProjectMappingObject.project]) {
+                            var tagValue = full.tags[envProjectMappingObject.project];
+                            return '<input class="form-control projectTagName"  type="text" value="' + tagValue + '"/>';
+                        }else{
+                            return '<input class="form-control projectTagName" type="text" value=""/>';
+                        }
+                    }
+                },
+                {"data": "" ,"orderable" : false,
+                    "render": function(data, type, full) {
+                        if(full.tags && envProjectMappingObject.environment && full.tags[envProjectMappingObject.environment]) {
+                            var tagValue = full.tags[envProjectMappingObject.environment];
+                            return '<input class="form-control envTagName" type="text" value="' + tagValue + '"/>';
+                        }else{
+                            return '<input class="form-control envTagName" type="text" value=""/>';
                         }
                     }
                 },
                 {
-                "data": "",
-                "orderable": false,
-                "render": function(data, type, full) {
-                    if (full.projectTag !== null) {
-                        var tagValue = full.projectTag;
-                        return '<input class="form-controls projectTagName" type="text" value="' + tagValue + '"/>';
-                    } else {
-                        return '<input class="form-controls projectTagName" type="text" placeholder="Enter a project tag value" value=""/>';
+                    "data": "platformId",
+                    "orderable": false,
+                    "render": function(data, type, full, meta) {
+                        if (full.platformId) {
+                            return '<input class="nodeCheckBox" type="checkbox" val=""/>';
+                        }
                     }
-                }
-            }, {
-                "data": "",
-                "orderable": false,
-                "render": function(data, type, full) {
-                    if (full.environmentTag !== null) {
-                        var tagValue = full.environmentTag;
-                        return '<input class="form-controls envTagName" type="text" value="' + tagValue + '"/>';
-                    } else {
-                        return '<input class="form-controls envTagName" placeholder="Enter a environment tag value" type="text" value=""/>';
-                    }
-                }
-            }, {
-                "data": "platformId",
-                "orderable": false,
-                "render": function(data, type, full, meta) {
-                    if (full.platformId) {
-                        return '<input class="nodeCheckBox" type="checkbox" val=""/>';
-                    }
-                }
-            }]
+                }]
         });
     }
 

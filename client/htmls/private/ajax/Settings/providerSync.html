@@ -295,6 +295,8 @@
                                 <th class="text-center">IP Address</th>
                                 <th class="text-center">Region</th>
                                 <th class="text-center">Status</th>
+                                <th class="text-center">Org</th>
+                                <th class="text-center">Bg</th>
                                 <th class="text-center">Project</th>
                                 <th class="text-center">Environment</th>
                                 <th class="text-center">Actions</th>
@@ -318,6 +320,8 @@
                                 <th class="text-center">IP Address</th>
                                 <th class="text-center">Region</th>
                                 <th class="text-center">Status</th>
+                                <th class="text-center">Org</th>
+                                <th class="text-center">Bg</th>
                                 <th class="text-center">Project</th>
                                 <th class="text-center">Environment</th>
                                 <th class="text-center">Actions</th>
@@ -391,6 +395,8 @@
                                 <th class="text-center">Instance</th>
                                 <th class="text-center">Type</th>
                                 <th class="text-center">Status</th>
+                                <th class="text-center">Org</th>
+                                <th class="text-center">Bg</th>
                                 <th class="text-center">Project</th>
                                 <th class="text-center">Environment</th>
                                 <th class="text-center">Region</th>
@@ -458,7 +464,8 @@
                             <tr>
                                 <th class="text-center">Bucket Name</th>
                                 <th class="text-center">Bucket Owner</th>
-                                <th class="text-center">Org Name</th>
+                                <th class="text-center">Org</th>
+                                <th class="text-center">Bg</th>
                                 <th class="text-center">Project</th>
                                 <th class="text-center">Environment</th>
                                 <th class="text-center">Size(MB)</th>
@@ -716,6 +723,7 @@
                 {"data": "resourceDetails.bucketName", "orderable" : true},
                 {"data": "resourceDetails.bucketOwnerName" ,"orderable" : false },
                 {"data": "masterDetails.orgName","orderable" : false  },
+                {"data": "masterDetails.bgName","orderable" : false  },
                 {"data": "masterDetails.projectName" ,"orderable" : false },
                 {"data": "masterDetails.envName" ,"orderable" : false },
                 {"data": "resourceDetails.bucketSize","orderable" : true  },
@@ -747,8 +755,22 @@
                     }
                 },
                 {"data": "instanceState","orderable" : true  },
-                {"data": "projectName" ,"orderable" : false },
-                {"data": "","orderable" : true ,
+                {"data": "" ,"orderable" : true ,
+                    "render":function(data, type, full, meta) {
+                        return full.orgName?full.orgName:'-';
+                    }
+                },
+                {"data": "" ,"orderable" : true ,
+                    "render":function(data, type, full, meta) {
+                        return full.bgName?full.bgName:'-';
+                    }
+                },
+                {"data": "" ,"orderable" : true,
+                    "render":function(data, type, full, meta) {
+                        return full.projectName?full.projectName:'-';
+                    }
+                },
+                {"data": "","orderable" : true,
                     "render":function(data, type, full, meta) {
                         return full.environmentName?full.environmentName:'-';
                     }
@@ -808,6 +830,8 @@
                 {"data": "resourceDetails.dbName",  "orderable" : true},
                 {"data": "resourceDetails.dbEngine","orderable" : true  },
                 {"data": "resourceDetails.dbInstanceStatus","orderable" : true  },
+                {"data": "masterDetails.orgName","orderable" : true  },
+                {"data": "masterDetails.bgName","orderable" : true  },
                 {"data": "masterDetails.projectName","orderable" : true  },
                 {"data": "masterDetails.envName","orderable" : true  },
                 {"data": "resourceDetails.region","orderable" : false  },
@@ -1053,6 +1077,7 @@
                     $('#spantagsformSaveId').fadeIn();
                     $('#spantagsformSaveId').html("Saved successfully");
                     $('#spantagsformSaveId').delay(2000).fadeOut();
+                    getBgData();
                     getprojectData();
                     getenvironmentData();
                 },
@@ -1215,6 +1240,51 @@
 
             });
         }
+        $('.btnbgMappingSave').on('click',function(){
+            var bgMappingObj = {
+                "catalystEntityMapping": []
+            };
+            var counter =0;
+            var bgMappingSequence = [];
+            $('#mappingBgTable tbody tr').each(function() {
+                counter++;
+                $tr = $(this);
+                var bgmappingcatalystEntityId = $tr.attr('id');
+                var mappingbgSelectTagName = $tr.find('.mappingbgSelectId :selected').val();
+                var mappingbgName = $tr.find('.mappingbgName').text();
+
+                var objbgMapping = {};
+                objbgMapping["catalystEntityId"] = bgmappingcatalystEntityId;
+                objbgMapping["catalystEntityName"] = mappingbgName;
+                objbgMapping["tagValue"] = mappingbgSelectTagName;
+
+                bgMappingObj.catalystEntityMapping.push(objbgMapping);
+                if(counter == $('#mappingBgTable tbody tr').length){
+                    $.ajax({
+                        url: '/providers/'+urlproviderId+'/tag-mappings/bgName',
+                        data: JSON.stringify(bgMappingObj),
+                        type: 'PATCH',
+                        contentType: "application/json",
+                        success: function(data) {
+                            $('#spanbgMappingSaveId').fadeIn();
+                            $('#spanbgMappingSaveId').html('Saved successfully');
+                            $('#spanbgMappingSaveId').delay(2000).fadeOut();
+                        },
+                        error: function(jqxhr) {
+                            var msg = " ";
+                            if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                                msg = jxhr.responseJSON.message;
+                            } else if (jxhr.responseText) {
+                                msg = jxhr.responseText;
+                            }
+                            $('#spanbgMappingSaveId').fadeIn();
+                            $('#spanbgMappingSaveId').html(msg);
+                            $('#spanbgMappingSaveId').delay(2000).fadeOut();
+                        }
+                    });
+                }
+            });
+        });
 
         $('.btnprojectMappingSave').on('click',function(){
             var projectMappingObj = {
@@ -1576,8 +1646,26 @@
                         }
                     },
                     {"data": "state","orderable" : true  },
-                    {"data": "projectName" ,"orderable" : false },
-                    {"data": "environmentName","orderable" : true  },
+                    {"data": "" ,"orderable" : true ,
+                        "render":function(data, type, full, meta) {
+                            return full.orgName?full.orgName:'-';
+                        }
+                    },
+                    {"data": "" ,"orderable" : true ,
+                        "render":function(data, type, full, meta) {
+                            return full.bgName?full.bgName:'-';
+                        }
+                    },
+                    {"data": "" ,"orderable" : true,
+                        "render":function(data, type, full, meta) {
+                            return full.projectName?full.projectName:'-';
+                        }
+                    },
+                    {"data": "","orderable" : true,
+                        "render":function(data, type, full, meta) {
+                            return full.environmentName?full.environmentName:'-';
+                        }
+                    },
                     {"data": "","orderable" : false,
                         "render":function(data, type, full, meta) {
                             if (full.state === 'running') {
@@ -1605,8 +1693,9 @@
                     {"data": "resourceDetails.region","orderable" : false  },
                     {"data": "" ,"orderable" : false,
                         "render": function(data, type, full) {
-                            if(full.bgTag && full.bgTag !== null) {
-                                return '<input class="form-control bgTagName" type="text" value="' + full.bgTag + '"/>';
+                            if(full.tags && envProjectMappingObject.bgName && full.tags[envProjectMappingObject.bgName]) {
+                                var tagValue = full.tags[envProjectMappingObject.bgName];
+                                return '<input class="form-control bgTagName" type="text" value="' + tagValue + '"/>';
                             }else{
                                 return '<input class="form-control bgTagName" type="text" value=""/>';
                             }
@@ -1614,8 +1703,9 @@
                     },
                     {"data": "" ,"orderable" : false,
                         "render": function(data, type, full) {
-                            if(full.projectTag && full.projectTag !== null) {
-                                return '<input class="form-control projectTagName" type="text" value="' + full.projectTag + '"/>';
+                            if(full.tags && envProjectMappingObject.project && full.tags[envProjectMappingObject.project]) {
+                                var tagValue = full.tags[envProjectMappingObject.project];
+                                return '<input class="form-control projectTagName" type="text" value="' + tagValue + '"/>';
                             }else{
                                 return '<input class="form-control projectTagName" type="text" value=""/>';
                             }
@@ -1623,8 +1713,9 @@
                     },
                     {"data": "" ,"orderable" : false,
                         "render": function(data, type, full) {
-                            if(full.environmentTag && full.environmentTag !== null) {
-                                return '<input class="form-control envTagName" type="text" value="' + full.environmentTag + '"/>';
+                            if(full.tags && envProjectMappingObject.environment && full.tags[envProjectMappingObject.environment]) {
+                                var tagValue = full.tags[envProjectMappingObject.environment];
+                                return '<input class="form-control envTagName" type="text" value="' + tagValue + '"/>';
                             }else{
                                 return '<input class="form-control envTagName" type="text" value=""/>';
                             }
@@ -1659,8 +1750,9 @@
                     {"data": "resourceDetails.bucketSize","orderable" : true  },
                     {"data": "" ,"orderable" : false,
                         "render": function(data, type, full) {
-                            if(full.bgTag && full.bgTag !== null) {
-                                return '<input class="form-control bgTagName" type="text" value="' + full.bgTag + '"/>';
+                            if(full.tags && envProjectMappingObject.bgName && full.tags[envProjectMappingObject.bgName]) {
+                                var tagValue = full.tags[envProjectMappingObject.bgName];
+                                return '<input class="form-control bgTagName" type="text" value="' + tagValue + '"/>';
                             }else{
                                 return '<input class="form-control bgTagName" type="text" value=""/>';
                             }
@@ -1668,8 +1760,9 @@
                     },
                     {"data": "" ,"orderable" : false,
                         "render": function(data, type, full) {
-                            if(full.projectTag && full.projectTag !== null) {
-                                return '<input class="form-control projectTagName" type="text" value="' + full.projectTag + '"/>';
+                            if(full.tags && envProjectMappingObject.project && full.tags[envProjectMappingObject.project]) {
+                                var tagValue = full.tags[envProjectMappingObject.project];
+                                return '<input class="form-control projectTagName" type="text" value="' + tagValue + '"/>';
                             }else{
                                 return '<input class="form-control projectTagName" type="text" value=""/>';
                             }
@@ -1677,8 +1770,9 @@
                     },
                     {"data": "" ,"orderable" : false,
                         "render": function(data, type, full) {
-                            if(full.environmentTag && full.environmentTag !== null) {
-                                return '<input class="form-control envTagName" type="text" value="' + full.environmentTag + '"/>';
+                            if(full.tags && envProjectMappingObject.environment && full.tags[envProjectMappingObject.environment]) {
+                                var tagValue = full.tags[envProjectMappingObject.environment];
+                                return '<input class="form-control envTagName" type="text" value="' + tagValue + '"/>';
                             }else{
                                 return '<input class="form-control envTagName" type="text" value=""/>';
                             }
@@ -1722,10 +1816,7 @@
                     {"data": "state","orderable" : true  },
                     {"data": "" ,"orderable" : false,
                         "render": function(data, type, full) {
-                            if(full.bgTag !== null){
-                                var tagValue = full.bgTag;
-                                return '<input class="form-control bgTagName" type="text" value="' + tagValue + '"/>';
-                            }else if(envProjectMappingObject.bgName && full.tags[envProjectMappingObject.bgName]) {
+                            if(full.tags && envProjectMappingObject.bgName && full.tags[envProjectMappingObject.bgName]) {
                                 var tagValue = full.tags[envProjectMappingObject.bgName];
                                 return '<input class="form-control bgTagName"  type="text" value="' + tagValue + '"/>';
                             }else{
@@ -1735,10 +1826,7 @@
                     },
                     {"data": "" ,"orderable" : false,
                         "render": function(data, type, full) {
-                            if(full.projectTag !== null){
-                                var tagValue = full.projectTag;
-                                return '<input class="form-control projectTagName" type="text" value="' + tagValue + '"/>';
-                            }else if(envProjectMappingObject.project && full.tags[envProjectMappingObject.project]) {
+                            if(full.tags && envProjectMappingObject.project && full.tags[envProjectMappingObject.project]) {
                                 var tagValue = full.tags[envProjectMappingObject.project];
                                 return '<input class="form-control projectTagName"  type="text" value="' + tagValue + '"/>';
                             }else{
@@ -1748,10 +1836,7 @@
                     },
                     {"data": "" ,"orderable" : false,
                         "render": function(data, type, full) {
-                            if(full.environmentTag !== null){
-                                var tagValue = full.environmentTag;
-                                return '<input class="form-control envTagName" type="text" value="' + tagValue + '"/>';
-                            }else if(envProjectMappingObject.environment && full.tags[envProjectMappingObject.environment]) {
+                            if(full.tags && envProjectMappingObject.environment && full.tags[envProjectMappingObject.environment]) {
                                 var tagValue = full.tags[envProjectMappingObject.environment];
                                 return '<input class="form-control envTagName" type="text" value="' + tagValue + '"/>';
                             }else{
