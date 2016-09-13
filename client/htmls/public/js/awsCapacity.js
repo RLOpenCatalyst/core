@@ -431,7 +431,7 @@ $(document).ready(function() {
     $('#unassignedSyncBtn').on('click', function(e) {
         var updateInstanceTagsObj = {};
         var updateInstanceTagsArr = [];
-        var providerId, projectTagsMapName, envTagsMapName;
+        var providerId='', projectTagsMapName='', envTagsMapName='',bgTagsMapName='';
         var $checkBox_checked = $('#instanceUnassignedTable').find('tbody tr').filter(':has(:checkbox:checked)');
         if ($checkBox_checked.length > 0) {
             $('#instanceUnassignedTable').find('tbody tr').filter(':has(:checkbox:checked)').each(function() {
@@ -440,9 +440,9 @@ $(document).ready(function() {
                 var updateUniqueInstanceTagsObj = {};
                 providerId = $(this).attr("urlproviderId");
                 var instanceId = $(this).attr("instanceId");
-                var envProjectMappingObject = {};
                 var projectTagName = $(this).find('.projectTagName').val();
                 var envTagName = $(this).find('.envTagName').val();
+                var bgTagName = $(this).find('.bgTagName').val();
                 $.get('/providers/' + providerId + '/tag-mappings', function(tagsListSelected) {
                     if (tagsListSelected) {
                         for (var i = 0; i < tagsListSelected.length; i++) {
@@ -450,18 +450,20 @@ $(document).ready(function() {
                             var objtagName = tagsListSelected[i].tagName;
                             //Creating an object to map with unassigned instances(To get data for project and environment in every row)
                             if (objcatalystEntityType == 'project') {
-                                envProjectMappingObject['project'] = objtagName;
+                                projectTagsMapName = objtagName;
                             }
                             if (objcatalystEntityType == 'environment') {
-                                envProjectMappingObject['environment'] = objtagName;
+                                envTagsMapName = objtagName;
                             }
-                            projectTagsMapName = envProjectMappingObject.project;
-                            envTagsMapName = envProjectMappingObject.environment;
+                            if (objcatalystEntityType == 'bgName') {
+                                bgTagsMapName = objtagName;
+                            }
                         }
                         updateUniqueInstanceTagsObj["id"] = instanceId;
                         updateUniqueInstanceTagsObj["tags"] = {};
                         updateUniqueInstanceTagsObj["tags"][projectTagsMapName] = projectTagName;
                         updateUniqueInstanceTagsObj["tags"][envTagsMapName] = envTagName;
+                        updateUniqueInstanceTagsObj["tags"][bgTagsMapName] = bgTagName;
                         updateInstanceTagsArr.push(updateUniqueInstanceTagsObj);
                         updateInstanceTagsObj["instances"] = updateInstanceTagsArr;
                         $.ajax({

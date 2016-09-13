@@ -229,22 +229,27 @@ $(document).ready(function () {
                 {"data": "platformId", "orderable": true},
                 {"data": "orgName", "orderable": false,
                     "render": function (data) {
-                        return data ? data : '';
+                        return data ? data : '-';
+                    }
+                },
+                {"data": "bgName", "orderable": false,
+                    "render": function (data) {
+                        return data ? data : '-';
                     }
                 },
                 {"data": "projectName", "orderable": false,
                     "render": function (data) {
-                        return data ? data : '';
+                        return data ? data : '-';
                     }
                 },
                 {"data": "environmentName", "orderable": true,
                     "render": function (data) {
-                        return data ? data : '';
+                        return data ? data : '-';
                     }
                 },
                 {"data": "hardware.os", "orderable": false,
                     "render": function (data) {
-                        return data ? data : '';
+                        return data ? data : '-';
                     }
                 },
                 {"data": "instanceIP", "orderable": true},
@@ -329,22 +334,27 @@ $(document).ready(function () {
                 {"data": "platformId", "orderable": true},
                 {"data": "orgName", "orderable": false,
                     "render": function (data) {
-                        return data ? data : '';
+                        return data ? data : '-';
+                    }
+                },
+                {"data": "bgName", "orderable": false,
+                    "render": function (data) {
+                        return data ? data : '-';
                     }
                 },
                 {"data": "projectName", "orderable": false,
                     "render": function (data) {
-                        return data ? data : '';
+                        return data ? data : '-';
                     }
                 },
                 {"data": "environmentName", "orderable": true,
                     "render": function (data) {
-                        return data ? data : '';
+                        return data ? data : '-';
                     }
                 },
                 {"data": "os", "orderable": false,
                     "render": function (data) {
-                        return data ? data : '';
+                        return data ? data : '-';
                     }
                 },
                 {"data": "ip", "orderable": true,

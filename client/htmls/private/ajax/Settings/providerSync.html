@@ -1749,7 +1749,7 @@
                 "destroy":true,
                 "ajax": '/resources?filterBy=providerId:'+ urlproviderId +'+resourceType:RDS+category:unassigned',
                 "createdRow": function( row, data ) {
-                    $( row ).attr({"resourceId" : data._id,"resourceType":data.resourceType, "projectTagsMapName" : envProjectMappingObject.project, "envTagsMapName" : envProjectMappingObject.environment})
+                    $( row ).attr({"resourceId" : data._id,"resourceType":data.resourceType,"bgTagsMapName" : envProjectMappingObject.bgName, "projectTagsMapName" : envProjectMappingObject.project, "envTagsMapName" : envProjectMappingObject.environment})
                 },
                 "columns": [
                     {"data": "resourceDetails.dbName",  "orderable" : true},
@@ -1806,7 +1806,7 @@
                 "destroy":true,
                 "ajax": '/resources?filterBy=providerId:'+ urlproviderId +'+resourceType:S3+category:unassigned',
                 "createdRow": function( row, data ) {
-                    $( row ).attr({"resourceId" : data._id,"resourceType":data.resourceType, "projectTagsMapName" : envProjectMappingObject.project, "envTagsMapName" : envProjectMappingObject.environment})
+                    $( row ).attr({"resourceId" : data._id,"resourceType":data.resourceType,"bgTagsMapName" : envProjectMappingObject.bgName, "projectTagsMapName" : envProjectMappingObject.project, "envTagsMapName" : envProjectMappingObject.environment})
                 },
                 "columns": [
                     {"data": "resourceDetails.bucketName", "orderable" : true},
@@ -1863,7 +1863,7 @@
                 "destroy":true,
                 "ajax": '/providers/' + urlproviderId + '/unassigned-instances',
                 "createdRow": function( row, data ) {
-                    $( row ).attr({"instanceId" : data._id, "projectTagsMapName" : envProjectMappingObject.project, "envTagsMapName" : envProjectMappingObject.environment})
+                    $( row ).attr({"instanceId" : data._id,"bgTagsMapName" : envProjectMappingObject.bgName, "projectTagsMapName" : envProjectMappingObject.project, "envTagsMapName" : envProjectMappingObject.environment})
                 },
                 "columns": [
                     {"data": "platformId","orderable" : true  },
@@ -1932,12 +1932,15 @@
                     var instanceId = $(this).attr("instanceId");
                     var projectTagsMapName = $(this).attr("projectTagsMapName");
                     var envTagsMapName = $(this).attr("envTagsMapName");
+                    var bgTagsMapName = $(this).attr("bgTagsMapName");
                     var projectTagName = $(this).find('.projectTagName').val();
                     var envTagName = $(this).find('.envTagName').val();
+                    var bgTagName = $(this).find('.bgTagName').val();
                     updateUniqueInstanceTagsObj["id"] = instanceId;
                     updateUniqueInstanceTagsObj["tags"] = {};
                     updateUniqueInstanceTagsObj["tags"][projectTagsMapName] = projectTagName;
                     updateUniqueInstanceTagsObj["tags"][envTagsMapName] = envTagName;
+                    updateUniqueInstanceTagsObj["tags"][bgTagsMapName] = bgTagName;
                     updateInstanceTagsArr.push(updateUniqueInstanceTagsObj);
                 });
                 updateInstanceTagsObj["instances"] = updateInstanceTagsArr;
@@ -1976,13 +1979,15 @@
                     var resourceType = $(this).attr("resourceType");
                     var projectTagsMapName = $(this).attr("projectTagsMapName");
                     var envTagsMapName = $(this).attr("envTagsMapName");
+                    var bgTagsMapName = $(this).attr("bgTagsMapName");
                     var projectTagName = $(this).find('.projectTagName').val();
                     var envTagName = $(this).find('.envTagName').val();
-                    updateUniqueBucketTagsObj["id"] = resourceId;
-                    updateUniqueBucketTagsObj["resourceType"] = resourceType;
+                    var bgTagName = $(this).find('.bgTagName').val();
+                    updateUniqueBucketTagsObj["id"] = instanceId;
                     updateUniqueBucketTagsObj["tags"] = {};
                     updateUniqueBucketTagsObj["tags"][projectTagsMapName] = projectTagName;
                     updateUniqueBucketTagsObj["tags"][envTagsMapName] = envTagName;
+                    updateUniqueBucketTagsObj["tags"][bgTagsMapName] = bgTagName;
                     updateBucketTagsArr.push(updateUniqueBucketTagsObj);
                 });
                 updateBucketTagsObj["resources"] = updateBucketTagsArr;
@@ -2019,13 +2024,15 @@
                     var resourceType = $(this).attr("resourceType");
                     var projectTagsMapName = $(this).attr("projectTagsMapName");
                     var envTagsMapName = $(this).attr("envTagsMapName");
+                    var bgTagsMapName = $(this).attr("bgTagsMapName");
                     var projectTagName = $(this).find('.projectTagName').val();
                     var envTagName = $(this).find('.envTagName').val();
-                    updateUniqueDBTagsObj["id"] = resourceId;
-                    updateUniqueDBTagsObj["resourceType"] = resourceType;
+                    var bgTagName = $(this).find('.bgTagName').val();
+                    updateUniqueDBTagsObj["id"] = instanceId;
                     updateUniqueDBTagsObj["tags"] = {};
                     updateUniqueDBTagsObj["tags"][projectTagsMapName] = projectTagName;
                     updateUniqueDBTagsObj["tags"][envTagsMapName] = envTagName;
+                    updateUniqueDBTagsObj["tags"][bgTagsMapName] = bgTagName;
                     updateDBTagsArr.push(updateUniqueDBTagsObj);
                 });
                 updateDBTagsObj["resources"] = updateDBTagsArr;

@@ -313,21 +313,24 @@ function tagMappingForResources(resources,provider,next){
                     if ((bgTag || projectTag || environmentTag) && (resources[j].isDeleted === false)
                         && ((bgTag.name in resources[j].tags) || (projectTag.name in resources[j].tags) || (environmentTag.name in resources[j].tags))) {
                         for (var y = 0; y < bgTag.catalystEntityMapping.length; y++) {
-                            if (bgTag.catalystEntityMapping[y].tagValue == resources[j].tags[bgTag.name]) {
+                            if (bgTag.catalystEntityMapping[y].tagValue !== '' &&  resources[j].tags[bgTag.name] !== '' &&
+                                bgTag.catalystEntityMapping[y].tagValue === resources[j].tags[bgTag.name]) {
                                 catalystBgtId = bgTag.catalystEntityMapping[y].catalystEntityId;
                                 catalystBgName = bgTag.catalystEntityMapping[y].catalystEntityName;
                                 break;
                             }
                         }
                         for (var y = 0; y < projectTag.catalystEntityMapping.length; y++) {
-                            if (projectTag.catalystEntityMapping[y].tagValue == resources[j].tags[projectTag.name]) {
+                            if (projectTag.catalystEntityMapping[y].tagValue !== '' &&  resources[j].tags[projectTag.name] !== '' &&
+                                projectTag.catalystEntityMapping[y].tagValue === resources[j].tags[projectTag.name]) {
                                 catalystProjectId = projectTag.catalystEntityMapping[y].catalystEntityId;
                                 catalystProjectName = projectTag.catalystEntityMapping[y].catalystEntityName;
                                 break;
                             }
                         }
                         for (var y = 0; y < environmentTag.catalystEntityMapping.length; y++) {
-                            if (environmentTag.catalystEntityMapping[y].tagValue == resources[j].tags[environmentTag.name]) {
+                            if (environmentTag.catalystEntityMapping[y].tagValue !== '' &&  resources[j].tags[environmentTag.name] !== '' &&
+                                environmentTag.catalystEntityMapping[y].tagValue === resources[j].tags[environmentTag.name]) {
                                 catalystEnvironmentId = environmentTag.catalystEntityMapping[y].catalystEntityId;
                                 catalystEnvironmentName = environmentTag.catalystEntityMapping[y].catalystEntityName;
                                 break;
