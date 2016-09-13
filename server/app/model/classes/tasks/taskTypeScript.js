@@ -29,6 +29,7 @@ var appConfig = require('_pr/config');
 var fileIo = require('_pr/lib/utils/fileio');
 var uuid = require('node-uuid');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
+var TaskHistory = require('_pr/model/classes/tasks/taskHistory');
 
 var scriptTaskSchema = taskTypeSchema.extend({
     nodeIds: [String],
@@ -857,9 +858,19 @@ function serialExecution(self, userName, baseUrl, choiceParam, nexusData, bluepr
 
     function taskComplete(err, obj) {
         count1++;
+        var taskHistoryData = {};
         if (err) {
-            instanceOnCompleteHandler(err.message, 1, err.instanceId, err.chefClientExecutionId, err.actionLogId);
+            //instanceOnCompleteHandler(err.message, 1, err.instanceId, err.chefClientExecutionId, err.actionLogId);
             logger.debug("Encountered with Error: ", err);
+            taskHistoryData.refId = executionCompleteId;
+            taskHistoryData.status = "failed";
+            taskHistoryData.timestampEnded = new Date().getTime();
+            TaskHistory.createNewOrUpdate(taskHistoryData.refId, taskHistoryData, function(err, tData) {
+                if (err) {
+                    logger.error("Failed to create history: ", err);
+                }
+                logger.debug("successfully task history created. ", JSON.stringify(tData));
+            });
             return;
         }
         if (count1 < instanceIds.length) {
@@ -867,7 +878,17 @@ function serialExecution(self, userName, baseUrl, choiceParam, nexusData, bluepr
             ecuteTask(instanceIds[count1], taskComplete);
         } else {
             logger.debug("Task success");
-            instanceOnCompleteHandler(null, 0, obj.instanceId, obj.chefClientExecutionId, obj.actionLogId);
+            //instanceOnCompleteHandler(null, 0, obj.instanceId, obj.chefClientExecutionId, obj.actionLogId);
+            taskHistoryData.refId = executionCompleteId;
+            taskHistoryData.status = "success";
+            taskHistoryData.timestampEnded = new Date().getTime();
+            TaskHistory.createNewOrUpdate(taskHistoryData.refId, taskHistoryData, function(err, tData) {
+                if (err) {
+                    logger.error("Failed to create history: ", err);
+                }
+                logger.debug("successfully task history created. ", JSON.stringify(tData));
+            });
+            return;
         }
     }
     ecuteTask(instanceIds[count1], taskComplete);

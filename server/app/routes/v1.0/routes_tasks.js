@@ -38,7 +38,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
     app.all('/tasks/*', sessionVerification);
 
     app.get('/tasks/history/list/all', function(req, res) {
-        logger.debug("------------------ ", JSON.stringify(TaskHistory));
         TaskHistory.listHistory(function(err, tHistories) {
             if (err) {
                 res.status(500).send(errorResponses.db.error);
@@ -430,16 +429,20 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 });
                 return;
             }
+            if (req.params.historyId != 'undefined') {
+                task.getHistoryById(req.params.historyId, function(err, history) {
+                    if (err) {
+                        res.status(500).send({
+                            message: "Server Behaved Unexpectedly"
+                        });
+                        return;
+                    }
+                    res.send(200, history);
+                });
+            }else{
+                res.send({});
+            }
 
-            task.getHistoryById(req.params.historyId, function(err, history) {
-                if (err) {
-                    res.status(500).send({
-                        message: "Server Behaved Unexpectedly"
-                    });
-                    return;
-                }
-                res.send(200, history);
-            });
         });
     });
 

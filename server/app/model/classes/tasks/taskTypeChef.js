@@ -39,6 +39,7 @@ var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 
 var Docker = require('_pr/model/docker.js');
 var uuid = require('node-uuid');
+var TaskHistory = require('_pr/model/classes/tasks/taskHistory');
 
 var chefTaskSchema = taskTypeSchema.extend({
     nodeIds: [String],
@@ -1372,16 +1373,37 @@ function runTask(self, userName, baseUrl, choiceParam, appData, blueprintIds, en
 
         function taskComplete(err, obj) {
             count++;
+            var taskHistoryData = {};
             if (err) {
-                instanceOnCompleteHandler(err.message, 1, err.instanceId, err.chefClientExecutionId, err.actionLogId);
                 logger.debug("Encountered with Error: ", err);
+                taskHistoryData.refId = executionCompleteId;
+                taskHistoryData.status = "failed";
+                taskHistoryData.timestampEnded = new Date().getTime();
+                TaskHistory.createNewOrUpdate(taskHistoryData.refId, taskHistoryData, function(err, tData) {
+                    if (err) {
+                        logger.error("Failed to create history: ", err);
+                    }
+                    logger.debug("successfully task history created. ", JSON.stringify(tData));
+                });
+                instanceOnCompleteHandler(err.message, 1, err.instanceId, err.chefClientExecutionId, err.actionLogId);
+                return;
             }
             if (count < instanceIds.length) {
                 logger.debug("execute with task: ");
                 execute(instanceIds[count], taskComplete);
-            } else {
-                logger.debug("Task success: ",JSON.stringify(obj));
+            } else if (obj) {
+                logger.debug("Task success: ", JSON.stringify(obj));
+                taskHistoryData.refId = executionCompleteId;
+                taskHistoryData.status = "success";
+                taskHistoryData.timestampEnded = new Date().getTime();
+                TaskHistory.createNewOrUpdate(taskHistoryData.refId, taskHistoryData, function(err, tData) {
+                    if (err) {
+                        logger.error("Failed to create history: ", err);
+                    }
+                    logger.debug("successfully task history created. ", JSON.stringify(tData));
+                });
                 instanceOnCompleteHandler(null, 0, obj.instanceId, obj.chefClientExecutionId, obj.actionLogId);
+                return;
             }
         }
 

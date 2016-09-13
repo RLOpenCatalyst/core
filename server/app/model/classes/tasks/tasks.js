@@ -200,7 +200,6 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
             callback(err, null);
             return;
         }
-
         // hack for composite task
         if (taskHistoryEntry) {
             var keys = Object.keys(taskHistoryData);
@@ -280,23 +279,29 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
         }
         // hack for composite task
         if (taskHistoryEntry) {
-            //taskHistoryData.save();
-            //taskHistory = taskHistoryData;
-            TaskHistory.createNewOrUpdate(taskHistoryData.refId, taskHistoryData, function(err, tData) {
-                if (err) {
-                    logger.error("Failed to create history: ", err);
-                }
-                logger.debug("successfully task history created. ", JSON.stringify(tData));
-            });
+            taskHistory = taskHistoryData;
+            if (self.taskConfig.executionOrder === "SERIAL") {
+                TaskHistory.createNewOrUpdate(taskHistoryData.refId, taskHistoryData, function(err, tData) {
+                    if (err) {
+                        logger.error("Failed to create history: ", err);
+                    }
+                    logger.debug("successfully task history created. ", JSON.stringify(tData));
+                });
+            } else {
+                taskHistoryData.save();
+            }
         } else {
             taskHistory = new TaskHistory(taskHistoryData);
-            //taskHistory.save();
-            TaskHistory.createNewOrUpdate(taskHistoryData.refId, taskHistoryData, function(err, tData) {
-                if (err) {
-                    logger.error("Failed to create history: ", err);
-                }
-                logger.debug("successfully task history created. ", JSON.stringify(tData));
-            });
+            if (self.taskConfig.executionOrder === "SERIAL") {
+                TaskHistory.createNewOrUpdate(taskHistoryData.refId, taskHistoryData, function(err, tData) {
+                    if (err) {
+                        logger.error("Failed to create history: ", err);
+                    }
+                    logger.debug("successfully task history created. ", JSON.stringify(tData));
+                });
+            } else {
+                taskHistory.save();
+            }
         }
 
         callback(null, taskExecuteData, taskHistory);
@@ -323,14 +328,18 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                 }
 
             }
-            //taskHistory.save();
-            taskHistory.nodeIdsWithActionLog = null;
-            TaskHistory.createNewOrUpdate(taskHistory.refId, taskHistory, function(err, tData) {
-                if (err) {
-                    logger.error("Failed to create history: ", err);
-                }
-                logger.debug("successfully task history created. ", JSON.stringify(tData));
-            });
+            if (self.taskConfig.executionOrder === "SERIAL") {
+                taskHistory.nodeIdsWithActionLog = null;
+                TaskHistory.createNewOrUpdate(taskHistory.refId, taskHistory, function(err, tData) {
+                    if (err) {
+                        logger.error("Failed to create history: ", err);
+                    }
+                    logger.debug("successfully task history created. ", JSON.stringify(tData));
+                });
+            } else {
+                
+                taskHistory.save();
+            }
         }
 
         if (typeof onComplete === 'function') {
@@ -696,11 +705,11 @@ taskSchema.statics.updateTaskById = function(taskId, taskData, callback) {
             return;
         }
         logger.debug('Updated task:' + JSON.stringify(updateCount));
-        Tasks.find({_id: new ObjectId(taskId) },function(err,task){
-            if(err){
-               return callback(err, null);
+        Tasks.find({ _id: new ObjectId(taskId) }, function(err, task) {
+            if (err) {
+                return callback(err, null);
             }
-            return callback(null,task[0]);
+            return callback(null, task[0]);
         });
     });
 

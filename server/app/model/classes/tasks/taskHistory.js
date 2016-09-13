@@ -260,12 +260,16 @@ taskHistorySchema.statics.createNewOrUpdate = function(refId, historyData, callb
         logger.debug("Got taskHistory: ", JSON.stringify(historyData));
         if (data && data.length) {
             var tHistory = data[0];
+            if(!historyData.timestampEnded){
+                historyData.timestampEnded = new Date().getTime();
+            }
             if (historyData.nodeIdsWithActionLog && historyData.nodeIdsWithActionLog[0]) {
                 self.update({
                     refId: refId
                 }, {
                     $set: {
-                        status: historyData.status
+                        status: historyData.status,
+                        timestampEnded: historyData.timestampEnded
                     },
                     $push: {
                         nodeIdsWithActionLog: historyData.nodeIdsWithActionLog[0]
@@ -287,7 +291,8 @@ taskHistorySchema.statics.createNewOrUpdate = function(refId, historyData, callb
                     refId: refId
                 }, {
                     $set: {
-                        status: historyData.status
+                        status: historyData.status,
+                        timestampEnded: historyData.timestampEnded
                     }
                 }, {
                     upsert: false
