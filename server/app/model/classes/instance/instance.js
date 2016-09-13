@@ -2128,8 +2128,6 @@ var InstancesDao = function() {
             updateObj['privateIpAddress'] = instance.privateIpAddress;
             updateObj['isDeleted'] = true;
             updateObj['tags'] = instance.tags;
-            updateObj['environmentTag'] = instance.environmentTag;
-            updateObj['projectTag'] = instance.projectTag;
         }else {
             updateObj['instanceState'] = instance.state;
             updateObj['subnetId']= instance.subnetId;
@@ -2137,8 +2135,6 @@ var InstancesDao = function() {
             updateObj['privateIpAddress'] = instance.privateIpAddress;
             updateObj['isDeleted'] = false;
             updateObj['tags'] = instance.tags;
-            updateObj['environmentTag'] = instance.environmentTag;
-            updateObj['projectTag'] = instance.projectTag;
         }
         Instances.update({
             "_id": ObjectId(instanceId)
