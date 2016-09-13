@@ -94,7 +94,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     /**
      * @api {get} /analytics/trend/cost?filterBy=organizationId:<organizationId>&period=<PERIOD>&timeStamp=<endDate>&splitUpBy=<catalystEntityType>&interval=<INTERVAL>
      * 										                    									Get cost trend
-     * @apiName getAggregateCost
+     * @apiName getCostTrends
      * @apiGroup analytics
      * @apiVersion 1.0.0
      *
