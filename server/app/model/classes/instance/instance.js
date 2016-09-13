@@ -316,6 +316,21 @@ var InstanceSchema = new Schema({
         required: false,
         trim: true
     },
+    subnetId: {
+        type: String,
+            required: false,
+            trim: true
+    },
+    vpcId: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    privateIpAddress: {
+        type: String,
+        required: false,
+        trim: true
+    },
     isDeleted: {
         type: Boolean,
         required: false,
@@ -2108,10 +2123,16 @@ var InstancesDao = function() {
             updateObj['isDeleted'] = false;
         }else if (instance.state === 'terminated') {
             updateObj['instanceState'] = instance.state;
+            updateObj['subnetId']= instance.subnetId;
+            updateObj['vpcId'] = instance.vpcId;
+            updateObj['privateIpAddress'] = instance.privateIpAddress;
             updateObj['isDeleted'] = true;
             updateObj['tags'] = instance.tags;
         }else {
             updateObj['instanceState'] = instance.state;
+            updateObj['subnetId']= instance.subnetId;
+            updateObj['vpcId'] = instance.vpcId;
+            updateObj['privateIpAddress'] = instance.privateIpAddress;
             updateObj['isDeleted'] = false;
             updateObj['tags'] = instance.tags;
         }

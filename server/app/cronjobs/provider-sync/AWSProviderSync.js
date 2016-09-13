@@ -275,8 +275,10 @@ function tagMappingForInstances(instances,provider,next){
                                             ip: instance.ip,
                                             os: instance.os,
                                             state: instance.state,
-                                            network: instance.network,
-                                            tags: instance.tags
+                                            subnetId: instance.SubnetId,
+                                            vpcId: instance.VpcId,
+                                            privateIpAddress: instance.PrivateIpAddress,
+                                            tags: instance.tags,
                                         }
                                         assignedInstanceList.push(assignedInstanceObj);
                                         assignedInstanceObj = {};
