@@ -1,0 +1,55 @@
+<link rel='stylesheet' href='catalyst/partials/sections/dashboard/analytics/analytics.css'>
+<div id="analyticsPage" class='fluid-container'>
+	<ul class="nav nav-tabs">
+		<li ng-class="{'active':stateItems.view === 'chat'}"><a ui-sref="dashboard.analytics({menuItem:stateItems.menuItem,view:'chat'})"  ><i class="fa fa-area-chart fa-2" aria-hidden="true"></i> Chats</a></li>
+		<li ng-class="{'active':stateItems.view === 'report'}"><a ui-sref="dashboard.analytics({menuItem:stateItems.menuItem,view:'report'})" ><i class="fa fa-file-text fa-2" aria-hidden="true"></i> Reports</a></li>
+		<li class="form-group pull-right" style="margin: 18px 10px 0 0;" >
+			<button type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ng-click="isOpenSidebar = !isOpenSidebar">
+				<i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;Filter
+			</button>
+		</li>
+
+	</ul>
+	<div id="sidebar-wrapper" ng-class="{'show-wrapper':isOpenSidebar === true}">
+		<form>
+			<fieldset class="repo-job-details-wrapper">
+				<legend class="repo-job-details-wrapper-inner">Filter:</legend>
+				<div class="col-lg-12 ">
+					<div class="col-lg-12 col-md-12 form-group">
+						<label for="">Organization</label>
+						<select  ng-model="organNewEnt.org" class="chooseProjectExisting width-100 form-control">
+							<option ng-repeat="org in organObject"  value="{{organObject.indexOf(org)}}" >{{org.name}}</option>
+						</select>
+					</div>
+					<div class="col-lg-12 col-md-12 form-group">
+						<label for="">Business Group</label>
+						<select id="bgListInputExisting" class="chooseBGExisting width-100 form-control"  ng-model="organNewEnt.buss">
+							<option ng-repeat="buss in organObject[organNewEnt.org].businessGroups" value="{{organObject[organNewEnt.org].businessGroups.indexOf(buss)}}" >{{buss.name}}</option>
+						</select>
+					</div>
+					<div class="col-lg-12 col-md-12 form-group">
+						<label >Project</label>
+						<select class="chooseProjectExisting width-100 form-control" ng-model="organNewEnt.proj">
+							<option ng-repeat="proj in organObject[organNewEnt.org].businessGroups[organNewEnt.buss].projects"  value="{{organObject[organNewEnt.org].businessGroups[organNewEnt.buss].projects.indexOf(proj)}}" >{{proj.name}}</option>
+						</select>
+					</div>
+					<div class="col-lg-12 col-md-12 form-group">
+						<label >Environment</label>
+						<select class="chooseProjectExisting width-100 form-control" ng-model="organNewEnt.proj">
+							<option ng-repeat="env in organObject[organNewEnt.org].environments" value="{{organObject[organNewEnt.org].environments.indexOf(env)}}" >{{env.name}}</option>
+						</select>
+					</div>
+					<div class="col-lg-12 col-md-12 form-group">
+						<button type="button" class="btn btn-primary" ng-click="bpList.createList();"><i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;Apply</button>
+					</div>
+				</div>
+			</fieldset>
+		</form>
+	</div>
+	<div ng-switch="stateItems.menuItem">
+		<div ng-switch="usage"  >
+			<span ng-include="'src/partials/sections/dashboard/analytics/view/usage.html'"></span>
+		</div>
+	</div>
+
+</div>
