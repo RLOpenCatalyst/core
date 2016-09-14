@@ -375,12 +375,8 @@ $(document).ready(function() {
             }, {
                 "data": "",
                 "orderable": true,
-                "render": function(data, type, full) {
-                    if(full.ip && full.ip !== null){
-                        return data;
-                    }else{
-                        return full.privateIpAddress;
-                    }
+                "render":function(data, type, full, meta) {
+                    return (full.ip !== null || full.ip !== 'null') ? full.ip:full.privateIpAddress;
                 }
             }, {
                 "data": "state",
