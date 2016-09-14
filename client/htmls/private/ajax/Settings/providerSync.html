@@ -1115,12 +1115,12 @@
             var tagsProjSelectedVal = $projecttagsList.val();
             var tagsenvSelectedVal = $envtagsList.val();
             var tagsbgSelectedVal = $bgtagsList.val();
-
-            if((tagsbgSelectedVal == tagsProjSelectedVal) && (tagsbgSelectedVal == tagsenvSelectedVal)){
+            if((tagsbgSelectedVal === tagsProjSelectedVal)
+                    || (tagsbgSelectedVal === tagsenvSelectedVal)
+                    || (tagsProjSelectedVal === tagsenvSelectedVal)){
                 bootbox.alert("Tag name cannot be same to create catalyst entity mapping");
-                return;
+                return false;
             }
-
             //Creating the data to Post for Save tags.
             var tagsData = [{
                 "catalystEntityType": catalystEntityBgName,
@@ -1695,9 +1695,9 @@
                 "columns": [
                     {"data": "platformId","orderable" : true  },
                     {"data": "os","orderable" : false  },
-                    {"data": "ip","orderable" : true,
+                    {"data": "","orderable" : true,
                         "render": function(data, type, full){
-                            if(data !== null){
+                            if(full.ip && full.ip !== null){
                                 return data;
                             }else{
                                 return full.privateIpAddress;
@@ -1868,9 +1868,9 @@
                 "columns": [
                     {"data": "platformId","orderable" : true  },
                     {"data": "os","orderable" : false  },
-                    {"data": "ip","orderable" : true,
+                    {"data": "","orderable" : true,
                         "render": function(data, type, full){
-                            if(data !== null){
+                            if(full.ip && full.ip !== null){
                                 return data;
                             }else{
                                 return full.privateIpAddress;
