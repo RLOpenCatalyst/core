@@ -300,12 +300,12 @@ $(document).ready(function() {
                     }
                 },
                  {
-                "data": "ip",
+                "data": "",
                 "orderable": true,
                 "render": function(data, type, full) {
-                    if (data !== null) {
+                    if(full.ip && full.ip !== null){
                         return data;
-                    } else {
+                    }else{
                         return full.privateIpAddress;
                     }
                 }
@@ -373,14 +373,10 @@ $(document).ready(function() {
                 "data": "os",
                 "orderable": false
             }, {
-                "data": "ip",
+                "data": "",
                 "orderable": true,
-                "render": function(data, type, full) {
-                    if (data !== null) {
-                        return data;
-                    } else {
-                        return full.privateIpAddress;
-                    }
+                "render":function(data, type, full, meta) {
+                    return full.ip !== null ? full.ip:full.privateIpAddress;
                 }
             }, {
                 "data": "state",
