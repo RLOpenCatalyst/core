@@ -80,18 +80,30 @@
 							<!--for script adding the scriptType dropdown -->
 							<!--commented will be used in future-->
 							<div class="col-md-12 col-sm-12 col-xs-12 margintop15" ng-if="taskType==='script'">
-								<label class="control-label">Script Type
-									<span class="control-label red">&nbsp;*</span>
-									<span ng-show="newTaskForm.scriptType.$touched && newTaskForm.scriptType.$invalid" class="inputValidationMsg">required
+								<div class="col-md-6 col-sm-6 col-xs-6 margintop15 no-padding">
+									<label class="control-label">Script Type
+										<span class="control-label red">&nbsp;*</span>
+										<span ng-show="newTaskForm.scriptType.$touched && newTaskForm.scriptType.$invalid" class="inputValidationMsg">required
+										</span>
+									</label>
+									<br />
+									<span class="col-md-12 col-sm-12 col-xs-12 paddingleft0">
+										<select class="form-control" name="scriptType" ng-model="$parent.scriptTypeSelelct" ng-change="changeNodeScriptList();" required>
+											<option value="">Select</option>
+											<option value="Bash">Bash</option>
+										</select>
 									</span>
-								</label>
-								<br />
-								<span class="col-md-12 col-sm-12 col-xs-12 no-padding">
-									<select class="form-control" name="scriptType" ng-model="$parent.scriptTypeSelelct" ng-change="changeNodeScriptList();" required>
-										<option value="">Select</option>
-										<option value="Bash">Bash</option>
-									</select>
-								</span>
+								</div>
+								<div class="col-md-6 col-sm-6 col-xs-6 margintop15">
+									<label class="control-label">Run as Sudo:</label>
+									<br />
+									<div class="paddingtop8">
+										<input type="radio" ng-value="true" ng-model="$parent.isSudo" name="scriptIsSudo" />
+										<label for="scriptIsSudo" class="paddingright15">Yes</label>
+										<input type="radio" ng-value="false" ng-model="$parent.isSudo" name="scriptIsSudo" />
+										<label for="scriptIsSudo">No</label>
+									</div>
+								</div>
 							</div>
 							<!--scriptType ending here -->
 							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 margintop15">
@@ -442,7 +454,9 @@
 												<tbody>
 												<tr ng-repeat="param in scriptParamsObj[selectedScript._id] track by $index">
 													<td>{{param}}</td>
-													<td><button type="button" ng-click="removeScriptParams(selectedScript._id,param);"><i class=" fa fa-trash-o"></i></button></td>
+													<td>
+														<button title="Delete" type="button" ng-click="removeScriptParams(selectedScript._id,param);"><i class=" fa fa-trash-o"></i></button>
+													</td>
 												</tr>
 												</tbody>
 											</table>

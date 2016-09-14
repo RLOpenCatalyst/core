@@ -117,17 +117,17 @@
 								$modalBody.empty();
 							}
 							var $table = $('<table></table>');
-							for (var i = 0; i < data.length; i++) {
+							var logsLength = 0;
+							if(data.length > 300){
+								logsLength = 300;
+							}else{
+								logsLength = data.length;
+							}
+							for (var i = 0; i < logsLength; i++) {
 								var $rowDiv = $('<tr class="row rowSpacing"></tr>');
-								var timeString;
-								if(data[i].timestamp){
-									timeString = new Date().setTime(data[i].timestamp);
-								}
+								var timeString = new Date().setTime(data[i].timestamp);
 								var date = new Date(timeString).toLocaleString();
-								var logStr ="";
-								if(data[i].log){
-									logStr = data[i].log;
-								}
+								var logStr =data[i].log;
 								if (data[i].err) {
 									$rowDiv.append($('<td class="col-lg-12 col-sm-12" style="color:red;"></td>').append('<span class="textLogs">' + date + '</span>' + '&nbsp;&nbsp;&nbsp;' + '<span>' + logStr + '</span>'));
 								} else {
@@ -135,13 +135,11 @@
 								}
 								$table.append($rowDiv);
 								lastTimestamp = data[i].timestamp;
-								if (data[i]) {
-									$modalBody.append($table);
-									$modalBody.scrollTop($modalBody[0].scrollHeight + 100);
-								}
+								$modalBody.append($table);
+								$modalBody.scrollTop($modalBody[0].scrollHeight + 100);
 							}
 							if ($instanceLogModalContainer.data()['bs.modal'].isShown) {
-								pollLogs(lastTimestamp, 10000, false);
+								pollLogs(lastTimestamp, 5000, false);
 							} else {
 								console.log('not polling again');
 							}
@@ -245,11 +243,11 @@
 						$providerImg = $("<img class ='imgStyle' src = '../private/img/DevOps/openstack.png' alt='provider'/>");
 					} else if (managnedData[i].providerType == 'vmware') {
 						$providerImg = $("<img class ='imgStyle' src = '../private/img/vmware-card.png' alt='provider'/>");
-					} else if (managnedData[i].action == 'Imported From ChefServer') {
+					} /*else if (managnedData[i].action == 'Imported From ChefServer') {
 						$providerImg = $("<img class ='imgStyle' src = '../private/img/chef.png' alt='provider'/>");
 					} else if (managnedData[i].action == 'Imported From Provider') {
 						$providerImg = $("<img class ='imgStyle' src = '../private/img/aws.png' alt='provider'/>");
-					} else {
+					}*/ else {
 						$providerImg = $("<img class ='imgStyle' src = '../private/img/rsz_logo.png' alt='provider'/>");
 					}
 					if (managnedData[i].platform == 'ubuntu') {
@@ -257,8 +255,6 @@
 					} else if (managnedData[i].platform == 'centos') {
 						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/centos.png' alt='OS'/>");
 					} else if (managnedData[i].platform == 'unknown') {
-						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/linux.png' alt='OS'/>");
-					} else if (managnedData[i].os == 'linux' && managnedData[i].platform == 'unknown') {
 						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/linux.png' alt='OS'/>");
 					} else if (managnedData[i].os == 'windows') {
 						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/windows.png' alt='OS'/>");
@@ -278,17 +274,17 @@
 					if (managnedData[i].status == 'running') {
 						$tdStatus = $("<img title='running' class ='statusIcon' src = '../private/img/aws_logo_started.png' alt='statusType'/>");
 					} else if (managnedData[i].status == 'pending' || managnedData[i].status == 'unknown' || managnedData[i].status == 'waiting') {
-						$tdStatus = $("<img title='pending' class ='statusIcon' src = '../private/img/aws_logo_inactive.png' alt='statusType'/>");
+						$tdStatus = $("<img title='pending' class ='statusIcon' src = '../private/img/aws_iogo_inactive.png' alt='statusType'/>");
 					} else if (managnedData[i].status == 'stopping' || managnedData[i].status == 'paused') {
 						$tdStatus = $("<img title='stopping' class ='statusIcon' src = '../private/img/aws_logo_paused.png' alt='statusType'/>");
 					} else if (managnedData[i].status == 'stopped') {
 						$tdStatus = $("<img title='stopped' class ='statusIcon' src = '../private/img/aws_logo_stopped.png' alt='statusType'/>");
 					}else if (managnedData[i].status == 'terminated') {
-						$tdStatus = $("<img title='terminated' class ='statusIcon' src = '../private/img/aws_logo_stopped.png' alt='statusType'/>");
+						$tdStatus = $("<img title='terminated' class ='statusIcon' src = '../private/img/aws_iogo_inactive.png' alt='statusType'/>");
 					}else if (managnedData[i].status == 'deleted') {
-						$tdStatus = $("<img title='deleted' class ='statusIcon' src = '../private/img/aws_logo_stopped.png' alt='statusType'/>");
+						$tdStatus = $("<img title='deleted' class ='statusIcon' src = '../private/img/aws_iogo_inactive.png' alt='statusType'/>");
 					}else if (managnedData[i].status == 'shutting-down') {
-						$tdStatus = $("<img title='shutting-down' class ='statusIcon' src = '../private/img/aws_logo_stopped.png' alt='statusType'/>");
+						$tdStatus = $("<img title='shutting-down' class ='statusIcon' src = '../private/img/aws_iogo_inactive.png' alt='statusType'/>");
 					}else {
 						$tdStatus = $("<img title='unknown' class ='statusIcon' src = '../private/img/aws_logo_stopped.png' alt='statusType'/>");
 					}

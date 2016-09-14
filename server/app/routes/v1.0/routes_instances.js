@@ -824,68 +824,96 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             user: req.session.user,
             permissionSet: req.session.user.permissionset,
         };
-        instancesDao.getInstanceById(req.params.instanceid, function(err, instance) {
+        containerDao.getContainerByIdInstanceId(req.params.containerid,req.params.instanceid,function(err,containers) {
             if (err) {
-                logger.error("Instance fetch Failed >> ", err);
+                logger.error("Container fetch Failed >> ", err);
                 res.send(500);
                 return;
             }
-            var timestampStarted = new Date().getTime();
-            var actionLog = instancesDao.insertStartActionLog(req.params.instanceid, req.session.user.cn, timestampStarted);
-            var instanceLog = {
-                actionId: actionLog._id,
-                instanceId: instance[0]._id,
-                orgName: instance[0].orgName,
-                bgName: instance[0].bgName,
-                projectName: instance[0].projectName,
-                envName: instance[0].environmentName,
-                status: instance[0].instanceState,
-                actionStatus: "pending",
-                platformId: instance[0].platformId,
-                blueprintName: instance[0].blueprintData.blueprintName,
-                data: instance[0].runlist,
-                platform: instance[0].hardware.platform,
-                os: instance[0].hardware.os,
-                size: instance[0].instanceType,
-                user: req.session.user.cn,
-                createdOn: new Date().getTime(),
-                startedOn: new Date().getTime(),
-                providerType: instance[0].providerType,
-                action: "Docker-container-" + action,
-                logs: []
-            };
-            containerService.executeActionOnContainer(jsonData, function(err, containerResponse) {
+            var actionObj = 'Docker-Container '+action.charAt(0).toUpperCase() + action.slice(1) + ' : ' + containers[0].Names[0];
+            instancesDao.getInstanceById(req.params.instanceid, function (err, instance) {
                 if (err) {
-                    instanceLog.actionStatus = "failed";
+                    logger.error("Instance fetch Failed >> ", err);
+                    res.send(500);
+                    return;
+                }
+                var timestampStarted = new Date().getTime();
+                var actionLog = instancesDao.insertDockerActionLog(req.params.instanceid, req.session.user.cn, actionObj, actionId, timestampStarted);
+                var logReferenceIds = [instance._id, actionLog._id];
+                logsDao.insertLog({
+                    referenceId: logReferenceIds,
+                    err: false,
+                    log: "Docker-Container " + action.charAt(0).toUpperCase() + action.slice(1)  + 'ing',
+                    timestamp: timestampStarted
+                });
+                var instanceLog = {
+                    actionId: actionLog._id,
+                    instanceId: instance[0]._id,
+                    orgName: instance[0].orgName,
+                    bgName: instance[0].bgName,
+                    projectName: instance[0].projectName,
+                    envName: instance[0].environmentName,
+                    status: instance[0].instanceState,
+                    actionStatus: "pending",
+                    platformId: instance[0].platformId,
+                    blueprintName: instance[0].blueprintData.blueprintName,
+                    data: instance[0].runlist,
+                    platform: instance[0].hardware.platform,
+                    os: instance[0].hardware.os,
+                    size: instance[0].instanceType,
+                    user: req.session.user.cn,
+                    createdOn: new Date().getTime(),
+                    startedOn: new Date().getTime(),
+                    providerType: instance[0].providerType,
+                    action: actionObj,
+                    logs: []
+                };
+                containerService.executeActionOnContainer(jsonData, function (err, containerResponse) {
+                    if (err) {
+                        instanceLog.actionStatus = "failed";
+                        instanceLog.endedOn = new Date().getTime();
+                        logsDao.insertLog({
+                            referenceId: logReferenceIds,
+                            err: true,
+                            log: 'Failed to Excute Docker command: ' + err,
+                            timestamp: timestampStarted
+                        });
+                        instanceLogModel.createOrUpdate(actionLog._id, instance[0]._id, instanceLog, function (err, logData) {
+                            if (err) {
+                                logger.error("Failed to create or update instanceLog: ", err);
+                            }
+                        });
+                        instancesDao.updateActionLog(instance[0]._id, actionLog._id, false, new Date().getTime());
+                        logger.error("Failed to Execute Docker command: ", err);
+                        res.send(500);
+                        return;
+                    }
+                    instanceLog.actionStatus = "success";
                     instanceLog.endedOn = new Date().getTime();
-                    instanceLog.logs = {
-                        err: true,
-                        log: 'Failed to Excute Docker command: ' + err,
-                        timestamp: new Date().getTime()
-                    };
-                    instanceLogModel.createOrUpdate(actionLog._id, instance[0]._id, instanceLog, function(err, logData) {
+                    if(action === 'stop'){
+                        logsDao.insertLog({
+                            referenceId: logReferenceIds,
+                            err: false,
+                            log: "Docker-Container Successfully " + action.charAt(0).toUpperCase() + action.slice(1)  + 'ped',
+                            timestamp: timestampStarted
+                        });
+                    }else {
+                        logsDao.insertLog({
+                            referenceId: logReferenceIds,
+                            err: false,
+                            log: "Docker-Container Successfully " + action.charAt(0).toUpperCase() + action.slice(1)  + 'ed',
+                            timestamp: timestampStarted
+                        });
+                    }
+                    instancesDao.updateActionLog(instance[0]._id, actionLog._id, true, new Date().getTime());
+                    instanceLogModel.createOrUpdate(actionLog._id, instance[0]._id, instanceLog, function (err, logData) {
                         if (err) {
                             logger.error("Failed to create or update instanceLog: ", err);
                         }
                     });
-                    logger.error("Failed to Execute Docker command: ", err);
-                    res.send(500);
-                    return;
-                }
-                instanceLog.actionStatus = "success";
-                instanceLog.endedOn = new Date().getTime();
-                instanceLog.logs = {
-                    err: false,
-                    log: 'Docker command executed successfully.',
-                    timestamp: new Date().getTime()
-                };
-                instanceLogModel.createOrUpdate(actionLog._id, instance[0]._id, instanceLog, function(err, logData) {
-                    if (err) {
-                        logger.error("Failed to create or update instanceLog: ", err);
-                    }
-                });
-                res.status(200).send(containerResponse);
+                    res.status(200).send(containerResponse);
 
+                });
             });
         });
     });
@@ -970,7 +998,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 configmgmtDao.getMasterRow(18, 'dockerreponame', req.params.dockerreponame, function(err, data) {
                     if (!err) {
                         var timestampStarted = new Date().getTime();
-                        var actionLog = instancesDao.insertStartActionLog(req.params.instanceid, req.session.user.cn, timestampStarted);
+                        var actionLog = instancesDao.insertDockerActionLog(req.params.instanceid, req.session.user.cn,'Docker-Run',1, timestampStarted);
                         var instanceLog = {
                             actionId: "",
                             instanceId: instance[0].id,
@@ -1032,6 +1060,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                             logger.error("Failed to create or update instanceLog: ", err);
                                         }
                                     });
+                                    instancesDao.updateActionLog(instance[0]._id, actionLog._id, false, new Date().getTime());
                                     logsDao.insertLog({
                                         referenceId: instanceid,
                                         err: true,
@@ -1055,8 +1084,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                         logger.debug('Instance Docker Status set to Success');
                                         res.send(200);
                                     });
-
-
+                                    instancesDao.updateActionLog(instance[0]._id, actionLog._id, true, new Date().getTime());
                                 } else {
                                     logger.debug('Failed running docker command ....');
                                     res.end('Image pull failed check instance log for details');
@@ -1293,7 +1321,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                 res.end('OK');
                             }
                             var timestampStarded = new Date().getTime();
-                            var actionLog = instancesDao.insertBootstrapActionLog(instance[0]._id, [], req.session.user.cn, timestampStarded);
+                            var actionLog = instancesDao.insertDockerActionLog(instance[0]._id, req.session.user.cn,'Docker-Run',1, timestampStarded);
                             instanceLog.actionId = actionLog._id;
                             _docker.runDockerCommands(cmd, req.params.instanceid,
                                 function(err, retCode) {
@@ -1311,23 +1339,23 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                             }
                                         });
                                         logsDao.insertLog({
-                                            referenceId: instanceid,
+                                            referenceId: [instanceid,actionLog._id],
                                             err: true,
                                             log: 'Failed to Excute Docker command: . cmd : ' + cmd + '. Error: ' + err,
                                             timestamp: new Date().getTime()
                                         });
+                                        instancesDao.updateActionLog(instance[0]._id, actionLog._id, false, new Date().getTime());
                                         logger.error("Failed to Excute Docker command: ", err);
                                         res.send(err);
                                         return;
                                     }
-
                                     logger.debug("docker return ", retCode);
                                     if (retCode == 0) {
                                         logger.debug('Execcommand : ' + execcommand + ' ' + (execcommand != ''));
                                         if (execcommand != '' && execcommand != 'null') {
                                             logger.debug('In Execute command');
                                             logsDao.insertLog({
-                                                referenceId: instanceid,
+                                                referenceId: [instanceid,actionLog._id],
                                                 err: false,
                                                 log: 'Starting execute command: . cmd : ' + execcommand + ' on ' + containername,
                                                 timestamp: new Date().getTime()
@@ -1342,6 +1370,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     logger.error("Failed to create or update instanceLog: ", err);
                                                 }
                                             });
+                                            instancesDao.updateActionLog(instance[0]._id, actionLog._id, true, new Date().getTime());
                                             //Execute command found 
                                             var cmd = "sudo docker exec " + containername + ' bash ' + execcommand;
                                             logger.debug('In docker exec ->' + cmd);
@@ -1353,7 +1382,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     instancesDao.updateInstanceDockerStatus(instanceid, "success", '', function(data) {
                                                         logger.debug('Instance Docker Status set to Success');
                                                         logsDao.insertLog({
-                                                            referenceId: instanceid,
+                                                            referenceId: [instanceid,actionLog._id],
                                                             err: false,
                                                             log: 'Done execute command: . cmd : ' + cmd + ' on ' + containername,
                                                             timestamp: new Date().getTime()
@@ -1369,6 +1398,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                                 logger.error("Failed to create or update instanceLog: ", err);
                                                             }
                                                         });
+                                                        instancesDao.updateActionLog(instance[0]._id, actionLog._id, true, new Date().getTime());
                                                         if (imagecount < dockercomposejson.length) {
 
                                                             var lp = generateDockerLaunchParams(dockercomposejson[imagecount]['dockerlaunchparameters']);
@@ -1388,7 +1418,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     });
                                                 } else {
                                                     logsDao.insertLog({
-                                                        referenceId: instanceid,
+                                                        referenceId: [instanceid,actionLog._id],
                                                         err: true,
                                                         log: 'Error executing command: . cmd : ' + cmd + ' on ' + containername + ' : Return Code ' + retCode1 + ' -' + err,
                                                         timestamp: new Date().getTime()
@@ -1412,7 +1442,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                             instancesDao.updateInstanceDockerStatus(instanceid, "success", '', function(data) {
                                                 logger.debug('Instance Docker Status set to Success');
                                                 logsDao.insertLog({
-                                                    referenceId: instanceid,
+                                                    referenceId: [instanceid,actionLog._id],
                                                     err: false,
                                                     log: 'Done image pull and run.',
                                                     timestamp: new Date().getTime()
@@ -1423,6 +1453,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     log: "Done image pull and run.",
                                                     timestamp: new Date().getTime()
                                                 };
+                                                instancesDao.updateActionLog(instance[0]._id, actionLog._id, true, new Date().getTime());
                                                 instanceLogModel.createOrUpdate(actionLog._id, instance[0]._id, instanceLog, function(err, logData) {
                                                     if (err) {
                                                         logger.error("Failed to create or update instanceLog: ", err);
@@ -1462,7 +1493,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                         stdmessages += stdOutData.toString('ascii');
                                     } else {
                                         logsDao.insertLog({
-                                            referenceId: instanceid,
+                                            referenceId: [instanceid,actionLog._id],
                                             err: false,
                                             log: stdOutData.toString('ascii'),
                                             timestamp: new Date().getTime()
@@ -1484,7 +1515,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                 },
                                 function(stdOutErr) {
                                     logsDao.insertLog({
-                                        referenceId: instanceid,
+                                        referenceId: [instanceid,actionLog._id],
                                         err: true,
                                         log: stdOutErr.toString('ascii'),
                                         timestamp: new Date().getTime()

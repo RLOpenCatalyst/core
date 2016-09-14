@@ -1,12 +1,9 @@
 /*
  Copyright [2016] [Relevance Lab]
-
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
-
  http://www.apache.org/licenses/LICENSE-2.0
-
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,6 +25,7 @@ var resourceCost = require('_pr/model/resource-costs');
 var csv = require("fast-csv");
 var fs = require('fs');
 var async = require('async');
+var dateUtil = require('_pr/lib/utils/dateUtil');
 resourceService.getCostForResources = getCostForResources;
 resourceService.getTotalCost = getTotalCost;
 resourceService.getCostForServices = getCostForServices;
@@ -383,62 +381,86 @@ function getCostForServices(provider,callback) {
     /*This the Dimension that is required to passed for different services*/
     var ec2Dim = [ { Name: 'ServiceName',Value: 'AmazonEC2'},{ Name: 'Currency', Value: 'USD'} ];
     var rdsDim = [ { Name: 'ServiceName',Value: 'AmazonRDS'},{ Name: 'Currency', Value: 'USD'} ];
-    var ec2Cost = 0, rdsCost = 0;
     /*Getting the cost of EC2 & RDS for the current day*/
-    cw.getTotalCost(startDate,endDate,'Maximum',ec2Dim,function(err,presentCost)
-    {
+    async.parallel({
+        ec2Cost:function(callback){
+            var ec2Cost = 0;
+            cw.getTotalCost(startDate,endDate,'Maximum',ec2Dim,function(err,presentEC2Cost) {
+                if (err) {
+                    callback(err, null);
+                }
+                cw.getTotalCost(startDateOne, endDate, 'Minimum', ec2Dim, function (err, yesterdayEC2Cost) {
+                    if (err) {
+                        callback(err, null);
+                    }else if (typeof presentEC2Cost === "undefined" && typeof yesterdayEC2Cost === "undefined"){
+                        callback(null,ec2Cost);
+                    }else if(presentEC2Cost.Maximum && yesterdayEC2Cost.Minimum) {
+                        ec2Cost = presentEC2Cost['Maximum'] - yesterdayEC2Cost['Minimum'];
+                        callback(null, ec2Cost);
+                    }else {
+                        callback(null, ec2Cost);
+                    }
+                });
+            });
+        },
+        rdsCost:function(callback){
+            var rdsCost = 0;
+            cw.getTotalCost(startDate,endDate,'Maximum',rdsDim,function(err,presentRDSCost) {
+                if (err) {
+                    callback(err, null);
+                }
+                cw.getTotalCost(startDateOne, endDate, 'Minimum', rdsDim, function (err, yesterdayRDSCost) {
+                    if (err) {
+                        callback(err, null);
+                    }else if (typeof presentRDSCost === "undefined" && typeof yesterdayRDSCost === "undefined"){
+                        callback(null,rdsCost);
+                    }else if(presentRDSCost.Maximum && yesterdayRDSCost.Minimum) {
+                        rdsCost = presentRDSCost['Maximum'] - yesterdayRDSCost['Minimum'];
+                        callback(null, rdsCost);
+                    }else {
+                        callback(null, rdsCost);
+                    }
+                });
+            });
+        }
+
+    },function(err,results){
         if(err){
             callback(err,null);
-        }
-        cw.getTotalCost(startDateOne,endDate,'Minimum',ec2Dim,function(err,yesterdayCost)
-        {
-            if(err){
-                callback(err,null);
-            }
-            ec2Cost = presentCost['Maximum'] - yesterdayCost['Minimum'];
-        });
-        cw.getTotalCost(startDate,endDate,'Maximum',rdsDim,function(err,presentRdsCost)
-        {
-            if(err){
-                callback(err,null);
-            }
-            cw.getTotalCost(startDateOne,endDate,'Minimum',rdsDim,function(err,yesterdayRdsCost)
-            {
-                if(err){
-                    callback(err,null);
+            return;
+        }else {
+            var awsResourceCostObject = {
+                organisationId: provider.orgId,
+                providerId: provider._id,
+                providerType: provider.providerType,
+                providerName: provider.providerName,
+                resourceType: "serviceCost",
+                resourceId: "serviceCost",
+                aggregateResourceCost: results.ec2Cost + results.rdsCost,
+                costMetrics: {
+                    ec2Cost: results.ec2Cost,
+                    rdsCost: results.rdsCost,
+                    currency: 'USD',
+                    symbol: "$"
+                },
+                updatedTime: Date.parse(endDate),
+                startTime: Date.parse(endDate),
+                endTime: Date.parse(startDateOne)
+            };
+            resourceCost.saveResourceCost(awsResourceCostObject, function (err, resourceCostData) {
+                if (err) {
+                    callback(err, null);
+                    return;
+                } else {
+                    callback(null, resourceCostData);
+                    return;
                 }
-                rdsCost = presentRdsCost['Maximum'] - yesterdayRdsCost['Minimum'];
-                var awsResourceCostObject = {
-                    organisationId: provider.orgId,
-                    providerId: provider._id,
-                    providerType: provider.providerType,
-                    providerName: provider.providerName,
-                    resourceType: "serviceCost",
-                    resourceId: "serviceCost",
-                    aggregateResourceCost:ec2Cost + rdsCost,
-                    costMetrics : {
-                        ec2Cost:ec2Cost,
-                        rdsCost:rdsCost,
-                        currency:'USD',
-                        symbol:"$"
-                    },
-                    updatedTime : Date.parse(endDate),
-                    startTime: Date.parse(endDate),
-                    endTime: Date.parse(startDateOne)
-                };
-                resourceCost.saveResourceCost(awsResourceCostObject,function(err,resourceCostData){
-                    if(err){
-                        callback(err,null);
-                    } else{
-                        callback(null,resourceCostData);
-                    }
-                })
-            });
-        });
+            })
+        }
     });
 }
 
-function getEC2InstanceUsageMetrics(provider, instances, callback) {
+function getEC2InstanceUsageMetrics(provider, instances, startTime, endTime, period, callback) {
     var metricsUnits = appConfig.aws.cwMetricsUnits;
     var instanceUsageMetrics = [];
     var instnacesWithMetrics = instances.length;
@@ -471,8 +493,8 @@ function getEC2InstanceUsageMetrics(provider, instances, callback) {
         };
     }
 
-    var endTime = new Date();
-    var startTime = new Date(endTime.getTime() - 1000*60*60*24);
+    /*var endTime = new Date();
+     var startTime = new Date(endTime.getTime() - 1000*60*60*24);*/
     for(var i = 0; i < instances.length; i++) {
         (function(j) {
             if(('providerData' in instances[j]) && (typeof instances[j].providerData !== undefined)
@@ -482,25 +504,37 @@ function getEC2InstanceUsageMetrics(provider, instances, callback) {
 
                 async.parallel({
                         CPUUtilization: function (callback) {
-                            cw.getUsageMetrics('CPUUtilization', metricsUnits.CPUUtilization,'AWS/EC2',[{Name:'InstanceId',Value:instances[j].platformId}], startTime, endTime, callback);
+                            cw.getUsageMetrics('CPUUtilization', metricsUnits.CPUUtilization,'AWS/EC2',[{Name:'InstanceId',Value:instances[j].platformId}], startTime, endTime, period, callback);
                         },
                         NetworkOut: function (callback) {
-                            cw.getUsageMetrics('NetworkOut', metricsUnits.NetworkOut,'AWS/EC2',[{Name:'InstanceId',Value:instances[j].platformId}], startTime, endTime, callback);
+                            cw.getUsageMetrics('NetworkOut', metricsUnits.NetworkOut,'AWS/EC2',[{Name:'InstanceId',Value:instances[j].platformId}], startTime, endTime, period, callback);
                         },
                         NetworkIn: function (callback) {
-                            cw.getUsageMetrics('NetworkIn', metricsUnits.NetworkIn,'AWS/EC2',[{Name:'InstanceId',Value:instances[j].platformId}], startTime, endTime, callback);
+                            cw.getUsageMetrics('NetworkIn', metricsUnits.NetworkIn,'AWS/EC2',[{Name:'InstanceId',Value:instances[j].platformId}], startTime, endTime, period, callback);
                         },
                         DiskReadBytes: function (callback) {
-                            cw.getUsageMetrics('DiskReadBytes', metricsUnits.DiskReadBytes,'AWS/EC2',[{Name:'InstanceId',Value:instances[j].platformId}], startTime, endTime, callback);
+                            cw.getUsageMetrics('DiskReadBytes', metricsUnits.DiskReadBytes,'AWS/EC2',[{Name:'InstanceId',Value:instances[j].platformId}], startTime, endTime, period, callback);
                         },
                         DiskWriteBytes: function (callback) {
-                            cw.getUsageMetrics('DiskWriteBytes', metricsUnits.DiskWriteBytes,'AWS/EC2',[{Name:'InstanceId',Value:instances[j].platformId}], startTime, endTime, callback);
+                            cw.getUsageMetrics('DiskWriteBytes', metricsUnits.DiskWriteBytes,'AWS/EC2',[{Name:'InstanceId',Value:instances[j].platformId}], startTime, endTime, period, callback);
                         }
                     },
                     function (err, results) {
                         if(err) {
                             logger.error(err)
                         } else {
+                            /* TODO: To split up into different entries.*/
+                            /* TODO: startTime and endTime should be got from the response object, not from what we pass.*/
+
+                            /* Currently modifying the start time and end time with the period.
+                             * For Example, if the query is to get the data point from 10.00 to 11.00, period is 3600
+                             * 		AWS starttime - 10.00 is inclusive and endtime 11.00 is exclusive.
+                             * 		We will get a cron for the datapoint at 10.00 [which is nothing but for the period 10.00 to 11.00]
+                             * 		Hence the datapoint in the db will be with starttime - 10.00 to endtime - 11.00
+                             */
+                            var dbEndTime = startTime;
+                            var dbStartTime = getStartTime(dbEndTime, period);
+
                             instanceUsageMetrics.push({
                                 providerId: provider._id,
                                 providerType: provider.providerType,
@@ -510,8 +544,9 @@ function getEC2InstanceUsageMetrics(provider, instances, callback) {
                                 platform: 'AWS',
                                 platformId: instances[j].platformId,
                                 resourceType: 'EC2',
-                                startTime: startTime,
-                                endTime: endTime,
+                                startTime: dbStartTime,
+                                endTime: dbEndTime,
+                                interval: period,
                                 metrics: results
                             });
                         }
@@ -530,7 +565,7 @@ function getEC2InstanceUsageMetrics(provider, instances, callback) {
     }
 };
 
-function getS3BucketsMetrics(provider, buckets, callback) {
+function getS3BucketsMetrics(provider, buckets, startTime, endTime, period, callback) {
     var bucketUsageMetrics = [];
     var bucketWithMetrics = buckets.length;
     if(bucketWithMetrics == 0)
@@ -561,23 +596,39 @@ function getS3BucketsMetrics(provider, buckets, callback) {
             "region":"us-east-1"
         };
     }
-    var endTime= new Date();
-    var startTime = new Date(endTime.getTime() - (1000*60*60*24));
+    /*var endTime= new Date();
+     var startTime = new Date(endTime.getTime() - (1000*60*60*24));*/
     for(var i = 0; i < buckets.length; i++) {
         (function(bucket) {
             cw = new CW(amazonConfig);
             async.parallel({
                     BucketSizeBytes: function (callback) {
-                        cw.getUsageMetrics('BucketSizeBytes','Bytes','AWS/S3',[{Name:'BucketName',Value:bucket.resourceDetails.bucketName},{Name:'StorageType',Value:'StandardStorage'}],startTime, endTime, callback);
+                        cw.getUsageMetrics('BucketSizeBytes','Bytes','AWS/S3',
+                            [{Name:'BucketName',Value:bucket.resourceDetails.bucketName},
+                                {Name:'StorageType',Value:'StandardStorage'}],startTime, endTime, period, callback);
                     },
                     NumberOfObjects: function (callback) {
-                        cw.getUsageMetrics('NumberOfObjects','Count','AWS/S3',[{Name:'BucketName',Value:bucket.resourceDetails.bucketName},{Name:'StorageType',Value:'AllStorageTypes'}],startTime, endTime, callback);
+                        cw.getUsageMetrics('NumberOfObjects','Count','AWS/S3',[{Name:'BucketName',
+                            Value:bucket.resourceDetails.bucketName},{Name:'StorageType',Value:'AllStorageTypes'}],
+                            startTime, endTime, period, callback);
                     }
                 },
                 function (err, results) {
                     if(err) {
                         logger.error(err)
                     } else {
+                        /* TODO: To split up into different entries.*/
+                        /* TODO: startTime and endTime should be got from the response object, not from what we pass.*/
+
+                        /* Currently modifying the start time and end time with the period.
+                         * For Example, if the query is to get the data point from 10.00 to 11.00, period is 3600
+                         * 		AWS starttime - 10.00 is inclusive and endtime 11.00 is exclusive.
+                         * 		We will get a cron for the datapoint at 10.00 [which is nothing but for the period 10.00 to 11.00]
+                         * 		Hence the datapoint in the db will be with starttime - 10.00 to endtime - 11.00
+                         */
+                        var dbEndTime = startTime;
+                        var dbStartTime = getStartTime(dbEndTime, period);
+
                         bucketUsageMetrics.push({
                             providerId: provider._id,
                             providerType: provider.providerType,
@@ -586,8 +637,9 @@ function getS3BucketsMetrics(provider, buckets, callback) {
                             platform: 'AWS',
                             platformId: bucket.resourceDetails.bucketName,
                             resourceType: 'S3',
-                            startTime: startTime,
-                            endTime: endTime,
+                            startTime: dbStartTime,
+                            endTime: dbEndTime,
+                            interval: period,
                             metrics: results
                         });
                     }
@@ -599,7 +651,7 @@ function getS3BucketsMetrics(provider, buckets, callback) {
     }
 };
 
-function getRDSDBInstanceMetrics(provider, dbInstances, callback) {
+function getRDSDBInstanceMetrics(provider, dbInstances, startTime, endTime, period, callback) {
     var rdsUsageMetrics = [];
     var rdsWithMetrics = dbInstances.length;
     if(rdsWithMetrics == 0)
@@ -630,71 +682,84 @@ function getRDSDBInstanceMetrics(provider, dbInstances, callback) {
             "region":"us-east-1"
         };
     }
-    var endTime= new Date();
-    var startTime = new Date(endTime.getTime() - (1000*60*60*24));
+    /*var endTime= new Date();
+     var startTime = new Date(endTime.getTime() - (1000*60*60*24));*/
     for(var i = 0; i < dbInstances.length; i++) {
         (function(rds) {
             cw = new CW(amazonConfig);
             async.parallel({
                     CPUUtilization: function (callback) {
-                        cw.getUsageMetrics('CPUUtilization','Percent','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, callback);
+                        cw.getUsageMetrics('CPUUtilization','Percent','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
                     },
                     BinLogDiskUsage: function (callback) {
-                        cw.getUsageMetrics('BinLogDiskUsage','Bytes','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, callback);
+                        cw.getUsageMetrics('BinLogDiskUsage','Bytes','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
                     },
                     CPUCreditUsage: function (callback) {
-                        cw.getUsageMetrics('CPUCreditUsage','Count','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, callback);
+                        cw.getUsageMetrics('CPUCreditUsage','Count','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
                     },
                     CPUCreditBalance: function (callback) {
-                        cw.getUsageMetrics('CPUCreditBalance','Count','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, callback);
+                        cw.getUsageMetrics('CPUCreditBalance','Count','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
                     },
                     DatabaseConnections: function (callback) {
-                        cw.getUsageMetrics('DatabaseConnections','Count','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, callback);
+                        cw.getUsageMetrics('DatabaseConnections','Count','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
                     },
                     DiskQueueDepth: function (callback) {
-                        cw.getUsageMetrics('DiskQueueDepth','Count','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, callback);
+                        cw.getUsageMetrics('DiskQueueDepth','Count','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
                     },
                     FreeableMemory: function (callback) {
-                        cw.getUsageMetrics('FreeableMemory','Bytes','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, callback);
+                        cw.getUsageMetrics('FreeableMemory','Bytes','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
                     },
                     FreeStorageSpace: function (callback) {
-                        cw.getUsageMetrics('FreeStorageSpace','Bytes','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, callback);
+                        cw.getUsageMetrics('FreeStorageSpace','Bytes','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
                     },
                     ReplicaLag: function (callback) {
-                        cw.getUsageMetrics('ReplicaLag','Seconds','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, callback);
+                        cw.getUsageMetrics('ReplicaLag','Seconds','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
                     },
                     SwapUsage: function (callback) {
-                        cw.getUsageMetrics('SwapUsage','Bytes','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, callback);
+                        cw.getUsageMetrics('SwapUsage','Bytes','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
                     },
                     ReadIOPS: function (callback) {
-                        cw.getUsageMetrics('ReadIOPS','Count/Second','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, callback);
+                        cw.getUsageMetrics('ReadIOPS','Count/Second','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
                     },
                     WriteIOPS: function (callback) {
-                        cw.getUsageMetrics('WriteIOPS','Count/Second','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, callback);
+                        cw.getUsageMetrics('WriteIOPS','Count/Second','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
                     },
                     ReadLatency: function (callback) {
-                        cw.getUsageMetrics('ReadLatency','Seconds','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, callback);
+                        cw.getUsageMetrics('ReadLatency','Seconds','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
                     },
                     WriteLatency: function (callback) {
-                        cw.getUsageMetrics('WriteLatency','Seconds','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, callback);
+                        cw.getUsageMetrics('WriteLatency','Seconds','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
                     },
                     ReadThroughput: function (callback) {
-                        cw.getUsageMetrics('ReadThroughput','Bytes/Second','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, callback);
+                        cw.getUsageMetrics('ReadThroughput','Bytes/Second','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
                     },
                     WriteThroughput: function (callback) {
-                        cw.getUsageMetrics('WriteThroughput','Bytes/Second','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, callback);
+                        cw.getUsageMetrics('WriteThroughput','Bytes/Second','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
                     },
                     NetworkReceiveThroughput: function (callback) {
-                        cw.getUsageMetrics('NetworkReceiveThroughput','Bytes/Second','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, callback);
+                        cw.getUsageMetrics('NetworkReceiveThroughput','Bytes/Second','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
                     },
                     NetworkTransmitThroughput: function (callback) {
-                        cw.getUsageMetrics('NetworkTransmitThroughput','Bytes/Second','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, callback);
+                        cw.getUsageMetrics('NetworkTransmitThroughput','Bytes/Second','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
                     }
                 },
                 function (err, results) {
                     if(err) {
                         logger.error(err)
                     } else {
+
+                        /* TODO: To split up into different entries.*/
+                        /* TODO: startTime and endTime should be got from the response object, not from what we pass.*/
+
+                        /* Currently modifying the start time and end time with the period.
+                         * For Example, if the query is to get the data point from 10.00 to 11.00, period is 3600
+                         * 		AWS starttime - 10.00 is inclusive and endtime 11.00 is exclusive.
+                         * 		We will get a cron for the datapoint at 10.00 [which is nothing but for the period 10.00 to 11.00]
+                         * 		Hence the datapoint in the db will be with starttime - 10.00 to endtime - 11.00
+                         */
+                        var dbEndTime = startTime;
+                        var dbStartTime = getStartTime(dbEndTime, period);
+
                         rdsUsageMetrics.push({
                             providerId: provider._id,
                             providerType: provider.providerType,
@@ -703,8 +768,9 @@ function getRDSDBInstanceMetrics(provider, dbInstances, callback) {
                             platform: 'AWS',
                             platformId: rds.resourceDetails.dbName,
                             resourceType: 'RDS',
-                            startTime: startTime,
-                            endTime: endTime,
+                            startTime: dbStartTime,
+                            endTime: dbEndTime,
+                            interval: period,
                             metrics: results
                         });
                     }
@@ -834,16 +900,13 @@ function getEC2InstancesInfo(provider,orgName,callback) {
                                         providerType: 'aws',
                                         providerData: region,
                                         platformId: instance.InstanceId,
-                                        ip: instance.PublicIpAddress || instance.PrivateIpAddress,
+                                        ip: instance.PublicIpAddress || null,
                                         os: (instance.Platform && instance.Platform === 'windows') ? 'windows' : 'linux',
                                         state: instance.State.Name,
-                                        network:{
-                                            subnet:instance.SubnetId,
-                                            vpc:instance.VpcId
-                                        },
+                                        subnetId: instance.SubnetId,
+                                        vpcId: instance.VpcId,
+                                        privateIpAddress: instance.PrivateIpAddress,
                                         tags:tagInfo,
-                                        environmentTag:tagInfo.Environment,
-                                        projectTag:tagInfo.Owner
                                     }
                                     awsInstanceList.push(instanceObj);
                                     instanceObj = {};
@@ -1124,4 +1187,11 @@ function bulkUpdateAWSResourcesTags(provider, resources, callback) {
     }else{
         return callback(null, resources);
     }
+}
+
+function getStartTime(endTime, period){
+    var startTime = new Date(endTime);
+    var subtractedDateInMilliSeconds = startTime.getTime() - (period*1000);
+    var subtractedDate = new Date(subtractedDateInMilliSeconds);
+    return dateUtil.getDateInUTC(subtractedDate);
 }

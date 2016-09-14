@@ -307,7 +307,12 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             }
             if (anImage) {
                 logger.debug("Exit get() for /vmimages/%s", req.params.imageId);
-                res.send(anImage);
+                if (anImage.instancePassword && anImage.instancePassword !== '') {
+                    anImage.instancePassword = cryptography.decryptText(anImage.instancePassword.trim(),cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding)
+                    res.send(anImage);
+                }else{
+                    res.send(anImage);
+                }
             } else {
                 res.send(404);
             }

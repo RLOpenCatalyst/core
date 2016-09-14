@@ -30,7 +30,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         var reqData = {};
         async.waterfall(
             [
-
                 function(next) {
                     apiUtil.paginationRequest(req.query, 'instanceLogs', next);
                 },
@@ -41,11 +40,10 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 function(instanceActions, next) {
                     apiUtil.paginationResponse(instanceActions, reqData, next);
                 }
-
             ],
             function(err, results) {
                 if (err)
-                    next(err);
+                    return res.status(500).send(err);
                 else
                     return res.status(200).send(results);
             });
@@ -63,7 +61,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             ],
             function(err, results) {
                 if (err)
-                    next(err);
+                    return res.status(500).send(err);
                 else
                     return res.status(200).send(results);
             });
@@ -90,7 +88,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             ],
             function(err, results) {
                 if (err)
-                    next(err);
+                    return res.status(500).send(err);
                 else
                     return res.status(200).send(results);
             });
@@ -109,7 +107,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             ],
             function(err, results) {
                 if (err)
-                    next(err);
+                    return res.status(500).send(err);
                 else
                     return res.status(200).send(results);
             });
@@ -130,12 +128,11 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             ],
             function(err, results) {
                 if (err)
-                    next(err);
+                    return res.status(500).send(err);
                 else
                     return res.status(200).send(results);
             });
     }
-
     app.get('/audit-trail/task-action/:actionId/logs', pollTaskActionLog);
 
     function pollTaskActionLog(req, res, next) {
@@ -151,7 +148,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             ],
             function(err, results) {
                 if (err)
-                    next(err);
+                    return res.status(500).send(err);
                 else
                     return res.status(200).send(results);
             });

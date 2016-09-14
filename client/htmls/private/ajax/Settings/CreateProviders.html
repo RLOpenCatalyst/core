@@ -229,6 +229,15 @@
                                                             <input name="s3BucketName" id="s3BucketName" class="form-control" type="text" cdata="catalyst" cat-validation="required" placeholder="Enter the S3 Bucket Name">
                                                         </div>
 
+                                                        <div class="col-lg-6 col-md-6 margintop20 foraws">
+                                                            <label for="">Planned Cost:</label>
+                                                            <span>
+                                                              <img data-toggle="popover" data-html="true" data-placement="left" title="AWS Planned Cost for a Month." src="img/help.png"/>
+                                                            </span>
+                                                            <input name="plannedCost" id="plannedCost" class="form-control" type="text" cdata="catalyst" cat-validation="required" placeholder="Enter the Planned Cost">
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
                                                         <div class="col-lg-6 col-md-6 margintop20">
                                                             <label for="name">Organization Name:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
                                                             <select id="orgId" name="orgId" unique="true" uniqueconditionedby="orgname" class="chooseOrganization width-100" style="vertical-align: central" cat-validation="required" cat-validation-openstack="required" cdata="catalyst" skiprowid="yes">
@@ -601,6 +610,7 @@
         $('#secretKey').val(data.secretKey);
         $('#providertype').val(data.providerType).select2();
         $('#s3BucketName').val(data.s3BucketName);
+        $('#plannedCost').val(data.plannedCost);
         $('#orgId').val(data.orgId[0]).attr({
             'answer': data.orgId[0]
         }).select2().attr('disabled', 'disabled');

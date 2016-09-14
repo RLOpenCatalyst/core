@@ -3373,7 +3373,7 @@ function isFormValid(formid) {
 					//regex from stackoverflow(check-if-url-is-valid-or-not)
 					if (/(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/.test(str) == false) {
 						isValid = false;
-						errormessageforInput(currCtrl.attr('id'), "&nbsp;<i>Please enter a valid URL.<i>");
+						errormessageforInput(currCtrl.attr('id'), "Please enter a valid URL");
 						currCtrl.focus();
 					}
 					break;
@@ -3429,19 +3429,23 @@ function isFormValid(formid) {
 						isValid = false;
 						errormessageforInput(currCtrl.attr('id'), "Atleast 8 characters required.");
 						currCtrl.focus();
-					}
-					if (!/\d/.test(str)) {
-						errormessageforInput(currCtrl.attr('id'), "Atleast a number required.");
-						currCtrl.focus();
-					}
-					if (!/[a-z]/.test(str)) {
-						errormessageforInput(currCtrl.attr('id'), "Atleast a lower case char is required.");
-						currCtrl.focus();
-					}
+					}else{
+						if (!/\d/.test(str)) {
+							isValid = false;
+							errormessageforInput(currCtrl.attr('id'), "Atleast a number required.");
+							currCtrl.focus();
+						}
+						if (!/[a-z]/.test(str)) {
+							isValid = false;
+							errormessageforInput(currCtrl.attr('id'), "Atleast a lower case char is required.");
+							currCtrl.focus();
+						}
 
-					if (!/[!@#$%^&*]/.test(str)) {
-						errormessageforInput(currCtrl.attr('id'), "Atleast a special char is required.");
-						currCtrl.focus();
+						if (!/[!@#$%^&*]/.test(str)) {
+							isValid = false;
+							errormessageforInput(currCtrl.attr('id'), "Atleast a special char is required.");
+							currCtrl.focus();
+						}
 					}
 					break;
 
@@ -3708,4 +3712,8 @@ function aggregateTable(tableid, filterColumnNo, filterColumnValue, colsArr) {
 	//alert('in' + JSON.stringify(obj));
 
 	return obj;
+}
+
+String.prototype.capitalize = function() {
+    return this.charAt(0).toUpperCase() + this.slice(1);
 }

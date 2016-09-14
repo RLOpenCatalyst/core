@@ -38,18 +38,6 @@ var UnassignedInstancesSchema = new Schema({
     },
     providerType: String,
     providerData: Schema.Types.Mixed,
-    projectTag: {
-        type: String,
-        required: false,
-        trim: true,
-        default: null
-    },
-    environmentTag: {
-        type: String,
-        required: false,
-        trim: true,
-        default: null
-    },
     platformId: String,
     ip: {
         type: String,
@@ -63,19 +51,24 @@ var UnassignedInstancesSchema = new Schema({
         default:false,
         required:false
     },
-    network:{
-        subnet:{
-            type: String,
-            required: false,
-            trim: true
-        },
-        vpc:{
-            type: String,
-            required: false,
-            trim: true
-        }
+    tags: Schema.Types.Mixed,
+    usage: Schema.Types.Mixed,
+    cost: Schema.Types.Mixed,
+    subnetId: {
+        type: String,
+        required: false,
+        trim: true
     },
-    tags: Schema.Types.Mixed
+    vpcId: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    privateIpAddress: {
+        type: String,
+        required: false,
+        trim: true
+    }
 });
 UnassignedInstancesSchema.plugin(mongoosePaginate);
 UnassignedInstancesSchema.index({platformId: 1, providerId: 1}, {unique: true});
@@ -140,7 +133,8 @@ UnassignedInstancesSchema.statics.getAllByIds = function getByProviderId(instanc
     });
 };
 
-UnassignedInstancesSchema.statics.getByProviderIdAndPlatformId = function getByProviderIdAndPlatformId(providerId, platformId, callback) {
+UnassignedInstancesSchema.statics.getByProviderIdAndPlatformId
+    = function getByProviderIdAndPlatformId(providerId, platformId, callback) {
     var params = {
         'providerId': providerId,
         'platformId': platformId
@@ -159,7 +153,8 @@ UnassignedInstancesSchema.statics.getByProviderIdAndPlatformId = function getByP
     );
 };
 
-UnassignedInstancesSchema.statics.getUnAssignedInstancesByProviderId = function getUnAssignedInstancesByProviderId(providerId, callback) {
+UnassignedInstancesSchema.statics.getUnAssignedInstancesByProviderId
+    = function getUnAssignedInstancesByProviderId(providerId, callback) {
     var params = {
         providerId: providerId,
         isDeleted:false
@@ -193,16 +188,18 @@ UnassignedInstancesSchema.statics.updateInstanceStatus = function updateInstance
     var updateObj={};
     if(instance.state === 'terminated'){
         updateObj['state'] = instance.state;
+        updateObj['subnetId']= instance.subnetId;
+        updateObj['vpcId'] = instance.vpcId;
+        updateObj['privateIpAddress'] = instance.privateIpAddress;
         updateObj['isDeleted'] = true;
         updateObj['tags'] = instance.tags;
-        updateObj['environmentTag'] = instance.environmentTag;
-        updateObj['projectTag'] = instance.projectTag;
     }else{
         updateObj['state'] = instance.state;
+        updateObj['subnetId']= instance.subnetId;
+        updateObj['vpcId'] = instance.vpcId;
+        updateObj['privateIpAddress'] = instance.privateIpAddress;
         updateObj['isDeleted'] = false;
         updateObj['tags'] = instance.tags;
-        updateObj['environmentTag'] = instance.environmentTag;
-        updateObj['projectTag'] = instance.projectTag;
     }
     UnassignedInstances.update({
         "_id": ObjectId(instanceId)
@@ -218,7 +215,8 @@ UnassignedInstancesSchema.statics.updateInstanceStatus = function updateInstance
     });
 };
 
-UnassignedInstancesSchema.statics.deleteByPlatformAndProviderId = function deleteByPlatformAndProviderId(providerId, platformId, callback) {
+UnassignedInstancesSchema.statics.deleteByPlatformAndProviderId
+    = function deleteByPlatformAndProviderId(providerId, platformId, callback) {
     this.remove({
         providerId: providerId,
         platformId: platformId
@@ -248,6 +246,42 @@ UnassignedInstancesSchema.statics.removeInstancesByProviderId = function(provide
     });
 };
 
+UnassignedInstancesSchema.statics.updateUsage = function updateUsage(instanceId, usage, callBack) {
+    this.update({
+        _id: new ObjectId(instanceId)
+    }, {
+        $set: {usage: usage}
+    }, function(err, data) {
+        if (err) {
+            logger.error("Failed to update Unmanaged Instance data", err);
+            if (typeof callBack == 'function') {
+                callBack(err, null);
+            }
+            return;
+        }
+        if (typeof callBack == 'function') {
+            callBack(null, data);
+        }
+    });
+};
+
+UnassignedInstancesSchema.statics.updateInstanceCost = function(instanceCostData, callback) {
+    this.update({
+        platformId: instanceCostData.resourceId
+    }, {
+        $set: {
+            cost: instanceCostData.cost
+        }
+    }, {
+        upsert: false
+    }, function(err, data) {
+        if (err) {
+            return callback(err, null);
+        } else {
+            callback(null, data);
+        }
+    });
+};
 
 UnassignedInstancesSchema.statics.removeInstanceById = function(instanceId,callback) {
     this.remove({
@@ -308,6 +342,19 @@ UnassignedInstancesSchema.statics.removeTerminatedInstanceById = function(instan
         }
         callback(null, data);
     });
+};
+
+UnassignedInstancesSchema.statics.getAll = function getAll(query, callback) {
+    query.queryObj.isDeleted =  false;
+    this.paginate(query.queryObj, query.options,
+        function(err, instances) {
+            if (err) {
+                return callback(err);
+            } else {
+                return callback(null, instances);
+            }
+        }
+    );
 };
 
 var UnassignedInstances = mongoose.model('unassignedInstances', UnassignedInstancesSchema);

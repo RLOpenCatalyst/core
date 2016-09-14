@@ -67,19 +67,24 @@ var InstanceLog = function() {
                 logger.debug("Failed to fetch InstanceLogs: ", err);
                 return callback(err, null);
             }
-            if (data && data.length) {
-                var setData = {};
-                var keys = Object.keys(logData);
-                for (var i = 0; i < keys.length; i++) {
-                    setData[keys[i]] = logData[keys[i]];
-                }
-                delete setData['logs'];
+            if (data && data.length > 0) {
+                var logObj = {
+                    status:logData.status,
+                    action:logData.action,
+                    actionStatus:logData.actionStatus,
+                    user:logData.user,
+                    platform:logData.platform,
+                    os:logData.os,
+                    logs:logData.logs
+                };
+                if(logData.endedOn){
+                    logObj.endedOn = logData.endedOn;
+                };
                 InstanceLogs.update({
                     actionId: actionId,
                     instanceId: instanceId
                 }, {
-                    $set: setData,
-                    $push: { logs: logData.logs }
+                    $set: logObj
                 }, {
                     upsert: false
                 }, function(err, updatedData) {
@@ -107,6 +112,29 @@ var InstanceLog = function() {
                 });
             }
 
+        });
+    };
+
+
+
+    this.getLogsByInstanceIdStatus = function(instanceId,instanceStatus, callback) {
+        var queryObj = {
+            instanceId: instanceId,
+            status:instanceStatus
+        };
+
+        InstanceLogs.find(queryObj, function(err, data) {
+            if (err) {
+                logger.debug("Failed to getLogsByInstanceId ", err);
+                callback(err, null);
+                return;
+            }else if (data && data.length) {
+                return callback(null, data[0]);
+            }else {
+                var error = new Error("ActionLog not found.");
+                error.status = 404;
+                return callback(error, null);
+            }
         });
     };
 
@@ -150,7 +178,7 @@ var InstanceLog = function() {
                     error.status = 500;
                     return callback(error);
                 } else {
-                    databaseCall.queryObj['$or'] = [{ "status": "running" }, { "status": "stopped" }, { "status": "pending" },{ "status": "terminated" },{ "status": "waiting" },{ "status": "deleted" }];
+                    databaseCall.queryObj['$or'] = [{ "status": "running" }, { "status": "stopped" }, { "status": "pending" },{ "status": "terminated" },{ "status": "waiting" },{ "status": "deleted" },{ "status": "shutting-down" }];
                     InstanceLogs.paginate(databaseCall.queryObj, databaseCall.options, function(err, instanceActions) {
                         if (err) {
                             logger.error(err);

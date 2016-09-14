@@ -1446,70 +1446,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
         });
     };
 
-
-
-    app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/:provider', function(req, res) {
-        var jsonData = {};
-        jsonData['orgId'] = req.params.orgId;
-        jsonData['bgId'] = req.params.bgId;
-        jsonData['projectId'] = req.params.projectId;
-        jsonData['envId'] = req.params.envId;
-        jsonData['instanceType'] = req.params.instanceType;
-        jsonData['userName'] = req.session.user.cn;
-        jsonData['blueprintType'] = req.query.blueprintType;
-        jsonData['providerType'] = req.params.provider;
-
-        configmgmtDao.getTeamsOrgBuProjForUser(req.session.user.cn, function(err, orgbuprojs) {
-            if (orgbuprojs.length === 0) {
-                res.send(401, "User not part of team to see project.");
-                return;
-            }
-            if (!err) {
-                if (typeof orgbuprojs[0].projects !== "undefined" && orgbuprojs[0].projects.indexOf(req.params.projectId) >= 0) {
-                    async.parallel({
-                            tasks: function(callback) {
-                                Task.getTasksByOrgBgProjectAndEnvId(jsonData, callback);
-                            },
-                            instances: function(callback) {
-                                instancesDao.getInstancesByOrgBgProjectAndEnvId(jsonData, callback);
-                            },
-                            blueprints: function(callback) {
-                                Blueprints.getBlueprintsByOrgBgProjectProvider(jsonData, callback);
-                            },
-                            stacks: function(callback) {
-                                CloudFormation.findByOrgBgProjectAndEnvId(jsonData, callback);
-                            },
-                            arms: function(callback) {
-                                AzureArm.findByOrgBgProjectAndEnvId(jsonData, callback);
-                            }
-                        },
-                        function(err, results) {
-                            if (err) {
-                                res.status(500).send("Internal Server Error");
-                            } else if (!results) {
-                                res.status(400).send("Data Not Found");
-                            } else {
-                                res.status(200).send(results);
-                            }
-                        }
-                    );
-
-                } else {
-                    res.status(401).send("User not part of team to see project");
-                    return;
-                }
-            } else {
-                res.status(500).send("Internal Server Error");
-                return;
-            }
-        });
-    });
-
-
-
-
-
-
     app.get('/organizations/:orgId/chefserver', function(req, res) {
         logger.debug("Enter get() for /organizations/%s/chefserver", req.params.orgId);
         configmgmtDao.getChefServerDetailsByOrgname(req.params.orgId, function(err, chefDetails) {
@@ -1930,7 +1866,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         status: nodeAlive,
                                                         actionStatus: "waiting",
                                                         platformId: req.body.fqdn,
-                                                        blueprintName: "",
+                                                        blueprintName: req.body.fqdn,
                                                         data: [],
                                                         platform: "unknown",
                                                         os: req.body.os,
@@ -2454,6 +2390,66 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 res.send(data);
             });
             logger.debug("Exit post() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s/providers/%s/images/%s/blueprints", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId, req.params.providerId, req.params.imageId);
+        });
+    });
+
+    app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/:provider', function(req, res) {
+        var jsonData = {};
+        jsonData['orgId'] = req.params.orgId;
+        jsonData['bgId'] = req.params.bgId;
+        jsonData['projectId'] = req.params.projectId;
+        jsonData['envId'] = req.params.envId;
+        jsonData['instanceType'] = req.params.instanceType;
+        jsonData['userName'] = req.session.user.cn;
+        jsonData['blueprintType'] = req.query.blueprintType;
+        if(req.params.provider === null || req.params.provider ==='null'){
+            jsonData['providerType'] = 'aws';
+        }else{
+            jsonData['providerType'] = req.params.provider;
+        }
+        configmgmtDao.getTeamsOrgBuProjForUser(req.session.user.cn, function(err, orgbuprojs) {
+            if (orgbuprojs.length === 0) {
+                res.send(401, "User not part of team to see project.");
+                return;
+            }
+            if (!err) {
+                if (typeof orgbuprojs[0].projects !== "undefined" && orgbuprojs[0].projects.indexOf(req.params.projectId) >= 0) {
+                    async.parallel({
+                            tasks: function(callback) {
+                                Task.getTasksByOrgBgProjectAndEnvId(jsonData, callback);
+                            },
+                            instances: function(callback) {
+                                instancesDao.getInstancesByOrgBgProjectAndEnvId(jsonData, callback);
+                            },
+                            blueprints: function(callback) {
+                                Blueprints.getBlueprintsByOrgBgProjectProvider(jsonData, callback);
+                            },
+                            stacks: function(callback) {
+                                CloudFormation.findByOrgBgProjectAndEnvId(jsonData, callback);
+                            },
+                            arms: function(callback) {
+                                AzureArm.findByOrgBgProjectAndEnvId(jsonData, callback);
+                            }
+                        },
+                        function(err, results) {
+                            if (err) {
+                                res.status(500).send("Internal Server Error");
+                            } else if (!results) {
+                                res.status(400).send("Data Not Found");
+                            } else {
+                                res.status(200).send(results);
+                            }
+                        }
+                    );
+
+                } else {
+                    res.status(401).send("User not part of team to see project");
+                    return;
+                }
+            } else {
+                res.status(500).send("Internal Server Error");
+                return;
+            }
         });
     });
 

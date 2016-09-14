@@ -195,9 +195,14 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                 log: "Instance Shutting-Down",
                                                 timestamp: new Date().getTime()
                                             };
-                                            instanceLogModel.createOrUpdate(actionLog._id, instance, instanceLog, function(err, logData) {
+                                            instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
                                                 if (err) {
                                                     logger.error("Failed to create or update instanceLog: ", err);
+                                                }
+                                            });
+                                            instancesDao.updateInstanceStatus(instance._id, instanceLog, function(err, instanceData) {
+                                                if (err) {
+                                                    logger.error("Failed to update instance: ", err);
                                                 }
                                             });
                                         })(instances[i]);

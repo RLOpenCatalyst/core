@@ -124,14 +124,10 @@ function validateListInstancesQuery(orgs, filterQuery, callback) {
 
     if (orgIds.length > 0) {
         if (queryObjectAndCondition.providerId) {
-            filterQuery.queryObj['$and'][0].orgId = {
-                '$in': orgIds
-            }
+            filterQuery.queryObj['$and'][0].orgId = {'$in': orgIds}
         } else {
-            filterQuery.queryObj['$and'][0] = {
-                providerId: { '$ne': null },
-                orgId: { '$in': orgIds }
-            }
+            filterQuery.queryObj['$and'][0].providerId ={ '$ne': null };
+            filterQuery.queryObj['$and'][0].orgId = {'$in': orgIds};
         }
     }
 
@@ -420,6 +416,9 @@ function getTrackedInstancesForProvider(provider, next) {
             unmanaged: function(callback) {
                 //@TODO Duplicate function of  getByProviderId, to be cleaned up
                 unManagedInstancesModel.getInstanceByProviderId(provider._id, callback);
+            },
+            unassigned: function(callback) {
+                unassignedInstancesModel.getUnAssignedInstancesByProviderId(provider._id, callback);
             }
         },
         function(err, results) {
@@ -439,10 +438,12 @@ function getTrackedInstances(query, category, next) {
             function(callback) {
                 if (category === 'managed') {
                     instancesModel.getAll(query, callback);
-                } else if (category === 'assigned') {
+                }else if (category === 'assigned') {
                     unManagedInstancesModel.getAll(query, callback);
-                } else {
-                    callback(null, []);
+                }else if(category === 'unassigned'){
+                    unassignedInstancesModel.getAll(query,callback);
+                }else{
+                    callback(null, [{docs:[],total:0}]);
                 }
             }
         ],
@@ -1311,7 +1312,7 @@ function instanceSyncWithAWS(instanceId,instanceData,callback){
         },
         function(instances,next){
             var instance = instances[0];
-            if(instance.instanceState !== instanceData.state) {
+            if(instance.instanceState !== instanceData.state && instance.bootStrapStatus ==='success') {
                 var timestampStarted = new Date().getTime();
                 var user = instance.catUser ? instance.catUser : 'superadmin';
                 var action ='';
@@ -1324,43 +1325,34 @@ function instanceSyncWithAWS(instanceId,instanceData,callback){
                 }else{
                     action ='Start';
                 };
-                var actionLog = instancesModel.insertInstanceStatusActionLog(instance._id, user,instanceData.state, timestampStarted);
-                var logReferenceIds = [instance._id, actionLog._id];
-                logsDao.insertLog({
-                    referenceId: logReferenceIds,
-                    err: false,
-                    log: "Instance :"+instanceData.state,
-                    timestamp: timestampStarted
-                });
-                var instanceLog = {
-                    actionId: actionLog._id,
-                    instanceId: instance._id,
-                    orgName: instance.orgName,
-                    bgName: instance.bgName,
-                    projectName: instance.projectName,
-                    envName: instance.environmentName,
-                    status: instanceData.state,
-                    actionStatus: "success",
-                    platformId: instance.platformId,
-                    blueprintName: instance.blueprintData.blueprintName,
-                    data: instance.runlist,
-                    platform: instance.hardware.platform,
-                    os: instance.hardware.os,
-                    size: instance.instanceType,
-                    user: user,
-                    createdOn: new Date().getTime(),
-                    startedOn: new Date().getTime(),
-                    providerType: instance.providerType,
-                    action: action,
-                    logs: []
-                };
-                instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
-                    if (err) {
-                        logger.error("Failed to create or update instanceLog: ", err);
-                        next(err,null);
-                    }
-                    next(null,logData);
-                });
+                if(instanceData.state === 'terminated' && instance.instanceState === 'shutting-down'){
+                    instanceLogModel.getLogsByInstanceIdStatus(instance._id,instance.instanceState,function(err,data){
+                        if(err){
+                            logger.error("Failed to get Instance Logs: ", err);
+                            next(err, null);
+                        }
+                        data.status = 'terminated';
+                        data.action = action;
+                        data.user = user;
+                        data.actionStatus = "success";
+                        data.endedOn = new Date().getTime();
+                        logsDao.insertLog({
+                            referenceId: [data.actionId,data.instanceId],
+                            err: false,
+                            log: "Instance " + instanceData.state,
+                            timestamp: timestampStarted
+                        });
+                        instanceLogModel.createOrUpdate(data.actionId, instance._id, data, function (err, logData) {
+                            if (err) {
+                                logger.error("Failed to create or update instanceLog: ", err);
+                                next(err, null);
+                            }
+                            next(null, logData);
+                        });
+                    })
+                }else {
+                    createOrUpdateInstanceLogs(instance,instanceData.state,action,user,timestampStarted,next);
+                }
             }else{
                 next(null,instances);
             }
@@ -1375,4 +1367,44 @@ function instanceSyncWithAWS(instanceId,instanceData,callback){
             callback(null, results);
         }
     })
+}
+
+function createOrUpdateInstanceLogs(instance,instanceState,action,user,timestampStarted,next){
+    var actionLog = instancesModel.insertInstanceStatusActionLog(instance._id, user, instanceState, timestampStarted);
+    var logReferenceIds = [instance._id, actionLog._id];
+    logsDao.insertLog({
+        referenceId: logReferenceIds,
+        err: false,
+        log: "Instance " + instanceState,
+        timestamp: timestampStarted
+    });
+    var instanceLog = {
+        actionId: actionLog._id,
+        instanceId: instance._id,
+        orgName: instance.orgName,
+        bgName: instance.bgName,
+        projectName: instance.projectName,
+        envName: instance.environmentName,
+        status: instanceState,
+        actionStatus: "success",
+        platformId: instance.platformId,
+        blueprintName: instance.blueprintData.blueprintName,
+        data: instance.runlist,
+        platform: instance.hardware.platform,
+        os: instance.hardware.os,
+        size: instance.instanceType,
+        user: user,
+        createdOn: new Date().getTime(),
+        startedOn: new Date().getTime(),
+        providerType: instance.providerType,
+        action: action,
+        logs: []
+    };
+    instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function (err, logData) {
+        if (err) {
+            logger.error("Failed to create or update instanceLog: ", err);
+            next(err, null);
+        }
+        next(null, logData);
+    });
 }
