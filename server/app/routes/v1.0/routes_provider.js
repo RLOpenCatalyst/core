@@ -2151,6 +2151,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	// TODO Use async to reduce callbacks
 	app.post('/aws/providers', function(req, res) {
 		logger.debug("Enter post() for /providers.", typeof req.body.fileName);
+		logger.debug("Req Body for providers ", JSON.stringify(req.body));
 		var user = req.session.user;
 		var category = configmgmtDao.getCategoryFromID("9");
 		var permissionto = 'create';
@@ -2442,6 +2443,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	// Update a particular AWS Provider
 	app.post('/aws/providers/:providerId/update', function(req, res) {
 		logger.debug("Enter post() for /providers/%s/update", req.params.providerId);
+		logger.debug("Req Body for providers ", JSON.stringify(req.body));
 		var user = req.session.user;
 		var category = configmgmtDao.getCategoryFromID("9");
 		var permissionto = 'modify';

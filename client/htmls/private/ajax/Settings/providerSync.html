@@ -1938,9 +1938,19 @@
                     var bgTagName = $(this).find('.bgTagName').val();
                     updateUniqueInstanceTagsObj["id"] = instanceId;
                     updateUniqueInstanceTagsObj["tags"] = {};
-                    updateUniqueInstanceTagsObj["tags"][projectTagsMapName] = projectTagName;
-                    updateUniqueInstanceTagsObj["tags"][envTagsMapName] = envTagName;
-                    updateUniqueInstanceTagsObj["tags"][bgTagsMapName] = bgTagName;
+                    if(projectTagName === '' &&  envTagName === '' && bgTagName ===''){
+                        bootbox.alert("Please update tag value in any text-box corresponding to selected check-box for updating tags");
+                        return false;
+                    }
+                    if(projectTagName !== ''){
+                        updateUniqueInstanceTagsObj["tags"][projectTagsMapName] = projectTagName;
+                    }
+                    if(envTagName !== ''){
+                        updateUniqueInstanceTagsObj["tags"][envTagsMapName] = envTagName;
+                    }
+                    if(bgTagName !== ''){
+                        updateUniqueInstanceTagsObj["tags"][bgTagsMapName] = bgTagName;
+                    }
                     updateInstanceTagsArr.push(updateUniqueInstanceTagsObj);
                 });
                 updateInstanceTagsObj["instances"] = updateInstanceTagsArr;
@@ -1964,6 +1974,7 @@
                 });
             }else{
                 bootbox.alert("Please select corresponding check-box for updating tags");
+                return false;
             }
         });
 
@@ -1983,11 +1994,21 @@
                     var projectTagName = $(this).find('.projectTagName').val();
                     var envTagName = $(this).find('.envTagName').val();
                     var bgTagName = $(this).find('.bgTagName').val();
-                    updateUniqueBucketTagsObj["id"] = instanceId;
+                    updateUniqueBucketTagsObj["id"] = resourceId;
                     updateUniqueBucketTagsObj["tags"] = {};
-                    updateUniqueBucketTagsObj["tags"][projectTagsMapName] = projectTagName;
-                    updateUniqueBucketTagsObj["tags"][envTagsMapName] = envTagName;
-                    updateUniqueBucketTagsObj["tags"][bgTagsMapName] = bgTagName;
+                    if(projectTagName === '' &&  envTagName === '' && bgTagName ===''){
+                        bootbox.alert("Please update tag value in any text-box corresponding to selected check-box for updating tags");
+                        return false;
+                    }
+                    if(projectTagName !== ''){
+                        updateUniqueBucketTagsObj["tags"][projectTagsMapName] = projectTagName;
+                    }
+                    if(envTagName !== ''){
+                        updateUniqueBucketTagsObj["tags"][envTagsMapName] = envTagName;
+                    }
+                    if(bgTagName !== ''){
+                        updateUniqueBucketTagsObj["tags"][bgTagsMapName] = bgTagName;
+                    }
                     updateBucketTagsArr.push(updateUniqueBucketTagsObj);
                 });
                 updateBucketTagsObj["resources"] = updateBucketTagsArr;
@@ -2009,6 +2030,7 @@
                 });
             }else{
                 bootbox.alert("Please select corresponding check-box for updating tags");
+                return false;
             }
         });
 
@@ -2028,11 +2050,21 @@
                     var projectTagName = $(this).find('.projectTagName').val();
                     var envTagName = $(this).find('.envTagName').val();
                     var bgTagName = $(this).find('.bgTagName').val();
-                    updateUniqueDBTagsObj["id"] = instanceId;
+                    updateUniqueDBTagsObj["id"] = resourceId;
                     updateUniqueDBTagsObj["tags"] = {};
-                    updateUniqueDBTagsObj["tags"][projectTagsMapName] = projectTagName;
-                    updateUniqueDBTagsObj["tags"][envTagsMapName] = envTagName;
-                    updateUniqueDBTagsObj["tags"][bgTagsMapName] = bgTagName;
+                    if(projectTagName === '' &&  envTagName === '' && bgTagName ===''){
+                        bootbox.alert("Please update tag value in any text-box corresponding to selected check-box for updating tags");
+                        return false;
+                    }
+                    if(projectTagName !== ''){
+                        updateUniqueDBTagsObj["tags"][projectTagsMapName] = projectTagName;
+                    }
+                    if(envTagName !== ''){
+                        updateUniqueDBTagsObj["tags"][envTagsMapName] = envTagName;
+                    }
+                    if(bgTagName !== ''){
+                        updateUniqueDBTagsObj["tags"][bgTagsMapName] = bgTagName;
+                    }
                     updateDBTagsArr.push(updateUniqueDBTagsObj);
                 });
                 updateDBTagsObj["resources"] = updateDBTagsArr;
@@ -2055,6 +2087,7 @@
                 });
             }else{
                 bootbox.alert("Please select corresponding check-box for updating tags");
+                return false;
             }
 
         });
