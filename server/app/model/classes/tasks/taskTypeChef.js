@@ -242,13 +242,10 @@ function runTask(self, userName, baseUrl, choiceParam, appData, blueprintIds, en
                 }
             }
             instanceResultList.push(result);
-            if (!(count < instanceIds.length)) {
-                logger.debug('Type of onComplete: ' + typeof onComplete);
-                if (typeof onComplete === 'function') {
-                    onComplete(null, overallStatus, {
-                        instancesResults: instanceResultList
-                    });
-                }
+            if (typeof onComplete === 'function') {
+                onComplete(null, overallStatus, {
+                    instancesResults: instanceResultList
+                });
             }
         }
         var instanceList = [];
@@ -1373,18 +1370,8 @@ function runTask(self, userName, baseUrl, choiceParam, appData, blueprintIds, en
 
         function taskComplete(err, obj) {
             count++;
-            var taskHistoryData = {};
             if (err) {
                 logger.debug("Encountered with Error: ", err);
-                taskHistoryData.refId = executionCompleteId;
-                taskHistoryData.status = "failed";
-                taskHistoryData.timestampEnded = new Date().getTime();
-                TaskHistory.createNewOrUpdate(taskHistoryData.refId, taskHistoryData, function(err, tData) {
-                    if (err) {
-                        logger.error("Failed to create history: ", err);
-                    }
-                    logger.debug("successfully task history created. ", JSON.stringify(tData));
-                });
                 instanceOnCompleteHandler(err.message, 1, err.instanceId, err.chefClientExecutionId, err.actionLogId);
                 return;
             }
@@ -1393,15 +1380,6 @@ function runTask(self, userName, baseUrl, choiceParam, appData, blueprintIds, en
                 execute(instanceIds[count], taskComplete);
             } else if (obj) {
                 logger.debug("Task success: ", JSON.stringify(obj));
-                taskHistoryData.refId = executionCompleteId;
-                taskHistoryData.status = "success";
-                taskHistoryData.timestampEnded = new Date().getTime();
-                TaskHistory.createNewOrUpdate(taskHistoryData.refId, taskHistoryData, function(err, tData) {
-                    if (err) {
-                        logger.error("Failed to create history: ", err);
-                    }
-                    logger.debug("successfully task history created. ", JSON.stringify(tData));
-                });
                 instanceOnCompleteHandler(null, 0, obj.instanceId, obj.chefClientExecutionId, obj.actionLogId);
                 return;
             }

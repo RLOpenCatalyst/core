@@ -145,7 +145,7 @@ function parallelExecution(that, userName, baseUrl, choiceParam, nexusData, blue
 
 
         taskList = [];
-        logger.debug("=====assignTask=== ", JSON.stringify(tasks));
+        logger.debug("assignTask: ", JSON.stringify(tasks));
         for (var i = 0; i < assignTask.length; i++) {
             for (var j = 0; j < tasks.length; j++) {
                 logger.debug("matched...... ", tasks[j].id);

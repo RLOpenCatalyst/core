@@ -279,9 +279,9 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
         }
         // hack for composite task
         if (taskHistoryEntry) {
-            taskHistory = taskHistoryData;
+            taskHistory = new TaskHistory(taskHistoryData);;
             if (self.taskConfig.executionOrder === "SERIAL") {
-                TaskHistory.createNewOrUpdate(taskHistoryData.refId, taskHistoryData, function(err, tData) {
+                TaskHistory.createNewOrUpdate(taskHistoryData.refId, taskHistory, function(err, tData) {
                     if (err) {
                         logger.error("Failed to create history: ", err);
                     }
@@ -293,7 +293,7 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
         } else {
             taskHistory = new TaskHistory(taskHistoryData);
             if (self.taskConfig.executionOrder === "SERIAL") {
-                TaskHistory.createNewOrUpdate(taskHistoryData.refId, taskHistoryData, function(err, tData) {
+                TaskHistory.createNewOrUpdate(taskHistoryData.refId, taskHistory, function(err, tData) {
                     if (err) {
                         logger.error("Failed to create history: ", err);
                     }

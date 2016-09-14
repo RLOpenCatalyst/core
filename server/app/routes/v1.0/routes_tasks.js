@@ -133,7 +133,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 res.status(500).send(err);
                 return;
             }
-            logger.debug("Returned historyData: ", JSON.stringify(historyData));
+            logger.debug("Returned historyData:============== ", JSON.stringify(historyData));
             historyData['taskId'] = taskId;
             res.status(200).send(historyData);
         });
@@ -416,7 +416,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
     });
 
     app.get('/tasks/:taskId/history/:historyId', function(req, res) {
-
+        logger.debug("================");
         Tasks.getTaskById(req.params.taskId, function(err, task) {
             if (err) {
                 logger.error(err);
@@ -429,6 +429,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 });
                 return;
             }
+
             if (req.params.historyId != 'undefined') {
                 task.getHistoryById(req.params.historyId, function(err, history) {
                     if (err) {
@@ -437,6 +438,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                         });
                         return;
                     }
+                    logger.debug("================", JSON.stringify(history));
                     res.send(200, history);
                 });
             }else{
