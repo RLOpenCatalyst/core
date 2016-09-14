@@ -18,11 +18,7 @@ var angularApp = angular.module('catapp', ['ui.router','ngTouch','toastr',
 	'authentication',
 	'factory.appPermission',
 	'appPermission',
-	'dashboard.workzone',
-	'dashboard.help',
-	'dashboard.track',
-	'dashboard.settings',
-	'dashboard.design',
+	'dashboard',
 	'directive.loading',
 	'ngSanitize',
 	'global.cache',
@@ -87,12 +83,14 @@ angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', '$http', '$l
 			workzone: modulePerms.workzoneAccess(),
 			design: modulePerms.designAccess(),
 			settings: modulePerms.settingsAccess(),
-			track: modulePerms.trackAccess()
+			track: modulePerms.trackAccess(),
+			analyticsBool: modulePerms.analyticsBool()
 		};
 		$rootScope.workZoneBool = _permSet.workzone;
 		$rootScope.designBool = _permSet.design;
 		$rootScope.settingsBool = _permSet.settings;
 		$rootScope.trackBool = _permSet.track;
+		$rootScope.analyticsBool = _permSet.analyticsBool;
 	});
 	$rootScope.$emit('SET_HEADER', $rootScope.appDetails);
 	$scope.showLogoutConfirmationSection = false;
@@ -113,22 +111,4 @@ angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', '$http', '$l
 	$rootScope.$on('USER_LOGOUT', function () {
 		$scope.doLogout();
 	});
-}])
-.controller('dashboardCtrl', ['$rootScope', '$scope', '$http', 'uac', '$location', '$state', function ($rootScope, $scope, $http, uac, $location, $state) {
-	'use strict';
-	$rootScope.isBreadCrumbAvailable = true;
-	$rootScope.app.isDashboard = true;
-	/*State will be dashboard if coming via login flow. So check permission and do default landing logic*/
-	/*Otherwise dont enable default landing logic. This is so that user can land on url directly*/
-	if ($state.current.name === 'dashboard') {
-		if ($rootScope.workZoneBool) {
-			$state.go('dashboard.workzone');
-		} else if ($rootScope.designBool) {
-			$state.go('dashboard.design');
-		} else if ($rootScope.trackBool) {
-			$state.go('dashboard.track');
-		} else if ($rootScope.settingsBool) {
-			$state.go('dashboard.settings');
-		}
-	}
 }]);

@@ -1,0 +1,18 @@
+<!--<div ng-controller="analyticsLeftMenu as analyLeftMenu">-->
+	<!--<ul class="nav nav-pills nav-stacked left-menu"  >-->
+		<!--<li ng-repeat="org in analyLeftMenu.leftTree" >-->
+			<!--<a ng-class="{'active':stateParams.org.id === org.rowid}" ui-sref="dashboard.analytics({org:{name:org.name,id:org.rowid,env:org.environments},bus:null,proj:null})" >&nbsp;{{org.name}} <span class="caret arrow">&nbsp;</span></a>-->
+			<!--<ul class="nav nav-stacked  left-submenu" id="{{org.name}}" >-->
+				<!--<li ng-repeat='buss in org.businessGroups' style="border-bottom: 0px !important;">-->
+					<!--<a  ng-class="{'active':stateParams.bus.id === buss.rowid}" ui-sref="dashboard.analytics({org:{name:org.name,id:org.rowid,env:org.environments},bus:{name:buss.name,id:buss.rowid},proj:null})" >-->
+						<!--&nbsp;{{buss.name}} <span class="caret arrow"></span></a>-->
+					<!--<ul class="nav nav-stacked  left-submenu" id="{{buss.name}}" >-->
+						<!--<li ng-repeat='proj in buss.projects' >-->
+							<!--<a  ng-class="{'active':stateParams.proj.id === proj.rowid}" ui-sref="dashboard.analytics({org:{name:org.name,id:org.rowid,env:org.environments},bus:{name:buss.name,id:buss.rowid},proj:{name:proj.name,id:proj.rowid}})" >-->
+								<!--&nbsp;{{proj.name}} </a></li>-->
+					<!--</ul>-->
+				<!--</li>-->
+			<!--</ul>-->
+		<!--</li>-->
+	<!--</ul>-->
+<!--</div>-->
