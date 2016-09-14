@@ -461,9 +461,19 @@ $(document).ready(function() {
                         }
                         updateUniqueInstanceTagsObj["id"] = instanceId;
                         updateUniqueInstanceTagsObj["tags"] = {};
-                        updateUniqueInstanceTagsObj["tags"][projectTagsMapName] = projectTagName;
-                        updateUniqueInstanceTagsObj["tags"][envTagsMapName] = envTagName;
-                        updateUniqueInstanceTagsObj["tags"][bgTagsMapName] = bgTagName;
+                        if(projectTagName === '' &&  envTagName === '' && bgTagName ===''){
+                            toastr.error("Please update tag value in any text-box corresponding to selected check-box for updating tags");
+                            return false;
+                        }
+                        if(projectTagName !== ''){
+                            updateUniqueInstanceTagsObj["tags"][projectTagsMapName] = projectTagName;
+                        }
+                        if(envTagName !== ''){
+                            updateUniqueInstanceTagsObj["tags"][envTagsMapName] = envTagName;
+                        }
+                        if(bgTagName !== ''){
+                            updateUniqueInstanceTagsObj["tags"][bgTagsMapName] = bgTagName;
+                        }
                         updateInstanceTagsArr.push(updateUniqueInstanceTagsObj);
                         updateInstanceTagsObj["instances"] = updateInstanceTagsArr;
                         $.ajax({
@@ -497,6 +507,7 @@ $(document).ready(function() {
             });
         } else {
             toastr.error("Please select corresponding check-box for updating tags");
+            return false;
         }
     });
 });
