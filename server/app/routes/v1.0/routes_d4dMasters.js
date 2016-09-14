@@ -2343,7 +2343,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                             "orgname": bodyJson['orgname'],
                                             "domainname": bodyJson['domainname'],
                                             "rowid": bodyJson['rowid'],
-                                            "plannedCost":bodyJson['plannedCost'].toFixed(2),
+                                            "plannedCost":bodyJson['plannedCost'],
                                             "id": "1"
                                         }
                                         var orgObj = new d4dModelNew.d4dModelMastersOrg(orgData);
@@ -2740,9 +2740,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                     var currowid = bodyJson["rowid"];
                                     delete rowtoedit._id; //fixing the issue of
                                     logger.debug('Rowtoedit: %s', JSON.stringify(rowtoedit));
-                                    if(rowtoedit.plannedCost){
-                                        rowtoedit.plannedCost =rowtoedit.plannedCost.toFixed(2);
-                                    }
                                     eval('d4dModelNew.' + dbtype).update({
                                         rowid: bodyJson["rowid"]
                                     }, {
