@@ -1,3 +1,67 @@
+<link rel="stylesheet" type="text/css" href="catalyst/partials/sections/dashboard/analytics/view/analyticsTreeMenu.css"/>
+<link rel="stylesheet" type="text/css" href="catalyst/partials/globals/treeComponent/treeDirective.css"/>
+
+<div id='analyticsTreeMenuPage' ng-controller="analyticsCtrl">
+	<span ng-show="!isLoading" class="tree-wrapper">
+		<span ng-click="showTreeOverlay()" class="minifyme cursor"> <i class="fa fa-arrow-circle-right black hit"></i> </span>
+		<span ng-click="hideTreeOverlay()" class="minifyme cursor" title="Hide Tree" ng-show="showTree"> <i class="fa fa-arrow-circle-left black hit"></i> </span>
+	</span>
+	<div id='navigPage'>
+		<div id='navigPage-inner' ng-show="showTree">
+			<div id="treeParent">
+				<ul class="tree-ul">
+				    <li>
+				        <div class="liContents">
+				        	<i class="icon fa fa-building label-spacing"></i>
+				        	<span>Analytics</span>
+				            <div data-ng-hide="node.collapsed" data-tree-id="relevancelab" data-analytics-tree-model="node.nodes" data-node-id="rowid" data-node-label="text" data-node-children="nodes">
+				                <ul class="tree-ul">
+				                    <li>
+				                        <div class="liContents">
+				                        	<i class="icon fa fa-desktop label-spacing"></i>
+					                        <span>Cost</span>
+				                        </div>
+				                    </li>
+				                    <li>
+				                        <div class="liContents">
+				                        	<i class="icon fa fa-desktop label-spacing"></i>
+					                        <span>Capacity</span>
+				                        </div>
+				                    </li>
+				                    <li>
+				                        <div class="liContents">
+				                        	<i class="icon fa fa-desktop label-spacing"></i>
+					                        <span>Usage</span>
+				                        </div>
+				                    </li>
+				                </ul>
+				            </div>
+				        </div>
+				    </li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	$(document).ready(function() {
+		function setHeight() {
+			var windowHeight = $(window).innerHeight();
+			var brdcrmbHeight = $('#breadcrumb-block').outerHeight();
+			var headerHeight = $('#header').outerHeight();
+			var setTreeContentHeight = windowHeight - (brdcrmbHeight + headerHeight);
+			$('#navigPage').css('height', (setTreeContentHeight) + 'px');
+			$('#navigPage-inner').css('height', (setTreeContentHeight) + 'px');
+		};
+		setHeight();
+		$(window).resize(function() {
+			setHeight();
+		});
+	});
+</script>
+Contact GitHub 
+
 <!--<div ng-controller="analyticsLeftMenu as analyLeftMenu">-->
 	<!--<ul class="nav nav-pills nav-stacked left-menu"  >-->
 		<!--<li ng-repeat="org in analyLeftMenu.leftTree" >-->

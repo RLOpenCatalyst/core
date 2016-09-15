@@ -1,14 +1,14 @@
 <link rel='stylesheet' href='catalyst/partials/sections/dashboard/analytics/analytics.css'>
+
 <div id="analyticsPage" class='fluid-container'>
 	<ul class="nav nav-tabs">
-		<li ng-class="{'active':stateItems.view === 'chat'}"><a ui-sref="dashboard.analytics({menuItem:stateItems.menuItem,view:'chat'})"  ><i class="fa fa-area-chart fa-2" aria-hidden="true"></i> Chats</a></li>
+		<li ng-class="{'active':stateItems.view === 'chat'}"><a ui-sref="dashboard.analytics({menuItem:stateItems.menuItem,view:'chat'})"  ><i class="fa fa-area-chart fa-2" aria-hidden="true"></i> Dashboard</a></li>
 		<li ng-class="{'active':stateItems.view === 'report'}"><a ui-sref="dashboard.analytics({menuItem:stateItems.menuItem,view:'report'})" ><i class="fa fa-file-text fa-2" aria-hidden="true"></i> Reports</a></li>
 		<li class="form-group pull-right" style="margin: 18px 10px 0 0;" >
 			<button type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ng-click="isOpenSidebar = !isOpenSidebar">
 				<i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;Filter
 			</button>
 		</li>
-
 	</ul>
 	<div id="sidebar-wrapper" ng-class="{'show-wrapper':isOpenSidebar === true}">
 		<form>
@@ -46,10 +46,15 @@
 			</fieldset>
 		</form>
 	</div>
-	<div ng-switch="stateItems.menuItem">
-		<div ng-switch="usage"  >
-			<span ng-include="'src/partials/sections/dashboard/analytics/view/usage.html'"></span>
-		</div>
-	</div>
+	<div class='col-xs-12 col-sm-12 col-md-12 col-lg-12 panelLeft no-padding'>
+        <div ng-include="'src/partials/sections/dashboard/analytics/view/analyticsTreeMenu.html'"></div> 
+    </div>
+	<div ng-switch="stateItems.menuItem" class="panelRight">
+		<div id='rightPanel' class='container-fluid'>
+			<div ng-switch="usage">
+				<span ng-include="'src/partials/sections/dashboard/analytics/view/usage.html'"></span>
+			</div>
+ 		</div>
+ 	</div>
 
 </div>
