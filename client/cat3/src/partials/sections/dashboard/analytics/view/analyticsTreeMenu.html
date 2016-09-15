@@ -43,3 +43,21 @@
 		</div>
 	</div>
 </div>
+
+<script>
+	$(document).ready(function() {
+		function setHeight() {
+			var windowHeight = $(window).innerHeight();
+			var brdcrmbHeight = $('#breadcrumb-block').outerHeight();
+			var headerHeight = $('#header').outerHeight();
+			var setTreeContentHeight = windowHeight - (brdcrmbHeight + headerHeight);
+			$('#navigPage').css('height', (setTreeContentHeight) + 'px');
+			$('#navigPage-inner').css('height', (setTreeContentHeight) + 'px');
+		};
+		setHeight();
+		$(window).resize(function() {
+			setHeight();
+		});
+	});
+</script>
+
