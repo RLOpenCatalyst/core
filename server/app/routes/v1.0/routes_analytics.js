@@ -13,137 +13,189 @@
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
-
     /**
-     * @api {get} /analytics/aggregate/cost?filterBy=organizationId:<organizationId>&period=<period>&timeStamp=<endDate>&splitUpBy=<catalystEntityType>
+     * @api {get} /analytics/cost/aggregate?catalystEntity=organizationId:<organizationId>&period=<period>&toTimeStamp=<endDate>&splitUpBy=<catalystEntityType>
      * 										                    									Get aggregate cost
      * @apiName getAggregateCost
      * @apiGroup analytics
      * @apiVersion 1.0.0
      *
-     * @apiParam {String} filterBy                                          Catalyst entity. Multiple entities can be specified using +
+     * @apiParam {String} catalystEntity                                    Catalyst entity. Only single entity should be specified.
      * @apiParam {String} period                                            Cost aggregation period Ex: hour, day, week, month, year, 5years, 10years
-     * @apiParam {Date} timeStamp                                           End Time Stamp. Format YYYY-MM-DDTHH:MM:SS.  For Ex: 2016-08-12T00:00:00
+     * @apiParam {Date} toTimeStamp                                         End Timestamp. Format YYYY-MM-DDTHH:MM:SS.  For Ex: 2016-08-12T00:00:00
      * @apiParam {String} [splitUpBy="All possible catalyst entity types"]	Split up cost by particular catalyst entity type. For Ex: organization, businessUnit, project, providerType, provider, environment, resourceType, resource
      *
      * @apiExample Sample_Request_1
-     * 		/analytics/aggregate/cost?filterBy=organizationId:5790c31edff2c49223fd6efa&timeStamp=2016-08-12T00:00:00&period=month
+     * 		/analytics/cost/aggregate?catalystEntity=organizationId:5790c31edff2c49223fd6efa&timeStamp=2016-08-12T00:00:00&period=month
      *
-     * @apiSuccess {Object}   aggregatedCost                                            Aggregated cost
-     * @apiSuccess {Object}   aggregatedCost.totalCost                                  Usage Metric Name
-     * @apiSuccess {String}   aggregatedCost.period                                     Cost aggregation period
-     * @apiSuccess {Date}   aggregatedCost.fromTime                                     From time
-     * @apiSuccess {Date}   aggregatedCost.toTime                                       To time
-     * @apiSuccess {Object[]}   aggregatedCost.splitUpCosts                             Split up cost
-     * @apiSuccess {Object}   aggregatedCost.splitUpCosts.CATALYST_ENTITY_TYPE          Cost split up based on catalyst entity
-     * @apiSuccess {Object}   aggregatedCost.splitUpCosts.CATALYST_ENTITY_TYPE.id       Catalyst entity ID
-     * @apiSuccess {Object}   aggregatedCost.splitUpCosts.CATALYST_ENTITY_TYPE.name     Catalyst entity name
-     * @apiSuccess {Object}   aggregatedCost.splitUpCosts.CATALYST_ENTITY_TYPE.cost     Cost for the catalyst entity
+     * @apiSuccess {Object}   aggregatedCost                                                Aggregated cost
+     * @apiSuccess {String}   aggregatedCost.period                                         Cost aggregation period
+     * @apiSuccess {Date}   aggregatedCost.fromTime                                         From time
+     * @apiSuccess {Date}   aggregatedCost.toTime                                           To time
+     * @apiSuccess {Number}   aggregatedCost.totalCost                                      Total Cost
+     * @apiSuccess {Object}   aggregatedCost.serviceCosts                                   Platform specific service cost
+     * @apiSuccess {Object[]}   aggregatedCost.splitUpCosts                                 Split up cost
+     * @apiSuccess {Object}   aggregatedCost.splitUpCosts.CATALYST_ENTITY_TYPE              Cost split up based on catalyst entity
+     * @apiSuccess {Object}   aggregatedCost.splitUpCosts.CATALYST_ENTITY_TYPE.id           Catalyst entity ID
+     * @apiSuccess {Object}   aggregatedCost.splitUpCosts.CATALYST_ENTITY_TYPE.name         Catalyst entity name
+     * @apiSuccess {Object}   aggregatedCost.splitUpCosts.CATALYST_ENTITY_TYPE.totalCost    Total cost for the entity
+     * @apiSuccess {Object}   aggregatedCost.splitUpCosts.CATALYST_ENTITY_TYPE.serviceCosts Platform specific service costs split up
      *
      * @apiSuccessExample {json} Sample_Response_1:
      * 	HTTP/1.1 200 OK
      *
      * {
-          "totalCost": 300,
           "period": "month",
           "fromTime": "2016-08-01T00:00:00",
           "toTime": "2016-08-12T00:00:00",
+          "totalCost": 300,
+          "serviceCosts": {
+            "ec2": 150,
+            "rds": 90,
+            "s3": 60
+          },
           "splitUpCosts": {
-            "businessUnit": [
+            "businessUnits": [
               {
                 "id": "<businessUnit_1_id>",
                 "name": "Business Unit 1",
-                "cost": 100
+                "totalCost": 100,
+                "serviceCosts": {
+                    "ec2": 50,
+                    "rds": 20,
+                    "s3": 30
+                }
               },
               {
                 "id": "<businessUnit_2_id>",
                 "name": "Business Unit 2",
-                "cost": 100
+                "totalCost": 100,
+                "serviceCosts": {
+                    "ec2": 50,
+                    "rds": 20,
+                    "s3": 30
+                }
               },
               {
                 "id": "<businessUnit_3_id>",
                 "name": "Business Unit 3",
-                "cost": 100
+                "totalCost": 100,
+                "serviceCosts": {
+                    "ec2": 50,
+                    "rds": 20,
+                    "s3": 30
+                }
               }
             ],
-            "provider": [
+            "providers": [
               {
                 "id": "<provider_1_id>",
                 "name": "Provider 1",
-                "cost": 100
+                "totalCost": 100,
+                "serviceCosts": {
+                    "ec2": 50,
+                    "rds": 20,
+                    "s3": 30
+                }
               },
               {
                 "id": "<businessUnit_2_id>",
                 "name": "Provider 2",
-                "cost": 100
+                "totalCost": 100,
+                "serviceCosts": {
+                    "ec2": 50,
+                    "rds": 20,
+                    "s3": 30
+                }
               },
               {
                 "id": "<businessUnit_3_id>",
                 "name": "Provider 3",
-                "cost": 100
+                "totalCost": 100,
+                "serviceCosts": {
+                    "ec2": 50,
+                    "rds": 20,
+                    "s3": 30
+                }
               }
             ]
           }
         }
      */
-    app.get("/analytics/aggregate/cost", getAggregateCost)
+    app.get("/analytics/cost/aggregate", getAggregateCost)
     function getAggregateCost(req, res, next) {
 
     }
 
     /**
-     * @api {get} /analytics/trend/cost?filterBy=organizationId:<organizationId>&period=<PERIOD>&timeStamp=<endDate>&splitUpBy=<catalystEntityType>&interval=<INTERVAL>
+     * @api {get} /analytics/cost/trend?catalystEntity=organizationId:<organizationId>&period=<PERIOD>&timeStamp=<endDate>&splitUpBy=<catalystEntityType>&interval=<INTERVAL>
      * 										                    									Get cost trend
-     * @apiName getCostTrends
+     * @apiName getCostTrend
      * @apiGroup analytics
      * @apiVersion 1.0.0
      *
-     * @apiParam {String} filterBy                                          Catalyst entity. Multiple entities can be specified using +
+     * @apiParam {String} catalystEntity                                    Catalyst entity. Only single entity should be specified.
      * @apiParam {String} period                                            Cost aggregation period Ex: hour, day, week, month, year, 5years, 10years
-     * @apiParam {Date} timeStamp                                           End Time Stamp. Format YYYY-MM-DDTHH:MM:SS.  For Ex: 2016-08-12T00:00:00
+     * @apiParam {Date} toTimeStamp                                         End Timestamp. Format YYYY-MM-DDTHH:MM:SS.  For Ex: 2016-08-12T00:00:00
      * @apiParam {String} [splitUpBy="All possible catalyst entity types"]	Split up cost by particular catalyst entity type. For Ex: organization, businessUnit, project, providerType, provider, environment, resourceType, resource
      *
      * @apiExample Sample_Request_1
-     * 		/analytics/aggregate/cost?filterBy=organizationId:5790c31edff2c49223fd6efa&timeStamp=2016-08-03T00:00:00&period=month&interval=86400
+     * 		/analytics/cost/trend?catalystEntity=organizationId:5790c31edff2c49223fd6efa&timeStamp=2016-08-03T00:00:00&period=month&interval=86400
      *
-     * @apiSuccess {Object}   aggregatedCost                                            Aggregated cost
-     * @apiSuccess {Object}   aggregatedCost.totalCost                                  Usage Metric Name
-     * @apiSuccess {String}   aggregatedCost.period                                     Cost aggregation period
-     * @apiSuccess {Date}   aggregatedCost.fromTime                                     From time
-     * @apiSuccess {Date}   aggregatedCost.toTime                                       To time
-     * @apiSuccess {Object[]}   aggregatedCost.splitUpCosts                             Split up cost
-     * @apiSuccess {Object}   aggregatedCost.splitUpCosts.CATALYST_ENTITY_TYPE          Cost split up based on catalyst entity
-     * @apiSuccess {Object}   aggregatedCost.splitUpCosts.CATALYST_ENTITY_TYPE.id       Catalyst entity ID
-     * @apiSuccess {Object}   aggregatedCost.splitUpCosts.CATALYST_ENTITY_TYPE.name     Catalyst entity name
-     * @apiSuccess {Object}   aggregatedCost.splitUpCosts.CATALYST_ENTITY_TYPE.cost     Cost for the catalyst entity
+     * @apiSuccess {Object}   costTrend                                                         Cost trend
+     * @apiSuccess {String}   aggregatedCost.period                                             Cost aggregation period
+     * @apiSuccess {Date}   aggregatedCost.fromTime                                             From time
+     * @apiSuccess {Date}   aggregatedCost.toTime                                               To time
+     * @apiSuccess {Number}   aggregatedCost.totalCost                                          Total Cost
+     * @apiSuccess {Object}   aggregatedCost.serviceCosts                                       Platform specific service cost
+     * @apiSuccess {Object[]}   aggregatedCost.costTrends                                       Cost trends
+     * @apiSuccess {Object}   aggregatedCost.splitUpCosts.COST_TREND_DATA_POINT                 Cost split up based on catalyst entity
+     * @apiSuccess {Object}   aggregatedCost.splitUpCosts.COST_TREND_DATA_POINT.fromTime        From time
+     * @apiSuccess {Object}   aggregatedCost.splitUpCosts.COST_TREND_DATA_POINT.toTime          To time
+     * @apiSuccess {Object}   aggregatedCost.splitUpCosts.COST_TREND_DATA_POINT.totalCost       Total cost
+     * @apiSuccess {Object}   aggregatedCost.splitUpCosts.COST_TREND_DATA_POINT.serviceCosts    Platform specific service cost
      *
      * @apiSuccessExample {json} Sample_Response_1:
      * 	HTTP/1.1 200 OK
      *
      * {
-          "totalCost": 100,
           "period": "month",
           "fromTime": "2016-08-01T00:00:00",
           "toTime": "2016-08-12T00:00:00",
           "interval": 86400,
-          "dataPoints": [
+          "totalCost": 100,
+          "serviceCosts": {
+            "ec2": 40,
+            "rds": 20,
+            "s3": 40
+          },
+          "costTrends": [
               {
 		        "fromTime": "2016-08-01T00:01:00",
 		        "toTime": "2016-08-02T00:00:00",
-		        "cost": 50
+		        "totalCost": 50,
+                "serviceCosts": {
+                    "ec2": 20,
+                    "rds": 10,
+                    "s3": 20
+                }
 		       },
               {
                 "fromTime": "2016-08-02T00:01:00",
 		        "toTime": "2016-08-03T00:00:00",
-                "cost": 50
+                "totalCost": 50,
+                "serviceCosts": {
+                    "ec2": 20,
+                    "rds": 10,
+                    "s3": 20
+                }
               }
             ]
           }
         }
      */
-    app.get("/analytics/trend/cost", getCostTrend)
+    app.get("/analytics/cost/trend", getCostTrend)
     function getCostTrend(req, res, next) {
 
     }
-
 }
