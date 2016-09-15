@@ -16,6 +16,7 @@ taskSync.executeScheduledTasks = function executeScheduledTasks() {
         if (tasks && tasks.length) {
             for (var i = 0; i < tasks.length; i++) {
                 (function(i) {
+                    if(tasks[i] && tasks[i].cron)
                        taskService.executeScheduleJob(tasks[i]);
                 })(i);
             }

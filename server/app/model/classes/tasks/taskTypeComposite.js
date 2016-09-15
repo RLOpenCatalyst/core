@@ -173,8 +173,10 @@ function parallelExecution(that, userName, baseUrl, choiceParam, nexusData, blue
                         taskId: taskList[t].id,
                         historyId: history.id
                     });
-                    //taskHistory.save();
+                    taskHistory.save();
                 }, function(err, status) {
+                	logger.debug("error: ",err);
+                	logger.debug("status: ",status);
                     if (err) {
                     	logger.error("error: ",err);
                         if (typeof onComplete === 'function') {
