@@ -67,6 +67,7 @@ function getDefaultsConfig() {
                 return config.catalystHome + this.cookbooksDirName + "/";
             }
         },
+        settingWizardSteps:[{OrgDetails:['Organization','BusinessGroup','Project']},{chefDetails:['chefServer','Environment']},],
         constantData: {
             common_field: ['envId', 'providerId', 'orgId', 'bgId','organizationId','businessGroupId', 'projectId','templateType','blueprintConfig.cloudProviderType','cloudProviderType'],
             sort_field: ['name', 'description'],
