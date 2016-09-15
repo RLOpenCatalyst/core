@@ -122,18 +122,18 @@
                             <div class="col-lg-6 col-md-6">
                                 <label for="name">Name:
                                     <span class="control-label redSpan">&nbsp;*</span></label>
-                                <input autofocus name="orgname" value="" id="orgName" class="form-control" cdata="catalyst" type="text" cat-validation="required,nospecial,max15,nospace">
+                                <input autofocus name="orgname" value="" id="orgname" class="form-control" cdata="catalyst" type="text" cat-validation="required,nospecial,max15,nospace">
                             </div>
                             <div class="col-lg-6 col-md-6">
                                 <label for="name">Domain Name:</label>
-                                <input name="domainname" value="" id="domainName" class="form-control" type="text" maxlength="35">
+                                <input name="domainname" value="" id="domainname" class="form-control" type="text" maxlength="35">
                             </div>
                             <div class="col-lg-6 col-md-6">
                                 <label for="name">Planned Cost:</label>
                           <span>
                             <img data-toggle="popover" data-html="true" data-placement="left" title="AWS Planned Cost for a Month." src="img/help.png"/>
                           </span>
-                                <input name="plannedCost" value="" id="plannedCost" class="form-control" type="text"  cdata="catalyst" maxlength="35">
+                                <input name="plannedCost" value="" id="plannedCost" cat-validation="numeric" class="form-control" type="text"  cdata="catalyst" maxlength="35">
                             </div>
                         </div>
                     </div>
@@ -157,11 +157,11 @@
                     <div>
                         <div class="col-lg-6 col-md-6">
                             <label for="name">Business Group Name <span class="control-label redSpan">&nbsp;*</span></label>
-                            <input autofocus name="productgroupname" value="" id="productgroupname" class="form-control" type="text"  cdata="catalyst" cat-validation="required,nospecial,max15,nospace" unique="true" uniqueconditionedby="productgroupname,orgname">
+                            <input autofocus name="productgroupname" value="" id="productgroupname" class="form-control" type="text"  cdata="catalyst"  unique="true" uniqueconditionedby="productgroupname,orgname">
                         </div>
                         <div class="col-lg-6 col-md-6">
                             <label for="">Organization<span class="control-label redSpan">&nbsp;*</span></label>
-                            <select id="orgname" class="chooseOrganization form-control width-100" sourcepath="1" datapath="masterjson.rows.row" valuelinkfield="costcode" style="vertical-align:central"  cdata="catalyst" cat-validation="required">
+                            <select id="orgNameBg" class="chooseOrganization form-control width-100" sourcepath="1" datapath="masterjson.rows.row" valuelinkfield="costcode" style="vertical-align:central"  cdata="catalyst">
                                 <option value="">Select an Organization</option>
                             </select>
                         </div>
@@ -171,11 +171,11 @@
         </div>
     </div>
     <input type="button" name="previous" class="previous action-button" value="Previous" />
-    <input type="button" name="next" class="next action-button" value="Next" />
+    <input type="button" name="nextBG" class="nextBG action-button" value="Next" />
 </form>
 
 
-<form action="" id="myFormProj" class="content">
+<!--<form action="" id="myFormProj" class="content">
     <div class="widget-box">
         <div class="widget-header">
             <h4 class="widget-margin" style="color:black;">Create Project</h4>
@@ -184,7 +184,7 @@
             <div class="widget-main" style="min-height:200px">
                 <div class="jarviswidget" id="wid-id-3" data-widget-editbutton="false" data-widget-custombutton="false">
                     <div>
-                        <!-- widget content -->
+                        &lt;!&ndash; widget content &ndash;&gt;
 
 
                         <div class="col-lg-6 col-md-6">
@@ -195,13 +195,13 @@
                         </div>
                         <div class="col-lg-6 col-md-6">
                             <label for="">Organization:<span class="control-label redSpan">&nbsp;*</span></label>
-                            <select id="orgname" class="form-control chooseOrganization width-100" sourcepath="1" datapath="masterjson.rows.row" linkedfields="['productgroupname','environmentname','teamname']"  cdata="catalyst" cat-validation="required">
+                            <select id="orgNameProject" class="form-control chooseOrganization width-100" sourcepath="1" datapath="masterjson.rows.row" linkedfields="['productgroupname','environmentname','teamname']"  cdata="catalyst" cat-validation="required">
                                 <option value="">Select Organization</option>
                             </select>
                         </div>
                         <div class="col-lg-6 col-md-6" style="margin-top:15px;">
                             <label for="">Business Group:<span class="control-label redSpan">&nbsp;*</span></label>
-                            <select id="productgroupname" class="form-control chooseBG width-100" sourcepath="2" datapath="masterjson.rows.row" linkedto="orgname"  cdata="catalyst" cat-validation="required">
+                            <select id="productGroupNameProject" class="form-control chooseBG width-100" sourcepath="2" datapath="masterjson.rows.row" linkedto="orgname"  cdata="catalyst" cat-validation="required">
                                 <option value="">Select Business Group</option>
                             </select>
                         </div>
@@ -232,7 +232,7 @@
     </div>
     <input type="button" name="previous" class="previous action-button" value="Previous" />
     <input type="button" name="next" class="next action-button" value="Next" />
-</form>
+</form>-->
 
 <!-- <fieldset>
    <h2 class="fs-title">Social Profiles</h2>
@@ -278,31 +278,59 @@
      });*/
 
     $('#myFormOrg').submit(function(e){
-        var orgName = $('#orgName').val();
-        var domainName = $('#domainName').val();
-        var awsCost = $('#plannedCost').val();
-        var fileinputs = null;
-        var formdata = new FormData($(this)[0]);
-        var reqBody = {
-            "orgname":orgName,
-            "domainname":domainName,
-            "plannedCost":awsCost
+        if ($(this).valid) {
+            if (!saveform('1')) return false;
+
+        } else {
+            alert('invalid valid form submitted'); // for demo
         }
-        $.ajax({
-            url:"/d4dMasters/savemasterjsonrow/"+ 1 + "/"+ fileinputs + "/" + orgName,
-            type:"POST",
-            data : formdata,
-            processData:false,
-            contentType: false,
-            dataType: "json",
-            success:function(data,success){
-                console.log(data);
-            }
-        });
-        return false;
+        return false; // for demo
     });
 
+    $('#myFormBU').submit(function(e){
+        if ($(this).valid) {
+            if (!saveform('2')) return false;
 
+        } else {
+            alert('invalid valid form submitted'); // for demo
+        }
+        return false; // for demo
+    });
+
+    $(".next").click(function(){
+        if(animating) return false;
+        animating = true;
+
+        current_fs = $(this).parent();
+        next_fs = $(this).parent().next();
+
+        //activate next step on progressbar using the index of next_fs
+        $("#progressbar li").eq($("form").index(next_fs)).addClass("active");
+
+        //show the next fieldset
+        next_fs.show();
+        //hide the current fieldset with style
+        current_fs.animate({opacity: 0}, {
+            step: function(now, mx) {
+                //as the opacity of current_fs reduces to 0 - stored in "now"
+                //1. scale current_fs down to 80%
+                scale = 1 - (1 - now) * 0.2;
+                //2. bring next_fs from the right(50%)
+                left = (now * 50)+"%";
+                //3. increase opacity of next_fs to 1 as it moves in
+                opacity = 1 - now;
+                current_fs.css({'transform': 'scale('+scale+')'});
+                next_fs.css({'left': left, 'opacity': opacity});
+            },
+            duration: 800,
+            complete: function(){
+                current_fs.hide();
+                animating = false;
+            },
+            //this comes from the custom easing plugin
+            easing: 'easeInOutBack'
+        });
+    });
 
     $(".previous").click(function(){
         if(animating) return false;
@@ -338,9 +366,4 @@
             easing: 'easeInOutBack'
         });
     });
-
-    $(".submit").click(function(){
-        return false;
-    })
-
 </script>
