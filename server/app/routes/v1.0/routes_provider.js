@@ -2162,6 +2162,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		var orgId = req.body.orgId;
 		var s3BucketName=req.body.s3BucketName;
 		var plannedCost=req.body.plannedCost;
+		if(plannedCost === null || plannedCost ===''){
+			plannedCost=0.0;
+		}
 		var isDefault = (req.body.isDefault === 'true') ? true : false;
 		var hasDefaultProvider = false;
 
@@ -2457,6 +2460,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		var orgId = req.body.orgId;
 		var s3BucketName = req.body.s3BucketName;
 		var plannedCost = req.body.plannedCost;
+		if(plannedCost === null || plannedCost ===''){
+			plannedCost=0.0;
+		}
 		if (typeof providerId === 'undefined' || providerId.length === 0) {
 			res.status(400).send("{Please Enter ProviderId.}");
 			return;

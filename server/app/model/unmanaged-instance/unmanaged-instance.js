@@ -292,15 +292,15 @@ UnmanagedInstanceSchema.statics.getInstancesByProviderIdOrgIdAndPlatformId = fun
 UnmanagedInstanceSchema.statics.updateInstanceStatus = function updateInstanceStatus(instanceId,instance,callback) {
 	var updateObj={};
 	updateObj['state'] = instance.state;
-	updateObj['subnetId']= instance.subnetId;
-	updateObj['ip'] = instance.ip;
-	updateObj['vpcId'] = instance.vpcId;
-	updateObj['privateIpAddress'] = instance.privateIpAddress;
-	updateObj['tags'] = instance.tags;
-	if(instance.state === 'terminated'){
+	if(instance.state === 'terminated' || instance.state === 'shutting-down'){
 		updateObj['isDeleted'] = true;
 	}else{
-		updateObj['isDeleted'] = false;  
+		updateObj['isDeleted'] = false;
+		updateObj['subnetId']= instance.subnetId;
+		updateObj['ip'] = instance.ip;
+		updateObj['vpcId'] = instance.vpcId;
+		updateObj['privateIpAddress'] = instance.privateIpAddress;
+		updateObj['tags'] = instance.tags;
 	}
 	UnmanagedInstance.update({
 			"_id": ObjectId(instanceId)
