@@ -289,8 +289,8 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                     logger.debug("successfully task history created. ", JSON.stringify(tData));
                 });
             } else {
-                taskHistoryData.executionOrder = "PARALLEL";
-                taskHistoryData.save();
+                taskHistory.executionOrder = "PARALLEL";
+                taskHistory.save();
             }
         } else {
             taskHistory = new TaskHistory(taskHistoryData);
@@ -320,6 +320,13 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
 
         //updating task history
         if (taskHistory) {
+            logger.debug('id ===>'+taskHistory._id);
+            logger.debug('isNew ===>'+taskHistory.isNew);
+            
+            taskHistory.isNew = false;
+            
+            logger.debug('isNew ===>'+taskHistory.isNew);
+            
             taskHistory.timestampEnded = self.timestampEnded;
             taskHistory.status = self.lastTaskStatus;
             logger.debug("resultData: ", JSON.stringify(resultData));
@@ -332,7 +339,15 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                 }
 
             }
-            if (self.taskConfig.executionOrder === "SERIAL") {
+            if(self.taskType === "composite"){
+
+                taskHistory.executionOrder = self.taskConfig.executionOrder;
+                taskHistory.save(function(err,hist){
+                    //logger.debug('save callled ===================>',JSON.stringify(err),JSON.stringify(hist));
+
+                });
+            }
+            if (self.taskType != "composite" && self.taskConfig.executionOrder === "SERIAL") {
                 taskHistory.nodeIdsWithActionLog = null;
                 taskHistory.executionOrder = "SERIAL";
                 TaskHistory.createNewOrUpdate(taskHistory.refId, taskHistory, function(err, tData) {

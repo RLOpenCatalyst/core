@@ -70,13 +70,13 @@ function serialExecution(that, userName, baseUrl, choiceParam, nexusData, bluepr
                 }
             }
         }
-        count = 0;
+        count12 = 0;
 
         logger.debug('tasks length', task.length);
 
-        function executeTasks(count) {
+        function executeTasks(count1) {
 
-            task[count].execute(userName, baseUrl, choiceParam, nexusData, task[count].blueprintIds, envId, function(err, taskExecuteData, history) {
+            task[count1].execute(userName, baseUrl, choiceParam, nexusData, task[count1].blueprintIds, envId, function(err, taskExecuteData, history) {
                 logger.debug("Calling...");
                 if (err) {
                     console.error(err);
@@ -86,10 +86,13 @@ function serialExecution(that, userName, baseUrl, choiceParam, nexusData, bluepr
                     taskHistory.taskHistoryIds = [];
                 }
                 taskHistory.taskHistoryIds.push({
-                    taskId: task[count].id,
+                    taskId: task[count1].id,
                     historyId: history.id
                 });
-                taskHistory.save();
+                taskHistory.isNew = false;
+                taskHistory.save(function(err,sdata){
+                	logger.debug('save callled =>',JSON.stringify(err),JSON.stringify(sdata));
+                });
             }, function(err, status) {
                 if (err) {
                     if (typeof onComplete === 'function') {
@@ -97,15 +100,16 @@ function serialExecution(that, userName, baseUrl, choiceParam, nexusData, bluepr
                     }
                     return;
                 }
-                count++;
-                logger.debug("count ", count);
-                if (count < tasks.length) {
+                count12++;
+                logger.debug("count: ", count12);
+                if (count12 < tasks.length) {
                     if (status === 0) {
-                        executeTasks(count);
+                        executeTasks(count12);
                     } else {
                         onComplete(null, 1);
                     }
                 } else {
+                	logger.debug("Firing onComplete: ",status);
                     if (status === 0) {
                         onComplete(null, 0);
                     } else {
@@ -117,7 +121,7 @@ function serialExecution(that, userName, baseUrl, choiceParam, nexusData, bluepr
             });
         }
 
-        executeTasks(count);
+        executeTasks(count12);
     });
     logger.debug(this.assignTasks);
 
