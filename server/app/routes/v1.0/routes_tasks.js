@@ -23,7 +23,7 @@ var Application = require('_pr/model/classes/application/application');
 var instancesDao = require('_pr/model/classes/instance/instance');
 var TaskHistory = require('_pr/model/classes/tasks/taskHistory');
 var logger = require('_pr/logger')(module);
-var taskService = require('_pr/services/taskService.js')
+var taskService = require('_pr/services/taskService.js');
 var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 
@@ -38,7 +38,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
     app.all('/tasks/*', sessionVerification);
 
     app.get('/tasks/history/list/all', function(req, res) {
-        logger.debug("------------------ ",JSON.stringify(TaskHistory));
         TaskHistory.listHistory(function(err, tHistories) {
             if (err) {
                 res.status(500).send(errorResponses.db.error);
@@ -166,9 +165,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
                             return;
                         }
                         if (deleteCount) {
-                            TaskHistory.removeByTaskId(req.params.taskId,function(err,removed){
-                                if(err){
-                                    logger.error("Failed to remove history: ",err);
+                            TaskHistory.removeByTaskId(req.params.taskId, function(err, removed) {
+                                if (err) {
+                                    logger.error("Failed to remove history: ", err);
                                 }
                             });
                             res.send({
@@ -417,7 +416,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
     });
 
     app.get('/tasks/:taskId/history/:historyId', function(req, res) {
-
         Tasks.getTaskById(req.params.taskId, function(err, task) {
             if (err) {
                 logger.error(err);
@@ -431,15 +429,23 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 return;
             }
 
-            task.getHistoryById(req.params.historyId, function(err, history) {
-                if (err) {
-                    res.status(500).send({
-                        message: "Server Behaved Unexpectedly"
-                    });
-                    return;
-                }
-                res.send(200, history);
-            });
+            if (req.params.historyId != 'undefined') {
+                task.getHistoryById(req.params.historyId, function(err, history) {
+                    if (err) {
+                        res.status(500).send({
+                            message: "Server Behaved Unexpectedly"
+                        });
+                        return;
+                    }
+                    if(history){
+                        history['executionOrder'] = task.taskConfig.executionOrder;
+                    }
+                    res.send(200, history);
+                });
+            }else{
+                res.send({});
+            }
+
         });
     });
 
@@ -494,6 +500,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 return;
             }
             if (updateCount) {
+                if (updateCount.isScheduled && updateCount.cron) {
+                    taskService.executeScheduleJob(updateCount);
+                }
                 res.send({
                     updateCount: updateCount
                 });

@@ -111,7 +111,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                 res.send(orgTree);
                                 return;
                             } else if (orgs.length > 0) {
-                                var orgIds =[];
+                                var orgIds = [];
                                 for (var i = 0; i < orgs.length; i++) {
                                     orgIds.push(orgs[i].rowid);
                                     orgTree.push({
@@ -122,10 +122,10 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                         environments: []
                                     });
                                 }
-                                if(orgs.length === orgTree.length){
+                                if (orgs.length === orgTree.length) {
                                     d4dModelNew.d4dModelMastersProductGroup.find({
                                         id: 2,
-                                        orgname_rowid:{
+                                        orgname_rowid: {
                                             $in: orgIds
                                         },
                                         rowid: {
@@ -138,11 +138,11 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                             return;
                                         } else if (bgs.length > 0) {
                                             var count = 0;
-                                            for(var j = 0; j < bgs.length; j++){
-                                                (function(bg){
+                                            for (var j = 0; j < bgs.length; j++) {
+                                                (function(bg) {
                                                     count++;
-                                                    for(var k = 0; k < orgTree.length; k++){
-                                                        if(bg.orgname_rowid[0] === orgTree[k].rowid){
+                                                    for (var k = 0; k < orgTree.length; k++) {
+                                                        if (bg.orgname_rowid[0] === orgTree[k].rowid) {
                                                             orgTree[k].businessGroups.push({
                                                                 name: bg.productgroupname,
                                                                 rowid: bg.rowid,
@@ -152,113 +152,115 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     }
                                                 })(bgs[j]);
                                             }
-                                            if(count === bgs.length){
-                                                var orgCount = 0,bgCount = 0,loopCount = 0;
-                                                for(var m = 0;m < orgTree.length;m++){
-                                                   (function(tree){
-                                                       orgCount++;
-                                                       for(var n = 0; n < tree.businessGroups.length;n++){
-                                                           (function(bgTree){
-                                                               bgCount++
-                                                               d4dModelNew.d4dModelMastersTeams.find({
-                                                                   id: 21,
-                                                                   orgname_rowid: tree.rowid,
-                                                                   productgroupname_rowid: bgTree.rowid
-                                                               }, function(err, teams) {
-                                                                   if (err) {
-                                                                       logger.debug("Hit an error in get Active Team : " + err);
-                                                                       res.send(orgTree);
-                                                                       return;
-                                                                   } else if (teams.length > 0) {
-                                                                       var teamCount = 0,projectCount = 0,environmentCount = 0;
-                                                                       var checkDuplicateProjectList =[];
-                                                                       var checkDuplicateEnvList =[];
-                                                                       for(var o = 0; o < teams.length;o++){
-                                                                           (function(team){
-                                                                               teamCount++;
-                                                                               var projectIds = team.projectname_rowid.split(',');
-                                                                               var projectNames = team.projectname.split(',');
-                                                                               for (var p = 0; p < projectIds.length; p++) {
-                                                                                   if (projectIds[p] !== "") {
-                                                                                       if (checkDuplicateProjectList.indexOf(projectNames[p]) === -1) {
-                                                                                           projectCount++;
-                                                                                           checkDuplicateProjectList.push(projectNames[p]);
-                                                                                           var envIds = team.environmentname_rowid.split(',');
-                                                                                           var envNames = team.environmentname.split(',');
-                                                                                           var envList = [];
-                                                                                           for (var q = 0; q < envIds.length; q++) {
-                                                                                               if(envIds[q] !== "" && checkDuplicateEnvList.indexOf(envNames[q])) {
-                                                                                                   checkDuplicateEnvList.push(envNames[p]);
-                                                                                                   environmentCount++;
-                                                                                                   envList.push({
-                                                                                                       name: envNames[q],
-                                                                                                       rowid: envIds[q]
-                                                                                                   })
-                                                                                               }else{
-                                                                                                   return;
-                                                                                               }
-                                                                                           }
-                                                                                           if (envList.length === envIds.length) {
-                                                                                               bgTree.projects.push({
-                                                                                                   name: projectNames[p],
-                                                                                                   rowid: projectIds[p],
-                                                                                                   environments: envList
-                                                                                               });
-                                                                                               tree.environments = envList;
-                                                                                           }
-                                                                                       } else {
-                                                                                           var envList = bgTree.projects[p].environments;
-                                                                                           var envIds = team.environmentname_rowid.split(',');
-                                                                                           var envNames = team.environmentname.split(',');
-                                                                                           var envCount = 0;
-                                                                                           for (var r = 0; r < envIds.length; r++) {
-                                                                                               if(envIds[q] !== "") {
-                                                                                                   if (checkDuplicateEnvList.indexOf(envNames[r]) === -1) {
-                                                                                                       envCount++;
-                                                                                                       environmentCount++;
-                                                                                                       checkDuplicateEnvList.push(envNames[r]);
-                                                                                                       envList.push({
-                                                                                                           name: envNames[r],
-                                                                                                           rowid: envIds[r]
-                                                                                                       })
-                                                                                                   } else {
-                                                                                                       envCount++;
-                                                                                                   }
-                                                                                               }else{
-                                                                                                   return;
-                                                                                               }
-                                                                                           }
-                                                                                           if (envCount === envIds.length) {
-                                                                                               bgTree.projects[p].environments = envList;
-                                                                                               tree.environments = envList;
-                                                                                           }
-                                                                                       }
-                                                                                       if(orgCount === orgs.length && bgCount === bgs.length
-                                                                                           && teamCount === teams.length && projectCount === checkDuplicateProjectList.length
-                                                                                           && environmentCount === checkDuplicateEnvList.length){
-                                                                                           loopCount++;
-                                                                                           if(loopCount === orgCount){
-                                                                                               res.send(orgTree);
-                                                                                               return;
-                                                                                           }
-                                                                                       }
-                                                                                   }
-                                                                               }
+                                            if (count === bgs.length) {
+                                                var orgCount = 0,
+                                                    bgCount = 0,
+                                                    loopCount = 0;
+                                                for (var m = 0; m < orgTree.length; m++) {
+                                                    (function(tree) {
+                                                        orgCount++;
+                                                        for (var n = 0; n < tree.businessGroups.length; n++) {
+                                                            (function(bgTree) {
+                                                                bgCount++
+                                                                d4dModelNew.d4dModelMastersTeams.find({
+                                                                    id: 21,
+                                                                    orgname_rowid: tree.rowid,
+                                                                    productgroupname_rowid: bgTree.rowid
+                                                                }, function(err, teams) {
+                                                                    if (err) {
+                                                                        logger.debug("Hit an error in get Active Team : " + err);
+                                                                        res.send(orgTree);
+                                                                        return;
+                                                                    } else if (teams.length > 0) {
+                                                                        var teamCount = 0,
+                                                                            projectCount = 0,
+                                                                            environmentCount = 0;
+                                                                        var checkDuplicateProjectList = [];
+                                                                        var checkDuplicateEnvList = [];
+                                                                        for (var o = 0; o < teams.length; o++) {
+                                                                            (function(team) {
+                                                                                teamCount++;
+                                                                                var projectIds = team.projectname_rowid.split(',');
+                                                                                var projectNames = team.projectname.split(',');
+                                                                                for (var p = 0; p < projectIds.length; p++) {
+                                                                                    if (projectIds[p] !== "") {
+                                                                                        if (checkDuplicateProjectList.indexOf(projectNames[p]) === -1) {
+                                                                                            projectCount++;
+                                                                                            checkDuplicateProjectList.push(projectNames[p]);
+                                                                                            var envIds = team.environmentname_rowid.split(',');
+                                                                                            var envNames = team.environmentname.split(',');
+                                                                                            var envList = [];
+                                                                                            for (var q = 0; q < envIds.length; q++) {
+                                                                                                if (envIds[q] !== "" && checkDuplicateEnvList.indexOf(envNames[q])) {
+                                                                                                    checkDuplicateEnvList.push(envNames[p]);
+                                                                                                    environmentCount++;
+                                                                                                    envList.push({
+                                                                                                        name: envNames[q],
+                                                                                                        rowid: envIds[q]
+                                                                                                    })
+                                                                                                } else {
+                                                                                                    return;
+                                                                                                }
+                                                                                            }
+                                                                                            if (envList.length === envIds.length) {
+                                                                                                bgTree.projects.push({
+                                                                                                    name: projectNames[p],
+                                                                                                    rowid: projectIds[p],
+                                                                                                    environments: envList
+                                                                                                });
+                                                                                                tree.environments = envList;
+                                                                                            }
+                                                                                        } else {
+                                                                                            var envList = bgTree.projects[p].environments;
+                                                                                            var envIds = team.environmentname_rowid.split(',');
+                                                                                            var envNames = team.environmentname.split(',');
+                                                                                            var envCount = 0;
+                                                                                            for (var r = 0; r < envIds.length; r++) {
+                                                                                                if (envIds[q] !== "") {
+                                                                                                    if (checkDuplicateEnvList.indexOf(envNames[r]) === -1) {
+                                                                                                        envCount++;
+                                                                                                        environmentCount++;
+                                                                                                        checkDuplicateEnvList.push(envNames[r]);
+                                                                                                        envList.push({
+                                                                                                            name: envNames[r],
+                                                                                                            rowid: envIds[r]
+                                                                                                        })
+                                                                                                    } else {
+                                                                                                        envCount++;
+                                                                                                    }
+                                                                                                } else {
+                                                                                                    return;
+                                                                                                }
+                                                                                            }
+                                                                                            if (envCount === envIds.length) {
+                                                                                                bgTree.projects[p].environments = envList;
+                                                                                                tree.environments = envList;
+                                                                                            }
+                                                                                        }
+                                                                                        if (orgCount === orgs.length && bgCount === bgs.length && teamCount === teams.length && projectCount === checkDuplicateProjectList.length && environmentCount === checkDuplicateEnvList.length) {
+                                                                                            loopCount++;
+                                                                                            if (loopCount === orgCount) {
+                                                                                                res.send(orgTree);
+                                                                                                return;
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                }
 
-                                                                           })(teams[o]);
-                                                                       }
-                                                                   }else{
-                                                                       logger.debug("Not found any Teams");
-                                                                       if(orgCount === orgs.length && bgCount === bgs.length){
-                                                                           res.send(orgTree);
-                                                                           return;
-                                                                       }
-                                                                   }
-                                                               })
-                                                           })(tree.businessGroups[n]);
-                                                       }
-                                                   })(orgTree[m]);
-                                               }
+                                                                            })(teams[o]);
+                                                                        }
+                                                                    } else {
+                                                                        logger.debug("Not found any Teams");
+                                                                        if (orgCount === orgs.length && bgCount === bgs.length) {
+                                                                            res.send(orgTree);
+                                                                            return;
+                                                                        }
+                                                                    }
+                                                                })
+                                                            })(tree.businessGroups[n]);
+                                                        }
+                                                    })(orgTree[m]);
+                                                }
                                             }
                                         } else {
                                             logger.debug("No Product Group found.");
@@ -313,7 +315,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                 res.send(orgTree);
                                 return;
                             } else if (orgs.length > 0) {
-                                var orgIds =[];
+                                var orgIds = [];
                                 for (var i = 0; i < orgs.length; i++) {
                                     orgIds.push(orgs[i].rowid);
                                     orgTree.push({
@@ -330,10 +332,10 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                         environments: []
                                     });
                                 }
-                                if(orgs.length === orgTree.length){
+                                if (orgs.length === orgTree.length) {
                                     d4dModelNew.d4dModelMastersProductGroup.find({
                                         id: 2,
-                                        orgname_rowid:{
+                                        orgname_rowid: {
                                             $in: orgIds
                                         },
                                         rowid: {
@@ -346,11 +348,11 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                             return;
                                         } else if (bgs.length > 0) {
                                             var count = 0;
-                                            for(var j = 0; j < bgs.length; j++){
-                                                (function(bg){
+                                            for (var j = 0; j < bgs.length; j++) {
+                                                (function(bg) {
                                                     count++;
-                                                    for(var k = 0; k < orgTree.length; k++){
-                                                        if(bg.orgname_rowid[0] === orgTree[k].rowid){
+                                                    for (var k = 0; k < orgTree.length; k++) {
+                                                        if (bg.orgname_rowid[0] === orgTree[k].rowid) {
                                                             orgTree[k].businessGroups.push({
                                                                 name: bg.productgroupname,
                                                                 text: bg.productgroupname,
@@ -377,30 +379,34 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     }
                                                 })(bgs[j]);
                                             }
-                                            if(count === bgs.length){
-                                                var orgCount = 0,bgCount = 0,loopCount = 0;
-                                                for(var m = 0;m < orgTree.length;m++){
-                                                    (function(tree){
+                                            if (count === bgs.length) {
+                                                var orgCount = 0,
+                                                    bgCount = 0,
+                                                    loopCount = 0;
+                                                for (var m = 0; m < orgTree.length; m++) {
+                                                    (function(tree) {
                                                         orgCount++;
-                                                        for(var n = 0; n < tree.businessGroups.length;n++){
-                                                            (function(bgTree){
+                                                        for (var n = 0; n < tree.businessGroups.length; n++) {
+                                                            (function(bgTree) {
                                                                 bgCount++;
                                                                 d4dModelNew.d4dModelMastersTeams.find({
                                                                     id: 21,
                                                                     orgname_rowid: tree.rowid,
                                                                     productgroupname_rowid: bgTree.rowid
                                                                 }, function(err, teams) {
-                                                                	logger.debug("Hit Team: ",JSON.stringify(teams));
+                                                                    logger.debug("Hit Team: ", JSON.stringify(teams));
                                                                     if (err) {
                                                                         logger.debug("Hit an error in get Active Team : " + err);
                                                                         res.send(orgTree);
                                                                         return;
                                                                     } else if (teams.length > 0) {
-                                                                        var teamCount = 0,projectCount = 0,environmentCount = 0;
-                                                                        var checkDuplicateProjectList =[];
-                                                                        var checkDuplicateEnvList =[];
-                                                                        for(var o = 0; o < teams.length;o++){
-                                                                            (function(team){
+                                                                        var teamCount = 0,
+                                                                            projectCount = 0,
+                                                                            environmentCount = 0;
+                                                                        var checkDuplicateProjectList = [];
+                                                                        var checkDuplicateEnvList = [];
+                                                                        for (var o = 0; o < teams.length; o++) {
+                                                                            (function(team) {
                                                                                 teamCount++;
                                                                                 var projectIds = team.projectname_rowid.split(',');
                                                                                 var projectNames = team.projectname.split(',');
@@ -412,9 +418,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                                             var envIds = team.environmentname_rowid.split(',');
                                                                                             var envNames = team.environmentname.split(',');
                                                                                             var envList = [];
-                                                                                            logger.debug("envIds: ",JSON.stringify(envIds));
+                                                                                            logger.debug("envIds: ", JSON.stringify(envIds));
                                                                                             for (var q = 0; q < envIds.length; q++) {
-                                                                                                if(envIds[q] !== "" && checkDuplicateEnvList.indexOf(envNames[q]) === -1) {
+                                                                                                if (envIds[q] !== "" && checkDuplicateEnvList.indexOf(envNames[q]) === -1) {
                                                                                                     checkDuplicateEnvList.push(envNames[q]);
                                                                                                     environmentCount++;
                                                                                                     envList.push({
@@ -429,7 +435,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                                                         tooltip: envNames[q],
                                                                                                         icon: 'fa fa-fw fa-1x fa-desktop'
                                                                                                     });
-                                                                                                }else{
+                                                                                                } else {
                                                                                                     return;
                                                                                                 }
                                                                                             }
@@ -469,7 +475,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                                             var envNames = team.environmentname.split(',');
                                                                                             var envCount = 0;
                                                                                             for (var r = 0; r < envIds.length; r++) {
-                                                                                                if(envIds[q] !== "" && checkDuplicateEnvList.indexOf(envNames[r]) === -1) {
+                                                                                                if (envIds[q] !== "" && checkDuplicateEnvList.indexOf(envNames[r]) === -1) {
                                                                                                     envCount++;
                                                                                                     checkDuplicateEnvList.push(envNames[r]);
                                                                                                     environmentCount++;
@@ -496,11 +502,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                                             }
 
                                                                                         }
-                                                                                        if(orgCount === orgs.length && bgCount === bgs.length
-                                                                                            && teamCount === teams.length && projectCount === checkDuplicateProjectList.length
-                                                                                            && environmentCount === checkDuplicateEnvList.length){
+                                                                                        if (orgCount === orgs.length && bgCount === bgs.length && teamCount === teams.length && projectCount === checkDuplicateProjectList.length && environmentCount === checkDuplicateEnvList.length) {
                                                                                             loopCount++;
-                                                                                            if(loopCount === orgCount){
+                                                                                            if (loopCount === orgCount) {
                                                                                                 res.send(orgTree);
                                                                                                 return;
                                                                                             }
@@ -510,9 +514,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
                                                                             })(teams[o]);
                                                                         }
-                                                                    }else{
+                                                                    } else {
                                                                         logger.debug("Not found any Teams");
-                                                                        if(orgCount === orgs.length && bgCount === bgs.length){
+                                                                        if (orgCount === orgs.length && bgCount === bgs.length) {
                                                                             res.send(orgTree);
                                                                             return;
                                                                         }
@@ -1319,6 +1323,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
         taskData.projectId = req.params.projectId;
         taskData.envId = req.params.envId;
         taskData.autoSyncFlag = req.body.taskData.autoSyncFlag;
+        taskData.userName = req.session.user.cn;
 
         masterUtil.getParticularProject(req.params.projectId, function(err, project) {
             if (err) {
@@ -1348,8 +1353,13 @@ module.exports.setRoutes = function(app, sessionVerification) {
                         res.status(500).send("Failed to create task: ", err);
                         return;
                     }
+                    if (task.isScheduled && task.cron) {
+                        taskService.executeScheduleJob(task);
+                    }
+
                     res.send(task);
                     logger.debug("Exit post() for /organizations/%s/businessGroups/%s/projects/%s/environments/%s/tasks", req.params.orgId, req.params.bgId, req.params.projectId, req.params.environments);
+                    return;
                 });
             });
         });

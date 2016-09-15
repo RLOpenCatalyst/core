@@ -117,6 +117,21 @@ var taskSchema = new Schema({
         type: String,
         required: true,
         trim: true
+    },
+    userName: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    isScheduled: {
+        type: Boolean,
+        default: false
+    },
+    cron: {
+        type: String
+    },
+    cronJobId: {
+        type: String
     }
 });
 taskSchema.plugin(mongoosePaginate);
@@ -185,7 +200,6 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
             callback(err, null);
             return;
         }
-
         // hack for composite task
         if (taskHistoryEntry) {
             var keys = Object.keys(taskHistoryData);
@@ -195,7 +209,6 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
             taskHistoryData = taskHistoryEntry;
         }
 
-        logger.debug("Task last run timestamp updated", JSON.stringify(taskExecuteData));
         self.lastRunTimestamp = timestamp;
         self.lastTaskStatus = TASK_STATUS.RUNNING;
         self.save(function(err, data) {
@@ -220,6 +233,9 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                     actionLogId: taskExecuteData.instances[i].tempActionLogId
                 }
                 taskHistoryData.nodeIdsWithActionLog.push(obj);
+            }
+            if (taskExecuteData.refId) {
+                taskHistoryData.refId = taskExecuteData.refId;
             }
         }
 
@@ -263,11 +279,33 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
         }
         // hack for composite task
         if (taskHistoryEntry) {
-            taskHistoryData.save();
-            taskHistory = taskHistoryData;
+            taskHistory = new TaskHistory(taskHistoryData);;
+            if (self.taskConfig.executionOrder === "SERIAL") {
+                taskHistory.executionOrder = "SERIAL";
+                TaskHistory.createNewOrUpdate(taskHistoryData.refId, taskHistory, function(err, tData) {
+                    if (err) {
+                        logger.error("Failed to create history: ", err);
+                    }
+                    logger.debug("successfully task history created. ", JSON.stringify(tData));
+                });
+            } else {
+                taskHistoryData.executionOrder = "PARALLEL";
+                taskHistoryData.save();
+            }
         } else {
             taskHistory = new TaskHistory(taskHistoryData);
-            taskHistory.save();
+            if (self.taskConfig.executionOrder === "SERIAL") {
+                taskHistory.executionOrder = "SERIAL";
+                TaskHistory.createNewOrUpdate(taskHistoryData.refId, taskHistory, function(err, tData) {
+                    if (err) {
+                        logger.error("Failed to create history: ", err);
+                    }
+                    logger.debug("successfully task history created. ", JSON.stringify(tData));
+                });
+            } else {
+                taskHistory.executionOrder = "PARALLEL";
+                taskHistory.save();
+            }
         }
 
         callback(null, taskExecuteData, taskHistory);
@@ -294,7 +332,19 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                 }
 
             }
-            taskHistory.save();
+            if (self.taskConfig.executionOrder === "SERIAL") {
+                taskHistory.nodeIdsWithActionLog = null;
+                taskHistory.executionOrder = "SERIAL";
+                TaskHistory.createNewOrUpdate(taskHistory.refId, taskHistory, function(err, tData) {
+                    if (err) {
+                        logger.error("Failed to create history: ", err);
+                    }
+                    logger.debug("successfully task history created. ", JSON.stringify(tData));
+                });
+            } else {
+                taskHistory.executionOrder = "PARALLEL";
+                taskHistory.save();
+            }
         }
 
         if (typeof onComplete === 'function') {
@@ -500,7 +550,7 @@ taskSchema.statics.getTasksByOrgBgProjectAndEnvId = function(jsonData, callback)
             if (err) {
                 var err = new Error('Internal server error');
                 err.status = 500;
-                return callback(err,null);
+                return callback(err, null);
             }
             callback(null, tasks);
         });
@@ -523,15 +573,15 @@ taskSchema.statics.getTasksByOrgBgProjectAndEnvId = function(jsonData, callback)
     }
 };
 
-taskSchema.statics.getScriptTypeTask = function(callback){
+taskSchema.statics.getScriptTypeTask = function(callback) {
     this.find({
         "taskConfig.taskType": "script"
     }, function(err, tasks) {
         if (err) {
             logger.error(err);
             callback(err, null);
-        }else{
-            callback(null,tasks);
+        } else {
+            callback(null, tasks);
         }
     });
 };
@@ -659,9 +709,13 @@ taskSchema.statics.updateTaskById = function(taskId, taskData, callback) {
             callback(err, null);
             return;
         }
-        logger.debug('Updated task:' + JSON.stringify(Tasks));
-        callback(null, updateCount);
-
+        logger.debug('Updated task:' + JSON.stringify(updateCount));
+        Tasks.find({ _id: new ObjectId(taskId) }, function(err, task) {
+            if (err) {
+                return callback(err, null);
+            }
+            return callback(null, task[0]);
+        });
     });
 
 };
@@ -816,6 +870,39 @@ taskSchema.statics.updateTaskConfig = function updateTaskConfig(taskId, taskConf
         }
         logger.debug('Updated task:' + updateCount);
         return callback(null, updateCount);
+
+    });
+};
+
+taskSchema.statics.getScheduledTask = function(callback) {
+    this.find({
+        "isScheduled": true
+    }, function(err, data) {
+        if (err) {
+            logger.error(err);
+            callback(err, null);
+            return;
+        }
+        return callback(null, data);
+    });
+};
+
+taskSchema.statics.updateCronJobId = function(taskId, jobId, callback) {
+    Tasks.update({
+        "_id": new ObjectId(taskId)
+    }, {
+        $set: {
+            cronJobId: jobId
+        }
+    }, {
+        upsert: false
+    }, function(err, updateCount) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        logger.debug('Updated task:' + updateCount);
+        callback(null, updateCount);
 
     });
 };
