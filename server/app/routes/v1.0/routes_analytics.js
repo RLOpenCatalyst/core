@@ -32,14 +32,17 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      * @apiSuccess {String}   aggregatedCost.period                                         Cost aggregation period
      * @apiSuccess {Date}   aggregatedCost.fromTime                                         From time
      * @apiSuccess {Date}   aggregatedCost.toTime                                           To time
-     * @apiSuccess {Number}   aggregatedCost.totalCost                                      Total Cost
+     * @apiSuccess {Object}   aggregatedCost.cost                                           Cost for entity
+     * @apiSuccess {Number}   aggregatedCost.cost.totalCost                                 Total cost
+     * @apiSuccess {Object}   aggregatedCost.cost.awsCosts                                  AWS cost
+     * @apiSuccess {Number}   aggregatedCost.cost.awsCosts.totalCost                        AWS total cost
+     * @apiSuccess {Object}   aggregatedCost.cost.awsCosts.serviceCost                      AWS service costs splitup
      * @apiSuccess {Object}   aggregatedCost.serviceCosts                                   Platform specific service cost
      * @apiSuccess {Object[]}   aggregatedCost.splitUpCosts                                 Split up cost
      * @apiSuccess {Object}   aggregatedCost.splitUpCosts.CATALYST_ENTITY_TYPE              Cost split up based on catalyst entity
      * @apiSuccess {Object}   aggregatedCost.splitUpCosts.CATALYST_ENTITY_TYPE.id           Catalyst entity ID
      * @apiSuccess {Object}   aggregatedCost.splitUpCosts.CATALYST_ENTITY_TYPE.name         Catalyst entity name
-     * @apiSuccess {Object}   aggregatedCost.splitUpCosts.CATALYST_ENTITY_TYPE.totalCost    Total cost for the entity
-     * @apiSuccess {Object}   aggregatedCost.splitUpCosts.CATALYST_ENTITY_TYPE.serviceCosts Platform specific service costs split up
+     * @apiSuccess {Object}   aggregatedCost.splitUpCosts.CATALYST_ENTITY_TYPE.cost         Total cost and provider type wise splitup costs
      *
      * @apiSuccessExample {json} Sample_Response_1:
      * 	HTTP/1.1 200 OK
@@ -48,75 +51,114 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
           "period": "month",
           "fromTime": "2016-08-01T00:00:00",
           "toTime": "2016-08-12T00:00:00",
-          "totalCost": 300,
-          "serviceCosts": {
-            "ec2": 150,
-            "rds": 90,
-            "s3": 60
+          "catalystEntity": {
+                "type": "organization",
+                "id": "q23ro9uasoidfElasdf"
+          },
+          "cost": {
+            "totalCost": 300,
+            "awsCosts": {
+                "totalCost": 300,
+                "serviceCosts": {
+                    "ec2": 150,
+                    "rds": 90,
+                    "s3": 60
+                }
+            }
           },
           "splitUpCosts": {
             "businessUnits": [
               {
                 "id": "<businessUnit_1_id>",
                 "name": "Business Unit 1",
-                "totalCost": 100,
-                "serviceCosts": {
-                    "ec2": 50,
-                    "rds": 20,
-                    "s3": 30
-                }
+                "cost": {
+                    "totalCost": 100,
+                    "awsCosts": {
+                        "totalCost": 100,
+                        "serviceCosts": {
+                            "ec2": 50,
+                            "rds": 20,
+                            "s3": 30
+                        }
+                    }
+                 }
               },
               {
                 "id": "<businessUnit_2_id>",
                 "name": "Business Unit 2",
-                "totalCost": 100,
-                "serviceCosts": {
-                    "ec2": 50,
-                    "rds": 20,
-                    "s3": 30
-                }
+                "cost": {
+                    "totalCost": 100,
+                    "awsCosts": {
+                        "totalCost": 100,
+                        "serviceCosts": {
+                            "ec2": 50,
+                            "rds": 20,
+                            "s3": 30
+                        }
+                    }
+                 }
               },
               {
                 "id": "<businessUnit_3_id>",
                 "name": "Business Unit 3",
-                "totalCost": 100,
-                "serviceCosts": {
-                    "ec2": 50,
-                    "rds": 20,
-                    "s3": 30
-                }
+                "cost": {
+                    "totalCost": 100,
+                    "awsCosts": {
+                        "totalCost": 100,
+                        "serviceCosts": {
+                            "ec2": 50,
+                            "rds": 20,
+                            "s3": 30
+                        }
+                    }
+                 }
               }
             ],
             "providers": [
               {
                 "id": "<provider_1_id>",
                 "name": "Provider 1",
-                "totalCost": 100,
-                "serviceCosts": {
-                    "ec2": 50,
-                    "rds": 20,
-                    "s3": 30
-                }
+                "cost": {
+                    "totalCost": 100,
+                    "awsCosts": {
+                        "totalCost": 100,
+                        "serviceCosts": {
+                            "ec2": 50,
+                            "rds": 20,
+                            "s3": 30
+                        }
+                    }
+                 }
               },
               {
                 "id": "<businessUnit_2_id>",
                 "name": "Provider 2",
-                "totalCost": 100,
-                "serviceCosts": {
-                    "ec2": 50,
-                    "rds": 20,
-                    "s3": 30
-                }
+                "cost": {
+                    "totalCost": 100,
+                    "awsCosts": {
+                        "totalCost": 100,
+                        "serviceCosts": {
+                            "ec2": 50,
+                            "rds": 20,
+                            "s3": 30
+                        }
+                    }
+                 }
               },
               {
                 "id": "<businessUnit_3_id>",
                 "name": "Provider 3",
-                "totalCost": 100,
-                "serviceCosts": {
-                    "ec2": 50,
-                    "rds": 20,
-                    "s3": 30
-                }
+                "cost": {
+                    "totalCost": 100,
+                    "awsCosts": {
+                        "totalCost": 100,
+                        "serviceCosts": {
+                            "ec2": 50,
+                            "rds": 20,
+                            "s3": 30
+                        }
+                    }
+                 }
               }
             ]
           }
@@ -128,7 +170,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     }
 
     /**
-     * @api {get} /analytics/cost/trend?catalystEntity=organizationId:<organizationId>&period=<PERIOD>&timeStamp=<endDate>&splitUpBy=<catalystEntityType>&interval=<INTERVAL>
+     * @api {get} /analytics/cost/trend?catalystEntity=organizationId:<organizationId>&period=<PERIOD>&toTimeStamp=<endDate>&splitUpBy=<catalystEntityType>&interval=<INTERVAL>
      * 										                    									Get cost trend
      * @apiName getCostTrend
      * @apiGroup analytics
@@ -145,15 +187,18 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      * @apiSuccess {Object}   costTrend                                                         Cost trend
      * @apiSuccess {String}   aggregatedCost.period                                             Cost aggregation period
      * @apiSuccess {Date}   aggregatedCost.fromTime                                             From time
-     * @apiSuccess {Date}   aggregatedCost.toTime                                               To time
-     * @apiSuccess {Number}   aggregatedCost.totalCost                                          Total Cost
+     * @apiSuccess {Date}   aggregatedCost.toTimeStamp                                          To timestamp
+     * @apiSuccess {Object}   aggregatedCost.cost                                               Cost for entity
+     * @apiSuccess {Number}   aggregatedCost.cost.totalCost                                     Total cost
+     * @apiSuccess {Object}   aggregatedCost.cost.awsCosts                                      AWS cost
+     * @apiSuccess {Number}   aggregatedCost.cost.awsCosts.totalCost                            AWS total cost
+     * @apiSuccess {Object}   aggregatedCost.cost.awsCosts.serviceCost                          AWS service costs splitup
      * @apiSuccess {Object}   aggregatedCost.serviceCosts                                       Platform specific service cost
      * @apiSuccess {Object[]}   aggregatedCost.costTrends                                       Cost trends
      * @apiSuccess {Object}   aggregatedCost.splitUpCosts.COST_TREND_DATA_POINT                 Cost split up based on catalyst entity
      * @apiSuccess {Object}   aggregatedCost.splitUpCosts.COST_TREND_DATA_POINT.fromTime        From time
      * @apiSuccess {Object}   aggregatedCost.splitUpCosts.COST_TREND_DATA_POINT.toTime          To time
-     * @apiSuccess {Object}   aggregatedCost.splitUpCosts.COST_TREND_DATA_POINT.totalCost       Total cost
-     * @apiSuccess {Object}   aggregatedCost.splitUpCosts.COST_TREND_DATA_POINT.serviceCosts    Platform specific service cost
+     * @apiSuccess {Object}   aggregatedCost.splitUpCosts.COST_TREND_DATA_POINT.cost            Cost
      *
      * @apiSuccessExample {json} Sample_Response_1:
      * 	HTTP/1.1 200 OK
@@ -163,31 +208,46 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
           "fromTime": "2016-08-01T00:00:00",
           "toTime": "2016-08-12T00:00:00",
           "interval": 86400,
-          "totalCost": 100,
-          "serviceCosts": {
-            "ec2": 40,
-            "rds": 20,
-            "s3": 40
-          },
+          "cost": {
+                "totalCost": 100,
+                "awsCosts": {
+                    "totalCost": 100,
+                    "serviceCosts": {
+                        "ec2": 40,
+                        "rds": 20,
+                        "s3": 40
+                    }
+                }
+          }
           "costTrends": [
               {
 		        "fromTime": "2016-08-01T00:01:00",
 		        "toTime": "2016-08-02T00:00:00",
-		        "totalCost": 50,
-                "serviceCosts": {
-                    "ec2": 20,
-                    "rds": 10,
-                    "s3": 20
+		        "cost": {
+                    "totalCost": 50,
+                    "awsCosts": {
+                        "totalCost": 50,
+                        "serviceCosts": {
+                            "ec2": 20,
+                            "rds": 10,
+                            "s3": 20
+                        }
+                    }
                 }
-		       },
+		      },
               {
                 "fromTime": "2016-08-02T00:01:00",
 		        "toTime": "2016-08-03T00:00:00",
-                "totalCost": 50,
-                "serviceCosts": {
-                    "ec2": 20,
-                    "rds": 10,
-                    "s3": 20
+		        "cost": {
+                    "totalCost": 50,
+                    "awsCosts": {
+                        "totalCost": 50,
+                        "serviceCosts": {
+                            "ec2": 20,
+                            "rds": 10,
+                            "s3": 20
+                        }
+                    }
                 }
               }
             ]
