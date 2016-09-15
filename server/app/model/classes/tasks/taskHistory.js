@@ -57,7 +57,8 @@ var taskHistorySchema = new Schema({
     projectName: String,
     envName: String,
     taskName: String,
-    refId: String
+    refId: String,
+    executionOrder: String
 });
 
 taskHistorySchema.plugin(mongoosePaginate);

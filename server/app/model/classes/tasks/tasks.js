@@ -281,6 +281,7 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
         if (taskHistoryEntry) {
             taskHistory = new TaskHistory(taskHistoryData);;
             if (self.taskConfig.executionOrder === "SERIAL") {
+                taskHistory.executionOrder = "SERIAL";
                 TaskHistory.createNewOrUpdate(taskHistoryData.refId, taskHistory, function(err, tData) {
                     if (err) {
                         logger.error("Failed to create history: ", err);
@@ -288,11 +289,13 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                     logger.debug("successfully task history created. ", JSON.stringify(tData));
                 });
             } else {
+                taskHistoryData.executionOrder = "PARALLEL";
                 taskHistoryData.save();
             }
         } else {
             taskHistory = new TaskHistory(taskHistoryData);
             if (self.taskConfig.executionOrder === "SERIAL") {
+                taskHistory.executionOrder = "SERIAL";
                 TaskHistory.createNewOrUpdate(taskHistoryData.refId, taskHistory, function(err, tData) {
                     if (err) {
                         logger.error("Failed to create history: ", err);
@@ -300,6 +303,7 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                     logger.debug("successfully task history created. ", JSON.stringify(tData));
                 });
             } else {
+                taskHistory.executionOrder = "PARALLEL";
                 taskHistory.save();
             }
         }
@@ -330,6 +334,7 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
             }
             if (self.taskConfig.executionOrder === "SERIAL") {
                 taskHistory.nodeIdsWithActionLog = null;
+                taskHistory.executionOrder = "SERIAL";
                 TaskHistory.createNewOrUpdate(taskHistory.refId, taskHistory, function(err, tData) {
                     if (err) {
                         logger.error("Failed to create history: ", err);
@@ -337,7 +342,7 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                     logger.debug("successfully task history created. ", JSON.stringify(tData));
                 });
             } else {
-                
+                taskHistory.executionOrder = "PARALLEL";
                 taskHistory.save();
             }
         }
