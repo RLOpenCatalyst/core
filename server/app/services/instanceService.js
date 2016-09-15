@@ -1371,6 +1371,7 @@ function instanceSyncWithAWS(instanceId,instanceData,callback){
 
 function createOrUpdateInstanceLogs(instance,instanceState,action,user,timestampStarted,next){
     var actionLog = instancesModel.insertInstanceStatusActionLog(instance._id, user, instanceState, timestampStarted);
+    var actionAction = 'success';
     var logReferenceIds = [instance._id, actionLog._id];
     logsDao.insertLog({
         referenceId: logReferenceIds,
@@ -1378,6 +1379,9 @@ function createOrUpdateInstanceLogs(instance,instanceState,action,user,timestamp
         log: "Instance " + instanceState,
         timestamp: timestampStarted
     });
+    if(instanceState === 'shutting-down'){
+        actionAction = 'pending';
+    }
     var instanceLog = {
         actionId: actionLog._id,
         instanceId: instance._id,
@@ -1386,7 +1390,7 @@ function createOrUpdateInstanceLogs(instance,instanceState,action,user,timestamp
         projectName: instance.projectName,
         envName: instance.environmentName,
         status: instanceState,
-        actionStatus: "success",
+        actionStatus: actionAction,
         platformId: instance.platformId,
         blueprintName: instance.blueprintData.blueprintName,
         data: instance.runlist,

@@ -3441,11 +3441,11 @@ function isFormValid(formid) {
 							currCtrl.focus();
 						}
 
-						if (!/[!@#$%^&*]/.test(str)) {
+						/*if (!/[!@#$%^&*]/.test(str)) {
 							isValid = false;
 							errormessageforInput(currCtrl.attr('id'), "Atleast a special char is required.");
 							currCtrl.focus();
-						}
+						}*/
 					}
 					break;
 

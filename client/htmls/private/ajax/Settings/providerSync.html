@@ -780,7 +780,19 @@
             "columns": [
                 {"data": "platformId","orderable" : true  },
                 {"data": "hardware.os","orderable" : false  },
-                {"data": "instanceIP","orderable" : true  },
+                {"data": "instanceIP","orderable" : true,
+                    "render":function(data, type, full, meta) {
+                        if(full.instanceIP === null){
+                            if(full.privateIpAddress === null){
+                                return '-';
+                            }else{
+                                return full.privateIpAddress;
+                            }
+                        }else{
+                            return full.instanceIP;
+                        }
+                    }
+                },
                 {"data": "","orderable" : true,
                     "render":function(data, type, full, meta) {
                         return full.region?full.region:full.providerData?full.providerData.region:'-';
@@ -1697,7 +1709,15 @@
                     {"data": "os","orderable" : false  },
                     {"data": "","orderable" : true,
                         "render":function(data, type, full, meta) {
-                            return full.ip !== null ? full.ip:full.privateIpAddress;
+                            if(full.ip === null){
+                                if(full.privateIpAddress === null){
+                                    return '-';
+                                }else{
+                                    return full.privateIpAddress;
+                                }
+                            }else{
+                                return full.ip;
+                            }
                         }
                     },
                     {"data": "","orderable" : true,
@@ -1866,7 +1886,15 @@
                     {"data": "os","orderable" : false  },
                     {"data": "","orderable" : true,
                         "render":function(data, type, full, meta) {
-                            return full.ip !== null ? full.ip:full.privateIpAddress;
+                            if(full.ip === null){
+                                if(full.privateIpAddress === null){
+                                    return '-';
+                                }else{
+                                    return full.privateIpAddress;
+                                }
+                            }else{
+                                return full.ip;
+                            }
                         }
                     },
                     {"data": "state","orderable" : true  },

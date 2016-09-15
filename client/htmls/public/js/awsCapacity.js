@@ -254,8 +254,19 @@ $(document).ready(function() {
                     }
                 }
                 , {
-                "data": "instanceIP",
-                "orderable": true
+                "data": "",
+                "orderable": true,
+                    "render":function(data, type, full, meta) {
+                        if(full.instanceIP === null){
+                            if(full.privateIpAddress === null){
+                                return '-';
+                            }else{
+                                return full.privateIpAddress;
+                            }
+                        }else{
+                            return full.instanceIP;
+                        }
+                    }
             }, {
                 "data": "instanceState",
                 "orderable": true
@@ -302,11 +313,15 @@ $(document).ready(function() {
                  {
                 "data": "",
                 "orderable": true,
-                "render": function(data, type, full) {
-                    if(full.ip && full.ip !== null){
-                        return data;
+                "render": function(data, type, full,meta) {
+                    if(full.ip === null){
+                        if(full.privateIpAddress === null){
+                            return '-';
+                        }else{
+                            return full.privateIpAddress;
+                        }
                     }else{
-                        return full.privateIpAddress;
+                        return full.ip;
                     }
                 }
             }, {
@@ -376,7 +391,15 @@ $(document).ready(function() {
                 "data": "",
                 "orderable": true,
                 "render":function(data, type, full, meta) {
-                    return full.ip !== null ? full.ip:full.privateIpAddress;
+                    if(full.ip === null){
+                        if(full.privateIpAddress === null){
+                            return '-';
+                        }else{
+                            return full.privateIpAddress;
+                        }
+                    }else{
+                        return full.ip;
+                    }
                 }
             }, {
                 "data": "state",
