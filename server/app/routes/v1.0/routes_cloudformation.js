@@ -163,7 +163,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                 projectName: instance.projectName,
                                                 envName: instance.environmentName,
                                                 status: 'shutting-down',
-                                                actionStatus: "success",
+                                                actionStatus: "pending",
                                                 platformId: instance.platformId,
                                                 blueprintName: instance.blueprintData.blueprintName,
                                                 data: instance.runlist,
