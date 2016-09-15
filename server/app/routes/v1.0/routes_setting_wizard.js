@@ -16,7 +16,7 @@
 
 
 var logger = require('_pr/logger')(module);
-var settingWizard = require('_pr/model/settingWizard');
+var settingWizard = require('_pr/model/setting-wizard');
 
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
