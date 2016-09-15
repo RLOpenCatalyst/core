@@ -1,4 +1,4 @@
-<div class="bgContent">
+
    <form action="" id="myForm2">
       <div class="widget-box">
          <div class="widget-header">
@@ -27,7 +27,7 @@
          <button  name="next2" id="next2" class="nextBG action-button" value="Next">Next</button>
       </div>
    </form>
-</div>
+
 
 
 <script>
@@ -81,7 +81,7 @@
        });  
     
     $(".nextBG").click(function(){
-        $('.bgContent').load("ajax/Settings/projWizard.html");
+        $('.content').load("ajax/Settings/projWizard.html");
         if(animating) return false;
         animating = true;
 

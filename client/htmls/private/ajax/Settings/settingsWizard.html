@@ -113,38 +113,38 @@
       <div class="widget-box">
          <div class="widget-header">
             <h4 class="widget-margin" style="color:black;">Create Organization</h4>
-         </div>
-         <div class="widget-body">
+        </div>
+        <div class="widget-body">
             <div class="widget-main" style="min-height:200px">
-               <div class="jarviswidget" id="wid-id-3" data-widget-editbutton="false" data-widget-custombutton="false">
-                  <div>
-                     <div class="widget-body no-padding">
-                        <div class="col-lg-6 col-md-6">
-                           <label for="name">Name:
-                           <span class="control-label redSpan">&nbsp;*</span></label>
-                           <input autofocus name="orgname" value="" id="orgname" class="form-control" cdata="catalyst" type="text" cat-validation="required,nospecial,max15,nospace">
+                <div class="jarviswidget" id="wid-id-3" data-widget-editbutton="false" data-widget-custombutton="false">
+                    <div>
+                        <div class="widget-body no-padding">
+                            <div class="col-lg-6 col-md-6">
+                                <label for="name">Name:
+                                    <span class="control-label redSpan">&nbsp;*</span></label>
+                                <input autofocus name="orgname" value="" id="orgname" class="form-control" cdata="catalyst" type="text" cat-validation="required,nospecial,max15,nospace">
+                            </div>
+                            <div class="col-lg-6 col-md-6">
+                                <label for="name">Domain Name:</label>
+                                <input name="domainname" value="" id="domainname" class="form-control" type="text" maxlength="35">
+                            </div>
+                            <div class="col-lg-6 col-md-6 margintop15">
+                                <label for="name">Planned Cost:</label>
+                          <span>
+                            <img data-toggle="popover" data-html="true" data-placement="left" title="AWS Planned Cost for a Month." src="img/help.png"/>
+                          </span>
+                                <input name="plannedCost" value="" id="plannedCost" cat-validation="numeric" class="form-control" type="text"  cdata="catalyst" maxlength="35">
+                            </div>
                         </div>
-                        <div class="col-lg-6 col-md-6">
-                           <label for="name">Domain Name:</label>
-                           <input name="domainname" value="" cdata="catalyst" id="domainname" class="form-control" type="text" maxlength="35">
-                        </div>
-                        <div class="col-lg-6 col-md-6 margintop15">
-                           <label for="name">Planned Cost:</label>
-                           <span>
-                           <img data-toggle="popover" data-html="true" data-placement="left" title="AWS Planned Cost for a Month." src="img/help.png"/>
-                           </span>
-                           <input name="plannedCost" value="" id="plannedCost" cat-validation="numeric" class="form-control" type="text"  cdata="catalyst" maxlength="35">
-                        </div>
-                     </div>
-                  </div>
-               </div>
+                    </div>
+                </div>
             </div>
-         </div>
-      </div>
-      <div class="btn-group pull-right">
-         <button type="submit" id="next1" class="next action-button" value="Next"><i class="ace-icon fa fa-check bigger-110"></i>Next</button>
-      </div>
-   </form>
+        </div>
+    </div>
+    <div class="btn-group pull-right">
+         <button  name="next1" id="next1" class="next action-button" value="Next">Next</button>
+    </div>
+</form>
 </div>
 
 <script>
@@ -176,7 +176,6 @@
 
         //activate next step on progressbar using the index of next_fs
         $("#progressbar li").eq($(".content").index(next_fs)).addClass("active");
-
         //show the next fieldset
         next_fs.show();
         //hide the current fieldset with style
