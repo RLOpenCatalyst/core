@@ -1071,7 +1071,6 @@
                             //For project catalystEntityType
                             $mappingprojectDatatable.clear().draw();
                             var $tbody = $('#mappingprojectTable tbody').empty();
-
                             for(var j = 0; j < catalystEntityTypeListPassed.length; j++){
                                 //For Table
                                 var $tr = $('<tr id="'+catalystEntityTypeListPassed[j].rowid+'" class=""></tr>');
@@ -1102,6 +1101,8 @@
                                     }
                                 }
                             }
+                        }else{
+                            $('.btnprojectMappingSave').attr('disabled',true);
                         }
                         //For environment catalystEntityType
                         if(objcatalystEntityType == catalystEntityEnvName){
@@ -1110,7 +1111,6 @@
                     }
                 },
                 error: function(jxhr) {
-
                 }
             });
 
@@ -1276,7 +1276,7 @@
                     }
                 }
             }).fail(function(jxhr) {
-
+                $('.btnenvMappingSave').attr('disabled',true);
             });
         }
 
@@ -1317,7 +1317,7 @@
                     }
                 }
             }).fail(function(jxhr) {
-
+                $('.btnbgMappingSave').attr('disabled',true);
             });
         }
         $('.btnbgMappingSave').on('click',function(){
