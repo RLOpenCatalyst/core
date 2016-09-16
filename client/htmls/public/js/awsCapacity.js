@@ -22,6 +22,9 @@ $(document).ready(function() {
         $('#instanceAssignedContainer').hide();
         $('#instanceUnAssignedContainer').hide();
         $('.footer').addClass('hidden');
+        $('.unassignedBox').removeClass('selectComponent');
+        $('.assignedBox').removeClass('selectComponent');
+        $('.totalBox').removeClass('selectComponent');
     }
 
     $("#refreshBtn").click(function() {
@@ -59,6 +62,7 @@ $(document).ready(function() {
                 if (data.length === 0) {
                     $('.providerValues').addClass('hidden');
                     $('.noProviderView').show();
+                    $('#instanceActionListLoader').hide();
                 } else {
                     for (var i = 0; i < data.length; i++) {
                         $('.noProviderView').hide();
@@ -194,7 +198,9 @@ $(document).ready(function() {
     }
 
     $('#totalManagedInstancesMoreInfo').on('click', function() {
-        //$(this).css('box-shadow', '10px 10px 5px #888');
+        $('.unassignedBox').removeClass('selectComponent');
+        $('.assignedBox').removeClass('selectComponent');
+        $('.totalBox').addClass('selectComponent');
         loadAllManagedInstances();
         $('#instanceTableContainer').show();
         $('#instanceAssignedContainer').hide();
@@ -202,7 +208,9 @@ $(document).ready(function() {
     });
 
     $('#totalUnManagedInstancesMoreInfo').on('click', function() {
-        //$(this).css('box-shadow', '10px 10px 5px #888');
+        $('.unassignedBox').removeClass('selectComponent');
+        $('.totalBox').removeClass('selectComponent');
+        $('.assignedBox').addClass('selectComponent');
         loadAllUnManagedInstances();
         $('#instanceTableContainer').hide();
         $('#instanceUnAssignedContainer').hide();
@@ -210,7 +218,9 @@ $(document).ready(function() {
     });
 
     $('#totalUnAssignedInstancesMoreInfo').on('click', function() {
-        //$(this).addClass('shadow');
+        $('.totalBox').removeClass('selectComponent');
+        $('.assignedBox').removeClass('selectComponent');
+        $('.unassignedBox').addClass('selectComponent');
         getUnassignedInstancesWithProjectAndEnv();
         $('#instanceTableContainer').hide();
         $('#instanceAssignedContainer').hide();
