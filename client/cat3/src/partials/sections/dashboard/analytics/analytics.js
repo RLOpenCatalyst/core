@@ -1,6 +1,29 @@
 (function (angular) {
 	"use strict";
-	angular.module('dashboard.analytics', ['nvd3'])
+	angular.module('dashboard.analytics', ['apis.analytics','nvd3'])
+		.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', 'modulePermissionProvider', function($stateProvider, $urlRouterProvider, $httpProvider, modulePermissionProvider) {
+			var modulePerms = modulePermissionProvider.$get();
+			$stateProvider.state('dashboard.analytics.cost', {
+				url: "cost/:view",
+				templateUrl: "src/partials/sections/dashboard/analytics/view/cost.html",
+				controller: "costCtrl as cost",
+				params:{org:null,bus:null,proj:null},
+				resolve: {
+					auth: ["$q", function ($q) {
+						var deferred = $q.defer();
+						// instead, go to a different page
+						if (modulePerms.analyticsBool()) {
+							// everything is fine, proceed
+							deferred.resolve();
+						} else {
+							deferred.reject({redirectTo: 'dashboard'});
+						}
+						return deferred.promise;
+
+					}]
+				}
+			})
+		}])
 	.controller('analyticsCtrl',['$scope', '$rootScope','$state','genericServices', function ($scope, $rootScope,$state,genericServices) {
 		var analytic = this;
 		$scope.showTree = true;
@@ -19,26 +42,8 @@
 		$rootScope.organNewEnt.buss='0';
 		$rootScope.organNewEnt.proj='0';
 		if (!$rootScope.stateParams.view) {
-			$state.go('dashboard.analytics', {menuItem: 'cost', view: 'chat'});
+			$state.go('dashboard.analytics.cost', {view: 'chat'});
 		}
-
-		$scope.hideTreeOverlay = function () {
-            $scope.showTree = false;
-            $(".panelRight").css("width", "calc(100% - 39px)");
-            $("#navigPage").addClass("tree-close");
-            $(".minifyme").css("left", "0px");
-            $(".minifyme").css("border-radius", "0px");
-            $(".minifyme").css("width", "35px");
-        };
-        $scope.showTreeOverlay = function () {
-            $scope.showTree = true;
-            $(".panelRight").css("width", "calc(100% - 258px)");
-            $("#navigPage").removeClass("tree-close");
-            $(".minifyme").css("left", "216px");
-            $(".minifyme").css("width", "38px");
-            $(".minifyme").css("border-radius", "5px 0 0 5px");
-        };
-
 	}]).controller('usageCtrl', ['$scope', '$rootScope', '$state',  function ($scope,$rootScope,$state){
 		$rootScope.stateItems = $state.params;
 		$rootScope.organNewEnt=[];
@@ -203,5 +208,5 @@
 				values: [ [ 1083297600000 , -0.77078283705125] ]
 			}
 		];
-	}]);;
+	}]);
 })(angular);

@@ -1,0 +1,116 @@
+{
+  "period": "month",
+  "fromTime": "2016-08-01T00:00:00",
+  "toTime": "2016-08-12T00:00:00",
+  "catalystEntity": {
+    "type": "organization",
+    "id": "q23ro9uasoidfElasdf"
+  },
+  "cost": {
+    "totalCost": 300,
+    "awsCosts": {
+      "totalCost": 300,
+      "serviceCosts": {
+        "ec2": 150,
+        "rds": 90,
+        "s3": 60
+      }
+    }
+  },
+  "splitUpCosts": {
+    "businessUnits": [
+      {
+        "id": "<businessUnit_1_id>",
+        "name": "Business Unit 1",
+        "cost": {
+          "totalCost": 100,
+          "awsCosts": {
+            "totalCost": 100,
+            "serviceCosts": {
+              "ec2": 50,
+              "rds": 20,
+              "s3": 30
+            }
+          }
+        }
+      },
+      {
+        "id": "<businessUnit_2_id>",
+        "name": "Business Unit 2",
+        "cost": {
+          "totalCost": 100,
+          "awsCosts": {
+            "totalCost": 100,
+            "serviceCosts": {
+              "ec2": 50,
+              "rds": 20,
+              "s3": 30
+            }
+          }
+        }
+      },
+      {
+        "id": "<businessUnit_3_id>",
+        "name": "Business Unit 3",
+        "cost": {
+          "totalCost": 100,
+          "awsCosts": {
+            "totalCost": 100,
+            "serviceCosts": {
+              "ec2": 50,
+              "rds": 20,
+              "s3": 30
+            }
+          }
+        }
+      }
+    ],
+    "providers": [
+      {
+        "id": "<provider_1_id>",
+        "name": "Provider 1",
+        "cost": {
+          "totalCost": 100,
+          "awsCosts": {
+            "totalCost": 100,
+            "serviceCosts": {
+              "ec2": 50,
+              "rds": 20,
+              "s3": 30
+            }
+          }
+        }
+      },
+      {
+        "id": "<businessUnit_2_id>",
+        "name": "Provider 2",
+        "cost": {
+          "totalCost": 100,
+          "awsCosts": {
+            "totalCost": 100,
+            "serviceCosts": {
+              "ec2": 50,
+              "rds": 20,
+              "s3": 30
+            }
+          }
+        }
+      },
+      {
+        "id": "<businessUnit_3_id>",
+        "name": "Provider 3",
+        "cost": {
+          "totalCost": 100,
+          "awsCosts": {
+            "totalCost": 100,
+            "serviceCosts": {
+              "ec2": 50,
+              "rds": 20,
+              "s3": 30
+            }
+          }
+        }
+      }
+    ]
+  }
+}

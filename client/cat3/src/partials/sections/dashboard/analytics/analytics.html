@@ -46,13 +46,13 @@
 			</fieldset>
 		</form>
 	</div>
+
 	<div class='col-xs-12 col-sm-12 col-md-12 col-lg-12 panelLeft no-padding'>
         <div ng-include="'src/partials/sections/dashboard/analytics/view/analyticsTreeMenu.html'"></div> 
     </div>
-	<div ng-switch="stateItems.menuItem" class="panelRight">
+	<div class="panelRight">
 		<div id='rightPanel' class='container-fluid'>
-			<div ng-switch="usage">
-				<span ng-include="'src/partials/sections/dashboard/analytics/view/usage.html'"></span>
+			<div  ui-view>
 			</div>
  		</div>
  	</div>
