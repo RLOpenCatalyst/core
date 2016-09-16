@@ -351,7 +351,7 @@ $(document).ready(function() {
                             envProjectMappingObject['bgName'] = objtagName;
                         }
                     }
-                    getUnassignedInstancesWithTagMapping(envProjectMappingObject,urlManagedNoProvider);
+                    getUnassignedInstancesWithTagMapping(envProjectMappingObject,urlManagedNoProvider,true);
                 }
             }).fail(function(jxhr) {
                 var msg = "Tag mappings not loaded as behaved unexpectedly.";
@@ -364,11 +364,11 @@ $(document).ready(function() {
             });
         } else {
             urlManagedProvider = "../tracked-instances?category=unassigned&filterBy=orgId:" + orgId;
-            getUnassignedInstancesWithTagMapping(envProjectMappingObject,urlManagedProvider);
+            getUnassignedInstancesWithTagMapping(envProjectMappingObject,urlManagedProvider,false);
         }
     }
 
-    function getUnassignedInstancesWithTagMapping(envProjectMappingObject,url){
+    function getUnassignedInstancesWithTagMapping(envProjectMappingObject,url,hideColumn){
         $('.footer').removeClass('hidden');
         $('#instanceUnassignedTable').DataTable({
             "processing": true,
@@ -405,7 +405,7 @@ $(document).ready(function() {
                 "data": "state",
                 "orderable": true
             },
-                {"data": "" ,"orderable" : false,
+                {"data": "" ,"orderable" : false,"visible" : hideColumn,
                     "render": function(data, type, full) {
                         if(full.tags && envProjectMappingObject.bgName && full.tags[envProjectMappingObject.bgName]) {
                             var tagValue = full.tags[envProjectMappingObject.bgName];
@@ -415,7 +415,7 @@ $(document).ready(function() {
                         }
                     }
                 },
-                {"data": "" ,"orderable" : false,
+                {"data": "" ,"orderable" : false,"visible" : hideColumn,
                     "render": function(data, type, full) {
                         if(full.tags && envProjectMappingObject.project && full.tags[envProjectMappingObject.project]) {
                             var tagValue = full.tags[envProjectMappingObject.project];
@@ -425,7 +425,7 @@ $(document).ready(function() {
                         }
                     }
                 },
-                {"data": "" ,"orderable" : false,
+                {"data": "" ,"orderable" : false,"visible" : hideColumn,
                     "render": function(data, type, full) {
                         if(full.tags && envProjectMappingObject.environment && full.tags[envProjectMappingObject.environment]) {
                             var tagValue = full.tags[envProjectMappingObject.environment];
@@ -437,7 +437,7 @@ $(document).ready(function() {
                 },
                 {
                     "data": "platformId",
-                    "orderable": false,
+                    "orderable": false,"visible" : hideColumn,
                     "render": function(data, type, full, meta) {
                         if (full.platformId) {
                             return '<input class="nodeCheckBox" type="checkbox" val=""/>';
