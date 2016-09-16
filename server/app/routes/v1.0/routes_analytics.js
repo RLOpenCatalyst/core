@@ -34,9 +34,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      * @apiSuccess {Date}   aggregatedCost.toTime                                           To time
      * @apiSuccess {Object}   aggregatedCost.cost                                           Cost for entity
      * @apiSuccess {Number}   aggregatedCost.cost.totalCost                                 Total cost
-     * @apiSuccess {Object}   aggregatedCost.cost.awsCosts                                  AWS cost
-     * @apiSuccess {Number}   aggregatedCost.cost.awsCosts.totalCost                        AWS total cost
-     * @apiSuccess {Object}   aggregatedCost.cost.awsCosts.serviceCost                      AWS service costs splitup
+     * @apiSuccess {Object}   aggregatedCost.cost.AWS                                       AWS cost
+     * @apiSuccess {Number}   aggregatedCost.cost.AWS.totalCost                             AWS total cost
+     * @apiSuccess {Object}   aggregatedCost.cost.AWS.serviceCost                           AWS service costs splitup
      * @apiSuccess {Object}   aggregatedCost.serviceCosts                                   Platform specific service cost
      * @apiSuccess {Object[]}   aggregatedCost.splitUpCosts                                 Split up cost
      * @apiSuccess {Object}   aggregatedCost.splitUpCosts.CATALYST_ENTITY_TYPE              Cost split up based on catalyst entity
@@ -57,7 +57,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
           },
           "cost": {
             "totalCost": 300,
-            "awsCosts": {
+            "AWS": {
                 "totalCost": 300,
                 "serviceCosts": {
                     "ec2": 150,
@@ -73,7 +73,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 "name": "Business Unit 1",
                 "cost": {
                     "totalCost": 100,
-                    "awsCosts": {
+                    "AWS": {
                         "totalCost": 100,
                         "serviceCosts": {
                             "ec2": 50,
@@ -88,7 +88,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 "name": "Business Unit 2",
                 "cost": {
                     "totalCost": 100,
-                    "awsCosts": {
+                    "AWS": {
                         "totalCost": 100,
                         "serviceCosts": {
                             "ec2": 50,
@@ -103,7 +103,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 "name": "Business Unit 3",
                 "cost": {
                     "totalCost": 100,
-                    "awsCosts": {
+                    "AWS": {
                         "totalCost": 100,
                         "serviceCosts": {
                             "ec2": 50,
@@ -120,7 +120,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 "name": "Provider 1",
                 "cost": {
                     "totalCost": 100,
-                    "awsCosts": {
+                    "AWS": {
                         "totalCost": 100,
                         "serviceCosts": {
                             "ec2": 50,
@@ -135,7 +135,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 "name": "Provider 2",
                 "cost": {
                     "totalCost": 100,
-                    "awsCosts": {
+                    "AWS": {
                         "totalCost": 100,
                         "serviceCosts": {
                             "ec2": 50,
@@ -150,7 +150,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 "name": "Provider 3",
                 "cost": {
                     "totalCost": 100,
-                    "awsCosts": {
+                    "AWS": {
                         "totalCost": 100,
                         "serviceCosts": {
                             "ec2": 50,
@@ -190,9 +190,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      * @apiSuccess {Date}   aggregatedCost.toTimeStamp                                          To timestamp
      * @apiSuccess {Object}   aggregatedCost.cost                                               Cost for entity
      * @apiSuccess {Number}   aggregatedCost.cost.totalCost                                     Total cost
-     * @apiSuccess {Object}   aggregatedCost.cost.awsCosts                                      AWS cost
-     * @apiSuccess {Number}   aggregatedCost.cost.awsCosts.totalCost                            AWS total cost
-     * @apiSuccess {Object}   aggregatedCost.cost.awsCosts.serviceCost                          AWS service costs splitup
+     * @apiSuccess {Object}   aggregatedCost.cost.AWS                                           AWS cost
+     * @apiSuccess {Number}   aggregatedCost.cost.AWS.totalCost                                 AWS total cost
+     * @apiSuccess {Object}   aggregatedCost.cost.AWS.serviceCost                               AWS service costs splitup
      * @apiSuccess {Object}   aggregatedCost.serviceCosts                                       Platform specific service cost
      * @apiSuccess {Object[]}   aggregatedCost.costTrends                                       Cost trends
      * @apiSuccess {Object}   aggregatedCost.splitUpCosts.COST_TREND_DATA_POINT                 Cost split up based on catalyst entity
@@ -210,7 +210,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
           "interval": 86400,
           "cost": {
                 "totalCost": 100,
-                "awsCosts": {
+                "AWS": {
                     "totalCost": 100,
                     "serviceCosts": {
                         "ec2": 40,
@@ -225,7 +225,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		        "toTime": "2016-08-02T00:00:00",
 		        "cost": {
                     "totalCost": 50,
-                    "awsCosts": {
+                    "AWS": {
                         "totalCost": 50,
                         "serviceCosts": {
                             "ec2": 20,
@@ -240,7 +240,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		        "toTime": "2016-08-03T00:00:00",
 		        "cost": {
                     "totalCost": 50,
-                    "awsCosts": {
+                    "AWS": {
                         "totalCost": 50,
                         "serviceCosts": {
                             "ec2": 20,
