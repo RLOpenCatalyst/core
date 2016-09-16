@@ -17,6 +17,7 @@
 
 var logger = require('_pr/logger')(module);
 var mongoose = require('mongoose');
+var ObjectId = require('mongoose').Types.ObjectId;
 
 
 var Schema = mongoose.Schema;
@@ -52,22 +53,38 @@ SettingWizardSchema.statics.createSettingWizard = function createSettingWizard(s
             callback(err, null);
             return;
         }
-        logger.debug("Creating setting-Wizard: ", JSON.stringify(settingWizardDetails));
         callback(null, settingWizardDetails);
+        return;
+    });
+};
+
+SettingWizardSchema.statics.updateSettingWizard = function updateSettingWizard(settingWizard, callback) {
+    this.update({
+        _id: new ObjectId(settingWizard._id)
+    }, {
+        $set: settingWizard
+    }, {
+        upsert: false
+    },function(err, data) {
+        if (err) {
+            logger.debug("Got error while updating setting-Wizard: ", err);
+            callback(err, null);
+            return;
+        }
+        callback(null, data);
         return;
     });
 };
 
 
 SettingWizardSchema.statics.getSettingWizardByOrgId = function getSettingWizardByOrgId(orgId, callback) {
-    this.find({
+    this.findOne({
       orgId:orgId
     }, function(err, settingWizardDetails) {
         if (err) {
             logger.debug("Got error while fetching getSettingWizardByOrgId: ", err);
             callback(err, null);
         }
-        logger.debug("Got setting-Wizard: ", JSON.stringify(settingWizardDetails));
         callback(null, settingWizardDetails);
     });
 };

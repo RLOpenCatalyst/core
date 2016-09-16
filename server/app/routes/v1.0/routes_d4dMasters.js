@@ -2557,8 +2557,27 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                 res.send(500);
                                                 return;
                                             }
-                                            res.send(200);
-                                            return;
+                                            settingWizard.getSettingWizardByOrgId(bodyJson['orgname_rowid'],function(err,settingWizards){
+                                                if(err){
+                                                    logger.error('Hit getting setting wizard error', err);
+                                                    res.send(500);
+                                                    return;
+                                                }
+                                                var settingWizardSteps = appConfig.settingWizardSteps;
+                                                settingWizards.currentStep.nestedSteps[2].isCompleted =true;
+                                                settingWizards.previousStep = settingWizards.currentStep;
+                                                settingWizards.currentStep =settingWizards.nextStep;
+                                                settingWizards.nextStep =settingWizardSteps[3];
+                                                settingWizard.updateSettingWizard(settingWizards,function(err,data){
+                                                    if(err){
+                                                        logger.error('Hit getting setting wizard error', err);
+                                                        res.send(500);
+                                                        return;
+                                                    }
+                                                    res.send(200);
+                                                    return;
+                                                });
+                                            })
                                         });
                                     } else if (req.params.id === '26') {
                                         bodyJson['groupid'] = JSON.parse(bodyJson['groupid']);
@@ -2583,6 +2602,23 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                             }
                                             logger.debug('New Master Saved');
                                             logger.debug(req.params.fileinputs == 'null');
+                                            if(req.params.id === '2'){
+                                                settingWizard.getSettingWizardByOrgId(bodyJson['orgname_rowid'],function(err,settingWizards){
+                                                    if(err){
+                                                        logger.error('Hit getting setting wizard error', err);
+                                                        res.send(500);
+                                                        return; 
+                                                    }
+                                                    settingWizards.currentStep.nestedSteps[1].isCompleted =true;
+                                                    settingWizard.updateSettingWizard(settingWizards,function(err,data){
+                                                        if(err){
+                                                            logger.error('Hit getting setting wizard error', err);
+                                                            res.send(500);
+                                                            return;
+                                                        }
+                                                    });
+                                                })
+                                            }
                                             logger.debug('New record folderpath: % rowid %s FLD["folderpath"]:', folderpath, newrowid, folderpath);
                                             if (!folderpath) {
                                                 if (FLD["folderpath"] == undefined) //folderpath issue fix
