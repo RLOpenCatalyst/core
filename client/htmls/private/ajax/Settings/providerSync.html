@@ -783,10 +783,10 @@
                 {"data": "instanceIP","orderable" : true,
                     "render":function(data, type, full, meta) {
                         if(full.instanceIP === null){
-                            if(full.privateIpAddress === null){
-                                return '-';
-                            }else{
+                            if(full.privateIpAddress &&  full.privateIpAddress !== null){
                                 return full.privateIpAddress;
+                            }else{
+                                return '-';
                             }
                         }else{
                             return full.instanceIP;
@@ -1055,11 +1055,11 @@
                     var catalystEntityProjName = $('#projectnameLabelId').attr('catalystEntitytype');
                     var catalystEntityEnvName = $('#envnameLabelId').attr('catalystEntitytype');
                     var catalystEntityBgName = $('#bgNameLabelId').attr('catalystEntitytype');
-                    if(tagsListSelected.length > 0){
+                    /*if(tagsListSelected.length > 0){
                         $('.btnprojectMappingSave').attr('disabled',false);
                     }else{
                         $('.btnprojectMappingSave').attr('disabled',true);
-                    }
+                    }*/
 
                     for(var i=0;i<tagsListSelected.length;i++){
                         var objcatalystEntityType = tagsListSelected[i].catalystEntityType;
@@ -1071,7 +1071,7 @@
                             $bgtagsList.val(objtagName);
                         }
                         if(objcatalystEntityType == catalystEntityProjName){
-                            $('.btnprojectMappingSave').attr('disabled',false);
+                            //$('.btnprojectMappingSave').attr('disabled',false);
                             $projecttagsList.val(objtagName);
                             //For Mapping tab.....
                             //For project catalystEntityType
@@ -1107,9 +1107,9 @@
                                     }
                                 }
                             }
-                        }else{
+                        }/*else{
                             $('.btnprojectMappingSave').attr('disabled',true);
-                        }
+                        }*/
                         //For environment catalystEntityType
                         if(objcatalystEntityType == catalystEntityEnvName){
                             $envtagsList.val(objtagName);
@@ -1250,7 +1250,7 @@
 
             $.get('/providers/'+urlproviderId+'/tag-mappings/environment', function(data) {
                 if(data){
-                    $('.btnenvMappingSave').attr('disabled',false);
+                   // $('.btnenvMappingSave').attr('disabled',false);
                     var $tbody = $('#mappingenvTable tbody').empty();
                     for(var i = 0; i < envList.length; i++){
                         //For Table
@@ -1283,7 +1283,7 @@
                     }
                 }
             }).fail(function(jxhr) {
-                $('.btnenvMappingSave').attr('disabled',true);
+               // $('.btnenvMappingSave').attr('disabled',true);
             });
         }
 
@@ -1292,7 +1292,7 @@
 
             $.get('/providers/'+urlproviderId+'/tag-mappings/bgName', function(data) {
                 if(data){
-                    $('.btnbgMappingSave').attr('disabled',false);
+                    ///$('.btnbgMappingSave').attr('disabled',false);
                     var $tbody = $('#mappingBgTable tbody').empty();
                     for(var i = 0; i < bgList.length; i++){
                         //For Table
@@ -1325,7 +1325,7 @@
                     }
                 }
             }).fail(function(jxhr) {
-                $('.btnbgMappingSave').attr('disabled',true);
+               /// $('.btnbgMappingSave').attr('disabled',true);
             });
         }
         $('.btnbgMappingSave').on('click',function(){
@@ -1767,10 +1767,10 @@
                     {"data": "","orderable" : true,
                         "render":function(data, type, full, meta) {
                             if(full.ip === null){
-                                if(full.privateIpAddress === null){
-                                    return '-';
-                                }else{
+                                if(full.privateIpAddress &&  full.privateIpAddress !== null){
                                     return full.privateIpAddress;
+                                }else{
+                                    return '-';
                                 }
                             }else{
                                 return full.ip;
@@ -1944,10 +1944,10 @@
                     {"data": "","orderable" : true,
                         "render":function(data, type, full, meta) {
                             if(full.ip === null){
-                                if(full.privateIpAddress === null){
-                                    return '-';
-                                }else{
+                                if(full.privateIpAddress &&  full.privateIpAddress !== null){
                                     return full.privateIpAddress;
+                                }else{
+                                    return '-';
                                 }
                             }else{
                                 return full.ip;

@@ -268,10 +268,10 @@ $(document).ready(function() {
                 "orderable": true,
                     "render":function(data, type, full, meta) {
                         if(full.instanceIP === null){
-                            if(full.privateIpAddress === null){
-                                return '-';
-                            }else{
+                            if(full.privateIpAddress &&  full.privateIpAddress !== null){
                                 return full.privateIpAddress;
+                            }else{
+                                return '-';
                             }
                         }else{
                             return full.instanceIP;
@@ -325,10 +325,10 @@ $(document).ready(function() {
                 "orderable": true,
                 "render": function(data, type, full,meta) {
                     if(full.ip === null){
-                        if(full.privateIpAddress === null){
-                            return '-';
-                        }else{
+                        if(full.privateIpAddress &&  full.privateIpAddress !== null){
                             return full.privateIpAddress;
+                        }else{
+                            return '-';
                         }
                     }else{
                         return full.ip;
@@ -402,10 +402,10 @@ $(document).ready(function() {
                 "orderable": true,
                 "render":function(data, type, full, meta) {
                     if(full.ip === null){
-                        if(full.privateIpAddress === null){
-                            return '-';
-                        }else{
+                        if(full.privateIpAddress &&  full.privateIpAddress !== null){
                             return full.privateIpAddress;
+                        }else{
+                            return '-';
                         }
                     }else{
                         return full.ip;
