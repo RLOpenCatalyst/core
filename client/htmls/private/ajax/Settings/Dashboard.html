@@ -29,6 +29,16 @@
     color:#fff;
     box-shadow: 0 0 5px #286090;
 }
+.green-btn {
+    background-color: green;
+    color:#fff;
+    box-shadow: 0 0 5px #286090;
+}
+.red-btn {
+    background-color: red;
+    color:#fff;
+    box-shadow: 0 0 5px #286090;   
+}
 .process-btn {
     background-color: #7d7676;
     color: #fff;
@@ -84,8 +94,8 @@ ul li {
    </h3>
    <div class="container">
       <div class="btn-cls">
-         <div class="btn-1">
-            <a type="button" class="btn btn-circle active-btn btn-text" style="line-height:3">Start</a><br />
+         <div class="btn-1" id="startConfig">
+            <a type="button" class="btn btn-circle btn-text" style="line-height:3">Start</a><br />
             <p class="lable-name">Introduction</p>
          </div>
          <div class="btn-1" id="orgConfiguration">
@@ -148,4 +158,39 @@ $('.btn-1 a').click(function(e){
 });
 
 $('#orgConfiguration a').trigger('click');
+var orgIdForSetup,orgNameForSetup
+$.get('/d4dMasters/readmasterjsonnew/1',function(data){
+    orgIdForSetup = data[0].rowid;
+    orgNameForSetup = data[0].orgname;
+    if(data.length == 1) {
+        $.get('/setting-wizard/org/' + orgIdForSetup,function(data){
+            if(data.length === 0){
+                $('a.btn').addClass('active-btn');
+            }else {
+                var isCompleted = data.previousStep.isCompleted;
+                if(isCompleted = 'true'){
+                    if(data.previousStep.name === 'Org Configuration'){
+                        $('#startConfig a, #orgConfiguration a').addClass('green-btn');
+                        $('#configManagement a').addClass('active-btn').removeClass('process-btn');
+                        $('#configManagement a').trigger('click');
+                    } else if(data.previousStep.name === 'Config Management') {
+                        $('#startConfig a,#configManagement a,#orgConfiguration a').addClass('green-btn');
+                        $('#providerConfiguration a').trigger('click');
+                    } else if(data.previousStep.name === 'Provider Configuration') {
+                        $('#startConfig a,#providerConfiguration a,#orgConfiguration a').addClass('green-btn');
+                    } 
+                }    
+            }
+             
+            
+        }).error(function(jqXHR) { 
+        });
+    }
+    /*for(var i=0;i<data.length;i++){
+        var $option = $('<option></option>').val(data[i].orgname).attr('rowid',data[i].rowid).html(data[i].orgname);
+        $('#orgname').append($option);    
+    }*/
+});
+
+
 </script>

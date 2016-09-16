@@ -68,13 +68,12 @@ function getDefaultsConfig() {
             }
         },
         settingWizardSteps:[{name :'Introduction',isCompleted:true},
-            {name :'Organization Configuration',isCompleted:false,nestedSteps:[{name:'Organization',isCompleted:false},
+            {name :'Org Configuration',isCompleted:false,nestedSteps:[{name:'Organization',isCompleted:false},
             {name :'BusinessGroup',isCompleted:false},{name:'Project',isCompleted:false}]},
-            {name :'Chef Configuration',isCompleted:false,nestedSteps:[{name:'chefServer',isCompleted:false},{name:'Environment',isCompleted:false}]},
+            {name :'Config Management',isCompleted:false,nestedSteps:[{name:'chefServer',isCompleted:false},{name:'Environment',isCompleted:false}]},
             {name :'Provider Configuration',isCompleted:false},
-            {name :'Repositories',isCompleted:false},
-            {name :'Security Access Control',isCompleted:false},
-            {name :'Telemetry',isCompleted:false},
+            {name :'Devops Roles',isCompleted:false},
+            {name :'Track',isCompleted:false},
             {name :'CMDB Configuration',isCompleted:false}
         ],
         constantData: {

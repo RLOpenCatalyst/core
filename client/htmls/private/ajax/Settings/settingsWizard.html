@@ -209,7 +209,7 @@
         previous_fs = $(this).parent().prev();
 
         //de-activate current step on progressbar
-        $("#progressbar li").eq($("form").index(current_fs)).removeClass("active");
+        $("#progressbar li").eq($("div form").index(current_fs)).removeClass("active");
 
         //show the previous fieldset
         previous_fs.show();

@@ -35,12 +35,7 @@ var SettingWizardSchema = new Schema({
     },
     previousStep: Schema.Types.Mixed,
     currentStep: Schema.Types.Mixed,
-    nextStep:Schema.Types.Mixed,
-    isCompleted: {
-        type: String,
-        required: true,
-        trim: true
-    }
+    nextStep:Schema.Types.Mixed
 });
 
 

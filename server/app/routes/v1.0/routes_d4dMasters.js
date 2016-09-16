@@ -2469,8 +2469,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         orgName:bodyJson["orgname"],
                                                         previousStep:settingWizardSteps[0],
                                                         currentStep:currentStep,
-                                                        nextStep:settingWizardSteps[2],
-                                                        isCompleted:false
+                                                        nextStep:settingWizardSteps[2]
                                                     }
                                                     settingWizard.createSettingWizard(wizardBody,function(err,data){
                                                         if (err) {
@@ -2565,6 +2564,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                 }
                                                 var settingWizardSteps = appConfig.settingWizardSteps;
                                                 settingWizards.currentStep.nestedSteps[2].isCompleted =true;
+                                                settingWizards.currentStep.isCompleted =true;
                                                 settingWizards.previousStep = settingWizards.currentStep;
                                                 settingWizards.currentStep =settingWizards.nextStep;
                                                 settingWizards.nextStep =settingWizardSteps[3];
