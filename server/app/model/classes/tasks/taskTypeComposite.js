@@ -79,10 +79,31 @@ function serialExecution(that, userName, baseUrl, choiceParam, nexusData, bluepr
             task[count1].execute(userName, baseUrl, choiceParam, nexusData, task[count1].blueprintIds, envId, function(err, taskExecuteData, history) {
                 logger.debug("Calling...");
                 if (err) {
-                    console.error(err);
+                    logger.error(err);
                     return;
                 }
-                for (var t = 0; t < assignTask.length; t++) {
+                setTimeout(function() {
+                    for (var t = 0; t < assignTask.length; t++) {
+                        (function(t) {
+                            TaskHistory.getHistoryByTaskIdAndHistoryId(assignTask[t], history.id, function(err, data) {
+                                if (err) {
+                                    logger.error("Got error to fetch data: ", err);
+                                }
+                                if (data) {
+                                    var taskHistoryIds = {
+                                        taskId: assignTask[t],
+                                        historyId: history.id
+                                    };
+                                    TaskHistory.updateTaskHistoryIds(taskHistory._id, taskHistoryIds, function(err, updatedData) {
+                                        logger.debug('save callled => ', JSON.stringify(err), JSON.stringify(updatedData));
+                                    });
+                                }
+                            });
+                        })(t);
+                    }
+                }, 2000);
+
+                /*for (var t = 0; t < assignTask.length; t++) {
                     if (trackHistory.indexOf(assignTask[t]) === -1 && trackHistory.indexOf(history.id) === -1) {
                         trackHistory.push(assignTask[t]);
                         trackHistory.push(history.id);
@@ -94,7 +115,7 @@ function serialExecution(that, userName, baseUrl, choiceParam, nexusData, bluepr
                             logger.debug('save callled => ', JSON.stringify(err), JSON.stringify(updatedData));
                         });
                     }
-                }
+                }*/
             }, function(err, status) {
                 if (err) {
                     if (typeof onComplete === 'function') {
