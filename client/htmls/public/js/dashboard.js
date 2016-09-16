@@ -195,6 +195,7 @@ $(document).ready(function () {
             }
         } else {
             $('.noProviderView').show();
+            $('#totalProviders').append(totalcountproviders);
         }
     }).fail(function () {
 

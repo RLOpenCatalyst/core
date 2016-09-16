@@ -36,6 +36,7 @@
            </button>
         </div>
         <div class="borderTop"></div>
+        <div class="row">
         <div class="col-lg-3 col-md-3 col-xs-6 infrastructureClass marginTop20" data-text="Total Instances">
            <div class="small-box bg-aqua">
               <div class="inner">
@@ -50,7 +51,7 @@
            </div>
         </div>
         <div class="col-lg-3 col-md-3 col-xs-6 infrastructureClass marginTop20" data-text="Total Managed Instances">
-           <div class="small-box bg-aqua">
+           <div class="totalBox small-box bg-aqua">
               <div class="inner">
                  <h3 id="totalManagedInstances">0</h3>
                  <p>Total <br>No. of Managed Instances</p>
@@ -64,7 +65,7 @@
            </div>
         </div>
         <div class="col-lg-3 col-md-3 col-xs-6 infrastructureClass marginTop20" data-text="Total Assigned Instances">
-           <div class="small-box bg-aqua">
+           <div class="assignedBox small-box bg-aqua">
               <div class="inner">
                  <h3 id="totalUnmanagedInstances">0</h3>
                  <p>Total <br>No. of Assigned Instances</p>
@@ -78,7 +79,7 @@
            </div>
         </div>
         <div class="col-lg-3 col-md-3 col-xs-6 infrastructureClass marginTop20" data-text="Total UnAssigned Instances">
-           <div class="small-box bg-aqua">
+           <div class="unassignedBox small-box bg-aqua">
               <div class="inner">
                  <h3 id="totalUnAssignedInstances">0</h3>
                  <p>Total <br>No. of UnAssigned Instances</p>
@@ -91,9 +92,10 @@
               </span>
            </div>
         </div>
+      </div>
         <div class=" noProviderView" style="display:none">
            <div id="noenvwarning" class="alert alert-warning noEnvWarning text-center">
-               <span>Please add some providers to show instances </span>
+               <span>Please add the provider details in Settings to get the complete dashboard.</span>
            </div>
         </div>
       <!--Table to show all the instance actions for all the instances starts here-->
