@@ -18,68 +18,32 @@ var mongoose = require('mongoose');
 var logger = require('_pr/logger')(module);
 var Schema = mongoose.Schema;
 
-var ResourceCostsSchema = new Schema({
-    cost: {
-        type: Number,
-        required: true
-    },
-    organisationId: {
-        type: String,
-        required: true,
-        trim: true
-    },
-    providerId: {
-        type: String,
-        required: true,
-        trim: true
-    },
-    providerType: {
-        type: String,
-        required: true,
-        trim: true
-    },
-    businessGroupId: {
-        type: String,
-        required: false,
-        trim: true
-    },
-    projectId: {
-        type: String,
-        required: false,
-        trim: true
-    },
-    environmentId: {
-        type: String,
-        required: false,
-        trim: true
-    },
-    resourceId: {
-        type: String,
-        required: false,
-        trim: true
-    },
-    platformDetails: {
-        instanceId: {
+var EntityCostsSchema = new Schema({
+    entity: {
+        id: {
             type: String,
             required: true,
             trim: true
         },
-        service: {
+        type: {
             type: String,
             required: true,
-            trim: true
-        },
-        region: {
-            type: String,
-            required: true,
-            trim: true
-        },
-        zone: {
-            type: String,
-            required: false,
             trim: true
         }
     },
+    parentEntity: {
+        id: {
+            type: String,
+            required: true,
+            trim: true
+        },
+        type: {
+            type: String,
+            required: true,
+            trim: true
+        }
+    },
+    costs: Schema.Types.Mixed,
     startTime: {
         type: Date,
         required: true
@@ -98,5 +62,5 @@ var ResourceCostsSchema = new Schema({
     }
 });
 
-var ResourceCosts = mongoose.model('ResourceCost', ResourceCostsSchema);
-module.exports = ResourceCosts;
+var EntityCosts = mongoose.model('EntityCosts', EntityCostsSchema);
+module.exports = EntityCosts;
