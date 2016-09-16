@@ -225,33 +225,38 @@ function tagMappingForInstances(instances,provider,next){
                     var catalystBgName = null;
                     var assignmentFound = false;
                     if(instance.tags) {
-                        if ((bgTag || projectTag || environmentTag) && (instance.isDeleted === false)
-                            && ((bgTag.name in instance.tags) || (projectTag.name in instance.tags) || (environmentTag.name in instance.tags))) {
-                            for (var y = 0; y < bgTag.catalystEntityMapping.length; y++) {
-                                if (bgTag.catalystEntityMapping[y].tagValue !== '' &&  instance.tags[bgTag.name] !== ''
-                                    && bgTag.catalystEntityMapping[y].tagValue === instance.tags[bgTag.name]) {
-                                    catalystBgId = bgTag.catalystEntityMapping[y].catalystEntityId;
-                                    catalystBgName = bgTag.catalystEntityMapping[y].catalystEntityName;
-                                    break;
+                        if ((bgTag !== null || projectTag !== null || environmentTag !== null) && (instance.isDeleted === false)){
+                            if(bgTag !== null && bgTag.name in instance.tags) {
+                                for (var y = 0; y < bgTag.catalystEntityMapping.length; y++) {
+                                    if (bgTag.catalystEntityMapping[y].tagValue !== '' && instance.tags[bgTag.name] !== ''
+                                        && bgTag.catalystEntityMapping[y].tagValue === instance.tags[bgTag.name]) {
+                                        catalystBgId = bgTag.catalystEntityMapping[y].catalystEntityId;
+                                        catalystBgName = bgTag.catalystEntityMapping[y].catalystEntityName;
+                                        break;
+                                    }
                                 }
                             }
-                            for (var y = 0; y < projectTag.catalystEntityMapping.length; y++) {
-                                if (projectTag.catalystEntityMapping[y].tagValue !== '' && instance.tags[projectTag.name] !== '' &&
-                                    projectTag.catalystEntityMapping[y].tagValue === instance.tags[projectTag.name]) {
-                                    catalystProjectId = projectTag.catalystEntityMapping[y].catalystEntityId;
-                                    catalystProjectName = projectTag.catalystEntityMapping[y].catalystEntityName;
-                                    break;
+                            if(projectTag !== null && projectTag.name in instance.tags) {
+                                for (var y = 0; y < projectTag.catalystEntityMapping.length; y++) {
+                                    if (projectTag.catalystEntityMapping[y].tagValue !== '' && instance.tags[projectTag.name] !== '' &&
+                                        projectTag.catalystEntityMapping[y].tagValue === instance.tags[projectTag.name]) {
+                                        catalystProjectId = projectTag.catalystEntityMapping[y].catalystEntityId;
+                                        catalystProjectName = projectTag.catalystEntityMapping[y].catalystEntityName;
+                                        break;
+                                    }
                                 }
                             }
-                            for (var y = 0; y < environmentTag.catalystEntityMapping.length; y++) {
-                                if (environmentTag.catalystEntityMapping[y].tagValue !== '' && instance.tags[environmentTag.name] !== '' &&
-                                    environmentTag.catalystEntityMapping[y].tagValue === instance.tags[environmentTag.name]) {
-                                    catalystEnvironmentId = environmentTag.catalystEntityMapping[y].catalystEntityId;
-                                    catalystEnvironmentName = environmentTag.catalystEntityMapping[y].catalystEntityName;
-                                    break;
+                            if(environmentTag !== null && environmentTag.name in instance.tags) {
+                                for (var y = 0; y < environmentTag.catalystEntityMapping.length; y++) {
+                                    if (environmentTag.catalystEntityMapping[y].tagValue !== '' && instance.tags[environmentTag.name] !== '' &&
+                                        environmentTag.catalystEntityMapping[y].tagValue === instance.tags[environmentTag.name]) {
+                                        catalystEnvironmentId = environmentTag.catalystEntityMapping[y].catalystEntityId;
+                                        catalystEnvironmentName = environmentTag.catalystEntityMapping[y].catalystEntityName;
+                                        break;
+                                    }
                                 }
                             }
-                            if (catalystBgId || catalystProjectId || catalystEnvironmentId) {
+                            if (catalystBgId !== null || catalystProjectId !== null || catalystEnvironmentId !== null) {
                                 assignmentFound = true;
                             }
                             if (assignmentFound === true) {
@@ -277,9 +282,9 @@ function tagMappingForInstances(instances,provider,next){
                                             ip: instance.ip,
                                             os: instance.os,
                                             state: instance.state,
-                                            subnetId: instance.SubnetId,
-                                            vpcId: instance.VpcId,
-                                            privateIpAddress: instance.PrivateIpAddress,
+                                            subnetId: instance.subnetId,
+                                            vpcId: instance.vpcId,
+                                            privateIpAddress: instance.privateIpAddress,
                                             tags: instance.tags,
                                         }
                                         assignedInstanceList.push(assignedInstanceObj);
