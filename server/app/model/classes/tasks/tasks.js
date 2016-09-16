@@ -29,6 +29,7 @@ var ScriptTask = require('./taskTypeScript');
 var mongoosePaginate = require('mongoose-paginate');
 var ApiUtils = require('_pr/lib/utils/apiUtil.js');
 var instancesDao = require('_pr/model/classes/instance/instance');
+var crontab = require('node-crontab');
 var Schema = mongoose.Schema;
 
 
@@ -277,9 +278,9 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
 
             });
         }
+        taskHistory = new TaskHistory(taskHistoryData);
         // hack for composite task
         if (taskHistoryEntry) {
-            taskHistory = new TaskHistory(taskHistoryData);;
             if (self.taskConfig.executionOrder === "SERIAL") {
                 taskHistory.executionOrder = "SERIAL";
                 TaskHistory.createNewOrUpdate(taskHistoryData.refId, taskHistory, function(err, tData) {
@@ -293,7 +294,7 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                 taskHistory.save();
             }
         } else {
-            taskHistory = new TaskHistory(taskHistoryData);
+            //taskHistory = new TaskHistory(taskHistoryData);
             if (self.taskConfig.executionOrder === "SERIAL") {
                 taskHistory.executionOrder = "SERIAL";
                 TaskHistory.createNewOrUpdate(taskHistoryData.refId, taskHistory, function(err, tData) {
@@ -320,13 +321,7 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
 
         //updating task history
         if (taskHistory) {
-            logger.debug('id ===>'+taskHistory._id);
-            logger.debug('isNew ===>'+taskHistory.isNew);
-            
             taskHistory.isNew = false;
-            
-            logger.debug('isNew ===>'+taskHistory.isNew);
-            
             taskHistory.timestampEnded = self.timestampEnded;
             taskHistory.status = self.lastTaskStatus;
             logger.debug("resultData: ", JSON.stringify(resultData));
@@ -339,17 +334,12 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                 }
 
             }
-            if(self.taskType === "composite"){
-
-                taskHistory.executionOrder = self.taskConfig.executionOrder;
-                taskHistory.save(function(err,hist){
-                    //logger.debug('save callled ===================>',JSON.stringify(err),JSON.stringify(hist));
-
-                });
+            taskHistory.executionOrder = self.taskConfig.executionOrder;
+            if (self.taskType === "composite") {
+                taskHistory.save();
             }
             if (self.taskType != "composite" && self.taskConfig.executionOrder === "SERIAL") {
                 taskHistory.nodeIdsWithActionLog = null;
-                taskHistory.executionOrder = "SERIAL";
                 TaskHistory.createNewOrUpdate(taskHistory.refId, taskHistory, function(err, tData) {
                     if (err) {
                         logger.error("Failed to create history: ", err);
@@ -357,7 +347,6 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                     logger.debug("successfully task history created. ", JSON.stringify(tData));
                 });
             } else {
-                taskHistory.executionOrder = "PARALLEL";
                 taskHistory.save();
             }
         }
@@ -643,15 +632,32 @@ taskSchema.statics.getTaskByIds = function(taskIds, callback) {
 
 // remove task by id
 taskSchema.statics.removeTaskById = function(taskId, callback) {
-    this.remove({
+    this.find({
         "_id": new ObjectId(taskId)
-    }, function(err, deleteCount) {
+    }, function(err, tasks) {
         if (err) {
+            logger.error(err);
             callback(err, null);
             return;
         }
-        callback(null, deleteCount);
+        if (tasks && tasks.length) {
+            this.remove({
+                "_id": new ObjectId(taskId)
+            }, function(err, deleteCount) {
+                if (err) {
+                    callback(err, null);
+                    return;
+                }
+                if (task[0] && task[0].cronJobId) {
+                    crontab.cancelJob(task[0].cronJobId);
+                }
+                return callback(null, deleteCount);
 
+            });
+        } else {
+
+            return callback(404, null);
+        }
     });
 };
 

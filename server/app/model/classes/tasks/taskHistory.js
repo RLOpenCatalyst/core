@@ -334,6 +334,29 @@ taskHistorySchema.statics.createNewOrUpdate = function(refId, historyData, callb
     }
 };
 
+
+taskHistorySchema.statics.updateTaskHistoryIds = function updateTaskHistoryIds(hId, taskHistoryIds, callback) {
+    var self = this;
+
+    self.update({
+        _id: new ObjectId(hId)
+    }, {
+        $push: {
+            taskHistoryIds: taskHistoryIds
+        }
+    }, {
+        upsert: false
+    }, function(err, updatedData) {
+        if (err) {
+            logger.debug("Failed to update: ", err);
+            callback(err, null);
+            return;
+        }
+        callback(null, updatedData);
+        return;
+    });
+};
+
 var TaskHistory = mongoose.model('taskHistory', taskHistorySchema);
 
 module.exports = TaskHistory;
