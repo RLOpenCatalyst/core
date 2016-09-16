@@ -250,77 +250,110 @@ taskHistorySchema.statics.updateHistory = function updateHistory(hId, historyDat
 
 taskHistorySchema.statics.createNewOrUpdate = function(refId, historyData, callback) {
     var self = this;
-    TaskHistory.find({
-        refId: refId
-    }, function(err, data) {
+    if (refId) {
+        TaskHistory.find({
+            refId: refId
+        }, function(err, data) {
+            if (err) {
+                logger.error("Failed to gettaskhistory :: ", err);
+                callback(err, null);
+                return;
+            }
+            logger.debug("Got taskHistory: ", JSON.stringify(historyData));
+            if (data && data.length) {
+                var tHistory = data[0];
+                if (!historyData.timestampEnded) {
+                    historyData.timestampEnded = new Date().getTime();
+                }
+                if (historyData.nodeIdsWithActionLog && historyData.nodeIdsWithActionLog[0]) {
+                    self.update({
+                        refId: refId
+                    }, {
+                        $set: {
+                            status: historyData.status,
+                            timestampEnded: historyData.timestampEnded
+                        },
+                        $push: {
+                            nodeIdsWithActionLog: historyData.nodeIdsWithActionLog[0]
+                        }
+                    }, {
+                        upsert: false
+                    }, function(err, updatedData) {
+                        if (err) {
+                            logger.debug("Failed to update: ", err);
+                            callback(err, null);
+                            return;
+                        }
+                        logger.debug("createNewOrUpdate called: ", JSON.stringify(updatedData));
+                        callback(null, updatedData);
+                        return;
+                    });
+                } else {
+                    self.update({
+                        refId: refId
+                    }, {
+                        $set: {
+                            status: historyData.status,
+                            timestampEnded: historyData.timestampEnded
+                        }
+                    }, {
+                        upsert: false
+                    }, function(err, updatedData) {
+                        if (err) {
+                            logger.debug("Failed to update: ", err);
+                            callback(err, null);
+                            return;
+                        }
+                        logger.debug("createNewOrUpdate called: ", JSON.stringify(updatedData));
+                        callback(null, updatedData);
+                        return;
+                    });
+                }
+
+
+            } else {
+                historyData.save(function(err, tHistory) {
+                    logger.debug('saving task history ==>');
+                    if (err) {
+                        callback(err, null);
+                        return;
+                    }
+                    callback(null, tHistory);
+                });
+            }
+        });
+    } else {
+        historyData.save(function(err, tHistory) {
+            logger.debug('saving task history ==>');
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            callback(null, tHistory);
+        });
+    }
+};
+
+
+taskHistorySchema.statics.updateTaskHistoryIds = function updateTaskHistoryIds(hId, taskHistoryIds, callback) {
+    var self = this;
+
+    self.update({
+        _id: new ObjectId(hId)
+    }, {
+        $push: {
+            taskHistoryIds: taskHistoryIds
+        }
+    }, {
+        upsert: false
+    }, function(err, updatedData) {
         if (err) {
-            logger.error("Failed to gettaskhistory :: ", err);
+            logger.debug("Failed to update: ", err);
             callback(err, null);
             return;
         }
-        logger.debug("Got taskHistory: ", JSON.stringify(historyData));
-        if (data && data.length) {
-            var tHistory = data[0];
-            if(!historyData.timestampEnded){
-                historyData.timestampEnded = new Date().getTime();
-            }
-            if (historyData.nodeIdsWithActionLog && historyData.nodeIdsWithActionLog[0]) {
-                self.update({
-                    refId: refId
-                }, {
-                    $set: {
-                        status: historyData.status,
-                        timestampEnded: historyData.timestampEnded
-                    },
-                    $push: {
-                        nodeIdsWithActionLog: historyData.nodeIdsWithActionLog[0]
-                    }
-                }, {
-                    upsert: false
-                }, function(err, updatedData) {
-                    if (err) {
-                        logger.debug("Failed to update: ", err);
-                        callback(err, null);
-                        return;
-                    }
-                    logger.debug("createNewOrUpdate called: ", JSON.stringify(updatedData));
-                    callback(null, updatedData);
-                    return;
-                });
-            } else {
-                self.update({
-                    refId: refId
-                }, {
-                    $set: {
-                        status: historyData.status,
-                        timestampEnded: historyData.timestampEnded
-                    }
-                }, {
-                    upsert: false
-                }, function(err, updatedData) {
-                    if (err) {
-                        logger.debug("Failed to update: ", err);
-                        callback(err, null);
-                        return;
-                    }
-                    logger.debug("createNewOrUpdate called: ", JSON.stringify(updatedData));
-                    callback(null, updatedData);
-                    return;
-                });
-            }
-
-
-        } else {
-            var taskHistory = new self(historyData);
-            taskHistory.save(function(err, tHistory) {
-                logger.debug('saving task history ==>');
-                if (err) {
-                    callback(err, null);
-                    return;
-                }
-                callback(null, tHistory);
-            });
-        }
+        callback(null, updatedData);
+        return;
     });
 };
 

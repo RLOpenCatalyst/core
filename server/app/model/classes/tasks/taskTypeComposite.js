@@ -70,26 +70,52 @@ function serialExecution(that, userName, baseUrl, choiceParam, nexusData, bluepr
                 }
             }
         }
-        count = 0;
+        count12 = 0;
 
         logger.debug('tasks length', task.length);
+        var trackHistory = [];
 
-        function executeTasks(count) {
-
-            task[count].execute(userName, baseUrl, choiceParam, nexusData, task[count].blueprintIds, envId, function(err, taskExecuteData, history) {
+        function executeTasks(count1) {
+            task[count1].execute(userName, baseUrl, choiceParam, nexusData, task[count1].blueprintIds, envId, function(err, taskExecuteData, history) {
                 logger.debug("Calling...");
                 if (err) {
-                    console.error(err);
+                    logger.error(err);
                     return;
                 }
-                if (!(taskHistory.taskHistoryIds && taskHistory.taskHistoryIds.length)) {
-                    taskHistory.taskHistoryIds = [];
-                }
-                taskHistory.taskHistoryIds.push({
-                    taskId: task[count].id,
-                    historyId: history.id
-                });
-                taskHistory.save();
+                setTimeout(function() {
+                    for (var t = 0; t < assignTask.length; t++) {
+                        (function(t) {
+                            TaskHistory.getHistoryByTaskIdAndHistoryId(assignTask[t], history.id, function(err, data) {
+                                if (err) {
+                                    logger.error("Got error to fetch data: ", err);
+                                }
+                                if (data) {
+                                    var taskHistoryIds = {
+                                        taskId: assignTask[t],
+                                        historyId: history.id
+                                    };
+                                    TaskHistory.updateTaskHistoryIds(taskHistory._id, taskHistoryIds, function(err, updatedData) {
+                                        logger.debug('save callled => ', JSON.stringify(err), JSON.stringify(updatedData));
+                                    });
+                                }
+                            });
+                        })(t);
+                    }
+                }, 2000);
+
+                /*for (var t = 0; t < assignTask.length; t++) {
+                    if (trackHistory.indexOf(assignTask[t]) === -1 && trackHistory.indexOf(history.id) === -1) {
+                        trackHistory.push(assignTask[t]);
+                        trackHistory.push(history.id);
+                        var taskHistoryIds = {
+                            taskId: assignTask[t],
+                            historyId: history.id
+                        };
+                        TaskHistory.updateTaskHistoryIds(taskHistory._id, taskHistoryIds, function(err, updatedData) {
+                            logger.debug('save callled => ', JSON.stringify(err), JSON.stringify(updatedData));
+                        });
+                    }
+                }*/
             }, function(err, status) {
                 if (err) {
                     if (typeof onComplete === 'function') {
@@ -97,15 +123,16 @@ function serialExecution(that, userName, baseUrl, choiceParam, nexusData, bluepr
                     }
                     return;
                 }
-                count++;
-                logger.debug("count ", count);
-                if (count < tasks.length) {
+                count12++;
+                logger.debug("count: ", count12);
+                if (count12 < tasks.length) {
                     if (status === 0) {
-                        executeTasks(count);
+                        executeTasks(count12);
                     } else {
                         onComplete(null, 1);
                     }
                 } else {
+                    logger.debug("Firing onComplete: ", status);
                     if (status === 0) {
                         onComplete(null, 0);
                     } else {
@@ -117,7 +144,7 @@ function serialExecution(that, userName, baseUrl, choiceParam, nexusData, bluepr
             });
         }
 
-        executeTasks(count);
+        executeTasks(count12);
     });
     logger.debug(this.assignTasks);
 
@@ -155,28 +182,35 @@ function parallelExecution(that, userName, baseUrl, choiceParam, nexusData, blue
             }
         }
         count = 0;
-
+        var trackHistory = [];
         logger.debug('tasks length', taskList.length);
         for (var t = 0; t < taskList.length; t++) {
             (function(t) {
                 taskList[t].execute(userName, baseUrl, choiceParam, nexusData, taskList[t].blueprintIds, envId, function(err, taskExecuteData, history) {
                     logger.debug("Calling...");
                     if (err) {
-                    	onComplete(null, 1);
-                        logger.error("error: "+err);
+                        onComplete(null, 1);
+                        logger.error("error: " + err);
                         return;
                     }
-                    if (!(taskHistory.taskHistoryIds && taskHistory.taskHistoryIds.length)) {
-                        taskHistory.taskHistoryIds = [];
+                    for (var t = 0; t < assignTask.length; t++) {
+                        if (trackHistory.indexOf(assignTask[t]) === -1 && trackHistory.indexOf(history.id) === -1) {
+                            trackHistory.push(taskList[t].id);
+                            trackHistory.push(history.id);
+                            var taskHistoryIds = {
+                                taskId: taskList[t].id,
+                                historyId: history.id
+                            };
+                            TaskHistory.updateTaskHistoryIds(taskHistory._id, taskHistoryIds, function(err, updatedData) {
+                                logger.debug('save callled ==>', JSON.stringify(err), JSON.stringify(updatedData));
+                            });
+                        }
                     }
-                    taskHistory.taskHistoryIds.push({
-                        taskId: taskList[t].id,
-                        historyId: history.id
-                    });
-                    //taskHistory.save();
                 }, function(err, status) {
+                    logger.debug("error: ", err);
+                    logger.debug("status: ", status);
                     if (err) {
-                    	logger.error("error: ",err);
+                        logger.error("error: ", err);
                         if (typeof onComplete === 'function') {
                             onComplete(null, 1);
                         }
