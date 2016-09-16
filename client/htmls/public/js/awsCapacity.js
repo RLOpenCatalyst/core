@@ -22,6 +22,9 @@ $(document).ready(function() {
         $('#instanceAssignedContainer').hide();
         $('#instanceUnAssignedContainer').hide();
         $('.footer').addClass('hidden');
+        $('.unassignedBox').removeClass('selectComponent');
+        $('.assignedBox').removeClass('selectComponent');
+        $('.totalBox').removeClass('selectComponent');
     }
 
     $("#refreshBtn").click(function() {
