@@ -59,6 +59,7 @@ $(document).ready(function() {
                 if (data.length === 0) {
                     $('.providerValues').addClass('hidden');
                     $('.noProviderView').show();
+                    $('#instanceActionListLoader').hide();
                 } else {
                     for (var i = 0; i < data.length; i++) {
                         $('.noProviderView').hide();
