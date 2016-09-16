@@ -67,7 +67,16 @@ function getDefaultsConfig() {
                 return config.catalystHome + this.cookbooksDirName + "/";
             }
         },
-        settingWizardSteps:[{OrgDetails:['Organization','BusinessGroup','Project']},{chefDetails:['chefServer','Environment']},],
+        settingWizardSteps:[{name :'Introduction',isCompleted:true},
+            {name :'Organization Configuration',isCompleted:false,nestedSteps:[{name:'Organization',isCompleted:false},
+            {name :'BusinessGroup',isCompleted:false},{name:'Project',isCompleted:false}]},
+            {name :'Chef Configuration',isCompleted:false,nestedSteps:[{name:'chefServer',isCompleted:false},{name:'Environment',isCompleted:false}]},
+            {name :'Provider Configuration',isCompleted:false},
+            {name :'Repositories',isCompleted:false},
+            {name :'Security Access Control',isCompleted:false},
+            {name :'Telemetry',isCompleted:false},
+            {name :'CMDB Configuration',isCompleted:false}
+        ],
         constantData: {
             common_field: ['envId', 'providerId', 'orgId', 'bgId','organizationId','businessGroupId', 'projectId','templateType','blueprintConfig.cloudProviderType','cloudProviderType'],
             sort_field: ['name', 'description'],

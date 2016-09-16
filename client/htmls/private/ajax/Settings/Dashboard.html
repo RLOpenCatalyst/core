@@ -92,9 +92,9 @@ ul li {
             <a type="button" href="ajax/Settings/settingsWizard.html" class="btn btn-circle process-btn">1</a><br />
             <p class="lable-name">Org Configuration</p>
          </div>
-         <div class="btn-1">
+         <div class="btn-1" id="configManagement">
             <a type="button" href="ajax/Settings/configManagementWizard.html" class="btn btn-circle process-btn">2</a><br />
-            <p class="lable-name">Chef Configuration</p>
+            <p class="lable-name">Config Management</p>
          </div>
          <div class="btn-1" id="providerConfiguration">
             <a type="button" href="ajax/Settings/providerWizard.html" class="btn btn-circle process-btn">3</a><br />
@@ -102,15 +102,11 @@ ul li {
          </div>
          <div class="btn-1">
             <a type="button" href="ajax/Settings/repositoryWizard.html" class="btn btn-circle process-btn">4</a><br />
-            <p class="lable-name">Repositories</p>
-         </div>
-         <div class="btn-1">
-            <a type="button" href="ajax/Settings/accessWizard.html" class="btn btn-circle process-btn">5</a><br />
-            <p class="lable-name">Security Access Control</p>
+            <p class="lable-name">Devops Roles</p>
          </div>
          <div class="btn-1">
             <a type="button" href="ajax/Settings/telemetryWizard.html" class="btn btn-circle process-btn">6</a><br />
-            <p class="lable-name">Telemetry</p>
+            <p class="lable-name">Track</p>
          </div>
          <div class="btn-1">
             <a type="button" href="ajax/Settings/cmdbWizard.html" class="btn btn-circle process-btn">7</a><br />
@@ -152,11 +148,4 @@ $('.btn-1 a').click(function(e){
 });
 
 $('#orgConfiguration a').trigger('click');
-
-/*$('#providerConfiguration a').click(function(e){
-  $('a.btn').addClass('active-btn');
-  $(this).removeClass('process-btn');    
-  e.preventDefault();
-  $('.contentSetting').load(this.getAttribute('href'));
-});*/
 </script>

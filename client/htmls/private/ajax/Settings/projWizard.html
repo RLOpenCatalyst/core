@@ -36,7 +36,7 @@
                         <div  id="environmentname" multiselect="multiselect" datatype="select" sourcepath="3" datapath="masterjson.rows.row"  linkedto="orgname" class="input-group from-control col-md-12 widthBox" cdata="catalyst">
                         </div>
                      </div>
-                     <div class="col-lg-6 col-md-6">
+                     <div class="col-lg-6 col-md-6 hidden">
                         <a style="cursor:pointer;" data-toggle="modal" data-backdrop="false" id="repoanchorDetails" href="#repodetailsModal"> <img title="Add Repository Details" data-placement="top" rel="tooltip" class="addrepoDetails" style="float:right;margin-top:20px;" src="img/add.png"></a>
                         <label style="float:left;margin-top:20px;">Repositories Details :</label>
                         <div class="table-responsive table-div">
@@ -53,7 +53,7 @@
                            </table>
                         </div>
                      </div>
-                     <div class="col-lg-6 col-md-6" style="margin-top:25px; display:none">
+                     <div class="col-lg-6 col-md-6 hidden">
                         <label for="name">Repository Details:</label>
                         <input autofocus name="ctl00$MainContent$orgname" value="" id="repositories" class="form-control" type="text"  cdata="catalyst">
                      </div>
@@ -115,6 +115,8 @@
        }); 
   
     $(".nextBG").click(function(){
+      toastr.success('Step 1 - Org Setup Completed');
+      $('#configManagement a').trigger('click');
     });
 
    /* $(".previous").click(function(){
