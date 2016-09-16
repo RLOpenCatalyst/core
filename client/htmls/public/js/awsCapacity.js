@@ -490,6 +490,12 @@ $(document).ready(function() {
                         }
                         updateUniqueInstanceTagsObj["id"] = instanceId;
                         updateUniqueInstanceTagsObj["tags"] = {};
+                        if((projectTagsMapName === 'undefined' || projectTagsMapName === '' || projectTagsMapName === null) &&
+                            (envTagsMapName === 'undefined' || envTagsMapName === '' || envTagsMapName === null) &&
+                            (bgTagsMapName === 'undefined' || bgTagsMapName === '' || bgTagsMapName === null)){
+                            toastr.error("Please configure tag-mapping for updating tags");
+                            return false;
+                        }
                         if(projectTagName === '' &&  envTagName === '' && bgTagName ===''){
                             toastr.error("Please update tag value in any text-box corresponding to selected check-box for updating tags");
                             return false;

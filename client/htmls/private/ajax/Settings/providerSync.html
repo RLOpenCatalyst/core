@@ -1055,6 +1055,11 @@
                     var catalystEntityProjName = $('#projectnameLabelId').attr('catalystEntitytype');
                     var catalystEntityEnvName = $('#envnameLabelId').attr('catalystEntitytype');
                     var catalystEntityBgName = $('#bgNameLabelId').attr('catalystEntitytype');
+                    if(tagsListSelected.length > 0){
+                        $('.btnprojectMappingSave').attr('disabled',false);
+                    }else{
+                        $('.btnprojectMappingSave').attr('disabled',true);
+                    }
 
                     for(var i=0;i<tagsListSelected.length;i++){
                         var objcatalystEntityType = tagsListSelected[i].catalystEntityType;
@@ -1066,6 +1071,7 @@
                             $bgtagsList.val(objtagName);
                         }
                         if(objcatalystEntityType == catalystEntityProjName){
+                            $('.btnprojectMappingSave').attr('disabled',false);
                             $projecttagsList.val(objtagName);
                             //For Mapping tab.....
                             //For project catalystEntityType
@@ -1244,6 +1250,7 @@
 
             $.get('/providers/'+urlproviderId+'/tag-mappings/environment', function(data) {
                 if(data){
+                    $('.btnenvMappingSave').attr('disabled',false);
                     var $tbody = $('#mappingenvTable tbody').empty();
                     for(var i = 0; i < envList.length; i++){
                         //For Table
@@ -1285,6 +1292,7 @@
 
             $.get('/providers/'+urlproviderId+'/tag-mappings/bgName', function(data) {
                 if(data){
+                    $('.btnbgMappingSave').attr('disabled',false);
                     var $tbody = $('#mappingBgTable tbody').empty();
                     for(var i = 0; i < bgList.length; i++){
                         //For Table
@@ -2013,7 +2021,6 @@
                         bootbox.alert("Please configure tag-mapping for updating tags");
                         return false;
                     }
-                    return false;
                     if(projectTagName === '' &&  envTagName === '' && bgTagName ===''){
                         bootbox.alert("Please update tag value in any text-box corresponding to selected check-box for updating tags");
                         return false;
