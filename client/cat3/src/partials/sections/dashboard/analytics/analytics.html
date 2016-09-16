@@ -46,10 +46,10 @@
 			</fieldset>
 		</form>
 	</div>
-	<div ng-switch="stateItems.menuItem">
-		<div ng-switch="usage"  >
-			<span ng-include="'src/partials/sections/dashboard/analytics/view/usage.html'"></span>
-		</div>
+	<div ui-view>
+		<!--<div ng-switch="usage"  >-->
+			<!--<span ng-include="'src/partials/sections/dashboard/analytics/view/cost.html'"></span>-->
+		<!--</div>-->
 	</div>
 
 </div>

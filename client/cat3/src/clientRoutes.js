@@ -71,7 +71,7 @@ function routeConfig($stateProvider, $urlRouterProvider, $httpProvider, modulePe
 			}]
 		}
 	}).state('dashboard.analytics', {
-		url: "/analytics/:menuItem/:view",
+		url: "/analytics/",
 		templateUrl: "src/partials/sections/dashboard/analytics/analytics.html",
 		controller: "analyticsCtrl as analytic",
 		params:{org:null,bus:null,proj:null},

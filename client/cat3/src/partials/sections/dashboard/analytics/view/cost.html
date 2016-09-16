@@ -1,0 +1,36 @@
+<div class="leftnavdiv">
+    <br>
+     <div ng-show="stateItems.view === 'chat'">
+         <div class="row">
+             <div class="col-lg-4 col-md-4 col-sm-12" >
+                 <div class="panel panel-default">
+                     <div class="panel-heading">Aggregate cost : TotalCost {{cost.pieChat.totalCoust}}</div>
+                     <div class="panel-body"><nvd3 options="cost.pieChat.option" data="cost.pieChat.data"></nvd3></div>
+                 </div>
+             </div>
+             <div class="col-lg-8 col-md-8 col-sm-12" >
+                 <div class="panel panel-default">
+                     <div class="panel-heading">Distribution of all services across BU's</div>
+                     <div class="panel-body"><nvd3 options="cost.barChat.option" data="cost.barChat.data"></nvd3></div>
+                 </div>
+             </div>
+             <div class="col-lg-10 col-md-10 col-sm-10" >
+                     <div class="panel panel-default">
+                         <div class="panel-heading">Daily trends of usage across BU's</div>
+                         <div class="panel-body"><nvd3 options="optionsLine" data="dataLine" class="with-3d-shadow with-transitions"></nvd3></div>
+                     </div>
+             </div>
+         </div>
+     </div>
+    <div ng-show="stateItems.view === 'report'">
+
+        report
+    </div>
+</div>
+<style>
+    .leftnavdiv {
+        height:100%;
+        min-height:100%;
+    }
+
+</style>

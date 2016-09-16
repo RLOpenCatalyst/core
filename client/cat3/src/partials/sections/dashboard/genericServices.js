@@ -9,6 +9,54 @@
     "use strict";
     angular.module('dashboard.genericServices',['authentication', 'utility.pagination']).service('genericServices',['$rootScope', '$q','$http', 'workzoneServices', '$modal','confirmbox','toastr',function($rootScope,$q,$http,workSvs,$modal,confirmbox,toastr){
         var genericServices=this;
+            genericServices.promiseGet = function (paramsObject) {
+                if(!paramsObject.inlineLoader){ $rootScope.onBodyLoading=true;}
+                var deferred = $q.defer();
+                $http.get(paramsObject.url)
+                    .success(function(data) {
+                        if(!paramsObject.inlineLoader){$rootScope.onBodyLoading=false;}
+                        deferred.resolve(data);
+                    })
+                    .error(function(data, status) {
+                        if(!paramsObject.inlineLoader){ $rootScope.onBodyLoading=false;}
+                        deferred.reject();
+                        toastr.error(data.message, status);
+                    });
+                return deferred.promise;
+            };
+                genericServices.promisePost = function (paramsObject) {
+                if(!paramsObject.inlineLoader){ $rootScope.onBodyLoading=true;}
+                var deferred = $q.defer();
+                $http.post(paramsObject.url,paramsObject.data)
+                    .success(function(data) {
+                        $rootScope.onBodyLoading=false;
+                        deferred.resolve(data);
+                    })
+                    .error(function(data, status) {
+                        $rootScope.onBodyLoading=false;
+                        deferred.reject();
+                        toastr.error(data.message, status);
+                    });
+                return deferred.promise;
+            };
+                genericServices.promiseDelete= function (paramsObject) {
+                $rootScope.onBodyLoading=true;
+                var deferred = $q.defer();
+                $http({
+                    method: 'DELETE',
+                    url: paramsObject.url,
+                    data:paramsObject.data
+                }).success(function(data) {
+                        $rootScope.onBodyLoading=false;
+                        deferred.resolve(data);
+                    })
+                    .error(function(data, status) {
+                        $rootScope.onBodyLoading=false;
+                        deferred.reject();
+                        toastr.error(data.message, status);
+                    });
+                return deferred.promise;
+            };
         genericServices.getTreeNew = function () {
             $rootScope.onBodyLoading=true;
             var deferred = $q.defer();
