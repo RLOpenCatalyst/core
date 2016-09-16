@@ -27,6 +27,12 @@ var SettingWizardSchema = new Schema({
         required: true,
         trim: true
     },
+    orgName: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    previousStep: Schema.Types.Mixed,
     currentStep: Schema.Types.Mixed,
     nextStep:Schema.Types.Mixed,
     isCompleted: {

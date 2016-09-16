@@ -45,6 +45,7 @@ var Task = require('_pr/model/classes/tasks/tasks.js');
 var async = require('async');
 var	appDeployPipelineService = require('_pr/services/appDeployPipelineService');
 var	settingsService = require('_pr/services/settingsService');
+var	settingWizard = require('_pr/model/setting-wizard');
 
 
 module.exports.setRoutes = function(app, sessionVerification) {
@@ -2200,9 +2201,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
     app.post('/d4dMasters/savemasterjsonrownew/:id/:fileinputs/:orgname', function(req, res) {
         logger.debug("Enter post() for /d4dMasters/savemasterjsonrownew/%s/%s/%s", req.params.id, req.params.fileinputs, req.params.orgname);
-        logger.debug("******************************");
-        logger.debug(JSON.stringify(req.body));
-        logger.debug("******************************");
         var bodyJson = JSON.parse(JSON.stringify(req.body));
         //pushing the rowid field
         var editMode = false; //to identify if in edit mode.
@@ -2355,103 +2353,142 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                 res.status(500).send("Failed to save Org.");
                                                 return;
                                             }
-                                            for (var x1 = 0; x1 < 6; x1++) {
-                                                (function(x1) {
-                                                    var templatetypename;
-                                                    var designtemplateicon_filename;
-                                                    var templatetype;
-                                                    if (x1 === 0) {
-                                                        templatetypename = "SoftwareStack";
-                                                        designtemplateicon_filename = "Appfactory.png";
-                                                        templatetype = "chef";
-                                                    } else if (x1 === 1) {
-                                                        templatetypename = "OSImage";
-                                                        designtemplateicon_filename = "Desktop Provisining.png";
-                                                        templatetype = "ami";
-                                                    } else if (x1 === 2) {
-                                                        templatetypename = "CloudFormation";
-                                                        designtemplateicon_filename = "CloudFormation.png";
-                                                        templatetype = "cft";
+                                            async.parallel({
+                                                template:function(callback){
+                                                    for (var x1 = 0; x1 < 6; x1++) {
+                                                        (function(x1) {
+                                                            var templatetypename;
+                                                            var designtemplateicon_filename;
+                                                            var templatetype;
+                                                            if (x1 === 0) {
+                                                                templatetypename = "SoftwareStack";
+                                                                designtemplateicon_filename = "Appfactory.png";
+                                                                templatetype = "chef";
+                                                            } else if (x1 === 1) {
+                                                                templatetypename = "OSImage";
+                                                                designtemplateicon_filename = "Desktop Provisining.png";
+                                                                templatetype = "ami";
+                                                            } else if (x1 === 2) {
+                                                                templatetypename = "CloudFormation";
+                                                                designtemplateicon_filename = "CloudFormation.png";
+                                                                templatetype = "cft";
 
-                                                    } else if (x1 === 3) {
-                                                        templatetypename = "ARMTemplate";
-                                                        designtemplateicon_filename = "CloudFormation.png";
-                                                        templatetype = "arm";
-                                                    } else if(x1 === 4) {
-                                                        templatetypename = "Docker";
-                                                        designtemplateicon_filename = "Docker.png";
-                                                        templatetype = "docker";
-                                                    } else {
-                                                        templatetypename = "Composite";
-                                                        designtemplateicon_filename = "composite.png";
-                                                        templatetype = "composite";
+                                                            } else if (x1 === 3) {
+                                                                templatetypename = "ARMTemplate";
+                                                                designtemplateicon_filename = "CloudFormation.png";
+                                                                templatetype = "arm";
+                                                            } else if(x1 === 4) {
+                                                                templatetypename = "Docker";
+                                                                designtemplateicon_filename = "Docker.png";
+                                                                templatetype = "docker";
+                                                            } else {
+                                                                templatetypename = "Composite";
+                                                                designtemplateicon_filename = "composite.png";
+                                                                templatetype = "composite";
+                                                            }
+
+                                                            var templateTypeData = {
+                                                                "templatetypename": templatetypename,
+                                                                "orgname": bodyJson["orgname"],
+                                                                "orgname_rowid": bodyJson["rowid"],
+                                                                "rowid": uuid.v4(),
+                                                                "id": "16",
+                                                                "templatetype": templatetype
+
+                                                            };
+
+                                                            var templateTypeModel = new d4dModelNew.d4dModelMastersDesignTemplateTypes(templateTypeData);
+                                                            templateTypeModel.save(function(err, aTemplateType) {
+                                                                if (err) {
+                                                                    logger.debug("Failed to save TemplateType.");
+                                                                }
+                                                                logger.debug("Default TemplateType created.");
+                                                                if(x1 === 5){
+                                                                    callback(null,aTemplateType);
+                                                                    return;
+                                                                }
+                                                            });
+                                                        })(x1);
                                                     }
+                                                },
+                                                team:function(callback){
+                                                    for (var x = 0; x < 4; x++) {
+                                                        (function(x) {
+                                                            var teamName;
+                                                            var descriptions;
+                                                            if (x === 0) {
+                                                                teamName = bodyJson["orgname"] + "_Admins";
+                                                                descriptions = "Team For " + teamName;
+                                                            } else if (x === 1) {
+                                                                teamName = bodyJson["orgname"] + "_DEV";
+                                                                descriptions = "Team For " + teamName;
+                                                            } else if (x === 2) {
+                                                                teamName = bodyJson["orgname"] + "_QA";
+                                                                descriptions = "Team For " + teamName;
+                                                            } else {
+                                                                teamName = bodyJson["orgname"] + "_DevOps";
+                                                                descriptions = "Team For " + teamName;
+                                                            }
 
-                                                    var templateTypeData = {
-                                                        "templatetypename": templatetypename,
-                                                        "orgname": bodyJson["orgname"],
-                                                        "orgname_rowid": bodyJson["rowid"],
-                                                        "rowid": uuid.v4(),
-                                                        "id": "16",
-                                                        "templatetype": templatetype
+                                                            var teamData = {
+                                                                "teamname": teamName,
+                                                                "description": descriptions,
+                                                                "orgname": bodyJson["orgname"],
+                                                                "orgname_rowid": bodyJson["rowid"],
+                                                                "rowid": uuid.v4(),
+                                                                "id": "21",
+                                                                "loginname": "",
+                                                                "loginname_rowid": "",
+                                                                "projectname": "",
+                                                                "projectname_rowid": ""
 
-                                                    };
+                                                            };
+                                                            var teamModel = new d4dModelNew.d4dModelMastersTeams(teamData);
+                                                            teamModel.save(function(err, aTeam) {
+                                                                if (err) {
+                                                                    logger.debug("Failed to save Team.");
+                                                                }
+                                                                logger.debug("Auto created Team: ", JSON.stringify(aTeam));
+                                                                if (x === 3) {
+                                                                    callback(null,aTeam);
+                                                                    return;
+                                                                }
+                                                            });
+                                                        })(x);
 
-                                                    var templateTypeModel = new d4dModelNew.d4dModelMastersDesignTemplateTypes(templateTypeData);
-                                                    templateTypeModel.save(function(err, aTemplateType) {
-                                                        if (err) {
-                                                            logger.debug("Failed to save TemplateType.");
-                                                        }
-                                                        logger.debug("Default TemplateType created.");
-                                                    });
-                                                })(x1);
-                                            }
-                                            for (var x = 0; x < 4; x++) {
-                                                (function(x) {
-                                                    var teamName;
-                                                    var descriptions;
-                                                    if (x === 0) {
-                                                        teamName = bodyJson["orgname"] + "_Admins";
-                                                        descriptions = "Team For " + teamName;
-                                                    } else if (x === 1) {
-                                                        teamName = bodyJson["orgname"] + "_DEV";
-                                                        descriptions = "Team For " + teamName;
-                                                    } else if (x === 2) {
-                                                        teamName = bodyJson["orgname"] + "_QA";
-                                                        descriptions = "Team For " + teamName;
-                                                    } else {
-                                                        teamName = bodyJson["orgname"] + "_DevOps";
-                                                        descriptions = "Team For " + teamName;
                                                     }
-
-                                                    var teamData = {
-                                                        "teamname": teamName,
-                                                        "description": descriptions,
-                                                        "orgname": bodyJson["orgname"],
-                                                        "orgname_rowid": bodyJson["rowid"],
-                                                        "rowid": uuid.v4(),
-                                                        "id": "21",
-                                                        "loginname": "",
-                                                        "loginname_rowid": "",
-                                                        "projectname": "",
-                                                        "projectname_rowid": ""
-
-                                                    };
-                                                    var teamModel = new d4dModelNew.d4dModelMastersTeams(teamData);
-                                                    teamModel.save(function(err, aTeam) {
+                                                },
+                                                wizard:function(callback){
+                                                    var settingWizardSteps = appConfig.settingWizardSteps;
+                                                    var currentStep=settingWizardSteps[1];
+                                                    if(currentStep.nestedSteps){
+                                                        currentStep.nestedSteps[0].isCompleted = true;
+                                                    }
+                                                    var wizardBody = {
+                                                        orgId:bodyJson["rowid"],
+                                                        orgName:bodyJson["orgname"],
+                                                        previousStep:settingWizardSteps[0],
+                                                        currentStep:currentStep,
+                                                        nextStep:settingWizardSteps[2],
+                                                        isCompleted:false
+                                                    }
+                                                    settingWizard.createSettingWizard(wizardBody,function(err,data){
                                                         if (err) {
-                                                            logger.debug("Failed to save Team.");
+                                                            logger.debug("Failed to save Setting Wizard.");
                                                         }
-                                                        logger.debug("Auto created Team: ", JSON.stringify(aTeam));
-                                                    });
-                                                    if (x === 3) {
-                                                        res.send(200);
+                                                        logger.debug("Setting Wizard created.");
+                                                        callback(null,data);
                                                         return;
-                                                    }
-                                                })(x);
-
-                                            }
-
+                                                    });
+                                                }
+                                            },function(err,results){
+                                                if(err){
+                                                    res.status(500).send("Failed to save template/Team/Wizard.");
+                                                    return;
+                                                }
+                                                res.send(200);
+                                                return;
+                                            })
                                         });
                                     } else if (req.params.id === '7') {
                                         authUtil.hashPassword(bodyJson["password"], function(err, hashedPassword) {
