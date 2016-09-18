@@ -30,6 +30,7 @@ var usersDao = require('_pr/model/users.js');
 var configmgmtDao = require('_pr/model/d4dmasters/configmgmt.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var appConfig = require('_pr/config');
+var settingWizard = require('_pr/model/setting-wizard');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all('/vmimages/*', sessionVerificationFunc);
@@ -109,19 +110,18 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         };
 
         usersDao.haspermission(user.cn, category, permissionto, null, req.session.user.permissionset, function(err, data) {
-            if (!err) {
+            if(!err) {
                 logger.debug('Returned from haspermission : ' + data + ' : ' + (data == false));
                 if (data == false) {
                     logger.debug('No permission to ' + permissionto + ' on ' + category);
                     res.send(401, "You don't have permission to perform this operation.");
                     return;
                 }
-            } else {
+            }else {
                 logger.error("Hit and error in haspermission:", err);
                 res.send(500);
                 return;
             }
-
             masterUtil.getLoggedInUser(user.cn, function(err, anUser) {
                 if (err) {
                     res.status(500).send("Failed to fetch User.");
@@ -216,9 +216,29 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                 res.status(500).send("Selected is already registered.");
                                                 return;
                                             }
-                                            logger.debug("Exit post() for /vmimages");
-                                            res.send(anImage);
-                                            return;
+                                            settingWizard.getSettingWizardByOrgId(orgId,function(err,settingWizards){
+                                                if(err){
+                                                    logger.error('Hit getting setting wizard error', err);
+                                                    res.send(500);
+                                                    return;
+                                                }
+                                                var settingWizardSteps = appConfig.settingWizardSteps;
+                                                settingWizards.currentStep.nestedSteps[1].isCompleted =true;
+                                                settingWizards.currentStep.isCompleted =true;
+                                                settingWizards.previousStep = settingWizards.currentStep;
+                                                settingWizards.currentStep =settingWizards.nextStep;
+                                                settingWizards.nextStep =settingWizardSteps[5];
+                                                settingWizard.updateSettingWizard(settingWizards,function(err,data){
+                                                    if(err){
+                                                        logger.error('Hit getting setting wizard error', err);
+                                                        res.send(500);
+                                                        return;
+                                                    }
+                                                    logger.debug("Exit post() for /vmimages");
+                                                    res.send(anImage);
+                                                    return;
+                                                });
+                                            })
                                         });
                                     } else {
                                         res.status(500).send("The image is empty for amid: " + vmimageData.imageIdentifier);
