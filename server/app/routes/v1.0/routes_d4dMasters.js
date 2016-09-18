@@ -2619,6 +2619,45 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     });
                                                 })
                                             }
+                                            if(req.params.id === '10'){
+                                                settingWizard.getSettingWizardByOrgId(bodyJson['orgname_rowid'],function(err,settingWizards){
+                                                    if(err){
+                                                        logger.error('Hit getting setting wizard error', err);
+                                                        res.send(500);
+                                                        return;
+                                                    }
+                                                    settingWizards.currentStep.nestedSteps[0].isCompleted =true;
+                                                    settingWizard.updateSettingWizard(settingWizards,function(err,data){
+                                                        if(err){
+                                                            logger.error('Hit getting setting wizard error', err);
+                                                            res.send(500);
+                                                            return;
+                                                        }
+                                                    });
+                                                })
+                                            }
+                                            if(req.params.id === '3'){
+                                                settingWizard.getSettingWizardByOrgId(bodyJson['orgname_rowid'],function(err,settingWizards){
+                                                    if(err){
+                                                        logger.error('Hit getting setting wizard error', err);
+                                                        res.send(500);
+                                                        return;
+                                                    }
+                                                    var settingWizardSteps = appConfig.settingWizardSteps;
+                                                    settingWizards.currentStep.nestedSteps[1].isCompleted =true;
+                                                    settingWizards.currentStep.isCompleted =true;
+                                                    settingWizards.previousStep = settingWizards.currentStep;
+                                                    settingWizards.currentStep =settingWizards.nextStep;
+                                                    settingWizards.nextStep =settingWizardSteps[4];
+                                                    settingWizard.updateSettingWizard(settingWizards,function(err,data){
+                                                        if(err){
+                                                            logger.error('Hit getting setting wizard error', err);
+                                                            res.send(500);
+                                                            return;
+                                                        }
+                                                    });
+                                                })
+                                            }
                                             logger.debug('New record folderpath: % rowid %s FLD["folderpath"]:', folderpath, newrowid, folderpath);
                                             if (!folderpath) {
                                                 if (FLD["folderpath"] == undefined) //folderpath issue fix
