@@ -1,162 +1,196 @@
 <style>
-.container {
-    width:1166px;
-    height:130px;
-}
-.btn-circle {
-    width: 49px;
-    height: 49px;
-    text-align: center;
-    padding: 5px 0;
-    font-size: 20px;
-    line-height: 2.00;
-    border-radius: 30px;
-    margin: 0 25px;
-}
+    .container {
+        width:1166px;
+        height:130px;
+    }
+    .btn-circle {
+        width: 49px;
+        height: 49px;
+        text-align: center;
+        padding: 5px 0;
+        font-size: 20px;
+        line-height: 2.00;
+        border-radius: 30px;
+        margin: 0 25px;
+    }
 
-.btn-text {
-    font-size: 12px;
-    vertical-align: middle
-}
+    .btn-text {
+        font-size: 12px;
+        vertical-align: middle
+    }
 
-.btn:hover {
-    font-weight: bold;
-    color: #fff;
-}
+    .btn:hover {
+        font-weight: bold;
+        color: #fff;
+    }
 
-.active-btn {
-    background-color: #286090;
-    color:#fff;
-    box-shadow: 0 0 5px #286090;
-}
-.process-btn {
-    background-color: #7d7676;
-    color: #fff;
-    box-shadow: 0 0 5px #888888;
-}
+    .active-btn {
+        background-color: #286090;
+        color:#fff;
+        box-shadow: 0 0 5px #286090;
+    }
+    .green-btn {
+        background-color: green;
+        color:#fff;
+        box-shadow: 0 0 5px #286090;
+    }
+    .red-btn {
+        background-color: red;
+        color:#fff;
+        box-shadow: 0 0 5px #286090;
+    }
+    .process-btn {
+        background-color: #7d7676;
+        color: #fff;
+        box-shadow: 0 0 5px #888888;
+    }
 
-.end-btn {
-    background-color: #40BAF1;
-    color: #fff;
-    box-shadow: 0 0 5px #40BAF1;
-}
+    .end-btn {
+        background-color: #40BAF1;
+        color: #fff;
+        box-shadow: 0 0 5px #40BAF1;
+    }
 
-ul li {
-    text-decoration: none;
-    display: inline;
-}
+    ul li {
+        text-decoration: none;
+        display: inline;
+    }
 
-.li-margin {
-    margin:0 20px;
-    width: 30px;
-}
+    .li-margin {
+        margin:0 20px;
+        width: 30px;
+    }
 
-.btn-cls {
-    margin: 10px auto;
-    width: 90%;
-    background: hsla(0, 0%, 0%, 0) url("../../private/img/dot.jpg") no-repeat scroll -27px 25px;
-    height: 45px;
-}
+    .btn-cls {
+        margin: 10px auto;
+        width: 90%;
+        background: hsla(0, 0%, 0%, 0) url("../../private/img/dot.jpg") no-repeat scroll -27px 25px;
+        height: 45px;
+    }
 
-.btn-1 {
-    float: left;
-    width: 126px;
-    text-align: center;
-    
-    padding: 0 15px;
-}
+    .btn-1 {
+        float: left;
+        width: 126px;
+        text-align: center;
 
-.lable-name {
-    padding-top: 10px;
-    color: #7d7676;
-}
+        padding: 0 15px;
+    }
 
-/*.content {
-    margin:0 auto;
-    width: 80%;
-    border: 1px solid #757575;
-    padding: 10px;
-}*/
+    .lable-name {
+        padding-top: 10px;
+        color: #7d7676;
+    }
+
+    /*.content {
+        margin:0 auto;
+        width: 80%;
+        border: 1px solid #757575;
+        padding: 10px;
+    }*/
 </style>
 <div class="row">
-   <h3 style="color:#286090; font-weight:bold;margin-top:5px;">
-      <center>Setup &amp; Configuration Wizard</center>
-   </h3>
-   <div class="container">
-      <div class="btn-cls">
-         <div class="btn-1">
-            <a type="button" class="btn btn-circle active-btn btn-text" style="line-height:3">Start</a><br />
-            <p class="lable-name">Introduction</p>
-         </div>
-         <div class="btn-1" id="orgConfiguration">
-            <a type="button" href="ajax/Settings/settingsWizard.html" class="btn btn-circle process-btn">1</a><br />
-            <p class="lable-name">Org Configuration</p>
-         </div>
-         <div class="btn-1">
-            <a type="button" class="btn btn-circle process-btn">2</a><br />
-            <p class="lable-name">Chef Configuration</p>
-         </div>
-         <div class="btn-1" id="providerConfiguration">
-            <a type="button" href="" class="btn btn-circle process-btn">3</a><br />
-            <p class="lable-name">Provider Configuration</p>
-         </div>
-         <div class="btn-1">
-            <a type="button" class="btn btn-circle process-btn">4</a><br />
-            <p class="lable-name">Repositories</p>
-         </div>
-         <div class="btn-1">
-            <a type="button" class="btn btn-circle process-btn">5</a><br />
-            <p class="lable-name">Security Access Control</p>
-         </div>
-         <div class="btn-1">
-            <a type="button" class="btn btn-circle process-btn">6</a><br />
-            <p class="lable-name">Telemetry</p>
-         </div>
-         <div class="btn-1">
-            <a type="button" class="btn btn-circle process-btn">7</a><br />
-            <p class="lable-name">CMDB Configuration</p>
-         </div>
-      </div>
-   </div>
-   <hr/>
-   <div class="contentSetting">
-   </div>
+    <h3 style="color:#286090; font-weight:bold;margin-top:5px;">
+        <center>Setup &amp; Configuration Wizard</center>
+    </h3>
+    <div class="container">
+        <div class="btn-cls">
+            <div class="btn-1" id="startConfig">
+                <a type="button" class="btn btn-circle btn-text" style="line-height:3">Start</a><br />
+                <p class="lable-name">Introduction</p>
+            </div>
+            <div class="btn-1" id="orgConfiguration">
+                <a type="button" href="ajax/Settings/settingsWizard.html" class="btn btn-circle process-btn">1</a><br />
+                <p class="lable-name">Org Configuration</p>
+            </div>
+            <div class="btn-1" id="configManagement">
+                <a type="button" href="ajax/Settings/configManagementWizard.html" class="btn btn-circle process-btn">2</a><br />
+                <p class="lable-name">Config Management</p>
+            </div>
+            <div class="btn-1" id="providerConfiguration">
+                <a type="button" href="ajax/Settings/providerWizard.html" class="btn btn-circle process-btn">3</a><br />
+                <p class="lable-name">Provider Configuration</p>
+            </div>
+            <div class="btn-1">
+                <a type="button" href="ajax/Settings/repositoryWizard.html" class="btn btn-circle process-btn">4</a><br />
+                <p class="lable-name">Devops Roles</p>
+            </div>
+            <div class="btn-1">
+                <a type="button" href="ajax/Settings/telemetryWizard.html" class="btn btn-circle process-btn">6</a><br />
+                <p class="lable-name">Track</p>
+            </div>
+            <div class="btn-1">
+                <a type="button" href="ajax/Settings/cmdbWizard.html" class="btn btn-circle process-btn">7</a><br />
+                <p class="lable-name">CMDB Configuration</p>
+            </div>
+        </div>
+    </div>
+    <hr/>
+    <div class="contentSetting">
+    </div>
 </div>
 
 
 
 <script type="text/javascript">
-//added for v3.0 - when navigating from v2.0 workzone to settings-
-$(document).ready(function() {
-  $("#content").attr('style', 'height: 100%!important')
-    if(isAngularIntegration){
-        $('#workZoneNew').attr('href','#');
-        $('#workZoneNew').removeClass('active');
-        $('#Workspace1').addClass('hidden');
-        $('#Settings_nav').show();
-        $('#settingsNew').addClass('active');
-        $("#ribbon ol.breadcrumb").empty();
-        $("#ribbon ol.breadcrumb").append($("<li>Settings</li>"));
-    }
-});
-var serviceURL = "/d4dMasters/";
-window.selectedOrgName = 'Settings'; 
+    //added for v3.0 - when navigating from v2.0 workzone to settings-
+    $(document).ready(function() {
+        $("#content").attr('style', 'height: 100%!important')
+        if(isAngularIntegration){
+            $('#workZoneNew').attr('href','#');
+            $('#workZoneNew').removeClass('active');
+            $('#Workspace1').addClass('hidden');
+            $('#Settings_nav').show();
+            $('#settingsNew').addClass('active');
+            $("#ribbon ol.breadcrumb").empty();
+            $("#ribbon ol.breadcrumb").append($("<li>Settings</li>"));
+        }
+    });
+    var serviceURL = "/d4dMasters/";
+    window.selectedOrgName = 'Settings';
 
-drawBreadCrumb1();
+    drawBreadCrumb1();
 
-$('#orgConfiguration a').click(function(e){
-  $('a.btn').addClass('active-btn');
-  $(this).removeClass('process-btn');    
-  e.preventDefault();
-  $('.contentSetting').load(this.getAttribute('href'));    
-});
+    $('.btn-1 a').click(function(e){
+        $('a.btn').addClass('active-btn');
+        $(this).removeClass('process-btn');
+        e.preventDefault();
+        $('.contentSetting').load(this.getAttribute('href'));
+    });
 
-$('#orgConfiguration a').trigger('click');
+    $('#orgConfiguration a').trigger('click');
+    var orgIdForSetup,orgNameForSetup
+    $.get('/d4dMasters/readmasterjsonnew/1',function(data){
+        orgIdForSetup = data[0].rowid;
+        orgNameForSetup = data[0].orgname;
+        if(data.length == 1) {
+            $.get('/setting-wizard/org/' + orgIdForSetup,function(data){
+                if(data.length === 0){
+                    $('a.btn').addClass('active-btn');
+                }else {
+                    var isCompleted = data.previousStep.isCompleted;
+                    if(isCompleted = 'true'){
+                        if(data.previousStep.name === 'Org Configuration'){
+                            $('#startConfig a, #orgConfiguration a').addClass('green-btn');
+                            $('#configManagement a').addClass('active-btn').removeClass('process-btn');
+                            $('#configManagement a').trigger('click');
+                        } else if(data.previousStep.name === 'Config Management') {
+                            $('#startConfig a,#configManagement a,#orgConfiguration a').addClass('green-btn');
+                            $('#providerConfiguration a').trigger('click');
+                        } else if(data.previousStep.name === 'Provider Configuration') {
+                            $('#startConfig a,#providerConfiguration a,#orgConfiguration a').addClass('green-btn');
+                        }
+                    }
+                }
 
-$('#providerConfiguration a').click(function(e){
-  $('a.btn').addClass('active-btn');
-  $(this).removeClass('process-btn');    
-  e.preventDefault();
-  $('.contentSetting').load('ajax/Settings/CreateProviders.html?new');
-});
+
+            }).error(function(jqXHR) {
+            });
+        }
+        /*for(var i=0;i<data.length;i++){
+         var $option = $('<option></option>').val(data[i].orgname).attr('rowid',data[i].rowid).html(data[i].orgname);
+         $('#orgname').append($option);
+         }*/
+    });
+
+
 </script>

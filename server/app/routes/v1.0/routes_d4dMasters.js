@@ -43,9 +43,9 @@ var parser = require('xml2json');
 var util = require('util');
 var Task = require('_pr/model/classes/tasks/tasks.js');
 var async = require('async');
-var	appDeployPipelineService = require('_pr/services/appDeployPipelineService');
-var	settingsService = require('_pr/services/settingsService');
-var	settingWizard = require('_pr/model/setting-wizard');
+var appDeployPipelineService = require('_pr/services/appDeployPipelineService');
+var settingsService = require('_pr/services/settingsService');
+var settingWizard = require('_pr/model/setting-wizard');
 
 
 module.exports.setRoutes = function(app, sessionVerification) {
@@ -2469,8 +2469,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         orgName:bodyJson["orgname"],
                                                         previousStep:settingWizardSteps[0],
                                                         currentStep:currentStep,
-                                                        nextStep:settingWizardSteps[2],
-                                                        isCompleted:false
+                                                        nextStep:settingWizardSteps[2]
                                                     }
                                                     settingWizard.createSettingWizard(wizardBody,function(err,data){
                                                         if (err) {
@@ -2565,6 +2564,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                 }
                                                 var settingWizardSteps = appConfig.settingWizardSteps;
                                                 settingWizards.currentStep.nestedSteps[2].isCompleted =true;
+                                                settingWizards.currentStep.isCompleted =true;
                                                 settingWizards.previousStep = settingWizards.currentStep;
                                                 settingWizards.currentStep =settingWizards.nextStep;
                                                 settingWizards.nextStep =settingWizardSteps[3];
@@ -2607,7 +2607,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     if(err){
                                                         logger.error('Hit getting setting wizard error', err);
                                                         res.send(500);
-                                                        return; 
+                                                        return;
                                                     }
                                                     settingWizards.currentStep.nestedSteps[1].isCompleted =true;
                                                     settingWizard.updateSettingWizard(settingWizards,function(err,data){

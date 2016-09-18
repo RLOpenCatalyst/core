@@ -1,0 +1,152 @@
+
+<form action="" id="myForm2">
+    <div class="widget-box">
+        <div class="widget-header">
+            <h4 class="widget-margin" style="color:black;">Create Business Group</h4>
+        </div>
+        <div class="widget-body">
+            <div class="widget-main" style="min-height:200px">
+                <div class="jarviswidget" data-widget-editbutton="false" data-widget-custombutton="false">
+                    <div>
+                        <div class="col-lg-6 col-md-6">
+                            <label for="name">Business Group Name <span class="control-label redSpan">&nbsp;*</span></label>
+                            <input autofocus name="productgroupname" value="" id="productgroupname" class="form-control" type="text"  cdata="catalyst" cat-validation="required,nospecial,max15,nospace">
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                            <label for="">Organization<span class="control-label redSpan">&nbsp;*</span></label>
+                            <select id="orgname" class="chooseOrganization form-control width-100" cdata="catalyst" cat-validation="required">
+                                <option value="">Select an Organization</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="btn-group pull-right">
+        <button  name="next2" id="next2" class="nextBG action-button" value="Next">Next</button>
+    </div>
+</form>
+
+
+
+<script>
+    //jQuery time
+    var current_fs, next_fs, previous_fs; //fieldsets
+    var left, opacity, scale; //fieldset properties which we will animate
+    var animating; //flag to prevent quick multi-click glitches
+
+    /*$('#progressbar .orgCreate a').click(function(e){
+     $('.content').removeClass('hidden');
+     e.preventDefault();
+     $('#orgCreation .content').load(this.getAttribute('href'));
+     });
+
+     $('#progressbar .orgCreate a').trigger('click');
+
+     $('#progressbar .bgCreate a').click(function(e){
+     $('.content').removeClass('hidden');
+     e.preventDefault();
+     $('#bgCreation .content').load(this.getAttribute('href'));
+     });
+
+     $('#progressbar .projectCreate a').click(function(e){
+     $('.content').removeClass('hidden');
+     e.preventDefault();
+     $('#projectCreation .content').load(this.getAttribute('href'));
+     });
+
+     $('#progressbar .envCreate a').click(function(e){
+     $('.content').removeClass('hidden');
+     e.preventDefault();
+     $('#envCreation .content').load(this.getAttribute('href'));
+     });*/
+
+    $.get('/d4dMasters/readmasterjsonnew/1',function(data){
+        for(var i=0;i<data.length;i++){
+            var $option = $('<option></option>').val(data[i].orgname).attr('rowid',data[i].rowid).html(data[i].orgname);
+            $('#orgname').append($option);
+        }
+    });
+
+
+    $('#myForm2').submit(function() {
+        if($(this).valid){
+            if(!saveform('2'))return false;
+        }else{
+            alert('invalid valid form submitted'); // for demo
+        }
+        return false; // for demo
+    });
+
+    $(".nextBG").click(function(){
+        $('.content').load("ajax/Settings/projWizard.html");
+        if(animating) return false;
+        animating = true;
+
+        current_fs = $(this).parent();
+        next_fs = $(this).parent().next();
+
+        //activate next step on progressbar using the index of next_fs
+        $("#progressbar li").eq($("div form").index(next_fs)).addClass("active");
+
+        //show the next fieldset
+        next_fs.show();
+        //hide the current fieldset with style
+        current_fs.animate({opacity: 0}, {
+            step: function(now, mx) {
+                //as the opacity of current_fs reduces to 0 - stored in "now"
+                //1. scale current_fs down to 80%
+                scale = 1 - (1 - now) * 0.2;
+                //2. bring next_fs from the right(50%)
+                left = (now * 50)+"%";
+                //3. increase opacity of next_fs to 1 as it moves in
+                opacity = 1 - now;
+                current_fs.css({'transform': 'scale('+scale+')'});
+                next_fs.css({'left': left, 'opacity': opacity});
+            },
+            duration: 800,
+            complete: function(){
+                current_fs.hide();
+                animating = false;
+            },
+            //this comes from the custom easing plugin
+            easing: 'easeInOutBack'
+        });
+    });
+
+    $(".previous").click(function(){
+        if(animating) return false;
+        animating = true;
+
+        current_fs = $(this).parent();
+        previous_fs = $(this).parent().prev();
+
+        //de-activate current step on progressbar
+        $("#progressbar li").eq($("form").index(current_fs)).removeClass("active");
+
+        //show the previous fieldset
+        previous_fs.show();
+        //hide the current fieldset with style
+        current_fs.animate({opacity: 0}, {
+            step: function(now, mx) {
+                //as the opacity of current_fs reduces to 0 - stored in "now"
+                //1. scale previous_fs from 80% to 100%
+                scale = 0.8 + (1 - now) * 0.2;
+                //2. take current_fs to the right(50%) - from 0%
+                left = ((1-now) * 50)+"%";
+                //3. increase opacity of previous_fs to 1 as it moves in
+                opacity = 1 - now;
+                current_fs.css({'left': left});
+                previous_fs.css({'transform': 'scale('+scale+')', 'opacity': opacity});
+            },
+            duration: 800,
+            complete: function(){
+                current_fs.hide();
+                animating = false;
+            },
+            //this comes from the custom easing plugin
+            easing: 'easeInOutBack'
+        });
+    });
+</script>

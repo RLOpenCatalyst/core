@@ -23,12 +23,12 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all('/setting-wizard/*', sessionVerificationFunc);
 
     app.get('/setting-wizard/org/:orgId', function(req, res) {
-        settingWizard.getSettingWizardInfo(req.params.projectId, req.params.envName, req.query.application, req.query.version, function(err, appData) {
+        settingWizard.getSettingWizardByOrgId(req.params.orgId, function(err, settingWizard) {
             if (err) {
                 res.status(500).send(errorResponses.db.error);
                 return;
             }
-            res.status(200).send(appData);
+            res.status(200).send(settingWizard);
             return;
         });
     });

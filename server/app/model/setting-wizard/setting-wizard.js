@@ -35,12 +35,7 @@ var SettingWizardSchema = new Schema({
     },
     previousStep: Schema.Types.Mixed,
     currentStep: Schema.Types.Mixed,
-    nextStep:Schema.Types.Mixed,
-    isCompleted: {
-        type: String,
-        required: true,
-        trim: true
-    }
+    nextStep:Schema.Types.Mixed
 });
 
 
@@ -79,7 +74,7 @@ SettingWizardSchema.statics.updateSettingWizard = function updateSettingWizard(s
 
 SettingWizardSchema.statics.getSettingWizardByOrgId = function getSettingWizardByOrgId(orgId, callback) {
     this.findOne({
-      orgId:orgId
+        orgId:orgId
     }, function(err, settingWizardDetails) {
         if (err) {
             logger.debug("Got error while fetching getSettingWizardByOrgId: ", err);
