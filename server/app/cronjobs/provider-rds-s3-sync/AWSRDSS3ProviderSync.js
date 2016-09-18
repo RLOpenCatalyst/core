@@ -307,36 +307,41 @@ function tagMappingForResources(resources,provider,next){
                     var catalystProjectName = null;
                     var catalystEnvironmentId = null;
                     var catalystEnvironmentName = null;
-                    var catalystBgtId = null;
+                    var catalystBgId = null;
                     var catalystBgName = null;
                     var assignmentFound = false;
-                    if ((bgTag || projectTag || environmentTag) && (resources[j].isDeleted === false)
-                        && ((bgTag.name in resources[j].tags) || (projectTag.name in resources[j].tags) || (environmentTag.name in resources[j].tags))) {
-                        for (var y = 0; y < bgTag.catalystEntityMapping.length; y++) {
-                            if (bgTag.catalystEntityMapping[y].tagValue !== '' &&  resources[j].tags[bgTag.name] !== '' &&
-                                bgTag.catalystEntityMapping[y].tagValue === resources[j].tags[bgTag.name]) {
-                                catalystBgtId = bgTag.catalystEntityMapping[y].catalystEntityId;
-                                catalystBgName = bgTag.catalystEntityMapping[y].catalystEntityName;
-                                break;
+                    if ((bgTag !== null || projectTag !== null || environmentTag !== null) && (resources[j].isDeleted === false)){
+                        if(bgTag !== null && bgTag.name in resources[j].tags) {
+                            for (var y = 0; y < bgTag.catalystEntityMapping.length; y++) {
+                                if (bgTag.catalystEntityMapping[y].tagValue !== '' && resources[j].tags[bgTag.name] !== ''
+                                    && bgTag.catalystEntityMapping[y].tagValue === resources[j].tags[bgTag.name]) {
+                                    catalystBgId = bgTag.catalystEntityMapping[y].catalystEntityId;
+                                    catalystBgName = bgTag.catalystEntityMapping[y].catalystEntityName;
+                                    break;
+                                }
                             }
                         }
-                        for (var y = 0; y < projectTag.catalystEntityMapping.length; y++) {
-                            if (projectTag.catalystEntityMapping[y].tagValue !== '' &&  resources[j].tags[projectTag.name] !== '' &&
-                                projectTag.catalystEntityMapping[y].tagValue === resources[j].tags[projectTag.name]) {
-                                catalystProjectId = projectTag.catalystEntityMapping[y].catalystEntityId;
-                                catalystProjectName = projectTag.catalystEntityMapping[y].catalystEntityName;
-                                break;
+                        if(projectTag !== null && projectTag.name in resources[j].tags) {
+                            for (var y = 0; y < projectTag.catalystEntityMapping.length; y++) {
+                                if (projectTag.catalystEntityMapping[y].tagValue !== '' && resources[j].tags[projectTag.name] !== '' &&
+                                    projectTag.catalystEntityMapping[y].tagValue === resources[j].tags[projectTag.name]) {
+                                    catalystProjectId = projectTag.catalystEntityMapping[y].catalystEntityId;
+                                    catalystProjectName = projectTag.catalystEntityMapping[y].catalystEntityName;
+                                    break;
+                                }
                             }
                         }
-                        for (var y = 0; y < environmentTag.catalystEntityMapping.length; y++) {
-                            if (environmentTag.catalystEntityMapping[y].tagValue !== '' &&  resources[j].tags[environmentTag.name] !== '' &&
-                                environmentTag.catalystEntityMapping[y].tagValue === resources[j].tags[environmentTag.name]) {
-                                catalystEnvironmentId = environmentTag.catalystEntityMapping[y].catalystEntityId;
-                                catalystEnvironmentName = environmentTag.catalystEntityMapping[y].catalystEntityName;
-                                break;
+                        if(environmentTag !== null && environmentTag.name in resources[j].tags) {
+                            for (var y = 0; y < environmentTag.catalystEntityMapping.length; y++) {
+                                if (environmentTag.catalystEntityMapping[y].tagValue !== '' && resources[j].tags[environmentTag.name] !== '' &&
+                                    environmentTag.catalystEntityMapping[y].tagValue === resources[j].tags[environmentTag.name]) {
+                                    catalystEnvironmentId = environmentTag.catalystEntityMapping[y].catalystEntityId;
+                                    catalystEnvironmentName = environmentTag.catalystEntityMapping[y].catalystEntityName;
+                                    break;
+                                }
                             }
                         }
-                        if (catalystProjectId || catalystEnvironmentId || catalystBgtId) {
+                        if (catalystBgId !== null || catalystProjectId !== null || catalystEnvironmentId !== null) {
                             assignmentFound = true;
                         }
                         if (assignmentFound === true) {
@@ -344,7 +349,7 @@ function tagMappingForResources(resources,provider,next){
                             var masterDetails = {
                                 orgId: resources[j].masterDetails.orgId,
                                 orgName: resources[j].masterDetails.orgName,
-                                bgId: catalystBgtId,
+                                bgId: catalystBgId,
                                 bgName: catalystBgName,
                                 projectId: catalystProjectId,
                                 projectName: catalystProjectName,

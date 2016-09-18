@@ -22,6 +22,9 @@ $(document).ready(function() {
         $('#instanceAssignedContainer').hide();
         $('#instanceUnAssignedContainer').hide();
         $('.footer').addClass('hidden');
+        $('.unassignedBox').removeClass('selectComponent');
+        $('.assignedBox').removeClass('selectComponent');
+        $('.totalBox').removeClass('selectComponent');
     }
 
     $("#refreshBtn").click(function() {
@@ -59,6 +62,7 @@ $(document).ready(function() {
                 if (data.length === 0) {
                     $('.providerValues').addClass('hidden');
                     $('.noProviderView').show();
+                    $('#instanceActionListLoader').hide();
                 } else {
                     for (var i = 0; i < data.length; i++) {
                         $('.noProviderView').hide();
@@ -194,7 +198,9 @@ $(document).ready(function() {
     }
 
     $('#totalManagedInstancesMoreInfo').on('click', function() {
-        //$(this).css('box-shadow', '10px 10px 5px #888');
+        $('.unassignedBox').removeClass('selectComponent');
+        $('.assignedBox').removeClass('selectComponent');
+        $('.totalBox').addClass('selectComponent');
         loadAllManagedInstances();
         $('#instanceTableContainer').show();
         $('#instanceAssignedContainer').hide();
@@ -202,7 +208,9 @@ $(document).ready(function() {
     });
 
     $('#totalUnManagedInstancesMoreInfo').on('click', function() {
-        //$(this).css('box-shadow', '10px 10px 5px #888');
+        $('.unassignedBox').removeClass('selectComponent');
+        $('.totalBox').removeClass('selectComponent');
+        $('.assignedBox').addClass('selectComponent');
         loadAllUnManagedInstances();
         $('#instanceTableContainer').hide();
         $('#instanceUnAssignedContainer').hide();
@@ -210,7 +218,9 @@ $(document).ready(function() {
     });
 
     $('#totalUnAssignedInstancesMoreInfo').on('click', function() {
-        //$(this).addClass('shadow');
+        $('.totalBox').removeClass('selectComponent');
+        $('.assignedBox').removeClass('selectComponent');
+        $('.unassignedBox').addClass('selectComponent');
         getUnassignedInstancesWithProjectAndEnv();
         $('#instanceTableContainer').hide();
         $('#instanceAssignedContainer').hide();
@@ -258,10 +268,10 @@ $(document).ready(function() {
                 "orderable": true,
                     "render":function(data, type, full, meta) {
                         if(full.instanceIP === null){
-                            if(full.privateIpAddress === null){
-                                return '-';
-                            }else{
+                            if(full.privateIpAddress &&  full.privateIpAddress !== null){
                                 return full.privateIpAddress;
+                            }else{
+                                return '-';
                             }
                         }else{
                             return full.instanceIP;
@@ -315,10 +325,10 @@ $(document).ready(function() {
                 "orderable": true,
                 "render": function(data, type, full,meta) {
                     if(full.ip === null){
-                        if(full.privateIpAddress === null){
-                            return '-';
-                        }else{
+                        if(full.privateIpAddress &&  full.privateIpAddress !== null){
                             return full.privateIpAddress;
+                        }else{
+                            return '-';
                         }
                     }else{
                         return full.ip;
@@ -392,10 +402,10 @@ $(document).ready(function() {
                 "orderable": true,
                 "render":function(data, type, full, meta) {
                     if(full.ip === null){
-                        if(full.privateIpAddress === null){
-                            return '-';
-                        }else{
+                        if(full.privateIpAddress &&  full.privateIpAddress !== null){
                             return full.privateIpAddress;
+                        }else{
+                            return '-';
                         }
                     }else{
                         return full.ip;
@@ -480,6 +490,12 @@ $(document).ready(function() {
                         }
                         updateUniqueInstanceTagsObj["id"] = instanceId;
                         updateUniqueInstanceTagsObj["tags"] = {};
+                        if((projectTagsMapName === 'undefined' || projectTagsMapName === '' || projectTagsMapName === null) &&
+                            (envTagsMapName === 'undefined' || envTagsMapName === '' || envTagsMapName === null) &&
+                            (bgTagsMapName === 'undefined' || bgTagsMapName === '' || bgTagsMapName === null)){
+                            toastr.error("Please configure tag-mapping for updating tags");
+                            return false;
+                        }
                         if(projectTagName === '' &&  envTagName === '' && bgTagName ===''){
                             toastr.error("Please update tag value in any text-box corresponding to selected check-box for updating tags");
                             return false;
