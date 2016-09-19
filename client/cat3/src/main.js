@@ -24,7 +24,7 @@ var angularApp = angular.module('catapp', ['ui.router','ngTouch','toastr',
 	'global.cache',
 	'ui.grid',
 	'ui.grid.pagination',
-	'ui.grid.autoResize',
+	'ui.grid.autoResize','ui.grid.exporter',
 	'ui.grid.resizeColumns',
 	'global.uiGridOptions',
 	'global.messages'
