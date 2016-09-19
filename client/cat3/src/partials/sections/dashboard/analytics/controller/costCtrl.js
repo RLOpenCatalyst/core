@@ -86,10 +86,29 @@
 
             };
 
+            costObj.costGridOptions = {
+                columnDefs: [
+                    { name:'name',field: 'name' },
+                    { name:'totalCost',field: 'cost.totalCost'},
+                    { name:'EC2',field:'cost.awsCosts.serviceCosts.ec2'},
+                    { name:'RDS',field:'cost.awsCosts.serviceCosts.rds'},
+                    { name:'S3',field:'cost.awsCosts.serviceCosts.s3'}
+                ],
+                enableGridMenu: true,
+                enableSelectAll: true,
+                exporterMenuPdf: false,
+                exporterCsvFilename: 'costFile.csv',
+                exporterCsvLinkElement: angular.element(document.querySelectorAll(".custom-csv-link-location")),
+                onRegisterApi: function(gridApi){
+                    $scope.gridApi = gridApi;
+                }
+            };
+
             var param={
                 url:'src/partials/sections/dashboard/analytics/data/cost.json'
             };
             genSevs.promiseGet(param).then(function(result){
+                costObj.costGridOptions.data = result.splitUpCosts.businessUnits;
                 costObj.pieChat.totalCoust= result.cost.totalCost;
                 angular.forEach(result.splitUpCosts.businessUnits,function (value) {
                     costObj.pieChat.data.push( {
