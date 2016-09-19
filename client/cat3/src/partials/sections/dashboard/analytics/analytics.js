@@ -22,6 +22,44 @@
 
 					}]
 				}
+			}).state('dashboard.analytics.capacity', {
+				url: "capacity/",
+				templateUrl: "src/partials/sections/dashboard/analytics/view/capacity.html",
+				controller: "capacityCtrl as capacity",
+				params:{org:null,bus:null,proj:null},
+				resolve: {
+					auth: ["$q", function ($q) {
+						var deferred = $q.defer();
+						// instead, go to a different page
+						if (modulePerms.analyticsBool()) {
+							// everything is fine, proceed
+							deferred.resolve();
+						} else {
+							deferred.reject({redirectTo: 'dashboard'});
+						}
+						return deferred.promise;
+
+					}]
+				}
+			}).state('dashboard.analytics.usage', {
+				url: "usage/",
+				templateUrl: "src/partials/sections/dashboard/analytics/view/usage.html",
+				controller: "usageCtrl as usage",
+				params:{org:null,bus:null,proj:null},
+				resolve: {
+					auth: ["$q", function ($q) {
+						var deferred = $q.defer();
+						// instead, go to a different page
+						if (modulePerms.analyticsBool()) {
+							// everything is fine, proceed
+							deferred.resolve();
+						} else {
+							deferred.reject({redirectTo: 'dashboard'});
+						}
+						return deferred.promise;
+
+					}]
+				}
 			})
 		}])
 	.controller('analyticsCtrl',['$scope', '$rootScope','$state','genericServices', function ($scope, $rootScope,$state,genericServices) {
