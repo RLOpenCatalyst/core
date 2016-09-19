@@ -1,7 +1,7 @@
 (function (angular) {
     "use strict";
     angular.module('dashboard.analytics')
-        .controller('usageCtrl', ['$scope', '$rootScope', '$state','analyticsServices', 'genericServices', function ($scope,$rootScope,$state,analyticsServices,genSevs){
+        .controller('capacityCtrl', ['$scope', '$rootScope', '$state','analyticsServices', 'genericServices', function ($scope,$rootScope,$state,analyticsServices,genSevs){
         $rootScope.stateItems = $state.params;
         $rootScope.organNewEnt=[];
         $rootScope.organNewEnt.org = '0';
