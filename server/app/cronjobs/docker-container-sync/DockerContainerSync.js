@@ -11,106 +11,48 @@ var toPairs = require('lodash.topairs');
 var async = require('async');
 
 var DockerContainerSync = Object.create(CatalystCronJob);
-DockerContainerSync.interval = '*/5 * * * *';
+DockerContainerSync.interval = '*/2 * * * *';
 DockerContainerSync.execute = dockerContainerSync;
 
 module.exports = DockerContainerSync;
 
-function dockerContainerSync(){
-    async.parallel({
-        containerDataSync: function(callback){
-            containerDao.getAllContainers(function(err,containers){
-                if(err){
-                    logger.error(err);
-                    callback(err,null);
-                    return;
-                }else if(containers.length > 0){
-                    var count = 0;
-                    for(var i = 0;i < containers.length; i++){
-                        (function(container){
-                            instancesDao.getInstanceById(container.instanceId,function(err,instances){
-                                count++;
-                                if(err) {
-                                    logger.error(err);
-                                    return;
-                                }else if(instances.length > 0){
-                                   if(count === containers.length){
-                                       callback(null,containers);
-                                       return;
-                                   }
-                                }else{
-                                    containerDao.deleteContainerByInstanceId(container.instanceId,function(err,deleteStatus){
-                                        if(err){
-                                            logger.error(err);
-                                            return;
-                                        }
-                                        if(count === containers.length){
-                                            callback(null,containers);
-                                            return;
-                                        }
-                                    })
-                                }
-                            })
-                        })(containers[i]);
-                    }
-                }else{
-                    logger.info("Containers are not present in catalyst for instance sync");
-                    callback(null,containers);
-                    return;
-                }
-            })
-        },
-        instanceDataSync: function(callback){
-            MasterUtils.getAllActiveOrg(function(err, orgs) {
-                if(err) {
-                    logger.error(err);
-                    callback(err,null);
-                    return;
-                }else if(orgs.length > 0){
-                    for(var i = 0; i < orgs.length; i++){
-                        (function(org){
-                            instancesDao.getInstancesWithContainersByOrgId(org.rowid, function(err, instances) {
-                                if(err) {
-                                    logger.error(err);
-                                    callback(err,null);
-                                    return;
-                                }else if(instances.length > 0){
-                                    var count = 0;
-                                    for(var j = 0; j < instances.length; j++){
-                                        (function(instance){
-                                            count++;
-                                            aggregateDockerContainerForInstance(instance)
-                                        })(instances[j]);
-                                    }
-                                    if(count === instances.length){
-                                        callback(null,instances);
-                                        return;
-                                    }
-                                }else{
-                                    logger.info("There is no Instance in "+org.orgname+" Organization who have docker installed");
-                                    callback(null,instances);
-                                    return;
-                                }
-                            });
-
-                        })(orgs[i]);
-                    }
-
-                }else{
-                    logger.info("There is no Active Organization for Docker Container Sync");
-                    callback(null,orgs);
-                    return;
-                }
-            });
-        }
-    },function(err,results){
-        if(err){
+function dockerContainerSync() {
+    MasterUtils.getAllActiveOrg(function (err, orgs) {
+        if (err) {
             logger.error(err);
+            return;
+        } else if (orgs.length > 0) {
+            for (var i = 0; i < orgs.length; i++) {
+                (function (org) {
+                    instancesDao.getInstancesWithContainersByOrgId(org.rowid, function (err, instances) {
+                        if (err) {
+                            logger.error(err);
+                            return;
+                        } else if (instances.length > 0) {
+                            var count = 0;
+                            for (var j = 0; j < instances.length; j++) {
+                                (function (instance) {
+                                    count++;
+                                    aggregateDockerContainerForInstance(instance)
+                                })(instances[j]);
+                            }
+                            if (count === instances.length) {
+                                return;
+                            }
+                        } else {
+                            logger.info("There is no Instance in " + org.orgname + " Organization who have docker installed");
+                            return;
+                        }
+                    });
+                })(orgs[i]);
+            }
+        } else {
+            logger.info("There is no Active Organization for Docker Container Sync");
+            return;
         }
-        logger.info("Docker Container Sync job is successfully executed");
-        return;
     });
-}
+};
+
 
 function aggregateDockerContainerForInstance(instance){
     logger.info("Docker Container Sync started for Instance IP "+instance.instanceIP);

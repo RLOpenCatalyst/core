@@ -119,8 +119,8 @@ var ApiUtil = function() {
         return;
     };
 
-    this.changeRequestForJqueryPagination=function(req,callback) {
-        var reqObj = {};
+    this.changeRequestForJqueryPagination=function(req,callback){
+       var reqObj = {};
 
         if('order' in req) {
             var columnIndex = parseInt(req.order[0].column);
@@ -139,6 +139,10 @@ var ApiUtil = function() {
 
         if(('search' in req) && req.search.value !== ''){
          reqObj['search'] =   req.search.value;
+        }
+
+        if('filterBy' in req){
+            reqObj['filterBy'] =   req.filterBy;
         }
 
         callback(null,reqObj);
@@ -178,15 +182,6 @@ var ApiUtil = function() {
             var a = data.filterBy.split(" ");
             for (var i = 0; i < a.length; i++) {
                 var b = a[i].split(":");
-                /*if(b[0]=='region'){
-                 var c=b[1].split(",");
-                 if(c.length > 1)
-                 filterBy['providerData.region'] =  {'$in':c};
-                 else
-                 filterBy['providerData.region']=b[1];
-                 }
-
-                 else {*/
                 var c = b[1].split(",");
                 if (c.length > 1) {
                     filterBy[b[0]] = {'$in': c};
@@ -197,7 +192,6 @@ var ApiUtil = function() {
                         filterBy[b[0]] = b[1];
                     }
                 }
-                //}
             }
             request['filterBy'] = filterBy;
         }

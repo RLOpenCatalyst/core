@@ -67,10 +67,18 @@ var awsProviderSchema = new Schema({
 		type: String,
 		required: false,
 		trim: true
+	},
+	plannedCost: {
+		type: Number,
+		required:false,
+		default:0.0
 	}
 });
+awsProviderSchema.path('plannedCost').get(function(num) {
+	return (num).toFixed(2);
+});
 
-// Static methods :- 
+// Static methods :-
 
 // creates a new Provider
 awsProviderSchema.statics.createNew = function(providerData, callback) {
@@ -201,7 +209,8 @@ awsProviderSchema.statics.updateAWSProviderById = function(providerId, providerD
 			providerName: providerData.providerName,
 			accessKey: providerData.accessKey,
 			secretKey: providerData.secretKey,
-			s3BucketName: providerData.s3BucketName
+			s3BucketName: providerData.s3BucketName,
+			plannedCost:providerData.plannedCost
 		}
 	}, {
 		upsert: false

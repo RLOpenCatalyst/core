@@ -21,6 +21,7 @@
 			$scope.scriptParamShow = false;
 			$scope.scriptSelectAll = false;
 			$scope.scriptParamsObj = {};
+			$scope.isSudo = false;
 			$scope.toggleAll = function() {
 				var toggleStatus = $scope.isAllSelected;
 				angular.forEach($scope.chefInstanceList, function(itm){ itm._isNodeSelected = toggleStatus;});
@@ -355,6 +356,7 @@
 					if ($scope.taskType === "script") {
 						taskJSON.nodeIds = [];
 						taskJSON.scriptDetails = [];
+						taskJSON.isSudo = $scope.isSudo;
 						for (var si = 0; si < $scope.chefInstanceList.length; si++) {
 							if ($scope.chefInstanceList[si]._isNodeSelected) {
 								taskJSON.nodeIds.push($scope.chefInstanceList[si]._id);
@@ -519,11 +521,13 @@
 				/*Identifying the nodes and script list and checking for task type to be script*/
 				if ($scope.taskType === "script") {
 					if($scope.isEditMode){
+						$scope.isSudo=items.taskConfig.isSudo;
 						$scope.chefInstanceList = responseFormatter.identifyAvailableChefNode(responseFormatter.getChefList(instances), items.taskConfig.nodeIds);
 						$scope.isScriptInstanceLoading = false;
 						$scope.isNewTaskPageLoading = false;
 						$scope.targetType="instance";
 					}else{
+						$scope.isSudo = false;
 						$scope.chefInstanceList = responseFormatter.identifyAvailableChefNode(responseFormatter.getChefList(instances), []);
 						$scope.isScriptInstanceLoading = false;
 						$scope.isNewTaskPageLoading = false;

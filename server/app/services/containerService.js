@@ -69,7 +69,7 @@ containerService.executeActionOnContainer=function executeActionOnContainer(json
             if(retCode === 0){
                 var count = occurrences(stdOut,jsonData.containerId,true);
                 logger.debug("Occurrence count is >>>   "+count);
-                if(count === 1){
+                if(count === 1 || retCode === 0){
                     containerDao.updateContainerStatus(jsonData.containerId,dockerContainerStatus(jsonData.action),dockerContainerStatus(jsonData.action),next);
                 }else{
                     containerDao.deleteContainerById(jsonData.containerId,next);

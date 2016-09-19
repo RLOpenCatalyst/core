@@ -907,8 +907,6 @@ function getEC2InstancesInfo(provider,orgName,callback) {
                                         vpcId: instance.VpcId,
                                         privateIpAddress: instance.PrivateIpAddress,
                                         tags:tagInfo,
-                                        environmentTag:tagInfo.Environment,
-                                        projectTag:tagInfo.Owner
                                     }
                                     awsInstanceList.push(instanceObj);
                                     instanceObj = {};

@@ -28,8 +28,9 @@ var logger = require('_pr/logger')(module);
 var instancesDao = require('_pr/model/classes/instance/instance');
 var configmgmtDao = require('_pr/model/d4dmasters/configmgmt');
 var Chef = require('_pr/lib/chef.js');
-var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var containerDao = require('_pr/model/container');
+var logsDao = require('_pr/model/dao/logsdao.js');
+var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
@@ -146,13 +147,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     logger.debug("Failed to delete node ", err);
                                                     return;
                                                 }
-                                                logger.debug("Successfully removed instance from db.");
-                                            });
-                                            instanceLogModel.removeByInstanceId(instance.id, function (err, removed) {
-                                                if (err) {
-                                                    logger.error("Failed to remove instance Log: ", err);
-                                                    return;
-                                                }
+                                                logger.debug("Successfully removed instance from chef Server.");
                                             });
                                             containerDao.deleteContainerByInstanceId(instance.id, function (err, container) {
                                                 if (err) {
@@ -160,32 +155,72 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     return;
                                                 }
                                             });
+                                            var instanceLog = {
+                                                actionId: "",
+                                                instanceId: instance._id,
+                                                orgName: instance.orgName,
+                                                bgName: instance.bgName,
+                                                projectName: instance.projectName,
+                                                envName: instance.environmentName,
+                                                status: 'shutting-down',
+                                                actionStatus: "pending",
+                                                platformId: instance.platformId,
+                                                blueprintName: instance.blueprintData.blueprintName,
+                                                data: instance.runlist,
+                                                platform: instance.hardware.platform,
+                                                os: instance.hardware.os,
+                                                size: instance.instanceType,
+                                                user: req.session.user.cn,
+                                                createdOn: new Date().getTime(),
+                                                startedOn: new Date().getTime(),
+                                                providerType: instance.providerType,
+                                                action: "Shutting-Down",
+                                                logs: []
+                                            };
+                                            var timestampStarted = new Date().getTime();
+                                            var actionLog = instancesDao.insertDeleteActionLog(instance._id, req.session.user.cn, timestampStarted);
+                                            var logReferenceIds = [instance._id];
+                                            if (actionLog) {
+                                                logReferenceIds.push(actionLog._id);
+                                            }
+                                            logsDao.insertLog({
+                                                referenceId: logReferenceIds,
+                                                err: false,
+                                                log: "Instance Shutting-Down",
+                                                timestamp: timestampStarted
+                                            });
+                                            instanceLog.actionId = actionLog._id;
+                                            instanceLog.logs = {
+                                                err: false,
+                                                log: "Instance Shutting-Down",
+                                                timestamp: new Date().getTime()
+                                            };
+                                            instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                                                if (err) {
+                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                }
+                                            });
+                                            instancesDao.updateInstanceStatus(instance._id, instanceLog, function(err, instanceData) {
+                                                if (err) {
+                                                    logger.error("Failed to update instance: ", err);
+                                                }
+                                            });
                                         })(instances[i]);
                                     }
                                 }
-                                instancesDao.removeInstancebyCloudFormationId(cloudFormation.id, function(err, deletedData) {
+                                CloudFormation.removeById(cloudFormation.id, function(err, deletedStack) {
                                     if (err) {
-                                        logger.error("Unable to delete stack instances from db", err);
+                                        logger.error("Unable to delete stack from db", err);
                                         res.status(500).send({
-                                            message: "Unable to delete stack from aws"
+                                            message: "Unable to delete stack from db"
                                         });
                                         return;
                                     }
-                                    CloudFormation.removeById(cloudFormation.id, function(err, deletedStack) {
-                                        if (err) {
-                                            logger.error("Unable to delete stack from db", err);
-                                            res.status(500).send({
-                                                message: "Unable to delete stack from db"
-                                            });
-                                            return;
-                                        }
-                                        res.send(200, {
-                                            message: "deleted",
-                                            instanceIds: instanceIds
-                                        });
+                                    res.send(200, {
+                                        message: "deleted",
+                                        instanceIds: instanceIds
                                     });
                                 });
-
                             });
                         });
                     });

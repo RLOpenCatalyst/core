@@ -23,7 +23,6 @@ var uniqueValidator = require('mongoose-unique-validator');
 var logger = require('_pr/logger')(module);
 var textSearch = require('mongoose-text-search');
 var apiUtils = require('_pr/lib/utils/apiUtil.js');
-var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 
 var Schema = mongoose.Schema;
 
@@ -40,6 +39,18 @@ var ACTION_LOG_TYPES = {
     START: {
         type: 3,
         name: 'Start'
+    },
+    DELETE: {
+        type: 10,
+        name: 'Delete'
+    },
+    SHUTDOWN: {
+        type: 11,
+        name: 'Shutting-Down'
+    },
+    TERMINATED: {
+        type: 12,
+        name: 'Terminated'
     },
     STOP: {
         type: 4,
@@ -396,6 +407,7 @@ var InstancesDao = function() {
             orgId: orgId
         }
         queryObj['docker.dockerEngineStatus'] = 'success';
+        queryObj['isDeleted'] = false;
         Instances.find(queryObj, function(err, data) {
             if (err) {
                 logger.error("Failed getInstancesWithContainersByOrgId (%s)", orgId, err);
@@ -411,7 +423,8 @@ var InstancesDao = function() {
         logger.debug("Enter getInstanceByProviderId (%s)", providerId);
 
         Instances.find({
-            providerId: providerId
+            providerId: providerId,
+            isDeleted: false
         }, function(err, data) {
             if (err) {
                 logger.error("Failed getInstanceByProviderId (%s)", providerId, err);
@@ -1080,7 +1093,8 @@ var InstancesDao = function() {
             "_id": ObjectId(instanceId)
         }, {
             $set: {
-                isDeleted: true
+                isDeleted: true,
+                instanceState: 'terminated'
             }
         }, {
             upsert: false
@@ -1394,8 +1408,6 @@ var InstancesDao = function() {
         });
 
     };
-
-
     //action logs
     function insertActionLog(instanceId, logData, callback) {
         var actionLog = new ActionLog(logData);
@@ -1515,11 +1527,43 @@ var InstancesDao = function() {
         return log;
     };
 
+
+    this.insertDockerActionLog = function(instanceId, user,action,actionId, timestampStarted, callback) {
+        logger.debug("Enter insertDockerActionLog ", instanceId, user, timestampStarted);
+        var log = {
+            type: actionId,
+            name: action,
+            completed: false,
+            success: false,
+            user: user,
+            timeStarted: timestampStarted,
+        };
+        var logId = insertActionLog(instanceId, log, callback);
+        log._id = logId;
+        return log;
+    };
+
+
     this.insertStopActionLog = function(instanceId, user, timestampStarted, callback) {
         logger.debug("Enter insertStopActionLog ", instanceId, user, timestampStarted);
         var log = {
             type: ACTION_LOG_TYPES.STOP.type,
             name: ACTION_LOG_TYPES.STOP.name,
+            completed: false,
+            success: false,
+            user: user,
+            timeStarted: timestampStarted,
+        };
+        var logId = insertActionLog(instanceId, log, callback);
+        log._id = logId;
+        return log;
+    };
+
+    this.insertDeleteActionLog = function(instanceId, user, timestampStarted, callback) {
+        logger.debug("Enter insertDeleteActionLog ", instanceId, user, timestampStarted);
+        var log = {
+            type: ACTION_LOG_TYPES.DELETE.type,
+            name: ACTION_LOG_TYPES.DELETE.name,
             completed: false,
             success: false,
             user: user,
@@ -1600,6 +1644,24 @@ var InstancesDao = function() {
         return log;
     };
 
+    this.insertBootstrapActionLogForChef = function(instanceId, runlist, user, timestampStarted, callback) {
+        logger.debug("Enter insertBootstrapActionLogForChef ", instanceId, runlist, user, timestampStarted);
+        var log = {
+            type: ACTION_LOG_TYPES.BOOTSTRAP.type,
+            name: ACTION_LOG_TYPES.BOOTSTRAP.name,
+            completed: true,
+            success: true,
+            user: user,
+            timeStarted: timestampStarted,
+            actionData: {
+                runlist: runlist
+            }
+        };
+        var logId = insertActionLog(instanceId, log, callback);
+        log._id = logId;
+        return log;
+    };
+
     this.insertOrchestrationActionLog = function(instanceId, runlist, user, timestampStarted, callback) {
         logger.debug("Enter insertOrchestrationActionLog ", instanceId, runlist, user, timestampStarted);
         var log = {
@@ -1631,6 +1693,38 @@ var InstancesDao = function() {
                 'login-name': loginName
             }
         };
+        var logId = insertActionLog(instanceId, log, callback);
+        log._id = logId;
+        return log;
+    };
+
+    this.insertInstanceStatusActionLog = function(instanceId,user,instanceState, timestampStarted, callback) {
+        logger.debug("Enter insertInstanceStatusActionLog ", instanceId,user,instanceState, timestampStarted);
+        var log = {
+            completed: true,
+            success: true,
+            user: user,
+            timeStarted: timestampStarted,
+            actionData: {
+                'instance-State': instanceState
+            }
+        };
+        if(instanceState === 'terminated'){
+            log.type = ACTION_LOG_TYPES.TERMINATED.type;
+            log.name = ACTION_LOG_TYPES.TERMINATED.name
+        }else if(instanceState === 'deleted'){
+            log.type = ACTION_LOG_TYPES.DELETE.type;
+            log.name = ACTION_LOG_TYPES.DELETE.name
+        }else if(instanceState === 'stopped'){
+            log.type = ACTION_LOG_TYPES.STOP.type;
+            log.name = ACTION_LOG_TYPES.STOP.name
+        }else if(instanceState === 'shutting-down'){
+            log.type = ACTION_LOG_TYPES.SHUTDOWN.type;
+            log.name = ACTION_LOG_TYPES.SHUTDOWN.name
+        }else{
+            log.type = ACTION_LOG_TYPES.START.type;
+            log.name = ACTION_LOG_TYPES.START.name  
+        }
         var logId = insertActionLog(instanceId, log, callback);
         log._id = logId;
         return log;
@@ -2024,29 +2118,20 @@ var InstancesDao = function() {
 
     this.updateInstanceStatus = function(instanceId, instance, callback) {
         var updateObj = {};
-        if (instance.state === 'terminated') {
-            updateObj['instanceState'] = instance.state;
-            updateObj['subnetId']= instance.subnetId;
-            updateObj['vpcId'] = instance.vpcId;
-            updateObj['privateIpAddress'] = instance.privateIpAddress;
+        if(instance.status && instance.status === 'shutting-down'){
+            updateObj['instanceState'] = instance.status;
             updateObj['isDeleted'] = true;
-            updateObj['tags'] = instance.tags;
-            updateObj['environmentTag'] = instance.environmentTag;
-            updateObj['projectTag'] = instance.projectTag;
-            instanceLogModel.removeByInstanceId(instanceId, function(err, removed) {
-                if (err) {
-                    logger.error("Failed to remove instance Log: ", err);
-                }
-            });
-        }else {
+        }else if(instance.state === 'terminated' || instance.state === 'shutting-down'){
             updateObj['instanceState'] = instance.state;
+            updateObj['isDeleted'] = true;
+        }else{
+            updateObj['instanceState'] = instance.state;
+            updateObj['isDeleted'] = false;
             updateObj['subnetId']= instance.subnetId;
+            updateObj['instanceIP'] = instance.ip;
             updateObj['vpcId'] = instance.vpcId;
             updateObj['privateIpAddress'] = instance.privateIpAddress;
-            updateObj['isDeleted'] = false;
             updateObj['tags'] = instance.tags;
-            updateObj['environmentTag'] = instance.environmentTag;
-            updateObj['projectTag'] = instance.projectTag;
         }
         Instances.update({
             "_id": ObjectId(instanceId)
