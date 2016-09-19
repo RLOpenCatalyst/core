@@ -14,11 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// The file contains all the end points for Tracks
-
 var logger = require('_pr/logger')(module);
-var request = require("request");
+var https = require("https");
 var errorResponses = require('./error_responses');
+var appConfig = require('_pr/config');
 
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
@@ -26,26 +25,44 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     // Check for Service stop
     app.post('/serviceAction', function(req, res) {
-
-        console.log(req.body);
         var post_data = {
             "cmd": req.body.cmd,
             "type": req.body.type,
             "hosts": req.body.hosts
         };
 
-        request({
-            url: 'https://52.8.208.191/api/v1/webhooks/remotecmd?st2-api-key=YTU0M2RlNmMwMjdhMzFlNzVmMTExZDA4YWExMWY5MmFjOTUyYzc2Nzk5YjMzYmM4ZjAwNWJiYjc2NjFmZjY1MA',
-            body: post_data,
-            method: 'post',
-            json: true,
-        }, function(err, httpResponse, body) {
-            if (err) {
-                res.status(500).send(err);
-                return;
+        post_data = JSON.stringify(post_data);
+
+
+        var post_options = {
+            host: appConfig.serverControllerUrl,
+            port: 443,
+            path: '/api/v1/webhooks/remotecmd?st2-api-key='+appConfig.serviceControllerKey,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Content-Length': Buffer.byteLength(post_data)
             }
-            res.status(200).send(body);
+        };
+
+
+        var post_req = https.request(post_options, function(httpsRes) {
+            httpsRes.setEncoding('utf8');
+            var data = '';
+            httpsRes.on('data', function(chunk) {
+                data = data + chunk
+                console.log('Response: ' + chunk);
+            });
+            httpsRes.on('end', function(chunk) {
+                res.status(200).send(data);
+            });
+            httpsRes.on('error', function(err) {
+                res.status(500).send(err);
+            });
         });
+
+        post_req.write(post_data);
+        post_req.end();
 
     });
 };
