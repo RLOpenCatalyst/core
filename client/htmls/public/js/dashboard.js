@@ -567,7 +567,7 @@ $(document).ready(function () {
                         data: data.CPUUtilization.dataPoints,
                         xkey: 'toTime',
                         ykeys: ['average'],
-                        yLabelFormat: function (y) { return y.toFixed(2); },
+                        yLabelFormat: function (y) { return y.toFixed(2)+data.CPUUtilization.symbol; },
                         dateFormat: function (x) { return new Date(x).toString(); },
                         labels: ['Utilization'],
                         lineColors: ['#3c8dbc'],

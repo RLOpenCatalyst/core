@@ -202,7 +202,7 @@ function getDefaultsConfig() {
             },
 
             cwMetricsDisplayUnits: {
-                CPUUtilization: 'Percent',
+                CPUUtilization: '%',
                 DiskReadOps: 'Count',
                 DiskWriteOps: 'Count',
                 DiskReadBytes: 'MB',
