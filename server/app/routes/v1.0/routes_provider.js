@@ -2296,7 +2296,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 																res.status(500).send("Not able to fetch org.");
 																return;
 															}
-															trackSettingWizard(providerData.orgId);
+															trackSettingWizard(orgId);
 															if (orgs.length > 0) {
 																if (keyPair) {
 																	var dommyProvider = {
@@ -3531,18 +3531,22 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 }
 
 function trackSettingWizard(orgId){
-	settingWizard.getSettingWizardByOrgId(orgId,function(err,settingWizards){
-		if(err){
-			logger.error('Hit getting setting wizard error', err);
-			return;
-		}
-		settingWizards.currentStep.nestedSteps[0].isCompleted =true;
-		settingWizard.updateSettingWizard(settingWizards,function(err,data){
-			if(err){
+	if(orgId.length > 0) {
+		settingWizard.getSettingWizardByOrgId(orgId, function (err, settingWizards) {
+			if (err) {
 				logger.error('Hit getting setting wizard error', err);
 				return;
 			}
-			return;
-		});
-	})
+			settingWizards.currentStep.nestedSteps[0].isCompleted = true;
+			settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+				if (err) {
+					logger.error('Hit getting setting wizard error', err);
+					return;
+				}
+				return;
+			});
+		})
+	}else{
+		return;
+	}
 }

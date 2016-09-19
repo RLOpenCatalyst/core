@@ -160,24 +160,103 @@
     $('#orgConfiguration a').trigger('click');
     var orgIdForSetup,orgNameForSetup
     $.get('/d4dMasters/readmasterjsonnew/1',function(data){
-        orgIdForSetup = data[0].rowid;
-        orgNameForSetup = data[0].orgname;
-        if(data.length == 1) {
+        orgIdForSetup = data[2].rowid;
+        orgNameForSetup = data[2].orgname;
+      //  if(data.length == 1) {
             $.get('/setting-wizard/org/' + orgIdForSetup,function(data){
                 if(data.length === 0){
                     $('a.btn').addClass('active-btn');
                 }else {
                     var isCompleted = data.previousStep.isCompleted;
                     if(isCompleted = 'true'){
-                        if(data.previousStep.name === 'Org Configuration'){
+                        if(data.previousStep.name === 'Introduction'){
+                            $('#startConfig a').addClass('green-btn');
+                            $('#orgConfiguration  a').addClass('active-btn').removeClass('process-btn');
+                            $('#orgConfiguration a').trigger('click');
+                            if(data.currentStep.nestedSteps){
+                                var nestedSteps = data.currentStep.nestedSteps;
+                                for(var i =0;i < nestedSteps.length;i++){
+                                    if(nestedSteps[i].name === 'Organization' && nestedSteps[i].isCompleted === true){
+
+                                    }else{
+
+                                    }
+                                    if(nestedSteps[i].name === 'BusinessGroup' && nestedSteps[i].isCompleted === true){
+
+                                    }else{
+
+                                    }
+                                    if(nestedSteps[i].name === 'Project' && nestedSteps[i].isCompleted === true){
+
+                                    }else{
+
+                                    }
+                                }
+                            }
+                        }else if(data.previousStep.name === 'Org Configuration'){
                             $('#startConfig a, #orgConfiguration a').addClass('green-btn');
                             $('#configManagement a').addClass('active-btn').removeClass('process-btn');
                             $('#configManagement a').trigger('click');
-                        } else if(data.previousStep.name === 'Config Management') {
+                            if(data.currentStep.nestedSteps){
+                                var nestedSteps = data.currentStep.nestedSteps;
+                                for(var i =0;i < nestedSteps.length;i++){
+                                    if(nestedSteps[i].name === 'ChefServer' && nestedSteps[i].isCompleted === true){
+
+                                    }else{
+
+                                    }
+                                    if(nestedSteps[i].name === 'Environment' && nestedSteps[i].isCompleted === true){
+
+                                    }else{
+
+                                    }
+                                }
+                            }
+                        }else if(data.previousStep.name === 'Config Management') {
                             $('#startConfig a,#configManagement a,#orgConfiguration a').addClass('green-btn');
                             $('#providerConfiguration a').trigger('click');
-                        } else if(data.previousStep.name === 'Provider Configuration') {
+                            if(data.currentStep.nestedSteps){
+                                var nestedSteps = data.currentStep.nestedSteps;
+                                for(var i =0;i < nestedSteps.length;i++){
+                                    if(nestedSteps[i].name === 'Provider' && nestedSteps[i].isCompleted === true){
+
+                                    }else{
+
+                                    }
+                                    if(nestedSteps[i].name === 'VMImage' && nestedSteps[i].isCompleted === true){
+
+                                    }else{
+
+                                    }
+                                }
+                            }
+                        }else if(data.previousStep.name === 'Provider Configuration') {
                             $('#startConfig a,#providerConfiguration a,#orgConfiguration a').addClass('green-btn');
+                            if(data.currentStep.nestedSteps){
+                                var nestedSteps = data.currentStep.nestedSteps;
+                                for(var i =0;i < nestedSteps.length;i++){
+                                    if(nestedSteps[i].name === 'Nexus' && nestedSteps[i].isCompleted === true){
+
+                                    }else{
+
+                                    }
+                                    if(nestedSteps[i].name === 'Docker' && nestedSteps[i].isCompleted === true){
+
+                                    }else{
+
+                                    }
+                                    if(nestedSteps[i].name === 'Jenkins' && nestedSteps[i].isCompleted === true){
+
+                                    }else{
+
+                                    }
+                                    if(nestedSteps[i].name === 'Templates' && nestedSteps[i].isCompleted === true){
+
+                                    }else{
+
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -185,7 +264,7 @@
 
             }).error(function(jqXHR) {
             });
-        }
+       // }
         /*for(var i=0;i<data.length;i++){
          var $option = $('<option></option>').val(data[i].orgname).attr('rowid',data[i].rowid).html(data[i].orgname);
          $('#orgname').append($option);

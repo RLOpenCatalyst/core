@@ -418,22 +418,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                         if (dbtype) {
                                             var item = '\"' + req.params.fieldname + '\"';
                                             logger.debug("About to delete Master Type: %s : % : %", dbtype, item, req.params.fieldvalue);
-                                            if(fieldname.indexOf('environmentname') === -1) {
-                                                eval('d4dModelNew.' + dbtype).remove({
-                                                    rowid: req.params.fieldvalue
-                                                }, function (err) {
-                                                    if (err) {
-                                                        logger.debug("Hit an errror on delete : %s", err);
-                                                        res.send(500);
-                                                        return;
-                                                    } else {
-                                                        logger.debug("Document deleted : %s", req.params.fieldvalue);
-                                                        res.send(200);
-                                                        logger.debug("Exit get() for /d4dMasters/removeitem/%s/%s/%s", req.params.id, req.params.fieldname, req.params.fieldvalue);
-                                                        return;
-                                                    }
-                                                }); //end findOne
-                                            }else{
+                                            if(req.params.id === '4') {
                                                 masterUtil.getEnvironmentByEnvId(req.params.fieldvalue, function (err, environment) {
                                                     if (err) {
                                                         logger.debug("Hit an errror to get Environment Name : %s", err);
@@ -448,6 +433,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                 res.send(500);
                                                                 return;
                                                             }else {
+                                                                settingsService.trackSettingWizard(req.params.id,environment.orgname_rowid);
                                                                 settingsService.updateProjectData(environment,function(err,projectData){
                                                                     if (err) {
                                                                         logger.debug("Hit an error on updating the Project Master Data : %s", err);
@@ -469,6 +455,21 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         }); //end findOne
                                                     }
                                                 })
+                                            }else{
+                                                eval('d4dModelNew.' + dbtype).remove({
+                                                    rowid: req.params.fieldvalue
+                                                }, function (err) {
+                                                    if (err) {
+                                                        logger.debug("Hit an errror on delete : %s", err);
+                                                        res.send(500);
+                                                        return;
+                                                    } else {
+                                                        logger.debug("Document deleted : %s", req.params.fieldvalue);
+                                                        res.send(200);
+                                                        logger.debug("Exit get() for /d4dMasters/removeitem/%s/%s/%s", req.params.id, req.params.fieldname, req.params.fieldvalue);
+                                                        return;
+                                                    }
+                                                }); //end findOne
                                             }
                                         }
                                     }); //end configmgmtDao

@@ -84,5 +84,17 @@ SettingWizardSchema.statics.getSettingWizardByOrgId = function getSettingWizardB
     });
 };
 
+SettingWizardSchema.statics.removeSettingWizardByOrgId = function removeSettingWizardByOrgId(orgId, callback) {
+    this.remove({
+        orgId:orgId
+    }, function(err, data) {
+        if (err) {
+            logger.debug("Got error while deleting removeSettingWizardByOrgId: ", err);
+            callback(err, null);
+        }
+        callback(null, data);
+    });
+};
+
 var settingWizard = mongoose.model("settingWizard", SettingWizardSchema);
 module.exports = settingWizard;
