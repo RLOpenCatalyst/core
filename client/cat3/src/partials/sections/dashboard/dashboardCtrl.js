@@ -17,7 +17,7 @@
     } else {
         $rootScope.dashboardChild ='';
     }
-        $scope.showTreeMenu = true;
+            $rootScope.showTreeMenu = true;
     /*State will be dashboard if coming via login flow. So check permission and do default landing logic*/
     /*Otherwise dont enable default landing logic. This is so that user can land on url directly*/
     if ($state.current.name === 'dashboard') {
@@ -31,21 +31,21 @@
             $state.go('dashboard.settings');
         }
     }
-        $scope.hideTreeOverlay = function () {
-            $scope.showTreeMenu = false;
-            $(".panelRight").css("width", "calc(100% - 39px)");
-            $("#navigPage").addClass("tree-close");
-            $(".minifyme").css("left", "0px");
-            $(".minifyme").css("border-radius", "0px");
-            $(".minifyme").css("width", "35px");
+            $rootScope.hideTreeOverlay = function () {
+                $rootScope.showTreeMenu = false;
+                $(".panelRight").css("width", "calc(100% - 39px)");
+                $("#navigPage").addClass("tree-close");
+                $(".minifyme").css("left", "0px");
+                $(".minifyme").css("border-radius", "0px");
+                $(".minifyme").css("width", "35px");
         };
-        $scope.showTreeOverlay = function () {
-            $scope.showTreeMenu = true;
-            $(".panelRight").css("width", "calc(100% - 258px)");
-            $("#navigPage").removeClass("tree-close");
-            $(".minifyme").css("left", "216px");
-            $(".minifyme").css("width", "38px");
-            $(".minifyme").css("border-radius", "5px 0 0 5px");
+            $rootScope.showTreeOverlay = function () {
+                $rootScope.showTreeMenu = true;
+                $(".panelRight").css("width", "calc(100% - 258px)");
+                $("#navigPage").removeClass("tree-close");
+                $(".minifyme").css("left", "216px");
+                $(".minifyme").css("width", "38px");
+                $(".minifyme").css("border-radius", "5px 0 0 5px");
         };
 }]);
 })(angular);

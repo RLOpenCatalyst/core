@@ -12,10 +12,16 @@
                 option:{
                     chart: {
                         type: 'pieChart',
-                        height:400,
+                        margin: {
+                            top: 20,
+                            right: 0,
+                            bottom: 60,
+                            left:0
+                        },
+                        height:300,
                         x: function(d){return d.key;},
                         y: function(d){return d.y;},
-                        showLabels: true,
+                        showLabels: false,
                         showValues: true,
                         labelThreshold: 0.01,
                         labelSunbeamLayout: true,
@@ -32,7 +38,7 @@
                 option: {
                     chart: {
                         type: 'multiBarHorizontalChart',
-                        height: 400,
+                        height: 300,
                         margin: {
                             top: 20,
                             right: 20,
@@ -63,26 +69,46 @@
                     [
                        {
                             "key": "EC2",
-                            "color": "#0000FF",
+                            "color": "#58AAE2",
                             "values": []
                         },
                         {
                             "key": "RDS",
-                            "color": "#A9A9A9",
+                            "color": "#EF892F",
                             "values": []
                         },
                         {
                             "key": "S3",
-                            "color": "#006400",
+                            "color": "#8CAEDA",
                             "values": []
                         }
                     ]
 
             };
+
+            costObj.costGridOptions = {
+                columnDefs: [
+                    { name:'name',field: 'name' },
+                    { name:'totalCost',field: 'cost.totalCost'},
+                    { name:'EC2',field:'cost.awsCosts.serviceCosts.ec2'},
+                    { name:'RDS',field:'cost.awsCosts.serviceCosts.rds'},
+                    { name:'S3',field:'cost.awsCosts.serviceCosts.s3'}
+                ],
+                enableGridMenu: true,
+                enableSelectAll: true,
+                exporterMenuPdf: false,
+                exporterCsvFilename: 'costFile.csv',
+                exporterCsvLinkElement: angular.element(document.querySelectorAll(".custom-csv-link-location")),
+                onRegisterApi: function(gridApi){
+                    $scope.gridApi = gridApi;
+                }
+            };
+
             var param={
                 url:'src/partials/sections/dashboard/analytics/data/cost.json'
             };
             genSevs.promiseGet(param).then(function(result){
+                costObj.costGridOptions.data = result.splitUpCosts.businessUnits;
                 costObj.pieChat.totalCoust= result.cost.totalCost;
                 angular.forEach(result.splitUpCosts.businessUnits,function (value) {
                     costObj.pieChat.data.push( {
@@ -102,11 +128,11 @@
                         "value" : value.cost.awsCosts.serviceCosts.s3
                     });
                 });
-                // angular.forEach(result.splitUpCosts.provider,function (valu) {
+                // angular.forEach(result.splitUpCosts.providers,function (valu) {
                 //     costObj.pieChat.data.push( {
                 //         key: valu.name,
                 //         y:valu.cost.totalCost
-                //     })
+                //     });
                 // });
             });
 
@@ -116,7 +142,7 @@
         $scope.optionsLine= {
             chart: {
                 type: 'cumulativeLineChart',
-                height: 450,
+                height:250,
                 margin : {
                     top: 20,
                     right: 20,
@@ -124,9 +150,7 @@
                     left: 65
                 },
                 x: function(d){ return d[0]; },
-                y: function(d){ return d[1]/100; },
-                average: function(d) { return d.mean/100; },
-
+                y: function(d){ return d[1]/10; },
                 color: d3.scale.category10().range(),
                 duration: 300,
                 useInteractiveGuideline: true,
@@ -135,7 +159,7 @@
                 xAxis: {
                     axisLabel: 'X Axis',
                     tickFormat: function(d) {
-                        return ['BU-1'],['BU-2']
+                        return d3.time.format('%Y/%m/%d')(new Date(d))
                     },
                     showMaxMin: false,
                     staggerLabels: true
@@ -144,22 +168,29 @@
                 yAxis: {
                     axisLabel: 'Y Axis',
                     tickFormat: function(d){
-                        return d3.format(',.100')(d);
+                        return d3.format(',.2f')(d);
                     },
-                    axisLabelDistance: 25
+                    axisLabelDistance: 20
                 }
             }
         };
 
-        $scope.dataLine = [
-            {
-                key: "EC2",
-                values: [ [ 1083297600000 , -2.974623048543] , [ 1085976000000 , -1.7740300785979] ]
-            },
+        $scope.dataLine = [  {
+            key: "EC2",
+            values: [ [ 1083297600000 , 30] , [ 1085976000000 , 50] , [ 1088568000000 , 20] ]
+
+        },
             {
                 key: "RDS",
-                values: [ [ 1083297600000 , -0.77078283705125] ]
-            }
-        ];
-    }]);;
+                values: [ [ 1083297600000 , 20] , [ 1085976000000 ,20] , [ 1088568000000 , 60]]
+
+            },
+
+
+            {
+                key: "S3",
+                values: [ [ 1083297600000 , 10] , [ 1085976000000 , 50],[ 1088568000000 , 40]]
+            }];
+
+    }]);
 })(angular);
