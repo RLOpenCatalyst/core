@@ -7,8 +7,8 @@
         $rootScope.organNewEnt.org = '0';
         $rootScope.organNewEnt.buss='0';
         $rootScope.organNewEnt.proj='0';
-            var costObj =this;
-            costObj.pieChat={
+            var usageObj =this;
+            usageObj.pieChat={
                 option:{
                     chart: {
                         type: 'pieChart',
@@ -34,7 +34,7 @@
                 data:[]
             };
 
-            costObj.barChat ={
+            usageObj.barChat ={
                 option: {
                     chart: {
                         type: 'multiBarHorizontalChart',
@@ -86,7 +86,7 @@
 
             };
 
-            costObj.costGridOptions = {
+            usageObj.usageGridOptions = {
                 columnDefs: [
                     { name:'name',field: 'name' },
                     { name:'totalCost',field: 'cost.totalCost'},
@@ -108,28 +108,28 @@
                 url:'src/partials/sections/dashboard/analytics/data/cost.json'
             };
             genSevs.promiseGet(param).then(function(result){
-                costObj.costGridOptions.data = result.splitUpCosts.businessUnits;
-                costObj.pieChat.totalCoust= result.cost.totalCost;
+                usageObj.usageGridOptions.data = result.splitUpCosts.businessUnits;
+                usageObj.pieChat.totalCoust= result.cost.totalCost;
                 angular.forEach(result.splitUpCosts.businessUnits,function (value) {
-                    costObj.pieChat.data.push( {
+                    usageObj.pieChat.data.push( {
                         key: value.name,
                         y:value.cost.totalCost
                     });
-                    costObj.barChat.data[0].values.push( {
+                    usageObj.barChat.data[0].values.push( {
                         "label" :value.name ,
                         "value" : value.cost.awsCosts.serviceCosts.ec2
                     });
-                    costObj.barChat.data[1].values.push( {
+                    usageObj.barChat.data[1].values.push( {
                         "label" :value.name ,
                         "value" : value.cost.awsCosts.serviceCosts.rds
                     });
-                    costObj.barChat.data[2].values.push( {
+                    usageObj.barChat.data[2].values.push( {
                         "label" :value.name ,
                         "value" : value.cost.awsCosts.serviceCosts.s3
                     });
                 });
                 // angular.forEach(result.splitUpCosts.providers,function (valu) {
-                //     costObj.pieChat.data.push( {
+                //     usageObj.pieChat.data.push( {
                 //         key: valu.name,
                 //         y:valu.cost.totalCost
                 //     });
