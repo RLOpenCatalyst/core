@@ -433,43 +433,74 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                 res.send(500);
                                                                 return;
                                                             }else {
-                                                                settingsService.trackSettingWizard(req.params.id,environment.orgname_rowid);
-                                                                settingsService.updateProjectData(environment,function(err,projectData){
+                                                                settingsService.trackSettingWizard(req.params.id,environment.orgname_rowid,function(err,results){
                                                                     if (err) {
-                                                                        logger.debug("Hit an error on updating the Project Master Data : %s", err);
+                                                                        logger.debug("Hit an error on updating the setting wixards Data : %s", err);
                                                                         res.send(500);
                                                                         return;
                                                                     }else {
-                                                                        appDeployPipelineService.updateAppDeployPipeLineEnviornment(environment, function (err, data) {
+                                                                        settingsService.updateProjectData(environment, function (err, projectData) {
                                                                             if (err) {
-                                                                                logger.debug("Hit an error on updating the PipeLine Configuration : %s", err);
+                                                                                logger.debug("Hit an error on updating the Project Master Data : %s", err);
                                                                                 res.send(500);
                                                                                 return;
+                                                                            } else {
+                                                                                appDeployPipelineService.updateAppDeployPipeLineEnviornment(environment, function (err, data) {
+                                                                                    if (err) {
+                                                                                        logger.debug("Hit an error on updating the PipeLine Configuration : %s", err);
+                                                                                        res.send(500);
+                                                                                        return;
+                                                                                    }
+                                                                                    res.send(200);
+                                                                                    return;
+                                                                                })
                                                                             }
-                                                                            res.send(200);
-                                                                            return;
                                                                         })
                                                                     }
-                                                                })
+                                                                });
                                                             }
                                                         }); //end findOne
                                                     }
                                                 })
                                             }else{
-                                                eval('d4dModelNew.' + dbtype).remove({
+                                                eval('d4dModelNew.' + dbtype).findOne({
                                                     rowid: req.params.fieldvalue
-                                                }, function (err) {
+                                                }, function (err,data) {
                                                     if (err) {
-                                                        logger.debug("Hit an errror on delete : %s", err);
+                                                        logger.debug("Hit an errror on fetching data : %s", err);
                                                         res.send(500);
                                                         return;
                                                     } else {
-                                                        logger.debug("Document deleted : %s", req.params.fieldvalue);
-                                                        res.send(200);
-                                                        logger.debug("Exit get() for /d4dMasters/removeitem/%s/%s/%s", req.params.id, req.params.fieldname, req.params.fieldvalue);
-                                                        return;
+                                                        eval('d4dModelNew.' + dbtype).remove({
+                                                            rowid: req.params.fieldvalue
+                                                        }, function (err) {
+                                                            if (err) {
+                                                                logger.debug("Hit an errror on delete : %s", err);
+                                                                res.send(500);
+                                                                return;
+                                                            } else {
+                                                                var orgId ='';
+                                                                if(data.orgname_rowid.length ===1){
+                                                                    orgId = data.orgname_rowid[0];
+                                                                }else{
+                                                                    orgId = data.orgname_rowid;
+                                                                }
+                                                                settingsService.trackSettingWizard(req.params.id,orgId,function(err,results){
+                                                                    if (err) {
+                                                                        logger.debug("Hit an errror on delete : %s", err);
+                                                                        res.send(500);
+                                                                        return;
+                                                                    }else {
+                                                                        logger.debug("Document deleted : %s", req.params.fieldvalue);
+                                                                        res.send(200);
+                                                                        logger.debug("Exit get() for /d4dMasters/removeitem/%s/%s/%s", req.params.id, req.params.fieldname, req.params.fieldvalue);
+                                                                        return;
+                                                                    }
+                                                                })
+                                                            }
+                                                        }); //end findOne
                                                     }
-                                                }); //end findOne
+                                                });
                                             }
                                         }
                                     }); //end configmgmtDao

@@ -31,6 +31,7 @@ var configmgmtDao = require('_pr/model/d4dmasters/configmgmt.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var appConfig = require('_pr/config');
 var settingWizard = require('_pr/model/setting-wizard');
+var settingsService = require('_pr/services/settingsService');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all('/vmimages/*', sessionVerificationFunc);
@@ -587,31 +588,48 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     return;
                 }
                 if (anUser) {
-                    blueprintsDao.getBlueprintByImageId(imageId, function(err, data) {
+                    VMImage.getImageById(imageId, function(err, anImage) {
                         if (err) {
-                            logger.error('Failed to getBlueprint. Error = ', err);
-                            res.send(500);
+                            logger.error(err);
+                            res.status(500).send(errorResponses.db.error);
                             return;
                         }
-                        if (data) {
-                            res.send(403, "Image already used by some Blueprints.To delete Image please delete respective Blueprints first.");
-                            return;
-                        }
-                        VMImage.removeImageById(req.params.imageId, function(err, deleteCount) {
-                            if (err) {
-                                logger.error(err);
-                                res.status(500).send(errorResponses.db.error);
-                                return;
-                            }
-                            if (deleteCount) {
-                                logger.debug("Exit delete() for /vmimages/%s", req.params.imageId);
-                                res.send({
-                                    deleteCount: deleteCount
+                        if (anImage) {
+                            blueprintsDao.getBlueprintByImageId(imageId, function (err, data) {
+                                if (err) {
+                                    logger.error('Failed to getBlueprint. Error = ', err);
+                                    res.send(500);
+                                    return;
+                                }
+                                if (data) {
+                                    res.send(403, "Image already used by some Blueprints.To delete Image please delete respective Blueprints first.");
+                                    return;
+                                }
+                                VMImage.removeImageById(req.params.imageId, function (err, deleteCount) {
+                                    if (err) {
+                                        logger.error(err);
+                                        res.status(500).send(errorResponses.db.error);
+                                        return;
+                                    }
+                                    if (deleteCount) {
+                                        settingsService.trackSettingWizard('vmImage', anImage.orgId[0], function (err, results) {
+                                            if (err) {
+                                                logger.error(err);
+                                                res.status(500).send(errorResponses.db.error);
+                                                return;
+                                            } else {
+                                                logger.debug("Exit delete() for /vmimages/%s", req.params.imageId);
+                                                res.send({
+                                                    deleteCount: deleteCount
+                                                });
+                                            }
+                                        })
+                                    } else {
+                                        res.send(400);
+                                    }
                                 });
-                            } else {
-                                res.send(400);
-                            }
-                        });
+                            });
+                        }
                     });
                 }
             });

@@ -305,7 +305,7 @@ settingsService.trackSettingWizard = function trackSettingWizard(id,orgId,callba
                return;
            }
        })
-   }else if(id === 'vmimage'){
+   }else if(id === 'vmImage'){
        settingWizard.getSettingWizardByOrgId(orgId,function(err,settingWizards) {
            if (err) {
                callback(err, null);
