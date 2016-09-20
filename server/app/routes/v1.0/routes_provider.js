@@ -39,6 +39,8 @@ var Cryptography = require('_pr/lib/utils/cryptography');
 var rc = require('node-rest-client').Client;
 var appConfig = require('_pr/config');
 var instanceService=require('_pr/services/instanceService');
+var settingWizard = require('_pr/model/setting-wizard');
+
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 
@@ -258,6 +260,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 									res.status(500).send("Not able to fetch org.");
 									return;
 								}
+								trackSettingWizard(providerData.orgId);
 								if (orgs.length > 0) {
 									var dommyProvider = {
 										_id: provider._id,
@@ -1248,6 +1251,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 									res.status(500).send("Not able to fetch org.");
 									return;
 								}
+								trackSettingWizard(providerData.orgId);
 								if (orgs.length > 0) {
 									var dommyProvider = {
 										_id: provider._id,
@@ -1741,6 +1745,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 									res.status(500).send("Not able to fetch org.");
 									return;
 								}
+								trackSettingWizard(providerData.orgId);
 								if (orgs.length > 0) {
 									var dommyProvider = {
 										_id: provider._id,
@@ -2162,6 +2167,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		var orgId = req.body.orgId;
 		var s3BucketName=req.body.s3BucketName;
 		var plannedCost=req.body.plannedCost;
+		if(plannedCost === null || plannedCost ===''){
+			plannedCost=0.0;
+		}
 		var isDefault = (req.body.isDefault === 'true') ? true : false;
 		var hasDefaultProvider = false;
 
@@ -2288,6 +2296,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 																res.status(500).send("Not able to fetch org.");
 																return;
 															}
+															trackSettingWizard(providerData.orgId);
 															if (orgs.length > 0) {
 																if (keyPair) {
 																	var dommyProvider = {
@@ -2457,6 +2466,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		var orgId = req.body.orgId;
 		var s3BucketName = req.body.s3BucketName;
 		var plannedCost = req.body.plannedCost;
+		if(plannedCost === null || plannedCost ===''){
+			plannedCost=0.0;
+		}
 		if (typeof providerId === 'undefined' || providerId.length === 0) {
 			res.status(400).send("{Please Enter ProviderId.}");
 			return;
@@ -3516,4 +3528,21 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			makeRequest(req.body.accessKey, req.body.secretKey);
 		}
 	});
+}
+
+function trackSettingWizard(orgId){
+	settingWizard.getSettingWizardByOrgId(orgId,function(err,settingWizards){
+		if(err){
+			logger.error('Hit getting setting wizard error', err);
+			return;
+		}
+		settingWizards.currentStep.nestedSteps[0].isCompleted =true;
+		settingWizard.updateSettingWizard(settingWizards,function(err,data){
+			if(err){
+				logger.error('Hit getting setting wizard error', err);
+				return;
+			}
+			return;
+		});
+	})
 }

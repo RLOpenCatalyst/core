@@ -76,19 +76,16 @@
     var left, opacity, scale; //fieldset properties which we will animate
     var animating; //flag to prevent quick multi-click glitches
 
-    $.get('/d4dMasters/readmasterjsonnew/1',function(data){
-        for(var i=0;i<data.length;i++){
-            var $option = $('<option></option>').val(data[i].orgname).attr('rowid',data[i].rowid).html(data[i].orgname);
-            $('#orgname').append($option);    
-        }
-    });
-
+    var $optionSelect = $('<option></option').val(orgNameForSetup).attr('rowid',orgIdForSetup).html(orgNameForSetup);
+    $('#orgname').append($optionSelect);   
+       
     $('#orgname').change(function(e){
         $('#productgroupname').empty();
         var orgValue = $('#orgname option:selected').attr('rowid');
+        orgValueSelected = $('#orgname option:selected').attr('rowid');
         $.get('/d4dMasters/readmasterjsonnew/2',function(data){
             for(var i=0;i<data.length;i++){
-              if(data[i].orgname_rowid[0] === orgValue) {
+              if(data[i].orgname_rowid[0] === orgIdForSetup) {
                   var $option = $('<option></option>').val(data[i].productgroupname).attr('rowid',data[i].rowid).html(data[i].productgroupname);
                   $('#productgroupname').append($option);    
               }
@@ -107,16 +104,19 @@
    
            if($(this).valid){
                 /*alert('valid form submitted'); // for demo*/
-               if(!saveform('4'))return false;;
+               if(!saveform('4')){
+                $('#configManagement a').trigger('click');
+                changeWizardStatus(orgIdForSetup);
+                return false;
+              }
            }else{
                 alert('invalid valid form submitted'); // for demo
            }
            return false; // for demo
        }); 
-  
+    
     $(".nextBG").click(function(){
       toastr.success('Step 1 - Org Setup Completed');
-      $('#configManagement a').trigger('click');
     });
 
    /* $(".previous").click(function(){

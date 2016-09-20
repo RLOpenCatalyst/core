@@ -153,11 +153,14 @@
     var left, opacity, scale; //fieldset properties which we will animate
     var animating; //flag to prevent quick multi-click glitches
 
-    
+    var orgId;
     $('#myForm').submit(function(e){
         $(this).validate();
         if ($(this).valid) {
-            if (!saveform('1')) return false;
+            if (!saveform('1')){
+             $('.content').load('ajax/Settings/bgWizard.html');
+              return false;  
+            } 
 
         } else {
             alert('invalid valid form submitted'); // for demo
@@ -165,9 +168,8 @@
         e.preventDefault();
         return false; // for demo
     });       
-
+    
     $(".next").click(function(){
-        $('.content').load('ajax/Settings/bgWizard.html');
         if(animating) return false;
         animating = true;
 
