@@ -30,9 +30,9 @@ var unassignedInstancesModel = require('_pr/model/unassigned-instances');
 var unManagedInstancesModel = require('_pr/model/unmanaged-instance');
 var instancesModel = require('_pr/model/classes/instance/instance');
 
-resourceService.getCostForResources = getCostForResources;
-resourceService.getTotalCost = getTotalCost;
-resourceService.getCostForServices = getCostForServices;
+resourceService.getCostForResources = getCostForResources_deprecated;
+resourceService.getTotalCost = getTotalCost_deprecated;
+resourceService.getCostForServices = getCostForServices_deprecated;
 resourceService.getEC2InstanceUsageMetrics=getEC2InstanceUsageMetrics;
 resourceService.getS3BucketsMetrics=getS3BucketsMetrics;
 resourceService.getBucketsInfo=getBucketsInfo;
@@ -82,7 +82,69 @@ function getAllResourcesForProvider(provider, next) {
     );
 }
 
-function getCostForResources(updatedTime,provider,bucketNames,instanceIds,dbInstanceNames,fileName, callback) {
+function updateResourceCosts(provider, resources, downlaodedCSVPath, callback) {
+    var awsBillIndexes = appConfig.aws.billIndexes
+    var awsServices = appConfig.aws.services
+    var awsZones = appConfig.aws.zones
+
+    var stream = fs.createReadStream(downlaodedCSVPath);
+    csv.fromStream(stream, {headers: false}).on('data', function(data) {
+        var resourceCostEntry = {platformDetails: {}}
+
+        resourceCostEntry.organizationId = provider.orgId
+        resourceCostEntry.providerId = provider._id
+        resourceCostEntry.providerType = provider.providerType
+        resourceCostEntry.cost = data[awsBillIndexes.cost]
+        resourceCostEntry.startTime = data[awsBillIndexes.startDate]
+        resourceCostEntry.startTime = data[awsBillIndexes.endDate]
+        resourceCostEntry.platformDetails.serviceName = data[awsBillIndexes.prod]
+
+        if(data[awsBillIndexes.prod] in awsServices) {
+            resourceCostEntry.platformDetails.serviceId = awsServices[data[awsBillIndexes.prod]]
+        }
+
+        if(data[awsBillIndexes.zoneIndex] in zone) {
+            resourceCostEntry.platformDetails.zone = data[awsBillIndexes.zoneIndex]
+            resourceCostEntry.platformDetails.region = awsZones[data[awsBillIndexes.zoneIndex]]
+        }
+
+        if(data[awsBillIndexes.instanceId] != null) {
+            resourceCostEntry.platformDetails.instanceId = data[awsBillIndexes.instanceId]
+        }
+
+        if(data[awsBillIndexes.instanceId] in resources) {
+            var resource = resources[data[awsBillIndexes.instanceId]]
+
+            resourceCostEntry.resourceId = resource._id
+
+            if('bgId' in resource) {
+                resourceCostEntry.businessGroupId = resource['bgId']
+            }
+
+            if('projectId' in resource) {
+                resourceCostEntry.projectId = resource['projectId']
+            }
+
+            if('environmentId' in resource) {
+                resourceCostEntry.environmentId = resource['environmentId']
+            }
+
+            if('masterDetails.bgId' in resource) {
+                resourceCostEntry.businessGroupId = resource['bgId']
+            }
+
+            if('masterDetails.projectId' in resource) {
+                resourceCostEntry.projectId = resource['projectId']
+            }
+
+            if('masterDetails.environmentId' in resource) {
+                resourceCostEntry.environmentId = resource['environmentId']
+            }
+        }
+    })
+}
+
+function getCostForResources_deprecated(updatedTime,provider,bucketNames,instanceIds,dbInstanceNames,fileName, callback) {
     var temp = String(updatedTime).split(',');
     var ec2Cost = 0, totalCost = 0, rdCost = 0, rstCost = 0, elcCost = 0, cdfCost = 0, r53Cost = 0, s3Cost = 0 , vpcCost = 0;
     var regionOne = 0, regionTwo = 0, regionThree = 0, regionFour = 0, regionFive = 0, regionSix = 0, regionSeven = 0, regionEight = 0, regionNine = 0, regionTen = 0, catTagCost = 0, jjTagCost = 0, accentureTagCost=0;
@@ -295,7 +357,7 @@ function getCostForResources(updatedTime,provider,bucketNames,instanceIds,dbInst
     });
 };
 
-function getTotalCost(provider,callback)
+function getTotalCost_deprecated(provider,callback)
 {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
@@ -403,7 +465,7 @@ function getTotalCost(provider,callback)
 }
 
 
-function getCostForServices(provider,callback) {
+function getCostForServices_deprecated(provider,callback) {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var decryptedAccessKey = cryptography.decryptText(provider.accessKey,

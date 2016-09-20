@@ -23,7 +23,12 @@ var ResourceCostsSchema = new Schema({
         type: Number,
         required: true
     },
-    organisationId: {
+    currency: {
+        type: String,
+        default: 'Dollar',
+        required: true
+    },
+    organizationId: {
         type: String,
         required: true,
         trim: true
@@ -64,10 +69,16 @@ var ResourceCostsSchema = new Schema({
     platformDetails: {
         instanceId: {
             type: String,
-            required: true,
+            required: false,
             trim: true
         },
-        service: {
+        serviceId: {
+            type: String,
+            required: true,
+            default: 'Other',
+            trim: true
+        },
+        serviceName: {
             type: String,
             required: true,
             trim: true
@@ -100,6 +111,17 @@ var ResourceCostsSchema = new Schema({
         required: true
     }
 });
+
+ResourceCostsSchema.statics.saveResourceCost = function(resourceCostData, callback) {
+    var resourceCosts = new ResourceCosts(resourceCostData);
+    resourceCosts.save(function(err, data) {
+        if (err) {
+            callback(err)
+        } else {
+            callback(null, data)
+        }
+    })
+}
 
 var ResourceCosts = mongoose.model('ResourceCost', ResourceCostsSchema);
 module.exports = ResourceCosts;

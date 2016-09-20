@@ -20,7 +20,6 @@ var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvi
 var MasterUtils = require('_pr/lib/utils/masterUtil.js')
 var resourceService = require('_pr/services/resourceService')
 var CatalystCronJob = require('_pr/cronjobs/CatalystCronJob')
-var AWSConfig = require('./AWSConfig.js')
 var dateUtil = require('_pr/lib/utils/dateUtil')
 
 var AWSResourceCostsAggregation = Object.create(CatalystCronJob)
@@ -33,8 +32,8 @@ AWSResourceCostsAggregation.previousCronRunTime = dateUtil.getDateInUTC(date.set
 AWSResourceCostsAggregation.fullKey = appConfig.aws.s3AccountNumber
     + appConfig.aws.s3CSVFileName + date.getFullYear() + "-" + '0'+ date.getMonth() + ".csv.zip";
 AWSResourceCostsAggregation.execute = aggregateAWSResourceCosts
-AWSResourceCostsAggregation.aggregateAWSCostForProvider = aggregateAWSCostForProvider
-AWSResourceCostsAggregation.downloadUpdatedCSVFile = downloadUpdatedCSVFile
+AWSResourceCostsAggregation.aggregateAWSResourceCostsForProvider = aggregateAWSResourceCostsForProvider
+AWSResourceCostsAggregation.downloadLatestBill = downloadLatestBill
 AWSResourceCostsAggregation.updateResourceCosts = updateResourceCosts
 
 module.exports = AWSResourceCostsAggregation
@@ -48,26 +47,32 @@ function aggregateAWSResourceCosts() {
             // Gets providers for all orgs in the list
             AWSProvider.getAWSProvidersForOrg(orgs, next)
         },
-        function(providers, next) {
-            async.forEach(providers, AWSResourceCostsAggregation.aggregateAWSCostForProvider, next)
+        function(orgs, providers, next) {
+            async.forEach(providers, AWSResourceCostsAggregation.aggregateAWSResourceCostsForProvider,
+                function(err) {
+                    if(err)
+                        next(err)
+                    else
+                        next(null, orgs, providers)
+                })
+        },
+        function(orgs, providers, next) {
+            // aggregate  cost across catalyst entities
+            next(null, true)
         }
-    ], function(err, results) {
+    ], function(err, success) {
         if (err) {
             logger.error(err)
-        } else {
-
+        } else if(success) {
+            logger.info('Resource costs aggregation for all organizations complete')
         }
     })
 }
 
-function aggregateAWSCostForProvider(provider, callback) {
+function aggregateAWSResourceCostsForProvider(provider, callback) {
     async.waterfall([
-        /*function(next) {
-            resourceService.getAllResourcesForProvider(provider, next)
-        },*/
         function(next) {
-            // console.log(AWSResourceCostsAggregation.previousCronRunTime)
-            AWSResourceCostsAggregation.downloadUpdatedCSVFile(provider)
+            AWSResourceCostsAggregation.downloadLatestBill(provider)
         },
         function(downloadedCSVPath, next) {
             AWSResourceCostsAggregation.updateResourceCosts(provider, downloadedCSVPath, next)
@@ -76,13 +81,13 @@ function aggregateAWSCostForProvider(provider, callback) {
         if (err) {
             callback(err)
         } else if(result) {
-            logger.info('Cost aggregation complete for provider ' + provider._id)
+            logger.info('Resource cost aggregation complete for provider ' + provider._id)
             // callback pending
         }
     })
 }
 
-function downloadUpdatedCSVFile(provider, callback) {
+function downloadLatestBill(provider, callback) {
     var cryptoConfig = appConfig.cryptoSettings
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password)
     var decryptedAccessKey = cryptography.decryptText(provider.accessKey,
@@ -135,6 +140,19 @@ function downloadUpdatedCSVFile(provider, callback) {
 }
 
 function updateResourceCosts(provider, downlaodedCSVPath, callback) {
-
+    async.waterfall([
+        function(next) {
+            resourceService.getAllResourcesForProvider(provider, next)
+        },
+        function(resources, next) {
+            resourceService.updateResourceCosts(provider, resources, downlaodedCSVPath, next)
+        }
+    ],
+    function(err, result) {
+        if(err) {
+            callback(err)
+        } else {
+            callback(null, result)
+        }
+    })
 }
-

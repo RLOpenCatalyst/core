@@ -379,7 +379,10 @@ function getDefaultsConfig() {
                 'usage': 9,
                 'prod': 5,
                 'tags': 22,
-                'totalCost': 3
+                'totalCost': 3,
+                'instanceId': 21,
+                'startDate': 15,
+                'endDate': 16
             }
 
         },
