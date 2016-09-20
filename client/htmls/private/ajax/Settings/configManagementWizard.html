@@ -103,119 +103,126 @@
 
 <!-- progressbar -->
 <ul id="progressbar">
-   <li class="orgCreate active">Chef Server</a></li>
-   <li>Environments</a></li>
+    <li class="chefCreate" id="chefCreate">Chef Server</a></li>
+    <li class="envCreate" id="envCreate">Environments</a></li>
 </ul>
 <!-- fieldsets -->
 <div class="content">
-   <form action="" id="myForm22">
-      <div class="widget-box">
-         <div class="widget-header">
-            <h4 class="widget-margin" style="color:black;">New Configuration Management</h4>
-         </div>
-         <div class="widget-body">
-            <div class="widget-main" style="height:500px">
-               <div class="jarviswidget" data-widget-editbutton="false" data-widget-custombutton="false">
-                  <div>
-                     <!-- widget content -->
-                     <div class="col-lg-6 col-md-6">
-                        <label for="">Name:<span class="control-label redSpan">&nbsp;*</span></label>
-                        <input name="ctl00$MainContent$orgname" value="" id="configname" class="form-control" type="text"  cdata="catalyst" unique="true"  cat-validation="required,max15" uniqueconditionedby="configname">
-                     </div>
-                     <div class="col-lg-6 col-md-6">
-                        <label for="name">User Name:<span class="control-label redSpan">&nbsp;*</span></label>
-                        <input name="ctl00$MainContent$orgname" value="" id="loginname" class="form-control" type="text"  cdata="catalyst"  cat-validation="required">
-                     </div>
-                     <hr>
-                     <div class="col-lg-6 col-md-6 margintop20">
-                        <label for="link">URL:<span class="control-label redSpan">&nbsp;*</span></label>
-                        <input type="text" unique="true" uniqueconditionedbyUrl="url" name="ctl00$MainContent$orgname" value="" id="url" class="form-control" type="url"  name="website"  cdata="catalyst"  cat-validation="required,urlcheck">
-                     </div>
-                     <div class="col-lg-6 col-md-6 margintop20">
-                        <label for="name">Organization:<span class="control-label redSpan">&nbsp;*</span></label>
-                        <select id="orgname" unique="true" uniqueconditionedby="orgname"  class="chooseOrganization width-100 form-control" sourcepath="1" datapath="masterjson.rows.row" valuelinkfield="costcode" style="vertical-align:central"  cdata="catalyst"  cat-validation="required">
-                           <option value="">Select an Organization</option>
-                        </select>
-                     </div>
-                     <hr/>
-                     <input type="hidden" name="ctl00$MainContent$orgname" value="chef" id="configType" class="form-control"  cdata="catalyst"/>
-                     <div class="col-lg-6 col-md-6 margintop20" id="frmconfigmanagement">
-                        <div class="smart-forms">
-                           <label>User Pem File:<span class="control-label redSpan">&nbsp;*</span></label>
-                           <label for="userpemfile" class="field file">
-                              <div class="imgdiv" value="1"></div>
-                              <span class="button btn-primary">Browse</span><input id="userpemfile" keyfield="configname" type="file" onchange="this.nextSibling.value = this.value"  cdata="catalyst" class="gui-file" cat-validation="required"><input type="text" readonly="" class="gui-input">
-                           </label>
-                        </div>
-                     </div>
-                     <div class="col-lg-6 col-md-6 margintop20">
-                        <div class="smart-forms">
-                           <label>Knife.rb File:<span class="control-label redSpan">&nbsp;*</span></label>
-                           <label for="kniferbfile" class="field file">
-                              <div class="imgdiv" value="1"></div>
-                              <span class="button btn-primary">Browse</span><input id="kniferbfile" keyfield="configname" type="file" onchange="this.nextSibling.value = this.value" class="gui-file"  cdata="catalyst" cat-validation="required"><input type="text" readonly="" class="gui-input">
-                              <input id="folderpath"  cdata="catalyst" type="text" value="" style="display:none"/>
-                           </label>
-                        </div>
-                     </div>
-                     <div class="col-lg-6 col-md-6 margintop20">
-                        <div class="smart-forms">
-                           <label>Validator Pem File:</label>
-                           <label for="validatorpemfile" class="field file">
-                              <div class="imgdiv" value="1"></div>
-                              <span class="button btn-primary">Browse</span><input id="validatorpemfile" keyfield="configname" type="file" onchange="this.nextSibling.value = this.value"  cdata="catalyst" class="gui-file"><input type="text" readonly="" class="gui-input">
-                           </label>
-                        </div>
-                     </div>
-                     <div class="col-lg-6 col-md-6 margintop20">
-                        <div class="smart-forms">
-                           <label>Key File:</label>
-                           <label for="validatorpemfile" class="field file">
-                              <div class="imgdiv" value="1"></div>
-                              <span class="button btn-primary">Browse</span><input id="encryption" keyfield="configname" type="file" onchange="this.nextSibling.value = this.value"  cdata="catalyst" class="gui-file"><input type="text" readonly="" class="gui-input">
-                           </label>
-                        </div>
-                     </div>
-                     <div class="col-lg-6 col-md-6 margintop20">
-                        <div class="smart-forms">
-                           <label>Template File:</label>
-                           <label for="validatorpemfile" class="field file">
-                              <div class="imgdiv" value="1"></div>
-                              <span class="button btn-primary">Browse</span><input id="template" keyfield="configname" type="file" onchange="this.nextSibling.value = this.value"  cdata="catalyst" class="gui-file"><input type="text" readonly="" class="gui-input">
-                           </label>
-                        </div>
-                     </div>
-                  </div>
-               </div>
-               <div class="btn-group pull-right">
-                 <button  name="nextChef" id="nextChef" class="nextChef action-button" value="Next">Next</button>
-              </div>
+    <form action="" id="myForm22">
+        <div class="widget-box">
+            <div class="widget-header">
+                <h4 class="widget-margin" style="color:black;">New Configuration Management</h4>
             </div>
-         </div>
-      </div>
-      
-   </form>
+            <div class="widget-body">
+                <div class="widget-main" style="height:500px">
+                    <div class="jarviswidget" data-widget-editbutton="false" data-widget-custombutton="false">
+                        <div>
+                            <!-- widget content -->
+                            <div class="col-lg-6 col-md-6">
+                                <label for="">Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                                <input name="ctl00$MainContent$orgname" value="" id="configname" class="form-control" type="text"  cdata="catalyst" unique="true"  cat-validation="required,max15" uniqueconditionedby="configname">
+                            </div>
+                            <div class="col-lg-6 col-md-6">
+                                <label for="name">User Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                                <input name="ctl00$MainContent$orgname" value="" id="loginname" class="form-control" type="text"  cdata="catalyst"  cat-validation="required">
+                            </div>
+                            <hr>
+                            <div class="col-lg-6 col-md-6 margintop20">
+                                <label for="link">URL:<span class="control-label redSpan">&nbsp;*</span></label>
+                                <input type="text" unique="true" uniqueconditionedbyUrl="url" name="ctl00$MainContent$orgname" value="" id="url" class="form-control" type="url"  name="website"  cdata="catalyst"  cat-validation="required,urlcheck">
+                            </div>
+                            <div class="col-lg-6 col-md-6 margintop20">
+                                <label for="name">Organization:<span class="control-label redSpan">&nbsp;*</span></label>
+                                <select id="orgname" unique="true" uniqueconditionedby="orgname"  class="chooseOrganization width-100 form-control" sourcepath="1" datapath="masterjson.rows.row" valuelinkfield="costcode" style="vertical-align:central"  cdata="catalyst"  cat-validation="required">
+                                    <option value="">Select an Organization</option>
+                                </select>
+                            </div>
+                            <hr/>
+                            <input type="hidden" name="ctl00$MainContent$orgname" value="chef" id="configType" class="form-control"  cdata="catalyst"/>
+                            <div class="col-lg-6 col-md-6 margintop20" id="frmconfigmanagement">
+                                <div class="smart-forms">
+                                    <label>User Pem File:<span class="control-label redSpan">&nbsp;*</span></label>
+                                    <label for="userpemfile" class="field file">
+                                        <div class="imgdiv" value="1"></div>
+                                        <span class="button btn-primary">Browse</span><input id="userpemfile" keyfield="configname" type="file" onchange="this.nextSibling.value = this.value"  cdata="catalyst" class="gui-file" cat-validation="required"><input type="text" readonly="" class="gui-input">
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 margintop20">
+                                <div class="smart-forms">
+                                    <label>Knife.rb File:<span class="control-label redSpan">&nbsp;*</span></label>
+                                    <label for="kniferbfile" class="field file">
+                                        <div class="imgdiv" value="1"></div>
+                                        <span class="button btn-primary">Browse</span><input id="kniferbfile" keyfield="configname" type="file" onchange="this.nextSibling.value = this.value" class="gui-file"  cdata="catalyst" cat-validation="required"><input type="text" readonly="" class="gui-input">
+                                        <input id="folderpath"  cdata="catalyst" type="text" value="" style="display:none"/>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 margintop20">
+                                <div class="smart-forms">
+                                    <label>Validator Pem File:</label>
+                                    <label for="validatorpemfile" class="field file">
+                                        <div class="imgdiv" value="1"></div>
+                                        <span class="button btn-primary">Browse</span><input id="validatorpemfile" keyfield="configname" type="file" onchange="this.nextSibling.value = this.value"  cdata="catalyst" class="gui-file"><input type="text" readonly="" class="gui-input">
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 margintop20">
+                                <div class="smart-forms">
+                                    <label>Key File:</label>
+                                    <label for="validatorpemfile" class="field file">
+                                        <div class="imgdiv" value="1"></div>
+                                        <span class="button btn-primary">Browse</span><input id="encryption" keyfield="configname" type="file" onchange="this.nextSibling.value = this.value"  cdata="catalyst" class="gui-file"><input type="text" readonly="" class="gui-input">
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-6 margintop20">
+                                <div class="smart-forms">
+                                    <label>Template File:</label>
+                                    <label for="validatorpemfile" class="field file">
+                                        <div class="imgdiv" value="1"></div>
+                                        <span class="button btn-primary">Browse</span><input id="template" keyfield="configname" type="file" onchange="this.nextSibling.value = this.value"  cdata="catalyst" class="gui-file"><input type="text" readonly="" class="gui-input">
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="btn-group pull-right">
+                        <button  name="nextChef" id="nextChef" class="nextChef action-button" value="Next">Next</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </form>
 </div>
 
 <script>
     //jQuery time
-
+    function checkNestedSteps(chefStatus,envStatus){
+        if(chefStatus === true && envStatus === false){
+            $('li.chefCreate').removeClass('active');
+            $('li.envCreate').addClass('active');
+        }else{
+            $('li.chefCreate').addClass('active');
+        }
+    }
     var current_fs, next_fs, previous_fs; //fieldsets
     var left, opacity, scale; //fieldset properties which we will animate
     var animating; //flag to prevent quick multi-click glitches
     orgNameForSetup = $('#orgDropdown option:last').attr('rowid');
     orgIdForSetup = $('#orgDropdown option:last').val();
     var $option = $('<option></option>').val(orgNameForSetup).attr('rowid',orgIdForSetup).html(orgNameForSetup);
-    $('#orgname').append($option);    
+    $('#orgname').append($option);
 
     function setfolderpath(){
-       var folderpath = '/' + $('#loginname').val() + "/.chef/";
-       $('#folderpath').val(folderpath);
+        var folderpath = '/' + $('#loginname').val() + "/.chef/";
+        $('#folderpath').val(folderpath);
     }
-    
-    $('#myForm22').submit(function() {   
-     if(validateForm()) {setfolderpath(); saveform('10');};
-           return false;
+
+    $('#myForm22').submit(function() {
+        if(validateForm()) {setfolderpath(); saveform('10');};
+        return false;
     });
 
     $(".nextChef").click(function(){

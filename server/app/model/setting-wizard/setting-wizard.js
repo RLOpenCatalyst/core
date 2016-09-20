@@ -74,13 +74,25 @@ SettingWizardSchema.statics.updateSettingWizard = function updateSettingWizard(s
 
 SettingWizardSchema.statics.getSettingWizardByOrgId = function getSettingWizardByOrgId(orgId, callback) {
     this.findOne({
-      orgId:orgId
+        orgId:orgId
     }, function(err, settingWizardDetails) {
         if (err) {
             logger.debug("Got error while fetching getSettingWizardByOrgId: ", err);
             callback(err, null);
         }
         callback(null, settingWizardDetails);
+    });
+};
+
+SettingWizardSchema.statics.removeSettingWizardByOrgId = function removeSettingWizardByOrgId(orgId, callback) {
+    this.remove({
+        orgId:orgId
+    }, function(err, data) {
+        if (err) {
+            logger.debug("Got error while deleting removeSettingWizardByOrgId: ", err);
+            callback(err, null);
+        }
+        callback(null, data);
     });
 };
 

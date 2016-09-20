@@ -1,272 +1,331 @@
 <style>
-.container {
-    width:1166px;
-    height:130px;
-    margin-top: 20px;
-}
-.btn-circle {
-    width: 49px;
-    height: 49px;
-    text-align: center;
-    padding: 5px 0;
-    font-size: 20px;
-    line-height: 2.00;
-    border-radius: 30px;
-    margin: 0 25px;
-}
+    .container {
+        width:1166px;
+        height:130px;
+        margin-top: 20px;
+    }
+    .btn-circle {
+        width: 49px;
+        height: 49px;
+        text-align: center;
+        padding: 5px 0;
+        font-size: 20px;
+        line-height: 2.00;
+        border-radius: 30px;
+        margin: 0 25px;
+    }
 
-.btn-text {
-    font-size: 12px;
-    vertical-align: middle
-}
+    .btn-text {
+        font-size: 12px;
+        vertical-align: middle
+    }
 
-.btn:hover {
-    font-weight: bold;
-    color: #fff;
-}
+    .btn:hover {
+        font-weight: bold;
+        color: #fff;
+    }
 
-.active-btn {
-    background-color: #286090;
-    color:#fff;
-    box-shadow: 0 0 5px #286090;
-}
-.green-btn {
-    background-color: green;
-    color:#fff;
-    box-shadow: 0 0 5px #286090;
-}
-.red-btn {
-    background-color: red;
-    color:#fff;
-    box-shadow: 0 0 5px #286090;   
-}
-.process-btn {
-    background-color: #7d7676;
-    color: #fff;
-    box-shadow: 0 0 5px #888888;
-}
+    .active-btn {
+        background-color: #286090;
+        color:#fff;
+        box-shadow: 0 0 5px #286090;
+    }
+    .green-btn {
+        background-color: green;
+        color:#fff;
+        box-shadow: 0 0 5px #286090;
+    }
+    .red-btn {
+        background-color: red;
+        color:#fff;
+        box-shadow: 0 0 5px #286090;
+    }
+    .process-btn {
+        background-color: #7d7676;
+        color: #fff;
+        box-shadow: 0 0 5px #888888;
+    }
 
-.end-btn {
-    background-color: #40BAF1;
-    color: #fff;
-    box-shadow: 0 0 5px #40BAF1;
-}
+    .end-btn {
+        background-color: #40BAF1;
+        color: #fff;
+        box-shadow: 0 0 5px #40BAF1;
+    }
 
-ul li {
-    text-decoration: none;
-    display: inline;
-}
+    ul li {
+        text-decoration: none;
+        display: inline;
+    }
 
-.li-margin {
-    margin:0 20px;
-    width: 30px;
-}
+    .li-margin {
+        margin:0 20px;
+        width: 30px;
+    }
 
-.btn-cls {
-    margin: 10px auto;
-    width: 90%;
-    background: hsla(0, 0%, 0%, 0) url("../../private/img/dot.jpg") no-repeat scroll -27px 25px;
-    height: 45px;
-}
+    .btn-cls {
+        margin: 10px auto;
+        width: 90%;
+        background: hsla(0, 0%, 0%, 0) url("../../private/img/dot.jpg") no-repeat scroll -27px 25px;
+        height: 45px;
+    }
 
-.btn-1 {
-    float: left;
-    width: 126px;
-    text-align: center;
-    
-    padding: 0 15px;
-}
+    .btn-1 {
+        float: left;
+        width: 126px;
+        text-align: center;
 
-.lable-name {
-    padding-top: 10px;
-    color: #7d7676;
-}
+        padding: 0 15px;
+    }
 
-.form-controls {
-     display: inline;
-     height: 32px;
-     padding: 6px 12px;
-     font-size: 13px;
-     line-height: 1.428571429;
-     color: #555;
-     vertical-align: middle;
-     background-color: #fff;
-     background-image: none;
-     border: 1px solid #ccc;
-     transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
-     height: 29px;
- }
+    .lable-name {
+        padding-top: 10px;
+        color: #7d7676;
+    }
 
- .marginRight20 {
-  margin-right: 20px;
- }
+    .form-controls {
+        display: inline;
+        height: 32px;
+        padding: 6px 12px;
+        font-size: 13px;
+        line-height: 1.428571429;
+        color: #555;
+        vertical-align: middle;
+        background-color: #fff;
+        background-image: none;
+        border: 1px solid #ccc;
+        transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+        height: 29px;
+    }
 
- #wizardActionListLoader {
-    opacity: 0.6;
-    height: 100%;
-    width: 100%;
-    position: absolute;
-    background: #ddd;
-}
+    .marginRight20 {
+        margin-right: 20px;
+    }
+
+    #wizardActionListLoader {
+        opacity: 0.6;
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        background: #ddd;
+    }
 </style>
 <div class="row">
-   <div id="wizardActionListLoader" style="display: none">
-         <img class="center-block" style="height: 50px; width: 50px; margin-top: 20%; margin-left: 48%;margin-bottom: 10%; position: absolute;" src="img/loading.gif" />
+    <div id="wizardActionListLoader" style="display: none">
+        <img class="center-block" style="height: 50px; width: 50px; margin-top: 20%; margin-left: 48%;margin-bottom: 10%; position: absolute;" src="img/loading.gif" />
     </div>
-   <div class="widget-box">
-   <div class="widget-header">
-                    <h5 class="widget-title" style="color:#4e5964;">
-                        <strong>Setup &amp; Configuration Wizard</strong>
-                    </h5>
-                    <div class="widget-toolbar no-border">
+    <div class="widget-box">
+        <div class="widget-header">
+            <h5 class="widget-title" style="color:#4e5964;">
+                <strong>Setup &amp; Configuration Wizard</strong>
+            </h5>
+            <div class="widget-toolbar no-border">
                         <span class="providerSelect">
-                            Choose Organization: 
+                            Choose Organization:
                             <select class="form-controls marginRight20 orgWidth" id ="orgDropdown">
                             </select>
                         </span>
-                            <a id="createNew" class="btn btn-primary">
-                            <i class="ace-icon ace-icon fa fa-plus bigger-110"></i>
-                            New Wizard
-                            </a>                                                
-                        
-                    </div>
+                <a id="createNew" class="btn btn-primary">
+                    <i class="ace-icon ace-icon fa fa-plus bigger-110"></i>
+                    New Wizard
+                </a>
+
+            </div>
+        </div>
+        <div class="container">
+            <div class="btn-cls">
+                <div class="btn-1" id="startConfig">
+                    <a type="button" class="btn btn-circle btn-text" style="line-height:3">Start</a><br />
+                    <p class="lable-name">Introduction</p>
                 </div>
-   <div class="container">
-      <div class="btn-cls">
-         <div class="btn-1" id="startConfig">
-            <a type="button" class="btn btn-circle btn-text" style="line-height:3">Start</a><br />
-            <p class="lable-name">Introduction</p>
-         </div>
-         <div class="btn-1" id="orgConfiguration">
-            <a type="button" href="ajax/Settings/settingsWizard.html" class="btn btn-circle process-btn">1</a><br />
-            <p class="lable-name">Org Configuration</p>
-         </div>
-         <div class="btn-1" id="configManagement">
-            <a type="button" href="ajax/Settings/configManagementWizard.html" class="btn btn-circle process-btn">2</a><br />
-            <p class="lable-name">Config Management</p>
-         </div>
-         <div class="btn-1" id="providerConfiguration">
-            <a type="button" href="ajax/Settings/providerWizard.html" class="btn btn-circle process-btn">3</a><br />
-            <p class="lable-name">Provider Configuration</p>
-         </div>
-         <div class="btn-1" id="devopsConfiguration">
-            <a type="button" href="ajax/Settings/devopsRolesWizard.html" class="btn btn-circle process-btn">4</a><br />
-            <p class="lable-name">Devops Roles</p>
-         </div>
-         <div class="btn-1" id="trackConfiguration">
-            <a type="button" href="ajax/Settings/trackWizard.html" class="btn btn-circle process-btn">5</a><br />
-            <p class="lable-name">Track</p>
-         </div>
-         <div class="btn-1">
-            <a type="button" href="ajax/Settings/cmdbWizard.html" class="btn btn-circle process-btn">6</a><br />
-            <p class="lable-name">CMDB Configuration</p>
-         </div>
-      </div>
-   </div>
- </div>
-   <hr/>
-   <div class="contentSetting">
-   </div>
+                <div class="btn-1" id="orgConfiguration">
+                    <a type="button" href="ajax/Settings/settingsWizard.html" class="btn btn-circle process-btn">1</a><br />
+                    <p class="lable-name">Org Configuration</p>
+                </div>
+                <div class="btn-1" id="configManagement">
+                    <a type="button" href="ajax/Settings/configManagementWizard.html" class="btn btn-circle process-btn">2</a><br />
+                    <p class="lable-name">Config Management</p>
+                </div>
+                <div class="btn-1" id="providerConfiguration">
+                    <a type="button" href="ajax/Settings/providerWizard.html" class="btn btn-circle process-btn">3</a><br />
+                    <p class="lable-name">Provider Configuration</p>
+                </div>
+                <div class="btn-1" id="devopsConfiguration">
+                    <a type="button" href="ajax/Settings/devopsRolesWizard.html" class="btn btn-circle process-btn">4</a><br />
+                    <p class="lable-name">Devops Roles</p>
+                </div>
+                <div class="btn-1" id="trackConfiguration">
+                    <a type="button" href="ajax/Settings/trackWizard.html" class="btn btn-circle process-btn">5</a><br />
+                    <p class="lable-name">Track</p>
+                </div>
+                <div class="btn-1">
+                    <a type="button" href="ajax/Settings/cmdbWizard.html" class="btn btn-circle process-btn">6</a><br />
+                    <p class="lable-name">CMDB Configuration</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr/>
+    <div class="contentSetting">
+    </div>
 </div>
 
 
 
 <script type="text/javascript">
-var orgIdForSetup, orgNameForSetup;
-//added for v3.0 - when navigating from v2.0 workzone to settings-
-$(document).ready(function() {
-    $('#wizardActionListLoader').show();
-    $("#content").attr('style', 'height: 100%!important')
-    if (isAngularIntegration) {
-        $('#workZoneNew').attr('href', '#');
-        $('#workZoneNew').removeClass('active');
-        $('#Workspace1').addClass('hidden');
-        $('#Settings_nav').show();
-        $('#settingsNew').addClass('active');
-        $("#ribbon ol.breadcrumb").empty();
-        $("#ribbon ol.breadcrumb").append($("<li>Settings</li>"));
+    var orgIdForSetup, orgNameForSetup;
+    //added for v3.0 - when navigating from v2.0 workzone to settings-
+    $(document).ready(function() {
+        $('#wizardActionListLoader').show();
+        $("#content").attr('style', 'height: 100%!important')
+        if (isAngularIntegration) {
+            $('#workZoneNew').attr('href', '#');
+            $('#workZoneNew').removeClass('active');
+            $('#Workspace1').addClass('hidden');
+            $('#Settings_nav').show();
+            $('#settingsNew').addClass('active');
+            $("#ribbon ol.breadcrumb").empty();
+            $("#ribbon ol.breadcrumb").append($("<li>Settings</li>"));
+        }
+    });
+    var serviceURL = "/d4dMasters/";
+    window.selectedOrgName = 'Settings';
+
+    drawBreadCrumb1();
+
+    $('.btn-1 a').click(function(e) {
+        $('a.btn').addClass('active-btn');
+        $(this).removeClass('process-btn');
+        e.preventDefault();
+        $('.contentSetting').load(this.getAttribute('href'));
+    });
+
+    function clearActiveClasses() {
+        //check for active one's
+        $('a.btn').removeClass('active-btn').addClass('process-btn');
+        //check for already created one's
+        $('a.btn').removeClass('green-btn').addClass('process-btn');
     }
-});
-var serviceURL = "/d4dMasters/";
-window.selectedOrgName = 'Settings';
 
-drawBreadCrumb1();
+    $('#createNew').click(function(e) {
+        $('.providerSelect').addClass('hidden');
+        clearActiveClasses();
+        $('#startConfig a').addClass('green-btn').removeClass('process-btn');
+        $('#orgConfiguration a').addClass('active-btn').removeClass('process-btn');
+        $('#orgConfiguration a').trigger('click');
 
-$('.btn-1 a').click(function(e) {
-    $('a.btn').addClass('active-btn');
-    $(this).removeClass('process-btn');
-    e.preventDefault();
-    $('.contentSetting').load(this.getAttribute('href'));
-});
-
-function clearActiveClasses() {
-    //check for active one's
-    $('a.btn').removeClass('active-btn').addClass('process-btn');
-    //check for already created one's
-    $('a.btn').removeClass('green-btn').addClass('process-btn');
-}
-
-$('#createNew').click(function(e) {
-    $('.providerSelect').addClass('hidden');
-    clearActiveClasses();
-    $('#startConfig a').addClass('green-btn').removeClass('process-btn');
-    $('#orgConfiguration a').addClass('active-btn').removeClass('process-btn');
+    })
     $('#orgConfiguration a').trigger('click');
 
-})
-$('#orgConfiguration a').trigger('click');
-
-$.get('/d4dMasters/readmasterjsonnew/1', function(data) {
-    $("#orgDropdown").empty();
-    for (var i = 0; i < data.length; i++) {
-        var $option = $('<option></option>').val(data[i].rowid).attr('rowid', data[i].orgname).html(data[i].orgname);
-        $('#orgDropdown').append($option);
-    }
-    $('#orgDropdown').change(function(e) {
-        $('#wizardActionListLoader').show();
-        clearActiveClasses();
-        orgIdForSetup = $("#orgDropdown").val();
-        changeWizardStatus(orgIdForSetup);
-        $('#wizardActionListLoader').hide();
-    });
-    $("#orgDropdown").trigger("change");
-});
-
-function changeWizardStatus(orgIdForSetup) {
-     $('#wizardActionListLoader').show();
-    $.get('/setting-wizard/org/' + orgIdForSetup, function(data) {
-        if (data.length === 0) {
-            $('a.btn').addClass('active-btn');
+    $.get('/d4dMasters/readmasterjsonnew/1', function(data) {
+        $("#orgDropdown").empty();
+        for (var i = 0; i < data.length; i++) {
+            var $option = $('<option></option>').val(data[i].rowid).attr('rowid', data[i].orgname).html(data[i].orgname);
+            $('#orgDropdown').append($option);
+        }
+        $('#orgDropdown').change(function(e) {
+            $('#wizardActionListLoader').show();
+            clearActiveClasses();
+            orgIdForSetup = $("#orgDropdown").val();
+            changeWizardStatus(orgIdForSetup);
             $('#wizardActionListLoader').hide();
-        } else {
-            var isCompleted = data.previousStep.isCompleted;
-            if (isCompleted = 'true') {
-                if (data.previousStep.name === 'Introduction') {
-                    $('#startConfig a').addClass('green-btn').removeClass('process-btn');
-                    $('#orgConfiguration a').addClass('active-btn').removeClass('process-btn');
-                    $('#orgConfiguration a').trigger('click');
-                } else if (data.previousStep.name === 'Org Configuration') {
-                    $('.providerSelect').removeClass('hidden');
-                    $('#startConfig a, #orgConfiguration a,#configManagement a').addClass('green-btn').removeClass('process-btn');
-                    $('#configManagement a').trigger('click');
-                } else if (data.previousStep.name === 'Config Management') {
-                    $('#configManagement a').removeClass('active-btn process-btn').addClass('green-btn');
-                    $('#startConfig a,#orgConfiguration a').addClass('green-btn');
-                    $('#providerConfiguration a').trigger('click');
-                } else if (data.previousStep.name === 'Provider Configuration') {
-                    $('#startConfig a, #orgConfiguration a,#configManagement a,#providerConfiguration a').removeClass('active-btn process-btn').addClass('green-btn');
+        });
+        $("#orgDropdown").trigger("change");
+    });
 
-                    $('#devopsConfiguration a').trigger('click');
-                } else if (data.previousStep.name === 'Devops Roles') {
-                    $('#startConfig a, #orgConfiguration a,#configManagement a, #providerConfiguration a,#devopsConfiguration a').removeClass('active-btn process-btn').addClass('green-btn');
-
-                    $('#trackConfiguration a').trigger('click');
+    function changeWizardStatus(orgIdForSetup) {
+        $('#wizardActionListLoader').show();
+        $.get('/setting-wizard/org/' + orgIdForSetup, function(data) {
+            if (data.length === 0) {
+                $('a.btn').addClass('active-btn');
+                $('#wizardActionListLoader').hide();
+            } else {
+                var isCompleted = data.previousStep.isCompleted;
+                if (isCompleted = 'true') {
+                    if (data.previousStep.name === 'Introduction') {
+                        $('#startConfig a').addClass('green-btn').removeClass('process-btn');
+                        $('#orgConfiguration a').addClass('active-btn').removeClass('process-btn');
+                        $('#orgConfiguration a').trigger('click');
+                        if(data.currentStep.nestedSteps){
+                            var nestedSteps = data.currentStep.nestedSteps;
+                            if(nestedSteps[0].name === 'Organization' && nestedSteps[0].isCompleted === true &&
+                                    nestedSteps[1].name === 'BusinessGroup' && nestedSteps[1].isCompleted === false){
+                                checkNestedSteps(true,false,false);
+                            }else if(nestedSteps[0].name === 'Organization' && nestedSteps[0].isCompleted === true &&
+                                    nestedSteps[1].name === 'BusinessGroup' && nestedSteps[1].isCompleted === true){
+                                checkNestedSteps(true,true,false);
+                            }else{
+                                checkNestedSteps(false,false,false);
+                            }
+                        }
+                    } else if (data.previousStep.name === 'Org Configuration') {
+                        $('.providerSelect').removeClass('hidden');
+                        $('#startConfig a, #orgConfiguration a,#configManagement a').addClass('green-btn').removeClass('process-btn');
+                        $('#configManagement a').trigger('click');
+                        if(data.currentStep.nestedSteps){
+                            var nestedSteps = data.currentStep.nestedSteps;
+                            if(nestedSteps[0].name === 'ChefServer' && nestedSteps[0].isCompleted === true &&
+                                    nestedSteps[1].name === 'Environment' && nestedSteps[1].isCompleted === false){
+                                checkNestedSteps(true,false);
+                            } else{
+                                checkNestedSteps(false,false);
+                            }
+                        }
+                    } else if (data.previousStep.name === 'Config Management') {
+                        $('#configManagement a').removeClass('active-btn process-btn').addClass('green-btn');
+                        $('#startConfig a,#orgConfiguration a').addClass('green-btn');
+                        $('#providerConfiguration a').trigger('click');
+                        if(data.currentStep.nestedSteps){
+                            var nestedSteps = data.currentStep.nestedSteps;
+                            if(nestedSteps[0].name === 'Provider' && nestedSteps[0].isCompleted === true &&
+                                    nestedSteps[1].name === 'VMImage' && nestedSteps[1].isCompleted === false){
+                                checkNestedSteps(true,false);
+                            } else{
+                                checkNestedSteps(false,false);
+                            }
+                        }
+                    } else if (data.previousStep.name === 'Provider Configuration') {
+                        $('#startConfig a, #orgConfiguration a,#configManagement a,#providerConfiguration a').removeClass('active-btn process-btn').addClass('green-btn');
+                        $('#galleryConfiguration a').trigger('click');
+                        if(data.currentStep.nestedSteps){
+                            var nestedSteps = data.currentStep.nestedSteps;
+                            if(nestedSteps[0].name === 'Templates' && nestedSteps[0].isCompleted === true &&
+                                    nestedSteps[1].name === 'ServiceCommand' && nestedSteps[1].isCompleted === false &&
+                                    nestedSteps[2].name === 'ScriptGallery' && nestedSteps[2].isCompleted === false){
+                                checkNestedSteps(true,false,false);
+                            }else if(nestedSteps[0].name === 'Templates' && nestedSteps[0].isCompleted === true &&
+                                    nestedSteps[1].name === 'ServiceCommand' && nestedSteps[1].isCompleted === true &&
+                                    nestedSteps[2].name === 'ScriptGallery' && nestedSteps[2].isCompleted === false ){
+                                checkNestedSteps(true,true,false);
+                            }else{
+                                checkNestedSteps(false,false,false);
+                            }
+                        }
+                    } else if (data.previousStep.name === 'Gallery Setup') {
+                        $('#startConfig a, #orgConfiguration a,#configManagement a,#providerConfiguration a,#galleryConfiguration a').removeClass('active-btn process-btn').addClass('green-btn');
+                        $('#devopsConfiguration a').trigger('click');
+                        if(data.currentStep.nestedSteps){
+                            var nestedSteps = data.currentStep.nestedSteps;
+                            if(nestedSteps[0].name === 'Nexus' && nestedSteps[0].isCompleted === true &&
+                                    nestedSteps[1].name === 'Docker' && nestedSteps[1].isCompleted === false &&
+                                    nestedSteps[2].name === 'Jenkins' && nestedSteps[2].isCompleted === false){
+                                checkNestedSteps(true,false,false);
+                            }else if(nestedSteps[0].name === 'Nexus' && nestedSteps[0].isCompleted === true &&
+                                    nestedSteps[1].name === 'Docker' && nestedSteps[1].isCompleted === true &&
+                                    nestedSteps[2].name === 'Jenkins' && nestedSteps[2].isCompleted === false ){
+                                checkNestedSteps(true,true,false);
+                            }else{
+                                checkNestedSteps(false,false,false);
+                            }
+                        }
+                    }else if (data.previousStep.name === 'Devops Roles') {
+                        $('#startConfig a, #orgConfiguration a,#configManagement a, #providerConfiguration a,#devopsConfiguration a').removeClass('active-btn process-btn').addClass('green-btn');
+                        $('#trackConfiguration a').trigger('click');
+                    }
                 }
             }
-        }
-         $('#wizardActionListLoader').hide();
-    }).error(function(jqXHR) {
-          $('#wizardActionListLoader').hide();
-    });
-}
+            $('#wizardActionListLoader').hide();
+        }).error(function(jqXHR) {
+            $('#wizardActionListLoader').hide();
+        });
+    }
 </script>

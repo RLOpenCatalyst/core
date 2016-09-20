@@ -323,7 +323,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 res.send(500);
                 return;
             }
-
             masterUtil.getLoggedInUser(user.cn, function(err, anUser) {
                 if (err) {
                     res.status(500).send("Failed to fetch User.");
@@ -418,22 +417,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                         if (dbtype) {
                                             var item = '\"' + req.params.fieldname + '\"';
                                             logger.debug("About to delete Master Type: %s : % : %", dbtype, item, req.params.fieldvalue);
-                                            if(fieldname.indexOf('environmentname') === -1) {
-                                                eval('d4dModelNew.' + dbtype).remove({
-                                                    rowid: req.params.fieldvalue
-                                                }, function (err) {
-                                                    if (err) {
-                                                        logger.debug("Hit an errror on delete : %s", err);
-                                                        res.send(500);
-                                                        return;
-                                                    } else {
-                                                        logger.debug("Document deleted : %s", req.params.fieldvalue);
-                                                        res.send(200);
-                                                        logger.debug("Exit get() for /d4dMasters/removeitem/%s/%s/%s", req.params.id, req.params.fieldname, req.params.fieldvalue);
-                                                        return;
-                                                    }
-                                                }); //end findOne
-                                            }else{
+                                            if(req.params.id === '4') {
                                                 masterUtil.getEnvironmentByEnvId(req.params.fieldvalue, function (err, environment) {
                                                     if (err) {
                                                         logger.debug("Hit an errror to get Environment Name : %s", err);
@@ -448,27 +432,74 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                 res.send(500);
                                                                 return;
                                                             }else {
-                                                                settingsService.updateProjectData(environment,function(err,projectData){
+                                                                settingsService.trackSettingWizard(req.params.id,environment.orgname_rowid,function(err,results){
                                                                     if (err) {
-                                                                        logger.debug("Hit an error on updating the Project Master Data : %s", err);
+                                                                        logger.debug("Hit an error on updating the setting wixards Data : %s", err);
                                                                         res.send(500);
                                                                         return;
                                                                     }else {
-                                                                        appDeployPipelineService.updateAppDeployPipeLineEnviornment(environment, function (err, data) {
+                                                                        settingsService.updateProjectData(environment, function (err, projectData) {
                                                                             if (err) {
-                                                                                logger.debug("Hit an error on updating the PipeLine Configuration : %s", err);
+                                                                                logger.debug("Hit an error on updating the Project Master Data : %s", err);
                                                                                 res.send(500);
                                                                                 return;
+                                                                            } else {
+                                                                                appDeployPipelineService.updateAppDeployPipeLineEnviornment(environment, function (err, data) {
+                                                                                    if (err) {
+                                                                                        logger.debug("Hit an error on updating the PipeLine Configuration : %s", err);
+                                                                                        res.send(500);
+                                                                                        return;
+                                                                                    }
+                                                                                    res.send(200);
+                                                                                    return;
+                                                                                })
                                                                             }
-                                                                            res.send(200);
-                                                                            return;
                                                                         })
+                                                                    }
+                                                                });
+                                                            }
+                                                        }); //end findOne
+                                                    }
+                                                })
+                                            }else{
+                                                eval('d4dModelNew.' + dbtype).findOne({
+                                                    rowid: req.params.fieldvalue
+                                                }, function (err,data) {
+                                                    if (err) {
+                                                        logger.debug("Hit an errror on fetching data : %s", err);
+                                                        res.send(500);
+                                                        return;
+                                                    } else {
+                                                        eval('d4dModelNew.' + dbtype).remove({
+                                                            rowid: req.params.fieldvalue
+                                                        }, function (err) {
+                                                            if (err) {
+                                                                logger.debug("Hit an errror on delete : %s", err);
+                                                                res.send(500);
+                                                                return;
+                                                            } else {
+                                                                var orgId ='';
+                                                                if(data.orgname_rowid.length ===1){
+                                                                    orgId = data.orgname_rowid[0];
+                                                                }else{
+                                                                    orgId = data.orgname_rowid;
+                                                                }
+                                                                settingsService.trackSettingWizard(req.params.id,orgId,function(err,results){
+                                                                    if (err) {
+                                                                        logger.debug("Hit an errror on delete : %s", err);
+                                                                        res.send(500);
+                                                                        return;
+                                                                    }else {
+                                                                        logger.debug("Document deleted : %s", req.params.fieldvalue);
+                                                                        res.send(200);
+                                                                        logger.debug("Exit get() for /d4dMasters/removeitem/%s/%s/%s", req.params.id, req.params.fieldname, req.params.fieldvalue);
+                                                                        return;
                                                                     }
                                                                 })
                                                             }
                                                         }); //end findOne
                                                     }
-                                                })
+                                                });
                                             }
                                         }
                                     }); //end configmgmtDao
@@ -2563,20 +2594,25 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     return;
                                                 }
                                                 var settingWizardSteps = appConfig.settingWizardSteps;
-                                                settingWizards.currentStep.nestedSteps[2].isCompleted =true;
-                                                settingWizards.currentStep.isCompleted =true;
-                                                settingWizards.previousStep = settingWizards.currentStep;
-                                                settingWizards.currentStep =settingWizards.nextStep;
-                                                settingWizards.nextStep =settingWizardSteps[3];
-                                                settingWizard.updateSettingWizard(settingWizards,function(err,data){
-                                                    if(err){
-                                                        logger.error('Hit getting setting wizard error', err);
-                                                        res.send(500);
+                                                if(settingWizards.currentStep.name === 'Org Configuration') {
+                                                    settingWizards.currentStep.nestedSteps[2].isCompleted = true;
+                                                    settingWizards.currentStep.isCompleted = true;
+                                                    settingWizards.previousStep = settingWizards.currentStep;
+                                                    settingWizards.currentStep = settingWizards.nextStep;
+                                                    settingWizards.nextStep = settingWizardSteps[3];
+                                                    settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                                                        if (err) {
+                                                            logger.error('Hit getting setting wizard error', err);
+                                                            res.send(500);
+                                                            return;
+                                                        }
+                                                        res.send(200);
                                                         return;
-                                                    }
+                                                    });
+                                                }else{
                                                     res.send(200);
                                                     return;
-                                                });
+                                                }
                                             })
                                         });
                                     } else if (req.params.id === '26') {
@@ -2594,16 +2630,21 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     res.send(500);
                                                     return;
                                                 }
-                                                settingWizards.currentStep.nestedSteps[0].isCompleted =true;
-                                                settingWizard.updateSettingWizard(settingWizards,function(err,data){
-                                                    if(err){
-                                                        logger.error('Hit getting setting wizard error', err);
-                                                        res.send(500);
+                                                if(settingWizards.currentStep.name === 'Devops Roles') {
+                                                    settingWizards.currentStep.nestedSteps[0].isCompleted = true;
+                                                    settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                                                        if (err) {
+                                                            logger.error('Hit getting setting wizard error', err);
+                                                            res.send(500);
+                                                            return;
+                                                        }
+                                                        res.send(200);
                                                         return;
-                                                    }
+                                                    });
+                                                }else{
                                                     res.send(200);
                                                     return;
-                                                });
+                                                }
                                             })
                                         });
                                     } else {
@@ -2624,14 +2665,16 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         res.send(500);
                                                         return;
                                                     }
-                                                    settingWizards.currentStep.nestedSteps[1].isCompleted =true;
-                                                    settingWizard.updateSettingWizard(settingWizards,function(err,data){
-                                                        if(err){
-                                                            logger.error('Hit getting setting wizard error', err);
-                                                            res.send(500);
-                                                            return;
-                                                        }
-                                                    });
+                                                    if(settingWizards.currentStep.name === 'Org Configuration') {
+                                                        settingWizards.currentStep.nestedSteps[1].isCompleted = true;
+                                                        settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                                                            if (err) {
+                                                                logger.error('Hit getting setting wizard error', err);
+                                                                res.send(500);
+                                                                return;
+                                                            }
+                                                        });
+                                                    }
                                                 })
                                             }
                                             if(req.params.id === '10'){
@@ -2641,14 +2684,16 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         res.send(500);
                                                         return;
                                                     }
-                                                    settingWizards.currentStep.nestedSteps[0].isCompleted =true;
-                                                    settingWizard.updateSettingWizard(settingWizards,function(err,data){
-                                                        if(err){
-                                                            logger.error('Hit getting setting wizard error', err);
-                                                            res.send(500);
-                                                            return;
-                                                        }
-                                                    });
+                                                    if(settingWizards.currentStep.name === 'Config Management') {
+                                                        settingWizards.currentStep.nestedSteps[0].isCompleted = true;
+                                                        settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                                                            if (err) {
+                                                                logger.error('Hit getting setting wizard error', err);
+                                                                res.send(500);
+                                                                return;
+                                                            }
+                                                        });
+                                                    }
                                                 })
                                             }
                                             if(req.params.id === '18'){
@@ -2658,14 +2703,16 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         res.send(500);
                                                         return;
                                                     }
-                                                    settingWizards.currentStep.nestedSteps[1].isCompleted =true;
-                                                    settingWizard.updateSettingWizard(settingWizards,function(err,data){
-                                                        if(err){
-                                                            logger.error('Hit getting setting wizard error', err);
-                                                            res.send(500);
-                                                            return;
-                                                        }
-                                                    });
+                                                    if(settingWizards.currentStep.name === 'Devops Roles') {
+                                                        settingWizards.currentStep.nestedSteps[1].isCompleted = true;
+                                                        settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                                                            if (err) {
+                                                                logger.error('Hit getting setting wizard error', err);
+                                                                res.send(500);
+                                                                return;
+                                                            }
+                                                        });
+                                                    }
                                                 })
                                             }
                                             if(req.params.id === '20'){
@@ -2675,14 +2722,21 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         res.send(500);
                                                         return;
                                                     }
-                                                    settingWizards.currentStep.nestedSteps[2].isCompleted =true;
-                                                    settingWizard.updateSettingWizard(settingWizards,function(err,data){
-                                                        if(err){
-                                                            logger.error('Hit getting setting wizard error', err);
-                                                            res.send(500);
-                                                            return;
-                                                        }
-                                                    });
+                                                    var settingWizardSteps = appConfig.settingWizardSteps;
+                                                    if(settingWizards.currentStep.name === 'Devops Roles') {
+                                                        settingWizards.currentStep.nestedSteps[2].isCompleted = true;
+                                                        settingWizards.currentStep.isCompleted = true;
+                                                        settingWizards.previousStep = settingWizards.currentStep;
+                                                        settingWizards.currentStep = settingWizards.nextStep;
+                                                        settingWizards.nextStep = settingWizardSteps[7];
+                                                        settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                                                            if (err) {
+                                                                logger.error('Hit getting setting wizard error', err);
+                                                                res.send(500);
+                                                                return;
+                                                            }
+                                                        });
+                                                    }
                                                 })
                                             }
                                             if(req.params.id === '17'){
@@ -2692,19 +2746,16 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         res.send(500);
                                                         return;
                                                     }
-                                                    var settingWizardSteps = appConfig.settingWizardSteps;
-                                                    settingWizards.currentStep.nestedSteps[3].isCompleted =true;
-                                                    settingWizards.currentStep.isCompleted =true;
-                                                    settingWizards.previousStep = settingWizards.currentStep;
-                                                    settingWizards.currentStep =settingWizards.nextStep;
-                                                    settingWizards.nextStep =settingWizardSteps[6];
-                                                    settingWizard.updateSettingWizard(settingWizards,function(err,data){
-                                                        if(err){
-                                                            logger.error('Hit getting setting wizard error', err);
-                                                            res.send(500);
-                                                            return;
-                                                        }
-                                                    });
+                                                    if(settingWizards.currentStep.name === 'Gallery Setup') {
+                                                        settingWizards.currentStep.nestedSteps[0].isCompleted = true;
+                                                        settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                                                            if (err) {
+                                                                logger.error('Hit getting setting wizard error', err);
+                                                                res.send(500);
+                                                                return;
+                                                            }
+                                                        });
+                                                    }
                                                 })
                                             }
                                             if(req.params.id === '3'){
@@ -2714,19 +2765,21 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         res.send(500);
                                                         return;
                                                     }
-                                                    var settingWizardSteps = appConfig.settingWizardSteps;
-                                                    settingWizards.currentStep.nestedSteps[1].isCompleted =true;
-                                                    settingWizards.currentStep.isCompleted =true;
-                                                    settingWizards.previousStep = settingWizards.currentStep;
-                                                    settingWizards.currentStep =settingWizards.nextStep;
-                                                    settingWizards.nextStep =settingWizardSteps[4];
-                                                    settingWizard.updateSettingWizard(settingWizards,function(err,data){
-                                                        if(err){
-                                                            logger.error('Hit getting setting wizard error', err);
-                                                            res.send(500);
-                                                            return;
-                                                        }
-                                                    });
+                                                    if(settingWizards.currentStep.name === 'Config Management') {
+                                                        var settingWizardSteps = appConfig.settingWizardSteps;
+                                                        settingWizards.currentStep.nestedSteps[1].isCompleted = true;
+                                                        settingWizards.currentStep.isCompleted = true;
+                                                        settingWizards.previousStep = settingWizards.currentStep;
+                                                        settingWizards.currentStep = settingWizards.nextStep;
+                                                        settingWizards.nextStep = settingWizardSteps[4];
+                                                        settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                                                            if (err) {
+                                                                logger.error('Hit getting setting wizard error', err);
+                                                                res.send(500);
+                                                                return;
+                                                            }
+                                                        });
+                                                    }
                                                 })
                                             }
                                             logger.debug('New record folderpath: % rowid %s FLD["folderpath"]:', folderpath, newrowid, folderpath);

@@ -103,52 +103,61 @@
 
 <!-- progressbar -->
 <ul id="progressbar">
-   <li class="orgCreate active">Create Organisation</a></li>
-   <li>Create BG</a></li>
-   <li>Create Project</a></li>
+    <li class="orgCreate" id="orgCreate">Create Organisation</a></li>
+    <li class="bgCreate" id="bgCreate">Create BG</a></li>
+    <li class="projectCreate" id="projectCreate">Create Project</a></li>
 </ul>
 <!-- fieldsets -->
 <div class="content">
-   <form action="" id="myForm">
-      <div class="widget-box">
-         <div class="widget-header">
-            <h4 class="widget-margin" style="color:black;">Create Organization</h4>
-        </div>
-        <div class="widget-body">
-            <div class="widget-main" style="min-height:200px">
-                <div class="jarviswidget" id="wid-id-3" data-widget-editbutton="false" data-widget-custombutton="false">
-                    <div>
-                        <div class="widget-body no-padding">
-                            <div class="col-lg-6 col-md-6">
-                                <label for="name">Name:
-                                    <span class="control-label redSpan">&nbsp;*</span></label>
-                                <input autofocus name="orgname" value="" id="orgname" class="form-control" cdata="catalyst" type="text" cat-validation="required,nospecial,max15,nospace">
-                            </div>
-                            <div class="col-lg-6 col-md-6">
-                                <label for="name">Domain Name:</label>
-                                <input name="domainname" value="" id="domainname" class="form-control" type="text" maxlength="35">
-                            </div>
-                            <div class="col-lg-6 col-md-6 margintop15">
-                                <label for="name">Planned Cost:</label>
+    <form action="" id="myForm">
+        <div class="widget-box">
+            <div class="widget-header">
+                <h4 class="widget-margin" style="color:black;">Create Organization</h4>
+            </div>
+            <div class="widget-body">
+                <div class="widget-main" style="min-height:200px">
+                    <div class="jarviswidget" id="wid-id-3" data-widget-editbutton="false" data-widget-custombutton="false">
+                        <div>
+                            <div class="widget-body no-padding">
+                                <div class="col-lg-6 col-md-6">
+                                    <label for="name">Name:
+                                        <span class="control-label redSpan">&nbsp;*</span></label>
+                                    <input autofocus name="orgname" value="" id="orgname" class="form-control" cdata="catalyst" type="text" cat-validation="required,nospecial,max15,nospace">
+                                </div>
+                                <div class="col-lg-6 col-md-6">
+                                    <label for="name">Domain Name:</label>
+                                    <input name="domainname" value="" id="domainname" class="form-control" type="text" maxlength="35">
+                                </div>
+                                <div class="col-lg-6 col-md-6 margintop15">
+                                    <label for="name">Planned Cost:</label>
                           <span>
                             <img data-toggle="popover" data-html="true" data-placement="left" title="Provider Planned Cost for a Month." src="img/help.png"/>
                           </span>
-                                <input name="plannedCost" value="" id="plannedCost" cat-validation="numeric" class="form-control" type="text"  cdata="catalyst" maxlength="35">
+                                    <input name="plannedCost" value="" id="plannedCost" cat-validation="numeric" class="form-control" type="text"  cdata="catalyst" maxlength="35">
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="btn-group pull-right">
-         <button  name="next1" id="next1" class="next action-button" value="Next">Next</button>
-    </div>
-</form>
+        <div class="btn-group pull-right">
+            <button  name="next1" id="next1" class="next action-button" value="Next">Next</button>
+        </div>
+    </form>
 </div>
 
 <script>
     //jQuery time
+    function checkNestedSteps(orgStatus,bgStatus,projectStatus){
+        if(orgStatus === true && bgStatus === false){
+            $('li.bgCreate').addClass('active');
+        }else if(orgStatus === true && bgStatus === true && projectStatus === false){
+            $('li.projectCreate').addClass('active');
+        }else{
+            $('li.orgCreate').addClass('active');
+        }
+    }
     var current_fs, next_fs, previous_fs; //fieldsets
     var left, opacity, scale; //fieldset properties which we will animate
     var animating; //flag to prevent quick multi-click glitches
@@ -158,17 +167,17 @@
         $(this).validate();
         if ($(this).valid) {
             if (!saveform('1')){
-             $('.content').load('ajax/Settings/bgWizard.html');
-              return false;  
-            } 
+                $('.content').load('ajax/Settings/bgWizard.html');
+                return false;
+            }
 
         } else {
             alert('invalid valid form submitted'); // for demo
         }
         e.preventDefault();
         return false; // for demo
-    });       
-    
+    });
+
     $(".next").click(function(){
         if(animating) return false;
         animating = true;
