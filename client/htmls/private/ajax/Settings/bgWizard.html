@@ -1,32 +1,32 @@
 
-   <form action="" id="myForm2">
-      <div class="widget-box">
-         <div class="widget-header">
+<form action="" id="myForm2">
+    <div class="widget-box">
+        <div class="widget-header">
             <h4 class="widget-margin" style="color:black;">Create Business Group</h4>
-         </div>
-         <div class="widget-body">
+        </div>
+        <div class="widget-body">
             <div class="widget-main" style="min-height:200px">
-               <div class="jarviswidget" data-widget-editbutton="false" data-widget-custombutton="false">
-                  <div>
-                     <div class="col-lg-6 col-md-6">
-                        <label for="name">Business Group Name <span class="control-label redSpan">&nbsp;*</span></label>
-                        <input autofocus name="productgroupname" value="" id="productgroupname" class="form-control" type="text"  cdata="catalyst" cat-validation="required,nospecial,max15,nospace">
-                     </div>
-                     <div class="col-lg-6 col-md-6">
-                        <label for="">Organization<span class="control-label redSpan">&nbsp;*</span></label>
-                        <select id="orgname" class="chooseOrganization form-control width-100" cdata="catalyst" cat-validation="required">
-                           <option value="">Select an Organization</option>
-                        </select>
-                     </div>
-                  </div>
-               </div>
+                <div class="jarviswidget" data-widget-editbutton="false" data-widget-custombutton="false">
+                    <div>
+                        <div class="col-lg-6 col-md-6">
+                            <label for="name">Business Group Name <span class="control-label redSpan">&nbsp;*</span></label>
+                            <input autofocus name="productgroupname" value="" id="productgroupname" class="form-control" type="text"  cdata="catalyst" cat-validation="required,nospecial,max15,nospace">
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                            <label for="">Organization<span class="control-label redSpan">&nbsp;*</span></label>
+                            <select id="orgname" class="chooseOrganization form-control width-100" cdata="catalyst" cat-validation="required">
+                                <option value="">Select an Organization</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
             </div>
-         </div>
-      </div>
-      <div class="btn-group pull-right">
-         <button  name="next2" id="next2" class="nextBG action-button" value="Next">Next</button>
-      </div>
-   </form>
+        </div>
+    </div>
+    <div class="btn-group pull-right">
+        <button  name="next2" id="next2" class="nextBG action-button" value="Next">Next</button>
+    </div>
+</form>
 
 
 
@@ -35,10 +35,10 @@
     var current_fs, next_fs, previous_fs; //fieldsets
     var left, opacity, scale; //fieldset properties which we will animate
     var animating; //flag to prevent quick multi-click glitches
-    
+
     $('.providerSelect').removeClass('hidden');
     $.get('/d4dMasters/readmasterjsonnew/1',function(data){
-      $("#orgDropdown").empty();
+        $("#orgDropdown").empty();
         for(var i=0;i<data.length;i++){
             var $option = $('<option></option>').val(data[i].orgname).attr('rowid',data[i].rowid).html(data[i].orgname);
             $('#orgDropdown').append($option);
@@ -47,20 +47,20 @@
         orgNameForSetup = $('#orgDropdown option:last').val();
         $('#orgDropdown option:last').attr('selected','selected')
         var $optionSelect = $('<option></option').val(orgNameForSetup).attr('rowid',orgIdForSetup).html(orgNameForSetup);
-        $('#orgname').append($optionSelect);    
+        $('#orgname').append($optionSelect);
     });
-    
-            
+
+
     $('#myForm2').submit(function() {
-           if($(this).valid){
-               if(!saveform('2'))
+        if($(this).valid){
+            if(!saveform('2'))
                 return false;
-           }else{
-                alert('invalid valid form submitted'); // for demo
-           }
-           return false; // for demo
-       });  
-    
+        }else{
+            alert('invalid valid form submitted'); // for demo
+        }
+        return false; // for demo
+    });
+
     $(".nextBG").click(function(){
         $('.content').load("ajax/Settings/projWizard.html");
         if(animating) return false;
