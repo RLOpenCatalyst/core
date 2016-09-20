@@ -43,8 +43,9 @@ var parser = require('xml2json');
 var util = require('util');
 var Task = require('_pr/model/classes/tasks/tasks.js');
 var async = require('async');
-var	appDeployPipelineService = require('_pr/services/appDeployPipelineService');
-var	settingsService = require('_pr/services/settingsService');
+var appDeployPipelineService = require('_pr/services/appDeployPipelineService');
+var settingsService = require('_pr/services/settingsService');
+var settingWizard = require('_pr/model/setting-wizard');
 
 
 module.exports.setRoutes = function(app, sessionVerification) {
@@ -2352,103 +2353,141 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                 res.status(500).send("Failed to save Org.");
                                                 return;
                                             }
-                                            for (var x1 = 0; x1 < 6; x1++) {
-                                                (function(x1) {
-                                                    var templatetypename;
-                                                    var designtemplateicon_filename;
-                                                    var templatetype;
-                                                    if (x1 === 0) {
-                                                        templatetypename = "SoftwareStack";
-                                                        designtemplateicon_filename = "Appfactory.png";
-                                                        templatetype = "chef";
-                                                    } else if (x1 === 1) {
-                                                        templatetypename = "OSImage";
-                                                        designtemplateicon_filename = "Desktop Provisining.png";
-                                                        templatetype = "ami";
-                                                    } else if (x1 === 2) {
-                                                        templatetypename = "CloudFormation";
-                                                        designtemplateicon_filename = "CloudFormation.png";
-                                                        templatetype = "cft";
+                                            async.parallel({
+                                                template:function(callback){
+                                                    for (var x1 = 0; x1 < 6; x1++) {
+                                                        (function(x1) {
+                                                            var templatetypename;
+                                                            var designtemplateicon_filename;
+                                                            var templatetype;
+                                                            if (x1 === 0) {
+                                                                templatetypename = "SoftwareStack";
+                                                                designtemplateicon_filename = "Appfactory.png";
+                                                                templatetype = "chef";
+                                                            } else if (x1 === 1) {
+                                                                templatetypename = "OSImage";
+                                                                designtemplateicon_filename = "Desktop Provisining.png";
+                                                                templatetype = "ami";
+                                                            } else if (x1 === 2) {
+                                                                templatetypename = "CloudFormation";
+                                                                designtemplateicon_filename = "CloudFormation.png";
+                                                                templatetype = "cft";
 
-                                                    } else if (x1 === 3) {
-                                                        templatetypename = "ARMTemplate";
-                                                        designtemplateicon_filename = "CloudFormation.png";
-                                                        templatetype = "arm";
-                                                    } else if(x1 === 4) {
-                                                        templatetypename = "Docker";
-                                                        designtemplateicon_filename = "Docker.png";
-                                                        templatetype = "docker";
-                                                    } else {
-                                                        templatetypename = "Composite";
-                                                        designtemplateicon_filename = "composite.png";
-                                                        templatetype = "composite";
+                                                            } else if (x1 === 3) {
+                                                                templatetypename = "ARMTemplate";
+                                                                designtemplateicon_filename = "CloudFormation.png";
+                                                                templatetype = "arm";
+                                                            } else if(x1 === 4) {
+                                                                templatetypename = "Docker";
+                                                                designtemplateicon_filename = "Docker.png";
+                                                                templatetype = "docker";
+                                                            } else {
+                                                                templatetypename = "Composite";
+                                                                designtemplateicon_filename = "composite.png";
+                                                                templatetype = "composite";
+                                                            }
+
+                                                            var templateTypeData = {
+                                                                "templatetypename": templatetypename,
+                                                                "orgname": bodyJson["orgname"],
+                                                                "orgname_rowid": bodyJson["rowid"],
+                                                                "rowid": uuid.v4(),
+                                                                "id": "16",
+                                                                "templatetype": templatetype
+
+                                                            };
+
+                                                            var templateTypeModel = new d4dModelNew.d4dModelMastersDesignTemplateTypes(templateTypeData);
+                                                            templateTypeModel.save(function(err, aTemplateType) {
+                                                                if (err) {
+                                                                    logger.debug("Failed to save TemplateType.");
+                                                                }
+                                                                logger.debug("Default TemplateType created.");
+                                                                if(x1 === 5){
+                                                                    callback(null,aTemplateType);
+                                                                    return;
+                                                                }
+                                                            });
+                                                        })(x1);
                                                     }
+                                                },
+                                                team:function(callback){
+                                                    for (var x = 0; x < 4; x++) {
+                                                        (function(x) {
+                                                            var teamName;
+                                                            var descriptions;
+                                                            if (x === 0) {
+                                                                teamName = bodyJson["orgname"] + "_Admins";
+                                                                descriptions = "Team For " + teamName;
+                                                            } else if (x === 1) {
+                                                                teamName = bodyJson["orgname"] + "_DEV";
+                                                                descriptions = "Team For " + teamName;
+                                                            } else if (x === 2) {
+                                                                teamName = bodyJson["orgname"] + "_QA";
+                                                                descriptions = "Team For " + teamName;
+                                                            } else {
+                                                                teamName = bodyJson["orgname"] + "_DevOps";
+                                                                descriptions = "Team For " + teamName;
+                                                            }
 
-                                                    var templateTypeData = {
-                                                        "templatetypename": templatetypename,
-                                                        "orgname": bodyJson["orgname"],
-                                                        "orgname_rowid": bodyJson["rowid"],
-                                                        "rowid": uuid.v4(),
-                                                        "id": "16",
-                                                        "templatetype": templatetype
+                                                            var teamData = {
+                                                                "teamname": teamName,
+                                                                "description": descriptions,
+                                                                "orgname": bodyJson["orgname"],
+                                                                "orgname_rowid": bodyJson["rowid"],
+                                                                "rowid": uuid.v4(),
+                                                                "id": "21",
+                                                                "loginname": "",
+                                                                "loginname_rowid": "",
+                                                                "projectname": "",
+                                                                "projectname_rowid": ""
 
-                                                    };
+                                                            };
+                                                            var teamModel = new d4dModelNew.d4dModelMastersTeams(teamData);
+                                                            teamModel.save(function(err, aTeam) {
+                                                                if (err) {
+                                                                    logger.debug("Failed to save Team.");
+                                                                }
+                                                                logger.debug("Auto created Team: ", JSON.stringify(aTeam));
+                                                                if (x === 3) {
+                                                                    callback(null,aTeam);
+                                                                    return;
+                                                                }
+                                                            });
+                                                        })(x);
 
-                                                    var templateTypeModel = new d4dModelNew.d4dModelMastersDesignTemplateTypes(templateTypeData);
-                                                    templateTypeModel.save(function(err, aTemplateType) {
-                                                        if (err) {
-                                                            logger.debug("Failed to save TemplateType.");
-                                                        }
-                                                        logger.debug("Default TemplateType created.");
-                                                    });
-                                                })(x1);
-                                            }
-                                            for (var x = 0; x < 4; x++) {
-                                                (function(x) {
-                                                    var teamName;
-                                                    var descriptions;
-                                                    if (x === 0) {
-                                                        teamName = bodyJson["orgname"] + "_Admins";
-                                                        descriptions = "Team For " + teamName;
-                                                    } else if (x === 1) {
-                                                        teamName = bodyJson["orgname"] + "_DEV";
-                                                        descriptions = "Team For " + teamName;
-                                                    } else if (x === 2) {
-                                                        teamName = bodyJson["orgname"] + "_QA";
-                                                        descriptions = "Team For " + teamName;
-                                                    } else {
-                                                        teamName = bodyJson["orgname"] + "_DevOps";
-                                                        descriptions = "Team For " + teamName;
                                                     }
-
-                                                    var teamData = {
-                                                        "teamname": teamName,
-                                                        "description": descriptions,
-                                                        "orgname": bodyJson["orgname"],
-                                                        "orgname_rowid": bodyJson["rowid"],
-                                                        "rowid": uuid.v4(),
-                                                        "id": "21",
-                                                        "loginname": "",
-                                                        "loginname_rowid": "",
-                                                        "projectname": "",
-                                                        "projectname_rowid": ""
-
-                                                    };
-                                                    var teamModel = new d4dModelNew.d4dModelMastersTeams(teamData);
-                                                    teamModel.save(function(err, aTeam) {
+                                                },
+                                                wizard:function(callback){
+                                                    var settingWizardSteps = appConfig.settingWizardSteps;
+                                                    var currentStep=settingWizardSteps[1];
+                                                    if(currentStep.nestedSteps){
+                                                        currentStep.nestedSteps[0].isCompleted = true;
+                                                    }
+                                                    var wizardBody = {
+                                                        orgId:bodyJson["rowid"],
+                                                        orgName:bodyJson["orgname"],
+                                                        previousStep:settingWizardSteps[0],
+                                                        currentStep:currentStep,
+                                                        nextStep:settingWizardSteps[2]
+                                                    }
+                                                    settingWizard.createSettingWizard(wizardBody,function(err,data){
                                                         if (err) {
-                                                            logger.debug("Failed to save Team.");
+                                                            logger.debug("Failed to save Setting Wizard.");
                                                         }
-                                                        logger.debug("Auto created Team: ", JSON.stringify(aTeam));
-                                                    });
-                                                    if (x === 3) {
-                                                        res.send(200);
+                                                        logger.debug("Setting Wizard created.");
+                                                        callback(null,data);
                                                         return;
-                                                    }
-                                                })(x);
-
-                                            }
-
+                                                    });
+                                                }
+                                            },function(err,results){
+                                                if(err){
+                                                    res.status(500).send("Failed to save template/Team/Wizard.");
+                                                    return;
+                                                }
+                                                res.send(200);
+                                                return;
+                                            })
                                         });
                                     } else if (req.params.id === '7') {
                                         authUtil.hashPassword(bodyJson["password"], function(err, hashedPassword) {
@@ -2517,8 +2556,28 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                 res.send(500);
                                                 return;
                                             }
-                                            res.send(200);
-                                            return;
+                                            settingWizard.getSettingWizardByOrgId(bodyJson['orgname_rowid'],function(err,settingWizards){
+                                                if(err){
+                                                    logger.error('Hit getting setting wizard error', err);
+                                                    res.send(500);
+                                                    return;
+                                                }
+                                                var settingWizardSteps = appConfig.settingWizardSteps;
+                                                settingWizards.currentStep.nestedSteps[2].isCompleted =true;
+                                                settingWizards.currentStep.isCompleted =true;
+                                                settingWizards.previousStep = settingWizards.currentStep;
+                                                settingWizards.currentStep =settingWizards.nextStep;
+                                                settingWizards.nextStep =settingWizardSteps[3];
+                                                settingWizard.updateSettingWizard(settingWizards,function(err,data){
+                                                    if(err){
+                                                        logger.error('Hit getting setting wizard error', err);
+                                                        res.send(500);
+                                                        return;
+                                                    }
+                                                    res.send(200);
+                                                    return;
+                                                });
+                                            })
                                         });
                                     } else if (req.params.id === '26') {
                                         bodyJson['groupid'] = JSON.parse(bodyJson['groupid']);
@@ -2529,8 +2588,23 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                 res.send(500);
                                                 return;
                                             }
-                                            res.send(200);
-                                            return;
+                                            settingWizard.getSettingWizardByOrgId(bodyJson['orgname_rowid'],function(err,settingWizards){
+                                                if(err){
+                                                    logger.error('Hit getting setting wizard error', err);
+                                                    res.send(500);
+                                                    return;
+                                                }
+                                                settingWizards.currentStep.nestedSteps[0].isCompleted =true;
+                                                settingWizard.updateSettingWizard(settingWizards,function(err,data){
+                                                    if(err){
+                                                        logger.error('Hit getting setting wizard error', err);
+                                                        res.send(500);
+                                                        return;
+                                                    }
+                                                    res.send(200);
+                                                    return;
+                                                });
+                                            })
                                         });
                                     } else {
                                         eval('var mastersrdb =  new d4dModelNew.' + dbtype + '({' + JSON.parse(FLD) + '})');
@@ -2543,6 +2617,118 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                             }
                                             logger.debug('New Master Saved');
                                             logger.debug(req.params.fileinputs == 'null');
+                                            if(req.params.id === '2'){
+                                                settingWizard.getSettingWizardByOrgId(bodyJson['orgname_rowid'],function(err,settingWizards){
+                                                    if(err){
+                                                        logger.error('Hit getting setting wizard error', err);
+                                                        res.send(500);
+                                                        return;
+                                                    }
+                                                    settingWizards.currentStep.nestedSteps[1].isCompleted =true;
+                                                    settingWizard.updateSettingWizard(settingWizards,function(err,data){
+                                                        if(err){
+                                                            logger.error('Hit getting setting wizard error', err);
+                                                            res.send(500);
+                                                            return;
+                                                        }
+                                                    });
+                                                })
+                                            }
+                                            if(req.params.id === '10'){
+                                                settingWizard.getSettingWizardByOrgId(bodyJson['orgname_rowid'],function(err,settingWizards){
+                                                    if(err){
+                                                        logger.error('Hit getting setting wizard error', err);
+                                                        res.send(500);
+                                                        return;
+                                                    }
+                                                    settingWizards.currentStep.nestedSteps[0].isCompleted =true;
+                                                    settingWizard.updateSettingWizard(settingWizards,function(err,data){
+                                                        if(err){
+                                                            logger.error('Hit getting setting wizard error', err);
+                                                            res.send(500);
+                                                            return;
+                                                        }
+                                                    });
+                                                })
+                                            }
+                                            if(req.params.id === '18'){
+                                                settingWizard.getSettingWizardByOrgId(bodyJson['orgname_rowid'],function(err,settingWizards){
+                                                    if(err){
+                                                        logger.error('Hit getting setting wizard error', err);
+                                                        res.send(500);
+                                                        return;
+                                                    }
+                                                    settingWizards.currentStep.nestedSteps[1].isCompleted =true;
+                                                    settingWizard.updateSettingWizard(settingWizards,function(err,data){
+                                                        if(err){
+                                                            logger.error('Hit getting setting wizard error', err);
+                                                            res.send(500);
+                                                            return;
+                                                        }
+                                                    });
+                                                })
+                                            }
+                                            if(req.params.id === '20'){
+                                                settingWizard.getSettingWizardByOrgId(bodyJson['orgname_rowid'],function(err,settingWizards){
+                                                    if(err){
+                                                        logger.error('Hit getting setting wizard error', err);
+                                                        res.send(500);
+                                                        return;
+                                                    }
+                                                    settingWizards.currentStep.nestedSteps[2].isCompleted =true;
+                                                    settingWizard.updateSettingWizard(settingWizards,function(err,data){
+                                                        if(err){
+                                                            logger.error('Hit getting setting wizard error', err);
+                                                            res.send(500);
+                                                            return;
+                                                        }
+                                                    });
+                                                })
+                                            }
+                                            if(req.params.id === '17'){
+                                                settingWizard.getSettingWizardByOrgId(bodyJson['orgname_rowid'],function(err,settingWizards){
+                                                    if(err){
+                                                        logger.error('Hit getting setting wizard error', err);
+                                                        res.send(500);
+                                                        return;
+                                                    }
+                                                    var settingWizardSteps = appConfig.settingWizardSteps;
+                                                    settingWizards.currentStep.nestedSteps[3].isCompleted =true;
+                                                    settingWizards.currentStep.isCompleted =true;
+                                                    settingWizards.previousStep = settingWizards.currentStep;
+                                                    settingWizards.currentStep =settingWizards.nextStep;
+                                                    settingWizards.nextStep =settingWizardSteps[6];
+                                                    settingWizard.updateSettingWizard(settingWizards,function(err,data){
+                                                        if(err){
+                                                            logger.error('Hit getting setting wizard error', err);
+                                                            res.send(500);
+                                                            return;
+                                                        }
+                                                    });
+                                                })
+                                            }
+                                            if(req.params.id === '3'){
+                                                settingWizard.getSettingWizardByOrgId(bodyJson['orgname_rowid'],function(err,settingWizards){
+                                                    if(err){
+                                                        logger.error('Hit getting setting wizard error', err);
+                                                        res.send(500);
+                                                        return;
+                                                    }
+                                                    var settingWizardSteps = appConfig.settingWizardSteps;
+                                                    settingWizards.currentStep.nestedSteps[1].isCompleted =true;
+                                                    settingWizards.currentStep.isCompleted =true;
+                                                    settingWizards.previousStep = settingWizards.currentStep;
+                                                    settingWizards.currentStep =settingWizards.nextStep;
+                                                    settingWizards.nextStep =settingWizardSteps[4];
+                                                    settingWizard.updateSettingWizard(settingWizards,function(err,data){
+                                                        if(err){
+                                                            logger.error('Hit getting setting wizard error', err);
+                                                            res.send(500);
+                                                            return;
+                                                        }
+                                                    });
+                                                })
+                                            }
                                             logger.debug('New record folderpath: % rowid %s FLD["folderpath"]:', folderpath, newrowid, folderpath);
                                             if (!folderpath) {
                                                 if (FLD["folderpath"] == undefined) //folderpath issue fix
