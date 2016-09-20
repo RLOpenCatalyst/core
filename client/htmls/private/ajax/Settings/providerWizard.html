@@ -102,8 +102,8 @@
 <!-- multistep form -->
 <!-- progressbar -->
 <ul id="progressbar">
-   <li class="orgCreate active">Create Providers</a></li>
-   <li>VmImages</a></li>
+   <li class="providerCreate">Create Providers</a></li>
+   <li class="imageCreate">VmImages</a></li>
 </ul>
 <!-- fieldsets -->
 <div class="content">
@@ -372,6 +372,14 @@
 
 <script type="text/javascript" src="js/jquery.form.js"></script>
 <script>
+    function checkNestedSteps(providerStatus,imageStatus){
+        if(providerStatus === true && imageStatus === false){
+            $('li.providerCreate').removeClass('active');
+            $('li.imageCreate').addClass('active');
+        }else{
+            $('li.providerCreate').addClass('active');
+        }
+    }
     var orgIdForSetup = $('#orgDropdown').find('option:selected').val();
     var orgNameForSetup = $('#orgDropdown').find('option:selected').text();
     var $option = $('<option></option>').val(orgIdForSetup).html(orgNameForSetup);

@@ -103,10 +103,10 @@
 
 <!-- progressbar -->
 <ul id="progressbar">
-   <li class="orgCreate active">Nexus Server</a></li>
-   <li>Docker</a></li>
-   <li>Jenkins</a></li>
-   <li>Templates</a></li>
+   <li class="nexusCreate">Nexus Server</a></li>
+   <li class="dockerCreate">Docker</a></li>
+   <li class="jenkinsCreate">Jenkins</a></li>
+   <li class="tempCreate">Templates</a></li>
 </ul>
 <!-- fieldsets -->
 <div class="content">
@@ -183,7 +183,20 @@
    </form>
 </div>
 <script>
-
+    function checkNestedSteps(nexusStatus,dockerStatus,jenkinsStatus,tempStatus){
+        if(nexusStatus === true && dockerStatus === false && jenkinsStatus === false && tempStatus === false){
+            $('li.nexusCreate').removeClass('active');
+            $('li.dockerCreate').addClass('active');
+        }else if(nexusStatus === true && dockerStatus === true && jenkinsStatus === false && tempStatus === false){
+            $('li.nexusCreate,li.dockerCreate').removeClass('active');
+            $('li.jenkinsCreate').addClass('active');
+        }else if(nexusStatus === true && dockerStatus === true && jenkinsStatus === true && tempStatus === false){
+            $('li.nexusCreate,li.dockerCreate,li.jenkinsCreate').removeClass('active');
+            $('li.tempCreate').addClass('active');
+        }else{
+            $('li.nexusCreate').addClass('active');
+        }
+    }
    $('#nexusGroupAnchorDetails').click(function(e) {
      $("#nexusGroupDetailsModal").modal('show');
      $('#nexusGroupDetailsCreate').trigger("reset");

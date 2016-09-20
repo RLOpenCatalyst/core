@@ -323,7 +323,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 res.send(500);
                 return;
             }
-
             masterUtil.getLoggedInUser(user.cn, function(err, anUser) {
                 if (err) {
                     res.status(500).send("Failed to fetch User.");

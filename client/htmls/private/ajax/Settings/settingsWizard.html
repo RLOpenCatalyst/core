@@ -103,9 +103,9 @@
 
 <!-- progressbar -->
 <ul id="progressbar">
-    <li class="orgCreate active">Create Organisation</a></li>
-    <li>Create BG</a></li>
-    <li>Create Project</a></li>
+    <li class="orgCreate" id="orgCreate">Create Organisation</a></li>
+    <li class="bgCreate" id="bgCreate">Create BG</a></li>
+    <li class="projectCreate" id="projectCreate">Create Project</a></li>
 </ul>
 <!-- fieldsets -->
 <div class="content">
@@ -149,6 +149,15 @@
 
 <script>
     //jQuery time
+    function checkNestedSteps(orgStatus,bgStatus,projectStatus){
+        if(orgStatus === true && bgStatus === false){
+            $('li.bgCreate').addClass('active');
+        }else if(orgStatus === true && bgStatus === true && projectStatus === false){
+            $('li.projectCreate').addClass('active');
+        }else{
+            $('li.orgCreate').addClass('active');
+        }
+    }
     var current_fs, next_fs, previous_fs; //fieldsets
     var left, opacity, scale; //fieldset properties which we will animate
     var animating; //flag to prevent quick multi-click glitches

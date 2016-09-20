@@ -103,8 +103,8 @@
 
 <!-- progressbar -->
 <ul id="progressbar">
-    <li class="orgCreate active">Chef Server</a></li>
-    <li>Environments</a></li>
+    <li class="chefCreate" id="chefCreate">Chef Server</a></li>
+    <li class="envCreate" id="envCreate">Environments</a></li>
 </ul>
 <!-- fieldsets -->
 <div class="content">
@@ -199,7 +199,14 @@
 
 <script>
     //jQuery time
-
+    function checkNestedSteps(chefStatus,envStatus){
+        if(chefStatus === true && envStatus === false){
+            $('li.chefCreate').removeClass('active');
+            $('li.envCreate').addClass('active');
+        }else{
+            $('li.chefCreate').addClass('active');
+        }
+    }
     var current_fs, next_fs, previous_fs; //fieldsets
     var left, opacity, scale; //fieldset properties which we will animate
     var animating; //flag to prevent quick multi-click glitches
