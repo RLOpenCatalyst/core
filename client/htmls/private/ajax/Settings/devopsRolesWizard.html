@@ -183,16 +183,13 @@
    </form>
 </div>
 <script>
-    function checkNestedSteps(nexusStatus,dockerStatus,jenkinsStatus,tempStatus){
-        if(nexusStatus === true && dockerStatus === false && jenkinsStatus === false && tempStatus === false){
+    function checkNestedSteps(nexusStatus,dockerStatus,jenkinsStatus){
+        if(nexusStatus === true && dockerStatus === false && jenkinsStatus === false){
             $('li.nexusCreate').removeClass('active');
             $('li.dockerCreate').addClass('active');
-        }else if(nexusStatus === true && dockerStatus === true && jenkinsStatus === false && tempStatus === false){
+        }else if(nexusStatus === true && dockerStatus === true && jenkinsStatus === false){
             $('li.nexusCreate,li.dockerCreate').removeClass('active');
             $('li.jenkinsCreate').addClass('active');
-        }else if(nexusStatus === true && dockerStatus === true && jenkinsStatus === true && tempStatus === false){
-            $('li.nexusCreate,li.dockerCreate,li.jenkinsCreate').removeClass('active');
-            $('li.tempCreate').addClass('active');
         }else{
             $('li.nexusCreate').addClass('active');
         }

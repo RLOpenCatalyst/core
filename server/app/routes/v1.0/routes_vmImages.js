@@ -225,21 +225,27 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                     return;
                                                 }
                                                 var settingWizardSteps = appConfig.settingWizardSteps;
-                                                settingWizards.currentStep.nestedSteps[1].isCompleted =true;
-                                                settingWizards.currentStep.isCompleted =true;
-                                                settingWizards.previousStep = settingWizards.currentStep;
-                                                settingWizards.currentStep =settingWizards.nextStep;
-                                                settingWizards.nextStep =settingWizardSteps[5];
-                                                settingWizard.updateSettingWizard(settingWizards,function(err,data){
-                                                    if(err){
-                                                        logger.error('Hit getting setting wizard error', err);
-                                                        res.send(500);
+                                                if(settingWizards.currentStep.name === 'Provider Configuration') {
+                                                    settingWizards.currentStep.nestedSteps[1].isCompleted = true;
+                                                    settingWizards.currentStep.isCompleted = true;
+                                                    settingWizards.previousStep = settingWizards.currentStep;
+                                                    settingWizards.currentStep = settingWizards.nextStep;
+                                                    settingWizards.nextStep = settingWizardSteps[5];
+                                                    settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                                                        if (err) {
+                                                            logger.error('Hit getting setting wizard error', err);
+                                                            res.send(500);
+                                                            return;
+                                                        }
+                                                        logger.debug("Exit post() for /vmimages");
+                                                        res.send(anImage);
                                                         return;
-                                                    }
+                                                    });
+                                                }else{
                                                     logger.debug("Exit post() for /vmimages");
                                                     res.send(anImage);
                                                     return;
-                                                });
+                                                }
                                             })
                                         });
                                     } else {

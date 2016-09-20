@@ -285,29 +285,39 @@
                         }
                     } else if (data.previousStep.name === 'Provider Configuration') {
                         $('#startConfig a, #orgConfiguration a,#configManagement a,#providerConfiguration a').removeClass('active-btn process-btn').addClass('green-btn');
+                        $('#galleryConfiguration a').trigger('click');
+                        if(data.currentStep.nestedSteps){
+                            var nestedSteps = data.currentStep.nestedSteps;
+                            if(nestedSteps[0].name === 'Templates' && nestedSteps[0].isCompleted === true &&
+                                    nestedSteps[1].name === 'ServiceCommand' && nestedSteps[1].isCompleted === false &&
+                                    nestedSteps[2].name === 'ScriptGallery' && nestedSteps[2].isCompleted === false){
+                                checkNestedSteps(true,false,false);
+                            }else if(nestedSteps[0].name === 'Templates' && nestedSteps[0].isCompleted === true &&
+                                    nestedSteps[1].name === 'ServiceCommand' && nestedSteps[1].isCompleted === true &&
+                                    nestedSteps[2].name === 'ScriptGallery' && nestedSteps[2].isCompleted === false ){
+                                checkNestedSteps(true,true,false);
+                            }else{
+                                checkNestedSteps(false,false,false);
+                            }
+                        }
+                    } else if (data.previousStep.name === 'Gallery Setup') {
+                        $('#startConfig a, #orgConfiguration a,#configManagement a,#providerConfiguration a,#galleryConfiguration a').removeClass('active-btn process-btn').addClass('green-btn');
                         $('#devopsConfiguration a').trigger('click');
                         if(data.currentStep.nestedSteps){
                             var nestedSteps = data.currentStep.nestedSteps;
                             if(nestedSteps[0].name === 'Nexus' && nestedSteps[0].isCompleted === true &&
                                     nestedSteps[1].name === 'Docker' && nestedSteps[1].isCompleted === false &&
-                                    nestedSteps[2].name === 'Jenkins' && nestedSteps[2].isCompleted === false &&
-                                    nestedSteps[3].name === 'Templates' && nestedSteps[3].isCompleted === false){
-                                checkNestedSteps(true,false,false,false);
+                                    nestedSteps[2].name === 'Jenkins' && nestedSteps[2].isCompleted === false){
+                                checkNestedSteps(true,false,false);
                             }else if(nestedSteps[0].name === 'Nexus' && nestedSteps[0].isCompleted === true &&
                                     nestedSteps[1].name === 'Docker' && nestedSteps[1].isCompleted === true &&
-                                    nestedSteps[2].name === 'Jenkins' && nestedSteps[2].isCompleted === false &&
-                                    nestedSteps[3].name === 'Templates' && nestedSteps[3].isCompleted === false){
-                                checkNestedSteps(true,true,false,false);
-                            }else if(nestedSteps[0].name === 'Nexus' && nestedSteps[0].isCompleted === true &&
-                                    nestedSteps[1].name === 'Docker' && nestedSteps[1].isCompleted === true &&
-                                    nestedSteps[2].name === 'Jenkins' && nestedSteps[2].isCompleted === true &&
-                                    nestedSteps[3].name === 'Templates' && nestedSteps[3].isCompleted === false){
-                                checkNestedSteps(true,true,true,false);
+                                    nestedSteps[2].name === 'Jenkins' && nestedSteps[2].isCompleted === false ){
+                                checkNestedSteps(true,true,false);
                             }else{
-                                checkNestedSteps(false,false,false,false);
+                                checkNestedSteps(false,false,false);
                             }
                         }
-                    } else if (data.previousStep.name === 'Devops Roles') {
+                    }else if (data.previousStep.name === 'Devops Roles') {
                         $('#startConfig a, #orgConfiguration a,#configManagement a, #providerConfiguration a,#devopsConfiguration a').removeClass('active-btn process-btn').addClass('green-btn');
                         $('#trackConfiguration a').trigger('click');
                     }

@@ -2594,20 +2594,25 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     return;
                                                 }
                                                 var settingWizardSteps = appConfig.settingWizardSteps;
-                                                settingWizards.currentStep.nestedSteps[2].isCompleted =true;
-                                                settingWizards.currentStep.isCompleted =true;
-                                                settingWizards.previousStep = settingWizards.currentStep;
-                                                settingWizards.currentStep =settingWizards.nextStep;
-                                                settingWizards.nextStep =settingWizardSteps[3];
-                                                settingWizard.updateSettingWizard(settingWizards,function(err,data){
-                                                    if(err){
-                                                        logger.error('Hit getting setting wizard error', err);
-                                                        res.send(500);
+                                                if(settingWizards.currentStep.name === 'Org Configuration') {
+                                                    settingWizards.currentStep.nestedSteps[2].isCompleted = true;
+                                                    settingWizards.currentStep.isCompleted = true;
+                                                    settingWizards.previousStep = settingWizards.currentStep;
+                                                    settingWizards.currentStep = settingWizards.nextStep;
+                                                    settingWizards.nextStep = settingWizardSteps[3];
+                                                    settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                                                        if (err) {
+                                                            logger.error('Hit getting setting wizard error', err);
+                                                            res.send(500);
+                                                            return;
+                                                        }
+                                                        res.send(200);
                                                         return;
-                                                    }
+                                                    });
+                                                }else{
                                                     res.send(200);
                                                     return;
-                                                });
+                                                }
                                             })
                                         });
                                     } else if (req.params.id === '26') {
@@ -2625,16 +2630,21 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     res.send(500);
                                                     return;
                                                 }
-                                                settingWizards.currentStep.nestedSteps[0].isCompleted =true;
-                                                settingWizard.updateSettingWizard(settingWizards,function(err,data){
-                                                    if(err){
-                                                        logger.error('Hit getting setting wizard error', err);
-                                                        res.send(500);
+                                                if(settingWizards.currentStep.name === 'Devops Roles') {
+                                                    settingWizards.currentStep.nestedSteps[0].isCompleted = true;
+                                                    settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                                                        if (err) {
+                                                            logger.error('Hit getting setting wizard error', err);
+                                                            res.send(500);
+                                                            return;
+                                                        }
+                                                        res.send(200);
                                                         return;
-                                                    }
+                                                    });
+                                                }else{
                                                     res.send(200);
                                                     return;
-                                                });
+                                                }
                                             })
                                         });
                                     } else {
@@ -2655,14 +2665,16 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         res.send(500);
                                                         return;
                                                     }
-                                                    settingWizards.currentStep.nestedSteps[1].isCompleted =true;
-                                                    settingWizard.updateSettingWizard(settingWizards,function(err,data){
-                                                        if(err){
-                                                            logger.error('Hit getting setting wizard error', err);
-                                                            res.send(500);
-                                                            return;
-                                                        }
-                                                    });
+                                                    if(settingWizards.currentStep.name === 'Org Configuration') {
+                                                        settingWizards.currentStep.nestedSteps[1].isCompleted = true;
+                                                        settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                                                            if (err) {
+                                                                logger.error('Hit getting setting wizard error', err);
+                                                                res.send(500);
+                                                                return;
+                                                            }
+                                                        });
+                                                    }
                                                 })
                                             }
                                             if(req.params.id === '10'){
@@ -2672,14 +2684,16 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         res.send(500);
                                                         return;
                                                     }
-                                                    settingWizards.currentStep.nestedSteps[0].isCompleted =true;
-                                                    settingWizard.updateSettingWizard(settingWizards,function(err,data){
-                                                        if(err){
-                                                            logger.error('Hit getting setting wizard error', err);
-                                                            res.send(500);
-                                                            return;
-                                                        }
-                                                    });
+                                                    if(settingWizards.currentStep.name === 'Config Management') {
+                                                        settingWizards.currentStep.nestedSteps[0].isCompleted = true;
+                                                        settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                                                            if (err) {
+                                                                logger.error('Hit getting setting wizard error', err);
+                                                                res.send(500);
+                                                                return;
+                                                            }
+                                                        });
+                                                    }
                                                 })
                                             }
                                             if(req.params.id === '18'){
@@ -2689,14 +2703,16 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         res.send(500);
                                                         return;
                                                     }
-                                                    settingWizards.currentStep.nestedSteps[1].isCompleted =true;
-                                                    settingWizard.updateSettingWizard(settingWizards,function(err,data){
-                                                        if(err){
-                                                            logger.error('Hit getting setting wizard error', err);
-                                                            res.send(500);
-                                                            return;
-                                                        }
-                                                    });
+                                                    if(settingWizards.currentStep.name === 'Devops Roles') {
+                                                        settingWizards.currentStep.nestedSteps[1].isCompleted = true;
+                                                        settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                                                            if (err) {
+                                                                logger.error('Hit getting setting wizard error', err);
+                                                                res.send(500);
+                                                                return;
+                                                            }
+                                                        });
+                                                    }
                                                 })
                                             }
                                             if(req.params.id === '20'){
@@ -2706,14 +2722,21 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         res.send(500);
                                                         return;
                                                     }
-                                                    settingWizards.currentStep.nestedSteps[2].isCompleted =true;
-                                                    settingWizard.updateSettingWizard(settingWizards,function(err,data){
-                                                        if(err){
-                                                            logger.error('Hit getting setting wizard error', err);
-                                                            res.send(500);
-                                                            return;
-                                                        }
-                                                    });
+                                                    var settingWizardSteps = appConfig.settingWizardSteps;
+                                                    if(settingWizards.currentStep.name === 'Devops Roles') {
+                                                        settingWizards.currentStep.nestedSteps[2].isCompleted = true;
+                                                        settingWizards.currentStep.isCompleted = true;
+                                                        settingWizards.previousStep = settingWizards.currentStep;
+                                                        settingWizards.currentStep = settingWizards.nextStep;
+                                                        settingWizards.nextStep = settingWizardSteps[7];
+                                                        settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                                                            if (err) {
+                                                                logger.error('Hit getting setting wizard error', err);
+                                                                res.send(500);
+                                                                return;
+                                                            }
+                                                        });
+                                                    }
                                                 })
                                             }
                                             if(req.params.id === '17'){
@@ -2723,19 +2746,16 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         res.send(500);
                                                         return;
                                                     }
-                                                    var settingWizardSteps = appConfig.settingWizardSteps;
-                                                    settingWizards.currentStep.nestedSteps[3].isCompleted =true;
-                                                    settingWizards.currentStep.isCompleted =true;
-                                                    settingWizards.previousStep = settingWizards.currentStep;
-                                                    settingWizards.currentStep =settingWizards.nextStep;
-                                                    settingWizards.nextStep =settingWizardSteps[6];
-                                                    settingWizard.updateSettingWizard(settingWizards,function(err,data){
-                                                        if(err){
-                                                            logger.error('Hit getting setting wizard error', err);
-                                                            res.send(500);
-                                                            return;
-                                                        }
-                                                    });
+                                                    if(settingWizards.currentStep.name === 'Gallery Setup') {
+                                                        settingWizards.currentStep.nestedSteps[0].isCompleted = true;
+                                                        settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                                                            if (err) {
+                                                                logger.error('Hit getting setting wizard error', err);
+                                                                res.send(500);
+                                                                return;
+                                                            }
+                                                        });
+                                                    }
                                                 })
                                             }
                                             if(req.params.id === '3'){
@@ -2745,19 +2765,21 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         res.send(500);
                                                         return;
                                                     }
-                                                    var settingWizardSteps = appConfig.settingWizardSteps;
-                                                    settingWizards.currentStep.nestedSteps[1].isCompleted =true;
-                                                    settingWizards.currentStep.isCompleted =true;
-                                                    settingWizards.previousStep = settingWizards.currentStep;
-                                                    settingWizards.currentStep =settingWizards.nextStep;
-                                                    settingWizards.nextStep =settingWizardSteps[4];
-                                                    settingWizard.updateSettingWizard(settingWizards,function(err,data){
-                                                        if(err){
-                                                            logger.error('Hit getting setting wizard error', err);
-                                                            res.send(500);
-                                                            return;
-                                                        }
-                                                    });
+                                                    if(settingWizards.currentStep.name === 'Config Management') {
+                                                        var settingWizardSteps = appConfig.settingWizardSteps;
+                                                        settingWizards.currentStep.nestedSteps[1].isCompleted = true;
+                                                        settingWizards.currentStep.isCompleted = true;
+                                                        settingWizards.previousStep = settingWizards.currentStep;
+                                                        settingWizards.currentStep = settingWizards.nextStep;
+                                                        settingWizards.nextStep = settingWizardSteps[4];
+                                                        settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                                                            if (err) {
+                                                                logger.error('Hit getting setting wizard error', err);
+                                                                res.send(500);
+                                                                return;
+                                                            }
+                                                        });
+                                                    }
                                                 })
                                             }
                                             logger.debug('New record folderpath: % rowid %s FLD["folderpath"]:', folderpath, newrowid, folderpath);

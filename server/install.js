@@ -68,13 +68,14 @@ function getDefaultsConfig() {
             }
         },
         settingWizardSteps:[{name :'Introduction',isCompleted:true},
-            {name :'Org Configuration',isCompleted:false,nestedSteps:[{name:'Organization',isCompleted:false},
+            {name :'Org Configuration',isCompleted:false,mandatoryCheck:true,nestedSteps:[{name:'Organization',isCompleted:false},
                 {name :'BusinessGroup',isCompleted:false},{name:'Project',isCompleted:false}]},
-            {name :'Config Management',isCompleted:false,nestedSteps:[{name:'ChefServer',isCompleted:false},{name:'Environment',isCompleted:false}]},
-            {name :'Provider Configuration',isCompleted:false,nestedSteps:[{name:'Provider',isCompleted:false},{name:'VMImage',isCompleted:false}]},
-            {name :'Devops Roles',isCompleted:false,nestedSteps:[{name:'Nexus',isCompleted:false},{name:'Docker',isCompleted:false},{name:'Jenkins',isCompleted:false},{name:'Templates',isCompleted:false}]},
-            {name :'Track',isCompleted:false},
-            {name :'CMDB Configuration',isCompleted:false}
+            {name :'Config Management',isCompleted:false,mandatoryCheck:true,nestedSteps:[{name:'ChefServer',isCompleted:false},{name:'Environment',isCompleted:false}]},
+            {name :'Provider Configuration',isCompleted:false,mandatoryCheck:true,nestedSteps:[{name:'Provider',isCompleted:false},{name:'VMImage',isCompleted:false}]},
+            {name :'Gallery Setup',isCompleted:false,mandatoryCheck:true,nestedSteps:[{name:'Templates',isCompleted:false},{name:'ServiceCommand',isCompleted:false},{name:'ScriptGallery',isCompleted:false}]},
+            {name :'Devops Roles',isCompleted:false,mandatoryCheck:false,nestedSteps:[{name:'Nexus',isCompleted:false},{name:'Docker',isCompleted:false},{name:'Jenkins',isCompleted:false}]},
+            {name :'Track',isCompleted:false,mandatoryCheck:false},
+            {name :'CMDB Configuration',isCompleted:false,mandatoryCheck:false}
         ],
         serviceControllerKey:'ZDQ2YWM3ZTUyZDhhZjhhOWRkMWQ2ZTc3NDhhNjk1OWEyYzgxZGJkMWVjYjA3ZThiZjY0NTBjYjBjMTM5YzA0Yg',
         serverControllerUrl:'stackstorm.rlcatalyst.com',

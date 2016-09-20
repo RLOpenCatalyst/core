@@ -95,7 +95,8 @@ settingsService.trackSettingWizard = function trackSettingWizard(id,orgId,callba
                callback(err, null);
                return;
            }
-           if (settingWizards.currentStep.name === 'Org Configuration') {
+           if (settingWizards.currentStep.name === 'Org Configuration'
+               && settingWizards.currentStep.nestedSteps[1] === true) {
                settingWizards.currentStep.nestedSteps[1].isCompleted = false;
                settingWizards.currentStep.nestedSteps[2].isCompleted = false;
                settingWizard.updateSettingWizard(settingWizards, function (err, data) {
@@ -140,12 +141,9 @@ settingsService.trackSettingWizard = function trackSettingWizard(id,orgId,callba
                callback(err, null);
                return;
            }
-           if (settingWizards.currentStep.name === 'Config Management') {
-               var settingWizardSteps = appConfig.settingWizardSteps;
-               settingWizards.currentStep = settingWizards.previousStep;
-               settingWizards.currentStep.nestedSteps[2].isCompleted = false;
-               settingWizards.previousStep = settingWizardSteps[0];
-               settingWizards.nextStep = settingWizardSteps[2];
+           if (settingWizards.currentStep.name === 'Config Management'
+               && settingWizards.currentStep.nestedSteps[1].isCompleted === false) {
+               settingWizards.currentStep.nestedSteps[0].isCompleted = false;
                settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                    if (err) {
                        callback(err,null);
@@ -164,7 +162,8 @@ settingsService.trackSettingWizard = function trackSettingWizard(id,orgId,callba
                callback(err, null);
                return;
            }
-           if (settingWizards.currentStep.name === 'Provider Configuration' && settingWizards.currentStep.nestedSteps[0].isCompleted === false) {
+           if (settingWizards.currentStep.name === 'Provider Configuration'
+               && settingWizards.currentStep.nestedSteps[0].isCompleted === false) {
                var settingWizardSteps = appConfig.settingWizardSteps;
                var previousStep = settingWizardSteps[1];
                previousStep.nestedSteps[0].isCompleted = true;
@@ -193,11 +192,11 @@ settingsService.trackSettingWizard = function trackSettingWizard(id,orgId,callba
                callback(err, null);
                return;
            }
-           if (settingWizards.currentStep.name === 'Devops Roles') {
+           if (settingWizards.currentStep.name === 'Devops Roles'
+               && settingWizards.currentStep.nestedSteps[0].isCompleted === true) {
                settingWizards.currentStep.nestedSteps[0].isCompleted = false;
                settingWizards.currentStep.nestedSteps[1].isCompleted = false;
                settingWizards.currentStep.nestedSteps[2].isCompleted = false;
-               settingWizards.currentStep.nestedSteps[3].isCompleted = false;
                settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                    if (err) {
                        callback(err,null);
@@ -216,11 +215,11 @@ settingsService.trackSettingWizard = function trackSettingWizard(id,orgId,callba
                callback(err, null);
                return;
            }
-           if (settingWizards.currentStep.name === 'Devops Roles') {
+           if (settingWizards.currentStep.name === 'Devops Roles'
+               && settingWizards.currentStep.nestedSteps[1].isCompleted === true) {
                settingWizards.currentStep.nestedSteps[0].isCompleted = true;
                settingWizards.currentStep.nestedSteps[1].isCompleted = false;
                settingWizards.currentStep.nestedSteps[2].isCompleted = false;
-               settingWizards.currentStep.nestedSteps[3].isCompleted = false;
                settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                    if (err) {
                        callback(err,null);
@@ -239,11 +238,18 @@ settingsService.trackSettingWizard = function trackSettingWizard(id,orgId,callba
                callback(err, null);
                return;
            }
-           if (settingWizards.currentStep.name === 'Devops Roles') {
-               settingWizards.currentStep.nestedSteps[0].isCompleted = true;
-               settingWizards.currentStep.nestedSteps[1].isCompleted = true;
+           if (settingWizards.currentStep.name === 'Track'
+               && settingWizards.currentStep.isCompleted === false) {
+               var settingWizardSteps = appConfig.settingWizardSteps;
+               var previousStep = settingWizardSteps[4];
+               previousStep.nestedSteps[0].isCompleted = true;
+               previousStep.nestedSteps[1].isCompleted = true;
+               previousStep.nestedSteps[2].isCompleted = true;
+               previousStep.isCompleted = true;
+               settingWizards.currentStep = settingWizards.previousStep;
                settingWizards.currentStep.nestedSteps[2].isCompleted = false;
-               settingWizards.currentStep.nestedSteps[3].isCompleted = false;
+               settingWizards.previousStep = previousStep;
+               settingWizards.nextStep = settingWizardSteps[6];
                settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                    if (err) {
                        callback(err,null);
@@ -262,16 +268,9 @@ settingsService.trackSettingWizard = function trackSettingWizard(id,orgId,callba
                callback(err, null);
                return;
            }
-           if (settingWizards.currentStep.name === 'Track' && settingWizards.currentStep.isCompleted === false) {
-               var settingWizardSteps = appConfig.settingWizardSteps;
-               var previousStep = settingWizardSteps[3];
-               previousStep.nestedSteps[0].isCompleted = true;
-               previousStep.nestedSteps[1].isCompleted = true;
-               previousStep.isCompleted = true;
-               settingWizards.currentStep = settingWizards.previousStep;
-               settingWizards.currentStep.nestedSteps[3].isCompleted = false;
-               settingWizards.previousStep = previousStep;
-               settingWizards.nextStep = settingWizardSteps[5];
+           if (settingWizards.currentStep.name === 'Gallery Setup'
+               && settingWizards.nestedSteps[0].isCompleted === true) {
+               settingWizards.nestedSteps[0].isCompleted = false;
                settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                    if (err) {
                        callback(err,null);
@@ -290,7 +289,8 @@ settingsService.trackSettingWizard = function trackSettingWizard(id,orgId,callba
                callback(err, null);
                return;
            }
-           if (settingWizards.currentStep.name === 'Provider Configuration') {
+           if (settingWizards.currentStep.name === 'Provider Configuration'
+               && settingWizards.currentStep.nestedSteps[1].isCompleted === false) {
                settingWizards.currentStep.nestedSteps[0].isCompleted = false;
                settingWizards.currentStep.nestedSteps[1].isCompleted = false;
                settingWizard.updateSettingWizard(settingWizards, function (err, data) {
@@ -311,7 +311,8 @@ settingsService.trackSettingWizard = function trackSettingWizard(id,orgId,callba
                callback(err, null);
                return;
            }
-           if (settingWizards.currentStep.name === 'Devops Roles' && settingWizards.currentStep.nestedSteps[0].isCompleted === false) {
+           if (settingWizards.currentStep.name === 'Devops Roles'
+               && settingWizards.currentStep.nestedSteps[0].isCompleted === false) {
                var settingWizardSteps = appConfig.settingWizardSteps;
                var previousStep = settingWizardSteps[2];
                previousStep.nestedSteps[0].isCompleted = true;
@@ -327,6 +328,56 @@ settingsService.trackSettingWizard = function trackSettingWizard(id,orgId,callba
                        return;
                    }
                    callback(null,data);
+               });
+           }else{
+               callback(null,settingWizards);
+               return;
+           }
+       })
+   }else if(id === 'serviceNow'){
+       settingWizard.getSettingWizardByOrgId(orgId,function(err,settingWizards) {
+           if (err) {
+               callback(err, null);
+               return;
+           }
+           if (settingWizards.currentStep.name === 'Gallery Setup' && settingWizards.currentStep.nestedSteps[2].isCompleted === false) {
+               settingWizards.currentStep.nestedSteps[1].isCompleted = false;
+               settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                   if (err) {
+                       callback(err,null);
+                       return;
+                   }
+                   callback(null,data);
+                   return;
+               });
+           }else{
+               callback(null,settingWizards);
+               return;
+           }
+       })
+   }else if(id === 'scriptGallery'){
+       settingWizard.getSettingWizardByOrgId(orgId,function(err,settingWizards) {
+           if (err) {
+               callback(err, null);
+               return;
+           }
+           if (settingWizards.currentStep.name === 'Devops Roles' && settingWizards.currentStep.nestedSteps[0].isCompleted === false) {
+               var settingWizardSteps = appConfig.settingWizardSteps;
+               var previousStep = settingWizardSteps[2];
+               previousStep.nestedSteps[0].isCompleted = true;
+               previousStep.nestedSteps[1].isCompleted = true;
+               previousStep.isCompleted = true;
+               settingWizards.currentStep = settingWizards.previousStep;
+               settingWizards.currentStep.nestedSteps[2].isCompleted = false;
+               settingWizards.previousStep = previousStep;
+               settingWizards.nextStep = settingWizardSteps[6];
+               settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                   if (err) {
+                       callback(err,null);
+                       return;
+                   }
+                   callback(null,data);
+                   return;
                });
            }else{
                callback(null,settingWizards);

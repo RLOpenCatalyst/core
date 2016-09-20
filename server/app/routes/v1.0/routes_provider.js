@@ -3642,18 +3642,24 @@ function trackSettingWizard(orgId,callback) {
 				callback(err, null);
 				return;
 			}
-			settingWizards.currentStep.nestedSteps[0].isCompleted = true;
-			settingWizard.updateSettingWizard(settingWizards, function (err, data) {
-				if (err) {
-					logger.error('Hit updating setting wizard error', err);
-					callback(err, null);
+			if(settingWizards.currentStep.name === 'Provider Configuration') {
+				settingWizards.currentStep.nestedSteps[0].isCompleted = true;
+				settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+					if (err) {
+						logger.error('Hit updating setting wizard error', err);
+						callback(err, null);
+						return;
+					}
+					callback(null, data);
 					return;
-				}
-				callback(null, data);
+				});
+			}else{
+				callback(null, null);
 				return;
-			});
+			}
 		})
 	} else {
 		callback(null, null);
+		return;
 	}
 }
