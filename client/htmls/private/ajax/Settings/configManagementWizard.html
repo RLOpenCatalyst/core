@@ -1,3 +1,4 @@
+<link rel="stylesheet" type="text/css" media="screen" href="css/wizardBg.css">
 <style>
     /*custom font*/
     @import url(http://fonts.googleapis.com/css?family=Montserrat);
@@ -102,10 +103,15 @@
 <!-- multistep form -->
 
 <!-- progressbar -->
-<ul id="progressbar">
-   <li class="orgCreate active">Chef Server</a></li>
-   <li>Environments</a></li>
-</ul>
+<ol id="wizardTab" class="bwizard-steps clearfix clickable" role="tablist">
+    <li aria-selected="true" class="active btn-2" style="z-index: 4;"><span class="label badge-inverse">1</span><a href="ajax/Settings/configManagementWizard.html" class="hidden-phone">
+        Create Chef Server 
+        </a><a href="ajax/Settings/configManagementWizard.html" class="hidden-phone"><small></small></a></li>
+    <li aria-selected="false" style="z-index: 3;" class="btn-3"><span class="label">2</span><a href="ajax/Settings/envWizard.html" class="hidden-phone">
+        Create Environment
+        </a><a href="ajax/Settings/envWizard.html" class="hidden-phone"></a><a href="ajax/Settings/envWizard.html" class="hidden-phone">
+    </a></li>
+</ol>
 <!-- fieldsets -->
 <div class="content">
    <form action="" id="myForm22">
@@ -199,7 +205,16 @@
 
 <script>
     //jQuery time
-
+    $('.btn-2 a').click(function(e) {
+        e.preventDefault();
+        $('.contentSetting').load(this.getAttribute('href'));
+    });
+    $('.btn-3 a').click(function(e) {
+        $('.btn-2 a').parent('.bwizard-steps li').removeClass('active')
+        $(this).parent('.bwizard-steps li').addClass('active');
+        e.preventDefault();
+        $('.content').load(this.getAttribute('href'));
+    });
     var current_fs, next_fs, previous_fs; //fieldsets
     var left, opacity, scale; //fieldset properties which we will animate
     var animating; //flag to prevent quick multi-click glitches

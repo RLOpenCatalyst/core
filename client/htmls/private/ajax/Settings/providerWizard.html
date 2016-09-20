@@ -1,3 +1,4 @@
+<link rel="stylesheet" type="text/css" media="screen" href="css/wizardBg.css">
 <style>
     /*custom font*/
     @import url(http://fonts.googleapis.com/css?family=Montserrat);
@@ -101,10 +102,15 @@
 </style>
 <!-- multistep form -->
 <!-- progressbar -->
-<ul id="progressbar">
-   <li class="orgCreate active">Create Providers</a></li>
-   <li>VmImages</a></li>
-</ul>
+<ol id="wizardTab" class="bwizard-steps clearfix clickable" role="tablist">
+    <li aria-selected="true" class="active btn-2" style="z-index: 4;"><span class="label badge-inverse">1</span><a href="ajax/Settings/providerWizard.html" class="hidden-phone">
+        Create Providers 
+        </a><a href="ajax/Settings/providerWizard.html" class="hidden-phone"><small></small></a></li>
+    <li aria-selected="false" style="z-index: 3;" class="btn-3"><span class="label">2</span><a href="ajax/Settings/vmImageWizard.html" class="hidden-phone">
+        Create VmImages
+        </a><a href="ajax/Settings/vmImageWizard.html" class="hidden-phone"></a><a href="ajax/Settings/vmImageWizard.html" class="hidden-phone">
+    </a></li>
+</ol>
 <!-- fieldsets -->
 <div class="content">
    <form id="myForm54" enctype="mutlipart/form-data" action="/aws/providers" method="post">
@@ -372,6 +378,16 @@
 
 <script type="text/javascript" src="js/jquery.form.js"></script>
 <script>
+    $('.btn-2 a').click(function(e) {
+        e.preventDefault();
+        $('.contentSetting').load(this.getAttribute('href'));
+    });
+    $('.btn-3 a').click(function(e) {
+        $('.btn-2 a').parent('.bwizard-steps li').removeClass('active')
+        $(this).parent('.bwizard-steps li').addClass('active');
+        e.preventDefault();
+        $('.content').load(this.getAttribute('href'));
+    });
     var orgIdForSetup = $('#orgDropdown').find('option:selected').val();
     var orgNameForSetup = $('#orgDropdown').find('option:selected').text();
     var $option = $('<option></option>').val(orgIdForSetup).html(orgNameForSetup);

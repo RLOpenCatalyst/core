@@ -149,16 +149,20 @@ ul li {
             <a type="button" href="ajax/Settings/providerWizard.html" class="btn btn-circle process-btn">3</a><br />
             <p class="lable-name">Provider Configuration</p>
          </div>
+          <div class="btn-1" id="galleryConfiguration">
+            <a type="button" href="ajax/Settings/galleryWizard.html" class="btn btn-circle process-btn">4</a><br />
+            <p class="lable-name">Gallery Setup</p>
+         </div>
          <div class="btn-1" id="devopsConfiguration">
-            <a type="button" href="ajax/Settings/devopsRolesWizard.html" class="btn btn-circle process-btn">4</a><br />
+            <a type="button" href="ajax/Settings/devopsRolesWizard.html" class="btn btn-circle process-btn">5</a><br />
             <p class="lable-name">Devops Roles</p>
          </div>
          <div class="btn-1" id="trackConfiguration">
-            <a type="button" href="ajax/Settings/trackWizard.html" class="btn btn-circle process-btn">5</a><br />
+            <a type="button" href="ajax/Settings/trackWizard.html" class="btn btn-circle process-btn">6</a><br />
             <p class="lable-name">Track</p>
          </div>
          <div class="btn-1">
-            <a type="button" href="ajax/Settings/cmdbWizard.html" class="btn btn-circle process-btn">6</a><br />
+            <a type="button" href="ajax/Settings/cmdbWizard.html" class="btn btn-circle process-btn">7</a><br />
             <p class="lable-name">CMDB Configuration</p>
          </div>
       </div>
@@ -250,8 +254,9 @@ function changeWizardStatus(orgIdForSetup) {
                     $('#startConfig a, #orgConfiguration a,#configManagement a').addClass('green-btn').removeClass('process-btn');
                     $('#configManagement a').trigger('click');
                 } else if (data.previousStep.name === 'Config Management') {
-                    $('#configManagement a').removeClass('active-btn process-btn').addClass('green-btn');
-                    $('#startConfig a,#orgConfiguration a').addClass('green-btn');
+                    
+                    $('#startConfig a,#orgConfiguration a,#configManagement a').removeClass('active-btn process-btn').addClass('green-btn');
+                    //$('').addClass('green-btn');
                     $('#providerConfiguration a').trigger('click');
                 } else if (data.previousStep.name === 'Provider Configuration') {
                     $('#startConfig a, #orgConfiguration a,#configManagement a,#providerConfiguration a').removeClass('active-btn process-btn').addClass('green-btn');
