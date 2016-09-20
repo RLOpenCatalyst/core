@@ -1,4 +1,4 @@
-<div class="leftnavdiv">
+<div class="leftnavdiv" style="padding-right:7px;">
     <br>
      <div ng-if="analytic.tabShowChat">
          <div class="row">
@@ -35,6 +35,11 @@
          </div>
      </div>
     <div ng-if="analytic.tabShowReport">
-        <div ui-grid="cost.costGridOptions" ui-grid-selection ui-grid-exporter class="grid"></div>
+        <div ui-grid="cost.costGridOptions" ui-grid-selection ui-grid-exporter ui-grid-auto-resize class="grid"></div>
     </div>
 </div>
+<style>
+    .nv-bar positive{
+        width: 12px !important;
+    }
+</style>

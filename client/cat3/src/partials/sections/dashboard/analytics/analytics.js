@@ -70,8 +70,8 @@
 		$rootScope.isOpenSidebar = false;
 		$rootScope.dashboardChild = 'analytics';
 		$rootScope.stateParams = $state.params;
-		var treeNames = ['ANALYTICS'];
-		$rootScope.$emit('treeNameUpdate', treeNames);
+		var treeNames = ['Analytics'];
+		//$rootScope.$emit('treeNameUpdate', treeNames);
 		$rootScope.$emit('HEADER_NAV_CHANGE', 'ANALYTICS');
 		// // get organigetion
 		genericServices.getTreeNew().then(function (orgs) {
@@ -79,8 +79,8 @@
 		});
 		$rootScope.organNewEnt=[];
 		$rootScope.organNewEnt.org = '0';
-		$rootScope.organNewEnt.buss='0';
-		$rootScope.organNewEnt.proj='0';
+		//$rootScope.organNewEnt.buss='0';
+	//	$rootScope.organNewEnt.proj='0';
 		if (!$rootScope.stateParams.view) {
 			$state.go('dashboard.analytics.cost');
 		}

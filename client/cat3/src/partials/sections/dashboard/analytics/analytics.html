@@ -13,37 +13,41 @@
 					<div class="col-lg-12 col-md-12 form-group">
 						<label for="">Provider</label>
 						<select  ng-model="" class="chooseProjectExisting width-100 form-control">
-							<option ng-repeat="" value="{{}}" >{{}}</option>
+							<option value="">Select</option>
 						</select>
 					</div>
 					<div class="col-lg-12 col-md-12 form-group">
 						<label for="">Organization</label>
 						<select  ng-model="organNewEnt.org" class="chooseProjectExisting width-100 form-control">
+							<option value="">Select</option>
 							<option ng-repeat="org in organObject"  value="{{organObject.indexOf(org)}}" >{{org.name}}</option>
 						</select>
 					</div>
 					<div class="col-lg-12 col-md-12 form-group">
 						<label for="">Business Group</label>
 						<select id="bgListInputExisting" class="chooseBGExisting width-100 form-control"  ng-model="organNewEnt.buss">
+							<option value="">Select</option>
 							<option ng-repeat="buss in organObject[organNewEnt.org].businessGroups" value="{{organObject[organNewEnt.org].businessGroups.indexOf(buss)}}" >{{buss.name}}</option>
 						</select>
 					</div>
 					<div class="col-lg-12 col-md-12 form-group">
 						<label >Project</label>
 						<select class="chooseProjectExisting width-100 form-control" ng-model="organNewEnt.proj">
+							<option value="">Select</option>
 							<option ng-repeat="proj in organObject[organNewEnt.org].businessGroups[organNewEnt.buss].projects"  value="{{organObject[organNewEnt.org].businessGroups[organNewEnt.buss].projects.indexOf(proj)}}" >{{proj.name}}</option>
 						</select>
 					</div>
 					<div class="col-lg-12 col-md-12 form-group">
 						<label >Environment</label>
 						<select class="chooseProjectExisting width-100 form-control" ng-model="organNewEnt.proj">
+							<option value="">Select</option>
 							<option ng-repeat="env in organObject[organNewEnt.org].environments" value="{{organObject[organNewEnt.org].environments.indexOf(env)}}" >{{env.name}}</option>
 						</select>
 					</div>
 					<div class="col-lg-12 col-md-12 form-group">
 						<label for="">Zone</label>
 						<select  ng-model="" class="chooseProjectExisting width-100 form-control">
-							<option ng-repeat="" value="{{}}" >{{}}</option>
+							<option value="">Select</option>
 						</select>
 					</div>
 					<div class="col-lg-12 col-md-12 marginbottom5">
@@ -52,9 +56,10 @@
 				</div>
 			</fieldset>
 		</form>
+		<br/>
 	</div>
 
-	<div class="panelRight">
+	<div class="panelRight" style="padding-right: 10px;">
 		<div id='rightPanel' class='container-fluid'>
 			<ul class="nav nav-tabs" >
 				<li ng-class="{'active':analytic.tabShowChat === true}"><a ng-click="tabShow(true,false)"  ><i class="fa fa-area-chart fa-2" aria-hidden="true"></i> Dashboard</a></li>
@@ -65,13 +70,21 @@
 					</button>
 				</li>
 			</ul>
-			<div class="well">
-	            <div class="btn-group" role="group" aria-label="...">
-	              <!-- <button type="button" class="btn btn-sm btn-warning" ng-click="">DAY</button> --><!-- background-color: #ec971f -->
-	              <button type="button" class="btn btn-sm btn-warning" ng-click="">WEEK</button>
-	              <button type="button" class="btn btn-sm btn-warning" ng-click="">MONTH</button>
-	              <!-- <button type="button" class="btn btn-sm btn-warning" ng-click="">YEAR</button> -->
-	            </div>
+			<div class="well" id="well">
+
+					<div class="btn-group" role="group" aria-label="...">
+					  <button type="button" class="btn btn-sm btn-primary cat-btn-update" ng-click="">DAY</button>
+					  <button type="button" class="btn btn-sm btn-primary cat-btn-update" ng-click="">WEEK</button>
+					  <button type="button" class="btn btn-sm btn-primary cat-btn-update active" ng-click="">MONTH</button>
+					  <button type="button" class="btn btn-sm btn-primary cat-btn-update" ng-click="">YEAR</button>
+					</div>
+
+				<div class="col-lg-7 col-md-7 col-sm-12 pull-right">
+					<span class="label label-default pull-right">PhoenixApp </span>
+					<span class="label label-primary pull-right">PhoenixBG </span>
+					<span class="label label-success pull-right">Phoenix </span>
+				</div>
+
 			</div>
 			<div ui-view></div>
  		</div>

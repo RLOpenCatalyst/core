@@ -896,7 +896,7 @@ option.script {
 	border-bottom-right-radius: 3px;
 	border-bottom-left-radius: 3px;
 	padding: 10px;
-	background: #F9F9F9;
+	background: #FDFDFD;
 }
 
 .no-header .box-body {
@@ -945,4 +945,43 @@ option.script {
 }
 .bg-yellow{
 	background-color: #E49C25 !important;
+}
+.ui-grid-menu-button{
+	height: 28px !important;
+	background-color: #5bc0de !important;
+	border-color: #46b8da !important;
+	display: inline-block;
+	margin-bottom: 0;
+	font-size: 14px;
+	font-weight: 400;
+	line-height: 1.42857143;
+	text-align: center;
+	white-space: nowrap;
+	vertical-align: middle;
+	-ms-touch-action: manipulation;
+	touch-action: manipulation;
+	cursor: pointer;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	background-image: none;
+	border: 1px solid transparent;
+	border-radius: 4px 0 0 4px;
+}
+#well{
+	min-height: 35px;
+	padding: 9px;
+	margin: 11px 0 0 0;
+	background-color: #FDFDFD;
+	border-bottom: 1px solid #e3e3e3;
+	border-top: none !important;
+	border-left: none !important;
+	border-right: none !important;
+	border-radius: none !important;
+	-webkit-box-shadow: none !important;
+	box-shadow: none !important;
+	span{
+		margin-left: 13px;
+	}
 }
