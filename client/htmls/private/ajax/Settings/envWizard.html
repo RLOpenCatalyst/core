@@ -5,7 +5,7 @@
                 <h4 class="widget-margin" style="color:black;">Create Environment</h4>
             </div>
             <div class="widget-body">
-                <div class="widget-main" style="min-height:200px">
+                <div class="widget-main" style="height:350px">
                     <div class="jarviswidget" data-widget-editbutton="false" data-widget-custombutton="false">
                         <div>
                             <!-- widget content -->
@@ -56,12 +56,13 @@
                             <!-- end widget content -->
                         </div>
                     </div>
+                    <div class="btn-group pull-right">
+                        <button  name="nextEnv" id="nextEnv" class="nextEnv action-button" value="Next">Next</button>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="btn-group pull-right">
-            <button  name="nextEnv" id="nextEnv" class="nextEnv action-button" value="Next">Next</button>
-        </div>
+
     </form>
 </div>
 <div class="modal fade bs-example-modal-sg" id="myModalCreateChefEnv" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
@@ -97,7 +98,6 @@
 
 <script>
     var $optionOrg = $('<option></option>').val(orgNameForSetup).attr('rowid',orgIdForSetup).html(orgNameForSetup);
-    alert(orgNameForSetup);
     $('#orgname').append($optionOrg);
     $('#orgname').change(function(){
         $.get('/d4dMasters/readmasterjsonnew/10',function(data){
@@ -110,17 +110,20 @@
 
     $('#orgname').change(function(){
         $.get('/d4dMasters/readmasterjsonnew/4',function(data){
-            if(orgIdForSetup === data[0].orgname_rowid[0]){
-                var str = '',
-                        getTemplate = function(val, rowid) {
-                            return '<label class="toggle font-sm" style="padding-left:4px;"><input onclick="if($(this).is(&quot;:checked&quot;)) {$(this).closest(&quot;label&quot;).' + 'css(&quot;background-color&quot;,&quot;#eeeeee&quot;);$(this).css(&quot;border-color&quot;,&quot;#3b9ff3&quot;);}else{$(this).closest(&quot;label&quot;).css(&quot;background-color&quot;,&quot;#ffffff&quot;);$(this).css(&quot;border-' + 'color&quot;,&quot;red&quot;);}" type="checkbox" id="checkbox-toggle" name="checkbox-toggle" rowid="1ae4f099-7adc-4089-81c6-db2248774142"' + 'value="' + rowid + '" style="width:100%"><i data-swchoff-text="NO" data-swchon-text="YES"></i>' + val + '</label>';
-                        };
+            $('#projectname').empty();
+            for(var i =0;i<data.length;i++){
+                if(orgIdForSetup === data[i].orgname_rowid[0]){
+                    var str = '',
+                            getTemplate = function(val, rowid) {
+                                return '<label class="toggle font-sm" style="padding-left:4px;"><input onclick="if($(this).is(&quot;:checked&quot;)) {$(this).closest(&quot;label&quot;).' + 'css(&quot;background-color&quot;,&quot;#eeeeee&quot;);$(this).css(&quot;border-color&quot;,&quot;#3b9ff3&quot;);}else{$(this).closest(&quot;label&quot;).css(&quot;background-color&quot;,&quot;#ffffff&quot;);$(this).css(&quot;border-' + 'color&quot;,&quot;red&quot;);}" type="checkbox" id="checkbox-toggle" name="checkbox-toggle" rowid="1ae4f099-7adc-4089-81c6-db2248774142"' + 'value="' + rowid + '" style="width:100%"><i data-swchoff-text="NO" data-swchon-text="YES"></i>' + val + '</label>';
+                            };
 
-                for (var i = 0; i < data.length; i++) {
-                    str = str + getTemplate(data[i].projectname,data[i].rowid);
-                    $('#projectname').append(str);
+                    for (var i = 0; i < data.length; i++) {
+                        str = str + getTemplate(data[i].projectname,data[i].rowid);
+                        $('#projectname').append(str);
+                    }
+
                 }
-
             }
         });
     });
@@ -144,7 +147,6 @@
             return false;
         }
         $('#envcreatespinner').removeClass('hidden');
-        //alert('in createchefenvbtn');
         if (typeof chefid != 'undefined') {
 
             $.ajax({
@@ -222,7 +224,10 @@
             if (!chefEnv) {
                 $('#configname').val('');
             }
-            if (!saveform('3')) return false;
+            if (!saveform('3')) {
+                $('#providerConfiguration a').trigger('click');
+                return false;
+            }
         } else {
             alert('invalid valid form submitted'); // for demo
         }
@@ -230,6 +235,5 @@
     });
     $(".nextEnv").click(function(){
         toastr.success('Step 2 - Config Management Setup Completed');
-        $('#providerConfiguration a').trigger('click');
     });
 </script>

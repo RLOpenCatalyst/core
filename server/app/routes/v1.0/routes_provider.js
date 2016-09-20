@@ -1832,7 +1832,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 									}
 								});
 							});
-
 							logger.debug("Exit post() for /providers");
 						});
 					});
@@ -3635,26 +3634,26 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	});
 }
 
-function trackSettingWizard(orgId,callback){
-	if(orgId.length > 0) {
+function trackSettingWizard(orgId,callback) {
+	if (orgId.length > 0) {
 		settingWizard.getSettingWizardByOrgId(orgId, function (err, settingWizards) {
 			if (err) {
 				logger.error('Hit getting setting wizard error', err);
-				callback(err,null);
+				callback(err, null);
 				return;
 			}
 			settingWizards.currentStep.nestedSteps[0].isCompleted = true;
 			settingWizard.updateSettingWizard(settingWizards, function (err, data) {
 				if (err) {
 					logger.error('Hit updating setting wizard error', err);
-					callback(err,null);
+					callback(err, null);
 					return;
 				}
-				callback(null,data);
+				callback(null, data);
 				return;
 			});
 		})
-	}else{
-		return;
+	} else {
+		callback(null, null);
 	}
 }

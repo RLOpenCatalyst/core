@@ -36,43 +36,25 @@
     var left, opacity, scale; //fieldset properties which we will animate
     var animating; //flag to prevent quick multi-click glitches
 
-    /*$('#progressbar .orgCreate a').click(function(e){
-     $('.content').removeClass('hidden');
-     e.preventDefault();
-     $('#orgCreation .content').load(this.getAttribute('href'));
-     });
-
-     $('#progressbar .orgCreate a').trigger('click');
-
-     $('#progressbar .bgCreate a').click(function(e){
-     $('.content').removeClass('hidden');
-     e.preventDefault();
-     $('#bgCreation .content').load(this.getAttribute('href'));
-     });
-
-     $('#progressbar .projectCreate a').click(function(e){
-     $('.content').removeClass('hidden');
-     e.preventDefault();
-     $('#projectCreation .content').load(this.getAttribute('href'));
-     });
-
-     $('#progressbar .envCreate a').click(function(e){
-     $('.content').removeClass('hidden');
-     e.preventDefault();
-     $('#envCreation .content').load(this.getAttribute('href'));
-     });*/
-
+    $('.providerSelect').removeClass('hidden');
     $.get('/d4dMasters/readmasterjsonnew/1',function(data){
+        $("#orgDropdown").empty();
         for(var i=0;i<data.length;i++){
             var $option = $('<option></option>').val(data[i].orgname).attr('rowid',data[i].rowid).html(data[i].orgname);
-            $('#orgname').append($option);
+            $('#orgDropdown').append($option);
         }
+        orgIdForSetup = $('#orgDropdown option:last').attr('rowid');
+        orgNameForSetup = $('#orgDropdown option:last').val();
+        $('#orgDropdown option:last').attr('selected','selected')
+        var $optionSelect = $('<option></option').val(orgNameForSetup).attr('rowid',orgIdForSetup).html(orgNameForSetup);
+        $('#orgname').append($optionSelect);
     });
 
 
     $('#myForm2').submit(function() {
         if($(this).valid){
-            if(!saveform('2'))return false;
+            if(!saveform('2'))
+                return false;
         }else{
             alert('invalid valid form submitted'); // for demo
         }
