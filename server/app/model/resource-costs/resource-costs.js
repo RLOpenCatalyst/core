@@ -40,17 +40,20 @@ var ResourceCostsSchema = new Schema({
     },
     businessGroupId: {
         type: String,
-        required: false,
+        required: true,
+        default: 'Unassigned',
         trim: true
     },
     projectId: {
         type: String,
-        required: false,
+        required: true,
+        default: 'Unassigned',
         trim: true
     },
     environmentId: {
         type: String,
-        required: false,
+        required: true,
+        default: 'Unassigned',
         trim: true
     },
     resourceId: {

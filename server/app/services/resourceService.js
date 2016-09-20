@@ -26,6 +26,10 @@ var csv = require("fast-csv");
 var fs = require('fs');
 var async = require('async');
 var dateUtil = require('_pr/lib/utils/dateUtil');
+var unassignedInstancesModel = require('_pr/model/unassigned-instances');
+var unManagedInstancesModel = require('_pr/model/unmanaged-instance');
+var instancesModel = require('_pr/model/classes/instance/instance');
+
 resourceService.getCostForResources = getCostForResources;
 resourceService.getTotalCost = getTotalCost;
 resourceService.getCostForServices = getCostForServices;
@@ -39,7 +43,44 @@ resourceService.bulkUpdateResourceProviderTags=bulkUpdateResourceProviderTags;
 resourceService.bulkUpdateUnassignedResourceTags=bulkUpdateUnassignedResourceTags;
 resourceService.bulkUpdateAWSResourcesTags=bulkUpdateAWSResourcesTags;
 resourceService.getEC2InstancesInfo=getEC2InstancesInfo;
+resourceService.getAllResourcesForProvider =  getAllResourcesForProvider;
 
+// @TODO To be cached if needed. In memory data will not exceed 200MB for upto 2000 instances.
+function getAllResourcesForProvider(provider, next) {
+    async.parallel([
+            function(callback) {
+                instancesModel.getInstanceByProviderId(provider._id, callback);
+            },
+            function(callback) {
+                //@TODO Duplicate function of  getByProviderId, to be cleaned up
+                unManagedInstancesModel.getInstanceByProviderId(provider._id, callback);
+            },
+            function(callback) {
+                unassignedInstancesModel.getUnAssignedInstancesByProviderId(provider._id, callback);
+            }
+            /*function(callback) {
+                resources.getResourcesByProviderId(provider._id, callback);
+            }*/
+        ],
+        function(err, results) {
+            if (err) {
+                var err = new Error('Internal server error');
+                err.status = 500;
+                next(err)
+            } else {
+                var resultsArray = [].concat.apply([], results);
+                var resultsObject = resultsArray.reduce(function(temp, current) {
+                    if('platformId' in current) {
+                        temp[current.platformId] = current;
+                    }
+                    return temp;
+                }, {})
+
+                next(null, resultsObject);
+            }
+        }
+    );
+}
 
 function getCostForResources(updatedTime,provider,bucketNames,instanceIds,dbInstanceNames,fileName, callback) {
     var temp = String(updatedTime).split(',');

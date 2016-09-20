@@ -32,7 +32,7 @@ module.exports.start = function start() {
 	var costAggregationJobId
 		= crontab.scheduleJob(costAggregation.getInterval(), costAggregation.execute);
 
-	logger.info('Usage aggregation started with interval ==> '+ usageAggregation.getInterval());
+	/*logger.info('Usage aggregation started with interval ==> '+ usageAggregation.getInterval());
 	var usageAggregationJobId
 		= crontab.scheduleJob(usageAggregation.getInterval(), usageAggregation.execute);
 
@@ -53,6 +53,6 @@ module.exports.start = function start() {
 
 	logger.info('Chef Sync started with interval ==> '+ chefSync.getInterval());
 	var chefSyncJobId
-		= crontab.scheduleJob(chefSync.getInterval(), chefSync.execute);
+		= crontab.scheduleJob(chefSync.getInterval(), chefSync.execute);*/
 
 }
