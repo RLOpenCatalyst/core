@@ -44,18 +44,18 @@
 					<!--No usage end-->
 					<div class="col-lg-12 col-md-12 form-group">
 						<label for="">Provider</label>
-						<select  ng-model="" class="chooseProjectExisting width-100 form-control">
-							<option value="">Select</option>
-						</select>
+						<select class="form-control select2 select2-hidden-accessible" id="selectProvider" ng-model="filter.providerId" ng-options="provider._id as provider.providerName for provider in providers" ng-change="fnProviderChange()">
+                            <option value=''>Select</option>
+                       </select>
+					</div>
+					<div class="col-lg-12 col-md-12 form-group">
+						<label for="">Region</label>
+						<select class="form-control select2 select2-hidden-accessible" id="selectRegion" ng-model="filter.regionId" ng-options="region.region as region.region_name +' | '+region.region for region in regions" ng-change="fnRegionChange()">
+                            <option value=''>Select</option>
+                        </select>
 					</div>
 					<!--usage only-->
 					<span ng-show="stateItems.filterView === 'usage'">
-						<div class="col-lg-12 col-md-12 form-group">
-							<label for="">Region</label>
-							<select  ng-model="" class="chooseProjectExisting width-100 form-control">
-								<option value="">Select</option>
-							</select>
-						</div>
 						<div class="col-lg-12 col-md-12 form-group">
 							<label for="">Resources</label>
 								<div class="panel-group">
@@ -79,12 +79,6 @@
 						</div>
 					</span>
 					<!--usage end-->
-					<div class="col-lg-12 col-md-12 form-group" ng-show="stateItems.filterView !== 'usage'">
-						<label for="">Zone</label>
-						<select  ng-model="" class="chooseProjectExisting width-100 form-control">
-							<option value="">Select</option>
-						</select>
-					</div>
 					<div class="col-lg-12 col-md-12 marginbottom5">
 						<button type="button" class="btn btn-primary" ng-click="bpList.createList();"><i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;Apply</button>
 					</div>
