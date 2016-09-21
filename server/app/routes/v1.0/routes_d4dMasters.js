@@ -417,7 +417,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                         if (dbtype) {
                                             var item = '\"' + req.params.fieldname + '\"';
                                             logger.debug("About to delete Master Type: %s : % : %", dbtype, item, req.params.fieldvalue);
-                                            if(req.params.id === '4') {
+                                            if(req.params.id === '3') {
                                                 masterUtil.getEnvironmentByEnvId(req.params.fieldvalue, function (err, environment) {
                                                     if (err) {
                                                         logger.debug("Hit an errror to get Environment Name : %s", err);
@@ -465,6 +465,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                 eval('d4dModelNew.' + dbtype).findOne({
                                                     rowid: req.params.fieldvalue
                                                 }, function (err,data) {
+                                                    logger.debug('data>>>',data);
                                                     if (err) {
                                                         logger.debug("Hit an errror on fetching data : %s", err);
                                                         res.send(500);

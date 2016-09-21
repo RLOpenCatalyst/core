@@ -95,8 +95,9 @@ settingsService.trackSettingWizard = function trackSettingWizard(id,orgId,callba
                callback(err, null);
                return;
            }
+           logger.debug(JSON.stringify(settingWizards));
            if (settingWizards.currentStep.name === 'Org Configuration'
-               && settingWizards.currentStep.nestedSteps[1] === true) {
+               && settingWizards.currentStep.nestedSteps[1].isCompleted === true) {
                settingWizards.currentStep.nestedSteps[1].isCompleted = false;
                settingWizards.currentStep.nestedSteps[2].isCompleted = false;
                settingWizard.updateSettingWizard(settingWizards, function (err, data) {

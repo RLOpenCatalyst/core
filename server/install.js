@@ -74,7 +74,6 @@ function getDefaultsConfig() {
             {name :'Provider Configuration',isCompleted:false,mandatoryCheck:true,nestedSteps:[{name:'Provider',isCompleted:false},{name:'VMImage',isCompleted:false}]},
             {name :'Gallery Setup',isCompleted:false,mandatoryCheck:true,nestedSteps:[{name:'Templates',isCompleted:false},{name:'ServiceCommand',isCompleted:false},{name:'ScriptGallery',isCompleted:false}]},
             {name :'Devops Roles',isCompleted:false,mandatoryCheck:false,nestedSteps:[{name:'Nexus',isCompleted:false},{name:'Docker',isCompleted:false},{name:'Jenkins',isCompleted:false}]},
-            {name :'Track',isCompleted:false,mandatoryCheck:false},
             {name :'CMDB Configuration',isCompleted:false,mandatoryCheck:false}
         ],
         serviceControllerKey:'ZDQ2YWM3ZTUyZDhhZjhhOWRkMWQ2ZTc3NDhhNjk1OWEyYzgxZGJkMWVjYjA3ZThiZjY0NTBjYjBjMTM5YzA0Yg',
