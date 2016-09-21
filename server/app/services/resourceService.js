@@ -44,6 +44,7 @@ resourceService.bulkUpdateUnassignedResourceTags=bulkUpdateUnassignedResourceTag
 resourceService.bulkUpdateAWSResourcesTags=bulkUpdateAWSResourcesTags;
 resourceService.getEC2InstancesInfo=getEC2InstancesInfo;
 resourceService.getAllResourcesForProvider =  getAllResourcesForProvider;
+resourceService.updateResourceCosts = updateResourceCosts
 
 // @TODO To be cached if needed. In memory data will not exceed 200MB for upto 2000 instances.
 function getAllResourcesForProvider(provider, next) {
@@ -82,65 +83,78 @@ function getAllResourcesForProvider(provider, next) {
     );
 }
 
-function updateResourceCosts(provider, resources, downlaodedCSVPath, callback) {
+function updateResourceCosts(provider, resources, downlaodedCSVPath, updateTime, callback) {
     var awsBillIndexes = appConfig.aws.billIndexes
     var awsServices = appConfig.aws.services
     var awsZones = appConfig.aws.zones
 
     var stream = fs.createReadStream(downlaodedCSVPath);
     csv.fromStream(stream, {headers: false}).on('data', function(data) {
-        var resourceCostEntry = {platformDetails: {}}
+        if(data[awsBillIndexes.totalCost] != 'StatementTotal') {
+            var resourceCostEntry = {platformDetails: {}}
 
-        resourceCostEntry.organizationId = provider.orgId
-        resourceCostEntry.providerId = provider._id
-        resourceCostEntry.providerType = provider.providerType
-        resourceCostEntry.cost = data[awsBillIndexes.cost]
-        resourceCostEntry.startTime = data[awsBillIndexes.startDate]
-        resourceCostEntry.startTime = data[awsBillIndexes.endDate]
-        resourceCostEntry.platformDetails.serviceName = data[awsBillIndexes.prod]
+            resourceCostEntry.organizationId = provider.orgId
+            resourceCostEntry.providerId = provider._id
+            resourceCostEntry.providerType = provider.providerType
+            resourceCostEntry.cost = data[awsBillIndexes.cost]
+            resourceCostEntry.startTime = data[awsBillIndexes.startDate]
+            resourceCostEntry.endTime = data[awsBillIndexes.endDate]
+            resourceCostEntry.lastUpdateTime = updateTime
+            resourceCostEntry.interval = 3600
+            resourceCostEntry.platformDetails.serviceName = data[awsBillIndexes.prod]
 
-        if(data[awsBillIndexes.prod] in awsServices) {
-            resourceCostEntry.platformDetails.serviceId = awsServices[data[awsBillIndexes.prod]]
+            if (data[awsBillIndexes.prod] in awsServices) {
+                resourceCostEntry.platformDetails.serviceId = awsServices[data[awsBillIndexes.prod]]
+            }
+
+            resourceCostEntry.platformDetails.zone = data[awsBillIndexes.zone]
+            if (data[awsBillIndexes.zone] in awsZones) {
+                resourceCostEntry.platformDetails.region = awsZones[data[awsBillIndexes.zone]]
+            }
+
+            if (data[awsBillIndexes.instanceId] != null) {
+                resourceCostEntry.platformDetails.instanceId = data[awsBillIndexes.instanceId]
+            }
+
+            if (data[awsBillIndexes.instanceId] in resources) {
+                var resource = resources[data[awsBillIndexes.instanceId]]
+
+                resourceCostEntry.resourceId = resource._id
+
+                if ('bgId' in resource) {
+                    resourceCostEntry.businessGroupId = resource['bgId']
+                }
+
+                if ('projectId' in resource) {
+                    resourceCostEntry.projectId = resource['projectId']
+                }
+
+                if ('environmentId' in resource) {
+                    resourceCostEntry.environmentId = resource['environmentId']
+                }
+
+                if ('masterDetails.bgId' in resource) {
+                    resourceCostEntry.businessGroupId = resource['bgId']
+                }
+
+                if ('masterDetails.projectId' in resource) {
+                    resourceCostEntry.projectId = resource['projectId']
+                }
+
+                if ('masterDetails.environmentId' in resource) {
+                    resourceCostEntry.environmentId = resource['environmentId']
+                }
+
+                resourceCost.saveResourceCost(resourceCostEntry, function (err, costEntry) {
+                    if (err) {
+                        logger.error(err)
+                        return callback(new Error('Database Error'))
+                    }
+                })
+            }
         }
+    }).on('end', function() {
 
-        if(data[awsBillIndexes.zoneIndex] in zone) {
-            resourceCostEntry.platformDetails.zone = data[awsBillIndexes.zoneIndex]
-            resourceCostEntry.platformDetails.region = awsZones[data[awsBillIndexes.zoneIndex]]
-        }
-
-        if(data[awsBillIndexes.instanceId] != null) {
-            resourceCostEntry.platformDetails.instanceId = data[awsBillIndexes.instanceId]
-        }
-
-        if(data[awsBillIndexes.instanceId] in resources) {
-            var resource = resources[data[awsBillIndexes.instanceId]]
-
-            resourceCostEntry.resourceId = resource._id
-
-            if('bgId' in resource) {
-                resourceCostEntry.businessGroupId = resource['bgId']
-            }
-
-            if('projectId' in resource) {
-                resourceCostEntry.projectId = resource['projectId']
-            }
-
-            if('environmentId' in resource) {
-                resourceCostEntry.environmentId = resource['environmentId']
-            }
-
-            if('masterDetails.bgId' in resource) {
-                resourceCostEntry.businessGroupId = resource['bgId']
-            }
-
-            if('masterDetails.projectId' in resource) {
-                resourceCostEntry.projectId = resource['projectId']
-            }
-
-            if('masterDetails.environmentId' in resource) {
-                resourceCostEntry.environmentId = resource['environmentId']
-            }
-        }
     })
 }
 

@@ -21,6 +21,7 @@ var MasterUtils = require('_pr/lib/utils/masterUtil.js')
 var resourceService = require('_pr/services/resourceService')
 var CatalystCronJob = require('_pr/cronjobs/CatalystCronJob')
 var dateUtil = require('_pr/lib/utils/dateUtil')
+var AdmZip = require('adm-zip')
 
 var AWSResourceCostsAggregation = Object.create(CatalystCronJob)
 // AWSResourceCostsAggregation.interval = '0 */1 * * *'
@@ -29,8 +30,10 @@ AWSResourceCostsAggregation.interval = '* * * * *'
 var date = new Date()
 // current time - cron interval
 AWSResourceCostsAggregation.previousCronRunTime = dateUtil.getDateInUTC(date.setHours(date.getHours() - 1))
-AWSResourceCostsAggregation.fullKey = appConfig.aws.s3AccountNumber
-    + appConfig.aws.s3CSVFileName + date.getFullYear() + "-" + '0'+ date.getMonth() + ".csv.zip";
+AWSResourceCostsAggregation.currentCronRunTime = dateUtil.getDateInUTC(date)
+AWSResourceCostsAggregation.csvFileName = appConfig.aws.s3AccountNumber
+    + appConfig.aws.s3CSVFileName + date.getFullYear() + '-' + '0'+ date.getMonth() + '.csv'
+AWSResourceCostsAggregation.fullKey = AWSResourceCostsAggregation.csvFileName + '.zip'
 AWSResourceCostsAggregation.execute = aggregateAWSResourceCosts
 AWSResourceCostsAggregation.aggregateAWSResourceCostsForProvider = aggregateAWSResourceCostsForProvider
 AWSResourceCostsAggregation.downloadLatestBill = downloadLatestBill
@@ -45,15 +48,22 @@ function aggregateAWSResourceCosts() {
         },
         function(orgs, next) {
             // Gets providers for all orgs in the list
-            AWSProvider.getAWSProvidersForOrg(orgs, next)
+            AWSProvider.getAWSProvidersForOrg(orgs, function(err, providers) {
+                if(err) {
+                    next(err)
+                } else {
+                    next(null, orgs, providers)
+                }
+            })
         },
         function(orgs, providers, next) {
             async.forEach(providers, AWSResourceCostsAggregation.aggregateAWSResourceCostsForProvider,
-                function(err) {
-                    if(err)
+                function(err, results) {
+                    if(err) {
                         next(err)
-                    else
+                    } else {
                         next(null, orgs, providers)
+                    }
                 })
         },
         function(orgs, providers, next) {
@@ -72,16 +82,17 @@ function aggregateAWSResourceCosts() {
 function aggregateAWSResourceCostsForProvider(provider, callback) {
     async.waterfall([
         function(next) {
-            AWSResourceCostsAggregation.downloadLatestBill(provider)
+            AWSResourceCostsAggregation.downloadLatestBill(provider, next)
         },
         function(downloadedCSVPath, next) {
             AWSResourceCostsAggregation.updateResourceCosts(provider, downloadedCSVPath, next)
-        },
+        }
     ], function(err, result) {
         if (err) {
             callback(err)
         } else if(result) {
             logger.info('Resource cost aggregation complete for provider ' + provider._id)
+            callback(null, provider._id)
             // callback pending
         }
     })
@@ -119,10 +130,13 @@ function downloadLatestBill(provider, callback) {
         },
         function(billDownloaded, next) {
             if(billDownloaded) {
-                var downloadedCSVPath = appConfig.aws.s3BucketDownloadFileLocation
+                var downloadedZipPath = appConfig.aws.s3BucketDownloadFileLocation
                     + appConfig.aws.s3BucketFileName
-                var zip = new AdmZip(downloadedCSVPath)
-                zip.extractAllTo(path, true);
+                var zip = new AdmZip(downloadedZipPath)
+                zip.extractAllTo(appConfig.aws.s3BucketDownloadFileLocation, true)
+
+                var downloadedCSVPath = appConfig.aws.s3BucketDownloadFileLocation
+                    + AWSResourceCostsAggregation.csvFileName
                 next(null, downloadedCSVPath)
             } else {
                 next(null, null)
@@ -139,13 +153,14 @@ function downloadLatestBill(provider, callback) {
     })
 }
 
-function updateResourceCosts(provider, downlaodedCSVPath, callback) {
+function updateResourceCosts(provider, downloadedCSVPath, callback) {
     async.waterfall([
         function(next) {
             resourceService.getAllResourcesForProvider(provider, next)
         },
         function(resources, next) {
-            resourceService.updateResourceCosts(provider, resources, downlaodedCSVPath, next)
+            resourceService.updateResourceCosts(provider, resources, downloadedCSVPath,
+                AWSResourceCostsAggregation.currentCronRunTime, next)
         }
     ],
     function(err, result) {

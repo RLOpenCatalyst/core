@@ -85,7 +85,7 @@ var ResourceCostsSchema = new Schema({
         },
         region: {
             type: String,
-            required: true,
+            required: false,
             trim: true
         },
         zone: {
@@ -113,15 +113,15 @@ var ResourceCostsSchema = new Schema({
 });
 
 ResourceCostsSchema.statics.saveResourceCost = function(resourceCostData, callback) {
-    var resourceCosts = new ResourceCosts(resourceCostData);
+    var resourceCosts = new ResourceCosts(resourceCostData)
     resourceCosts.save(function(err, data) {
         if (err) {
             callback(err)
         } else {
-            callback(null, data)
+            callback(null)
         }
     })
 }
 
-var ResourceCosts = mongoose.model('ResourceCost', ResourceCostsSchema);
-module.exports = ResourceCosts;
+var ResourceCosts = mongoose.model('ResourceCosts', ResourceCostsSchema)
+module.exports = ResourceCosts
