@@ -26,6 +26,7 @@ var logger = require('_pr/logger')(module);
 var taskService = require('_pr/services/taskService.js')
 var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
+var Cryptography = require('_pr/lib/utils/cryptography');
 
 
 
@@ -487,20 +488,53 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
     app.post('/tasks/:taskId/update', function(req, res) {
         var taskData = req.body.taskData;
-        Tasks.updateTaskById(req.params.taskId, taskData, function(err, updateCount) {
-            if (err) {
-                logger.error(err);
-                res.status(500).send(errorResponses.db.error);
-                return;
-            }
-            if (updateCount) {
-                res.send({
-                    updateCount: updateCount
-                });
-            } else {
-                res.send(400);
-            }
-        });
+        if(taskData.taskType === 'script'){
+            Tasks.getTaskById(req.params.taskId, function(err, scriptTask) {
+                if (err) {
+                    logger.error(err);
+                    res.status(500).send(errorResponses.db.error);
+                    return;
+                }
+                encryptedParam(taskData.scriptDetails,scriptTask.taskConfig.scriptDetails, function (err, encryptedParam) {
+                    if (err) {
+                        logger.error(err);
+                        res.status(500).send("Failed to encrypted script parameters: ", err);
+                        return;
+                    } else {
+                        taskData.scriptDetails = encryptedParam;
+                        Tasks.updateTaskById(req.params.taskId, taskData, function (err, updateCount) {
+                            if (err) {
+                                logger.error(err);
+                                res.status(500).send(errorResponses.db.error);
+                                return;
+                            }
+                            if (updateCount) {
+                                res.send({
+                                    updateCount: updateCount
+                                });
+                            } else {
+                                res.send(400);
+                            }
+                        });
+                    }
+                })
+            });
+        }else {
+            Tasks.updateTaskById(req.params.taskId, taskData, function (err, updateCount) {
+                if (err) {
+                    logger.error(err);
+                    res.status(500).send(errorResponses.db.error);
+                    return;
+                }
+                if (updateCount) {
+                    res.send({
+                        updateCount: updateCount
+                    });
+                } else {
+                    res.send(400);
+                }
+            });
+        }
     });
 
     app.post('/tasks/:taskId/resultUrl/remove', function(req, res) {
@@ -541,3 +575,38 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
     });
 };
+
+function encryptedParam(paramDetails,existingParams,callback){
+    var cryptoConfig = appConfig.cryptoSettings;
+    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+    var count = 0;
+    var encryptedList = [];
+    for(var i = 0; i < paramDetails.length; i++){
+        (function(param){
+            if(param.scriptParameters.length > 0){
+                count++;
+                for(var j = 0; j < param.scriptParameters.length; j++){
+                    (function(scriptParameter){
+                        if(scriptParameter === existingParams[i].scriptParameters[j]){
+                            encryptedList.push(scriptParameter);
+                        }else {
+                            var encryptedText = cryptography.encryptText(scriptParameter, cryptoConfig.encryptionEncoding,
+                                cryptoConfig.decryptionEncoding);
+                            encryptedList.push(encryptedText);
+                        }
+                        if(encryptedList.length === param.scriptParameters.length){
+                            param.scriptParameters = encryptedList;
+                            encryptedList = [];
+                        }
+                    })(param.scriptParameters[j]);
+                }
+            }else{
+                count++;
+            }
+            if(count === paramDetails.length){
+                callback(null,paramDetails);
+                return;
+            }
+        })(paramDetails[i]);
+    }
+}
