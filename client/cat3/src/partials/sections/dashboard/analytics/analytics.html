@@ -9,7 +9,6 @@
 		<form>
 			<fieldset class="repo-job-details-wrapper">
 				<legend class="repo-job-details-wrapper-inner">Filter:</legend>
-				<div class="col-lg-12 ">
 					<div class="col-lg-12 col-md-12 form-group">
 						<label for="">Organization</label>
 						<select  ng-model="organNewEnt.org" class="chooseProjectExisting width-100 form-control">
@@ -86,9 +85,8 @@
 						</select>
 					</div>
 					<div class="col-lg-12 col-md-12 marginbottom5">
-						<button type="button" class="btn btn-primary" ng-click="bpList.createList();"><i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;Apply</button>
+						<button type="button" class="btn btn-primary" ng-click="analytic.applyFilter();isOpenSidebar=false;"><i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;Apply</button>
 					</div>
-				</div>
 			</fieldset>
 		</form>
 		<br/>
@@ -106,14 +104,12 @@
 				</li>
 			</ul>
 			<div class="well" id="well">
-
 					<div class="btn-group" role="group" aria-label="...">
 					  <button type="button" class="btn btn-sm btn-primary cat-btn-update" ng-click="">DAY</button>
 					  <button type="button" class="btn btn-sm btn-primary cat-btn-update" ng-click="">WEEK</button>
 					  <button type="button" class="btn btn-sm btn-primary cat-btn-update active" ng-click="">MONTH</button>
 					  <button type="button" class="btn btn-sm btn-primary cat-btn-update" ng-click="">YEAR</button>
 					</div>
-
 				<div class="col-lg-7 col-md-7 col-sm-12 pull-right">
 					<span class="label label-default pull-right">PhoenixApp </span>
 					<span class="label label-primary pull-right">PhoenixBG </span>

@@ -1,40 +1,21 @@
-<div class="leftnavdiv">
+<div class="leftnavdiv" style="padding-right:7px;">
     <br>
-     <div ng-if="analytic.tabShowChat">
-         <div class="row">
-             <div class="col-lg-4 col-md-4 col-sm-12" >
-                 <div class="box box-infobox box-info">
-                     <div class="box-header with-border"><h3 class="box-title">Aggregate usage</h3>
-                         <div class="box-tools pull-right">
-                             <span data-toggle="tooltip" title="3 New Messages" class="badge bg-yellow">Total Cost - ${{usage.pieChat.totalCoust}}</span>
-                        </div>
-                     </div>
-                     <div class="box-body" style="overflow-x: auto"><nvd3 options="usage.pieChat.option" data="usage.pieChat.data"></nvd3></div>
-                 </div>
-             </div>
-             <div class="col-lg-8 col-md-8 col-sm-12" >
-                 <div class="box box-infobox box-info">
-                     <div class="box-header with-border"><h3 class="box-title">Distribution of all services across BU's</h3>
-                         <div class="box-tools pull-right">
-                             <span data-toggle="tooltip" title="3 New Messages" class="badge bg-yellow">Total Cost - ${{usage.pieChat.totalCoust}}</span>
-                         </div>
-                     </div>
-                     <div class="box-body" style="overflow-x: auto"><nvd3 options="usage.barChat.option" data="usage.barChat.data"></nvd3></div>
-                 </div>
-             </div>
-             <div class="col-lg-12 col-md-12 col-sm-12" >
-                 <div class="box box-infobox box-info">
-                     <div class="box-header with-border"><h3 class="box-title">Daily trends of usage across BU's</h3>
-                         <!--<div class="box-tools pull-right"> Total Cost-->
-                             <!--<span data-toggle="tooltip" title="3 New Messages" class="badge bg-yellow">{{cost.pieChat.totalCoust}}</span>-->
-                         <!--</div>-->
-                     </div>
-                     <div class="box-body" style="overflow-x: auto"><nvd3 options="optionsLine" data="dataLine" class="with-3d-shadow with-transitions"></nvd3></div>
-                 </div>
-             </div>
-         </div>
-     </div>
+    <div ng-if="analytic.tabShowChat">
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12" >
+                <div class="box box-infobox box-info">
+                    <div class="box-header with-border"><h3 class="box-title">Daily trends of usage across BU's</h3>
+                        <!--<div class="box-tools pull-right">-->
+                        <!--<button type="button" class="btn btn-link" ng-click="cost.trendsChartType ='lineChart'"><i class="fa fa-line-chart" aria-hidden="true"></i></button>-->
+                        <!--<button type="button" class="btn btn-link" ng-click="cost.trendsChartType ='stackedAreaChart' "><i class="fa fa-area-chart"></i></button>-->
+                        <!--</div>-->
+                    </div>
+                    <div class="box-body" style="overflow-x: auto"><nvd3 options="optionsLine" data="dataLine" class="with-3d-shadow with-transitions"></nvd3></div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div ng-if="analytic.tabShowReport">
-        <div ui-grid="usage.usageGridOptions" ui-grid-selection ui-grid-exporter class="grid"></div>
+        <div ui-grid="cost.costGridOptions" ui-grid-selection ui-grid-exporter ui-grid-auto-resize class="grid"></div>
     </div>
 </div>
