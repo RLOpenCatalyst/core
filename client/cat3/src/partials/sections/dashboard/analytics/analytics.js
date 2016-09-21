@@ -7,7 +7,7 @@
 				url: "cost/",
 				templateUrl: "src/partials/sections/dashboard/analytics/view/cost.html",
 				controller: "costCtrl as cost",
-				params:{org:null,bus:null,proj:null},
+				params:{filterView:'cost'},
 				resolve: {
 					auth: ["$q", function ($q) {
 						var deferred = $q.defer();
@@ -26,7 +26,7 @@
 				url: "capacity/",
 				templateUrl: "src/partials/sections/dashboard/analytics/view/capacity.html",
 				controller: "capacityCtrl as capacity",
-				params:{org:null,bus:null,proj:null},
+				params:{filterView:'capacity'},
 				resolve: {
 					auth: ["$q", function ($q) {
 						var deferred = $q.defer();
@@ -45,7 +45,7 @@
 				url: "usage/",
 				templateUrl: "src/partials/sections/dashboard/analytics/view/usage.html",
 				controller: "usageCtrl as usage",
-				params:{org:null,bus:null,proj:null},
+				params:{filterView:'usage'},
 				resolve: {
 					auth: ["$q", function ($q) {
 						var deferred = $q.defer();
@@ -93,6 +93,11 @@
 		$scope.tabShow=function(chat,report){
 			analytic.tabShowChat=chat;
 			analytic.tabShowReport=report;
+		};
+		analytic.applyFilter = function(){
+			$rootScope.organNewEnt.org = '0';
+			$rootScope.organNewEnt.buss='0';
+			$rootScope.organNewEnt.proj='0';
 		};
 		$scope.hideTreeOverlay();
 	}]);
