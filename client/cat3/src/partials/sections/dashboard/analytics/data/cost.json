@@ -92,6 +92,50 @@
             }
           }
         }
+      },
+      {
+        "id": "<businessUnit_2_id>",
+        "name": "Unit 6",
+        "cost": {
+          "totalCost": 90,
+          "awsCosts": {
+            "totalCost": 100,
+            "serviceCosts": {
+              "ec2": 40,
+              "rds": 20,
+              "s3": 40
+            }
+          }
+        }
+      },
+      {
+        "id": "<businessUnit_2_id>",
+        "name": "Unit 7",
+        "cost": {
+          "totalCost": 90,
+          "awsCosts": {
+            "totalCost": 100,
+            "serviceCosts": {
+              "ec2": 40,
+              "rds": 20,
+              "s3": 40
+            }
+          }
+        }
+      },{
+        "id": "<businessUnit_2_id>",
+        "name": "Unit8",
+        "cost": {
+          "totalCost": 90,
+          "awsCosts": {
+            "totalCost": 100,
+            "serviceCosts": {
+              "ec2": 40,
+              "rds": 20,
+              "s3": 40
+            }
+          }
+        }
       }
     ],
     "providers": [

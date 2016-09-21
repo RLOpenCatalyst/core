@@ -5,6 +5,7 @@
         $rootScope.stateItems = $state.params;
         // var treeNames = ['Analytics','Cost'];
         // $rootScope.$emit('treeNameUpdate', treeNames);
+            
         $rootScope.organNewEnt=[];
         $rootScope.organNewEnt.org = '0';
             var costObj =this;
@@ -56,10 +57,10 @@
                         showControls: false,
                         showValues: true,
                         xAxis: {
+                            axisLabel: 'label',
                             showMaxMin: false
                         },
                         yAxis: {
-                            axisLabel: 'Values',
                             tickFormat: function (d) {
                                 return d3.format(',.2f')(d);
                             }
@@ -189,14 +190,14 @@
         },
             {
                 key: "RDS",
-                values: [ [ 1083297600000 , 20] , [ 1085976000000 ,20] , [ 1088568000000 , 60]]
+                values: [ [ 1083297600000 , 20] , [ 1085976000000 ,60] , [ 1088568000000 , 20]]
 
             },
 
 
             {
                 key: "S3",
-                values: [ [ 1083297600000 , 10] , [ 1085976000000 , 50],[ 1088568000000 , 40]]
+                values: [ [ 1083297600000 , 10] , [ 1085976000000 , 50],[ 1088568000000 , 10]]
             }];
 
     }]);
