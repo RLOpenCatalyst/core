@@ -21,7 +21,6 @@ function appSync() {
         if (instances && instances.length) {
             for (var i = 0; i < instances.length; i++) {
                 (function(i) {
-                    logger.debug("----------------------- ",JSON.stringify(instances[i]));
                     if (instances[i] && instances[i].instanceState === "running" && instances[i].appInfo && instances[i].appInfo.length) {
                         for (var j = 0; j < instances[i].appInfo.length; j++) {
                             (function(j) {

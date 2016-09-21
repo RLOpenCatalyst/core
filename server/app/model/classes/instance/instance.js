@@ -2092,7 +2092,6 @@ var InstancesDao = function() {
             }
             if (data && data.length) {
                 if (data[0].appInfo && data[0].appInfo.length && data[0].appInfo[0].name) {
-                    logger.debug("================1 ");
                     Instances.update({
                         "instanceIP": instanceIP,
                         appInfo: { $elemMatch: { name: appName } }
