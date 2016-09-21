@@ -21,14 +21,14 @@
     "businessUnits": [
       {
         "id": "<businessUnit_1_id>",
-        "name": "Business Unit 1",
+        "name": "Unit 1",
         "cost": {
           "totalCost": 100,
           "awsCosts": {
-            "totalCost": 100,
+            "totalCost": 109,
             "serviceCosts": {
-              "ec2": 50,
-              "rds": 20,
+              "ec2": 10,
+              "rds": 50,
               "s3": 30
             }
           }
@@ -36,30 +36,59 @@
       },
       {
         "id": "<businessUnit_2_id>",
-        "name": "Business Unit 2",
+        "name": "Unit 2",
         "cost": {
-          "totalCost": 100,
+          "totalCost": 90,
           "awsCosts": {
             "totalCost": 100,
             "serviceCosts": {
-              "ec2": 50,
+              "ec2": 40,
               "rds": 20,
-              "s3": 30
+              "s3": 40
             }
           }
         }
       },
       {
         "id": "<businessUnit_3_id>",
-        "name": "Business Unit 3",
+        "name": "Unit 3",
         "cost": {
-          "totalCost": 100,
+          "totalCost": 130,
           "awsCosts": {
-            "totalCost": 100,
+            "totalCost": 130,
             "serviceCosts": {
-              "ec2": 50,
+              "ec2":95,
               "rds": 20,
-              "s3": 30
+              "s3": 15
+            }
+          }
+        }
+      }, {
+        "id": "<businessUnit_3_id>",
+        "name": "Unit 4",
+        "cost": {
+          "totalCost": 80,
+          "awsCosts": {
+            "totalCost": 80,
+            "serviceCosts": {
+              "ec2":65,
+              "rds": 0,
+              "s3": 15
+            }
+          }
+        }
+      },
+      {
+        "id": "<businessUnit_3_id>",
+        "name": "Unit 5",
+        "cost": {
+          "totalCost": 50,
+          "awsCosts": {
+            "totalCost": 50,
+            "serviceCosts": {
+              "ec2":5,
+              "rds": 20,
+              "s3": 25
             }
           }
         }
@@ -74,9 +103,9 @@
           "awsCosts": {
             "totalCost": 100,
             "serviceCosts": {
-              "ec2": 50,
+              "ec2": 60,
               "rds": 20,
-              "s3": 30
+              "s3": 20
             }
           }
         }
@@ -89,8 +118,8 @@
           "awsCosts": {
             "totalCost": 100,
             "serviceCosts": {
-              "ec2": 50,
-              "rds": 20,
+              "ec2":10,
+              "rds": 60,
               "s3": 30
             }
           }
@@ -104,9 +133,9 @@
           "awsCosts": {
             "totalCost": 100,
             "serviceCosts": {
-              "ec2": 50,
-              "rds": 20,
-              "s3": 30
+              "ec2": 65,
+              "rds": 10,
+              "s3": 25
             }
           }
         }

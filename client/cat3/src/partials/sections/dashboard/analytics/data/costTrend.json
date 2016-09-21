@@ -1,0 +1,49 @@
+{
+  "period": "month",
+  "fromTime": "2016-08-01T00:00:00",
+  "toTime": "2016-08-12T00:00:00",
+  "interval": 86400,
+  "cost": {
+    "totalCost": 120,
+    "awsCosts": {
+      "totalCost": 120,
+      "serviceCosts": {
+        "ec2": 40,
+        "rds": 20,
+        "s3": 60
+      }
+    }
+  },
+  "costTrends": [
+    {
+      "fromTime": "2016-08-01T00:01:00",
+      "toTime": "2016-08-02T00:00:00",
+      "cost": {
+        "totalCost": 70,
+        "awsCosts": {
+          "totalCost": 70,
+          "serviceCosts": {
+            "ec2": 25,
+            "rds": 15,
+            "s3": 30
+          }
+        }
+      }
+    },
+    {
+      "fromTime": "2016-09-02T00:01:00",
+      "toTime": "2016-09-03T00:00:00",
+      "cost": {
+        "totalCost": 50,
+        "awsCosts": {
+          "totalCost": 50,
+          "serviceCosts": {
+            "ec2": 10,
+            "rds": 5,
+            "s3": 35
+          }
+        }
+      }
+    }
+  ]
+}

@@ -3,10 +3,10 @@
     angular.module('dashboard.analytics')
         .controller('costCtrl', ['$scope', '$rootScope', '$state','analyticsServices', 'genericServices', function ($scope,$rootScope,$state,analyticsServices,genSevs){
         $rootScope.stateItems = $state.params;
+        // var treeNames = ['Analytics','Cost'];
+        // $rootScope.$emit('treeNameUpdate', treeNames);
         $rootScope.organNewEnt=[];
         $rootScope.organNewEnt.org = '0';
-        $rootScope.organNewEnt.buss='0';
-        $rootScope.organNewEnt.proj='0';
             var costObj =this;
             costObj.pieChat={
                 option:{
@@ -37,7 +37,7 @@
             costObj.barChat ={
                 option: {
                     chart: {
-                        type: 'multiBarHorizontalChart',
+                        type: 'multiBarChart',
                         height: 300,
                         margin: {
                             top: 20,
@@ -46,6 +46,7 @@
                             left: 40
                         },
                         duration: 50,
+                        stacked: true,
                         x: function (d) {
                             return d.label;
                         },
@@ -62,24 +63,31 @@
                             tickFormat: function (d) {
                                 return d3.format(',.2f')(d);
                             }
+                        },
+                        zoom: {
+                            enabled: true,
+                            scaleExtent: [1, 10],
+                            useFixedDomain: false,
+                            useNiceScale: false,
+                            horizontalOff: true,
+                            verticalOff: true,
+                            unzoomEventType: 'dblclick.zoom'
                         }
+
                     }
                 },
                 data:
                     [
                        {
                             "key": "EC2",
-                            "color": "#58AAE2",
                             "values": []
                         },
                         {
                             "key": "RDS",
-                            "color": "#EF892F",
                             "values": []
                         },
                         {
                             "key": "S3",
-                            "color": "#8CAEDA",
                             "values": []
                         }
                     ]
@@ -135,42 +143,41 @@
                 //     });
                 // });
             });
-
-
-
-
         $scope.optionsLine= {
             chart: {
-                type: 'cumulativeLineChart',
-                height:250,
+                type: 'stackedAreaChart',
+                height: 250,
                 margin : {
                     top: 20,
                     right: 20,
-                    bottom: 60,
-                    left: 65
+                    bottom: 30,
+                    left: 40
                 },
-                x: function(d){ return d[0]; },
-                y: function(d){ return d[1]/10; },
-                color: d3.scale.category10().range(),
-                duration: 300,
+                x: function(d){return d[0];},
+                y: function(d){return d[1];},
+                useVoronoi: false,
+                clipEdge: true,
+                duration: 20,
                 useInteractiveGuideline: true,
-                clipVoronoi: false,
-
                 xAxis: {
-                    axisLabel: 'X Axis',
-                    tickFormat: function(d) {
-                        return d3.time.format('%Y/%m/%d')(new Date(d))
-                    },
                     showMaxMin: false,
-                    staggerLabels: true
+                    tickFormat: function(d) {
+                        return d3.time.format('%x')(new Date(d))
+                    }
                 },
-
                 yAxis: {
-                    axisLabel: 'Y Axis',
                     tickFormat: function(d){
                         return d3.format(',.2f')(d);
-                    },
-                    axisLabelDistance: 20
+                    }
+                },
+                zoom: {
+                    enabled: true,
+                    scaleExtent: [1, 10],
+                    useFixedDomain: false,
+                    useNiceScale: false,
+                    horizontalOff: true,
+                    verticalOff: true,
+                    unzoomEventType: 'dblclick.zoom'
                 }
             }
         };
