@@ -4,10 +4,10 @@ var async = require('async');
 var instancesDao = require('_pr/model/classes/instance/instance');
 var Client = require('node-rest-client').Client;
 var parser = require('xml2json');
-
+require('events').EventEmitter.defaultMaxListeners = Infinity;
 
 var AppSync = Object.create(CatalystCronJob);
-AppSync.interval = '*/1 * * * *';
+AppSync.interval = '*/2 * * * *';
 AppSync.execute = appSync;
 
 module.exports = AppSync;
@@ -21,7 +21,7 @@ function appSync() {
         if (instances && instances.length) {
             for (var i = 0; i < instances.length; i++) {
                 (function(i) {
-                    if (instances[i] && instances[i].appInfo && instances[i].appInfo.length) {
+                    if (instances[i] && instances[i].instanceState === "running" && instances[i].appInfo && instances[i].appInfo.length) {
                         for (var j = 0; j < instances[i].appInfo.length; j++) {
                             (function(j) {
                                 var appInfo = instances[i].appInfo[j];
