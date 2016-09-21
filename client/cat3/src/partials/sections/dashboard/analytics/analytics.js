@@ -62,7 +62,7 @@
 				}
 			})
 		}])
-	.controller('analyticsCtrl',['$scope', '$rootScope','$state','genericServices', function ($scope, $rootScope,$state,genericServices) {
+	.controller('analyticsCtrl',['$scope', '$rootScope','$state','genericServices', 'workzoneServices', function ($scope, $rootScope,$state,genericServices, workzoneServices) {
 		var analytic = this;
 		analytic.tabShowChat=true;
 		analytic.tabShowReport=false;
@@ -100,5 +100,61 @@
 			$rootScope.organNewEnt.proj='0';
 		};
 		$scope.hideTreeOverlay();
+		$scope.getAllRegionsList = function() {
+            workzoneServices.getAllRegionsList().then(function(response) {
+                $scope.allRegions = response.data;
+                console.log($scope.allRegions);
+            }, function(error) {
+                console.log(error);
+            });
+        };
+
+        $scope.getProviders = function() {
+            workzoneServices.getProviders().then(function(response) {
+                $scope.providers = response.data;
+            }, function(error) {
+                console.log(error);
+            });
+        };
+
+        $scope.getProviderRegions = function() {
+            $scope.providerLoading = true;
+            workzoneServices.getProviderRegions($scope.filter.providerId).then(function(response) {
+                var keyPairs = response.data.keyPairs;
+                var keyPairsLength = keyPairs.length;
+                var regions = [];
+                $scope.regions = [];
+                if (keyPairsLength > 0 && $scope.allRegions.length > 0) {
+                    for (var i = 0; i < keyPairsLength; i++) {
+                        var regionId = keyPairs[i].region;
+                        if (regions.indexOf(regionId) === -1) {
+                            regions.push(regionId);
+                            for (var j = 0; j < $scope.allRegions.length; j++) {
+                                if ($scope.allRegions[j].region === regionId) {
+                                    $scope.regions.push($scope.allRegions[j]);
+                                    console.log($scope.regions);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                $scope.providerLoading = false;
+            }, function(error) {
+                console.log(error);
+                $scope.providerLoading = false;
+            });
+        };
+        $scope.getAllRegionsList();
+        $scope.getProviders();
+
+		$scope.fnProviderChange = function() {
+            $scope.filter.regionId = '';
+            $scope.filter.vpcId = '';
+            $scope.regions = [];
+            if ($scope.filter.providerId && $scope.filter.providerId !== '') {
+                $scope.getProviderRegions();
+            }
+        };
 	}]);
 })(angular);
