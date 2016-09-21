@@ -99,6 +99,10 @@
         color:#7d7676;
         text-decoration: none;
     }
+    .green-btn {
+        background-color: #5cb85c!important;
+        color:#fff!important;
+    }
 </style>
 <!-- multistep form -->
 
@@ -205,33 +209,34 @@
 
 <script>
     //jQuery time
-
+    orgNameForSetup = $('#orgDropdown option:last').attr('rowid');
+    orgIdForSetup = $('#orgDropdown option:last').val();
+    var $option = $('<option></option>').val(orgNameForSetup).attr('rowid',orgIdForSetup).html(orgNameForSetup);
+    $('#orgname').append($option);
     $('.btn-2 a').click(function(e) {
         e.preventDefault();
         $('.contentSetting').load(this.getAttribute('href'));
     });
     $('.btn-3 a').click(function(e) {
-        $('.btn-2 a').parent('.bwizard-steps li').removeClass('active')
+        $('.btn-2 a').parent('.bwizard-steps li').removeClass('active');
         $(this).parent('.bwizard-steps li').addClass('active');
         e.preventDefault();
         $('.content').load(this.getAttribute('href'));
     });
-
-    function checkNestedSteps(chefStatus,envStatus){
+    function checkNestedStepsConfig(chefStatus,envStatus){
         if(chefStatus === true && envStatus === false){
-            $('li.chefCreate').removeClass('active');
-            $('li.envCreate').addClass('active');
+            alert('here');
+            $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+            $('.contentSetting').find('ol li#envCreate').addClass('active');
+            $('.content').load('ajax/Settings/envWizard.html');
         }else{
-            $('li.chefCreate').addClass('active');
+            alert('no status');
         }
     }
     var current_fs, next_fs, previous_fs; //fieldsets
     var left, opacity, scale; //fieldset properties which we will animate
     var animating; //flag to prevent quick multi-click glitches
-    orgNameForSetup = $('#orgDropdown option:last').attr('rowid');
-    orgIdForSetup = $('#orgDropdown option:last').val();
-    var $option = $('<option></option>').val(orgNameForSetup).attr('rowid',orgIdForSetup).html(orgNameForSetup);
-    $('#orgname').append($option);
+    
 
     function setfolderpath(){
         var folderpath = '/' + $('#loginname').val() + "/.chef/";
@@ -244,6 +249,8 @@
     });
 
     $(".nextChef").click(function(){
+        $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+        $('.contentSetting').find('ol li#envCreate').addClass('active');
         $('.content').load('ajax/Settings/envWizard.html');
         if(animating) return false;
         animating = true;

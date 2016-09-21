@@ -40,11 +40,11 @@
     $.get('/d4dMasters/readmasterjsonnew/1',function(data){
         $("#orgDropdown").empty();
         for(var i=0;i<data.length;i++){
-            var $option = $('<option></option>').val(data[i].orgname).attr('rowid',data[i].rowid).html(data[i].orgname);
+            var $option = $('<option></option>').val(data[i].rowid).attr('rowid', data[i].orgname).html(data[i].orgname);
             $('#orgDropdown').append($option);
         }
-        orgIdForSetup = $('#orgDropdown option:last').attr('rowid');
-        orgNameForSetup = $('#orgDropdown option:last').val();
+        orgNameForSetup = $('#orgDropdown option:last').attr('rowid');
+        orgIdForSetup = $('#orgDropdown option:last').val();
         $('#orgDropdown option:last').attr('selected','selected')
         var $optionSelect = $('<option></option').val(orgNameForSetup).attr('rowid',orgIdForSetup).html(orgNameForSetup);
         $('#orgname').append($optionSelect);
@@ -62,6 +62,8 @@
     });
 
     $(".nextBG").click(function(){
+        $('.contentSetting').find('ol li#bgCreate').removeClass('active').addClass('green-btn');
+        $('.contentSetting').find('ol li#projectCreate').addClass('active');
         $('.content').load("ajax/Settings/projWizard.html");
         if(animating) return false;
         animating = true;

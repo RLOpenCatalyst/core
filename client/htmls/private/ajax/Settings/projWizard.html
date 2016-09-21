@@ -75,7 +75,9 @@
     var current_fs, next_fs, previous_fs; //fieldsets
     var left, opacity, scale; //fieldset properties which we will animate
     var animating; //flag to prevent quick multi-click glitches
-
+    orgNameForSetup = $('#orgDropdown option:last').attr('rowid');
+    orgIdForSetup = $('#orgDropdown option:last').val();
+    $('#orgDropdown option:last').attr('selected','selected')
     var $optionSelect = $('<option></option').val(orgNameForSetup).attr('rowid',orgIdForSetup).html(orgNameForSetup);
     $('#orgname').append($optionSelect);   
        

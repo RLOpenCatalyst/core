@@ -99,20 +99,24 @@
         color:#7d7676;
         text-decoration: none;
     }
+    .green-btn {
+        background-color: #5cb85c!important;
+        color:#fff!important;
+    }
 </style>
 <!-- multistep form -->
 
 <!-- progressbar -->
 <ol id="wizardTab" class="bwizard-steps clearfix clickable" role="tablist">
-    <li aria-selected="true" class="active btn-2 orgCreate" id="orgCreate" style="z-index: 4;"><span class="label badge-inverse">1</span><a href="ajax/Settings/settingsWizard.html" class="hidden-phone">
+    <li aria-selected="true" class="btn-2 orgCreate active" id="orgCreate" style="z-index: 4;"><span class="label badge-inverse">1</span><a href="ajax/Settings/settingsWizard.html" class="hidden-phone">
         Create Organization 
         </a><a href="ajax/Settings/settingsWizard.html" class="hidden-phone"></a><a href="ajax/Settings/settingsWizard.html" class="hidden-phone">
     </a></li>
-    <li aria-selected="false" style="z-index: 3;" id="bgCreate" class="btn-3 bgCreate"><span class="label">2</span><a href="ajax/Settings/bgWizard.html" class="hidden-phone">
+    <li aria-selected="true" style="z-index: 3;" id="bgCreate" class="btn-3 bgCreate"><span class="label">2</span><a href="ajax/Settings/bgWizard.html" class="hidden-phone">
         Create Business group
         </a><a href="ajax/Settings/bgWizard.html" class="hidden-phone"></a><a href="ajax/Settings/bgWizard.html" class="hidden-phone">
     </a></li>
-    <li aria-selected="false" style="z-index: 2;" id="projectCreate" class="btn-4 projectCreate"><span class="label btn-1">3</span><a href="ajax/Settings/projWizard.html" class="hidden-phone">
+    <li aria-selected="true" style="z-index: 2;" id="projectCreate" class="btn-4 projectCreate"><span class="label btn-1">3</span><a href="ajax/Settings/projWizard.html" class="hidden-phone">
         Create New Project
         </a><a href="ajax/Settings/projWizard.html" class="hidden-phone"></a><a href="ajax/Settings/projWizard.html" class="hidden-phone">
     </a></li>
@@ -159,28 +163,41 @@
 
 <script>
     //jQuery time
+    $('.btn-2 a').click(function(e) {
+        e.preventDefault();
+        $('.contentSetting').load(this.getAttribute('href'));
+    });
+    $('.btn-3 a').click(function(e) {
+        $('.btn-2 a,.btn-4 a').parent('.bwizard-steps li').removeClass('active');
+        $(this).parent('.bwizard-steps li').addClass('active');
+        e.preventDefault();
+        $('.content').load(this.getAttribute('href'));
+    });
+    $('.btn-4 a').click(function(e) {
+        $('.btn-2 a,.btn-3 a').parent('.bwizard-steps li').removeClass('active');
+        $(this).parent('.bwizard-steps li').addClass('active');
+        e.preventDefault();
+        $('.content').load(this.getAttribute('href'));
+    });
     function checkNestedSteps(orgStatus,bgStatus,projectStatus){
         if(orgStatus === true && bgStatus === false){
-            $('li.bgCreate').addClass('active');
+            $('.btn-2 a').parent('.bwizard-steps li').removeClass('active');
+            $('.contentSetting').find('ol li#orgCreate').addClass('green-btn');
+            $('.contentSetting').find('ol li#bgCreate').addClass('active');
+            $('.content').load('ajax/Settings/bgWizard.html');
         }else if(orgStatus === true && bgStatus === true && projectStatus === false){
-            $('li.projectCreate').addClass('active');
+            $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+            $('.contentSetting').find('ol li#bgCreate').removeClass('active').addClass('green-btn');
+            $('.contentSetting').find('ol li#projectCreate').addClass('active');
+            $('.content').load('ajax/Settings/projWizard.html');
         }else{
-            $('li.orgCreate').addClass('active');
+            
         }
     }
     var current_fs, next_fs, previous_fs; //fieldsets
     var left, opacity, scale; //fieldset properties which we will animate
     var animating; //flag to prevent quick multi-click glitches
-    $('.btn-2 a').click(function(e) {
-        e.preventDefault();
-        $('.contentSetting').load(this.getAttribute('href'));
-    });
-    $('.btn-3 a,.btn-4 a').click(function(e) {
-        $('.btn-2 a').parent('.bwizard-steps li').removeClass('active')
-        $(this).parent('.bwizard-steps li').addClass('active');
-        e.preventDefault();
-        $('.content').load(this.getAttribute('href'));
-    });
+    
     var orgId;
     $('#myForm').submit(function(e){
         $(this).validate();
