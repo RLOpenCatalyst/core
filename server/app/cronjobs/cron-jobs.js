@@ -28,18 +28,18 @@ var chefSync = require('_pr/cronjobs/chef-sync');
 
 module.exports.start = function start() {
 
-	logger.info('Cost aggregation started with interval ==> '+ costAggregation.getInterval());
+	/*logger.info('Cost aggregation started with interval ==> '+ costAggregation.getInterval());
 	var costAggregationJobId
 		= crontab.scheduleJob(costAggregation.getInterval(), costAggregation.execute);
 
 	logger.info('Usage aggregation started with interval ==> '+ usageAggregation.getInterval());
 	var usageAggregationJobId
-		= crontab.scheduleJob(usageAggregation.getInterval(), usageAggregation.execute);
+		= crontab.scheduleJob(usageAggregation.getInterval(), usageAggregation.execute);*/
 
 	logger.info('Provider Sync started with interval ==> '+ providerSync.getInterval());
 	var providerSyncJobId = crontab.scheduleJob(providerSync.getInterval(), providerSync.execute);
 
-	logger.info('Tags aggregation started with interval ==> '+ providerTagsAggregation.getInterval());
+	/*logger.info('Tags aggregation started with interval ==> '+ providerTagsAggregation.getInterval());
 	var providerTagsAggregationJobId
 		= crontab.scheduleJob(providerTagsAggregation.getInterval(), providerTagsAggregation.execute);
 
@@ -53,6 +53,6 @@ module.exports.start = function start() {
 
 	logger.info('Chef Sync started with interval ==> '+ chefSync.getInterval());
 	var chefSyncJobId
-		= crontab.scheduleJob(chefSync.getInterval(), chefSync.execute);
+		= crontab.scheduleJob(chefSync.getInterval(), chefSync.execute);*/
 
 }

@@ -869,6 +869,16 @@ function getEC2InstancesInfo(provider,orgName,callback) {
         access_key: decryptedAccessKey,
         secret_key: decryptedSecretKey
     };
+    var awsConfig ={
+        access_key: decryptedAccessKey,
+        secret_key: decryptedSecretKey,
+        region:'us-west-1'
+    }
+    updateDomainNameForInstance('srikant','52.53.170.111',awsConfig,function(err){
+        if(!err){
+            logger.debug("Update successfully");
+        }
+    })
     var regionCount = 0;
     var regions = appConfig.aws.regions;
     var awsInstanceList=[];
@@ -1198,27 +1208,20 @@ function getStartTime(endTime, period){
     return dateUtil.getDateInUTC(subtractedDate);
 }
 
-function updateDomainNameForInstance(domainName,publicIP,accessDetails,callback){
-    var cryptoConfig = appConfig.cryptoSettings;
-    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-    var decryptedAccessKey = cryptography.decryptText(accessDetails.accessKey,
-        cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-    var decryptedSecretKey = cryptography.decryptText(accessDetails.secretKey,
-        cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-    var route53Config = {
-        access_key: decryptedAccessKey,
-        secret_key: decryptedSecretKey,
-        region:accessDetails.region
-    };
-    var route53 = new Route53(route53Config);
+function updateDomainNameForInstance(domainName,publicIP,awsSettings,callback){
+    console.log(domainName);
+    console.log(publicIP);
+    console.log(awsSettings);
+    var route53 = new Route53(awsSettings);
     async.waterfall([
-        function(next){
+   /*     function(next){
             route53.listHostedZones({},next);
         },
         function(hostedZones,next){
             if(hostedZones.HostedZones.length > 0){
                 var count = 0,resourceCount = 0;
                 var params = {};
+                var paramList = [];
                 for(var i = 0; i < hostedZones.HostedZones.length; i++) {
                     (function (hostedZone) {
                         count++;
@@ -1229,14 +1232,15 @@ function updateDomainNameForInstance(domainName,publicIP,accessDetails,callback)
                                 for(var j = 0;j < resourceData.ResourceRecordSets.length;j++) {
                                     (function (resourceRecord) {
                                         resourceCount++;
-                                        if(resourceRecord.ResourceRecords.length  === 1 && resourceRecord.ResourceRecords[0].Value === '54.67.41.5'){
+                                        if(resourceRecord.ResourceRecords.length  === 1 && resourceRecord.ResourceRecords[0].Value === publicIP){
+                                            console.log(JSON.stringify(resourceRecord));
                                             params = {
                                                 ChangeBatch: {
                                                     Changes: [
                                                         {
-                                                            Action: 'UPSERT',
+                                                            Action: 'DELETE',
                                                             ResourceRecordSet: {
-                                                                Name: 'demoServer.rlcatalyst.com',
+                                                                Name: resourceData.ResourceRecordSets[j].Name,
                                                                 Type: resourceData.ResourceRecordSets[j].Type,
                                                                 TTL: resourceData.ResourceRecordSets[j].TTL,
                                                                 ResourceRecords: resourceData.ResourceRecordSets[j].ResourceRecords
@@ -1246,16 +1250,17 @@ function updateDomainNameForInstance(domainName,publicIP,accessDetails,callback)
                                                 },
                                                 HostedZoneId: hostedZone.Id
                                             }
+                                            paramList.push(params);
                                         }else{
                                             for(var k = 0; k < resourceRecord.ResourceRecords.length; k++ ){
-                                                if(resourceRecord.ResourceRecords[k].Value === '54.67.41.5'){
+                                                if(resourceRecord.ResourceRecords[k].Value === publicIP){
                                                     params = {
                                                         ChangeBatch: {
                                                             Changes: [
                                                                 {
-                                                                    Action: 'UPSERT',
+                                                                    Action: 'DELETE',
                                                                     ResourceRecordSet: {
-                                                                        Name: 'demoServer.rlcatalyst.com',
+                                                                        Name: resourceData.ResourceRecordSets[j].Name,
                                                                         Type: resourceData.ResourceRecordSets[j].Type,
                                                                         TTL: resourceData.ResourceRecordSets[j].TTL,
                                                                         ResourceRecords: resourceData.ResourceRecordSets[j].ResourceRecords
@@ -1265,13 +1270,14 @@ function updateDomainNameForInstance(domainName,publicIP,accessDetails,callback)
                                                         },
                                                         HostedZoneId: hostedZone.Id
                                                     }
+                                                    paramList.push(params);
                                                 }
                                             }
                                         }
                                     })(resourceData.ResourceRecordSets[j]);
                                 }
                                 if(count === hostedZones.HostedZones.length && resourceCount === resourceData.ResourceRecordSets.length){
-                                    next(null,params);
+                                    next(null,paramList);
                                 }
                             }
                         });
@@ -1280,9 +1286,50 @@ function updateDomainNameForInstance(domainName,publicIP,accessDetails,callback)
             }else{
                 next(null,null);
             }
-        },
-        function(params,next){
-            route53.changeResourceRecordSets(params,next);
+        },*/
+        function(next){
+           var params = {
+               "ChangeBatch": {
+                   "Changes": [{
+                       "Action": "UPSERT",
+                       "ResourceRecordSet": {
+                           "Name": "gobinda.rlcatalyst.com.",
+                           "Type": "CNAME",
+                           "TTL": 30,
+                           "ResourceRecords": [{
+                               "Value": "custdocker.rlcatalyst.com."
+                           }]
+                       }
+                   }]
+               },
+               "HostedZoneId": "/hostedzone/Z2BRKRLMFMHOFF"
+           }
+           /*console.log("***********************");
+            console.log(paramList.length);
+            console.log(paramList);
+             if(paramList.length > 0){
+                console.log("Durgesh Kumar Sharma");
+                var count = 0;
+                for(var i = 0; i < paramList.length;i++){
+                    (function(params){
+                        console.log(JSON.stringify(params));
+                        route53.changeResourceRecordSets(params,function(err,data){
+                            count++;
+                            if(err){
+                                next(err,null);
+                            }
+                            if(count === paramList.length){
+                                next(null,paramList);
+                            }
+                        });
+                    })(paramList[i]);
+
+                }
+
+            }else{
+                 console.log("Ramesh");*/
+                route53.changeResourceRecordSets(params,next);
+            //}
         }
 
     ],function(err,results){
