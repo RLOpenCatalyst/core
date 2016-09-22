@@ -29,6 +29,7 @@ var dateUtil = require('_pr/lib/utils/dateUtil');
 var unassignedInstancesModel = require('_pr/model/unassigned-instances');
 var unManagedInstancesModel = require('_pr/model/unmanaged-instance');
 var instancesModel = require('_pr/model/classes/instance/instance');
+var entityCosts = require('_pr/model/entity-costs');
 var mongoDbClient = require('mongodb').MongoClient;
 
 resourceService.getCostForResources = getCostForResources_deprecated;
@@ -111,10 +112,11 @@ function updateAWSResourceCostsFromCSV(provider, resources, downlaodedCSVPath, u
                 resourceCostEntry.platformDetails.serviceId = awsServices[data[awsBillIndexes.prod]]
             }
 
-            resourceCostEntry.platformDetails.zone = data[awsBillIndexes.zone]
-            if (data[awsBillIndexes.zone] in awsZones) {
-                resourceCostEntry.platformDetails.region = awsZones[data[awsBillIndexes.zone]]
-            }
+            resourceCostEntry.platformDetails.zone = (data[awsBillIndexes.zone] == null)
+                ? 'Unknown' : data[awsBillIndexes.zone]
+
+            resourceCostEntry.platformDetails.region = (data[awsBillIndexes.zone] in awsZones)
+                ? awsZones[data[awsBillIndexes.zone]] : 'Unknown'
 
             if (data[awsBillIndexes.instanceId] != null) {
                 resourceCostEntry.platformDetails.instanceId = data[awsBillIndexes.instanceId]
@@ -162,12 +164,12 @@ function updateAWSResourceCostsFromCSV(provider, resources, downlaodedCSVPath, u
             }
         }
     }).on('end', function() {
-        return
+        callback()
     })
 }
 
 // NOTE: Only monthly costs aggregated.
-function aggregateEntityCosts(parentEntity, parentEntityQuery, endTime, period, callback) {
+function aggregateEntityCosts(parentEntity, parentEntityId, parentEntityQuery, endTime, period, callback) {
     var mongoConnectionString = 'mongodb://' + appConfig.db.host + ':' + appConfig.db.port + '/' + appConfig.db.dbName
     var catalystEntityHierarchy = appConfig.catalystEntityHierarchy
 
@@ -183,7 +185,8 @@ function aggregateEntityCosts(parentEntity, parentEntityQuery, endTime, period, 
             return callback(err)
         }
 
-        async.forEach(catalystEntityHierarchy[parentEntity].children, function (childEntity) {
+        async.forEach(catalystEntityHierarchy[parentEntity].children, function (childEntity, next) {
+            //@TODO Consider replacing with Mongo aggregate $sum
             var map = function() {
                 emit(this.childEntityKey, {cost: this.cost})
             }
@@ -204,22 +207,54 @@ function aggregateEntityCosts(parentEntity, parentEntityQuery, endTime, period, 
 
             var command = {
                 mapreduce: 'resourcecosts',
-                map: map.toString().replace(/childEntityKey/,catalystEntityHierarchy[childEntity].key),
+                map: map.toString().replace(/childEntityKey/, catalystEntityHierarchy[childEntity].key),
                 reduce: reduce.toString(),
+                // finalize: finalize.toString(),
                 query: query,
                 out: {inline: 1}
             }
 
-            db.command(command, function (err, results) {
+            db.command(command, function (err, result) {
                 if(err) {
-                    console.log('Error')
-                } else {
-                    // To be saved to in entitycosts collection
-                    console.log(results.results)
+                    logger.error(err)
+                    next(err)
+                } else if(result.ok == 1){
+                    //@TODO To be handled outside
+                    async.forEach(result.results, function(entry, next) {
+                        var entityCost = {
+                            entity: {
+                                id: parentEntityId,
+                                type: parentEntity
+                            },
+                            parentEntity: {
+                                id: entry._id,
+                                type: catalystEntityHierarchy[childEntity].key
+                            },
+                            costs: {
+                                totalCost: entry.cost
+                            },
+                            startTime: startTime,
+                            endTime: endTime,
+                            period: period
+                        }
+
+                        entityCosts.saveEntityCost(entityCost, next)
+                    },
+                    function(err) {
+                        if(err) {
+                            return next(err)
+                        }
+
+                        return next()
+                    })
                 }
             })
-        }, function () {
-            callback()
+        }, function (err) {
+            if(err) {
+                callback(err)
+            } else {
+                callback()
+            }
         })
     })
 }

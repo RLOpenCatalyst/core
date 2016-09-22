@@ -408,7 +408,8 @@ function getDefaultsConfig() {
         catalystEntityHierarchy: {
             organization: {
                 key: 'organizationId',
-                children: ['businessGroup', 'provider', 'environment', 'region']
+                // children: ['businessGroup', 'provider', 'environment', 'region']
+                children: ['organization', 'provider', 'region']
             },
             businessGroup: {
                 key: 'businessGroupId',
@@ -426,7 +427,7 @@ function getDefaultsConfig() {
                 key: 'environmentId'
             },
             region: {
-                key: 'regionId'
+                key: 'platformDetails.region'
             }
         },
 

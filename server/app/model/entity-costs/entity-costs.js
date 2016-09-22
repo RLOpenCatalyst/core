@@ -54,11 +54,11 @@ var EntityCostsSchema = new Schema({
     },
     lastUpdateTime: {
         type: Date,
-        required: true
+        required: false
     },
     interval: {
         type: Number,
-        required: true
+        required: false
     },
     period: {
         type: String,
@@ -66,13 +66,13 @@ var EntityCostsSchema = new Schema({
     }
 })
 
-EntityCostsSchema.statics.saveEntityCost = function(entityCostData, callback) {
+EntityCostsSchema.statics.saveEntityCost = function saveEntityCost(entityCostData, callback) {
     var entityCosts = new EntityCosts(entityCostData)
     entityCosts.save(function(err, data) {
         if (err) {
             callback(err)
         } else {
-            callback(null)
+            callback(null, data)
         }
     })
 }

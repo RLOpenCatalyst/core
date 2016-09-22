@@ -66,7 +66,7 @@ function aggregateAWSResourceCosts() {
         },
         function(orgs, providers, next) {
             async.forEach(providers, AWSResourceCostsAggregation.aggregateAWSResourceCostsForProvider,
-                function(err, results) {
+                function(err) {
                     if(err) {
                         next(err)
                     } else {
@@ -102,13 +102,12 @@ function aggregateAWSResourceCostsForProvider(provider, callback) {
         function(downloadedCSVPath, next) {
             AWSResourceCostsAggregation.updateResourceCosts(provider, downloadedCSVPath, next)
         }
-    ], function(err, result) {
+    ], function(err) {
         if (err) {
             callback(err)
-        } else if(result) {
+        } else {
             logger.info('Resource cost aggregation complete for provider ' + provider._id)
-            callback(null, provider.rowId)
-            // callback pending
+            callback()
         }
     })
 }
@@ -179,16 +178,15 @@ function updateResourceCosts(provider, downloadedCSVPath, callback) {
                 AWSResourceCostsAggregation.currentCronRunTime, next)
         }
     ],
-    function(err, result) {
+    function(err) {
         if(err) {
             callback(err)
         } else {
-            callback(null, result)
+            callback()
         }
     })
 }
 
-// @TODO To be reviewed
 function aggregateEntityCosts(org, callback) {
     var catalystEntityHierarchy = appConfig.catalystEntityHierarchy
 
@@ -199,7 +197,7 @@ function aggregateEntityCosts(org, callback) {
             var childEntity = {}
             switch(entity) {
                 case 'organization':
-                    resourceService.aggregateEntityCosts(entity, {'organizationId': org.rowid},
+                    resourceService.aggregateEntityCosts(entity, org.rowid, {'organizationId': org.rowid},
                         AWSResourceCostsAggregation.currentCronRunTime, 'month', next)
                     break
                 case 'provider':
@@ -213,8 +211,13 @@ function aggregateEntityCosts(org, callback) {
             }
         },
         function(err) {
-            console.log('All entities printed')
-            // callback(null, org._id)
+            if(err) {
+                logger.error('Costs aggregation for organizaion ' + org.rowid + ' failed')
+                logger.error(err)
+            } else {
+                logger.info('Costs aggregation complete for organizaion ' + org.rowid)
+            }
+            callback()
         }
     )
 }
