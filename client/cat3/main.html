@@ -37,11 +37,12 @@
 		<script src="lib/nvd3/nv.d3.js"></script>
 		<script src="lib/angular-nvd3/angular-nvd3.js"></script>
 	</head>
-	<body>
-		<div class="globalPopup" id="globalSuccessMessage">
-			<span class="close green" ng-click="hideGlobalMessage()">×</span> 
-			<p>{{globalSuccessMessage}}</p>           
-		</div>
+	<body ng-class="{ 'loading-body': onBodyLoading === true }">
+	<loading size="large" name="onBodyLoading"  class="onbody-loading"></loading>
+		<!--<div class="globalPopup" id="globalSuccessMessage">-->
+			<!--<span class="close green" ng-click="hideGlobalMessage()">×</span> -->
+			<!--<p>{{globalSuccessMessage}}</p>           -->
+		<!--</div>-->
 		<div ng-controller="HeadNavigatorCtrl">
 			<div ng-show="app.isDashboard" class="dashboard">
 				<ng-include src="'src/partials/globals/header/headerDashboard.html'"></ng-include>

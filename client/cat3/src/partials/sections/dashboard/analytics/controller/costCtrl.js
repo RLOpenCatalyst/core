@@ -71,14 +71,17 @@
                     [
                        {
                             "key": "EC2",
+                            "color": "#D62728",
                             "values": []
                         },
                         {
                             "key": "RDS",
+                            "color": "#2CA02C",
                             "values": []
                         },
                         {
                             "key": "S3",
+                            "color": "#1F77B4",
                             "values": []
                         }
                     ]
@@ -109,6 +112,7 @@
             genSevs.promiseGet(param).then(function(result){
                 costObj.costGridOptions.data = result.splitUpCosts.businessUnits;
                 costObj.pieChat.totalCoust= result.cost.totalCost;
+                costObj.serviceCosts=result.cost.awsCosts.serviceCosts;
                 angular.forEach(result.splitUpCosts.businessUnits,function (value) {
                     costObj.pieChat.data.push( {
                         key: value.name,
@@ -167,7 +171,7 @@
                     scaleExtent: [1, 10],
                     useFixedDomain: false,
                     useNiceScale: false,
-                    horizontalOff: false,
+                    horizontalOff: true,
                     verticalOff: true,
                     unzoomEventType: 'dblclick.zoom'
                 }

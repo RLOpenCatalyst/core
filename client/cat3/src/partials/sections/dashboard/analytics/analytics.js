@@ -84,13 +84,13 @@
 		if (!$rootScope.stateParams.view) {
 			$state.go('dashboard.analytics.cost');
 		}
-		$scope.hideTreeOverlay =function (){
+		analytic.hideTreeOverlay =function (){
 			genericServices.hideTreeOverlay();
 		};
-		$scope.showTreeOverlay =function (){
+		analytic.showTreeOverlay =function (){
 			genericServices.showTreeOverlay();
 		};
-		$scope.tabShow=function(chat,report){
+		analytic.tabShow=function(chat,report){
 			analytic.tabShowChat=chat;
 			analytic.tabShowReport=report;
 		};
@@ -99,7 +99,7 @@
 			$rootScope.organNewEnt.buss='0';
 			$rootScope.organNewEnt.proj='0';
 		};
-		$scope.hideTreeOverlay();
+		analytic.hideTreeOverlay();
 		$scope.getAllRegionsList = function() {
             workzoneServices.getAllRegionsList().then(function(response) {
                 $scope.allRegions = response.data;

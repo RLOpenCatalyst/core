@@ -986,3 +986,12 @@ option.script {
 	}
 }
 
+.onbody-loading{
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	z-index: 99999;
+}
+.loading-body{
+	opacity: 0.4;
+}

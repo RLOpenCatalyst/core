@@ -7,13 +7,13 @@
     "id": "q23ro9uasoidfElasdf"
   },
   "cost": {
-    "totalCost": 300,
+    "totalCost": 720,
     "awsCosts": {
-      "totalCost": 300,
+      "totalCost": 720,
       "serviceCosts": {
-        "ec2": 150,
-        "rds": 90,
-        "s3": 60
+        "ec2": 335,
+        "rds": 170,
+        "s3": 245
       }
     }
   },
