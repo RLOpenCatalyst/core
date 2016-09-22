@@ -72,7 +72,7 @@ function appSync() {
                                         var appInfoObj = {
                                             name: appInfo.name,
                                             version: appInfo.version,
-                                            status: "Not Runing",
+                                            status: "Not Running",
                                             appURL: appInfo.appURL
                                         };
                                         instancesDao.updateAppInfo(instances[i].instanceIP, appInfoObj, function(err, data1) {
