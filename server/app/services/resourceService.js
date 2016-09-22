@@ -19,6 +19,7 @@ var aws = require('aws-sdk');
 var resources = require('_pr/model/resources/resources');
 var CW = require('_pr/lib/cloudwatch.js');
 var S3 = require('_pr/lib/s3.js');
+var Route53 = require('_pr/lib/route53.js');
 var EC2 = require('_pr/lib/ec2.js');
 var RDS = require('_pr/lib/rds.js');
 var resourceCost = require('_pr/model/resource-costs');
@@ -39,6 +40,7 @@ resourceService.bulkUpdateResourceProviderTags=bulkUpdateResourceProviderTags;
 resourceService.bulkUpdateUnassignedResourceTags=bulkUpdateUnassignedResourceTags;
 resourceService.bulkUpdateAWSResourcesTags=bulkUpdateAWSResourcesTags;
 resourceService.getEC2InstancesInfo=getEC2InstancesInfo;
+resourceService.updateDomainNameForInstance=updateDomainNameForInstance;
 
 
 function getCostForResources(updatedTime,provider,bucketNames,instanceIds,dbInstanceNames,fileName, callback) {
@@ -792,7 +794,7 @@ function getBucketsInfo(provider,orgName,callback) {
     var s3Config = {
         access_key: decryptedAccessKey,
         secret_key: decryptedSecretKey,
-        region: "us-east-1"
+        region: "us-west-1"
     };
     var s3 = new S3(s3Config);
     s3.getBucketList(function(err,data){
@@ -1195,3 +1197,101 @@ function getStartTime(endTime, period){
     var subtractedDate = new Date(subtractedDateInMilliSeconds);
     return dateUtil.getDateInUTC(subtractedDate);
 }
+
+function updateDomainNameForInstance(domainName,publicIP,accessDetails,callback){
+    var cryptoConfig = appConfig.cryptoSettings;
+    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+    var decryptedAccessKey = cryptography.decryptText(accessDetails.accessKey,
+        cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+    var decryptedSecretKey = cryptography.decryptText(accessDetails.secretKey,
+        cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+    var route53Config = {
+        access_key: decryptedAccessKey,
+        secret_key: decryptedSecretKey,
+        region:accessDetails.region
+    };
+    var route53 = new Route53(route53Config);
+    async.waterfall([
+        function(next){
+            route53.listHostedZones({},next);
+        },
+        function(hostedZones,next){
+            if(hostedZones.HostedZones.length > 0){
+                var count = 0,resourceCount = 0;
+                var params = {};
+                for(var i = 0; i < hostedZones.HostedZones.length; i++) {
+                    (function (hostedZone) {
+                        count++;
+                        route53.listResourceRecordSets({HostedZoneId:hostedZone.Id}, function(err,resourceData) {
+                            if(err){
+                                next(err,null);
+                            }else {
+                                for(var j = 0;j < resourceData.ResourceRecordSets.length;j++) {
+                                    (function (resourceRecord) {
+                                        resourceCount++;
+                                        if(resourceRecord.ResourceRecords.length  === 1 && resourceRecord.ResourceRecords[0].Value === '54.67.41.5'){
+                                            params = {
+                                                ChangeBatch: {
+                                                    Changes: [
+                                                        {
+                                                            Action: 'UPSERT',
+                                                            ResourceRecordSet: {
+                                                                Name: 'demoServer.rlcatalyst.com',
+                                                                Type: resourceData.ResourceRecordSets[j].Type,
+                                                                TTL: resourceData.ResourceRecordSets[j].TTL,
+                                                                ResourceRecords: resourceData.ResourceRecordSets[j].ResourceRecords
+                                                            }
+                                                        }
+                                                    ]
+                                                },
+                                                HostedZoneId: hostedZone.Id
+                                            }
+                                        }else{
+                                            for(var k = 0; k < resourceRecord.ResourceRecords.length; k++ ){
+                                                if(resourceRecord.ResourceRecords[k].Value === '54.67.41.5'){
+                                                    params = {
+                                                        ChangeBatch: {
+                                                            Changes: [
+                                                                {
+                                                                    Action: 'UPSERT',
+                                                                    ResourceRecordSet: {
+                                                                        Name: 'demoServer.rlcatalyst.com',
+                                                                        Type: resourceData.ResourceRecordSets[j].Type,
+                                                                        TTL: resourceData.ResourceRecordSets[j].TTL,
+                                                                        ResourceRecords: resourceData.ResourceRecordSets[j].ResourceRecords
+                                                                    }
+                                                                }
+                                                            ]
+                                                        },
+                                                        HostedZoneId: hostedZone.Id
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    })(resourceData.ResourceRecordSets[j]);
+                                }
+                                if(count === hostedZones.HostedZones.length && resourceCount === resourceData.ResourceRecordSets.length){
+                                    next(null,params);
+                                }
+                            }
+                        });
+                    })(hostedZones.HostedZones[i]);
+                }
+            }else{
+                next(null,null);
+            }
+        },
+        function(params,next){
+            route53.changeResourceRecordSets(params,next);
+        }
+
+    ],function(err,results){
+        if(err){
+            callback(err,null);
+            return;
+        }
+        callback(null,results);
+        return;
+    })
+}
+
