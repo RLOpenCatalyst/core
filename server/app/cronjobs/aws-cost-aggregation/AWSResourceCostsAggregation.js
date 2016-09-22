@@ -24,8 +24,8 @@ var dateUtil = require('_pr/lib/utils/dateUtil')
 var AdmZip = require('adm-zip')
 
 var AWSResourceCostsAggregation = Object.create(CatalystCronJob)
-// AWSResourceCostsAggregation.interval = '0 */1 * * *'
 AWSResourceCostsAggregation.interval = '0 * * * *'
+AWSResourceCostsAggregation.execute = aggregateAWSResourceCosts
 
 var date = new Date()
 var currentMonth = date.getMonth() + 1
@@ -33,20 +33,19 @@ if(currentMonth < 10) {
     currentMonth = '0' + currentMonth
 }
 var currentYear = date.getFullYear()
-
 // current time - cron interval
 AWSResourceCostsAggregation.previousCronRunTime = dateUtil.getDateInUTC(date.setHours(date.getHours() - 1))
 AWSResourceCostsAggregation.currentCronRunTime = dateUtil.getDateInUTC(date)
 AWSResourceCostsAggregation.csvFileName = appConfig.aws.s3AccountNumber
     + appConfig.aws.s3CSVFileName + currentYear + '-' + currentMonth + '.csv'
 AWSResourceCostsAggregation.fullKey = AWSResourceCostsAggregation.csvFileName + '.zip'
-AWSResourceCostsAggregation.execute = aggregateAWSResourceCosts
+
 AWSResourceCostsAggregation.aggregateAWSResourceCostsForProvider = aggregateAWSResourceCostsForProvider
 AWSResourceCostsAggregation.downloadLatestBill = downloadLatestBill
 AWSResourceCostsAggregation.updateResourceCosts = updateResourceCosts
 AWSResourceCostsAggregation.aggregateEntityCosts = aggregateEntityCosts
 
-AWSResourceCostsAggregation.execute()
+// AWSResourceCostsAggregation.execute()
 
 module.exports = AWSResourceCostsAggregation
 
@@ -209,10 +208,6 @@ function aggregateEntityCosts(org, callback) {
                     break
                 case 'businessGroup':
                     // get all business groups for the organization
-                    // aggregate for all children for all periods
-                    break
-                case 'project':
-                    // get all projects for the organization
                     // aggregate for all children for all periods
                     break
             }
