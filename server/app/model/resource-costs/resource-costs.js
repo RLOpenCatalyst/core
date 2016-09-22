@@ -83,6 +83,11 @@ var ResourceCostsSchema = new Schema({
             required: true,
             trim: true
         },
+        usageType: {
+            type: String,
+            required: false,
+            trim: true
+        },
         region: {
             type: String,
             required: false,
@@ -111,6 +116,9 @@ var ResourceCostsSchema = new Schema({
         required: true
     }
 });
+ResourceCostsSchema.index({'platformDetails.instanceId': 1, 'platformDetails.usageType': 1,
+    'startTime': 1, 'endTime': 1}, {'unique': true, 'sparse': true, 'partialFilterExpression':
+    {'platformDetails.usageType': { $exists: true }}})
 
 ResourceCostsSchema.statics.saveResourceCost = function(resourceCostData, callback) {
     var resourceCosts = new ResourceCosts(resourceCostData)

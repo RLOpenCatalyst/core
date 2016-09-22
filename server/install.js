@@ -376,13 +376,13 @@ function getDefaultsConfig() {
             billIndexes: {
                 'cost': 18,
                 'zone': 11,
-                'usage': 9,
+                'usageType': 9,
                 'prod': 5,
                 'tags': 22,
                 'totalCost': 3,
                 'instanceId': 21,
-                'startDate': 15,
-                'endDate': 16
+                'startDate': 14,
+                'endDate': 15
             }
 
         },
@@ -405,6 +405,30 @@ function getDefaultsConfig() {
         maxInstanceCount: 0,
         catalystEntityTypes: ['ORGANIZATION', 'BUSINESS_UNIT', 'PROJECT', 'PROVIDER_TYPE',
             'PROVIDER', 'ENVIRONMENT', 'RESOURCE_TYPE', 'RESOURCE'],
+        catalystEntityHierarchy: {
+            organization: {
+                key: 'organizationId',
+                children: ['businessGroup', 'provider', 'environment', 'region']
+            },
+            businessGroup: {
+                key: 'businessGroupId',
+                children: ['project', 'provider']
+            },
+            provider: {
+                key: 'providerId',
+                children: ['region']
+            },
+            project: {
+                key: 'projectId',
+                children: ['environment']
+            },
+            environment: {
+                key: 'environmentId'
+            },
+            region: {
+                key: 'regionId'
+            }
+        },
 
         // cronjobTimeDelay: '"* * * * * *"',
 

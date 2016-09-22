@@ -52,15 +52,30 @@ var EntityCostsSchema = new Schema({
         type: Date,
         required: true
     },
+    lastUpdateTime: {
+        type: Date,
+        required: true
+    },
     interval: {
         type: Number,
         required: true
     },
-    lastUpdateTime: {
-        type: Date,
+    period: {
+        type: String,
         required: true
     }
-});
+})
 
-var EntityCosts = mongoose.model('EntityCosts', EntityCostsSchema);
-module.exports = EntityCosts;
+EntityCostsSchema.statics.saveEntityCost = function(entityCostData, callback) {
+    var entityCosts = new EntityCosts(entityCostData)
+    entityCosts.save(function(err, data) {
+        if (err) {
+            callback(err)
+        } else {
+            callback(null)
+        }
+    })
+}
+
+var EntityCosts = mongoose.model('EntityCosts', EntityCostsSchema)
+module.exports = EntityCosts

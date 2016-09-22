@@ -25,19 +25,28 @@ var AdmZip = require('adm-zip')
 
 var AWSResourceCostsAggregation = Object.create(CatalystCronJob)
 // AWSResourceCostsAggregation.interval = '0 */1 * * *'
-AWSResourceCostsAggregation.interval = '* * * * *'
+AWSResourceCostsAggregation.interval = '0 * * * *'
 
 var date = new Date()
+var currentMonth = date.getMonth() + 1
+if(currentMonth < 10) {
+    currentMonth = '0' + currentMonth
+}
+var currentYear = date.getFullYear()
+
 // current time - cron interval
 AWSResourceCostsAggregation.previousCronRunTime = dateUtil.getDateInUTC(date.setHours(date.getHours() - 1))
 AWSResourceCostsAggregation.currentCronRunTime = dateUtil.getDateInUTC(date)
 AWSResourceCostsAggregation.csvFileName = appConfig.aws.s3AccountNumber
-    + appConfig.aws.s3CSVFileName + date.getFullYear() + '-' + '0'+ date.getMonth() + '.csv'
+    + appConfig.aws.s3CSVFileName + currentYear + '-' + currentMonth + '.csv'
 AWSResourceCostsAggregation.fullKey = AWSResourceCostsAggregation.csvFileName + '.zip'
 AWSResourceCostsAggregation.execute = aggregateAWSResourceCosts
 AWSResourceCostsAggregation.aggregateAWSResourceCostsForProvider = aggregateAWSResourceCostsForProvider
 AWSResourceCostsAggregation.downloadLatestBill = downloadLatestBill
 AWSResourceCostsAggregation.updateResourceCosts = updateResourceCosts
+AWSResourceCostsAggregation.aggregateEntityCosts = aggregateEntityCosts
+
+AWSResourceCostsAggregation.execute()
 
 module.exports = AWSResourceCostsAggregation
 
@@ -62,18 +71,25 @@ function aggregateAWSResourceCosts() {
                     if(err) {
                         next(err)
                     } else {
-                        next(null, orgs, providers)
+                        next(null, orgs)
                     }
                 })
         },
-        function(orgs, providers, next) {
+        function(orgs, next) {
             // aggregate  cost across catalyst entities
-            next(null, true)
+            async.forEach(orgs, AWSResourceCostsAggregation.aggregateEntityCosts,
+                function(err, results) {
+                    if(err) {
+                        next(err)
+                    } else {
+                        next()
+                    }
+                })
         }
-    ], function(err, success) {
+    ], function(err) {
         if (err) {
             logger.error(err)
-        } else if(success) {
+        } else {
             logger.info('Resource costs aggregation for all organizations complete')
         }
     })
@@ -92,7 +108,7 @@ function aggregateAWSResourceCostsForProvider(provider, callback) {
             callback(err)
         } else if(result) {
             logger.info('Resource cost aggregation complete for provider ' + provider._id)
-            callback(null, provider._id)
+            callback(null, provider.rowId)
             // callback pending
         }
     })
@@ -122,6 +138,7 @@ function downloadLatestBill(provider, callback) {
         },
         function(lastBillUpdateTime, next) {
             //@TODO Last update time to be updated from db
+            console.log('Previous run' + AWSResourceCostsAggregation.previousCronRunTime)
             if(AWSResourceCostsAggregation.previousCronRunTime <  lastBillUpdateTime) {
                 s3.getObject(params, 'file', next)
             } else {
@@ -159,7 +176,7 @@ function updateResourceCosts(provider, downloadedCSVPath, callback) {
             resourceService.getAllResourcesForProvider(provider, next)
         },
         function(resources, next) {
-            resourceService.updateResourceCosts(provider, resources, downloadedCSVPath,
+            resourceService.updateAWSResourceCostsFromCSV(provider, resources, downloadedCSVPath,
                 AWSResourceCostsAggregation.currentCronRunTime, next)
         }
     ],
@@ -170,4 +187,39 @@ function updateResourceCosts(provider, downloadedCSVPath, callback) {
             callback(null, result)
         }
     })
+}
+
+// @TODO To be reviewed
+function aggregateEntityCosts(org, callback) {
+    var catalystEntityHierarchy = appConfig.catalystEntityHierarchy
+
+    async.forEach(Object.keys(catalystEntityHierarchy), function(entity, next) {
+            var parentEntity = {
+                name: entity
+            }
+            var childEntity = {}
+            switch(entity) {
+                case 'organization':
+                    resourceService.aggregateEntityCosts(entity, {'organizationId': org.rowid},
+                        AWSResourceCostsAggregation.currentCronRunTime, 'month', next)
+                    break
+                case 'provider':
+                    // get all providers for the organization
+                    // aggregate for all children for all periods
+                    break
+                case 'businessGroup':
+                    // get all business groups for the organization
+                    // aggregate for all children for all periods
+                    break
+                case 'project':
+                    // get all projects for the organization
+                    // aggregate for all children for all periods
+                    break
+            }
+        },
+        function(err) {
+            console.log('All entities printed')
+            // callback(null, org._id)
+        }
+    )
 }

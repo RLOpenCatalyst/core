@@ -29,6 +29,7 @@ var dateUtil = require('_pr/lib/utils/dateUtil');
 var unassignedInstancesModel = require('_pr/model/unassigned-instances');
 var unManagedInstancesModel = require('_pr/model/unmanaged-instance');
 var instancesModel = require('_pr/model/classes/instance/instance');
+var mongoDbClient = require('mongodb').MongoClient;
 
 resourceService.getCostForResources = getCostForResources_deprecated;
 resourceService.getTotalCost = getTotalCost_deprecated;
@@ -44,7 +45,8 @@ resourceService.bulkUpdateUnassignedResourceTags=bulkUpdateUnassignedResourceTag
 resourceService.bulkUpdateAWSResourcesTags=bulkUpdateAWSResourcesTags;
 resourceService.getEC2InstancesInfo=getEC2InstancesInfo;
 resourceService.getAllResourcesForProvider =  getAllResourcesForProvider;
-resourceService.updateResourceCosts = updateResourceCosts
+resourceService.updateAWSResourceCostsFromCSV = updateAWSResourceCostsFromCSV
+resourceService.aggregateEntityCosts = aggregateEntityCosts
 
 // @TODO To be cached if needed. In memory data will not exceed 200MB for upto 2000 instances.
 function getAllResourcesForProvider(provider, next) {
@@ -83,14 +85,16 @@ function getAllResourcesForProvider(provider, next) {
     );
 }
 
-function updateResourceCosts(provider, resources, downlaodedCSVPath, updateTime, callback) {
+function updateAWSResourceCostsFromCSV(provider, resources, downlaodedCSVPath, updateTime, callback) {
     var awsBillIndexes = appConfig.aws.billIndexes
     var awsServices = appConfig.aws.services
     var awsZones = appConfig.aws.zones
 
     var stream = fs.createReadStream(downlaodedCSVPath);
     csv.fromStream(stream, {headers: false}).on('data', function(data) {
-        if(data[awsBillIndexes.totalCost] != 'StatementTotal') {
+        if(data[awsBillIndexes.totalCost] != 'StatementTotal'
+            && data[awsBillIndexes.totalCost] != 'InvoiceTotal'
+            && data[awsBillIndexes.totalCost] != 'Rounding') {
             var resourceCostEntry = {platformDetails: {}}
 
             resourceCostEntry.organizationId = provider.orgId
@@ -114,6 +118,10 @@ function updateResourceCosts(provider, resources, downlaodedCSVPath, updateTime,
 
             if (data[awsBillIndexes.instanceId] != null) {
                 resourceCostEntry.platformDetails.instanceId = data[awsBillIndexes.instanceId]
+            }
+
+            if(data[awsBillIndexes.usageType] != null) {
+                resourceCostEntry.platformDetails.usageType = data[awsBillIndexes.usageType]
             }
 
             if (data[awsBillIndexes.instanceId] in resources) {
@@ -154,7 +162,65 @@ function updateResourceCosts(provider, resources, downlaodedCSVPath, updateTime,
             }
         }
     }).on('end', function() {
+        return
+    })
+}
 
+// NOTE: Only monthly costs aggregated.
+function aggregateEntityCosts(parentEntity, parentEntityQuery, endTime, period, callback) {
+    var mongoConnectionString = 'mongodb://' + appConfig.db.host + ':' + appConfig.db.port + '/' + appConfig.db.dbName
+    var catalystEntityHierarchy = appConfig.catalystEntityHierarchy
+
+    var startTime
+    switch (period) {
+        case 'month':
+            startTime = dateUtil.getStartOfAMonthInUTC(endTime)
+            break
+    }
+
+    mongoDbClient.connect(mongoConnectionString, function(err, db) {
+        if(err) {
+            return callback(err)
+        }
+
+        async.forEach(catalystEntityHierarchy[parentEntity].children, function (childEntity) {
+            var map = function() {
+                emit(this.childEntityKey, {cost: this.cost})
+            }
+
+            var reduce = function (key, values) {
+                var reducedObject = { cost: 0 }
+
+                values.forEach(function(value) {
+                    reducedObject.cost += value.cost
+                })
+
+                return reducedObject
+            }
+
+            var query = parentEntityQuery
+            query.startTime = {$gte: new Date(startTime)}
+            query.endTime = {$lte: new Date(endTime)}
+
+            var command = {
+                mapreduce: 'resourcecosts',
+                map: map.toString().replace(/childEntityKey/,catalystEntityHierarchy[childEntity].key),
+                reduce: reduce.toString(),
+                query: query,
+                out: {inline: 1}
+            }
+
+            db.command(command, function (err, results) {
+                if(err) {
+                    console.log('Error')
+                } else {
+                    // To be saved to in entitycosts collection
+                    console.log(results.results)
+                }
+            })
+        }, function () {
+            callback()
+        })
     })
 }
 
