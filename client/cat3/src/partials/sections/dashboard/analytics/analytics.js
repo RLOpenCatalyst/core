@@ -62,7 +62,7 @@
 				}
 			})
 		}])
-	.controller('analyticsCtrl',['$scope', '$rootScope','$state','genericServices', 'workzoneServices', function ($scope, $rootScope,$state,genericServices, workzoneServices) {
+	.controller('analyticsCtrl',['$scope', '$rootScope','$state','genericServices', 'workzoneServices', 'toastr', function ($scope, $rootScope, $state, genericServices, workzoneServices, toastr) {
 		var analytic = this;
 		analytic.tabShowChat=true;
 		analytic.tabShowReport=false;
@@ -80,7 +80,7 @@
 		$rootScope.organNewEnt=[];
 		$rootScope.organNewEnt.org = '0';
 		//$rootScope.organNewEnt.buss='0';
-	//	$rootScope.organNewEnt.proj='0';
+		//$rootScope.organNewEnt.proj='0';
 		if (!$rootScope.stateParams.view) {
 			$state.go('dashboard.analytics.cost');
 		}
@@ -103,20 +103,17 @@
 		$scope.getAllRegionsList = function() {
             workzoneServices.getAllRegionsList().then(function(response) {
                 $scope.allRegions = response.data;
-                console.log($scope.allRegions);
             }, function(error) {
-                console.log(error);
+                toastr.error(error);
             });
         };
-
         $scope.getProviders = function() {
             workzoneServices.getProviders().then(function(response) {
                 $scope.providers = response.data;
             }, function(error) {
-                console.log(error);
+                toastr.error(error);
             });
         };
-
         $scope.getProviderRegions = function() {
             $scope.providerLoading = true;
             workzoneServices.getProviderRegions($scope.filter.providerId).then(function(response) {
@@ -132,7 +129,6 @@
                             for (var j = 0; j < $scope.allRegions.length; j++) {
                                 if ($scope.allRegions[j].region === regionId) {
                                     $scope.regions.push($scope.allRegions[j]);
-                                    console.log($scope.regions);
                                     break;
                                 }
                             }
@@ -141,13 +137,12 @@
                 }
                 $scope.providerLoading = false;
             }, function(error) {
-                console.log(error);
+                toastr.error(error);
                 $scope.providerLoading = false;
             });
         };
         $scope.getAllRegionsList();
         $scope.getProviders();
-
 		$scope.fnProviderChange = function() {
             $scope.filter.regionId = '';
             $scope.filter.vpcId = '';
