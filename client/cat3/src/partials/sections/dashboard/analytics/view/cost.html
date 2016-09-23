@@ -9,30 +9,29 @@
                              <span data-toggle="tooltip" title="3 New Messages" class="badge bg-yellow">Total Cost - ${{cost.pieChat.totalCoust}}</span>
                         </div>
                      </div>
-                     <div class="box-body" style="overflow-x: auto"><nvd3 options="cost.pieChat.option" data="cost.pieChat.data"></nvd3></div>
+                     <div class="box-body" ><nvd3 options="cost.pieChat.option" data="cost.pieChat.data"></nvd3></div>
                  </div>
              </div>
              <div class="col-lg-8 col-md-8 col-sm-12" >
                  <div class="box box-infobox box-info">
                      <div class="box-header with-border"><h3 class="box-title">Distribution of all services across BU's</h3>
-                         <div class="box-tools pull-right">
-                             <span data-toggle="tooltip" title="3 New Messages" class="badge bg-yellow">Total EC2 - ${{cost.serviceCosts.ec2}}</span>
-                             <span data-toggle="tooltip" title="3 New Messages" class="badge bg-yellow">Total RDS - ${{cost.serviceCosts.rds}}</span>
-                             <span data-toggle="tooltip" title="3 New Messages" class="badge bg-yellow">Total S3 - ${{cost.serviceCosts.s3}}</span>
-                         </div>
+                         <!--<div class="box-tools pull-right"> <b>Total </b>-->
+                             <!--<span data-toggle="tooltip" title="3 New Messages" class="badge bg-yellow"> EC2 - ${{cost.serviceCosts.ec2}}</span>-->
+                             <!--<span data-toggle="tooltip" title="3 New Messages" class="badge bg-yellow"> RDS - ${{cost.serviceCosts.rds}}</span>-->
+                             <!--<span data-toggle="tooltip" title="3 New Messages" class="badge bg-yellow"> S3 - ${{cost.serviceCosts.s3}}</span>-->
+                         <!--</div>-->
                      </div>
-                     <div class="box-body" style="overflow-x: auto"><nvd3 options="cost.barChat.option" data="cost.barChat.data"></nvd3></div>
+                     <div class="box-body" ><nvd3 options="cost.barChat.option" data="cost.barChat.data"></nvd3></div>
                  </div>
              </div>
              <div class="col-lg-12 col-md-12 col-sm-12" >
                  <div class="box box-infobox box-info">
                      <div class="box-header with-border"><h3 class="box-title">Daily trends of cost across BU's</h3>
-                         <!--<div class="box-tools pull-right">-->
-                             <!--<button type="button" class="btn btn-link" ng-click="cost.trendsChartType ='lineChart'"><i class="fa fa-line-chart" aria-hidden="true"></i></button>-->
-                             <!--<button type="button" class="btn btn-link" ng-click="cost.trendsChartType ='stackedAreaChart' "><i class="fa fa-area-chart"></i></button>-->
-                         <!--</div>-->
+                         <div class="box-tools pull-right">
+                             <span data-toggle="tooltip" title="3 New Messages" class="badge bg-yellow">Total Cost - ${{cost.trendLineChart.totalCost}}</span>
+                         </div>
                      </div>
-                     <div class="box-body" style="overflow-x: auto"><nvd3 options="optionsLine" data="dataLine" class="with-3d-shadow with-transitions"></nvd3></div>
+                     <div class="box-body" ><nvd3 options="cost.trendLineChart.options" data="cost.trendLineChart.data" class="with-3d-shadow with-transitions"></nvd3></div>
                  </div>
              </div>
          </div>
