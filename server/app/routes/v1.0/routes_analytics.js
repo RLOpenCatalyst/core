@@ -192,7 +192,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     }
 
     /**
-     * @api {get} /analytics/cost/trend?catalystEntity=organizationId:<organizationId>&period=<PERIOD>&toTimeStamp=<endDate>&splitUpBy=<catalystEntityType>&interval=<INTERVAL>
+     * @api {get} /analytics/cost/trend?parentEntityId=<organizationId>&entityId=<organizationId>&period=<PERIOD>&toTimeStamp=<endDate>&interval=<INTERVAL>
      * 										                    									Get cost trend
      * @apiName getCostTrend
      * @apiGroup analytics
@@ -204,7 +204,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      * @apiParam {String} [splitUpBy="All possible catalyst entity types"]	Split up cost by particular catalyst entity type. For Ex: organization, businessUnit, project, providerType, provider, environment, resourceType, resource
      *
      * @apiExample Sample_Request_1
-     * 		/analytics/cost/trend?catalystEntity=organizationId:5790c31edff2c49223fd6efa&timeStamp=2016-08-03T00:00:00&period=month&interval=86400
+     * 		/analytics/cost/trend?parentEntityId=5790c31edff2c49223fd6efa&entityId=5790c31edff2c49223fd6efa&toTimeStamp=2016-08-03T00:00:00&period=month&interval=86400
      *
      * @apiSuccess {Object}   costTrend                                                         Cost trend
      * @apiSuccess {String}   aggregatedCost.period                                             Cost aggregation period
@@ -230,6 +230,11 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
           "fromTime": "2016-08-01T00:00:00",
           "toTime": "2016-08-12T00:00:00",
           "interval": 86400,
+          "entity": {
+                "type": "organization",
+                "id": "q23ro9uasoidfElasdf",
+                "name": "Relevance Lab"
+          },
           "cost": {
                 "totalCost": 100,
                 "AWS": {
@@ -278,6 +283,80 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      */
     app.get("/analytics/cost/trend", getCostTrend)
     function getCostTrend(req, res, next) {
+        var result = {
+            "period": "month",
+            "fromTime": "2016-09-01T00:00:00",
+            "toTime": "2016-09-04T00:00:00",
+            "interval": 86400,
+            "entity": {
+                "type": "organization",
+                "id": "q23ro9uasoidfElasdf",
+                "name": "Relevance Lab"
+            },
+            "cost": {
+                "totalCost": 100,
+                "AWS": {
+                    "totalCost": 100,
+                    "serviceCosts": {
+                        "Other": 10,
+                        "ec2": 40,
+                        "rds": 10,
+                        "s3": 40
+                    }
+                }
+            },
+            "costTrends": [
+                {
+                    "fromTime": "2016-09-01T00:00:00",
+                    "toTime": "2016-09-02T00:00:00",
+                    "cost": {
+                        "totalCost": 50,
+                        "AWS": {
+                            "totalCost": 50,
+                            "serviceCosts": {
+                                "Other": 10,
+                                "ec2": 10,
+                                "rds": 10,
+                                "s3": 20
+                            }
+                        }
+                    }
+                },
+                {
+                    "fromTime": "2016-09-02T00:00:00",
+                    "toTime": "2016-09-03T00:00:00",
+                    "cost": {
+                        "totalCost": 50,
+                        "AWS": {
+                            "totalCost": 50,
+                            "serviceCosts": {
+                                "Other": 10,
+                                "ec2": 10,
+                                "rds": 10,
+                                "s3": 20
+                            }
+                        }
+                    }
+                },
+                {
+                    "fromTime": "2016-09-03T00:00:00",
+                    "toTime": "2016-09-04T00:00:00",
+                    "cost": {
+                        "totalCost": 50,
+                        "AWS": {
+                            "totalCost": 50,
+                            "serviceCosts": {
+                                "Other": 10,
+                                "ec2": 10,
+                                "rds": 10,
+                                "s3": 20
+                            }
+                        }
+                    }
+                }
+            ]
+        }
 
+        res.status(200).send(result)
     }
 }
