@@ -62,7 +62,7 @@
 				}
 			})
 		}])
-	.controller('analyticsCtrl',['$scope', '$rootScope','$state','genericServices', 'workzoneServices', function ($scope, $rootScope,$state,genericServices, workzoneServices) {
+	.controller('analyticsCtrl',['$scope', '$rootScope','$state','genericServices', 'workzoneServices', function ($scope,$rootScope,$state,genericServices, workzoneServices) {
 		var analytic = this;
 		analytic.tabShowChat=true;
 		analytic.tabShowReport=false;
@@ -73,17 +73,49 @@
 		var treeNames = ['Analytics'];
 		//$rootScope.$emit('treeNameUpdate', treeNames);
 		$rootScope.$emit('HEADER_NAV_CHANGE', 'ANALYTICS');
+		$rootScope.organNewEnt=[];
+		$rootScope.organNewEnt.org = '0';
+		$rootScope.filterNewEnt={};
+		analytic.applyCount=0
+		//$rootScope.organNewEnt.buss='0';
+		//	$rootScope.organNewEnt.proj='0';
+		analytic.applyFilter = function(filterApp){
+			$rootScope.filterApply= new Date();
+			var obj=$rootScope.organObject,
+				or=$rootScope.organNewEnt.org,
+				bu=$rootScope.organNewEnt.buss,
+				pr=$rootScope.organNewEnt.proj;
+			$rootScope.filterNewEnt={}
+			if(or){
+				$rootScope.filterNewEnt.org={name:obj[or].name,id:obj[or].rowid,title:'Organization'};
+				$rootScope.filterNewEnt.provider='';
+			}
+			if(filterApp){
+				if(bu){
+					$rootScope.filterNewEnt.buss = {name:obj[or].businessGroups[bu].name,id:obj[or].businessGroups[bu].rowid,title:'Business Group'};
+				}
+				if(pr){
+					$rootScope.filterNewEnt.proj = {name:obj[or].businessGroups[bu].projects[pr].name,id:obj[or].businessGroups[bu].projects[pr].rowid,title:'Project'};
+				}
+
+				if($rootScope.organNewEnt.provider){
+					$rootScope.filterNewEnt.provider={name:$scope.providers[$rootScope.organNewEnt.provider].providerName,id:$scope.providers[$rootScope.organNewEnt.provider]._id,title:'Provider'};
+				} else{
+					$rootScope.filterNewEnt.provider='';
+				}
+			} else{
+				$rootScope.organNewEnt={}
+				$rootScope.organNewEnt.org=or; 
+			}
+
+
+
+		};
 		// // get organigetion
 		genericServices.getTreeNew().then(function (orgs) {
 			$rootScope.organObject = orgs;
+			analytic.applyFilter(true);
 		});
-		$rootScope.organNewEnt=[];
-		$rootScope.organNewEnt.org = '0';
-		//$rootScope.organNewEnt.buss='0';
-	//	$rootScope.organNewEnt.proj='0';
-		if (!$rootScope.stateParams.view) {
-			$state.go('dashboard.analytics.cost');
-		}
 		analytic.hideTreeOverlay =function (){
 			genericServices.hideTreeOverlay();
 		};
@@ -94,11 +126,7 @@
 			analytic.tabShowChat=chat;
 			analytic.tabShowReport=report;
 		};
-		analytic.applyFilter = function(){
-			$rootScope.organNewEnt.org = '0';
-			$rootScope.organNewEnt.buss='0';
-			$rootScope.organNewEnt.proj='0';
-		};
+
 		analytic.hideTreeOverlay();
 		$scope.getAllRegionsList = function() {
             workzoneServices.getAllRegionsList().then(function(response) {
@@ -145,16 +173,19 @@
                 $scope.providerLoading = false;
             });
         };
+		if (!$rootScope.stateParams.view) {
+			$state.go('dashboard.analytics.cost');
+		}
         $scope.getAllRegionsList();
         $scope.getProviders();
 
-		$scope.fnProviderChange = function() {
-            $scope.filter.regionId = '';
-            $scope.filter.vpcId = '';
-            $scope.regions = [];
-            if ($scope.filter.providerId && $scope.filter.providerId !== '') {
-                $scope.getProviderRegions();
-            }
-        };
+        // $scope.fnProviderChange = function() {
+        //     $scope.filter.regionId = '';
+        //     $scope.filter.vpcId = '';
+        //     $scope.regions = [];
+        //     if ($scope.filter.providerId && $scope.filter.providerId !== '') {
+        //         $scope.getProviderRegions();
+        //     }
+        // };
 	}]);
 })(angular);

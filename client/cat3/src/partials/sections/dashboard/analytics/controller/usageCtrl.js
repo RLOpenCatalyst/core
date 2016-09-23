@@ -3,7 +3,6 @@
     angular.module('dashboard.analytics')
         .controller('usageCtrl', ['$scope', '$rootScope', '$state','analyticsServices', 'genericServices', function ($scope,$rootScope,$state,analyticsServices,genSevs){
         $rootScope.stateItems = $state.params;
-        $rootScope.organNewEnt=[];
             $scope.optionsLine= {
                 chart: {
                     //type: 'stackedAreaChart',

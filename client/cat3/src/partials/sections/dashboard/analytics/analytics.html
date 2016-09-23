@@ -13,7 +13,7 @@
 						<label for="">Organization</label>
 						<select  ng-model="organNewEnt.org" class="chooseProjectExisting width-100 form-control">
 							<option value="">Select</option>
-							<option ng-repeat="org in organObject"  value="{{organObject.indexOf(org)}}" >{{org.name}}</option>
+							<option ng-repeat="org in organObject" orgid="{{org.rowid}}"  value="{{organObject.indexOf(org)}}" >{{org.name}}</option>
 						</select>
 					</div>
 					<!--No usage only-->
@@ -22,14 +22,14 @@
 							<label for="">Business Group</label>
 							<select id="bgListInputExisting" class="chooseBGExisting width-100 form-control"  ng-model="organNewEnt.buss">
 								<option value="">Select</option>
-								<option ng-repeat="buss in organObject[organNewEnt.org].businessGroups" value="{{organObject[organNewEnt.org].businessGroups.indexOf(buss)}}" >{{buss.name}}</option>
+								<option ng-repeat="buss in organObject[organNewEnt.org].businessGroups" data-id="{{buss.rowid}}" value="{{organObject[organNewEnt.org].businessGroups.indexOf(buss)}}" >{{buss.name}}</option>
 							</select>
 						</div>
 						<div class="col-lg-12 col-md-12 form-group">
 							<label >Project</label>
 							<select class="chooseProjectExisting width-100 form-control" ng-model="organNewEnt.proj">
 								<option value="">Select</option>
-								<option ng-repeat="proj in organObject[organNewEnt.org].businessGroups[organNewEnt.buss].projects"  value="{{organObject[organNewEnt.org].businessGroups[organNewEnt.buss].projects.indexOf(proj)}}" >{{proj.name}}</option>
+								<option ng-repeat="proj in organObject[organNewEnt.org].businessGroups[organNewEnt.buss].projects" data-id="{{proj.rowid}}"  value="{{organObject[organNewEnt.org].businessGroups[organNewEnt.buss].projects.indexOf(proj)}}" >{{proj.name}}</option>
 							</select>
 						</div>
 						<div class="col-lg-12 col-md-12 form-group">
@@ -43,18 +43,25 @@
 					<!--No usage end-->
 					<div class="col-lg-12 col-md-12 form-group">
 						<label for="">Provider</label>
-						<select class="form-control select2 select2-hidden-accessible" id="selectProvider" ng-model="filter.providerId" ng-options="provider._id as provider.providerName for provider in providers" ng-change="fnProviderChange()">
+						<select class="form-control select2 select2-hidden-accessible" id="selectProvider" ng-model="organNewEnt.provider" >
                             <option value=''>Select</option>
+							<option ng-repeat="provider in providers" value="{{providers.indexOf(provider)}}">{{provider.providerName}}</option>
                        </select>
 					</div>
-					<div class="col-lg-12 col-md-12 form-group">
-						<label for="">Region</label>
-						<select class="form-control select2 select2-hidden-accessible" id="selectRegion" ng-model="filter.regionId" ng-options="region.region as region.region_name +' | '+region.region for region in regions" ng-change="fnRegionChange()">
+					<div class="col-lg-12 col-md-12 form-group"  ng-show="stateItems.filterView !== 'usage'">
+						<label for="">Zone</label>
+						<select class="form-control select2 select2-hidden-accessible" id="Zone" ng-model="filter.regionId" ng-options="region.region as region.region_name +' | '+region.region for region in regions" ng-change="fnRegionChange()">
                             <option value=''>Select</option>
                         </select>
 					</div>
 					<!--usage only-->
 					<span ng-show="stateItems.filterView === 'usage'">
+						<div class="col-lg-12 col-md-12 form-group">
+							<label for="">Region</label>
+							<select class="form-control select2 select2-hidden-accessible" id="selectRegion" ng-model="filter.regionId" ng-options="region.region as region.region_name +' | '+region.region for region in regions" ng-change="fnRegionChange()">
+								<option value=''>Select</option>
+							</select>
+						</div>
 						<div class="col-lg-12 col-md-12 form-group">
 							<label for="">Resources</label>
 								<div class="panel-group">
@@ -79,7 +86,8 @@
 					</span>
 					<!--usage end-->
 					<div class="col-lg-12 col-md-12 marginbottom5">
-						<button type="button" class="btn btn-primary" ng-click="analytic.applyFilter();isOpenSidebar=false;"><i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;Apply</button>
+						<button type="button" class="btn btn-primary" ng-click="analytic.applyFilter(true);isOpenSidebar=false;"><i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;Apply</button>
+						<button type="button" class="btn btn-default" ng-click="analytic.applyFilter(false);isOpenSidebar=false;"><i class="fa fa-times fa-2" aria-hidden="true"></i>&nbsp;Clear</button>
 					</div>
 			</fieldset>
 		</form>
@@ -105,9 +113,9 @@
 					  <button type="button" class="btn btn-sm btn-primary cat-btn-update" ng-click="">YEAR</button>
 					</div>
 				<div class="col-lg-7 col-md-7 col-sm-12 pull-right">
-					<span class="label label-default pull-right">PhoenixApp </span>
-					<span class="label label-primary pull-right">PhoenixBG </span>
-					<span class="label label-success pull-right">Phoenix </span>
+					<span ng-repeat="filter in filterNewEnt">
+						<span ng-if="filter !== '' " class="label label-success "  title="{{filter.title}}">{{filter.name}} </span>
+					</span>
 				</div>
 
 			</div>

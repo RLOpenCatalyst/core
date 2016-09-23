@@ -15,10 +15,10 @@
              <div class="col-lg-8 col-md-8 col-sm-12" >
                  <div class="box box-infobox box-info">
                      <div class="box-header with-border"><h3 class="box-title">Distribution of all services across BU's</h3>
-                         <div class="box-tools pull-right">
-                             <span data-toggle="tooltip" title="3 New Messages" class="badge bg-yellow">Total EC2 - ${{cost.serviceCosts.ec2}}</span>
-                             <span data-toggle="tooltip" title="3 New Messages" class="badge bg-yellow">Total RDS - ${{cost.serviceCosts.rds}}</span>
-                             <span data-toggle="tooltip" title="3 New Messages" class="badge bg-yellow">Total S3 - ${{cost.serviceCosts.s3}}</span>
+                         <div class="box-tools pull-right"> <span style="font-size: 16px; font-weight: 600">Total </span>
+                             <span data-toggle="tooltip" title="3 New Messages" class="badge bg-yellow"> EC2 - ${{cost.serviceCosts.ec2}}</span>
+                             <span data-toggle="tooltip" title="3 New Messages" class="badge bg-yellow"> RDS - ${{cost.serviceCosts.rds}}</span>
+                             <span data-toggle="tooltip" title="3 New Messages" class="badge bg-yellow"> S3 - ${{cost.serviceCosts.s3}}</span>
                          </div>
                      </div>
                      <div class="box-body" style="overflow-x: auto"><nvd3 options="cost.barChat.option" data="cost.barChat.data"></nvd3></div>
