@@ -569,8 +569,6 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                             });
                                                         }
                                                         instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
-
-
                                                         launchParams.infraManager.getNode(instance.chefNodeName, function(err, nodeData) {
                                                             if (err) {
                                                                 logger.error("Failed chef.getNode", err);

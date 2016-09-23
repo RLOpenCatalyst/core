@@ -150,6 +150,11 @@ var BlueprintSchema = new Schema({
     parentId: {
         type: String,
         required: false
+    },
+    domainNameCheck:{
+        type:Boolean,
+        required:false,
+        default:false
     }
 
 });
@@ -428,7 +433,8 @@ BlueprintSchema.statics.createNew = function(blueprintData, callback) {
             nexus: blueprintData.nexus,
             docker: blueprintData.docker,
             version: count,
-            parentId: blueprintData.id
+            parentId: blueprintData.id,
+            domainNameCheck: blueprintData.domainNameCheck
         };
         var blueprint = new Blueprints(blueprintObj);
         logger.debug(blueprint);

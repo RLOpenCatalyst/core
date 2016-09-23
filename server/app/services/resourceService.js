@@ -874,11 +874,6 @@ function getEC2InstancesInfo(provider,orgName,callback) {
         secret_key: decryptedSecretKey,
         region:'us-west-1'
     }
-    /*updateDomainNameForInstance('srikant','54.153.115.175',awsConfig,function(err){
-        if(!err){
-            logger.debug("Update successfully");
-        }
-    })*/
     var regionCount = 0;
     var regions = appConfig.aws.regions;
     var awsInstanceList=[];
@@ -1236,10 +1231,14 @@ function updateDomainNameForInstance(domainName,publicIP,awsSettings,callback){
                                                         {
                                                             Action: 'UPSERT',
                                                             ResourceRecordSet: {
-                                                                Name: resourceData.ResourceRecordSets[j].Name,
-                                                                Type: resourceData.ResourceRecordSets[j].Type,
-                                                                TTL: resourceData.ResourceRecordSets[j].TTL,
-                                                                ResourceRecords: resourceData.ResourceRecordSets[j].ResourceRecords
+                                                                Name: domainName+'.rlcatalyst.com.',
+                                                                "Type": "CNAME",
+                                                                "TTL": 30,
+                                                                ResourceRecords: [
+                                                                    {
+                                                                        "Value": "custdocker.rlcatalyst.com"
+                                                                    }
+                                                                ]
                                                             }
                                                         }
                                                     ]
@@ -1256,10 +1255,14 @@ function updateDomainNameForInstance(domainName,publicIP,awsSettings,callback){
                                                                 {
                                                                     Action: 'UPSERT',
                                                                     ResourceRecordSet: {
-                                                                        Name: resourceData.ResourceRecordSets[j].Name,
-                                                                        Type: resourceData.ResourceRecordSets[j].Type,
-                                                                        TTL: resourceData.ResourceRecordSets[j].TTL,
-                                                                        ResourceRecords: resourceData.ResourceRecordSets[j].ResourceRecords
+                                                                        Name: domainName+'.rlcatalyst.com.',
+                                                                        "Type": "CNAME",
+                                                                        "TTL": 30,
+                                                                        ResourceRecords: [
+                                                                            {
+                                                                                "Value": "custdocker.rlcatalyst.com"
+                                                                            }
+                                                                        ]
                                                                     }
                                                                 }
                                                             ]

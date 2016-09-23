@@ -24,8 +24,10 @@
 					$scope.showCFTInputs = true;
 				}else if(items.blueprintType === "azure_arm") {
 					$scope.showARMInputs = true;
-				}else {
+				}else if(items.domainNameCheck === true || items.domainNameCheck === "true") {
 					$scope.showBlueprintInputs = true;
+				}else {
+					launchHelper.launch();
 				}
 			};
 			$scope.confirmCFTLaunch = function(){
