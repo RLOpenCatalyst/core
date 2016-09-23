@@ -45,7 +45,7 @@ AWSResourceCostsAggregation.downloadLatestBill = downloadLatestBill
 AWSResourceCostsAggregation.updateResourceCosts = updateResourceCosts
 AWSResourceCostsAggregation.aggregateEntityCosts = aggregateEntityCosts
 
-AWSResourceCostsAggregation.execute()
+// AWSResourceCostsAggregation.execute()
 
 module.exports = AWSResourceCostsAggregation
 
