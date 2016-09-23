@@ -587,7 +587,9 @@ function encryptedParam(paramDetails,existingParams,callback){
                 count++;
                 for(var j = 0; j < param.scriptParameters.length; j++){
                     (function(scriptParameter){
-                        if(scriptParameter === existingParams[i].scriptParameters[j]){
+                        if(scriptParameter === ''){
+                            encryptedList.push(existingParams[i].scriptParameters[j]);
+                        }else if(scriptParameter === existingParams[i].scriptParameters[j]){
                             encryptedList.push(scriptParameter);
                         }else {
                             var encryptedText = cryptography.encryptText(scriptParameter, cryptoConfig.encryptionEncoding,
