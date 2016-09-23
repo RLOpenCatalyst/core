@@ -45,7 +45,7 @@ AWSResourceCostsAggregation.downloadLatestBill = downloadLatestBill
 AWSResourceCostsAggregation.updateResourceCosts = updateResourceCosts
 AWSResourceCostsAggregation.aggregateEntityCosts = aggregateEntityCosts
 
-// AWSResourceCostsAggregation.execute()
+AWSResourceCostsAggregation.execute()
 
 module.exports = AWSResourceCostsAggregation
 
@@ -75,15 +75,16 @@ function aggregateAWSResourceCosts() {
                 })
         },
         function(orgs, providers, next) {
+            AWSResourceCostsAggregation.aggregateEntityCosts(orgs, providers, next)
             // aggregate  cost across catalyst entities
-            async.forEach(orgs, AWSResourceCostsAggregation.aggregateEntityCosts,
+            /*async.forEach(orgs, AWSResourceCostsAggregation.aggregateEntityCosts,
                 function(err, results) {
                     if(err) {
                         next(err)
                     } else {
                         next()
                     }
-                })
+                })*/
         }
     ], function(err) {
         if (err) {
@@ -194,37 +195,41 @@ function updateResourceCosts(provider, downloadedCSVPath, callback) {
     })
 }
 
-function aggregateEntityCosts(org, callback) {
-    var catalystEntityHierarchy = appConfig.catalystEntityHierarchy
+function aggregateEntityCosts(orgs, providers, callback) {
+    // var catalystEntityHierarchy = appConfig.catalystEntityHierarchy
+    var costAggregationPeriods = appConfig.costAggregationPeriods
 
-    async.forEach(Object.keys(catalystEntityHierarchy), function(entity, next) {
-            var parentEntity = {
-                name: entity
-            }
-            var childEntity = {}
-            switch(entity) {
-                case 'organization':
-                    resourceService.aggregateEntityCosts(entity, org.rowid, {'organizationId': org.rowid},
-                        AWSResourceCostsAggregation.currentCronRunTime, 'month', next)
-                    break
-                case 'provider':
-                    // get all providers for the organization
-                    // aggregate for all children for all periods
-                    break
-                case 'businessGroup':
-                    // get all business groups for the organization
-                    // aggregate for all children for all periods
-                    break
-            }
-        },
-        function(err) {
+    async.forEach(Object.keys(costAggregationPeriods), function(period, next0) {
+        // Organization children entities cost aggregation
+        async.forEach(orgs, function(org, next1) {
+            resourceService.aggregateEntityCosts('organization', org.rowid, {'organizationId': org.rowid},
+                AWSResourceCostsAggregation.currentCronRunTime, period, next1)
+        }, function(err) {
             if(err) {
-                logger.error('Costs aggregation for organizaion ' + org.rowid + ' failed')
-                logger.error(err)
+                next0(err)
             } else {
-                logger.info('Costs aggregation complete for organizaion ' + org.rowid)
+                next0()
             }
+        })
+
+        // Provider children entities cost aggregation
+        /*async.forEach(providers, function(provider, next2) {
+            resourceService.aggregateEntityCosts('provider', provider._id, {'providerId': provider._id},
+                AWSResourceCostsAggregation.currentCronRunTime, period, next2)
+        }, function(err) {
+            if(err) {
+                next0(err)
+            } else {
+                next0()
+            }
+        })*/
+    }, function(err) {
+        if(err) {
+            logger.error('Entity cost aggregation failed')
+            logger.error(err)
+        } else {
+            logger.info('Entity cost aggregation complete')
             callback()
         }
-    )
+    })
 }

@@ -416,7 +416,7 @@ function getDefaultsConfig() {
             },
             provider: {
                 key: 'providerId',
-                children: ['region']
+                children: ['environment', 'region']
             },
             project: {
                 key: 'projectId',
@@ -428,6 +428,22 @@ function getDefaultsConfig() {
             region: {
                 key: 'platformDetails.region'
             }
+        },
+        costAggregationPeriods: {
+            'month': {
+                intervalInSeconds: 2592000,
+                childInterval: {
+                    name: 'daily',
+                    intervalInSeconds: 86400
+                }
+            },
+            day: {
+                intervalInSeconds: 86400,
+                childInterval: {
+                    name: 'hourly',
+                    intervalInSeconds: 3600
+                }
+            },
         },
 
         // cronjobTimeDelay: '"* * * * * *"',

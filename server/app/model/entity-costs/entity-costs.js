@@ -97,6 +97,7 @@ EntityCostsSchema.statics.getEntityCost = function getEntityCost(query, callback
 EntityCostsSchema.statics.upsertEntityCost = function upsertEntityCost(entityCostData, callback) {
     query = {
         'entity.id': entityCostData.entity.id,
+        'entity.type': entityCostData.entity.type,
         'parentEntity.id': entityCostData.parentEntity.id,
         'startTime': entityCostData.startTime,
         'period': entityCostData.period
