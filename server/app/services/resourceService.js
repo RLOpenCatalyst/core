@@ -874,11 +874,11 @@ function getEC2InstancesInfo(provider,orgName,callback) {
         secret_key: decryptedSecretKey,
         region:'us-west-1'
     }
-    updateDomainNameForInstance('srikant','52.53.170.111',awsConfig,function(err){
+    /*updateDomainNameForInstance('srikant','54.153.115.175',awsConfig,function(err){
         if(!err){
             logger.debug("Update successfully");
         }
-    })
+    })*/
     var regionCount = 0;
     var regions = appConfig.aws.regions;
     var awsInstanceList=[];
@@ -1209,12 +1209,9 @@ function getStartTime(endTime, period){
 }
 
 function updateDomainNameForInstance(domainName,publicIP,awsSettings,callback){
-    console.log(domainName);
-    console.log(publicIP);
-    console.log(awsSettings);
     var route53 = new Route53(awsSettings);
     async.waterfall([
-   /*     function(next){
+        function(next){
             route53.listHostedZones({},next);
         },
         function(hostedZones,next){
@@ -1233,12 +1230,11 @@ function updateDomainNameForInstance(domainName,publicIP,awsSettings,callback){
                                     (function (resourceRecord) {
                                         resourceCount++;
                                         if(resourceRecord.ResourceRecords.length  === 1 && resourceRecord.ResourceRecords[0].Value === publicIP){
-                                            console.log(JSON.stringify(resourceRecord));
                                             params = {
                                                 ChangeBatch: {
                                                     Changes: [
                                                         {
-                                                            Action: 'DELETE',
+                                                            Action: 'UPSERT',
                                                             ResourceRecordSet: {
                                                                 Name: resourceData.ResourceRecordSets[j].Name,
                                                                 Type: resourceData.ResourceRecordSets[j].Type,
@@ -1258,7 +1254,7 @@ function updateDomainNameForInstance(domainName,publicIP,awsSettings,callback){
                                                         ChangeBatch: {
                                                             Changes: [
                                                                 {
-                                                                    Action: 'DELETE',
+                                                                    Action: 'UPSERT',
                                                                     ResourceRecordSet: {
                                                                         Name: resourceData.ResourceRecordSets[j].Name,
                                                                         Type: resourceData.ResourceRecordSets[j].Type,
@@ -1286,33 +1282,12 @@ function updateDomainNameForInstance(domainName,publicIP,awsSettings,callback){
             }else{
                 next(null,null);
             }
-        },*/
-        function(next){
-           var params = {
-               "ChangeBatch": {
-                   "Changes": [{
-                       "Action": "UPSERT",
-                       "ResourceRecordSet": {
-                           "Name": "gobinda.rlcatalyst.com.",
-                           "Type": "CNAME",
-                           "TTL": 30,
-                           "ResourceRecords": [{
-                               "Value": "custdocker.rlcatalyst.com."
-                           }]
-                       }
-                   }]
-               },
-               "HostedZoneId": "/hostedzone/Z2BRKRLMFMHOFF"
-           }
-           /*console.log("***********************");
-            console.log(paramList.length);
-            console.log(paramList);
-             if(paramList.length > 0){
-                console.log("Durgesh Kumar Sharma");
+        },
+        function(paramList,next){
+            if(paramList.length > 0){
                 var count = 0;
                 for(var i = 0; i < paramList.length;i++){
                     (function(params){
-                        console.log(JSON.stringify(params));
                         route53.changeResourceRecordSets(params,function(err,data){
                             count++;
                             if(err){
@@ -1325,13 +1300,10 @@ function updateDomainNameForInstance(domainName,publicIP,awsSettings,callback){
                     })(paramList[i]);
 
                 }
-
             }else{
-                 console.log("Ramesh");*/
-                route53.changeResourceRecordSets(params,next);
-            //}
+                next(null,paramList);
+            }
         }
-
     ],function(err,results){
         if(err){
             callback(err,null);

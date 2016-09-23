@@ -544,7 +544,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                         instanceLog.actionStatus = "success";
                                                         instanceLog.logs = {
                                                             err: false,
-                                                            log: "Instance Bootstraped successfully",
+                                                            log: "Instance Bootstrapped successfully",
                                                             timestamp: new Date().getTime()
                                                         };
                                                         instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
@@ -556,7 +556,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                         logsDao.insertLog({
                                                             referenceId: logsReferenceIds,
                                                             err: false,
-                                                            log: "Instance Bootstraped successfully",
+                                                            log: "Instance Bootstrapped successfully",
                                                             timestamp: timestampEnded
                                                         });
                                                         if(typeof domainName !== 'undefined' && domainName !== '' && domainName !== null) {
