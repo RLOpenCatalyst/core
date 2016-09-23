@@ -26,9 +26,15 @@ var csv = require("fast-csv");
 var fs = require('fs');
 var async = require('async');
 var dateUtil = require('_pr/lib/utils/dateUtil');
-resourceService.getCostForResources = getCostForResources;
-resourceService.getTotalCost = getTotalCost;
-resourceService.getCostForServices = getCostForServices;
+var unassignedInstancesModel = require('_pr/model/unassigned-instances');
+var unManagedInstancesModel = require('_pr/model/unmanaged-instance');
+var instancesModel = require('_pr/model/classes/instance/instance');
+var entityCosts = require('_pr/model/entity-costs');
+var mongoDbClient = require('mongodb').MongoClient;
+
+resourceService.getCostForResources = getCostForResources_deprecated;
+resourceService.getTotalCost = getTotalCost_deprecated;
+resourceService.getCostForServices = getCostForServices_deprecated;
 resourceService.getEC2InstanceUsageMetrics=getEC2InstanceUsageMetrics;
 resourceService.getS3BucketsMetrics=getS3BucketsMetrics;
 resourceService.getBucketsInfo=getBucketsInfo;
@@ -39,9 +45,221 @@ resourceService.bulkUpdateResourceProviderTags=bulkUpdateResourceProviderTags;
 resourceService.bulkUpdateUnassignedResourceTags=bulkUpdateUnassignedResourceTags;
 resourceService.bulkUpdateAWSResourcesTags=bulkUpdateAWSResourcesTags;
 resourceService.getEC2InstancesInfo=getEC2InstancesInfo;
+resourceService.getAllResourcesForProvider =  getAllResourcesForProvider;
+resourceService.updateAWSResourceCostsFromCSV = updateAWSResourceCostsFromCSV
+resourceService.aggregateEntityCosts = aggregateEntityCosts
 
+// @TODO To be cached if needed. In memory data will not exceed 200MB for upto 2000 instances.
+function getAllResourcesForProvider(provider, next) {
+    async.parallel([
+            function(callback) {
+                instancesModel.getInstanceByProviderId(provider._id, callback);
+            },
+            function(callback) {
+                //@TODO Duplicate function of  getByProviderId, to be cleaned up
+                unManagedInstancesModel.getInstanceByProviderId(provider._id, callback);
+            },
+            function(callback) {
+                unassignedInstancesModel.getUnAssignedInstancesByProviderId(provider._id, callback);
+            }
+            /*function(callback) {
+                resources.getResourcesByProviderId(provider._id, callback);
+            }*/
+        ],
+        function(err, results) {
+            if (err) {
+                var err = new Error('Internal server error');
+                err.status = 500;
+                next(err)
+            } else {
+                var resultsArray = [].concat.apply([], results);
+                var resultsObject = resultsArray.reduce(function(temp, current) {
+                    if('platformId' in current) {
+                        temp[current.platformId] = current;
+                    }
+                    return temp;
+                }, {})
 
-function getCostForResources(updatedTime,provider,bucketNames,instanceIds,dbInstanceNames,fileName, callback) {
+                next(null, resultsObject);
+            }
+        }
+    );
+}
+
+function updateAWSResourceCostsFromCSV(provider, resources, downlaodedCSVPath, updateTime, callback) {
+    var awsBillIndexes = appConfig.aws.billIndexes
+    var awsServices = appConfig.aws.services
+    var awsZones = appConfig.aws.zones
+
+    var stream = fs.createReadStream(downlaodedCSVPath);
+    csv.fromStream(stream, {headers: false}).on('data', function(data) {
+        if(data[awsBillIndexes.totalCost] != 'StatementTotal'
+            && data[awsBillIndexes.totalCost] != 'InvoiceTotal'
+            && data[awsBillIndexes.totalCost] != 'Rounding') {
+            var resourceCostEntry = {platformDetails: {}}
+
+            resourceCostEntry.organizationId = provider.orgId
+            resourceCostEntry.providerId = provider._id
+            resourceCostEntry.providerType = provider.providerType
+            resourceCostEntry.cost = data[awsBillIndexes.cost]
+            resourceCostEntry.startTime = Date.parse(data[awsBillIndexes.startDate])
+            resourceCostEntry.endTime = Date.parse(data[awsBillIndexes.endDate])
+            resourceCostEntry.lastUpdateTime = Date.parse(updateTime)
+            resourceCostEntry.interval = 3600
+            resourceCostEntry.platformDetails.serviceName = data[awsBillIndexes.prod]
+
+            if (data[awsBillIndexes.prod] in awsServices) {
+                resourceCostEntry.platformDetails.serviceId = awsServices[data[awsBillIndexes.prod]]
+            }
+
+            resourceCostEntry.platformDetails.zone = (data[awsBillIndexes.zone] == null)
+                ? 'Unknown' : data[awsBillIndexes.zone]
+
+            resourceCostEntry.platformDetails.region = (data[awsBillIndexes.zone] in awsZones)
+                ? awsZones[data[awsBillIndexes.zone]] : 'Unknown'
+
+            if (data[awsBillIndexes.instanceId] != null) {
+                resourceCostEntry.platformDetails.instanceId = data[awsBillIndexes.instanceId]
+            }
+
+            if(data[awsBillIndexes.usageType] != null) {
+                resourceCostEntry.platformDetails.usageType = data[awsBillIndexes.usageType]
+            }
+
+            if (data[awsBillIndexes.instanceId] in resources) {
+                var resource = resources[data[awsBillIndexes.instanceId]]
+
+                resourceCostEntry.resourceId = resource._id
+
+                if ('bgId' in resource) {
+                    resourceCostEntry.businessGroupId = resource['bgId']
+                }
+
+                if ('projectId' in resource) {
+                    resourceCostEntry.projectId = resource['projectId']
+                }
+
+                if ('environmentId' in resource) {
+                    resourceCostEntry.environmentId = resource['environmentId']
+                }
+
+                if ('masterDetails.bgId' in resource) {
+                    resourceCostEntry.businessGroupId = resource['bgId']
+                }
+
+                if ('masterDetails.projectId' in resource) {
+                    resourceCostEntry.projectId = resource['projectId']
+                }
+
+                if ('masterDetails.environmentId' in resource) {
+                    resourceCostEntry.environmentId = resource['environmentId']
+                }
+
+                resourceCost.saveResourceCost(resourceCostEntry, function (err, costEntry) {
+                    if (err) {
+                        logger.error(err)
+                        return callback(new Error('Database Error'))
+                    }
+                })
+            }
+        }
+    }).on('end', function() {
+        callback()
+    })
+}
+
+// NOTE: Only monthly costs aggregated.
+function aggregateEntityCosts(parentEntity, parentEntityId, parentEntityQuery, endTime, period, callback) {
+    var mongoConnectionString = 'mongodb://' + appConfig.db.host + ':' + appConfig.db.port + '/' + appConfig.db.dbName
+    var catalystEntityHierarchy = appConfig.catalystEntityHierarchy
+
+    var startTime
+    switch (period) {
+        case 'month':
+            startTime = dateUtil.getStartOfAMonthInUTC(endTime)
+            break
+    }
+
+    mongoDbClient.connect(mongoConnectionString, function(err, db) {
+        if(err) {
+            return callback(err)
+        }
+
+        async.forEach(catalystEntityHierarchy[parentEntity].children, function (childEntity, next) {
+            //@TODO Consider replacing with Mongo aggregate $sum
+            var map = function() {
+                emit(this.childEntityKey, {cost: this.cost})
+            }
+
+            var reduce = function (key, values) {
+                var reducedObject = { cost: 0 }
+
+                values.forEach(function(value) {
+                    reducedObject.cost += value.cost
+                })
+
+                return reducedObject
+            }
+
+            var query = parentEntityQuery
+            query.startTime = {$gte: Date.parse(startTime)}
+            query.endTime = {$lte: Date.parse(endTime)}
+
+            var command = {
+                mapreduce: 'resourcecosts',
+                map: map.toString().replace(/childEntityKey/, catalystEntityHierarchy[childEntity].key),
+                reduce: reduce.toString(),
+                // finalize: finalize.toString(),
+                query: query,
+                out: {inline: 1}
+            }
+
+            db.command(command, function (err, result) {
+                if(err) {
+                    logger.error(err)
+                    next(err)
+                } else if(result.ok == 1){
+                    //@TODO To be handled outside
+                    async.forEach(result.results, function(entry, next) {
+                        var entityCost = {
+                            entity: {
+                                id: entry._id,
+                                type: childEntity
+                            },
+                            parentEntity: {
+                                id: parentEntityId,
+                                type: parentEntity
+                            },
+                            costs: {
+                                totalCost: entry.value.cost
+                            },
+                            startTime: Date.parse(startTime),
+                            endTime: Date.parse(endTime),
+                            period: period
+                        }
+
+                        entityCosts.saveEntityCost(entityCost, next)
+                    },
+                    function(err) {
+                        if(err) {
+                            return next(err)
+                        }
+
+                        return next()
+                    })
+                }
+            })
+        }, function (err) {
+            if(err) {
+                callback(err)
+            } else {
+                callback()
+            }
+        })
+    })
+}
+
+function getCostForResources_deprecated(updatedTime,provider,bucketNames,instanceIds,dbInstanceNames,fileName, callback) {
     var temp = String(updatedTime).split(',');
     var ec2Cost = 0, totalCost = 0, rdCost = 0, rstCost = 0, elcCost = 0, cdfCost = 0, r53Cost = 0, s3Cost = 0 , vpcCost = 0;
     var regionOne = 0, regionTwo = 0, regionThree = 0, regionFour = 0, regionFive = 0, regionSix = 0, regionSeven = 0, regionEight = 0, regionNine = 0, regionTen = 0, catTagCost = 0, jjTagCost = 0, accentureTagCost=0;
@@ -254,7 +472,7 @@ function getCostForResources(updatedTime,provider,bucketNames,instanceIds,dbInst
     });
 };
 
-function getTotalCost(provider,callback)
+function getTotalCost_deprecated(provider,callback)
 {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
@@ -362,7 +580,7 @@ function getTotalCost(provider,callback)
 }
 
 
-function getCostForServices(provider,callback) {
+function getCostForServices_deprecated(provider,callback) {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var decryptedAccessKey = cryptography.decryptText(provider.accessKey,

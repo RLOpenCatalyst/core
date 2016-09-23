@@ -37,7 +37,7 @@ function getDateInUTC(date) {
 /*
  * Get Start of a month in UTC
  */
-function getStartOfAMonthInUTC(date, callback) {
+function getStartOfAMonthInUTC(date) {
 	if( typeof date === 'undefined' || date === null ) {
 		return null;
 	}else{
