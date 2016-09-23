@@ -231,7 +231,7 @@ function aggregateEntityCosts(parentEntity, parentEntityId, parentEntityQuery, e
                                 type: parentEntity
                             },
                             costs: {
-                                totalCost: entry.cost
+                                totalCost: entry.value.cost
                             },
                             startTime: Date.parse(startTime),
                             endTime: Date.parse(endTime),

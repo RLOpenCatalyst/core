@@ -25,12 +25,12 @@ var async = require('async')
 var analyticsService = module.exports = {};
 
 analyticsService.validateAndParseCostQuery = function validateAndParseCostQuery(requestQuery, callback) {
-	if ((!('catalystEntityId' in requestQuery)) || (!('toTimeStamp' in requestQuery))
-		|| (!('period' in requestQuery))) {
+	if ((!('parentEntityId' in requestQuery)) || (!('entityId' in requestQuery))
+		|| (!('toTimeStamp' in requestQuery)) || (!('period' in requestQuery))) {
 		var err = new Error('Invalid request')
 		err.errors = [{messages: 'Mandatory fields missing'}]
 		err.status = 400
-		next(err)
+		callback(err)
 	}
 
 	var startTime
@@ -42,21 +42,35 @@ analyticsService.validateAndParseCostQuery = function validateAndParseCostQuery(
 			var err = new Error('Invalid request')
 			err.errors = [{messages: 'Period is invalid'}]
 			err.status = 400
-			next(err)
+			callback(err)
 			break
 	}
 
-	var query = {
-		'parentEntity.id': requestQuery.catalystEntityId,
+	var totalQuery = {
+		'parentEntity.id': requestQuery.parentEntityId,
+		'entity.id': requestQuery.entityId,
 		'startTime': Date.parse(startTime),
 		'period': requestQuery.period
 	}
 
-	return callback(null, query)
+	var splitUpQuery = {
+		'parentEntity.id': requestQuery.entityId,
+		'startTime': Date.parse(startTime),
+		'period': requestQuery.period
+	}
+
+	return callback(null, totalQuery, splitUpQuery)
 }
 
-analyticsService.getEntityAggregateCost = function getEntityAggregateCost(query, callback) {
-	entityCostsModel.getEntityCost(query, function(err, entityCosts) {
+analyticsService.getEntityAggregateCosts = function getEntityAggregateCosts(totalQuery, splitUpQuery, callback) {
+	async.parallel({
+		totalCost: function(next) {
+			entityCostsModel.getEntityCost(totalQuery, next)
+		},
+		splitUpCosts: function(next) {
+			entityCostsModel.getEntityCost(splitUpQuery, next)
+		}
+	}, function(err, entityCosts) {
 		if(err) {
 			logger.error(err)
 			var err = new Error('Internal Server Error')
@@ -70,6 +84,67 @@ analyticsService.getEntityAggregateCost = function getEntityAggregateCost(query,
 
 analyticsService.formatAggregateCost = function formatAggregateCost(entityCosts, callback) {
 	var catalystEntityHierarchy = appConfig.catalystEntityHierarchy
+
+	var formattedAggregateCost = {
+		period: entityCosts.totalCost[0].period,
+		fromTime: entityCosts.totalCost[0].startTime,
+		toTime: entityCosts.totalCost[0].endTime,
+		entity: {
+			type: entityCosts.totalCost[0].entity.type,
+			id: entityCosts.totalCost[0].entity.id,
+			name: entityCosts.totalCost[0].entity.id
+		},
+		cost: {
+			totalCost: entityCosts.totalCost[0].costs.totalCost,
+			AWS: {
+				totalCost: entityCosts.totalCost[0].costs.totalCost,
+				serviceCosts: {
+					Other: entityCosts.totalCost[0].costs.totalCost
+				}
+			}
+		},
+		splitUpCosts: {}
+	}
+
+	async.forEach(entityCosts.splitUpCosts,
+		function(costEntry, next) {
+			if(costEntry.entity.type == entityCosts.totalCost[0].entity.type) {
+				return next()
+			}
+
+			if(!(costEntry.entity.type in formattedAggregateCost.splitUpCosts)) {
+				formattedAggregateCost.splitUpCosts[costEntry.entity.type] = []
+			}
+
+			var splitUpCost = {
+				id: costEntry.entity.id,
+				name: costEntry.entity.id,
+				cost: {
+					totalCost: costEntry.costs.totalCost,
+					AWS: {
+						totalCost: costEntry.costs.totalCost,
+						serviceCosts: {
+							Other: costEntry.costs.totalCost
+						}
+					}
+				}
+			}
+
+			formattedAggregateCost.splitUpCosts[costEntry.entity.type].push(splitUpCost)
+			next()
+		},
+		function(err) {
+			if(err) {
+				logger.error(err)
+				var err = new Error('Internal Server Error')
+				err.status = 500
+				return callback(err)
+			} else {
+				return callback(null, formattedAggregateCost)
+			}
+		}
+	)
+
 }
 
 

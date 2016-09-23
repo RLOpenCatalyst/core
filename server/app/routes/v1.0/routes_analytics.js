@@ -17,13 +17,14 @@ const async = require('async')
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     /**
-     * @api {get} /analytics/cost/aggregate?catalystEntityId=<organizationId>&period=<period>&toTimeStamp=<endDate>&splitUpBy=<catalystEntityType>
+     * @api {get} /analytics/cost/aggregate?parentEntityId=<organizationId>entityId=<businessGroupId>&period=<period>&toTimeStamp=<endDate>&splitUpBy=<catalystEntityType>
      * 										                    									Get aggregate cost
      * @apiName getAggregateCost
      * @apiGroup analytics
      * @apiVersion 1.0.0
      *
-     * @apiParam {String} catalystEntity                                    Catalyst entity. Only single entity should be specified.
+     * @apiParam {String} parentEntityId                                    Catalyst entity id. Parent entity in the hierarchy.
+     * @apiParam {String} entityId                                          Catalyst entity id. Entity for which aggregate cost has to be fetched.
      * @apiParam {String} period                                            Cost aggregation period Ex: hour, day, week, month, year, 5years, 10years
      * @apiParam {Date} toTimeStamp                                         End Timestamp. Format YYYY-MM-DDTHH:MM:SS.  For Ex: 2016-08-12T00:00:00
      * @apiParam {String} [splitUpBy="All possible catalyst entity types"]	Split up cost by particular catalyst entity type. For Ex: organization, businessUnit, project, providerType, provider, environment, resourceType, resource
@@ -54,9 +55,10 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
           "period": "month",
           "fromTime": "2016-08-01T00:00:00",
           "toTime": "2016-08-12T00:00:00",
-          "catalystEntity": {
+          "entity": {
                 "type": "organization",
-                "id": "q23ro9uasoidfElasdf"
+                "id": "q23ro9uasoidfElasdf",
+                "name": "Org name"
           },
           "cost": {
             "totalCost": 300,
@@ -168,17 +170,21 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         }
      */
     app.get("/analytics/cost/aggregate", getAggregateCost)
-    function getAggregateCost(req, res, next) {
+    function getAggregateCost(req, res, callback) {
+        // @TODO Authentication to be added
         async.waterfall([
             function(next) {
                 analyticsService.validateAndParseCostQuery(req.query, next)
             },
-            function (query, next) {
-                analyticsService.getEntityAggregateCost(query, next)
+            function (totalQuery, splitUpQuery, next) {
+                analyticsService.getEntityAggregateCosts(totalQuery, splitUpQuery, next)
+            },
+            function (entityCost, next) {
+                analyticsService.formatAggregateCost(entityCost, next)
             }
         ], function(err, entityCosts) {
             if(err) {
-                next(err)
+                callback(err)
             } else {
                 res.status(200).send(entityCosts)
             }

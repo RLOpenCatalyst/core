@@ -45,7 +45,7 @@ AWSResourceCostsAggregation.downloadLatestBill = downloadLatestBill
 AWSResourceCostsAggregation.updateResourceCosts = updateResourceCosts
 AWSResourceCostsAggregation.aggregateEntityCosts = aggregateEntityCosts
 
-// AWSResourceCostsAggregation.execute()
+AWSResourceCostsAggregation.execute()
 
 module.exports = AWSResourceCostsAggregation
 
@@ -64,17 +64,17 @@ function aggregateAWSResourceCosts() {
                 }
             })
         },
-        function(orgs, providers, next) {
+        /*function(orgs, providers, next) {
             async.forEach(providers, AWSResourceCostsAggregation.aggregateAWSResourceCostsForProvider,
                 function(err) {
                     if(err) {
                         next(err)
                     } else {
-                        next(null, orgs)
+                        next(null, orgs, providers)
                     }
                 })
-        },
-        function(orgs, next) {
+        },*/
+        function(orgs, providers, next) {
             // aggregate  cost across catalyst entities
             async.forEach(orgs, AWSResourceCostsAggregation.aggregateEntityCosts,
                 function(err, results) {
