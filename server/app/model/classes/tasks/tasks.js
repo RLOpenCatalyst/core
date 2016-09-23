@@ -648,8 +648,8 @@ taskSchema.statics.removeTaskById = function(taskId, callback) {
                     callback(err, null);
                     return;
                 }
-                if (task[0] && task[0].cronJobId) {
-                    crontab.cancelJob(task[0].cronJobId);
+                if (tasks[0] && tasks[0].cronJobId) {
+                    crontab.cancelJob(tasks[0].cronJobId);
                 }
                 return callback(null, deleteCount);
 

@@ -415,8 +415,14 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                                         if (checkDuplicateProjectList.indexOf(projectNames[p]) === -1) {
                                                                                             projectCount++;
                                                                                             checkDuplicateProjectList.push(projectNames[p]);
-                                                                                            var envIds = team.environmentname_rowid.split(',');
-                                                                                            var envNames = team.environmentname.split(',');
+                                                                                            var envIds = "";
+                                                                                            var envNames = "";
+                                                                                            if(team.environmentname_rowid){
+                                                                                                envIds = team.environmentname_rowid.split(',');
+                                                                                            }
+                                                                                            if(team.environmentname){
+                                                                                                envNames = team.environmentname.split(',');
+                                                                                            }
                                                                                             var envList = [];
                                                                                             logger.debug("envIds: ", JSON.stringify(envIds));
                                                                                             for (var q = 0; q < envIds.length; q++) {
