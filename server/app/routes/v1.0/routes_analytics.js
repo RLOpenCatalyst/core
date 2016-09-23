@@ -11,10 +11,13 @@
  limitations under the License.
  */
 
+const analyticsService = require('_pr/services/analyticsService')
+const async = require('async')
+
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     /**
-     * @api {get} /analytics/cost/aggregate?catalystEntity=organizationId:<organizationId>&period=<period>&toTimeStamp=<endDate>&splitUpBy=<catalystEntityType>
+     * @api {get} /analytics/cost/aggregate?catalystEntityId=<organizationId>&period=<period>&toTimeStamp=<endDate>&splitUpBy=<catalystEntityType>
      * 										                    									Get aggregate cost
      * @apiName getAggregateCost
      * @apiGroup analytics
@@ -26,7 +29,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      * @apiParam {String} [splitUpBy="All possible catalyst entity types"]	Split up cost by particular catalyst entity type. For Ex: organization, businessUnit, project, providerType, provider, environment, resourceType, resource
      *
      * @apiExample Sample_Request_1
-     * 		/analytics/cost/aggregate?catalystEntity=organizationId:5790c31edff2c49223fd6efa&timeStamp=2016-08-12T00:00:00&period=month
+     * 		/analytics/cost/aggregate?catalystEntity=5790c31edff2c49223fd6efa&toTimeStamp=2016-08-12T00:00:00&period=month
      *
      * @apiSuccess {Object}   aggregatedCost                                                Aggregated cost
      * @apiSuccess {String}   aggregatedCost.period                                         Cost aggregation period
@@ -166,7 +169,20 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      */
     app.get("/analytics/cost/aggregate", getAggregateCost)
     function getAggregateCost(req, res, next) {
-
+        async.waterfall([
+            function(next) {
+                analyticsService.validateAndParseCostQuery(req.query, next)
+            },
+            function (query, next) {
+                analyticsService.getEntityAggregateCost(query, next)
+            }
+        ], function(err, entityCosts) {
+            if(err) {
+                next(err)
+            } else {
+                res.status(200).send(entityCosts)
+            }
+        })
     }
 
     /**

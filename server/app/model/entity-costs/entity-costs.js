@@ -45,15 +45,15 @@ var EntityCostsSchema = new Schema({
     },
     costs: Schema.Types.Mixed,
     startTime: {
-        type: Date,
+        type: Number,
         required: true
     },
     endTime: {
-        type: Date,
+        type: Number,
         required: true
     },
     lastUpdateTime: {
-        type: Date,
+        type: Number,
         required: false
     },
     interval: {
@@ -75,6 +75,22 @@ EntityCostsSchema.statics.saveEntityCost = function saveEntityCost(entityCostDat
             callback(null, data)
         }
     })
+}
+
+EntityCostsSchema.statics.getEntityCost = function getEntityCost(query, callback) {
+    this.find(
+        query,
+        function(err, entityCosts) {
+            if(err) {
+                logger.error(err)
+                return callback(err, null);
+            } else if(entityCosts.length > 0) {
+                return callback(null, entityCosts)
+            } else {
+                return callback(null, null)
+            }
+        }
+    )
 }
 
 var EntityCosts = mongoose.model('EntityCosts', EntityCostsSchema)

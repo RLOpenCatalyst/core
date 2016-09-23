@@ -102,9 +102,9 @@ function updateAWSResourceCostsFromCSV(provider, resources, downlaodedCSVPath, u
             resourceCostEntry.providerId = provider._id
             resourceCostEntry.providerType = provider.providerType
             resourceCostEntry.cost = data[awsBillIndexes.cost]
-            resourceCostEntry.startTime = data[awsBillIndexes.startDate]
-            resourceCostEntry.endTime = data[awsBillIndexes.endDate]
-            resourceCostEntry.lastUpdateTime = updateTime
+            resourceCostEntry.startTime = Date.parse(data[awsBillIndexes.startDate])
+            resourceCostEntry.endTime = Date.parse(data[awsBillIndexes.endDate])
+            resourceCostEntry.lastUpdateTime = Date.parse(updateTime)
             resourceCostEntry.interval = 3600
             resourceCostEntry.platformDetails.serviceName = data[awsBillIndexes.prod]
 
@@ -202,8 +202,8 @@ function aggregateEntityCosts(parentEntity, parentEntityId, parentEntityQuery, e
             }
 
             var query = parentEntityQuery
-            query.startTime = {$gte: new Date(startTime)}
-            query.endTime = {$lte: new Date(endTime)}
+            query.startTime = {$gte: Date.parse(startTime)}
+            query.endTime = {$lte: Date.parse(endTime)}
 
             var command = {
                 mapreduce: 'resourcecosts',
@@ -223,18 +223,18 @@ function aggregateEntityCosts(parentEntity, parentEntityId, parentEntityQuery, e
                     async.forEach(result.results, function(entry, next) {
                         var entityCost = {
                             entity: {
-                                id: parentEntityId,
-                                type: parentEntity
+                                id: entry._id,
+                                type: childEntity
                             },
                             parentEntity: {
-                                id: entry._id,
-                                type: catalystEntityHierarchy[childEntity].key
+                                id: parentEntityId,
+                                type: parentEntity
                             },
                             costs: {
                                 totalCost: entry.cost
                             },
-                            startTime: startTime,
-                            endTime: endTime,
+                            startTime: Date.parse(startTime),
+                            endTime: Date.parse(endTime),
                             period: period
                         }
 

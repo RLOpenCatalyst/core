@@ -16,8 +16,62 @@
 
 var logger = require('_pr/logger')(module);
 var resourceMetricsModel = require('_pr/model/resource-metrics');
+var resourceCostsModel =  require('_pr/model/resource-costs')
+var entityCostsModel =  require('_pr/model/entity-costs')
+const dateUtil = require('_pr/lib/utils/dateUtil')
 var appConfig = require('_pr/config');
+var async = require('async')
+
 var analyticsService = module.exports = {};
+
+analyticsService.validateAndParseCostQuery = function validateAndParseCostQuery(requestQuery, callback) {
+	if ((!('catalystEntityId' in requestQuery)) || (!('toTimeStamp' in requestQuery))
+		|| (!('period' in requestQuery))) {
+		var err = new Error('Invalid request')
+		err.errors = [{messages: 'Mandatory fields missing'}]
+		err.status = 400
+		next(err)
+	}
+
+	var startTime
+	switch (requestQuery.period) {
+		case 'month':
+			startTime = dateUtil.getStartOfAMonthInUTC(requestQuery.toTimeStamp)
+			break
+		default:
+			var err = new Error('Invalid request')
+			err.errors = [{messages: 'Period is invalid'}]
+			err.status = 400
+			next(err)
+			break
+	}
+
+	var query = {
+		'parentEntity.id': requestQuery.catalystEntityId,
+		'startTime': Date.parse(startTime),
+		'period': requestQuery.period
+	}
+
+	return callback(null, query)
+}
+
+analyticsService.getEntityAggregateCost = function getEntityAggregateCost(query, callback) {
+	entityCostsModel.getEntityCost(query, function(err, entityCosts) {
+		if(err) {
+			logger.error(err)
+			var err = new Error('Internal Server Error')
+			err.status = 500
+			return callback(err)
+		} else {
+			return callback(null, entityCosts)
+		}
+	})
+}
+
+analyticsService.formatAggregateCost = function formatAggregateCost(entityCosts, callback) {
+	var catalystEntityHierarchy = appConfig.catalystEntityHierarchy
+}
+
 
 /*analyticsService.getTrendUsage = function getTrendUsage(resourceId, interval, startTime, endTime, callback) {*/
 function getTrendUsage(resourceId, interval, startTime, endTime, callback) {

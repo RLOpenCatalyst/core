@@ -100,11 +100,11 @@ var ResourceCostsSchema = new Schema({
         }
     },
     startTime: {
-        type: Date,
+        type: Number,
         required: true
     },
     endTime: {
-        type: Date,
+        type: Number,
         required: true
     },
     interval: {
@@ -112,7 +112,7 @@ var ResourceCostsSchema = new Schema({
         required: true
     },
     lastUpdateTime: {
-        type: Date,
+        type: Number,
         required: true
     }
 });
