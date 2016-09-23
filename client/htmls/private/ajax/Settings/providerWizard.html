@@ -42,55 +42,6 @@
         color: #666;
         margin-bottom: 20px;
     }
-    /*progressbar*/
-    #progressbar {
-        overflow: hidden;
-        text-align: center;
-        /*CSS counters to number the steps*/
-        counter-reset: step;
-        margin-top: 5px;
-    }
-    #progressbar li {
-        list-style-type: none;
-        font-size: 15px;
-        width: 50%;
-        float: left;
-        position: relative;
-    }
-    #progressbar li:before {
-        content: counter(step);
-        counter-increment: step;
-        width: 20px;
-        line-height: 20px;
-        display: block;
-        font-size: 10px;
-        color: #fff;
-        background: #7d7676;
-        border-radius: 3px;
-        margin: 0 auto 5px auto;
-    }
-    /*progressbar connectors*/
-    #progressbar li:after {
-        content: '';
-        width: 100%;
-        height: 2px;
-        background: #7d7676;
-        position: absolute;
-        left: -50%;
-        top: 9px;
-        z-index: -1; /*put it behind the numbers*/
-    }
-    #progressbar li:first-child:after {
-        /*connector not needed before the first step*/
-        content: none;
-    }
-    /*marking active/completed steps green*/
-    /*The number of the step and the connector before it = green*/
-    #progressbar li.active:before,  #progressbar li.active:after{
-        background: #27AE60;
-        color: white;
-    }
-
     .content {
         margin:0 auto;
         padding: 10px;
@@ -99,20 +50,37 @@
         color:#7d7676;
         text-decoration: none;
     }
+    .green-btn {
+        background-color: #5cb85c!important;
+        color:#fff!important;
+    }
+    #myForm54 .addNewRegion {
+       border: solid gray 1px; 
+       padding: 10px; 
+       margin-bottom: 15px; 
+    }
+    #myForm54 .addimage,.removeimage {
+    cursor: pointer;
+}
+
+
+#myForm54 .addRow,.removeRow {
+    float: left;
+    margin-top: 32px;
+    margin-left: 3.5px;
+}
+
+#myForm54 .addRegion,.removeRegion {
+    position: relative;
+    top: -18px;
+    left: 17px;
+    float: right;
+}
 </style>
 <!-- multistep form -->
 <!-- progressbar -->
-<ol id="wizardTab" class="bwizard-steps clearfix clickable" role="tablist">
-   <li aria-selected="true" class="active btn-2 providerCreate" style="z-index: 4;"><span class="label badge-inverse">1</span><a href="ajax/Settings/providerWizard.html" class="hidden-phone">
-      Create Providers 
-      </a><a href="ajax/Settings/providerWizard.html" class="hidden-phone"><small></small></a>
-   </li>
-   <li aria-selected="false" style="z-index: 3;" class="btn-3 imageCreate"><span class="label">2</span><a href="ajax/Settings/vmImageWizard.html" class="hidden-phone">
-      Create VmImages
-      </a><a href="ajax/Settings/vmImageWizard.html" class="hidden-phone"></a><a href="ajax/Settings/vmImageWizard.html" class="hidden-phone">
-      </a>
-   </li>
-</ol>
+<div class="wizardFlow">
+</div>
 <!-- fieldsets -->
 <div class="content">
    <form id="myForm54" enctype="mutlipart/form-data" action="/aws/providers" method="post">
@@ -120,9 +88,9 @@
          <div class="widget-header">
             <h4 class="widget-margin" style="color:black;">Create Providers</h4>
          </div>
-         <div class="widget-body">
-            <fieldset>
-               <div class="widget-main">
+         <div class="widget-body" >
+            
+               <div class="widget-main" style="height:650px">
                   <section id="widget-grid" class="">
                      <!-- START ROW -->
                      <div class="row">
@@ -178,18 +146,7 @@
                                        </span>
                                     </div>
                                  </div>
-                                 <div class="row foraws aws-secret-info">
-                                    <div class="col-lg-6 col-md-6 margintop20">
-                                       <span>
-                                       <input type="checkbox" style="vertical-align: middle;"
-                                          id="updateSecretInfo">
-                                       <label for="updateSecretInfo"
-                                          style="margin-bottom:0px; margin-top: 5px; vertical-align: middle;">
-                                       Update access credentials
-                                       </label>
-                                       </span>
-                                    </div>
-                                 </div>
+                                 
                                  <div class="row foraws aws-secret-info">
                                     <div class="col-lg-6 col-md-6 margintop20">
                                        <label for="">Access Key:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
@@ -366,45 +323,102 @@
                      </div>
                      <!-- END ROW -->
                   </section>
-                  <!-- end widget grid -->
-               </div>
-            </fieldset>
-         </div>
-      </div>
-      <div class="btn-group pull-right">
+                  <div class="btn-group pull-right">
          <button  name="nextChef" id="nextChef" class="nextChef action-button" value="Next">Next</button>
       </div>
+                  <!-- end widget grid -->
+               </div>
+            
+         </div>
+      </div>
+      
    </form>
 </div>
 
 
 <script type="text/javascript" src="js/jquery.form.js"></script>
 <script>
-
-    $('.btn-2 a').click(function(e) {
-        e.preventDefault();
-        $('.contentSetting').load(this.getAttribute('href'));
-    });
-    $('.btn-3 a').click(function(e) {
-        $('.btn-2 a').parent('.bwizard-steps li').removeClass('active')
-        $(this).parent('.bwizard-steps li').addClass('active');
-        e.preventDefault();
-        $('.content').load(this.getAttribute('href'));
-    });
-
-    function checkNestedSteps(providerStatus,imageStatus){
-        if(providerStatus === true && imageStatus === false){
-            $('li.providerCreate').removeClass('active');
-            $('li.imageCreate').addClass('active');
-        }else{
-            $('li.providerCreate').addClass('active');
-        }
-    }
-
     var orgIdForSetup = $('#orgDropdown').find('option:selected').val();
     var orgNameForSetup = $('#orgDropdown').find('option:selected').text();
     var $option = $('<option></option>').val(orgIdForSetup).html(orgNameForSetup);
     $('#orgId').append($option); 
+    $(document).ready(function(e) {
+        var providerWizardFlow = $('<ol id="providerWizard" class="bwizard-steps clearfix clickable"><li aria-selected="true" id="providerCreate" class="active btn-2 providerCreate" style="z-index: 4;"><span class="label badge-inverse">1</span><a href="ajax/Settings/providerWizard.html" class="hidden-phone">Create Providers</a><a href="ajax/Settings/providerWizard.html" class="hidden-phone"><small></small></a></li><li aria-selected="false" style="z-index: 3;" id="imageCreate" class="btn-3 imageCreate"><span class="label">2</span><a href="ajax/Settings/vmImageWizard.html" class="hidden-phone">Create VmImages</a><a href="ajax/Settings/vmImageWizard.html" class="hidden-phone"></a><a href="ajax/Settings/vmImageWizard.html" class="hidden-phone"></a></li></ol>');
+        $('.wizardFlow').append(providerWizardFlow);
+        function getProviderValues() {
+            $.get('/aws/providers/list', function(data) {
+                for(var i =0;i<data.length;i++){
+                    if(orgIdForSetup === data[i].orgId[0]){
+                        $('#myForm54').find('select#providerType').val(data[i].providerType.toLowerCase());
+                        $('#providertype').trigger('change');
+                        $('#myForm54').find('input#name').val(data[i].providerName);
+                        $('#myForm54').find('input#s3BucketName').val(data[i].s3BucketName);
+                        $('#myForm54').find('input#plannedCost').val(data[i].plannedCost);
+                        $('#orgId').val(data[i].orgId[0]) ;
+        var createTemplateInstance = new createTemplate($('#appender'));
+        for (var j = 0; j < data[i].keyPairs.length; j++) {
+          var $authPemFile = $('.authPemFile');
+            $authPemFile.find('input.filename').val(data[i].keyPairs[j].fileName);
+          $('#myForm54').find('select.regionValue').val(data[i].keyPairs[j].region);
+          $('#myForm54').find('select.keySecretValue').val(data[i].keyPairs[j].keyPairName);
+        }
+
+        $("input[name='isDefault'][value="+data[i].isDefault+"]").attr('checked', true);
+        $("input[name='isDefault']").attr('disabled', true);
+            $('.aws-secret-info').hide();
+            $('.secretInfo').removeAttr('cat-validation');
+        
+                    }
+                }
+            });
+        }
+        function getVmImages(){
+          $.get('/vmimages',function(data){
+
+          });
+        }
+        $('.btn-2 a').click(function(e) {
+            e.preventDefault();
+            clicked = false;
+            $('.contentSetting').load(this.getAttribute('href'));
+        });
+        $('.btn-3 a').click(function(e) {
+            $('.btn-2 a').parent('.bwizard-steps li').removeClass('active')
+            $(this).parent('.bwizard-steps li').addClass('active');
+            e.preventDefault();
+            clicked = false;
+            $('.content').load(this.getAttribute('href'));
+        });
+        //api call for getting the status of wizard
+    if (clicked) {
+      $('#wizardActionListLoader').show();
+        $.get('/setting-wizard/org/' + orgIdForSetup, function(data) {
+            if (data.currentStep.name === 'Provider Configuration') {
+                if (data.currentStep.nestedSteps) {
+                    var nestedSteps = data.currentStep.nestedSteps;
+                    if (nestedSteps[0].name === 'Provider' && nestedSteps[0].isCompleted === true &&
+                        nestedSteps[1].name === 'VMImage' && nestedSteps[1].isCompleted === false) {
+                        $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                        $('.contentSetting').find('ol li#imageCreate').addClass('active');
+                        $('.content').load('ajax/Settings/vmImageWizard.html');
+                    } else {
+                        
+                    }
+                }
+            } else {
+              getProviderValues();
+              $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                $('.btn-3 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+            }
+        });
+        $('#wizardActionListLoader').hide();
+      } else {
+          getProviderValues();
+          $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+      }
+    });
+    
+    
     var UtilityMethods = {
         initTooltip: function() {
             var $tool = $("[rel=tooltip]");
@@ -636,22 +650,6 @@
             }
         });
 
-        $('#updateSecretInfo').change(function() {
-            if (this.checked) {
-                $secretInfo.removeAttr('disabled');
-                $awsInputs.attr('cat-validation', 'required');
-                $vmwareInputs.attr('cat-validation-vmware', 'required');
-                $azureInputs.attr('cat-validation-azure', 'required');
-                $openStack.attr('cat-validation-openstack', 'required');
-               // loadKeyPair(null, null, false, region, providerId);
-            } else {
-
-                $secretInfo.attr('disabled', 'disabled');
-                $secretInfo.removeAttr('cat-validation').removeAttr('cat-validation-vmware').removeAttr('cat-validation-azure').removeAttr('cat-validation-openstack');
-                $secretInfo.val('');
-            }
-        });
-
         $("input[type='password']").val('');
         $("#name").focus();
         $('#accessKey').blur(KeyChangeHandler);
@@ -685,7 +683,6 @@
                         return false;
                 } else {
                     if (isFormValid()) {
-                        console.log(arr);
                         appendLoader();
                         return true;
                     } else {
@@ -783,10 +780,10 @@
                     return '<img src="img/remove.png" class="removeimage ' + (classs ? classs : '') + '" ' + titile + ' rel="tooltip"  />'
                 },
                 getKeyValueList = function() {
-                    return '<div class="col-lg-6 col-md-6 margintop20" style="width:47%;">' + '<label for="name">Select Key Pair:<span class="control-label redSpan">&nbsp;*</span></label>' + '<select id="' + UtilityMethods.getRandomNumber() + '" name="keyPairName" unique="true" uniqueconditionedby="orgname"  class="form-control chooseOrganization width-100 keyvalue secretInfo" ' + 'style="vertical-align:central" cat-validation="required" skiprowid="yes" cdata="catalyst">' + '  <option value="">Select Any Key Pair</option></select>' + '</div>';
+                    return '<div class="col-lg-6 col-md-6 margintop20" style="width:47%;">' + '<label for="name">Select Key Pair:<span class="control-label redSpan">&nbsp;*</span></label>' + '<select id="' + UtilityMethods.getRandomNumber() + '" name="keyPairName" unique="true" uniqueconditionedby="orgname"  class="form-control chooseOrganization width-100 keyvalue secretInfo keySecretValue" ' + 'style="vertical-align:central" cat-validation="required" skiprowid="yes" cdata="catalyst">' + '  <option value="">Select Any Key Pair</option></select>' + '</div>';
                 };
         var getRegion = function() {
-            return '<div class="row">' + '<div class="col-lg-6 col-md-6" style="width:47%">' + '<label for="name">Region:<span class="control-label redSpan">&nbsp;*</span></label>' + '<select id="' + UtilityMethods.getRandomNumber() + '" name="region" unique="true" uniqueconditionedby="orgname"  class="form-control region chooseOrganization width-100 secretInfo" style="' + 'vertical-align:central" cat-validation="required" skiprowid="yes" cdata="catalyst">' + '<option value="">Select Region</option>' + '<option value="us-west-2">us-west-2</option>' + '</select>' + '</div></div>';
+            return '<div class="row">' + '<div class="col-lg-6 col-md-6" style="width:47%">' + '<label for="name">Region:<span class="control-label redSpan">&nbsp;*</span></label>' + '<select id="' + UtilityMethods.getRandomNumber() + '" name="region" unique="true" uniqueconditionedby="orgname"  class="form-control region regionValue chooseOrganization width-100 secretInfo" style="' + 'vertical-align:central" cat-validation="required" skiprowid="yes" cdata="catalyst">' + '<option value="">Select Region</option>' + '<option value="us-west-2">us-west-2</option>' + '</select>' + '</div></div>';
         };
         var getPemFileRow = function() {
             return '<div class="col-lg-6 col-md-6 authPemFile margintop20" style="display: block;"><div class="smart-forms" style="  margin-left: 7%;"><label for="">Upload .pem file for Provider<span class="control-label redSpan">&nbsp;*</span></label>' + '<label for="templatesicon" name="field" class="file">' + '<span class="button btn-primary btn-importbyIP" style="height:26px;line-height:22px;  padding: 1px ' + '14px;position: absolute;right:4px;margin-top: 4.5%;">Browse</span>' + '<input id="' + UtilityMethods.getRandomNumber() + '" type="file" class="gui-file file secretInfo" cdata="catalyst" cat-validation="required" name="fileObject">' + '<input type="text" readonly="" class="gui-input filename" name="fileName">' + '<input type="text" class="folderpath" style="display:none;" cdata="catalyst" />' + '</label></div></div>';
@@ -874,6 +871,8 @@
     var left, opacity, scale; //fieldset properties which we will animate
     var animating; //flag to prevent quick multi-click glitches    
     $(".nextChef").click(function(){
+        $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+        $('.contentSetting').find('ol li#imageCreate').addClass('active');
         $('.content').load('ajax/Settings/vmImageWizard.html');
         if(animating) return false;
         animating = true;

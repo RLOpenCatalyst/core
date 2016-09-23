@@ -1,0 +1,377 @@
+<link rel="stylesheet" type="text/css" media="screen" href="css/wizardBg.css">
+<style>
+    /*custom font*/
+    @import url(http://fonts.googleapis.com/css?family=Montserrat);
+
+    /*form styles*/
+    form {
+        margin: 10px auto;
+        position: relative;
+    }
+
+    /*Hide all except first fieldset*/
+    form:not(:first-of-type) {
+        display: none;
+    }
+
+    /*buttons*/
+    form .action-button {
+        width: 100px;
+        background: #27AE60;
+        font-weight: bold;
+        color: white;
+        border: 0 none;
+        border-radius: 1px;
+        cursor: pointer;
+        padding: 10px 5px;
+        margin: 10px 5px;
+    }
+    form .action-button:hover, #msform .action-button:focus {
+        box-shadow: 0 0 0 2px white, 0 0 0 3px #27AE60;
+    }
+    /*headings*/
+    .fs-title {
+        font-size: 15px;
+        text-transform: uppercase;
+        color: #2C3E50;
+        margin-bottom: 10px;
+    }
+    .fs-subtitle {
+        font-weight: normal;
+        font-size: 13px;
+        color: #666;
+        margin-bottom: 20px;
+    }
+    .content {
+        margin:0 auto;
+        padding: 10px;
+    }
+    a, a:hover {
+        color:#7d7676;
+        text-decoration: none;
+    }
+    .green-btn {
+        background-color: #5cb85c!important;
+        color:#fff!important;
+    }
+</style>
+<!-- multistep form -->
+<!-- progressbar -->
+<div class="wizardFlow">
+</div>
+<!-- fieldsets -->
+<div class="content">
+   <form action="" id="myForm6">
+   <div class="widget-box">
+      <div class="widget-header">
+         <h4 class="widget-margin" style="color:black;">Create Templates</h4>
+      </div>
+      <div class="widget-body">
+         <div class="widget-main" style="min-height:200px">
+            <div class="jarviswidget" data-widget-editbutton="false" data-widget-custombutton="false">
+               <div>
+                  <!-- widget content -->
+                  <div class="widget-body no-padding">
+                     <div class="row zero-margin" >
+                        <div class="col-lg-6 col-md-6">
+                           <label for="">Template Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                           <label id="msgOrgName"></label>
+                           <input name="ctl00$MainContent$orgname" value="" id="templatename" class="form-control"  cdata="catalyst" unique="true" uniqueconditionedby="templatename,templatetypename" type="text" cat-validation="required,max15">
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                           <div class="smart-forms">
+                              <label for="">Icon:</label>
+                              <label for="templatesicon" name="field" class="file">
+                                 <div class="imgdiv" value="1"></div>
+                                 <span class="button btn-primary">Browse</span><input id="templatesicon" type="file" onchange="this.nextSibling.value = this.value" cdata="catalyst" class="gui-file"><input type="text" readonly="" class="gui-input">
+                              </label>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="col-lg-6 col-md-6 margintop20">
+                        <label for="">Template Type:<span class="control-label redSpan">&nbsp;*</span></label>
+                        <select id="templatetypename" ignoreoption="OSImage" class="choosetemplateType width-100 form-control" sourcepath="16" ignoreComposite="Composite"  cdata="catalyst" datapath="masterjson.rows.row" onChange="if($(this).val().indexOf('Docker') >= 0) {$('.forDocker').show(); $('.notforDocker').hide();$('.notCFT').hide();}else {$('.forDocker').hide();$('.notforDocker').show();$('.forCFT').hide();}if($(this).val().indexOf('CloudFormation') >=0 || $(this).val().indexOf('ARMTemplate') >=0){$('.forDocker').hide(); $('.notforDocker').hide(); $('.forCFT').show();}">
+                        </select>
+                     </div>
+                     <div class="col-lg-6 col-md-6" hidden>
+                        Template Provider Path:
+                        <label id="msgOrgName" style="display:none;color:red;float:right;">Required</label>
+                        <input name="ctl00$MainContent$orgname" value="https://" id="providertemplatepath" class="form-control" type="text">
+                     </div>
+                     <div class="col-lg-6 col-md-6 margintop20">
+                        <label for="category">Organization:<span class="control-label redSpan">&nbsp;*</span>
+                        </label>
+                        <select id="orgname" class="chooseOrganization width-100 form-control" sourcepath="1" datapath="masterjson.rows.row" valuelinkfield="costcode" style="vertical-align:central" cdata="catalyst" cat-validation="required" cat-validation="required" linkedfields="['configname']" onchange="loadCookbookSelectorControlFromOrgId('orgname')">
+                           <option value="">Select an Organization</option>
+                        </select>
+                     </div>
+                     <div  class="col-lg-6 col-md-6 forDocker margintop20">
+                        <label for="">
+                        Select Docker Repo 
+                        </label>
+                        <select id="dockerreponame" class="form-control choosedockerRepo width-100" sourcepath="18" datapath="masterjson.rows.row"  cdata="catalyst">
+                           <option value="">Select an Docker Path</option>
+                        </select>
+                     </div>
+                     <div class="col-lg-6 col-md-6 notforDocker forCFT" style="margin-top:20px">
+                        <div class="smart-forms">
+                           <label>Template File:<span class="control-label redSpan">&nbsp;*</span></label>
+                           <label for="validatorpemfile" class="field file">
+                              <div class="imgdiv" value="1"></div>
+                              <span class="button btn-primary">Browse</span><input id="template" keyfield="configname" type="file" onchange="this.nextSibling.value = this.value" cdata="catalyst" class="gui-file"><input type="text" readonly="" class="gui-input">
+                           </label>
+                        </div>
+                     </div>
+                     <div class="col-lg-6 col-md-6 forDocker hidden" style="margin-top:16px">
+                        <label for="">
+                        Title
+                        <label id="msgOrgName2" style="display:none;color:red;float:right;">Required</label></label>
+                        <input name="ctl00$MainContent$costcode" value="" id="dockercontainerstitle" class="form-control" type="text" datavalues="dockercontainerstitle" targetelement="dockercontainerpathstitle"  show="imgCheck" maxlength="13">
+                     </div>
+                     <div class="col-lg-6 col-md-6 forDocker" style="margin-top:16px;">
+                        <label for="">
+                        Add  Docker Repo Path <span class="control-label redSpan">&nbsp;*</span>
+                        <label id="msgOrgName2" style="display:none;color:red;float:right;">Required</label>
+                        </label>
+                        <input name="ctl00$MainContent$costcode" value="" id="dockercontainers" class="form-control" type="text" datavalues="dockercontainerpaths" targetelement="dockercontainerpaths"  relatedlist="dockercontainerpathstitle" show="imgDed">
+                        <div class="input-group hidden">
+                           <span class="input-group-addon" style="padding:1px !important;">
+                           <input type="button" class="btn btn-sm btn-primary" title="Check to add to list" style="width:53px;height:34px;" value="Add" onclick="addToTargetList($('#dockercontainers'),$('#dockercontainerstitle'));" />
+                           </span>
+                        </div>
+                     </div>
+                     <div class="col-lg-12 col-md-12 notforDocker notCFT" style="margin-top:25px">
+                        <div class="row notforDocker" style="margin-top:15px">
+                           <div class="" id="templatescookbooks" cdata='catalyst'>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="col-lg-12 col-md-12 forDocker">
+                        <div class="col-lg-6 col-md-6 forDocker  noleftpadding" style="margin-top:15px">
+                           <div id="dockercontainerpathstitle" class="input-group from-control col-md-12 forDocker" style="height:20px;overflow-y:auto;min-width:105px;"  cdata="catalyst" ctype="list" csource="dockercontainerstitle" ></div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 forDocker" style="margin-top:15px">
+                           <div id="dockercontainerpaths" class="input-group from-control col-md-12 forDocker" style="height:20px;overflow-y:auto;"  cdata="catalyst" ctype="list" csource="dockercontainers"></div>
+                        </div>
+                     </div>
+                  </div>
+                  <!-- end widget content -->
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div class="btn-group pull-right">
+      <button  name="nextChef" id="nextChef" class="nextChef action-button" value="Next">Next</button>
+   </div>
+</form>
+</div>
+<script>
+    $(document).ready(function(e) {
+      orgNameForSetup = $('#orgDropdown option:selected').attr('rowid');
+    orgIdForSetup = $('#orgDropdown option:selected').val();
+    var $option = $('<option></option>').val(orgNameForSetup).attr('rowid',orgIdForSetup).html(orgNameForSetup);
+    $('#orgname').append($option);
+      var wizardFlowGallery = $('<ol class="bwizard-steps clearfix clickable"><li aria-selected="true" id="templatesCreate" class="active btn-2 templatesCreate" style="z-index: 4;"><span class="label badge-inverse">1</span><a href="ajax/Settings/galleryWizard.html" class="hidden-phone">Create Templates</a><a href="ajax/Settings/galleryWizard.html" class="hidden-phone"><small></small></a></li><li aria-selected="false" style="z-index: 3;" id="serviceCreate" class="btn-3 serviceCreate"><span class="label">2</span><a href="ajax/Settings/serviceCommandWizard.html" class="hidden-phone">Service Command</a><a href="ajax/Settings/serviceCommandWizard.html" class="hidden-phone"></a><a href="ajax/Settings/serviceCommandWizard.html" class="hidden-phone"></a></li><li aria-selected="false" style="z-index: 3;" id="scriptCreate" class="btn-4 scriptCreate"><span class="label">3</span><a href="ajax/Settings/scriptWizard.html" class="hidden-phone">Script Gallery</a><a href="ajax/Settings/scriptWizard.html" class="hidden-phone"></a><a href="ajax/Settings/scriptWizard.html" class="hidden-phone"></a></li></ol>');
+      $('.wizardFlow').append(wizardFlowGallery);
+      $('.btn-2 a').click(function(e) {
+        e.preventDefault();
+        $('.contentSetting').load(this.getAttribute('href'));
+    });
+    $('.btn-3 a').click(function(e) {
+        $('.btn-2 a').parent('.bwizard-steps li').removeClass('active')
+        $(this).parent('.bwizard-steps li').addClass('active');
+        e.preventDefault();
+        $('.content').load(this.getAttribute('href'));
+    });
+    $('.btn-4 a').click(function(e) {
+        $('.btn-2 a,.btn-3 a').parent('.bwizard-steps li').removeClass('active');
+        $(this).parent('.bwizard-steps li').addClass('active');
+        e.preventDefault();
+        $('.content').load(this.getAttribute('href'));
+    });
+    
+        $('#wizardActionListLoader').show();
+        //api call for getting the status of wizard
+        $.get('/setting-wizard/org/' + orgIdForSetup, function(data) {
+            if (data.currentStep.nestedSteps) {
+                var nestedSteps = data.currentStep.nestedSteps;
+                if (nestedSteps[0].name === 'Templates' && nestedSteps[0].isCompleted === true &&
+                    nestedSteps[1].name === 'ServiceCommand' && nestedSteps[1].isCompleted === false &&
+                    nestedSteps[2].name === 'ScriptGallery' && nestedSteps[2].isCompleted === false) {
+                    $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                      $('.contentSetting').find('ol li#serviceCreate').addClass('active');
+                      $('.content').load('ajax/Settings/serviceCommandWizard.html');
+                } else if (nestedSteps[0].name === 'Templates' && nestedSteps[0].isCompleted === true &&
+                    nestedSteps[1].name === 'ServiceCommand' && nestedSteps[1].isCompleted === true &&
+                    nestedSteps[2].name === 'ScriptGallery' && nestedSteps[2].isCompleted === false) {
+                    $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+            $('.contentSetting').find('ol li#serviceCreate').removeClass('active').addClass('green-btn');
+            $('.contentSetting').find('ol li#scriptCreate').addClass('active');
+            $('.content').load('ajax/Settings/scriptWizard.html');
+                } else {
+                }
+            }
+        });
+        $('#wizardActionListLoader').hide();
+    });
+    $.get('/d4dMasters/readmasterjsonnew/16',function(data){
+      data = JSON.parse(data);
+        for(var i =0;i<data.length;i++){
+          if (data[i].templatetypename == 'Composite' || data[i].templatetypename == 'OSImage') {
+            continue;
+          }else {
+            if(orgIdForSetup == data[i].orgname_rowid) {
+              var $optionTemplates = $('<option></option>').val(data[i].templatetypename).attr('rowid',data[i].rowid).html(data[i].templatetypename);
+              $('#templatetypename').append($optionTemplates);
+            }  
+          }   
+        }
+    });
+  
+    function loadCookbookSelectorControlFromOrgId(orgId){
+       var csid = $('#' + orgId + ' option:selected').attr('rowid');
+      
+       if(csid != undefined){
+            //alert(csid);
+       var itms = $('#templatescookbooks').attr('savedvalue');
+       if(itms) {
+         itms = itms.split(',');
+       } else {
+         itms = [];
+       }
+       console.log(itms);
+       var $ccrs = $chefCookbookRoleSelector(csid,null,itms);
+        $('#templatescookbooks').empty().append($ccrs).data('$ccrs',$ccrs);
+   
+       }
+   }
+
+   $('#myForm6').submit(function() {
+                  
+                   var templateType = $('#templatetypename').val();
+                   if(templateType === 'Docker'){
+                        if($('#dockercontainers').val() != '')
+                        {
+                           $('#dockercontainerpaths').html('');
+                           addToTargetList($('#dockercontainers'),$('#templatename'));
+                        }
+                     }
+                   $(this).validate();
+                   if (templateType === 'Docker' || templateType === 'SoftwareStack') {
+
+                       $('#template').removeAttr('cat-validation', 'required');
+                       //Explicitly adding validation for repo path
+                       if(templateType === 'Docker' && $('#dockercontainerpaths').text() == "")
+                         $('#dockercontainers').attr('cat-validation','required');
+                       else
+                           {  
+                              $('#dockercontainers').removeAttr('cat-validation');
+                              
+                           }
+                         
+
+                       if ($(this).valid) {
+                           /*alert('valid form submitted'); // for demo*/
+                           if (validateForm()) {
+                               
+                               saveform('17');
+                           };
+                       } else {
+                           alert('invalid form submitted'); // for demo
+                       }
+                   } else if (templateType === 'CloudFormation' || templateType === 'ARMTemplate' ){
+                     
+                           $('#template').attr('cat-validation', 'required');
+                           //explicity removing validation for repo path
+                           $('#dockercontainers').removeAttr('cat-validation');
+                           if ($(this).valid) {
+                               /*alert('valid form submitted'); // for demo*/
+                               if (validateForm()) {
+                                   
+                                   saveform('17');
+                               };
+                           } else {
+                               alert('invalid valid form submitted'); // for demo
+                           }
+                       }
+                       return false; // for demo
+                   });
+          
+
+    //jQuery time
+    var current_fs, next_fs, previous_fs; //fieldsets
+    var left, opacity, scale; //fieldset properties which we will animate
+    var animating; //flag to prevent quick multi-click glitches    
+    $(".nextChef").click(function(){
+        $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+        $('.contentSetting').find('ol li#serviceCreate').addClass('active');
+        $('.content').load('ajax/Settings/serviceCommandWizard.html');
+        if(animating) return false;
+        animating = true;
+
+        current_fs = $(this).parent();
+        next_fs = $(this).parent().next();
+
+        //activate next step on progressbar using the index of next_fs
+        $("#progressbar li").eq($("div form").index(next_fs)).addClass("active");
+        //show the next fieldset
+        next_fs.show();
+        //hide the current fieldset with style
+        current_fs.animate({opacity: 0}, {
+            step: function(now, mx) {
+                //as the opacity of current_fs reduces to 0 - stored in "now"
+                //1. scale current_fs down to 80%
+                scale = 1 - (1 - now) * 0.2;
+                //2. bring next_fs from the right(50%)
+                left = (now * 50)+"%";
+                //3. increase opacity of next_fs to 1 as it moves in
+                opacity = 1 - now;
+                current_fs.css({'transform': 'scale('+scale+')'});
+                next_fs.css({'left': left, 'opacity': opacity});
+            },
+            duration: 800,
+            complete: function(){
+                current_fs.hide();
+                animating = false;
+            },
+            //this comes from the custom easing plugin
+            easing: 'easeInOutBack'
+        });
+    });
+
+    $(".previous").click(function(){
+        if(animating) return false;
+        animating = true;
+
+        current_fs = $(this).parent();
+        previous_fs = $(this).parent().prev();
+
+        //de-activate current step on progressbar
+        $("#progressbar li").eq($("form").index(current_fs)).removeClass("active");
+
+        //show the previous fieldset
+        previous_fs.show();
+        //hide the current fieldset with style
+        current_fs.animate({opacity: 0}, {
+            step: function(now, mx) {
+                //as the opacity of current_fs reduces to 0 - stored in "now"
+                //1. scale previous_fs from 80% to 100%
+                scale = 0.8 + (1 - now) * 0.2;
+                //2. take current_fs to the right(50%) - from 0%
+                left = ((1-now) * 50)+"%";
+                //3. increase opacity of previous_fs to 1 as it moves in
+                opacity = 1 - now;
+                current_fs.css({'left': left});
+                previous_fs.css({'transform': 'scale('+scale+')', 'opacity': opacity});
+            },
+            duration: 800,
+            complete: function(){
+                current_fs.hide();
+                animating = false;
+            },
+            //this comes from the custom easing plugin
+            easing: 'easeInOutBack'
+        });
+    });
+</script>

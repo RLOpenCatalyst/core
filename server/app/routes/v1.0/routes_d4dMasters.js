@@ -480,7 +480,10 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                 return;
                                                             } else {
                                                                 var orgId ='';
-                                                                if(data.orgname_rowid.length ===1){
+                                                                if(req.params.id === '1'){
+                                                                    orgId = data.rowid;
+
+                                                                }else if(data.orgname_rowid.length ===1){
                                                                     orgId = data.orgname_rowid[0];
                                                                 }else{
                                                                     orgId = data.orgname_rowid;
@@ -2716,6 +2719,25 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     }
                                                 })
                                             }
+                                            if(req.params.id === '19'){
+                                                settingWizard.getSettingWizardByOrgId(bodyJson['orgname_rowid'],function(err,settingWizards){
+                                                    if(err){
+                                                        logger.error('Hit getting setting wizard error', err);
+                                                        res.send(500);
+                                                        return;
+                                                    }
+                                                    if(settingWizards.currentStep.name === 'Gallery Setup') {
+                                                        settingWizards.currentStep.nestedSteps[1].isCompleted = true;
+                                                        settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                                                            if (err) {
+                                                                logger.error('Hit getting setting wizard error', err);
+                                                                res.send(500);
+                                                                return;
+                                                            }
+                                                        });
+                                                    }
+                                                })
+                                            }
                                             if(req.params.id === '20'){
                                                 settingWizard.getSettingWizardByOrgId(bodyJson['orgname_rowid'],function(err,settingWizards){
                                                     if(err){
@@ -2729,7 +2751,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         settingWizards.currentStep.isCompleted = true;
                                                         settingWizards.previousStep = settingWizards.currentStep;
                                                         settingWizards.currentStep = settingWizards.nextStep;
-                                                        settingWizards.nextStep = settingWizardSteps[7];
+                                                        settingWizards.nextStep = {wizardStatus:'true'};
                                                         settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                                                             if (err) {
                                                                 logger.error('Hit getting setting wizard error', err);

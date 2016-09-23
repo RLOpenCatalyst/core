@@ -4,7 +4,7 @@
          <h4 class="widget-margin" style="color:black;">Create VmImages</h4>
       </div>
       <div class="widget-body">
-         <div class="widget-main" style="min-height:200px">
+         <div class="widget-main" style="height:400px">
             <div class="jarviswidget" data-widget-editbutton="false" data-widget-custombutton="false">
                <div>
                   <!-- widget content -->
@@ -52,12 +52,13 @@
                   <!-- end widget content -->
                </div>
             </div>
+            <div class="btn-group pull-right">
+      <button  name="nextChef" id="nextChef" class="nextChef action-button" value="Next">Next</button>
+   </div>
          </div>
       </div>
    </div>
-   <div class="btn-group pull-right">
-      <button  name="nextChef" id="nextChef" class="nextChef action-button" value="Next">Next</button>
-   </div>
+   
 </form>
 <script>
     //jQuery time
@@ -90,7 +91,6 @@ function getProviderList(_val) {
             var str = "";
             for (var key in data) {
                 if (data.hasOwnProperty(key)) {
-
                     for (var i = 0; i < data[key].length; i++) {
                         if (_val == data[key][i].orgId) {
                             if (key === "awsProviders") {
@@ -129,7 +129,6 @@ function getProviderList(_val) {
               }
             });
         }
-
     });
 }
 
@@ -246,7 +245,7 @@ $(document).ready(function() {
 
     $(".nextChef").click(function(){
         toastr.success('Step 3 - Provider Configuration Setup Completed');
-        $('#devopsConfiguration a').trigger('click');
+        $('#galleryConfiguration a').trigger('click');
     });
 
     $(".previous").click(function(){

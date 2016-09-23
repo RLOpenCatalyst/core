@@ -15,7 +15,7 @@
                         <div class="col-lg-6 col-md-6">
                             <label for="">Organization<span class="control-label redSpan">&nbsp;*</span></label>
                             <select id="orgname" class="chooseOrganization form-control width-100" cdata="catalyst" cat-validation="required">
-                                <option value="">Select an Organization</option>
+                                
                             </select>
                         </div>
                     </div>
@@ -24,7 +24,7 @@
         </div>
     </div>
     <div class="btn-group pull-right">
-        <button  name="next2" id="next2" class="nextBG action-button" value="Next">Next</button>
+        <button name="next2" id="next2" class="nextBG btn btn-primary btn-mini">Next</button>
     </div>
 </form>
 
@@ -35,20 +35,27 @@
     var current_fs, next_fs, previous_fs; //fieldsets
     var left, opacity, scale; //fieldset properties which we will animate
     var animating; //flag to prevent quick multi-click glitches
-
+    
     $('.providerSelect').removeClass('hidden');
-    $.get('/d4dMasters/readmasterjsonnew/1',function(data){
-        $("#orgDropdown").empty();
-        for(var i=0;i<data.length;i++){
-            var $option = $('<option></option>').val(data[i].rowid).attr('rowid', data[i].orgname).html(data[i].orgname);
-            $('#orgDropdown').append($option);
-        }
-        orgNameForSetup = $('#orgDropdown option:last').attr('rowid');
-        orgIdForSetup = $('#orgDropdown option:last').val();
-        $('#orgDropdown option:last').attr('selected','selected')
-        var $optionSelect = $('<option></option').val(orgNameForSetup).attr('rowid',orgIdForSetup).html(orgNameForSetup);
+    if(selectedDropdownValue){
+        var $optionSelect = $('<option></option').val(orgForBg).attr('rowid',selectedDropdownValue).html(orgForBg);
         $('#orgname').append($optionSelect);
-    });
+    } else {
+        $.get('/d4dMasters/readmasterjsonnew/1',function(data){
+            $("#orgDropdown").empty();
+            for(var i=0;i<data.length;i++){
+                var $option = $('<option></option>').val(data[i].rowid).attr('rowid', data[i].orgname).html(data[i].orgname);
+                $('#orgDropdown').append($option);
+            }
+            orgNameForSetup = $('#orgDropdown option:last').attr('rowid');
+            orgIdForSetup = $('#orgDropdown option:last').val();
+            lastDropdownValue = $('#orgDropdown option:selected').val();
+            $('#orgDropdown option:last').attr('selected','selected')
+            var $optionSelect = $('<option></option').val(orgNameForSetup).attr('rowid',orgIdForSetup).html(orgNameForSetup);
+            $('#orgname').append($optionSelect);
+        });    
+    }
+    
 
 
     $('#myForm2').submit(function() {

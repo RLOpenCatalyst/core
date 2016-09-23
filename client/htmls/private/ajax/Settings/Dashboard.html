@@ -68,7 +68,7 @@
     }
     
     .btn-cls {
-        margin: 10px auto;
+        margin: 1px 28px;
         width: 90%;
         background: hsla(0, 0%, 0%, 0) url("../../private/img/dot.jpg") no-repeat scroll -27px 25px;
         height: 45px;
@@ -76,7 +76,6 @@
     
     .btn-1 {
         float: left;
-        width: 126px;
         text-align: center;
         padding: 0 15px;
     }
@@ -127,6 +126,9 @@
                     <select class="form-controls marginRight20 orgWidth" id ="orgDropdown">
                     </select>
                 </span>
+                <a id="cancelWizard" class="hidden btn btn-default">
+                    <i class="ace-icon fa fa-times bigger-110"></i>Cancel Wizard
+                </a>
                 <a id="createNew" class="btn btn-primary">
                     <i class="ace-icon ace-icon fa fa-plus bigger-110"></i> New Wizard
                 </a>
@@ -159,7 +161,7 @@
                     <a type="button" href="ajax/Settings/devopsRolesWizard.html" class="btn btn-circle process-btn">5</a><br />
                     <p class="lable-name">Devops Roles</p>
                 </div>
-                <div class="btn-1">
+                <div class="btn-1" id="cmdbConfiguration">
                     <a type="button" href="ajax/Settings/cmdbWizard.html" class="btn btn-circle process-btn">6</a><br />
                     <p class="lable-name">CMDB Configuration</p>
                 </div>
@@ -174,162 +176,128 @@
 
 
 <script type="text/javascript">
-    var orgIdForSetup, orgNameForSetup;
-    //added for v3.0 - when navigating from v2.0 workzone to settings-
-    $(document).ready(function() {
-        $('#wizardActionListLoader').show();
-        $("#content").attr('style', 'height: 100%!important')
-        if (isAngularIntegration) {
-            $('#workZoneNew').attr('href', '#');
-            $('#workZoneNew').removeClass('active');
-            $('#Workspace1').addClass('hidden');
-            $('#Settings_nav').show();
-            $('#settingsNew').addClass('active');
-            $("#ribbon ol.breadcrumb").empty();
-            $("#ribbon ol.breadcrumb").append($("<li>Settings</li>"));
-        }
-    });
-    var serviceURL = "/d4dMasters/";
-    window.selectedOrgName = 'Settings';
-
-    drawBreadCrumb1();
-    //on click of button (top menu butons)
-    $('.btn-1 a').click(function(e) {
-        $('a.btn').addClass('active-btn');
-        $(this).removeClass('process-btn');
-        e.preventDefault();
-        $('.contentSetting').load(this.getAttribute('href'));
-    });
-
-    function clearActiveClasses() {
-        //check for active one's
-        $('a.btn').removeClass('active-btn').addClass('process-btn');
-        //check for already created one's
-        $('a.btn').removeClass('green-btn').addClass('process-btn');
+var orgIdForSetup, orgNameForSetup, bgNameForSetup;
+//added for v3.0 - when navigating from v2.0 workzone to settings-
+$(document).ready(function() {
+    $('#wizardActionListLoader').show();
+    $("#content").attr('style', 'height: 100%!important')
+    if (isAngularIntegration) {
+        $('#workZoneNew').attr('href', '#');
+        $('#workZoneNew').removeClass('active');
+        $('#Workspace1').addClass('hidden');
+        $('#Settings_nav').show();
+        $('#settingsNew').addClass('active');
+        $("#ribbon ol.breadcrumb").empty();
+        $("#ribbon ol.breadcrumb").append($("<li>Settings</li>"));
     }
+});
+var serviceURL = "/d4dMasters/";
+window.selectedOrgName = 'Settings';
+var clicked = true;
 
-    $('#createNew').click(function(e) {
-        $('.providerSelect').addClass('hidden');
-        clearActiveClasses();
-        $('#startConfig a').addClass('green-btn').removeClass('process-btn');
-        $('#orgConfiguration a').addClass('active-btn').removeClass('process-btn');
-        $('#orgConfiguration a').trigger('click');
-    })
+drawBreadCrumb1();
+//on click of button (top menu butons)
+$('.btn-1 a').click(function(e) {
+    $('a.btn').addClass('active-btn');
+    $(this).removeClass('process-btn');
+    e.preventDefault();
+    $('.contentSetting').load(this.getAttribute('href'));
+});
+
+function clearActiveClasses() {
+    //check for active one's
+    $('a.btn').removeClass('active-btn').addClass('process-btn');
+    //check for already created one's
+    $('a.btn').removeClass('green-btn').addClass('process-btn');
+    $('.wizardFlow').empty();
+}
+
+//on click of new button to create a new wizard..
+$('#createNew').click(function(e) {
+    $('#orgDropdown option:selected').val('');
+    $('.providerSelect').addClass('hidden');
+    $('#cancelWizard').removeClass('hidden');
+    $('#createNew').addClass('hidden');
+    clearActiveClasses();
+    $('#startConfig a').addClass('green-btn').removeClass('process-btn');
+    $('#orgConfiguration a').addClass('active-btn').removeClass('process-btn');
     $('#orgConfiguration a').trigger('click');
-    $.get('/d4dMasters/readmasterjsonnew/1', function(data) {
-        $("#orgDropdown").empty();
-        for (var i = 0; i < data.length; i++) {
-            var $option = $('<option></option>').val(data[i].rowid).attr('rowid', data[i].orgname).html(data[i].orgname);
-            $('#orgDropdown').append($option);
-        }
-        $('#orgDropdown').change(function(e) {
-            $('#wizardActionListLoader').show();
-            clearActiveClasses();
-            orgIdForSetup = $("#orgDropdown").val();
-            changeWizardStatus(orgIdForSetup);
-            $('#wizardActionListLoader').hide();
-        });
-        $("#orgDropdown").trigger("change");
-    });
-
-    function changeWizardStatus(orgIdForSetup) {
+});
+$('#orgConfiguration a').trigger('click');
+$.get('/d4dMasters/readmasterjsonnew/1', function(data) {
+    $("#orgDropdown").empty();
+    for (var i = 0; i < data.length; i++) {
+        var $option = $('<option></option>').val(data[i].rowid).attr('rowid', data[i].orgname).html(data[i].orgname);
+        $('#orgDropdown').append($option);
+    }
+    $('#orgDropdown').change(function(e) {
+        e.preventDefault();
         $('#wizardActionListLoader').show();
-        $.get('/setting-wizard/org/' + orgIdForSetup, function(data) {
-            if (data.length === 0) {
-                $('a.btn').addClass('active-btn');
-                $('#wizardActionListLoader').hide();
-            } else {
-                var isCompleted = data.previousStep.isCompleted;
-                if (isCompleted = 'true') {
-                    if (data.previousStep.name === 'Introduction') {
-                        $('#startConfig a').addClass('green-btn').removeClass('process-btn');
-                        $('#orgConfiguration a').addClass('active-btn').removeClass('process-btn');
-                        if (data.currentStep.nestedSteps) {
-                            var nestedSteps = data.currentStep.nestedSteps;
-                            if (nestedSteps[0].name === 'Organization' && nestedSteps[0].isCompleted === true &&
-                                nestedSteps[1].name === 'BusinessGroup' && nestedSteps[1].isCompleted === false) {
-                                
-                                checkNestedSteps(true, false, false);
-                            } else if (nestedSteps[0].name === 'Organization' && nestedSteps[0].isCompleted === true &&
-                                nestedSteps[1].name === 'BusinessGroup' && nestedSteps[1].isCompleted === true) {
-                                
-                                checkNestedSteps(true, true, false);
-                            } else {
-                                $('#orgConfiguration a').trigger('click');
-                                checkNestedSteps(false, false, false);
-                            }
-                        }
-                    } else if (data.previousStep.name === 'Org Configuration') {
-                        $('.providerSelect').removeClass('hidden');
-                        $('#startConfig a, #orgConfiguration a').addClass('green-btn').removeClass('process-btn');
-                        $('#configManagement a').trigger('click');
-                        if (data.currentStep.nestedSteps) {
-                            var nestedSteps = data.currentStep.nestedSteps;
-                            if (nestedSteps[0].name === 'ChefServer' && nestedSteps[0].isCompleted === true &&
-                                nestedSteps[1].name === 'Environment' && nestedSteps[1].isCompleted === false) {
-                                 $('#envCreate a').trigger('click');      
-                                checkNestedStepsConfig(true, false);
-                            } else {
-                                $('#configManagement a').trigger('click');
-                                checkNestedStepsConfig(false, false);
-                            }
-                        }
-                    } else if (data.previousStep.name === 'Config Management') {
-                        $('#configManagement a').removeClass('active-btn process-btn').addClass('green-btn');
-                        $('#startConfig a,#orgConfiguration a').addClass('green-btn');
-                        $('#providerConfiguration a').trigger('click');
-                        if (data.currentStep.nestedSteps) {
-                            var nestedSteps = data.currentStep.nestedSteps;
-                            if (nestedSteps[0].name === 'Provider' && nestedSteps[0].isCompleted === true &&
-                                nestedSteps[1].name === 'VMImage' && nestedSteps[1].isCompleted === false) {
-                                checkNestedSteps(true, false);
-                            } else {
-                                checkNestedSteps(false, false);
-                            }
-                        }
-                    } else if (data.previousStep.name === 'Provider Configuration') {
-                        $('#startConfig a, #orgConfiguration a,#configManagement a,#providerConfiguration a').removeClass('active-btn process-btn').addClass('green-btn');
-                        $('#galleryConfiguration a').trigger('click');
-                        if (data.currentStep.nestedSteps) {
-                            var nestedSteps = data.currentStep.nestedSteps;
-                            if (nestedSteps[0].name === 'Templates' && nestedSteps[0].isCompleted === true &&
-                                nestedSteps[1].name === 'ServiceCommand' && nestedSteps[1].isCompleted === false &&
-                                nestedSteps[2].name === 'ScriptGallery' && nestedSteps[2].isCompleted === false) {
-                                checkNestedSteps(true, false, false);
-                            } else if (nestedSteps[0].name === 'Templates' && nestedSteps[0].isCompleted === true &&
-                                nestedSteps[1].name === 'ServiceCommand' && nestedSteps[1].isCompleted === true &&
-                                nestedSteps[2].name === 'ScriptGallery' && nestedSteps[2].isCompleted === false) {
-                                checkNestedSteps(true, true, false);
-                            } else {
-                                checkNestedSteps(false, false, false);
-                            }
-                        }
-                    } else if (data.previousStep.name === 'Gallery Setup') {
-                        $('#startConfig a, #orgConfiguration a,#configManagement a,#providerConfiguration a,#galleryConfiguration a').removeClass('active-btn process-btn').addClass('green-btn');
-                        $('#devopsConfiguration a').trigger('click');
-                        if (data.currentStep.nestedSteps) {
-                            var nestedSteps = data.currentStep.nestedSteps;
-                            if (nestedSteps[0].name === 'Nexus' && nestedSteps[0].isCompleted === true &&
-                                nestedSteps[1].name === 'Docker' && nestedSteps[1].isCompleted === false &&
-                                nestedSteps[2].name === 'Jenkins' && nestedSteps[2].isCompleted === false) {
-                                checkNestedSteps(true, false, false);
-                            } else if (nestedSteps[0].name === 'Nexus' && nestedSteps[0].isCompleted === true &&
-                                nestedSteps[1].name === 'Docker' && nestedSteps[1].isCompleted === true &&
-                                nestedSteps[2].name === 'Jenkins' && nestedSteps[2].isCompleted === false) {
-                                checkNestedSteps(true, true, false);
-                            } else {
-                                checkNestedSteps(false, false, false);
-                            }
-                        }
-                    } else if (data.previousStep.name === 'Devops Roles') {
-                        $('#startConfig a, #orgConfiguration a,#configManagement a, #providerConfiguration a,#devopsConfiguration a').removeClass('active-btn process-btn').addClass('green-btn');
-                        $('#trackConfiguration a').trigger('click');
-                    }
+        clearActiveClasses();
+        orgIdForSetup = $("#orgDropdown").val();
+        changeWizardStatus(orgIdForSetup);
+        $('#wizardActionListLoader').hide();
+    });
+    $("#orgDropdown").trigger("change");
+
+    $('#cancelWizard').click(function(e) {
+        $('#cancelWizard').addClass('hidden');
+        $('.providerSelect').removeClass('hidden');
+        $('#createNew').removeClass('hidden');
+    });
+});
+var selectedDropdownValue,lastDropdownValue;
+selectedDropdownValue = $('#orgDropdown option:selected').val();
+orgForBg = $('#orgDropdown option:selected').text();
+$('#orgConfiguration a').click(function(e) {
+    selectedDropdownValue = $('#orgDropdown option:selected').val();
+    orgForBg = $('#orgDropdown option:selected').text();
+    if(selectedDropdownValue){
+        getOrgValues();
+    }
+});
+
+$('#configManagement a').click(function(e) {
+    selectedDropdownValue = $('#orgDropdown option:selected').val();
+    orgForBg = $('#orgDropdown option:selected').text();
+});
+
+function changeWizardStatus(orgIdForSetup) {
+    $('#wizardActionListLoader').show();
+    $.get('/setting-wizard/org/' + orgIdForSetup, function(data) {
+        if (data.length === 0) {
+            $('a.btn').addClass('active-btn');
+            $('#wizardActionListLoader').hide();
+        } else {
+            var isCompleted = data.previousStep.isCompleted;
+            if (isCompleted = 'true') {
+                if (data.previousStep.name === 'Introduction') {
+                    $('#startConfig a').addClass('green-btn').removeClass('process-btn');
+                    $('#orgConfiguration a').addClass('active-btn').removeClass('process-btn');
+                    $('#orgConfiguration a').trigger('click');
+                } else if (data.previousStep.name === 'Org Configuration') {
+                    $('.providerSelect').removeClass('hidden');
+                    $('#startConfig a, #orgConfiguration a').addClass('green-btn').removeClass('process-btn');
+                    $('#configManagement a').trigger('click');
+                } else if (data.previousStep.name === 'Config Management') {
+                    $('#startConfig a,#orgConfiguration a,#configManagement a').removeClass('active-btn process-btn').addClass('green-btn');
+                    $('#providerConfiguration a').trigger('click');
+                } else if (data.previousStep.name === 'Provider Configuration') {
+                    $('#startConfig a, #orgConfiguration a,#configManagement a,#providerConfiguration a').removeClass('active-btn process-btn').addClass('green-btn');
+                    $('#galleryConfiguration a').trigger('click');
+                } else if (data.previousStep.name === 'Gallery Setup') {
+                    $('#startConfig a, #orgConfiguration a,#configManagement a,#providerConfiguration a,#galleryConfiguration a').removeClass('active-btn process-btn').addClass('green-btn');
+                    $('#devopsConfiguration a').trigger('click');
+
+                } else if (data.previousStep.name === 'Devops Roles') {
+                    $('#startConfig a, #orgConfiguration a,#configManagement a, #providerConfiguration a,#galleryConfiguration a,#devopsConfiguration a').removeClass('active-btn process-btn').addClass('green-btn');
+                    $('#cmdbConfiguration a').trigger('click');
                 }
             }
-            $('#wizardActionListLoader').hide();
-        }).error(function(jqXHR) {
-            $('#wizardActionListLoader').hide();
-        });
-    }
+        }
+        $('#wizardActionListLoader').hide();
+    }).error(function(jqXHR) {
+        $('#wizardActionListLoader').hide();
+    });
+}
 </script>

@@ -107,15 +107,8 @@
 <!-- multistep form -->
 
 <!-- progressbar -->
-<ol id="wizardTab" class="bwizard-steps clearfix clickable" role="tablist">
-    <li aria-selected="true" id="chefCreate" class="active btn-2 chefCreate" style="z-index: 4;"><span class="label badge-inverse">1</span><a href="ajax/Settings/configManagementWizard.html" class="hidden-phone">
-        Create Chef Server 
-        </a><a href="ajax/Settings/configManagementWizard.html" class="hidden-phone"><small></small></a></li>
-    <li aria-selected="false" style="z-index: 3;" id="envCreate" class="btn-3 envCreate"><span class="label">2</span><a href="ajax/Settings/envWizard.html" class="hidden-phone">
-        Create Environment
-        </a><a href="ajax/Settings/envWizard.html" class="hidden-phone"></a><a href="ajax/Settings/envWizard.html" class="hidden-phone">
-    </a></li>
-</ol>
+<div class="wizardFlow">
+</div>
 <!-- fieldsets -->
 <div class="content">
     <form action="" id="myForm22">
@@ -139,12 +132,11 @@
                             <hr>
                             <div class="col-lg-6 col-md-6 margintop20">
                                 <label for="link">URL:<span class="control-label redSpan">&nbsp;*</span></label>
-                                <input type="text" unique="true" uniqueconditionedbyUrl="url" name="ctl00$MainContent$orgname" value="" id="url" class="form-control" type="url"  name="website"  cdata="catalyst"  cat-validation="required,urlcheck">
+                                <input type="text" unique="true" uniqueconditionedbyUrl="url" name="ctl00$MainContent$orgname" value="" id="url" class="chefUrl form-control" type="url"  name="website"  cdata="catalyst"  cat-validation="required,urlcheck">
                             </div>
                             <div class="col-lg-6 col-md-6 margintop20">
                                 <label for="name">Organization:<span class="control-label redSpan">&nbsp;*</span></label>
                                 <select id="orgname" unique="true" uniqueconditionedby="orgname"  class="chooseOrganization width-100 form-control" sourcepath="1" datapath="masterjson.rows.row" valuelinkfield="costcode" style="vertical-align:central"  cdata="catalyst"  cat-validation="required">
-                                    <option value="">Select an Organization</option>
                                 </select>
                             </div>
                             <hr/>
@@ -154,16 +146,16 @@
                                     <label>User Pem File:<span class="control-label redSpan">&nbsp;*</span></label>
                                     <label for="userpemfile" class="field file">
                                         <div class="imgdiv" value="1"></div>
-                                        <span class="button btn-primary">Browse</span><input id="userpemfile" keyfield="configname" type="file" onchange="this.nextSibling.value = this.value"  cdata="catalyst" class="gui-file" cat-validation="required"><input type="text" readonly="" class="gui-input">
+                                        <span class="button btn-primary">Browse</span><input id="userpemfile" keyfield="configname" type="file" onchange="this.nextSibling.value = this.value"  cdata="catalyst" class="gui-file" cat-validation="required"><input type="text" readonly="" class="pemFile gui-input">
                                     </label>
                                 </div>
                             </div>
                             <div class="col-lg-6 col-md-6 margintop20">
-                                <div class="smart-forms">
+                                <div class="smart-forms" id="knifeFile">
                                     <label>Knife.rb File:<span class="control-label redSpan">&nbsp;*</span></label>
                                     <label for="kniferbfile" class="field file">
                                         <div class="imgdiv" value="1"></div>
-                                        <span class="button btn-primary">Browse</span><input id="kniferbfile" keyfield="configname" type="file" onchange="this.nextSibling.value = this.value" class="gui-file"  cdata="catalyst" cat-validation="required"><input type="text" readonly="" class="gui-input">
+                                        <span class="button btn-primary">Browse</span><input id="kniferbfile" keyfield="configname" type="file" onchange="this.nextSibling.value = this.value" class="gui-file"  cdata="catalyst" cat-validation="required"><input type="text" readonly="" class="knifeFile gui-input">
                                         <input id="folderpath"  cdata="catalyst" type="text" value="" style="display:none"/>
                                     </label>
                                 </div>
@@ -198,7 +190,7 @@
                         </div>
                     </div>
                     <div class="btn-group pull-right">
-                        <button  name="nextChef" id="nextChef" class="nextChef action-button" value="Next">Next</button>
+                        <button name="nextChef" id="nextChef" class="nextChef btn btn-primary btn-mini">Next</button>
                     </div>
                 </div>
             </div>
@@ -209,30 +201,78 @@
 
 <script>
     //jQuery time
-    orgNameForSetup = $('#orgDropdown option:last').attr('rowid');
-    orgIdForSetup = $('#orgDropdown option:last').val();
+    orgNameForSetup = $('#orgDropdown option:selected').attr('rowid');
+    orgIdForSetup = $('#orgDropdown option:selected').val();
     var $option = $('<option></option>').val(orgNameForSetup).attr('rowid',orgIdForSetup).html(orgNameForSetup);
     $('#orgname').append($option);
-    $('.btn-2 a').click(function(e) {
-        e.preventDefault();
-        $('.contentSetting').load(this.getAttribute('href'));
-    });
-    $('.btn-3 a').click(function(e) {
-        $('.btn-2 a').parent('.bwizard-steps li').removeClass('active');
-        $(this).parent('.bwizard-steps li').addClass('active');
-        e.preventDefault();
-        $('.content').load(this.getAttribute('href'));
-    });
-    function checkNestedStepsConfig(chefStatus,envStatus){
-        if(chefStatus === true && envStatus === false){
-            alert('here');
-            $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
-            $('.contentSetting').find('ol li#envCreate').addClass('active');
-            $('.content').load('ajax/Settings/envWizard.html');
-        }else{
-            alert('no status');
-        }
+    function bindChange_importPemFile() {
+        $('input[type="file"]').off('change').on('change', function() {
+            $(this).next().val(this.files[0].name);
+            $(this).next().next().val($(this).val());
+        });
     }
+    $(document).ready(function(e) {
+        //api call for getting the status of wizard
+        var wizardStepsConfig = $('<ol id="configWizard" class="bwizard-steps clearfix clickable"><li aria-selected="true" id="chefCreate" class="active btn-2 chefCreate" style="z-index: 4;"><span class="label badge-inverse">1</span><a href="ajax/Settings/configManagementWizard.html" class="hidden-phone">Create Chef Server</a><a href="ajax/Settings/configManagementWizard.html" class="hidden-phone"><small></small></a></li><li aria-selected="false" style="z-index: 3;" id="envCreate" class="btn-3 envCreate"><span class="label">2</span><a href="ajax/Settings/envWizard.html" class="hidden-phone">Create Environment</a><a href="ajax/Settings/envWizard.html" class="hidden-phone"></a><a href="ajax/Settings/envWizard.html" class="hidden-phone"></a></li></ol>');
+        $('.wizardFlow').append(wizardStepsConfig);
+        function getConfigValues() {
+            $.get('/d4dMasters/readmasterjsonnew/10', function(data) {
+                for(var i =0;i<data.length;i++){
+                    if(selectedDropdownValue === data[i].orgname_rowid[0]){
+                        $('#myForm22').find('input#configname').val(data[i].configname).attr('disabled','disabled');
+                        $('#myForm22').find('input#loginname').val(data[i].loginname).attr('disabled','disabled');
+                        $('#myForm22').find('input.chefUrl').val(data[i].url).attr('disabled','disabled');
+                        var $optionOrgName = $('<option></option>').val(data[i].orgname[0]).attr('rowid',data[i].orgname_rowid[0]).html(data[i].orgname[0]);
+                        $('#myForm22').find('select#orgname').append($optionOrgName).attr('disabled','disabled');
+                        bindChange_importPemFile();
+                        var $pemFileLocation = $('#frmconfigmanagement');
+                        $pemFileLocation.find('input.pemFile').val(data[i].userpemfile_filename);
+                        var $knifeFileLocation = $('#knifeFile');
+                        $knifeFileLocation.find('input.knifeFile').val(data[i].kniferbfile_filename);
+                        $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                    }
+                }
+            });
+        }
+
+        $('.btn-2 a').click(function(e) {
+            e.preventDefault();
+            clicked = false;
+            $('.contentSetting').load(this.getAttribute('href'));
+            
+        });
+        $('.btn-3 a').click(function(e) {
+            e.preventDefault();
+            $('.btn-2 a').parent('.bwizard-steps li').removeClass('active');
+            $(this).parent('.bwizard-steps li').addClass('active');
+            $('.content').load(this.getAttribute('href'));
+        });
+        if(clicked){
+            $.get('/setting-wizard/org/' + orgIdForSetup, function(data) {
+            if (data.currentStep.name === 'Config Management') {
+                if (data.currentStep.nestedSteps) {
+                    var nestedSteps = data.currentStep.nestedSteps;
+                    if (nestedSteps[0].name === 'ChefServer' && nestedSteps[0].isCompleted === true && nestedSteps[1].name === 'Environment' && nestedSteps[1].isCompleted === false) {
+                        $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                        $('.contentSetting').find('ol li#envCreate').addClass('active');
+                        $('.content').load('ajax/Settings/envWizard.html');
+                    } else {
+
+                    }
+                }
+            } else {
+                getConfigValues();
+                $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                $('.btn-3 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+            }
+        });    
+        } else {
+            getConfigValues();
+        }
+        
+        $('#wizardActionListLoader').hide();
+    });
+    
     var current_fs, next_fs, previous_fs; //fieldsets
     var left, opacity, scale; //fieldset properties which we will animate
     var animating; //flag to prevent quick multi-click glitches
@@ -242,6 +282,14 @@
         var folderpath = '/' + $('#loginname').val() + "/.chef/";
         $('#folderpath').val(folderpath);
     }
+
+    $('#myForm22').find('input:text').keyup(function() {
+        if($('#configname').val() != "" && $('#loginname').val() != "" && $('.chefUrl').val() != "") {
+           $('#nextChef').removeAttr('disabled');
+        } else {
+           $('#nextChef').attr('disabled', true);   
+        }
+    });
 
     $('#myForm22').submit(function() {
         if(validateForm()) {setfolderpath(); saveform('10');};

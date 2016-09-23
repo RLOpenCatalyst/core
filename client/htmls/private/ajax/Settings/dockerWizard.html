@@ -95,7 +95,8 @@
    
 
      $(".nextChef").click(function(){
-        
+        $('.contentSetting').find('ol li#dockerCreate').removeClass('active').addClass('green-btn');
+        $('.contentSetting').find('ol li#jenkinsCreate').addClass('active');
         if(animating) return false;
         animating = true;
 

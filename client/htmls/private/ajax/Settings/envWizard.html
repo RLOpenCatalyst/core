@@ -14,14 +14,12 @@
                                     <label for="category">Organization:<span class="control-label redSpan">&nbsp;*</span>
                                     </label>
                                     <select id="orgname" class="chooseOrganization width-100 form-control" valuelinkfield="costcode" style="vertical-align:central" cdata="catalyst" cat-validation="required" cat-validation="required" onchange="$('#configname').change();">
-                                        <option value="">Select an Organization</option>
                                     </select>
                                 </div>
                                 <div class="col-lg-6 col-md-6">
                                     <label for="category">Chef Server:
                                     </label>
                                     <select id="configname" class="chooseOrganization width-100 form-control" sourcepath="10" datapath="masterjson.rows.row" style="vertical-align:central" cdata="catalyst">
-                                        <option value="">Select a Chef Server</option>
                                     </select>
                                 </div>
                                 <div class="col-lg-6 col-md-6 margintop20">
@@ -100,33 +98,32 @@
     var $optionOrg = $('<option></option>').val(orgNameForSetup).attr('rowid',orgIdForSetup).html(orgNameForSetup);
     $('#orgname').append($optionOrg);
     $('#orgname').change(function(){
+        //$('#configname').empty();
+        $('#projectname').empty();
         $.get('/d4dMasters/readmasterjsonnew/10',function(data){
-            if(orgIdForSetup === data[0].orgname_rowid[0]){
-                var $optionChefServer = $('<option></option>').val(data[0].configname).attr('rowid',data[0].rowid).html(data[0].configname);
-                $('#configname').append($optionChefServer);
+            for(var i =0;i<data.length;i++){
+                if(orgIdForSetup === data[i].orgname_rowid[0]){
+                    var $optionChefServer = $('<option></option>').val(data[i].configname).attr('rowid',data[i].rowid).html(data[i].configname);
+                    $('#configname').append($optionChefServer).trigger('change');
+                }
             }
         });
-    })
-
-    $('#orgname').change(function(){
         $.get('/d4dMasters/readmasterjsonnew/4',function(data){
-            $('#projectname').empty();
             for(var i =0;i<data.length;i++){
                 if(orgIdForSetup === data[i].orgname_rowid[0]){
                     var str = '',
                             getTemplate = function(val, rowid) {
                                 return '<label class="toggle font-sm" style="padding-left:4px;"><input onclick="if($(this).is(&quot;:checked&quot;)) {$(this).closest(&quot;label&quot;).' + 'css(&quot;background-color&quot;,&quot;#eeeeee&quot;);$(this).css(&quot;border-color&quot;,&quot;#3b9ff3&quot;);}else{$(this).closest(&quot;label&quot;).css(&quot;background-color&quot;,&quot;#ffffff&quot;);$(this).css(&quot;border-' + 'color&quot;,&quot;red&quot;);}" type="checkbox" id="checkbox-toggle" name="checkbox-toggle" rowid="1ae4f099-7adc-4089-81c6-db2248774142"' + 'value="' + rowid + '" style="width:100%"><i data-swchoff-text="NO" data-swchon-text="YES"></i>' + val + '</label>';
                             };
-
-                    for (var i = 0; i < data.length; i++) {
                         str = str + getTemplate(data[i].projectname,data[i].rowid);
                         $('#projectname').append(str);
-                    }
-
                 }
             }
         });
+        
     });
+    
+    $('#orgname').trigger('change');
     function preprocess() {
         $('#createenvinchefform')[0].reset();
         if (typeof $('#configname').find('option:selected').attr('rowid') == 'undefined') {
@@ -201,11 +198,12 @@
             }
         });
     }
-    $('#configname').change(function() {
+    $('#configname').change(function(e) {
         var chefid = $(this).find('option:selected').attr('rowid');
         if (chefid)
             loadChefEnvs(chefid);
     });
+    
     $('#myForm1').submit(function() {
         $(this).validate();
 
