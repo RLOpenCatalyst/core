@@ -67,6 +67,10 @@ var awsProviderSchema = new Schema({
 		type: String,
 		required: false,
 		trim: true
+	},
+	lastBillUpdateTime: {
+		type: Number,
+		required: false
 	}
 });
 
@@ -215,6 +219,25 @@ awsProviderSchema.statics.updateAWSProviderById = function(providerId, providerD
 		callback(null, updateCount);
 		return;
 
+	});
+};
+
+awsProviderSchema.statics.updateLastBillUpdateTime = function(providerId, billUpdateTime, callback) {
+	console.log(providerId)
+	this.update({
+		"_id": new ObjectId(providerId)
+	}, {
+		$set: {
+			lastBillUpdateTime: billUpdateTime
+		}
+	}, {
+		upsert: false
+	}, function(err, updateCount) {
+		if (err) {
+			return callback(err, null);
+		}
+
+		return callback(null);
 	});
 };
 
