@@ -64,7 +64,7 @@ function aggregateAWSResourceCosts() {
                 }
             })
         },
-        /*function(orgs, providers, next) {
+        function(orgs, providers, next) {
             async.forEach(providers, AWSResourceCostsAggregation.aggregateAWSResourceCostsForProvider,
                 function(err) {
                     if(err) {
@@ -73,7 +73,7 @@ function aggregateAWSResourceCosts() {
                         next(null, orgs, providers)
                     }
                 })
-        },*/
+        },
         function(orgs, providers, next) {
             // aggregate  cost across catalyst entities
             async.forEach(orgs, AWSResourceCostsAggregation.aggregateEntityCosts,
@@ -100,7 +100,11 @@ function aggregateAWSResourceCostsForProvider(provider, callback) {
             AWSResourceCostsAggregation.downloadLatestBill(provider, next)
         },
         function(downloadedCSVPath, next) {
-            AWSResourceCostsAggregation.updateResourceCosts(provider, downloadedCSVPath, next)
+            if(downloadedCSVPath != null) {
+                AWSResourceCostsAggregation.updateResourceCosts(provider, downloadedCSVPath, next)
+            } else {
+                next()
+            }
         }
     ], function(err) {
         if (err) {
@@ -134,13 +138,12 @@ function downloadLatestBill(provider, callback) {
         function(next) {
             s3.getObject(params, 'time', next)
         },
-        function(lastBillUpdateTime, next) {
-            //@TODO Last update time to be updated from db
-            console.log('Previous run' + AWSResourceCostsAggregation.previousCronRunTime)
-            if(AWSResourceCostsAggregation.previousCronRunTime <  lastBillUpdateTime) {
+        function(billUpdateTime, next) {
+            if((provider.lastBillUpdateTime == null)
+                || (provider.lastBillUpdateTime <  Date.parse(billUpdateTime))) {
                 s3.getObject(params, 'file', next)
             } else {
-                next(false)
+                next(null, null)
             }
         },
         function(billDownloaded, next) {
@@ -176,6 +179,10 @@ function updateResourceCosts(provider, downloadedCSVPath, callback) {
         function(resources, next) {
             resourceService.updateAWSResourceCostsFromCSV(provider, resources, downloadedCSVPath,
                 AWSResourceCostsAggregation.currentCronRunTime, next)
+        },
+        function(next) {
+            AWSProvider.updateLastBillUpdateTime(provider._id,
+                Date.parse(AWSResourceCostsAggregation.currentCronRunTime), next)
         }
     ],
     function(err) {

@@ -95,7 +95,9 @@ function updateAWSResourceCostsFromCSV(provider, resources, downlaodedCSVPath, u
     csv.fromStream(stream, {headers: false}).on('data', function(data) {
         if(data[awsBillIndexes.totalCost] != 'StatementTotal'
             && data[awsBillIndexes.totalCost] != 'InvoiceTotal'
-            && data[awsBillIndexes.totalCost] != 'Rounding') {
+            && data[awsBillIndexes.totalCost] != 'Rounding'
+            && ((provider.lastUpdateTime == null)
+                || (Date.parse(data[awsBillIndexes.endDate]) > provider.lastUpdateTime))) {
             var resourceCostEntry = {platformDetails: {}}
 
             resourceCostEntry.organizationId = provider.orgId
@@ -164,7 +166,7 @@ function updateAWSResourceCostsFromCSV(provider, resources, downlaodedCSVPath, u
             }
         }
     }).on('end', function() {
-        callback()
+        callback(null)
     })
 }
 
