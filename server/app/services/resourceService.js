@@ -174,11 +174,18 @@ function updateAWSResourceCostsFromCSV(provider, resources, downlaodedCSVPath, u
 function aggregateEntityCosts(parentEntity, parentEntityId, parentEntityQuery, endTime, period, callback) {
     var mongoConnectionString = 'mongodb://' + appConfig.db.host + ':' + appConfig.db.port + '/' + appConfig.db.dbName
     var catalystEntityHierarchy = appConfig.catalystEntityHierarchy
+    var costAggregationPeriods = appConfig.costAggregationPeriods
 
     var startTime
+    var interval
     switch (period) {
         case 'month':
             startTime = dateUtil.getStartOfAMonthInUTC(endTime)
+            interval = costAggregationPeriods.month.intervalInSeconds
+            break
+        case 'day':
+            startTime = dateUtil.getStartOfADayInUTC(endTime)
+            interval = costAggregationPeriods.day.intervalInSeconds
             break
     }
 
@@ -211,7 +218,6 @@ function aggregateEntityCosts(parentEntity, parentEntityId, parentEntityQuery, e
                 mapreduce: 'resourcecosts',
                 map: map.toString().replace(/childEntityKey/, catalystEntityHierarchy[childEntity].key),
                 reduce: reduce.toString(),
-                // finalize: finalize.toString(),
                 query: query,
                 out: {inline: 1}
             }
@@ -237,9 +243,13 @@ function aggregateEntityCosts(parentEntity, parentEntityId, parentEntityQuery, e
                             },
                             startTime: Date.parse(startTime),
                             endTime: Date.parse(endTime),
-                            period: period
+                            period: period,
+                            interval: interval
                         }
 
+                        if(period ==  'day') {
+                            console.log(entityCost)
+                        }
                         entityCosts.upsertEntityCost(entityCost, next)
                     },
                     function(err) {
