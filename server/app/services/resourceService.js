@@ -240,7 +240,7 @@ function aggregateEntityCosts(parentEntity, parentEntityId, parentEntityQuery, e
                             period: period
                         }
 
-                        entityCosts.saveEntityCost(entityCost, next)
+                        entityCosts.upsertEntityCost(entityCost, next)
                     },
                     function(err) {
                         if(err) {
