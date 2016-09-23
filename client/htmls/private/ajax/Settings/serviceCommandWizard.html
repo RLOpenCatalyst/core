@@ -5,7 +5,7 @@
             <h4 class="widget-margin" style="color:black;">Create Services</h4>
          </div>
          <div class="widget-body">
-            <div class="widget-main" style="height:550px">
+            <div class="widget-main" style="min-height:300px">
                <div class="jarviswidget" data-widget-editbutton="false" data-widget-custombutton="false">
                   <div>
                      <!-- widget content -->
@@ -151,11 +151,14 @@
                      <!-- end widget content -->
                   </div>
                </div>
-               <div class="btn-group pull-right">
-                  <button  name="nextService" id="nextService" class="nextService action-button" value="Next">Next</button>
-               </div>
             </div>
          </div>
+         <div class="widget-toolbox clearfix">
+            <div class="btn-group pull-right">
+             <button name="next1" id="saveProviderWizard" style="margin-right:11px;" class="saveFormWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
+             <input type="button" name="next1" id="next1" class="nextFormWizard btn btn-primary" value="Next"/>
+          </div>
+       </div>
       </div>
    </form>
 </div>
@@ -235,7 +238,7 @@
         }
         return false; // for demo
     });
-    $(".nextService").click(function(){
+    $(".nextFormWizard").click(function(){
         $('.contentSetting').find('ol li#serviceCreate').removeClass('active').addClass('green-btn');
         $('.contentSetting').find('ol li#scriptCreate').addClass('active');
         $('.content').load("ajax/Settings/scriptWizard.html");

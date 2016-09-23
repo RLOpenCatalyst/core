@@ -160,37 +160,40 @@
             </div>
          </div>
       </div>
-   </div>
-   <div class="btn-group pull-right">
-      <button  name="nextChef" id="nextChef" class="nextChef action-button" value="Next">Next</button>
+      <div class="widget-toolbox clearfix">
+            <div class="btn-group pull-right">
+             <button name="next1" id="saveProviderWizard" style="margin-right:11px;" class="saveFormWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
+             <input type="button" name="next1" id="next1" class="nextFormWizard btn btn-primary" value="Next"/>
+          </div>
+       </div>
    </div>
 </form>
 </div>
 <script>
     $(document).ready(function(e) {
-      orgNameForSetup = $('#orgDropdown option:selected').attr('rowid');
-    orgIdForSetup = $('#orgDropdown option:selected').val();
-    var $option = $('<option></option>').val(orgNameForSetup).attr('rowid',orgIdForSetup).html(orgNameForSetup);
-    $('#orgname').append($option);
-      var wizardFlowGallery = $('<ol class="bwizard-steps clearfix clickable"><li aria-selected="true" id="templatesCreate" class="active btn-2 templatesCreate" style="z-index: 4;"><span class="label badge-inverse">1</span><a href="ajax/Settings/galleryWizard.html" class="hidden-phone">Create Templates</a><a href="ajax/Settings/galleryWizard.html" class="hidden-phone"><small></small></a></li><li aria-selected="false" style="z-index: 3;" id="serviceCreate" class="btn-3 serviceCreate"><span class="label">2</span><a href="ajax/Settings/serviceCommandWizard.html" class="hidden-phone">Service Command</a><a href="ajax/Settings/serviceCommandWizard.html" class="hidden-phone"></a><a href="ajax/Settings/serviceCommandWizard.html" class="hidden-phone"></a></li><li aria-selected="false" style="z-index: 3;" id="scriptCreate" class="btn-4 scriptCreate"><span class="label">3</span><a href="ajax/Settings/scriptWizard.html" class="hidden-phone">Script Gallery</a><a href="ajax/Settings/scriptWizard.html" class="hidden-phone"></a><a href="ajax/Settings/scriptWizard.html" class="hidden-phone"></a></li></ol>');
-      $('.wizardFlow').append(wizardFlowGallery);
-      $('.btn-2 a').click(function(e) {
-        e.preventDefault();
-        $('.contentSetting').load(this.getAttribute('href'));
-    });
-    $('.btn-3 a').click(function(e) {
-        $('.btn-2 a').parent('.bwizard-steps li').removeClass('active')
-        $(this).parent('.bwizard-steps li').addClass('active');
-        e.preventDefault();
-        $('.content').load(this.getAttribute('href'));
-    });
-    $('.btn-4 a').click(function(e) {
-        $('.btn-2 a,.btn-3 a').parent('.bwizard-steps li').removeClass('active');
-        $(this).parent('.bwizard-steps li').addClass('active');
-        e.preventDefault();
-        $('.content').load(this.getAttribute('href'));
-    });
-    
+        orgNameForSetup = $('#orgDropdown option:selected').attr('rowid');
+        orgIdForSetup = $('#orgDropdown option:selected').val();
+        var $option = $('<option></option>').val(orgNameForSetup).attr('rowid', orgIdForSetup).html(orgNameForSetup);
+        $('#orgname').append($option);
+        var wizardFlowGallery = $('<ol class="bwizard-steps clearfix clickable"><li aria-selected="true" id="templatesCreate" class="active btn-2 templatesCreate" style="z-index: 4;"><span class="label badge-inverse">1</span><a href="ajax/Settings/galleryWizard.html" class="hidden-phone">Create Templates</a><a href="ajax/Settings/galleryWizard.html" class="hidden-phone"><small></small></a></li><li aria-selected="false" style="z-index: 3;" id="serviceCreate" class="btn-3 serviceCreate"><span class="label">2</span><a href="ajax/Settings/serviceCommandWizard.html" class="hidden-phone">Service Command</a><a href="ajax/Settings/serviceCommandWizard.html" class="hidden-phone"></a><a href="ajax/Settings/serviceCommandWizard.html" class="hidden-phone"></a></li><li aria-selected="false" style="z-index: 3;" id="scriptCreate" class="btn-4 scriptCreate"><span class="label">3</span><a href="ajax/Settings/scriptWizard.html" class="hidden-phone">Script Gallery</a><a href="ajax/Settings/scriptWizard.html" class="hidden-phone"></a><a href="ajax/Settings/scriptWizard.html" class="hidden-phone"></a></li></ol>');
+        $('.wizardFlow').append(wizardFlowGallery);
+        $('.btn-2 a').click(function(e) {
+            e.preventDefault();
+            $('.contentSetting').load(this.getAttribute('href'));
+        });
+        $('.btn-3 a').click(function(e) {
+            $('.btn-2 a').parent('.bwizard-steps li').removeClass('active')
+            $(this).parent('.bwizard-steps li').addClass('active');
+            e.preventDefault();
+            $('.content').load(this.getAttribute('href'));
+        });
+        $('.btn-4 a').click(function(e) {
+            $('.btn-2 a,.btn-3 a').parent('.bwizard-steps li').removeClass('active');
+            $(this).parent('.bwizard-steps li').addClass('active');
+            e.preventDefault();
+            $('.content').load(this.getAttribute('href'));
+        });
+
         $('#wizardActionListLoader').show();
         //api call for getting the status of wizard
         $.get('/setting-wizard/org/' + orgIdForSetup, function(data) {
@@ -200,178 +203,103 @@
                     nestedSteps[1].name === 'ServiceCommand' && nestedSteps[1].isCompleted === false &&
                     nestedSteps[2].name === 'ScriptGallery' && nestedSteps[2].isCompleted === false) {
                     $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
-                      $('.contentSetting').find('ol li#serviceCreate').addClass('active');
-                      $('.content').load('ajax/Settings/serviceCommandWizard.html');
+                    $('.contentSetting').find('ol li#serviceCreate').addClass('active');
+                    $('.content').load('ajax/Settings/serviceCommandWizard.html');
                 } else if (nestedSteps[0].name === 'Templates' && nestedSteps[0].isCompleted === true &&
                     nestedSteps[1].name === 'ServiceCommand' && nestedSteps[1].isCompleted === true &&
                     nestedSteps[2].name === 'ScriptGallery' && nestedSteps[2].isCompleted === false) {
                     $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
-            $('.contentSetting').find('ol li#serviceCreate').removeClass('active').addClass('green-btn');
-            $('.contentSetting').find('ol li#scriptCreate').addClass('active');
-            $('.content').load('ajax/Settings/scriptWizard.html');
-                } else {
-                }
+                    $('.contentSetting').find('ol li#serviceCreate').removeClass('active').addClass('green-btn');
+                    $('.contentSetting').find('ol li#scriptCreate').addClass('active');
+                    $('.content').load('ajax/Settings/scriptWizard.html');
+                } else {}
             }
         });
         $('#wizardActionListLoader').hide();
     });
-    $.get('/d4dMasters/readmasterjsonnew/16',function(data){
-      data = JSON.parse(data);
-        for(var i =0;i<data.length;i++){
-          if (data[i].templatetypename == 'Composite' || data[i].templatetypename == 'OSImage') {
-            continue;
-          }else {
-            if(orgIdForSetup == data[i].orgname_rowid) {
-              var $optionTemplates = $('<option></option>').val(data[i].templatetypename).attr('rowid',data[i].rowid).html(data[i].templatetypename);
-              $('#templatetypename').append($optionTemplates);
-            }  
-          }   
+    $.get('/d4dMasters/readmasterjsonnew/16', function(data) {
+        data = JSON.parse(data);
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].templatetypename == 'Composite' || data[i].templatetypename == 'OSImage') {
+                continue;
+            } else {
+                if (orgIdForSetup == data[i].orgname_rowid) {
+                    var $optionTemplates = $('<option></option>').val(data[i].templatetypename).attr('rowid', data[i].rowid).html(data[i].templatetypename);
+                    $('#templatetypename').append($optionTemplates);
+                }
+            }
         }
     });
-  
-    function loadCookbookSelectorControlFromOrgId(orgId){
-       var csid = $('#' + orgId + ' option:selected').attr('rowid');
-      
-       if(csid != undefined){
+
+    function loadCookbookSelectorControlFromOrgId(orgId) {
+        var csid = $('#' + orgId + ' option:selected').attr('rowid');
+
+        if (csid != undefined) {
             //alert(csid);
-       var itms = $('#templatescookbooks').attr('savedvalue');
-       if(itms) {
-         itms = itms.split(',');
-       } else {
-         itms = [];
-       }
-       console.log(itms);
-       var $ccrs = $chefCookbookRoleSelector(csid,null,itms);
-        $('#templatescookbooks').empty().append($ccrs).data('$ccrs',$ccrs);
-   
-       }
-   }
+            var itms = $('#templatescookbooks').attr('savedvalue');
+            if (itms) {
+                itms = itms.split(',');
+            } else {
+                itms = [];
+            }
+            console.log(itms);
+            var $ccrs = $chefCookbookRoleSelector(csid, null, itms);
+            $('#templatescookbooks').empty().append($ccrs).data('$ccrs', $ccrs);
 
-   $('#myForm6').submit(function() {
-                  
-                   var templateType = $('#templatetypename').val();
-                   if(templateType === 'Docker'){
-                        if($('#dockercontainers').val() != '')
-                        {
-                           $('#dockercontainerpaths').html('');
-                           addToTargetList($('#dockercontainers'),$('#templatename'));
-                        }
-                     }
-                   $(this).validate();
-                   if (templateType === 'Docker' || templateType === 'SoftwareStack') {
+        }
+    }
 
-                       $('#template').removeAttr('cat-validation', 'required');
-                       //Explicitly adding validation for repo path
-                       if(templateType === 'Docker' && $('#dockercontainerpaths').text() == "")
-                         $('#dockercontainers').attr('cat-validation','required');
-                       else
-                           {  
-                              $('#dockercontainers').removeAttr('cat-validation');
-                              
-                           }
-                         
+    $('#myForm6').submit(function() {
 
-                       if ($(this).valid) {
-                           /*alert('valid form submitted'); // for demo*/
-                           if (validateForm()) {
-                               
-                               saveform('17');
-                           };
-                       } else {
-                           alert('invalid form submitted'); // for demo
-                       }
-                   } else if (templateType === 'CloudFormation' || templateType === 'ARMTemplate' ){
-                     
-                           $('#template').attr('cat-validation', 'required');
-                           //explicity removing validation for repo path
-                           $('#dockercontainers').removeAttr('cat-validation');
-                           if ($(this).valid) {
-                               /*alert('valid form submitted'); // for demo*/
-                               if (validateForm()) {
-                                   
-                                   saveform('17');
-                               };
-                           } else {
-                               alert('invalid valid form submitted'); // for demo
-                           }
-                       }
-                       return false; // for demo
-                   });
-          
+        var templateType = $('#templatetypename').val();
+        if (templateType === 'Docker') {
+            if ($('#dockercontainers').val() != '') {
+                $('#dockercontainerpaths').html('');
+                addToTargetList($('#dockercontainers'), $('#templatename'));
+            }
+        }
+        $(this).validate();
+        if (templateType === 'Docker' || templateType === 'SoftwareStack') {
 
-    //jQuery time
-    var current_fs, next_fs, previous_fs; //fieldsets
-    var left, opacity, scale; //fieldset properties which we will animate
-    var animating; //flag to prevent quick multi-click glitches    
-    $(".nextChef").click(function(){
+            $('#template').removeAttr('cat-validation', 'required');
+            //Explicitly adding validation for repo path
+            if (templateType === 'Docker' && $('#dockercontainerpaths').text() == "")
+                $('#dockercontainers').attr('cat-validation', 'required');
+            else {
+                $('#dockercontainers').removeAttr('cat-validation');
+
+            }
+
+
+            if ($(this).valid) {
+                /*alert('valid form submitted'); // for demo*/
+                if (validateForm()) {
+
+                    saveform('17');
+                };
+            } else {
+                alert('invalid form submitted'); // for demo
+            }
+        } else if (templateType === 'CloudFormation' || templateType === 'ARMTemplate') {
+
+            $('#template').attr('cat-validation', 'required');
+            //explicity removing validation for repo path
+            $('#dockercontainers').removeAttr('cat-validation');
+            if ($(this).valid) {
+                /*alert('valid form submitted'); // for demo*/
+                if (validateForm()) {
+
+                    saveform('17');
+                };
+            } else {
+                alert('invalid valid form submitted'); // for demo
+            }
+        }
+        return false; // for demo
+    });
+    $(".nextFormWizard").click(function() {
         $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
         $('.contentSetting').find('ol li#serviceCreate').addClass('active');
         $('.content').load('ajax/Settings/serviceCommandWizard.html');
-        if(animating) return false;
-        animating = true;
-
-        current_fs = $(this).parent();
-        next_fs = $(this).parent().next();
-
-        //activate next step on progressbar using the index of next_fs
-        $("#progressbar li").eq($("div form").index(next_fs)).addClass("active");
-        //show the next fieldset
-        next_fs.show();
-        //hide the current fieldset with style
-        current_fs.animate({opacity: 0}, {
-            step: function(now, mx) {
-                //as the opacity of current_fs reduces to 0 - stored in "now"
-                //1. scale current_fs down to 80%
-                scale = 1 - (1 - now) * 0.2;
-                //2. bring next_fs from the right(50%)
-                left = (now * 50)+"%";
-                //3. increase opacity of next_fs to 1 as it moves in
-                opacity = 1 - now;
-                current_fs.css({'transform': 'scale('+scale+')'});
-                next_fs.css({'left': left, 'opacity': opacity});
-            },
-            duration: 800,
-            complete: function(){
-                current_fs.hide();
-                animating = false;
-            },
-            //this comes from the custom easing plugin
-            easing: 'easeInOutBack'
-        });
-    });
-
-    $(".previous").click(function(){
-        if(animating) return false;
-        animating = true;
-
-        current_fs = $(this).parent();
-        previous_fs = $(this).parent().prev();
-
-        //de-activate current step on progressbar
-        $("#progressbar li").eq($("form").index(current_fs)).removeClass("active");
-
-        //show the previous fieldset
-        previous_fs.show();
-        //hide the current fieldset with style
-        current_fs.animate({opacity: 0}, {
-            step: function(now, mx) {
-                //as the opacity of current_fs reduces to 0 - stored in "now"
-                //1. scale previous_fs from 80% to 100%
-                scale = 0.8 + (1 - now) * 0.2;
-                //2. take current_fs to the right(50%) - from 0%
-                left = ((1-now) * 50)+"%";
-                //3. increase opacity of previous_fs to 1 as it moves in
-                opacity = 1 - now;
-                current_fs.css({'left': left});
-                previous_fs.css({'transform': 'scale('+scale+')', 'opacity': opacity});
-            },
-            duration: 800,
-            complete: function(){
-                current_fs.hide();
-                animating = false;
-            },
-            //this comes from the custom easing plugin
-            easing: 'easeInOutBack'
-        });
     });
 </script>

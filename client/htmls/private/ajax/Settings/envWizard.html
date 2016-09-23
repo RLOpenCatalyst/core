@@ -54,13 +54,15 @@
                             <!-- end widget content -->
                         </div>
                     </div>
-                    <div class="btn-group pull-right">
-                        <button  name="nextEnv" id="nextEnv" class="nextEnv action-button" value="Next">Next</button>
-                    </div>
                 </div>
             </div>
+            <div class="widget-toolbox clearfix">
+                <div class="btn-group pull-right">
+                 <button name="next1" id="saveConfigEnv" style="margin-right:11px;" class="saveFormWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
+                 <input type="button" disabled="disabled" name="next1" id="next1" class="nextFormWizard btn btn-primary" value="Next"/>
+              </div>
+            </div>
         </div>
-
     </form>
 </div>
 <div class="modal fade bs-example-modal-sg" id="myModalCreateChefEnv" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
@@ -95,143 +97,146 @@
 </div>
 
 <script>
-    var $optionOrg = $('<option></option>').val(orgNameForSetup).attr('rowid',orgIdForSetup).html(orgNameForSetup);
-    $('#orgname').append($optionOrg);
-    $('#orgname').change(function(){
-        //$('#configname').empty();
-        $('#projectname').empty();
-        $.get('/d4dMasters/readmasterjsonnew/10',function(data){
-            for(var i =0;i<data.length;i++){
-                if(orgIdForSetup === data[i].orgname_rowid[0]){
-                    var $optionChefServer = $('<option></option>').val(data[i].configname).attr('rowid',data[i].rowid).html(data[i].configname);
-                    $('#configname').append($optionChefServer).trigger('change');
-                }
-            }
-        });
-        $.get('/d4dMasters/readmasterjsonnew/4',function(data){
-            for(var i =0;i<data.length;i++){
-                if(orgIdForSetup === data[i].orgname_rowid[0]){
-                    var str = '',
-                            getTemplate = function(val, rowid) {
-                                return '<label class="toggle font-sm" style="padding-left:4px;"><input onclick="if($(this).is(&quot;:checked&quot;)) {$(this).closest(&quot;label&quot;).' + 'css(&quot;background-color&quot;,&quot;#eeeeee&quot;);$(this).css(&quot;border-color&quot;,&quot;#3b9ff3&quot;);}else{$(this).closest(&quot;label&quot;).css(&quot;background-color&quot;,&quot;#ffffff&quot;);$(this).css(&quot;border-' + 'color&quot;,&quot;red&quot;);}" type="checkbox" id="checkbox-toggle" name="checkbox-toggle" rowid="1ae4f099-7adc-4089-81c6-db2248774142"' + 'value="' + rowid + '" style="width:100%"><i data-swchoff-text="NO" data-swchon-text="YES"></i>' + val + '</label>';
-                            };
-                        str = str + getTemplate(data[i].projectname,data[i].rowid);
-                        $('#projectname').append(str);
-                }
-            }
-        });
-        
-    });
-    
-    $('#orgname').trigger('change');
-    function preprocess() {
-        $('#createenvinchefform')[0].reset();
-        if (typeof $('#configname').find('option:selected').attr('rowid') == 'undefined') {
-            bootbox.alert('Select a Chef Server before adding an environments.');
-            return (false);
-        } else
-            return (true);
-    }
-    $('#createenvinchefform').submit(function(e) {
-        var reqBodyEnv = {};
-        var chefid = $('#configname').find('option:selected').attr('rowid');
-        var $crbtn = $('#createenvinchefform').find('#createchefenvbtn')
-        $crbtn.attr('disabled', 'disabled');
-        var $form = $('#createenvinchefform');
-        reqBodyEnv.name = $form.find('#chefenvname').val();
-        if (!reqBodyEnv.name) {
-            alert('Please Enter Environment Name');
-            return false;
-        }
-        $('#envcreatespinner').removeClass('hidden');
-        if (typeof chefid != 'undefined') {
+   var $optionOrg = $('<option></option>').val(orgNameForSetup).attr('rowid', orgIdForSetup).html(orgNameForSetup);
+   $('#orgname').append($optionOrg);
+   $('#orgname').change(function() {
+       //$('#configname').empty();
+       $('#projectname').empty();
+       $.get('/d4dMasters/readmasterjsonnew/10', function(data) {
+           for (var i = 0; i < data.length; i++) {
+               if (orgIdForSetup === data[i].orgname_rowid[0]) {
+                   var $optionChefServer = $('<option></option>').val(data[i].configname).attr('rowid', data[i].rowid).html(data[i].configname);
+                   $('#configname').append($optionChefServer).trigger('change');
+               }
+           }
+       });
+       $.get('/d4dMasters/readmasterjsonnew/4', function(data) {
+           for (var i = 0; i < data.length; i++) {
+               if (orgIdForSetup === data[i].orgname_rowid[0]) {
+                   var str = '',
+                       getTemplate = function(val, rowid) {
+                           return '<label class="toggle font-sm" style="padding-left:4px;"><input onclick="if($(this).is(&quot;:checked&quot;)) {$(this).closest(&quot;label&quot;).' + 'css(&quot;background-color&quot;,&quot;#eeeeee&quot;);$(this).css(&quot;border-color&quot;,&quot;#3b9ff3&quot;);}else{$(this).closest(&quot;label&quot;).css(&quot;background-color&quot;,&quot;#ffffff&quot;);$(this).css(&quot;border-' + 'color&quot;,&quot;red&quot;);}" type="checkbox" id="checkbox-toggle" name="checkbox-toggle" rowid="1ae4f099-7adc-4089-81c6-db2248774142"' + 'value="' + rowid + '" style="width:100%"><i data-swchoff-text="NO" data-swchon-text="YES"></i>' + val + '</label>';
+                       };
+                   str = str + getTemplate(data[i].projectname, data[i].rowid);
+                   $('#projectname').append(str);
+               }
+           }
+       });
 
-            $.ajax({
-                type: "Post",
-                url: '../chef/environments/create/' + chefid,
-                data: {
-                    envName: $('#chefenvname').val()
-                },
-                success: function(envname, success) {
-                    if (envname) {
-                        $crbtn.removeAttr('disabled');
-                        $('#envcreatespinner').addClass('hidden');
-                        $('#configname').change();
-                        $('#myModalCreateChefEnv').modal('hide');
-                        $('#environmentname').empty();
-                    } else {
-                        $('#chefenvcreatemsg').html('Could not complete.' + envname);
-                        $crbtn.removeAttr('disabled');
-                        $('#envcreatespinner').addClass('hidden');
-                        $('#myModalCreateChefEnv').modal('hide');
-                    }
-                },
-                error: function(jqxhr) {
-                    bootbox.alert(jqxhr.responseText);
-                    $crbtn.removeAttr('disabled');
-                    $('#envcreatespinner').addClass('hidden');
-                    $('#myModalCreateChefEnv').modal('hide');
-                },
-                failure: function(envname) {
-                    bootbox.alert(envname.responseText);
-                }
-            });
-        }
-        return false;
-    });
-    function loadChefEnvs(chefID) {
-        $('#myForm1').find('button').attr('disabled', 'disabled');
-        $.get('../chef/servers/' + chefID + '/environments', function(envList) { //getting the list of env
+   });
 
-            if (envList) {
-                var envlist = envList.toString().split(',');
-                var $envselect = $('#environmentname').addClass('envselect').addClass('form-control').addClass('width100').addClass('padding0');
-                for (var j = 0; j < envList.length; j++) {
-                    if ($envselect.val() === envList[j]) {
-                        $envselect.html('');
-                    }
-                    $envselect.append('<option value="' + envList[j] + '">' + envList[j] + '</option>');
-                }
-                $envselect.val($envselect.attr('savedvalue'));
-                $envselect.change();
-                $('#myForm1').find('button').removeAttr('disabled');
-            }
-        });
-    }
-    $('#configname').change(function(e) {
-        var chefid = $(this).find('option:selected').attr('rowid');
-        if (chefid)
-            loadChefEnvs(chefid);
-    });
-    
-    $('#myForm1').submit(function() {
-        $(this).validate();
+   $('#orgname').trigger('change');
 
-        if ($(this).valid) {
-            /* alert('valid form submitted'); // for demo*/
-            var chefEnv = $('#environmentname option:selected').val();
-            var puppetEnv = $('#puppetenvironmentname option:selected').val();
-            if (!chefEnv) {
-                alert('Chef Environment Required.');
-                return false;
-            }
+   function preprocess() {
+       $('#createenvinchefform')[0].reset();
+       if (typeof $('#configname').find('option:selected').attr('rowid') == 'undefined') {
+           bootbox.alert('Select a Chef Server before adding an environments.');
+           return (false);
+       } else
+           return (true);
+   }
+   $('#createenvinchefform').submit(function(e) {
+       var reqBodyEnv = {};
+       var chefid = $('#configname').find('option:selected').attr('rowid');
+       var $crbtn = $('#createenvinchefform').find('#createchefenvbtn')
+       $crbtn.attr('disabled', 'disabled');
+       var $form = $('#createenvinchefform');
+       reqBodyEnv.name = $form.find('#chefenvname').val();
+       if (!reqBodyEnv.name) {
+           alert('Please Enter Environment Name');
+           return false;
+       }
+       $('#envcreatespinner').removeClass('hidden');
+       if (typeof chefid != 'undefined') {
 
-            if (!puppetEnv) {
-                $('#puppetservername').val('');
-            }
-            if (!chefEnv) {
-                $('#configname').val('');
-            }
-            if (!saveform('3')) {
-                $('#providerConfiguration a').trigger('click');
-                return false;
-            }
-        } else {
-            alert('invalid valid form submitted'); // for demo
-        }
-        return false; // for demo
-    });
-    $(".nextEnv").click(function(){
-        toastr.success('Step 2 - Config Management Setup Completed');
-    });
+           $.ajax({
+               type: "Post",
+               url: '../chef/environments/create/' + chefid,
+               data: {
+                   envName: $('#chefenvname').val()
+               },
+               success: function(envname, success) {
+                   if (envname) {
+                       $crbtn.removeAttr('disabled');
+                       $('#envcreatespinner').addClass('hidden');
+                       $('#configname').change();
+                       $('#myModalCreateChefEnv').modal('hide');
+                       $('#environmentname').empty();
+                   } else {
+                       $('#chefenvcreatemsg').html('Could not complete.' + envname);
+                       $crbtn.removeAttr('disabled');
+                       $('#envcreatespinner').addClass('hidden');
+                       $('#myModalCreateChefEnv').modal('hide');
+                   }
+               },
+               error: function(jqxhr) {
+                   bootbox.alert(jqxhr.responseText);
+                   $crbtn.removeAttr('disabled');
+                   $('#envcreatespinner').addClass('hidden');
+                   $('#myModalCreateChefEnv').modal('hide');
+               },
+               failure: function(envname) {
+                   bootbox.alert(envname.responseText);
+               }
+           });
+       }
+       return false;
+   });
+
+   function loadChefEnvs(chefID) {
+       $('#myForm1').find('button').attr('disabled', 'disabled');
+       $.get('../chef/servers/' + chefID + '/environments', function(envList) { //getting the list of env
+
+           if (envList) {
+               var envlist = envList.toString().split(',');
+               var $envselect = $('#environmentname').addClass('envselect').addClass('form-control').addClass('width100').addClass('padding0');
+               for (var j = 0; j < envList.length; j++) {
+                   if ($envselect.val() === envList[j]) {
+                       $envselect.html('');
+                   }
+                   $envselect.append('<option value="' + envList[j] + '">' + envList[j] + '</option>');
+               }
+               $envselect.val($envselect.attr('savedvalue'));
+               $envselect.change();
+               $('#myForm1').find('button').removeAttr('disabled');
+           }
+       });
+   }
+   $('#configname').change(function(e) {
+       var chefid = $(this).find('option:selected').attr('rowid');
+       if (chefid)
+           loadChefEnvs(chefid);
+   });
+
+   $('#myForm1').submit(function() {
+       $(this).validate();
+
+       if ($(this).valid) {
+           var chefEnv = $('#environmentname option:selected').val();
+           var puppetEnv = $('#puppetenvironmentname option:selected').val();
+           if (!chefEnv) {
+               alert('Chef Environment Required.');
+               return false;
+           }
+
+           if (!puppetEnv) {
+               $('#puppetservername').val('');
+           }
+           if (!chefEnv) {
+               $('#configname').val('');
+           }
+           if (!saveform('3')) {
+               return false;
+           }
+       } else {
+           alert('invalid valid form submitted'); // for demo
+       }
+       return false; // for demo
+   });
+   $(".nextFormWizard").click(function() {
+       toastr.success('Step 2 - Config Management Setup Completed');
+       $('#providerConfiguration a').trigger('click');
+       $('#startConfig a, #orgConfiguration a,#configManagement a').addClass('green-btn').removeClass('process-btn');
+       $('.wizardFlow').empty();
+   });
 </script>

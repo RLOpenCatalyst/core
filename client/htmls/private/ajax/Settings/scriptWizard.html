@@ -59,11 +59,14 @@
                      <!-- end widget content -->
                   </div>
                </div>
-               <div class="btn-group pull-right">
-                  <button  name="nextScript" id="nextScript" class="nextScript action-button" value="Next">Next</button>
-               </div>
             </div>
          </div>
+         <div class="widget-toolbox clearfix">
+            <div class="btn-group pull-right">
+             <button name="next1" id="saveProviderWizard" style="margin-right:11px;" class="saveFormWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
+             <input type="button" name="next1" id="next1" class="nextFormWizard btn btn-primary" value="Next"/>
+          </div>
+       </div>
       </div>
    </form>
 </div>
@@ -191,7 +194,10 @@ $('#scriptForm').submit(function(e) {
     }
 });
     
-    $(".nextScript").click(function(){
+    $(".nextFormWizard").click(function(){
         toastr.success('Step 4 - Gallery Setup Completed');
+        $('#startConfig a, #orgConfiguration a,#configManagement a,#providerConfiguration a,#galleryConfiguration a').addClass('green-btn').removeClass('process-btn');
+        $('.wizardFlow').empty();
+        $('#devopsConfiguration a').trigger('click');
     });
 </script>

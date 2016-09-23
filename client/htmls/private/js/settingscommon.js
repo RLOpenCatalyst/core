@@ -2441,6 +2441,7 @@ function saveform(formID, operationTypes) {
 				button.removeAttr("rowid", "");
 				$("#masterssavespinner").detach();
 				button.removeAttr('disabled');
+				$('.nextFormWizard').removeAttr('disabled','disabled');
 			} else {
 				$(".savespinner").hide();
 				button.removeAttr("rowid", "");

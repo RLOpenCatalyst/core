@@ -1,13 +1,12 @@
-<div class="bgContent">
-   <form action="" id="myForm3" class="content">
-      <div class="widget-box">
-         <div class="widget-header">
-            <h4 class="widget-margin" style="color:black;">Create Project</h4>
-         </div>
-         <div class="widget-body">
-            <div class="widget-main" style="min-height:200px">
-               <div class="jarviswidget" id="wid-id-3" data-widget-editbutton="false" data-widget-custombutton="false">
-                <div>
+<form action="" id="myForm3" class="content">
+   <div class="widget-box">
+      <div class="widget-header">
+         <h4 class="widget-margin" style="color:black;">Create Project</h4>
+      </div>
+      <div class="widget-body">
+         <div class="widget-main" style="min-height:200px">
+            <div class="jarviswidget" id="wid-id-3" data-widget-editbutton="false" data-widget-custombutton="false">
+               <div>
                   <div class="widget-body no-padding">
                      <div class="col-lg-6 col-md-6">
                         <label for="name">Name:<span class="control-label redSpan">&nbsp;*</span></label>
@@ -57,16 +56,19 @@
                      </div>
                      <!-- end widget content -->
                   </div>
-                </div>
                </div>
             </div>
          </div>
       </div>
-      <div class="btn-group pull-right">
-         <button name="next3" id="next3" class="nextBG btn btn-primary btn-mini">Next</button>
-      </div>
-   </form>
-</div>
+      <div class="widget-toolbox clearfix">
+            <div class="btn-group pull-right">
+             <button name="next1" id="saveProj" style="margin-right:11px;" class="saveFormWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
+             <input type="button" disabled="disabled" name="next1" id="next1" class="nextFormWizard btn btn-primary" value="Next"/>
+          </div>
+       </div>
+   </div>
+</form>
+
 
 <script>
 //to get the businessGroupname corresponding to the organisation.
@@ -111,19 +113,19 @@ $('#myForm3').submit(function() {
     $(this).validate();
     if ($(this).valid) {
         if (!saveform('4')) {
-            $('#wizardActionListLoader').show();
-            $('#configManagement a').trigger('click');
-            $('#startConfig a, #orgConfiguration a').addClass('green-btn').removeClass('process-btn');
-            $('.wizardFlow').empty();
             return false;
         }
     } else {
-        alert('invalid valid form submitted'); // for demo
+        toastr.error('invalid valid form submitted'); // for demo
     }
     return false; // for demo
 });
 
-$(".nextBG").click(function() {
+$(".nextFormWizard").click(function() {
+    $('#wizardActionListLoader').show();
+    $('#configManagement a').trigger('click');
+    $('#startConfig a, #orgConfiguration a').addClass('green-btn').removeClass('process-btn');
+    $('.wizardFlow').empty();
     toastr.success('Step 1 - Org Setup Completed');
     $('#createNew').removeClass('hidden');
     $('#cancelWizard').addClass('hidden');

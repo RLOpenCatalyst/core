@@ -130,7 +130,7 @@
                     <i class="ace-icon fa fa-times bigger-110"></i>Cancel Wizard
                 </a>
                 <a id="createNew" class="btn btn-primary">
-                    <i class="ace-icon ace-icon fa fa-plus bigger-110"></i> New Wizard
+                    <i class="ace-icon ace-icon fa fa-plus bigger-110"></i> New Org-Setup
                 </a>
             </div>
         </div>
@@ -180,7 +180,7 @@ var orgIdForSetup, orgNameForSetup, bgNameForSetup;
 //added for v3.0 - when navigating from v2.0 workzone to settings-
 $(document).ready(function() {
     $('#wizardActionListLoader').show();
-    $("#content").attr('style', 'height: 100%!important')
+    $("#content").attr('style', 'height: 96%!important')
     if (isAngularIntegration) {
         $('#workZoneNew').attr('href', '#');
         $('#workZoneNew').removeClass('active');
@@ -190,7 +190,23 @@ $(document).ready(function() {
         $("#ribbon ol.breadcrumb").empty();
         $("#ribbon ol.breadcrumb").append($("<li>Settings</li>"));
     }
+    var hasCreatePermissionOrg = false;
+    if (haspermission('organization', 'create')) {
+        hasCreatePermissionOrg = true;
+    }
+
+    if (!hasCreatePermissionOrg) {
+        $('#createNew').addClass('hidden');
+    }
+    isUserTypeSuperAdmin();
 });
+function isUserTypeSuperAdmin() {
+    $.get('/d4dMasters/loggedInUser', function(data) {
+        if (!data.isSuperAdmin) {
+            $('#createNew').attr('disabled', 'disabled');
+        }
+    });
+}
 var serviceURL = "/d4dMasters/";
 window.selectedOrgName = 'Settings';
 var clicked = true;
@@ -254,10 +270,18 @@ $('#orgConfiguration a').click(function(e) {
     orgForBg = $('#orgDropdown option:selected').text();
     if(selectedDropdownValue){
         getOrgValues();
+    } else {
+        lastDropdownValue = $('#orgDropdown option:last').val();
     }
 });
 
 $('#configManagement a').click(function(e) {
+    selectedDropdownValue = $('#orgDropdown option:selected').val();
+    orgForBg = $('#orgDropdown option:selected').text();
+});
+
+$('#providerConfiguration a').click(function(e) {
+
     selectedDropdownValue = $('#orgDropdown option:selected').val();
     orgForBg = $('#orgDropdown option:selected').text();
 });
@@ -288,7 +312,6 @@ function changeWizardStatus(orgIdForSetup) {
                 } else if (data.previousStep.name === 'Gallery Setup') {
                     $('#startConfig a, #orgConfiguration a,#configManagement a,#providerConfiguration a,#galleryConfiguration a').removeClass('active-btn process-btn').addClass('green-btn');
                     $('#devopsConfiguration a').trigger('click');
-
                 } else if (data.previousStep.name === 'Devops Roles') {
                     $('#startConfig a, #orgConfiguration a,#configManagement a, #providerConfiguration a,#galleryConfiguration a,#devopsConfiguration a').removeClass('active-btn process-btn').addClass('green-btn');
                     $('#cmdbConfiguration a').trigger('click');

@@ -174,9 +174,12 @@
                </div>
             </div>
          </div>
-      </div>
-      <div class="btn-group pull-right">
-         <button  name="nextChef" id="savecreateNexusServerBtn" class="nextChef action-button" value="Next">Next</button>
+         <div class="widget-toolbox clearfix">
+            <div class="btn-group pull-right">
+             <button name="next1" id="saveProviderWizard" style="margin-right:11px;" class="saveFormWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
+             <input type="button" name="next1" id="next1" class="nextFormWizard btn btn-primary" value="Next"/>
+          </div>
+       </div>
       </div>
    </form>
 </div>
@@ -344,7 +347,7 @@ $('#myForm101').submit(function(e) {
     var current_fs, next_fs, previous_fs; //fieldsets
     var left, opacity, scale; //fieldset properties which we will animate
     var animating; //flag to prevent quick multi-click glitches
-    $(".nextChef").click(function(){
+    $(".nextFormWizard").click(function(){
         $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
         $('.contentSetting').find('ol li#dockerCreate').addClass('active');
         if(animating) return false;

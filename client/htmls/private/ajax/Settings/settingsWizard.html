@@ -112,43 +112,45 @@
 </div>
 <!-- fieldsets -->
 <div class="content">
-    <form action="" id="myForm">
-        <div class="widget-box">
-            <div class="widget-header">
-                <h4 class="widget-margin" style="color:black;">Create Organization</h4>
-            </div>
-            <div class="widget-body">
-                <div class="widget-main" style="min-height:200px">
-                    <div class="jarviswidget" id="wid-id-3" data-widget-editbutton="false" data-widget-custombutton="false">
-                        <div>
-                            <div class="widget-body no-padding">
-                                <div class="col-lg-6 col-md-6">
-                                    <label for="name">Name:
-                                    <span class="control-label redSpan">&nbsp;*</span></label>
-                                   <!-- <input type="hidden" name="checkOrgHidden" id="checkOrgHidden" value="true"/>-->
-                                    <input autofocus name="ctl00$MainContent$orgname" value="" id="orgname" class="form-control" cdata="catalyst" type="text" cat-validation="required,nospecial,max15,nospace">
-                                </div>
-                                <div class="col-lg-6 col-md-6">
-                                    <label for="name">Domain Name:</label>
-                                    <input name="ctl00$MainContent$domainname" value="" id="domainname" class="form-control" type="text" maxlength="35">
-                                </div>
-                                <div class="col-lg-6 col-md-6 margintop15">
-                                    <label for="name">Planned Cost:</label>
-                          <span>
-                            <img data-toggle="popover" data-html="true" data-placement="left" title="Provider Planned Cost for a Month." src="img/help.png"/>
-                          </span>
-                                    <input name="plannedCost" value="" id="plannedCost" cat-validation="numeric" class="form-control" type="text"  cdata="catalyst" maxlength="35">
-                                </div>
-                            </div>
+   <form action="" id="myForm">
+      <div class="widget-box">
+         <div class="widget-header">
+            <h4 class="widget-margin" style="color:black;">Create Organization</h4>
+         </div>
+         <div class="widget-body">
+            <div class="widget-main" style="min-height:200px">
+               <div class="jarviswidget" id="wid-id-3" data-widget-editbutton="false" data-widget-custombutton="false">
+                  <div>
+                     <div class="widget-body no-padding">
+                        <div class="col-lg-6 col-md-6">
+                           <label for="name">Name:
+                           <span class="control-label redSpan">&nbsp;*</span></label>
+                           <input autofocus name="ctl00$MainContent$orgname" value="" id="orgname" class="form-control" cdata="catalyst" type="text" cat-validation="required,nospecial,max15,nospace">
                         </div>
-                    </div>
-                </div>
+                        <div class="col-lg-6 col-md-6">
+                           <label for="name">Domain Name:</label>
+                           <input name="ctl00$MainContent$domainname" value="" id="domainname" class="form-control" type="text" maxlength="35">
+                        </div>
+                        <div class="col-lg-6 col-md-6 margintop15">
+                           <label for="name">Planned Cost:</label>
+                           <span>
+                           <img data-toggle="popover" data-html="true" data-placement="left" title="Provider Planned Cost for a Month." src="img/help.png"/>
+                           </span>
+                           <input name="plannedCost" value="" id="plannedCost" cat-validation="numeric" class="form-control" type="text"  cdata="catalyst" maxlength="35">
+                        </div>
+                     </div>
+                  </div>
+               </div>
             </div>
+         </div>
+         <div class="widget-toolbox clearfix">
+            <div class="btn-group pull-right">
+             <button name="next1" id="saveOrg" style="margin-right:11px;" class="saveFormWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
+             <input type="button" disabled="disabled" name="next1" id="next1" class="nextFormWizard btn btn-primary" value="Next"/>
+          </div>
         </div>
-        <div class="btn-group pull-right">
-            <button disabled="disabled" name="next1" id="next1" class="next btn btn-primary btn-mini">Next</button>
-        </div>
-    </form>
+      </div>
+   </form>
 </div>
 
 <script>
@@ -165,6 +167,7 @@ function getOrgValues() {
             }
         }
         $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+        $('#saveOrg').attr('disabled',true);
         /*$('.btn-3 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
         $('.btn-4 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');*/
     });
@@ -172,6 +175,7 @@ function getOrgValues() {
 
 function getBgValues() {
     $('#myForm2').find('select#orgname').empty();
+    $('#saveBg').attr('disabled',true);
     $.get('/d4dMasters/readmasterjsonnew/2', function(data) {
         for (var i = 0; i < data.length; i++) {
             if (selectedDropdownValue === data[i].orgname_rowid[0]) {
@@ -184,6 +188,7 @@ function getBgValues() {
 }
 
 function getProjValues() {
+    $('#saveProject').attr('disabled',true);
     $('#myForm3').find('select#orgname').empty();
     $('#myForm3').find('select#productgroupname').empty();
     $.get('/d4dMasters/readmasterjsonnew/4', function(data) {
@@ -212,12 +217,12 @@ function getProjValues() {
 $('.btn-2 a').click(function(e) {
     e.preventDefault();
     clicked = false;
+    $('#saveOrg').removeAttr('disabled','disabled');
     $('.contentSetting').load(this.getAttribute('href'));
 });
 orgIdForSetup = selectedDropdownValue;
 if (clicked) {
     if(orgIdForSetup){
-        alert('dsd');
         $.get('/setting-wizard/org/' + orgIdForSetup, function(data) {
             if (data.currentStep.name === 'Org Configuration') {
                 if (data.currentStep.nestedSteps) {
@@ -241,13 +246,12 @@ if (clicked) {
         });
     }
 } else {
-    getOrgValues();
+    
 }
 $('.btn-3 a').click(function(e) {
     e.preventDefault();
 
     if (selectedDropdownValue) {
-        alert('bgValue');
         getBgValues();
     } else {
         $('.btn-2 a,.btn-4 a').parent('.bwizard-steps li').removeClass('active');
@@ -272,27 +276,19 @@ function activateOrg() {
     $('.content').load('ajax/Settings/bgWizard.html');
 }
 
-var orgId;
-$('#myForm').find('input:text').keyup(function() {
-    if ($('#orgname').val() != "") {
-        $('#next1').removeAttr('disabled');
-    } else {
-        $('#next1').attr('disabled', true);
-    }
-});
 $('#myForm').submit(function(e) {
     $(this).validate();
     if ($(this).valid) {
         if (!saveform('1')) {
-            $('.content').load('ajax/Settings/bgWizard.html');
             return false;
         }
     } else {
-        alert('invalid valid form submitted'); // for demo
+        toastr.error('invalid valid form submitted');
     }
-    return false; // for demo
+    return false;
 });
-$('.next').click(function(e) {
+$('.nextFormWizard').click(function(e) {
+    $('.content').load('ajax/Settings/bgWizard.html');
     activateOrg();
 });
 </script>
