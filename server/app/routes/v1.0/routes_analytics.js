@@ -30,7 +30,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      * @apiParam {String} [splitUpBy="All possible catalyst entity types"]	Split up cost by particular catalyst entity type. For Ex: organization, businessUnit, project, providerType, provider, environment, resourceType, resource
      *
      * @apiExample Sample_Request_1
-     * 		/analytics/cost/aggregate?catalystEntity=5790c31edff2c49223fd6efa&toTimeStamp=2016-08-12T00:00:00&period=month
+     * 		/analytics/cost/aggregate?parentEntityId=5790c31edff2c49223fd6efa&entityId=5790c31edff2c49223fd6efa&toTimeStamp=2016-08-12T00:00:00&period=month
      *
      * @apiSuccess {Object}   aggregatedCost                                                Aggregated cost
      * @apiSuccess {String}   aggregatedCost.period                                         Cost aggregation period

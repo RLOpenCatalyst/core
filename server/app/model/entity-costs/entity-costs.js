@@ -18,6 +18,7 @@ var mongoose = require('mongoose');
 var logger = require('_pr/logger')(module);
 var Schema = mongoose.Schema;
 
+// @TODO Date field types to be revised
 var EntityCostsSchema = new Schema({
     entity: {
         id: {
@@ -91,6 +92,23 @@ EntityCostsSchema.statics.getEntityCost = function getEntityCost(query, callback
             }
         }
     )
+}
+
+EntityCostsSchema.statics.upsertEntityCost = function upsertEntityCost(entityCostData, callback) {
+    query = {
+        'entity.id': entityCostData.entity.id,
+        'parentEntity.id': entityCostData.parentEntity.id,
+        'startTime': entityCostData.startTime,
+        'period': entityCostData.period
+    }
+    this.findOneAndUpdate(query, entityCostData, {upsert:true},
+        function(err, result){
+            if (err) {
+                callback(null)
+            } else {
+                callback(null, result)
+            }
+    });
 }
 
 var EntityCosts = mongoose.model('EntityCosts', EntityCostsSchema)
