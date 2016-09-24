@@ -67,6 +67,11 @@ var ResourceCostsSchema = new Schema({
         required: false,
         trim: true
     },
+    billLineRecordId: {
+        type: String,
+        required: true,
+        trim: true
+    },
     platformDetails: {
         instanceId: {
             type: String,
@@ -117,9 +122,9 @@ var ResourceCostsSchema = new Schema({
         required: true
     }
 });
-ResourceCostsSchema.index({'platformDetails.instanceId': 1, 'platformDetails.usageType': 1,
+/*ResourceCostsSchema.index({'platformDetails.instanceId': 1, 'platformDetails.usageType': 1,
     'startTime': 1, 'endTime': 1}, {'unique': true, 'sparse': true, 'partialFilterExpression':
-    {'platformDetails.usageType': { $exists: true }}})
+    {'platformDetails.usageType': { $exists: true }}})*/
 
 ResourceCostsSchema.statics.saveResourceCost = function(resourceCostData, callback) {
     var resourceCosts = new ResourceCosts(resourceCostData)

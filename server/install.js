@@ -382,7 +382,8 @@ function getDefaultsConfig() {
                 'totalCost': 3,
                 'instanceId': 21,
                 'startDate': 14,
-                'endDate': 15
+                'endDate': 15,
+                'recordId': 4
             }
 
         },
