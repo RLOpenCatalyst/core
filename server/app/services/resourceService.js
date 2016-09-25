@@ -94,8 +94,8 @@ function updateAWSResourceCostsFromCSV(provider, resources, downlaodedCSVPath, u
     var stream = fs.createReadStream(downlaodedCSVPath)
     csv.fromStream(stream, {headers: false}).on('data', function(data) {
         if((data[awsBillIndexes.totalCost] == 'LineItem')
-            && ((provider.lastUpdateTime == null)
-                || (Date.parse(data[awsBillIndexes.endDate]) > provider.lastUpdateTime))) {
+            && ((provider.lastBillUpdateTime == null)
+                || (Date.parse(data[awsBillIndexes.endDate]) > Date.parse(provider.lastBillUpdateTime)))) {
             var resourceCostEntry = {platformDetails: {}}
 
             resourceCostEntry.organizationId = provider.orgId
