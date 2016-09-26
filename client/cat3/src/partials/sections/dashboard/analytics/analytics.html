@@ -9,60 +9,62 @@
 		<form>
 			<fieldset class="repo-job-details-wrapper">
 				<legend class="repo-job-details-wrapper-inner">Filter:</legend>
-					<div class="col-lg-12 col-md-12 form-group">
+				<div class="col-lg-12 col-md-12 form-group" ng-show="stateItems.filterView.viewBy">
+					<label class="radio-inline">
+						<input type="radio" ng-model="analytic.viewByFilter" name="viewBy" value="orgView">Org
+					</label>
+					<label class="radio-inline">
+						<input type="radio" ng-model="analytic.viewByFilter" name="viewBy" value="ProviderView">Provider
+					</label>
+				</div>
+					<div class="col-lg-12 col-md-12 form-group" ng-show="stateItems.filterView.org">
 						<label for="">Organization</label>
 						<select  ng-model="organNewEnt.org" class="chooseProjectExisting width-100 form-control">
 							<option value="">Select</option>
 							<option ng-repeat="org in organObject"  value="{{organObject.indexOf(org)}}" >{{org.name}}</option>
 						</select>
 					</div>
-					<!--No usage only-->
-					<span ng-show="stateItems.filterView !== 'usage'">
-						<div class="col-lg-12 col-md-12 form-group">
+						<div class="col-lg-12 col-md-12 form-group" ng-show="stateItems.filterView.bus">
 							<label for="">Business Group</label>
 							<select id="bgListInputExisting" class="chooseBGExisting width-100 form-control"  ng-model="organNewEnt.buss">
 								<option value="">Select</option>
 								<option ng-repeat="buss in organObject[organNewEnt.org].businessGroups"  value="{{organObject[organNewEnt.org].businessGroups.indexOf(buss)}}" >{{buss.name}}</option>
 							</select>
 						</div>
-						<div class="col-lg-12 col-md-12 form-group">
+						<div class="col-lg-12 col-md-12 form-group" ng-show="stateItems.filterView.proj">
 							<label >Project</label>
 							<select class="chooseProjectExisting width-100 form-control" ng-model="organNewEnt.proj">
 								<option value="">Select</option>
 								<option ng-repeat="proj in organObject[organNewEnt.org].businessGroups[organNewEnt.buss].projects"  value="{{organObject[organNewEnt.org].businessGroups[organNewEnt.buss].projects.indexOf(proj)}}" >{{proj.name}}</option>
 							</select>
 						</div>
-						<div class="col-lg-12 col-md-12 form-group">
+						<div class="col-lg-12 col-md-12 form-group" ng-show="stateItems.filterView.env">
 							<label >Environment</label>
-							<select class="chooseProjectExisting width-100 form-control" ng-model="organNewEnt.proj">
+							<select class="chooseProjectExisting width-100 form-control" ng-model="organNewEnt.env">
 								<option value="">Select</option>
 								<option ng-repeat="env in organObject[organNewEnt.org].environments" value="{{organObject[organNewEnt.org].environments.indexOf(env)}}" >{{env.name}}</option>
 							</select>
 						</div>
-					</span>
-					<!--No usage end-->
-					<div class="col-lg-12 col-md-12 form-group">
+					<div class="col-lg-12 col-md-12 form-group" ng-show="stateItems.filterView.provi">
 						<label for="">Provider</label>
 						<select class="form-control select2 select2-hidden-accessible" id="selectProvider" ng-model="organNewEnt.provider" >
                             <option value=''>Select</option>
 							<option ng-repeat="provider in providers" value="{{providers.indexOf(provider)}}">{{provider.providerName}}</option>
                        </select>
 					</div>
-					<div class="col-lg-12 col-md-12 form-group"  ng-show="stateItems.filterView !== 'usage'">
+					<div class="col-lg-12 col-md-12 form-group" ng-show="stateItems.filterView.zone">
 						<label for="">Zone</label>
 						<select class="form-control select2 select2-hidden-accessible" id="Zone" ng-model="filter.regionId" ng-options="region.region as region.region_name +' | '+region.region for region in regions" ng-change="fnRegionChange()">
                             <option value=''>Select</option>
                         </select>
 					</div>
-					<!--usage only-->
-					<span ng-show="stateItems.filterView === 'usage'">
-						<div class="col-lg-12 col-md-12 form-group">
+						<div class="col-lg-12 col-md-12 form-group" ng-show="stateItems.filterView.region">
 							<label for="">Region</label>
 							<select class="form-control select2 select2-hidden-accessible" id="selectRegion" ng-model="filter.regionId" ng-options="region.region as region.region_name +' | '+region.region for region in regions" ng-change="fnRegionChange()">
 								<option value=''>Select</option>
 							</select>
 						</div>
-						<div class="col-lg-12 col-md-12 form-group">
+						<div class="col-lg-12 col-md-12 form-group" ng-show="stateItems.filterView.resources">
 							<label for="">Resources</label>
 								<div class="panel-group">
 									<div class="panel panel-default">
@@ -83,8 +85,8 @@
 									</div>
 								</div>
 						</div>
-					</span>
-					<!--usage end-->
+
+
 					<div class="col-lg-12 col-md-12 marginbottom5">
 						<button type="button" class="btn btn-primary" ng-click="analytic.applyFilter(true);isOpenSidebar=false;"><i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;Apply</button>
 						<button type="button" class="btn btn-default" ng-click="analytic.applyFilter(false);isOpenSidebar=false;"><i class="fa fa-times fa-2" aria-hidden="true"></i>&nbsp;Clear</button>
@@ -111,15 +113,14 @@
 					  <button type="button" class="btn btn-sm btn-primary cat-btn-update" ng-click="">WEEK</button>
 					  <button type="button" class="btn btn-sm btn-primary cat-btn-update active" ng-click="">MONTH</button>
 					  <button type="button" class="btn btn-sm btn-primary cat-btn-update" ng-click="">YEAR</button>
+						<select ng-show="stateItems.filterView.splitUpType && splitUpCosts.length > 0" class="form-control select2 select2-hidden-accessible" style="width: auto;height: 31px;" ng-model="analytic.splitUp"
+								ng-options="value as value for (key , value) in splitUpCosts">
+
+						</select>
 					</div>
-				<div class="col-lg-7 col-md-7 col-sm-12 pull-right filter-title">
-					<span  class="col-lg-2 col-md-2 col-sm-12" ng-repeat="filter in filterNewEnt">
-						<span ng-if="filter !== '' ">{{filter.title}}:</span>
-					</span>
-				</div>
-				<div class="col-lg-7 col-md-7 col-sm-12 pull-right filter-name">
-					<span class="col-lg-2 col-md-2 col-sm-12" ng-repeat="filter in filterNewEnt">
-						<span ng-if="filter !== '' " class="label label-success">{{filter.name}}</span>
+				<div class="col-lg-7 col-md-7 col-sm-12 pull-right" >
+					<span ng-repeat="filter in filterNewEnt">
+						<span data-toggle="tooltip" onmouseenter="$(this).tooltip('show')" ng-if="filter !== '' " class="label label-success "  title="{{filter.title}}">{{filter.title}} :{{filter.name}} </span>
 					</span>
 				</div>
 

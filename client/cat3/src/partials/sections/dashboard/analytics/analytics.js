@@ -7,7 +7,7 @@
 				url: "cost/",
 				templateUrl: "src/partials/sections/dashboard/analytics/view/cost.html",
 				controller: "costCtrl as cost",
-				params:{filterView:'cost'},
+				params:{filterView:{viewBy:true,splitUpType:true,org:true}},
 				resolve: {
 					auth: ["$q", function ($q) {
 						var deferred = $q.defer();
@@ -26,7 +26,7 @@
 				url: "capacity/",
 				templateUrl: "src/partials/sections/dashboard/analytics/view/capacity.html",
 				controller: "capacityCtrl as capacity",
-				params:{filterView:'capacity'},
+				params:{filterView:{}},
 				resolve: {
 					auth: ["$q", function ($q) {
 						var deferred = $q.defer();
@@ -45,7 +45,7 @@
 				url: "usage/",
 				templateUrl: "src/partials/sections/dashboard/analytics/view/usage.html",
 				controller: "usageCtrl as usage",
-				params:{filterView:'usage'},
+				params:{filterView:{org:true,provi:true,region:true,resources:true}},
 				resolve: {
 					auth: ["$q", function ($q) {
 						var deferred = $q.defer();
@@ -69,12 +69,31 @@
 		$scope.showTree = true;
 		$rootScope.isOpenSidebar = false;
 		$rootScope.dashboardChild = 'analytics';
-		$rootScope.stateParams = $state.params;
+		$rootScope.stateItems = $state.params;
 		var treeNames = ['Analytics'];
 		//$rootScope.$emit('treeNameUpdate', treeNames);
 		$rootScope.$emit('HEADER_NAV_CHANGE', 'ANALYTICS');
 		$rootScope.organNewEnt=[];
 		$rootScope.organNewEnt.org = '0';
+		$rootScope.splitUpCosts=[];
+		analytic.viewByFilter='orgView';
+		$scope.$watch(function() { return analytic.viewByFilter}, function(newVal, oldVal) {
+				if(newVal === 'ProviderView'){
+					$rootScope.viewType='ProviderView';
+					$state.params.filterView.provi=true;
+					$rootScope.organNewEnt.provider='0';
+				} else {
+					$rootScope.viewType='orgView';
+					$state.params.filterView.provi=false;
+				}
+			$rootScope.stateItems = $state.params;
+		}, true);
+		$scope.$on('CHANGE_splitUp', function (event, data) {
+			analytic.splitUp=data;
+		});
+		$scope.$watch(function() { return analytic.splitUp}, function(newVal, oldVal) {
+			$scope.$broadcast('CHANGE_VIEW',newVal);
+		}, true);
 		$rootScope.filterNewEnt={};
 		analytic.applyCount=0
 		//$rootScope.organNewEnt.buss='0';
@@ -105,7 +124,8 @@
 				}
 			} else{
 				$rootScope.organNewEnt={}
-				$rootScope.organNewEnt.org=or; 
+				$rootScope.organNewEnt.org=or;
+				analytic.viewByFilter='orgView';
 			}
 
 
@@ -176,7 +196,7 @@
                 $scope.providerLoading = false;
             });
         };
-		if (!$rootScope.stateParams.view) {
+		if (!$rootScope.stateItems.view) {
 			$state.go('dashboard.analytics.cost');
 		}
         $scope.getAllRegionsList();
