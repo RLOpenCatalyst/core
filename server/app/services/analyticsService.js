@@ -24,7 +24,11 @@ var async = require('async')
 
 var analyticsService = module.exports = {};
 
-analyticsService.validateAndParseCostQuery = function validateAndParseCostQuery(requestQuery, callback) {
+// @TODO To be reviewed and improved
+analyticsService.validateAndParseCostQuery
+	= function validateAndParseCostQuery(queryType, requestQuery, callback) {
+	var costAggregationPeriods = appConfig.costAggregationPeriods
+
 	if ((!('parentEntityId' in requestQuery)) || (!('entityId' in requestQuery))
 		|| (!('toTimeStamp' in requestQuery)) || (!('period' in requestQuery))) {
 		var err = new Error('Invalid request')
@@ -38,37 +42,73 @@ analyticsService.validateAndParseCostQuery = function validateAndParseCostQuery(
 		case 'month':
 			startTime = dateUtil.getStartOfAMonthInUTC(requestQuery.toTimeStamp)
 			break
+		case 'year':
+			startTime = dateUtil.getStartOfAMonthInUTC(requestQuery.toTimeStamp)
+			break
 		default:
 			var err = new Error('Invalid request')
 			err.errors = [{messages: 'Period is invalid'}]
 			err.status = 400
-			callback(err)
+			return callback(err)
 			break
 	}
 
-	var totalQuery = {
-		'parentEntity.id': requestQuery.parentEntityId,
-		'entity.id': requestQuery.entityId,
-		'startTime': Date.parse(startTime),
-		'period': requestQuery.period
+	var costQuery = {
+		totalCostQuery: {
+			'parentEntity.id': requestQuery.parentEntityId,
+			'entity.id': requestQuery.entityId,
+			'startTime': Date.parse(startTime),
+			'period': requestQuery.period
+		}
 	}
 
-	var splitUpQuery = {
-		'parentEntity.id': requestQuery.entityId,
-		'startTime': Date.parse(startTime),
-		'period': requestQuery.period
+	if(queryType == 'aggregate') {
+		costQuery.splitUpCostQuery = {
+			'parentEntity.id': requestQuery.entityId,
+			'startTime': Date.parse(startTime),
+			'period': requestQuery.period
+		}
 	}
 
-	return callback(null, totalQuery, splitUpQuery)
+	if(queryType == 'trend') {
+		costQuery.costTrendQuery = {
+			'parentEntity.id': requestQuery.parentEntityId,
+			'entity.id': requestQuery.entityId,
+			'startTime': Date.parse(startTime),
+			'interval': costAggregationPeriods[requestQuery.period].childInterval.intervalInSeconds
+		}
+	}
+
+	return callback(null, costQuery)
 }
 
-analyticsService.getEntityAggregateCosts = function getEntityAggregateCosts(totalQuery, splitUpQuery, callback) {
+analyticsService.getEntityAggregateCosts = function getEntityAggregateCosts(costQuery, callback) {
 	async.parallel({
 		totalCost: function(next) {
-			entityCostsModel.getEntityCost(totalQuery, next)
+			entityCostsModel.getEntityCost(costQuery.totalCostQuery, next)
 		},
 		splitUpCosts: function(next) {
-			entityCostsModel.getEntityCost(splitUpQuery, next)
+			entityCostsModel.getEntityCost(costQuery.splitUpCostQuery, next)
+		}
+	}, function(err, entityCosts) {
+		if(err) {
+			logger.error(err)
+			var err = new Error('Internal Server Error')
+			err.status = 500
+			return callback(err)
+		} else {
+			return callback(null, entityCosts)
+		}
+	})
+}
+
+analyticsService.getEntityCostTrend = function getEntityCostTrend(costQuery, callback) {
+	async.parallel({
+		totalCost: function(next) {
+			entityCostsModel.getEntityCost(costQuery.totalCostQuery, next)
+		},
+		costTrend: function(next) {
+			entityCostsModel.getEntityCost(costQuery.costTrendQuery, next)
 		}
 	}, function(err, entityCosts) {
 		if(err) {
@@ -147,6 +187,66 @@ analyticsService.formatAggregateCost = function formatAggregateCost(entityCosts,
 
 }
 
+analyticsService.formatCostTrend = function formatCostTrend(entityCosts, callback) {
+	var catalystEntityHierarchy = appConfig.catalystEntityHierarchy
+
+	var formattedCostTrend = {
+		costTrends: []
+	}
+	if(entityCosts.totalCost != null) {
+		formattedCostTrend = {
+			period: entityCosts.totalCost[0].period,
+			fromTime: entityCosts.totalCost[0].startTime,
+			toTime: entityCosts.totalCost[0].endTime,
+			entity: {
+				type: entityCosts.totalCost[0].entity.type,
+				id: entityCosts.totalCost[0].entity.id,
+				name: entityCosts.totalCost[0].entity.id
+			},
+			cost: {
+				totalCost: entityCosts.totalCost[0].costs.totalCost,
+				AWS: {
+					totalCost: entityCosts.totalCost[0].costs.totalCost,
+					serviceCosts: {
+						Other: entityCosts.totalCost[0].costs.totalCost
+					}
+				}
+			},
+			costTrends: []
+		}
+	}
+
+	async.forEach(entityCosts.costTrend,
+		function(costEntry, next) {
+			var trend = {
+				id: costEntry.entity.startTime,
+				name: costEntry.entity.endTime,
+				cost: {
+					totalCost: costEntry.costs.totalCost,
+					AWS: {
+						totalCost: costEntry.costs.totalCost,
+						serviceCosts: {
+							Other: costEntry.costs.totalCost
+						}
+					}
+				}
+			}
+
+			formattedCostTrend.costTrends.push(trend)
+			next()
+		},
+		function(err) {
+			if(err) {
+				logger.error(err)
+				var err = new Error('Internal Server Error')
+				err.status = 500
+				return callback(err)
+			} else {
+				return callback(null, formattedCostTrend)
+			}
+		}
+	)
+}
 
 /*analyticsService.getTrendUsage = function getTrendUsage(resourceId, interval, startTime, endTime, callback) {*/
 function getTrendUsage(resourceId, interval, startTime, endTime, callback) {

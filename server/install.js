@@ -382,7 +382,8 @@ function getDefaultsConfig() {
                 'totalCost': 3,
                 'instanceId': 21,
                 'startDate': 14,
-                'endDate': 15
+                'endDate': 15,
+                'recordId': 4
             }
 
         },
@@ -430,6 +431,13 @@ function getDefaultsConfig() {
             }
         },
         costAggregationPeriods: {
+            'year': {
+                intervalInSeconds: null,
+                childInterval: {
+                    name: 'monthly',
+                    intervalInSeconds: 2592000
+                }
+            },
             'month': {
                 intervalInSeconds: 2592000,
                 childInterval: {

@@ -91,13 +91,11 @@ function updateAWSResourceCostsFromCSV(provider, resources, downlaodedCSVPath, u
     var awsServices = appConfig.aws.services
     var awsZones = appConfig.aws.zones
 
-    var stream = fs.createReadStream(downlaodedCSVPath);
+    var stream = fs.createReadStream(downlaodedCSVPath)
     csv.fromStream(stream, {headers: false}).on('data', function(data) {
-        if(data[awsBillIndexes.totalCost] != 'StatementTotal'
-            && data[awsBillIndexes.totalCost] != 'InvoiceTotal'
-            && data[awsBillIndexes.totalCost] != 'Rounding'
-            && ((provider.lastUpdateTime == null)
-                || (Date.parse(data[awsBillIndexes.endDate]) > provider.lastUpdateTime))) {
+        if((data[awsBillIndexes.totalCost] == 'LineItem')
+            && ((provider.lastBillUpdateTime == null)
+                || (Date.parse(data[awsBillIndexes.endDate]) > Date.parse(provider.lastBillUpdateTime)))) {
             var resourceCostEntry = {platformDetails: {}}
 
             resourceCostEntry.organizationId = provider.orgId
@@ -109,6 +107,7 @@ function updateAWSResourceCostsFromCSV(provider, resources, downlaodedCSVPath, u
             resourceCostEntry.lastUpdateTime = Date.parse(updateTime)
             resourceCostEntry.interval = 3600
             resourceCostEntry.platformDetails.serviceName = data[awsBillIndexes.prod]
+            resourceCostEntry.billLineRecordId = data[awsBillIndexes.recordId]
 
             if (data[awsBillIndexes.prod] in awsServices) {
                 resourceCostEntry.platformDetails.serviceId = awsServices[data[awsBillIndexes.prod]]
@@ -156,14 +155,14 @@ function updateAWSResourceCostsFromCSV(provider, resources, downlaodedCSVPath, u
                 if ('masterDetails.environmentId' in resource) {
                     resourceCostEntry.environmentId = resource['environmentId']
                 }
-
-                resourceCost.saveResourceCost(resourceCostEntry, function (err, costEntry) {
-                    if (err) {
-                        logger.error(err)
-                        return callback(new Error('Database Error'))
-                    }
-                })
             }
+
+            resourceCost.saveResourceCost(resourceCostEntry, function (err, costEntry) {
+                if (err) {
+                    logger.error(err)
+                    return callback(new Error('Database Error'))
+                }
+            })
         }
     }).on('end', function() {
         callback(null)
