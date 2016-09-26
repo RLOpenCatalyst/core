@@ -91,7 +91,7 @@
   .panelRight {
     width: calc(100% - 258px);
     background: linear-gradient(to right, #ffffff 99%, #ffffff 100%) repeat scroll 0 0 rgba(0, 0, 0, 0);
-    padding-right: 0px;
+    padding-right: 10px;
     float: right;
     height: 571px;
     overflow-y: auto;
@@ -197,6 +197,58 @@
     .marginbottom5 {
       margin-bottom: 5px;
     }
+
+    .search {
+      width: 100%;
+      position: relative;
+      font-size: 18px;
+      padding-top: 0px;
+      label {
+        position: absolute;
+        left: 10px;
+        top: 4px;
+      }
+    }
+
+    .search .search-input, .search .hint {
+      padding-left: 23px;
+      padding-right: -5px;
+      border-radius: 23px;
+      height: 28px;
+      outline: none;
+      font-size: 11px;
+    }
+
+    .bp-select {
+      font-size: 11px;
+      height: 28px;
+      display: inline;
+      width: auto;
+    }
+
+    .bp-panel-body {
+      max-height:150px;
+      min-height: 100px;
+      overflow-y: auto;
+    }
+
+    .activeLi {
+      background: #E2E2E2;
+    }
+
+    .list-resources{
+      padding: 0px; 
+      ul li {
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        padding: 3px 15px;
+      }
+    }
+
+    .panel-heading {
+      height: 40px;
+    }
   }
 
   .nav>li>a {
@@ -204,47 +256,12 @@
     font-size: 13px;
   }
 
-}
-#sidebar-wrapper {
-  .search {
-    width: 100% !important;
-    position: relative;
-    font-size: 18px;
-    padding-top: 0px;
-    label {
-      position: absolute;
-      left: 10px;
-      top: 4px;
-    }
+  .filter-title {
+    margin-top: -13px;
+    font-size: 12px;
   }
-  .search .search-input, .search .hint {
-    padding-left: 23px;
-    padding-right: -5px;
-    border-radius: 23px;
-    height: 28px !important;
-    outline: none !important;
-    font-size: 11px;
-  }
-  .bp-select {
-    font-size: 11px !important;
-    height: 28px !important;
-    display: inline !important;
-    width: auto !important;
-  }
-  .bp-panel-body {
-    max-height:150px;
-    min-height: 100px;
-    overflow-y: auto;
-  }
-  .activeLi {
-    background: #E2E2E2 !important;
-  }
-.list-resources{
-    padding: 0px !important; ul li{
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      overflow: hidden;
-      padding: 3px 15px !important;
-    }
+
+  .filter-name {
+    margin-top: -21px;
   }
 }

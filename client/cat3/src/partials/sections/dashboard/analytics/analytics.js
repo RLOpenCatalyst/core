@@ -87,12 +87,12 @@
 				pr=$rootScope.organNewEnt.proj;
 			$rootScope.filterNewEnt={}
 			if(or){
-				$rootScope.filterNewEnt.org={name:obj[or].name,id:obj[or].rowid,title:'Organization'};
+				$rootScope.filterNewEnt.org={name:obj[or].name,id:obj[or].rowid,title:'Org'};
 				$rootScope.filterNewEnt.provider='';
 			}
 			if(filterApp){
 				if(bu){
-					$rootScope.filterNewEnt.buss = {name:obj[or].businessGroups[bu].name,id:obj[or].businessGroups[bu].rowid,title:'Business Group'};
+					$rootScope.filterNewEnt.buss = {name:obj[or].businessGroups[bu].name,id:obj[or].businessGroups[bu].rowid,title:'BU'};
 				}
 				if(pr){
 					$rootScope.filterNewEnt.proj = {name:obj[or].businessGroups[bu].projects[pr].name,id:obj[or].businessGroups[bu].projects[pr].rowid,title:'Project'};
