@@ -1221,6 +1221,7 @@ function updateDomainNameForInstance(domainName,publicIP,awsSettings,callback){
                             if(err){
                                 next(err,null);
                             }else {
+                                console.log(JSON.stringify(resourceData));
                                 for(var j = 0;j < resourceData.ResourceRecordSets.length;j++) {
                                     (function (resourceRecord) {
                                         resourceCount++;
@@ -1236,7 +1237,7 @@ function updateDomainNameForInstance(domainName,publicIP,awsSettings,callback){
                                                                 "TTL": 30,
                                                                 ResourceRecords: [
                                                                     {
-                                                                        "Value": "custdocker.rlcatalyst.com"
+                                                                        "Value": resourceRecord.Name
                                                                     }
                                                                 ]
                                                             }
@@ -1260,7 +1261,7 @@ function updateDomainNameForInstance(domainName,publicIP,awsSettings,callback){
                                                                         "TTL": 30,
                                                                         ResourceRecords: [
                                                                             {
-                                                                                "Value": "custdocker.rlcatalyst.com"
+                                                                                "Value": resourceRecord.Name
                                                                             }
                                                                         ]
                                                                     }
@@ -1291,6 +1292,7 @@ function updateDomainNameForInstance(domainName,publicIP,awsSettings,callback){
                 var count = 0;
                 for(var i = 0; i < paramList.length;i++){
                     (function(params){
+                        console.log(JSON.stringify(params));
                         route53.changeResourceRecordSets(params,function(err,data){
                             count++;
                             if(err){
