@@ -18,30 +18,48 @@ var mongoose = require('mongoose');
 var logger = require('_pr/logger')(module);
 var Schema = mongoose.Schema;
 
+// @TODO Date field types to be revised
 var ResourceCostsSchema = new Schema({
+    cost: {
+        type: Number,
+        required: true
+    },
+    currency: {
+        type: String,
+        default: 'Dollar',
+        required: true
+    },
+    organizationId: {
+        type: String,
+        required: true,
+        trim: true
+    },
     providerId: {
         type: String,
-        required: false,
+        required: true,
         trim: true
     },
     providerType: {
         type: String,
-        required: false,
+        required: true,
         trim: true
     },
-    organisationId: {
+    businessGroupId: {
         type: String,
-        required: false,
+        required: true,
+        default: 'Unassigned',
         trim: true
     },
-    projectId:{
+    projectId: {
         type: String,
-        required: false,
+        required: true,
+        default: 'Unassigned',
         trim: true
     },
-    resourceType: {
+    environmentId: {
         type: String,
-        required: false,
+        required: true,
+        default: 'Unassigned',
         trim: true
     },
     resourceId: {
@@ -49,142 +67,70 @@ var ResourceCostsSchema = new Schema({
         required: false,
         trim: true
     },
-    updatedTime: {
+    platformDetails: {
+        instanceId: {
+            type: String,
+            required: false,
+            trim: true
+        },
+        serviceId: {
+            type: String,
+            required: true,
+            default: 'Other',
+            trim: true
+        },
+        serviceName: {
+            type: String,
+            required: true,
+            trim: true
+        },
+        usageType: {
+            type: String,
+            required: false,
+            trim: true
+        },
+        region: {
+            type: String,
+            required: false,
+            trim: true
+        },
+        zone: {
+            type: String,
+            required: false,
+            trim: true
+        }
+    },
+    startTime: {
         type: Number,
-        required: false
+        required: true
     },
-    startTime:{
+    endTime: {
         type: Number,
-        required: false
+        required: true
     },
-    endTime:{
+    interval: {
         type: Number,
-        required: false
+        required: true
     },
-    // @TODO To be changed to Number
-    aggregateResourceCost:{
-        type:String,
-        required:false,
-        trim:true
-    },
-    costMetrics: Schema.Types.Mixed
+    lastUpdateTime: {
+        type: Number,
+        required: true
+    }
 });
+ResourceCostsSchema.index({'platformDetails.instanceId': 1, 'platformDetails.usageType': 1,
+    'startTime': 1, 'endTime': 1}, {'unique': true, 'sparse': true, 'partialFilterExpression':
+    {'platformDetails.usageType': { $exists: true }}})
 
 ResourceCostsSchema.statics.saveResourceCost = function(resourceCostData, callback) {
-    var resourceCosts = new ResourceCosts(resourceCostData);
+    var resourceCosts = new ResourceCosts(resourceCostData)
     resourceCosts.save(function(err, data) {
         if (err) {
-            logger.error("saveResourceCostByCSV Failed", err, resourceCostData);
-            return;
+            callback(err)
+        } else {
+            callback(null)
         }
-        callback(null, data);
-    });
-};
-
-ResourceCostsSchema.statics.deleteResourceCostByResourceId = function(resourceId, callback) {
-    ResourceCosts.remove({
-        resourceId: resourceId
-    }, function(err, data) {
-        if (err) {
-            logger.error("Failed to deleteResourceCostByResourceId (%s)", resourceId, err);
-            callback(err, null);
-            return;
-        }
-        callback(null, data);
-    });
-};
-
-ResourceCostsSchema.statics.removeResourceCostByProviderId = function(providerId, callback) {
-    ResourceCosts.remove({
-        providerId: providerId
-    }, function(err, data) {
-        if (err) {
-            logger.error("Failed to removeResourceCostByProviderId (%s)", providerId, err);
-            callback(err, null);
-            return;
-        }
-        callback(null, data);
-    });
-};
-
-ResourceCostsSchema.statics.getResourceCostUpdatedTime = function(callback) {
-    ResourceCosts.aggregate(
-        [
-            {
-                $match: {
-                    resourceType: 'csv'
-                }
-            },
-            {
-            $sort: {
-                updatedTime: 1
-            }
-            }, {
-            $group: {
-                _id: "resourceId",
-                updatedTime: { $last: "$updatedTime" }
-            }
-        }],
-        function(err, updatedTime) {
-            if (err) {
-                logger.debug("Got error while fetching updatedTime: ", err);
-                callback(err, null);
-            }else{
-                if(updatedTime.length === 0){
-                    callback(null,0);
-                }else{
-                    callback(null,updatedTime[0].updatedTime);
-                }
-            }
-        });
-};
-
-ResourceCostsSchema.statics.getLatestCost = function getLatestCost(query, callback) {
-    ResourceCosts.aggregate(
-        [
-            { $match: {$and: query} },
-            {
-                $sort: {
-                    startTime: -1
-                }
-            },
-            { $limit: 1 }
-        ],
-        function(err, resourceCostEntries) {
-            if (err) {
-                logger.error(err)
-                callback(err, null)
-            } else {
-                if(resourceCostEntries.length === 0) {
-                    callback(null, null)
-                } else {
-                    callback(null, resourceCostEntries[0])
-                }
-            }
-        }
-    )
+    })
 }
 
-ResourceCostsSchema.statics.getCostsList = function getCostsList(query, callback) {
-    ResourceCosts.aggregate(
-        [
-            { $match: {$and: query }},
-            {
-                $sort: {
-                    startTime: 1
-                }
-            }
-        ],
-        function(err, costEntries) {
-            if (err) {
-                logger.error(err)
-                callback(err, null)
-            } else {
-                callback(null,costEntries)
-            }
-        }
-    )
-}
-
-var ResourceCosts = mongoose.model('ResourceCost', ResourceCostsSchema);
-module.exports = ResourceCosts;
+var ResourceCosts = mongoose.model('ResourceCosts', ResourceCostsSchema)
+module.exports = ResourceCosts
