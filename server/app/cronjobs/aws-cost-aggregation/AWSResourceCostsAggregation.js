@@ -10,6 +10,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+// @TODO Overall design to be imporved to make aggregation more generic across provider types
 
 var logger = require('_pr/logger')(module)
 var async = require('async')
