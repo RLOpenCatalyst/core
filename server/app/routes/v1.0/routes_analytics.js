@@ -174,10 +174,10 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         // @TODO Authentication to be added
         async.waterfall([
             function(next) {
-                analyticsService.validateAndParseCostQuery(req.query, next)
+                analyticsService.validateAndParseCostQuery('aggregate', req.query, next)
             },
-            function (totalQuery, splitUpQuery, next) {
-                analyticsService.getEntityAggregateCosts(totalQuery, splitUpQuery, next)
+            function (costQuery, next) {
+                analyticsService.getEntityAggregateCosts(costQuery, next)
             },
             function (entityCost, next) {
                 analyticsService.formatAggregateCost(entityCost, next)
@@ -282,8 +282,28 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         }
      */
     app.get("/analytics/cost/trend", getCostTrend)
-    function getCostTrend(req, res, next) {
-        var result = {
+    function getCostTrend(req, res, callback) {
+
+        async.waterfall([
+            function(next) {
+                analyticsService.validateAndParseCostQuery('trend', req.query, next)
+            },
+            function (costQuery, next) {
+                analyticsService.getEntityCostTrend(costQuery, next)
+            },
+            function (entityCost, next) {
+                analyticsService.formatCostTrend(entityCost, next)
+            }
+        ], function(err, entityCostTrend) {
+            if(err) {
+                callback(err)
+            } else {
+                res.status(200).send(entityCostTrend)
+            }
+        })
+
+
+        /*var result = {
             "period": "month",
             "fromTime": "2016-09-01T00:00:00",
             "toTime": "2016-09-04T00:00:00",
@@ -357,6 +377,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             ]
         }
 
-        res.status(200).send(result)
+        res.status(200).send(result)*/
     }
 }
