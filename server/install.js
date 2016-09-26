@@ -431,6 +431,13 @@ function getDefaultsConfig() {
             }
         },
         costAggregationPeriods: {
+            'year': {
+                intervalInSeconds: null,
+                childInterval: {
+                    name: 'monthly',
+                    intervalInSeconds: 2592000
+                }
+            },
             'month': {
                 intervalInSeconds: 2592000,
                 childInterval: {
