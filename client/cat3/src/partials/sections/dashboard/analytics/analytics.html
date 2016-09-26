@@ -66,7 +66,7 @@
 							<label for="">Resources</label>
 								<div class="panel-group">
 									<div class="panel panel-default">
-										<div class="panel-heading" style="height: 40px;">
+										<div class="panel-heading">
 											<div class="search">
 													<label for="search-input"><i class="fa fa-search" aria-hidden="true"></i><span class="sr-only">Search</span></label>
 													<input ng-model="searchText.name" class="search-input" class="form-control input-lg" placeholder="Search" autocomplete="off" spellcheck="false" autocorrect="off" tabindex="1">
@@ -94,7 +94,7 @@
 		<br/>
 	</div>
 
-	<div class="panelRight" style="padding-right: 10px;">
+	<div class="panelRight">
 		<div id='rightPanel' class='container-fluid'>
 			<ul class="nav nav-tabs" >
 				<li ng-class="{'active':analytic.tabShowChat === true}"><a ng-click="analytic.tabShow(true,false)"  ><i class="fa fa-area-chart fa-2" aria-hidden="true"></i> Dashboard</a></li>
@@ -112,9 +112,14 @@
 					  <button type="button" class="btn btn-sm btn-primary cat-btn-update active" ng-click="">MONTH</button>
 					  <button type="button" class="btn btn-sm btn-primary cat-btn-update" ng-click="">YEAR</button>
 					</div>
-				<div class="col-lg-7 col-md-7 col-sm-12 pull-right">
-					<span ng-repeat="filter in filterNewEnt">
-						<span ng-if="filter !== '' " class="label label-success "  title="{{filter.title}}">{{filter.name}} </span>
+				<div class="col-lg-7 col-md-7 col-sm-12 pull-right filter-title">
+					<span  class="col-lg-2 col-md-2 col-sm-12" ng-repeat="filter in filterNewEnt">
+						<span ng-if="filter !== '' ">{{filter.title}}:</span>
+					</span>
+				</div>
+				<div class="col-lg-7 col-md-7 col-sm-12 pull-right filter-name">
+					<span class="col-lg-2 col-md-2 col-sm-12" ng-repeat="filter in filterNewEnt">
+						<span ng-if="filter !== '' " class="label label-success">{{filter.name}}</span>
 					</span>
 				</div>
 
