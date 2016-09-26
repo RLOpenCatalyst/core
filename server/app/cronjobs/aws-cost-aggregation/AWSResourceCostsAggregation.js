@@ -11,6 +11,8 @@
  limitations under the License.
  */
 
+// @TODO Overall design to be imporved to make aggregation more generic across provider types and time intervals
+
 var logger = require('_pr/logger')(module)
 var async = require('async')
 var appConfig = require('_pr/config')
@@ -44,6 +46,7 @@ AWSResourceCostsAggregation.aggregateAWSResourceCostsForProvider = aggregateAWSR
 AWSResourceCostsAggregation.downloadLatestBill = downloadLatestBill
 AWSResourceCostsAggregation.updateResourceCosts = updateResourceCosts
 AWSResourceCostsAggregation.aggregateEntityCosts = aggregateEntityCosts
+AWSResourceCostsAggregation.aggregateEntityCostTrend = aggregateEntityCostTrend
 
 // AWSResourceCostsAggregation.execute()
 
@@ -75,16 +78,17 @@ function aggregateAWSResourceCosts() {
                 })
         },
         function(orgs, providers, next) {
-            AWSResourceCostsAggregation.aggregateEntityCosts(orgs, providers, next)
-            // aggregate  cost across catalyst entities
-            /*async.forEach(orgs, AWSResourceCostsAggregation.aggregateEntityCosts,
-                function(err, results) {
+            AWSResourceCostsAggregation.aggregateEntityCosts(orgs, providers,
+                function(err) {
                     if(err) {
                         next(err)
                     } else {
-                        next()
+                        next(null, orgs, providers)
                     }
-                })*/
+                })
+        },
+        function(orgs, providers, next) {
+            AWSResourceCostsAggregation.aggregateEntityCostTrend(orgs, providers, next)
         }
     ], function(err) {
         if (err) {
@@ -229,6 +233,38 @@ function aggregateEntityCosts(orgs, providers, callback) {
             logger.error(err)
         } else {
             logger.info('Entity cost aggregation complete')
+            callback()
+        }
+    })
+}
+
+function aggregateEntityCostTrend(orgs, providers, callback) {
+    // Day wise monthly cost trend for organization
+    var currentTime = Date.parse(AWSResourceCostsAggregation.currentCronRunTime)
+    var beginningOfMonth = Date.parse(dateUtil.getStartOfAMonthInUTC(currentTime))
+    var numberOfDays = Math.ceil(
+        Math.abs(currentTime - beginningOfMonth) / (1000*3600*24))
+    var endOfDayTimeStamps = []
+
+    for(var i = 1; i <= numberOfDays; i++) {
+        endOfDayTimeStamps.push((beginningOfMonth + (i * (1000*3600*24))) - 1000)
+    }
+
+    async.forEach(orgs, function (org, next0) {
+        async.forEach(endOfDayTimeStamps, function(dayTimeStamp, next1) {
+            resourceService.aggregateEntityCosts('organization', org.rowid, {'organizationId': org.rowid},
+                new Date(dayTimeStamp), 'day', next1)
+        }, function(err) {
+            if(err) {
+                next0(err)
+            } else {
+                next0()
+            }
+        })
+    }, function (err) {
+        if (err) {
+            callback(err)
+        } else {
             callback()
         }
     })

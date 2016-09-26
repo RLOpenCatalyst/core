@@ -137,7 +137,6 @@ function getDefaultsConfig() {
             }],
 
             regions: [{
-
                 region_name: "US East (N. Virginia)",
                 region: "us-east-1"
             }, {
@@ -164,6 +163,9 @@ function getDefaultsConfig() {
             }, {
                 region_name: "South America (Sao Paulo)",
                 region: "sa-east-1"
+            }, {
+                region_name: 'Asia Pacific (Mumbai)',
+                region: "ap-south-1"
             }],
 
             operatingSystems: [{
@@ -216,18 +218,38 @@ function getDefaultsConfig() {
 
             regionMappings: {
                 'us-east-1': {
-                    name: ''
+                    name: 'US East (N. Virginia)'
                 },
-                'us-west-1': {},
-                'us-west-2': {},
-                'eu-central-1': {},
-                'eu-west-1': {},
-                'ap-south-1': {},
-                'ap-northeast-1': {},
-                'ap-northeast-2': {},
-                'ap-southeast-1': {},
-                'ap-southeast-2': {},
-                'sa-east-1': {}
+                'us-west-1': {
+                    name: 'US West (N. California)'
+                },
+                'us-west-2': {
+                    name: 'US West (Oregon)'
+                },
+                'eu-central-1': {
+                    name: 'EU (Frankfurt)'
+                },
+                'eu-west-1': {
+                    name: 'EU (Ireland)'
+                },
+                'ap-south-1': {
+                    name: 'Asia Pacific (Mumbai)'
+                },
+                'ap-northeast-1': {
+                    name: 'Asia Pacific (Tokyo)'
+                },
+                'ap-northeast-2': {
+                    name: 'Asia Pacific (Seoul)'
+                },
+                'ap-southeast-1': {
+                    name: 'Asia Pacific (Singapore)'
+                },
+                'ap-southeast-2': {
+                    name: 'Asia Pacific (Sydney)'
+                },
+                'sa-east-1': {
+                    name: 'South America (Sao Paulo)'
+                }
             },
 
             zones: {
