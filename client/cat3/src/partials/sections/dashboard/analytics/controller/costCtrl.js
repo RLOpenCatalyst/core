@@ -144,7 +144,7 @@
                         }
                     });
            };
-            costObj.trendsChart=function(){
+            costObj.trendsChart=function(fltObj){
                 costObj.trendLineChart={};
                 costObj.trendLineChart.options = {
                     chart: {
@@ -191,7 +191,7 @@
                 };
                 costObj.trendLineChart.data = [];
                 var param = {
-                    url: 'src/partials/sections/dashboard/analytics/data/costTrend.json'
+                    url: '/analytics/cost/trend?parentEntityId='+fltObj.org.id+'&entityId='+fltObj.org.id+'&toTimeStamp='+new Date()+'&period=month&interval=86400'
                 };
                 genSevs.promiseGet(param).then(function (result) {
                     costObj.trendLineChart.totalCost=result.cost.totalCost;
@@ -208,9 +208,9 @@
                     });
                 });
             };
-            costObj.trendsChart();
             $rootScope.$watch('filterApply', function () {
                 costObj.createChart( $rootScope.filterNewEnt);
+                costObj.trendsChart($rootScope.filterNewEnt);
             });
 
     }]);
