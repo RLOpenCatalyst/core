@@ -733,11 +733,10 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
         //validating if user has permission to save a blueprint
         logger.debug('Verifying User permission set');
-        console.log(req.body);
-        console.log(JSON.stringify(req.body));
         var user = req.session.user;
         var category = 'blueprints';
         var permissionto = 'create';
+        var domainNameCheck = false;
         var orgId = req.params.orgId;
         var bgId = req.params.bgId;
         var projectId = req.params.projectId;
@@ -752,7 +751,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
         var docker = req.body.blueprintData.docker;
         var region = req.body.blueprintData.region;
         var blueprintId = req.body.blueprintData.blueprintId;
-
+        if(req.body.blueprintData.domainNameCheck === 'true'){
+            domainNameCheck = true;
+        }
         // a temp fix for invalid appurl data. will be removed in next iteration
         var tempAppUrls = [];
         if (!appUrls) {
@@ -795,7 +796,8 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 users: users,
                 blueprintType: blueprintType,
                 nexus: nexus,
-                docker: docker
+                docker: docker,
+                domainNameCheck:domainNameCheck
             };
             //adding bluerpintID if present (edit mode)
             if (blueprintId)

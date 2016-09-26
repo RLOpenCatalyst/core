@@ -19,6 +19,7 @@ var aws = require('aws-sdk');
 var resources = require('_pr/model/resources/resources');
 var CW = require('_pr/lib/cloudwatch.js');
 var S3 = require('_pr/lib/s3.js');
+var Route53 = require('_pr/lib/route53.js');
 var EC2 = require('_pr/lib/ec2.js');
 var RDS = require('_pr/lib/rds.js');
 var resourceCost = require('_pr/model/resource-costs');
@@ -39,6 +40,7 @@ resourceService.bulkUpdateResourceProviderTags=bulkUpdateResourceProviderTags;
 resourceService.bulkUpdateUnassignedResourceTags=bulkUpdateUnassignedResourceTags;
 resourceService.bulkUpdateAWSResourcesTags=bulkUpdateAWSResourcesTags;
 resourceService.getEC2InstancesInfo=getEC2InstancesInfo;
+resourceService.updateDomainNameForInstance=updateDomainNameForInstance;
 
 
 function getCostForResources(updatedTime,provider,bucketNames,instanceIds,dbInstanceNames,fileName, callback) {
@@ -792,7 +794,7 @@ function getBucketsInfo(provider,orgName,callback) {
     var s3Config = {
         access_key: decryptedAccessKey,
         secret_key: decryptedSecretKey,
-        region: "us-east-1"
+        region: "us-west-1"
     };
     var s3 = new S3(s3Config);
     s3.getBucketList(function(err,data){
@@ -867,6 +869,11 @@ function getEC2InstancesInfo(provider,orgName,callback) {
         access_key: decryptedAccessKey,
         secret_key: decryptedSecretKey
     };
+    var awsConfig ={
+        access_key: decryptedAccessKey,
+        secret_key: decryptedSecretKey,
+        region:'us-west-1'
+    }
     var regionCount = 0;
     var regions = appConfig.aws.regions;
     var awsInstanceList=[];
@@ -1195,3 +1202,118 @@ function getStartTime(endTime, period){
     var subtractedDate = new Date(subtractedDateInMilliSeconds);
     return dateUtil.getDateInUTC(subtractedDate);
 }
+
+function updateDomainNameForInstance(domainName,publicIP,awsSettings,callback){
+    var route53 = new Route53(awsSettings);
+    async.waterfall([
+        function(next){
+            route53.listHostedZones({},next);
+        },
+        function(hostedZones,next){
+            if(hostedZones.HostedZones.length > 0){
+                var count = 0,resourceCount = 0;
+                var params = {};
+                var paramList = [];
+                for(var i = 0; i < hostedZones.HostedZones.length; i++) {
+                    (function (hostedZone) {
+                        count++;
+                        route53.listResourceRecordSets({HostedZoneId:hostedZone.Id}, function(err,resourceData) {
+                            if(err){
+                                next(err,null);
+                            }else {
+                                for(var j = 0;j < resourceData.ResourceRecordSets.length;j++) {
+                                    (function (resourceRecord) {
+                                        resourceCount++;
+                                        if(resourceRecord.ResourceRecords.length  === 1 && resourceRecord.ResourceRecords[0].Value === publicIP){
+                                            params = {
+                                                ChangeBatch: {
+                                                    Changes: [
+                                                        {
+                                                            Action: 'UPSERT',
+                                                            ResourceRecordSet: {
+                                                                Name: domainName+'.rlcatalyst.com.',
+                                                                "Type": "CNAME",
+                                                                "TTL": 30,
+                                                                ResourceRecords: [
+                                                                    {
+                                                                        "Value": resourceRecord.Name
+                                                                    }
+                                                                ]
+                                                            }
+                                                        }
+                                                    ]
+                                                },
+                                                HostedZoneId: hostedZone.Id
+                                            }
+                                            paramList.push(params);
+                                        }else{
+                                            for(var k = 0; k < resourceRecord.ResourceRecords.length; k++ ){
+                                                if(resourceRecord.ResourceRecords[k].Value === publicIP){
+                                                    params = {
+                                                        ChangeBatch: {
+                                                            Changes: [
+                                                                {
+                                                                    Action: 'UPSERT',
+                                                                    ResourceRecordSet: {
+                                                                        Name: domainName+'.rlcatalyst.com.',
+                                                                        "Type": "CNAME",
+                                                                        "TTL": 30,
+                                                                        ResourceRecords: [
+                                                                            {
+                                                                                "Value": resourceRecord.Name
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                }
+                                                            ]
+                                                        },
+                                                        HostedZoneId: hostedZone.Id
+                                                    }
+                                                    paramList.push(params);
+                                                }
+                                            }
+                                        }
+                                    })(resourceData.ResourceRecordSets[j]);
+                                }
+                                if(count === hostedZones.HostedZones.length && resourceCount === resourceData.ResourceRecordSets.length){
+                                    next(null,paramList);
+                                }
+                            }
+                        });
+                    })(hostedZones.HostedZones[i]);
+                }
+            }else{
+                next(null,null);
+            }
+        },
+        function(paramList,next){
+            if(paramList.length > 0){
+                var count = 0;
+                for(var i = 0; i < paramList.length;i++){
+                    (function(params){
+                        route53.changeResourceRecordSets(params,function(err,data){
+                            count++;
+                            if(err){
+                                next(err,null);
+                            }
+                            if(count === paramList.length){
+                                next(null,paramList);
+                            }
+                        });
+                    })(paramList[i]);
+
+                }
+            }else{
+                next(null,paramList);
+            }
+        }
+    ],function(err,results){
+        if(err){
+            callback(err,null);
+            return;
+        }
+        callback(null,results);
+        return;
+    })
+}
+

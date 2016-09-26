@@ -390,12 +390,20 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 						}
 
 						var stackName = null;
-
+						var domainName = null;
 						if (blueprint.blueprintType === 'aws_cf' || blueprint.blueprintType === 'azure_arm') {
 							stackName = req.query.stackName;
 							if (!stackName) {
 								res.send(400, {
 									message: "Invalid stack name"
+								});
+								return;
+							}
+						}else {
+							domainName = req.query.domainName;
+							if (!domainName) {
+								res.send(400, {
+									message: "Invalid domainName"
 								});
 								return;
 							}
@@ -405,7 +413,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 							envId: req.query.envId,
 							ver: req.query.version,
 							stackName: stackName,
-							sessionUser: req.session.user.cn,
+							domainName:domainName,
+							sessionUser: req.session.user.cn
 						}, function(err, launchData) {
 							if (err) {
 								res.status(500).send({
