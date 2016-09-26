@@ -246,9 +246,6 @@ function aggregateEntityCosts(parentEntity, parentEntityId, parentEntityQuery, e
                             interval: interval
                         }
 
-                        if(period ==  'day') {
-                            console.log(entityCost)
-                        }
                         entityCosts.upsertEntityCost(entityCost, next)
                     },
                     function(err) {

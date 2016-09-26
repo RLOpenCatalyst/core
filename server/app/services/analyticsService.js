@@ -76,7 +76,8 @@ analyticsService.validateAndParseCostQuery
 		costQuery.costTrendQuery = {
 			'parentEntity.id': requestQuery.parentEntityId,
 			'entity.id': requestQuery.entityId,
-			'startTime': Date.parse(startTime),
+			'startTime': {$gte: Date.parse(startTime)},
+			'endTime': {$lte: Date.parse(requestQuery.toTimeStamp)},
 			'interval': costAggregationPeriods[requestQuery.period].childInterval.intervalInSeconds
 		}
 	}
@@ -285,10 +286,10 @@ analyticsService.formatCostTrend = function formatCostTrend(entityCosts, callbac
 			},
 			function(formattedCostTrend, next) {
 				async.forEach(entityCosts.costTrend,
-					function(costEntry, next) {
+					function(costEntry, next0) {
 						var trend = {
-							id: costEntry.entity.startTime,
-							name: costEntry.entity.endTime,
+							fromTime: costEntry.startTime,
+							toTime: costEntry.endTime,
 							cost: {
 								totalCost: Math.round(costEntry.costs.totalCost * 100)/100,
 								AWS: {
@@ -301,7 +302,7 @@ analyticsService.formatCostTrend = function formatCostTrend(entityCosts, callbac
 						}
 
 						formattedCostTrend.costTrends.push(trend)
-						next()
+						next0()
 					},
 					function(err) {
 						if(err) {
