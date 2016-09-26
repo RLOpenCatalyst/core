@@ -21,6 +21,8 @@ var entityCostsModel =  require('_pr/model/entity-costs')
 const dateUtil = require('_pr/lib/utils/dateUtil')
 var appConfig = require('_pr/config');
 var async = require('async')
+var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js')
+var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js')
 
 var analyticsService = module.exports = {};
 
@@ -42,9 +44,9 @@ analyticsService.validateAndParseCostQuery
 		case 'month':
 			startTime = dateUtil.getStartOfAMonthInUTC(requestQuery.toTimeStamp)
 			break
-		case 'year':
+		/*case 'year':
 			startTime = dateUtil.getStartOfAMonthInUTC(requestQuery.toTimeStamp)
-			break
+			break*/
 		default:
 			var err = new Error('Invalid request')
 			err.errors = [{messages: 'Period is invalid'}]
@@ -96,6 +98,10 @@ analyticsService.getEntityAggregateCosts = function getEntityAggregateCosts(cost
 			var err = new Error('Internal Server Error')
 			err.status = 500
 			return callback(err)
+		} else if(entityCosts.totalCost == null) {
+			var err = new Error('Data not available')
+			err.status = 400
+			return callback(err)
 		} else {
 			return callback(null, entityCosts)
 		}
@@ -116,136 +122,300 @@ analyticsService.getEntityCostTrend = function getEntityCostTrend(costQuery, cal
 			var err = new Error('Internal Server Error')
 			err.status = 500
 			return callback(err)
+		} else if(entityCosts.totalCost == null) {
+			var err = new Error('Data not available')
+			err.status = 400
+			return callback(err)
 		} else {
 			return callback(null, entityCosts)
 		}
 	})
 }
 
+// @TODO Try to opitmize
 analyticsService.formatAggregateCost = function formatAggregateCost(entityCosts, callback) {
 	var catalystEntityHierarchy = appConfig.catalystEntityHierarchy
 
-	var formattedAggregateCost = {
-		period: entityCosts.totalCost[0].period,
-		fromTime: entityCosts.totalCost[0].startTime,
-		toTime: entityCosts.totalCost[0].endTime,
-		entity: {
-			type: entityCosts.totalCost[0].entity.type,
-			id: entityCosts.totalCost[0].entity.id,
-			name: entityCosts.totalCost[0].entity.id
-		},
-		cost: {
-			totalCost: entityCosts.totalCost[0].costs.totalCost,
-			AWS: {
-				totalCost: entityCosts.totalCost[0].costs.totalCost,
-				serviceCosts: {
-					Other: entityCosts.totalCost[0].costs.totalCost
-				}
-			}
-		},
-		splitUpCosts: {}
-	}
-
-	async.forEach(entityCosts.splitUpCosts,
-		function(costEntry, next) {
-			if(costEntry.entity.type == entityCosts.totalCost[0].entity.type) {
-				return next()
-			}
-
-			if(!(costEntry.entity.type in formattedAggregateCost.splitUpCosts)) {
-				formattedAggregateCost.splitUpCosts[costEntry.entity.type] = []
-			}
-
-			var splitUpCost = {
-				id: costEntry.entity.id,
-				name: costEntry.entity.id,
+	async.waterfall([
+		function(next) {
+			var totalCost = Math.round(entityCosts.totalCost[0].costs.totalCost * 100) / 100
+			var formattedAggregateCost = {
+				period: entityCosts.totalCost[0].period,
+				fromTime: entityCosts.totalCost[0].startTime,
+				toTime: entityCosts.totalCost[0].endTime,
+				entity: {
+					type: entityCosts.totalCost[0].entity.type,
+					id: entityCosts.totalCost[0].entity.id,
+					name: entityCosts.totalCost[0].entity.name
+				},
 				cost: {
-					totalCost: costEntry.costs.totalCost,
+					totalCost: totalCost,
 					AWS: {
-						totalCost: costEntry.costs.totalCost,
+						totalCost: totalCost,
 						serviceCosts: {
-							Other: costEntry.costs.totalCost
+							Other: totalCost
 						}
 					}
+				},
+				splitUpCosts: {}
+			}
+
+			analyticsService.getEntityDetails(formattedAggregateCost.entity.type,
+				formattedAggregateCost.entity.id,
+				function(err, entityDetails) {
+					if(err) {
+						next(err)
+					} else {
+						formattedAggregateCost.entity.name = entityDetails.name
+						next(null, formattedAggregateCost)
+					}
 				}
-			}
-
-			formattedAggregateCost.splitUpCosts[costEntry.entity.type].push(splitUpCost)
-			next()
+			)
 		},
-		function(err) {
-			if(err) {
-				logger.error(err)
-				var err = new Error('Internal Server Error')
-				err.status = 500
-				return callback(err)
-			} else {
-				return callback(null, formattedAggregateCost)
-			}
-		}
-	)
+		function(formattedAggregateCost, next) {
+			async.forEach(entityCosts.splitUpCosts,
+				function(costEntry, next0) {
+					if (costEntry.entity.type == entityCosts.totalCost[0].entity.type) {
+						return next0()
+					}
 
+					if (!(costEntry.entity.type in formattedAggregateCost.splitUpCosts)) {
+						formattedAggregateCost.splitUpCosts[costEntry.entity.type] = []
+					}
+
+					var splitUpCost = {
+						id: costEntry.entity.id,
+						// name: costEntry.entity.name,
+						cost: {
+							totalCost: Math.round(costEntry.costs.totalCost * 100) / 100,
+							AWS: {
+								totalCost: Math.round(costEntry.costs.totalCost * 100) / 100,
+								serviceCosts: {
+									Other: Math.round(costEntry.costs.totalCost * 100) / 100
+								}
+							}
+						}
+					}
+
+					if (costEntry.entity.id != 'Unassigned' && costEntry.entity.id != 'Other'
+						&& costEntry.entity.id != 'Unknown') {
+						analyticsService.getEntityDetails(costEntry.entity.type, costEntry.entity.id,
+							function (err, entityDetails) {
+								if (err) {
+									next0(err)
+								} else {
+									splitUpCost.name = entityDetails.name
+									formattedAggregateCost.splitUpCosts[costEntry.entity.type].push(splitUpCost)
+									next0()
+								}
+							}
+						)
+					} else {
+						splitUpCost.name = costEntry.entity.id
+						formattedAggregateCost.splitUpCosts[costEntry.entity.type].push(splitUpCost)
+						next0()
+					}
+				},
+				function(err) {
+					if(err) {
+						return next(err)
+					} else {
+						return next(null, formattedAggregateCost)
+					}
+				}
+			)
+		}
+	], function(err, formattedAggregateCost) {
+		if(err) {
+			logger.error(err)
+			var err = new Error('Internal Server Error')
+			err.status = 500
+			callback(err)
+		} else {
+			return callback(null, formattedAggregateCost)
+		}
+	})
 }
 
+// @TODO Try to opitmize
 analyticsService.formatCostTrend = function formatCostTrend(entityCosts, callback) {
 	var catalystEntityHierarchy = appConfig.catalystEntityHierarchy
 
-	var formattedCostTrend = {
-		costTrends: []
-	}
-	if(entityCosts.totalCost != null) {
-		formattedCostTrend = {
-			period: entityCosts.totalCost[0].period,
-			fromTime: entityCosts.totalCost[0].startTime,
-			toTime: entityCosts.totalCost[0].endTime,
-			entity: {
-				type: entityCosts.totalCost[0].entity.type,
-				id: entityCosts.totalCost[0].entity.id,
-				name: entityCosts.totalCost[0].entity.id
-			},
-			cost: {
-				totalCost: entityCosts.totalCost[0].costs.totalCost,
-				AWS: {
-					totalCost: entityCosts.totalCost[0].costs.totalCost,
-					serviceCosts: {
-						Other: entityCosts.totalCost[0].costs.totalCost
+	async.waterfall(
+		[
+			function(next) {
+				var formattedCostTrend = {
+					costTrends: []
+				}
+				if(entityCosts.totalCost != null) {
+					var totalCost = Math.round(entityCosts.totalCost[0].costs.totalCost * 100) / 100
+					formattedCostTrend = {
+						period: entityCosts.totalCost[0].period,
+						fromTime: entityCosts.totalCost[0].startTime,
+						toTime: entityCosts.totalCost[0].endTime,
+						entity: {
+							type: entityCosts.totalCost[0].entity.type,
+							id: entityCosts.totalCost[0].entity.id,
+							name: entityCosts.totalCost[0].entity.name
+						},
+						cost: {
+							totalCost: totalCost,
+							AWS: {
+								totalCost: totalCost,
+								serviceCosts: {
+									Other: totalCost
+								}
+							}
+						},
+						costTrends: []
 					}
 				}
-			},
-			costTrends: []
-		}
-	}
 
-	async.forEach(entityCosts.costTrend,
-		function(costEntry, next) {
-			var trend = {
-				id: costEntry.entity.startTime,
-				name: costEntry.entity.endTime,
-				cost: {
-					totalCost: costEntry.costs.totalCost,
-					AWS: {
-						totalCost: costEntry.costs.totalCost,
-						serviceCosts: {
-							Other: costEntry.costs.totalCost
+				analyticsService.getEntityDetails(formattedCostTrend.entity.type,
+					formattedCostTrend.entity.id,
+					function(err, entityDetails) {
+						if(err) {
+							next(err)
+						} else {
+							formattedCostTrend.entity.name = entityDetails.name
+							next(null, formattedCostTrend)
 						}
 					}
-				}
-			}
+				)
+			},
+			function(formattedCostTrend, next) {
+				async.forEach(entityCosts.costTrend,
+					function(costEntry, next) {
+						var trend = {
+							id: costEntry.entity.startTime,
+							name: costEntry.entity.endTime,
+							cost: {
+								totalCost: Math.round(costEntry.costs.totalCost * 100)/100,
+								AWS: {
+									totalCost: Math.round(costEntry.costs.totalCost * 100)/100,
+									serviceCosts: {
+										Other: Math.round(costEntry.costs.totalCost * 100)/100
+									}
+								}
+							}
+						}
 
-			formattedCostTrend.costTrends.push(trend)
-			next()
-		},
-		function(err) {
+						formattedCostTrend.costTrends.push(trend)
+						next()
+					},
+					function(err) {
+						if(err) {
+							logger.error(err)
+							var err = new Error('Internal Server Error')
+							err.status = 500
+							return next(err)
+						} else {
+							return next(null, formattedCostTrend)
+						}
+					}
+				)
+			}
+		],
+		function(err, formattedCostTrend) {
 			if(err) {
-				logger.error(err)
-				var err = new Error('Internal Server Error')
-				err.status = 500
-				return callback(err)
+				callback(err)
 			} else {
-				return callback(null, formattedCostTrend)
+				callback(null, formattedCostTrend)
 			}
 		}
 	)
+}
+
+//@TODO To be optimized. Better abstractions and attribute naming conventions will guarantee less code duplication
+//@TODO Centralized error handling to reduce code duplication
+analyticsService.getEntityDetails = function getEntityDetails(entityType, entityId, callback) {
+	var notFoundError = new Error('Invalid entity id')
+	notFoundError.status = 404
+
+	var internalServerError =  new Error('Internal Server Error')
+	internalServerError.status = 500
+
+	switch(entityType) {
+		case 'organization':
+			d4dModelNew.d4dModelMastersOrg.find(
+				{ rowid: entityId },
+				function(err, organizations) {
+					if (err) {
+						logger.error(err)
+						callback(internalServerError)
+					} else if (organizations.length > 0) {
+						callback(null, {'name': organizations[0].orgname})
+					} else {
+						callback(notFoundError)
+					}
+				}
+			)
+			break
+		// NOTE: Currently works only for AWS providers
+		case 'provider':
+			AWSProvider.getAWSProviderById(entityId,
+				function(err, provider) {
+					if(err) {
+						logger.error(err)
+						callback(internalServerError)
+					} else if(provider == null) {
+						callback(notFoundError)
+					} else {
+						callback(null, {'name': provider.providerName})
+					}
+				}
+			)
+			break
+		case 'businessGroup':
+			d4dModelNew.d4dModelMastersProductGroup.find(
+				{ rowid: entityId },
+				function(err, businessGroups) {
+					if (err) {
+						logger.error(err)
+						callback(internalServerError)
+					} else if(businessGroups.length > 0) {
+						callback(null, {'name': businessGroups[0].productgroupname})
+					} else {
+						callback(notFoundError)
+					}
+				}
+			)
+			break
+		case 'project':
+			d4dModelNew.d4dModelMastersProjects.find(
+				{ rowid: entityId },
+				function(err, projects) {
+					if (err) {
+						logger.error(err)
+						callback(internalServerError)
+					} else if(projects.length > 0) {
+						callback(null, {'name': projects[0].projectname})
+					} else {
+						callback(notFoundError)
+					}
+				}
+			)
+			break
+		case 'environment':
+			d4dModelNew.d4dModelMastersEnvironments.find(
+				{ rowid: entityId },
+				function(err, environments) {
+					if (err) {
+						logger.error(err)
+						callback(internalServerError)
+					} else if (environments.length > 0) {
+						callback(null, {'name': environments[0].environmentname})
+					} else {
+						callback(notFoundError)
+					}
+				}
+			)
+			break
+		// NOTE: Works only for AWS regions as of now
+		case 'region':
+			callback(null, {'name': appConfig.aws.regionMappings[entityId].name})
+			break
+	}
 }
 
 /*analyticsService.getTrendUsage = function getTrendUsage(resourceId, interval, startTime, endTime, callback) {*/
