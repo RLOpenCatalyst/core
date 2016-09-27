@@ -1,131 +1,25 @@
-<link rel="stylesheet" type="text/css" media="screen" href="css/wizardBg.css">
-<style>
-    /*custom font*/
-    @import url(http://fonts.googleapis.com/css?family=Montserrat);
-
-    /*form styles*/
-    form {
-        margin: 10px auto;
-        position: relative;
-    }
-
-    /*Hide all except first fieldset*/
-    form:not(:first-of-type) {
-        display: none;
-    }
-
-    /*buttons*/
-    form .action-button {
-        width: 100px;
-        background: #27AE60;
-        font-weight: bold;
-        color: white;
-        border: 0 none;
-        border-radius: 1px;
-        cursor: pointer;
-        padding: 10px 5px;
-        margin: 10px 5px;
-    }
-    form .action-button:hover, #msform .action-button:focus {
-        box-shadow: 0 0 0 2px white, 0 0 0 3px #27AE60;
-    }
-    /*headings*/
-    .fs-title {
-        font-size: 15px;
-        text-transform: uppercase;
-        color: #2C3E50;
-        margin-bottom: 10px;
-    }
-    .fs-subtitle {
-        font-weight: normal;
-        font-size: 13px;
-        color: #666;
-        margin-bottom: 20px;
-    }
-    /*progressbar*/
-    #progressbar {
-        overflow: hidden;
-        text-align: center;
-        /*CSS counters to number the steps*/
-        counter-reset: step;
-        margin-top: 5px;
-    }
-    #progressbar li {
-        list-style-type: none;
-        font-size: 15px;
-        width: 33.33%;
-        float: left;
-        position: relative;
-    }
-    #progressbar li:before {
-        content: counter(step);
-        counter-increment: step;
-        width: 20px;
-        line-height: 20px;
-        display: block;
-        font-size: 10px;
-        color: #fff;
-        background: #7d7676;
-        border-radius: 3px;
-        margin: 0 auto 5px auto;
-    }
-    /*progressbar connectors*/
-    #progressbar li:after {
-        content: '';
-        width: 100%;
-        height: 2px;
-        background: #7d7676;
-        position: absolute;
-        left: -50%;
-        top: 9px;
-        z-index: -1; /*put it behind the numbers*/
-    }
-    #progressbar li:first-child:after {
-        /*connector not needed before the first step*/
-        content: none;
-    }
-    /*marking active/completed steps green*/
-    /*The number of the step and the connector before it = green*/
-    #progressbar li.active:before,  #progressbar li.active:after{
-        background: #27AE60;
-        color: white;
-    }
-
-    .content {
-        margin:0 auto;
-        padding: 10px;
-    }
-    a, a:hover {
-        color:#7d7676;
-        text-decoration: none;
-    }
-    .green-btn {
-        background-color: #5cb85c!important;
-        color:#fff!important;
-    }
-</style>
-		<div class="row">
-			<div class="col-md-12">
-				<div class="col-md-12">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="col-md-12">
               <form action="" id="configForm" autocomplete="off">
-					<div class="widget-box">
-						<div class="widget-header">
-							<h5 class="widget-title" style="color:#4e5964;">
-		                   		 <strong>ServiceNow CMDB Setting</strong>
-		                    </h5>
-						</div>
-				<div class="widget-body">
-					<div class="widget-main" style="min-height:300px;">
-                  		<div>
-                     		<section id="widget-grid" class="">
+                    <div class="widget-box">
+                        <div class="widget-header">
+                            <h5 class="widget-title" style="color:#4e5964;">
+                                 <strong>ServiceNow CMDB Setting</strong>
+                            </h5>
+                        </div>
+                <div class="widget-body">
+                    <div class="widget-main" style="min-height:300px;">
+                        <div>
+                            <section id="widget-grid" class="">
                         <!-- START ROW -->
-                        		<div class="row">             
+                                <div class="row">             
                               <!-- Widget ID (each widget will need unique ID)-->
-                              		<div class="jarviswidget" id="wid-id-3" data-widget-editbutton="false" data-widget-custombutton="false">
+                                    <div class="jarviswidget" id="wid-id-3" data-widget-editbutton="false" data-widget-custombutton="false">
                                  <!-- widget div-->
-                                 		<div>
+                                        <div>
                                     <!-- widget content -->
-                                    	<div class="widget-body no-padding">
+                                        <div class="widget-body no-padding">
                                        <div class="col-lg-6 col-md-6">
                                              <label for="configname">Configuration Name:<span class="control-label redSpan">&nbsp;*</span></label>
                                              <!-- <i class="icon-append fa fa-building"></i> -->
@@ -196,24 +90,62 @@
                </div>
             </div>
 
-				</div>
-					</div>
+                </div>
+                    </div>
                </form><!--form ends-->
-				</div>
-			</div>
-		</div>
+                </div>
+            </div>
+        </div>
 
-      <script>
+      <script >
+
+        var UtilityMethods={
+             initTooltip:function(){
+              var $tool=$("[rel=tooltip]");
+              if ($tool.length) {
+               $tool.tooltip();
+             }
+           },
+           getRandomNumber:function(){      
+             return parseInt(Math.random()*10000000000);
+           },
+           getIdFromURL:function(){
+             var options=location.toString().split('?');
+             return options.length >1 ? (options[1]!=="new" ? options[1]:"" ):"";
+           }
+         };
    
         $(document).ready(function () {
             
-           
-          orgNameForSetup = $('#orgDropdown option:selected').attr('rowid');
-    orgIdForSetup = $('#orgDropdown option:selected').val();
-    var $option = $('<option></option>').val(orgNameForSetup).attr('rowid',orgIdForSetup).html(orgNameForSetup);
-    $('#orgname').append($option);
+            var isEditMode = false;
 
-            
+            var id = UtilityMethods.getIdFromURL();
+
+
+            if(id){
+               console.log("In updation :", id);
+               isEditMode = true;
+
+              $.get('/cmdb/servers/' + id ,function(data){
+                  $('#configname').val(data.configname);
+                  $('#url').val(data.url);
+                  $('#username').val(data.servicenowusername);
+                  $('#password').val(data.servicenowpassword);
+                  var $option = '<option selected value="'+data.orgname+'" orgname_rowid="'+data.orgname_rowid+'">'+data.orgname+'</option>';
+                  $('#orgname').append($option).attr('disabled','disabled');
+             });
+            }else{
+                $.get('/d4dMasters/readmasterjsonnew/1',function(data){
+               //alert('data');
+                  var $select = $('#orgname');
+
+                  for(i=0;i<data.length;i++){
+                    var orgname_rowid = data[i].rowid;
+                    $select.append('<option value="'+data[i].orgname+'" orgname_rowid="'+orgname_rowid+'">'+data[i].orgname+'</option>');
+                  }
+               });//end of get organizations action
+
+            }
 
             //form validation for dashboard save
              var validator = $('#configForm').validate({
