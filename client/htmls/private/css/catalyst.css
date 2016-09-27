@@ -1243,11 +1243,11 @@ nav ul ul>li:hover b {
     border: 1px solid #ddd;
     border-top: 0;
 }
-.btn,
+/*.btn,
 a:link,
 button {
     -webkit-tap-highlight-color: rgba(169, 3, 41, .5);
-}
+}*/
 #logo-group *,
 .tree-view,
 .tree-view *,
