@@ -839,12 +839,12 @@ function getRDSInstancesInfo(provider,orgName,callback) {
         cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
     var decryptedSecretKey = cryptography.decryptText(provider.secretKey,
         cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-    var s3Config = {
+    var rdsConfig = {
         access_key: decryptedAccessKey,
         secret_key: decryptedSecretKey,
         region: "us-west-1"
     };
-    var rds = new RDS(s3Config);
+    var rds = new RDS(rdsConfig);
     rds.getRDSDBInstances(function(err,dbInstances){
         if(err){
             logger.error(err);
