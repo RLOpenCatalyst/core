@@ -250,7 +250,7 @@
                     } else {
                         entityId=fltObj.org.id;
                     }
-                    param.url='http://192.168.152.139:3001/analytics/cost/trend?parentEntityId='+fltObj.org.id+'&entityId='+fltObj.org.id+'&toTimeStamp='+new Date()+'&period=month&interval=86400'
+                    param.url='/analytics/cost/trend?parentEntityId='+fltObj.org.id+'&entityId='+fltObj.org.id+'&toTimeStamp='+new Date()+'&period=month&interval=86400'
                 }
 
                 genSevs.promiseGet(param).then(function (result) {
