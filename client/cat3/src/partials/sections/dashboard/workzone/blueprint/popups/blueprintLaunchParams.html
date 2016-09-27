@@ -46,7 +46,7 @@
 					<button type="button" class="btn cat-btn-cancel" ng-click="cancel()">
 						Cancel
 					</button>
-					<input type="submit" class="btn cat-btn-update" ng-disabled="cftForm.stackInpt.$dirty && cftForm.stackInpt.$invalid" ng-click="launchBP()" value="Ok" />
+					<input type="submit" class="btn cat-btn-update" ng-disabled="cftForm.stackInpt.$dirty && cftForm.stackInpt.$invalid" ng-click="cftSubmitHandler()" value="Ok" />
 				</div>
 				<div ng-show="showBlueprintInputs ">
 					<button type="button" class="btn cat-btn-cancel" ng-click="cancel()">
