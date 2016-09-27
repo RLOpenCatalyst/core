@@ -139,7 +139,6 @@ function getDefaultsConfig() {
             }],
 
             regions: [{
-
                 region_name: "US East (N. Virginia)",
                 region: "us-east-1"
             }, {
@@ -166,6 +165,9 @@ function getDefaultsConfig() {
             }, {
                 region_name: "South America (Sao Paulo)",
                 region: "sa-east-1"
+            }, {
+                region_name: 'Asia Pacific (Mumbai)',
+                region: "ap-south-1"
             }],
 
             operatingSystems: [{
@@ -214,7 +216,200 @@ function getDefaultsConfig() {
                 regions:['us-east-1','us-west-2','us-west-1','eu-west-1','eu-central-1','ap-southeast-1','ap-northeast-1','ap-southeast-2','sa-east-1'],
                 productName1:['Amazon Elastic Compute Cloud','Amazon RDS Service','Amazon Redshift','Amazon ElastiCache'],
                 productName2:['Amazon CloudFront','Amazon Route 53','Amazon Simple Storage Service','Amazon Virtual Private Cloud']
+            },
+
+            regionMappings: {
+                'us-east-1': {
+                    name: 'US East (N. Virginia)'
+                },
+                'us-west-1': {
+                    name: 'US West (N. California)'
+                },
+                'us-west-2': {
+                    name: 'US West (Oregon)'
+                },
+                'eu-central-1': {
+                    name: 'EU (Frankfurt)'
+                },
+                'eu-west-1': {
+                    name: 'EU (Ireland)'
+                },
+                'ap-south-1': {
+                    name: 'Asia Pacific (Mumbai)'
+                },
+                'ap-northeast-1': {
+                    name: 'Asia Pacific (Tokyo)'
+                },
+                'ap-northeast-2': {
+                    name: 'Asia Pacific (Seoul)'
+                },
+                'ap-southeast-1': {
+                    name: 'Asia Pacific (Singapore)'
+                },
+                'ap-southeast-2': {
+                    name: 'Asia Pacific (Sydney)'
+                },
+                'sa-east-1': {
+                    name: 'South America (Sao Paulo)'
+                }
+            },
+
+            zones: {
+                'us-east-1a': 'us-east-1',
+                'us-east-1b': 'us-east-1',
+                'us-east-1c': 'us-east-1',
+                'us-east-1d': 'us-east-1',
+                'us-east-1e': 'us-east-1',
+                'EBS:VolumeUsage': 'us-east-1',
+                'EBS:VolumeUsage.gp2': 'us-east-1',
+                'EBS:SnapshotUsage': 'us-east-1',
+                'EBS:SnapshotUsag.gp2': 'us-east-1',
+                'LoadBalancerUsage': 'us-east-1',
+                'DataTransfer-Out-Bytes': 'us-east-1',
+                'DataTransfer-In-Bytes': 'us-east-1',
+                'ElasticIP:IdleAddress': 'us-east-1',
+                'us-west-1a': 'us-west-1',
+                'us-west-1b': 'us-west-1',
+                'us-west-1c': 'us-west-1',
+                'us-west-1d': 'us-west-1',
+                'us-west-1e': 'us-west-1',
+                'USW1-EBS:VolumeUsage': 'us-west-1',
+                'USW1-EBS:VolumeUsage.gp2': 'us-west-1',
+                'USW1-EBS:SnapshotUsage': 'us-west-1',
+                'USW1-EBS:SnapshotUsag.gp2': 'us-west-1',
+                'USW1-LoadBalancerUsage': 'us-west-1',
+                'USW1-DataTransfer-Out-Bytes': 'us-west-1',
+                'USW1-DataTransfer-In-Bytes': 'us-west-1',
+                'USW1-ElasticIP:IdleAddress': 'us-west-1',
+                'us-west-2a': 'us-west-2',
+                'us-west-2b': 'us-west-2',
+                'us-west-2c': 'us-west-2',
+                'us-west-2d': 'us-west-2',
+                'us-west-2e': 'us-west-2',
+                'USW2-EBS:VolumeUsage': 'us-west-2',
+                'USW2-EBS:VolumeUsage.gp2': 'us-west-2',
+                'USW2-EBS:SnapshotUsage': 'us-west-2',
+                'USW2-EBS:SnapshotUsag.gp2': 'us-west-2',
+                'USW2-LoadBalancerUsage': 'us-west-2',
+                'USW2-DataTransfer-Out-Bytes': 'us-west-2',
+                'USW2-DataTransfer-In-Bytes': 'us-west-2',
+                'USW2-ElasticIP:IdleAddress': 'us-west-2',
+                'eu-west-1a': 'eu-west-1',
+                'eu-west-1b': 'eu-west-1',
+                'eu-west-1c': 'eu-west-1',
+                'eu-west-1d': 'eu-west-1',
+                'eu-west-1e': 'eu-west-1',
+                'EUW1-EBS:VolumeUsage': 'eu-west-1',
+                'EUW1-EBS:VolumeUsage.gp2': 'eu-west-1',
+                'EUW1-EBS:SnapshotUsage': 'eu-west-1',
+                'EUW1-EBS:SnapshotUsag.gp2': 'eu-west-1',
+                'EUW1-LoadBalancerUsage': 'eu-west-1',
+                'EUW1-DataTransfer-Out-Bytes': 'eu-west-1',
+                'EUW1-DataTransfer-In-Bytes': 'eu-west-1',
+                'EUW1-ElasticIP:IdleAddress': 'eu-west-1',
+                'eu-central-1a': 'eu-central-1',
+                'eu-central-1b': 'eu-central-1',
+                'eu-central-1c': 'eu-central-1',
+                'eu-central-1d': 'eu-central-1',
+                'eu-central-1e': 'eu-central-1',
+                'EUC1-EBS:VolumeUsage': 'eu-central-1',
+                'EUC1-EBS:VolumeUsage.gp2': 'eu-central-1',
+                'EUC1-EBS:SnapshotUsage': 'eu-central-1',
+                'EUC1-EBS:SnapshotUsag.gp2': 'eu-central-1',
+                'EUC1-LoadBalancerUsage': 'eu-central-1',
+                'EUC1-DataTransfer-Out-Bytes': 'eu-central-1',
+                'EUC1-DataTransfer-In-Bytes': 'eu-central-1',
+                'EUC1-ElasticIP:IdleAddress': 'eu-central-1',
+                'ap-northeast-1a': 'ap-northeast-1',
+                'ap-northeast-1b': 'ap-northeast-1',
+                'ap-northeast-1c': 'ap-northeast-1',
+                'ap-northeast-1d': 'ap-northeast-1',
+                'ap-northeast-1e': 'ap-northeast-1',
+                'APN1-EBS:VolumeUsage': 'ap-northeast-1',
+                'APN1-EBS:VolumeUsage.gp2': 'ap-northeast-1',
+                'APN1-EBS:SnapshotUsage': 'ap-northeast-1',
+                'APN1-EBS:SnapshotUsag.gp2': 'ap-northeast-1',
+                'APN1-LoadBalancerUsage': 'ap-northeast-1',
+                'APN1-DataTransfer-Out-Bytes': 'ap-northeast-1',
+                'APN1-DataTransfer-In-Bytes': 'ap-northeast-1',
+                'APN1-ElasticIP:IdleAddress': 'ap-northeast-1',
+                'ap-northeast-2a': 'ap-northeast-2',
+                'ap-northeast-2b': 'ap-northeast-2',
+                'ap-northeast-2c': 'ap-northeast-2',
+                'ap-northeast-2d': 'ap-northeast-2',
+                'ap-northeast-2e': 'ap-northeast-2',
+                'APN2-EBS:VolumeUsage': 'ap-northeast-2',
+                'APN2-EBS:VolumeUsage.gp2': 'ap-northeast-2',
+                'APN2-EBS:SnapshotUsage': 'ap-northeast-2',
+                'APN2-EBS:SnapshotUsag.gp2': 'ap-northeast-2',
+                'APN2-LoadBalancerUsage': 'ap-northeast-2',
+                'APN2-DataTransfer-Out-Bytes': 'ap-northeast-2',
+                'APN2-DataTransfer-In-Bytes': 'ap-northeast-2',
+                'APN2-ElasticIP:IdleAddress': 'ap-northeast-2',
+                'ap-southeast-1a': 'ap-southeast-1',
+                'ap-southeast-1b': 'ap-southeast-1',
+                'ap-southeast-1c': 'ap-southeast-1',
+                'ap-southeast-1d': 'ap-southeast-1',
+                'ap-southeast-1e': 'ap-southeast-1',
+                'APS1-EBS:VolumeUsage': 'ap-southeast-1',
+                'APS1-EBS:VolumeUsage.gp2': 'ap-southeast-1',
+                'APS1-EBS:SnapshotUsage': 'ap-southeast-1',
+                'APS1-EBS:SnapshotUsag.gp2': 'ap-southeast-1',
+                'APS1-LoadBalancerUsage': 'ap-southeast-1',
+                'APS1-DataTransfer-Out-Bytes': 'ap-southeast-1',
+                'APS1-DataTransfer-In-Bytes': 'ap-southeast-1',
+                'APS1-ElasticIP:IdleAddress': 'ap-southeast-1',
+                'ap-southeast-2a': 'ap-southeast-2',
+                'ap-southeast-2b': 'ap-southeast-2',
+                'ap-southeast-2c': 'ap-southeast-2',
+                'ap-southeast-2d': 'ap-southeast-2',
+                'ap-southeast-2e': 'ap-southeast-2',
+                'APS2-EBS:VolumeUsage': 'ap-southeast-2',
+                'APS2-EBS:VolumeUsage.gp2': 'ap-southeast-2',
+                'APS2-EBS:SnapshotUsage': 'ap-southeast-2',
+                'APS2-EBS:SnapshotUsag.gp2': 'ap-southeast-2',
+                'APS2-LoadBalancerUsage': 'ap-southeast-2',
+                'APS2-DataTransfer-Out-Bytes': 'ap-southeast-2',
+                'APS2-DataTransfer-In-Bytes': 'ap-southeast-2',
+                'APS2-ElasticIP:IdleAddress': 'ap-southeast-2',
+                'sa-east-1b': 'sa-east-1',
+                'sa-east-1c': 'sa-east-1',
+                'sa-east-1d': 'sa-east-1',
+                'sa-east-1e': 'sa-east-1',
+                'SAE1-EBS:VolumeUsage': 'sa-east-1',
+                'SAE1-EBS:VolumeUsage.gp2': 'sa-east-1',
+                'SAE1-EBS:SnapshotUsage': 'sa-east-1',
+                'SAE1-EBS:SnapshotUsag.gp2': 'sa-east-1',
+                'SAE1-LoadBalancerUsage': 'sa-east-1',
+                'SAE1-DataTransfer-Out-Bytes': 'sa-east-1',
+                'SAE1-DataTransfer-In-Bytes': 'sa-east-1',
+                'SAE1-ElasticIP:IdleAddress': 'sa-east-1',
+            },
+
+            services: {
+                'Amazon Elastic Compute Cloud': 'EC2',
+                'Amazon Simple Storage Service': 'S3',
+                'Amazon RDS Service': 'RDS',
+                'Amazon Virtual Private Cloud': 'VPC',
+                'Amazon Route 53': 'R53',
+                'Amazon Redshift': 'RedShift',
+                'Amazon ElastiCache': 'ElastiCache',
+                'Amazon CloudFront': 'CloudFront'
+            },
+
+            billIndexes: {
+                'cost': 18,
+                'zone': 11,
+                'usageType': 9,
+                'prod': 5,
+                'tags': 22,
+                'totalCost': 3,
+                'instanceId': 21,
+                'startDate': 14,
+                'endDate': 15,
+                'recordId': 4
             }
+
         },
         vmware: {
             serviceHost: "http://localhost:3000"
@@ -235,6 +430,53 @@ function getDefaultsConfig() {
         maxInstanceCount: 0,
         catalystEntityTypes: ['ORGANIZATION', 'BUSINESS_UNIT', 'PROJECT', 'PROVIDER_TYPE',
             'PROVIDER', 'ENVIRONMENT', 'RESOURCE_TYPE', 'RESOURCE'],
+        catalystEntityHierarchy: {
+            organization: {
+                key: 'organizationId',
+                children: ['organization', 'businessGroup', 'provider', 'environment', 'region']
+            },
+            businessGroup: {
+                key: 'businessGroupId',
+                children: ['project', 'provider']
+            },
+            provider: {
+                key: 'providerId',
+                children: ['environment', 'region']
+            },
+            project: {
+                key: 'projectId',
+                children: ['environment']
+            },
+            environment: {
+                key: 'environmentId'
+            },
+            region: {
+                key: 'platformDetails.region'
+            }
+        },
+        costAggregationPeriods: {
+            'year': {
+                intervalInSeconds: null,
+                childInterval: {
+                    name: 'monthly',
+                    intervalInSeconds: 2592000
+                }
+            },
+            'month': {
+                intervalInSeconds: 2592000,
+                childInterval: {
+                    name: 'daily',
+                    intervalInSeconds: 86400
+                }
+            },
+            day: {
+                intervalInSeconds: 86400,
+                childInterval: {
+                    name: 'hourly',
+                    intervalInSeconds: 3600
+                }
+            },
+        },
 
         // cronjobTimeDelay: '"* * * * * *"',
 

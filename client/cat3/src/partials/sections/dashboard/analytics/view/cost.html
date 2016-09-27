@@ -1,0 +1,46 @@
+<div class="leftnavdiv" style="padding-right:7px;">
+    <br>
+     <div ng-if="analytic.tabShowChat">
+         <div class="row">
+             <div class="col-lg-4 col-md-4 col-sm-12" >
+                 <div class="box box-infobox box-info">
+                     <div class="box-header with-border"><h3 class="box-title">Aggregate cost</h3>
+                         <div class="box-tools pull-right">
+                             <span data-toggle="tooltip" title="3 New Messages" class="badge bg-yellow" ng-show="cost.pieChat.data.length >0">Total Cost - ${{cost.pieChat.totalCoust}}</span>
+                        </div>
+                     </div>
+                     <div class="box-body" ><nvd3 options="cost.pieChat.option" data="cost.pieChat.data"></nvd3></div>
+                 </div>
+             </div>
+             <div class="col-lg-8 col-md-8 col-sm-12" >
+                 <div class="box box-infobox box-info">
+                     <div class="box-header with-border"><h3 class="box-title">Distribution of all services across BU's</h3>
+                         <div class="box-tools pull-right" ng-show="cost.pieChat.data.length >0"> <b>Total </b>
+                             <span data-toggle="tooltip" title="3 New Messages" class="badge bg-yellow" ng-repeat="(value , key) in cost.serviceCosts"> {{value}} - ${{key}} </span>
+                         </div>
+                     </div>
+                     <div class="box-body" ><nvd3 options="cost.barChat.option" data="cost.barChat.data"></nvd3></div>
+                 </div>
+             </div>
+             <div class="col-lg-12 col-md-12 col-sm-12" >
+                 <div class="box box-infobox box-info">
+                     <div class="box-header with-border"><h3 class="box-title">Daily trends of cost across organization</h3>
+                         <div class="box-tools pull-right" ng-show="cost.trendLineChart.data.length >0">
+                             <span data-toggle="tooltip" title="3 New Messages" class="badge bg-yellow" >Total Cost - ${{cost.trendLineChart.totalCost}}</span>
+                         </div>
+                     </div>
+                     <div class="box-body" ><nvd3 options="cost.trendLineChart.options" data="cost.trendLineChart.data" class="with-3d-shadow with-transitions"></nvd3></div>
+                 </div>
+             </div>
+         </div>
+     </div>
+    <div ng-if="analytic.tabShowReport">
+        <div ng-if="cost.costGridOptions.data.length >0" ui-grid="cost.costGridOptions" ui-grid-selection ui-grid-exporter ui-grid-auto-resize class="grid"></div>
+        <div ng-if="!cost.costGridOptions.data.length >0">
+            <div class="alert alert-warning">
+                No Data Available.
+            </div>
+        </div>
+
+    </div>
+</div>

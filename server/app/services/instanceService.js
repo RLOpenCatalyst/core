@@ -24,7 +24,7 @@ var appConfig = require('_pr/config');
 var EC2 = require('_pr/lib/ec2.js');
 var Cryptography = require('../lib/utils/cryptography');
 var tagsModel = require('_pr/model/tags/tags.js');
-var resourceCost = require('_pr/model/resource-costs/resource-costs.js');
+var resourceCost = require('_pr/model/resource-costs-deprecated/resource-costs-deprecated.js');
 var resourceUsage = require('_pr/model/resource-metrics/resource-metrics.js');
 
 var async = require('async');
