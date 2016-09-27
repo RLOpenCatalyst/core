@@ -1196,7 +1196,6 @@ function Configmgmt() {
                                             var ids = [];
                                             ids.push('17');
                                             ids.push('19');
-
                                             checkmasters(rowid, ids, 'configname_rowid');
                                         } else {
                                             callback(null, 'none');

@@ -2167,7 +2167,6 @@ function CreateTableFromJsonNew(formID, idFieldName, createFileName) {
 
 function saveform(formID, operationTypes) {
 	//Validating the form
-
 	if (formID === "7") {
 		if (isFormValid(formID) == false || !validateUserForm(formID)) {
 			return (false);
@@ -2190,7 +2189,6 @@ function saveform(formID, operationTypes) {
 		if (isFormValid(formID) == false)
 			return (false);
 	}
-
 	var data1 = new FormData();
 	var fileNames = '';
 	var orgName = $('#orgname').val().trim();
@@ -2424,6 +2422,7 @@ function saveform(formID, operationTypes) {
 	    data1.append('password', password);
 	}*/
 	console.log(orgName);
+	console.log(data1);
 	// alert(serviceURL + "savemasterjsonrownew/" + formID + "/" + fileNames + "/" + orgName );
 	$.ajax({
 		url: serviceURL + "savemasterjsonrownew/" + formID + "/" + fileNames + "/" + orgName,
@@ -2443,6 +2442,7 @@ function saveform(formID, operationTypes) {
 				button.removeAttr("rowid", "");
 				$("#masterssavespinner").detach();
 				button.removeAttr('disabled');
+				$('.nextFormWizard').removeAttr('disabled','disabled');
 			} else {
 				$(".savespinner").hide();
 				button.removeAttr("rowid", "");
@@ -3318,7 +3318,6 @@ function isFormValidOpenStack(formid, option) {
 
 function isFormValid(formid) {
 	var isValid = true;
-
 	if ($('input[unique="true"], select[unique="true"]').length > 0) {
 		// alert('in isFormValid');
 		$('input[unique="true"], select[unique="true"]').each(function() {
@@ -3342,7 +3341,6 @@ function isFormValid(formid) {
 		}
 		var password = $('#password').val();
 		var cnfPassword = $('#cnfPassword').val();
-
 		//alert(currCtrl.attr('id'));
 		$.each(valiarr, function(vali) {
 			switch (valiarr[vali]) {
@@ -3459,7 +3457,6 @@ function isFormValid(formid) {
 			}
 
 		});
-
 	});
 
 	if (formid && formid === 19) {

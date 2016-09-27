@@ -54,56 +54,6 @@ table.dataTable thead td, table.dataTable thead th{
                                           <div  id="environmentname" multiselect="multiselect" datatype="select" sourcepath="3" datapath="masterjson.rows.row"  linkedto="orgname" class="input-group from-control col-md-12 widthBox" cdata="catalyst">
                                           </div>
                                         </div>
-                                        <div class="col-lg-6 col-md-6">
-                                          <a style="cursor:pointer;" data-toggle="modal" data-backdrop="false" id="repoanchorDetails" href="#repodetailsModal"> <img title="Add Repository Details" data-placement="top" rel="tooltip" class="addrepoDetails" style="float:right;margin-top:20px;" src="img/add.png"></a>
-                                          <label style="float:left;margin-top:20px;">Repositories Details :</label>
-                                          <div class="table-responsive table-div">
-                                            <table id="tablerepositoryDetails" class="table table-striped table-bordered table-hover dataTable" style="border:1px solid #eeeeee !important; text-align:center;font-size:12px;margin-top:45px;" width="100%" cellpadding="5px">
-                                                <thead>
-                                                    <tr class="rowCustomStyle" style="font-weight:bold;">
-                                                        <td style="color:#fff;background-color: #2c3742; width:35%">Repository</td>
-                                                        <td style="color:#fff;background-color: #2c3742;">Name</td>
-                                                        <td style="color:#fff;background-color: #2c3742; width:10%">Action</td>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="repoDeployTbody">
-                                                </tbody>
-                                            </table>
-                                          </div>
-                                        </div>
-                                        <div class="col-lg-6 col-md-6" style="margin-top:25px; display:none">
-                                          <label for="name">Repository Details:</label>
-                                          <input autofocus name="ctl00$MainContent$orgname" value="" id="repositories" class="form-control" type="text"  cdata="catalyst">
-                                       </div>
-                                        <!-- <div class="col-lg-6 col-md-6" style="display:none">
-                                          <a style="cursor:pointer;" data-toggle="modal" data-backdrop="false" id="appanchorDetails" href="#appdetailsModal"> <img title="Add App Details" data-placement="top" rel="tooltip" class="addappDetails" style="float:right;margin-top:20px;" src="img/add.png"></a>
-                                          <label style="float:left;margin-top:20px;">Application Details :</label>
-                                          <div class="table-responsive table-div">
-                                            <table id="tableappDetails" class="table table-striped table-bordered table-hover dataTable envAppDeployTable" style="border:1px solid #eeeeee !important; text-align:center;font-size:12px;margin-top:45px;" width="100%" cellpadding="5px">
-                                                <thead>
-                                                    <tr class="rowCustomStyle" style="font-weight:bold;">
-                                                        <td style="color:#fff;background-color: #2c3742;">App Name</td>
-                                                        <td style="color:#fff;background-color: #2c3742;">App Description</td>
-                                                        <td style="color:#fff;background-color: #2c3742;">Action</td>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="appDeployTbody">
-                                                </tbody>
-                                            </table>
-                                          </div>
-                                        </div> -->
-                                        <!-- <div class="col-lg-6 col-md-6" style="margin-top:25px; display:none">
-                                          <label for="name">Application Name:</label>
-                                          <input autofocus name="ctl00$MainContent$orgname" value="" id="appdeploy" class="form-control" type="text"  cdata="catalyst">
-                                       </div> -->
-
-                                 <!-- <div class="col-lg-6 col-md-6 smart-form" style="margin-top:25px;">
-                                    <label for="category">Assign Teams:<span class="control-label redSpan">&nbsp;*</span></label>
-                                    <div id="teamname" multiselect="multiselect" datatype="select" datapath="masterjson.rows.row" class="input-group from-control col-md-12 widthBox"  sourcepath="21" cdata="catalyst" linkedto="orgname" cat-validation="onechecked">
-                                    </div>
-                                </div> -->
-                                 
-                                 
                                  <!-- end widget content -->
                                  </div>
                               </div>
@@ -131,70 +81,6 @@ table.dataTable thead td, table.dataTable thead th{
                </div>
             </div>
          </div>
-         </form>
-      </div>
-   </div>
-</div>
-
-<!--modal for Repo Deploy Details-->
-<div class="modal fade" id="repodetailsModal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
-   <div class="modal-dialog">
-      <div class="modal-content">
-         <form class="" id="repoDetailsCreate" autocomplete="off">
-            <div class="modal-header">
-               <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
-               &times;
-               </button>
-               <h4 class="modal-title">
-                  <img style="width:18px;margin-left:6px;" src="img/tasksmall.png">&nbsp;&nbsp;Add Repository Details
-               </h4>
-            </div>
-            <div class="modal-body" style="height:150px;">
-              <div class="col-lg-6 col-md-6">
-                <label for="">Repository Server:<span style="color:red">*</span>
-                    <!-- <span>
-                        <img class="reposerverspinner" src="img/select2-spinner.gif" style="display:none">
-                        </img>
-                    </span> -->
-                </label>
-                <div class="input-groups">
-                    <select id="chooseRepoServer" name="" class="required width-100 form-control">
-                        <option value="">Choose Server</option>
-                        <!-- <option value="nexus">Nexus</option>
-                        <option value="docker">Docker</option> -->
-                    </select>
-                </div>
-              </div>
-               <!-- <div class="col-lg-6 col-md-6">
-                  <label for="repoName">Name</label>
-                  <input type="text" name="repoName" class="form-control" id="repoNameCreate"/>
-               </div>
-               <div class="col-lg-12 col-md-12" style="margin-top:20px">
-                 
-                 <span style="color:red;font-size:12px">* For Docker repository name should be username/tag (e.g. relevancelab/catalyst)</span>
-               </div> -->
-
-               <div class="col-lg-6 col-md-6">
-                    <label for="">Repository Name:<span style="color:red">*</span>
-                    <span>
-                        <img class="reposerverspinner" src="img/select2-spinner.gif" style="display:none">
-                        </img>
-                    </span>
-                </label>
-                    <select id="repoNameCreate" name="" class="form-control">
-                        <option value="">Choose Repository</option>
-                    </select>
-                </div>
-            </div>
-            <div class="modal-footer">
-              <a type="button" class="btn btn-default" data-dismiss="modal">
-                <i class="ace-icon fa fa-times bigger-110" style="margin-right: 5px;"></i>Cancel
-              </a>
-              <button class="btn btn-primary btn-mini" id="saveRepoDetails">
-                <i class="ace-icon fa fa-check bigger-110"></i>
-                Save
-              </button>
-            </div>
          </form>
       </div>
    </div>
@@ -368,27 +254,7 @@ function getDockerServer(){
       $("#appdetailsModal").show();
       $('#appDetailsCreate').trigger("reset");
    });
-   if (!$.fn.dataTable.isDataTable('#tablerepositoryDetails')) {
-      $repoDetails = $('#tablerepositoryDetails').DataTable({
-           "pagingType": "full_numbers",
-           "iDisplayLength": 5,
-           "aLengthMenu": [
-               [5, 40, 100, -1],
-               [5, 40, 100, "All"]
-           ],
-           "aoColumns": [
-               {
-                   "bSortable": true
-               }, {
-                   "bSortable": true
-               }, {
-                   "bSortable": true
-               }
-           ]
-       });
-   }
-   $("#tablerepositoryDetails_length").hide();
-   $("#tablerepositoryDetails_filter").hide();
+   
 
    if (!$.fn.dataTable.isDataTable('#tableappDetails')) {
       $appDetails = $('#tableappDetails').DataTable({
@@ -412,39 +278,7 @@ function getDockerServer(){
    $("#tableappDetails_length").hide();
    $("#tableappDetails_filter").hide();
 
-   $("#saveRepoDetails").click(function(e) {
-
-     e.preventDefault();
-     var repoServerName = $("#chooseRepoServer").val();
-     var repoName = $("#repoNameCreate").val();
-     if (repoName == '') {
-         alert("Please enter Repository Name");
-     }
-     if (repoName != '') {
-         var $repoDeployTbody = $('#repoDeployTbody');
-         var $tr = $('<tr class="repoDetailsRow"></tr>');
-         var $tdName = $('<td class="tdrepoName" value=' + repoName + ' style="word-break: break-word;"></td>');
-         $tr.data('repoName', repoName);
-         var $tdrepoServerName = $('<td class="tdrepoServerName" value=' + repoServerName + ' style="word-break: break-word;"></td>');
-         $tr.data('repoServerName', repoServerName);
-
-         $tdName.append(repoName);
-         $tdrepoServerName.append(repoServerName);
-         var $tdAction = $('<td/>');
-         $tdAction.append('<div style="margin-right:17px;float:right;" class="btn-group"><button class="deleteRow" value="Remove" title="Remove"><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>');
-
-         $tdAction.find('.deleteRow').click(function() {
-             $repoDetails.row($tr).remove().draw(true);
-         });
-
-         $tr.append($tdrepoServerName).append($tdName).append($tdAction);
-         $repoDeployTbody.append($tr);
-         $repoDetails.row.add($tr).draw();
-         $("#repodetailsModal").hide();
-     }
-     $("#repoNameCreate").empty();
-     $('#repoNameCreate').append('<option value = "" > Choose Repository </option>');
-   });
+   
     $("#savecreateProjectbtn").click(function(e) {
         var repositories = {
           nexus: [],

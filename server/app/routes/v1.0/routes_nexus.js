@@ -19,6 +19,8 @@ limitations under the License.
 
 var nexus = require('_pr/lib/nexus.js');
 var logger = require('_pr/logger')(module);
+var Client = require('node-rest-client').Client;
+var parser = require('xml2json');
 
 module.exports.setRoutes = function(app, verificationFunc) {
     app.all('/nexus/*', verificationFunc);
@@ -73,6 +75,38 @@ module.exports.setRoutes = function(app, verificationFunc) {
     		res.send(repositories.repositories.data['repositories-item']);
     	});
     });
+
+	app.get('/nexus/userName/:userName/nexusPassword/:nexusPassword/repositories',function(req,res){
+		logger.debug("Called nexus repositories..");
+		if(!req.params.userName){
+			res.status(500).send("Nexus User Name can't be empty.");
+		}
+		if(!req.params.nexusPassword){
+			res.status(500).send("Nexus Password can't be empty.");
+		}
+		if(!req.query.hostName){
+			res.status(500).send("Nexus Host Name can't be empty.");
+		}
+		var options_auth = {
+			user: req.params.userName,
+			password: req.params.nexusPassword
+		};
+		client = new Client(options_auth);
+		var nexusUrl = req.query.hostName + '/service/local/repositories';
+		client.registerMethod("jsonMethod", nexusUrl, "GET");
+		var reqSubmit = client.methods.jsonMethod(function(data, response) {
+			try {
+				var json = parser.toJson(data);
+				logger.debug("data: ", JSON.stringify(json));
+				json = JSON.parse(json);
+				res.send(json.repositories.data['repositories-item']);
+			} catch (err) {
+				logger.debug("Error while fetching nexus repositories.");
+				res.status(500).send("Error while fetching nexus repositories.");
+				return;
+			}
+		});
+	});
 
     app.get('/nexus/:anId/repositories/:repoName/group/:groupId/artifact',function(req,res){
     	logger.debug("Called nexus repositories..");
