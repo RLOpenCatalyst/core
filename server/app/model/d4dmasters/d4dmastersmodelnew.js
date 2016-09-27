@@ -103,6 +103,11 @@ var d4dMastersOrg = new mongoose.Schema({
         type: String,
         trim: true
     },
+    plannedCost: {
+        type: Number,
+        required:false,
+        default:0.0
+    },
     active: {
         type: Boolean,
         trim: true,

@@ -21,6 +21,7 @@ var CW = require('_pr/lib/cloudwatch.js');
 var S3 = require('_pr/lib/s3.js');
 var EC2 = require('_pr/lib/ec2.js');
 var RDS = require('_pr/lib/rds.js');
+var Route53 = require('_pr/lib/route53.js');
 var resourceCost = require('_pr/model/resource-costs');
 var csv = require("fast-csv");
 var fs = require('fs');
@@ -32,8 +33,6 @@ var instancesModel = require('_pr/model/classes/instance/instance');
 var entityCosts = require('_pr/model/entity-costs');
 var mongoDbClient = require('mongodb').MongoClient;
 
-resourceService.getCostForResources = getCostForResources_deprecated;
-resourceService.getTotalCost = getTotalCost_deprecated;
 resourceService.getCostForServices = getCostForServices_deprecated;
 resourceService.getEC2InstanceUsageMetrics=getEC2InstanceUsageMetrics;
 resourceService.getS3BucketsMetrics=getS3BucketsMetrics;
@@ -48,6 +47,7 @@ resourceService.getEC2InstancesInfo=getEC2InstancesInfo;
 resourceService.getAllResourcesForProvider =  getAllResourcesForProvider;
 resourceService.updateAWSResourceCostsFromCSV = updateAWSResourceCostsFromCSV
 resourceService.aggregateEntityCosts = aggregateEntityCosts
+resourceService.updateDomainNameForInstance = updateDomainNameForInstance
 
 // @TODO To be cached if needed. In memory data will not exceed 200MB for upto 2000 instances.
 function getAllResourcesForProvider(provider, next) {
@@ -63,8 +63,8 @@ function getAllResourcesForProvider(provider, next) {
                 unassignedInstancesModel.getUnAssignedInstancesByProviderId(provider._id, callback);
             }
             /*function(callback) {
-                resources.getResourcesByProviderId(provider._id, callback);
-            }*/
+             resources.getResourcesByProviderId(provider._id, callback);
+             }*/
         ],
         function(err, results) {
             if (err) {
@@ -95,7 +95,7 @@ function updateAWSResourceCostsFromCSV(provider, resources, downlaodedCSVPath, u
     csv.fromStream(stream, {headers: false}).on('data', function(data) {
         if((data[awsBillIndexes.totalCost] == 'LineItem')
             && ((provider.lastBillUpdateTime == null)
-                || (Date.parse(data[awsBillIndexes.endDate]) > Date.parse(provider.lastBillUpdateTime)))) {
+            || (Date.parse(data[awsBillIndexes.endDate]) > Date.parse(provider.lastBillUpdateTime)))) {
             var resourceCostEntry = {platformDetails: {}}
 
             resourceCostEntry.organizationId = provider.orgId
@@ -228,33 +228,33 @@ function aggregateEntityCosts(parentEntity, parentEntityId, parentEntityQuery, e
                 } else if(result.ok == 1){
                     //@TODO To be handled outside
                     async.forEach(result.results, function(entry, next) {
-                        var entityCost = {
-                            entity: {
-                                id: entry._id,
-                                type: childEntity
-                            },
-                            parentEntity: {
-                                id: parentEntityId,
-                                type: parentEntity
-                            },
-                            costs: {
-                                totalCost: entry.value.cost
-                            },
-                            startTime: Date.parse(startTime),
-                            endTime: Date.parse(endTime),
-                            period: period,
-                            interval: interval
-                        }
+                            var entityCost = {
+                                entity: {
+                                    id: entry._id,
+                                    type: childEntity
+                                },
+                                parentEntity: {
+                                    id: parentEntityId,
+                                    type: parentEntity
+                                },
+                                costs: {
+                                    totalCost: entry.value.cost
+                                },
+                                startTime: Date.parse(startTime),
+                                endTime: Date.parse(endTime),
+                                period: period,
+                                interval: interval
+                            }
 
-                        entityCosts.upsertEntityCost(entityCost, next)
-                    },
-                    function(err) {
-                        if(err) {
-                            return next(err)
-                        }
+                            entityCosts.upsertEntityCost(entityCost, next)
+                        },
+                        function(err) {
+                            if(err) {
+                                return next(err)
+                            }
 
-                        return next()
-                    })
+                            return next()
+                        })
                 }
             })
         }, function (err) {
@@ -266,327 +266,6 @@ function aggregateEntityCosts(parentEntity, parentEntityId, parentEntityQuery, e
         })
     })
 }
-
-function getCostForResources_deprecated(updatedTime,provider,bucketNames,instanceIds,dbInstanceNames,fileName, callback) {
-    var temp = String(updatedTime).split(',');
-    var ec2Cost = 0, totalCost = 0, rdCost = 0, rstCost = 0, elcCost = 0, cdfCost = 0, r53Cost = 0, s3Cost = 0 , vpcCost = 0;
-    var regionOne = 0, regionTwo = 0, regionThree = 0, regionFour = 0, regionFive = 0, regionSix = 0, regionSeven = 0, regionEight = 0, regionNine = 0, regionTen = 0, catTagCost = 0, jjTagCost = 0, accentureTagCost=0;
-    var stream = fs.createReadStream(fileName);
-    var costIndex = 18,zoneIndex = 11,usageIndex= 9,prodIndex=5,tagIndex =22,totalCostIndex=3;
-    var instanceCostMetrics = [],bucketCostMetrics=[],dbInstanceCostMetrics=[];
-    var endTime = new Date();
-    var startTime = new Date(endTime.getTime() - 1000*60*60*24);
-    csv.fromStream(stream, {headers : false}).on("data", function(data){
-        if(data[totalCostIndex] === 'StatementTotal'){
-            totalCost = Number(data[costIndex]);
-        }
-        if(data[prodIndex] === "Amazon Elastic Compute Cloud")
-        {
-            ec2Cost += Number(data[costIndex]);
-            if (instanceIds.indexOf(data[21]) >=0) {
-                var instanceCostMetricsObj = {};
-                instanceCostMetricsObj['usageCost'] = Number(data[costIndex]);
-                instanceCostMetricsObj['resourceId'] = data[21];
-                instanceCostMetrics.push(instanceCostMetricsObj);
-                instanceCostMetricsObj = {};
-            }
-            /*Virginia*/
-            if(data[zoneIndex] === "us-east-1a" || data[zoneIndex] === "us-east-1b" || data[zoneIndex] === "us-east-1c" || data[zoneIndex] === "us-east-1d" || data[zoneIndex] == "us-east-1e" || data[usageIndex] == "EBS:VolumeUsage" || data[usageIndex] == "EBS:VolumeUsage.gp2" || data[usageIndex] == "EBS:SnapshotUsage" || data[usageIndex] == "EBS:SnapshotUsag.gp2" || data[usageIndex] == "LoadBalancerUsage" || data[usageIndex] == "DataTransfer-Out-Bytes" || data[usageIndex] == "DataTransfer-In-Bytes" || data[usageIndex] == "ElasticIP:IdleAddress") {
-                regionOne += Number(data[costIndex]);
-            }/*California*/else if(data[zoneIndex] == "us-west-1a" || data[zoneIndex] == "us-west-1b" || data[zoneIndex] == "us-west-1c" || data[zoneIndex] == "us-west-1d" || data[zoneIndex] == "us-west-1e" || data[usageIndex] == "USW1-EBS:VolumeUsage" || data[usageIndex] == "USW1-EBS:VolumeUsage.gp2" || data[usageIndex] == "USW1-EBS:SnapshotUsage" || data[usageIndex] == "USW1-EBS:SnapshotUsag.gp2" || data[usageIndex] == "USW1-LoadBalancerUsage" || data[usageIndex] == "USW1-DataTransfer-Out-Bytes" || data[usageIndex] == "USW1-DataTransfer-In-Bytes" || data[usageIndex] == "USW1-ElasticIP:IdleAddress") {
-                regionTwo += Number(data[costIndex]);
-            }/*Oregon*/else if(data[zoneIndex] == "us-west-2a" || data[zoneIndex] == "us-west-2b" || data[zoneIndex] == "us-west-2c" || data[zoneIndex] == "us-west-2d" || data[zoneIndex] == "us-west-2e" || data[usageIndex] == "USW2-EBS:VolumeUsage" || data[usageIndex] == "USW2-EBS:VolumeUsage.gp2" || data[usageIndex] == "USW2-EBS:SnapshotUsage" || data[usageIndex] == "USW2-EBS:SnapshotUsag.gp2" || data[usageIndex] == "USW2-LoadBalancerUsage" || data[usageIndex] == "USW2-DataTransfer-Out-Bytes" || data[usageIndex] == "USW2-DataTransfer-In-Bytes" || data[usageIndex] == "USW2-ElasticIP:IdleAddress") {
-                regionThree += Number(data[costIndex]);
-            }/*Ireland*/else if(data[zoneIndex] == "eu-west-1a" || data[zoneIndex] == "eu-west-1b" || data[zoneIndex] == "eu-west-1c" ||data[zoneIndex] == "eu-west-1d" || data[zoneIndex] == "eu-west-1e" || data[usageIndex] == "EUW1-EBS:VolumeUsage" || data[usageIndex] == "EUW1-EBS:VolumeUsage.gp2" || data[usageIndex] == "EUW1-EBS:SnapshotUsage" || data[usageIndex] == "EUW1-EBS:SnapshotUsag.gp2" || data[usageIndex] == "EUW1-LoadBalancerUsage" || data[usageIndex] == "EUW1-DataTransfer-Out-Bytes" || data[usageIndex] == "EUW1-DataTransfer-In-Bytes" || data[usageIndex] == "EUW1-ElasticIP:IdleAddress") {
-                regionFour += Number(data[costIndex]);
-            }/*Frankfurt*/else if(data[zoneIndex] == "eu-central-1a" || data[zoneIndex] == "eu-central-1b" || data[zoneIndex] == "eu-central-1c" || data[zoneIndex] == "eu-central-1d" || data[zoneIndex] == "eu-central-1e" || data[usageIndex] == "EUC1-EBS:VolumeUsage" || data[usageIndex] == "EUC1-EBS:VolumeUsage.gp2" || data[usageIndex] == "EUC1-EBS:SnapshotUsage" || data[usageIndex] == "EUC1-EBS:SnapshotUsag.gp2" || data[usageIndex] == "EUC1-LoadBalancerUsage" || data[usageIndex] == "EUC1-DataTransfer-Out-Bytes" || data[usageIndex] == "EUC1-DataTransfer-In-Bytes" || data[usageIndex] == "EUC1-ElasticIP:IdleAddress") {
-                regionFive += Number(data[costIndex]);
-            }/*Tokyo*/else if(data[zoneIndex] == "ap-northeast-1a" || data[zoneIndex] == "ap-northeast-1b" || data[zoneIndex] == "ap-northeast-1c" || data[zoneIndex] == "ap-northeast-1d" || data[zoneIndex] == "ap-northeast-1e" || data[usageIndex] == "APN1-EBS:VolumeUsage" || data[usageIndex] == "APN1-EBS:VolumeUsage.gp2" || data[usageIndex] == "APN1-EBS:SnapshotUsage" || data[usageIndex] == "APN1-EBS:SnapshotUsag.gp2" || data[usageIndex] == "APN1-LoadBalancerUsage" || data[usageIndex] == "APN1-DataTransfer-Out-Bytes" || data[usageIndex] == "APN1-DataTransfer-In-Bytes" || data[usageIndex] == "APN1-ElasticIP:IdleAddress") {
-                regionSix += Number(data[costIndex]);
-            }/*Seoul*/ else if(data[zoneIndex] == "ap-northeast-2a" || data[zoneIndex] == "ap-northeast-2b" || data[zoneIndex] == "ap-northeast-2c" || data[zoneIndex] == "ap-northeast-2d" || data[zoneIndex] == "ap-northeast-2e" || data[usageIndex] == "APN2-EBS:VolumeUsage" || data[usageIndex] == "APN2-EBS:VolumeUsage.gp2" || data[usageIndex] == "APN2-EBS:SnapshotUsage" || data[usageIndex] == "APN2-EBS:SnapshotUsag.gp2" || data[usageIndex] == "APN2-LoadBalancerUsage" || data[usageIndex] == "APN2-DataTransfer-Out-Bytes" || data[usageIndex] == "APN2-DataTransfer-In-Bytes" || data[usageIndex] == "APN2-ElasticIP:IdleAddress") {
-                regionSeven += Number(data[costIndex]);
-            }/*Singapore*/else if(data[zoneIndex] == "ap-southeast-1a" || data[zoneIndex] == "ap-southeast-1b" || data[zoneIndex] == "ap-southeast-1c" || data[zoneIndex] == "ap-southeast-1d" || data[zoneIndex] == "ap-southeast-1e" || data[usageIndex] == "APS1-EBS:VolumeUsage" || data[usageIndex] == "APS1-EBS:VolumeUsage.gp2" || data[usageIndex] == "APS1-EBS:SnapshotUsage" || data[usageIndex] == "APS1-EBS:SnapshotUsag.gp2" || data[usageIndex] == "APS1-LoadBalancerUsage" || data[usageIndex] == "APS1-DataTransfer-Out-Bytes" || data[usageIndex] == "APS1-DataTransfer-In-Bytes" || data[usageIndex] == "APS1-ElasticIP:IdleAddress") {
-                regionEight += Number(data[costIndex]);
-            }/*Sydney*/else if(data[zoneIndex] == "ap-southeast-2a" || data[zoneIndex] == "ap-southeast-2b" || data[zoneIndex] == "ap-southeast-2c" || data[zoneIndex] == "ap-southeast-2d" || data[zoneIndex] == "ap-southeast-2e" || data[usageIndex] == "APN2-EBS:VolumeUsage" || data[usageIndex] == "APN2-EBS:VolumeUsage.gp2" || data[usageIndex] == "APN2-EBS:SnapshotUsage" || data[usageIndex] == "APN2-EBS:SnapshotUsag.gp2" || data[usageIndex] == "APN2-LoadBalancerUsage" || data[usageIndex] == "APN2-DataTransfer-Out-Bytes" || data[usageIndex] == "APN2-DataTransfer-In-Bytes" || data[usageIndex] == "APN2-ElasticIP:IdleAddress") {
-                regionNine += Number(data[costIndex]);
-            }/*São Paulo*/else if(data[zoneIndex] == "sa-east-1a" || data[zoneIndex] == "sa-east-1b" || data[zoneIndex] == "sa-east-1c" || data[zoneIndex] == "sa-east-1d" || data[zoneIndex] == "sa-east-1e" || data[usageIndex] == "SAE1-EBS:VolumeUsage" || data[usageIndex] == "SAE1-EBS:VolumeUsage.gp2" || data[usageIndex] == "SAE1-EBS:SnapshotUsage" || data[usageIndex] == "SAE1-EBS:SnapshotUsag.gp2" || data[usageIndex] == "SAE1-LoadBalancerUsage" || data[usageIndex] == "SAE1-DataTransfer-Out-Bytes" || data[usageIndex] == "SAE1-DataTransfer-In-Bytes" || data[usageIndex] == "SAE1-ElasticIP:IdleAddress") {
-                regionTen += Number(data[costIndex]);
-            }
-        }else if(data[prodIndex] === "Amazon RDS Service") {
-            rdCost += Number(data[costIndex]);
-            if (dbInstanceNames.indexOf(data[21]) >=0) {
-                var dbInstanceCostMetricsObj = {};
-                dbInstanceCostMetricsObj['usageCost'] = Number(data[costIndex]);
-                dbInstanceCostMetricsObj['resourceId'] = data[21];
-                dbInstanceCostMetrics.push(dbInstanceCostMetricsObj);
-                dbInstanceCostMetricsObj = {};
-            }
-            /*Virginia*/
-            if(data[zoneIndex] === "us-east-1") {
-                regionOne += Number(data[costIndex]);
-            }/*California*/else if(data[zoneIndex] == "us-west-1") {
-                regionTwo += Number(data[costIndex]);
-            }/*Oregon*/else if(data[zoneIndex] == "us-west-2") {
-                regionThree += Number(data[costIndex]);
-            }/*Ireland*/else if(data[zoneIndex] == "eu-west-1") {
-                regionFour += Number(data[costIndex]);
-            }/*Frankfurt*/else if(data[zoneIndex] == "eu-central-1") {
-                regionFive += Number(data[costIndex]);
-            }/*Tokyo*/ else if(data[zoneIndex] == "ap-northeast-1") {
-                regionSix += Number(data[costIndex]);
-            }/*Seoul*/ else if(data[zoneIndex] == "ap-northeast-2") {
-                regionSeven += Number(data[costIndex]);
-            }/*Singapore*/ else if(data[zoneIndex] == "ap-southeast-1") {
-                regionEight += Number(data[costIndex]);
-            }/*Sydney*/else if(data[zoneIndex] == "ap-southeast-2") {
-                regionNine += Number(data[costIndex]);
-            }/*São Paulo*/else if(data[zoneIndex] == "sa-east-1") {
-                regionTen += Number(data[costIndex]);
-            }
-        }else if(data[prodIndex] === "Amazon Redshift") {
-            rstCost += Number(data[costIndex]);
-            /*Virginia*/
-            if(data[zoneIndex] == "us-east-1") {
-                regionOne += Number(data[costIndex]);
-            }/*California*/else if(data[zoneIndex] == "us-west-1") {
-                regionTwo += Number(data[costIndex]);
-            }/*Oregon*/else if(data[zoneIndex] == "us-west-2") {
-                regionThree += Number(data[costIndex]);
-            }/*Ireland*/else if(data[zoneIndex] == "eu-west-1") {
-                regionFour += Number(data[costIndex]);
-            }/*Frankfurt*/else if(data[zoneIndex] == "eu-central-1") {
-                regionFive += Number(data[costIndex]);
-            }/*Tokyo*/ else if(data[zoneIndex] == "ap-northeast-1") {
-                regionSix += Number(data[costIndex]);
-            }/*Seoul*/ else if(data[zoneIndex] == "ap-northeast-2") {
-                regionSeven += Number(data[costIndex]);
-            }/*Singapore*/ else if(data[zoneIndex] == "ap-southeast-1") {
-                regionEight += Number(data[costIndex]);
-            }/*Sydney*/else if(data[zoneIndex] == "ap-southeast-2") {
-                regionNine += Number(data[costIndex]);
-            }/*São Paulo*/else if(data[zoneIndex] == "sa-east-1") {
-                regionTen += Number(data[costIndex]);
-            }
-        }else if(data[prodIndex] === "Amazon ElastiCache") {
-            elcCost += Number(data[costIndex]);
-            /*Virginia*/
-            if(data[zoneIndex] == "us-east-1") {
-                regionOne += Number(data[costIndex]);
-            }/*California*/else if(data[zoneIndex] == "us-west-1") {
-                regionTwo += Number(data[costIndex]);
-            }/*Oregon*/else if(data[zoneIndex] == "us-west-2") {
-                regionThree += Number(data[costIndex]);
-            }/*Ireland*/else if(data[zoneIndex] == "eu-west-1") {
-                regionFour += Number(data[costIndex]);
-            }/*Frankfurt*/else if(data[zoneIndex] == "eu-central-1") {
-                regionFive += Number(data[costIndex]);
-            }/*Tokyo*/ else if(data[zoneIndex] == "ap-northeast-1") {
-                regionSix += Number(data[costIndex]);
-            }/*Seoul*/ else if(data[zoneIndex] == "ap-northeast-2") {
-                regionSeven += Number(data[costIndex]);
-            }/*Singapore*/ else if(data[zoneIndex] == "ap-southeast-1") {
-                regionEight += Number(data[costIndex]);
-            }/*Sydney*/else if(data[zoneIndex] == "ap-southeast-2") {
-                regionNine += Number(data[costIndex]);
-            }/*São Paulo*/else if(data[zoneIndex] == "sa-east-1") {
-                regionTen += Number(data[costIndex]);
-            }
-        }else if(data[prodIndex] === "Amazon CloudFront") {
-            cdfCost += Number(data[costIndex]);
-        }else if(data[prodIndex] === "Amazon Route 53") {
-            r53Cost += Number(data[costIndex]);
-        }else if(data[prodIndex] === "Amazon Simple Storage Service") {
-            s3Cost += Number(data[costIndex]);
-            if (bucketNames.indexOf(data[21]) >=0) {
-                var bucketCostMetricsObj = {};
-                bucketCostMetricsObj['usageCost'] = Number(data[costIndex]);
-                bucketCostMetricsObj['resourceId'] = data[21];
-                bucketCostMetrics.push(bucketCostMetricsObj);
-                bucketCostMetricsObj = {};
-            }
-        }else if(data[prodIndex] === "Amazon Virtual Private Cloud") {
-            vpcCost += Number(data[costIndex]);
-        }
-        //Calculate Cost of Tags
-        if(data[tagIndex] === "Catalyst"){
-            catTagCost += Number(data[costIndex]);
-        }else if(data[tagIndex] === "J&J") {
-            jjTagCost += Number(data[costIndex]);
-        }else if(data[tagIndex] === "Accenture") {
-            accentureTagCost += Number(data[costIndex]);
-        }
-    }).on("end", function(){
-        var awsResourceCostObject = {
-            organisationId: provider.orgId,
-            providerId: provider._id,
-            providerType: provider.providerType,
-            providerName: provider.providerName,
-            resourceType: "csv",
-            resourceId: "RLBilling",
-            aggregateResourceCost:totalCost,
-            costMetrics : {
-                serviceCost: {
-                    "ec2Cost": ec2Cost,
-                    "rdCost": rdCost,
-                    "rstCost": rstCost,
-                    "elcCost": elcCost,
-                    "cdfCost": cdfCost,
-                    "r53Cost": r53Cost,
-                    "s3Cost": s3Cost,
-                    "vpcCost": vpcCost,
-                    "otherService": (totalCost - ec2Cost - vpcCost - s3Cost - r53Cost - elcCost - cdfCost - rdCost - rstCost)
-                },
-                regionCost: {
-                    "Virginia": regionOne,
-                    "California": regionTwo,
-                    "Oregon": regionThree,
-                    "Ireland": regionFour,
-                    "Frankfurt": regionFive,
-                    "Tokyo": regionSix,
-                    "Seoul": regionSeven,
-                    "Singapore": regionEight,
-                    "Sydney": regionNine,
-                    "Paulo": regionTen,
-                    "GlServices": (totalCost - regionOne - regionTwo - regionThree - regionFour - regionFive - regionSix - regionSeven - regionEight - regionNine - regionTen)
-                },
-                tagCost: {
-                    "Catalyst": catTagCost,
-                    "J&J": jjTagCost,
-                    "Accenture":accentureTagCost
-                },
-                currency:'USD',
-                symbol:"$"
-            },
-            updatedTime : updatedTime,
-            startTime: Date.parse(startTime),
-            endTime: Date.parse(endTime)
-        };
-        if(totalCost > 0) {
-            resourceCost.saveResourceCost(awsResourceCostObject, function (err, resourceCostData) {
-                if (err) {
-                    callback(err, null);
-                } else {
-                    var resultCostMetrics={
-                        instanceCostMetrics:instanceCostMetrics,
-                        bucketCostMetrics:bucketCostMetrics,
-                        dbInstanceCostMetrics:dbInstanceCostMetrics
-                    };
-                    callback(null, resultCostMetrics);
-                }
-            })
-        }else{
-            callback(null,[]);
-        }
-    });
-};
-
-function getTotalCost_deprecated(provider,callback)
-{
-    var cryptoConfig = appConfig.cryptoSettings;
-    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-    var decryptedAccessKey = cryptography.decryptText(provider.accessKey,
-        cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-    var decryptedSecretKey = cryptography.decryptText(provider.secretKey,
-        cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-    var cwConfig = {
-        access_key: decryptedAccessKey,
-        secret_key: decryptedSecretKey,
-        region:"us-east-1"
-    };
-    cw = new CW(cwConfig);
-    var endDate= new Date();
-    var startDate = new Date(endDate.getTime() - (1000*60*60*6));
-    var startDateOne = new Date(endDate.getTime() - (1000*60*60*24));
-    var startDateTwo = new Date(endDate.getTime() - (1000*60*60*24*2));
-    var accDim = [ { Name: 'Currency', Value: 'USD'} ];
-    var costOfMonth = 0, costOfDay = 0, costOfYesterday = 0, tempCost = 0;
-    var resultCostObj={};
-    cw.getTotalCost(startDate,endDate,'Maximum',accDim,function(err,cost)
-    {
-        if(err){
-            callback(err,null);
-        }
-        costOfMonth = cost['Maximum'];
-        /*For getting the cost of current day by subtracting the Maximum cost with Minimum of the day*/
-        cw.getTotalCost(startDateOne,endDate,'Minimum',accDim,function(err,cost)
-        {
-            if(err){
-                callback(err,null);
-            }
-            if(costOfMonth != 0) {
-                costOfDay = costOfMonth - cost['Minimum'];
-                tempCost = cost['Minimum'];
-            } else {
-                costOfDay = 0;
-                tempCost = 0;
-            }
-            /*For getting the previous day cost using the above logic*/
-            cw.getTotalCost(startDateTwo,startDateOne,'Minimum',accDim,function(err,cost){
-                if(err){
-                    callback(err,null);
-                }
-                if(tempCost >= 0 && tempCost >= cost['Minimum']) {
-                    costOfYesterday =  tempCost - cost['Minimum'];
-                    var awsResourceCostObject = {
-                        organisationId: provider.orgId,
-                        providerId: provider._id,
-                        providerType: provider.providerType,
-                        providerName: provider.providerName,
-                        resourceType: "totalCost",
-                        resourceId: "totalCost",
-                        aggregateResourceCost:costOfMonth,
-                        costMetrics : {
-                            monthCost:costOfMonth,
-                            dayCost:costOfDay,
-                            yesterdayCost:costOfYesterday,
-                            currency:'USD',
-                            symbol:"$"
-                        },
-                        updatedTime : Date.parse(endDate),
-                        startTime: Date.parse(endDate),
-                        endTime: Date.parse(startDateOne),
-                    };
-                    resourceCost.saveResourceCost(awsResourceCostObject,function(err,resourceCostData){
-                        if(err){
-                            callback(err,null);
-                        } else{
-                            callback(null,resourceCostData);
-                        }
-                    })
-                } else {
-                    costOfYesterday = 0;
-                    var awsResourceCostObject = {
-                        organisationId: provider.orgId,
-                        providerId: provider._id,
-                        providerType: provider.providerType,
-                        providerName: provider.providerName,
-                        resourceType: "totalCost",
-                        resourceId: "totalCost",
-                        aggregateResourceCost:costOfMonth,
-                        costMetrics : {
-                            monthCost:costOfMonth,
-                            dayCost:costOfDay,
-                            yesterdayCost:costOfYesterday,
-                            currency:'USD',
-                            symbol:"$"
-                        },
-                        updatedTime : Date.parse(endDate),
-                        startTime: Date.parse(endDate),
-                        endTime: Date.parse(startDateOne),
-                    };
-                    resourceCost.saveResourceCost(awsResourceCostObject,function(err,resourceCostData){
-                        if(err){
-                            callback(err,null);
-                        } else{
-                            callback(null,resourceCostData);
-                        }
-                    })
-                }
-            });
-        });
-    });
-}
-
 
 function getCostForServices_deprecated(provider,callback) {
     var cryptoConfig = appConfig.cryptoSettings;
@@ -835,7 +514,7 @@ function getS3BucketsMetrics(provider, buckets, startTime, endTime, period, call
                     },
                     NumberOfObjects: function (callback) {
                         cw.getUsageMetrics('NumberOfObjects','Count','AWS/S3',[{Name:'BucketName',
-                            Value:bucket.resourceDetails.bucketName},{Name:'StorageType',Value:'AllStorageTypes'}],
+                                Value:bucket.resourceDetails.bucketName},{Name:'StorageType',Value:'AllStorageTypes'}],
                             startTime, endTime, period, callback);
                     }
                 },
@@ -1423,3 +1102,118 @@ function getStartTime(endTime, period){
     var subtractedDate = new Date(subtractedDateInMilliSeconds);
     return dateUtil.getDateInUTC(subtractedDate);
 }
+
+function updateDomainNameForInstance(domainName,publicIP,awsSettings,callback){
+    var route53 = new Route53(awsSettings);
+    async.waterfall([
+        function(next){
+            route53.listHostedZones({},next);
+        },
+        function(hostedZones,next){
+            if(hostedZones.HostedZones.length > 0){
+                var count = 0,resourceCount = 0;
+                var params = {};
+                var paramList = [];
+                for(var i = 0; i < hostedZones.HostedZones.length; i++) {
+                    (function (hostedZone) {
+                        count++;
+                        route53.listResourceRecordSets({HostedZoneId:hostedZone.Id}, function(err,resourceData) {
+                            if(err){
+                                next(err,null);
+                            }else {
+                                for(var j = 0;j < resourceData.ResourceRecordSets.length;j++) {
+                                    (function (resourceRecord) {
+                                        resourceCount++;
+                                        if(resourceRecord.ResourceRecords.length  === 1 && resourceRecord.ResourceRecords[0].Value === publicIP){
+                                            params = {
+                                                ChangeBatch: {
+                                                    Changes: [
+                                                        {
+                                                            Action: 'UPSERT',
+                                                            ResourceRecordSet: {
+                                                                Name: domainName+'.rlcatalyst.com.',
+                                                                "Type": "CNAME",
+                                                                "TTL": 30,
+                                                                ResourceRecords: [
+                                                                    {
+                                                                        "Value": resourceRecord.Name
+                                                                    }
+                                                                ]
+                                                            }
+                                                        }
+                                                    ]
+                                                },
+                                                HostedZoneId: hostedZone.Id
+                                            }
+                                            paramList.push(params);
+                                        }else{
+                                            for(var k = 0; k < resourceRecord.ResourceRecords.length; k++ ){
+                                                if(resourceRecord.ResourceRecords[k].Value === publicIP){
+                                                    params = {
+                                                        ChangeBatch: {
+                                                            Changes: [
+                                                                {
+                                                                    Action: 'UPSERT',
+                                                                    ResourceRecordSet: {
+                                                                        Name: domainName+'.rlcatalyst.com.',
+                                                                        "Type": "CNAME",
+                                                                        "TTL": 30,
+                                                                        ResourceRecords: [
+                                                                            {
+                                                                                "Value": resourceRecord.Name
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                }
+                                                            ]
+                                                        },
+                                                        HostedZoneId: hostedZone.Id
+                                                    }
+                                                    paramList.push(params);
+                                                }
+                                            }
+                                        }
+                                    })(resourceData.ResourceRecordSets[j]);
+                                }
+                                if(count === hostedZones.HostedZones.length && resourceCount === resourceData.ResourceRecordSets.length){
+                                    next(null,paramList);
+                                }
+                            }
+                        });
+                    })(hostedZones.HostedZones[i]);
+                }
+            }else{
+                next(null,null);
+            }
+        },
+        function(paramList,next){
+            if(paramList.length > 0){
+                var count = 0;
+                for(var i = 0; i < paramList.length;i++){
+                    (function(params){
+                        route53.changeResourceRecordSets(params,function(err,data){
+                            count++;
+                            if(err){
+                                next(err,null);
+                            }
+                            if(count === paramList.length){
+                                next(null,paramList);
+                            }
+                        });
+                    })(paramList[i]);
+
+                }
+            }else{
+                next(null,paramList);
+            }
+        }
+    ],function(err,results){
+        if(err){
+            callback(err,null);
+            return;
+        }
+        callback(null,results);
+        return;
+    })
+}
+

@@ -198,12 +198,15 @@ function tagMappingForInstances(instances,provider,next){
         }
         var projectTag = null;
         var environmentTag = null;
+        var bgTag = null;
         if(tagDetails.length > 0) {
             for (var i = 0; i < tagDetails.length; i++) {
                 if (('catalystEntityType' in tagDetails[i]) && tagDetails[i].catalystEntityType == 'project') {
                     projectTag = tagDetails[i];
-                } else if (('catalystEntityType' in tagDetails[i]) && tagDetails[i].catalystEntityType == 'environment') {
+                }else if (('catalystEntityType' in tagDetails[i]) && tagDetails[i].catalystEntityType == 'environment') {
                     environmentTag = tagDetails[i];
+                }else if (('catalystEntityType' in tagDetails[i]) && tagDetails[i].catalystEntityType == 'bgName') {
+                    bgTag = tagDetails[i];
                 }
             }
         }else{
@@ -218,26 +221,42 @@ function tagMappingForInstances(instances,provider,next){
                     var catalystProjectName = null;
                     var catalystEnvironmentId = null;
                     var catalystEnvironmentName = null;
+                    var catalystBgId = null;
+                    var catalystBgName = null;
                     var assignmentFound = false;
                     if(instance.tags) {
-                        if (projectTag && environmentTag && (instance.isDeleted === false)
-                            && (projectTag.name in instance.tags) && (environmentTag.name in instance.tags)) {
-                            for (var y = 0; y < projectTag.catalystEntityMapping.length; y++) {
-                                if (projectTag.catalystEntityMapping[y].tagValue === instance.projectTag || projectTag.catalystEntityMapping[y].tagValue === instance.tags[projectTag.name]) {
-                                    catalystProjectId = projectTag.catalystEntityMapping[y].catalystEntityId;
-                                    catalystProjectName = projectTag.catalystEntityMapping[y].catalystEntityName;
-                                    break;
+                        if ((bgTag !== null || projectTag !== null || environmentTag !== null) && (instance.isDeleted === false)){
+                            if(bgTag !== null && bgTag.name in instance.tags) {
+                                for (var y = 0; y < bgTag.catalystEntityMapping.length; y++) {
+                                    if (bgTag.catalystEntityMapping[y].tagValue !== '' && instance.tags[bgTag.name] !== ''
+                                        && bgTag.catalystEntityMapping[y].tagValue === instance.tags[bgTag.name]) {
+                                        catalystBgId = bgTag.catalystEntityMapping[y].catalystEntityId;
+                                        catalystBgName = bgTag.catalystEntityMapping[y].catalystEntityName;
+                                        break;
+                                    }
                                 }
                             }
-                            for (var y = 0; y < environmentTag.catalystEntityMapping.length; y++) {
-                                if (environmentTag.catalystEntityMapping[y].tagValue === instance.environmentTag || environmentTag.catalystEntityMapping[y].tagValue === instance.tags[environmentTag.name]) {
-                                    catalystEnvironmentId = environmentTag.catalystEntityMapping[y].catalystEntityId;
-                                    catalystEnvironmentName = environmentTag.catalystEntityMapping[y].catalystEntityName;
-                                    break;
+                            if(projectTag !== null && projectTag.name in instance.tags) {
+                                for (var y = 0; y < projectTag.catalystEntityMapping.length; y++) {
+                                    if (projectTag.catalystEntityMapping[y].tagValue !== '' && instance.tags[projectTag.name] !== '' &&
+                                        projectTag.catalystEntityMapping[y].tagValue === instance.tags[projectTag.name]) {
+                                        catalystProjectId = projectTag.catalystEntityMapping[y].catalystEntityId;
+                                        catalystProjectName = projectTag.catalystEntityMapping[y].catalystEntityName;
+                                        break;
+                                    }
                                 }
                             }
-
-                            if (catalystProjectId && catalystEnvironmentId) {
+                            if(environmentTag !== null && environmentTag.name in instance.tags) {
+                                for (var y = 0; y < environmentTag.catalystEntityMapping.length; y++) {
+                                    if (environmentTag.catalystEntityMapping[y].tagValue !== '' && instance.tags[environmentTag.name] !== '' &&
+                                        environmentTag.catalystEntityMapping[y].tagValue === instance.tags[environmentTag.name]) {
+                                        catalystEnvironmentId = environmentTag.catalystEntityMapping[y].catalystEntityId;
+                                        catalystEnvironmentName = environmentTag.catalystEntityMapping[y].catalystEntityName;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (catalystBgId !== null || catalystProjectId !== null || catalystEnvironmentId !== null) {
                                 assignmentFound = true;
                             }
                             if (assignmentFound === true) {
@@ -250,6 +269,8 @@ function tagMappingForInstances(instances,provider,next){
                                         var assignedInstanceObj = {
                                             orgId: instance.orgId,
                                             orgName: instance.orgName,
+                                            bgId: catalystBgId,
+                                            bgName: catalystBgName,
                                             projectId: catalystProjectId,
                                             projectName: catalystProjectName,
                                             environmentId: catalystEnvironmentId,
@@ -261,12 +282,10 @@ function tagMappingForInstances(instances,provider,next){
                                             ip: instance.ip,
                                             os: instance.os,
                                             state: instance.state,
-                                            subnetId: instance.SubnetId,
-                                            vpcId: instance.VpcId,
-                                            privateIpAddress: instance.PrivateIpAddress,
+                                            subnetId: instance.subnetId,
+                                            vpcId: instance.vpcId,
+                                            privateIpAddress: instance.privateIpAddress,
                                             tags: instance.tags,
-                                            environmentTag: instance.environmentTag,
-                                            projectTag: instance.projectTag
                                         }
                                         assignedInstanceList.push(assignedInstanceObj);
                                         assignedInstanceObj = {};

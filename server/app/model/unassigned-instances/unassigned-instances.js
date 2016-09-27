@@ -38,18 +38,6 @@ var UnassignedInstancesSchema = new Schema({
     },
     providerType: String,
     providerData: Schema.Types.Mixed,
-    projectTag: {
-        type: String,
-        required: false,
-        trim: true,
-        default: null
-    },
-    environmentTag: {
-        type: String,
-        required: false,
-        trim: true,
-        default: null
-    },
     platformId: String,
     ip: {
         type: String,
@@ -198,24 +186,16 @@ UnassignedInstancesSchema.statics.updateInstance = function updateInstance(param
 
 UnassignedInstancesSchema.statics.updateInstanceStatus = function updateInstanceStatus(instanceId,instance,callback) {
     var updateObj={};
-    if(instance.state === 'terminated'){
-        updateObj['state'] = instance.state;
-        updateObj['subnetId']= instance.subnetId;
-        updateObj['vpcId'] = instance.vpcId;
-        updateObj['privateIpAddress'] = instance.privateIpAddress;
+    updateObj['state'] = instance.state;
+    if(instance.state === 'terminated' || instance.state === 'shutting-down'){
         updateObj['isDeleted'] = true;
-        updateObj['tags'] = instance.tags;
-        updateObj['environmentTag'] = instance.environmentTag;
-        updateObj['projectTag'] = instance.projectTag;
     }else{
-        updateObj['state'] = instance.state;
+        updateObj['isDeleted'] = false;
         updateObj['subnetId']= instance.subnetId;
+        updateObj['ip'] = instance.ip;
         updateObj['vpcId'] = instance.vpcId;
         updateObj['privateIpAddress'] = instance.privateIpAddress;
-        updateObj['isDeleted'] = false;
         updateObj['tags'] = instance.tags;
-        updateObj['environmentTag'] = instance.environmentTag;
-        updateObj['projectTag'] = instance.projectTag;
     }
     UnassignedInstances.update({
         "_id": ObjectId(instanceId)

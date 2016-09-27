@@ -503,7 +503,19 @@ taskSchema.statics.getTasksByOrgBgProjectAndEnvId = function(jsonData, callback)
                 err.status = 500;
                 return callback(err,null);
             }
-            callback(null, tasks);
+            if(tasks.docs.length > 0){
+                filterScriptTaskData(tasks.docs,function(err,filterData){
+                    if(err){
+                        logger.error(err);
+                        callback(err, null);
+                        return;
+                    }
+                    tasks.docs = filterData;
+                    callback(null,tasks);
+                })
+            }else{
+                callback(null, tasks);
+            }
         });
     } else {
         var queryObj = {
@@ -512,14 +524,24 @@ taskSchema.statics.getTasksByOrgBgProjectAndEnvId = function(jsonData, callback)
             projectId: jsonData.projectId,
             envId: jsonData.envId
         }
-
         this.find(queryObj, function(err, data) {
             if (err) {
                 logger.error(err);
                 callback(err, null);
                 return;
             }
-            callback(null, data);
+            if(data.length > 0){
+                filterScriptTaskData(data,function(err,filterData){
+                    if(err){
+                        logger.error(err);
+                        callback(err, null);
+                        return;
+                    }
+                    callback(null,filterData);
+                })
+            }else{
+                callback(null, data);
+            }
         });
     }
 };
@@ -821,6 +843,44 @@ taskSchema.statics.updateTaskConfig = function updateTaskConfig(taskId, taskConf
 
     });
 };
+
+function filterScriptTaskData(data,callback){
+    var taskList = [];
+    for(var i = 0; i < data.length; i++){
+        (function(task){
+            if(task.taskType === 'script'){
+                if(task.taskConfig.scriptDetails.length > 0){
+                    for(var j = 0;j < task.taskConfig.scriptDetails.length;j++) {
+                        (function (scriptTask) {
+                            if(scriptTask.scriptParameters.length > 0){
+                                var count = 0;
+                                for(var k = 0; k < scriptTask.scriptParameters.length;k++){
+                                    (function(params){
+                                        count++;
+                                        scriptTask.scriptParameters[k] = '';
+                                        if(count === scriptTask.scriptParameters.length){
+                                            taskList.push(task)
+                                        }
+                                    })(scriptTask.scriptParameters[k]);
+                                }
+                            }else{
+                                taskList.push(task)
+                            }
+                        })(task.taskConfig.scriptDetails[j]);
+                    }
+                }else{
+                    taskList.push(task)
+                }
+            }else{
+                taskList.push(task);
+            }
+        })(data[i]);
+        if(taskList.length === data.length){
+            callback(null,taskList);
+            return;
+        }
+    }
+}
 
 var Tasks = mongoose.model('Tasks', taskSchema);
 

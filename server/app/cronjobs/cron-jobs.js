@@ -47,7 +47,7 @@ module.exports.start = function start() {
 	var dockerContainerSyncJobId
 		= crontab.scheduleJob(dockerContainerSync.getInterval(), dockerContainerSync.execute);
 
-	logger.info('AWS S3 and RDS Provider Sync started with interval ==> '+ awsRDSS3ProviderSync.getInterval());
+	 logger.info('AWS S3 and RDS Provider Sync started with interval ==> '+ awsRDSS3ProviderSync.getInterval());
 	var awsRDSS3ProviderSyncJobId
 		= crontab.scheduleJob(awsRDSS3ProviderSync.getInterval(), awsRDSS3ProviderSync.execute);
 

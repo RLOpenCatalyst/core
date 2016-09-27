@@ -67,6 +67,8 @@ function getDefaultsConfig() {
                 return config.catalystHome + this.cookbooksDirName + "/";
             }
         },
+        serviceControllerKey:'ZDQ2YWM3ZTUyZDhhZjhhOWRkMWQ2ZTc3NDhhNjk1OWEyYzgxZGJkMWVjYjA3ZThiZjY0NTBjYjBjMTM5YzA0Yg',
+        serverControllerUrl:'stackstorm.rlcatalyst.com',
         constantData: {
             common_field: ['envId', 'providerId', 'orgId', 'bgId','organizationId','businessGroupId', 'projectId','templateType','blueprintConfig.cloudProviderType','cloudProviderType'],
             sort_field: ['name', 'description'],
@@ -202,7 +204,7 @@ function getDefaultsConfig() {
             },
 
             cwMetricsDisplayUnits: {
-                CPUUtilization: 'Percent',
+                CPUUtilization: '%',
                 DiskReadOps: 'Count',
                 DiskWriteOps: 'Count',
                 DiskReadBytes: 'MB',
