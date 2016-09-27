@@ -164,19 +164,10 @@ settingsService.trackSettingWizard = function trackSettingWizard(id,orgId,callba
                callback(err, null);
                return;
            }
-           if (settingWizards.currentStep.name === 'Provider Configuration'
-               && settingWizards.currentStep.nestedSteps[0].isCompleted === false) {
-               var settingWizardSteps = appConfig.settingWizardSteps;
-               var previousStep = settingWizardSteps[1];
-               previousStep.nestedSteps[0].isCompleted = true;
-               previousStep.nestedSteps[1].isCompleted = true;
-               previousStep.nestedSteps[2].isCompleted = true;
-               previousStep.isCompleted = true;
-               settingWizards.currentStep = settingWizards.previousStep;
+           if (settingWizards.currentStep.name === 'Config Management'
+               && settingWizards.currentStep.nestedSteps[1].isCompleted === true) {
                settingWizards.currentStep.nestedSteps[1].isCompleted = false;
                settingWizards.currentStep.isCompleted = false;
-               settingWizards.previousStep = previousStep;
-               settingWizards.nextStep = settingWizardSteps[3];
                settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                    if (err) {
                        callback(err,null);
@@ -189,7 +180,38 @@ settingsService.trackSettingWizard = function trackSettingWizard(id,orgId,callba
                return;
            }
        })
-   }else if(id === '26'){
+   }else if(id === '21'){
+        settingWizard.getSettingWizardByOrgId(orgId,function(err,settingWizards) {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            if (settingWizards.currentStep.name === 'Provider Configuration'
+                && settingWizards.currentStep.nestedSteps[0].isCompleted === false) {
+                var settingWizardSteps = appConfig.settingWizardSteps;
+                var previousStep = settingWizardSteps[1];
+                previousStep.nestedSteps[0].isCompleted = true;
+                previousStep.nestedSteps[1].isCompleted = true;
+                previousStep.nestedSteps[2].isCompleted = true;
+                previousStep.isCompleted = true;
+                settingWizards.currentStep = settingWizards.previousStep;
+                settingWizards.currentStep.nestedSteps[2].isCompleted = false;
+                settingWizards.currentStep.isCompleted = false;
+                settingWizards.previousStep = previousStep;
+                settingWizards.nextStep = settingWizardSteps[3];
+                settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                    if (err) {
+                        callback(err,null);
+                        return;
+                    }
+                    callback(null,data);
+                });
+            }else{
+                callback(null,settingWizards);
+                return;
+            }
+        })
+    }else if(id === '26'){
        settingWizard.getSettingWizardByOrgId(orgId,function(err,settingWizards) {
            if (err) {
                callback(err, null);

@@ -2422,6 +2422,7 @@ function saveform(formID, operationTypes) {
 	    data1.append('password', password);
 	}*/
 	console.log(orgName);
+	console.log(data1);
 	// alert(serviceURL + "savemasterjsonrownew/" + formID + "/" + fileNames + "/" + orgName );
 	$.ajax({
 		url: serviceURL + "savemasterjsonrownew/" + formID + "/" + fileNames + "/" + orgName,

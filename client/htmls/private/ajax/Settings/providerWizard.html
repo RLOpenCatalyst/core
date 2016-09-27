@@ -291,11 +291,11 @@
                               </div>
                               <div class="row">
                                  <div class="col-lg-6 col-md-6 margintop20 foraws">
-                                    <label for="">S3 Bucket Name:<span style="color: Red;" class="control-label">&nbsp;*</span></label>
+                                    <label for="">S3 Bucket Name:</label>
                                     <span>
                                     <img data-toggle="popover" data-html="true" data-placement="left" title="S3 bucket to which AWS bills are delivered. NOTE: Detailed billing has to be enabled in AWS." src="img/help.png"/>
                                     </span>
-                                    <input name="s3BucketName" id="s3BucketName" class="form-control" type="text" cdata="catalyst" cat-validation="required" placeholder="Enter the S3 Bucket Name">
+                                    <input name="s3BucketName" id="s3BucketName" class="form-control" type="text" cdata="catalyst" placeholder="Enter the S3 Bucket Name">
                                  </div>
                                  <div class="col-lg-6 col-md-6 margintop20 foraws">
                                     <label for="">Planned Cost:</label>
@@ -346,7 +346,7 @@
    var providerIdForImage;
    $('#orgId').append($option);
    $(document).ready(function(e) {
-       var providerWizardFlow = $('<ol id="providerWizard" class="bwizard-steps clearfix clickable"><li aria-selected="true" id="providerCreate" class="active btn-2 providerCreate" style="z-index: 4;"><span class="label badge-inverse">1</span><a href="ajax/Settings/providerWizard.html" class="hidden-phone">Create Providers</a><a href="ajax/Settings/providerWizard.html" class="hidden-phone"><small></small></a></li><li aria-selected="false" style="z-index: 3;" id="imageCreate" class="btn-3 imageCreate"><span class="label">2</span><a href="ajax/Settings/vmImageWizard.html" class="hidden-phone">Create VmImages</a><a href="ajax/Settings/vmImageWizard.html" class="hidden-phone"></a><a href="ajax/Settings/vmImageWizard.html" class="hidden-phone"></a></li></ol>');
+       var providerWizardFlow = $('<ol id="providerWizard" class="bwizard-steps clearfix clickable"><li aria-selected="true" id="providerCreate" class="active btn-2 providerCreate" style="z-index: 4;"><span class="label badge-inverse">1</span><a href="ajax/Settings/providerWizard.html" class="hidden-phone">Create Providers</a></li><li aria-selected="true" style="z-index: 3;" id="imageCreate" class="btn-3 imageCreate"><span class="label">2</span><a href="ajax/Settings/vmImageWizard.html" class="hidden-phone">Create VmImages</a></li></ol>');
        $('.wizardFlow').append(providerWizardFlow);
 
        function getProviderValues() {
@@ -367,6 +367,8 @@
                            $('#myForm54').find('select.regionValue').val(data[i].keyPairs[j].region).attr('disabled', 'disabled');
                            $('#myForm54').find('select.keySecretValue').remove();
                            $('#myForm54').find('input#keySecretValue').removeClass('hidden').val(data[i].keyPairs[j].keyPairName).attr('disabled', 'disabled');
+                           $('#myForm54').find('select.keyRegionValue').remove();
+                           $('#myForm54').find('input#keyRegionValue').removeClass('hidden').val(data[i].keyPairs[j].region).attr('disabled', 'disabled');
                            $('#providerHiddenId').val(data[i].keyPairs[j].providerId);
                        }
 
@@ -374,6 +376,7 @@
                        $("input[name='isDefault']").attr('disabled', true);
                        $('.aws-secret-info').hide();
                        $('.secretInfo').removeAttr('cat-validation');
+                       $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
                    }
                }
            });
@@ -383,17 +386,22 @@
         var providerIdForImage = $('#providerHiddenId').val();
         var providerNameForImage = $('#providerHiddenName').val();
          $('#myForm22').find('select#orgId').empty();
-         var $option = $('<option></option>').val(orgIdForSetup).html(orgNameForSetup);
-          $('#myForm22').find('select#orgId').append($option).attr('disabled','disabled');
            $.get('/vmimages', function(data) {
                 for(var i =0;i<data.length;i++){
                   if (orgIdForSetup === data[i].orgId[0]) {
                     if(providerIdForImage === data[i].providerId){
+                    var $option = $('<option></option>').val(orgIdForSetup).html(orgNameForSetup);
+                    $('#myForm22').find('select#orgId').append($option).attr('disabled','disabled');
+                    var $optionForOs = $('<option></option>').val(data[i].osName).html(data[i].osName);
+                    
                       $('#myForm22').find('select.providerVMImageDisplay').remove();
                       $('#myForm22').find('input.imageNameForVM').val(data[i].name).attr('disabled','disabled');
                       $('#myForm22').find('input#providerIdHiddenName').removeClass('hidden').val(providerNameForImage);
-                      $('#myForm22').find('select#osType').trigger('change').val(data[i].osName);
-                      $('#myForm22').find('inpupt#imageidentifire').val(data[i].imageIdentifier);
+                      $('#myForm22').find('select#osType').remove();
+                      $('#myForm22').find('input#osType').removeClass('hidden').val(data[i].osName);
+                      $('#myForm22').find('input#imageidentifire').val(data[i].imageIdentifier).attr('disabled','disabled');
+                      $('#myForm22').find('input#UserName').val(data[i].userName).attr('disabled','disabled');
+                      $('.btn-3 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
                     }
                   }
                 }
@@ -405,11 +413,10 @@
            $('.contentSetting').load(this.getAttribute('href'));
        });
        $('.btn-3 a').click(function(e) {
+           e.preventDefault();
+           getVmImages();
            $('.btn-2 a').parent('.bwizard-steps li').removeClass('active')
            $(this).parent('.bwizard-steps li').addClass('active');
-           e.preventDefault();
-           clicked = false;
-           getVmImages();
            $('.content').load(this.getAttribute('href'));
        });
        //api call for getting the status of wizard
@@ -421,7 +428,7 @@
                    if (data.currentStep.nestedSteps) {
                        var nestedSteps = data.currentStep.nestedSteps;
                        if (nestedSteps[0].name === 'Provider' && nestedSteps[0].isCompleted === true &&
-                           nestedSteps[1].name === 'VMImages' && nestedSteps[1].isCompleted === false) {
+                           nestedSteps[1].name === 'VMImages' && nestedSteps[1].isCompleted === false || nestedSteps[1].name === 'VMImage' && nestedSteps[1].isCompleted === false) {
                            $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
                            $('.contentSetting').find('ol li#imageCreate').addClass('active');
                            $('.content').load('ajax/Settings/vmImageWizard.html');
@@ -431,7 +438,6 @@
                    }
                } else {
                    getProviderValues();
-                   getVmImages();
                    $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
                    $('.btn-3 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
                }
@@ -440,7 +446,6 @@
            $('#wizardActionListLoader').hide();
        } else {
            getProviderValues();
-           getVmImages();
            $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
        }
    });
@@ -813,7 +818,7 @@
                return '<div class="col-lg-6 col-md-6 margintop20" style="width:47%;">' + '<label for="name">Select Key Pair:<span class="control-label redSpan">&nbsp;*</span></label>' + '<select id="' + UtilityMethods.getRandomNumber() + '" name="keyPairName" unique="true" uniqueconditionedby="orgname"  class="form-control chooseOrganization width-100 keyvalue secretInfo keySecretValue" ' + 'style="vertical-align:central" cat-validation="required" skiprowid="yes" cdata="catalyst">' + '  <option value="">Select Any Key Pair</option></select>' + '<input type="text" class="hidden form-control" id="keySecretValue"/>' + '</div>';
            };
        var getRegion = function() {
-           return '<div class="row">' + '<div class="col-lg-6 col-md-6" style="width:47%">' + '<label for="name">Region:<span class="control-label redSpan">&nbsp;*</span></label>' + '<select id="' + UtilityMethods.getRandomNumber() + '" name="region" unique="true" uniqueconditionedby="orgname"  class="form-control region regionValue chooseOrganization width-100 secretInfo" style="' + 'vertical-align:central" cat-validation="required" skiprowid="yes" cdata="catalyst">' + '<option value="">Select Region</option>' + '<option value="us-west-2">us-west-2</option>' + '</select>' + '</div></div>';
+           return '<div class="row">' + '<div class="col-lg-6 col-md-6" style="width:47%">' + '<label for="name">Region:<span class="control-label redSpan">&nbsp;*</span></label>' + '<select id="' + UtilityMethods.getRandomNumber() + '" name="region" unique="true" uniqueconditionedby="orgname"  class="form-control region regionValue chooseOrganization width-100 secretInfo keyRegionValue" style="' + 'vertical-align:central" cat-validation="required" skiprowid="yes" cdata="catalyst">' + '<option value="">Select Region</option>' + '<option value="us-west-2">us-west-2</option>' + '</select>' + '<input type="text" class="hidden form-control" id="keyRegionValue"/>' + '</div></div>';
        };
        var getPemFileRow = function() {
            return '<div class="col-lg-6 col-md-6 authPemFile margintop20" style="display: block;"><div class="smart-forms" style="  margin-left: 7%;"><label for="">Upload .pem file for Provider<span class="control-label redSpan">&nbsp;*</span></label>' + '<label for="templatesicon" name="field" class="file">' + '<span class="button btn-primary btn-importbyIP" style="height:26px;line-height:22px;  padding: 1px ' + '14px;position: absolute;right:4px;margin-top: 4.5%;">Browse</span>' + '<input id="' + UtilityMethods.getRandomNumber() + '" type="file" class="gui-file file secretInfo" cdata="catalyst" cat-validation="required" name="fileObject">' + '<input type="text" readonly="" class="gui-input filename" name="fileName">' + '<input type="text" class="folderpath" style="display:none;" cdata="catalyst" />' + '</label></div></div>';

@@ -1,3 +1,4 @@
+<div class="content">
 <form action="" id="myForm22">
    <div class="widget-box">
       <div class="widget-header">
@@ -31,8 +32,9 @@
                         <div class="col-lg-6 margintop20">
                            <label for="name">Operating System:<span class="control-label redSpan">&nbsp;*</span></label>
                            <select id="osType" unique="true" uniqueconditionedby="orgname"  class="form-control chooseOrganization width-100" style="vertical-align:central"  cdata="catalyst"  cat-validation="required">
-                              <option value="">Select OS</option>
+                              
                            </select>
+                           <input id="osType" disabled="disabled" unique="true" uniqueconditionedby="orgname"  class="hidden form-control chooseOrganization width-100" style="vertical-align:central"  cdata="catalyst"  cat-validation="required"/>
                         </div>
                      
                      
@@ -62,6 +64,7 @@
        </div>
    </div>
 </form>
+</div>
 <script>
     var $option = $('<option></option>').val(orgIdForSetup).html(orgNameForSetup);
     $('#orgId').append($option);

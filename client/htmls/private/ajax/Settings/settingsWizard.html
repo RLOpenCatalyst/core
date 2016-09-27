@@ -1,116 +1,6 @@
-<link rel="stylesheet" type="text/css" media="screen" href="css/wizardBg.css">
-<style>
-    /*custom font*/
-    @import url(http://fonts.googleapis.com/css?family=Montserrat);
-
-    /*form styles*/
-    form {
-        margin: 10px auto;
-        position: relative;
-    }
-
-    /*Hide all except first fieldset*/
-    form:not(:first-of-type) {
-        display: none;
-    }
-
-    /*buttons*/
-    form .action-button {
-        width: 100px;
-        background: #27AE60;
-        font-weight: bold;
-        color: white;
-        border: 0 none;
-        border-radius: 1px;
-        cursor: pointer;
-        padding: 10px 5px;
-        margin: 10px 5px;
-    }
-    form .action-button:hover, #msform .action-button:focus {
-        box-shadow: 0 0 0 2px white, 0 0 0 3px #27AE60;
-    }
-    /*headings*/
-    .fs-title {
-        font-size: 15px;
-        text-transform: uppercase;
-        color: #2C3E50;
-        margin-bottom: 10px;
-    }
-    .fs-subtitle {
-        font-weight: normal;
-        font-size: 13px;
-        color: #666;
-        margin-bottom: 20px;
-    }
-    /*progressbar*/
-    #progressbar {
-        overflow: hidden;
-        text-align: center;
-        /*CSS counters to number the steps*/
-        counter-reset: step;
-        margin-top: 5px;
-    }
-    #progressbar li {
-        list-style-type: none;
-        font-size: 15px;
-        width: 33.33%;
-        float: left;
-        position: relative;
-    }
-    #progressbar li:before {
-        content: counter(step);
-        counter-increment: step;
-        width: 20px;
-        line-height: 20px;
-        display: block;
-        font-size: 10px;
-        color: #fff;
-        background: #7d7676;
-        border-radius: 3px;
-        margin: 0 auto 5px auto;
-    }
-    /*progressbar connectors*/
-    #progressbar li:after {
-        content: '';
-        width: 100%;
-        height: 2px;
-        background: #7d7676;
-        position: absolute;
-        left: -50%;
-        top: 9px;
-        z-index: -1; /*put it behind the numbers*/
-    }
-    #progressbar li:first-child:after {
-        /*connector not needed before the first step*/
-        content: none;
-    }
-    /*marking active/completed steps green*/
-    /*The number of the step and the connector before it = green*/
-    #progressbar li.active:before,  #progressbar li.active:after{
-        background: #27AE60;
-        color: white;
-    }
-
-    .content {
-        margin:0 auto;
-        padding: 10px;
-    }
-    a, a:hover {
-        color:#7d7676;
-        text-decoration: none;
-    }
-    .green-btn {
-        background-color: #5cb85c!important;
-        color:#fff!important;
-    }
-</style>
-<!-- multistep form -->
-
 <!-- progressbar -->
 <div class="wizardFlow">
-
 </div>
-<!-- fieldsets -->
 <div class="content">
    <form action="" id="myForm">
       <div class="widget-box">
@@ -145,10 +35,10 @@
          </div>
          <div class="widget-toolbox clearfix">
             <div class="btn-group pull-right">
-             <button name="next1" id="saveOrg" style="margin-right:11px;" class="saveFormWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
-             <input type="button" disabled="disabled" name="next1" id="next1" class="nextFormWizard btn btn-primary" value="Next"/>
-          </div>
-        </div>
+               <button name="next1" id="saveOrg" style="margin-right:11px;" class="saveFormWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
+               <input type="button" disabled="disabled" name="next1" id="next1" class="nextFormWizard btn btn-primary" value="Next"/>
+            </div>
+         </div>
       </div>
    </form>
 </div>
@@ -160,22 +50,20 @@ $('.wizardFlow').append(wizardSteps);
 function getOrgValues() {
     $.get('/d4dMasters/readmasterjsonnew/1', function(data) {
         for (var i = 0; i < data.length; i++) {
-            if (selectedDropdownValue === data[i].rowid) {
+            if (selectedDropdownValue === data[i].rowid || lastDropdownValue === data[i].rowid) {
                 $('#myForm').find('input#orgname').val(data[i].orgname).attr('disabled', 'disabled');
                 $('#myForm').find('input#domainname').val(data[i].domainname).attr('disabled', 'disabled');
                 $('#myForm').find('input#plannedCost').val(data[i].plannedCost).attr('disabled', 'disabled');
             }
         }
         $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
-        $('#saveOrg').attr('disabled',true);
-        /*$('.btn-3 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
-        $('.btn-4 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');*/
+        $('#saveOrg').attr('disabled', true);
     });
 }
 
 function getBgValues() {
     $('#myForm2').find('select#orgname').empty();
-    $('#saveBg').attr('disabled',true);
+    $('#saveBg').attr('disabled', true);
     $.get('/d4dMasters/readmasterjsonnew/2', function(data) {
         for (var i = 0; i < data.length; i++) {
             if (selectedDropdownValue === data[i].orgname_rowid[0]) {
@@ -188,7 +76,7 @@ function getBgValues() {
 }
 
 function getProjValues() {
-    $('#saveProject').attr('disabled',true);
+    $('#saveProject').attr('disabled', true);
     $('#myForm3').find('select#orgname').empty();
     $('#myForm3').find('select#productgroupname').empty();
     $.get('/d4dMasters/readmasterjsonnew/4', function(data) {
@@ -217,12 +105,13 @@ function getProjValues() {
 $('.btn-2 a').click(function(e) {
     e.preventDefault();
     clicked = false;
-    $('#saveOrg').removeAttr('disabled','disabled');
+    getOrgValues();
+    $('#saveOrg').removeAttr('disabled', 'disabled');
     $('.contentSetting').load(this.getAttribute('href'));
 });
 orgIdForSetup = selectedDropdownValue;
 if (clicked) {
-    if(orgIdForSetup){
+    if (orgIdForSetup) {
         $.get('/setting-wizard/org/' + orgIdForSetup, function(data) {
             if (data.currentStep.name === 'Org Configuration') {
                 if (data.currentStep.nestedSteps) {
@@ -246,12 +135,11 @@ if (clicked) {
         });
     }
 } else {
-    
+  getOrgValues();
 }
 $('.btn-3 a').click(function(e) {
     e.preventDefault();
-
-    if (selectedDropdownValue) {
+    if (selectedDropdownValue || lastDropdownValue) {
         getBgValues();
     } else {
         $('.btn-2 a,.btn-4 a').parent('.bwizard-steps li').removeClass('active');
@@ -262,7 +150,7 @@ $('.btn-3 a').click(function(e) {
 $('.btn-4 a').click(function(e) {
     e.preventDefault();
     $('.content').load(this.getAttribute('href'));
-    if (selectedDropdownValue) {
+    if (selectedDropdownValue || lastDropdownValue) {
         getProjValues();
     } else {
         $('.btn-2 a,.btn-3 a').parent('.bwizard-steps li').removeClass('active');
@@ -288,7 +176,6 @@ $('#myForm').submit(function(e) {
     return false;
 });
 $('.nextFormWizard').click(function(e) {
-    $('.content').load('ajax/Settings/bgWizard.html');
     activateOrg();
 });
 </script>
