@@ -194,6 +194,7 @@ function changeWizardStatus(orgIdForSetup) {
                     $('#startConfig a, #orgConfiguration a').addClass('green-btn').removeClass('process-btn');
                     $('#configManagement a').trigger('click');
                     $('#providerConfiguration a,#galleryConfiguration a,#devopsConfiguration a,#cmdbConfiguration a').removeAttr('href');
+                    toastr.error('Please Configure Teams to Navigate to Workzone');
                 } else if (data.previousStep.name === 'Config Management') {
                     $('#galleryConfiguration a,#devopsConfiguration a,#cmdbConfiguration a').removeAttr('href');
                     $('#startConfig a,#orgConfiguration a,#configManagement a').removeClass('wizardActiveBtn process-btn').addClass('green-btn');
