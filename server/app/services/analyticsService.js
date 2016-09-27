@@ -55,31 +55,32 @@ analyticsService.validateAndParseCostQuery
 			break
 	}
 
+	//@TODO Query object format to be changed
 	var costQuery = {
-		totalCostQuery: {
-			'parentEntity.id': requestQuery.parentEntityId,
-			'entity.id': requestQuery.entityId,
-			'startTime': Date.parse(startTime),
-			'period': requestQuery.period
-		}
+		totalCostQuery: [
+			{'parentEntity.id': requestQuery.parentEntityId},
+			{'entity.id': requestQuery.entityId},
+			{'startTime': Date.parse(startTime)},
+			{'period': requestQuery.period}
+		]
 	}
 
 	if(queryType == 'aggregate') {
-		costQuery.splitUpCostQuery = {
-			'parentEntity.id': requestQuery.entityId,
-			'startTime': Date.parse(startTime),
-			'period': requestQuery.period
-		}
+		costQuery.splitUpCostQuery = [
+			{'parentEntity.id': requestQuery.entityId},
+			{'startTime': Date.parse(startTime)},
+			{'period': requestQuery.period}
+		]
 	}
 
 	if(queryType == 'trend') {
-		costQuery.costTrendQuery = {
-			'parentEntity.id': requestQuery.parentEntityId,
-			'entity.id': requestQuery.entityId,
-			'startTime': {$gte: Date.parse(startTime)},
-			'endTime': {$lte: Date.parse(requestQuery.toTimeStamp)},
-			'interval': costAggregationPeriods[requestQuery.period].childInterval.intervalInSeconds
-		}
+		costQuery.costTrendQuery = [
+			{'parentEntity.id': requestQuery.parentEntityId},
+			{'entity.id': requestQuery.entityId},
+			{'startTime': {$gte: Date.parse(startTime)}},
+			{'endTime': {$lte: Date.parse(requestQuery.toTimeStamp)}},
+			{'interval': costAggregationPeriods[requestQuery.period].childInterval.intervalInSeconds}
+		]
 	}
 
 	return callback(null, costQuery)
