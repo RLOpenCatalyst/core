@@ -38,7 +38,7 @@
 					$scope.confirmCFTLaunch();
 				}
 			};
-			$scope.launchBPWithDomainName = function(valid){
+			$scope.launchBPWithDomainName = function(){
 				launchHelper.launch();
 			};
 		}
