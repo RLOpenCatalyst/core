@@ -26,6 +26,7 @@ var Cryptography = require('../lib/utils/cryptography');
 var tagsModel = require('_pr/model/tags/tags.js');
 var resourceCost = require('_pr/model/resource-costs-deprecated/resource-costs-deprecated.js');
 var resourceUsage = require('_pr/model/resource-metrics/resource-metrics.js');
+var Route53 = require('_pr/lib/route53.js');
 
 var async = require('async');
 var logsDao = require('_pr/model/dao/logsdao.js');
@@ -1305,13 +1306,14 @@ function removeInstancesByProviderId(providerId, callback) {
     })
 }
 
-function instanceSyncWithAWS(instanceId,instanceData,callback){
+function instanceSyncWithAWS(instanceId,instanceData,providerDetails,callback){
     async.waterfall([
         function(next){
             instancesModel.getInstanceById(instanceId,next);
         },
         function(instances,next){
             var instance = instances[0];
+            var routeHostedZoneParamList = [];
             if(instance.instanceState !== instanceData.state && instance.bootStrapStatus ==='success') {
                 var timestampStarted = new Date().getTime();
                 var user = instance.catUser ? instance.catUser : 'superadmin';
@@ -1319,9 +1321,12 @@ function instanceSyncWithAWS(instanceId,instanceData,callback){
                 if(instanceData.state === 'stopped' || instanceData.state === 'stopping'){
                     action = 'Stop';
                 }else if(instanceData.state === 'terminated'){
-                    action ='Terminated'
+                    action ='Terminated';
+                    if(instance.route53HostedParams){
+                        routeHostedZoneParamList = instance.route53HostedParams;
+                    }
                 }else if(instanceData.state === 'shutting-down'){
-                    action ='Shutting-Down'
+                    action ='Shutting-Down';
                 }else{
                     action ='Start';
                 };
@@ -1347,18 +1352,63 @@ function instanceSyncWithAWS(instanceId,instanceData,callback){
                                 logger.error("Failed to create or update instanceLog: ", err);
                                 next(err, null);
                             }
-                            next(null, logData);
+                            next(null, routeHostedZoneParamList);
                         });
                     })
                 }else {
-                    createOrUpdateInstanceLogs(instance,instanceData.state,action,user,timestampStarted,next);
+                    createOrUpdateInstanceLogs(instance,instanceData.state,action,user,timestampStarted,routeHostedZoneParamList,next);
                 }
             }else{
-                next(null,instances);
+                next(null,routeHostedZoneParamList);
             }
         },
-       function(instanceLogData,next) {
-           instancesModel.updateInstanceStatus(instanceId,instanceData, next);
+       function(paramList,next) {
+           async.parallel({
+               instanceDataSync: function(callback){
+                   instancesModel.updateInstanceStatus(instanceId,instanceData,callback);
+               },
+               route53Sync: function(callback){
+                   if(paramList.length > 0){
+                       var cryptoConfig = appConfig.cryptoSettings;
+                       var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+                       var decryptedAccessKey = cryptography.decryptText(providerDetails.accessKey,
+                           cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                       var decryptedSecretKey = cryptography.decryptText(providerDetails.secretKey,
+                           cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                       var route53Config = {
+                           access_key: decryptedAccessKey,
+                           secret_key: decryptedSecretKey,
+                           region:'us-west-1'
+                       };
+                       var route53 = new Route53(route53Config);
+                       var count = 0;
+                       for(var i = 0; i < paramList.length;i++){
+                           (function(params){
+                               params.ChangeBatch.Changes[0].Action = 'DELETE';
+                               route53.changeResourceRecordSets(params,function(err,data){
+                                   count++;
+                                   if(err){
+                                       callback(err,null);
+                                   }
+                                   if(count === paramList.length){
+                                       callback(null,paramList);
+                                   }
+                               });
+                           })(paramList[i]);
+
+                       }
+                   }else{
+                       callback(null,paramList);
+                   }
+               }
+           },function(err,results){
+               if(err){
+                   next(err);
+               }else{
+                   next(null,results);
+               }
+           })
+
        }
     ], function(err,results){
         if (err) {
@@ -1369,7 +1419,7 @@ function instanceSyncWithAWS(instanceId,instanceData,callback){
     })
 }
 
-function createOrUpdateInstanceLogs(instance,instanceState,action,user,timestampStarted,next){
+function createOrUpdateInstanceLogs(instance,instanceState,action,user,timestampStarted,routeHostedZoneParamList,next){
     var actionLog = instancesModel.insertInstanceStatusActionLog(instance._id, user, instanceState, timestampStarted);
     var actionStatus = 'success';
     var logReferenceIds = [instance._id, actionLog._id];
@@ -1409,6 +1459,6 @@ function createOrUpdateInstanceLogs(instance,instanceState,action,user,timestamp
             logger.error("Failed to create or update instanceLog: ", err);
             next(err, null);
         }
-        next(null, logData);
+        next(null, routeHostedZoneParamList);
     });
 }

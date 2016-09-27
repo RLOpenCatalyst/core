@@ -228,7 +228,7 @@ function blueprintLaunchDesign(data) {
                                 } else {
                                     var blueprintId = $('#modalSelectEnvironment').find('#selectedVersion').val();
                                     launchBP(blueprintId, stackName,domainName);
-                                    $('#cftContainer').modal('hide');
+                                    $('#domainNameContainer').modal('hide');
                                     e.preventDefault();
                                     return false;
                                 }
