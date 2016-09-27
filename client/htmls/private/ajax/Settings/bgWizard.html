@@ -24,7 +24,7 @@
             <div class="btn-group pull-right">
               <a href="ajax/Settings/bgWizard.html" id="createNewBG" style="margin-right:11px;" class="btn btn-primary">&nbsp;Add Another</a>
              <button name="next1" id="saveBg" style="margin-right:11px;" class="saveFormWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
-             <input type="button" disabled="disabled" name="next1" id="next1" class="nextFormWizard btn btn-primary" value="Next"/>
+             <input type="button" disabled="disabled" name="next1" id="next1" class="bgWizard nextFormWizard btn btn-primary" value="Next"/>
           </div>
        </div>
    </div>
@@ -37,6 +37,7 @@
     if (selectedDropdownValue) {
         var $optionSelect = $('<option></option').val(orgForBg).attr('rowid', selectedDropdownValue).html(orgForBg);
         $('#orgname').append($optionSelect);
+        $('.nextFormWizard').removeAttr('disabled');
     } else {
         $('#cancelWizard').addClass('hidden');
         $.get('/d4dMasters/readmasterjsonnew/1', function(data) {

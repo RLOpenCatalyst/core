@@ -69,6 +69,7 @@ if (selectedDropdownValue) {
     var $optionSelect = $('<option></option').val(orgForBg).attr('rowid', selectedDropdownValue).html(orgForBg);
     $('#orgname').append($optionSelect);
     getBusinessGroupName(selectedDropdownValue);
+    $('.nextFormWizard').removeAttr('disabled');
 } else {
     orgNameForSetup = $('#orgDropdown option:last').attr('rowid');
     orgIdForSetup = $('#orgDropdown option:last').val();
