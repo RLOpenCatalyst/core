@@ -75,7 +75,9 @@
 		//$rootScope.$emit('treeNameUpdate', treeNames);
 		$rootScope.$emit('HEADER_NAV_CHANGE', 'ANALYTICS');
 		$rootScope.organNewEnt=[];
+		$rootScope.filterNewEnt={};
 		$rootScope.organNewEnt.org = '0';
+		$rootScope.filterNewEnt.period='month';
 		$rootScope.splitUpCosts=[];
 		analytic.viewByFilter='orgView';
 		$scope.$watch(function() { return analytic.viewByFilter}, function(newVal, oldVal) {
@@ -83,6 +85,7 @@
 					$rootScope.viewType='ProviderView';
 					$state.params.filterView.provi=true;
 				} else {
+					$rootScope.organNewEnt.provider=''
 					$rootScope.viewType='orgView';
 					$state.params.filterView.provi=false;
 				}
@@ -94,15 +97,16 @@
 		$scope.$watch(function() { return analytic.splitUp}, function(newVal, oldVal) {
 			$scope.$broadcast('CHANGE_VIEW',newVal);
 		}, true);
-		$rootScope.filterNewEnt={};
 		analytic.applyCount=0
-		analytic.applyFilter = function(filterApp){
+		analytic.applyFilter = function(filterApp,period){
 			$rootScope.filterApply= new Date();
 			var obj=$rootScope.organObject,
 				or=$rootScope.organNewEnt.org,
 				bu=$rootScope.organNewEnt.buss,
 				pr=$rootScope.organNewEnt.proj;
-			$rootScope.filterNewEnt={}
+			if(period)
+				$rootScope.filterNewEnt.period=period;
+
 			if(or){
 				$rootScope.filterNewEnt.org={name:obj[or].name,id:obj[or].rowid,title:'Org'};
 				$rootScope.filterNewEnt.provider='';

@@ -109,19 +109,21 @@
                     } else {
                         entityId=fltObj.org.id;
                     }
-                    param.url='/analytics/cost/aggregate?parentEntityId='+fltObj.org.id+'&entityId='+entityId+'&toTimeStamp='+new Date()+'&period=month';
+                    param.url='/analytics/cost/aggregate?parentEntityId='+fltObj.org.id+'&entityId='+entityId+'&toTimeStamp='+new Date()+'&period='+fltObj.period;
                 }
 
                 genSevs.promiseGet(param).then(function (result) {
                     costObj.chartData=result;
                     $rootScope.splitUpCosts=[];
-                    console.log('aaa',result.splitUpCosts);
                     if(result.splitUpCosts) {
                         angular.forEach(result.splitUpCosts, function (val, key) {
-                            $rootScope.splitUpCosts.push(key);
+                            var a=key.replace(/([A-Z])/g, ' $1').replace(/^./, function(str) {
+                                return str.toUpperCase();
+                            });
+                            $rootScope.splitUpCosts.push({id:key,val:a});
                         });
-                        $scope.$emit('CHANGE_splitUp', $rootScope.splitUpCosts[0]);
-                        costObj.createLable(result, $rootScope.splitUpCosts[0]);
+                        $scope.$emit('CHANGE_splitUp', $rootScope.splitUpCosts[0].id);
+                        costObj.createLable(result, $rootScope.splitUpCosts[0].id);
                     } else {
                         costObj.createLable(result,'provider');
                     }
@@ -250,7 +252,7 @@
                     } else {
                         entityId=fltObj.org.id;
                     }
-                    param.url='/analytics/cost/trend?parentEntityId='+fltObj.org.id+'&entityId='+fltObj.org.id+'&toTimeStamp='+new Date()+'&period=month&interval=86400'
+                    param.url='/analytics/cost/trend?parentEntityId='+fltObj.org.id+'&entityId='+fltObj.org.id+'&toTimeStamp='+new Date()+'&period='+fltObj.period+'&interval=86400'
                 }
 
                 genSevs.promiseGet(param).then(function (result) {
