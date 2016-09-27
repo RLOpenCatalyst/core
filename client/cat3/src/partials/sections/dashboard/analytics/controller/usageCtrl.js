@@ -11,7 +11,7 @@
                     chart: {
                         //type: 'stackedAreaChart',
                         type: 'lineChart',
-                        height: 250,
+                        height: 350,
                         margin: {
                             top: 20,
                             right: 20,
@@ -53,8 +53,6 @@
                 usage.trendLineChart.data = [];
                 usage.costGridOptions = {
                     columnDefs: [
-                        {name: 'name', field: 'name'},
-                        {name: 'totalCost', field: 'cost.totalCost'}
                     ],
                     enableGridMenu: true,
                     enableSelectAll: true,
@@ -70,11 +68,22 @@
                     url: 'src/partials/sections/dashboard/analytics/data/usage.json'
                 };
                 genSevs.promiseGet(param).then(function (result) {
-                   angular.forEach(result,function (value) {
-                       
+                    usage.trendLineChart.data = [];
+                    usage.costGridOptions.columnDefs=[];
+                   angular.forEach(result,function (valu,keyChild) {
+                       var va = [];
+                       angular.forEach(valu.dataPoints, function (value) {
+                           va.push([value.fromTime,value.average]);
+                       });
+                       usage.trendLineChart.data.push({
+                           "key": keyChild,
+                           "values": va
+                       });
                    });
                 });
             };
-
+            $rootScope.$watch('filterApply', function () {
+                usage.trendsChart($rootScope.filterNewEnt);
+            });
     }]);
 })(angular);

@@ -115,12 +115,12 @@
 					  <button type="button" class="btn btn-sm btn-primary cat-btn-update" ng-click="">YEAR</button>
 						<select ng-show="stateItems.filterView.splitUpType && splitUpCosts.length > 0" class="form-control select2 select2-hidden-accessible" style="width: auto;height: 31px;" ng-model="analytic.splitUp"
 								ng-options="value as value for (key , value) in splitUpCosts">
-
 						</select>
 					</div>
 				<div class="col-lg-7 col-md-7 col-sm-12 pull-right" >
 					<span ng-repeat="filter in filterNewEnt">
-						<span data-toggle="tooltip" onmouseenter="$(this).tooltip('show')" ng-if="filter !== '' " class="label label-success "  title="{{filter.title}}">{{filter.title}} :{{filter.name}} </span>
+						<!--data-toggle="tooltip" onmouseenter="$(this).tooltip('show')"-->
+						<span  ng-if="filter !== '' " class="label label-success "  title="{{filter.title}}">{{filter.title}} :{{filter.name}} </span>
 					</span>
 				</div>
 

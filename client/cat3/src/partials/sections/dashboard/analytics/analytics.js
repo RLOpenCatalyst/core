@@ -64,6 +64,7 @@
 		}])
 	.controller('analyticsCtrl',['$scope', '$rootScope','$state','genericServices', 'workzoneServices', 'toastr', function ($scope, $rootScope, $state, genericServices, workzoneServices, toastr) {
 		var analytic = this;
+		var splitUp=null;
 		analytic.tabShowChat=true;
 		analytic.tabShowReport=false;
 		$scope.showTree = true;
@@ -81,7 +82,6 @@
 				if(newVal === 'ProviderView'){
 					$rootScope.viewType='ProviderView';
 					$state.params.filterView.provi=true;
-					$rootScope.organNewEnt.provider='0';
 				} else {
 					$rootScope.viewType='orgView';
 					$state.params.filterView.provi=false;
@@ -96,8 +96,6 @@
 		}, true);
 		$rootScope.filterNewEnt={};
 		analytic.applyCount=0
-		//$rootScope.organNewEnt.buss='0';
-		//	$rootScope.organNewEnt.proj='0';
 		analytic.applyFilter = function(filterApp){
 			$rootScope.filterApply= new Date();
 			var obj=$rootScope.organObject,
@@ -126,10 +124,8 @@
 				$rootScope.organNewEnt={}
 				$rootScope.organNewEnt.org=or;
 				analytic.viewByFilter='orgView';
+				analytic.splitUp=$rootScope.splitUpCosts[0];
 			}
-
-
-
 		};
 		// // get organigetion
 		genericServices.getTreeNew().then(function (orgs) {
