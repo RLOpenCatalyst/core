@@ -275,8 +275,10 @@
                 costObj.createLable(costObj.chartData,data);
             });
             $rootScope.$watch('filterApply', function () {
-                costObj.getCostData( $rootScope.filterNewEnt);
-                costObj.trendsChart($rootScope.filterNewEnt);
+                if($state.current.name === "dashboard.analytics.cost") {
+                    costObj.getCostData($rootScope.filterNewEnt);
+                    costObj.trendsChart($rootScope.filterNewEnt);
+                }
             });
 
     }]);

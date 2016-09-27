@@ -83,7 +83,9 @@
                 });
             };
             $rootScope.$watch('filterApply', function () {
-                usage.trendsChart($rootScope.filterNewEnt);
+                if($state.current.name === "dashboard.analytics.usage") {
+                    usage.trendsChart($rootScope.filterNewEnt);
+                }
             });
     }]);
 })(angular);
