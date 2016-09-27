@@ -1,249 +1,194 @@
-<style>
-    /*custom font*/
-    @import url(http://fonts.googleapis.com/css?family=Montserrat);
-
-    /*form styles*/
-    form {
-        margin: 10px auto;
-        position: relative;
-    }
-
-    /*Hide all except first fieldset*/
-    form:not(:first-of-type) {
-        display: none;
-    }
-
-    /*buttons*/
-    form .action-button {
-        width: 100px;
-        background: #27AE60;
-        font-weight: bold;
-        color: white;
-        border: 0 none;
-        border-radius: 1px;
-        cursor: pointer;
-        padding: 10px 5px;
-        margin: 10px 5px;
-    }
-    form .action-button:hover, #msform .action-button:focus {
-        box-shadow: 0 0 0 2px white, 0 0 0 3px #27AE60;
-    }
-    /*headings*/
-    .fs-title {
-        font-size: 15px;
-        text-transform: uppercase;
-        color: #2C3E50;
-        margin-bottom: 10px;
-    }
-    .fs-subtitle {
-        font-weight: normal;
-        font-size: 13px;
-        color: #666;
-        margin-bottom: 20px;
-    }
-    /*progressbar*/
-    #progressbar {
-        overflow: hidden;
-        text-align: center;
-        /*CSS counters to number the steps*/
-        counter-reset: step;
-        margin-top: 5px;
-    }
-    #progressbar li {
-        list-style-type: none;
-        font-size: 15px;
-        width: 33.33%;
-        float: left;
-        position: relative;
-    }
-    #progressbar li:before {
-        content: counter(step);
-        counter-increment: step;
-        width: 20px;
-        line-height: 20px;
-        display: block;
-        font-size: 10px;
-        color: #fff;
-        background: #7d7676;
-        border-radius: 3px;
-        margin: 0 auto 5px auto;
-    }
-    /*progressbar connectors*/
-    #progressbar li:after {
-        content: '';
-        width: 100%;
-        height: 2px;
-        background: #7d7676;
-        position: absolute;
-        left: -50%;
-        top: 9px;
-        z-index: -1; /*put it behind the numbers*/
-    }
-    #progressbar li:first-child:after {
-        /*connector not needed before the first step*/
-        content: none;
-    }
-    /*marking active/completed steps green*/
-    /*The number of the step and the connector before it = green*/
-    #progressbar li.active:before,  #progressbar li.active:after{
-        background: #27AE60;
-        color: white;
-    }
-
-    .content {
-        margin:0 auto;
-        padding: 10px;
-    }
-    a, a:hover {
-        color:#7d7676;
-        text-decoration: none;
-    }
-</style>
-<!-- multistep form -->
-
 <!-- progressbar -->
-<ul id="progressbar">
-    <li class="orgCreate" id="orgCreate">Create Organisation</a></li>
-    <li class="bgCreate" id="bgCreate">Create BG</a></li>
-    <li class="projectCreate" id="projectCreate">Create Project</a></li>
-</ul>
-<!-- fieldsets -->
+<div class="wizardFlow">
+</div>
 <div class="content">
-    <form action="" id="myForm">
-        <div class="widget-box">
-            <div class="widget-header">
-                <h4 class="widget-margin" style="color:black;">Create Organization</h4>
-            </div>
-            <div class="widget-body">
-                <div class="widget-main" style="min-height:200px">
-                    <div class="jarviswidget" id="wid-id-3" data-widget-editbutton="false" data-widget-custombutton="false">
-                        <div>
-                            <div class="widget-body no-padding">
-                                <div class="col-lg-6 col-md-6">
-                                    <label for="name">Name:
-                                        <span class="control-label redSpan">&nbsp;*</span></label>
-                                    <input autofocus name="orgname" value="" id="orgname" class="form-control" cdata="catalyst" type="text" cat-validation="required,nospecial,max15,nospace">
-                                </div>
-                                <div class="col-lg-6 col-md-6">
-                                    <label for="name">Domain Name:</label>
-                                    <input name="domainname" value="" id="domainname" class="form-control" type="text" maxlength="35">
-                                </div>
-                                <div class="col-lg-6 col-md-6 margintop15">
-                                    <label for="name">Planned Cost:</label>
-                          <span>
-                            <img data-toggle="popover" data-html="true" data-placement="left" title="Provider Planned Cost for a Month." src="img/help.png"/>
-                          </span>
-                                    <input name="plannedCost" value="" id="plannedCost" cat-validation="numeric" class="form-control" type="text"  cdata="catalyst" maxlength="35">
-                                </div>
-                            </div>
+   <form action="" id="myForm">
+      <div class="widget-box">
+         <div class="widget-header">
+            <h4 class="widget-margin" style="color:black;">Create Organization</h4>
+         </div>
+         <div class="widget-body">
+            <div class="widget-main" style="min-height:200px">
+               <div class="jarviswidget" id="wid-id-3" data-widget-editbutton="false" data-widget-custombutton="false">
+                  <div>
+                     <div class="widget-body no-padding">
+                        <div class="col-lg-6 col-md-6">
+                           <label for="name">Name:
+                           <span class="control-label redSpan">&nbsp;*</span></label>
+                           <input autofocus name="ctl00$MainContent$orgname" value="" id="orgname" class="form-control" cdata="catalyst" type="text" cat-validation="required,nospecial,max15,nospace">
                         </div>
-                    </div>
-                </div>
+                        <div class="col-lg-6 col-md-6">
+                           <label for="name">Domain Name:</label>
+                           <input name="ctl00$MainContent$domainname" value="" id="domainname" class="form-control" type="text" maxlength="35">
+                        </div>
+                        <div class="col-lg-6 col-md-6 margintop15">
+                           <label for="name">Planned Cost:</label>
+                           <span>
+                           <img data-toggle="popover" data-html="true" data-placement="left" title="Provider Planned Cost for a Month." src="img/help.png"/>
+                           </span>
+                           <input name="plannedCost" value="" id="plannedCost" cat-validation="numeric" class="form-control" type="text"  cdata="catalyst" maxlength="35">
+                        </div>
+                     </div>
+                  </div>
+               </div>
             </div>
-        </div>
-        <div class="btn-group pull-right">
-            <button  name="next1" id="next1" class="next action-button" value="Next">Next</button>
-        </div>
-    </form>
+         </div>
+         <div class="widget-toolbox clearfix">
+            <div class="btn-group pull-right">
+               <button name="next1" id="saveOrg" style="margin-right:11px;" class="saveFormWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
+               <input type="button" disabled="disabled" name="next1" id="next1" class="nextFormWizard btn btn-primary" value="Next"/>
+            </div>
+         </div>
+      </div>
+   </form>
 </div>
 
 <script>
-    //jQuery time
-    function checkNestedSteps(orgStatus,bgStatus,projectStatus){
-        if(orgStatus === true && bgStatus === false){
-            $('li.bgCreate').addClass('active');
-        }else if(orgStatus === true && bgStatus === true && projectStatus === false){
-            $('li.projectCreate').addClass('active');
-        }else{
-            $('li.orgCreate').addClass('active');
-        }
-    }
-    var current_fs, next_fs, previous_fs; //fieldsets
-    var left, opacity, scale; //fieldset properties which we will animate
-    var animating; //flag to prevent quick multi-click glitches
+var wizardSteps = $('<ol id="wizardTab" class="bwizard-steps clearfix clickable" role="tablist"><li aria-selected="true" class="btn-2 orgCreate active" id="orgCreate" style="z-index: 4;"><span class="label badge-inverse">1</span><a href="ajax/Settings/settingsWizard.html" class="hidden-phone">Create Organization </a></li><li aria-selected="true" style="z-index: 3;" id="bgCreate" class="btn-3 bgCreate"><span class="label">2</span><a href="ajax/Settings/bgWizard.html" class="not-activeAnchor hidden-phone">Create Business group</a></li><li aria-selected="true" style="z-index: 2;" id="projectCreate" class="btn-4 projectCreate"><span class="label btn-1">3</span><a href="ajax/Settings/projWizard.html" class="not-activeAnchor hidden-phone">Create New Project</a></li></ol>');
+$('.wizardFlow').append(wizardSteps);
 
-    var orgId;
-    $('#myForm').submit(function(e){
-        $(this).validate();
-        if ($(this).valid) {
-            if (!saveform('1')){
-                $('.content').load('ajax/Settings/bgWizard.html');
-                return false;
+function getOrgValues() {
+    $.get('/d4dMasters/readmasterjsonnew/1', function(data) {
+        for (var i = 0; i < data.length; i++) {
+            if (selectedDropdownValue === data[i].rowid || lastDropdownValue === data[i].rowid) {
+                $('#myForm').find('input#orgname').val(data[i].orgname).attr('disabled', 'disabled');
+                $('#myForm').find('input#domainname').val(data[i].domainname).attr('disabled', 'disabled');
+                $('#myForm').find('input#plannedCost').val(data[i].plannedCost).attr('disabled', 'disabled');
             }
-
-        } else {
-            alert('invalid valid form submitted'); // for demo
         }
-        e.preventDefault();
-        return false; // for demo
+        $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+       // $('#saveOrg').attr('disabled', true);
     });
+}
 
-    $(".next").click(function(){
-        if(animating) return false;
-        animating = true;
+function getBgValues() {
+    $('#myForm2').find('select#orgname').empty();
+    $('#saveBg').attr('disabled', true);
+    $.get('/d4dMasters/readmasterjsonnew/2', function(data) {
+        for (var i = 0; i < data.length; i++) {
+            if (selectedDropdownValue === data[i].orgname_rowid[0]) {
+                $('#myForm2').find('input#productgroupname').val(data[i].productgroupname).attr('disabled', 'disabled');
+                var $optionBg = $('<option></option>').val(data[i].orgname[0]).attr('rowid', data[i].orgname_rowid[0]).html(data[i].orgname[0]);
+                $('#myForm2').find('select#orgname').append($optionBg).attr('disabled', 'disabled');
+            }
+        }
+    });
+}
 
-        current_fs = $(this).parent();
-        next_fs = $(this).parent().next();
-
-        //activate next step on progressbar using the index of next_fs
-        $("#progressbar li").eq($("div form").index(next_fs)).addClass("active");
-        //show the next fieldset
-        next_fs.show();
-        //hide the current fieldset with style
-        current_fs.animate({opacity: 0}, {
-            step: function(now, mx) {
-                //as the opacity of current_fs reduces to 0 - stored in "now"
-                //1. scale current_fs down to 80%
-                scale = 1 - (1 - now) * 0.2;
-                //2. bring next_fs from the right(50%)
-                left = (now * 50)+"%";
-                //3. increase opacity of next_fs to 1 as it moves in
-                opacity = 1 - now;
-                current_fs.css({'transform': 'scale('+scale+')'});
-                next_fs.css({'left': left, 'opacity': opacity});
-            },
-            duration: 800,
-            complete: function(){
-                current_fs.hide();
-                animating = false;
-            },
-            //this comes from the custom easing plugin
-            easing: 'easeInOutBack'
+function getProjValues() {
+    $('#saveProject').attr('disabled', true);
+    $('#myForm3').find('select#orgname').empty();
+    $('#myForm3').find('select#productgroupname').empty();
+    $.get('/d4dMasters/readmasterjsonnew/4', function(data) {
+        for (var i = 0; i < data.length; i++) {
+            if (selectedDropdownValue === data[i].orgname_rowid[0]) {
+                $('#myForm3').find('input#projectname').val(data[i].projectname).attr('disabled', 'disabled');
+                $('#myForm3').find('input#description').val(data[i].description).attr('disabled', 'disabled');
+                var $optionBgProj = $('<option></option>').val(data[i].orgname[0]).attr('rowid', data[i].orgname_rowid[0]).html(data[i].orgname[0]);
+                $('#myForm3').find('select#orgname').append($optionBgProj).attr('disabled', 'disabled');
+            }
+        }
+        $('#myForm3').find('select#orgname').change(function(e) {
+            $.get('/d4dMasters/readmasterjsonnew/2', function(data) {
+                for (var i = 0; i < data.length; i++) {
+                    if (selectedDropdownValue === data[i].orgname_rowid[0]) {
+                        var $option = $('<option></option>').val(data[i].productgroupname).attr('rowid', data[i].rowid).html(data[i].productgroupname);
+                        $('#myForm3').find('select#productgroupname').append($option).attr('disabled', 'disabled');
+                    }
+                }
+            });
         });
+        $('#myForm3').find('select#orgname').trigger('change').attr('disabled', 'disabled');
     });
+}
 
-    $(".previous").click(function(){
-        if(animating) return false;
-        animating = true;
+$('.btn-2 a').click(function(e) {
+    e.preventDefault();
+    clicked = false;
+    getOrgValues();
+    //$('#saveOrg').removeAttr('disabled', 'disabled');
+    $('.contentSetting').load(this.getAttribute('href'));
+});
+orgIdForSetup = selectedDropdownValue;
+if (clicked) {
+    if (orgIdForSetup) {
+        $.get('/setting-wizard/org/' + orgIdForSetup, function(data) {
+            if (data.currentStep.name === 'Org Configuration') {
+                if (data.currentStep.nestedSteps) {
+                    var nestedSteps = data.currentStep.nestedSteps;
+                    if (nestedSteps[0].name === 'Organization' && nestedSteps[0].isCompleted === true && nestedSteps[1].name === 'BusinessGroup' && nestedSteps[1].isCompleted === false && nestedSteps[2].name === 'Project' && nestedSteps[2].isCompleted === false) {
+                       $('.btn-3 a').removeClass('not-activeAnchor');
+                        activateOrg();
+                    } else if(nestedSteps[0].name === 'Organization' && nestedSteps[0].isCompleted === true && nestedSteps[1].name === 'BusinessGroup' && nestedSteps[1].isCompleted === true && nestedSteps[2].name === 'Project' && nestedSteps[2].isCompleted === false){
+                        $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                        $('.contentSetting wizardFlow').find('ol li#bgCreate').removeClass('active').addClass('green-btn');
+                        $('.contentSetting wizardFlow').find('ol li#projectCreate').addClass('active');
+                        $('.content').load('ajax/Settings/projWizard.html');
+                    } else {
 
-        current_fs = $(this).parent();
-        previous_fs = $(this).parent().prev();
-
-        //de-activate current step on progressbar
-        $("#progressbar li").eq($("div form").index(current_fs)).removeClass("active");
-
-        //show the previous fieldset
-        previous_fs.show();
-        //hide the current fieldset with style
-        current_fs.animate({opacity: 0}, {
-            step: function(now, mx) {
-                //as the opacity of current_fs reduces to 0 - stored in "now"
-                //1. scale previous_fs from 80% to 100%
-                scale = 0.8 + (1 - now) * 0.2;
-                //2. take current_fs to the right(50%) - from 0%
-                left = ((1-now) * 50)+"%";
-                //3. increase opacity of previous_fs to 1 as it moves in
-                opacity = 1 - now;
-                current_fs.css({'left': left});
-                previous_fs.css({'transform': 'scale('+scale+')', 'opacity': opacity});
-            },
-            duration: 800,
-            complete: function(){
-                current_fs.hide();
-                animating = false;
-            },
-            //this comes from the custom easing plugin
-            easing: 'easeInOutBack'
+                    }
+                }
+            } else {
+              $('.btn-3 a').removeClass('not-activeAnchor');
+              $('.btn-4 a').removeClass('not-activeAnchor');
+              $('.nextFormWizard').removeAttr('disabled');
+                $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                $('.btn-3 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                $('.btn-4 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                $('.btn-3 a').parent('.bwizard-steps li').addClass('green-btn');
+                $('.btn-4 a').parent('.bwizard-steps li').addClass('green-btn');
+            }
         });
-    });
+    }
+} else {
+  $('.btn-3 a').removeClass('not-activeAnchor');
+  $('.btn-4 a').removeClass('not-activeAnchor');
+   $('.nextFormWizard').removeAttr('disabled');
+  $('.btn-3 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+  getOrgValues();
+}
+$('.btn-3 a').click(function(e) {
+    e.preventDefault();
+    if (selectedDropdownValue || lastDropdownValue) {
+        $('.nextFormWizard').removeAttr('disabled');
+        getBgValues();
+    } else {
+        $('.btn-2 a,.btn-4 a').parent('.bwizard-steps li').removeClass('active');
+        $(this).parent('.bwizard-steps li').addClass('active');
+    }
+    $('.content').load(this.getAttribute('href'));
+});
+$('.btn-4 a').click(function(e) {
+    e.preventDefault();
+    $('.content').load(this.getAttribute('href'));
+    if (selectedDropdownValue || lastDropdownValue) {
+      $('.nextFormWizard').removeAttr('disabled');
+        getProjValues();
+    } else {
+        $('.btn-2 a,.btn-3 a').parent('.bwizard-steps li').removeClass('active');
+        $(this).parent('.bwizard-steps li').addClass('active');
+    }
+});
+
+function activateOrg() {
+    $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+    $('.contentSetting').find('ol li#bgCreate').addClass('active');
+    $('.content').load('ajax/Settings/bgWizard.html');
+}
+
+$('#myForm').submit(function(e) {
+    $(this).validate();
+    if ($(this).valid) {
+        if (!saveform('1')) {
+          $('.btn-3 a').removeClass('not-activeAnchor');
+            return false;
+        }
+    } else {
+        toastr.error('invalid valid form submitted');
+    }
+    return false;
+});
+$('.nextFormWizard').click(function(e) {
+    activateOrg();
+});
 </script>

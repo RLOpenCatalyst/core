@@ -461,30 +461,9 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 res.status(500).send("Failed to save Org.");
                 return;
             }
-            settingWizard.getSettingWizardByOrgId(req.body.orgname_rowid,function(err,settingWizards){
-                if(err){
-                    logger.error('Hit getting setting wizard error', err);
-                    res.send(500);
-                    return;
-                }
-                if(settingWizards.currentStep.name === 'Gallery Setup') {
-                    settingWizards.currentStep.nestedSteps[1].isCompleted = true;
-                    settingWizard.updateSettingWizard(settingWizards, function (err, data) {
-                        if (err) {
-                            logger.error('Hit updating setting wizard error', err);
-                            res.send(500);
-                            return;
-                        }
-                        logger.debug("save response:" + data);
-                        res.send(data);
-                        return;
-                    });
-                }else{
-                    logger.debug("save response:" + data);
-                    res.send(data);
-                    return;
-                }
-            })
+            logger.debug("save response:" + data);
+            res.send(data);
+            return;
         });
     });
 
@@ -555,30 +534,15 @@ module.exports.setRoutes = function(app, verificationFunc) {
     });
 
     app.delete('/servicenow/removeItem/id/:id', function(req, res) {
-        logger.debug("Deleting servicenow item");
-        CMDBConfig.getCMDBServerById(req.params.id, function(err, data) {
-            if (err) {
-                logger.error("Error", err);
-                res.send(err);
-                return;
-            }
-            CMDBConfig.removeServerById(req.params.id, function (err, servicedata) {
-                if (err) {
-                    logger.error("Failed to remove item (%s)", err);
-                    res.status(500).send(err);
-                    return;
-                }
-                settingsService.trackSettingWizard('serviceNow',data.orgname_rowid,function(err,settingdata){
-                    if (err) {
-                        logger.error("Failed to update setting wizard item (%s)", err);
-                        res.status(500).send(err);
-                        return;
-                    }
-                    logger.debug("Exit removeInstancebyId (%s)", req.params.id);
-                    res.send(servicedata);
-                })
-            });
-        });
-    });
-
+       logger.debug("Deleting servicenow item");
+       CMDBConfig.removeServerById(req.params.id, function (err, servicedata) {
+        if (err) {
+               logger.error("Failed to remove item (%s)", err);
+               res.status(500).send(err);
+               return;
+        }
+        logger.debug("Exit removeInstancebyId (%s)", req.params.id);
+        res.send(servicedata);
+     });
+   });
 }

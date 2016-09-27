@@ -63,7 +63,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 res.send(errorResponses.db.error);
                 return;
             } else {
-                settingWizard.getSettingWizardByOrgId(orgId,function(err,settingWizards){
+                settingWizard.getSettingWizardByOrgId(req.body.orgDetails.id,function(err,settingWizards){
                     if(err){
                         logger.error('Hit getting setting wizard error', err);
                         res.send(500);
@@ -113,35 +113,32 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     app.delete('/scripts/:scriptId',validate(scriptValidator.get), function(req, res) {
         scriptService.getScriptById(req.params.scriptId, function(err, scripts) {
+            logger.debug(JSON.stringify(scripts));
             if (err) {
                 res.status(500).send(errorResponses.db.error);
                 return;
-            }else if (scripts.length > 0) {
-                scriptService.removeScriptById(req.params.scriptId, function (err, script) {
-                    if (err) {
-                        if (err.code === 403) {
-                            res.send(err.code, err.message);
-                            return;
-                        } else {
-                            res.send("Error while removing script:");
-                            return;
-                        }
-                    } else {
-                        settingsService.trackSettingWizard('scriptGallery', script.orgDetails.id, function (err, data) {
-                            if (err) {
-                                logger.error("Failed to update setting wizard item (%s)", err);
-                                res.status(500).send(err);
-                                return;
-                            }
-                            res.send("Successfully Removed script From the Database");
-                            return;
-                        })
-                    }
-                });
-            }else {
-                res.send("Script not found!");
-                return;
             }
+            scriptService.removeScriptById(req.params.scriptId, function (err, script) {
+                if (err) {
+                    if (err.code === 403) {
+                        res.send(err.code, err.message);
+                        return;
+                    } else {
+                        res.send("Error while removing script:");
+                        return;
+                    }
+                } else {
+                    settingsService.trackSettingWizard('scriptGallery', scripts.orgDetails.id, function (err, data) {
+                        if (err) {
+                             logger.error("Failed to update setting wizard item (%s)", err);
+                             res.status(500).send(err);
+                             return;
+                        }
+                        res.send("Successfully Removed script From the Database");
+                        return;
+                    })
+                }
+            });
         });
     });
 };

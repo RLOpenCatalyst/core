@@ -524,6 +524,17 @@ var d4dMastersDockerConfig = new mongoose.Schema({
         type: [String],
         trim: true
     },
+    projectname: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    projectname_rowid: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    repositories:Schema.Types.Mixed,
     folderpath: {
         type: String,
         trim: true
@@ -1255,6 +1266,17 @@ var d4dMastersNexusServer = new mongoose.Schema({
         type: [String],
         trim: true
     },
+    projectname: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    projectname_rowid: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    repositories:Schema.Types.Mixed,
     orgrowid: {
         type: String,
         trim: true

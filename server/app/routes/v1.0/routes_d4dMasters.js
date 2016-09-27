@@ -417,7 +417,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                         if (dbtype) {
                                             var item = '\"' + req.params.fieldname + '\"';
                                             logger.debug("About to delete Master Type: %s : % : %", dbtype, item, req.params.fieldvalue);
-                                            if(req.params.id === '4') {
+                                            if(req.params.id === '3') {
                                                 masterUtil.getEnvironmentByEnvId(req.params.fieldvalue, function (err, environment) {
                                                     if (err) {
                                                         logger.debug("Hit an errror to get Environment Name : %s", err);
@@ -465,6 +465,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                 eval('d4dModelNew.' + dbtype).findOne({
                                                     rowid: req.params.fieldvalue
                                                 }, function (err,data) {
+                                                    logger.debug('data>>>',data);
                                                     if (err) {
                                                         logger.debug("Hit an errror on fetching data : %s", err);
                                                         res.send(500);
@@ -479,7 +480,10 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                 return;
                                                             } else {
                                                                 var orgId ='';
-                                                                if(data.orgname_rowid.length ===1){
+                                                                if(req.params.id === '1'){
+                                                                    orgId = data.rowid;
+
+                                                                }else if(data.orgname_rowid.length ===1){
                                                                     orgId = data.orgname_rowid[0];
                                                                 }else{
                                                                     orgId = data.orgname_rowid;
@@ -1767,8 +1771,111 @@ module.exports.setRoutes = function(app, sessionVerification) {
         });
     };
 
-
-
+    function updateProjectWithServer(key, bodyJson) {
+        if (key === 'nexus') {
+            var projectList  = bodyJson['projectname_rowid'].split(',');
+            if(projectList.length > 0) {
+                for(var i = 0;i<projectList.length;i++){
+                    (function(projectId){
+                        d4dModelNew.d4dModelMastersProjects.findOne({
+                            id: "4",
+                            rowid: projectId
+                        }, function (err, project) {
+                            if (err) {
+                                logger.debug("Failed to fetch Project.", err);
+                            } else if (project) {
+                                var newNexusRepo = [];
+                                if (project.repositories.nexus && project.repositories.nexus.length > 0) {
+                                    newNexusRepo = project.repositories.nexus;
+                                    for (var i = 0; i < bodyJson['repositories'].nexus; i++) {
+                                        if (project.repositories.nexus.indexOf(bodyJson['repositories'].nexus[i]) === -1) {
+                                            newNexusRepo.push(bodyJson['repositories'].nexus[i]);
+                                        }
+                                    }
+                                    newNexusRepo.push(bodyJson['repositories'].nexus);
+                                } else {
+                                    newNexusRepo = bodyJson['repositories'].nexus;
+                                }
+                                d4dModelNew.d4dModelMastersProjects.update({
+                                    rowid: projectId,
+                                    id: '4'
+                                }, {
+                                    $set: {
+                                        'repositories.nexus': newNexusRepo
+                                    }
+                                }, {
+                                    upsert: false
+                                }, function (err, data1) {
+                                    if (err) {
+                                        logger.debug('Err while updating d4dModelMastersProjects' + err);
+                                        return;
+                                    }
+                                    logger.debug('Updated project ' + project.projectname);
+                                    return;
+                                });
+                            } else {
+                                return;
+                            }
+                        });
+                    })(projectList[i]);
+                }
+            }else{
+                return;
+            }
+        }else if(key === 'docker'){
+            var projectList  = bodyJson['projectname_rowid'].split(',');
+            if(projectList.length > 0) {
+                for(var i = 0;i<projectList.length;i++){
+                    (function(projectId){
+                        d4dModelNew.d4dModelMastersProjects.findOne({
+                            id: "4",
+                            rowid: projectId
+                        }, function (err, project) {
+                            if (err) {
+                                logger.debug("Failed to fetch Project.", err);
+                            } else if (project) {
+                                var newDockerRepo = [];
+                                if (project.repositories.docker && project.repositories.docker.length > 0) {
+                                    newDockerRepo = project.repositories.docker;
+                                    for (var i = 0; i < bodyJson['repositories'].docker; i++) {
+                                        if (project.repositories.docker.indexOf(bodyJson['repositories'].docker[i]) === -1) {
+                                            newDockerRepo.push(bodyJson['repositories'].docker[i]);
+                                        }
+                                    }
+                                    newDockerRepo.push(bodyJson['repositories'].docker);
+                                } else {
+                                    newDockerRepo = bodyJson['repositories'].docker;
+                                }
+                                d4dModelNew.d4dModelMastersProjects.update({
+                                    rowid: projectId,
+                                    id: '4'
+                                }, {
+                                    $set: {
+                                        'repositories.docker': newDockerRepo
+                                    }
+                                }, {
+                                    upsert: false
+                                }, function (err, data1) {
+                                    if (err) {
+                                        logger.debug('Err while updating d4dModelMastersProjects' + err);
+                                        return;
+                                    }
+                                    logger.debug('Updated project ' + project.projectname);
+                                    return;
+                                });
+                            } else {
+                                return;
+                            }
+                        });
+                    })(projectList[i]);
+                }
+            }else{
+                return;
+            }
+        }else{
+            return;
+        }
+    }
     function findDeselectedItem(CurrentArray, PreviousArray) {
         var CurrentArrSize = CurrentArray.length;
         var PreviousArrSize = PreviousArray.length;
@@ -2232,6 +2339,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
     app.post('/d4dMasters/savemasterjsonrownew/:id/:fileinputs/:orgname', function(req, res) {
         logger.debug("Enter post() for /d4dMasters/savemasterjsonrownew/%s/%s/%s", req.params.id, req.params.fileinputs, req.params.orgname);
+        console.log("***********************");
+        console.log(JSON.stringify(req.body));
+        console.log("***********************");
         var bodyJson = JSON.parse(JSON.stringify(req.body));
         //pushing the rowid field
         var editMode = false; //to identify if in edit mode.
@@ -2442,7 +2552,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         })(x1);
                                                     }
                                                 },
-                                                team:function(callback){
+                                             /*   team:function(callback){
                                                     for (var x = 0; x < 4; x++) {
                                                         (function(x) {
                                                             var teamName;
@@ -2488,7 +2598,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         })(x);
 
                                                     }
-                                                },
+                                                },*/
                                                 wizard:function(callback){
                                                     var settingWizardSteps = appConfig.settingWizardSteps;
                                                     var currentStep=settingWizardSteps[1];
@@ -2579,7 +2689,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                         });
 
                                     } else if (req.params.id === '4') {
-                                        bodyJson['repositories'] = JSON.parse(bodyJson['repositories']);
+                                       // bodyJson['repositories'] = JSON.parse(bodyJson['repositories']);
                                         var projectModel = new d4dModelNew.d4dModelMastersProjects(bodyJson);
                                         projectModel.save(function(err, data) {
                                             if (err) {
@@ -2617,6 +2727,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                         });
                                     } else if (req.params.id === '26') {
                                         bodyJson['groupid'] = JSON.parse(bodyJson['groupid']);
+                                        bodyJson['repositories'] = JSON.parse(bodyJson['repositories']);
                                         var nexusModel = new d4dModelNew.d4dModelMastersNexusServer(bodyJson);
                                         nexusModel.save(function(err, data) {
                                             if (err) {
@@ -2638,10 +2749,46 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                             res.send(500);
                                                             return;
                                                         }
+                                                        updateProjectWithServer('nexus',bodyJson);
                                                         res.send(200);
                                                         return;
                                                     });
                                                 }else{
+                                                    updateProjectWithServer('nexus',bodyJson);
+                                                    res.send(200);
+                                                    return;
+                                                }
+                                            })
+                                        });
+                                    } else if(req.params.id === '18'){
+                                        bodyJson['repositories'] = JSON.parse(bodyJson['repositories']);
+                                        var dockerModel = new d4dModelNew.d4dModelMastersDockerConfig(bodyJson);
+                                        dockerModel.save(function(err, data) {
+                                            if (err) {
+                                                logger.error('Hit Save error', err);
+                                                res.send(500);
+                                                return;
+                                            }
+                                            settingWizard.getSettingWizardByOrgId(bodyJson['orgname_rowid'],function(err,settingWizards){
+                                                if(err){
+                                                    logger.error('Hit getting setting wizard error', err);
+                                                    res.send(500);
+                                                    return;
+                                                }
+                                                if(settingWizards.currentStep.name === 'Devops Roles') {
+                                                    settingWizards.currentStep.nestedSteps[1].isCompleted = true;
+                                                    settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                                                        if (err) {
+                                                            logger.error('Hit getting setting wizard error', err);
+                                                            res.send(500);
+                                                            return;
+                                                        }
+                                                        updateProjectWithServer('docker',bodyJson);
+                                                        res.send(200);
+                                                        return;
+                                                    });
+                                                }else{
+                                                    updateProjectWithServer('docker',bodyJson);
                                                     res.send(200);
                                                     return;
                                                 }
@@ -2658,6 +2805,30 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                             }
                                             logger.debug('New Master Saved');
                                             logger.debug(req.params.fileinputs == 'null');
+                                            if(req.params.id === '21'){
+                                                settingWizard.getSettingWizardByOrgId(bodyJson['orgname_rowid'],function(err,settingWizards){
+                                                    if(err){
+                                                        logger.error('Hit getting setting wizard error', err);
+                                                        res.send(500);
+                                                        return;
+                                                    }
+                                                    if(settingWizards.currentStep.name === 'Config Management') {
+                                                        var settingWizardSteps = appConfig.settingWizardSteps;
+                                                        settingWizards.currentStep.nestedSteps[2].isCompleted = true;
+                                                        settingWizards.currentStep.isCompleted = true;
+                                                        settingWizards.previousStep = settingWizards.currentStep;
+                                                        settingWizards.currentStep = settingWizards.nextStep;
+                                                        settingWizards.nextStep = settingWizardSteps[4];
+                                                        settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                                                            if (err) {
+                                                                logger.error('Hit getting setting wizard error', err);
+                                                                res.send(500);
+                                                                return;
+                                                            }
+                                                        });
+                                                    }
+                                                })
+                                            }
                                             if(req.params.id === '2'){
                                                 settingWizard.getSettingWizardByOrgId(bodyJson['orgname_rowid'],function(err,settingWizards){
                                                     if(err){
@@ -2696,14 +2867,14 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     }
                                                 })
                                             }
-                                            if(req.params.id === '18'){
+                                            if(req.params.id === '19'){
                                                 settingWizard.getSettingWizardByOrgId(bodyJson['orgname_rowid'],function(err,settingWizards){
                                                     if(err){
                                                         logger.error('Hit getting setting wizard error', err);
                                                         res.send(500);
                                                         return;
                                                     }
-                                                    if(settingWizards.currentStep.name === 'Devops Roles') {
+                                                    if(settingWizards.currentStep.name === 'Gallery Setup') {
                                                         settingWizards.currentStep.nestedSteps[1].isCompleted = true;
                                                         settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                                                             if (err) {
@@ -2728,7 +2899,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         settingWizards.currentStep.isCompleted = true;
                                                         settingWizards.previousStep = settingWizards.currentStep;
                                                         settingWizards.currentStep = settingWizards.nextStep;
-                                                        settingWizards.nextStep = settingWizardSteps[7];
+                                                        settingWizards.nextStep = {wizardStatus:'true'};
                                                         settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                                                             if (err) {
                                                                 logger.error('Hit getting setting wizard error', err);
@@ -2766,12 +2937,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         return;
                                                     }
                                                     if(settingWizards.currentStep.name === 'Config Management') {
-                                                        var settingWizardSteps = appConfig.settingWizardSteps;
                                                         settingWizards.currentStep.nestedSteps[1].isCompleted = true;
-                                                        settingWizards.currentStep.isCompleted = true;
-                                                        settingWizards.previousStep = settingWizards.currentStep;
-                                                        settingWizards.currentStep = settingWizards.nextStep;
-                                                        settingWizards.nextStep = settingWizardSteps[4];
                                                         settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                                                             if (err) {
                                                                 logger.error('Hit getting setting wizard error', err);
@@ -2818,9 +2984,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
                                     // Update settings
                                     if (req.params.id === '4') {
-                                        bodyJson['repositories'] = JSON.parse(bodyJson['repositories']);
+                                       // bodyJson['repositories'] = JSON.parse(bodyJson['repositories']);
                                         delete rowtoedit._id; //fixing the issue of
-                                        rowtoedit["repositories"] = bodyJson['repositories'];
+                                      //  rowtoedit["repositories"] = bodyJson['repositories'];
                                         logger.debug('Rowtoedit: %s', JSON.stringify(rowtoedit));
                                         eval('d4dModelNew.' + dbtype).update({
                                             rowid: bodyJson["rowid"],

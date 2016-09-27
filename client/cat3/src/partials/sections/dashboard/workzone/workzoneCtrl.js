@@ -87,7 +87,7 @@ function workzoneFunct($scope, $rootScope) {
 }
 angular.module('dashboard.workzone', ['angularTreeview', 'mgcrea.ngStrap', 'workzone.instance', 'workzone.blueprint', 'workzone.orchestration', 'workzone.container', 'workzone.cloudFormation', 'workzone.azureARM', 'workzone.application', 'apis.workzone', 'workzone.factories'])
 	.controller('workzoneCtrl', ['$scope', '$rootScope', workzoneFunct])
-	.controller('workzoneTreeCtrl', ['$rootScope', '$scope', 'workzoneServices', 'workzoneEnvironment', '$timeout', 'modulePermission', function ($rootScope, $scope, workzoneServices, workzoneEnvironment, $timeout, modulePerms) {
+	.controller('workzoneTreeCtrl', ['$rootScope', '$scope', 'workzoneServices', 'workzoneEnvironment', '$timeout', 'modulePermission', '$window', function ($rootScope, $scope, workzoneServices, workzoneEnvironment, $timeout, modulePerms, $window) {
 		'use strict';
 		//For showing menu icon in menu over breadcrumb without position flickering during load
 		$scope.isLoading = true;
@@ -135,7 +135,10 @@ angular.module('dashboard.workzone', ['angularTreeview', 'mgcrea.ngStrap', 'work
 				$('[data-nodetype="env"]').eq(0).click();	
 			}else{
 				if(modulePerms.settingsAccess()){
-					$scope.setWorkZoneMessage('NO_ENV_CONFIGURED_CONFIGURE_SETTINGS');
+					$window.location.href="/private/index.html#ajax/Settings/Dashboard.html";
+
+					//$location.path('/private/index.html#ajax/Settings/Dashboard.html');
+					//$scope.setWorkZoneMessage('NO_ENV_CONFIGURED_CONFIGURE_SETTINGS');
 				}
 				else{
 					$scope.setWorkZoneMessage('NO_ENV_CONFIGURED_NO_SETTINGS_ACCESS');	

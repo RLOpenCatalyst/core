@@ -29,7 +29,7 @@ function getOrganizationList() {
         var str = ' <option value="">Select Organization</option>',
         len = data.length;
         for (var i = 0; i < data.length; i++) {
-            str = str + '<option value="' + data[i]._id + '">' + data[i].orgname + '</option>';
+            str = str + '<option value="' + data[i].rowid + '">' + data[i].orgname + '</option>';
         }
         $('#orgName').html(str);
     })
