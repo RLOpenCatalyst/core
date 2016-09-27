@@ -74,7 +74,6 @@ function routeConfig($stateProvider, $urlRouterProvider, $httpProvider, modulePe
 		url: "/analytics/",
 		templateUrl: "src/partials/sections/dashboard/analytics/analytics.html",
 		controller: "analyticsCtrl as analytic",
-		params:{org:null,bus:null,proj:null},
 		resolve: {
 			auth: ["$q", function ($q) {
 				var deferred = $q.defer();
