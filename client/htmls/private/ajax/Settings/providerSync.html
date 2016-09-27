@@ -780,7 +780,19 @@
             "columns": [
                 {"data": "platformId","orderable" : true  },
                 {"data": "hardware.os","orderable" : false  },
-                {"data": "instanceIP","orderable" : true  },
+                {"data": "instanceIP","orderable" : true,
+                    "render":function(data, type, full, meta) {
+                        if(full.instanceIP === null){
+                            if(full.privateIpAddress &&  full.privateIpAddress !== null){
+                                return full.privateIpAddress;
+                            }else{
+                                return '-';
+                            }
+                        }else{
+                            return full.instanceIP;
+                        }
+                    }
+                },
                 {"data": "","orderable" : true,
                     "render":function(data, type, full, meta) {
                         return full.region?full.region:full.providerData?full.providerData.region:'-';
@@ -1043,6 +1055,11 @@
                     var catalystEntityProjName = $('#projectnameLabelId').attr('catalystEntitytype');
                     var catalystEntityEnvName = $('#envnameLabelId').attr('catalystEntitytype');
                     var catalystEntityBgName = $('#bgNameLabelId').attr('catalystEntitytype');
+                    /*if(tagsListSelected.length > 0){
+                        $('.btnprojectMappingSave').attr('disabled',false);
+                    }else{
+                        $('.btnprojectMappingSave').attr('disabled',true);
+                    }*/
 
                     for(var i=0;i<tagsListSelected.length;i++){
                         var objcatalystEntityType = tagsListSelected[i].catalystEntityType;
@@ -1054,12 +1071,12 @@
                             $bgtagsList.val(objtagName);
                         }
                         if(objcatalystEntityType == catalystEntityProjName){
+                            //$('.btnprojectMappingSave').attr('disabled',false);
                             $projecttagsList.val(objtagName);
                             //For Mapping tab.....
                             //For project catalystEntityType
                             $mappingprojectDatatable.clear().draw();
                             var $tbody = $('#mappingprojectTable tbody').empty();
-
                             for(var j = 0; j < catalystEntityTypeListPassed.length; j++){
                                 //For Table
                                 var $tr = $('<tr id="'+catalystEntityTypeListPassed[j].rowid+'" class=""></tr>');
@@ -1090,7 +1107,9 @@
                                     }
                                 }
                             }
-                        }
+                        }/*else{
+                            $('.btnprojectMappingSave').attr('disabled',true);
+                        }*/
                         //For environment catalystEntityType
                         if(objcatalystEntityType == catalystEntityEnvName){
                             $envtagsList.val(objtagName);
@@ -1098,7 +1117,6 @@
                     }
                 },
                 error: function(jxhr) {
-
                 }
             });
 
@@ -1115,12 +1133,16 @@
             var tagsProjSelectedVal = $projecttagsList.val();
             var tagsenvSelectedVal = $envtagsList.val();
             var tagsbgSelectedVal = $bgtagsList.val();
-
-            if((tagsbgSelectedVal == tagsProjSelectedVal) && (tagsbgSelectedVal == tagsenvSelectedVal)){
-                bootbox.alert("Tag name cannot be same to create catalyst entity mapping");
-                return;
+            if(tagsbgSelectedVal === '' && tagsProjSelectedVal === '' && tagsenvSelectedVal === ''){
+                bootbox.alert("Please select at-least one value for catalyst entity mapping");
+                return false;
             }
-
+            if((tagsbgSelectedVal !== '' && tagsbgSelectedVal === tagsProjSelectedVal)
+                    || (tagsenvSelectedVal !== '' && tagsenvSelectedVal === tagsbgSelectedVal)
+                    || (tagsProjSelectedVal !== '' && tagsProjSelectedVal === tagsenvSelectedVal)){
+                bootbox.alert("Tag name cannot be same to create catalyst entity mapping");
+                return false;
+            }
             //Creating the data to Post for Save tags.
             var tagsData = [{
                 "catalystEntityType": catalystEntityBgName,
@@ -1228,6 +1250,7 @@
 
             $.get('/providers/'+urlproviderId+'/tag-mappings/environment', function(data) {
                 if(data){
+                   // $('.btnenvMappingSave').attr('disabled',false);
                     var $tbody = $('#mappingenvTable tbody').empty();
                     for(var i = 0; i < envList.length; i++){
                         //For Table
@@ -1260,7 +1283,7 @@
                     }
                 }
             }).fail(function(jxhr) {
-
+               // $('.btnenvMappingSave').attr('disabled',true);
             });
         }
 
@@ -1269,6 +1292,7 @@
 
             $.get('/providers/'+urlproviderId+'/tag-mappings/bgName', function(data) {
                 if(data){
+                    ///$('.btnbgMappingSave').attr('disabled',false);
                     var $tbody = $('#mappingBgTable tbody').empty();
                     for(var i = 0; i < bgList.length; i++){
                         //For Table
@@ -1301,7 +1325,7 @@
                     }
                 }
             }).fail(function(jxhr) {
-
+               /// $('.btnbgMappingSave').attr('disabled',true);
             });
         }
         $('.btnbgMappingSave').on('click',function(){
@@ -1316,7 +1340,10 @@
                 var bgmappingcatalystEntityId = $tr.attr('id');
                 var mappingbgSelectTagName = $tr.find('.mappingbgSelectId :selected').val();
                 var mappingbgName = $tr.find('.mappingbgName').text();
-
+                if(mappingbgSelectTagName === '' && $('#mappingBgTable tbody tr').length === 1){
+                    bootbox.alert('Please select a value for updating Catalyst Business Group Tag');
+                    return false;
+                }
                 var objbgMapping = {};
                 objbgMapping["catalystEntityId"] = bgmappingcatalystEntityId;
                 objbgMapping["catalystEntityName"] = mappingbgName;
@@ -1324,28 +1351,40 @@
 
                 bgMappingObj.catalystEntityMapping.push(objbgMapping);
                 if(counter == $('#mappingBgTable tbody tr').length){
-                    $.ajax({
-                        url: '/providers/'+urlproviderId+'/tag-mappings/bgName',
-                        data: JSON.stringify(bgMappingObj),
-                        type: 'PATCH',
-                        contentType: "application/json",
-                        success: function(data) {
-                            $('#spanbgMappingSaveId').fadeIn();
-                            $('#spanbgMappingSaveId').html('Saved successfully');
-                            $('#spanbgMappingSaveId').delay(2000).fadeOut();
-                        },
-                        error: function(jqxhr) {
-                            var msg = " ";
-                            if (jxhr.responseJSON && jxhr.responseJSON.message) {
-                                msg = jxhr.responseJSON.message;
-                            } else if (jxhr.responseText) {
-                                msg = jxhr.responseText;
-                            }
-                            $('#spanbgMappingSaveId').fadeIn();
-                            $('#spanbgMappingSaveId').html(msg);
-                            $('#spanbgMappingSaveId').delay(2000).fadeOut();
+                    var checkBgNull = bgMappingObj.catalystEntityMapping;
+                    var checkNullFlag = true;
+                    for(var i = 0; i < checkBgNull.length;i++){
+                        if(checkBgNull[i].tagValue !== ''){
+                            checkNullFlag = false;
                         }
-                    });
+                    }
+                    if(checkNullFlag){
+                        bootbox.alert('Please select at-lease one value for updating Catalyst Business Group Tag');
+                        return false;
+                    }else {
+                        $.ajax({
+                            url: '/providers/' + urlproviderId + '/tag-mappings/bgName',
+                            data: JSON.stringify(bgMappingObj),
+                            type: 'PATCH',
+                            contentType: "application/json",
+                            success: function (data) {
+                                $('#spanbgMappingSaveId').fadeIn();
+                                $('#spanbgMappingSaveId').html('Saved successfully');
+                                $('#spanbgMappingSaveId').delay(2000).fadeOut();
+                            },
+                            error: function (jqxhr) {
+                                var msg = " ";
+                                if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                                    msg = jxhr.responseJSON.message;
+                                } else if (jxhr.responseText) {
+                                    msg = jxhr.responseText;
+                                }
+                                $('#spanbgMappingSaveId').fadeIn();
+                                $('#spanbgMappingSaveId').html(msg);
+                                $('#spanbgMappingSaveId').delay(2000).fadeOut();
+                            }
+                        });
+                    }
                 }
             });
         });
@@ -1361,7 +1400,10 @@
                 var projmappingcatalystEntityId = $tr.attr('id');
                 var mappingprojectSelectTagName = $tr.find('.mappingprojectSelectId :selected').val();
                 var mappingprojectName = $tr.find('.mappingprojectName').text();
-
+                if(mappingprojectSelectTagName === '' && $('#mappingprojectTable tbody tr').length === 1){
+                    bootbox.alert('Please select a value for updating Catalyst Project Tag');
+                    return false;
+                }
                 var objprojectMapping = {};
                 objprojectMapping["catalystEntityId"] = projmappingcatalystEntityId;
                 objprojectMapping["catalystEntityName"] = mappingprojectName;
@@ -1370,19 +1412,31 @@
                 projectMappingObj.catalystEntityMapping.push(objprojectMapping);
 
                 if(counter == $('#mappingprojectTable tbody tr').length){
-                    $.ajax({
-                        url: '/providers/'+urlproviderId+'/tag-mappings/project',
-                        data: JSON.stringify(projectMappingObj),
-                        type: 'PATCH',
-                        contentType: "application/json",
-                        success: function(data) {
-                            $('#spanprojectMappingSaveId').fadeIn();
-                            $('#spanprojectMappingSaveId').html('Saved successfully');
-                            $('#spanprojectMappingSaveId').delay(2000).fadeOut();
-                        },
-                        error: function(jqxhr) {
+                    var checkProjectNull = projectMappingObj.catalystEntityMapping;
+                    var checkNullFlag = true;
+                    for(var i = 0; i < checkProjectNull.length;i++){
+                        if(checkProjectNull[i].tagValue !== ''){
+                            checkNullFlag = false;
                         }
-                    });
+                    }
+                    if(checkNullFlag){
+                        bootbox.alert('Please select at-lease one value for updating Catalyst Project Tag');
+                        return false;
+                    }else {
+                        $.ajax({
+                            url: '/providers/' + urlproviderId + '/tag-mappings/project',
+                            data: JSON.stringify(projectMappingObj),
+                            type: 'PATCH',
+                            contentType: "application/json",
+                            success: function (data) {
+                                $('#spanprojectMappingSaveId').fadeIn();
+                                $('#spanprojectMappingSaveId').html('Saved successfully');
+                                $('#spanprojectMappingSaveId').delay(2000).fadeOut();
+                            },
+                            error: function (jqxhr) {
+                            }
+                        });
+                    }
                 }
             });
         });
@@ -1400,7 +1454,10 @@
                 var envmappingcatalystEntityId = $tr.attr('id');
                 var mappingenvSelectTagName = $tr.find('.mappingenvSelectId :selected').val();
                 var mappingenvName = $tr.find('.mappingenvName').text();
-
+                if(mappingenvSelectTagName === '' && $('#mappingenvTable tbody tr').length === 1){
+                    bootbox.alert('Please select a value for updating Catalyst Environment Tag');
+                    return false;
+                }
                 var objenvMapping = {};
                 objenvMapping["catalystEntityId"] = envmappingcatalystEntityId;
                 objenvMapping["catalystEntityName"] = mappingenvName;
@@ -1408,28 +1465,40 @@
 
                 envMappingObj.catalystEntityMapping.push(objenvMapping);
                 if(counter == $('#mappingenvTable tbody tr').length){
-                    $.ajax({
-                        url: '/providers/'+urlproviderId+'/tag-mappings/environment',
-                        data: JSON.stringify(envMappingObj),
-                        type: 'PATCH',
-                        contentType: "application/json",
-                        success: function(data) {
-                            $('#spanenvMappingSaveId').fadeIn();
-                            $('#spanenvMappingSaveId').html('Saved successfully');
-                            $('#spanenvMappingSaveId').delay(2000).fadeOut();
-                        },
-                        error: function(jqxhr) {
-                            var msg = " ";
-                            if (jxhr.responseJSON && jxhr.responseJSON.message) {
-                                msg = jxhr.responseJSON.message;
-                            } else if (jxhr.responseText) {
-                                msg = jxhr.responseText;
-                            }
-                            $('#spanenvMappingSaveId').fadeIn();
-                            $('#spanenvMappingSaveId').html(msg);
-                            $('#spanenvMappingSaveId').delay(2000).fadeOut();
+                    var checkEnvNull = envMappingObj.catalystEntityMapping;
+                    var checkNullFlag = true;
+                    for(var i = 0; i < checkEnvNull.length;i++){
+                        if(checkEnvNull[i].tagValue !== ''){
+                            checkNullFlag = false;
                         }
-                    });
+                    }
+                    if(checkNullFlag){
+                        bootbox.alert('Please select at-lease one value for updating Catalyst Environment Tag');
+                        return false;
+                    }else {
+                        $.ajax({
+                            url: '/providers/' + urlproviderId + '/tag-mappings/environment',
+                            data: JSON.stringify(envMappingObj),
+                            type: 'PATCH',
+                            contentType: "application/json",
+                            success: function (data) {
+                                $('#spanenvMappingSaveId').fadeIn();
+                                $('#spanenvMappingSaveId').html('Saved successfully');
+                                $('#spanenvMappingSaveId').delay(2000).fadeOut();
+                            },
+                            error: function (jqxhr) {
+                                var msg = " ";
+                                if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                                    msg = jxhr.responseJSON.message;
+                                } else if (jxhr.responseText) {
+                                    msg = jxhr.responseText;
+                                }
+                                $('#spanenvMappingSaveId').fadeIn();
+                                $('#spanenvMappingSaveId').html(msg);
+                                $('#spanenvMappingSaveId').delay(2000).fadeOut();
+                            }
+                        });
+                    }
                 }
             });
         });
@@ -1695,12 +1764,16 @@
                 "columns": [
                     {"data": "platformId","orderable" : true  },
                     {"data": "os","orderable" : false  },
-                    {"data": "ip","orderable" : true,
-                        "render": function(data, type, full){
-                            if(data !== null){
-                                return data;
+                    {"data": "","orderable" : true,
+                        "render":function(data, type, full, meta) {
+                            if(full.ip === null){
+                                if(full.privateIpAddress &&  full.privateIpAddress !== null){
+                                    return full.privateIpAddress;
+                                }else{
+                                    return '-';
+                                }
                             }else{
-                                return full.privateIpAddress;
+                                return full.ip;
                             }
                         }
                     },
@@ -1868,12 +1941,16 @@
                 "columns": [
                     {"data": "platformId","orderable" : true  },
                     {"data": "os","orderable" : false  },
-                    {"data": "ip","orderable" : true,
-                        "render": function(data, type, full){
-                            if(data !== null){
-                                return data;
+                    {"data": "","orderable" : true,
+                        "render":function(data, type, full, meta) {
+                            if(full.ip === null){
+                                if(full.privateIpAddress &&  full.privateIpAddress !== null){
+                                    return full.privateIpAddress;
+                                }else{
+                                    return '-';
+                                }
                             }else{
-                                return full.privateIpAddress;
+                                return full.ip;
                             }
                         }
                     },
@@ -1938,6 +2015,12 @@
                     var bgTagName = $(this).find('.bgTagName').val();
                     updateUniqueInstanceTagsObj["id"] = instanceId;
                     updateUniqueInstanceTagsObj["tags"] = {};
+                    if((typeof projectTagsMapName === 'undefined' || projectTagsMapName === '' || projectTagsMapName === null) &&
+                            (typeof envTagsMapName === 'undefined' || envTagsMapName === '' || envTagsMapName === null) &&
+                            (typeof bgTagsMapName === 'undefined' || bgTagsMapName === '' || bgTagsMapName === null)){
+                        bootbox.alert("Please configure tag-mapping for updating tags");
+                        return false;
+                    }
                     if(projectTagName === '' &&  envTagName === '' && bgTagName ===''){
                         bootbox.alert("Please update tag value in any text-box corresponding to selected check-box for updating tags");
                         return false;
@@ -1996,6 +2079,12 @@
                     var bgTagName = $(this).find('.bgTagName').val();
                     updateUniqueBucketTagsObj["id"] = resourceId;
                     updateUniqueBucketTagsObj["tags"] = {};
+                    if((projectTagsMapName === 'undefined' || projectTagsMapName === '' || projectTagsMapName === null) &&
+                            (envTagsMapName === 'undefined' || envTagsMapName === '' || envTagsMapName === null) &&
+                            (bgTagsMapName === 'undefined' || bgTagsMapName === '' || bgTagsMapName === null)){
+                        bootbox.alert("Please configure tag-mapping for updating tags");
+                        return false;
+                    }
                     if(projectTagName === '' &&  envTagName === '' && bgTagName ===''){
                         bootbox.alert("Please update tag value in any text-box corresponding to selected check-box for updating tags");
                         return false;
@@ -2052,6 +2141,12 @@
                     var bgTagName = $(this).find('.bgTagName').val();
                     updateUniqueDBTagsObj["id"] = resourceId;
                     updateUniqueDBTagsObj["tags"] = {};
+                    if((projectTagsMapName === 'undefined' || projectTagsMapName === '' || projectTagsMapName === null) &&
+                            (envTagsMapName === 'undefined' || envTagsMapName === '' || envTagsMapName === null) &&
+                            (bgTagsMapName === 'undefined' || bgTagsMapName === '' || bgTagsMapName === null)){
+                        bootbox.alert("Please configure tag-mapping for updating tags");
+                        return false;
+                    }
                     if(projectTagName === '' &&  envTagName === '' && bgTagName ===''){
                         bootbox.alert("Please update tag value in any text-box corresponding to selected check-box for updating tags");
                         return false;

@@ -453,7 +453,8 @@
 												</thead>
 												<tbody>
 												<tr ng-repeat="param in scriptParamsObj[selectedScript._id] track by $index">
-													<td>{{param}}</td>
+													<td ng-if="param !== ''">{{param}}</td>
+													<td ng-if="param === ''">.....</td>
 													<td>
 														<button title="Delete" type="button" ng-click="removeScriptParams(selectedScript._id,param);"><i class=" fa fa-trash-o"></i></button>
 													</td>
@@ -470,7 +471,6 @@
 				</div>
 			</div>
 		</div>
-
 		<div class="modal-footer">
 			<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12" >
 				<span class="pull-left inputValidationMsg" ><h5 ng-bind="inputValidationMsg"></h5></span>

@@ -24,7 +24,7 @@ var appConfig = require('_pr/config');
 var EC2 = require('_pr/lib/ec2.js');
 var Cryptography = require('../lib/utils/cryptography');
 var tagsModel = require('_pr/model/tags/tags.js');
-var resourceCost = require('_pr/model/resource-costs/resource-costs.js');
+var resourceCost = require('_pr/model/resource-costs-deprecated/resource-costs-deprecated.js');
 var resourceUsage = require('_pr/model/resource-metrics/resource-metrics.js');
 
 var async = require('async');
@@ -1371,6 +1371,7 @@ function instanceSyncWithAWS(instanceId,instanceData,callback){
 
 function createOrUpdateInstanceLogs(instance,instanceState,action,user,timestampStarted,next){
     var actionLog = instancesModel.insertInstanceStatusActionLog(instance._id, user, instanceState, timestampStarted);
+    var actionStatus = 'success';
     var logReferenceIds = [instance._id, actionLog._id];
     logsDao.insertLog({
         referenceId: logReferenceIds,
@@ -1378,6 +1379,9 @@ function createOrUpdateInstanceLogs(instance,instanceState,action,user,timestamp
         log: "Instance " + instanceState,
         timestamp: timestampStarted
     });
+    if(instanceState === 'shutting-down'){
+        actionStatus = 'pending';
+    }
     var instanceLog = {
         actionId: actionLog._id,
         instanceId: instance._id,
@@ -1386,7 +1390,7 @@ function createOrUpdateInstanceLogs(instance,instanceState,action,user,timestamp
         projectName: instance.projectName,
         envName: instance.environmentName,
         status: instanceState,
-        actionStatus: "success",
+        actionStatus: actionStatus,
         platformId: instance.platformId,
         blueprintName: instance.blueprintData.blueprintName,
         data: instance.runlist,

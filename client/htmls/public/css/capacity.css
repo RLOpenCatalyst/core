@@ -75,3 +75,8 @@
 #instanceUnAssignedContainer {
      min-height: 280px;
 }
+
+.selectComponent {
+    border: 5px solid #396ea2;
+    margin-top: -5px;
+}

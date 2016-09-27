@@ -1,0 +1,110 @@
+<div class="wizardFlow"></div>
+<!-- fieldsets -->
+<div class="content">
+   <form id="configForm">
+      <div class="widget-box">
+         <div class="widget-header">
+            <h4 class="widget-margin" style="color:black;">ServiceNow CMDB Setting</h4>
+         </div>
+         <div class="widget-body" >
+            <div class="widget-main" style="min-height:300px">
+               <section id="widget-grid" class="">
+                  <!-- START ROW -->
+                  <div class="row">
+                     <!-- NEW COL START -->
+                     <article class="col-sm-12 col-md-12 col-lg-12">
+                        <!-- Widget ID (each widget will need unique ID)-->
+                        <div class="jarviswidget" id="wid-id-3" data-widget-editbutton="false" data-widget-custombutton="false">
+                           <!-- widget div-->
+                           <div>
+                              <div class="widget-body no-padding">
+                                 <div class="col-lg-6 col-md-6">
+                                    <label for="configname">Configuration Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                                    <div class="input-groups"> 
+                                       <input name="configname" value="" id="configname" class="form-control" type="text"  cdata="catalyst" unique="true" uniqueconditionedby="configname">
+                                    </div>
+                                 </div>
+                                 <div class="col-lg-6 col-md-6">
+                                    <label for="url">ServiceNow URL:<span class="control-label redSpan">&nbsp;*</span></label>
+                                    <div class="input-groups">
+                                       <input name="url" value="" id="url" class="form-control" type="url"  cdata="catalyst
+                                          " >
+                                    </div>
+                                 </div>
+                                 <hr>
+                                 <div class="col-lg-6 col-md-6" style="margin-top:25px">
+                                    <label for="username">UserName:<span class="control-label redSpan">&nbsp;*</span></label>
+                                    <div class="input-groups">
+                                       <input type="text" name="username" value="" id="username" class="form-control" type="text"  name="website"  cdata="catalyst"  autocomplete="off">
+                                    </div>
+                                 </div>
+                                 <hr/>
+                                 <div class="col-lg-6 col-md-6" style="margin-top:25px">
+                                    <label for="password">Password:<span class="control-label redSpan">&nbsp;*</span></label>
+                                    <div class="input-groups">
+                                       <input name="password" value="" id="password" class="form-control" type="password"  name="website"  cdata="catalyst"  autocomplete="off">
+                                    </div>
+                                 </div>
+                                 <div class="col-lg-6 col-md-6" style="margin-top:25px">
+                                    <label for="">Organization:<span class="control-label redSpan">&nbsp;*</span></label>
+                                    <div class="input-groups">
+                                       <select name="orgname" id="orgname" class="width-100 form-control"  style="vertical-align:central">
+                                          <option value="">Select an Organization</option>
+                                       </select>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                           <!-- end widget div -->
+                        </div>
+                        <!-- end widget -->
+                     </article>
+                     <!-- END COL -->
+                  </div>
+                  <!-- END ROW -->
+               </section>
+               <!-- end widget grid -->
+            </div>
+         </div>
+         <div class="widget-toolbox clearfix">
+            <div class="btn-group pull-right">
+             <button name="next1" id="saveProviderWizard" style="margin-right:11px;" class="saveFormWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
+             <input type="button" name="next1" id="next1" class="nextFormWizard btn btn-primary" value="Next"/>
+          </div>
+       </div>
+      </div>
+   </form>
+</div>
+
+
+<script>
+var wizardSteps = $('<ol id="wizardTab" class="bwizard-steps clearfix clickable" role="tablist"><li aria-selected="true" class="btn-2 cmdbCreate active" id="cmdbCreate" style="z-index: 4;"><span class="label badge-inverse">1</span><a href="ajax/Settings/cmdbWizard.html" class="hidden-phone">Create ServiceNow CMDB Settings </a></li></ol>');
+$('.wizardFlow').append(wizardSteps);
+    $('#configForm').submit(function(e) {
+
+        var url = '/servicenow/saveconfig';
+        var configname = $('#configname').val().trim();
+        var servicenowurl = $('#url').val().trim();
+        var username = $('#username').val().trim();
+        var password = $('#password').val().trim();
+        var org = $('#orgname').val().trim();
+        var orgname_rowid = $('#orgname').find(':selected').attr('orgname_rowid');
+        var body = {};
+
+        body.configname = configname;
+        body.servicenowurl = servicenowurl;
+        body.username = username;
+        body.password = password;
+        body.org = org;
+        body.orgname_rowid = orgname_rowid;
+
+        $.post(url, body, function(data) {
+            toastr.success('Setup Has been completed');
+        });
+        return false;
+
+    }); //end of save config action
+    $(".nextFormWizard").click(function() {
+        toastr.success('Successfully completed the Setup & Configuration Wizard');
+    });
+</script>
