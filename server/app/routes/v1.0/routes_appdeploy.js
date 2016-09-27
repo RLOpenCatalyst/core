@@ -362,6 +362,19 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         });
     });
 
+    // Get  appData by Project and repository
+    app.get('/app-deploy/project/:projectId/repository/:appName', function(req, res) {
+       // logger.debug("version= ", req.query.version);
+        AppData.getAppDataByProjectAndRepo(req.params.projectId, req.params.appName,function(err, appData) {
+            if (err) {
+                res.status(500).send(errorResponses.db.error);
+                return;
+            }
+            res.status(200).send(appData);
+            return;
+        });
+    });
+
     //New App Deploy
     app.post('/app-deploy/new', function(req, res, next) {
         var isUpgrade = false;

@@ -246,5 +246,23 @@ AppDataSchema.statics.getAppDataByProjectAndEnv = function getAppDataByProjectAn
     });
 };
 
+// Get AppData by project,reponame for nexus
+AppDataSchema.statics.getAppDataByProjectAndRepo = function getAppDataByProjectAndRepo(projectId, reponame, callback) {
+    this.find({
+        projectId: projectId,
+       
+        "nexus.repository": reponame
+        }
+       
+    , function(err, anAppData) {
+        if (err) {
+            logger.debug("Got error while fetching appData: ", err);
+            callback(err, null);
+        }
+        logger.debug("Got appData: ", JSON.stringify(anAppData));
+        callback(null, anAppData);
+    });
+};
+
 var AppData = mongoose.model("appData", AppDataSchema);
 module.exports = AppData;
