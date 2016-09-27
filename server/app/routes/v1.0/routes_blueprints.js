@@ -358,12 +358,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			});
 			return;
 		}
-		if (!req.query.envId) {
-			res.send(400, {
-				"message": "Invalid Environment Id"
-			});
-			return;
-		}
 		var user = req.session.user;
 		var category = 'blueprints';
 		var permissionto = 'execute';
@@ -399,7 +393,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 								});
 								return;
 							}
-						}else {
+						}
+						if(blueprint.domainNameCheck === true) {
 							domainName = req.query.domainName;
 							if (!domainName) {
 								res.send(400, {
@@ -408,7 +403,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 								return;
 							}
 						}
-
 						blueprint.launch({
 							envId: req.query.envId,
 							ver: req.query.version,
