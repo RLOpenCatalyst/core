@@ -20,6 +20,7 @@ var instanceService = require('_pr/services/instanceService');
 var logger = require('_pr/logger')(module);
 var taskService = require('_pr/services/taskService');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
+var containerLogModel = require('_pr/model/log-trail/containerLog.js');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
@@ -75,7 +76,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             [
 
                 function(next) {
-                    apiUtil.paginationRequest(req.query, 'taskLogs', next);
+                    apiUtil.paginationRequest(req[0].query, 'taskLogs', next);
                 },
                 function(paginationReq, next) {
                     reqData = paginationReq;
@@ -153,4 +154,35 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     return res.status(200).send(results);
             });
     }
+
+
+    app.get('/audit-trail/container-action', getContainerActionList);
+
+    function getContainerActionList(req, res, next) {
+        var reqData = {};
+        async.waterfall(
+            [
+                function(next) {
+                    apiUtil.paginationRequest(req.query, 'containerLogs', next);
+                },
+                function(paginationReq, next) {
+                    paginationReq['searchColumns'] = ['platformId', 'status', 'action', 'user', 'actionStatus', 'orgName', 'bgName', 'projectName', 'envName', 'containerName', 'image'];
+                    reqData = paginationReq;
+                    apiUtil.databaseUtil(paginationReq, next);
+                },
+                function(dataQuery, next) {
+                    containerLogModel.getContainerActionLogs(dataQuery, next);
+                },
+                function(instanceActions, next) {
+                    apiUtil.paginationResponse(instanceActions, reqData, next);
+                }
+            ],
+            function(err, results) {
+                if (err)
+                    return res.status(500).send(err);
+                else
+                    return res.status(200).send(results);
+            });
+    }
+
 };

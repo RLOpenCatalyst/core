@@ -5,6 +5,7 @@ var MasterUtils = require('_pr/lib/utils/masterUtil.js');
 var credentialCrpto = require('_pr/lib/credentialcryptography.js');
 var instancesDao = require('_pr/model/classes/instance/instance');
 var containerDao = require('_pr/model/container');
+var containerLogModel = require('_pr/model/log-trail/containerLog.js');
 var SSH = require('_pr/lib/utils/sshexec');
 var fileIo = require('_pr/lib/utils/fileio');
 var toPairs = require('lodash.topairs');
@@ -203,7 +204,7 @@ function aggregateDockerContainerForInstance(instance){
                 if(containers.operation === 'delete'){
                     deleteContainerByInstanceId(containers.instanceId,next);
                 }else if (containers.operation === 'create'){
-                    saveAndUpdateContainers(containers.containers,containers.containerIds,containers.instanceId,next)
+                    saveAndUpdateContainers(containers.containers,containers.containerIds,containers.instanceId,instance,next)
                 }else{
                     next(null,containers);
                 }
@@ -220,7 +221,7 @@ function aggregateDockerContainerForInstance(instance){
     }
 };
 
-function saveAndUpdateContainers(containers,containerIds,instanceId,next){
+function saveAndUpdateContainers(containers,containerIds,instanceId,instance,next){
     async.waterfall([
             function(next){
                 containerDao.deleteContainersByContainerIds(instanceId,containerIds,next);
@@ -238,8 +239,46 @@ function saveAndUpdateContainers(containers,containerIds,instanceId,next){
                                     if(err){
                                         logger.error(err);
                                         return;
+
                                     }else{
                                         count++;
+                                        var actionObj = 'Docker-Container Start' + ' : ' + container.Names;
+                                        var timestampStarted = new Date().getTime();
+                                        var actionLog = instancesDao.insertDockerActionLog(instanceId, instance.catUser, actionObj, 1, timestampStarted);
+                                        var containerLogs ={
+                                            actionId: actionLog._id,
+                                            containerId: container.Id,
+                                            orgName: instance.orgName,
+                                            orgId: instance.orgId,
+                                            bgName: instance.bgName,
+                                            bgId: instance.bgId,
+                                            projectName: instance.projectName,
+                                            envName: instance.envName,
+                                            envId: instance.envId,
+                                            status: container.Status,
+                                            actionStatus: "success",
+                                            platformId: instance.platformId,
+                                            containerName: container.Names,
+                                            Image: container.Image,
+                                            ImageID: container.ImageID,
+                                            platform: instance.hardware.platform,
+                                            os: instance.hardware.os,
+                                            user: instance.catUser,
+                                            createdOn: new Date().getTime(),
+                                            startedOn: new Date().getTime(),
+                                            providerType: instance.providerType ? instance.providerType:null,
+                                            action: actionObj,
+                                            logs: [{
+                                                err: false,
+                                                log: "Started container",
+                                                timestamp: new Date().getTime()
+                                            }]
+                                        };
+                                        containerLogModel.createOrUpdate(containerLogs, function(err, logData){
+                                            if (err) {
+                                            logger.error("Failed to create or update containerLog: ", err);
+                                            }
+                                        });
                                         if(count === containers.length){
                                             next(null,containers);
                                         }
