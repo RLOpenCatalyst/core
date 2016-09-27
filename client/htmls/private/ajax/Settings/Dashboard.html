@@ -100,10 +100,12 @@ var clicked = true;
 drawBreadCrumb1();
 //on click of button (top menu butons)
 $('.btn-1 a').click(function(e) {
-    $('a.btn').addClass('wizardActiveBtn');
-    $(this).removeClass('process-btn');
     e.preventDefault();
-    $('.contentSetting').load(this.getAttribute('href'));
+    if($(this).attr('href')){
+        $(this).addClass('wizardActiveBtn').attr('href');
+        $(this).removeClass('process-btn');
+        $('.contentSetting').load(this.getAttribute('href'));
+    }
 });
 
 function clearActiveClasses() {
@@ -146,6 +148,7 @@ $.get('/d4dMasters/readmasterjsonnew/1', function(data) {
         $('#cancelWizard').addClass('hidden');
         $('.providerSelect').removeClass('hidden');
         $('#createNew').removeClass('hidden');
+        $('#orgConfiguration a').trigger('click');
     });
 });
 var selectedDropdownValue, lastDropdownValue;
@@ -185,19 +188,24 @@ function changeWizardStatus(orgIdForSetup) {
                     $('#startConfig a').addClass('green-btn').removeClass('process-btn');
                     $('#orgConfiguration a').addClass('wizardActiveBtn').removeClass('process-btn');
                     $('#orgConfiguration a').trigger('click');
+                    $('#configManagement a,#providerConfiguration a,#galleryConfiguration a,#devopsConfiguration a,#cmdbConfiguration a').removeAttr('href');
                 } else if (data.previousStep.name === 'Org Configuration') {
                     $('.providerSelect').removeClass('hidden');
                     $('#startConfig a, #orgConfiguration a').addClass('green-btn').removeClass('process-btn');
                     $('#configManagement a').trigger('click');
+                    $('#providerConfiguration a,#galleryConfiguration a,#devopsConfiguration a,#cmdbConfiguration a').removeAttr('href');
                 } else if (data.previousStep.name === 'Config Management') {
+                    $('#galleryConfiguration a,#devopsConfiguration a,#cmdbConfiguration a').removeAttr('href');
                     $('#startConfig a,#orgConfiguration a,#configManagement a').removeClass('wizardActiveBtn process-btn').addClass('green-btn');
                     $('#providerConfiguration a').trigger('click');
                 } else if (data.previousStep.name === 'Provider Configuration') {
+                    $('#devopsConfiguration a,#cmdbConfiguration a').removeAttr('href');
                     $('#startConfig a, #orgConfiguration a,#configManagement a,#providerConfiguration a').removeClass('wizardActiveBtn process-btn').addClass('green-btn');
                     $('#galleryConfiguration a').trigger('click');
                 } else if (data.previousStep.name === 'Gallery Setup') {
                     $('#startConfig a, #orgConfiguration a,#configManagement a,#providerConfiguration a,#galleryConfiguration a').removeClass('wizardActiveBtn process-btn').addClass('green-btn');
                     $('#devopsConfiguration a').trigger('click');
+                    $('#cmdbConfiguration a').removeAttr('href');
                 } else if (data.previousStep.name === 'Devops Roles') {
                     $('#startConfig a, #orgConfiguration a,#configManagement a, #providerConfiguration a,#galleryConfiguration a,#devopsConfiguration a').removeClass('wizardActiveBtn process-btn').addClass('green-btn');
                     $('#cmdbConfiguration a').trigger('click');

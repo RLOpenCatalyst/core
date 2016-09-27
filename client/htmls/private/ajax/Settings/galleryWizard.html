@@ -116,11 +116,27 @@
         orgIdForSetup = $('#orgDropdown option:selected').val();
         var $option = $('<option></option>').val(orgNameForSetup).attr('rowid', orgIdForSetup).html(orgNameForSetup);
         $('#orgname').append($option);
-        $('#orgname').trigger('change');
         var wizardFlowGallery = $('<ol class="bwizard-steps clearfix clickable"><li aria-selected="true" id="templatesCreate" class="active btn-2 templatesCreate" style="z-index: 4;"><span class="label badge-inverse">1</span><a href="ajax/Settings/galleryWizard.html" class="hidden-phone">Create Templates</a></li><li aria-selected="false" style="z-index: 3;" id="serviceCreate" class="btn-3 serviceCreate"><span class="label">2</span><a href="ajax/Settings/serviceCommandWizard.html" class="hidden-phone">Service Command</a></li><li aria-selected="false" style="z-index: 3;" id="scriptCreate" class="btn-4 scriptCreate"><span class="label">3</span><a href="ajax/Settings/scriptWizard.html" class="hidden-phone">Script Gallery</a></li></ol>');
         $('.wizardFlow').append(wizardFlowGallery);
 
-
+        /*function getTemplateValues() {
+          $.get('/d4dMasters/readmasterjsonnew/17',function(data){
+            $('#myForm6').find('select#orgname').empty();
+            $('#myForm6').find('select#dockerreponame').empty();
+            $('#myForm6').find('select#templatetypename').empty();
+            for(var i =0;i<data.length;i++){
+                if(orgIdForSetup === data[i].orgname_rowid[0]) {  
+                  var $optionOrg = $('<option></option>').val(orgNameForSetup).attr('rowid', orgIdForSetup).html(orgNameForSetup);
+                  $('#orgname').append($optionOrg).attr('disabled','disabled');
+                  var $optionDockerRepoName = $('<option></option>').val(data[i].dockerreponame).html(data[i].dockerreponame);
+                  $('#myForm6').find('input#templatename').val(data[i].templatename).attr('disabled','disabled');
+                  $('#myForm6').find('select#templatetypename').val(data[i].templatetypename).attr('disabled','disabled');
+                  $('#myForm6').find('select#dockerreponame').append($optionDockerRepoName).attr('disabled','disabled');
+                  $('#myForm6').find('input#dockercontainers').val(data[i].dockercontainerpaths).attr('disabled','disabled');
+                }
+            }
+          });
+        }*/
         $('.btn-2 a').click(function(e) {
             e.preventDefault();
             clicked = false;
@@ -174,6 +190,7 @@
         });
         $('#wizardActionListLoader').hide();
         } else {
+            getTemplateValues();
             $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
         }
     });

@@ -32,9 +32,8 @@
                         <div class="col-lg-6 margintop20">
                            <label for="name">Operating System:<span class="control-label redSpan">&nbsp;*</span></label>
                            <select id="osType" unique="true" uniqueconditionedby="orgname"  class="form-control chooseOrganization width-100" style="vertical-align:central"  cdata="catalyst"  cat-validation="required">
-                              
                            </select>
-                           <input id="osType" disabled="disabled" unique="true" uniqueconditionedby="orgname"  class="hidden form-control chooseOrganization width-100" style="vertical-align:central"  cdata="catalyst"  cat-validation="required"/>
+                           <input id="osType" disabled="disabled" unique="true" uniqueconditionedby="orgname"  class="hidden form-control chooseOrganization width-100" style="vertical-align:central"  cdata="catalyst"/>
                         </div>
                      
                      
@@ -244,6 +243,7 @@
 
 
     $(".nextFormWizard").click(function() {
+        $('#galleryConfiguration a').attr('href','ajax/Settings/galleryWizard.html');
         toastr.success('Step 3 - Provider Configuration Setup Completed');
         $('#galleryConfiguration a').trigger('click');
         $('#startConfig a, #orgConfiguration a,#configManagement a,#providerConfiguration a').addClass('green-btn').removeClass('process-btn');

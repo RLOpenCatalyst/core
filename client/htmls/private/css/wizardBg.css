@@ -69,10 +69,10 @@ Website: http://www.seantheme.com/color-admin-v2.0/admin/html/
     background: #286090!important
 }
 
-.bwizard-steps li.active .label {
+/*.bwizard-steps li.active .label {
     background: url(../img/transparent/black-0.2.png)!important;
     background: rgba(0, 0, 0, .2)!important
-}
+}*/
 .bwizard {
     position: relative
 }
@@ -152,7 +152,7 @@ Website: http://www.seantheme.com/color-admin-v2.0/admin/html/
 }
 
 .bwizard-steps a {
-    color: #333
+    color: #fff
 }
 
 .bwizard-steps .active a {
@@ -164,9 +164,9 @@ Website: http://www.seantheme.com/color-admin-v2.0/admin/html/
     text-decoration: none
 }
 
-.bwizard-steps.clickable li:not(.active) {
+/*.bwizard-steps.clickable li:not(.active) {
     cursor: pointer
-}
+}*/
 
 .bwizard-steps.clickable li:hover:not(.active) {
     background: #ccc
@@ -184,10 +184,7 @@ Website: http://www.seantheme.com/color-admin-v2.0/admin/html/
         margin:0 auto;
         padding: 10px;
 }
-.contentSetting .content a, a:hover {
-    color:#7d7676;
-    text-decoration: none;
-}
+
 .green-btn {
     background-color: #5cb85c!important;
     color:#fff!important;
@@ -216,14 +213,9 @@ Website: http://www.seantheme.com/color-admin-v2.0/admin/html/
         line-height: 3;
     }
     
-    .btn:hover {
-        font-weight: bold;
-        color: #fff;
-    }
-    
     .wizardActiveBtn {
         background-color: #286090;
-        color: #fff;
+        color: #fff!important;
         box-shadow: 0 0 5px #286090;
     }
     
@@ -319,3 +311,31 @@ Website: http://www.seantheme.com/color-admin-v2.0/admin/html/
         font-size: 16px;
         color:#7d7676;
     }
+
+    .not-activeAnchor {
+        pointer-events: none;
+        cursor: default;
+    }
+
+    .addimage,.removeimage {
+    cursor: pointer;
+}
+
+.addNewRegion {
+    border: solid gray 1px;
+    padding: 10px;
+    margin-bottom: 15px;
+}
+
+.addRow,.removeRow {
+    float: left;
+    margin-top: 32px;
+    margin-left: 3.5px;
+}
+
+.addRegion,.removeRegion {
+    position: relative;
+    top: -18px;
+    left: 17px;
+    float: right;
+}

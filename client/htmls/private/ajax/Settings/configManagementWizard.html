@@ -105,7 +105,7 @@
  }
  $(document).ready(function(e) {
      //api call for getting the status of wizard
-     var wizardStepsConfig = $('<ol id="configWizard" class="bwizard-steps clearfix clickable"><li aria-selected="true" id="chefCreate" class="active btn-2 chefCreate" style="z-index: 4;"><span class="label badge-inverse">1</span><a href="ajax/Settings/configManagementWizard.html" class="hidden-phone">Create Chef Server</a></li><li aria-selected="false" style="z-index: 3;" id="envCreate" class="btn-3 envCreate"><span class="label">2</span><a href="ajax/Settings/envWizard.html" class="hidden-phone">Create Environment</a></li><li aria-selected="false" style="z-index: 3;" id="teamCreate" class="btn-4 teamCreate"><span class="label">3</span><a href="ajax/Settings/teamWizard.html" class="hidden-phone">Create Team</a></li></ol>');
+     var wizardStepsConfig = $('<ol id="configWizard" class="bwizard-steps clearfix clickable"><li aria-selected="true" id="chefCreate" class="active btn-2 chefCreate" style="z-index: 4;"><span class="label badge-inverse">1</span><a href="ajax/Settings/configManagementWizard.html" class="hidden-phone">Create Chef Server</a></li><li aria-selected="false" style="z-index: 3;" id="envCreate" class="btn-3 envCreate"><span class="label">2</span><a href="ajax/Settings/envWizard.html" class="not-activeAnchor hidden-phone">Create Environment</a></li><li aria-selected="false" style="z-index: 3;" id="teamCreate" class="btn-4 teamCreate"><span class="label">3</span><a href="ajax/Settings/teamWizard.html" class="not-activeAnchor hidden-phone">Create Team</a></li></ol>');
      $('.wizardFlow').append(wizardStepsConfig);
 
      function getConfigValues() {
@@ -162,21 +162,28 @@
          e.preventDefault();
          clicked = false;
          $('.contentSetting').load(this.getAttribute('href'));
-
      });
-     $('.btn-3 a').click(function(e) {
-         e.preventDefault();
-         getEnvValues();
-         $('.btn-2 a').parent('.bwizard-steps li').removeClass('active');
-         $(this).parent('.bwizard-steps li').addClass('active');
-         $('.content').load(this.getAttribute('href'));
+     var clickEnv = false;
+     $('.envCreate a').click(function(e) {
+        e.preventDefault();
+        if(!clickEnv){
+            clickEnv = true;
+             getEnvValues();
+             $('.btn-2 a').parent('.bwizard-steps li').removeClass('active');
+             $(this).parent('.bwizard-steps li').addClass('active');
+             $('.content').load(this.getAttribute('href'));
+        }
      });
+     var clickTeam = false;
      $('.btn-4 a').click(function(e) {
          e.preventDefault();
-         getTeamValues();
-         $('.btn-2 a').parent('.bwizard-steps li').removeClass('active');
-         $(this).parent('.bwizard-steps li').addClass('active');
-         $('.content').load(this.getAttribute('href'));
+         if(!clickTeam){
+            clickTeam = true
+            getTeamValues();
+             $('.btn-2 a').parent('.bwizard-steps li').removeClass('active');
+             $(this).parent('.bwizard-steps li').addClass('active');
+             $('.content').load(this.getAttribute('href'));
+         }
      });
      if (clicked) {
          $.get('/setting-wizard/org/' + orgIdForSetup, function(data) {
@@ -189,7 +196,7 @@
                          $('.contentSetting').find('ol li#envCreate').addClass('active');
                          $('.content').load('ajax/Settings/envWizard.html');
                      } else if (nestedSteps[0].name === 'ChefServer' && nestedSteps[0].isCompleted === true && nestedSteps[1].name === 'Environment' && nestedSteps[1].isCompleted === true && nestedSteps[2].name === 'Teams' && nestedSteps[2].isCompleted === false) {
-                        $('.btn-3 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                        $('.btn-2 a,.btn-3 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
                          $('.contentSetting').find('ol li#teamCreate').addClass('active');
                          $('.content').load('ajax/Settings/teamWizard.html');
                      } else {
@@ -205,7 +212,10 @@
          });
      } else {
         //comes when the chefServer is created and navigates back to it.
+        $('.btn-3 a').removeClass('not-activeAnchor');
+        $('.btn-4 a').removeClass('not-activeAnchor');
          getConfigValues();
+         getEnvValues();
      }
 
      $('#wizardActionListLoader').hide();
@@ -219,6 +229,7 @@
      if (validateForm()) {
          setfolderpath();
          saveform('10');
+         $('.btn-3 a').removeClass('not-activeAnchor');
      };
      return false;
  });

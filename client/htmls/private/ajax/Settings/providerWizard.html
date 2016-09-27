@@ -1,84 +1,3 @@
-<link rel="stylesheet" type="text/css" media="screen" href="css/wizardBg.css">
-<style>
-    /*custom font*/
-    @import url(http://fonts.googleapis.com/css?family=Montserrat);
-
-    /*form styles*/
-    form {
-        margin: 10px auto;
-        position: relative;
-    }
-
-    /*Hide all except first fieldset*/
-    form:not(:first-of-type) {
-        display: none;
-    }
-
-    /*buttons*/
-    form .action-button {
-        width: 100px;
-        background: #27AE60;
-        font-weight: bold;
-        color: white;
-        border: 0 none;
-        border-radius: 1px;
-        cursor: pointer;
-        padding: 10px 5px;
-        margin: 10px 5px;
-    }
-    form .action-button:hover, #msform .action-button:focus {
-        box-shadow: 0 0 0 2px white, 0 0 0 3px #27AE60;
-    }
-    /*headings*/
-    .fs-title {
-        font-size: 15px;
-        text-transform: uppercase;
-        color: #2C3E50;
-        margin-bottom: 10px;
-    }
-    .fs-subtitle {
-        font-weight: normal;
-        font-size: 13px;
-        color: #666;
-        margin-bottom: 20px;
-    }
-    .content {
-        margin:0 auto;
-        padding: 10px;
-    }
-    a, a:hover {
-        color:#7d7676;
-        text-decoration: none;
-    }
-    .green-btn {
-        background-color: #5cb85c!important;
-        color:#fff!important;
-    }
-    #myForm54 .addNewRegion {
-       border: solid gray 1px; 
-       padding: 10px; 
-       margin-bottom: 15px; 
-    }
-    #myForm54 .addimage,.removeimage {
-    cursor: pointer;
-}
-
-
-#myForm54 .addRow,.removeRow {
-    float: left;
-    margin-top: 32px;
-    margin-left: 3.5px;
-}
-
-#myForm54 .addRegion,.removeRegion {
-    position: relative;
-    top: -18px;
-    left: 17px;
-    float: right;
-}
-</style>
-<!-- multistep form -->
-<!-- progressbar -->
 <div class="wizardFlow">
 </div>
 <!-- fieldsets -->
@@ -346,7 +265,7 @@
    var providerIdForImage;
    $('#orgId').append($option);
    $(document).ready(function(e) {
-       var providerWizardFlow = $('<ol id="providerWizard" class="bwizard-steps clearfix clickable"><li aria-selected="true" id="providerCreate" class="active btn-2 providerCreate" style="z-index: 4;"><span class="label badge-inverse">1</span><a href="ajax/Settings/providerWizard.html" class="hidden-phone">Create Providers</a></li><li aria-selected="true" style="z-index: 3;" id="imageCreate" class="btn-3 imageCreate"><span class="label">2</span><a href="ajax/Settings/vmImageWizard.html" class="hidden-phone">Create VmImages</a></li></ol>');
+       var providerWizardFlow = $('<ol id="providerWizard" class="bwizard-steps clearfix clickable"><li aria-selected="true" id="providerCreate" class="active btn-2 providerCreate" style="z-index: 4;"><span class="label badge-inverse">1</span><a href="ajax/Settings/providerWizard.html" class="hidden-phone">Create Providers</a></li><li aria-selected="true" style="z-index: 3;" id="imageCreate" class="btn-3 imageCreate"><span class="label">2</span><a href="ajax/Settings/vmImageWizard.html" class="not-activeAnchor hidden-phone">Create VmImages</a></li></ol>');
        $('.wizardFlow').append(providerWizardFlow);
 
        function getProviderValues() {
@@ -428,12 +347,12 @@
                    if (data.currentStep.nestedSteps) {
                        var nestedSteps = data.currentStep.nestedSteps;
                        if (nestedSteps[0].name === 'Provider' && nestedSteps[0].isCompleted === true &&
-                           nestedSteps[1].name === 'VMImages' && nestedSteps[1].isCompleted === false || nestedSteps[1].name === 'VMImage' && nestedSteps[1].isCompleted === false) {
+                            nestedSteps[1].name === 'VMImage' && nestedSteps[1].isCompleted === false) {
                            $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                            $('.btn-3 a').removeClass('not-activeAnchor');
                            $('.contentSetting').find('ol li#imageCreate').addClass('active');
                            $('.content').load('ajax/Settings/vmImageWizard.html');
                        } else {
-
                        }
                    }
                } else {
@@ -446,6 +365,7 @@
            $('#wizardActionListLoader').hide();
        } else {
            getProviderValues();
+           $('.btn-3 a').removeClass('not-activeAnchor');
            $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
        }
    });
@@ -730,12 +650,11 @@
            dataType: 'json',
            success: function(data, success) {
                if (data != 500) {
-                   if ($('#btncancel').length) {
-                       $('#btncancel').click();
-                   }
+                   
                } else {
                    alert(data.toString());
                }
+               $('.btn-3 a').removeClass('not-activeAnchor');
                removeLoader();
            },
            error: function(jqxhr) {
