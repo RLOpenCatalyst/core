@@ -64,9 +64,10 @@
    
 
      $(".nextFormWizard").click(function(){
+        $('#cmdbConfiguration a').attr('href','ajax/Settings/cmdbWizard.html');
+        $('#cmdbConfiguration a').trigger('click');
         toastr.success('Step 5 - Devops Roles Configuration Completed');
         $('#startConfig a, #orgConfiguration a,#configManagement a,#providerConfiguration a,#galleryConfiguration a').addClass('green-btn').removeClass('process-btn');
         $('.wizardFlow').empty();
-        $('#cmdbConfiguration a').trigger('click');
     });
 </script>
