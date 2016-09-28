@@ -2,22 +2,29 @@
     <br>
      <div ng-if="analytic.tabShowChat">
          <div class="row">
+             <div class="col-lg-12 col-md-12 col-sm-12" >
+                 <div class="box box-infobox box-info" style="border-top-color:#cc0000">
+                     <div class="box-header with-border">
+                         <div class="col-lg-4 col-md-4 col-sm-12" ><h3 class="box-title" ng-show="cost.pieChat.data.length >0">Total Cost  ${{cost.pieChat.totalCoust}}</h3></div>
+                         <div class="col-lg-8 col-md-8 col-sm-12" ><h3 class="box-title" ng-show="cost.pieChat.data.length >0">Services Cost
+                             <span class="badge" style="margin-right: 10px;"  ng-repeat="(value , key) in cost.serviceCosts"> {{value}} : ${{key}}</span>
+                         </h3></div>
+                     </div>
+                 </div>
+             </div>
+             <div class="clearfix"></div>
              <div class="col-lg-4 col-md-4 col-sm-12" >
                  <div class="box box-infobox box-info">
-                     <div class="box-header with-border"><h3 class="box-title">Aggregate cost</h3>
-                         <div class="box-tools pull-right">
-                             <span data-toggle="tooltip" title="3 New Messages" class="badge bg-yellow" ng-show="cost.pieChat.data.length >0">Total Cost - ${{cost.pieChat.totalCoust}}</span>
-                        </div>
+                     <div class="box-header with-border">
+                         <h3 class="box-title">Aggregate cost</h3>
                      </div>
                      <div class="box-body" ><nvd3 options="cost.pieChat.option" data="cost.pieChat.data"></nvd3></div>
                  </div>
              </div>
              <div class="col-lg-8 col-md-8 col-sm-12" >
                  <div class="box box-infobox box-info">
-                     <div class="box-header with-border"><h3 class="box-title">Distribution of all services across BU's</h3>
-                         <div class="box-tools pull-right" ng-show="cost.pieChat.data.length >0"> <b>Total </b>
-                             <span data-toggle="tooltip" title="3 New Messages" class="badge bg-yellow" ng-repeat="(value , key) in cost.serviceCosts"> {{value}} - ${{key}} </span>
-                         </div>
+                     <div class="box-header with-border"><h3 class="box-title">Distribution of all services across {{cost.splitUp}}</h3>
+
                      </div>
                      <div class="box-body" ><nvd3 options="cost.barChat.option" data="cost.barChat.data"></nvd3></div>
                  </div>
