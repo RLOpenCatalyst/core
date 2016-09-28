@@ -21,6 +21,7 @@ var S3 = require('_pr/lib/s3.js')
 var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js')
 var MasterUtils = require('_pr/lib/utils/masterUtil.js')
 var resourceService = require('_pr/services/resourceService')
+var analyticsService = require('_pr/services/analyticsService')
 var CatalystCronJob = require('_pr/cronjobs/CatalystCronJob')
 var dateUtil = require('_pr/lib/utils/dateUtil')
 var AdmZip = require('adm-zip')
@@ -229,7 +230,7 @@ function aggregateEntityCostsByOrg(orgs, callback) {
     async.forEach(Object.keys(costAggregationPeriods), function(period, next0) {
         // Organization children entities cost aggregation
         async.forEach(orgs, function(org, next1) {
-            resourceService.aggregateEntityCosts('organization', org.rowid, {'organizationId': org.rowid},
+            analyticsService.aggregateEntityCosts('organization', org.rowid, {'organizationId': org.rowid},
                 AWSResourceCostsAggregation.currentCronRunTime, period, next1)
         }, function(err) {
             if(err) {
@@ -256,7 +257,7 @@ function aggregateEntityCostsByProvider(providers, callback) {
     async.forEach(Object.keys(costAggregationPeriods), function(period, next0) {
         // Provider children entities cost aggregation
         async.forEach(providers, function (provider, next2) {
-            resourceService.aggregateEntityCosts('provider', provider._id, {'providerId': provider._id},
+            analyticsService.aggregateEntityCosts('provider', provider._id, {'providerId': provider._id},
                 AWSResourceCostsAggregation.currentCronRunTime, period, next2)
         }, function (err) {
             if (err) {
@@ -293,7 +294,7 @@ function aggregateEntityCostTrendByOrg(orgs, callback) {
 
     async.forEach(orgs, function (org, next0) {
         async.forEach(endOfDayTimeStamps, function(dayTimeStamp, next1) {
-            resourceService.aggregateEntityCosts('organization', org.rowid, {'organizationId': org.rowid},
+            analyticsService.aggregateEntityCosts('organization', org.rowid, {'organizationId': org.rowid},
                 new Date(dayTimeStamp), 'day', next1)
         }, function(err) {
             if(err) {
@@ -326,7 +327,7 @@ function aggregateEntityCostTrendByProvider(providers, callback) {
 
     async.forEach(providers, function (provider, next0) {
         async.forEach(endOfDayTimeStamps, function(dayTimeStamp, next1) {
-            resourceService.aggregateEntityCosts('provider', provider._id, {'providerId': provider._id},
+            analyticsService.aggregateEntityCosts('provider', provider._id, {'providerId': provider._id},
                 new Date(dayTimeStamp), 'day', next1)
         }, function(err) {
             if(err) {

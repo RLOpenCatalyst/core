@@ -24,7 +24,141 @@ var async = require('async')
 var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js')
 var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js')
 
-var analyticsService = module.exports = {};
+var analyticsService = module.exports = {}
+
+analyticsService.aggregateEntityCosts
+	= function aggregateEntityCosts(parentEntity, parentEntityId, parentEntityQuery, endTime, period, callback) {
+	var catalystEntityHierarchy = appConfig.catalystEntityHierarchy
+	var costAggregationPeriods = appConfig.costAggregationPeriods
+	var platformServices = Object.keys(appConfig.aws.services).map(function(key) {
+		return appConfig.aws.services[key]
+	})
+
+	var startTime
+	var interval
+	switch (period) {
+		case 'month':
+			startTime = dateUtil.getStartOfAMonthInUTC(endTime)
+			interval = costAggregationPeriods.month.intervalInSeconds
+			break
+		case 'day':
+			startTime = dateUtil.getStartOfADayInUTC(endTime)
+			interval = costAggregationPeriods.day.intervalInSeconds
+			break
+	}
+
+	async.forEach(catalystEntityHierarchy[parentEntity].children, function (childEntity, next0) {
+		var query = parentEntityQuery
+		query.startTime = {$gte: Date.parse(startTime)}
+		query.endTime = {$lte: Date.parse(endTime)}
+
+		async.waterfall([
+			function(next1) {
+				resourceCostsModel.aggregate([
+					{$match: query},
+					{$group: {_id: "$" + catalystEntityHierarchy[childEntity].key,
+						totalCost: {$sum: "$cost"}}}
+				], next1)
+			},
+			function(totalCosts, next1) {
+				var serviceCosts = []
+				async.forEach(platformServices,
+					function(service, next2) {
+						query['platformDetails.serviceId'] = service
+
+						resourceCostsModel.aggregate([
+							{$match: query},
+							{$group: {_id: "$" + catalystEntityHierarchy[childEntity].key,
+								totalCost: {$sum: "$cost"},
+								service: {$first: "$platformDetails.serviceId"}}}
+						], function(err, serviceCost) {
+							if(err) {
+								next2(err)
+							} else {
+								serviceCosts.push(serviceCost)
+								next2()
+							}
+						})
+					},
+					function(err) {
+						if(err) {
+							return next1(err)
+						}
+						var aggregatedCosts = {totalCosts: totalCosts}
+						aggregatedCosts.serviceCosts = serviceCosts
+
+						next1(null, aggregatedCosts)
+					}
+				)
+			}
+		],
+		function(err, aggregateCosts) {
+			if(err)
+				return next0(err)
+
+			var entityCosts = {}
+			for(var i = 0; i < aggregateCosts.totalCosts.length; i++) {
+				entityCosts[aggregateCosts.totalCosts[i]._id] = {
+					entity: {
+						id: aggregateCosts.totalCosts[i]._id,
+						type: childEntity
+					},
+					parentEntity: {
+						id: parentEntityId,
+						type: parentEntity
+					},
+					costs: {
+						totalCost: Math.round(aggregateCosts.totalCosts[i].totalCost * 100) / 100,
+						AWS: {
+							totalCost: Math.round(aggregateCosts.totalCosts[i].totalCost * 100) / 100,
+							serviceCosts: {}
+						}
+					},
+					startTime: Date.parse(startTime),
+					endTime: Date.parse(endTime),
+					period: period,
+					interval: interval
+				}
+			}
+
+			for(var i = 0; i < aggregateCosts.serviceCosts.length; i++) {
+				for(var j = 0; j < aggregateCosts.serviceCosts[i].length; j++) {
+					if(aggregateCosts.serviceCosts[i][j]._id in entityCosts) {
+						entityCosts[aggregateCosts.serviceCosts[i][j]._id]
+							.costs.AWS.serviceCosts[aggregateCosts.serviceCosts[i][j].service]
+							= Math.round(aggregateCosts.serviceCosts[i][j].totalCost * 100) / 100
+					}
+				}
+			}
+
+			if(Object.keys(entityCosts).length > 0)
+				analyticsService.updateEntityCosts(entityCosts, next0)
+			else
+				next0()
+		})
+
+	}, function (err) {
+		if (err) {
+			return callback(err)
+		} else  {
+			callback()
+		}
+	})
+}
+
+analyticsService.updateEntityCosts = function updateEntityCosts(entityCosts, callback) {
+	async.forEach(entityCosts,
+		function(entityCost, next) {
+			entityCostsModel.upsertEntityCost(entityCost, next)
+		},
+		function(err) {
+			if(err)
+				return callback(err)
+
+			return callback()
+		}
+	)
+}
 
 // @TODO To be reviewed and improved
 analyticsService.validateAndParseCostQuery
@@ -140,7 +274,6 @@ analyticsService.formatAggregateCost = function formatAggregateCost(entityCosts,
 
 	async.waterfall([
 		function(next) {
-			var totalCost = Math.round(entityCosts.totalCost[0].costs.totalCost * 100) / 100
 			var formattedAggregateCost = {
 				period: entityCosts.totalCost[0].period,
 				fromTime: entityCosts.totalCost[0].startTime,
@@ -150,15 +283,7 @@ analyticsService.formatAggregateCost = function formatAggregateCost(entityCosts,
 					id: entityCosts.totalCost[0].entity.id,
 					name: entityCosts.totalCost[0].entity.name
 				},
-				cost: {
-					totalCost: totalCost,
-					AWS: {
-						totalCost: totalCost,
-						serviceCosts: {
-							Other: totalCost
-						}
-					}
-				},
+				cost: entityCosts.totalCost[0].costs,
 				splitUpCosts: {}
 			}
 
@@ -188,15 +313,7 @@ analyticsService.formatAggregateCost = function formatAggregateCost(entityCosts,
 					var splitUpCost = {
 						id: costEntry.entity.id,
 						// name: costEntry.entity.name,
-						cost: {
-							totalCost: Math.round(costEntry.costs.totalCost * 100) / 100,
-							AWS: {
-								totalCost: Math.round(costEntry.costs.totalCost * 100) / 100,
-								serviceCosts: {
-									Other: Math.round(costEntry.costs.totalCost * 100) / 100
-								}
-							}
-						}
+						cost: costEntry.costs
 					}
 
 					if (costEntry.entity.id != 'Unassigned' && costEntry.entity.id != 'Other'
@@ -250,7 +367,6 @@ analyticsService.formatCostTrend = function formatCostTrend(entityCosts, callbac
 					costTrends: []
 				}
 				if(entityCosts.totalCost != null) {
-					var totalCost = Math.round(entityCosts.totalCost[0].costs.totalCost * 100) / 100
 					formattedCostTrend = {
 						period: entityCosts.totalCost[0].period,
 						fromTime: entityCosts.totalCost[0].startTime,
@@ -260,15 +376,7 @@ analyticsService.formatCostTrend = function formatCostTrend(entityCosts, callbac
 							id: entityCosts.totalCost[0].entity.id,
 							name: entityCosts.totalCost[0].entity.name
 						},
-						cost: {
-							totalCost: totalCost,
-							AWS: {
-								totalCost: totalCost,
-								serviceCosts: {
-									Other: totalCost
-								}
-							}
-						},
+						cost: entityCosts.totalCost[0].costs,
 						costTrends: []
 					}
 				}
@@ -291,15 +399,7 @@ analyticsService.formatCostTrend = function formatCostTrend(entityCosts, callbac
 						var trend = {
 							fromTime: costEntry.startTime,
 							toTime: costEntry.endTime,
-							cost: {
-								totalCost: Math.round(costEntry.costs.totalCost * 100)/100,
-								AWS: {
-									totalCost: Math.round(costEntry.costs.totalCost * 100)/100,
-									serviceCosts: {
-										Other: Math.round(costEntry.costs.totalCost * 100)/100
-									}
-								}
-							}
+							cost: costEntry.costs
 						}
 
 						formattedCostTrend.costTrends.push(trend)

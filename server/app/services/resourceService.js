@@ -267,6 +267,14 @@ function aggregateEntityCosts(parentEntity, parentEntityId, parentEntityQuery, e
     })
 }
 
+function aggregateTotalCost() {
+
+}
+
+function aggregateAWSServiceCosts() {
+
+}
+
 function getCostForServices_deprecated(provider,callback) {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
