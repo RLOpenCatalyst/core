@@ -15,7 +15,7 @@
                         <div class="col-lg-6 col-md-6">
                            <label for="name">Name:
                            <span class="control-label redSpan">&nbsp;*</span></label>
-                           <input autofocus name="ctl00$MainContent$orgname" value="" id="orgname" class="form-control" cdata="catalyst" type="text" cat-validation="required,nospecial,max15,nospace">
+                           <input autofocus name="ctl00$MainContent$orgname" value="" id="orgname" class="form-control" cdata="catalyst" type="text" cat-validation="required,nospecial,max15,nospace" unique="true"  uniqueconditionedby="orgname">
                         </div>
                         <div class="col-lg-6 col-md-6">
                            <label for="name">Domain Name:</label>
@@ -57,23 +57,25 @@ function getOrgValues() {
             }
         }
         $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
-       // $('#saveOrg').attr('disabled', true);
+        $('.saveFormWizard').addClass('hidden');
     });
 }
 
 function getBgValues() {
     $('#myForm2').find('select#orgname').empty();
-    $('#saveBg').attr('disabled', true);
     $.get('/d4dMasters/readmasterjsonnew/2', function(data) {
         for (var i = 0; i < data.length; i++) {
             if (selectedDropdownValue === data[i].orgname_rowid[0]) {
                 $('#myForm2').find('input#productgroupname').val(data[i].productgroupname).attr('disabled', 'disabled');
                 var $optionBg = $('<option></option>').val(data[i].orgname[0]).attr('rowid', data[i].orgname_rowid[0]).html(data[i].orgname[0]);
                 $('#myForm2').find('select#orgname').append($optionBg).attr('disabled', 'disabled');
+                $('#myForm2').find('button.saveBgForm').addClass('hidden');
             }
         }
     });
 }
+
+enableUniqueCheckingForInputs(1);
 
 function getProjValues() {
     $('#saveProject').attr('disabled', true);
@@ -86,6 +88,8 @@ function getProjValues() {
                 $('#myForm3').find('input#description').val(data[i].description).attr('disabled', 'disabled');
                 var $optionBgProj = $('<option></option>').val(data[i].orgname[0]).attr('rowid', data[i].orgname_rowid[0]).html(data[i].orgname[0]);
                 $('#myForm3').find('select#orgname').append($optionBgProj).attr('disabled', 'disabled');
+                $('#myForm3').find('button.saveProjWizard').addClass('hidden');
+                //$('#myForm3').find('button#nextProjWizard').addClass('hidden');
             }
         }
         $('#myForm3').find('select#orgname').change(function(e) {
@@ -105,8 +109,10 @@ function getProjValues() {
 $('.btn-2 a').click(function(e) {
     e.preventDefault();
     clicked = false;
-    getOrgValues();
-    //$('#saveOrg').removeAttr('disabled', 'disabled');
+    if (selectedDropdownValue || lastDropdownValue) {
+      $('.nextFormWizard').removeAttr('disabled');
+      getOrgValues();
+    }
     $('.contentSetting').load(this.getAttribute('href'));
 });
 orgIdForSetup = selectedDropdownValue;
@@ -118,6 +124,7 @@ if (clicked) {
                     var nestedSteps = data.currentStep.nestedSteps;
                     if (nestedSteps[0].name === 'Organization' && nestedSteps[0].isCompleted === true && nestedSteps[1].name === 'BusinessGroup' && nestedSteps[1].isCompleted === false && nestedSteps[2].name === 'Project' && nestedSteps[2].isCompleted === false) {
                        $('.btn-3 a').removeClass('not-activeAnchor');
+                       $('#saveOrg').addClass('hidden');
                         activateOrg();
                     } else if(nestedSteps[0].name === 'Organization' && nestedSteps[0].isCompleted === true && nestedSteps[1].name === 'BusinessGroup' && nestedSteps[1].isCompleted === true && nestedSteps[2].name === 'Project' && nestedSteps[2].isCompleted === false){
                         $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
@@ -132,6 +139,7 @@ if (clicked) {
               $('.btn-3 a').removeClass('not-activeAnchor');
               $('.btn-4 a').removeClass('not-activeAnchor');
               $('.nextFormWizard').removeAttr('disabled');
+              $('#saveOrg').addClass('hidden');
                 $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
                 $('.btn-3 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
                 $('.btn-4 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
@@ -190,5 +198,6 @@ $('#myForm').submit(function(e) {
 });
 $('.nextFormWizard').click(function(e) {
     activateOrg();
+    getBgValues();
 });
 </script>
