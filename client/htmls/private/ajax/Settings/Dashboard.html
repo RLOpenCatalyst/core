@@ -102,6 +102,7 @@ drawBreadCrumb1();
 $('.btn-1 a').click(function(e) {
     e.preventDefault();
     if($(this).attr('href')){
+        clearActiveClasses();
         $(this).addClass('wizardActiveBtn').attr('href');
         $(this).removeClass('process-btn');
         $('.contentSetting').load(this.getAttribute('href'));
@@ -118,28 +119,30 @@ function clearActiveClasses() {
 
 //on click of new button to create a new wizard..
 $('#createNew').click(function(e) {
+    clearActiveClasses();
     $('#orgDropdown option:selected').val('');
     $('.providerSelect').addClass('hidden');
     $('#cancelWizard').removeClass('hidden');
     $('#createNew').addClass('hidden');
-    clearActiveClasses();
     $('#startConfig a').addClass('green-btn').removeClass('process-btn');
     $('#orgConfiguration a').addClass('wizardActiveBtn').removeClass('process-btn');
     $('#orgConfiguration a').trigger('click');
 });
 $('#orgConfiguration a').trigger('click');
+var firstOrgValue;
 $.get('/d4dMasters/readmasterjsonnew/1', function(data) {
     $("#orgDropdown").empty();
     for (var i = 0; i < data.length; i++) {
+        firstOrgValue = data[0].rowid
         var $option = $('<option></option>').val(data[i].rowid).attr('rowid', data[i].orgname).html(data[i].orgname);
         $('#orgDropdown').append($option);
     }
     $('#orgDropdown').change(function(e) {
-        e.preventDefault();
         $('#wizardActionListLoader').show();
         clearActiveClasses();
         orgIdForSetup = $("#orgDropdown").val();
         changeWizardStatus(orgIdForSetup);
+        e.preventDefault();
         $('#wizardActionListLoader').hide();
     });
     $("#orgDropdown").trigger("change");
@@ -148,7 +151,7 @@ $.get('/d4dMasters/readmasterjsonnew/1', function(data) {
         $('#cancelWizard').addClass('hidden');
         $('.providerSelect').removeClass('hidden');
         $('#createNew').removeClass('hidden');
-        $('#orgConfiguration a').trigger('click');
+        changeWizardStatus(firstOrgValue);
     });
 });
 var selectedDropdownValue, lastDropdownValue;
@@ -170,7 +173,6 @@ $('#configManagement a').click(function(e) {
 });
 
 $('#providerConfiguration a').click(function(e) {
-
     selectedDropdownValue = $('#orgDropdown option:selected').val();
     orgForBg = $('#orgDropdown option:selected').text();
 });
@@ -183,33 +185,39 @@ function changeWizardStatus(orgIdForSetup) {
             $('#wizardActionListLoader').hide();
         } else {
             var isCompleted = data.previousStep.isCompleted;
-            if (isCompleted = 'true') {
+            if (isCompleted === true) {
                 if (data.previousStep.name === 'Introduction') {
+                    $('#orgConfiguration a').attr('href','ajax/Settings/settingsWizard.html');
+                    $('#orgConfiguration a').trigger('click');
                     $('#startConfig a').addClass('green-btn').removeClass('process-btn');
                     $('#orgConfiguration a').addClass('wizardActiveBtn').removeClass('process-btn');
-                    $('#orgConfiguration a').trigger('click');
                     $('#configManagement a,#providerConfiguration a,#galleryConfiguration a,#devopsConfiguration a,#cmdbConfiguration a').removeAttr('href');
                 } else if (data.previousStep.name === 'Org Configuration') {
+                    $('#configManagement a').attr('href','ajax/Settings/configManagementWizard.html');
+                    $('#configManagement a').trigger('click');
                     $('.providerSelect').removeClass('hidden');
                     $('#startConfig a, #orgConfiguration a').addClass('green-btn').removeClass('process-btn');
-                    $('#configManagement a').trigger('click');
                     $('#providerConfiguration a,#galleryConfiguration a,#devopsConfiguration a,#cmdbConfiguration a').removeAttr('href');
                     toastr.error('Please Configure Teams to Navigate to Workzone');
                 } else if (data.previousStep.name === 'Config Management') {
+                    $('#providerConfiguration a').attr('href','ajax/Settings/providerWizard.html');
+                    $('#providerConfiguration a').trigger('click');
                     $('#galleryConfiguration a,#devopsConfiguration a,#cmdbConfiguration a').removeAttr('href');
                     $('#startConfig a,#orgConfiguration a,#configManagement a').removeClass('wizardActiveBtn process-btn').addClass('green-btn');
-                    $('#providerConfiguration a').trigger('click');
                 } else if (data.previousStep.name === 'Provider Configuration') {
+                    $('#galleryConfiguration a').attr('href','ajax/Settings/galleryWizard.html');
+                    $('#galleryConfiguration a').trigger('click');
                     $('#devopsConfiguration a,#cmdbConfiguration a').removeAttr('href');
                     $('#startConfig a, #orgConfiguration a,#configManagement a,#providerConfiguration a').removeClass('wizardActiveBtn process-btn').addClass('green-btn');
-                    $('#galleryConfiguration a').trigger('click');
                 } else if (data.previousStep.name === 'Gallery Setup') {
-                    $('#startConfig a, #orgConfiguration a,#configManagement a,#providerConfiguration a,#galleryConfiguration a').removeClass('wizardActiveBtn process-btn').addClass('green-btn');
+                    $('#devopsConfiguration a').attr('href','ajax/Settings/devopsRolesWizard.html');
                     $('#devopsConfiguration a').trigger('click');
+                    $('#startConfig a, #orgConfiguration a,#configManagement a,#providerConfiguration a,#galleryConfiguration a').removeClass('wizardActiveBtn process-btn').addClass('green-btn');
                     $('#cmdbConfiguration a').removeAttr('href');
                 } else if (data.previousStep.name === 'Devops Roles') {
-                    $('#startConfig a, #orgConfiguration a,#configManagement a, #providerConfiguration a,#galleryConfiguration a,#devopsConfiguration a').removeClass('wizardActiveBtn process-btn').addClass('green-btn');
+                    $('#cmdbConfiguration a').attr('href','ajax/Settings/cmdbWizard.html');
                     $('#cmdbConfiguration a').trigger('click');
+                    $('#startConfig a, #orgConfiguration a,#configManagement a, #providerConfiguration a,#galleryConfiguration a,#devopsConfiguration a').removeClass('wizardActiveBtn process-btn').addClass('green-btn');
                 }
             }
         }

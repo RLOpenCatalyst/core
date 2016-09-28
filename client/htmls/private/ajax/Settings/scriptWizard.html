@@ -71,11 +71,12 @@
    </form>
 </div>
 <script>
-
+  $(document).ready(function(e){
     orgNameForSetup = $('#orgDropdown option:selected').attr('rowid');
     orgIdForSetup = $('#orgDropdown option:selected').val();
-    var $optionOrg = $('<option></option>').val(orgIdForSetup).attr('rowid',orgIdForSetup).html(orgNameForSetup);
-    $('#orgName').append($optionOrg);
+    var $optionOrgScript = $('<option></option>').val(orgIdForSetup).attr('rowid',orgIdForSetup).html(orgNameForSetup);
+    $('#orgName').append($optionOrgScript);
+  });
     
     function setfilename(val){
       $('#fileNameDisplay').empty();
@@ -188,9 +189,10 @@ $('#scriptForm').submit(function(e) {
 });
     
     $(".nextFormWizard").click(function(){
+        $('#devopsConfiguration a').attr('href','ajax/Settings/devopsRolesWizard.html');
+        $('#devopsConfiguration a').trigger('click');
         toastr.success('Step 4 - Gallery Setup Completed');
         $('#startConfig a, #orgConfiguration a,#configManagement a,#providerConfiguration a,#galleryConfiguration a').addClass('green-btn').removeClass('process-btn');
         $('.wizardFlow').empty();
-        $('#devopsConfiguration a').trigger('click');
     });
 </script>
