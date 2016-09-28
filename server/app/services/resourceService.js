@@ -46,7 +46,6 @@ resourceService.bulkUpdateAWSResourcesTags=bulkUpdateAWSResourcesTags;
 resourceService.getEC2InstancesInfo=getEC2InstancesInfo;
 resourceService.getAllResourcesForProvider =  getAllResourcesForProvider;
 resourceService.updateAWSResourceCostsFromCSV = updateAWSResourceCostsFromCSV
-resourceService.aggregateEntityCosts = aggregateEntityCosts
 resourceService.updateDomainNameForInstance = updateDomainNameForInstance
 
 // @TODO To be cached if needed. In memory data will not exceed 200MB for upto 2000 instances.
