@@ -184,7 +184,7 @@ table {
 	background-image: url("/private/img/sort_desc.png");
 }
 
-#instanceActionListLoader, #taskActionListLoader {
+#instanceActionListLoader, #taskActionListLoader, #containerActionListLoader {
 	opacity: 0.6;
     height: 100%;
     width: 100%;
