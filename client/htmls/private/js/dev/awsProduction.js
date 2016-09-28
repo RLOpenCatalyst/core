@@ -1574,7 +1574,7 @@ var saveblueprint = function(tempType) {
                     reqBody.providerId = providerId;
                     reqBody.region = region;
                     reqBody.name = $('#blueprintNameInput').val();
-
+                    reqBody.domainNameCheck = $("input[name='domainNameCheck']:checked").val();
                     //Checking for docker blueprint images
                     if (($('.productdiv2.role-Selected').first().attr('templatetype') == "Docker" || $('.productdiv2.role-Selected').first().attr('templatetype') == "docker") && $('#dockerimageemptytr').length > 0) {
                         //no rows found add empty message

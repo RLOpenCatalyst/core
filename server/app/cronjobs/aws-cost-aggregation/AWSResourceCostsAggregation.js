@@ -21,6 +21,7 @@ var S3 = require('_pr/lib/s3.js')
 var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js')
 var MasterUtils = require('_pr/lib/utils/masterUtil.js')
 var resourceService = require('_pr/services/resourceService')
+var analyticsService = require('_pr/services/analyticsService')
 var CatalystCronJob = require('_pr/cronjobs/CatalystCronJob')
 var dateUtil = require('_pr/lib/utils/dateUtil')
 var AdmZip = require('adm-zip')
@@ -45,8 +46,10 @@ AWSResourceCostsAggregation.fullKey = AWSResourceCostsAggregation.csvFileName + 
 AWSResourceCostsAggregation.aggregateAWSResourceCostsForProvider = aggregateAWSResourceCostsForProvider
 AWSResourceCostsAggregation.downloadLatestBill = downloadLatestBill
 AWSResourceCostsAggregation.updateResourceCosts = updateResourceCosts
-AWSResourceCostsAggregation.aggregateEntityCosts = aggregateEntityCosts
-AWSResourceCostsAggregation.aggregateEntityCostTrend = aggregateEntityCostTrend
+AWSResourceCostsAggregation.aggregateEntityCostsByOrg = aggregateEntityCostsByOrg
+AWSResourceCostsAggregation.aggregateEntityCostsByProvider = aggregateEntityCostsByProvider
+AWSResourceCostsAggregation.aggregateEntityCostTrendByOrg = aggregateEntityCostTrendByOrg
+AWSResourceCostsAggregation.aggregateEntityCostTrendByProvider = aggregateEntityCostTrendByProvider
 
 // AWSResourceCostsAggregation.execute()
 
@@ -78,17 +81,37 @@ function aggregateAWSResourceCosts() {
                 })
         },
         function(orgs, providers, next) {
-            AWSResourceCostsAggregation.aggregateEntityCosts(orgs, providers,
-                function(err) {
-                    if(err) {
-                        next(err)
-                    } else {
-                        next(null, orgs, providers)
-                    }
-                })
+            async.parallel([
+                function(next1) {
+                    AWSResourceCostsAggregation.aggregateEntityCostsByOrg(orgs, next1)
+                },
+                function(next1) {
+                    AWSResourceCostsAggregation.aggregateEntityCostsByProvider(providers, next1)
+                }
+            ], function(err) {
+                if(err) {
+                    next(err)
+                } else {
+                    next(null, orgs, providers)
+                }
+            })
         },
         function(orgs, providers, next) {
-            AWSResourceCostsAggregation.aggregateEntityCostTrend(orgs, providers, next)
+            async.parallel([
+                function(next1) {
+                    AWSResourceCostsAggregation.aggregateEntityCostTrendByOrg(orgs, next1)
+                },
+                function(next1) {
+                    AWSResourceCostsAggregation.aggregateEntityCostTrendByProvider(providers, next1)
+                }
+
+            ], function(err) {
+                if(err) {
+                    next(err)
+                } else {
+                    next()
+                }
+            })
         }
     ], function(err) {
         if (err) {
@@ -199,14 +222,14 @@ function updateResourceCosts(provider, downloadedCSVPath, callback) {
     })
 }
 
-function aggregateEntityCosts(orgs, providers, callback) {
+function aggregateEntityCostsByOrg(orgs, callback) {
     // var catalystEntityHierarchy = appConfig.catalystEntityHierarchy
     var costAggregationPeriods = appConfig.costAggregationPeriods
 
     async.forEach(Object.keys(costAggregationPeriods), function(period, next0) {
         // Organization children entities cost aggregation
         async.forEach(orgs, function(org, next1) {
-            resourceService.aggregateEntityCosts('organization', org.rowid, {'organizationId': org.rowid},
+            analyticsService.aggregateEntityCosts('organization', org.rowid, {'organizationId': org.rowid},
                 AWSResourceCostsAggregation.currentCronRunTime, period, next1)
         }, function(err) {
             if(err) {
@@ -215,31 +238,49 @@ function aggregateEntityCosts(orgs, providers, callback) {
                 next0()
             }
         })
-
-        // Provider children entities cost aggregation
-        /*async.forEach(providers, function(provider, next2) {
-            resourceService.aggregateEntityCosts('provider', provider._id, {'providerId': provider._id},
-                AWSResourceCostsAggregation.currentCronRunTime, period, next2)
-        }, function(err) {
-            if(err) {
-                next0(err)
-            } else {
-                next0()
-            }
-        })*/
     }, function(err) {
         if(err) {
-            logger.error('Entity cost aggregation failed')
+            logger.error('Entity cost aggregation by org failed')
             logger.error(err)
         } else {
-            logger.info('Entity cost aggregation complete')
+            logger.info('Entity cost aggregation by org complete')
             callback()
         }
     })
 }
 
-function aggregateEntityCostTrend(orgs, providers, callback) {
+function aggregateEntityCostsByProvider(providers, callback) {
+    // var catalystEntityHierarchy = appConfig.catalystEntityHierarchy
+    var costAggregationPeriods = appConfig.costAggregationPeriods
+
+    async.forEach(Object.keys(costAggregationPeriods), function(period, next0) {
+        // Provider children entities cost aggregation
+        async.forEach(providers, function (provider, next2) {
+            analyticsService.aggregateEntityCosts('provider', provider._id, {'providerId': provider._id},
+                AWSResourceCostsAggregation.currentCronRunTime, period, next2)
+        }, function (err) {
+            if (err) {
+                next0(err)
+            } else {
+                next0()
+            }
+        })
+    }, function(err) {
+        if(err) {
+            logger.error('Entity cost aggregation by provider failed')
+            logger.error(err)
+        } else {
+            logger.info('Entity cost aggregation by provider complete')
+            callback()
+        }
+    })
+}
+
+
+
+function aggregateEntityCostTrendByOrg(orgs, callback) {
     // Day wise monthly cost trend for organization
+    // @TODO Code duplication to be avoided
     var currentTime = Date.parse(AWSResourceCostsAggregation.currentCronRunTime)
     var beginningOfMonth = Date.parse(dateUtil.getStartOfAMonthInUTC(currentTime))
     var numberOfDays = Math.ceil(
@@ -252,7 +293,7 @@ function aggregateEntityCostTrend(orgs, providers, callback) {
 
     async.forEach(orgs, function (org, next0) {
         async.forEach(endOfDayTimeStamps, function(dayTimeStamp, next1) {
-            resourceService.aggregateEntityCosts('organization', org.rowid, {'organizationId': org.rowid},
+            analyticsService.aggregateEntityCosts('organization', org.rowid, {'organizationId': org.rowid},
                 new Date(dayTimeStamp), 'day', next1)
         }, function(err) {
             if(err) {
@@ -263,8 +304,45 @@ function aggregateEntityCostTrend(orgs, providers, callback) {
         })
     }, function (err) {
         if (err) {
+            logger.error('Entity cost trend aggregation by org failed')
             callback(err)
         } else {
+            logger.info('Entity cost trend aggregation by org complete')
+            callback()
+        }
+    })
+}
+
+function aggregateEntityCostTrendByProvider(providers, callback) {
+    // Day wise monthly cost trend for organization
+    // @TODO Code duplication to be avoided
+    var currentTime = Date.parse(AWSResourceCostsAggregation.currentCronRunTime)
+    var beginningOfMonth = Date.parse(dateUtil.getStartOfAMonthInUTC(currentTime))
+    var numberOfDays = Math.ceil(
+        Math.abs(currentTime - beginningOfMonth) / (1000*3600*24))
+    var endOfDayTimeStamps = []
+
+    for(var i = 1; i <= numberOfDays; i++) {
+        endOfDayTimeStamps.push((beginningOfMonth + (i * (1000*3600*24))) - 1000)
+    }
+
+    async.forEach(providers, function (provider, next0) {
+        async.forEach(endOfDayTimeStamps, function(dayTimeStamp, next1) {
+            analyticsService.aggregateEntityCosts('provider', provider._id, {'providerId': provider._id},
+                new Date(dayTimeStamp), 'day', next1)
+        }, function(err) {
+            if(err) {
+                next0(err)
+            } else {
+                next0()
+            }
+        })
+    }, function (err) {
+        if (err) {
+            logger.error('Entity cost trend aggregation by provider failed')
+            callback(err)
+        } else {
+            logger.info('Entity cost trend aggregation by provider complete')
             callback()
         }
     })

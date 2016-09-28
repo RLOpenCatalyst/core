@@ -134,6 +134,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 									providerType: aProvider.providerType,
 									s3BucketName: aProvider.s3BucketName,
 									orgId: aProvider.orgId,
+									plannedCost:aProvider.plannedCost,
 									orgName: orgs[0].orgname,
 									__v: aProvider.__v,
 									keyPairs: keyPair,
@@ -149,42 +150,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			}
 		});
 	});
-
-	app.get('/aws/providers/organizations/:orgId', function(req, res) {
-		var orgId = req.params.orgId.trim();
-		if (typeof orgId === 'undefined' || orgId === null) {
-			logger.debug("Org Id is not there");
-			res.status(500).send([]);
-			return;
-		}
-		AWSProvider.getAWSProvidersByOrgId(orgId, function(err, providers) {
-			if (err) {
-				logger.error(err);
-				res.status(500).send(errorResponses.db.error);
-				return;
-			}else if (providers.length > 0) {
-				var providerList = [];
-				for(var i = 0;i < providers.length;i++) {
-					var providerObj = {
-						_id: providers[i]._id,
-						id: 9,
-						providerName: providers[i].providerName,
-						providerType: providers[i].providerType,
-						s3BucketName: providers[i].s3BucketName,
-						orgId: providers[i].orgId
-					};
-					providerList.push(providerObj);
-					providerObj ={};
-					if(providerList.length === providers.length) {
-						res.send(providerList);
-					}
-				}
-			} else {
-				res.send(404);
-			}
-		});
-	});
-
+	
 	app.all("/aws/providers/*", sessionVerificationFunc);
 	var cryptoConfig = appConfig.cryptoSettings;
 	var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
@@ -2185,6 +2151,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	// TODO Use async to reduce callbacks
 	app.post('/aws/providers', function(req, res) {
 		logger.debug("Enter post() for /providers.", typeof req.body.fileName);
+		logger.debug("Req Body for providers ", JSON.stringify(req.body));
 		var user = req.session.user;
 		var category = configmgmtDao.getCategoryFromID("9");
 		var permissionto = 'create';
@@ -2194,6 +2161,10 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		var providerType = req.body.providerType;
 		var orgId = req.body.orgId;
 		var s3BucketName=req.body.s3BucketName;
+		var plannedCost=req.body.plannedCost;
+		if(plannedCost === null || plannedCost ===''){
+			plannedCost=0.0;
+		}
 		var isDefault = (req.body.isDefault === 'true') ? true : false;
 		var hasDefaultProvider = false;
 
@@ -2245,7 +2216,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					providerType: providerType,
 					orgId: orgId,
 					isDefault: isDefault,
-					s3BucketName:s3BucketName
+					s3BucketName:s3BucketName,
+					plannedCost:plannedCost
 				};
 				var ec2;
 				if (isDefault == true) {
@@ -2331,6 +2303,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 																		s3BucketName: provider.s3BucketName,
 																		orgId: orgs[0].rowid,
 																		orgName: orgs[0].orgname,
+																		plannedCost:provider.plannedCost,
 																		__v: provider.__v,
 																		keyPairs: keyPair
 																	};
@@ -2473,6 +2446,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	// Update a particular AWS Provider
 	app.post('/aws/providers/:providerId/update', function(req, res) {
 		logger.debug("Enter post() for /providers/%s/update", req.params.providerId);
+		logger.debug("Req Body for providers ", JSON.stringify(req.body));
 		var user = req.session.user;
 		var category = configmgmtDao.getCategoryFromID("9");
 		var permissionto = 'modify';
@@ -2485,6 +2459,10 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		var providerId = req.params.providerId.trim();
 		var orgId = req.body.orgId;
 		var s3BucketName = req.body.s3BucketName;
+		var plannedCost = req.body.plannedCost;
+		if(plannedCost === null || plannedCost ===''){
+			plannedCost=0.0;
+		}
 		if (typeof providerId === 'undefined' || providerId.length === 0) {
 			res.status(400).send("{Please Enter ProviderId.}");
 			return;
@@ -2514,7 +2492,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					secretKey: encryptedKeys[1],
 					providerName: providerName,
 					orgId: orgId,
-					s3BucketName:s3BucketName
+					s3BucketName:s3BucketName,
+					plannedCost:plannedCost
 				};
 				updateInDb(providerData);
 			});
@@ -2583,6 +2562,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 								secretKey: aProvider.secretKey,
 								s3BucketName: s3BucketName,
 								providerName: providerName,
+								plannedCost:plannedCost,
 								orgId: orgId
 							};
 

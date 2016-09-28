@@ -16,6 +16,8 @@ var UnmanagedInstanceSchema = new Schema({
 		trim: true
 	},
 	orgName: String,
+	bgId: String,
+	bgName: String,
 	projectId: String,
 	projectName: String,
 	environmentId: String,
@@ -289,24 +291,16 @@ UnmanagedInstanceSchema.statics.getInstancesByProviderIdOrgIdAndPlatformId = fun
 
 UnmanagedInstanceSchema.statics.updateInstanceStatus = function updateInstanceStatus(instanceId,instance,callback) {
 	var updateObj={};
-	if(instance.state === 'terminated'){
-		updateObj['state'] = instance.state;
-		updateObj['subnetId']= instance.subnetId;
-		updateObj['vpcId'] = instance.vpcId;
-		updateObj['privateIpAddress'] = instance.privateIpAddress;
+	updateObj['state'] = instance.state;
+	if(instance.state === 'terminated' || instance.state === 'shutting-down'){
 		updateObj['isDeleted'] = true;
-		updateObj['tags'] = instance.tags;
-		updateObj['environmentTag'] = instance.environmentTag;
-		updateObj['projectTag'] = instance.projectTag;
 	}else{
-		updateObj['state'] = instance.state;
+		updateObj['isDeleted'] = false;
 		updateObj['subnetId']= instance.subnetId;
+		updateObj['ip'] = instance.ip;
 		updateObj['vpcId'] = instance.vpcId;
 		updateObj['privateIpAddress'] = instance.privateIpAddress;
-		updateObj['isDeleted'] = false;
 		updateObj['tags'] = instance.tags;
-		updateObj['environmentTag'] = instance.environmentTag;
-		updateObj['projectTag'] = instance.projectTag;
 	}
 	UnmanagedInstance.update({
 			"_id": ObjectId(instanceId)

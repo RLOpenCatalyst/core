@@ -1679,7 +1679,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     function updateTagMapping(req, res, next) {
         async.waterfall(
             [
-
                 function(next) {
                     providerService.checkIfProviderExists(req.params.providerId, next);
                 },

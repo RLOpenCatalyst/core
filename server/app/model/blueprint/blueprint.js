@@ -150,6 +150,11 @@ var BlueprintSchema = new Schema({
     parentId: {
         type: String,
         required: false
+    },
+    domainNameCheck:{
+        type:Boolean,
+        required:false,
+        default:false
     }
 
 });
@@ -316,6 +321,7 @@ BlueprintSchema.methods.launch = function(opts, callback) {
                                 envName: envName,
                                 envId: opts.envId,
                                 stackName: opts.stackName,
+                                domainName:opts.domainName,
                                 blueprintName: self.name,
                                 orgId: self.orgId,
                                 orgName: project[0].orgname,
@@ -338,6 +344,7 @@ BlueprintSchema.methods.launch = function(opts, callback) {
                             envName: envName,
                             envId: opts.envId,
                             stackName: opts.stackName,
+                            domainName:opts.domainName,
                             blueprintName: self.name,
                             orgId: self.orgId,
                             orgName: project[0].orgname,
@@ -426,7 +433,8 @@ BlueprintSchema.statics.createNew = function(blueprintData, callback) {
             nexus: blueprintData.nexus,
             docker: blueprintData.docker,
             version: count,
-            parentId: blueprintData.id
+            parentId: blueprintData.id,
+            domainNameCheck: blueprintData.domainNameCheck
         };
         var blueprint = new Blueprints(blueprintObj);
         logger.debug(blueprint);

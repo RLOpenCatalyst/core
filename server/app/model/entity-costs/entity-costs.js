@@ -78,9 +78,16 @@ EntityCostsSchema.statics.saveEntityCost = function saveEntityCost(entityCostDat
     })
 }
 
+// @TODO To be improved
 EntityCostsSchema.statics.getEntityCost = function getEntityCost(query, callback) {
-    this.find(
-        query,
+    this.aggregate([
+            { $match: {$and: query }},
+            {
+                $sort: {
+                    startTime: 1
+                }
+            }
+        ],
         function(err, entityCosts) {
             if(err) {
                 logger.error(err)
