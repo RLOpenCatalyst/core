@@ -88,7 +88,6 @@ function aggregateAWSResourceCosts() {
                 function(next1) {
                     AWSResourceCostsAggregation.aggregateEntityCostsByProvider(providers, next1)
                 }
-
             ], function(err) {
                 if(err) {
                     next(err)
@@ -241,10 +240,10 @@ function aggregateEntityCostsByOrg(orgs, callback) {
         })
     }, function(err) {
         if(err) {
-            logger.error('Entity cost aggregation failed')
+            logger.error('Entity cost aggregation by org failed')
             logger.error(err)
         } else {
-            logger.info('Entity cost aggregation complete')
+            logger.info('Entity cost aggregation by org complete')
             callback()
         }
     })
@@ -268,10 +267,10 @@ function aggregateEntityCostsByProvider(providers, callback) {
         })
     }, function(err) {
         if(err) {
-            logger.error('Entity cost aggregation failed')
+            logger.error('Entity cost aggregation by provider failed')
             logger.error(err)
         } else {
-            logger.info('Entity cost aggregation complete')
+            logger.info('Entity cost aggregation by provider complete')
             callback()
         }
     })
@@ -305,8 +304,10 @@ function aggregateEntityCostTrendByOrg(orgs, callback) {
         })
     }, function (err) {
         if (err) {
+            logger.error('Entity cost trend aggregation by org failed')
             callback(err)
         } else {
+            logger.info('Entity cost trend aggregation by org complete')
             callback()
         }
     })
@@ -338,8 +339,10 @@ function aggregateEntityCostTrendByProvider(providers, callback) {
         })
     }, function (err) {
         if (err) {
+            logger.error('Entity cost trend aggregation by provider failed')
             callback(err)
         } else {
+            logger.info('Entity cost trend aggregation by provider complete')
             callback()
         }
     })

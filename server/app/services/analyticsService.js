@@ -83,63 +83,65 @@ analyticsService.aggregateEntityCosts
 					function(err) {
 						if(err) {
 							return next1(err)
-						}
-						var aggregatedCosts = {totalCosts: totalCosts}
-						aggregatedCosts.serviceCosts = serviceCosts
+						} else {
+							var aggregatedCosts = {totalCosts: totalCosts}
+							aggregatedCosts.serviceCosts = serviceCosts
 
-						next1(null, aggregatedCosts)
+							next1(null, aggregatedCosts)
+						}
 					}
 				)
 			}
 		],
 		function(err, aggregateCosts) {
-			if(err)
-				return next0(err)
-
-			var entityCosts = {}
-			for(var i = 0; i < aggregateCosts.totalCosts.length; i++) {
-				entityCosts[aggregateCosts.totalCosts[i]._id] = {
-					entity: {
-						id: aggregateCosts.totalCosts[i]._id,
-						type: childEntity
-					},
-					parentEntity: {
-						id: parentEntityId,
-						type: parentEntity
-					},
-					costs: {
-						totalCost: Math.round(aggregateCosts.totalCosts[i].totalCost * 100) / 100,
-						AWS: {
+			if(err) {
+				next0(err)
+			} else {
+				var entityCosts = {}
+				for(var i = 0; i < aggregateCosts.totalCosts.length; i++) {
+					entityCosts[aggregateCosts.totalCosts[i]._id] = {
+						entity: {
+							id: aggregateCosts.totalCosts[i]._id,
+							type: childEntity
+						},
+						parentEntity: {
+							id: parentEntityId,
+							type: parentEntity
+						},
+						costs: {
 							totalCost: Math.round(aggregateCosts.totalCosts[i].totalCost * 100) / 100,
-							serviceCosts: {}
-						}
-					},
-					startTime: Date.parse(startTime),
-					endTime: Date.parse(endTime),
-					period: period,
-					interval: interval
-				}
-			}
-
-			for(var i = 0; i < aggregateCosts.serviceCosts.length; i++) {
-				for(var j = 0; j < aggregateCosts.serviceCosts[i].length; j++) {
-					if(aggregateCosts.serviceCosts[i][j]._id in entityCosts) {
-						entityCosts[aggregateCosts.serviceCosts[i][j]._id]
-							.costs.AWS.serviceCosts[aggregateCosts.serviceCosts[i][j].service]
-							= Math.round(aggregateCosts.serviceCosts[i][j].totalCost * 100) / 100
+							AWS: {
+								totalCost: Math.round(aggregateCosts.totalCosts[i].totalCost * 100) / 100,
+								serviceCosts: {}
+							}
+						},
+						startTime: Date.parse(startTime),
+						endTime: Date.parse(endTime),
+						period: period,
+						interval: interval
 					}
 				}
-			}
 
-			if(Object.keys(entityCosts).length > 0)
-				analyticsService.updateEntityCosts(entityCosts, next0)
-			else
-				next0()
+				for(var i = 0; i < aggregateCosts.serviceCosts.length; i++) {
+					for(var j = 0; j < aggregateCosts.serviceCosts[i].length; j++) {
+						if(aggregateCosts.serviceCosts[i][j]._id in entityCosts) {
+							entityCosts[aggregateCosts.serviceCosts[i][j]._id]
+								.costs.AWS.serviceCosts[aggregateCosts.serviceCosts[i][j].service]
+								= Math.round(aggregateCosts.serviceCosts[i][j].totalCost * 100) / 100
+						}
+					}
+				}
+
+				if(Object.keys(entityCosts).length > 0)
+					analyticsService.updateEntityCosts(entityCosts, next0)
+				else
+					next0()
+			}
 		})
 
 	}, function (err) {
 		if (err) {
-			return callback(err)
+			callback(err)
 		} else  {
 			callback()
 		}
