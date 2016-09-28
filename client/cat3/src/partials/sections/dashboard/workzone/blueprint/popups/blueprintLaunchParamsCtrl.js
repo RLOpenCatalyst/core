@@ -30,13 +30,8 @@
 					launchHelper.launch();
 				}
 			};
-			$scope.confirmCFTLaunch = function(){
+			$scope.cftSubmitHandler = function(){
 				launchHelper.launch();
-			};
-			$scope.cftSubmitHandler = function(valid){
-				if(valid){
-					$scope.confirmCFTLaunch();
-				}
 			};
 			$scope.launchBPWithDomainName = function(){
 				launchHelper.launch();
