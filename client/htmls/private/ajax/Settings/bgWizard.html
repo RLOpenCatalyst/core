@@ -52,6 +52,7 @@
             $('#orgDropdown option:last').attr('selected', 'selected')
             var $optionSelect = $('<option></option').val(orgNameForSetup).attr('rowid', orgIdForSetup).html(orgNameForSetup);
             $('#orgname').append($optionSelect);
+            getBgValues();
         });
     }
 

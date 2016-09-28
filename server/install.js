@@ -71,7 +71,7 @@ function getDefaultsConfig() {
             {name :'Org Configuration',isCompleted:false,mandatoryCheck:true,nestedSteps:[{name:'Organization',isCompleted:false,mandatoryCheck:true},
                 {name :'BusinessGroup',isCompleted:false,mandatoryCheck:true},{name:'Project',isCompleted:false,mandatoryCheck:true}]},
             {name :'Config Management',isCompleted:false,mandatoryCheck:true,nestedSteps:[{name:'ChefServer',isCompleted:false,mandatoryCheck:true},{name:'Environment',isCompleted:false,mandatoryCheck:true},{name:'Teams',isCompleted:false,mandatoryCheck:true}]},
-            {name :'Provider Configuration',isCompleted:false,mandatoryCheck:true,nestedSteps:[{name:'Provider',isCompleted:false,mandatoryCheck:true},{name:'VMImage',isCompleted:false,mandatoryCheck:true}]},
+            {name :'Provider Configuration',isCompleted:false,mandatoryCheck:true,nestedSteps:[{name:'Provider',isCompleted:false,mandatoryCheck:true},{name:'VMImages',isCompleted:false,mandatoryCheck:true}]},
             {name :'Gallery Setup',isCompleted:false,mandatoryCheck:false,nestedSteps:[{name:'Templates',isCompleted:false,mandatoryCheck:false},{name:'ServiceCommand',isCompleted:false,mandatoryCheck:false},{name:'ScriptGallery',isCompleted:false,mandatoryCheck:false}]},
             {name :'Devops Roles',isCompleted:false,mandatoryCheck:false,nestedSteps:[{name:'Nexus',isCompleted:false,mandatoryCheck:false},{name:'Docker',isCompleted:false,mandatoryCheck:false},{name:'Jenkins',isCompleted:false,mandatoryCheck:false}]},
             {name :'CMDB Configuration',isCompleted:false,mandatoryCheck:false}

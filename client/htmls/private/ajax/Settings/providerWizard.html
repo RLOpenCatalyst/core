@@ -347,7 +347,7 @@
                    if (data.currentStep.nestedSteps) {
                        var nestedSteps = data.currentStep.nestedSteps;
                        if (nestedSteps[0].name === 'Provider' && nestedSteps[0].isCompleted === true &&
-                            nestedSteps[1].name === 'VMImage' && nestedSteps[1].isCompleted === false) {
+                            nestedSteps[1].name === 'VMImages' && nestedSteps[1].isCompleted === false) {
                            $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
                             $('.btn-3 a').removeClass('not-activeAnchor');
                            $('.contentSetting').find('ol li#imageCreate').addClass('active');
