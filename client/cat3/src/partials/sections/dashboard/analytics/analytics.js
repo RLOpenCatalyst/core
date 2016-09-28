@@ -19,7 +19,6 @@
 							deferred.reject({redirectTo: 'dashboard'});
 						}
 						return deferred.promise;
-
 					}]
 				}
 			}).state('dashboard.analytics.capacity', {
@@ -38,14 +37,13 @@
 							deferred.reject({redirectTo: 'dashboard'});
 						}
 						return deferred.promise;
-
 					}]
 				}
 			}).state('dashboard.analytics.usage', {
 				url: "usage/",
 				templateUrl: "src/partials/sections/dashboard/analytics/view/usage.html",
 				controller: "usageCtrl as usage",
-				params:{filterView:{org:true,provi:true,region:true,resources:true}},
+				params:{filterView:{org:true,provi:true,region:false,instanceType:true,resources:true}},
 				resolve: {
 					auth: ["$q", function ($q) {
 						var deferred = $q.defer();
@@ -57,7 +55,6 @@
 							deferred.reject({redirectTo: 'dashboard'});
 						}
 						return deferred.promise;
-
 					}]
 				}
 			})
@@ -79,16 +76,17 @@
 		$rootScope.organNewEnt.org = '0';
 		$rootScope.filterNewEnt.period='month';
 		$rootScope.splitUpCosts=[];
+		$scope.selectedResources = [];
 		analytic.viewByFilter='orgView';
 		$scope.$watch(function() { return analytic.viewByFilter}, function(newVal, oldVal) {
-				if(newVal === 'ProviderView'){
-					$rootScope.viewType='ProviderView';
-					$state.params.filterView.provi=true;
-				} else {
-					$rootScope.organNewEnt.provider=''
-					$rootScope.viewType='orgView';
-					$state.params.filterView.provi=false;
-				}
+			if(newVal === 'ProviderView'){
+				$rootScope.viewType='ProviderView';
+				$state.params.filterView.provi=true;
+			} else {
+				$rootScope.organNewEnt.provider=''
+				$rootScope.viewType='orgView';
+				$state.params.filterView.provi=false;
+			}
 			$rootScope.stateItems = $state.params;
 		}, true);
 		$scope.$on('CHANGE_splitUp', function (event, data) {
@@ -131,7 +129,7 @@
 				analytic.splitUp=$rootScope.splitUpCosts[0];
 			}
 		};
-		// // get organigetion
+		//get organisation
 		genericServices.getTreeNew().then(function (orgs) {
 			$rootScope.organObject = orgs;
 			analytic.applyFilter(true);
@@ -165,6 +163,8 @@
         $scope.getProviders = function() {
             workzoneServices.getProviders().then(function(response) {
                 $scope.providers = response.data;
+                $scope.filter = [];
+                $scope.filter.providerId = response.data[0]._id;
             }, function(error) {
                 toastr.error(error);
             });
@@ -209,5 +209,40 @@
                 $scope.getProviderRegions();
             }
         };
+        $scope.getResourse = function(instType) {
+        	if(instType === 'Managed') {
+	        	workzoneServices.getManagedInstances($scope.filter.providerId).then(function(response) {
+	                $scope.resourceList = response.data;
+	            }, function(error) {
+	                toastr.error(error);
+	            });
+	        }
+	        if(instType === 'Assigned') {
+	            workzoneServices.getAssignedInstances($scope.filter.providerId).then(function(response) {
+	                $scope.resourceList = response.data.unmanagedInstances;
+	            }, function(error) {
+	                toastr.error(error);
+	            });
+	        }
+	        if(instType === 'Unassigned') {
+	            workzoneServices.getUnassignedInstances($scope.filter.providerId).then(function(response) {
+	                $scope.resourceList = response.data.data;
+	            }, function(error) {
+	                toastr.error(error);
+	            });
+	        }
+        };
+        $scope.toggleResourceSelection = function(resourceId) {
+        	var idx = $scope.selectedResources.indexOf(resourceId);
+        	if(idx > -1) {
+        		$scope.selectedResources.splice(idx, 1);
+    		} else {
+    			if($scope.selectedResources.length === 5){
+    				toastr.error('Maximum 5 resources allowed.');
+    			}else{
+    				$scope.selectedResources.push(resourceId);
+    			}
+    		}
+		};
 	}]);
 })(angular);

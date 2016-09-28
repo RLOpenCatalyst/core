@@ -17,80 +17,85 @@
 						<input type="radio" ng-model="analytic.viewByFilter" name="viewBy" value="ProviderView">Provider
 					</label>
 				</div>
-					<div class="col-lg-12 col-md-12 form-group" ng-show="stateItems.filterView.org">
-						<label for="">Organization</label>
-						<select  ng-model="organNewEnt.org" class="chooseProjectExisting width-100 form-control">
-							<option value="">Select</option>
-							<option ng-repeat="org in organObject"  value="{{organObject.indexOf(org)}}" >{{org.name}}</option>
-						</select>
-					</div>
-						<div class="col-lg-12 col-md-12 form-group" ng-show="stateItems.filterView.bus">
-							<label for="">Business Group</label>
-							<select id="bgListInputExisting" class="chooseBGExisting width-100 form-control"  ng-model="organNewEnt.buss">
-								<option value="">Select</option>
-								<option ng-repeat="buss in organObject[organNewEnt.org].businessGroups"  value="{{organObject[organNewEnt.org].businessGroups.indexOf(buss)}}" >{{buss.name}}</option>
-							</select>
-						</div>
-						<div class="col-lg-12 col-md-12 form-group" ng-show="stateItems.filterView.proj">
-							<label >Project</label>
-							<select class="chooseProjectExisting width-100 form-control" ng-model="organNewEnt.proj">
-								<option value="">Select</option>
-								<option ng-repeat="proj in organObject[organNewEnt.org].businessGroups[organNewEnt.buss].projects"  value="{{organObject[organNewEnt.org].businessGroups[organNewEnt.buss].projects.indexOf(proj)}}" >{{proj.name}}</option>
-							</select>
-						</div>
-						<div class="col-lg-12 col-md-12 form-group" ng-show="stateItems.filterView.env">
-							<label >Environment</label>
-							<select class="chooseProjectExisting width-100 form-control" ng-model="organNewEnt.env">
-								<option value="">Select</option>
-								<option ng-repeat="env in organObject[organNewEnt.org].environments" value="{{organObject[organNewEnt.org].environments.indexOf(env)}}" >{{env.name}}</option>
-							</select>
-						</div>
-					<div class="col-lg-12 col-md-12 form-group" ng-show="stateItems.filterView.provi">
-						<label for="">Provider</label>
-						<select class="form-control select2 select2-hidden-accessible" id="selectProvider" ng-model="organNewEnt.provider" >
-                            <option value=''>Select</option>
-							<option ng-repeat="provider in providers" value="{{providers.indexOf(provider)}}">{{provider.providerName}}</option>
-                       </select>
-					</div>
-					<div class="col-lg-12 col-md-12 form-group" ng-show="stateItems.filterView.zone">
-						<label for="">Zone</label>
-						<select class="form-control select2 select2-hidden-accessible" id="Zone" ng-model="filter.regionId" ng-options="region.region as region.region_name +' | '+region.region for region in regions" ng-change="fnRegionChange()">
-                            <option value=''>Select</option>
-                        </select>
-					</div>
-						<div class="col-lg-12 col-md-12 form-group" ng-show="stateItems.filterView.region">
-							<label for="">Region</label>
-							<select class="form-control select2 select2-hidden-accessible" id="selectRegion" ng-model="filter.regionId" ng-options="region.region as region.region_name +' | '+region.region for region in regions" ng-change="fnRegionChange()">
-								<option value=''>Select</option>
-							</select>
-						</div>
-						<div class="col-lg-12 col-md-12 form-group" ng-show="stateItems.filterView.resources">
-							<label for="">Resources</label>
-								<div class="panel-group">
-									<div class="panel panel-default">
-										<div class="panel-heading">
-											<div class="search">
-													<label for="search-input"><i class="fa fa-search" aria-hidden="true"></i><span class="sr-only">Search</span></label>
-													<input ng-model="searchText.name" class="search-input" class="form-control input-lg" placeholder="Search" autocomplete="off" spellcheck="false" autocorrect="off" tabindex="1">
-													<a id="search-clear" href="#" class="fa fa-times-circle hide" aria-hidden="true"><span class="sr-only">Clear search</span></a>
-											</div>
-										</div>
-										<div class="panel-body bp-panel-body list-resources">
-											<ul class="list-group ">
-												<li class="list-group-item" title="First item">First itemitemitemitem</li>
-												<li class="list-group-item" title="First item">Second item</li>
-												<li class="list-group-item" title="First item">Third item</li>
-											</ul>
-										</div>
-									</div>
+				<div class="col-lg-12 col-md-12 form-group" ng-show="stateItems.filterView.org">
+					<label for="">Organization</label>
+					<select  ng-model="organNewEnt.org" class="chooseProjectExisting width-100 form-control">
+						<option value="">Select</option>
+						<option ng-repeat="org in organObject"  value="{{organObject.indexOf(org)}}" >{{org.name}}</option>
+					</select>
+				</div>
+				<div class="col-lg-12 col-md-12 form-group" ng-show="stateItems.filterView.bus">
+					<label for="">Business Group</label>
+					<select id="bgListInputExisting" class="chooseBGExisting width-100 form-control"  ng-model="organNewEnt.buss">
+						<option value="">Select</option>
+						<option ng-repeat="buss in organObject[organNewEnt.org].businessGroups"  value="{{organObject[organNewEnt.org].businessGroups.indexOf(buss)}}" >{{buss.name}}</option>
+					</select>
+				</div>
+				<div class="col-lg-12 col-md-12 form-group" ng-show="stateItems.filterView.proj">
+					<label >Project</label>
+					<select class="chooseProjectExisting width-100 form-control" ng-model="organNewEnt.proj">
+						<option value="">Select</option>
+						<option ng-repeat="proj in organObject[organNewEnt.org].businessGroups[organNewEnt.buss].projects"  value="{{organObject[organNewEnt.org].businessGroups[organNewEnt.buss].projects.indexOf(proj)}}" >{{proj.name}}</option>
+					</select>
+				</div>
+				<div class="col-lg-12 col-md-12 form-group" ng-show="stateItems.filterView.env">
+					<label >Environment</label>
+					<select class="chooseProjectExisting width-100 form-control" ng-model="organNewEnt.env">
+						<option value="">Select</option>
+						<option ng-repeat="env in organObject[organNewEnt.org].environments" value="{{organObject[organNewEnt.org].environments.indexOf(env)}}" >{{env.name}}</option>
+					</select>
+				</div>
+				<div class="col-lg-12 col-md-12 form-group" ng-show="stateItems.filterView.provi">
+					<label for="">Provider</label>
+					<select class="form-control select2 select2-hidden-accessible" id="selectProvider" ng-model="organNewEnt.provider" >
+                        <option value=''>Select</option>
+						<option ng-repeat="provider in providers" value="{{providers.indexOf(provider)}}">{{provider.providerName}}</option>
+                   </select>
+				</div>
+				<div class="col-lg-12 col-md-12 form-group" ng-show="stateItems.filterView.zone">
+					<label for="">Zone</label>
+					<select class="form-control select2 select2-hidden-accessible" id="Zone" ng-model="filter.regionId" ng-options="region.region as region.region_name +' | '+region.region for region in regions" ng-change="fnRegionChange()">
+                        <option value=''>Select</option>
+                    </select>
+				</div>
+				<div class="col-lg-12 col-md-12 form-group" ng-show="stateItems.filterView.region">
+					<label for="">Region</label>
+					<select class="form-control select2 select2-hidden-accessible" id="selectRegion" ng-model="filter.regionId" ng-options="region.region as region.region_name +' | '+region.region for region in regions" ng-change="fnRegionChange()">
+						<option value=''>Select</option>
+					</select>
+				</div>
+				<div class="col-lg-12 col-md-12 form-group" ng-show="stateItems.filterView.instanceType">
+					<label for="">Type of Instance</label>
+					<select class="form-control select2 select2-hidden-accessible" ng-model="filter.instanceType" ng-change="getResourse(filter.instanceType)">
+						<option value=''>Select</option>
+						<option value='Managed'>Managed</option>
+						<option value='Assigned'>Assigned</option>
+						<option value='Unassigned'>Unassigned</option>
+					</select>
+				</div>
+				<div class="col-lg-12 col-md-12 form-group" ng-show="stateItems.filterView.resources">
+					<label for="">Resources</label>
+					<div class="panel-group">
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<div class="search">
+									<label for="search-input"><i class="fa fa-search" aria-hidden="true"></i><span class="sr-only">Search</span></label>
+									<input ng-model="searchText.name" ng-model-options="{ debounce: 200 }" class="search-input" class="form-control input-lg" placeholder="Search" autocomplete="off" spellcheck="false" autocorrect="off" tabindex="1" ng-change="doResourceSearch()">
+									<a id="search-clear" href="#" class="fa fa-times-circle hide" aria-hidden="true"><span class="sr-only">Clear search</span></a>
 								</div>
+							</div>
+							<div class="panel-body bp-panel-body list-resources">
+								<ul class="list-group">
+									<li class="list-group-item cursor" ng-repeat="resource in resourceList | filter:searchText.name | filter:{platformId: filters.platformId}" ng-class="{'selected':selectedResources.indexOf(resource.platformId)>-1}" ng-click="toggleResourceSelection(resource.platformId);">{{resource.platformId}}</li>
+								</ul>
+							</div>
 						</div>
-
-
-					<div class="col-lg-12 col-md-12 marginbottom5">
-						<button type="button" class="btn btn-primary" ng-click="analytic.applyFilter(true,filterNewEnt.period);isOpenSidebar=false;"><i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;Apply</button>
-						<button type="button" class="btn btn-default" ng-click="analytic.applyFilter(false,filterNewEnt.period);isOpenSidebar=false;"><i class="fa fa-times fa-2" aria-hidden="true"></i>&nbsp;Clear</button>
 					</div>
+				</div>
+				<div class="col-lg-12 col-md-12 marginbottom5">
+					<button type="button" class="btn btn-primary" ng-click="analytic.applyFilter(true,filterNewEnt.period);isOpenSidebar=false;"><i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;Apply</button>
+					<button type="button" class="btn btn-default" ng-click="analytic.applyFilter(false,filterNewEnt.period);isOpenSidebar=false;"><i class="fa fa-times fa-2" aria-hidden="true"></i>&nbsp;Clear</button>
+				</div>
 			</fieldset>
 		</form>
 		<br/>
@@ -108,22 +113,21 @@
 				</li>
 			</ul>
 			<div class="well" id="well">
-					<div class="btn-group" role="group" aria-label="...">
-					  <button type="button" class="btn btn-sm btn-primary cat-btn-update" ng-class="{'active':filterNewEnt.period === 'day'}"  ng-click="analytic.applyFilter(true,'day')">DAY</button>
-					  <button type="button" class="btn btn-sm btn-primary cat-btn-update" ng-class=" {'active':filterNewEnt.period === 'week'}"  ng-click="analytic.applyFilter(true,'week')">WEEK</button>
-					  <button type="button" class="btn btn-sm btn-primary cat-btn-update" ng-class=" {'active':filterNewEnt.period === 'month'}" ng-click="analytic.applyFilter(true,'month')">MONTH</button>
-					  <button type="button" class="btn btn-sm btn-primary cat-btn-update" ng-class=" {'active':filterNewEnt.period === 'year'}"  ng-click="analytic.applyFilter(true,'year')">YEAR</button>
-						<select ng-show="stateItems.filterView.splitUpType && splitUpCosts.length > 0" class="form-control select2 select2-hidden-accessible" style="width: auto;height: 31px;" ng-model="analytic.splitUp"
-								ng-options="sp.id as sp.val for sp in splitUpCosts" >
-						</select>
-					</div>
+				<div class="btn-group" role="group" aria-label="...">
+					<button type="button" class="btn btn-sm btn-primary cat-btn-update" ng-class="{'active':filterNewEnt.period === 'day'}"  ng-click="analytic.applyFilter(true,'day')">DAY</button>
+					<button type="button" class="btn btn-sm btn-primary cat-btn-update" ng-class=" {'active':filterNewEnt.period === 'week'}"  ng-click="analytic.applyFilter(true,'week')">WEEK</button>
+					<button type="button" class="btn btn-sm btn-primary cat-btn-update" ng-class=" {'active':filterNewEnt.period === 'month'}" ng-click="analytic.applyFilter(true,'month')">MONTH</button>
+					<button type="button" class="btn btn-sm btn-primary cat-btn-update" ng-class=" {'active':filterNewEnt.period === 'year'}"  ng-click="analytic.applyFilter(true,'year')">YEAR</button>
+					<select ng-show="stateItems.filterView.splitUpType && splitUpCosts.length > 0" class="form-control select2 select2-hidden-accessible" style="width: auto;height: 31px;" ng-model="analytic.splitUp"
+							ng-options="sp.id as sp.val for sp in splitUpCosts" >
+					</select>
+				</div>
 				<div class="col-lg-7 col-md-7 col-sm-12 pull-right" >
 					<span ng-repeat="filt in filterNewEnt"  ng-if="filt !== '' && filt.title">
 						<!--data-toggle="tooltip" onmouseenter="$(this).tooltip('show')"-->
 						<span class="label label-success "  title="{{filt.title}}">{{filt.title}} :{{filt.name}} </span>
 					</span>
 				</div>
-
 			</div>
 			<div ui-view></div>
  		</div>
