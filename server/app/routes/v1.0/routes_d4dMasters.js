@@ -2343,6 +2343,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                             "orgname": bodyJson['orgname'],
                                             "domainname": bodyJson['domainname'],
                                             "rowid": bodyJson['rowid'],
+                                            "plannedCost":bodyJson['plannedCost'],
                                             "id": "1"
                                         }
                                         var orgObj = new d4dModelNew.d4dModelMastersOrg(orgData);

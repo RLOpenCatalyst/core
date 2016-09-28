@@ -240,6 +240,7 @@ function saveAndUpdateContainers(containers,containerIds,instanceId,next){
                                         return;
                                     }else{
                                         count++;
+
                                         if(count === containers.length){
                                             next(null,containers);
                                         }
