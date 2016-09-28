@@ -13,7 +13,7 @@
                                           <label for="category">Organization:<span class="control-label redSpan">&nbsp;*</span>
                                           </label>
                                           <select id="orgname" class="form-control chooseOrganization width-100" sourcepath="1" datapath="masterjson.rows.row" valuelinkfield="costcode" style="vertical-align:central" cdata="catalyst" cat-validation="required" cat-validation="required" linkedfields="['configname']" onchange="$('#configname').change();">
-                                             <option value="">Select an Organization</option>
+                                             
                                           </select>
                                        </div>
                                        <div class="col-lg-6 col-md-6">
@@ -50,7 +50,7 @@
 <script>
     var $option = $('<option></option>').val(orgNameForSetup).attr('rowid',orgIdForSetup).html(orgNameForSetup);
     $('#orgname').append($option);
-   
+    $('#orgname').trigger('change');
      $('#myForm50').submit(function() {
      $(this).validate();
 
@@ -64,9 +64,10 @@
    
 
      $(".nextFormWizard").click(function(){
+        $('#cmdbConfiguration a').attr('href','ajax/Settings/cmdbWizard.html');
+        $('#cmdbConfiguration a').trigger('click');
         toastr.success('Step 5 - Devops Roles Configuration Completed');
         $('#startConfig a, #orgConfiguration a,#configManagement a,#providerConfiguration a,#galleryConfiguration a').addClass('green-btn').removeClass('process-btn');
         $('.wizardFlow').empty();
-        $('#cmdbConfiguration a').trigger('click');
     });
 </script>
