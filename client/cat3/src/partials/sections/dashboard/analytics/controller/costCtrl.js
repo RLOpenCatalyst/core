@@ -127,7 +127,7 @@
                             $rootScope.splitUpCosts.push({id:key,val:a});
                         });
                         $scope.$emit('CHANGE_splitUp', $rootScope.splitUpCosts[0].id);
-                        costObj.splitUp=0;
+                        costObj.splitUp= $rootScope.splitUpCosts[0].val;
                         costObj.createLable(result, $rootScope.splitUpCosts[0].id);
                     } else {
                         costObj.createLable(result,'provider');
