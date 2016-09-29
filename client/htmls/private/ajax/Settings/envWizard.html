@@ -104,6 +104,14 @@
 </div>
 
 <script>
+function preprocess() {
+     $('#createenvinchefform')[0].reset();
+     if (typeof $('#configname').find('option:selected').attr('rowid') == 'undefined') {
+         bootbox.alert('Select a Chef Server before adding an environments.');
+         return (false);
+     } else
+         return (true);
+ }
 $(document).ready(function(e){
    var $optionOrg = $('<option></option>').val(orgNameForSetup).attr('rowid', orgIdForSetup).html(orgNameForSetup);
    $('#orgname').append($optionOrg);
@@ -134,14 +142,7 @@ $(document).ready(function(e){
 
    $('#orgname').trigger('change');
 
-   function preprocess() {
-       $('#createenvinchefform')[0].reset();
-       if (typeof $('#configname').find('option:selected').attr('rowid') == 'undefined') {
-           bootbox.alert('Select a Chef Server before adding an environments.');
-           return (false);
-       } else
-           return (true);
-   }
+   
    $('#createenvinchefform').submit(function(e) {
        var reqBodyEnv = {};
        var chefid = $('#configname').find('option:selected').attr('rowid');
@@ -248,12 +249,15 @@ $(document).ready(function(e){
       $('.content').load(this.getAttribute('href'));
     });
    $(".nextFormWizard").click(function() {
-    $('.content').empty();
-     clickTeam = false;
-     getTeamValues();
-     $('.btn-3 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
-     $('.contentSetting').find('ol li#teamCreate').addClass('active');
-     $('.content').load('ajax/Settings/teamWizard.html');
+       $('.content').empty();
+       if(configWizardEditValue){
+          getTeamValues();
+       }
+       $('.btn-2 a').removeClass('not-activeAnchor');
+       $('.btn-3 a').removeClass('not-activeAnchor');
+       $('.btn-3 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+       $('.contentSetting').find('ol li#teamCreate').addClass('active');
+       $('.content').load('ajax/Settings/teamWizard.html');
    });
 });
 </script>

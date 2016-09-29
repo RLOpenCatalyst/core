@@ -308,7 +308,7 @@
             $tr.append($tdName).append($tdAction);
             $repoDeployTbody.append($tr);
             $repoDetails.row.add($tr).draw();
-            $("#repodetailsModal").hide();
+            $("#repodetailsModal").modal('hide');
         }
         $("#repoNameCreate").empty();
         $('#repoNameCreate').append('<option value = "" > Choose Repository </option>');

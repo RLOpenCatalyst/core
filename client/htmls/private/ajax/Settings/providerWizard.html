@@ -265,7 +265,6 @@
    var $option = $('<option></option>').val(orgIdForSetup).html(orgNameForSetup);
    var providerIdForImage;
    $('#orgId').append($option);
-   
        var providerWizardFlow = $('<ol id="providerWizard" class="bwizard-steps clearfix clickable"><li aria-selected="true" id="providerCreate" class="active btn-2 providerCreate" style="z-index: 4;"><span class="label badge-inverse">1</span><a href="ajax/Settings/providerWizard.html" class="hidden-phone">Create Providers</a></li><li aria-selected="true" style="z-index: 3;" id="imageCreate" class="btn-3 imageCreate"><span class="label">2</span><a href="ajax/Settings/vmImageWizard.html" class="not-activeAnchor hidden-phone">Create VmImages</a></li></ol>');
        $('.wizardFlow').append(providerWizardFlow);
 
@@ -308,15 +307,13 @@
         var providerIdForImage = $('#providerHiddenId').val();
         var providerNameForImage = $('#providerHiddenName').val();
          $('#myForm22').find('select#orgId').empty();
-         
            $.get('/vmimages', function(data) {
                 for(var i =0;i<data.length;i++){
                   if (orgIdForSetup === data[i].orgId[0]) {
                     if(providerIdForImage === data[i].providerId){
                     var $option = $('<option></option>').val(orgIdForSetup).html(orgNameForSetup);
                     $('#myForm22').find('select#orgId').append($option).attr('disabled','disabled');
-                    var $optionForOs = $('<option></option>').val(data[i].osName).html(data[i].osName);
-                    
+                    var $optionForOs = $('<option></option>').val(data[i].osName).html(data[i].osName);  
                       $('#myForm22').find('select.providerVMImageDisplay').remove();
                       $('#myForm22').find('input.imageNameForVM').val(data[i].name).attr('disabled','disabled');
                       $('#myForm22').find('input#providerIdHiddenName').removeClass('hidden').val(providerNameForImage);
@@ -338,19 +335,17 @@
            $('.contentSetting').load(this.getAttribute('href'));
        });
        $('.btn-3 a').click(function(e) {
-         $('.content').empty();
            e.preventDefault();
            $('.nextFormWizard').removeAttr('disabled');
-           getVmImages();
            $('.btn-2 a').parent('.bwizard-steps li').removeClass('active')
            $(this).parent('.bwizard-steps li').addClass('active');
            $('.content').load(this.getAttribute('href'));
+           getVmImages();
        });
        //api call for getting the status of wizard
-       if (clicked) {
-          if(orgIdForSetup){
-              $('#wizardActionListLoader').show();
-              $.get('/setting-wizard/org/' + orgIdForSetup, function(data) {
+
+       function getProviderWizardStatus(orgIdForSetup) {
+            $.get('/setting-wizard/org/' + orgIdForSetup, function(data) {
                if (data.currentStep.name === 'Provider Configuration') {
                    if (data.currentStep.nestedSteps) {
                        var nestedSteps = data.currentStep.nestedSteps;
@@ -365,20 +360,25 @@
                    }
                } else {
                    getProviderValues();
-                   getVmImages();
                    $('.btn-3 a').removeClass('not-activeAnchor');
                    $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
                    $('.btn-3 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
                }
            });
+       }
+       orgIdForSetup = selectedDropdownValue;
+       if (clicked) {
+          if(orgIdForSetup){
+              $('#wizardActionListLoader').show();
+              getProviderWizardStatus(orgIdForSetup);
           }
            $('#wizardActionListLoader').hide();
        } else {
-           getProviderValues();
-           getVmImages();
-           $('.btn-3 a').removeClass('not-activeAnchor');
-           $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
-           $('.btn-3 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+         if(orgIdForSetup){
+            getProviderValues();
+            getVmImages();
+           $('.btn-3 a').removeClass('not-activeAnchor'); 
+         }
        }
   
 

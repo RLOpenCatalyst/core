@@ -90,13 +90,13 @@
       </div>
    </form>
 </div>
+<input type="hidden" id="configWizardValueNewEdit"/>
 <script>
  //jQuery time
  orgNameForSetup = $('#orgDropdown option:selected').attr('rowid');
  orgIdForSetup = $('#orgDropdown option:selected').val();
  var $option = $('<option></option>').val(orgNameForSetup).attr('rowid', orgIdForSetup).html(orgNameForSetup);
  $('#orgname').append($option);
-
  function bindChange_importPemFile() {
      $('input[type="file"]').off('change').on('change', function() {
          $(this).next().val(this.files[0].name);
@@ -107,7 +107,7 @@
      //api call for getting the status of wizard
      var wizardStepsConfig = $('<ol id="configWizard" class="bwizard-steps clearfix clickable"><li aria-selected="true" id="chefCreate" class="active btn-2 chefCreate" style="z-index: 4;"><span class="label badge-inverse">1</span><a href="ajax/Settings/configManagementWizard.html" class="hidden-phone">Create Chef Server</a></li><li aria-selected="false" style="z-index: 3;" id="envCreate" class="btn-3 envCreate"><span class="label">2</span><a href="ajax/Settings/envWizard.html" class="not-activeAnchor hidden-phone">Create Environment</a></li><li aria-selected="false" style="z-index: 3;" id="teamCreate" class="btn-4 teamCreate"><span class="label">3</span><a href="ajax/Settings/teamWizard.html" class="not-activeAnchor hidden-phone">Create Team</a></li></ol>');
      $('.wizardFlow').append(wizardStepsConfig);
-
+     $('.btn-2 a').addClass('not-activeAnchor');
      function getConfigValues() {
          $.get('/d4dMasters/readmasterjsonnew/10', function(data) {
              for (var i = 0; i < data.length; i++) {
@@ -126,6 +126,7 @@
                      $knifeFileLocation.find('input.knifeFile').attr('disabled','disabled').val(data[i].kniferbfile_filename);
                      $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
                      $('#saveConfigWizard').addClass('hidden');
+                     $('.nextFormWizard').removeAttr('disabled');
                  }
              }
          });
@@ -168,11 +169,14 @@
      $('.btn-2 a').click(function(e) {
          e.preventDefault();
          clicked = false;
+         $('.btn-3 a').removeClass('not-activeAnchor');
+         $('.btn-4 a').removeClass('not-activeAnchor');
          $('.contentSetting').load(this.getAttribute('href'));
      });
      $('.envCreate a').click(function(e) {
          e.preventDefault();
          $('.content').empty();
+         $('.btn-2 a').removeClass('not-activeAnchor');
          getEnvValues();
          $('.btn-2 a').parent('.bwizard-steps li').removeClass('active');
          $(this).parent('.bwizard-steps li').addClass('active');
@@ -182,14 +186,14 @@
      $('.btn-4 a').click(function(e) {
          e.preventDefault();
          $('.content').empty();
+         $('.btn-2 a').removeClass('not-activeAnchor');
          getTeamValues();
          $('.btn-2 a').parent('.bwizard-steps li').removeClass('active');
          $(this).parent('.bwizard-steps li').addClass('active');
          $('.content').load(this.getAttribute('href'));
      });
-     orgIdForSetup = selectedDropdownValue;
-     if (clicked) {
-        if(orgIdForSetup){
+
+     function configWizardStatus(orgIdForSetup) {
             $.get('/setting-wizard/org/' + orgIdForSetup, function(data) {
              if (data.currentStep.name === 'Config Management') {
                  if (data.currentStep.nestedSteps) {
@@ -201,6 +205,7 @@
                      } else if (nestedSteps[0].name === 'ChefServer' && nestedSteps[0].isCompleted === true && nestedSteps[1].name === 'Environment' && nestedSteps[1].isCompleted === true && nestedSteps[2].name === 'Teams' && nestedSteps[2].isCompleted === false) {
                         $('.btn-2 a,.btn-3 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
                          $('.contentSetting').find('ol li#teamCreate').addClass('active');
+                         $('.btn-3 a').removeClass('not-activeAnchor');
                          $('.content').load('ajax/Settings/teamWizard.html');
                      } else {
 
@@ -208,6 +213,8 @@
                  }
              } else {
                  getConfigValues();
+                 getEnvValues();
+                 getTeamValues();
                  $('#saveConfigWizard').addClass('hidden');
                  $('.nextFormWizard').removeAttr('disabled');
                  $('.btn-3 a').removeClass('not-activeAnchor');
@@ -217,16 +224,31 @@
                  $('.btn-4 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
              }
          });
+        $('#wizardActionListLoader').hide();
+     }
+     var configWizardStatusValue = $('#configWizardValueNewEdit').val('new');
+     var configWizardEditValue;
+     orgIdForSetup = selectedDropdownValue || firstOrgValue;
+     if (clicked) {
+        if(orgIdForSetup){
+            if(configWizardStatusValue){
+                configWizardStatus(orgIdForSetup);
+            }
         }
      } else {
         //comes when the chefServer is created and navigates back to it.
-        $('.btn-3 a').removeClass('not-activeAnchor');
-        $('.btn-4 a').removeClass('not-activeAnchor');
-        $('.btn-5 a').removeClass('not-activeAnchor');
-         getConfigValues();
+        if(orgIdForSetup){
+            configWizardEditValue = $('#configWizardValueNewEdit').val('edit');
+            if(configWizardEditValue){
+                $('#wizardActionListLoader').hide();
+                getConfigValues();
+                $('.btn-3 a').removeClass('not-activeAnchor');
+                $('.btn-4 a').removeClass('not-activeAnchor');
+                $('.nextFormWizard').removeAttr('disabled');
+            } 
+          } 
      }
 
-     $('#wizardActionListLoader').hide();
 
 
  function setfolderpath() {
@@ -243,12 +265,12 @@
  });
 
  $(".nextFormWizard").click(function() {
-     
-     $('.content').empty();
+    $('.content').empty();
+     getEnvValues();
+     $('.btn-2 a').removeClass('not-activeAnchor');
      $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
      $('.contentSetting').find('ol li#envCreate').addClass('active');
      $('.content').load('ajax/Settings/envWizard.html');
-     getEnvValues();
  });
  
 

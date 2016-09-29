@@ -169,28 +169,31 @@
           
 
         //api call for getting the status of wizard
+        orgIdForSetup = selectedDropdownValue || firstOrgValue 
         if(clicked){
-          $('#wizardActionListLoader').show();
-            $.get('/setting-wizard/org/' + orgIdForSetup, function(data) {
-            if (data.currentStep.nestedSteps) {
-                var nestedSteps = data.currentStep.nestedSteps;
-                if (nestedSteps[0].name === 'Templates' && nestedSteps[0].isCompleted === true &&
-                    nestedSteps[1].name === 'ServiceCommand' && nestedSteps[1].isCompleted === false &&
-                    nestedSteps[2].name === 'ScriptGallery' && nestedSteps[2].isCompleted === false) {
-                    $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
-                    $('.contentSetting').find('ol li#serviceCreate').addClass('active');
-                    $('.content').load('ajax/Settings/serviceCommandWizard.html');
-                } else if (nestedSteps[0].name === 'Templates' && nestedSteps[0].isCompleted === true &&
-                    nestedSteps[1].name === 'ServiceCommand' && nestedSteps[1].isCompleted === true &&
-                    nestedSteps[2].name === 'ScriptGallery' && nestedSteps[2].isCompleted === false) {
-                    $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
-                    $('.contentSetting').find('ol li#serviceCreate').removeClass('active').addClass('green-btn');
-                    $('.contentSetting').find('ol li#scriptCreate').addClass('active');
-                    $('.content').load('ajax/Settings/scriptWizard.html');
-                } else {}
-            }
-        });
-        $('#wizardActionListLoader').hide();
+          if(orgIdForSetup){
+              $('#wizardActionListLoader').show();
+                $.get('/setting-wizard/org/' + orgIdForSetup, function(data) {
+                if (data.currentStep.nestedSteps) {
+                    var nestedSteps = data.currentStep.nestedSteps;
+                    if (nestedSteps[0].name === 'Templates' && nestedSteps[0].isCompleted === true &&
+                        nestedSteps[1].name === 'ServiceCommand' && nestedSteps[1].isCompleted === false &&
+                        nestedSteps[2].name === 'ScriptGallery' && nestedSteps[2].isCompleted === false) {
+                        $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                        $('.contentSetting').find('ol li#serviceCreate').addClass('active');
+                        $('.content').load('ajax/Settings/serviceCommandWizard.html');
+                    } else if (nestedSteps[0].name === 'Templates' && nestedSteps[0].isCompleted === true &&
+                        nestedSteps[1].name === 'ServiceCommand' && nestedSteps[1].isCompleted === true &&
+                        nestedSteps[2].name === 'ScriptGallery' && nestedSteps[2].isCompleted === false) {
+                        $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                        $('.contentSetting').find('ol li#serviceCreate').removeClass('active').addClass('green-btn');
+                        $('.contentSetting').find('ol li#scriptCreate').addClass('active');
+                        $('.content').load('ajax/Settings/scriptWizard.html');
+                    } else {}
+                }
+            });
+            $('#wizardActionListLoader').hide();
+          }
         } else {
             //getTemplateValues();
             $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');

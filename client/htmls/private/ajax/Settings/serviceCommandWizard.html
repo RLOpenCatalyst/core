@@ -162,13 +162,13 @@
    </form>
 </div>
 <script>
-    $(document).ready(function(e){
-        orgNameForSetup = $('#orgDropdown option:selected').attr('rowid');
-        orgIdForSetup = $('#orgDropdown option:selected').val();
-        var $optionOrgService = $('<option></option>').val(orgNameForSetup).attr('rowid',orgIdForSetup).html(orgNameForSetup);
-        $('#orgname').append($optionOrgService);
-        $('#orgname').trigger('change');
-    });
+    
+    orgNameForSetup = $('#orgDropdown option:selected').attr('rowid');
+    orgIdForSetup = $('#orgDropdown option:selected').val();
+    var $optionOrgService = $('<option></option>').val(orgNameForSetup).attr('rowid',orgIdForSetup).html(orgNameForSetup);
+    $('#orgname').append($optionOrgService);
+    
+    
     $('#commandtype').change(function(e) {
         if (this.value == "Chef Cookbook/Recipe") {
             $(".CommandName").hide();
@@ -222,7 +222,7 @@
             $("#configname").trigger('change');
         });
     });
-
+    $('#orgname').trigger('change');
     function validateForm() {
         //Check for required parameter
         return (true);
