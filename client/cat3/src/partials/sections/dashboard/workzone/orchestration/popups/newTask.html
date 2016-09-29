@@ -58,11 +58,11 @@
 								<br />
 								<span class="col-md-12 col-sm-12 col-xs-12 no-padding">
 									<select name="category" class="form-control" ng-model="category" ng-disabled="isEditMode" required>
-										<option selected="selected" value="chef">{{category['chef'].name}}</option>
-										<option ng-show="!createChefJob" value="jenkins">{{category['jenkins'].name}}</option>
-										<option ng-show="!createChefJob" value="composite">{{category['composite'].name}}</option>
-										<option ng-show="!createChefJob" value="puppet">{{category['puppet'].name}}</option>
-										<option ng-show="!createChefJob" value="script">{{category['script'].name}}</option>
+										<option selected="selected" value="Task">Task</option>
+										<option ng-show="!createChefJob" value="Check">Check</option>
+										<option ng-show="!createChefJob" value="Learning">Learning</option>
+										<option ng-show="!createChefJob" value="Composite">Composite</option>
+										<option ng-show="!createChefJob" value="Built with other">Built with other</option>
 									</select>
 								</span>
 							</div>
