@@ -559,8 +559,8 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                             log: "Instance Bootstrapped successfully",
                                                             timestamp: timestampEnded
                                                         });
-                                                        if(typeof domainName !== 'undefined' && domainName !== '' && domainName !== null) {
-                                                            resourceService.updateDomainNameForInstance(domainName, instance.instanceIP, awsSettings, function (err, updateDomainName) {
+                                                        if(typeof domainName !== 'undefined' && domainName !== '' && domainName !== null && domainName !== 'null') {
+                                                            resourceService.updateDomainNameForInstance(domainName, instance.instanceIP,instance.id, awsSettings, function (err, updateDomainName) {
                                                                 if (err) {
                                                                     logger.error("resourceService.updateDomainNameForInstance Failed ==>", err);
                                                                     return;

@@ -744,12 +744,12 @@ function getRDSInstancesInfo(provider,orgName,callback) {
         cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
     var decryptedSecretKey = cryptography.decryptText(provider.secretKey,
         cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-    var s3Config = {
+    var rdsConfig = {
         access_key: decryptedAccessKey,
         secret_key: decryptedSecretKey,
         region: "us-west-1"
     };
-    var rds = new RDS(s3Config);
+    var rds = new RDS(rdsConfig);
     rds.getRDSDBInstances(function(err,dbInstances){
         if(err){
             logger.error(err);
@@ -1008,7 +1008,7 @@ function getStartTime(endTime, period){
     return dateUtil.getDateInUTC(subtractedDate);
 }
 
-function updateDomainNameForInstance(domainName,publicIP,awsSettings,callback){
+function updateDomainNameForInstance(domainName,publicIP,instanceId,awsSettings,callback){
     var route53 = new Route53(awsSettings);
     async.waterfall([
         function(next){
@@ -1110,6 +1110,13 @@ function updateDomainNameForInstance(domainName,publicIP,awsSettings,callback){
                 }
             }else{
                 next(null,paramList);
+            }
+        },
+        function(hostedParamList,next){
+            if(hostedParamList.length > 0){
+                instancesModel.updatedRoute53HostedZoneParam(instanceId,hostedParamList,next);
+            }else{
+                next(null,hostedParamList);
             }
         }
     ],function(err,results){

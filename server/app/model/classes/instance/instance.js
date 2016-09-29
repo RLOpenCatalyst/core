@@ -331,6 +331,7 @@ var InstanceSchema = new Schema({
         required: false,
         trim: true
     },
+    route53HostedParams: [Schema.Types.Mixed],
     isDeleted: {
         type: Boolean,
         required: false,
@@ -2174,6 +2175,23 @@ var InstancesDao = function() {
             } else {
                 callback(null, data);
             }
+        });
+    };
+
+    this.updatedRoute53HostedZoneParam = function(instanceId,route53HostedZoneParams,callback){
+        Instances.update({
+            "_id": ObjectId(instanceId)
+        }, {
+            $set: {
+                route53HostedParams:route53HostedZoneParams
+            }
+        }, function(err, data) {
+            if (err) {
+                logger.error("Failed to update managed Instance status data", err);
+                callback(err, null);
+                return;
+            }
+            callback(null, data);
         });
     };
 };
