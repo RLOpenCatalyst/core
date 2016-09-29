@@ -72,6 +72,7 @@ var cors = require('cors');
 var auditTrail = require('./routes_audit_trails');
 var scripts = require('./routes_scripts');
 var fileUpload = require('./routes_fileUpload');
+var settingWizard = require('./routes_setting_wizard');
 /*
  * @TODO
  * Change app to router in internal routes files
@@ -177,6 +178,8 @@ module.exports.setRoutes = function(app) {
     scripts.setRoutes(app, sessionVerificationFunc);
 
     fileUpload.setRoutes(app, sessionVerificationFunc);
+
+    settingWizard.setRoutes(app, sessionVerificationFunc);
 
 
     app.get('/', function(req, res) {

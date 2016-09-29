@@ -117,7 +117,7 @@
                                                 </div>
                                               </div>
                                               <div class="col-lg-6 col-md-6 margintop15">
-                                                <label>Do you want configure Domain Name at the time of Blueprint Launch:<span class="control-label redSpan">&nbsp;*</span></label>
+                                                <label>Do you want to configure Domain Name at the time of Blueprint Launch?:</label>
                                                 <div class="input-groups">
                                                   <div class="radio">
                                                     <label><input type="radio" name="domainNameCheck">Yes</label>
@@ -769,6 +769,20 @@ $(document).ready(function() {
             var $projectList = $('#projectListInputExisting');
             var $envList = $('#envListExisting');
             var $projectList = $('#projectListInputExisting');
+          $orgListInput.change(function(e) {
+            var orgName = $(this).val();
+            if (orgName == 'choose') {
+              return;
+            }
+            var $selectedOrgOption = $(this).find(":selected");
+            $bgList.empty();
+            var getBg = orgBg[orgName];
+            for (var i = 0; i < getBg.length; i++) {
+              var $option = $('<option></option>').val(getBg[i].rowid).html(getBg[i].name);
+              $bgList.append($option);
+            }
+            $bgList.trigger('change');
+          });
             $bgList.change(function(e) {
                 var bgName = $(this).val();
                 if (bgName == 'choose') {
@@ -805,12 +819,14 @@ $(document).ready(function() {
                 });
             }); //choose env gets over
             var bgProjects = {};
+            var orgBg ={};
             for (var i = 0; i < data.length; i++) {
                 console.log(data[i].businessGroups);
                 $orgListInput.append($('<option></option>').val(data[i].rowid).html(data[i].name).data('bglist', data[i].businessGroups).data('envList', data[i].environments));
+                orgBg[data[i].rowid] = data[i].businessGroups;
                 for (var j = 0; j < data[i].businessGroups.length; j++) {
                     var rowid = data[i].businessGroups[j].rowid;
-                    $bgList.append($('<option></option').val(rowid).html(data[i].businessGroups[j].name));
+                   // $bgList.append($('<option></option').val(rowid).html(data[i].businessGroups[j].name));
                     bgProjects[rowid] = data[i].businessGroups[j].projects;
                 }
                 for (var k = 0; k < data[i].environments.length; k++) {

@@ -2613,6 +2613,13 @@ function cachesavedvalues(blueprintdata) {
         $content.find('#bgListInput').attr('savedval', blueprintdata.bgId);
         $content.find('#projectListInput').attr('savedval', blueprintdata.projectId);
         $content.find('#appUrlTable').attr('savedval', JSON.stringify(blueprintdata.appUrls));
+        if(blueprintdata.domainNameCheck === true){
+            $content.find('input[name="domainNameCheck"][value="false"]').prop('checked',false);
+            $content.find('input[name="domainNameCheck"][value="true"]').prop('checked',true);
+        }else{
+            $content.find('input[name="domainNameCheck"][value="false"]').prop('checked',true);
+            $content.find('input[name="domainNameCheck"][value="true"]').prop('checked',false);
+        }
         if (blueprintdata.nexus) {
             $content.find('#chooseNexusServer').attr('savedval', blueprintdata.nexus.repoId);
             //$content.find('#chooseRepository').attr('savedval',blueprintdata.nexus.url); //To be checked.

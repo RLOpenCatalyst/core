@@ -39,6 +39,9 @@ var Cryptography = require('_pr/lib/utils/cryptography');
 var rc = require('node-rest-client').Client;
 var appConfig = require('_pr/config');
 var instanceService=require('_pr/services/instanceService');
+var settingWizard = require('_pr/model/setting-wizard');
+var settingsService = require('_pr/services/settingsService');
+
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 
@@ -258,24 +261,29 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 									res.status(500).send("Not able to fetch org.");
 									return;
 								}
-								if (orgs.length > 0) {
-									var dommyProvider = {
-										_id: provider._id,
-										id: 9,
-										username: vmwareusername,
-										//password: vmwarepassword,
-										host: vmwarehost,
-										dc: vmwaredc,
-										providerName: provider.providerName,
-										providerType: provider.providerType,
-										orgId: orgs[0].rowid,
-										orgName: orgs[0].orgname,
-										__v: provider.__v,
-									};
-									res.send(dommyProvider);
-									return;
-
-								}
+								trackSettingWizard(providerData.orgId,function(err,data){
+									if (err) {
+										res.status(500).send("Not able to update wizards.");
+										return;
+									}
+									if (orgs.length > 0) {
+										var dommyProvider = {
+											_id: provider._id,
+											id: 9,
+											username: vmwareusername,
+											//password: vmwarepassword,
+											host: vmwarehost,
+											dc: vmwaredc,
+											providerName: provider.providerName,
+											providerType: provider.providerType,
+											orgId: orgs[0].rowid,
+											orgName: orgs[0].orgname,
+											__v: provider.__v,
+										};
+										res.send(dommyProvider);
+										return;
+									}
+								});
 							});
 
 							logger.debug("Exit post() for /providers");
@@ -436,51 +444,68 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					res.status(500).send("Failed to fetch User.");
 				}
 				if (anUser) {
-					VMImage.getImageByProviderId(providerId, function(err, anImage) {
+					vmwareProvider.getvmwareProviderById(providerId, function(err, aProvider) {
 						if (err) {
 							logger.error(err);
 							res.status(500).send(errorResponses.db.error);
 							return;
 						}
-						if (anImage.length > 0) {
-							res.send(403, "Provider already used by Some Images.To delete provider please delete respective Images first.");
-							return;
-						}
-						logger.debug('Providerid: ', providerId);
-						blueprintModel.getBlueprintsByProviderId(providerId, function (err, providers) {
-							if (err) {
-								logger.error(err);
-								res.status(500).send(errorResponses.db.error);
-								return;
-							}
-							if (providers.length > 0) {
-								res.send(403, "Provider already used by Some Blueprints.To delete provider please delete respective Blueprints first.");
-								return;
-							}
-							vmwareProvider.removevmwareProviderById(providerId, function (err, deleteCount) {
+						if (aProvider) {
+							VMImage.getImageByProviderId(providerId, function (err, anImage) {
 								if (err) {
 									logger.error(err);
 									res.status(500).send(errorResponses.db.error);
 									return;
 								}
-								if (deleteCount) {
-									instanceService.removeInstancesByProviderId(providerId, function (err, data) {
+								if (anImage.length > 0) {
+									res.send(403, "Provider already used by Some Images.To delete provider please delete respective Images first.");
+									return;
+								}
+								logger.debug('Providerid: ', providerId);
+								blueprintModel.getBlueprintsByProviderId(providerId, function (err, providers) {
+									if (err) {
+										logger.error(err);
+										res.status(500).send(errorResponses.db.error);
+										return;
+									}
+									if (providers.length > 0) {
+										res.send(403, "Provider already used by Some Blueprints.To delete provider please delete respective Blueprints first.");
+										return;
+									}
+									vmwareProvider.removevmwareProviderById(providerId, function (err, deleteCount) {
 										if (err) {
 											logger.error(err);
 											res.status(500).send(errorResponses.db.error);
 											return;
-										} else {
-											logger.debug("Enter delete() for vmware/providers/%s", req.params.providerId);
-											res.send({
-												deleteCount: deleteCount
-											});
 										}
-									})
-								} else {
-									res.send(400);
-								}
+										if (deleteCount) {
+											instanceService.removeInstancesByProviderId(providerId, function (err, data) {
+												if (err) {
+													logger.error(err);
+													res.status(500).send(errorResponses.db.error);
+													return;
+												} else {
+													settingsService.trackSettingWizard('provider',aProvider.orgId[0],function(err,results){
+														if(err){
+															logger.error(err);
+															res.status(500).send(errorResponses.db.error);
+															return;
+														}else{
+															logger.debug("Enter delete() for vmware/providers/%s", req.params.providerId);
+															res.send({
+																deleteCount: deleteCount
+															});
+														}
+													})
+												}
+											})
+										} else {
+											res.send(400);
+										}
+									});
+								});
 							});
-						});
+						}
 					});
 				}
 			});
@@ -1090,50 +1115,67 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					return;
 				}
 				if (anUser) {
-					VMImage.getImageByProviderId(providerId, function(err, anImage) {
+					hppubliccloudProvider.gethppubliccloudProviderById(providerId, function(err, aProvider) {
 						if (err) {
 							logger.error(err);
 							res.status(500).send(errorResponses.db.error);
 							return;
 						}
-						if (anImage) {
-							res.send(403, "Provider already used by Some Images.To delete provider please delete respective Images first.");
-							return;
-						}
-						blueprintModel.getBlueprintsByProviderId(providerId, function (err, providers) {
-							if (err) {
-								logger.error(err);
-								res.status(500).send(errorResponses.db.error);
-								return;
-							}
-							if (providers.length > 0) {
-								res.send(403, "Provider already used by Some Blueprints.To delete provider please delete respective Blueprints first.");
-								return;
-							}
-							hppubliccloudProvider.removehppubliccloudProviderById(providerId, function (err, deleteCount) {
+						if (aProvider) {
+							VMImage.getImageByProviderId(providerId, function (err, anImage) {
 								if (err) {
 									logger.error(err);
 									res.status(500).send(errorResponses.db.error);
 									return;
 								}
-								if (deleteCount) {
-									instanceService.removeInstancesByProviderId(providerId, function (err, data) {
+								if (anImage) {
+									res.send(403, "Provider already used by Some Images.To delete provider please delete respective Images first.");
+									return;
+								}
+								blueprintModel.getBlueprintsByProviderId(providerId, function (err, providers) {
+									if (err) {
+										logger.error(err);
+										res.status(500).send(errorResponses.db.error);
+										return;
+									}
+									if (providers.length > 0) {
+										res.send(403, "Provider already used by Some Blueprints.To delete provider please delete respective Blueprints first.");
+										return;
+									}
+									hppubliccloudProvider.removehppubliccloudProviderById(providerId, function (err, deleteCount) {
 										if (err) {
 											logger.error(err);
 											res.status(500).send(errorResponses.db.error);
 											return;
-										} else {
-											logger.debug("Enter delete() for hppubliccloud/providers/%s", req.params.providerId);
-											res.send({
-												deleteCount: deleteCount
-											});
 										}
-									})
-								} else {
-									res.send(400);
-								}
+										if (deleteCount) {
+											instanceService.removeInstancesByProviderId(providerId, function (err, data) {
+												if (err) {
+													logger.error(err);
+													res.status(500).send(errorResponses.db.error);
+													return;
+												} else {
+													settingsService.trackSettingWizard('provider', aProvider.orgId[0], function (err, results) {
+														if (err) {
+															logger.error(err);
+															res.status(500).send(errorResponses.db.error);
+															return;
+														} else {
+															logger.debug("Enter delete() for hppubliccloud/providers/%s", req.params.providerId);
+															res.send({
+																deleteCount: deleteCount
+															});
+														}
+													})
+												}
+											})
+										} else {
+											res.send(400);
+										}
+									});
+								});
 							});
-						});
+						}
 					});
 				}
 			});
@@ -1248,23 +1290,29 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 									res.status(500).send("Not able to fetch org.");
 									return;
 								}
-								if (orgs.length > 0) {
-									var dommyProvider = {
-										_id: provider._id,
-										id: 9,
-										subscriptionId: azureSubscriptionId,
-										providerName: provider.providerName,
-										providerType: provider.providerType,
-										pemFileName: pemFileName,
-										keyFileName: keyFileName,
-										orgId: orgs[0].rowid,
-										orgName: orgs[0].orgname,
-										__v: provider.__v,
+								trackSettingWizard(providerData.orgId,function(err,data) {
+									if (err) {
+										res.status(500).send("Not able to update wizards.");
+										return;
+									}
+									if (orgs.length > 0) {
+										var dommyProvider = {
+											_id: provider._id,
+											id: 9,
+											subscriptionId: azureSubscriptionId,
+											providerName: provider.providerName,
+											providerType: provider.providerType,
+											pemFileName: pemFileName,
+											keyFileName: keyFileName,
+											orgId: orgs[0].rowid,
+											orgName: orgs[0].orgname,
+											__v: provider.__v,
 
-									};
-									res.send(dommyProvider);
-									return;
-								}
+										};
+										res.send(dommyProvider);
+										return;
+									}
+								});
 							});
 
 							logger.debug("Exit post() for /providers");
@@ -1557,50 +1605,67 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				}
 				logger.debug("LoggedIn User: ", JSON.stringify(anUser));
 				if (anUser) {
-					VMImage.getImageByProviderId(providerId, function(err, anImage) {
+					azurecloudProvider.getAzureCloudProviderById(providerId, function(err, aProvider) {
 						if (err) {
-							logger.error(errorResponses.db.error);
-							res.status(500).send("Failed to get Image.");
+							logger.error(err);
+							res.status(500).send(errorResponses.db.error);
 							return;
 						}
-						if (anImage.length > 0) {
-							res.status(403).send("Provider already used by Some Images.To delete provider please delete respective Images first.");
-							return;
-						}
-						blueprintModel.getBlueprintsByProviderId(providerId, function (err, providers) {
-							if (err) {
-								logger.error(err);
-								res.status(500).send(errorResponses.db.error);
-								return;
-							}
-							if (providers.length > 0) {
-								res.send(403, "Provider already used by Some Blueprints.To delete provider please delete respective Blueprints first.");
-								return;
-							}
-							azurecloudProvider.removeAzureCloudProviderById(providerId, function (err, deleteCount) {
+						if (aProvider) {
+							VMImage.getImageByProviderId(providerId, function (err, anImage) {
 								if (err) {
-									logger.error(err);
-									res.status(500).send("Failed to get Provider.");
+									logger.error(errorResponses.db.error);
+									res.status(500).send("Failed to get Image.");
 									return;
 								}
-								if (deleteCount) {
-									instanceService.removeInstancesByProviderId(providerId, function (err, data) {
+								if (anImage.length > 0) {
+									res.status(403).send("Provider already used by Some Images.To delete provider please delete respective Images first.");
+									return;
+								}
+								blueprintModel.getBlueprintsByProviderId(providerId, function (err, providers) {
+									if (err) {
+										logger.error(err);
+										res.status(500).send(errorResponses.db.error);
+										return;
+									}
+									if (providers.length > 0) {
+										res.send(403, "Provider already used by Some Blueprints.To delete provider please delete respective Blueprints first.");
+										return;
+									}
+									azurecloudProvider.removeAzureCloudProviderById(providerId, function (err, deleteCount) {
 										if (err) {
 											logger.error(err);
-											res.status(500).send(errorResponses.db.error);
+											res.status(500).send("Failed to get Provider.");
 											return;
-										} else {
-											logger.debug("Enter delete() for azure/providers/%s", req.params.providerId);
-											res.send({
-												deleteCount: deleteCount
-											});
 										}
-									})
-								} else {
-									res.send(400);
-								}
+										if (deleteCount) {
+											instanceService.removeInstancesByProviderId(providerId, function (err, data) {
+												if (err) {
+													logger.error(err);
+													res.status(500).send(errorResponses.db.error);
+													return;
+												} else {
+													settingsService.trackSettingWizard('provider', aProvider.orgId[0], function (err, results) {
+														if (err) {
+															logger.error(err);
+															res.status(500).send(errorResponses.db.error);
+															return;
+														} else {
+															logger.debug("Enter delete() for azure/providers/%s", req.params.providerId);
+															res.send({
+																deleteCount: deleteCount
+															});
+														}
+													})
+												}
+											})
+										} else {
+											res.send(400);
+										}
+									});
+								});
 							});
-						});
+						}
 					});
 				}
 			});
@@ -1741,27 +1806,32 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 									res.status(500).send("Not able to fetch org.");
 									return;
 								}
-								if (orgs.length > 0) {
-									var dommyProvider = {
-										_id: provider._id,
-										id: 9,
-										username: openstackusername,
-										//password: openstackpassword,
-										host: openstackhost,
-										providerName: provider.providerName,
-										providerType: provider.providerType,
-										orgId: orgs[0].rowid,
-										orgName: orgs[0].orgname,
-										pemFileName: pemFileName,
-										tenantid: openstacktenantid,
-										__v: provider.__v,
+								trackSettingWizard(providerData.orgId,function(err,data) {
+									if (err) {
+										res.status(500).send("Not able to update wizards.");
+										return;
+									}
+									if (orgs.length > 0) {
+										var dommyProvider = {
+											_id: provider._id,
+											id: 9,
+											username: openstackusername,
+											//password: openstackpassword,
+											host: openstackhost,
+											providerName: provider.providerName,
+											providerType: provider.providerType,
+											orgId: orgs[0].rowid,
+											orgName: orgs[0].orgname,
+											pemFileName: pemFileName,
+											tenantid: openstacktenantid,
+											__v: provider.__v,
 
-									};
-									res.send(dommyProvider);
-									return;
-								}
+										};
+										res.send(dommyProvider);
+										return;
+									}
+								});
 							});
-
 							logger.debug("Exit post() for /providers");
 						});
 					});
@@ -2095,52 +2165,69 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					res.status(500).send("Failed to fetch User.");
 				}
 				if (anUser) {
-					VMImage.getImageByProviderId(providerId, function(err, anImage) {
-						if (err) {
-							logger.error(err);
-							res.status(500).send(errorResponses.db.error);
-							return;
-						}
-						if (anImage.length) {
-							res.send(403, "Provider already used by Some Images.To delete provider please delete respective Images first.");
-							return;
-						}
-						blueprintModel.getBlueprintsByProviderId(providerId, function (err, providers) {
+					openstackProvider.getopenstackProviderById(providerId, function (err, aProvider) {
 							if (err) {
 								logger.error(err);
 								res.status(500).send(errorResponses.db.error);
 								return;
 							}
-							if (providers.length > 0) {
-								res.send(403, "Provider already used by Some Blueprints.To delete provider please delete respective Blueprints first.");
-								return;
-							}
-							openstackProvider.removeopenstackProviderById(providerId, function (err, deleteCount) {
-								if (err) {
-									logger.error(err);
-									res.status(500).send(errorResponses.db.error);
-									return;
-								}
-								if (deleteCount) {
-										instanceService.removeInstancesByProviderId(providerId, function (err, data) {
+							if (aProvider) {
+								VMImage.getImageByProviderId(providerId, function (err, anImage) {
+									if (err) {
+										logger.error(err);
+										res.status(500).send(errorResponses.db.error);
+										return;
+									}
+									if (anImage.length) {
+										res.send(403, "Provider already used by Some Images.To delete provider please delete respective Images first.");
+										return;
+									}
+									blueprintModel.getBlueprintsByProviderId(providerId, function (err, providers) {
+										if (err) {
+											logger.error(err);
+											res.status(500).send(errorResponses.db.error);
+											return;
+										}
+										if (providers.length > 0) {
+											res.send(403, "Provider already used by Some Blueprints.To delete provider please delete respective Blueprints first.");
+											return;
+										}
+										openstackProvider.removeopenstackProviderById(providerId, function (err, deleteCount) {
 											if (err) {
 												logger.error(err);
 												res.status(500).send(errorResponses.db.error);
 												return;
-											} else {
-												logger.debug("Enter delete() for openStack/providers/%s", req.params.providerId);
-												res.send({
-													deleteCount: deleteCount
-												});
 											}
-										})
-								} else {
-									res.send(400);
-									return;
-								}
-							});
+											if (deleteCount) {
+												instanceService.removeInstancesByProviderId(providerId, function (err, data) {
+													if (err) {
+														logger.error(err);
+														res.status(500).send(errorResponses.db.error);
+														return;
+													} else {
+														settingsService.trackSettingWizard('provider', aProvider.orgId[0], function (err, results) {
+															if (err) {
+																logger.error(err);
+																res.status(500).send(errorResponses.db.error);
+																return;
+															} else {
+																logger.debug("Enter delete() for openStack/providers/%s", req.params.providerId);
+																res.send({
+																	deleteCount: deleteCount
+																});
+															}
+														})
+													}
+												})
+											} else {
+												res.send(400);
+												return;
+											}
+										});
+									});
+								});
+							}
 						});
-					});
 				}
 			});
 		});
@@ -2291,26 +2378,32 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 																res.status(500).send("Not able to fetch org.");
 																return;
 															}
-															if (orgs.length > 0) {
-																if (keyPair) {
-																	var dommyProvider = {
-																		_id: provider._id,
-																		id: 9,
-																		//accessKey: provider.accessKey,
-																		//secretKey: provider.secretKey,
-																		providerName: provider.providerName,
-																		providerType: provider.providerType,
-																		s3BucketName: provider.s3BucketName,
-																		orgId: orgs[0].rowid,
-																		orgName: orgs[0].orgname,
-																		plannedCost:provider.plannedCost,
-																		__v: provider.__v,
-																		keyPairs: keyPair
-																	};
-																	res.send(dommyProvider);
+															trackSettingWizard(providerData.orgId,function(err,data) {
+																if (err) {
+																	res.status(500).send("Not able to update wizards.");
 																	return;
 																}
-															}
+																if (orgs.length > 0) {
+																	if (keyPair) {
+																		var dommyProvider = {
+																			_id: provider._id,
+																			id: 9,
+																			//accessKey: provider.accessKey,
+																			//secretKey: provider.secretKey,
+																			providerName: provider.providerName,
+																			providerType: provider.providerType,
+																			s3BucketName: provider.s3BucketName,
+																			orgId: orgs[0].rowid,
+																			orgName: orgs[0].orgname,
+																			plannedCost: provider.plannedCost,
+																			__v: provider.__v,
+																			keyPairs: keyPair
+																		};
+																		res.send(dommyProvider);
+																		return;
+																	}
+																}
+															});
 														})
 													});
 													logger.debug("Exit post() for /providers");
@@ -2608,50 +2701,67 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					res.status(500).send("Failed to fetch User.");
 				}
 				if (anUser) {
-					VMImage.getImageByProviderId(providerId, function(err, anImage) {
+					AWSProvider.getAWSProviderById(providerId, function(err, aProvider) {
 						if (err) {
 							logger.error(err);
 							res.status(500).send(errorResponses.db.error);
 							return;
 						}
-						if (anImage.length > 0) {
-							res.send(403, "Provider already used by Some Images.To delete provider please delete respective Images first.");
-							return;
-						}
-						blueprintModel.getBlueprintsByProviderId(providerId, function (err, providers) {
-							if (err) {
-								logger.error(err);
-								res.status(500).send(errorResponses.db.error);
-								return;
-							}
-							if (providers.length > 0) {
-								res.send(403, "Provider already used by Some Blueprints.To delete provider please delete respective Blueprints first.");
-								return;
-							}
-							AWSProvider.removeAWSProviderById(providerId, function (err, deleteCount) {
+						if (aProvider) {
+							VMImage.getImageByProviderId(providerId, function (err, anImage) {
 								if (err) {
 									logger.error(err);
 									res.status(500).send(errorResponses.db.error);
 									return;
 								}
-								if (deleteCount) {
-									instanceService.removeInstancesByProviderId(providerId, function (err, data) {
+								if (anImage.length > 0) {
+									res.send(403, "Provider already used by Some Images.To delete provider please delete respective Images first.");
+									return;
+								}
+								blueprintModel.getBlueprintsByProviderId(providerId, function (err, providers) {
+									if (err) {
+										logger.error(err);
+										res.status(500).send(errorResponses.db.error);
+										return;
+									}
+									if (providers.length > 0) {
+										res.send(403, "Provider already used by Some Blueprints.To delete provider please delete respective Blueprints first.");
+										return;
+									}
+									AWSProvider.removeAWSProviderById(providerId, function (err, deleteCount) {
 										if (err) {
 											logger.error(err);
 											res.status(500).send(errorResponses.db.error);
 											return;
-										} else {
-											logger.debug("Enter delete() for aws/providers/%s", req.params.providerId);
-											res.send({
-												deleteCount: deleteCount
-											});
 										}
-									})
-								} else {
-									res.send(400);
-								}
+										if (deleteCount) {
+											instanceService.removeInstancesByProviderId(providerId, function (err, data) {
+												if (err) {
+													logger.error(err);
+													res.status(500).send(errorResponses.db.error);
+													return;
+												} else {
+													settingsService.trackSettingWizard('provider', aProvider.orgId[0], function (err, results) {
+														if (err) {
+															logger.error(err);
+															res.status(500).send(errorResponses.db.error);
+															return;
+														} else {
+															logger.debug("Enter delete() for aws/providers/%s", req.params.providerId);
+															res.send({
+																deleteCount: deleteCount
+															});
+														}
+													})
+												}
+											})
+										} else {
+											res.send(400);
+										}
+									});
+								});
 							});
-						});
+						}
 					});
 				}
 			});
@@ -3522,4 +3632,34 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			makeRequest(req.body.accessKey, req.body.secretKey);
 		}
 	});
+}
+
+function trackSettingWizard(orgId,callback) {
+	if (orgId.length > 0) {
+		settingWizard.getSettingWizardByOrgId(orgId, function (err, settingWizards) {
+			if (err) {
+				logger.error('Hit getting setting wizard error', err);
+				callback(err, null);
+				return;
+			}
+			if(settingWizards.currentStep.name === 'Provider Configuration') {
+				settingWizards.currentStep.nestedSteps[0].isCompleted = true;
+				settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+					if (err) {
+						logger.error('Hit updating setting wizard error', err);
+						callback(err, null);
+						return;
+					}
+					callback(null, data);
+					return;
+				});
+			}else{
+				callback(null, null);
+				return;
+			}
+		})
+	} else {
+		callback(null, null);
+		return;
+	}
 }
