@@ -2552,7 +2552,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         })(x1);
                                                     }
                                                 },
-                                             /*   team:function(callback){
+                                                team:function(callback){
                                                     for (var x = 0; x < 4; x++) {
                                                         (function(x) {
                                                             var teamName;
@@ -2598,7 +2598,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         })(x);
 
                                                     }
-                                                },*/
+                                                },
                                                 wizard:function(callback){
                                                     var settingWizardSteps = appConfig.settingWizardSteps;
                                                     var currentStep=settingWizardSteps[1];
