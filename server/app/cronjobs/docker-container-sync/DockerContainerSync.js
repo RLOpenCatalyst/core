@@ -10,6 +10,7 @@ var SSH = require('_pr/lib/utils/sshexec');
 var fileIo = require('_pr/lib/utils/fileio');
 var toPairs = require('lodash.topairs');
 var async = require('async');
+var logsDao = require('_pr/model/dao/logsdao.js');
 
 var DockerContainerSync = Object.create(CatalystCronJob);
 DockerContainerSync.interval = '*/2 * * * *';
@@ -58,7 +59,7 @@ function dockerContainerSync() {
 function aggregateDockerContainerForInstance(instance){
     logger.info("Docker Container Sync started for Instance IP "+instance.instanceIP);
     if(instance.instanceState === 'terminated' || instance.instanceState === 'stopped'){
-        deleteContainerByInstanceId(instance._id,function(err,data){
+        deleteContainerByInstanceId(instance,function(err,data){
             if(err){
                 logger.error(err);
                 return;
@@ -245,6 +246,15 @@ function saveAndUpdateContainers(containers,containerIds,instanceId,instance,nex
                                         var actionObj = 'Docker-Container Start' + ' : ' + container.Names;
                                         var timestampStarted = new Date().getTime();
                                         var actionLog = instancesDao.insertDockerActionLog(instanceId, instance.catUser, actionObj, 1, timestampStarted);
+                                        var logReferenceIds = [instance._id, actionLog._id];
+                                        logsDao.insertLog({
+                                            referenceId: logReferenceIds,
+                                            err: false,
+                                            log: "Docker-Container Started",
+                                            timestamp: timestampStarted
+                                        });
+
+
                                         var containerLogs ={
                                             actionId: actionLog._id,
                                             containerId: container.Id,
@@ -253,10 +263,11 @@ function saveAndUpdateContainers(containers,containerIds,instanceId,instance,nex
                                             bgName: instance.bgName,
                                             bgId: instance.bgId,
                                             projectName: instance.projectName,
-                                            envName: instance.envName,
+                                            envName: instance.environmentName,
                                             envId: instance.envId,
                                             status: container.Status,
                                             actionStatus: "success",
+                                            instanceIP:instance.instanceIP,
                                             platformId: instance.platformId,
                                             containerName: container.Names,
                                             Image: container.Image,
@@ -322,11 +333,75 @@ function dockerContainerStatus(status){
     }
 };
 
-function deleteContainerByInstanceId(instanceId,next){
+function deleteContainerByInstanceId(instanceDetails,next){
+    var containerList = [];
+    var count = 0;
     async.waterfall([
             function(next){
-                containerDao.deleteContainerByInstanceId(instanceId,next);
-            }],
+                containerDao.getContainerByInstanceId(instanceDetails._id,next);
+            },
+            function(containers,next){
+                containerList = containers;
+                containerDao.deleteContainerByInstanceId(instanceDetails._id,next);
+            },
+        function(containers,next){
+                if(containerList.length > 0){
+                    for(var i = 0; i < containerList.length;i++){
+                        (function(container){
+                            var timestampStarted = new Date().getTime();
+                            var actionObj = 'Docker-Container Terminated : ' + container.Names;
+                            var actionLog = instancesDao.insertDockerActionLog(instanceDetails._id,instanceDetails.catUser , actionObj, 6, timestampStarted);
+                            var logReferenceIds = [instanceDetails._id, actionLog._id];
+                            logsDao.insertLog({
+                                referenceId: logReferenceIds,
+                                err: false,
+                                log: "Docker-Container Terminated",
+                                timestamp: timestampStarted
+                            });
+
+                            var containerLog ={
+                                actionId: actionLog._id,
+                                containerId: container.Id,
+                                orgName: instanceDetails.orgName,
+                                orgId: instanceDetails.orgId,
+                                bgName: instanceDetails.bgName,
+                                bgId: instanceDetails.bgId,
+                                projectName: instanceDetails.projectName,
+                                envName: instanceDetails.environmentName,
+                                envId: instanceDetails.envId,
+                                status: container.Status,
+                                actionStatus: "pending",
+                                instanceIP:instanceDetails.instanceIP,
+                                platformId: instanceDetails.platformId,
+                                containerName: container.Names,
+                                Image: container.Image,
+                                ImageID: container.ImageID,
+                                platform: instanceDetails.hardware.platform,
+                                os: instanceDetails.hardware.os,
+                                user: instanceDetails.catUser,
+                                createdOn: new Date().getTime(),
+                                startedOn: new Date().getTime(),
+                                providerType: instanceDetails.providerType ? instanceDetails.providerType:null,
+                                action: actionObj,
+                                logs: []
+                            };
+
+                            containerLogModel.createOrUpdate(containerLog, function(err, logData){
+                                if (err) {
+                                    logger.error("Failed to create or update containerLog: ", err);
+                                }
+                                count++;
+                            });
+                            if(count === containers.length){
+                                next(null,containers);
+                            }
+                        })(containerList[i]);
+                    }
+                }else{
+                    next(null,containerList);
+                }
+        }
+        ],
         function (err, results) {
             if(err){
                 logger.error("Error in deleteContainerByInstanceId ");
