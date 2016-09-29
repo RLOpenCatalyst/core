@@ -3,10 +3,13 @@
     angular.module('dashboard.analytics')
         .controller('costCtrl', ['$scope', '$rootScope', '$state','analyticsServices', 'genericServices', function ($scope,$rootScope,$state,analyticsServices,genSevs){
         $rootScope.stateItems = $state.params;
+            //analyticsServices.initFilter();
         // var treeNames = ['Analytics','Cost'];
         // $rootScope.$emit('treeNameUpdate', treeNames);
+            analyticsServices.initFilter();
             var costObj =this;
             costObj.chartData=[];
+            costObj.splitUp=null;
             costObj.pieChat={
                 option:{},
                 totalCoust:'',
@@ -71,8 +74,9 @@
                             showControls: true,
                             showValues: true,
                             xAxis: {
-                                axisLabel: 'label',
-                                showMaxMin: false
+                                axisLabel: '',
+                                showMaxMin: false,
+                                staggerLabels:false
                             },
                             yAxis: {
                                 tickFormat: function (d) {
@@ -123,6 +127,7 @@
                             $rootScope.splitUpCosts.push({id:key,val:a});
                         });
                         $scope.$emit('CHANGE_splitUp', $rootScope.splitUpCosts[0].id);
+                        costObj.splitUp= $rootScope.splitUpCosts[0].val;
                         costObj.createLable(result, $rootScope.splitUpCosts[0].id);
                     } else {
                         costObj.createLable(result,'provider');
@@ -137,7 +142,6 @@
                         {name: 'totalCost', field: 'cost.totalCost'}
                     ];
                     costObj.pieChat.totalCoust = result.cost.totalCost;
-                    costObj.serviceCosts = result.cost.AWS.serviceCosts;
                     costObj.pieChat.data = [];
                     costObj.barChat.data = [];
                     // create bar
@@ -149,50 +153,34 @@
                             value: value.cost.totalCost
                         });
                     });
-
-                    angular.forEach(result.cost.AWS.serviceCosts, function (valueChild, keyChild) {
-                        var va = [];
-                        costObj.costGridOptions.columnDefs.push({
-                            name: keyChild,
-                            field: 'cost.AWS.serviceCosts.' + keyChild
-                        })
-                        angular.forEach(result.splitUpCosts[viewType], function (valBar) {
-                            va.push(
-                                {
-                                    "label": valBar.name,
-                                    "value": valBar.cost.AWS.serviceCosts[keyChild]
+                    if(result.cost && result.cost.AWS && result.cost.AWS.serviceCosts) {
+                        costObj.serviceCosts = result.cost.AWS.serviceCosts;
+                        angular.forEach(result.cost.AWS.serviceCosts, function (valueChild, keyChild) {
+                            var va = [];
+                            costObj.costGridOptions.columnDefs.push({
+                                name: keyChild,
+                                field: 'cost.AWS.serviceCosts.' + keyChild
+                            })
+                            angular.forEach(result.splitUpCosts[viewType], function (valBar) {
+                                var chVal = '';
+                                if (valBar.cost.AWS.serviceCosts[keyChild]) {
+                                    chVal = valBar.cost.AWS.serviceCosts[keyChild];
+                                } else {
+                                    chVal = 0;
                                 }
-                            );
+                                va.push(
+                                    {
+                                        "label": valBar.name,
+                                        "value": chVal
+                                    }
+                                );
+                            });
+                            costObj.barChat.data.push({
+                                "key": keyChild,
+                                "values": va
+                            });
                         });
-                        costObj.barChat.data.push({
-                            "key": keyChild,
-                            "values": va
-                        });
-                    });
-                    // } else {
-                    //     costObj.costGridOptions.data = result.splitUpCosts.businessUnits;
-                    //     angular.forEach(result.splitUpCosts.businessUnits, function (value) {
-                    //         costObj.pieChat.data.push({
-                    //             key: value.name,
-                    //             value: value.cost.totalCost
-                    //         });
-                    //     });
-                    //     angular.forEach(result.cost.AWS.serviceCosts,function(valueChild,keyChild){
-                    //         var va=[];
-                    //         costObj.costGridOptions.columnDefs.push({name: keyChild, field: 'cost.AWS.serviceCosts.'+keyChild})
-                    //         angular.forEach(result.splitUpCosts.businessUnits, function (valBar) {
-                    //             va.push(
-                    //                 { "label": valBar.name,
-                    //                     "value": valBar.cost.AWS.serviceCosts[keyChild]
-                    //                 }
-                    //             );
-                    //         });
-                    //         costObj.barChat.data.push({
-                    //             "key": keyChild,
-                    //             "values": va
-                    //         });
-                    //     });
-                    // }
+                    }
                 }
             };
             costObj.trendsChart=function(fltObj){
@@ -252,6 +240,7 @@
                     } else {
                         entityId=fltObj.org.id;
                     }
+                    //http://192.168.152.139:3001
                     param.url='/analytics/cost/trend?parentEntityId='+fltObj.org.id+'&entityId='+fltObj.org.id+'&toTimeStamp='+new Date()+'&period='+fltObj.period+'&interval=86400'
                 }
 
@@ -262,7 +251,13 @@
                         angular.forEach(result.cost.AWS.serviceCosts, function (valueChild, keyChild) {
                             var va = [];
                             angular.forEach(result.costTrends, function (value) {
-                                va.push([value.fromTime,value.cost.AWS.serviceCosts[keyChild]]);
+                                var chVal='';
+                                if(value.cost.AWS.serviceCosts[keyChild]){
+                                    chVal=value.cost.AWS.serviceCosts[keyChild];
+                                } else {
+                                    chVal=0;
+                                }
+                                va.push([value.fromTime,chVal]);
                             });
                             costObj.trendLineChart.data.push({
                                 "key": keyChild,
@@ -274,14 +269,19 @@
             };
             costObj.createChart();
             $scope.$on('CHANGE_VIEW', function (event, data) {
+                costObj.splitUp=data.replace(/([A-Z])/g, ' $1').replace(/^./, function(str) {
+                    return str.toUpperCase();
+                });
                 costObj.createLable(costObj.chartData,data);
             });
-            $rootScope.$watch('filterApply', function () {
+            $rootScope.applyFilter =function(filterApp,period){
+                analyticsServices.applyFilter(filterApp,period);
                 if($state.current.name === "dashboard.analytics.cost") {
                     costObj.getCostData($rootScope.filterNewEnt);
-                    costObj.trendsChart($rootScope.filterNewEnt);
                 }
-            });
+            };
+            $rootScope.applyFilter(true,'month');
+            costObj.trendsChart($rootScope.filterNewEnt);
 
     }]);
 })(angular);

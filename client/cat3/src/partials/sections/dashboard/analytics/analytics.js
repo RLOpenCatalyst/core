@@ -59,7 +59,7 @@
 				}
 			})
 		}])
-	.controller('analyticsCtrl',['$scope', '$rootScope','$state','genericServices', 'workzoneServices', 'toastr', function ($scope, $rootScope, $state, genericServices, workzoneServices, toastr) {
+	.controller('analyticsCtrl',['$scope', '$rootScope','$state','genericServices','analyticsServices', 'workzoneServices', 'toastr', function ($scope, $rootScope, $state, genericServices,analyticsServices, workzoneServices, toastr) {
 		var analytic = this;
 		var splitUp=null;
 		analytic.tabShowChat=true;
@@ -68,14 +68,10 @@
 		$rootScope.isOpenSidebar = false;
 		$rootScope.dashboardChild = 'analytics';
 		$rootScope.stateItems = $state.params;
+		analyticsServices.initFilter();
 		var treeNames = ['Analytics'];
 		//$rootScope.$emit('treeNameUpdate', treeNames);
 		$rootScope.$emit('HEADER_NAV_CHANGE', 'ANALYTICS');
-		$rootScope.organNewEnt=[];
-		$rootScope.filterNewEnt={};
-		$rootScope.organNewEnt.org = '0';
-		$rootScope.filterNewEnt.period='month';
-		$rootScope.splitUpCosts=[];
 		$scope.selectedResources = [];
 		analytic.viewByFilter='orgView';
 		$scope.$watch(function() { return analytic.viewByFilter}, function(newVal, oldVal) {
@@ -96,48 +92,11 @@
 			$scope.$broadcast('CHANGE_VIEW',newVal);
 		}, true);
 		analytic.applyCount=0
-		analytic.applyFilter = function(filterApp,period){
-			$rootScope.filterApply= new Date();
-			var obj=$rootScope.organObject,
-				or=$rootScope.organNewEnt.org,
-				bu=$rootScope.organNewEnt.buss,
-				pr=$rootScope.organNewEnt.proj;
-			if(period)
-				$rootScope.filterNewEnt.period=period;
 
-			if(or){
-				$rootScope.filterNewEnt.org={name:obj[or].name,id:obj[or].rowid,title:'Org'};
-				$rootScope.filterNewEnt.provider='';
-			}
-			if(filterApp){
-				if(bu){
-					$rootScope.filterNewEnt.buss = {name:obj[or].businessGroups[bu].name,id:obj[or].businessGroups[bu].rowid,title:'BU'};
-				}
-				if(pr){
-					$rootScope.filterNewEnt.proj = {name:obj[or].businessGroups[bu].projects[pr].name,id:obj[or].businessGroups[bu].projects[pr].rowid,title:'Project'};
-				}
-
-				if($rootScope.organNewEnt.provider){
-					$rootScope.filterNewEnt.provider={name:$scope.providers[$rootScope.organNewEnt.provider].providerName,id:$scope.providers[$rootScope.organNewEnt.provider]._id,title:'Provider'};
-				} else{
-					$rootScope.filterNewEnt.provider='';
-				}
-			} else{
-				$rootScope.organNewEnt={}
-				$rootScope.organNewEnt.org=or;
-				analytic.viewByFilter='orgView';
-				analytic.splitUp=$rootScope.splitUpCosts[0];
-			}
-		};
 		//get organisation
 		genericServices.getTreeNew().then(function (orgs) {
 			$rootScope.organObject = orgs;
-			analytic.applyFilter(true);
 		});
-		$rootScope.organNewEnt=[];
-		$rootScope.organNewEnt.org = '0';
-		//$rootScope.organNewEnt.buss='0';
-		//$rootScope.organNewEnt.proj='0';
 		if (!$rootScope.stateParams.view) {
 			$state.go('dashboard.analytics.cost');
 		}
@@ -151,7 +110,6 @@
 			analytic.tabShowChat=chat;
 			analytic.tabShowReport=report;
 		};
-
 		analytic.hideTreeOverlay();
 		$scope.getAllRegionsList = function() {
             workzoneServices.getAllRegionsList().then(function(response) {
@@ -162,6 +120,7 @@
         };
         $scope.getProviders = function() {
             workzoneServices.getProviders().then(function(response) {
+				$rootScope.providers=response.data;
                 $scope.providers = response.data;
                 $scope.filter = [];
                 $scope.filter.providerId = response.data[0]._id;
@@ -196,9 +155,7 @@
                 $scope.providerLoading = false;
             });
         };
-		if (!$rootScope.stateItems.view) {
-			$state.go('dashboard.analytics.cost');
-		}
+
         $scope.getAllRegionsList();
         $scope.getProviders();
 		$scope.fnProviderChange = function() {
@@ -244,5 +201,8 @@
     			}
     		}
 		};
+		if (!$rootScope.stateParams.view) {
+			$state.go('dashboard.analytics.cost');
+		}
 	}]);
 })(angular);

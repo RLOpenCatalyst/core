@@ -63,29 +63,33 @@
                         $scope.gridApi = gridApi;
                     }
                 };
-
-                var param = {
-                    url: 'src/partials/sections/dashboard/analytics/data/usage.json'
-                };
-                genSevs.promiseGet(param).then(function (result) {
-                    usage.trendLineChart.data = [];
-                    usage.costGridOptions.columnDefs=[];
-                   angular.forEach(result,function (valu,keyChild) {
-                       var va = [];
-                       angular.forEach(valu.dataPoints, function (value) {
-                           va.push([value.fromTime,value.average]);
-                       });
-                       usage.trendLineChart.data.push({
-                           "key": keyChild,
-                           "values": va
-                       });
-                   });
-                });
-            };
-            $rootScope.$watch('filterApply', function () {
+                usage.trendLineChart.data = [];
+                usage.costGridOptions.columnDefs = [];
+                    var param = {
+                        url: 'http://neocatalyst.rlcatalyst.com/analytics/trend/usage?resource=57da3fecbddbbdf876981be5&fromTimeStamp=2016-09-27T07:07:17&toTimeStamp=2016-09-28T07:07:17&interval=3600'
+                    };
+                    genSevs.promiseGet(param).then(function (result) {
+                        angular.forEach(result, function (valu, keyChild) {
+                            var va = [];
+                            angular.forEach(valu.dataPoints, function (value) {
+                                va.push([Date.parse(value.fromTime), value.average]);
+                            });
+                            usage.trendLineChart.data.push({
+                                "key": keyChild,
+                                "values": va
+                            });
+                        });
+                    });
+                 };
+            $rootScope.applyFilter =function(filterApp,period){
+                analyticsServices.applyFilter(filterApp,period);
                 if($state.current.name === "dashboard.analytics.usage") {
                     usage.trendsChart($rootScope.filterNewEnt);
                 }
-            });
+            };
+            if($state.current.name === "dashboard.analytics.usage") {
+                usage.trendsChart($rootScope.filterNewEnt);
+            }
+
     }]);
 })(angular);
