@@ -119,6 +119,7 @@ function clearActiveClasses() {
 
 //on click of new button to create a new wizard..
 $('#createNew').click(function(e) {
+    $('#wizardActionListLoader').show();
     clearActiveClasses();
     $('#orgDropdown option:selected').val('');
     $('.providerSelect').addClass('hidden');
@@ -126,10 +127,12 @@ $('#createNew').click(function(e) {
     $('#createNew').addClass('hidden');
     $('#startConfig a').addClass('green-btn').removeClass('process-btn');
     $('#orgConfiguration a').addClass('wizardActiveBtn').removeClass('process-btn');
+    $('#orgConfiguration a').attr('href','ajax/Settings/settingsWizard.html');
     $('#orgConfiguration a').trigger('click');
+    $('#wizardActionListLoader').hide();
 });
 $('#orgConfiguration a').trigger('click');
-var firstOrgValue;
+var firstOrgValue,currentOrgValue;
 $.get('/d4dMasters/readmasterjsonnew/1', function(data) {
     $("#orgDropdown").empty();
     for (var i = 0; i < data.length; i++) {
@@ -163,6 +166,7 @@ $('#orgConfiguration a').click(function(e) {
     if (selectedDropdownValue) {
         getOrgValues();
     } else {
+        $('.wizardFlow').empty();
         lastDropdownValue = $('#orgDropdown option:last').val();
     }
 });
@@ -173,6 +177,21 @@ $('#configManagement a').click(function(e) {
 });
 
 $('#providerConfiguration a').click(function(e) {
+    selectedDropdownValue = $('#orgDropdown option:selected').val();
+    orgForBg = $('#orgDropdown option:selected').text();
+});
+
+$('#galleryConfiguration a').click(function(e) {
+    selectedDropdownValue = $('#orgDropdown option:selected').val();
+    orgForBg = $('#orgDropdown option:selected').text();
+});
+
+$('#devopsConfiguration a').click(function(e) {
+    selectedDropdownValue = $('#orgDropdown option:selected').val();
+    orgForBg = $('#orgDropdown option:selected').text();
+});
+
+$('#cmdbConfiguration a').click(function(e) {
     selectedDropdownValue = $('#orgDropdown option:selected').val();
     orgForBg = $('#orgDropdown option:selected').text();
 });
