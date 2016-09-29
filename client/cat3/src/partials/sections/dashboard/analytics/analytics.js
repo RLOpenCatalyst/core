@@ -59,7 +59,7 @@
 				}
 			})
 		}])
-	.controller('analyticsCtrl',['$scope', '$rootScope','$state','genericServices','analyticsServices', 'workzoneServices', 'toastr', function ($scope, $rootScope, $state, genericServices,analyticsServices, workzoneServices, toastr) {
+	.controller('analyticsCtrl',['$scope', '$rootScope','$state','genericServices','analyticsServices', 'workzoneServices', 'toastr','$timeout', function ($scope, $rootScope, $state, genericServices,analyticsServices, workzoneServices, toastr,$timeout) {
 		var analytic = this;
 		var splitUp=null;
 		analytic.tabShowChat=true;
@@ -77,11 +77,15 @@
 		$scope.$watch(function() { return analytic.viewByFilter}, function(newVal, oldVal) {
 			if(newVal === 'ProviderView'){
 				$rootScope.viewType='ProviderView';
-				$state.params.filterView.provi=true;
+				if($state.params && $state.params.filterView){
+					$state.params.filterView.provi=true;
+				}
 			} else {
 				$rootScope.organNewEnt.provider=''
 				$rootScope.viewType='orgView';
-				$state.params.filterView.provi=false;
+				if($state.params && $state.params.filterView){
+					$state.params.filterView.provi=false;
+				}
 			}
 			$rootScope.stateItems = $state.params;
 		}, true);
@@ -201,8 +205,11 @@
     			}
     		}
 		};
-		if (!$rootScope.stateParams.view) {
-			$state.go('dashboard.analytics.cost');
-		}
+		$timeout(function(){
+			if (!$rootScope.stateParams.view && $rootScope.organObject) {
+				$state.go('dashboard.analytics.cost');
+			}
+		},200);
+
 	}]);
 })(angular);

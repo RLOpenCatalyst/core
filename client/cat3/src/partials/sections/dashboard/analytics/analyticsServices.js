@@ -22,6 +22,8 @@
                         if (or) {
                             $rootScope.filterNewEnt.org = {name: obj[or].name, id: obj[or].rowid, title: 'Org'};
                             $rootScope.filterNewEnt.provider = '';
+                        } else{
+                            $rootScope.filterNewEnt.org = {id: obj[or].rowid, title: 'Org'};
                         }
                         if (filterApp) {
                             if (bu) {
@@ -53,7 +55,7 @@
                             $rootScope.organNewEnt.org = or;
                         }
                     }
-
+                    return 1;
                 }
             };
         }]);
