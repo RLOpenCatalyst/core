@@ -477,6 +477,12 @@ function getDefaultsConfig() {
                 }
             },
         },
+        costDefaultIds: {
+            businessGroupId: 'Unassigned',
+            environmentId: 'Unassigned',
+            projectId: 'Unassigned',
+            region: 'Global'
+        },
 
         // cronjobTimeDelay: '"* * * * * *"',
 

@@ -67,6 +67,9 @@ var EntityCostsSchema = new Schema({
     }
 })
 
+EntityCostsSchema.index({'entity.id': 1, 'entity.type': 1, 'parentEntity.id': 1, 'startTime': 1,
+    'period': 1}, {'unique': true})
+
 EntityCostsSchema.statics.saveEntityCost = function saveEntityCost(entityCostData, callback) {
     var entityCosts = new EntityCosts(entityCostData)
     entityCosts.save(function(err, data) {
