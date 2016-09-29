@@ -1,12 +1,11 @@
 (function (angular) {
     "use strict";
     angular.module('dashboard.analytics')
-        .controller('costCtrl', ['$scope', '$rootScope', '$state','analyticsServices', 'genericServices', function ($scope,$rootScope,$state,analyticsServices,genSevs){
+        .controller('costCtrl', ['$scope', '$rootScope', '$state','analyticsServices', 'genericServices','$timeout', function ($scope,$rootScope,$state,analyticsServices,genSevs,$timeout){
         $rootScope.stateItems = $state.params;
             //analyticsServices.initFilter();
         // var treeNames = ['Analytics','Cost'];
         // $rootScope.$emit('treeNameUpdate', treeNames);
-            analyticsServices.initFilter();
             var costObj =this;
             costObj.chartData=[];
             costObj.splitUp=null;
@@ -267,7 +266,6 @@
                     }
                 });
             };
-            costObj.createChart();
             $scope.$on('CHANGE_VIEW', function (event, data) {
                 costObj.splitUp=data.replace(/([A-Z])/g, ' $1').replace(/^./, function(str) {
                     return str.toUpperCase();
@@ -280,8 +278,15 @@
                     costObj.getCostData($rootScope.filterNewEnt);
                 }
             };
-            $rootScope.applyFilter(true,'month');
-            costObj.trendsChart($rootScope.filterNewEnt);
+            costObj.init =function(){
+                analyticsServices.initFilter();
+                costObj.createChart();
+                $timeout(function () {
+                    $rootScope.applyFilter(true,'month');
+                    costObj.trendsChart($rootScope.filterNewEnt);
+                },200);
+            };
+            costObj.init();
 
-    }]);
+        }]);
 })(angular);

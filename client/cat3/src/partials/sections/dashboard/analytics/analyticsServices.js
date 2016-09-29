@@ -20,8 +20,10 @@
                             $rootScope.filterNewEnt.period = period;
 
                         if (or) {
-                            $rootScope.filterNewEnt.org = {name: obj[or].name, id: obj[or].rowid, title: 'Org'};
+                            $rootScope.filterNewEnt.org = {name: obj[or].name, id: obj[or].rowid, title: 'ORG'};
                             $rootScope.filterNewEnt.provider = '';
+                        } else{
+                            $rootScope.filterNewEnt.org = {id: obj[or].rowid, title: 'ORG'};
                         }
                         if (filterApp) {
                             if (bu) {
@@ -38,7 +40,13 @@
                                     title: 'Project'
                                 };
                             }
-
+                             if($rootScope.organNewEnt.instanceType)  {
+                                 $rootScope.filterNewEnt.instanceType = {
+                                     name: $rootScope.organNewEnt.instanceType,
+                                     id: $rootScope.organNewEnt.instanceType,
+                                     title: 'Instance'
+                                 };
+                             }
                             if ($rootScope.organNewEnt.provider) {
                                 $rootScope.filterNewEnt.provider = {
                                     name: $rootScope.providers[$rootScope.organNewEnt.provider].providerName,
@@ -53,7 +61,7 @@
                             $rootScope.organNewEnt.org = or;
                         }
                     }
-
+                    return 1;
                 }
             };
         }]);
