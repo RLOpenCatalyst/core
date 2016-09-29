@@ -227,8 +227,8 @@
     }
 
     .bp-panel-body {
-      max-height:150px;
-      min-height: 100px;
+      max-height: 105px;
+      min-height: 80px;
       overflow-y: auto;
     }
 
@@ -263,5 +263,9 @@
 
   .filter-name {
     margin-top: -21px;
+  }
+
+  .selected {
+    background: #E49C25;
   }
 }

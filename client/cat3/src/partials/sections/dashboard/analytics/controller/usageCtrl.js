@@ -1,9 +1,8 @@
 (function (angular) {
     "use strict";
     angular.module('dashboard.analytics')
-        .controller('usageCtrl', ['$scope', '$rootScope', '$state','analyticsServices', 'genericServices', function ($scope,$rootScope,$state,analyticsServices,genSevs){
+        .controller('usageCtrl', ['$scope', '$rootScope', '$state','analyticsServices', 'genericServices','$timeout', function ($scope,$rootScope,$state,analyticsServices,genSevs,$timeout){
         $rootScope.stateItems = $state.params;
-            console.log($state.params);
             var usage =this;
             usage.trendsChart=function(fltObj){
                 usage.trendLineChart={};
@@ -63,29 +62,44 @@
                         $scope.gridApi = gridApi;
                     }
                 };
-
-                var param = {
-                    url: 'src/partials/sections/dashboard/analytics/data/usage.json'
+                usage.trendLineChart.data = [];
+                usage.costGridOptions.columnDefs = [];
+              var  $today = new Date();
+               var $yesterday = new Date($today);
+                $yesterday.setDate($today.getDate() - 1);
+                   // if(fltObj && fltObj.resources && fltObj.resources.length >0) {
+                        //angular.forEach(fltObj.resources, function (resId) {
+                            var param = {
+                                url: '/analytics/trend/usage?resource='+fltObj.resources+'&fromTimeStamp='+$yesterday+'&toTimeStamp='+ $today+'&interval=3600'
+                            };
+                            genSevs.promiseGet(param).then(function (result) {
+                                angular.forEach(result, function (valu, keyChild) {
+                                    var va = [];
+                                    angular.forEach(valu.dataPoints, function (value) {
+                                        va.push([Date.parse(value.fromTime), value.average]);
+                                    });
+                                    usage.trendLineChart.data.push({
+                                        "key": keyChild,
+                                        "values": va
+                                    });
+                                });
+                            });
+                        ///});
+                   /// }
+                 };
+                $rootScope.applyFilter =function(filterApp,period){
+                    analyticsServices.applyFilter(filterApp,period);
+                    if($state.current.name === "dashboard.analytics.usage") {
+                        usage.trendsChart($rootScope.filterNewEnt);
+                    }
                 };
-                genSevs.promiseGet(param).then(function (result) {
-                    usage.trendLineChart.data = [];
-                    usage.costGridOptions.columnDefs=[];
-                   angular.forEach(result,function (valu,keyChild) {
-                       var va = [];
-                       angular.forEach(valu.dataPoints, function (value) {
-                           va.push([value.fromTime,value.average]);
-                       });
-                       usage.trendLineChart.data.push({
-                           "key": keyChild,
-                           "values": va
-                       });
-                   });
-                });
-            };
-            $rootScope.$watch('filterApply', function () {
-                if($state.current.name === "dashboard.analytics.usage") {
-                    usage.trendsChart($rootScope.filterNewEnt);
-                }
-            });
-    }]);
+                usage.init =function(){
+                        $rootScope.organNewEnt.instanceType='Unassigned';
+                        $rootScope.organNewEnt.provider='0';
+                        $scope.$emit('INI_usage', 'Unassigned');
+                        $timeout(function(){$rootScope.applyFilter(true,'month')},200);
+                };
+            usage.init();
+
+        }]);
 })(angular);

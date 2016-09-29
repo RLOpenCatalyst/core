@@ -46,7 +46,6 @@ resourceService.bulkUpdateAWSResourcesTags=bulkUpdateAWSResourcesTags;
 resourceService.getEC2InstancesInfo=getEC2InstancesInfo;
 resourceService.getAllResourcesForProvider =  getAllResourcesForProvider;
 resourceService.updateAWSResourceCostsFromCSV = updateAWSResourceCostsFromCSV
-resourceService.aggregateEntityCosts = aggregateEntityCosts
 resourceService.updateDomainNameForInstance = updateDomainNameForInstance
 
 // @TODO To be cached if needed. In memory data will not exceed 200MB for upto 2000 instances.
@@ -93,9 +92,7 @@ function updateAWSResourceCostsFromCSV(provider, resources, downlaodedCSVPath, u
 
     var stream = fs.createReadStream(downlaodedCSVPath)
     csv.fromStream(stream, {headers: false}).on('data', function(data) {
-        if((data[awsBillIndexes.totalCost] == 'LineItem')
-            && ((provider.lastBillUpdateTime == null)
-            || (Date.parse(data[awsBillIndexes.endDate]) > Date.parse(provider.lastBillUpdateTime)))) {
+        if(data[awsBillIndexes.totalCost] == 'LineItem') {
             var resourceCostEntry = {platformDetails: {}}
 
             resourceCostEntry.organizationId = provider.orgId
@@ -114,10 +111,10 @@ function updateAWSResourceCostsFromCSV(provider, resources, downlaodedCSVPath, u
             }
 
             resourceCostEntry.platformDetails.zone = (data[awsBillIndexes.zone] == null)
-                ? 'Unknown' : data[awsBillIndexes.zone]
+                ? 'Global' : data[awsBillIndexes.zone]
 
             resourceCostEntry.platformDetails.region = (data[awsBillIndexes.zone] in awsZones)
-                ? awsZones[data[awsBillIndexes.zone]] : 'Unknown'
+                ? awsZones[data[awsBillIndexes.zone]] : 'Global'
 
             if (data[awsBillIndexes.instanceId] != null) {
                 resourceCostEntry.platformDetails.instanceId = data[awsBillIndexes.instanceId]
@@ -132,32 +129,38 @@ function updateAWSResourceCostsFromCSV(provider, resources, downlaodedCSVPath, u
 
                 resourceCostEntry.resourceId = resource._id
 
-                if ('bgId' in resource) {
+                if (('bgId' in resource) && (resource.bgId != null)) {
                     resourceCostEntry.businessGroupId = resource['bgId']
                 }
 
-                if ('projectId' in resource) {
+                if (('projectId' in resource) && (resource.projectId != null)) {
                     resourceCostEntry.projectId = resource['projectId']
                 }
 
-                if ('environmentId' in resource) {
+                if (('environmentId' in resource) && (resource.environmentId != null)) {
                     resourceCostEntry.environmentId = resource['environmentId']
                 }
 
-                if ('masterDetails.bgId' in resource) {
+                if (('masterDetails.bgId' in resource) && (resource.masterDetails.bgId != null)) {
                     resourceCostEntry.businessGroupId = resource['bgId']
                 }
 
-                if ('masterDetails.projectId' in resource) {
+                if (('masterDetails.projectId' in resource)
+                    && (resource.masterDetails.projectId != null)) {
                     resourceCostEntry.projectId = resource['projectId']
                 }
 
-                if ('masterDetails.environmentId' in resource) {
+                if (('masterDetails.environmentId' in resource)
+                    && (resource.masterDetails.environmentId != null)) {
                     resourceCostEntry.environmentId = resource['environmentId']
                 }
+            } else {
+                resourceCostEntry.businessGroupId = 'Unassigned'
+                resourceCostEntry.projectId = 'Unassigned'
+                resourceCostEntry.environmentId = 'Unassigned'
             }
 
-            resourceCost.saveResourceCost(resourceCostEntry, function (err, costEntry) {
+            resourceCost.upsertResourceCost(resourceCostEntry, function (err, costEntry) {
                 if (err) {
                     logger.error(err)
                     return callback(new Error('Database Error'))
@@ -166,104 +169,6 @@ function updateAWSResourceCostsFromCSV(provider, resources, downlaodedCSVPath, u
         }
     }).on('end', function() {
         callback(null)
-    })
-}
-
-// NOTE: Only monthly costs aggregated.
-function aggregateEntityCosts(parentEntity, parentEntityId, parentEntityQuery, endTime, period, callback) {
-    var mongoConnectionString = 'mongodb://' + appConfig.db.host + ':' + appConfig.db.port + '/' + appConfig.db.dbName
-    var catalystEntityHierarchy = appConfig.catalystEntityHierarchy
-    var costAggregationPeriods = appConfig.costAggregationPeriods
-
-    var startTime
-    var interval
-    switch (period) {
-        case 'month':
-            startTime = dateUtil.getStartOfAMonthInUTC(endTime)
-            interval = costAggregationPeriods.month.intervalInSeconds
-            break
-        case 'day':
-            startTime = dateUtil.getStartOfADayInUTC(endTime)
-            interval = costAggregationPeriods.day.intervalInSeconds
-            break
-    }
-
-    mongoDbClient.connect(mongoConnectionString, function(err, db) {
-        if(err) {
-            return callback(err)
-        }
-
-        async.forEach(catalystEntityHierarchy[parentEntity].children, function (childEntity, next) {
-            //@TODO Consider replacing with Mongo aggregate $sum
-            var map = function() {
-                emit(this.childEntityKey, {cost: this.cost})
-            }
-
-            var reduce = function (key, values) {
-                var reducedObject = { cost: 0 }
-
-                values.forEach(function(value) {
-                    reducedObject.cost += value.cost
-                })
-
-                return reducedObject
-            }
-
-            var query = parentEntityQuery
-            query.startTime = {$gte: Date.parse(startTime)}
-            query.endTime = {$lte: Date.parse(endTime)}
-
-            var command = {
-                mapreduce: 'resourcecosts',
-                map: map.toString().replace(/childEntityKey/, catalystEntityHierarchy[childEntity].key),
-                reduce: reduce.toString(),
-                query: query,
-                out: {inline: 1}
-            }
-
-            db.command(command, function (err, result) {
-                if(err) {
-                    logger.error(err)
-                    next(err)
-                } else if(result.ok == 1){
-                    //@TODO To be handled outside
-                    async.forEach(result.results, function(entry, next) {
-                            var entityCost = {
-                                entity: {
-                                    id: entry._id,
-                                    type: childEntity
-                                },
-                                parentEntity: {
-                                    id: parentEntityId,
-                                    type: parentEntity
-                                },
-                                costs: {
-                                    totalCost: entry.value.cost
-                                },
-                                startTime: Date.parse(startTime),
-                                endTime: Date.parse(endTime),
-                                period: period,
-                                interval: interval
-                            }
-
-                            entityCosts.upsertEntityCost(entityCost, next)
-                        },
-                        function(err) {
-                            if(err) {
-                                return next(err)
-                            }
-
-                            return next()
-                        })
-                }
-            })
-        }, function (err) {
-            if(err) {
-                callback(err)
-            } else {
-                callback()
-            }
-        })
     })
 }
 

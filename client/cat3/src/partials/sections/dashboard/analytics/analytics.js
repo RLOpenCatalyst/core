@@ -19,7 +19,6 @@
 							deferred.reject({redirectTo: 'dashboard'});
 						}
 						return deferred.promise;
-
 					}]
 				}
 			}).state('dashboard.analytics.capacity', {
@@ -38,14 +37,13 @@
 							deferred.reject({redirectTo: 'dashboard'});
 						}
 						return deferred.promise;
-
 					}]
 				}
 			}).state('dashboard.analytics.usage', {
 				url: "usage/",
 				templateUrl: "src/partials/sections/dashboard/analytics/view/usage.html",
 				controller: "usageCtrl as usage",
-				params:{filterView:{org:true,provi:true,region:true,resources:true}},
+				params:{filterView:{org:true,provi:true,instanceType:true,resources:true,report:true}},
 				resolve: {
 					auth: ["$q", function ($q) {
 						var deferred = $q.defer();
@@ -57,12 +55,11 @@
 							deferred.reject({redirectTo: 'dashboard'});
 						}
 						return deferred.promise;
-
 					}]
 				}
 			})
 		}])
-	.controller('analyticsCtrl',['$scope', '$rootScope','$state','genericServices', 'workzoneServices', 'toastr', function ($scope, $rootScope, $state, genericServices, workzoneServices, toastr) {
+	.controller('analyticsCtrl',['$scope', '$rootScope','$state','genericServices','analyticsServices', 'workzoneServices', 'toastr', function ($scope, $rootScope, $state, genericServices,analyticsServices, workzoneServices, toastr) {
 		var analytic = this;
 		var splitUp=null;
 		analytic.tabShowChat=true;
@@ -71,21 +68,25 @@
 		$rootScope.isOpenSidebar = false;
 		$rootScope.dashboardChild = 'analytics';
 		$rootScope.stateItems = $state.params;
+		analyticsServices.initFilter();
 		var treeNames = ['Analytics'];
 		//$rootScope.$emit('treeNameUpdate', treeNames);
 		$rootScope.$emit('HEADER_NAV_CHANGE', 'ANALYTICS');
-		$rootScope.organNewEnt=[];
-		$rootScope.organNewEnt.org = '0';
-		$rootScope.splitUpCosts=[];
+		$scope.selectedResources = [];
 		analytic.viewByFilter='orgView';
 		$scope.$watch(function() { return analytic.viewByFilter}, function(newVal, oldVal) {
-				if(newVal === 'ProviderView'){
-					$rootScope.viewType='ProviderView';
-					$state.params.filterView.provi=true;
-				} else {
-					$rootScope.viewType='orgView';
-					$state.params.filterView.provi=false;
+			if(newVal === 'ProviderView'){
+				$rootScope.viewType='ProviderView';
+				if($state.params && $state.params.filterView){
+					analytic.ViewproviFilter=true;
 				}
+			} else {
+				$rootScope.organNewEnt.provider=''
+				$rootScope.viewType='orgView';
+				if($state.params && $state.params.filterView){
+					analytic.ViewproviFilter=false;
+				}
+			}
 			$rootScope.stateItems = $state.params;
 		}, true);
 		$scope.$on('CHANGE_splitUp', function (event, data) {
@@ -94,48 +95,12 @@
 		$scope.$watch(function() { return analytic.splitUp}, function(newVal, oldVal) {
 			$scope.$broadcast('CHANGE_VIEW',newVal);
 		}, true);
-		$rootScope.filterNewEnt={};
 		analytic.applyCount=0
-		analytic.applyFilter = function(filterApp){
-			$rootScope.filterApply= new Date();
-			var obj=$rootScope.organObject,
-				or=$rootScope.organNewEnt.org,
-				bu=$rootScope.organNewEnt.buss,
-				pr=$rootScope.organNewEnt.proj;
-			$rootScope.filterNewEnt={}
-			if(or){
-				$rootScope.filterNewEnt.org={name:obj[or].name,id:obj[or].rowid,title:'Org'};
-				$rootScope.filterNewEnt.provider='';
-			}
-			if(filterApp){
-				if(bu){
-					$rootScope.filterNewEnt.buss = {name:obj[or].businessGroups[bu].name,id:obj[or].businessGroups[bu].rowid,title:'BU'};
-				}
-				if(pr){
-					$rootScope.filterNewEnt.proj = {name:obj[or].businessGroups[bu].projects[pr].name,id:obj[or].businessGroups[bu].projects[pr].rowid,title:'Project'};
-				}
 
-				if($rootScope.organNewEnt.provider){
-					$rootScope.filterNewEnt.provider={name:$scope.providers[$rootScope.organNewEnt.provider].providerName,id:$scope.providers[$rootScope.organNewEnt.provider]._id,title:'Provider'};
-				} else{
-					$rootScope.filterNewEnt.provider='';
-				}
-			} else{
-				$rootScope.organNewEnt={}
-				$rootScope.organNewEnt.org=or;
-				analytic.viewByFilter='orgView';
-				analytic.splitUp=$rootScope.splitUpCosts[0];
-			}
-		};
-		// // get organigetion
+		//get organisation
 		genericServices.getTreeNew().then(function (orgs) {
 			$rootScope.organObject = orgs;
-			analytic.applyFilter(true);
 		});
-		$rootScope.organNewEnt=[];
-		$rootScope.organNewEnt.org = '0';
-		//$rootScope.organNewEnt.buss='0';
-		//$rootScope.organNewEnt.proj='0';
 		if (!$rootScope.stateParams.view) {
 			$state.go('dashboard.analytics.cost');
 		}
@@ -149,7 +114,6 @@
 			analytic.tabShowChat=chat;
 			analytic.tabShowReport=report;
 		};
-
 		analytic.hideTreeOverlay();
 		$scope.getAllRegionsList = function() {
             workzoneServices.getAllRegionsList().then(function(response) {
@@ -160,7 +124,10 @@
         };
         $scope.getProviders = function() {
             workzoneServices.getProviders().then(function(response) {
+				$rootScope.providers=response.data;
                 $scope.providers = response.data;
+                $scope.filter = [];
+                $scope.filter.providerId = response.data[0]._id;
             }, function(error) {
                 toastr.error(error);
             });
@@ -192,9 +159,7 @@
                 $scope.providerLoading = false;
             });
         };
-		if (!$rootScope.stateItems.view) {
-			$state.go('dashboard.analytics.cost');
-		}
+
         $scope.getAllRegionsList();
         $scope.getProviders();
 		$scope.fnProviderChange = function() {
@@ -205,5 +170,70 @@
                 $scope.getProviderRegions();
             }
         };
+        $scope.getResourse = function(instType) {
+			$rootScope.filterNewEnt.resources=[];
+			$scope.selectedResources=[];
+        	if(instType === 'Managed') {
+	        	workzoneServices.getManagedInstances($scope.filter.providerId).then(function(response) {
+					if(response.data && response.data.managedInstances &&  response.data.managedInstances.length >0){
+						$scope.resourceList = response.data.managedInstances;
+					} else{
+						$scope.resourceList=[];
+					}
+	            }, function(error) {
+	                toastr.error(error);
+	            });
+	        }
+	        if(instType === 'Assigned') {
+	            workzoneServices.getAssignedInstances($scope.filter.providerId).then(function(response) {
+					if(response.data && response.data.unmanagedInstances.length >0){
+						$scope.resourceList = response.data.unmanagedInstances;
+					} else{
+						$scope.resourceList = [];
+					}
+
+	            }, function(error) {
+	                toastr.error(error);
+	            });
+	        }
+	        if(instType === 'Unassigned') {
+	            workzoneServices.getUnassignedInstances($scope.filter.providerId).then(function(response) {
+					if(response.data && response.data.data && response.data.data.length >0){
+						$scope.resourceList = response.data.data;
+						$scope.selectedResources.push(response.data.data[0]._id);
+						$rootScope.filterNewEnt.resources=$scope.selectedResources;
+					} else {
+						$scope.resourceList = [];
+					}
+	            }, function(error) {
+	                toastr.error(error);
+	            });
+	        }
+        };
+		$scope.$on('INI_usage', function (event, id) {
+			$scope.getResourse(id);
+		});
+        $scope.toggleResourceSelection = function(resourceId) {
+            // var idx = $scope.selectedResources.indexOf(resourceId);
+            // if(idx > -1) {
+        		// $scope.selectedResources.splice(idx, 1);
+    		// } else {
+    		// 	if($scope.selectedResources.length === 5){
+    		// 		toastr.error('Maximum 5 resources allowed.');
+    		// 	}else{
+    		// 		$scope.selectedResources.push(resourceId);
+    		// 	}
+    		// }
+			if($scope.selectedResources === resourceId){
+				$scope.selectedResources='';
+			} else{
+				$scope.selectedResources=resourceId;
+			}
+
+			$rootScope.filterNewEnt.resources=$scope.selectedResources;
+		};
+		if (!$rootScope.stateParams.view && $rootScope.organObject) {
+			$state.go('dashboard.analytics.cost');
+		}
 	}]);
 })(angular);
