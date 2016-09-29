@@ -35,6 +35,7 @@ var AzureARM = require('_pr/model/azure-arm');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 
 
+
 var CHEFInfraBlueprint = require('./chef-infra-manager/chef-infra-manager');
 
 var Schema = mongoose.Schema;
@@ -153,7 +154,6 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                     //Creating instance in catalyst
 
                     var instance = {
-
                         name: instanceData.name,
                         orgId: launchParams.orgId,
                         orgName: launchParams.orgName,
@@ -371,11 +371,6 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                             };
                                             instanceLog.actionStatus = "success";
                                             instanceLog.endedOn = new Date().getTime();
-                                            instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
-                                                if (err) {
-                                                    logger.error("Failed to create or update instanceLog: ", err);
-                                                }
-                                            });
                                             launchParams.infraManager.getNode(instance.chefNodeName, function(err, nodeData) {
                                                 if (err) {
                                                     logger.error("Failed chef.getNode", err);
@@ -400,6 +395,13 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                     hardwareData.memory.free = nodeData.automatic.memory.free;
                                                 }
                                                 hardwareData.os = instance.hardware.os;
+                                                instanceLog.platform=nodeData.automatic.platform;
+                                                instanceLog.os=instance.hardware.os;
+                                                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                    if (err) {
+                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                    }
+                                                });
                                                 instancesDao.setHardwareDetails(instance.id, hardwareData, function(err, updateData) {
                                                     if (err) {
                                                         logger.error("Unable to set instance hardware details  code (setHardwareDetails)", err);

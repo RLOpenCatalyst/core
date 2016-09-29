@@ -14,6 +14,7 @@
     <link rel="stylesheet" type="text/css" media="screen" href="css/font-awesome.min.css">
     <link rel="stylesheet" href="js/jquery-filetree/jqueryFileTree.css" />
     <link rel="stylesheet" type="text/css"  href="css/toastr.min.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="css/wizardBg.css">
   </head>
   <body class="custom-theme">
     <!-- HEADER -->
@@ -46,6 +47,11 @@
             <!--track-->
             <li class="left-projects-links hidden" id="trackStyle" data-target="#Track" navigation="Track">
               <a class="dropdown-toggle navigationTab" href="#ajax/trackSettings.html" id="trackNew"  onclick="setleftnavigation(this,'Track');"><i class="fa fa-anchor"></i>&nbsp;TRACK</a>
+            </li>
+ <li class="left-projects-links hidden" data-target="#Workspace" navigation="Workspace,Workspace1">
+              <a class="navigationTab" id="analytics" href="#"  onclick="setleftnavigation(this,'analytics');" >
+              <i class="fa fa-area-chart white"></i>&nbsp; ANALYTICS 
+              </a>
             </li>
             <!--track ends here-->
             <!--right side navbar-->
@@ -505,6 +511,27 @@
     </div>
   </div>
 </div>
+
+    <div class="modal fade" id="domainNameContainer" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form role="form" class="cmxform" id="domainNameForm">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+              <h4 class="modal-title" id="myModalLabel">Enter a Unique Domain Name?</h4>
+            </div>
+            <div class="modal-body">
+              <i>(Only numbers,letters allowed. No spaces and underscores)</i>
+              <input type="text" uniqueconditionedby="domainNameInput" class="form-control" autofocus name="domainNameInput" id="domainNameInput"/>
+            </div>
+            <div class="modal-footer">
+              <a type="button" class="btn btn-default" data-dismiss="modal">Close</a>
+              <input type="submit" class="btn btn-default btn-primary" value="Submit">
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
     <!--modal for CFT Launch ends here-->
     <!--launching docker parameters-->
 <div class="modal fade bs-example-modal-lg" id="launchDockerInstanceSelector" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
@@ -754,7 +781,23 @@ function locationClick(){
 
 function setleftnavigation(toplink, breadcrumbHeader) {
     var TabID = $(toplink).attr('id');
-    if (TabID === "workZoneNew") {
+	 if (TabID === "analytics") {
+        
+        if(isAngularIntegration){
+          var checkUrl = window.location.href;
+          if(checkUrl.indexOf('ajax/Dev.html') !==-1){
+            console.log('here');
+          }else{
+             window.location.href = "../../cat3/#/dashboard/analytics/cost/";  
+            return false;
+          }
+        }
+        $('#Settings_nav').hide();
+        $('#Workspace1').show();
+        $('#trackShow').hide();
+
+    }
+   else if (TabID === "workZoneNew") {
         
         if(isAngularIntegration){
           var checkUrl = window.location.href;
@@ -844,7 +887,7 @@ var serviceURL = "../d4dMasters/";
 window.selectedOrgName = $('.orgSelected').text().trim();
 var SettingTreeJson = [{
         "name": "organizationsetup",
-        "text": "Organization Setup",
+        "text": "Org Configuration",
         "icon": "fa fa-lg fa-fw fa-building",
         "nodetype": "org",
         "nodes": [{
@@ -877,15 +920,6 @@ var SettingTreeJson = [{
             "selectable": true,
             "icon": "fa fa-lg fa-fw fa-tags"
 
-        },{
-            "name": "organizations",
-            "text": "Environments",
-            "borderColor": "#000",
-            "href": "#ajax/Settings/EnvironmentConceptList.html",
-            "selectable": true,
-            "icon": "fa fa-lg fa-fw fa-tint",
-            "parent": "devops",
-            "nodetype": "EnvironmentConceptList"
         }],
         "borderColor": "#000",
         "selectable": false,
@@ -894,7 +928,7 @@ var SettingTreeJson = [{
 
     }, {
         "name": "config setup",
-        "text": "Config Setup",
+        "text": "Config Management",
         "nodes": [{
             "name": "organizations",
             "text": "Chef Server",
@@ -910,81 +944,15 @@ var SettingTreeJson = [{
             "selectable": true,
             "icon": "fa fa-lg fa-fw fa-random"
 
-        }],
-        "borderColor": "#000",
-        "selectable": false,
-        "href": "javascript:void(0);",
-        "icon": "fa-lg fa-fw fa fa-tachometer"
-    },  {
-        "name": "devopssetup",
-        "text": "DevOps Setup",
-        "icon": "fa fa-lg fa-fw fa-qrcode",
-        "nodetype": "devops",
-        "nodes": [{
-                "name": "organizations",
-                "text": "Nexus Server",
-                "borderColor": "#000",
-                "href": "#ajax/Settings/NexusServerList.html",
-                "selectable": true,
-                "icon": "fa fa-lg fa-fw fa-random"
-
-            }, {
-                "name": "organizations",
-                "text": "Docker",
-                "borderColor": "#000",
-                "href": "#ajax/Settings/DockerTemplatesList.html",
-                "selectable": true,
-                "icon": "fa fa-lg fa-fw fa-hdd-o"
-
-            }, {
-                "name": "organizations",
-                "text": "Jenkins",
-                "borderColor": "#000",
-                "href": "#ajax/Settings/JenkinsConfigList.html",
-                "selectable": true,
-                "icon": "fa fa-lg fa-fw fa-link"
-
-            }, {
-                "name": "organizations",
-                "text": "Providers",
-                "borderColor": "#000",
-                "href": "#ajax/Settings/ProvidersList.html",
-                "selectable": true,
-                "icon": "fa fa-lg fa-fw fa-sitemap"
-            }, {
-                "name": "organizations",
-                "text": "CMDB",
-                "borderColor": "#000",
-                "href": "#ajax/Settings/cmdbList.html",
-                "selectable": true,
-                "icon": "fa fa-lg fa-fw fa-database"
-            },
-
-        ],
-        "borderColor": "#000",
-        "selectable": false,
-        "href": "javascript:void(0);"
-
-    }, {
-        "name": "usersetup",
-        "text": "Users Setup",
-        "icon": "fa fa-lg fa-fw  fa-tasks",
-        "nodes": [{
+        },{
             "name": "organizations",
-            "text": "User Roles",
+            "text": "Environments",
             "borderColor": "#000",
-            "href": "#ajax/Settings/RolesList.html",
+            "href": "#ajax/Settings/EnvironmentConceptList.html",
             "selectable": true,
-            "icon": "fa fa-lg fa-fw fa-th-list"
-
-        }, {
-            "name": "organizations",
-            "text": "Users",
-            "borderColor": "#000",
-            "href": "#ajax/Settings/UsersList.html",
-            "selectable": true,
-            "icon": "fa fa-lg fa-fw fa-user"
-
+            "icon": "fa fa-lg fa-fw fa-tint",
+            "parent": "devops",
+            "nodetype": "EnvironmentConceptList"
         }, {
             "name": "organizations",
             "text": "Teams",
@@ -996,8 +964,31 @@ var SettingTreeJson = [{
         }],
         "borderColor": "#000",
         "selectable": false,
-        "href": "javascript:void(0);"
+        "href": "javascript:void(0);",
+        "icon": "fa-lg fa-fw fa fa-tachometer"
+    }, {
+        "name": "provider setup",
+        "text": "Provider Configuration",
+        "nodes": [{
+            "name": "organizations",
+            "text": "Providers",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/ProvidersList.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-sitemap"
+        }, {
+            "name": "organizations",
+            "text": "VMImage",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/ImagesList.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-image"
 
+        }],
+        "borderColor": "#000",
+        "selectable": false,
+        "href": "javascript:void(0);",
+        "icon": "fa fa-lg fa-fw fa-sitemap"
     }, {
         "name": "gallerysetup",
         "text": "Gallery Setup",
@@ -1028,19 +1019,70 @@ var SettingTreeJson = [{
 
         }, {
             "name": "organizations",
-            "text": "VMImage",
-            "borderColor": "#000",
-            "href": "#ajax/Settings/ImagesList.html",
-            "selectable": true,
-            "icon": "fa fa-lg fa-fw fa-image"
-
-        }, {
-            "name": "organizations",
             "text": "Script Gallery",
             "borderColor": "#000",
             "href": "#ajax/Settings/scriptList.html",
             "selectable": true,
             "icon": "fa fa-lg fa fa-folder-o"
+
+        }],
+        "borderColor": "#000",
+        "selectable": false,
+        "href": "javascript:void(0);"
+
+    }, {
+        "name": "devopssetup",
+        "text": "DevOps Roles",
+        "icon": "fa fa-lg fa-fw fa-qrcode",
+        "nodetype": "devops",
+        "nodes": [{
+                "name": "organizations",
+                "text": "Nexus Server",
+                "borderColor": "#000",
+                "href": "#ajax/Settings/NexusServerList.html",
+                "selectable": true,
+                "icon": "fa fa-lg fa-fw fa-random"
+
+            }, {
+                "name": "organizations",
+                "text": "Docker",
+                "borderColor": "#000",
+                "href": "#ajax/Settings/DockerTemplatesList.html",
+                "selectable": true,
+                "icon": "fa fa-lg fa-fw fa-hdd-o"
+
+            }, {
+                "name": "organizations",
+                "text": "Jenkins",
+                "borderColor": "#000",
+                "href": "#ajax/Settings/JenkinsConfigList.html",
+                "selectable": true,
+                "icon": "fa fa-lg fa-fw fa-link"
+
+            }],
+        "borderColor": "#000",
+        "selectable": false,
+        "href": "javascript:void(0);"
+
+    }, {
+        "name": "usersetup",
+        "text": "Users Setup",
+        "icon": "fa fa-lg fa-fw  fa-tasks",
+        "nodes": [{
+            "name": "organizations",
+            "text": "User Roles",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/RolesList.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-th-list"
+
+        }, {
+            "name": "organizations",
+            "text": "Users",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/UsersList.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-user"
 
         }],
         "borderColor": "#000",
@@ -1063,30 +1105,21 @@ var SettingTreeJson = [{
         "href": "javascript:void(0);",
         "icon": "fa-lg fa-fw fa fa-tachometer"
     }, {
-        "name": "userguide",
-        "text": "User Information",
-        "borderColor": "#000",
+        "name": "cmdb",
+        "text": "CMDB Configuration",
         "nodes": [{
-            "name": "Guide",
-            "text": "User Guide",
+            "name": "organizations",
+            "text": "CMDB",
             "borderColor": "#000",
-            "href": "ajax/Settings/Catalyst-Guide.html",
+            "href": "#ajax/Settings/cmdbList.html",
             "selectable": true,
-            "icon": "fa fa-lg fa-fw fa-file-pdf-o",
-            "target": "_blank",
-        }, {
-            "name": "Guide",
-            "text": "Videos",
-            "borderColor": "#000",
-            "href": "#ajax/Settings/videos.html",
-            "selectable": true,
-            "icon": "fa fa-lg fa-fw fa-file-video-o",
+            "icon": "fa fa-lg fa-fw fa-database"
         }],
+        "borderColor": "#000",
         "selectable": false,
         "href": "javascript:void(0);",
-        "icon": "fa-lg fa-fw fa fa-book"
+        "icon": "fa fa-lg fa-fw fa-database"
     }
-
 ];
 
 function loadSettingsTree() {

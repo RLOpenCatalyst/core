@@ -19,12 +19,12 @@ function getOrgProjBUComparison(data, id) {
             if (bgID == tdata[i].productgroupname_rowid) {
                 $blueprintReadContainer.find('.modal-body #blueprintBU').val(tdata[i].productgroupname);
                 $blueprintLaunch.find('.modal-body #blueprintBuEnv').val(tdata[i].productgroupname);
-                $blueprintReadContainerCFT.find('.modal-body #blueprintBUCFT').val(tdata[i].orgname[0]);
+                $blueprintReadContainerCFT.find('.modal-body #blueprintBUCFT').val(tdata[i].productgroupname);
             }
             if (projID == tdata[i].rowid) {
                 $blueprintReadContainer.find('.modal-body #blueprintProject').val(tdata[i].projectname);
                 $blueprintLaunch.find('.modal-body #blueprintProEnv').val(tdata[i].projectname);
-                $blueprintReadContainerCFT.find('.modal-body #blueprintProjectCFT').val(tdata[i].orgname[0]);
+                $blueprintReadContainerCFT.find('.modal-body #blueprintProjectCFT').val(tdata[i].projectname);
             }
             var envNames = tdata[i].environmentname.split(',');
             var envIds = tdata[i].environmentname_rowid.split(',');
@@ -55,8 +55,11 @@ function blueprintLaunchDesign(data) {
             if (!result) {
                 return;
             } else {
+
                 $('#cftForm').trigger('reset');
+                $('#domainNameForm').trigger('reset');
                 var blueprintType = data.templateType;
+                var domainNameCheck = data.domainNameCheck;
                 //setting the envId as it is needed for bpLaunch.
                 var envId = $('#envSelect').val();
                 //setting the blueprint version.(different versions)
@@ -65,12 +68,12 @@ function blueprintLaunchDesign(data) {
                     var version = data.blueprintConfig.infraManagerData.latestVersion;
                 }
 
-                function launchBP(blueprintId, stackName) {
+                function launchBP(blueprintId, stackName,domainName) {
                     var $launchResultContainer = $('#launchResultContainer');
                     $launchResultContainer.find('.modal-body').empty().append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />');
                     $launchResultContainer.find('.modal-title').html('Launching Blueprint');
                     $launchResultContainer.modal('show');
-                    $.get('/blueprints/' + blueprintId + '/launch?version=' + version + '&envId=' + envId + '&stackName=' + stackName, function(data) {
+                    $.get('/blueprints/' + blueprintId + '/launch?version=' + version + '&envId=' + envId + '&stackName=' + stackName + '&domainName=' + domainName, function(data) {
 
                         var msgStr = 'Instance Id : ';
                         if (blueprintType === 'cft') {
@@ -182,13 +185,14 @@ function blueprintLaunchDesign(data) {
                     if (!eventAdded) {
                         $("#cftForm").unbind().submit(function(e) {
                             var stackName = $('#cftInput').val();
+                            var domainName = null;
                             var isValid = $('#cftForm').valid();
                             if (!isValid) {
                                 e.preventDefault();
                                 return false;
                             } else {
                                 var blueprintId = $('#modalSelectEnvironment').find('#selectedVersion').val();
-                                launchBP(blueprintId, stackName);
+                                launchBP(blueprintId, stackName,domainName);
                                 $('#cftContainer').modal('hide');
                                 e.preventDefault();
                                 return false;
@@ -196,8 +200,45 @@ function blueprintLaunchDesign(data) {
                         });
                         eventAdded = true;
                     }
+                }else if(domainNameCheck === true){
+                        jQuery.validator.addMethod("noSpace", function(value, element) {
+                            return value.indexOf(" ") < 0 && value != "";
+                        }, "No space allowed and the user can't leave it empty");
+                        $('#domainNameContainer').modal('show');
+                        var validator = $("#domainNameForm").validate({
+                            rules: {
+                                domainNameInput: {
+                                    noSpace: true,
+                                    alphanumeric: true
+                                }
+                            }
+                        });
+                        $('a.launchBtn[type="reset"]').on('click', function() {
+                            validator.resetForm();
+                        });
+
+                        if (!eventAdded) {
+                            $("#domainNameForm").unbind().submit(function(e) {
+                                var domainName = $('#domainNameInput').val();
+                                var stackName = null;
+                                var isValid = $('#domainNameForm').valid();
+                                if (!isValid) {
+                                    e.preventDefault();
+                                    return false;
+                                } else {
+                                    var blueprintId = $('#modalSelectEnvironment').find('#selectedVersion').val();
+                                    launchBP(blueprintId, stackName,domainName);
+                                    $('#domainNameContainer').modal('hide');
+                                    e.preventDefault();
+                                    return false;
+                                }
+                            });
+                            eventAdded = true;
+                        }
                 } else {
-                    launchBP(blueprintId);
+                    var stackName = null;
+                    var domainName = null;
+                    launchBP(blueprintId,stackName,domainName);
                 }
             }
         }

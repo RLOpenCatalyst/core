@@ -36,6 +36,7 @@ var credentialcryptography = require('_pr/lib/credentialcryptography');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var Schema = mongoose.Schema;
+var resourceService = require('_pr/services/resourceService');
 
 var AWSInstanceBlueprintSchema = new Schema({
     keyPairId: {
@@ -90,6 +91,7 @@ var AWSInstanceBlueprintSchema = new Schema({
 
 AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
     var self = this;
+    var domainName = launchParams.domainName;
     VMImage.getImageById(self.imageId, function(err, anImage) {
         if (err) {
             logger.error(err);
@@ -361,7 +363,6 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                     }
                                     logger.debug('Instance ip upadated');
                                 });
-
                                 instancesDao.updateInstanceState(instance.id, instanceData.State.Name, function(err, updateCount) {
                                     if (err) {
                                         logger.error("error(date instance state err ==>", err);
@@ -543,7 +544,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                         instanceLog.actionStatus = "success";
                                                         instanceLog.logs = {
                                                             err: false,
-                                                            log: "Instance Bootstraped successfully",
+                                                            log: "Instance Bootstrapped successfully",
                                                             timestamp: new Date().getTime()
                                                         };
                                                         instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
@@ -555,12 +556,19 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                         logsDao.insertLog({
                                                             referenceId: logsReferenceIds,
                                                             err: false,
-                                                            log: "Instance Bootstraped successfully",
+                                                            log: "Instance Bootstrapped successfully",
                                                             timestamp: timestampEnded
                                                         });
+                                                        if(typeof domainName !== 'undefined' && domainName !== '' && domainName !== null && domainName !== 'null') {
+                                                            resourceService.updateDomainNameForInstance(domainName, instance.instanceIP,instance.id, awsSettings, function (err, updateDomainName) {
+                                                                if (err) {
+                                                                    logger.error("resourceService.updateDomainNameForInstance Failed ==>", err);
+                                                                    return;
+                                                                }
+                                                                logger.debug("Domain name is updated successfully");
+                                                            });
+                                                        }
                                                         instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
-
-
                                                         launchParams.infraManager.getNode(instance.chefNodeName, function(err, nodeData) {
                                                             if (err) {
                                                                 logger.error("Failed chef.getNode", err);

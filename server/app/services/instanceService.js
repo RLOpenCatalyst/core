@@ -24,8 +24,9 @@ var appConfig = require('_pr/config');
 var EC2 = require('_pr/lib/ec2.js');
 var Cryptography = require('../lib/utils/cryptography');
 var tagsModel = require('_pr/model/tags/tags.js');
-var resourceCost = require('_pr/model/resource-costs/resource-costs.js');
+var resourceCost = require('_pr/model/resource-costs-deprecated/resource-costs-deprecated.js');
 var resourceUsage = require('_pr/model/resource-metrics/resource-metrics.js');
+var Route53 = require('_pr/lib/route53.js');
 
 var async = require('async');
 var logsDao = require('_pr/model/dao/logsdao.js');
@@ -36,6 +37,7 @@ var resources = require('_pr/model/resources/resources.js');
 
 var appConfig = require('_pr/config');
 var uuid = require('node-uuid');
+var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 
 var credentialCryptography = require('_pr/lib/credentialcryptography.js');
 
@@ -62,6 +64,7 @@ instanceService.createTrackedInstancesResponse = createTrackedInstancesResponse;
 instanceService.validateListInstancesQuery = validateListInstancesQuery;
 instanceService.removeInstanceById = removeInstanceById;
 instanceService.removeInstancesByProviderId = removeInstancesByProviderId;
+instanceService.instanceSyncWithAWS = instanceSyncWithAWS;
 
 function checkIfUnassignedInstanceExists(providerId, instanceId, callback) {
     unassignedInstancesModel.getById(instanceId,
@@ -122,14 +125,10 @@ function validateListInstancesQuery(orgs, filterQuery, callback) {
 
     if (orgIds.length > 0) {
         if (queryObjectAndCondition.providerId) {
-            filterQuery.queryObj['$and'][0].orgId = {
-                '$in': orgIds
-            }
+            filterQuery.queryObj['$and'][0].orgId = {'$in': orgIds}
         } else {
-            filterQuery.queryObj['$and'][0] = {
-                providerId: { '$ne': null },
-                orgId: { '$in': orgIds }
-            }
+            filterQuery.queryObj['$and'][0].providerId ={ '$ne': null };
+            filterQuery.queryObj['$and'][0].orgId = {'$in': orgIds};
         }
     }
 
@@ -440,10 +439,12 @@ function getTrackedInstances(query, category, next) {
             function(callback) {
                 if (category === 'managed') {
                     instancesModel.getAll(query, callback);
-                } else if (category === 'assigned') {
+                }else if (category === 'assigned') {
                     unManagedInstancesModel.getAll(query, callback);
-                } else {
-                    callback(null, []);
+                }else if(category === 'unassigned'){
+                    unassignedInstancesModel.getAll(query,callback);
+                }else{
+                    callback(null, [{docs:[],total:0}]);
                 }
             }
         ],
@@ -1303,4 +1304,161 @@ function removeInstancesByProviderId(providerId, callback) {
             callback(null, results);
         }
     })
+}
+
+function instanceSyncWithAWS(instanceId,instanceData,providerDetails,callback){
+    async.waterfall([
+        function(next){
+            instancesModel.getInstanceById(instanceId,next);
+        },
+        function(instances,next){
+            var instance = instances[0];
+            var routeHostedZoneParamList = [];
+            if(instance.instanceState !== instanceData.state && instance.bootStrapStatus ==='success') {
+                var timestampStarted = new Date().getTime();
+                var user = instance.catUser ? instance.catUser : 'superadmin';
+                var action ='';
+                if(instanceData.state === 'stopped' || instanceData.state === 'stopping'){
+                    action = 'Stop';
+                }else if(instanceData.state === 'terminated'){
+                    action ='Terminated';
+                    if(instance.route53HostedParams){
+                        routeHostedZoneParamList = instance.route53HostedParams;
+                    }
+                }else if(instanceData.state === 'shutting-down'){
+                    action ='Shutting-Down';
+                }else{
+                    action ='Start';
+                };
+                if(instanceData.state === 'terminated' && instance.instanceState === 'shutting-down'){
+                    instanceLogModel.getLogsByInstanceIdStatus(instance._id,instance.instanceState,function(err,data){
+                        if(err){
+                            logger.error("Failed to get Instance Logs: ", err);
+                            next(err, null);
+                        }
+                        data.status = 'terminated';
+                        data.action = action;
+                        data.user = user;
+                        data.actionStatus = "success";
+                        data.endedOn = new Date().getTime();
+                        logsDao.insertLog({
+                            referenceId: [data.actionId,data.instanceId],
+                            err: false,
+                            log: "Instance " + instanceData.state,
+                            timestamp: timestampStarted
+                        });
+                        instanceLogModel.createOrUpdate(data.actionId, instance._id, data, function (err, logData) {
+                            if (err) {
+                                logger.error("Failed to create or update instanceLog: ", err);
+                                next(err, null);
+                            }
+                            next(null, routeHostedZoneParamList);
+                        });
+                    })
+                }else {
+                    createOrUpdateInstanceLogs(instance,instanceData.state,action,user,timestampStarted,routeHostedZoneParamList,next);
+                }
+            }else{
+                next(null,routeHostedZoneParamList);
+            }
+        },
+       function(paramList,next) {
+           async.parallel({
+               instanceDataSync: function(callback){
+                   instancesModel.updateInstanceStatus(instanceId,instanceData,callback);
+               },
+               route53Sync: function(callback){
+                   if(paramList.length > 0){
+                       var cryptoConfig = appConfig.cryptoSettings;
+                       var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+                       var decryptedAccessKey = cryptography.decryptText(providerDetails.accessKey,
+                           cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                       var decryptedSecretKey = cryptography.decryptText(providerDetails.secretKey,
+                           cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                       var route53Config = {
+                           access_key: decryptedAccessKey,
+                           secret_key: decryptedSecretKey,
+                           region:'us-west-1'
+                       };
+                       var route53 = new Route53(route53Config);
+                       var count = 0;
+                       for(var i = 0; i < paramList.length;i++){
+                           (function(params){
+                               params.ChangeBatch.Changes[0].Action = 'DELETE';
+                               route53.changeResourceRecordSets(params,function(err,data){
+                                   count++;
+                                   if(err){
+                                       callback(err,null);
+                                   }
+                                   if(count === paramList.length){
+                                       callback(null,paramList);
+                                   }
+                               });
+                           })(paramList[i]);
+
+                       }
+                   }else{
+                       callback(null,paramList);
+                   }
+               }
+           },function(err,results){
+               if(err){
+                   next(err);
+               }else{
+                   next(null,results);
+               }
+           })
+
+       }
+    ], function(err,results){
+        if (err) {
+            callback(err, null);
+        } else {
+            callback(null, results);
+        }
+    })
+}
+
+function createOrUpdateInstanceLogs(instance,instanceState,action,user,timestampStarted,routeHostedZoneParamList,next){
+    var actionLog = instancesModel.insertInstanceStatusActionLog(instance._id, user, instanceState, timestampStarted);
+    var actionStatus = 'success';
+    var logReferenceIds = [instance._id, actionLog._id];
+    logsDao.insertLog({
+        referenceId: logReferenceIds,
+        err: false,
+        log: "Instance " + instanceState,
+        timestamp: timestampStarted
+    });
+    if(instanceState === 'shutting-down'){
+        actionStatus = 'pending';
+    }
+    var instanceLog = {
+        actionId: actionLog._id,
+        instanceId: instance._id,
+        orgName: instance.orgName,
+        bgName: instance.bgName,
+        projectName: instance.projectName,
+        envName: instance.environmentName,
+        status: instanceState,
+        actionStatus: actionStatus,
+        platformId: instance.platformId,
+        blueprintName: instance.blueprintData.blueprintName,
+        data: instance.runlist,
+        platform: instance.hardware.platform,
+        os: instance.hardware.os,
+        size: instance.instanceType,
+        user: user,
+        createdOn: new Date().getTime(),
+        startedOn: new Date().getTime(),
+        providerType: instance.providerType,
+        action: action,
+        logs: []
+    };
+    instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function (err, logData) {
+        if (err) {
+            logger.error("Failed to create or update instanceLog: ", err);
+            next(err, null);
+        }
+        next(null, routeHostedZoneParamList);
+    });
 }

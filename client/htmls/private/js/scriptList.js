@@ -29,7 +29,7 @@ function getOrganizationList() {
         var str = ' <option value="">Select Organization</option>',
         len = data.length;
         for (var i = 0; i < data.length; i++) {
-            str = str + '<option value="' + data[i]._id + '">' + data[i].orgname + '</option>';
+            str = str + '<option value="' + data[i].rowid + '">' + data[i].orgname + '</option>';
         }
         $('#orgName').html(str);
     })
@@ -244,23 +244,6 @@ $('#scriptForm').submit(function(e) {
     var formData = new FormData();
     formData.append('file', $('input[type=file]')[0].files[0]);
     var methodName ='';
-    if(scriptEditNew === "edit") {
-        if(hiddenFileName === availableFileName) {
-            url = '../scripts/update/scriptData';
-            methodName = 'PUT';
-            reqBody = {
-                "scriptId": scriptId,
-                "name": name,
-                "type": type,
-                "description": description,
-                "orgDetails": orgDetails,
-                "fileId": fileId
-            };
-            formSave(methodName,url,reqBody);
-            return false;          
-        }
-    }
-
     var isValidator = $('#scriptForm').valid();
     if(isValidator){
         e.preventDefault();

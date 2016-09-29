@@ -358,12 +358,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			});
 			return;
 		}
-		if (!req.query.envId) {
-			res.send(400, {
-				"message": "Invalid Environment Id"
-			});
-			return;
-		}
 		var user = req.session.user;
 		var category = 'blueprints';
 		var permissionto = 'execute';
@@ -390,7 +384,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 						}
 
 						var stackName = null;
-
+						var domainName = null;
 						if (blueprint.blueprintType === 'aws_cf' || blueprint.blueprintType === 'azure_arm') {
 							stackName = req.query.stackName;
 							if (!stackName) {
@@ -400,12 +394,21 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 								return;
 							}
 						}
-
+						if(blueprint.domainNameCheck === true) {
+							domainName = req.query.domainName;
+							if (!domainName) {
+								res.send(400, {
+									message: "Invalid domainName"
+								});
+								return;
+							}
+						}
 						blueprint.launch({
 							envId: req.query.envId,
 							ver: req.query.version,
 							stackName: stackName,
-							sessionUser: req.session.user.cn,
+							domainName:domainName,
+							sessionUser: req.session.user.cn
 						}, function(err, launchData) {
 							if (err) {
 								res.status(500).send({
