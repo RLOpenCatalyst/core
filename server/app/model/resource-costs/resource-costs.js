@@ -121,12 +121,12 @@ var ResourceCostsSchema = new Schema({
         type: Number,
         required: true
     }
-});
-/*ResourceCostsSchema.index({'platformDetails.instanceId': 1, 'platformDetails.usageType': 1,
-    'startTime': 1, 'endTime': 1}, {'unique': true, 'sparse': true, 'partialFilterExpression':
-    {'platformDetails.usageType': { $exists: true }}})*/
+})
 
-ResourceCostsSchema.statics.saveResourceCost = function(resourceCostData, callback) {
+ResourceCostsSchema.index({'organizationId': 1, 'resourceId': 1, 'billLineRecordId': 1,
+    'startTime': 1, 'interval': 1}, {'unique': true})
+
+ResourceCostsSchema.statics.saveResourceCost = function saveResourceCost(resourceCostData, callback) {
     var resourceCosts = new ResourceCosts(resourceCostData)
     resourceCosts.save(function(err, data) {
         if (err) {
@@ -135,6 +135,25 @@ ResourceCostsSchema.statics.saveResourceCost = function(resourceCostData, callba
             callback(null)
         }
     })
+}
+
+ResourceCostsSchema.statics.upsertResourceCost = function upsertResourceCost(resourceCostData, callback) {
+    var query = {
+        organizationId: resourceCostData.organizationId,
+        resourceId: resourceCostData.billLineRecordId,
+        billLineRecordId: resourceCostData.billLineRecordId,
+        startTime: resourceCostData.startTime,
+        interval: resourceCostData.interval
+    }
+
+    this.findOneAndUpdate(query, resourceCostData, {upsert:true},
+        function(err, result){
+            if (err) {
+                callback(null)
+            } else {
+                callback(null, result)
+            }
+        });
 }
 
 var ResourceCosts = mongoose.model('ResourceCosts', ResourceCostsSchema)

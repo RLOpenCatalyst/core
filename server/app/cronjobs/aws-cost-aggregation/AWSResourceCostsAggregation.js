@@ -175,17 +175,18 @@ function downloadLatestBill(provider, callback) {
             }
         },
         function(billDownloaded, next) {
+            var downloadedCSVPath = appConfig.aws.s3BucketDownloadFileLocation
+                + AWSResourceCostsAggregation.csvFileName
+
             if(billDownloaded) {
                 var downloadedZipPath = appConfig.aws.s3BucketDownloadFileLocation
                     + appConfig.aws.s3BucketFileName
                 var zip = new AdmZip(downloadedZipPath)
                 zip.extractAllTo(appConfig.aws.s3BucketDownloadFileLocation, true)
 
-                var downloadedCSVPath = appConfig.aws.s3BucketDownloadFileLocation
-                    + AWSResourceCostsAggregation.csvFileName
                 next(null, downloadedCSVPath)
             } else {
-                next(null, null)
+                next(null, downloadedCSVPath)
             }
         }
     ],

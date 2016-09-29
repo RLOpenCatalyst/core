@@ -97,7 +97,9 @@ analyticsService.aggregateEntityCosts
 			if(err) {
 				next0(err)
 			} else {
+				//@TODO Blocking call to be avoided
 				var entityCosts = {}
+
 				for(var i = 0; i < aggregateCosts.totalCosts.length; i++) {
 					entityCosts[aggregateCosts.totalCosts[i]._id] = {
 						entity: {
@@ -122,6 +124,7 @@ analyticsService.aggregateEntityCosts
 					}
 				}
 
+				// @TODO Blocking call to be avoided
 				for(var i = 0; i < aggregateCosts.serviceCosts.length; i++) {
 					for(var j = 0; j < aggregateCosts.serviceCosts[i].length; j++) {
 						if(aggregateCosts.serviceCosts[i][j]._id in entityCosts) {
@@ -289,17 +292,25 @@ analyticsService.formatAggregateCost = function formatAggregateCost(entityCosts,
 				splitUpCosts: {}
 			}
 
-			analyticsService.getEntityDetails(formattedAggregateCost.entity.type,
-				formattedAggregateCost.entity.id,
-				function(err, entityDetails) {
-					if(err) {
-						next(err)
-					} else {
-						formattedAggregateCost.entity.name = entityDetails.name
-						next(null, formattedAggregateCost)
+			if (formattedAggregateCost.entity.id != 'Unassigned'
+				&& formattedAggregateCost.entity.id != 'Other'
+				&& formattedAggregateCost.entity.id != 'Global'
+				&& formattedAggregateCost.entity.id != 'Unknown') {
+				analyticsService.getEntityDetails(formattedAggregateCost.entity.type,
+					formattedAggregateCost.entity.id,
+					function (err, entityDetails) {
+						if (err) {
+							next(err)
+						} else {
+							formattedAggregateCost.entity.name = entityDetails.name
+							next(null, formattedAggregateCost)
+						}
 					}
-				}
-			)
+				)
+			} else {
+				formattedAggregateCost.entity.name = formattedAggregateCost.entity.id
+				next(null, formattedAggregateCost)
+			}
 		},
 		function(formattedAggregateCost, next) {
 			async.forEach(entityCosts.splitUpCosts,
@@ -319,7 +330,7 @@ analyticsService.formatAggregateCost = function formatAggregateCost(entityCosts,
 					}
 
 					if (costEntry.entity.id != 'Unassigned' && costEntry.entity.id != 'Other'
-						&& costEntry.entity.id != 'Unknown') {
+						&& costEntry.entity.id != 'Unknown' && costEntry.entity.id != 'Global') {
 						analyticsService.getEntityDetails(costEntry.entity.type, costEntry.entity.id,
 							function (err, entityDetails) {
 								if (err) {

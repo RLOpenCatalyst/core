@@ -92,9 +92,7 @@ function updateAWSResourceCostsFromCSV(provider, resources, downlaodedCSVPath, u
 
     var stream = fs.createReadStream(downlaodedCSVPath)
     csv.fromStream(stream, {headers: false}).on('data', function(data) {
-        if((data[awsBillIndexes.totalCost] == 'LineItem')
-            && ((provider.lastBillUpdateTime == null)
-            || (Date.parse(data[awsBillIndexes.endDate]) > Date.parse(provider.lastBillUpdateTime)))) {
+        if(data[awsBillIndexes.totalCost] == 'LineItem') {
             var resourceCostEntry = {platformDetails: {}}
 
             resourceCostEntry.organizationId = provider.orgId
@@ -113,10 +111,10 @@ function updateAWSResourceCostsFromCSV(provider, resources, downlaodedCSVPath, u
             }
 
             resourceCostEntry.platformDetails.zone = (data[awsBillIndexes.zone] == null)
-                ? 'Unknown' : data[awsBillIndexes.zone]
+                ? 'Global' : data[awsBillIndexes.zone]
 
             resourceCostEntry.platformDetails.region = (data[awsBillIndexes.zone] in awsZones)
-                ? awsZones[data[awsBillIndexes.zone]] : 'Unknown'
+                ? awsZones[data[awsBillIndexes.zone]] : 'Global'
 
             if (data[awsBillIndexes.instanceId] != null) {
                 resourceCostEntry.platformDetails.instanceId = data[awsBillIndexes.instanceId]
@@ -131,32 +129,38 @@ function updateAWSResourceCostsFromCSV(provider, resources, downlaodedCSVPath, u
 
                 resourceCostEntry.resourceId = resource._id
 
-                if ('bgId' in resource) {
+                if (('bgId' in resource) && (resource.bgId != null)) {
                     resourceCostEntry.businessGroupId = resource['bgId']
                 }
 
-                if ('projectId' in resource) {
+                if (('projectId' in resource) && (resource.projectId != null)) {
                     resourceCostEntry.projectId = resource['projectId']
                 }
 
-                if ('environmentId' in resource) {
+                if (('environmentId' in resource) && (resource.environmentId != null)) {
                     resourceCostEntry.environmentId = resource['environmentId']
                 }
 
-                if ('masterDetails.bgId' in resource) {
+                if (('masterDetails.bgId' in resource) && (resource.masterDetails.bgId != null)) {
                     resourceCostEntry.businessGroupId = resource['bgId']
                 }
 
-                if ('masterDetails.projectId' in resource) {
+                if (('masterDetails.projectId' in resource)
+                    && (resource.masterDetails.projectId != null)) {
                     resourceCostEntry.projectId = resource['projectId']
                 }
 
-                if ('masterDetails.environmentId' in resource) {
+                if (('masterDetails.environmentId' in resource)
+                    && (resource.masterDetails.environmentId != null)) {
                     resourceCostEntry.environmentId = resource['environmentId']
                 }
+            } else {
+                resourceCostEntry.businessGroupId = 'Unassigned'
+                resourceCostEntry.projectId = 'Unassigned'
+                resourceCostEntry.environmentId = 'Unassigned'
             }
 
-            resourceCost.saveResourceCost(resourceCostEntry, function (err, costEntry) {
+            resourceCost.upsertResourceCost(resourceCostEntry, function (err, costEntry) {
                 if (err) {
                     logger.error(err)
                     return callback(new Error('Database Error'))
