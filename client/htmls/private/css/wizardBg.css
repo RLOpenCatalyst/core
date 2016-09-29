@@ -4,6 +4,9 @@ Version: 2.0.0
 Author: Sean Ngu
 Website: http://www.seantheme.com/color-admin-v2.0/admin/html/
 */
+.wizardAdd {
+    margin-top: -10px;
+}
 .bwizard-steps {
     font-size: 14px!important;
     border-radius: 3px!important;

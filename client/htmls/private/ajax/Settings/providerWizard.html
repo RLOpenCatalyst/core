@@ -5,7 +5,8 @@
    <form id="myForm54" enctype="mutlipart/form-data" action="/aws/providers" method="post">
       <div class="widget-box">
          <div class="widget-header">
-            <h4 class="widget-margin" style="color:black;">Create Providers</h4>
+               <h4 class="widget-margin" style="color:black;">Create Provider
+              </h4>
          </div>
          <div class="widget-body" >
            <fieldset>
@@ -264,7 +265,6 @@
    var $option = $('<option></option>').val(orgIdForSetup).html(orgNameForSetup);
    var providerIdForImage;
    $('#orgId').append($option);
-   $(document).ready(function(e) {
        var providerWizardFlow = $('<ol id="providerWizard" class="bwizard-steps clearfix clickable"><li aria-selected="true" id="providerCreate" class="active btn-2 providerCreate" style="z-index: 4;"><span class="label badge-inverse">1</span><a href="ajax/Settings/providerWizard.html" class="hidden-phone">Create Providers</a></li><li aria-selected="true" style="z-index: 3;" id="imageCreate" class="btn-3 imageCreate"><span class="label">2</span><a href="ajax/Settings/vmImageWizard.html" class="not-activeAnchor hidden-phone">Create VmImages</a></li></ol>');
        $('.wizardFlow').append(providerWizardFlow);
 
@@ -296,6 +296,8 @@
                        $('.aws-secret-info').hide();
                        $('.secretInfo').removeAttr('cat-validation');
                        $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                       $('.saveFormWizard').addClass('hidden');
+                       $('.nextFormWizard').removeAttr('disabled');
                    }
                }
            });
@@ -311,8 +313,7 @@
                     if(providerIdForImage === data[i].providerId){
                     var $option = $('<option></option>').val(orgIdForSetup).html(orgNameForSetup);
                     $('#myForm22').find('select#orgId').append($option).attr('disabled','disabled');
-                    var $optionForOs = $('<option></option>').val(data[i].osName).html(data[i].osName);
-                    
+                    var $optionForOs = $('<option></option>').val(data[i].osName).html(data[i].osName);  
                       $('#myForm22').find('select.providerVMImageDisplay').remove();
                       $('#myForm22').find('input.imageNameForVM').val(data[i].name).attr('disabled','disabled');
                       $('#myForm22').find('input#providerIdHiddenName').removeClass('hidden').val(providerNameForImage);
@@ -321,6 +322,8 @@
                       $('#myForm22').find('input#imageidentifire').val(data[i].imageIdentifier).attr('disabled','disabled');
                       $('#myForm22').find('input#UserName').val(data[i].userName).attr('disabled','disabled');
                       $('.btn-3 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                      $('#myForm22').find('button.saveImageWizard').addClass('hidden');
+                      $('.nextFormWizard').removeAttr('disabled');
                     }
                   }
                 }
@@ -333,16 +336,16 @@
        });
        $('.btn-3 a').click(function(e) {
            e.preventDefault();
-           getVmImages();
+           $('.nextFormWizard').removeAttr('disabled');
            $('.btn-2 a').parent('.bwizard-steps li').removeClass('active')
            $(this).parent('.bwizard-steps li').addClass('active');
            $('.content').load(this.getAttribute('href'));
+           getVmImages();
        });
        //api call for getting the status of wizard
-       if (clicked) {
-          if(orgIdForSetup){
-              $('#wizardActionListLoader').show();
-              $.get('/setting-wizard/org/' + orgIdForSetup, function(data) {
+
+       function getProviderWizardStatus(orgIdForSetup) {
+            $.get('/setting-wizard/org/' + orgIdForSetup, function(data) {
                if (data.currentStep.name === 'Provider Configuration') {
                    if (data.currentStep.nestedSteps) {
                        var nestedSteps = data.currentStep.nestedSteps;
@@ -357,18 +360,27 @@
                    }
                } else {
                    getProviderValues();
+                   $('.btn-3 a').removeClass('not-activeAnchor');
                    $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
                    $('.btn-3 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
                }
            });
+       }
+       orgIdForSetup = selectedDropdownValue;
+       if (clicked) {
+          if(orgIdForSetup){
+              $('#wizardActionListLoader').show();
+              getProviderWizardStatus(orgIdForSetup);
           }
            $('#wizardActionListLoader').hide();
        } else {
-           getProviderValues();
-           $('.btn-3 a').removeClass('not-activeAnchor');
-           $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+         if(orgIdForSetup){
+            getProviderValues();
+            getVmImages();
+           $('.btn-3 a').removeClass('not-activeAnchor'); 
+         }
        }
-   });
+  
 
 
    var UtilityMethods = {
@@ -817,7 +829,10 @@
            UtilityMethods.initTooltip();
        });
    }
+
    $(".nextFormWizard").click(function() {
+      $('.content').empty();
+      getVmImages();
        $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
        $('.contentSetting').find('ol li#imageCreate').addClass('active');
        $('.content').load('ajax/Settings/vmImageWizard.html');

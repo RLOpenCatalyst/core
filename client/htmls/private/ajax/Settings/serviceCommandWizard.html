@@ -13,7 +13,6 @@
                         <div class="col-lg-6 col-md-6">
                            <label for="">Organization:<span class="control-label redSpan">&nbsp;*</span></label>
                            <select id="orgname" class="form-control chooseOrganization width-100" sourcepath="1" datapath="masterjson.rows.row" cdata="catalyst" cat-validation="required">
-                              <option value="">Select Organization</option>
                            </select>
                         </div>
                         <div class="col-lg-6 col-md-6">
@@ -163,10 +162,13 @@
    </form>
 </div>
 <script>
+    
     orgNameForSetup = $('#orgDropdown option:selected').attr('rowid');
     orgIdForSetup = $('#orgDropdown option:selected').val();
-    var $optionOrg = $('<option></option>').val(orgNameForSetup).attr('rowid',orgIdForSetup).html(orgNameForSetup);
-    $('#orgname').append($optionOrg);
+    var $optionOrgService = $('<option></option>').val(orgNameForSetup).attr('rowid',orgIdForSetup).html(orgNameForSetup);
+    $('#orgname').append($optionOrgService);
+    
+    
     $('#commandtype').change(function(e) {
         if (this.value == "Chef Cookbook/Recipe") {
             $(".CommandName").hide();
@@ -220,7 +222,7 @@
             $("#configname").trigger('change');
         });
     });
-
+    $('#orgname').trigger('change');
     function validateForm() {
         //Check for required parameter
         return (true);
@@ -239,6 +241,7 @@
         return false; // for demo
     });
     $(".nextFormWizard").click(function(){
+        $('.content').empty();
         $('.contentSetting').find('ol li#serviceCreate').removeClass('active').addClass('green-btn');
         $('.contentSetting').find('ol li#scriptCreate').addClass('active');
         $('.content').load("ajax/Settings/scriptWizard.html");

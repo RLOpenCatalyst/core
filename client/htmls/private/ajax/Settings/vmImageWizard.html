@@ -2,7 +2,13 @@
 <form action="" id="myForm22">
    <div class="widget-box">
       <div class="widget-header">
-         <h4 class="widget-margin" style="color:black;">Create VmImages</h4>
+           <h4 class="widget-margin" style="color:black;">Create VMImages
+           <span class="widget-toolbar no-border">
+              <div class="wizardAdd">
+                 <a href="ajax/Settings/vmImageWizard.html" id="createNewVmImage" style="margin-right:11px;" class="btn btn-primary"><i class="ace-icon ace-icon fa fa-plus bigger-110"></i>&nbsp;Add New VmImage</a>             
+              </div>
+          </span>
+          </h4>
       </div>
       <div class="widget-body">
          <div class="widget-main" style="height:400px">
@@ -57,7 +63,7 @@
       </div>
       <div class="widget-toolbox clearfix">
             <div class="btn-group pull-right">
-             <button name="next1" id="saveProviderWizard" style="margin-right:11px;" class="saveFormWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
+             <button name="next1" id="saveImageWizard" style="margin-right:11px;" class="saveFormWizard saveImageWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
              <input type="button" disabled="disabled" name="next1" id="next1" class="nextFormWizard btn btn-primary" value="Next"/>
           </div>
        </div>
@@ -172,6 +178,7 @@
                             $('#btncancel').click();
                         }
                         removeLoader();
+                        $('#saveImageWizard').attr('disabled',true);
                         $('.nextFormWizard').removeAttr('disabled','disabled');
                     } else {
                         removeLoader();
@@ -241,6 +248,11 @@
         populateOSList();
     });
 
+    $('#createNewVmImage').click(function(e){
+     $('.content').empty();
+     e.preventDefault();   
+     $('.content').load(this.getAttribute('href'));
+   });
 
     $(".nextFormWizard").click(function() {
         $('#galleryConfiguration a').attr('href','ajax/Settings/galleryWizard.html');

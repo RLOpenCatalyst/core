@@ -1,7 +1,13 @@
 <form action="" id="myForm3" class="content">
    <div class="widget-box">
       <div class="widget-header">
-         <h4 class="widget-margin" style="color:black;">Create Project</h4>
+         <h4 class="widget-margin" style="color:black;">Create Project
+         <span class="widget-toolbar no-border">
+            <div class="wizardAdd">
+               <a href="ajax/Settings/projWizard.html" id="createNewProj" style="margin-right:11px;" class="btn btn-primary"><i class="ace-icon ace-icon fa fa-plus bigger-110"></i>&nbsp;Add New Project</a>             
+            </div>
+        </span>
+        </h4>
       </div>
       <div class="widget-body">
          <div class="widget-main" style="min-height:200px">
@@ -41,9 +47,8 @@
       </div>
       <div class="widget-toolbox clearfix">
             <div class="btn-group pull-right">
-            <a href="ajax/Settings/projWizard.html" id="createNewProj" style="margin-right:11px;" class="btn btn-primary">&nbsp;Add Another</a>
-             <button name="next1" id="saveProj" style="margin-right:11px;" class="saveFormWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
-             <input type="button" disabled="disabled" name="next1" id="next1" class="nextFormWizard btn btn-primary" value="Next"/>
+             <button name="next1" id="saveProj" style="margin-right:11px;" class="saveFormWizard saveProjWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
+             <input type="button" disabled="disabled" name="next1" id="nextProjWizard" class="nextFormWizard btn btn-primary" value="Next"/>
           </div>
        </div>
    </div>
@@ -71,6 +76,7 @@ if (selectedDropdownValue) {
     getBusinessGroupName(selectedDropdownValue);
     $('.nextFormWizard').removeAttr('disabled');
 } else {
+    $('.btn-3 a').removeClass('not-activeAnchor');
     orgNameForSetup = $('#orgDropdown option:last').attr('rowid');
     orgIdForSetup = $('#orgDropdown option:last').val();
     $('#orgDropdown option:last').attr('selected', 'selected')
@@ -84,7 +90,7 @@ if (selectedDropdownValue) {
     });
 }
 $('#orgname').trigger('change');
-
+enableUniqueCheckingForInputs(4);
 //form submit for project.
 $('#myForm3').submit(function() {
     $(this).validate();
@@ -106,6 +112,7 @@ $('#createNewProj').click(function(e){
 
 $(".nextFormWizard").click(function() {
     $('#wizardActionListLoader').show();
+    $('#configManagement a').attr('href','ajax/Settings/configManagementWizard.html');
     $('#configManagement a').trigger('click');
     $('#startConfig a, #orgConfiguration a').addClass('green-btn').removeClass('process-btn');
     $('.wizardFlow').empty();

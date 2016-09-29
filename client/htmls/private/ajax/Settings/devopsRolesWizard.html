@@ -200,15 +200,17 @@
         $('.contentSetting').load(this.getAttribute('href'));
     });
     $('.btn-3 a').click(function(e) {
+        e.preventDefault();
+        $('.content').empty();
         $('.btn-2 a,.btn-4 a').parent('.bwizard-steps li').removeClass('active');
         $(this).parent('.bwizard-steps li').addClass('active');
-        e.preventDefault();
         $('.content').load(this.getAttribute('href'));
     });
     $('.btn-4 a').click(function(e) {
+        e.preventDefault();
+        $('.content').empty();
         $('.btn-2 a,.btn-3 a').parent('.bwizard-steps li').removeClass('active');
         $(this).parent('.bwizard-steps li').addClass('active');
-        e.preventDefault();
         $('.content').load(this.getAttribute('href'));
     });
 
@@ -306,7 +308,7 @@
             $tr.append($tdName).append($tdAction);
             $repoDeployTbody.append($tr);
             $repoDetails.row.add($tr).draw();
-            $("#repodetailsModal").hide();
+            $("#repodetailsModal").modal('hide');
         }
         $("#repoNameCreate").empty();
         $('#repoNameCreate').append('<option value = "" > Choose Repository </option>');

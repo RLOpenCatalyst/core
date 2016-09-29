@@ -2,7 +2,13 @@
     <form action="" id="myForm1">
         <div class="widget-box">
             <div class="widget-header">
-                <h4 class="widget-margin" style="color:black;">Create Environment</h4>
+               <h4 class="widget-margin" style="color:black;">Create Environment
+               <span class="widget-toolbar no-border">
+                  <div class="wizardAdd">
+                     <a href="ajax/Settings/envWizard.html" id="createNewEnv" style="margin-right:11px;" class="btn btn-primary"><i class="ace-icon ace-icon fa fa-plus bigger-110"></i>&nbsp;Add New Env</a>             
+                  </div>
+              </span>
+              </h4>
             </div>
             <div class="widget-body">
                 <div class="widget-main" style="height:350px">
@@ -59,7 +65,6 @@
             </div>
             <div class="widget-toolbox clearfix">
                 <div class="btn-group pull-right">
-                  <a href="ajax/Settings/envWizard.html" id="createNewEnv" style="margin-right:11px;" class="btn btn-primary">&nbsp;Add Another</a>
                  <button name="next1" id="saveConfigEnv" style="margin-right:11px;" class="saveFormWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
                  <input type="button" disabled="disabled" name="next1" id="next1" class="nextFormWizard btn btn-primary" value="Next"/>
               </div>
@@ -99,6 +104,14 @@
 </div>
 
 <script>
+function preprocess() {
+     $('#createenvinchefform')[0].reset();
+     if (typeof $('#configname').find('option:selected').attr('rowid') == 'undefined') {
+         bootbox.alert('Select a Chef Server before adding an environments.');
+         return (false);
+     } else
+         return (true);
+ }
 $(document).ready(function(e){
    var $optionOrg = $('<option></option>').val(orgNameForSetup).attr('rowid', orgIdForSetup).html(orgNameForSetup);
    $('#orgname').append($optionOrg);
@@ -129,14 +142,7 @@ $(document).ready(function(e){
 
    $('#orgname').trigger('change');
 
-   function preprocess() {
-       $('#createenvinchefform')[0].reset();
-       if (typeof $('#configname').find('option:selected').attr('rowid') == 'undefined') {
-           bootbox.alert('Select a Chef Server before adding an environments.');
-           return (false);
-       } else
-           return (true);
-   }
+   
    $('#createenvinchefform').submit(function(e) {
        var reqBodyEnv = {};
        var chefid = $('#configname').find('option:selected').attr('rowid');
@@ -243,11 +249,15 @@ $(document).ready(function(e){
       $('.content').load(this.getAttribute('href'));
     });
    $(".nextFormWizard").click(function() {
-    $('.content').empty();
-    clickTeam = false;
-     $('.btn-3 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
-     $('.contentSetting').find('ol li#teamCreate').addClass('active');
-     $('.content').load('ajax/Settings/teamWizard.html');
+       $('.content').empty();
+       if(configWizardEditValue){
+          getTeamValues();
+       }
+       $('.btn-2 a').removeClass('not-activeAnchor');
+       $('.btn-3 a').removeClass('not-activeAnchor');
+       $('.btn-3 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+       $('.contentSetting').find('ol li#teamCreate').addClass('active');
+       $('.content').load('ajax/Settings/teamWizard.html');
    });
 });
 </script>
