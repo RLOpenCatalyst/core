@@ -43,7 +43,7 @@
 				url: "usage/",
 				templateUrl: "src/partials/sections/dashboard/analytics/view/usage.html",
 				controller: "usageCtrl as usage",
-				params:{filterView:{org:true,provi:true,region:false,instanceType:true,resources:true}},
+				params:{filterView:{org:true,provi:true,instanceType:true,resources:true}},
 				resolve: {
 					auth: ["$q", function ($q) {
 						var deferred = $q.defer();
@@ -59,7 +59,7 @@
 				}
 			})
 		}])
-	.controller('analyticsCtrl',['$scope', '$rootScope','$state','genericServices','analyticsServices', 'workzoneServices', 'toastr','$timeout', function ($scope, $rootScope, $state, genericServices,analyticsServices, workzoneServices, toastr,$timeout) {
+	.controller('analyticsCtrl',['$scope', '$rootScope','$state','genericServices','analyticsServices', 'workzoneServices', 'toastr', function ($scope, $rootScope, $state, genericServices,analyticsServices, workzoneServices, toastr) {
 		var analytic = this;
 		var splitUp=null;
 		analytic.tabShowChat=true;
@@ -78,13 +78,13 @@
 			if(newVal === 'ProviderView'){
 				$rootScope.viewType='ProviderView';
 				if($state.params && $state.params.filterView){
-					$state.params.filterView.provi=true;
+					analytic.ViewproviFilter=true;
 				}
 			} else {
 				$rootScope.organNewEnt.provider=''
 				$rootScope.viewType='orgView';
 				if($state.params && $state.params.filterView){
-					$state.params.filterView.provi=false;
+					analytic.ViewproviFilter=false;
 				}
 			}
 			$rootScope.stateItems = $state.params;
@@ -205,11 +205,8 @@
     			}
     		}
 		};
-		$timeout(function(){
-			if (!$rootScope.stateParams.view && $rootScope.organObject) {
-				$state.go('dashboard.analytics.cost');
-			}
-		},200);
-
+		if (!$rootScope.stateParams.view && $rootScope.organObject) {
+			$state.go('dashboard.analytics.cost');
+		}
 	}]);
 })(angular);

@@ -281,8 +281,10 @@
             costObj.init =function(){
                 analyticsServices.initFilter();
                 costObj.createChart();
-                $rootScope.applyFilter(true,'month');
-                costObj.trendsChart($rootScope.filterNewEnt);
+                $timeout(function () {
+                    $rootScope.applyFilter(true,'month');
+                    costObj.trendsChart($rootScope.filterNewEnt);
+                },200);
             };
             costObj.init();
 
