@@ -15,7 +15,7 @@
 		<div class="modal-body">
 			<loading name="isNewTaskPageLoading" size="large" type="block" align="center"></loading>
 			<div class="row new-task-wrapper" ng-show="!isNewTaskPageLoading">
-				<div class="col-lg-4 col-md-4 col-sm-12 col-xs-12 border no-padding">
+				<div class="col-lg-5 col-md-5 col-sm-12 col-xs-12 border no-padding">
 					<section class="jobDetailsBox">
 						<header class="jobDetailsHeader">
 							<h5>Job Details</h5>
@@ -47,6 +47,34 @@
 								<br />
 								<span class="col-md-12 col-sm-12 col-xs-12 no-padding">
 								   <input type="text" name="taskName" class="form-control" required autofocus ng-model="name" maxlength="50" />
+								</span>
+							</div>
+							<div class="col-md-6 col-sm-6 col-xs-6 margintop15">
+								<label class="control-label">Bot Type
+									<span class="control-label red">&nbsp;*</span>
+									<span ng-show="newTaskForm.category.$touched && newTaskForm.category.$invalid" class="inputValidationMsg">required
+									</span>
+								</label>
+								<br />
+								<span class="col-md-12 col-sm-12 col-xs-12 no-padding">
+									<select name="category" class="form-control" ng-model="category" ng-disabled="isEditMode" required>
+										<option selected="selected" value="chef">{{category['chef'].name}}</option>
+										<option ng-show="!createChefJob" value="jenkins">{{category['jenkins'].name}}</option>
+										<option ng-show="!createChefJob" value="composite">{{category['composite'].name}}</option>
+										<option ng-show="!createChefJob" value="puppet">{{category['puppet'].name}}</option>
+										<option ng-show="!createChefJob" value="script">{{category['script'].name}}</option>
+									</select>
+								</span>
+							</div>
+							<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 margintop15">
+								<label class="control-label">Short Description
+									<span class="control-label red">&nbsp;*</span>
+									<span ng-show="newTaskForm.shortDesc.$touched && newTaskForm.shortDesc.$invalid" class="inputValidationMsg">required
+									</span>
+								</label>
+								<br />
+								<span class="col-md-12 col-sm-12 col-xs-12 no-padding">
+								   <input type="text" name="shortDesc" class="form-control" required autofocus ng-model="name" maxlength="50" />
 								</span>
 							</div>
 							<div class="col-md-6 col-sm-6 col-xs-6 margintop15" ng-if="taskType==='jenkins'">
@@ -106,7 +134,7 @@
 								</div>
 							</div>
 							<!--scriptType ending here -->
-							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 margintop15">
+							<div class="col-lg-12 col-md-12col-sm-12 col-xs-12 margintop15">
 								<label class="control-label">Job Description</label>
 								<textarea id="chefDescription" rows="9" cols="15" name="description" ng-model="description"></textarea>
 							</div>
@@ -114,7 +142,7 @@
 					</section>
 				</div>
 				<!--Second Column:Chef -->
-				<div class="col-lg-8 col-md-8 col-sm-12 col-xs-12 left-padding">
+				<div class="col-lg-7 col-md-7 col-sm-12 col-xs-12 left-padding">
 					<div class="col-md-12 col-sm-12 col-xs-12 border no-padding" ng-if="taskType==='chef'">
 						<section class="Chef">
 							<header class="jobDetailsHeader">

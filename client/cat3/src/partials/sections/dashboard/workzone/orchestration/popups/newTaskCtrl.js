@@ -249,6 +249,8 @@
 					var taskJSON = {
 						taskType: $scope.taskType,
 						name: $scope.name,
+						category: $scope.category,
+						shortDesc: $scope.shortDesc,
 						description: $scope.description,
 					};
 					//checking for name of the task

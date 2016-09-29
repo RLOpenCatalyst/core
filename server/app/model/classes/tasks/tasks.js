@@ -82,6 +82,12 @@ var taskSchema = new Schema({
         required: true,
         trim: true
     },
+    shortDesc: {
+        type: String
+    },
+    category: {
+        type: String
+    },
     description: {
         type: String
     },
@@ -650,6 +656,8 @@ taskSchema.statics.updateTaskById = function(taskId, taskData, callback) {
             name: taskData.name,
             taskConfig: taskConfig,
             taskType: taskData.taskType,
+            shortDesc: taskData.shortDesc,
+            category: taskData.category,
             description: taskData.description,
             jobResultURLPattern: taskData.jobResultURL,
             blueprintIds: taskData.blueprintIds
