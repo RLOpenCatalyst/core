@@ -40,19 +40,17 @@
 				<tr>
 					<th class="text-center table_sort sorting_desc" data-fieldname='createdOn'>Time
 					</th>
-					<th class="text-center">container</th>
+					<th class="text-center">Container</th>
+					<th class="text-center">Status</th>	
 					<th class="text-center">Instance</th>
-					<th class="text-center">Status</th>		
 					<th class="text-center">Image</th>
-					<th class="text-center">ActionStatus</th>
-					<th class="text-center">InstanceIP</th>
-					<th class="text-center">OS</th>
 					<th class="text-center">User</th>
 					<th class="text-center">Org</th>
 					<th class="text-center">BU</th>
 					<th class="text-center">Project</th>
 					<th class="text-center">Env</th>
 					<th class="text-center">Action</th>
+					<th class="text-center">ActionStatus</th>
 					<th class="text-center">Log</th>
 				</tr>
 			</thead>
@@ -112,7 +110,6 @@
 						  url: url,
 						  cache: false
 						}).done(function(data) {
-							lastTimestamp = 0;
 							var $modalBody = $containerLogModalContainer.find('.logsArea')
 							if (clearData) {
 								$modalBody.empty();
@@ -184,8 +181,6 @@
 			getcontainers();
 
 			$("#refreshBtn").click(function() {
-				pageSetting.page = 1;
-				pageSetting.pageSize = 10;
 				pageSetting.sortBy = "createdOn";
 				pageSetting.sortOrder = "desc";
 				pageSetting.search = "";
@@ -231,44 +226,12 @@
 					$tr.append($tdCreatedOn);
 					var $tdcontainerName = $('<td></td>').append(managedData[i].containerName);
 					$tr.append($tdcontainerName);
-					var $tdinstanceName = $('<td></td>').append(managedData[i].platformId);
-					$tr.append($tdinstanceName);
 					var $tdStatus = $('<td></td>').append(managedData[i].status);
 					$tr.append($tdStatus);
+					var $tdinstanceName = $('<td></td>').append(managedData[i].instanceIP);
+					$tr.append($tdinstanceName);
 					var $tdImage = $('<td></td>').append(managedData[i].Image);
 					$tr.append($tdImage);
-					if (managedData[i].actionStatus == 'success') {
-						$tdActionStatus = $("<img title='success' class ='statusIcon' src = '../private/img/aws_logo_started.png' alt='statusType'/>");
-					}else if (managedData[i].actionStatus == 'pending' || managedData[i].actionStatus == 'waiting') {
-						$tdActionStatus = $("<img title='pending' class ='statusIcon' src = '../private/img/aws_logo_paused.png' alt='statusType'/>");
-					}else if (managedData[i].actionStatus == 'failed') {
-						$tdActionStatus = $("<img title='failed' class ='statusIcon' src = '../private/img/aws_logo_stopped.png' alt='statusType'/>");
-					}else {
-						$tdActionStatus = $("<img title='failed' class ='statusIcon' src = '../private/img/aws_logo_stopped.png' alt='statusType'/>");
-					}
-					var $tdActionStatus = $('<td></td>').append($tdActionStatus);
-					$tr.append($tdActionStatus);
-					var $tdInstanceIP = $('<td></td>').append(managedData[i].instanceIP);
-					$tr.append($tdInstanceIP);
-					if (managedData[i].platform == 'ubuntu') {
-						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/ubuntu.png' alt='OS'/>");
-					} else if (managedData[i].platform == 'centos') {
-						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/centos.png' alt='OS'/>");
-					} else if (managedData[i].platform == 'unknown') {
-						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/linux.png' alt='OS'/>");
-					} else if (managedData[i].os == 'windows') {
-						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/windows.png' alt='OS'/>");
-					} else if (managedData[i].platform == 'unknown') {
-						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/linux.png' alt='OS'/>");
-					} else if (managedData[i].os == 'linux' && managedData[i].platform == 'unknown') {
-						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/linux.png' alt='OS'/>");
-					} else if (managedData[i].platform == 'unknown' && managedData[i].os == 'unknown') {
-						$osImg = $("<img class ='imgStyle' src = '../private/img/osIcons/linux.png' alt='OS'/>");
-					} else {
-						$osImg = $("<img class ='imgStyle' src = '../private/img/rsz_logo.png' alt='OS'/>");
-					}
-					var $tdOs = $('<td></td>').append($osImg);
-					$tr.append($tdOs);
 					var $tdUser = $('<td></td>').append(managedData[i].user);
 					$tr.append($tdUser);
 					var $tdOrg = $('<td></td>').append(managedData[i].orgName);
@@ -281,6 +244,17 @@
 					$tr.append($environmentName);
 					var $tdAction = $('<td></td>').append(managedData[i].action);
 					$tr.append($tdAction);
+					if (managedData[i].actionStatus == 'success') {
+						$tdActionStatus = $("<img title='success' class ='statusIcon' src = '../private/img/aws_logo_started.png' alt='statusType'/>");
+					}else if (managedData[i].actionStatus == 'pending' || managedData[i].actionStatus == 'waiting') {
+						$tdActionStatus = $("<img title='pending' class ='statusIcon' src = '../private/img/aws_logo_paused.png' alt='statusType'/>");
+					}else if (managedData[i].actionStatus == 'failed') {
+						$tdActionStatus = $("<img title='failed' class ='statusIcon' src = '../private/img/aws_logo_stopped.png' alt='statusType'/>");
+					}else {
+						$tdActionStatus = $("<img title='failed' class ='statusIcon' src = '../private/img/aws_logo_stopped.png' alt='statusType'/>");
+					}
+					var $tdActionStatus = $('<td></td>').append($tdActionStatus);
+					$tr.append($tdActionStatus);
 					var $logIcon = $("<a data-original-title='MoreInfo' class='moreInfoLog' data-placement='top' rel='tooltip' href='javascript:void(0)' data-toggle='modal' data-id=" + managedData[i].actionId + "><img class='moreInfo' src = '../private/img/galleryIcons/moreinfo.png' alt='moreInfo'/></a>");
 					var $tdLog = $('<td></td>').append($logIcon);
 					$tr.append($tdLog);
