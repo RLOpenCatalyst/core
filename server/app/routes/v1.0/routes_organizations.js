@@ -132,6 +132,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
             function(orgTree,next){
                 if(orgTree.length > 0){
                     var orgCount = 0;
+                    var bgObjList = [];
                     for(var i = 0; i < orgTree.length;i++){
                         (function(org){
                             d4dModelNew.d4dModelMastersProductGroup.find({
@@ -144,7 +145,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                 if(err){
                                     next(err);
                                 }else if(bgList.length > 0){
-                                    var bgObjList = [];
                                     for(var j = 0; j < bgList.length;j++){
                                         (function(bg){
                                             var bgObj = {
@@ -286,6 +286,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
             function(orgTree,next){
                 if(orgTree.length > 0){
                     var orgCount = 0;
+                    var bgObjList = [];
                     for(var i = 0; i < orgTree.length;i++){
                         (function(org){
                             d4dModelNew.d4dModelMastersProductGroup.find({
@@ -298,7 +299,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                 if(err){
                                     next(err);
                                 }else if(bgList.length > 0){
-                                    var bgObjList = [];
                                     for(var j = 0; j < bgList.length;j++){
                                         (function(bg){
                                             var bgObj = {
