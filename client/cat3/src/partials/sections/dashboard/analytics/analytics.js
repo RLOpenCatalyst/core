@@ -43,7 +43,7 @@
 				url: "usage/",
 				templateUrl: "src/partials/sections/dashboard/analytics/view/usage.html",
 				controller: "usageCtrl as usage",
-				params:{filterView:{org:true,provi:true,instanceType:true,resources:true}},
+				params:{filterView:{org:true,provi:true,instanceType:true,resources:true,report:true}},
 				resolve: {
 					auth: ["$q", function ($q) {
 						var deferred = $q.defer();
@@ -171,39 +171,66 @@
             }
         };
         $scope.getResourse = function(instType) {
+			$rootScope.filterNewEnt.resources=[];
+			$scope.selectedResources=[];
         	if(instType === 'Managed') {
 	        	workzoneServices.getManagedInstances($scope.filter.providerId).then(function(response) {
-	                $scope.resourceList = response.data;
+					if(response.data && response.data.managedInstances &&  response.data.managedInstances.length >0){
+						$scope.resourceList = response.data.managedInstances;
+					} else{
+						$scope.resourceList=[];
+					}
 	            }, function(error) {
 	                toastr.error(error);
 	            });
 	        }
 	        if(instType === 'Assigned') {
 	            workzoneServices.getAssignedInstances($scope.filter.providerId).then(function(response) {
-	                $scope.resourceList = response.data.unmanagedInstances;
+					if(response.data && response.data.unmanagedInstances.length >0){
+						$scope.resourceList = response.data.unmanagedInstances;
+					} else{
+						$scope.resourceList = [];
+					}
+
 	            }, function(error) {
 	                toastr.error(error);
 	            });
 	        }
 	        if(instType === 'Unassigned') {
 	            workzoneServices.getUnassignedInstances($scope.filter.providerId).then(function(response) {
-	                $scope.resourceList = response.data.data;
+					if(response.data && response.data.data && response.data.data.length >0){
+						$scope.resourceList = response.data.data;
+						$scope.selectedResources.push(response.data.data[0]._id);
+						$rootScope.filterNewEnt.resources=$scope.selectedResources;
+					} else {
+						$scope.resourceList = [];
+					}
 	            }, function(error) {
 	                toastr.error(error);
 	            });
 	        }
         };
+		$scope.$on('INI_usage', function (event, id) {
+			$scope.getResourse(id);
+		});
         $scope.toggleResourceSelection = function(resourceId) {
-        	var idx = $scope.selectedResources.indexOf(resourceId);
-        	if(idx > -1) {
-        		$scope.selectedResources.splice(idx, 1);
-    		} else {
-    			if($scope.selectedResources.length === 5){
-    				toastr.error('Maximum 5 resources allowed.');
-    			}else{
-    				$scope.selectedResources.push(resourceId);
-    			}
-    		}
+            // var idx = $scope.selectedResources.indexOf(resourceId);
+            // if(idx > -1) {
+        		// $scope.selectedResources.splice(idx, 1);
+    		// } else {
+    		// 	if($scope.selectedResources.length === 5){
+    		// 		toastr.error('Maximum 5 resources allowed.');
+    		// 	}else{
+    		// 		$scope.selectedResources.push(resourceId);
+    		// 	}
+    		// }
+			if($scope.selectedResources === resourceId){
+				$scope.selectedResources='';
+			} else{
+				$scope.selectedResources=resourceId;
+			}
+
+			$rootScope.filterNewEnt.resources=$scope.selectedResources;
 		};
 		if (!$rootScope.stateParams.view && $rootScope.organObject) {
 			$state.go('dashboard.analytics.cost');
