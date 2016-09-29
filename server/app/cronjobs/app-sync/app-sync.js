@@ -18,6 +18,7 @@ function appSync() {
             logger.error("Failed to fetch instances: ", err);
             return;
         }
+        logger.debug("Cron job fetched all instances.");
         if (instances && instances.length) {
             for (var i = 0; i < instances.length; i++) {
                 (function(i) {
