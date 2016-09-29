@@ -166,7 +166,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     apiUtil.paginationRequest(req.query, 'containerLogs', next);
                 },
                 function(paginationReq, next) {
-                    paginationReq['searchColumns'] = ['platformId', 'status', 'action', 'user', 'actionStatus', 'orgName', 'bgName', 'projectName', 'envName', 'containerName', 'image'];
+                    paginationReq['searchColumns'] = ['platformId', 'status', 'action', 'user', 'actionStatus', 'orgName', 'bgName', 'projectName', 'environmentName', 'containerName', 'image'];
                     reqData = paginationReq;
                     apiUtil.databaseUtil(paginationReq, next);
                 },
@@ -184,5 +184,27 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     return res.status(200).send(results);
             });
     }
+
+    app.get('/audit-trail/container-action/:actionId/logs', pollContainerActionLog);
+
+    function pollContainerActionLog(req, res, next) {
+        var timestamp = req.query.timestamp;
+        if (timestamp) {
+            timestamp = parseInt(timestamp);
+        }
+        async.waterfall(
+            [
+                function(next) {
+                    logsDao.getLogsByReferenceId(req.params.actionId, timestamp, next);
+                }
+            ],
+            function(err, results) {
+                if (err)
+                    return res.status(500).send(err);
+                else
+                    return res.status(200).send(results);
+            });
+    }
+
 
 };
