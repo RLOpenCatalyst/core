@@ -211,7 +211,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                 })(orgBgProjectTree[i]);
                             }
                         }else{
-                            next('No Env is there.',null);
+                            next(null,orgBgProjectTree);
                         }
                     });
                 }else{
@@ -388,7 +388,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                 })(orgBgProjectTree[i]);
                             }
                         }else{
-                            next('No Env is there.',null);
+                            next(null,orgBgProjectTree);
                         }
                     });
                 }else{
@@ -2464,20 +2464,33 @@ function syncDesignTreeWithProjectAndEnv(orgId,bgId,callback){
             callback (err,null);;
         }else if(projectList.length > 0){
             for(var i = 0; i < projectList.length;i++){
-                var envIds = projectList[i].environmentname_rowid.split(',');
-                var envNames = projectList[i].environmentname.split(',');
-                var envObjList =[];
-                for(var j = 0; j < envIds.length; j++) {
-                    envObjList.push({
-                        name: envNames[j],
-                        rowid: envIds[j],
-                    });
-                }
-                if(envObjList.length === envIds.length){
+                if(projectList[i].environmentname_rowid && projectList[i].environmentname_rowid !== ''){
+                    var envIds = projectList[i].environmentname_rowid.split(',');
+                    var envNames = projectList[i].environmentname.split(',');
+                    var envObjList =[];
+                    for(var j = 0; j < envIds.length; j++) {
+                        envObjList.push({
+                            name: envNames[j],
+                            rowid: envIds[j],
+                        });
+                    }
+                    if(envObjList.length === envIds.length){
+                        var projectObj = {
+                            name:projectList[i].projectname,
+                            rowId:projectList[i].rowid,
+                            environments:envObjList
+                        }
+                        projectObjList.push(projectObj);
+                        projectObj = {};
+                        if(projectObjList.length === projectList.length){
+                            callback (null,projectObjList);
+                        }
+                    }
+                }else{
                     var projectObj = {
                         name:projectList[i].projectname,
                         rowId:projectList[i].rowid,
-                        environments:envObjList
+                        environments:[""]
                     }
                     projectObjList.push(projectObj);
                     projectObj = {};
@@ -2485,6 +2498,7 @@ function syncDesignTreeWithProjectAndEnv(orgId,bgId,callback){
                         callback (null,projectObjList);
                     }
                 }
+
             }
         }else{
             callback (null,projectObjList);
@@ -2507,34 +2521,68 @@ function syncWorkZoneTreeWithProjectAndEnv(orgId,orgName,bgId,bgName,callback){
         }else if(projectList.length > 0){
             for(var i = 0; i < projectList.length;i++){
                 (function(project){
-                    var envIds = project.environmentname_rowid.split(',');
-                    var envNames = project.environmentname.split(',');
-                    var envNodeList =[],envObjList =[];
-                    for(var j = 0; j < envIds.length; j++){
-                        envObjList.push({
-                            name: envNames[j],
-                            text: envNames[j],
-                            rowid: envIds[j],
-                        });
-                        envNodeList.push({
-                            text: envNames[j],
-                            href: '#ajax/Dev.html?org=' + orgId + '&bg=' + bgId + '&projid=' + project.rowid + '&envid=' + envIds[j],
-                            orgname: orgName,
-                            orgid: orgId,
-                            rowid: envIds[j],
-                            projname: project.projectname,
-                            bgname: bgName,
-                            itemtype: 'env',
-                            tooltip: envNames[j],
-                            icon: 'fa fa-fw fa-1x fa-desktop'
-                        });
-                    }
-                    if(envNodeList.length === envIds.length && envObjList.length === envIds.length ){
+                    if(project.environmentname_rowid && project.environmentname_rowid !== '') {
+                        var envIds = project.environmentname_rowid.split(',');
+                        var envNames = project.environmentname.split(',');
+                        var envNodeList =[],envObjList =[];
+                        for (var j = 0; j < envIds.length; j++) {
+                            envObjList.push({
+                                name: envNames[j],
+                                text: envNames[j],
+                                rowid: envIds[j],
+                            });
+                            envNodeList.push({
+                                text: envNames[j],
+                                href: '#ajax/Dev.html?org=' + orgId + '&bg=' + bgId + '&projid=' + project.rowid + '&envid=' + envIds[j],
+                                orgname: orgName,
+                                orgid: orgId,
+                                rowid: envIds[j],
+                                projname: project.projectname,
+                                bgname: bgName,
+                                itemtype: 'env',
+                                tooltip: envNames[j],
+                                icon: 'fa fa-fw fa-1x fa-desktop'
+                            });
+                        }
+                        if (envNodeList.length === envIds.length && envObjList.length === envIds.length) {
+                            var projectObj = {
+                                name: project.projectname,
+                                text: project.projectname,
+                                rowid: project.rowid,
+                                environments: envObjList
+                            }
+                            var selectable = !!appConfig.features.appcard;
+                            var nodeProjectObj = {
+                                name: project.projectname,
+                                text: project.projectname,
+                                rowid: project.rowid,
+                                orgname: orgName,
+                                orgid: orgId,
+                                bgname: bgName,
+                                icon: 'fa fa-fw fa-1x fa-tasks',
+                                nodes: envNodeList,
+                                borderColor: '#000',
+                                selectable: selectable,
+                                itemtype: 'proj',
+                                href: selectable ? '#ajax/ProjectSummary.html?org=' + orgId + '&bg=' + bgId + '&projid=' + project.rowid : 'javascript:void(0)',
+                                environments: envObjList
+                            }
+                            projectObjList.push(projectObj);
+                            projectNodeObjList.push(nodeProjectObj);
+                            if (projectObjList.length === projectList.length && projectNodeObjList.length === projectList.length) {
+                                resultObj = {
+                                    projectObj: projectObjList,
+                                    projectNodeObj: projectNodeObjList
+                                }
+                                callback(null, resultObj);
+                            }
+                        }
+                    }else{
                         var projectObj = {
                             name: project.projectname,
                             text: project.projectname,
                             rowid: project.rowid,
-                            environments:envObjList
+                            environments: [""]
                         }
                         var selectable = !!appConfig.features.appcard;
                         var nodeProjectObj = {
@@ -2545,21 +2593,21 @@ function syncWorkZoneTreeWithProjectAndEnv(orgId,orgName,bgId,bgName,callback){
                             orgid: orgId,
                             bgname: bgName,
                             icon: 'fa fa-fw fa-1x fa-tasks',
-                            nodes: envNodeList,
+                            nodes: [],
                             borderColor: '#000',
                             selectable: selectable,
                             itemtype: 'proj',
-                            href: selectable ? '#ajax/ProjectSummary.html?org=' + orgId + '&bg=' + bgId + '&projid=' + project.rowid : 'javascript:void(0)',
-                            environments: envObjList
+                            href: 'javascript:void(0)',
+                            environments: [""]
                         }
                         projectObjList.push(projectObj);
                         projectNodeObjList.push(nodeProjectObj);
-                        if(projectObjList.length === projectList.length && projectNodeObjList.length === projectList.length){
+                        if (projectObjList.length === projectList.length && projectNodeObjList.length === projectList.length) {
                             resultObj = {
-                                projectObj:projectObjList,
-                                projectNodeObj:projectNodeObjList
+                                projectObj: projectObjList,
+                                projectNodeObj: projectNodeObjList
                             }
-                            callback (null,resultObj);
+                            callback(null, resultObj);
                         }
                     }
                 })(projectList[i]);
