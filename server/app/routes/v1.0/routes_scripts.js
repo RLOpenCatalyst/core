@@ -75,7 +75,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                         settingWizards.currentStep.isCompleted = true;
                         settingWizards.previousStep = settingWizards.currentStep;
                         settingWizards.currentStep = settingWizards.nextStep;
-                        settingWizards.nextStep = settingWizardSteps[6];
+                        settingWizards.nextStep = settingWizardSteps[7];
                         settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                             if (err) {
                                 logger.error('Hit updating setting wizard error', err);

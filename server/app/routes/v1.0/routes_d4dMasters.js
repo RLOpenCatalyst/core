@@ -2812,13 +2812,32 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         res.send(500);
                                                         return;
                                                     }
-                                                    if(settingWizards.currentStep.name === 'Config Management') {
+                                                    if(settingWizards.currentStep.name === 'User Configuration') {
+                                                        settingWizards.currentStep.nestedSteps[0].isCompleted = true;
+                                                        settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                                                            if (err) {
+                                                                logger.error('Hit getting setting wizard error', err);
+                                                                res.send(500);
+                                                                return;
+                                                            }
+                                                        });
+                                                    }
+                                                })
+                                            }
+                                            if(req.params.id === '7'){
+                                                settingWizard.getSettingWizardByOrgId(bodyJson['orgname_rowid'],function(err,settingWizards){
+                                                    if(err){
+                                                        logger.error('Hit getting setting wizard error', err);
+                                                        res.send(500);
+                                                        return;
+                                                    }
+                                                    if(settingWizards.currentStep.name === 'User Configuration') {
                                                         var settingWizardSteps = appConfig.settingWizardSteps;
-                                                        settingWizards.currentStep.nestedSteps[2].isCompleted = true;
+                                                        settingWizards.currentStep.nestedSteps[1].isCompleted = true;
                                                         settingWizards.currentStep.isCompleted = true;
                                                         settingWizards.previousStep = settingWizards.currentStep;
                                                         settingWizards.currentStep = settingWizards.nextStep;
-                                                        settingWizards.nextStep = settingWizardSteps[4];
+                                                        settingWizards.nextStep = settingWizardSteps[5];
                                                         settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                                                             if (err) {
                                                                 logger.error('Hit getting setting wizard error', err);
@@ -2899,7 +2918,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         settingWizards.currentStep.isCompleted = true;
                                                         settingWizards.previousStep = settingWizards.currentStep;
                                                         settingWizards.currentStep = settingWizards.nextStep;
-                                                        settingWizards.nextStep = {wizardStatus:'true'};
+                                                        settingWizards.nextStep = {wizardIsCompleted:'true'};
                                                         settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                                                             if (err) {
                                                                 logger.error('Hit getting setting wizard error', err);
@@ -2937,7 +2956,12 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         return;
                                                     }
                                                     if(settingWizards.currentStep.name === 'Config Management') {
+                                                        var settingWizardSteps = appConfig.settingWizardSteps;
                                                         settingWizards.currentStep.nestedSteps[1].isCompleted = true;
+                                                        settingWizards.currentStep.isCompleted = true;
+                                                        settingWizards.previousStep = settingWizards.currentStep;
+                                                        settingWizards.currentStep = settingWizards.nextStep;
+                                                        settingWizards.nextStep = settingWizardSteps[4];
                                                         settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                                                             if (err) {
                                                                 logger.error('Hit getting setting wizard error', err);
