@@ -249,13 +249,18 @@
 					var taskJSON = {
 						taskType: $scope.taskType,
 						name: $scope.name,
-						category: $scope.category,
+						botType: $scope.botType,
 						shortDesc: $scope.shortDesc,
 						description: $scope.description,
 					};
 					//checking for name of the task
 					if (!taskJSON.name.trim()) {
 						$scope.inputValidationMsg='Please enter the name of the task.';
+						$scope.taskSaving = false;
+						return false;
+					}
+					if (!taskJSON.shortDesc.trim()) {
+						$scope.inputValidationMsg='Please enter the short Description of the task.';
 						$scope.taskSaving = false;
 						return false;
 					}
@@ -409,7 +414,9 @@
 				}
 			});
 			$scope.name = "";
+			$scope.shortDesc = "";
 			$scope.taskType = "chef";//default Task type selection;
+			$scope.botType = "Task";//default Task type selection;
 			$scope.isEditMode = false;//default edit mode is false;
 			$scope.taskSaving = false;//to disable submit button, dfault false
 			$scope.autoSync = {
@@ -437,7 +444,6 @@
 			workzoneServices.getEnvironmentTaskList().then(function (response) {
 				var data, selectorList = [],
 					optionList = [];
-
 				if (response.data) {
 					data = response.data;
 				} else {
@@ -565,6 +571,8 @@
 				$scope.description = items.description;
 				$scope.taskType = items.taskType;
 				$scope.name = items.name;
+				$scope.botType = items.botType;
+				$scope.shortDesc = items.shortDesc;
 				//properties specific to jenkins
 				if (items.taskType === "jenkins") {
 					$scope.jobUrl = items.taskConfig.jobURL;
