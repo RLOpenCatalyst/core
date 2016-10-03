@@ -62,7 +62,7 @@
                                 bottom: 60,
                                 left: 40
                             },
-                            duration: 50,
+                            duration:1000,
                             stacked: true,
                             x: function (d) {
                                 return d.label;
@@ -203,7 +203,7 @@
                         },
                         useVoronoi: false,
                         clipEdge: true,
-                        duration: 10,
+                        duration: 1000,
                         useInteractiveGuideline: true,
                         xAxis: {
                             showMaxMin: false,
@@ -263,6 +263,7 @@
                                 "values": va
                             });
                         });
+                        costObj.trendLineChart.data[0].values.push([]);
                     }
                 });
             };
