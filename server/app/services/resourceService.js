@@ -711,6 +711,7 @@ function getEC2InstancesInfo(provider,orgName,callback) {
                                         providerData: region,
                                         platformId: instance.InstanceId,
                                         ip: instance.PublicIpAddress || null,
+                                        hostName:instance.PrivateDnsName,
                                         os: (instance.Platform && instance.Platform === 'windows') ? 'windows' : 'linux',
                                         state: instance.State.Name,
                                         subnetId: instance.SubnetId,

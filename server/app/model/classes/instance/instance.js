@@ -331,6 +331,11 @@ var InstanceSchema = new Schema({
         required: false,
         trim: true
     },
+    hostName: {
+        type: String,
+        required: false,
+        trim: true
+    },
     route53HostedParams: [Schema.Types.Mixed],
     isDeleted: {
         type: Boolean,
@@ -2131,6 +2136,7 @@ var InstancesDao = function() {
             updateObj['subnetId']= instance.subnetId;
             updateObj['instanceIP'] = instance.ip;
             updateObj['vpcId'] = instance.vpcId;
+            updateObj['hostName'] = instance.hostName;
             updateObj['privateIpAddress'] = instance.privateIpAddress;
             updateObj['tags'] = instance.tags;
         }

@@ -54,6 +54,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             if (instance.length) {
                 var anInstance = instance[0];
                 appDeployData['projectId'] = anInstance.projectId;
+                if(typeof appDeployData.hostName ==='undefined' || appDeployData.hostName === '' || appDeployData.hostName === null || appDeployData.hostName ==='null'){
+                    appDeployData.hostName = anInstance.hostName;
+                }
                 AppDeploy.createNew(appDeployData, function(err, appDeploy) {
                     if (err) {
                         res.status(500).send(errorResponses.db.error);
