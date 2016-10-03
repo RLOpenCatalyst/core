@@ -1383,6 +1383,20 @@ BlueprintSchema.statics.getBlueprintsByProjectIdOrEnvId = function(id, callback)
         callback(null, data);
     });
 };
+
+BlueprintSchema.statics.checkBPDependencyByFieldName = function(fieldName,id, callback) {
+    var queryObj = {
+        fieldName: id
+    }
+    Blueprints.find(queryObj, function(err, data) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, data);
+    });
+};
+
 var Blueprints = mongoose.model('blueprints', BlueprintSchema);
 
 module.exports = Blueprints;

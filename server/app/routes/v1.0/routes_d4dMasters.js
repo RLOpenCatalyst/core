@@ -328,36 +328,64 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     res.status(500).send("Failed to fetch User.");
                 }
                 if (anUser) {
-                    var tocheck = [];
-                    var fieldname = '';
+                    var toCheck = [];
                     switch (req.params.id) {
                         case "1":
-                            tocheck.push('2');
-                            tocheck.push('3');
-                            tocheck.push('10');
-                            fieldname = "orgname_rowid";
+                            toCheck.push({id:'2',
+                                errMsg:'Organization already used by Some Business Groups.To delete organization please delete respective Business Groups first.',
+                                fieldName:'orgname_rowid'
+                            });
+                            toCheck.push({id:'3',
+                                errMsg:'Organization already used by Some Environments.To delete organization please delete respective Environments first.',
+                                fieldName:'orgname_rowid'
+                            });
+                            toCheck.push({id:'10',
+                                errMsg:'Organization already used by Some Teams.To delete organization please delete respective Teams first.',
+                                fieldName:'orgname_rowid'
+                            });
                             break;
                         case "2":
-                            tocheck.push('4');
-                            fieldname = "productgroupname_rowid";
+                            toCheck.push({id:'4',
+                                errMsg:'Business Group already used by Some Projects.To delete business group please delete respective Projects first.',
+                                fieldName:'productgroupname_rowid'
+                            });
                             break;
                         case "3":
-                            tocheck.push('4');
-                            fieldname = "environmentname_rowid,orgname_rowid";
+                            toCheck.push({id:'4',
+                                errMsg:'Environment already used by Some Projects.To delete business group please delete respective Projects first.',
+                                fieldName:'environmentname_rowid,orgname_rowid'
+                            });
                             break;
                         case "4":
-                            tocheck.push('blueprints');
-                            tocheck.push('instances');
-                            fieldname = "projectId";
+                            toCheck.push({id:'instances',
+                                errMsg:'Project already used by Some Instances.To delete Project please delete respective instances first.',
+                                fieldName:'projectId'
+                            });
+                            toCheck.push({id:'blueprints',
+                                errMsg:'Project already used by Some Blueprints.To delete Project please delete respective blueprints first.',
+                                fieldName:'projectId'
+                            });
                             break;
                         case "10":
-                            tocheck.push('all');
-                            fieldname = "configname_rowid";
+                            toCheck.push({id:'instances',
+                                errMsg:'Chef-Server already used by Some Instances.To delete Chef-Server please delete respective instances first.',
+                                fieldName:'configname_rowid'
+                            });
+                            toCheck.push({id:'3',
+                                errMsg:'Chef-Server already used by Some Enviornments.To delete Chef-Server please delete respective enviornments first.',
+                                fieldName : 'configname_rowid'
+                            });
+                            
                             break;
                         case "19":
-                            tocheck.push('blueprints');
-                            tocheck.push('instances');
-                            fieldname = "projectId";
+                            toCheck.push({id:'instances',
+                                errMsg:'Project already used by Some Instances.To delete Project please delete respective instances first.',
+                                fieldName:'projectId'
+                            });
+                            toCheck.push({id:'blueprints',
+                                errMsg:'Project already used by Some Blueprints.To delete Project please delete respective blueprints first.',
+                                fieldName:'projectId'
+                            });
                             break;
                     }
 
@@ -372,9 +400,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                     res.status(500).send("Error from DB.");
                                     return;
                                 }
-                                configmgmtDao.deleteCheck(req.params.fieldvalue, tocheck, fieldname, function(err, data) {
+                                configmgmtDao.deleteCheck(req.params.fieldvalue, toCheck, function(err, data) {
                                     logger.debug("Delete check returned: %s", data);
-                                    if (data == "none") {
+                                    if (data === "none") {
                                         logger.debug("entering delete");
                                         configmgmtDao.getDBModelFromID(req.params.id, function(err, dbtype) {
                                             if (err) {
@@ -400,15 +428,15 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                         }); //end configmgmtDao
                                     } else {
                                         logger.debug("There are dependent elements cannot delete");
-                                        res.send(412, "Cannot proceed with delete. \n Dependent elements found");
+                                        res.send(412, data);
                                         return;
                                     }
                                 }); //deleteCheck
                             });
                         } else {
-                            configmgmtDao.deleteCheck(req.params.fieldvalue, tocheck, fieldname, function(err, data) {
+                            configmgmtDao.deleteCheck(req.params.fieldvalue, toCheck, function(err, data) {
                                 logger.debug("Delete check returned: %s", data);
-                                if (data == "none") {
+                                if (data === "none") {
                                     logger.debug("entering delete");
                                     configmgmtDao.getDBModelFromID(req.params.id, function(err, dbtype) {
                                         if (err) {
@@ -509,7 +537,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                     }); //end configmgmtDao
                                 } else {
                                     logger.debug("There are dependent elements cannot delete");
-                                    res.send(412, "Cannot proceed with delete. \n Dependent elements found");
+                                    res.send(412, data);
                                     return;
                                 }
                             }); //deleteCheck
