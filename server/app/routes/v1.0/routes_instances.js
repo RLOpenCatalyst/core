@@ -831,7 +831,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 res.send(500);
                 return;
             }
-            var actionObj = 'Docker-Container '+action.charAt(0).toUpperCase() + action.slice(1) + ' : ' + containers[0].Names[0];
+            var actionObj = action.charAt(0).toUpperCase() + action.slice(1)  ;
             instancesDao.getInstanceById(req.params.instanceid, function (err, instance) {
                 if (err) {
                     logger.error("Instance fetch Failed >> ", err);
