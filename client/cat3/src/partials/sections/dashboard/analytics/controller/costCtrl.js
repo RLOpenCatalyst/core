@@ -111,6 +111,7 @@
                     } else {
                         entityId=fltObj.org.id;
                     }
+                   // param.url='http://d4d.rlcatalyst.com/analytics/cost/aggregate?parentEntityId=46d1da9a-d927-41dc-8e9e-7e926d927537&entityId=46d1da9a-d927-41dc-8e9e-7e926d927537&toTimeStamp=Mon%20Oct%2003%202016%2016:59:14%20GMT+0530%20(IST)&period=month';
                     param.url='/analytics/cost/aggregate?parentEntityId='+fltObj.org.id+'&entityId='+entityId+'&toTimeStamp='+new Date()+'&period='+fltObj.period;
                 }
 
@@ -289,7 +290,7 @@
                     costObj.trendsChart($rootScope.filterNewEnt);
                     var treeNames = ['Analytics','Cost'];
                     $rootScope.$emit('treeNameUpdate', treeNames);
-                },200);
+                },500);
             };
             costObj.init();
 

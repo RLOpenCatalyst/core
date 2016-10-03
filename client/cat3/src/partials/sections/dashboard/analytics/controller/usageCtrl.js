@@ -4,8 +4,10 @@
         .controller('usageCtrl', ['$scope', '$rootScope', '$state','analyticsServices', 'genericServices','$timeout', function ($scope,$rootScope,$state,analyticsServices,genSevs,$timeout){
         $rootScope.stateItems = $state.params;
             var usage =this;
+            usage.trendLineChart={
+                data:[]
+            };
             usage.trendsChart=function(fltObj){
-                usage.trendLineChart={};
                 usage.trendLineChart.options = {
                     chart: {
                         //type: 'stackedAreaChart',
@@ -63,43 +65,55 @@
                     }
                 };
                 usage.trendLineChart.data = [];
+                usage.legends=[];
                 usage.costGridOptions.columnDefs = [];
-              var  $today = new Date();
-               var $yesterday = new Date($today);
-                $yesterday.setDate($today.getDate() - 1);
-                   // if(fltObj && fltObj.resources && fltObj.resources.length >0) {
-                        //angular.forEach(fltObj.resources, function (resId) {
-                            var param = {
-                                url: '/analytics/trend/usage?resource='+fltObj.resources+'&fromTimeStamp='+$yesterday+'&toTimeStamp='+ $today+'&interval=3600'
-                            };
-                            genSevs.promiseGet(param).then(function (result) {
-                                angular.forEach(result, function (valu, keyChild) {
-                                    var va = [];
-                                    angular.forEach(valu.dataPoints, function (value) {
-                                        va.push([Date.parse(value.fromTime), value.average]);
-                                    });
-                                    usage.trendLineChart.data.push({
-                                        "key": keyChild,
-                                        "values": va
-                                    });
-                                });
-                            });
-                        ///});
-                   /// }
+               // usage.getData();
                  };
+                usage.getData=function(fltObj){
+                    usage.trendLineChart.data = [];
+                    var  $today = new Date();
+                    var $yesterday = new Date($today);
+                    $yesterday.setDate($today.getDate() - 1);
+                    // if(fltObj && fltObj.resources && fltObj.resources.length >0) {
+                    //angular.forEach(fltObj.resources, function (resId) {
+                    var param = {
+                        url: '/analytics/trend/usage?resource='+fltObj.resources+'&fromTimeStamp='+$yesterday+'&toTimeStamp='+ $today+'&interval=3600'
+                    };
+                    genSevs.promiseGet(param).then(function (result) {
+                        angular.forEach(result, function (valu, keyChild) {
+                            var va = [];
+                            if(usage.splitUp === keyChild) {
+                                angular.forEach(valu.dataPoints, function (value) {
+                                    va.push([Date.parse(value.fromTime), value.average]);
+                                });
+                                usage.trendLineChart.data.push({
+                                    "key": keyChild,
+                                    "values": va
+                                });
+                            }
+                        });
+                    });
+                    ///});
+                    /// }
+                };
                 $rootScope.applyFilter =function(filterApp,period){
                     analyticsServices.applyFilter(filterApp,period);
                     if($state.current.name === "dashboard.analytics.usage") {
                         usage.trendsChart($rootScope.filterNewEnt);
+                        usage.splitUp='CPUUtilization';
                     }
                 };
+                    $scope.$watch(function() { return usage.splitUp}, function(newVal, oldVal) {
+                        usage.getData($rootScope.filterNewEnt);
+                    }, true);
                 usage.init =function(){
                         $rootScope.organNewEnt.instanceType='Unassigned';
                         $rootScope.organNewEnt.provider='0';
                         $scope.$emit('INI_usage', 'Unassigned');
-                        $timeout(function(){$rootScope.applyFilter(true,'month')},200);
+                        $timeout(function(){$rootScope.applyFilter(true,'month')},500);
                         var treeNames = ['Analytics','Usage'];
                         $rootScope.$emit('treeNameUpdate', treeNames);
+
                 };
             usage.init();
 
