@@ -331,38 +331,38 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     var toCheck = [];
                     switch (req.params.id) {
                         case "1":
-                            toCheck.push({id:'2',
-                                errMsg:'Organization already used by Some Business Groups.To delete organization please delete respective Business Groups first.',
+                            toCheck.push({id:'10',
+                                errMsg:'Organization is associated with Chef-Server.To delete organization please delete respective Chef-Server first.',
                                 fieldName:'orgname_rowid'
                             });
                             toCheck.push({id:'3',
-                                errMsg:'Organization already used by Some Environments.To delete organization please delete respective Environments first.',
+                                errMsg:'Organization is associated with some Environments.To delete organization please delete respective Environments first.',
                                 fieldName:'orgname_rowid'
                             });
-                            toCheck.push({id:'10',
-                                errMsg:'Organization already used by Some Teams.To delete organization please delete respective Teams first.',
+                            toCheck.push({id:'2',
+                                errMsg:'Organization is associated with some Business Groups.To delete organization please delete respective Business Groups first.',
                                 fieldName:'orgname_rowid'
                             });
                             break;
                         case "2":
                             toCheck.push({id:'4',
-                                errMsg:'Business Group already used by Some Projects.To delete business group please delete respective Projects first.',
+                                errMsg:'Business Group is associated with some Projects.To delete business group please delete respective Projects first.',
                                 fieldName:'productgroupname_rowid'
                             });
                             break;
                         case "3":
                             toCheck.push({id:'4',
-                                errMsg:'Environment already used by Some Projects.To delete business group please delete respective Projects first.',
+                                errMsg:'Environment is associated with some Projects.To delete business group please delete respective Projects first.',
                                 fieldName:'environmentname_rowid,orgname_rowid'
                             });
                             break;
                         case "4":
                             toCheck.push({id:'instances',
-                                errMsg:'Project already used by Some Instances.To delete Project please delete respective instances first.',
+                                errMsg:'Project is associated with some Instances.To delete Project please delete respective instances first.',
                                 fieldName:'projectId'
                             });
                             toCheck.push({id:'blueprints',
-                                errMsg:'Project already used by Some Blueprints.To delete Project please delete respective blueprints first.',
+                                errMsg:'Project is associated with some Blueprints.To delete Project please delete respective blueprints first.',
                                 fieldName:'projectId'
                             });
                             break;
@@ -379,11 +379,11 @@ module.exports.setRoutes = function(app, sessionVerification) {
                             break;
                         case "19":
                             toCheck.push({id:'instances',
-                                errMsg:'Project already used by Some Instances.To delete Project please delete respective instances first.',
+                                errMsg:'Project is associated with some Instances.To delete Project please delete respective instances first.',
                                 fieldName:'projectId'
                             });
                             toCheck.push({id:'blueprints',
-                                errMsg:'Project already used by Some Blueprints.To delete Project please delete respective blueprints first.',
+                                errMsg:'Project is associated with some Blueprints.To delete Project please delete respective blueprints first.',
                                 fieldName:'projectId'
                             });
                             break;
@@ -401,8 +401,16 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                     return;
                                 }
                                 configmgmtDao.deleteCheck(req.params.fieldvalue, toCheck, function(err, data) {
-                                    logger.debug("Delete check returned: %s", data);
-                                    if (data === "none") {
+                                    if(err){
+                                        if(err.errCode === 500){
+                                            res.status(500).send(err.errMsg);
+                                            return;
+                                        }else{
+                                            logger.debug("There are dependent elements which are not deleted");
+                                            res.send(412, err.errMsg);
+                                            return;
+                                        }
+                                    }else{
                                         logger.debug("entering delete");
                                         configmgmtDao.getDBModelFromID(req.params.id, function(err, dbtype) {
                                             if (err) {
@@ -426,17 +434,21 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                 }); //end findOne
                                             }
                                         }); //end configmgmtDao
-                                    } else {
-                                        logger.debug("There are dependent elements cannot delete");
-                                        res.send(412, data);
-                                        return;
                                     }
-                                }); //deleteCheck
+                                }); 
                             });
                         } else {
                             configmgmtDao.deleteCheck(req.params.fieldvalue, toCheck, function(err, data) {
-                                logger.debug("Delete check returned: %s", data);
-                                if (data === "none") {
+                                if(err){
+                                    if(err.errCode === 500){
+                                        res.status(500).send(err.errMsg);
+                                        return;
+                                    }else{
+                                        logger.debug("There are dependent elements which are not deleted");
+                                        res.send(412, err.errMsg);
+                                        return;
+                                    }
+                                }else{
                                     logger.debug("entering delete");
                                     configmgmtDao.getDBModelFromID(req.params.id, function(err, dbtype) {
                                         if (err) {
@@ -493,7 +505,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                 eval('d4dModelNew.' + dbtype).findOne({
                                                     rowid: req.params.fieldvalue
                                                 }, function (err,data) {
-                                                    logger.debug('data>>>',data);
                                                     if (err) {
                                                         logger.debug("Hit an errror on fetching data : %s", err);
                                                         res.send(500);
@@ -535,10 +546,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                             }
                                         }
                                     }); //end configmgmtDao
-                                } else {
-                                    logger.debug("There are dependent elements cannot delete");
-                                    res.send(412, data);
-                                    return;
                                 }
                             }); //deleteCheck
                         }

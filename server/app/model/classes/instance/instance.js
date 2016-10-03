@@ -714,7 +714,7 @@ var InstancesDao = function() {
     };
 
     this.checkInstancesDependencyByFieldName = function(fieldName,id, callback) {
-        logger.debug("Enter checkInstancesDependencyByFieldName (%s,)", ProjectId);
+        logger.debug("Enter checkInstancesDependencyByFieldName (%s,)", id);
         var queryObj = {
             $or: [{
                 projectId: id
@@ -722,7 +722,8 @@ var InstancesDao = function() {
                 'chef.serverId': id
             }, {
                 serviceIds: id
-            }]
+            }],
+            isDeleted:false
         }
         Instances.find(queryObj, function(err, data) {
             if (err) {
