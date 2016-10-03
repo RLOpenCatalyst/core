@@ -243,7 +243,7 @@ function saveAndUpdateContainers(containers,containerIds,instanceId,instance,nex
 
                                     }else{
                                         count++;
-                                        var actionObj = 'Docker-Container Start' + ' : ' + container.Names;
+                                        var actionObj = 'Start';
                                         var timestampStarted = new Date().getTime();
                                         var actionLog = instancesDao.insertDockerActionLog(instanceId, instance.catUser, actionObj, 1, timestampStarted);
                                         var logReferenceIds = [instance._id, actionLog._id];
@@ -349,7 +349,7 @@ function deleteContainerByInstanceId(instanceDetails,next){
                     for(var i = 0; i < containerList.length;i++){
                         (function(container){
                             var timestampStarted = new Date().getTime();
-                            var actionObj = 'Docker-Container Terminated : ' + container.Names;
+                            var actionObj = 'Terminated';
                             var actionLog = instancesDao.insertDockerActionLog(instanceDetails._id,instanceDetails.catUser , actionObj, 6, timestampStarted);
                             var logReferenceIds = [instanceDetails._id, actionLog._id];
                             logsDao.insertLog({
