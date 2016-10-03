@@ -858,7 +858,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     projectName: instance[0].projectName,
                     envName: instance[0].environmentName,
                     envId: instance[0].envId,
-                    status: containers[0].Status,
+                    status: action.charAt(0).toUpperCase() + action.slice(1),
                     actionStatus: "pending",
                     instanceIP:instance[0].instanceIP,
                     platformId: instance[0].platformId,
