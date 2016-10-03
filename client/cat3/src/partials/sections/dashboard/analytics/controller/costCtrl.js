@@ -4,8 +4,6 @@
         .controller('costCtrl', ['$scope', '$rootScope', '$state','analyticsServices', 'genericServices','$timeout', function ($scope,$rootScope,$state,analyticsServices,genSevs,$timeout){
         $rootScope.stateItems = $state.params;
             //analyticsServices.initFilter();
-        // var treeNames = ['Analytics','Cost'];
-        // $rootScope.$emit('treeNameUpdate', treeNames);
             var costObj =this;
             costObj.chartData=[];
             costObj.splitUp=null;
@@ -40,7 +38,7 @@
                             y: function (d) {
                                 return d.value;
                             },
-                            showLabels: true,
+                            showLabels: false,
                             labelType: "value",
                             labelThreshold: 0.01,
                             labelSunbeamLayout: true,
@@ -60,7 +58,7 @@
                                 top: 20,
                                 right: 20,
                                 bottom: 60,
-                                left: 40
+                                left: 60
                             },
                             duration:1000,
                             stacked: true,
@@ -73,11 +71,12 @@
                             showControls: true,
                             showValues: true,
                             xAxis: {
-                                axisLabel: '',
+                                axisLabel: 'Aggregate',
                                 showMaxMin: false,
                                 staggerLabels:false
                             },
                             yAxis: {
+                                axisLabel: 'Cost in $',
                                 tickFormat: function (d) {
                                     return d3.format(',.2f')(d);
                                 }
@@ -188,11 +187,11 @@
                     chart: {
                         //type: 'stackedAreaChart',
                         type: 'lineChart',
-                        height: 250,
+                        height: 350,
                         margin: {
                             top: 20,
                             right: 20,
-                            bottom: 30,
+                            bottom: 40,
                             left: 40
                         },
                         x: function (d) {
@@ -207,6 +206,7 @@
                         useInteractiveGuideline: true,
                         xAxis: {
                             showMaxMin: false,
+                            axisLabel: 'Date',
                             tickFormat: function (d) {
                                 return d3.time.format('%x')(new Date(d))
                             }
@@ -240,7 +240,7 @@
                         entityId=fltObj.org.id;
                     }
                     //http://192.168.152.139:3001
-                    param.url='/analytics/cost/trend?parentEntityId='+fltObj.org.id+'&entityId='+fltObj.org.id+'&toTimeStamp='+new Date()+'&period='+fltObj.period+'&interval=86400'
+                   param.url='/analytics/cost/trend?parentEntityId='+fltObj.org.id+'&entityId='+fltObj.org.id+'&toTimeStamp='+new Date()+'&period='+fltObj.period+'&interval=86400'
                 }
 
                 genSevs.promiseGet(param).then(function (result) {
@@ -268,10 +268,12 @@
                 });
             };
             $scope.$on('CHANGE_VIEW', function (event, data) {
-                costObj.splitUp=data.replace(/([A-Z])/g, ' $1').replace(/^./, function(str) {
-                    return str.toUpperCase();
-                });
-                costObj.createLable(costObj.chartData,data);
+                if (data) {
+                    costObj.splitUp = data.replace(/([A-Z])/g, ' $1').replace(/^./, function (str) {
+                        return str.toUpperCase();
+                    });
+                    costObj.createLable(costObj.chartData, data);
+                }
             });
             $rootScope.applyFilter =function(filterApp,period){
                 analyticsServices.applyFilter(filterApp,period);
@@ -285,6 +287,8 @@
                 $timeout(function () {
                     $rootScope.applyFilter(true,'month');
                     costObj.trendsChart($rootScope.filterNewEnt);
+                    var treeNames = ['Analytics','Cost'];
+                    $rootScope.$emit('treeNameUpdate', treeNames);
                 },200);
             };
             costObj.init();

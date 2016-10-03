@@ -98,6 +98,8 @@
                         $rootScope.organNewEnt.provider='0';
                         $scope.$emit('INI_usage', 'Unassigned');
                         $timeout(function(){$rootScope.applyFilter(true,'month')},200);
+                        var treeNames = ['Analytics','Usage'];
+                        $rootScope.$emit('treeNameUpdate', treeNames);
                 };
             usage.init();
 
