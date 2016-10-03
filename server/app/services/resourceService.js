@@ -142,6 +142,7 @@ function updateAWSResourceCostsFromCSV(provider, resources, downlaodedCSVPath, u
                 }
 
                 if (('masterDetails.bgId' in resource) && (resource.masterDetails.bgId != null)) {
+                    console.log("BG: " + resource['bgId'])
                     resourceCostEntry.businessGroupId = resource['bgId']
                 }
 
@@ -154,11 +155,14 @@ function updateAWSResourceCostsFromCSV(provider, resources, downlaodedCSVPath, u
                     && (resource.masterDetails.environmentId != null)) {
                     resourceCostEntry.environmentId = resource['environmentId']
                 }
-            } else {
-                resourceCostEntry.businessGroupId = 'Unassigned'
-                resourceCostEntry.projectId = 'Unassigned'
-                resourceCostEntry.environmentId = 'Unassigned'
             }
+
+            resourceCostEntry.businessGroupId
+                = ('businessGroupId' in resourceCostEntry)?resourceCostEntry.businessGroupId:'Unassigned'
+            resourceCostEntry.projectId
+                = ('projectId' in resourceCostEntry)?resourceCostEntry.projectId:'Unassigned'
+            resourceCostEntry.environmentId
+                = ('environmentId' in resourceCostEntry)?resourceCostEntry.environmentId:'Unassigned'
 
             resourceCost.upsertResourceCost(resourceCostEntry, function (err, costEntry) {
                 if (err) {
