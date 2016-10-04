@@ -52,7 +52,7 @@
 					<th class="text-center">Env</th>
 					<th class="text-center">Blueprint</th>
 					<th class="text-center">Action</th>
-					<th class="text-center">ActionStatus</th>
+					<th class="text-center">Action Status</th>
 					<th class="text-center">Log</th>
 				</tr>
 			</thead>
@@ -183,8 +183,6 @@
 			getInstances();
 
 			$("#refreshBtn").click(function() {
-				pageSetting.page = 1;
-				pageSetting.pageSize = 10;
 				pageSetting.sortBy = "createdOn";
 				pageSetting.sortOrder = "desc";
 				pageSetting.search = "";
