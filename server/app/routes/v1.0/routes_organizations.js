@@ -126,7 +126,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                         }
                     }
                 }else{
-                    next('No Org is there.',null);
+                    next(null,orgList);
                 }
             },
             function(orgTree,next){
@@ -176,7 +176,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                         })(orgTree[i]);
                     }
                 }else{
-                    next('No Org Tree is there.',null);
+                    next(null,orgTree);
                 }
             },
             function(orgBgProjectTree,next){
@@ -215,7 +215,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                         }
                     });
                 }else{
-                    next('No Org Bg Project Tree is there.',null);
+                    next(null,orgBgProjectTree);
                 }
             }
         ],function(err,results){
@@ -280,7 +280,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                         }
                     }
                 }else{
-                    next('No Org is there.',null);
+                    next(null,orgList);
                 }
             },
             function(orgTree,next){
@@ -353,7 +353,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                         })(orgTree[i]);
                     }
                 }else{
-                    next('No Org Tree is there.',null);
+                    next(null,orgTree);
                 }
             },
             function(orgBgProjectTree,next){
@@ -392,7 +392,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                         }
                     });
                 }else{
-                    next('No Org Bg Project Tree is there.',null);
+                    next(null,orgBgProjectTree);
                 }
             }
         ],function(err,results){
