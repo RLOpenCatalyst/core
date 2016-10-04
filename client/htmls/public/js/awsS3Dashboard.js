@@ -153,9 +153,42 @@ $(document).ready(function() {
         "columns": [
             {"data": "resourceDetails.bucketName", "orderable" : true},
             {"data": "resourceDetails.bucketOwnerName" ,"orderable" : false },
-            {"data": "masterDetails.orgName","orderable" : false  },
-            {"data": "masterDetails.projectName" ,"orderable" : false },
-            {"data": "masterDetails.envName" ,"orderable" : false },
+            {"data": "masterDetails.orgName","orderable" : false,
+                "render": function (data) {
+                    if(data !== null){
+                        return data;
+                    }else{
+                        return '-';
+                    }
+                }
+            },
+            {"data": "masterDetails.bgName","orderable" : false,
+                "render": function (data) {
+                    if(data !== null){
+                        return data;
+                    }else{
+                        return '-';
+                    }
+                }
+            },
+            {"data": "masterDetails.projectName" ,"orderable" : false,
+                "render": function (data) {
+                    if(data !== null){
+                        return data;
+                    }else{
+                        return '-';
+                    }
+                }
+            },
+            {"data": "masterDetails.envName" ,"orderable" : false,
+                "render": function (data) {
+                    if(data !== null){
+                        return data;
+                    }else{
+                        return '-';
+                    }
+                }
+            },
             {"data": "resourceDetails.bucketSize","orderable" : true  },
             {"data": "resourceDetails.bucketCreatedOn","orderable" : true,
                 "render": function (data) {
@@ -177,9 +210,42 @@ $(document).ready(function() {
             "columns": [
                 {"data": "resourceDetails.bucketName", "orderable" : true},
                 {"data": "resourceDetails.bucketOwnerName" ,"orderable" : false },
-                {"data": "masterDetails.orgName","orderable" : false  },
-                {"data": "masterDetails.projectName" ,"orderable" : false },
-                {"data": "masterDetails.envName" ,"orderable" : false },
+                {"data": "masterDetails.orgName","orderable" : false,
+                    "render": function (data) {
+                        if(data !== null){
+                            return data;
+                        }else{
+                            return '-';
+                        }
+                    }
+                },
+                {"data": "masterDetails.bgName","orderable" : false,
+                    "render": function (data) {
+                        if(data !== null){
+                            return data;
+                        }else{
+                            return '-';
+                        }
+                    }
+                },
+                {"data": "masterDetails.projectName" ,"orderable" : false,
+                    "render": function (data) {
+                        if(data !== null){
+                            return data;
+                        }else{
+                            return '-';
+                        }
+                    }
+                },
+                {"data": "masterDetails.envName" ,"orderable" : false,
+                    "render": function (data) {
+                        if(data !== null){
+                            return data;
+                        }else{
+                            return '-';
+                        }
+                    }
+                },
                 {"data": "resourceDetails.bucketSize","orderable" : true  },
                 {"data": "resourceDetails.bucketCreatedOn","orderable" : true,
                     "render": function (data) {
