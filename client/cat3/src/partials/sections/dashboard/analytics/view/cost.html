@@ -2,22 +2,20 @@
     <br>
      <div ng-if="analytic.tabShowChat">
          <div class="row">
-             <div class="col-lg-12 col-md-12 col-sm-12" >
-                 <div class="box box-infobox box-info" style="border-top-color:#F9F9F9">
-                     <div class="box-header with-border">
+             <div class="col-lg-12 col-md-12 col-sm-12 top-stats">                 
                          <div class="col-lg-9 col-md-9 col-sm-12" >
-                             <h3 class="box-title" ng-show="cost.pieChat.data.length >0" >Total Cost  <span class="red">${{cost.pieChat.totalCoust}}</span> , &nbsp;</h3>
-                             <h3 class="box-title" ng-show="cost.pieChat.data.length >0">Services Cost
-                             <span class="badge" style="margin-right: 10px;"  ng-repeat="(value , key) in cost.serviceCosts"> {{value}} : ${{key}}</span>
-                         </h3>
+                             <span class="box-title" ng-show="cost.pieChat.data.length >0" ><span>Total Cost:</span> <span class="red">${{cost.pieChat.totalCoust}}</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                             <span class="box-title" ng-show="cost.pieChat.data.length >0"><span>Services Cost</span>
+                         <span class="badge" ng-repeat="(value , key) in cost.serviceCosts"> {{value}} : ${{key}}</span>
+                         </span>
                          </div>
                          <div class="col-lg-3 col-md-3 col-sm-12" >
-                             <h3 class="box-title">Aggregate by  </h3>
-                             <select ng-show="stateItems.filterView.splitUpType && splitUpCosts.length > 0" class="form-control select2 select2-hidden-accessible" style="width: auto;height: 31px;display: table-cell" ng-model="analytic.splitUp" ng-options="sp.id as sp.val for sp in splitUpCosts" >
+                             <div ng-show="stateItems.filterView.splitUpType && splitUpCosts.length > 0">
+                             <span class="box-title">Segregated by  </span>
+                             <select class="form-control select2 select2-hidden-accessible" ng-model="analytic.splitUp" ng-options="sp.id as sp.val for sp in splitUpCosts" >
                              </select>
+                             </div>
                          </div>
-                     </div>
-                 </div>
              </div>
              <div class="clearfix"></div>
              <div class="col-lg-4 col-md-4 col-sm-12" >
@@ -39,9 +37,6 @@
              <div class="col-lg-12 col-md-12 col-sm-12" >
                  <div class="box box-infobox box-info">
                      <div class="box-header with-border"><h3 class="box-title">Daily trends of cost across organization</h3>
-                         <div class="box-tools pull-right" ng-show="cost.trendLineChart.data.length >0">
-                             <span data-toggle="tooltip" title="3 New Messages" class="badge bg-yellow" >Total Cost  ${{cost.trendLineChart.totalCost}}</span>
-                         </div>
                      </div>
                      <div class="box-body" ><nvd3 options="cost.trendLineChart.options" data="cost.trendLineChart.data" class="with-3d-shadow with-transitions"></nvd3></div>
                  </div>

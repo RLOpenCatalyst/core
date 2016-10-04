@@ -1,22 +1,16 @@
 <div class="leftnavdiv" style="padding-right:7px;">
     <br>
     <div ng-if="analytic.tabShowChat">
-        <div class="row">
-            <div class="col-lg-12 col-md-12 col-sm-12" >
-                <div class="box box-infobox box-info" style="border-top-color:#F9F9F9">
-                    <div class="box-header with-border">
-                        <div class="col-lg-12 col-md-12 col-sm-12 " >
-                            <h3 class="box-title"></h3>
-                            <select  class="form-control select2 select2-hidden-accessible pull-right" ng-change="usage.splitChange()" style="width: auto;height: 31px;display: table-cell" ng-model="usage.splitUp" >
-                                <option value="CPUUtilization">CPUUtilization</option>
-                                <option value="DiskReadBytes">DiskReadBytes</option>
-                                <option value="DiskWriteBytes">DiskWriteBytes</option>
-                                <option value="NetworkIn">NetworkIn</option>
-                                <option value="NetworkOut">NetworkOut</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
+        <div class="row usage">
+            <div class="col-lg-12 col-md-12 col-sm-12 top-stats">                 
+                <span class="box-title">Usage Type</span>
+                <select  class="form-control select2 select2-hidden-accessible" ng-change="usage.splitChange()" style="width: auto;height: 31px;display: table-cell" ng-model="usage.splitUp" >
+                    <option value="CPUUtilization">CPUUtilization</option>
+                    <option value="DiskReadBytes">DiskReadBytes</option>
+                    <option value="DiskWriteBytes">DiskWriteBytes</option>
+                    <option value="NetworkIn">NetworkIn</option>
+                    <option value="NetworkOut">NetworkOut</option>
+                </select>            
             </div>
             <div class="col-lg-12 col-md-12 col-sm-12" >
                 <div class="box box-infobox box-info">
@@ -32,8 +26,8 @@
         </div>
     </div>
     <div ng-if="analytic.tabShowReport">
-        <div ng-if="usage.costGridOptions.data.length >0" ui-grid="usage.costGridOptions" ui-grid-selection ui-grid-exporter ui-grid-auto-resize class="grid"></div>
-        <div ng-if="!usage.costGridOptions.data.length >0">
+        <div ng-if="usage.costGridOptions.data.length > 0" ui-grid="usage.costGridOptions" ui-grid-selection ui-grid-exporter ui-grid-auto-resize class="grid"></div>
+        <div ng-if="!usage.costGridOptions.data.length > 0">
             <div class="alert alert-warning">
                 No Data Available.
             </div>
