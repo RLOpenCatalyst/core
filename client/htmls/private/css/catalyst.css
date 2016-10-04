@@ -994,18 +994,19 @@ h6 {
     position: absolute;
     z-index: 1;
     width: 254px;
-    display: block;
     background: #2c3638;
     background: -webkit-gradient(linear, left top, right top, color-stop(99%, #2c3638), color-stop(100%, #2c3638));
     background: -webkit-linear-gradient(left, #2c3638 99%, #2c3638 100%);
     background: -webkit-gradient(linear, top left, top right, from(#2c3638), to(#2c3638));
     background: linear-gradient(to right, #2c3638 99%, #2c3638 100%);
-    height: 91.4%!important;
+    height: 85.1%!important;
     float: left;
+    margin-top: 41px;
+    display: none;
 }
 #main {
     display: block;
-    margin-left: 254px;
+    margin-left: 0px;
     height: 91.6%!important;
 }
 #ribbon {
@@ -3200,6 +3201,7 @@ header {
 }
 .menu-item-parentdemo li b {
     float: right;
+    display: none;
 }
 nav ul {
     padding: 0;
