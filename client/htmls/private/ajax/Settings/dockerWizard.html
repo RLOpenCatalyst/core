@@ -124,16 +124,14 @@
 
     var $option = $('<option></option>').val(orgNameForSetup).attr('rowid',orgIdForSetup).html(orgNameForSetup);
     $('#orgname').append($option);
-
+    getDockerDetailsOnEdit();
     $('#orgname').change(function() {
        $('#projectname').empty();
+       var str = '';
         $.get('/d4dMasters/readmasterjsonnew/4', function(data) {
            for (var i = 0; i < data.length; i++) {
-               if (orgIdForSetup === data[i].orgname_rowid[0]) {
-                   var str = '',
-                       getTemplate = function(val, rowid) {
-                           return '<label class="toggle font-sm" style="padding-left:4px;"><input onclick="if($(this).is(&quot;:checked&quot;)) {$(this).closest(&quot;label&quot;).' + 'css(&quot;background-color&quot;,&quot;#eeeeee&quot;);$(this).css(&quot;border-color&quot;,&quot;#3b9ff3&quot;);}else{$(this).closest(&quot;label&quot;).css(&quot;background-color&quot;,&quot;#ffffff&quot;);$(this).css(&quot;border-' + 'color&quot;,&quot;red&quot;);}" type="checkbox" id="checkbox-toggle" name="checkbox-toggle"' +'value="'+ val +'"' + 'rowid="' + rowid + '" style="width:100%"><i data-swchoff-text="NO" data-swchon-text="YES"></i>' + val + '</label>';
-                       };
+               if (orgIdForSetup === data[i].orgname_rowid[0]) {     
+                  str = '';
                    str = str + getTemplate(data[i].projectname, data[i].rowid);
                    $('#projectname').append(str);
                }

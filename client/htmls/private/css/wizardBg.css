@@ -22,7 +22,7 @@ Website: http://www.seantheme.com/color-admin-v2.0/admin/html/
 .bwizard-steps li {
     float: none!important;
     display: table-cell!important;
-    padding: 15px!important;
+   
     line-height: 20px!important;
     background: #d2cbcb;
     -webkit-border-radius: 0!important;
@@ -44,7 +44,8 @@ Website: http://www.seantheme.com/color-admin-v2.0/admin/html/
 
 .bwizard-steps li a {
     margin-left: 30px!important;
-    display: block!important
+    display: block!important;
+    padding: 15px!important;
 }
 
 .bwizard-steps li.active small {
@@ -112,34 +113,8 @@ Website: http://www.seantheme.com/color-admin-v2.0/admin/html/
 .bwizard-steps li:last-child:after {
     border: 0
 }
-
-.bwizard-steps li:before {
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: 0;
-    width: 0;
-    border-bottom: 20px inset transparent;
-    border-left: 20px solid #fff;
-    border-top: 20px inset transparent;
-    content: ""
-}
-
-.bwizard-steps li:after {
-    position: absolute;
-    right: -20px;
-    top: 0;
-    height: 0;
-    width: 0;
-    border-bottom: 20px inset transparent;
-    border-left: 20px solid #efefef;
-    border-top: 20px inset transparent;
-    content: "";
-    z-index: 2
-}
-
 .bwizard-steps .label {
-    margin: 0 5px 0 0;
+    margin: 14px 5px 0 6px;
     padding: 1px 5px 2px;
     position: relative;
     top: -1px

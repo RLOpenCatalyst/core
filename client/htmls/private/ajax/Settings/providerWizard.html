@@ -335,6 +335,7 @@
            $('.contentSetting').load(this.getAttribute('href'));
        });
        $('.btn-3 a').click(function(e) {
+           clicked = true;
            e.preventDefault();
            $('.nextFormWizard').removeAttr('disabled');
            $('.btn-2 a').parent('.bwizard-steps li').removeClass('active')

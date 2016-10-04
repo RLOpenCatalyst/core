@@ -44,7 +44,7 @@
 </div>
 
 <script>
-var wizardSteps = $('<ol id="wizardTab" class="bwizard-steps clearfix clickable" role="tablist"><li aria-selected="true" class="btn-2 orgCreate active" id="orgCreate" style="z-index: 4;"><span class="label badge-inverse">1</span><a href="ajax/Settings/settingsWizard.html" class="hidden-phone">Create Organization </a></li><li aria-selected="true" style="z-index: 3;" id="bgCreate" class="btn-3 bgCreate"><span class="label">2</span><a href="ajax/Settings/bgWizard.html" class="not-activeAnchor hidden-phone">Create Business group</a></li><li aria-selected="true" style="z-index: 2;" id="projectCreate" class="btn-4 projectCreate"><span class="label btn-1">3</span><a href="ajax/Settings/projWizard.html" class="not-activeAnchor hidden-phone">Create New Project</a></li></ol>');
+var wizardSteps = $('<ol id="wizardTab" class="bwizard-steps clearfix clickable" role="tablist"><li aria-selected="true" class="btn-2 orgCreate active" id="orgCreate" style="z-index: 4;"><span class="label badge-inverse">1</span><a href="ajax/Settings/settingsWizard.html" class="hidden-phone">Organization </a></li><li aria-selected="true" style="z-index: 3;" id="bgCreate" class="btn-3 bgCreate"><span class="label">2</span><a href="ajax/Settings/bgWizard.html" class="not-activeAnchor hidden-phone">Business group</a></li><li aria-selected="true" style="z-index: 2;" id="projectCreate" class="btn-4 projectCreate"><span class="label btn-1">3</span><a href="ajax/Settings/projWizard.html" class="not-activeAnchor hidden-phone">Project</a></li></ol>');
 $('.wizardFlow').append(wizardSteps);
 //getOrgValues();
 
@@ -118,6 +118,7 @@ $('.btn-2 a').click(function(e) {
 });
 
 $('.btn-3 a').click(function(e) {
+    clicked = true;
     e.preventDefault();
     $('.content').empty();
     if (selectedDropdownValue || lastDropdownValue) {
@@ -131,6 +132,7 @@ $('.btn-3 a').click(function(e) {
 });
 
 $('.btn-4 a').click(function(e) {
+    clicked = true;
     e.preventDefault();
     if (selectedDropdownValue) {
       $('.nextFormWizard').removeAttr('disabled');
@@ -141,7 +143,7 @@ $('.btn-4 a').click(function(e) {
     }
     $('.content').load(this.getAttribute('href'));
 });
-
+$(document).ready(function(e){
 function wizardStatus(orgIdForSetup) {
   $.get('/setting-wizard/org/' + orgIdForSetup, function(data) {
       if (data.currentStep.name === 'Org Configuration') {
@@ -161,6 +163,7 @@ function wizardStatus(orgIdForSetup) {
               }
           }
       } else {
+        getOrgValues();
         $('.btn-3 a').removeClass('not-activeAnchor');
         $('.btn-4 a').removeClass('not-activeAnchor');
         $('.nextFormWizard').removeAttr('disabled');
@@ -173,27 +176,30 @@ function wizardStatus(orgIdForSetup) {
       }
   });
 }
-orgIdForSetup = selectedDropdownValue;
-if (clicked) {
-    if (orgIdForSetup) {
-        wizardStatus(orgIdForSetup);
+
+    orgIdForSetup = selectedDropdownValue;
+    if (clicked) {
+        if (orgIdForSetup) {
+            wizardStatus(orgIdForSetup);
+        } else {
+        }
     } else {
+      //user comes when he is creating a new org setup
+      if(orgIdForSetup){
+        getOrgValues();
+        $('.btn-3 a').removeClass('not-activeAnchor');
+        $('.btn-4 a').removeClass('not-activeAnchor');
+        $('.nextFormWizard').removeAttr('disabled');
+        $('.btn-3 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+        $('.btn-4 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+      } else if(lastDropdownValue) {
+          getOrgValues();
+          $('.btn-3 a').removeClass('not-activeAnchor');
+          $('.nextFormWizard').removeAttr('disabled');
+      }
     }
-} else {
-  //user comes when he is creating a new org setup
-  if(orgIdForSetup){
-    getOrgValues();
-    $('.btn-3 a').removeClass('not-activeAnchor');
-    $('.btn-4 a').removeClass('not-activeAnchor');
-    $('.nextFormWizard').removeAttr('disabled');
-    $('.btn-3 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
-    $('.btn-4 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
-  } else if(lastDropdownValue) {
-      getOrgValues();
-      $('.btn-3 a').removeClass('not-activeAnchor');
-      $('.nextFormWizard').removeAttr('disabled');
-  }
-}
+});
+
 
 function activateOrg() {
     $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
