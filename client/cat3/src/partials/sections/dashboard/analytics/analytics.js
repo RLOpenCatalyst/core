@@ -64,7 +64,7 @@
 		var splitUp=null;
 		analytic.tabShowChat=true;
 		analytic.tabShowReport=false;
-		$scope.showTree = true;
+		$scope.showTreeMenu = false;
 		$rootScope.isOpenSidebar = false;
 		$rootScope.dashboardChild = 'analytics';
 		$rootScope.stateItems = $state.params;
@@ -104,17 +104,17 @@
 		if (!$rootScope.stateParams.view) {
 			$state.go('dashboard.analytics.cost');
 		}
-		analytic.hideTreeOverlay =function (){
-			genericServices.hideTreeOverlay();
+		$scope.hideTreeOverlay =function (){
+			$scope.showTreeMenu = false;
 		};
-		analytic.showTreeOverlay =function (){
-			genericServices.showTreeOverlay();
+		$scope.showTreeOverlay =function (){
+			$scope.showTreeMenu = true;
 		};
 		analytic.tabShow=function(chat,report){
 			analytic.tabShowChat=chat;
 			analytic.tabShowReport=report;
 		};
-		analytic.hideTreeOverlay();
+		$scope.hideTreeOverlay();
 		$scope.getAllRegionsList = function() {
             workzoneServices.getAllRegionsList().then(function(response) {
                 $scope.allRegions = response.data;

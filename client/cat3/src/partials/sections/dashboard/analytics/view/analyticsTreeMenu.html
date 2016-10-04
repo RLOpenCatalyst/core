@@ -3,11 +3,10 @@
 
 <div id='analyticsTreeMenuPage' ng-controller="analyticsCtrl">
 	<span ng-show="!isLoading" class="tree-wrapper">
-		<span ng-click="analytic.showTreeOverlay()" class="minifyme cursor"> <i class="fa fa-arrow-circle-right black hit"></i> </span>
-		<span ng-click="analytic.hideTreeOverlay()" class="minifyme cursor" title="Hide Tree" ng-show="showTreeMenu"> <i class="fa fa-arrow-circle-left black hit"></i> </span>
+		<i ng-mouseover="showTreeOverlay()" ng-mouseleave="hideTreeOverlay()" class="fa fa-bars cursor tree-toggle"></i>
 	</span>
-	<div id='navigPage'>
-		<div id='navigPage-inner' ng-show="showTreeMenu">
+	<div id='navigPage' ng-mouseover="showTreeOverlay()" ng-mouseleave="hideTreeOverlay()" ng-class="{'show-left-tree':showTreeMenu}">
+		<div id='navigPage-inner'>
 			<div id="treeParent">
 				<ul class="tree-ul">
 				    <li>
