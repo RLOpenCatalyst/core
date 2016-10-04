@@ -224,11 +224,6 @@ function deleteS3ResourceData(s3Info,providerId, callback) {
                     for (var i = 0; i < s3Data.length; i++) {
                         (function (s3) {
                             if (bucketNames.indexOf(s3.resourceDetails.bucketName) === -1) {
-                                count++;
-                                if (count === s3Data.length) {
-                                    next(null, []);
-                                }
-                            } else {
                                 resourceModel.deleteResourcesById(s3._id, function (err, data) {
                                     if (err) {
                                         next(err);
@@ -239,6 +234,11 @@ function deleteS3ResourceData(s3Info,providerId, callback) {
                                         }
                                     }
                                 })
+                            } else {
+                                count++;
+                                if (count === s3Data.length) {
+                                    next(null, []);
+                                }
                             }
                         })(s3Data[i]);
                     }
@@ -287,11 +287,6 @@ function deleteRDSResourceData(rdsInfo,providerId, callback) {
                     for (var i = 0; i < rdsData.length; i++) {
                         (function (rds) {
                             if (dbNames.indexOf(rds.resourceDetails.dbName) === -1) {
-                                count++;
-                                if (count === rdsData.length) {
-                                    next(null, []);
-                                }
-                            } else {
                                 resourceModel.deleteResourcesById(rds._id, function (err, data) {
                                     if (err) {
                                         next(err);
@@ -302,6 +297,11 @@ function deleteRDSResourceData(rdsInfo,providerId, callback) {
                                         }
                                     }
                                 })
+                            } else {
+                                count++;
+                                if (count === rdsData.length) {
+                                    next(null, []);
+                                }
                             }
                         })(rdsData[i]);
                     }
