@@ -113,7 +113,8 @@ function getDefaultsConfig() {
                 "unassignedInstances":"state",
                 "chefNodes":"createdOn",
                 "blueprints":"name",
-                'compositeBlueprints':"name"
+                "compositeBlueprints":"name",
+                "containerLogs":"createdOn"
             },
             skip_Records : 1,
             max_record_limit : 200,
