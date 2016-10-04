@@ -155,6 +155,7 @@ $(document).ready(function() {
         "columns": [
             {"data": "resourceDetails.dbName",  "orderable" : true},
             {"data": "masterDetails.orgName","orderable" : false  },
+            {"data": "masterDetails.bgName","orderable" : false  },
             {"data": "masterDetails.projectName","orderable" : false  },
             {"data": "masterDetails.envName","orderable" : false  },
             {"data": "resourceDetails.dbEngine","orderable" : true  },
@@ -179,6 +180,7 @@ $(document).ready(function() {
             "columns": [
                 {"data": "resourceDetails.dbName",  "orderable" : true},
                 {"data": "masterDetails.orgName","orderable" : false  },
+                {"data": "masterDetails.bgName","orderable" : false  },
                 {"data": "masterDetails.projectName","orderable" : false  },
                 {"data": "masterDetails.envName","orderable" : false  },
                 {"data": "resourceDetails.dbEngine","orderable" : true  },
