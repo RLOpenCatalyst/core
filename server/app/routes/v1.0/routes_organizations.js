@@ -98,7 +98,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 if(masterDetails.length > 0){
                     masterDetailList = masterDetails;
                     d4dModelNew.d4dModelMastersOrg.find({
-                            id: 1,
+                            id: '1',
                             active: true,
                             rowid: {
                                 $in: masterDetails[0].orgs
@@ -126,7 +126,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                         }
                     }
                 }else{
-                    next('No Org is there.',null);
+                    next(null,orgList);
                 }
             },
             function(orgTree,next){
@@ -136,8 +136,10 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     for(var i = 0; i < orgTree.length;i++){
                         (function(org){
                             d4dModelNew.d4dModelMastersProductGroup.find({
-                                id: 2,
-                                orgname_rowid:org.rowid,
+                                id: '2',
+                                orgname_rowid:{
+                                    $in :[org.rowid]
+                                },
                                 rowid: {
                                     $in: masterDetailList[0].bunits
                                 }
@@ -145,6 +147,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                 if(err){
                                     next(err);
                                 }else if(bgList.length > 0){
+                                    orgCount++;
                                     for(var j = 0; j < bgList.length;j++){
                                         (function(bg){
                                             var bgObj = {
@@ -159,7 +162,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                 bgObj.projects = data;
                                                 org.businessGroups.push(bgObj);
                                                 bgObjList.push(bgObj);
-                                                orgCount++;
                                                 if(orgCount === orgTree.length && bgObjList.length === bgList.length){
                                                     next(null,orgTree);
                                                 }
@@ -176,7 +178,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                         })(orgTree[i]);
                     }
                 }else{
-                    next('No Org Tree is there.',null);
+                    next(null,orgTree);
                 }
             },
             function(orgBgProjectTree,next){
@@ -215,7 +217,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                         }
                     });
                 }else{
-                    next('No Org Bg Project Tree is there.',null);
+                    next(null,orgBgProjectTree);
                 }
             }
         ],function(err,results){
@@ -246,7 +248,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 if(masterDetails.length > 0){
                     masterDetailList = masterDetails;
                     d4dModelNew.d4dModelMastersOrg.find({
-                        id: 1,
+                        id: '1',
                         active: true,
                         rowid: {
                             $in: masterDetails[0].orgs
@@ -280,7 +282,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                         }
                     }
                 }else{
-                    next('No Org is there.',null);
+                    next(null,orgList);
                 }
             },
             function(orgTree,next){
@@ -290,8 +292,10 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     for(var i = 0; i < orgTree.length;i++){
                         (function(org){
                             d4dModelNew.d4dModelMastersProductGroup.find({
-                                id: 2,
-                                orgname_rowid:org.rowid,
+                                id: '2',
+                                orgname_rowid:{
+                                    $in :[org.rowid]
+                                },
                                 rowid: {
                                     $in: masterDetailList[0].bunits
                                 }
@@ -299,6 +303,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                 if(err){
                                     next(err);
                                 }else if(bgList.length > 0){
+                                    orgCount++;
                                     for(var j = 0; j < bgList.length;j++){
                                         (function(bg){
                                             var bgObj = {
@@ -336,7 +341,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                 org.businessGroups.push(bgObj);
                                                 org.nodes.push(nodeObj);
                                                 bgObjList.push(bgObj);
-                                                orgCount++;
                                                 if(orgCount === orgTree.length && bgObjList.length === bgList.length){
                                                     next(null,orgTree);
                                                 }
@@ -353,7 +357,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                         })(orgTree[i]);
                     }
                 }else{
-                    next('No Org Tree is there.',null);
+                    next(null,orgTree);
                 }
             },
             function(orgBgProjectTree,next){
@@ -392,7 +396,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                         }
                     });
                 }else{
-                    next('No Org Bg Project Tree is there.',null);
+                    next(null,orgBgProjectTree);
                 }
             }
         ],function(err,results){
