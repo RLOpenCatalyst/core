@@ -1,15 +1,18 @@
 #navigPage {
-	background: linear-gradient(to right, #2c3638 99%, #2c3638 100%);
+	background: transparent;
 	z-index: 1;
 	position: fixed;
 	width: 254px;
-	z-index: 3;
+	z-index: 10;
+	transition: all .4s ease 0s;
+	left: -254px;
 
 	#navigPage-inner {
 		background: linear-gradient(to right, #2c3638 99%, #2c3638 100%);
 		color: #fff;
 		z-index: 1;
-		width: 100%;
+		position: fixed;
+ 		width: 254px;
 		overflow-y: auto;
 	}
 
@@ -79,27 +82,19 @@
 	}
 }
 
-.tree-close {
-	width: 35px !important;
+.tree-toggle {
+ 	position: absolute;
+ 	top: -35px;
+ 	z-index: 100;
+ 	color: #fff;
+ 	font-size: 1.2em;
+ 	padding: 11px;
 }
 
-.minifyme {
-	background: #D7DAE2;
-    border-bottom: 1px solid #818181;
-    color: #7E7E7E;
-    z-index: 100;
-    text-align: center;
-    padding: 0;
-    width: 38px;
-    height: 28px;
-    display: block;
-    position: absolute;
-    right: 0px;
-    border-radius: 5px 0 0 5px;
-    cursor: pointer;
-    font-size: 19px;
-    -webkit-transition: all .1s linear 0s;
-    transition: all .1s linear 0s;
-    left: 216px;
+#section-name {
+   padding: 6px 10px 6px 35px;
 }
 
+.show-left-tree {
+	left: 0px !important;
+}
