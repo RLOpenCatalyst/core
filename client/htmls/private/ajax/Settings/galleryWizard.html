@@ -104,7 +104,7 @@
       </div>
       <div class="widget-toolbox clearfix">
             <div class="btn-group pull-right">
-             <button name="next1" id="saveProviderWizard" style="margin-right:11px;" class="saveFormWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
+             <button name="next1" id="saveTemplateWizard" style="margin-right:11px;" class="saveFormWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
              <input type="button" name="next1" id="next1" class="nextFormWizard btn btn-primary" value="Next"/>
           </div>
        </div>
@@ -134,6 +134,8 @@
                   $('#myForm6').find('select#templatetypename').val(data[i].templatetypename).attr('disabled','disabled');
                   $('#myForm6').find('select#dockerreponame').append($optionDockerRepoName).attr('disabled','disabled');
                   $('#myForm6').find('input#dockercontainers').val(data[i].dockercontainerpaths).attr('disabled','disabled');
+                   $('#myForm6').find('button#saveTemplateWizard').addClass('hidden');
+                   
                 }
             }
           });
@@ -154,6 +156,7 @@
                   $('#myForm50').find('select#servicecookbook').append($optionServiceCookBook).attr('disabled', 'disabled');
                   $('#myForm50').find('select#commandtype').remove();
                   $('#myForm50').find('input#commandtype').removeClass('hidden').val(data[i].commandtype).attr('disabled','disabled');
+                  $('#myForm6').find('button#saveServiceWizard').addClass('hidden');
                 }
             }
           });
@@ -173,6 +176,7 @@
                   $('#scriptForm').find('input#scriptDescription').val(data.data[i].description).attr('disabled','disabled');
                   $('#scriptForm').find('input#scriptDescription').val(data.data[i].description).attr('disabled','disabled');
                   $('#scriptForm').find('#fileNameDisplay').append(data.data[i].fileName);
+                  $('#myForm6').find('button#saveScriptWizard').addClass('hidden');
                 }
               }
           });

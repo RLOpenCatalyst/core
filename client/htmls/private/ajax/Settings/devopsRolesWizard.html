@@ -92,7 +92,7 @@
          </div>
          <div class="widget-toolbox clearfix">
             <div class="btn-group pull-right">
-               <button name="next1" id="saveProviderWizard" style="margin-right:11px;" class="saveFormWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
+               <button name="next1" id="saveNexusWizard" style="margin-right:11px;" class="saveFormWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
                <input type="button" name="next1" id="next1" class="nextFormWizard btn btn-primary" value="Next"/>
             </div>
          </div>
@@ -191,7 +191,6 @@
                         $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
                         $('.contentSetting').find('ol li#dockerCreate').addClass('active');
                         $('.content').load('ajax/Settings/dockerWizard.html');
-                      //  alert('yaha');
                     } else if (nestedSteps[0].name === 'Nexus' && nestedSteps[0].isCompleted === true &&
                         nestedSteps[1].name === 'Docker' && nestedSteps[1].isCompleted === true &&
                         nestedSteps[2].name === 'Jenkins' && nestedSteps[2].isCompleted === false) {
@@ -205,6 +204,7 @@
                 }
               } else {
                 getNexusRepoDetailsOnEdit();
+                $('.btn-2 a,.btn-3 a,.btn-4 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
               }
             });
             $('#wizardActionListLoader').hide();
@@ -225,8 +225,7 @@
                  $('#myForm101').find('input#hostname').val(data[i].hostname).attr('disabled', 'disabled');
                  $('#myForm101 #projectname').find('input[type="checkbox"][value="'+data[i].projectname+'"]').trigger('click');
                  $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
-                 $('#myForm101').find('button#saveConfigTeam').addClass('hidden');
-                 $('.nextFormWizard').removeAttr('disabled');
+                 $('#myForm101').find('button#saveNexusWizard').addClass('hidden');
                  for (var j = 0; j < data[i].groupid.length; j++) {
                      (function(j) {
                        var nexusGroupName = data[i].groupid[j];
@@ -287,8 +286,8 @@
                  $('#myForm45').find('input#dockeremailid').val(data[i].dockeremailid).attr('disabled', 'disabled');
                  $('#myForm45 #projectname').find('input[type="checkbox"][value="'+data[i].projectname+'"]').attr('checked',true);
                  $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
-                 $('#myForm101').find('button#saveConfigTeam').addClass('hidden');
-                 $('.nextFormWizard').removeAttr('disabled');
+                 $('#myForm45').find('button#saveDockerWizard').addClass('hidden');
+                 
              }
          }
       });
@@ -306,7 +305,7 @@
                  $('#myForm50').find('input#jenkinspassword').val(data[i].jenkinspassword).attr('disabled', 'disabled').removeAttr('type').attr('type','password');
                  
                  $('.btn-2 a,.btn-3 a,.btn-4 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
-                 $('.nextFormWizard').removeAttr('disabled');
+                 $('#myForm50').find('button#saveJenkinsWizard').addClass('hidden');
              }
          }
       });
@@ -551,5 +550,6 @@
         $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
         $('.contentSetting').find('ol li#dockerCreate').addClass('active');
         $('.content').load('ajax/Settings/dockerWizard.html');
+        getDockerDetailsOnEdit();
     });
 </script>

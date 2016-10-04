@@ -69,7 +69,7 @@
             </div>
             <div class="widget-toolbox clearfix">
                 <div class="btn-group pull-right">
-                 <button name="next1" id="saveConfigEnv" style="margin-right:11px;" class="saveFormWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
+                 <button name="next1" id="saveConfigUser" style="margin-right:11px;" class="saveFormWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
                  <input type="button" disabled="disabled" name="next1" id="next1" class="nextFormWizard btn btn-primary" value="Next"/>
               </div>
             </div>
@@ -79,11 +79,13 @@
 
 <script>
  //jQuery time
- orgNameForSetup = $('#orgDropdown option:selected').attr('rowid');
- orgIdForSetup = $('#orgDropdown option:selected').val();
- var $option = $('<option></option>').val(orgNameForSetup).attr('rowid', orgIdForSetup).html(orgNameForSetup);
- $('#orgname').append($option);
- getUserValues();
+ $(document).ready(function(e){
+      orgNameForSetup = $('#orgDropdown option:selected').attr('rowid');
+       orgIdForSetup = $('#orgDropdown option:selected').val();
+       var $option = $('<option></option>').val(orgNameForSetup).attr('rowid', orgIdForSetup).html(orgNameForSetup);
+       $('#orgname').append($option);
+       getUserValues();
+ });
    $('#orgname').change(function(e){
         $('#userrolename').empty();
         $('#teamname').empty();

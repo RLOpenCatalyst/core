@@ -94,7 +94,7 @@
                  $('#saveConfigWizard').addClass('hidden');
                  $('.nextFormWizard').removeAttr('disabled');
                  $('.btn-3 a').removeClass('not-activeAnchor');
-                 $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                 $('.btn-2 a,.btn-3 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
              }
          });
          $('#wizardActionListLoader').hide();
@@ -148,10 +148,11 @@
                  $('#myForm5').find('select#orgname').append($optionOrgNameEnv).attr('disabled', 'disabled');
                  $('#myForm5').find('input#loginname').val(data[i].loginname).attr('disabled', 'disabled');
                  $('#myForm5').find('input#email').val(data[i].email).attr('disabled', 'disabled');
+                 $('#myForm5').find('div.row1').remove();
                  $('#myForm5 #userrolename').find('input[type="checkbox"][value="'+data[i].userrolename+'"]').attr('checked','checked');
-                 $('#myForm5 #teamname').find('input[type="checkbox"][value="'+data[i].teamname+'"]').trigger('click');
-                 $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
-                 $('#myForm5').find('button#saveConfigTeam').addClass('hidden');
+                 $('#myForm5 #teamname').find('input[type="checkbox"][value="'+data[i].teamname+'"]').attr('checked','checked');
+                 $('.btn-2 a,.btn-3 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                 $('#myForm5').find('button#saveConfigUser').addClass('hidden');
                  $('.nextFormWizard').removeAttr('disabled');
              }
          }
