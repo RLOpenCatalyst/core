@@ -118,14 +118,11 @@
 					<button type="button" class="btn btn-sm btn-primary cat-btn-update" ng-class=" {'active':filterNewEnt.period === 'week'}"  ng-click="analytic.applyFilter(true,'week')">WEEK</button>
 					<button type="button" class="btn btn-sm btn-primary cat-btn-update" ng-class=" {'active':filterNewEnt.period === 'month'}" ng-click="analytic.applyFilter(true,'month')">MONTH</button>
 					<button type="button" class="btn btn-sm btn-primary cat-btn-update" ng-class=" {'active':filterNewEnt.period === 'year'}"  ng-click="analytic.applyFilter(true,'year')">YEAR</button>
-					<select ng-show="stateItems.filterView.splitUpType && splitUpCosts.length > 0" class="form-control select2 select2-hidden-accessible" style="width: auto;height: 31px;" ng-model="analytic.splitUp"
-							ng-options="sp.id as sp.val for sp in splitUpCosts" >
-					</select>
 				</div>
 				<div class="col-lg-7 col-md-7 col-sm-12 pull-right" >
 					<span ng-repeat="filt in filterNewEnt"  ng-if="filt !== '' && filt.title">
 						<!--data-toggle="tooltip" onmouseenter="$(this).tooltip('show')"-->
-						<span class="label label-success "  title="{{filt.title}}">{{filt.title}} :{{filt.name}}
+						<span class="label label-success "  title="{{filt.title}}">{{filt.title}} : {{filt.name}}
 						</span>
 					</span>
 				</div>
