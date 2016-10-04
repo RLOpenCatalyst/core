@@ -331,6 +331,11 @@ var InstanceSchema = new Schema({
         required: false,
         trim: true
     },
+    hostName: {
+        type: String,
+        required: false,
+        trim: true
+    },
     route53HostedParams: [Schema.Types.Mixed],
     isDeleted: {
         type: Boolean,
@@ -713,25 +718,25 @@ var InstancesDao = function() {
         });
     };
 
-    this.getInstanceByProjectId = function(ProjectId, callback) {
-        logger.debug("Enter getInstanceByProjectId (%s,)", ProjectId);
+    this.checkInstancesDependencyByFieldName = function(fieldName,id, callback) {
+        logger.debug("Enter checkInstancesDependencyByFieldName (%s,)", id);
         var queryObj = {
             $or: [{
-                projectId: ProjectId
+                projectId: id
             }, {
-                'chef.serverId': ProjectId
+                'chef.serverId': id
             }, {
-                serviceIds: ProjectId
-            }]
+                serviceIds: id
+            }],
+            isDeleted:false
         }
         Instances.find(queryObj, function(err, data) {
             if (err) {
-                logger.debug("Failed to getInstanceByProjectId (%s)", ProjectId);
+                logger.error(err);
                 callback(err, null);
                 return;
             }
-            logger.debug(JSON.stringify(data));
-            logger.debug("Exit getInstanceByProjectId (%s)", ProjectId);
+            logger.debug("Exit checkInstancesDependencyByFieldName");
             callback(null, data);
         });
     };
@@ -2131,6 +2136,7 @@ var InstancesDao = function() {
             updateObj['subnetId']= instance.subnetId;
             updateObj['instanceIP'] = instance.ip;
             updateObj['vpcId'] = instance.vpcId;
+            updateObj['hostName'] = instance.hostName;
             updateObj['privateIpAddress'] = instance.privateIpAddress;
             updateObj['tags'] = instance.tags;
         }

@@ -244,6 +244,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
 							vpcId: instanceData.VpcId,
 							subnetId: instanceData.SubnetId,
 							privateIpAddress: instanceData.PrivateIpAddress,
+                            hostName:instanceData.PrivateDnsName,
                             credentials: {
                                 username: anImage.userName,
                                 pemFileLocation: encryptedPemFileLocation,
