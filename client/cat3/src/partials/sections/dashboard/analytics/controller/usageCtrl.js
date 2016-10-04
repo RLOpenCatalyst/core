@@ -67,7 +67,7 @@
                 usage.trendLineChart.data = [];
                 usage.legends=[];
                 usage.costGridOptions.columnDefs = [];
-               // usage.getData();
+                usage.getData(fltObj);
                  };
                 usage.getData=function(fltObj){
                     usage.trendLineChart.data = [];
@@ -99,13 +99,13 @@
                 $rootScope.applyFilter =function(filterApp,period){
                     analyticsServices.applyFilter(filterApp,period);
                     if($state.current.name === "dashboard.analytics.usage") {
-                        usage.trendsChart($rootScope.filterNewEnt);
                         usage.splitUp='CPUUtilization';
+                       usage.trendsChart($rootScope.filterNewEnt);
                     }
                 };
-                    $scope.$watch(function() { return usage.splitUp}, function(newVal, oldVal) {
-                        usage.getData($rootScope.filterNewEnt);
-                    }, true);
+                usage.splitChange=function() {
+                    usage.getData($rootScope.filterNewEnt);
+                };
                 usage.init =function(){
                         $rootScope.organNewEnt.instanceType='Unassigned';
                         $rootScope.organNewEnt.provider='0';
