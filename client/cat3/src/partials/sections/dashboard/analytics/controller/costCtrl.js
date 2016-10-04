@@ -213,6 +213,7 @@
                             }
                         },
                         yAxis: {
+                            axisLabel: 'Cost in $',
                             tickFormat: function (d) {
                                 return d3.format(',.2f')(d);
                             }
