@@ -7,7 +7,7 @@
 				url: "cost/",
 				templateUrl: "src/partials/sections/dashboard/analytics/view/cost.html",
 				controller: "costCtrl as cost",
-				params:{filterView:{viewBy:true,splitUpType:true,org:true}},
+				params:{filterView:{cost:true,viewBy:true,splitUpType:true,org:true}},
 				resolve: {
 					auth: ["$q", function ($q) {
 						var deferred = $q.defer();
@@ -25,7 +25,7 @@
 				url: "capacity/",
 				templateUrl: "src/partials/sections/dashboard/analytics/view/capacity.html",
 				controller: "capacityCtrl as capacity",
-				params:{filterView:{}},
+				params:{filterView:{capacity:true}},
 				resolve: {
 					auth: ["$q", function ($q) {
 						var deferred = $q.defer();
@@ -43,7 +43,7 @@
 				url: "usage/",
 				templateUrl: "src/partials/sections/dashboard/analytics/view/usage.html",
 				controller: "usageCtrl as usage",
-				params:{filterView:{org:true,provi:true,instanceType:true,resources:true,report:true}},
+				params:{filterView:{usage:true,org:true,provi:true,instanceType:true,resources:true,report:true}},
 				resolve: {
 					auth: ["$q", function ($q) {
 						var deferred = $q.defer();
@@ -64,7 +64,7 @@
 		var splitUp=null;
 		analytic.tabShowChat=true;
 		analytic.tabShowReport=false;
-		$scope.showTree = true;
+		$scope.showTreeMenu = false;
 		$rootScope.isOpenSidebar = false;
 		$rootScope.dashboardChild = 'analytics';
 		$rootScope.stateItems = $state.params;
@@ -104,17 +104,17 @@
 		if (!$rootScope.stateParams.view) {
 			$state.go('dashboard.analytics.cost');
 		}
-		analytic.hideTreeOverlay =function (){
-			genericServices.hideTreeOverlay();
+		$scope.hideTreeOverlay =function (){
+			$scope.showTreeMenu = false;
 		};
-		analytic.showTreeOverlay =function (){
-			genericServices.showTreeOverlay();
+		$scope.showTreeOverlay =function (){
+			$scope.showTreeMenu = true;
 		};
 		analytic.tabShow=function(chat,report){
 			analytic.tabShowChat=chat;
 			analytic.tabShowReport=report;
 		};
-		analytic.hideTreeOverlay();
+		$scope.hideTreeOverlay();
 		$scope.getAllRegionsList = function() {
             workzoneServices.getAllRegionsList().then(function(response) {
                 $scope.allRegions = response.data;

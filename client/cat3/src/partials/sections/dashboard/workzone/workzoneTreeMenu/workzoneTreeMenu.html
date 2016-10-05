@@ -3,11 +3,10 @@
 
 <div id='workzoneTreeMenuPage' ng-controller="workzoneTreeCtrl">
 	<span ng-show="!isLoading" class="tree-wrapper">
-		<span ng-click="showTreeOverlay()" class="minifyme cursor"> <i class="fa fa-arrow-circle-right black hit"></i> </span>
-		<span ng-click="hideTreeOverlay()" class="minifyme cursor" title="Hide Tree" ng-show="showTree"> <i class="fa fa-arrow-circle-left black hit"></i> </span>
+		<i ng-mouseover="showTreeOverlay()" ng-mouseleave="hideTreeOverlay()" class="fa fa-bars cursor tree-toggle"></i>
 	</span>
-	<div id='navigPage'>
-		<div id='navigPage-inner' ng-show="showTree">
+	<div id='navigPage' ng-mouseover="showTreeOverlay()" ng-mouseleave="hideTreeOverlay()" ng-class="{'show-left-tree':showTree}">
+		<div id='navigPage-inner'>
 			<div id="treeParent"
 				data-angular-treeview="true"
 				data-tree-model="roleList"
