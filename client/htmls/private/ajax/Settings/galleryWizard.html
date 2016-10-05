@@ -117,7 +117,7 @@
         orgIdForSetup = $('#orgDropdown option:selected').val();
         var $option = $('<option></option>').val(orgNameForSetup).attr('rowid', orgIdForSetup).html(orgNameForSetup);
         $('#orgname').append($option);
-        var wizardFlowGallery = $('<ol class="bwizard-steps clearfix clickable"><li aria-selected="true" id="templatesCreate" class="active btn-2 templatesCreate" style="z-index: 4;"><span class="label badge-inverse">1</span><a href="ajax/Settings/galleryWizard.html" class="hidden-phone">Create Templates</a></li><li aria-selected="false" style="z-index: 3;" id="serviceCreate" class="btn-3 serviceCreate"><span class="label">2</span><a href="ajax/Settings/serviceCommandWizard.html" class="hidden-phone">Service Command</a></li><li aria-selected="false" style="z-index: 3;" id="scriptCreate" class="btn-4 scriptCreate"><span class="label">3</span><a href="ajax/Settings/scriptWizard.html" class="hidden-phone">Script Gallery</a></li></ol>');
+        var wizardFlowGallery = $('<ol class="bwizard-steps bwizard-stepsGallery clearfix clickable"><li aria-selected="true" id="templatesCreate" class="active btn-2 templatesCreate" style="z-index: 4;"><span class="label badge-inverse">1</span><a href="ajax/Settings/galleryWizard.html" class="hidden-phone">Create Templates</a></li><li aria-selected="false" style="z-index: 3;" id="serviceCreate" class="btn-3 serviceCreate"><span class="label">2</span><a href="ajax/Settings/serviceCommandWizard.html" class="hidden-phone">Service Command</a></li><li aria-selected="false" style="z-index: 3;" id="scriptCreate" class="btn-4 scriptCreate"><span class="label">3</span><a href="ajax/Settings/scriptWizard.html" class="hidden-phone">Script Gallery</a></li></ol>');
         $('.wizardFlow').append(wizardFlowGallery);
 
         function getTemplateValues() {
@@ -156,7 +156,7 @@
                   $('#myForm50').find('select#servicecookbook').append($optionServiceCookBook).attr('disabled', 'disabled');
                   $('#myForm50').find('select#commandtype').remove();
                   $('#myForm50').find('input#commandtype').removeClass('hidden').val(data[i].commandtype).attr('disabled','disabled');
-                  $('#myForm6').find('button#saveServiceWizard').addClass('hidden');
+                  $('#myForm50').find('button#saveServiceWizard').addClass('hidden');
                 }
             }
           });
@@ -176,7 +176,7 @@
                   $('#scriptForm').find('input#scriptDescription').val(data.data[i].description).attr('disabled','disabled');
                   $('#scriptForm').find('input#scriptDescription').val(data.data[i].description).attr('disabled','disabled');
                   $('#scriptForm').find('#fileNameDisplay').append(data.data[i].fileName);
-                  $('#myForm6').find('button#saveScriptWizard').addClass('hidden');
+                  $('#scriptForm').find('button#saveScriptWizard').addClass('hidden');
                 }
               }
           });
@@ -242,7 +242,7 @@
                   } 
               } else {
                 getTemplateValues();
-                $('.btn-2 a,.btn-3 a,.btn-4 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                $('.btn-3 a,.btn-4 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
               }
             });
             $('#wizardActionListLoader').hide();

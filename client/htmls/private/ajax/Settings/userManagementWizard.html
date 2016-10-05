@@ -71,7 +71,7 @@
 
 
      //api call for getting the status of wizard
-     var wizardStepsConfig = $('<ol id="configWizard" class="bwizard-steps clearfix clickable"><li aria-selected="false" style="z-index: 3;" id="teamCreate" class="active btn-2 teamCreate"><span class="label">1</span><a href="ajax/Settings/userManagementWizard.html">Teams</a></li><li aria-selected="false" style="z-index: 3;" id="userCreate" class="btn-3 userCreate"><span class="label">2</span><a href="ajax/Settings/userWizard.html" class="not-activeAnchor hidden-phone">Users</a></li></ol>');
+     var wizardStepsConfig = $('<ol id="configWizard" class="bwizard-steps bwizard-stepsUserConfig clearfix clickable"><li aria-selected="false" style="z-index: 3;" id="teamCreate" class="active btn-2 teamCreate"><span class="label">1</span><a href="ajax/Settings/userManagementWizard.html">Teams</a></li><li aria-selected="false" style="z-index: 3;" id="userCreate" class="btn-3 userCreate"><span class="label">2</span><a href="ajax/Settings/userWizard.html" class="not-activeAnchor hidden-phone">Users</a></li></ol>');
      $('.wizardFlow').append(wizardStepsConfig);
      var configWizardStatusValue;
 
@@ -94,7 +94,8 @@
                  $('#saveConfigWizard').addClass('hidden');
                  $('.nextFormWizard').removeAttr('disabled');
                  $('.btn-3 a').removeClass('not-activeAnchor');
-                 $('.btn-2 a,.btn-3 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                 $('.btn-2 a').parent('.bwizard-steps li').addClass('active');
+                 $('.btn-3 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
              }
          });
          $('#wizardActionListLoader').hide();
@@ -132,7 +133,7 @@
                  $('#myForm3').find('input#description').val(data[i].description).attr('disabled', 'disabled');
                  $('#myForm3 #loginname').find('input[type="checkbox"][value="'+data[i].loginname+'"]').attr('checked','checked');
                  $('#myForm3 #projectname').find('input[type="checkbox"][value="'+data[i].projectname+'"]').trigger('click');
-                 $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                 //$('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
                  $('#myForm3').find('button#saveConfigTeam').addClass('hidden');
                  $('.nextFormWizard').removeAttr('disabled');
              }

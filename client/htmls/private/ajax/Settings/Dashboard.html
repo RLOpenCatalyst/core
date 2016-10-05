@@ -199,10 +199,6 @@ $('#devopsConfiguration a').click(function(e) {
     orgForBg = $('#orgDropdown option:selected').text();
 });
 
-$('#cmdbConfiguration a').click(function(e) {
-    selectedDropdownValue = $('#orgDropdown option:selected').val();
-    orgForBg = $('#orgDropdown option:selected').text();
-});
 
 function changeWizardStatus(orgIdForSetup) {
     $('#wizardActionListLoader').show();
@@ -246,9 +242,9 @@ function changeWizardStatus(orgIdForSetup) {
                     $('#startConfig a, #orgConfiguration a,#configManagement a,#userConfiguration a,#providerConfiguration a,#galleryConfiguration a').removeClass('wizardActiveBtn process-btn').addClass('green-btn');
                     $('#cmdbConfiguration a').removeAttr('href');
                 } else if (data.previousStep.name === 'Devops Roles') {
-                    $('#cmdbConfiguration a').attr('href','ajax/Settings/cmdbWizard.html');
-                    $('#cmdbConfiguration a').trigger('click');
                     $('#startConfig a, #orgConfiguration a,#configManagement a,#userConfiguration a, #providerConfiguration a,#galleryConfiguration a,#devopsConfiguration a').removeClass('wizardActiveBtn process-btn').addClass('green-btn');
+                    $('#devopsConfiguration a').attr('href','ajax/Settings/devopsRolesWizard.html');
+                    $('#devopsConfiguration a').trigger('click');
                 }
             }
         }

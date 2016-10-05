@@ -2953,7 +2953,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         settingWizards.currentStep.isCompleted = true;
                                                         settingWizards.previousStep = settingWizards.currentStep;
                                                         settingWizards.currentStep = settingWizards.nextStep;
-                                                        settingWizards.nextStep = {wizardIsCompleted:'true'};
+                                                        settingWizards.nextStep = settingWizards.nextStep;
                                                         settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                                                             if (err) {
                                                                 logger.error('Hit getting setting wizard error', err);

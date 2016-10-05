@@ -74,8 +74,7 @@ function getDefaultsConfig() {
             {name :'User Configuration',isCompleted:false,mandatoryCheck:true,nestedSteps:[{name:'Team',isCompleted:false,mandatoryCheck:true},{name:'User',isCompleted:false,mandatoryCheck:true}]},
             {name :'Provider Configuration',isCompleted:false,mandatoryCheck:true,nestedSteps:[{name:'Provider',isCompleted:false,mandatoryCheck:true},{name:'VMImages',isCompleted:false,mandatoryCheck:true}]},
             {name :'Gallery Setup',isCompleted:false,mandatoryCheck:false,nestedSteps:[{name:'Templates',isCompleted:false,mandatoryCheck:false},{name:'ServiceCommand',isCompleted:false,mandatoryCheck:false},{name:'ScriptGallery',isCompleted:false,mandatoryCheck:false}]},
-            {name :'Devops Roles',isCompleted:false,mandatoryCheck:false,nestedSteps:[{name:'Nexus',isCompleted:false,mandatoryCheck:false},{name:'Docker',isCompleted:false,mandatoryCheck:false},{name:'Jenkins',isCompleted:false,mandatoryCheck:false}]},
-            {name :'CMDB Configuration',isCompleted:false,mandatoryCheck:false}
+            {name :'Devops Roles',isCompleted:false,mandatoryCheck:false,nestedSteps:[{name:'Nexus',isCompleted:false,mandatoryCheck:false},{name:'Docker',isCompleted:false,mandatoryCheck:false},{name:'Jenkins',isCompleted:false,mandatoryCheck:false}]}
         ],
         serviceControllerKey:'ZDQ2YWM3ZTUyZDhhZjhhOWRkMWQ2ZTc3NDhhNjk1OWEyYzgxZGJkMWVjYjA3ZThiZjY0NTBjYjBjMTM5YzA0Yg',
         serverControllerUrl:'stackstorm.rlcatalyst.com',

@@ -108,7 +108,7 @@
  var $option = $('<option></option>').val(orgNameForSetup).attr('rowid', orgIdForSetup).html(orgNameForSetup);
  $('#orgname').append($option);
         //api call for getting the status of wizard
-     var wizardStepsConfig = $('<ol id="configWizard" class="bwizard-steps clearfix clickable"><li aria-selected="true" id="chefCreate" class="active btn-2 chefCreate" style="z-index: 4;"><span class="label badge-inverse">1</span><a href="ajax/Settings/configManagementWizard.html" class="hidden-phone">Chef Server</a></li><li aria-selected="false" style="z-index: 3;" id="envCreate" class="btn-3 envCreate"><span class="label">2</span><a href="ajax/Settings/envWizard.html" class="not-activeAnchor hidden-phone">Environment</a></li></ol>');
+     var wizardStepsConfig = $('<ol id="configWizard" class="bwizard-steps bwizard-stepsConfig clearfix clickable"><li aria-selected="true" id="chefCreate" class="active btn-2 chefCreate" style="z-index: 4;"><span class="label badge-inverse">1</span><a href="ajax/Settings/configManagementWizard.html" class="hidden-phone">Chef Server</a></li><li aria-selected="false" style="z-index: 3;" id="envCreate" class="btn-3 envCreate"><span class="label">2</span><a href="ajax/Settings/envWizard.html" class="not-activeAnchor hidden-phone">Environment</a></li></ol>');
      $('.wizardFlow').append(wizardStepsConfig);
             function configWizardStatus(orgIdForSetup) {
             $.get('/setting-wizard/org/' + orgIdForSetup, function(data) {
@@ -129,7 +129,7 @@
                  $('#saveConfigWizard').addClass('hidden');
                  $('.nextFormWizard').removeAttr('disabled');
                  $('.btn-3 a').removeClass('not-activeAnchor');
-                 $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                // $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
                  $('.btn-3 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
              }
          });
@@ -172,7 +172,7 @@
                      $('input#kniferbfile').attr('disabled','disabled');
                      var $knifeFileLocation = $('#knifeFile');
                      $knifeFileLocation.find('input.knifeFile').attr('disabled','disabled').val(data[i].kniferbfile_filename);
-                     $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                    // $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
                      $('#saveConfigWizard').addClass('hidden');
                      $('.nextFormWizard').removeAttr('disabled');
                  }
@@ -210,7 +210,7 @@
          e.preventDefault();
          $('.content').empty();
          $('.btn-2 a').removeClass('not-activeAnchor');
-         $('.btn-2 a').parent('.bwizard-steps li').removeClass('active');
+         $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
          $(this).parent('.bwizard-steps li').addClass('active');
          $('.content').load(this.getAttribute('href'));
          getEnvValues();
