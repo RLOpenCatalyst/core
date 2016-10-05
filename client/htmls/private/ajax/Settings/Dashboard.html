@@ -163,7 +163,6 @@ selectedDropdownValue = $('#orgDropdown option:selected').val();
 orgForBg = $('#orgDropdown option:selected').text();
 $('#orgConfiguration a').click(function(e) {
      $(this).removeClass('green-btn').removeClass('active');
-     $('#startConfig a,#configManagement a,#userConfiguration a, #providerConfiguration a,#galleryConfiguration a,#devopsConfiguration a').removeClass('active').addClass('green-btn');
     $('#wizardActionListLoader').show();
     selectedDropdownValue = $('#orgDropdown option:selected').val();
     orgForBg = $('#orgDropdown option:selected').text();
@@ -178,21 +177,21 @@ $('#orgConfiguration a').click(function(e) {
 
 $('#configManagement a').click(function(e) {
     $(this).removeClass('green-btn').removeClass('active');
-    $('#startConfig a,#orgConfiguration a,#userConfiguration a, #providerConfiguration a,#galleryConfiguration a,#devopsConfiguration a').removeClass('active').addClass('green-btn');
+    
     selectedDropdownValue = $('#orgDropdown option:selected').val();
     orgForBg = $('#orgDropdown option:selected').text();
 });
 
 $('#providerConfiguration a').click(function(e) {
     $(this).removeClass('green-btn').removeClass('active');
-    $('#startConfig a,#orgConfiguration a,#userConfiguration a, #configManagement a,#galleryConfiguration a,#devopsConfiguration a').removeClass('active').addClass('green-btn');
+    
     selectedDropdownValue = $('#orgDropdown option:selected').val();
     orgForBg = $('#orgDropdown option:selected').text();
 });
 
 $('#userConfiguration a').click(function(e) {
     $(this).removeClass('green-btn').removeClass('active');
-    $('#startConfig a,#orgConfiguration a,#providerConfiguration a, #configManagement a,#galleryConfiguration a,#devopsConfiguration a').removeClass('active').addClass('green-btn');
+    
     selectedDropdownValue = $('#orgDropdown option:selected').val();
     orgForBg = $('#orgDropdown option:selected').text();
 });
@@ -226,13 +225,13 @@ function changeWizardStatus(orgIdForSetup) {
                     $('#orgConfiguration a').trigger('click');
                     $('#startConfig a').addClass('green-btn').removeClass('process-btn');
                     $('#orgConfiguration a').addClass('wizardActiveBtn').removeClass('process-btn');
-                    $('#configManagement a,#providerConfiguration a,#galleryConfiguration a,#devopsConfiguration a,#cmdbConfiguration a').removeAttr('href');
+                    $('#configManagement a,#providerConfiguration a,#galleryConfiguration a,#devopsConfiguration a,#cmdbConfiguration a,#userConfiguration a').removeAttr('href');
                 } else if (data.previousStep.name === 'Org Configuration') {
                     $('#configManagement a').attr('href','ajax/Settings/configManagementWizard.html');
                     $('#configManagement a').trigger('click');
                     $('.providerSelect').removeClass('hidden');
                     $('#startConfig a, #orgConfiguration a').addClass('green-btn').removeClass('process-btn');
-                    $('#providerConfiguration a,#galleryConfiguration a,#devopsConfiguration a,#cmdbConfiguration a').removeAttr('href');
+                    $('#providerConfiguration a,#galleryConfiguration a,#devopsConfiguration a,#cmdbConfiguration a,#userConfiguration a').removeAttr('href');
                 } else if (data.previousStep.name === 'Config Management') {
                     $('#userConfiguration a').attr('href','ajax/Settings/userManagementWizard.html');
                     $('#userConfiguration a').trigger('click');
