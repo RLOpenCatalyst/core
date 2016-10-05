@@ -31,7 +31,8 @@
                      </div>
                      <div class="col-lg-6 col-md-6 margintop20">
                         <label for="">Template Type:<span class="control-label redSpan">&nbsp;*</span></label>
-                        <select id="templatetypename" ignoreoption="OSImage" class="choosetemplateType width-100 form-control" sourcepath="16" ignoreComposite="Composite"  cdata="catalyst" datapath="masterjson.rows.row" onChange="if($(this).val().indexOf('Docker') >= 0) {$('.forDocker').show(); $('.notforDocker').hide();$('.notCFT').hide();}else {$('.forDocker').hide();$('.notforDocker').show();$('.forCFT').hide();}if($(this).val().indexOf('CloudFormation') >=0 || $(this).val().indexOf('ARMTemplate') >=0){$('.forDocker').hide(); $('.notforDocker').hide(); $('.forCFT').show();}">
+                        <select id="templatetypename" class="choosetemplateType width-100 form-control" sourcepath="16" cdata="catalyst" datapath="masterjson.rows.row" onChange="if($(this).val().indexOf('Docker') >= 0) {$('.forDocker').show(); $('.notforDocker').hide();$('.notCFT').hide();}else {$('.forDocker').hide();$('.notforDocker').show();$('.forCFT').hide();}if($(this).val().indexOf('CloudFormation') >=0 || $(this).val().indexOf('ARMTemplate') >=0){$('.forDocker').hide(); $('.notforDocker').hide(); $('.forCFT').show();}">
+                          <option>Select Template Type</option>
                         </select>
                      </div>
                      <div class="col-lg-6 col-md-6" hidden>
@@ -103,7 +104,7 @@
       </div>
       <div class="widget-toolbox clearfix">
             <div class="btn-group pull-right">
-             <button name="next1" id="saveProviderWizard" style="margin-right:11px;" class="saveFormWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
+             <button name="next1" id="saveTemplateWizard" style="margin-right:11px;" class="saveFormWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
              <input type="button" name="next1" id="next1" class="nextFormWizard btn btn-primary" value="Next"/>
           </div>
        </div>
@@ -116,10 +117,10 @@
         orgIdForSetup = $('#orgDropdown option:selected').val();
         var $option = $('<option></option>').val(orgNameForSetup).attr('rowid', orgIdForSetup).html(orgNameForSetup);
         $('#orgname').append($option);
-        var wizardFlowGallery = $('<ol class="bwizard-steps clearfix clickable"><li aria-selected="true" id="templatesCreate" class="active btn-2 templatesCreate" style="z-index: 4;"><span class="label badge-inverse">1</span><a href="ajax/Settings/galleryWizard.html" class="hidden-phone">Create Templates</a></li><li aria-selected="false" style="z-index: 3;" id="serviceCreate" class="btn-3 serviceCreate"><span class="label">2</span><a href="ajax/Settings/serviceCommandWizard.html" class="hidden-phone">Service Command</a></li><li aria-selected="false" style="z-index: 3;" id="scriptCreate" class="btn-4 scriptCreate"><span class="label">3</span><a href="ajax/Settings/scriptWizard.html" class="hidden-phone">Script Gallery</a></li></ol>');
+        var wizardFlowGallery = $('<ol class="bwizard-steps bwizard-stepsGallery clearfix clickable"><li aria-selected="true" id="templatesCreate" class="active btn-2 templatesCreate" style="z-index: 4;"><span class="label badge-inverse">1</span><a href="ajax/Settings/galleryWizard.html" class="hidden-phone">Create Templates</a></li><li aria-selected="false" style="z-index: 3;" id="serviceCreate" class="btn-3 serviceCreate"><span class="label">2</span><a href="ajax/Settings/serviceCommandWizard.html" class="hidden-phone">Service Command</a></li><li aria-selected="false" style="z-index: 3;" id="scriptCreate" class="btn-4 scriptCreate"><span class="label">3</span><a href="ajax/Settings/scriptWizard.html" class="hidden-phone">Script Gallery</a></li></ol>');
         $('.wizardFlow').append(wizardFlowGallery);
 
-        /*function getTemplateValues() {
+        function getTemplateValues() {
           $.get('/d4dMasters/readmasterjsonnew/17',function(data){
             $('#myForm6').find('select#orgname').empty();
             $('#myForm6').find('select#dockerreponame').empty();
@@ -129,32 +130,81 @@
                   var $optionOrg = $('<option></option>').val(orgNameForSetup).attr('rowid', orgIdForSetup).html(orgNameForSetup);
                   $('#orgname').append($optionOrg).attr('disabled','disabled');
                   var $optionDockerRepoName = $('<option></option>').val(data[i].dockerreponame).html(data[i].dockerreponame);
+                  var $optionTemplateName = $('<option></option>').val(data[i].templatetypename).html(data[i].templatetypename);
                   $('#myForm6').find('input#templatename').val(data[i].templatename).attr('disabled','disabled');
-                  $('#myForm6').find('select#templatetypename').val(data[i].templatetypename).attr('disabled','disabled');
+                  $('#myForm6').find('select#templatetypename').append($optionTemplateName).attr('disabled','disabled');
                   $('#myForm6').find('select#dockerreponame').append($optionDockerRepoName).attr('disabled','disabled');
                   $('#myForm6').find('input#dockercontainers').val(data[i].dockercontainerpaths).attr('disabled','disabled');
+                   $('#myForm6').find('button#saveTemplateWizard').addClass('hidden');
+                   
                 }
             }
           });
-        }*/
+        }
+
+        function getServiceCommandValues() {
+            $.get('/d4dMasters/readmasterjsonnew/19',function(data){
+            $('#myForm50').find('select#orgname').empty();
+            for(var i =0;i<data.length;i++){
+                if(orgIdForSetup === data[i].orgname_rowid[0]) {  
+                  var $optionOrg = $('<option></option>').val(orgNameForSetup).attr('rowid', orgIdForSetup).html(orgNameForSetup);
+                  var $optionConfigNameEnv = $('<option></option>').val(data[i].configname).attr('rowid', data[i].configname_rowid).html(data[i].configname);
+                  var $optionServiceCookBook = $('<option></option>').val(data[i].servicecookbook).html(data[i].servicecookbook);
+                  $('#myForm50').find('select#orgname').append($optionOrg).attr('disabled','disabled');
+                  
+                  $('#myForm50').find('input#servicename').val(data[i].servicename).attr('disabled','disabled');
+                  $('#myForm50').find('select#configname').append($optionConfigNameEnv).attr('disabled', 'disabled');
+                  $('#myForm50').find('select#servicecookbook').append($optionServiceCookBook).attr('disabled', 'disabled');
+                  $('#myForm50').find('select#commandtype').remove();
+                  $('#myForm50').find('input#commandtype').removeClass('hidden').val(data[i].commandtype).attr('disabled','disabled');
+                  $('#myForm50').find('button#saveServiceWizard').addClass('hidden');
+                }
+            }
+          });
+        }
+
+        function getScriptGallery() {
+          $('#fileNameDisplay').empty();
+          $.get('/scripts',function(data){
+            console.log(data.data);
+              for(var i =0;i<data.data.length;i++){
+                if(orgIdForSetup === data.data[i].orgDetails.id){
+                  $('#scriptForm').find('input#scriptName').val(data.data[i].name).attr('disabled','disabled');
+                  var $optionOrgScript = $('<option></option>').val(orgNameForSetup).attr('rowid', orgIdForSetup).html(orgNameForSetup);
+                  var $optionScriptType = $('<option></option>').val(data.data[i].type).html(data.data[i].type);
+                  $('#scriptForm').find('select#orgName').append($optionOrgScript).attr('disabled','disabled');
+                  $('#scriptForm').find('select#scriptType').append($optionScriptType).attr('disabled','disabled');
+                  $('#scriptForm').find('input#scriptDescription').val(data.data[i].description).attr('disabled','disabled');
+                  $('#scriptForm').find('input#scriptDescription').val(data.data[i].description).attr('disabled','disabled');
+                  $('#scriptForm').find('#fileNameDisplay').append(data.data[i].fileName);
+                  $('#scriptForm').find('button#saveScriptWizard').addClass('hidden');
+                }
+              }
+          });
+        }
         $('.btn-2 a').click(function(e) {
             e.preventDefault();
             clicked = false;
             $('.contentSetting').load(this.getAttribute('href'));
+            //$('.btn-3 a,.btn-4 a').parent('.bwizard-steps li').removeClass('active');
         });
         $('.btn-3 a').click(function(e) {
+          clicked = true;
             e.preventDefault();
             $('.content').empty();
-            $('.btn-2 a').parent('.bwizard-steps li').removeClass('active')
+            getServiceCommandValues();
+            $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
             $(this).parent('.bwizard-steps li').addClass('active');
             $('.content').load(this.getAttribute('href'));
         });
         $('.btn-4 a').click(function(e) {
+            clicked = true;
             e.preventDefault();
             $('.content').empty();
-            $('.btn-2 a,.btn-3 a').parent('.bwizard-steps li').removeClass('active');
+            $('.btn-2 a,.btn-3 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
             $(this).parent('.bwizard-steps li').addClass('active');
             $('.content').load(this.getAttribute('href'));
+            getScriptGallery();
         });
 
         
@@ -174,28 +224,35 @@
           if(orgIdForSetup){
               $('#wizardActionListLoader').show();
                 $.get('/setting-wizard/org/' + orgIdForSetup, function(data) {
-                if (data.currentStep.nestedSteps) {
-                    var nestedSteps = data.currentStep.nestedSteps;
-                    if (nestedSteps[0].name === 'Templates' && nestedSteps[0].isCompleted === true &&
-                        nestedSteps[1].name === 'ServiceCommand' && nestedSteps[1].isCompleted === false &&
-                        nestedSteps[2].name === 'ScriptGallery' && nestedSteps[2].isCompleted === false) {
-                        $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
-                        $('.contentSetting').find('ol li#serviceCreate').addClass('active');
-                        $('.content').load('ajax/Settings/serviceCommandWizard.html');
-                    } else if (nestedSteps[0].name === 'Templates' && nestedSteps[0].isCompleted === true &&
-                        nestedSteps[1].name === 'ServiceCommand' && nestedSteps[1].isCompleted === true &&
-                        nestedSteps[2].name === 'ScriptGallery' && nestedSteps[2].isCompleted === false) {
-                        $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
-                        $('.contentSetting').find('ol li#serviceCreate').removeClass('active').addClass('green-btn');
-                        $('.contentSetting').find('ol li#scriptCreate').addClass('active');
-                        $('.content').load('ajax/Settings/scriptWizard.html');
-                    } else {}
-                }
+                if (data.currentStep.name === 'Gallery Setup') {
+                  if (data.currentStep.nestedSteps) {
+                      var nestedSteps = data.currentStep.nestedSteps;
+                      if (nestedSteps[0].name === 'Templates' && nestedSteps[0].isCompleted === true &&
+                          nestedSteps[1].name === 'ServiceCommand' && nestedSteps[1].isCompleted === false &&
+                          nestedSteps[2].name === 'ScriptGallery' && nestedSteps[2].isCompleted === false) {
+                          $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                          $('.contentSetting').find('ol li#serviceCreate').addClass('active');
+                          $('.content').load('ajax/Settings/serviceCommandWizard.html');
+                      } else if (nestedSteps[0].name === 'Templates' && nestedSteps[0].isCompleted === true &&
+                          nestedSteps[1].name === 'ServiceCommand' && nestedSteps[1].isCompleted === true &&
+                          nestedSteps[2].name === 'ScriptGallery' && nestedSteps[2].isCompleted === false) {
+                          $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                          $('.contentSetting').find('ol li#serviceCreate').removeClass('active').addClass('green-btn');
+                          $('.contentSetting').find('ol li#scriptCreate').addClass('active');
+                          $('.content').load('ajax/Settings/scriptWizard.html');
+                      } else {
+
+                      }
+                  } 
+              } else {
+                getTemplateValues();
+                $('.btn-3 a,.btn-4 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+              }
             });
             $('#wizardActionListLoader').hide();
           }
         } else {
-            //getTemplateValues();
+            getTemplateValues();
             $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
         }
     });

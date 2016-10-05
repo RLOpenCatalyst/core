@@ -289,8 +289,8 @@ settingsService.trackSettingWizard = function trackSettingWizard(id,orgId,callba
                callback(err, null);
                return;
            }
-           if (settingWizards.currentStep.name === 'CMDB Configuration'
-               && settingWizards.currentStep.isCompleted === false) {
+           if (settingWizards.currentStep.name === 'Wizard Status'
+               && settingWizards.currentStep.isCompleted === true) {
                var settingWizardSteps = appConfig.settingWizardSteps;
                var previousStep = settingWizardSteps[5];
                previousStep.nestedSteps[0].isCompleted = true;
@@ -301,7 +301,7 @@ settingsService.trackSettingWizard = function trackSettingWizard(id,orgId,callba
                settingWizards.currentStep.nestedSteps[2].isCompleted = false;
                settingWizards.currentStep.isCompleted = false;
                settingWizards.previousStep = previousStep;
-               settingWizards.nextStep = settingWizardSteps[7];
+               settingWizards.nextStep = {name:'Wizard Status',isCompleted:true};
                settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                    if (err) {
                        callback(err,null);

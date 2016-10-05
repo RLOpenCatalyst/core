@@ -58,55 +58,8 @@
     </form>
 
 <script>
-   var $optionOrgTeam = $('<option></option>').val(orgNameForSetup).attr('rowid', orgIdForSetup).html(orgNameForSetup);
-   $('#orgname').append($optionOrgTeam);
-   $('#orgname').change(function(e){
-        $('#projectname').empty();
-        $('#loginname').empty();
-        var str = '',
-        getTemplate = function(val, rowid) {
-             return '<label class="toggle font-sm" style="padding-left:4px;"><input onclick="if($(this).is(&quot;:checked&quot;)) {$(this).closest(&quot;label&quot;).' + 'css(&quot;background-color&quot;,&quot;#eeeeee&quot;);$(this).css(&quot;border-color&quot;,&quot;#3b9ff3&quot;);}else{$(this).closest(&quot;label&quot;).css(&quot;background-color&quot;,&quot;#ffffff&quot;);$(this).css(&quot;border-' + 'color&quot;,&quot;red&quot;);}" type="checkbox" id="checkbox-toggle" name="checkbox-toggle"' +'value="'+ val +'"' + 'rowid="' + rowid + '" style="width:100%"><i data-swchoff-text="NO" data-swchon-text="YES"></i>' + val + '</label>';
-         };
-       $.get('/d4dMasters/orgs/all/users/7',function(data) {
-            for (var i = 0; i<data.length;i++){
-                if (orgIdForSetup === data[i].orgname_rowid[0]) {
-                   str = str + getTemplate(data[i].loginname, data[i].rowid);
-                   $('#loginname').append(str);
-               } else if(data[i].orgname_rowid[0] === "") {
-                  str = str + getTemplate(data[i].loginname, data[i].rowid);
-                   $('#loginname').append(str);
-               }
-            }
-       });
-       $.get('/d4dMasters/readmasterjsonnew/4', function(data) {
-           str = '';
-           for (var i = 0; i < data.length; i++) {
-               if (orgIdForSetup === data[i].orgname_rowid[0]) {
-                   str = str + getTemplate(data[i].projectname, data[i].rowid);
-                   $('#projectname').append(str);
-               }
-           }
-       });
-   });
-   $('#orgname').trigger('change');
-
-   $('#myForm3').submit(function() {
-           $(this).validate();
    
-           if($(this).valid){
-                /*alert('valid form submitted'); // for demo*/
-               if(!saveform('21'))
-                return false;
-           }else{
-                alert('invalid valid form submitted'); // for demo
-           }
-           return false; // for demo
-       });
    $(".nextFormWizard").click(function() {
-       toastr.success('Step 2 - Config Management Setup Completed');
-       $('#providerConfiguration a').attr('href','ajax/Settings/providerWizard.html');
-       $('#startConfig a, #orgConfiguration a,#configManagement a').addClass('green-btn').removeClass('process-btn');
-       $('.wizardFlow').empty();
-       $('#providerConfiguration a').trigger('click');
+       
    });
 </script>

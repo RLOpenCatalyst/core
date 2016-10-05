@@ -32,7 +32,6 @@
                             <label for="">Script Type:<span class="control-label redSpan">&nbsp;*</span></label>
                             <div class="input-groups">
                               <select id="scriptType" name="scriptType" class="required form-control width-100" style="vertical-align:central">
-                                <option value="">Choose Type</option>
                                 <option value="Bash">Bash</option>
                               </select>
                             </div>
@@ -63,7 +62,7 @@
          </div>
          <div class="widget-toolbox clearfix">
             <div class="btn-group pull-right">
-             <button type="submit" name="next1" id="saveProviderWizard" style="margin-right:11px;" class="saveFormWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
+             <button type="submit" name="next1" id="saveScriptWizard" style="margin-right:11px;" class="saveFormWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
              <input type="button" name="next1" id="next1" class="nextFormWizard btn btn-primary" value="Next"/>
           </div>
        </div>
@@ -76,8 +75,8 @@
     orgIdForSetup = $('#orgDropdown option:selected').val();
     var $optionOrgScript = $('<option></option>').val(orgIdForSetup).attr('rowid',orgIdForSetup).html(orgNameForSetup);
     $('#orgName').append($optionOrgScript);
+
   });
-    
     function setfilename(val){
       $('#fileNameDisplay').empty();
       var fileName = val.substr(val.lastIndexOf("\\")+1, val.length);
