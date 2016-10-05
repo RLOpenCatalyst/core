@@ -30,6 +30,7 @@
                         duration: 10,
                         useInteractiveGuideline: true,
                         xAxis: {
+                            axisLabel: 'Date',
                             showMaxMin: false,
                             tickFormat: function (d) {
                                 return d3.time.format('%x')(new Date(d))

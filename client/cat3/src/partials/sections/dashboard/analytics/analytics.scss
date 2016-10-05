@@ -80,6 +80,35 @@
     width: 11.2%;
   }
 }
+#analyticsPage .nvd3 .nv-groups path.nv-line {
+  stroke-width: 3px !important;
+}
+.usage{
+    .top-stats{
+        text-align: right;
+    }
+}
+
+.top-stats{
+    margin: 0px 0px 15px;
+    .box-title{
+        font-size: 16px;
+        .red{
+            font-size: 22px;
+        }
+    }
+    .badge{
+        margin-right: 2px; 
+        background: #40baf1; 
+        padding: 3px 10px;
+        margin-top: -5px;
+    }
+    .select2{
+        width: auto;
+        height: 31px;
+        display: table-cell;
+    }
+}
 
 #analyticsPage {
   background: #fff;

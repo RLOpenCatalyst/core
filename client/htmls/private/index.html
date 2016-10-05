@@ -971,7 +971,15 @@ var SettingTreeJson = [{
             "icon": "fa fa-lg fa-fw fa-tint",
             "parent": "devops",
             "nodetype": "EnvironmentConceptList"
-        }, {
+        }],
+        "borderColor": "#000",
+        "selectable": false,
+        "href": "javascript:void(0);",
+        "icon": "fa-lg fa-fw fa fa-tachometer"
+    }, {
+        "name": "user setup",
+        "text": "User Configuration",
+        "nodes": [{
             "name": "organizations",
             "text": "Teams",
             "borderColor": "#000",
@@ -979,11 +987,27 @@ var SettingTreeJson = [{
             "selectable": true,
             "icon": "fa fa-lg fa-fw fa-users"
 
+        }, {
+            "name": "organizations",
+            "text": "User Roles",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/RolesList.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-th-list"
+
+        }, {
+            "name": "organizations",
+            "text": "Users",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/UsersList.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-user"
+
         }],
         "borderColor": "#000",
         "selectable": false,
         "href": "javascript:void(0);",
-        "icon": "fa-lg fa-fw fa fa-tachometer"
+        "icon": "fa fa-lg fa-fw  fa-tasks"
     }, {
         "name": "provider setup",
         "text": "Provider Configuration",
@@ -1078,31 +1102,6 @@ var SettingTreeJson = [{
                 "icon": "fa fa-lg fa-fw fa-link"
 
             }],
-        "borderColor": "#000",
-        "selectable": false,
-        "href": "javascript:void(0);"
-
-    }, {
-        "name": "usersetup",
-        "text": "Users Setup",
-        "icon": "fa fa-lg fa-fw  fa-tasks",
-        "nodes": [{
-            "name": "organizations",
-            "text": "User Roles",
-            "borderColor": "#000",
-            "href": "#ajax/Settings/RolesList.html",
-            "selectable": true,
-            "icon": "fa fa-lg fa-fw fa-th-list"
-
-        }, {
-            "name": "organizations",
-            "text": "Users",
-            "borderColor": "#000",
-            "href": "#ajax/Settings/UsersList.html",
-            "selectable": true,
-            "icon": "fa fa-lg fa-fw fa-user"
-
-        }],
         "borderColor": "#000",
         "selectable": false,
         "href": "javascript:void(0);"
