@@ -128,9 +128,9 @@
 				 url: '/aws/providers/org/'+id
 			};
 			genericServices.promiseGet(param).then(function (result) {
+				$rootScope.providers=[];
 				if(result && result.length >0) {
 					$rootScope.providers = result;
-					$scope.providers = result;
 					$scope.filter = [];
 					$scope.filter.providerId = result[0]._id;
 				}
