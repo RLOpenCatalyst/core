@@ -130,8 +130,9 @@
                   var $optionOrg = $('<option></option>').val(orgNameForSetup).attr('rowid', orgIdForSetup).html(orgNameForSetup);
                   $('#orgname').append($optionOrg).attr('disabled','disabled');
                   var $optionDockerRepoName = $('<option></option>').val(data[i].dockerreponame).html(data[i].dockerreponame);
+                  var $optionTemplateName = $('<option></option>').val(data[i].templatetypename).html(data[i].templatetypename);
                   $('#myForm6').find('input#templatename').val(data[i].templatename).attr('disabled','disabled');
-                  $('#myForm6').find('select#templatetypename').val(data[i].templatetypename).attr('disabled','disabled');
+                  $('#myForm6').find('select#templatetypename').append($optionTemplateName).attr('disabled','disabled');
                   $('#myForm6').find('select#dockerreponame').append($optionDockerRepoName).attr('disabled','disabled');
                   $('#myForm6').find('input#dockercontainers').val(data[i].dockercontainerpaths).attr('disabled','disabled');
                    $('#myForm6').find('button#saveTemplateWizard').addClass('hidden');
@@ -185,22 +186,25 @@
             e.preventDefault();
             clicked = false;
             $('.contentSetting').load(this.getAttribute('href'));
+            //$('.btn-3 a,.btn-4 a').parent('.bwizard-steps li').removeClass('active');
         });
         $('.btn-3 a').click(function(e) {
+          clicked = true;
             e.preventDefault();
             $('.content').empty();
             getServiceCommandValues();
-            $('.btn-2 a').parent('.bwizard-steps li').removeClass('active')
+            $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
             $(this).parent('.bwizard-steps li').addClass('active');
             $('.content').load(this.getAttribute('href'));
         });
         $('.btn-4 a').click(function(e) {
+            clicked = true;
             e.preventDefault();
             $('.content').empty();
-            getScriptGallery();
-            $('.btn-2 a,.btn-3 a').parent('.bwizard-steps li').removeClass('active');
+            $('.btn-2 a,.btn-3 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
             $(this).parent('.bwizard-steps li').addClass('active');
             $('.content').load(this.getAttribute('href'));
+            getScriptGallery();
         });
 
         

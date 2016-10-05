@@ -48,6 +48,9 @@
    </div>
 </form>
 <script>
+$(document).ready(function(e){
+    getJenkinsOnEdit();
+});
     var $option = $('<option></option>').val(orgNameForSetup).attr('rowid',orgIdForSetup).html(orgNameForSetup);
     $('#orgname').append($option);
     $('#orgname').trigger('change');

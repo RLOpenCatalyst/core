@@ -162,6 +162,8 @@ var selectedDropdownValue, lastDropdownValue;
 selectedDropdownValue = $('#orgDropdown option:selected').val();
 orgForBg = $('#orgDropdown option:selected').text();
 $('#orgConfiguration a').click(function(e) {
+     $(this).removeClass('green-btn').removeClass('active');
+     $('#startConfig a,#configManagement a,#userConfiguration a, #providerConfiguration a,#galleryConfiguration a,#devopsConfiguration a').removeClass('active').addClass('green-btn');
     $('#wizardActionListLoader').show();
     selectedDropdownValue = $('#orgDropdown option:selected').val();
     orgForBg = $('#orgDropdown option:selected').text();
@@ -175,26 +177,36 @@ $('#orgConfiguration a').click(function(e) {
 });
 
 $('#configManagement a').click(function(e) {
+    $(this).removeClass('green-btn').removeClass('active');
+    $('#startConfig a,#orgConfiguration a,#userConfiguration a, #providerConfiguration a,#galleryConfiguration a,#devopsConfiguration a').removeClass('active').addClass('green-btn');
     selectedDropdownValue = $('#orgDropdown option:selected').val();
     orgForBg = $('#orgDropdown option:selected').text();
 });
 
 $('#providerConfiguration a').click(function(e) {
+    $(this).removeClass('green-btn').removeClass('active');
+    $('#startConfig a,#orgConfiguration a,#userConfiguration a, #configManagement a,#galleryConfiguration a,#devopsConfiguration a').removeClass('active').addClass('green-btn');
     selectedDropdownValue = $('#orgDropdown option:selected').val();
     orgForBg = $('#orgDropdown option:selected').text();
 });
 
 $('#userConfiguration a').click(function(e) {
+    $(this).removeClass('green-btn').removeClass('active');
+    $('#startConfig a,#orgConfiguration a,#providerConfiguration a, #configManagement a,#galleryConfiguration a,#devopsConfiguration a').removeClass('active').addClass('green-btn');
     selectedDropdownValue = $('#orgDropdown option:selected').val();
     orgForBg = $('#orgDropdown option:selected').text();
 });
 
 $('#galleryConfiguration a').click(function(e) {
+    $(this).removeClass('green-btn').removeClass('active');
+    $('#startConfig a,#orgConfiguration a,#providerConfiguration a, #configManagement a,#userConfiguration a,#devopsConfiguration a').removeClass('active').addClass('green-btn');
     selectedDropdownValue = $('#orgDropdown option:selected').val();
     orgForBg = $('#orgDropdown option:selected').text();
 });
 
 $('#devopsConfiguration a').click(function(e) {
+    $(this).removeClass('green-btn').removeClass('active');
+    $('#startConfig a,#orgConfiguration a,#providerConfiguration a, #configManagement a,#userConfiguration a,#galleryConfiguration a').removeClass('active').addClass('green-btn');
     selectedDropdownValue = $('#orgDropdown option:selected').val();
     orgForBg = $('#orgDropdown option:selected').text();
 });

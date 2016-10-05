@@ -75,8 +75,8 @@
     orgIdForSetup = $('#orgDropdown option:selected').val();
     var $optionOrgScript = $('<option></option>').val(orgIdForSetup).attr('rowid',orgIdForSetup).html(orgNameForSetup);
     $('#orgName').append($optionOrgScript);
+
   });
-    
     function setfilename(val){
       $('#fileNameDisplay').empty();
       var fileName = val.substr(val.lastIndexOf("\\")+1, val.length);

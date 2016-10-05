@@ -336,6 +336,7 @@
         $('.contentSetting').load(this.getAttribute('href'));
     });
     $('.btn-3 a').click(function(e) {
+       clicked = true;
         e.preventDefault();
         $('.content').empty();
         $('.btn-2 a,.btn-4 a').parent('.bwizard-steps li').removeClass('active');
@@ -344,6 +345,7 @@
         getDockerDetailsOnEdit();
     });
     $('.btn-4 a').click(function(e) {
+        clicked = true;
         e.preventDefault();
         $('.content').empty();
         $('.btn-2 a,.btn-3 a').parent('.bwizard-steps li').removeClass('active');
