@@ -140,7 +140,7 @@ ResourceCostsSchema.statics.saveResourceCost = function saveResourceCost(resourc
 ResourceCostsSchema.statics.upsertResourceCost = function upsertResourceCost(resourceCostData, callback) {
     var query = {
         organizationId: resourceCostData.organizationId,
-        resourceId: resourceCostData.billLineRecordId,
+        resourceId: resourceCostData.resourceId,
         billLineRecordId: resourceCostData.billLineRecordId,
         startTime: resourceCostData.startTime,
         interval: resourceCostData.interval
