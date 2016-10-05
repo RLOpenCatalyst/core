@@ -133,7 +133,6 @@
           </li>
         </ul>
       </nav>
-      <span class="minifyme"> <i class="fa fa-arrow-circle-left hit"></i> </span>
     </aside>
     <!-- END NAVIGATION -->
     <!-- MAIN PANEL -->
@@ -766,6 +765,19 @@ $(document).ready(function() {
         $('#noenvwarning').addClass('hidden');
         $('#noEnvError').removeClass('hidden');
     }
+
+    $( "#leftPanelToggle" ).mouseover(function() {
+        $("#left-panel").addClass("show-left-panel");
+    });
+    $( "#left-panel" ).mouseover(function() {
+        $("#left-panel").addClass("show-left-panel");
+    });
+    $( "#leftPanelToggle" ).mouseleave(function() {
+        $("#left-panel").removeClass("show-left-panel");
+    });
+    $( "#left-panel" ).mouseleave(function() {
+        $("#left-panel").removeClass("show-left-panel");
+    });
 });
 
 
@@ -1495,19 +1507,6 @@ function saveAtrributesHandler(e) {
     createAttribTableRowFromJson(attributes);
     $modal.modal('hide');
 }
-$( "#leftPanelToggle" ).mouseover(function() {
-    $("#left-panel").css("display", "block");
-    $("#left-panel").css("transition", "all .4s ease 0s");
-});
-$( "#left-panel" ).mouseover(function() {
-    $("#left-panel").css("display", "block");
-});
-$( "#leftPanelToggle" ).mouseleave(function() {
-    $("#left-panel").css("display", "none");
-});
-$( "#left-panel" ).mouseleave(function() {
-    $("#left-panel").css("display", "none");
-});
 </script>
 <script src="js/blueprintLaunch.js"></script>
 <script src="js/blueprintCommon.js"></script>

@@ -17,20 +17,29 @@
 				                <ul class="tree-ul">
 				                    <li ui-sref="dashboard.analytics.cost" class="pointer-cursor" ui-sref-active='activeSection'>
 				                        <div class="liContents">
-				                        	<i class="icon fa fa-money label-spacing"></i>
-					                        <span>Cost</span>
+				                        	<div class="liContents-wrapper">
+					                        	<i class="icon fa fa-money label-spacing"></i>
+						                        <span>Cost</span>
+						                        <i class="caret-spacing fa fa-caret-left pull-right" ng-show="stateItems.filterView.cost"></i>
+						                    </div>
 				                        </div>
 				                    </li>
 				                    <li ui-sref="dashboard.analytics.capacity" class="pointer-cursor" ui-sref-active='activeSection'>
 				                        <div class="liContents">
-				                        	<i class="icon fa fa-pie-chart label-spacing"></i>
-					                        <span>Capacity</span>
+				                        	<div class="liContents-wrapper">
+					                        	<i class="icon fa fa-pie-chart label-spacing"></i>
+						                        <span>Capacity</span>
+						                        <i class="caret-spacing fa fa-caret-left pull-right" ng-show="stateItems.filterView.capacity"></i>
+						                    </div>
 				                        </div>
 				                    </li >
 				                    <li ui-sref="dashboard.analytics.usage" class="pointer-cursor" ui-sref-active='activeSection'>
 				                        <div class="liContents">
-				                        	<i class="icon fa fa-line-chart label-spacing"></i>
-					                        <span>Usage</span>
+				                        	<div class="liContents-wrapper">
+					                        	<i class="icon fa fa-line-chart label-spacing"></i>
+						                        <span>Usage</span>
+						                        <i class="caret-spacing fa fa-caret-left pull-right" ng-show="stateItems.filterView.usage"></i>
+						                    </div>
 				                        </div>
 				                    </li>
 				                </ul>

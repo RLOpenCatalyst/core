@@ -17,11 +17,23 @@
   }
 
   .tree-ul {
-    padding-left: 15px;
+    padding: 0px;
   }
 
   .liContents {
     line-height: 2.2;
+
+    .liContents-wrapper {
+      margin-left: 15px;
+    }
+
+    .caret-spacing {
+      margin-top: 8px;
+    }
+
+    .fa {
+      margin-left: 15px;
+    }
   }
 
   i {
