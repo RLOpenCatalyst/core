@@ -56,7 +56,7 @@ function getTreeDetails(){
                 $projectList.empty();
                 var getProjs = bgProjects[bgName];
                 for (var i = 0; i < getProjs.length; i++) {
-                    var $option = $('<option></option>').val(getProjs[i].rowid).html(getProjs[i].name);
+                    var $option = $('<option></option>').val(getProjs[i].rowId).html(getProjs[i].name);
                     $projectList.append($option);
                 }
                 $projectList.trigger('change');
@@ -71,7 +71,7 @@ function getTreeDetails(){
                 $projectListforcopy.empty();
                 var getProjs = bgProjects[bgName];
                 for (var i = 0; i < getProjs.length; i++) {
-                    var $option = $('<option></option>').val(getProjs[i].rowid).html(getProjs[i].name);
+                    var $option = $('<option></option>').val(getProjs[i].rowId).html(getProjs[i].name);
                     $projectListforcopy.append($option);
                 }
                 $projectListforcopy.trigger('change');
@@ -174,7 +174,7 @@ function softwareStackListing() {
                 $projectList.empty();
                 var getProjs = bgProjects[bgName];
                 for (var i = 0; i < getProjs.length; i++) {
-                    var $option = $('<option></option>').val(getProjs[i].rowid).html(getProjs[i].name);
+                    var $option = $('<option></option>').val(getProjs[i].rowId).html(getProjs[i].name);
                     $projectList.append($option);
                 }
                 $projectList.trigger('change');
@@ -189,7 +189,7 @@ function softwareStackListing() {
                 $projectListforcopy.empty();
                 var getProjs = bgProjects[bgName];
                 for (var i = 0; i < getProjs.length; i++) {
-                    var $option = $('<option></option>').val(getProjs[i].rowid).html(getProjs[i].name);
+                    var $option = $('<option></option>').val(getProjs[i].rowId).html(getProjs[i].name);
                     $projectListforcopy.append($option);
                 }
                 $projectListforcopy.trigger('change');
