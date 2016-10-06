@@ -16,6 +16,19 @@
             $scope.imageList = [];
             $scope.foundVMResources = [];
             $scope.armVMTemplate = {};
+            //on initial load.
+            $scope.nextEnabled = false;
+            $scope.previousEnabled = false;
+            $scope.isNextVisible = true;
+            $scope.isSubmitVisible = false;
+            /*Open only One Accordian-Group at a time*/
+            $scope.oneAtATime = true;
+            /*Initialising First Accordian-group open on load*/
+            $scope.isFirstOpen = true;
+            if( $scope.bpTypeName === 'Composite'){
+                $scope.isNextVisible = false;
+                $scope.isSubmitComposite = true;
+            }
             blueprintCreation.newEnt = [];
             blueprintCreation.osListing = [];
             blueprintCreation.providerListing = [];
@@ -364,6 +377,7 @@
                 'name': 'Create Blueprint',
                 'title': 'Create Blueprint'
             }];
+
             //on initial load.
             $scope.nextEnabled = false;
             $scope.previousEnabled = false;

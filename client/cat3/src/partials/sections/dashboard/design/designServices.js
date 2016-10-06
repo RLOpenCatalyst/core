@@ -36,8 +36,11 @@
                 promiseDelete : function (paramsObject) {
                     $rootScope.onBodyLoading=true;
                     var deferred = $q.defer();
-                    $http.delete(paramsObject.url,paramsObject.data)
-                        .success(function(data) {
+                    $http({
+                        method: 'DELETE',
+                        url: paramsObject.url,
+                        data:paramsObject.data
+                    }).success(function(data) {
                             $rootScope.onBodyLoading=false;
                             deferred.resolve(data);
                         })
