@@ -111,7 +111,7 @@
                     } else {
                         entityId=fltObj.org.id;
                     }
-                   // param.url='http://d4d.rlcatalyst.com/analytics/cost/aggregate?parentEntityId=46d1da9a-d927-41dc-8e9e-7e926d927537&entityId=46d1da9a-d927-41dc-8e9e-7e926d927537&toTimeStamp=Mon%20Oct%2003%202016%2016:59:14%20GMT+0530%20(IST)&period=month';
+                  //param.url='http://d4d.rlcatalyst.com/analytics/cost/aggregate?parentEntityId=46d1da9a-d927-41dc-8e9e-7e926d927537&entityId=57f49acdbc45e71f11491f8c&toTimeStamp=Wed%20Oct%2005%202016%2016:03:08%20GMT+0530%20(IST)&period=month';
                     param.url='/analytics/cost/aggregate?parentEntityId='+fltObj.org.id+'&entityId='+entityId+'&toTimeStamp='+new Date()+'&period='+fltObj.period;
                 }
 
@@ -125,15 +125,18 @@
                             });
                             $rootScope.splitUpCosts.push({id:key,val:a});
                         });
-                        $scope.$emit('CHANGE_splitUp', $rootScope.splitUpCosts[0].id);
-                        costObj.splitUp= $rootScope.splitUpCosts[0].val;
-                        costObj.createLable(result, $rootScope.splitUpCosts[0].id);
+                        if( $rootScope.splitUpCosts && $rootScope.splitUpCosts.length >0) {
+                            $scope.$emit('CHANGE_splitUp', $rootScope.splitUpCosts[0].id);
+                            costObj.splitUp = $rootScope.splitUpCosts[0].val;
+                            costObj.createLable(result, $rootScope.splitUpCosts[0].id);
+                        }
                     } else {
                         costObj.createLable(result,'provider');
                     }
                 });
             };
             costObj.createLable= function(result,viewType){
+                costObj.createChart();
                 if(result && result.cost) {
                     costObj.costGridOptions.data = [];
                     costObj.costGridOptions.columnDefs = [
@@ -193,7 +196,7 @@
                             top: 20,
                             right: 20,
                             bottom: 40,
-                            left: 40
+                            left: 60
                         },
                         x: function (d) {
                             return d[0];

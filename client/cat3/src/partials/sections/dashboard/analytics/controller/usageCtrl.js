@@ -16,7 +16,7 @@
                         margin: {
                             top: 20,
                             right: 20,
-                            bottom: 30,
+                            bottom: 50,
                             left: 40
                         },
                         x: function (d) {
@@ -75,10 +75,10 @@
                     var  $today = new Date();
                     var $yesterday = new Date($today);
                     $yesterday.setDate($today.getDate() - 1);
-                    // if(fltObj && fltObj.resources && fltObj.resources.length >0) {
-                    //angular.forEach(fltObj.resources, function (resId) {
+                    if(fltObj && fltObj.resources && fltObj.resources.length >0) {
+                    angular.forEach(fltObj.resources, function (resId) {
                     var param = {
-                        url: '/analytics/trend/usage?resource='+fltObj.resources+'&fromTimeStamp='+$yesterday+'&toTimeStamp='+ $today+'&interval=3600'
+                        url: '/analytics/trend/usage?resource='+resId+'&fromTimeStamp='+$yesterday+'&toTimeStamp='+ $today+'&interval=3600'
                     };
                     genSevs.promiseGet(param).then(function (result) {
                         angular.forEach(result, function (valu, keyChild) {
@@ -88,14 +88,14 @@
                                     va.push([Date.parse(value.fromTime), value.average]);
                                 });
                                 usage.trendLineChart.data.push({
-                                    "key": keyChild,
+                                    "key":$rootScope.filterNewEnt.platformId[resId],
                                     "values": va
                                 });
                             }
                         });
                     });
-                    ///});
-                    /// }
+                    });
+                    }
                 };
                 $rootScope.applyFilter =function(filterApp,period){
                     analyticsServices.applyFilter(filterApp,period);
@@ -110,7 +110,7 @@
                 usage.init =function(){
                         $rootScope.organNewEnt.instanceType='Unassigned';
                         $rootScope.organNewEnt.provider='0';
-                        $scope.$emit('INI_usage', 'Unassigned');
+                    $rootScope.$emit('INI_usage', 'Unassigned');
                         $timeout(function(){$rootScope.applyFilter(true,'month')},500);
                         var treeNames = ['Analytics','Usage'];
                         $rootScope.$emit('treeNameUpdate', treeNames);

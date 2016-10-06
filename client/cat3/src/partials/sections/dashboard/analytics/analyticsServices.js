@@ -1,7 +1,7 @@
 (function (angular) {
     "use strict";
     angular.module('apis.analytics',[])
-        .factory('analyticsServices',['$rootScope', function ($rootScope) {
+        .factory('analyticsServices',['$rootScope','$state', function ($rootScope,$state) {
             return {
                 initFilter:function(){
                     $rootScope.organNewEnt=[];
@@ -9,6 +9,7 @@
                     $rootScope.organNewEnt.org = '0';
                     $rootScope.filterNewEnt.period='month';
                     $rootScope.splitUpCosts=[];
+                    $rootScope.filterNewEnt.platformId=[]
                 },
                 applyFilter : function(filterApp,period){
                     if($rootScope.organObject) {
@@ -58,6 +59,11 @@
                             }
                         } else {
                             $rootScope.organNewEnt = {}
+                            if($state.current.name === "dashboard.analytics.usage"){
+                                $rootScope.organNewEnt.provider='0';
+                                $rootScope.organNewEnt.instanceType='Unassigned';
+                                $rootScope.$emit('INI_usage', 'Unassigned');
+                            }
                             $rootScope.organNewEnt.org = or;
                         }
                     }

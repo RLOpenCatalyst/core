@@ -10,7 +10,7 @@
                          </span>
                          </div>
                          <div class="col-lg-3 col-md-3 col-sm-12" >
-                             <div ng-show="stateItems.filterView.splitUpType && splitUpCosts.length > 0">
+                             <div ng-show="stateItems.filterView.splitUpType && splitUpCosts.length > 1">
                              <span class="box-title">Segregated by  </span>
                              <select class="form-control select2 select2-hidden-accessible" ng-model="analytic.splitUp" ng-options="sp.id as sp.val for sp in splitUpCosts" >
                              </select>
