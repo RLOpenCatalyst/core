@@ -477,15 +477,16 @@
                         templateUrl: 'src/partials/sections/dashboard/design/view/popups/addDockerTemplate.html',
                         controller: 'addDockerTemplateCtrl',
                         backdrop: 'static',
-                        keyboard: false/*,
+                        keyboard: false,
                         resolve: {
                             items: function() {
-                                console.log(launchObj);
-                                return launchObj.dockerlaunchparameters;
+                                return $scope.templateList;
                             }
-                        }*/
-                    }).result.then(function(paramStr) {
-                        //$scope.dockerDetails[idx].dockerlaunchparameters = paramStr;
+                        }
+                    }).result.then(function(dockerObj) {
+                        console.log(dockerObj);
+                        $scope.dockerDetails = $scope.dockerDetails.concat(dockerObj);
+                        console.log($scope.dockerDetails);
                         //updating the dockerLaunchParameters for the particular index.
                     }, function() {
                         console.log('Modal Dismissed at ' + new Date());
@@ -497,7 +498,7 @@
                         dockercontainerpathstitle: '',
                         dockerlaunchparameters: '',
                         dockerreponame: '',
-                        dockercompose : [],
+                        /*dockercompose : [],*/
                         chefServerId:$scope.getChefServerId,
                         instanceType:blueprintCreation.newEnt.instanceType,
                         instanceOS:blueprintCreation.newEnt.osListing,
@@ -544,6 +545,19 @@
                         }
                     }
 
+                    if($scope.bpTypeName === 'Docker'){
+                        blueprintCreateJSON.blueprintType = 'docker';
+                        var dockercompose = [];
+                        angular.forEach(blueprintCreation.newEnt.cftModel , function(value, key) {
+                            var parameterObj = {
+                                ParameterKey: key,
+                                ParameterValue: value.Default
+                            }
+                            cftParameters.push(parameterObj);
+                            blueprintCreateJSON.dockercompose = dockercompose;
+                        });
+                    }
+
                     if($scope.bpTypeName === 'CloudFormation'){
                         var cftParameters = [];
                         angular.forEach(blueprintCreation.newEnt.cftModel , function(value, key) {
@@ -553,8 +567,8 @@
                             }
                             cftParameters.push(parameterObj);
                             blueprintCreateJSON.cftStackParameters = cftParameters;
-                            blueprintCreateJSON.blueprintType = 'aws_cf';
                         });
+                        blueprintCreateJSON.blueprintType = 'aws_cf';
                         blueprintCreateJSON.cftTemplateFile = $scope.cftTemplate;
                         var cftInstances = [];
                         angular.forEach(blueprintCreation.newEnt.cftModelResources , function(value, key) {

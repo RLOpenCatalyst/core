@@ -15,19 +15,20 @@
                             <span class="control-label red">&nbsp;*</span>
                             <span ng-show="addTemplate.templateName.$touched && addTemplate.templateName.$invalid" class="inputValidationMsg">Required</span>
                         </label>
-                        <select ng-model="addTemplate.name" name="templateName" class="width-100 form-control" required>
+                        <select ng-model="dockerTemplateForTag" name="templateName" class="width-100 form-control" required ng-change="selectDockerTemplateTag();">
                             <option value="">Select Template</option>
-                            <option></option>
+                            <option ng-repeat="name in dockerTemplateList" value="{{name._id}}">{{name.templatename}}</option>
                         </select>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <label for="templateTag">Select Tag
                             <span class="control-label red">&nbsp;*</span>
                             <span ng-show="addTemplate.templateTag.$touched && addTemplate.templateTag.$invalid" class="inputValidationMsg">Required</span>
+                            <loading size="small" name="isTagLoading" type="inline"></loading>
                         </label>
-                        <select ng-model="addTemplate.name" name="templateTag" class="width-100 form-control" required>
+                        <select ng-model="dockerTemplatetag" name="templateTag" class="width-100 form-control" required>
                             <option value="">Select Tags</option>
-                            <option></option>
+                            <option ng-repeat="tagName in getDockerTags" value="{{tagName.name}}">{{tagName.name}}</option>
                         </select>
                     </div>
                 </fieldset>

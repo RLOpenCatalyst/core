@@ -175,15 +175,7 @@
 				};
 				return designServices.promiseGet(params);
 			};
-			//save api for creating a blueprint
-			blueprintServices.postBlueprintSave = function (orgId,bgId,projectId,blueprintData) {
-				var params = {
-					url: '/organizations/' + orgId + '/businessgroups/' + bgId + '/projects/' + projectId + '/blueprints',
-					data: blueprintData
-				};
-				return designServices.promisePost(params);
-			};
-
+			
 			//services listed for azure blueprints save and update.
 
 			//listing down the azure providers
@@ -289,6 +281,24 @@
 					inlineLoader:true
 				};
 				return designServices.promiseGet(params);
+			};
+
+			//listing down docker templates
+			blueprintServices.getDockerTemplates = function(dockerTemplate,repoName) {
+				var params = {
+					url: '/d4dmasters/getdockertags/' + encodeURIComponent(dockerTemplate) + '/' + repoName,
+					inlineLoader:true
+				};
+				return designServices.promiseGet(params);
+			};
+
+			//save api for creating a blueprint
+			blueprintServices.postBlueprintSave = function (orgId,bgId,projectId,blueprintData) {
+				var params = {
+					url: '/organizations/' + orgId + '/businessgroups/' + bgId + '/projects/' + projectId + '/blueprints',
+					data: blueprintData
+				};
+				return designServices.promisePost(params);
 			};
         }]);
 })(angular);
