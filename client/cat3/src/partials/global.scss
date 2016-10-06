@@ -64,10 +64,18 @@ $imagePath : "../../../../../../cat3/images";
     color: white;
 }
 
+.tree-toggle {
+    z-index: 100;
+    color: #fff;
+    font-size: 1.2em;
+    padding-right: 4px;
+}
+
 #section-name {
-    padding: 6px 10px 6px 10px;
-    font-size: 14px; 
+    padding: 6px 0px 6px 12px;
+    font-size: 14px;
     font-weight: bold;
+    width: 35%;
 }
 
 #breadcrumb-nav {
@@ -84,6 +92,121 @@ $imagePath : "../../../../../../cat3/images";
     list-style: none;
     display: inline;
 }
+
+/*CSS for tree starts here*/
+#navigPage {
+  background: transparent;
+  position: fixed;
+  width: 254px;
+  z-index: 10;
+  transition: all .4s ease 0s;
+  left: -254px;
+
+  &.show-left-tree {
+      left: 0px;
+  }
+
+  #navigPage-inner {
+      background: linear-gradient(to right, #2c3638 99%, #2c3638 100%);
+      color: #fff;
+      overflow-y: auto;
+  }
+
+  div[data-angular-treeview] {
+      color: #fff;
+      font-size: 12px;
+      font-family: "Open Sans", Arial, Helvetica, Sans-Serif;
+  }
+
+  div[data-tree-model] li .selected {
+      padding: 0px;
+  }
+
+  div[data-tree-model] li span:hover {
+      text-decoration: underline;
+  }
+
+  div[data-tree-model] li {
+      line-height: 2.2;
+      padding: 0;
+  }
+      
+  div[data-tree-model] ul {
+      margin-left:-10px;
+      ul {
+          margin-left:-20px;
+          ul {
+              margin-left:-30px;
+              ul {
+                  margin-left:-40px;
+              }
+          }
+      }
+  }
+
+  div[data-tree-model] .liContents {
+      margin-left: 20px;
+      .liContents  {
+          margin-left: 30px;
+          .liContents {
+              margin-left: 40px;
+              .liContents {
+                  margin-left: 50px;
+              }
+          }
+      }
+  }
+
+  div[data-tree-model] li.selected{
+      background:#3b4142;
+  }
+
+  .collapse-spacing {
+      padding-right: 10px;
+  }
+
+  .label-spacing {
+      padding-right: 5px;
+  }
+
+  .caret-spacing {
+      margin-top: 8px;
+  }
+
+  i,span {
+      color:#fff;
+  }
+}
+
+#analyticsTreeMenuPage {
+  #navigPage {
+    .tree-ul {
+      padding: 0px;
+    }
+
+    .liContents {
+      line-height: 2.2;
+
+      .liContents-wrapper {
+        margin-left: 15px;
+      }
+
+      .caret-spacing {
+        margin-top: 8px;
+      }
+
+      .fa {
+        margin-left: 15px;
+      }
+    }
+
+    .activeSection {
+      font-weight: bold;
+      background: #3b4142;
+    }
+  }
+}
+/*CSS for tree ends here*/
 
 @media (min-width : 0px) and (max-width: 767px) {
     #breadcrumb-nav {
