@@ -214,7 +214,7 @@
 	            });
 	        }
         };
-		$scope.$on('INI_usage', function (event, id) {
+		$rootScope.$on('INI_usage', function (event, id) {
 			$scope.getResourse(id);
 		});
         $scope.toggleResourceSelection = function(resourceId,platformId) {

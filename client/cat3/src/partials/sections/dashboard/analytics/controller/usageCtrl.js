@@ -88,7 +88,7 @@
                                     va.push([Date.parse(value.fromTime), value.average]);
                                 });
                                 usage.trendLineChart.data.push({
-                                    "key": keyChild+" of "+$rootScope.filterNewEnt.platformId[resId],
+                                    "key":$rootScope.filterNewEnt.platformId[resId],
                                     "values": va
                                 });
                             }
@@ -110,7 +110,7 @@
                 usage.init =function(){
                         $rootScope.organNewEnt.instanceType='Unassigned';
                         $rootScope.organNewEnt.provider='0';
-                        $scope.$emit('INI_usage', 'Unassigned');
+                    $rootScope.$emit('INI_usage', 'Unassigned');
                         $timeout(function(){$rootScope.applyFilter(true,'month')},500);
                         var treeNames = ['Analytics','Usage'];
                         $rootScope.$emit('treeNameUpdate', treeNames);
