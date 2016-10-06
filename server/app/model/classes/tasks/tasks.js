@@ -133,6 +133,9 @@ var taskSchema = new Schema({
     },
     cronJobId: {
         type: String
+    },
+    cronEndedOn:{
+        type: Number
     }
 });
 taskSchema.plugin(mongoosePaginate);
