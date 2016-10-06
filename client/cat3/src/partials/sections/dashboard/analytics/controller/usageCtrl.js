@@ -88,7 +88,7 @@
                                     va.push([Date.parse(value.fromTime), value.average]);
                                 });
                                 usage.trendLineChart.data.push({
-                                    "key": keyChild+" of "+$rootScope.filterNewEnt.platformId[resId],
+                                    "key":$rootScope.filterNewEnt.platformId[resId],
                                     "values": va
                                 });
                             }
