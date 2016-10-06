@@ -118,10 +118,9 @@
   }
 
   .panelRight {
-    width: calc(100% - 258px);
+    width: 100%;
     background: linear-gradient(to right, #ffffff 99%, #ffffff 100%) repeat scroll 0 0 rgba(0, 0, 0, 0);
     padding-right: 10px;
-    float: right;
     height: 571px;
     overflow-y: auto;
   }

@@ -2536,27 +2536,27 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                             var templatetypename;
                                                             var designtemplateicon_filename;
                                                             var templatetype;
-                                                            if (x1 === 0) {
-                                                                templatetypename = "SoftwareStack";
-                                                                designtemplateicon_filename = "Appfactory.png";
-                                                                templatetype = "chef";
+                                                            if(x1 === 0) {
+                                                                templatetypename = "Docker";
+                                                                designtemplateicon_filename = "Docker.png";
+                                                                templatetype = "docker";
                                                             } else if (x1 === 1) {
                                                                 templatetypename = "OSImage";
                                                                 designtemplateicon_filename = "Desktop Provisining.png";
                                                                 templatetype = "ami";
                                                             } else if (x1 === 2) {
+                                                                templatetypename = "SoftwareStack";
+                                                                designtemplateicon_filename = "Appfactory.png";
+                                                                templatetype = "chef";
+                                                            } else if (x1 === 3) {
                                                                 templatetypename = "CloudFormation";
                                                                 designtemplateicon_filename = "CloudFormation.png";
                                                                 templatetype = "cft";
 
-                                                            } else if (x1 === 3) {
+                                                            } else if (x1 === 4) {
                                                                 templatetypename = "ARMTemplate";
                                                                 designtemplateicon_filename = "CloudFormation.png";
                                                                 templatetype = "arm";
-                                                            } else if(x1 === 4) {
-                                                                templatetypename = "Docker";
-                                                                designtemplateicon_filename = "Docker.png";
-                                                                templatetype = "docker";
                                                             } else {
                                                                 templatetypename = "Composite";
                                                                 designtemplateicon_filename = "composite.png";
@@ -2716,8 +2716,32 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
                                                     });
                                                     if (x === rowId.length - 1) {
-                                                        res.send(200);
+                                            
+                                                settingWizard.getSettingWizardByOrgId(bodyJson['orgname_rowid'],function(err,settingWizards){
+                                                    if(err){
+                                                        logger.error('Hit getting setting wizard error', err);
+                                                        res.send(500);
                                                         return;
+                                                    }
+                                                    if(settingWizards.currentStep.name === 'User Configuration') {
+                                                        var settingWizardSteps = appConfig.settingWizardSteps;
+                                                        settingWizards.currentStep.nestedSteps[1].isCompleted = true;
+                                                        settingWizards.currentStep.isCompleted = true;
+                                                        settingWizards.previousStep = settingWizards.currentStep;
+                                                        settingWizards.currentStep = settingWizards.nextStep;
+                                                        settingWizards.nextStep = settingWizardSteps[5];
+                                                        settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                                                            if (err) {
+                                                                logger.error('Hit getting setting wizard error', err);
+                                                                res.send(500);
+                                                                return;
+                                                            }
+                                                            res.send(200);
+                                                                return;
+                                                        });
+                                                    }
+                                                })
+                                        
                                                     }
                                                 }
                                             });
@@ -2859,30 +2883,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     }
                                                 })
                                             }
-                                            if(req.params.id === '7'){
-                                                settingWizard.getSettingWizardByOrgId(bodyJson['orgname_rowid'],function(err,settingWizards){
-                                                    if(err){
-                                                        logger.error('Hit getting setting wizard error', err);
-                                                        res.send(500);
-                                                        return;
-                                                    }
-                                                    if(settingWizards.currentStep.name === 'User Configuration') {
-                                                        var settingWizardSteps = appConfig.settingWizardSteps;
-                                                        settingWizards.currentStep.nestedSteps[1].isCompleted = true;
-                                                        settingWizards.currentStep.isCompleted = true;
-                                                        settingWizards.previousStep = settingWizards.currentStep;
-                                                        settingWizards.currentStep = settingWizards.nextStep;
-                                                        settingWizards.nextStep = settingWizardSteps[5];
-                                                        settingWizard.updateSettingWizard(settingWizards, function (err, data) {
-                                                            if (err) {
-                                                                logger.error('Hit getting setting wizard error', err);
-                                                                res.send(500);
-                                                                return;
-                                                            }
-                                                        });
-                                                    }
-                                                })
-                                            }
                                             if(req.params.id === '2'){
                                                 settingWizard.getSettingWizardByOrgId(bodyJson['orgname_rowid'],function(err,settingWizards){
                                                     if(err){
@@ -2953,7 +2953,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         settingWizards.currentStep.isCompleted = true;
                                                         settingWizards.previousStep = settingWizards.currentStep;
                                                         settingWizards.currentStep = settingWizards.nextStep;
-                                                        settingWizards.nextStep = {wizardIsCompleted:'true'};
+                                                        settingWizards.nextStep = settingWizards.nextStep;
                                                         settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                                                             if (err) {
                                                                 logger.error('Hit getting setting wizard error', err);

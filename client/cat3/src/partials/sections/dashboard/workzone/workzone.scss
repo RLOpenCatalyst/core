@@ -59,7 +59,6 @@
         .panelRight {
             padding-left: 10px;
             padding-right: 0px;
-            float: right;
         }
     }
 }
@@ -75,10 +74,9 @@
         padding-left: 0px;
     }
     .panelRight {
-        width: calc(100% - 258px);
+        width: 100%;
         background: linear-gradient(to right, #ffffff 99%, #ffffff 100%) repeat scroll 0 0 rgba(0, 0, 0, 0);
         padding-right: 0px;
-        float: right;
     }
     #rightPanel {
         padding-top: 5px;
