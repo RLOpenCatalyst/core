@@ -110,7 +110,7 @@
                 usage.init =function(){
                         $rootScope.organNewEnt.instanceType='Unassigned';
                         $rootScope.organNewEnt.provider='0';
-                        $scope.$emit('INI_usage', 'Unassigned');
+                    $rootScope.$emit('INI_usage', 'Unassigned');
                         $timeout(function(){$rootScope.applyFilter(true,'month')},500);
                         var treeNames = ['Analytics','Usage'];
                         $rootScope.$emit('treeNameUpdate', treeNames);
