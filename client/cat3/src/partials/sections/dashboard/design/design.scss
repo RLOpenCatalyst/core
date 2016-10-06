@@ -69,6 +69,7 @@
   width: 152px;
   cursor: pointer;
   margin-left: 15px;
+  margin-top: 15px;
 }
 
 .blueprintTemplateSelected {
@@ -126,16 +127,22 @@ label {
 .appCreateBtn {
   margin-bottom: 10px; 
 }
+
+.blueprintFooter {
+  position: fixed;
+  bottom: 0px;
+  margin-left: 452px;
+}
 .search {
   width: 100% !important;
   position: relative;
   font-size: 18px;
   padding-top: 0px;
+}
   label {
     position: absolute;
     left:24px;
     top: 6px;
-  }
 }
 .search .search-input, .search .hint {
   padding-left: 24px;

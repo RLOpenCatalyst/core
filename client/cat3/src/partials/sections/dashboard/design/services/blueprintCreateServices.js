@@ -175,15 +175,7 @@
 				};
 				return designServices.promiseGet(params);
 			};
-			//save api for creating a blueprint
-			blueprintServices.postBlueprintSave = function (orgId,bgId,projectId,blueprintData) {
-				var params = {
-					url: '/organizations/' + orgId + '/businessgroups/' + bgId + '/projects/' + projectId + '/blueprints',
-					data: blueprintData
-				};
-				return designServices.promisePost(params);
-			};
-
+			
 			//services listed for azure blueprints save and update.
 
 			//listing down the azure providers
@@ -210,6 +202,33 @@
 					inlineLoader:true
 				};
 				return designServices.promiseGet(params);
+			};
+			//get the armTemplate file details.
+			blueprintServices.getARMTemplateParams = function (armTemplateFileName) {
+				var params = {
+					url: '/d4dMasters/cftTemplate?templateFile=' + armTemplateFileName,
+					inlineLoader:true
+				};
+				return designServices.promiseGet(params);
+			};
+			//get the resource group based upon the provider.
+			blueprintServices.getProviderResourceGroup = function (providerId) {
+				var params = {
+					url: '/azure-arm/'+ providerId + '/resourceGroups'
+				};
+				return designServices.promiseGet(params);
+			};
+			//post the azureEvalVM.
+			blueprintServices.postAzureVM = function (armParameters,armVMEvalVariables,armVMS) {
+				var params = {
+					url: '/azure-arm/evaluateVMs',
+					data: {
+	                    'parameters': armParameters,
+              			'variables': armVMEvalVariables,
+              			'vms': armVMS
+                	}
+				};
+				return designServices.promisePost(params);
 			};
 
 			//services listed for openstack blueprints save and update.
@@ -262,6 +281,24 @@
 					inlineLoader:true
 				};
 				return designServices.promiseGet(params);
+			};
+
+			//listing down docker templates
+			blueprintServices.getDockerTemplates = function(dockerTemplate,repoName) {
+				var params = {
+					url: '/d4dmasters/getdockertags/' + encodeURIComponent(dockerTemplate) + '/' + repoName,
+					inlineLoader:true
+				};
+				return designServices.promiseGet(params);
+			};
+
+			//save api for creating a blueprint
+			blueprintServices.postBlueprintSave = function (orgId,bgId,projectId,blueprintData) {
+				var params = {
+					url: '/organizations/' + orgId + '/businessgroups/' + bgId + '/projects/' + projectId + '/blueprints',
+					data: blueprintData
+				};
+				return designServices.promisePost(params);
 			};
         }]);
 })(angular);

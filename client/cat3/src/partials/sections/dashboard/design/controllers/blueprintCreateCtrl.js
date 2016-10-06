@@ -6,12 +6,16 @@
             //to get the templates listing.
             if($state.params && $state.params.subItem && $state.params.templateObj){
                 $scope.providerType = $state.params.subItem.toUpperCase();
-                $scope.bpTypeName = $state.params.templateObj.templatetypename;
+                $scope.bpTypeName = $state.params.templateObj.templatetypename;   
             }
             $scope.logo = 'images/global/cat-logo.png';
             $scope.osImageLogo = 'images/global/linux.png';
             $scope.isOSImage = false;
+            $scope.isVMEvalsVisible = false;
+            $scope.isVMVisible = false;
             $scope.imageList = [];
+            $scope.foundVMResources = [];
+            $scope.armVMTemplate = {};
             //on initial load.
             $scope.nextEnabled = false;
             $scope.previousEnabled = false;
@@ -55,6 +59,18 @@
                 templateDetail.selected = true;
                 $scope.nextEnabled = true;
                 $scope.templateSelected = templateDetail; 
+                console.log($scope.templateSelected);
+
+                $scope.dockerDetails = [];
+                //items gives the details of the selected blueprint.
+                var dockerParams = $scope.templateSelected;
+                console.log(dockerParams);
+                dockerParams.dockerlaunchparameters = '--name ' + dockerParams.templatename;
+                dockerParams.tagValue = 'latest';
+                console.log(dockerParams);
+                //gives the dockerParams details to show up the image in the first step of wizard.
+                $scope.dockerDetails.push(dockerParams);
+                console.log($scope.dockerDetails);
             };
 
             blueprintCreation.getImages = function(){
@@ -148,14 +164,20 @@
                             blueprintCreation.regionListingAzure = data.Locations.Location;
                             $scope.isRegionKeyPairLoading = false;
                         }
-                    })
+                    });
                 } else if($scope.providerType === 'VMWARE'){
                     bpCreateSer.getProviderDataStore(blueprintCreation.newEnt.providers).then(function(data){
-                           if(blueprintCreation.newEnt.providers){
+                        if(blueprintCreation.newEnt.providers){
                             blueprintCreation.dataStore = data.datastores;
                             $scope.isRegionKeyPairLoading = false;
                         }
-                    })
+                    });
+                } else if($scope.providerType === 'OPENSTACK'){
+                    bpCreateSer.getProviderFlavors(blueprintCreation.newEnt.providers).then(function(data){
+                        if(blueprintCreation.newEnt.providers){
+                            blueprintCreation.getFlavourProviders = data;
+                        }
+                    });
                 }
                 
             };
@@ -203,7 +225,6 @@
                     for(var i=0;i<regionInstanceType.length;i++){
                         if(blueprintCreation.newEnt.region === regionInstanceType[i].Name){
                             blueprintCreation.instanceType = regionInstanceType[i].ComputeCapabilities.VirtualMachinesRoleSizes.RoleSize;
-                            console.log(blueprintCreation.instanceType);
                             $scope.isInstanceTypeLoading = false;
                         }
                     }
@@ -286,15 +307,64 @@
                 });
             }; 
 
-            blueprintCreation.getCFTParams = function() {
+            blueprintCreation.getTemplateParameters = function() {
                 $scope.cftTemplate = $scope.templateSelected;
                 $scope.cftTemplate = $scope.templateSelected.rowid + "__template__" + $scope.templateSelected.template_filename;
-                bpCreateSer.getCFTParams($scope.cftTemplate).then(function(data){
-                    blueprintCreation.getCFTDetails = data;
-                    blueprintCreation.newEnt.cftModel = data.Parameters;
-                    blueprintCreation.newEnt.cftModelResources = {};
+                if($scope.templateSelected.templatetypename === 'CloudFormation'){
+                    bpCreateSer.getCFTParams($scope.cftTemplate).then(function(data){
+                        blueprintCreation.getCFTDetails = data;
+                        blueprintCreation.newEnt.cftModel = data.Parameters;
+                        blueprintCreation.newEnt.cftModelResources = {};
+                    });    
+                } else if($scope.templateSelected.templatetypename === 'ARMTemplate'){
+                    bpCreateSer.getARMTemplateParams($scope.cftTemplate).then(function(data){
+                        blueprintCreation.getARMDetails = data;
+                        blueprintCreation.newEnt.armModelVariable = data.variables;
+                        blueprintCreation.newEnt.armModelVMResource = data.resources;
+                        blueprintCreation.newEnt.armModelResources = {};
+                    });
+                }
+            };
+
+            blueprintCreation.hideVMEvals = function() {
+                $scope.isVMEvalsVisible = false;
+            }
+
+            blueprintCreation.checkForResource = function() {
+                if(blueprintCreation.newEnt.armModelResources !==null){
+                    $scope.isVMEvalsVisible = true;
+                } 
+            }
+            
+            blueprintCreation.getResourceGroups = function() {
+                $scope.isResourceGroupLoading = true;
+                bpCreateSer.getProviderResourceGroup(blueprintCreation.newEnt.providers).then(function(data){
+                    if(blueprintCreation.newEnt.providers){
+                        blueprintCreation.resourceGroupListing = data.value;
+                        $scope.isResourceGroupLoading = false;
+                    }
                 });
-            };                                             
+            };
+
+            blueprintCreation.showVMs= function(test) {
+                $scope.isVMVisible = true;
+                $scope.armParameters = {};
+                $scope.armParameters = blueprintCreation.newEnt.armModelResources;
+                for (var i = 0; i < blueprintCreation.newEnt.armModelVMResource.length; i++) {
+                  if (blueprintCreation.newEnt.armModelVMResource[i].type === "Microsoft.Compute/virtualMachines") {
+                    $scope.foundVMResources.push(blueprintCreation.newEnt.armModelVMResource[i]);
+                    continue;
+                  }
+                }
+                console.log($scope.foundVMResources);
+                bpCreateSer.postAzureVM($scope.armParameters,blueprintCreation.newEnt.armModelVariable,$scope.foundVMResources).then(function(data){
+                    blueprintCreation.getAzureVMDetails = data;
+                });
+            };
+
+
+
+            //modal to show the Docker Parameters Popup                                             
 
             //wizard data setting for step 1 and step 2.
             var index = 0, // points to the current step in the steps array
@@ -308,7 +378,16 @@
                 'title': 'Create Blueprint'
             }];
 
-            if($scope.bpTypeName === "Docker" || $scope.bpTypeName === "CloudFormation"){
+            //on initial load.
+            $scope.nextEnabled = false;
+            $scope.previousEnabled = false;
+            $scope.isNextVisible = true;
+            $scope.isSubmitVisible = false;
+            /*Open only One Accordian-Group at a time*/
+            $scope.oneAtATime = true;
+            /*Initialising First Accordian-group open on load*/
+            $scope.isFirstOpen = true;
+            if($scope.bpTypeName === 'Docker' || $scope.bpTypeName === 'CloudFormation' || $scope.bpTypeName === 'ARMTemplate'){
                 $scope.isOrgOpen = true;    
             } else {
                 $scope.isOrgOpen = false;    
@@ -348,11 +427,13 @@
                         $scope.isNextVisible = false;
                         $scope.previousEnabled = true;
                         $scope.isSubmitVisible = true;
-                        blueprintCreation.getOperatingSytems();
-                        blueprintCreation.getAllProviders();    
+                        if($scope.bpTypeName !=='Docker'){
+                            blueprintCreation.getOperatingSytems();
+                            blueprintCreation.getAllProviders();        
+                        }
                         blueprintCreation.getOrgBUProjDetails();
-                        if($scope.bpTypeName === 'CloudFormation'){
-                            blueprintCreation.getCFTParams();
+                        if($scope.bpTypeName === 'CloudFormation' || $scope.bpTypeName ==='ARMTemplate'){
+                            blueprintCreation.getTemplateParameters();
                         }  
                     } else if (index === 0) {
                         $scope.isNextVisible = true;
@@ -384,13 +465,54 @@
                     var idx = blueprintCreation.appUrlList.indexOf(appUrl);
                     blueprintCreation.appUrlList.splice(idx,1); 
                 },
+                launchParam : function(launchObj, idx) {
+                $modal.open({
+                        animation: true,
+                        templateUrl: 'src/partials/sections/dashboard/workzone/blueprint/popups/dockerParams.html',
+                        controller: 'dockerParamsCtrl',
+                        backdrop: 'static',
+                        keyboard: false,
+                        resolve: {
+                            items: function() {
+                                console.log(launchObj);
+                                return launchObj.dockerlaunchparameters;
+                            }
+                        }
+                    }).result.then(function(paramStr) {
+                        $scope.dockerDetails[idx].dockerlaunchparameters = paramStr;
+                        //updating the dockerLaunchParameters for the particular index.
+                    }, function() {
+                        console.log('Modal Dismissed at ' + new Date());
+                    });
+                },
+                addDockerTemplate : function() {
+                $modal.open({
+                        animation: true,
+                        templateUrl: 'src/partials/sections/dashboard/design/view/popups/addDockerTemplate.html',
+                        controller: 'addDockerTemplateCtrl',
+                        backdrop: 'static',
+                        keyboard: false,
+                        resolve: {
+                            items: function() {
+                                return $scope.templateList;
+                            }
+                        }
+                    }).result.then(function(dockerObj) {
+                        console.log(dockerObj);
+                        $scope.dockerDetails = $scope.dockerDetails.concat(dockerObj);
+                        console.log($scope.dockerDetails);
+                        //updating the dockerLaunchParameters for the particular index.
+                    }, function() {
+                        console.log('Modal Dismissed at ' + new Date());
+                    });
+                },
                 submit : function() {
                     var blueprintCreateJSON = {
-                        templateComponents: 'component0',
+                        templateComponents:'component0',
                         dockercontainerpathstitle: '',
                         dockerlaunchparameters: '',
                         dockerreponame: '',
-                        dockercompose : [],
+                        /*dockercompose : [],*/
                         chefServerId:$scope.getChefServerId,
                         instanceType:blueprintCreation.newEnt.instanceType,
                         instanceOS:blueprintCreation.newEnt.osListing,
@@ -428,11 +550,26 @@
                             blueprintCreateJSON.instanceCount = '1';
                             //not required as it is already getting used. Need to check for new API.
                             blueprintCreateJSON.instanceImageName = $scope.imageIdentifier;
+                            //not required as it is already getting used. Need to check for new API.
+                            blueprintCreateJSON.imageIdentifier = blueprintCreation.newEnt.images;
                             blueprintCreateJSON.datastore = blueprintCreation.newEnt.dataStore;        
                         } else if($scope.providerType === 'OPENSTACK'){
                             blueprintCreateJSON.blueprintType = 'openstack_launch';
                             blueprintCreateJSON.instanceCount = '1';
                         }
+                    }
+
+                    if($scope.bpTypeName === 'Docker'){
+                        blueprintCreateJSON.blueprintType = 'docker';
+                        var dockercompose = [];
+                        angular.forEach(blueprintCreation.newEnt.cftModel , function(value, key) {
+                            var parameterObj = {
+                                ParameterKey: key,
+                                ParameterValue: value.Default
+                            }
+                            cftParameters.push(parameterObj);
+                            blueprintCreateJSON.dockercompose = dockercompose;
+                        });
                     }
 
                     if($scope.bpTypeName === 'CloudFormation'){
@@ -444,8 +581,8 @@
                             }
                             cftParameters.push(parameterObj);
                             blueprintCreateJSON.cftStackParameters = cftParameters;
-                            blueprintCreateJSON.blueprintType = "aws_cf";
                         });
+                        blueprintCreateJSON.blueprintType = 'aws_cf';
                         blueprintCreateJSON.cftTemplateFile = $scope.cftTemplate;
                         var cftInstances = [];
                         angular.forEach(blueprintCreation.newEnt.cftModelResources , function(value, key) {
@@ -457,6 +594,33 @@
                             cftInstances.push(instanceObj);
                             blueprintCreateJSON.cftInstances = cftInstances;
                         });
+                    }
+
+                    if($scope.bpTypeName === 'ARMTemplate'){
+                        var cftParameters = [];
+                        angular.forEach($scope.armParameters , function(value, key) {
+                            var parameterObj = {
+                                ParameterKey: key,
+                                ParameterValue: value.value
+                                //type: value.type
+                            }
+                            cftParameters.push(parameterObj);
+                            blueprintCreateJSON.cftStackParameters = cftParameters;
+                        });
+                        blueprintCreateJSON.blueprintType = 'azure_arm';
+                        blueprintCreateJSON.cftTemplateFile = $scope.cftTemplate;
+                        var instanceObj = {};
+                        for(var i =0;i<blueprintCreation.getAzureVMDetails.length;i++){
+                            console.log(blueprintCreation.getAzureVMDetails[i]);
+                            instanceObj[blueprintCreation.getAzureVMDetails[i].name]= {
+                                username: blueprintCreation.getAzureVMDetails[i].username,
+                                password: blueprintCreation.getAzureVMDetails[i].password
+                                //runlist:[]
+                            }
+                            blueprintCreateJSON.cftInstances = instanceObj;
+                            console.log(blueprintCreateJSON.cftInstances);
+                        }
+                        blueprintCreateJSON.resourceGroup = blueprintCreation.newEnt.resourceGroup;
                     }
 
                     blueprintCreateJSON.runlist = [];
@@ -496,8 +660,8 @@
                                 toastr.success('Software Blueprint Created Successfully');
                             } else if($scope.bpTypeName === 'CloudFormation') {
                                 toastr.success('CFT Blueprint Created Successfully');
-                            } else {
-                                toastr.success('Docker Blueprint Created Successfully');
+                            } else if($scope.bpTypeName === 'ARMTemplate') {
+                                toastr.success('ARM Template Blueprint Created Successfully');
                             }
                         }, function(data) {
                             toastr.error('error:: ' + data.toString());
