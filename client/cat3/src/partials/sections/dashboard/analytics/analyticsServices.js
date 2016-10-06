@@ -9,6 +9,7 @@
                     $rootScope.organNewEnt.org = '0';
                     $rootScope.filterNewEnt.period='month';
                     $rootScope.splitUpCosts=[];
+                    $rootScope.filterNewEnt.platformId=[]
                 },
                 applyFilter : function(filterApp,period){
                     if($rootScope.organObject) {
