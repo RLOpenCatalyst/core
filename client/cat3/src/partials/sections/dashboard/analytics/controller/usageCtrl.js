@@ -12,11 +12,11 @@
                     chart: {
                         //type: 'stackedAreaChart',
                         type: 'lineChart',
-                        height: 350,
+                        height: 400,
                         margin: {
                             top: 20,
                             right: 20,
-                            bottom: 50,
+                            bottom:70,
                             left: 40
                         },
                         x: function (d) {
@@ -33,7 +33,7 @@
                             axisLabel: 'Date',
                             showMaxMin: false,
                             tickFormat: function (d) {
-                                return d3.time.format('%x')(new Date(d))
+                                return d3.time.format('%d/%m %H:%M')(new Date(d))
                             }
                         },
                         yAxis: {
@@ -78,22 +78,22 @@
                     if(fltObj && fltObj.resources && fltObj.resources.length >0) {
                     angular.forEach(fltObj.resources, function (resId) {
                     var param = {
-                        url: '/analytics/trend/usage?resource='+resId+'&fromTimeStamp='+$yesterday+'&toTimeStamp='+ $today+'&interval=3600'
+                       url: '/analytics/trend/usage?resource='+resId+'&fromTimeStamp='+$yesterday+'&toTimeStamp='+ $today+'&interval=3600'
                     };
                     genSevs.promiseGet(param).then(function (result) {
-                        angular.forEach(result, function (valu, keyChild) {
-                            var va = [];
-                            if(usage.splitUp === keyChild) {
-                                angular.forEach(valu.dataPoints, function (value) {
+                       // angular.forEach(result[usage.splitUp], function (valu, keyChild) {
+                           var va = [];
+                            //if(usage.splitUp === keyChild) {
+                                angular.forEach(result[usage.splitUp].dataPoints, function (value) {
                                     va.push([Date.parse(value.fromTime), value.average]);
                                 });
                                 usage.trendLineChart.data.push({
                                     "key":$rootScope.filterNewEnt.platformId[resId],
                                     "values": va
                                 });
-                            }
+                            //}
                         });
-                    });
+                   // });
                     });
                     }
                 };
