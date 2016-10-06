@@ -82,14 +82,12 @@ module.exports = function(grunt) {
 					{'catalyst/partials/global.css':'src/partials/global.scss'},
 					{'catalyst/partials/globals/treeComponent/treeDirective.css':'src/partials/globals/treeComponent/treeDirective.scss'},
 					{'catalyst/partials/sections/dashboard/workzone/workzone.css':'src/partials/sections/dashboard/workzone/workzone.scss'},
-					{'catalyst/partials/sections/dashboard/workzone/workzoneTreeMenu/workzoneTreeMenu.css':'src/partials/sections/dashboard/workzone/workzoneTreeMenu/workzoneTreeMenu.scss'},
 					{'catalyst/partials/sections/dashboard/workzone/instance/instance.css':'src/partials/sections/dashboard/workzone/instance/instance.scss'},			 
 					{'catalyst/partials/sections/dashboard/workzone/blueprint/blueprint.css':'src/partials/sections/dashboard/workzone/blueprint/blueprint.scss'},
 					{'catalyst/partials/sections/dashboard/workzone/cloudFormation/cloudFormation.css':'src/partials/sections/dashboard/workzone/cloudFormation/cloudFormation.scss'},
 					{'catalyst/partials/sections/dashboard/workzone/container/container.css':'src/partials/sections/dashboard/workzone/container/container.scss'},
 					{'catalyst/partials/sections/dashboard/workzone/orchestration/orchestration.css':'src/partials/sections/dashboard/workzone/orchestration/orchestration.scss'},
 					{'catalyst/partials/sections/dashboard/workzone/application/application.css':'src/partials/sections/dashboard/workzone/application/application.scss'},
-					{'catalyst/partials/sections/dashboard/analytics/view/analyticsTreeMenu.css':'src/partials/sections/dashboard/analytics/view/analyticsTreeMenu.scss'},
 					{'catalyst/partials/sections/dashboard/analytics/analytics.css':'src/partials/sections/dashboard/analytics/analytics.scss'},
 					{'catalyst/partials/sections/dashboard/setting/setting.css':'src/partials/sections/dashboard/setting/setting.scss'}
 				]
