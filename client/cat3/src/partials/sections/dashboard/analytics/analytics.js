@@ -133,6 +133,8 @@
 					$rootScope.providers = result;
 					$scope.filter = [];
 					$scope.filter.providerId = result[0]._id;
+				} else{
+					$rootScope.organNewEnt.provider='';
 				}
             });
         };
