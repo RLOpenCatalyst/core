@@ -226,19 +226,30 @@
 					$tr.append($tdCreatedOn);
 					var $tdcontainerName = $('<td></td>').append(managedData[i].containerName);
 					$tr.append($tdcontainerName);
-					if (managedData[i].status == 'Start') {
-						$tdStatus = $("<img title='Start' class ='statusIcon' src = '../private/img/aws_logo_started.png' alt='statusType'/>");
-					}else if (managedData[i].status == 'Unpause') {
-						$tdStatus = $("<img title='Unpause' class ='statusIcon' src = '../private/img/aws_logo_started.png' alt='statusType'/>");
-					}else if (managedData[i].status == 'Stop') {
-						$tdStatus = $("<img title='Stop' class ='statusIcon' src = '../private/img/aws_logo_stopped.png' alt='statusType'/>");
-					}else if (managedData[i].status == 'Delete') {
-						$tdStatus = $("<img title='Delete' class ='statusIcon' src = '../private/img/aws_logo_stopped.png' alt='statusType'/>");
-					}else if (managedData[i].status == 'Pause') {
-						$tdStatus = $("<img title='Pause' class ='statusIcon' src = '../private/img/aws_logo_inactive.png' alt='statusType'/>");
-					}else {
-						$tdStatus = $("<img title='Start' class ='statusIcon' src = '../private/img/aws_logo_started.png' alt='statusType'/>");
-					}
+					var containerStatus = managedData[i].status;
+					switch (containerStatus) {
+		                case "Start":
+		                    $tdStatus = $("<img title='Start' class ='statusIcon' src = '../private/img/aws_logo_started.png' alt='statusType'/>");
+		                    break;
+		                case "Unpause":
+		                    $tdStatus = $("<img title='Unpause' class ='statusIcon' src = '../private/img/aws_logo_started.png' alt='statusType'/>");
+		                    break;
+		                case "Restart":
+		                    $tdStatus = $("<img title='Restart' class ='statusIcon' src = '../private/img/aws_logo_started.png' alt='statusType'/>");
+		                    break;
+		                case "Stop":
+		                    $tdStatus = $("<img title='Stop' class ='statusIcon' src = '../private/img/aws_logo_stopped.png' alt='statusType'/>");
+		                    break;
+		                case "Delete":
+		                	$tdStatus = $("<img title='Delete' class ='statusIcon' src = '../private/img/aws_logo_stopped.png' alt='statusType'/>");
+		                    break;
+		                case "Pause":
+		                    $tdStatus = $("<img title='Pause' class ='statusIcon' src = '../private/img/aws_logo_inactive.png' alt='statusType'/>");
+		                    break;
+		                default:
+		                    $tdStatus = $("<img title='Start' class ='statusIcon' src = '../private/img/aws_logo_started.png' alt='statusType'/>");
+		                    break;
+		            }
 					var $tdStatus = $('<td></td>').append($tdStatus);
 					$tr.append($tdStatus);
 					var $tdinstanceName = $('<td></td>').append(managedData[i].instanceIP);
