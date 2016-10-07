@@ -99,9 +99,9 @@
 					var url = '/blueprints/' + blueprintID;
 					return $http.delete(fullUrl(url), Auth.getHeaderObject());
 				},
-				launchBlueprint: function (blueprintID, version, envId, stackName) {
+				launchBlueprint: function (blueprintID, version, envId, stackName,domainName) {
 					var url = '/blueprints/' + blueprintID + '/launch?version=' + version +
-							'&envId=' + envId + '&stackName=' + stackName;
+							'&envId=' + envId + '&stackName=' + stackName + '&domainName=' + domainName;
 					return $http.get(fullUrl(url), Auth.getHeaderObject());
 				},
 				getBlueprintById: function(blueprintId) {
@@ -515,6 +515,18 @@
 					};
                     var url ='/aws/providers/describe/vpcs';
 					return $http.post(fullUrl(url),reqBody, Auth.getHeaderObject());
+				},
+				getManagedInstances:function (providerId) {
+					var url ='/providers/'+providerId+'/managedInstances';
+					return $http.get(fullUrl(url),Auth.getHeaderObject());
+				},
+				getAssignedInstances:function (providerId) {
+					var url ='/providers/'+providerId+'/unmanagedInstances';
+					return $http.get(fullUrl(url),Auth.getHeaderObject());
+				},
+				getUnassignedInstances:function (providerId) {
+					var url ='/providers/'+providerId+'/unassigned-instances';
+					return $http.get(fullUrl(url),Auth.getHeaderObject());
 				}
 			};
 			return serviceInterface;

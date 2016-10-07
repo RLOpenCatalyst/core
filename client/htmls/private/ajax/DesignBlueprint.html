@@ -140,6 +140,17 @@
                                                   </select>
                                                 </div>
                                               </div>
+                                              <div class="col-lg-6 col-md-6 margintop15">
+                                                <label>Do you want to configure Domain Name at the time of Blueprint Launch?:</label>
+                                                <div class="input-groups">
+                                                  <div class="radio">
+                                                    <label><input type="radio" name="domainNameCheck">Yes</label>
+                                                  </div>
+                                                  <div class="radio">
+                                                    <label><input type="radio" checked="true" name="domainNameCheck">No</label>
+                                                  </div>
+                                                </div>
+                                              </div>
                                               <div class="col-lg-6 col-md-6 foraws" style="margin-top:15px;">
                                                 <label for="region">Choose Region:<span style="color:red">*</span></label>
                                                 <div class="input-groups">
@@ -830,6 +841,20 @@ $(document).ready(function() {
       var $bgList = $('#bgListInputExisting');
       var $projectList = $('#projectListInputExisting');
       var $envList = $('#envListExisting');
+      $orgListInput.change(function(e) {
+        var orgName = $(this).val();
+        if (orgName == 'choose') {
+          return;
+        }
+        var $selectedOrgOption = $(this).find(":selected");
+        $bgList.empty();
+        var getBg = orgBg[orgName];
+        for (var i = 0; i < getBg.length; i++) {
+          var $option = $('<option></option>').val(getBg[i].rowid).html(getBg[i].name);
+          $bgList.append($option);
+        }
+        $bgList.trigger('change');
+      });
       $bgList.change(function(e) {
         var bgName = $(this).val();
         if (bgName == 'choose') {
@@ -844,6 +869,7 @@ $(document).ready(function() {
         }
         $projectList.trigger('change');
       });
+
       var $spinnerProject = $('#spinnerProjectChange').addClass('hidden');
       $('#projectListInputExisting').change(function(e) {
         var reqBodyNew = {};
@@ -866,11 +892,13 @@ $(document).ready(function() {
         });
       }); //choose env gets over
       var bgProjects = {};
+      var orgBg ={};
       for (var i = 0; i < data.length; i++) {
         $orgListInput.append($('<option></option>').val(data[i].rowid).html(data[i].name).data('bglist', data[i].businessGroups).data('envList', data[i].environments));
+        orgBg[data[i].rowid] = data[i].businessGroups;
         for (var j = 0; j < data[i].businessGroups.length; j++) {
           var rowid = data[i].businessGroups[j].rowid;
-          $bgList.append($('<option></option').val(rowid).html(data[i].businessGroups[j].name));
+          //$bgList.append($('<option></option').val(rowid).html(data[i].businessGroups[j].name));
           bgProjects[rowid] = data[i].businessGroups[j].projects;
         }
         for (var k = 0; k < data[i].environments.length; k++) {

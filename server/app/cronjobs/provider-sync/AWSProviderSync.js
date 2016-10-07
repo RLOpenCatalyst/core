@@ -62,7 +62,7 @@ function awsProviderSyncForProvider(provider,orgName) {
             resourceService.getEC2InstancesInfo(provider,orgName, next);
         },
         function (instances, next) {
-            saveEC2Data(instances, next);
+            saveEC2Data(instances,provider, next);
         },
         function(instances,next){
             async.parallel({
@@ -105,7 +105,7 @@ function awsProviderSyncForProvider(provider,orgName) {
     });
 };
 
-function saveEC2Data(ec2Info, callback){
+function saveEC2Data(ec2Info,provider, callback){
     var count = 0;
     if(ec2Info.length === 0) {
         return callback(null, ec2Info);
@@ -118,7 +118,7 @@ function saveEC2Data(ec2Info, callback){
                     count++;
                     return;
                 }else if (managedInstances.length > 0) {
-                    instanceService.instanceSyncWithAWS(managedInstances[0]._id,ec2, function(err, updateInstanceData) {
+                    instanceService.instanceSyncWithAWS(managedInstances[0]._id,ec2,provider, function(err, updateInstanceData) {
                         if (err) {
                             logger.error(err);
                             count++;
@@ -285,6 +285,7 @@ function tagMappingForInstances(instances,provider,next){
                                             subnetId: instance.subnetId,
                                             vpcId: instance.vpcId,
                                             privateIpAddress: instance.privateIpAddress,
+                                            hostName:instance.hostName,
                                             tags: instance.tags,
                                         }
                                         assignedInstanceList.push(assignedInstanceObj);

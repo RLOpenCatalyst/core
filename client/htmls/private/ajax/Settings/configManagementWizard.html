@@ -1,0 +1,247 @@
+<div class="wizardFlow"></div>
+<!-- fieldsets -->
+<div class="content">
+   <form action="" id="myForm22">
+      <div class="widget-box">
+         <div class="widget-header">
+            <h4 class="widget-margin" style="color:black;">New Configuration Management</h4>
+         </div>
+         <div class="widget-body">
+            <div class="widget-main" style="height:450px">
+               <div class="jarviswidget" data-widget-editbutton="false" data-widget-custombutton="false">
+                  <div>
+                     <!-- widget content -->
+                     <div class="col-lg-6 col-md-6">
+                        <label for="">Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                        <input name="ctl00$MainContent$orgname" value="" id="configname" class="form-control" type="text"  cdata="catalyst" unique="true"  cat-validation="required,max15" uniqueconditionedby="configname">
+                     </div>
+                     <div class="col-lg-6 col-md-6">
+                        <label for="name">User Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                        <input name="ctl00$MainContent$orgname" value="" id="loginname" class="form-control" type="text"  cdata="catalyst"  cat-validation="required">
+                     </div>
+                     <hr>
+                     <div class="col-lg-6 col-md-6 margintop20">
+                        <label for="link">URL:<span class="control-label redSpan">&nbsp;*</span></label>
+                        <input type="text" unique="true" uniqueconditionedbyUrl="url" name="ctl00$MainContent$orgname" value="" id="url" class="chefUrl form-control" type="url"  name="website"  cdata="catalyst"  cat-validation="required,urlcheck">
+                     </div>
+                     <div class="col-lg-6 col-md-6 margintop20">
+                        <label for="name">Organization:<span class="control-label redSpan">&nbsp;*</span></label>
+                        <select id="orgname" unique="true" uniqueconditionedby="orgname"  class="chooseOrganization width-100 form-control" sourcepath="1" datapath="masterjson.rows.row" valuelinkfield="costcode" style="vertical-align:central"  cdata="catalyst"  cat-validation="required">
+                        </select>
+                     </div>
+                     <hr/>
+                     <input type="hidden" name="ctl00$MainContent$orgname" value="chef" id="configType" class="form-control"  cdata="catalyst"/>
+                     <div class="col-lg-6 col-md-6 margintop20" id="frmconfigmanagement">
+                        <div class="smart-forms">
+                           <label>User Pem File:<span class="control-label redSpan">&nbsp;*</span></label>
+                           <label for="userpemfile" class="field file">
+                              <div class="imgdiv" value="1"></div>
+                              <span class="button btn-primary">Browse</span><input id="userpemfile" keyfield="configname" type="file" onchange="this.nextSibling.value = this.value"  cdata="catalyst" class="gui-file" cat-validation="required"><input type="text" readonly="" class="pemFile gui-input">
+                           </label>
+                        </div>
+                     </div>
+                     <div class="col-lg-6 col-md-6 margintop20">
+                        <div class="smart-forms" id="knifeFile">
+                           <label>Knife.rb File:<span class="control-label redSpan">&nbsp;*</span></label>
+                           <label for="kniferbfile" class="field file">
+                              <div class="imgdiv" value="1"></div>
+                              <span class="button btn-primary">Browse</span><input id="kniferbfile" keyfield="configname" type="file" onchange="this.nextSibling.value = this.value" class="gui-file"  cdata="catalyst" cat-validation="required"><input type="text" readonly="" class="knifeFile gui-input">
+                              <input id="folderpath"  cdata="catalyst" type="text" value="" style="display:none"/>
+                           </label>
+                        </div>
+                     </div>
+                     <div class="col-lg-6 col-md-6 margintop20">
+                        <div class="smart-forms">
+                           <label>Validator Pem File:</label>
+                           <label for="validatorpemfile" class="field file">
+                              <div class="imgdiv" value="1"></div>
+                              <span class="button btn-primary">Browse</span><input id="validatorpemfile" keyfield="configname" type="file" onchange="this.nextSibling.value = this.value"  cdata="catalyst" class="gui-file"><input type="text" readonly="" class="gui-input">
+                           </label>
+                        </div>
+                     </div>
+                     <div class="col-lg-6 col-md-6 margintop20">
+                        <div class="smart-forms">
+                           <label>Key File:</label>
+                           <label for="validatorpemfile" class="field file">
+                              <div class="imgdiv" value="1"></div>
+                              <span class="button btn-primary">Browse</span><input id="encryption" keyfield="configname" type="file" onchange="this.nextSibling.value = this.value"  cdata="catalyst" class="gui-file"><input type="text" readonly="" class="gui-input">
+                           </label>
+                        </div>
+                     </div>
+                     <div class="col-lg-6 col-md-6 margintop20">
+                        <div class="smart-forms">
+                           <label>Template File:</label>
+                           <label for="validatorpemfile" class="field file">
+                              <div class="imgdiv" value="1"></div>
+                              <span class="button btn-primary">Browse</span><input id="template" keyfield="configname" type="file" onchange="this.nextSibling.value = this.value"  cdata="catalyst" class="gui-file"><input type="text" readonly="" class="gui-input">
+                           </label>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div class="widget-toolbox clearfix">
+            <div class="btn-group pull-right">
+               <button name="next1" id="saveConfigWizard" style="margin-right:11px;" class="saveFormWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
+               <input type="button" disabled="disabled" name="next1" id="next1" class="nextFormWizard btn btn-primary" value="Next"/>
+            </div>
+         </div>
+      </div>
+   </form>
+</div>
+<input type="hidden" id="configWizardValueNewEdit"/>
+<script>
+ //jQuery time
+
+ function bindChange_importPemFile() {
+     $('input[type="file"]').off('change').on('change', function() {
+         $(this).next().val(this.files[0].name);
+         $(this).next().next().val($(this).val());
+     });
+ }
+ 
+     
+     $(document).ready(function(e){
+         orgNameForSetup = $('#orgDropdown option:selected').attr('rowid');
+ orgIdForSetup = $('#orgDropdown option:selected').val();
+ var $option = $('<option></option>').val(orgNameForSetup).attr('rowid', orgIdForSetup).html(orgNameForSetup);
+ $('#orgname').append($option);
+        //api call for getting the status of wizard
+     var wizardStepsConfig = $('<ol id="configWizard" class="bwizard-steps bwizard-stepsConfig clearfix clickable"><li aria-selected="true" id="chefCreate" class="active btn-2 chefCreate" style="z-index: 4;"><span class="label badge-inverse">1</span><a href="ajax/Settings/configManagementWizard.html" class="hidden-phone">Chef Server</a></li><li aria-selected="false" style="z-index: 3;" id="envCreate" class="btn-3 envCreate"><span class="label">2</span><a href="ajax/Settings/envWizard.html" class="not-activeAnchor hidden-phone">Environment</a></li></ol>');
+     $('.wizardFlow').append(wizardStepsConfig);
+            function configWizardStatus(orgIdForSetup) {
+            $.get('/setting-wizard/org/' + orgIdForSetup, function(data) {
+             if (data.currentStep.name === 'Config Management') {
+                 if (data.currentStep.nestedSteps) {
+                     var nestedSteps = data.currentStep.nestedSteps;
+                     if (nestedSteps[0].name === 'ChefServer' && nestedSteps[0].isCompleted === true && nestedSteps[1].name === 'Environment' && nestedSteps[1].isCompleted === false) {
+                         $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                         $('.contentSetting').find('ol li#envCreate').addClass('active');
+                         $('.content').load('ajax/Settings/envWizard.html');
+                         toastr.error('Please configure your Environment');
+                     } else {
+                         toastr.error('Please configure your Chef Server & Environments');
+                     }
+                 }
+             } else {
+                 getConfigValues();
+                 $('#saveConfigWizard').addClass('hidden');
+                 $('.nextFormWizard').removeAttr('disabled');
+                 $('.btn-3 a').removeClass('not-activeAnchor');
+                // $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                 $('.btn-3 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+             }
+         });
+        $('#wizardActionListLoader').hide();
+     }
+     
+     var configWizardEditValue;
+     orgIdForSetup = selectedDropdownValue || firstOrgValue;
+     if (clicked) {
+        if(orgIdForSetup){
+            configWizardStatus(orgIdForSetup);
+        }
+     } else {
+        //comes when the chefServer is created and navigates back to it.
+        if(orgIdForSetup){
+            $('#wizardActionListLoader').hide();
+            getConfigValues();
+            $('.btn-3 a').removeClass('not-activeAnchor');
+            $('.nextFormWizard').removeAttr('disabled');
+          } 
+     }
+     getTemplate = function(val, rowid) {
+           return '<label class="toggle font-sm" style="padding-left:4px;"><input onclick="if($(this).is(&quot;:checked&quot;)) {$(this).closest(&quot;label&quot;).' + 'css(&quot;background-color&quot;,&quot;#eeeeee&quot;);$(this).css(&quot;border-color&quot;,&quot;#3b9ff3&quot;);}else{$(this).closest(&quot;label&quot;).css(&quot;background-color&quot;,&quot;#ffffff&quot;);$(this).css(&quot;border-' + 'color&quot;,&quot;red&quot;);}" type="checkbox" id="checkbox-toggle" name="checkbox-toggle"' +'value="'+ val +'"' + 'rowid="' + rowid + '" style="width:100%"><i data-swchoff-text="NO" data-swchon-text="YES"></i>' + val + '</label>';
+       };
+     });
+     
+     function getConfigValues() {
+         $.get('/d4dMasters/readmasterjsonnew/10', function(data) {
+             for (var i = 0; i < data.length; i++) {
+                 if (selectedDropdownValue === data[i].orgname_rowid[0]) {
+                     $('#myForm22').find('input#configname').val(data[i].configname).attr('disabled', 'disabled');
+                     $('#myForm22').find('input#loginname').val(data[i].loginname).attr('disabled', 'disabled');
+                     $('#myForm22').find('input.chefUrl').val(data[i].url).attr('disabled', 'disabled');
+                     var $optionOrgName = $('<option></option>').val(data[i].orgname[0]).attr('rowid', data[i].orgname_rowid[0]).html(data[i].orgname[0]);
+                     $('#myForm22').find('select#orgname').append($optionOrgName).attr('disabled', 'disabled');
+                     bindChange_importPemFile();
+                     var $pemFileLocation = $('#frmconfigmanagement');
+                     $pemFileLocation.find('input.pemFile').val(data[i].userpemfile_filename);
+                     $('input#userpemfile').attr('disabled','disabled');
+                     $('input#kniferbfile').attr('disabled','disabled');
+                     var $knifeFileLocation = $('#knifeFile');
+                     $knifeFileLocation.find('input.knifeFile').attr('disabled','disabled').val(data[i].kniferbfile_filename);
+                    // $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                     $('#saveConfigWizard').addClass('hidden');
+                     $('.nextFormWizard').removeAttr('disabled');
+                 }
+             }
+         });
+     }
+
+     function getEnvValues() {
+         $.get('/d4dMasters/readmasterjsonnew/3', function(data) {
+             for (var i = 0; i < data.length; i++) {
+                 if (selectedDropdownValue === data[i].orgname_rowid[0]) {
+                    var $optionOrgNameEnv = $('<option></option>').val(data[i].orgname[0]).attr('rowid', data[i].orgname_rowid[0]).html(data[i].orgname[0]);
+                    var $optionConfigNameEnv = $('<option></option>').val(data[i].configname).attr('rowid', data[i].configname_rowid).html(data[i].configname);
+                    $('#myForm1').find('select#orgname').append($optionOrgNameEnv).attr('disabled', 'disabled');
+                     $('#myForm1').find('select#configname').append($optionConfigNameEnv).attr('disabled', 'disabled');
+                     $('#myForm1').find('select#environmentname').remove();
+                     $('#myForm1').find('input#environmentName').removeClass('hidden').val(data[i].environmentname).attr('disabled','disabled');
+                     $('#myForm1 #projectname').find('input[type="checkbox"][value="'+data[i].projectname+'"]').prop('checked',true);
+                     $('.btn-3 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+                     $('#myForm1').find('button#saveConfigEnv').addClass('hidden');
+                     $('.nextFormWizard').removeAttr('disabled');
+                 }
+             }
+         });
+     }
+
+
+     $('.btn-2 a').click(function(e) {
+         e.preventDefault();
+         clicked = false;
+         $('.btn-3 a').removeClass('not-activeAnchor');
+         $('.contentSetting').load(this.getAttribute('href'));
+     });
+     $('.envCreate a').click(function(e) {
+         e.preventDefault();
+         $('.content').empty();
+         $('.btn-2 a').removeClass('not-activeAnchor');
+         $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+         $(this).parent('.bwizard-steps li').addClass('active');
+         $('.content').load(this.getAttribute('href'));
+         getEnvValues();
+     });
+
+
+     
+
+
+
+ function setfolderpath() {
+     var folderpath = '/' + $('#loginname').val() + "/.chef/";
+     $('#folderpath').val(folderpath);
+ }
+ $('#myForm22').submit(function() {
+     if (validateForm()) {
+         setfolderpath();
+         saveform('10');
+         $('.btn-3 a').removeClass('not-activeAnchor');
+     };
+     return false;
+ });
+
+ $(".nextFormWizard").click(function() {
+    $('.content').empty();
+     getEnvValues();
+     $('.btn-2 a').removeClass('not-activeAnchor');
+     $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+     $('.contentSetting').find('ol li#envCreate').addClass('active');
+     $('.content').load('ajax/Settings/envWizard.html');
+ });
+ 
+
+</script>

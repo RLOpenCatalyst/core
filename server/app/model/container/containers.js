@@ -141,6 +141,21 @@ containerSchema.statics.getContainerByIdInstanceId = function(containerId,instan
     });
 };
 
+containerSchema.statics.getContainerByInstanceId = function(instanceId, callback) {
+    logger.debug("Enter getContainerByInstanceId");
+    container.find({
+        instanceId:instanceId
+    },function(err, aContainer) {
+        if (err) {
+            logger.error("getContainerByInstanceId Failed", err,instanceId);
+            callback(err, null);
+            return;
+        }
+        logger.debug("Exit getContainerByInstanceId : ");
+        callback(null, aContainer);
+    });
+};
+
 containerSchema.statics.updateContainerStatus = function(containerId,containerStatus,status,callback) {
     logger.debug("Enter updateContainerStatus");
     container.update({

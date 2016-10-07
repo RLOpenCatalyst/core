@@ -54,6 +54,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             if (instance.length) {
                 var anInstance = instance[0];
                 appDeployData['projectId'] = anInstance.projectId;
+                if(typeof appDeployData.hostName ==='undefined' || appDeployData.hostName === '' || appDeployData.hostName === null || appDeployData.hostName ==='null'){
+                    appDeployData.hostName = anInstance.hostName;
+                }
                 AppDeploy.createNew(appDeployData, function(err, appDeploy) {
                     if (err) {
                         res.status(500).send(errorResponses.db.error);
@@ -353,6 +356,19 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.get('/app-deploy/project/:projectId/env/:envId/application/:appName', function(req, res) {
         logger.debug("version= ", req.query.version);
         AppDeploy.getAppDeployByProjectAndEnv(req.params.projectId, req.params.envId, req.params.appName, req.query.version, function(err, appData) {
+            if (err) {
+                res.status(500).send(errorResponses.db.error);
+                return;
+            }
+            res.status(200).send(appData);
+            return;
+        });
+    });
+
+    // Get  appData by Project and repository
+    app.get('/app-deploy/project/:projectId/repository/:appName', function(req, res) {
+       // logger.debug("version= ", req.query.version);
+        AppData.getAppDataByProjectAndRepo(req.params.projectId, req.params.appName,function(err, appData) {
             if (err) {
                 res.status(500).send(errorResponses.db.error);
                 return;

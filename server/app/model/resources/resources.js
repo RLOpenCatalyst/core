@@ -27,6 +27,7 @@ ResourceSchema.statics.getResourcesByProviderResourceType = function(providerId,
     var queryObj={};
     queryObj['providerDetails.id'] =providerId;
     queryObj['resourceType']=resourceType;
+    queryObj['isDeleted']=false;
     Resources.find(queryObj, function(err, data) {
         if (err) {
             logger.error("Failed to getResourcesByProviderResourceType", err);
@@ -84,7 +85,7 @@ ResourceSchema.statics.deleteResourcesById = function(resourceId,callback) {
         _id: new ObjectId(resourceId)
     }, {
         $set: {
-            isDelete: true
+            isDeleted: true
         }
     }, {
         upsert: false

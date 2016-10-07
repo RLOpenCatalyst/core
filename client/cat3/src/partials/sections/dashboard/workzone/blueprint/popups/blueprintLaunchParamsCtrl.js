@@ -11,30 +11,30 @@
 		.controller('blueprintLaunchParamsCtrl', ['$scope', '$modalInstance', 'items', function($scope, $modalInstance, items) {
 			var launchHelper = {
 				launch : function(){
-					$modalInstance.close({bp:items,stackName:$scope.stackName});
+					$modalInstance.close({bp:items,stackName:$scope.stackName,domainName:$scope.domainName});
 				}
 			};
 			$scope.stackName='';
+			$scope.domainName='';
 			$scope.cancel = function() {
 				$modalInstance.dismiss('cancel');
 			};
 			$scope.launchBP = function() {
 				if(items.blueprintType === "aws_cf") {
 					$scope.showCFTInputs = true;
-				} else if(items.blueprintType === "azure_arm") {
+				}else if(items.blueprintType === "azure_arm") {
 					$scope.showARMInputs = true;
-				} 
-				else {
+				}else if(items.domainNameCheck === true || items.domainNameCheck === "true") {
+					$scope.showBlueprintInputs = true;
+				}else {
 					launchHelper.launch();
 				}
 			};
-			$scope.confirmCFTLaunch = function(){
+			$scope.cftSubmitHandler = function(){
 				launchHelper.launch();
 			};
-			$scope.cftSubmitHandler = function(valid){
-				if(valid){
-					$scope.confirmCFTLaunch();
-				}
+			$scope.launchBPWithDomainName = function(){
+				launchHelper.launch();
 			};
 		}
 	]);

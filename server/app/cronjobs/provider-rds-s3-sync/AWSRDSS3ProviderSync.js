@@ -80,10 +80,10 @@ function awsRDSS3ProviderSyncForProvider(provider,orgName) {
                     saveRDSData(resources.rds, callback);
                 },
                 s3Delete: function (callback) {
-                    deleteResourceData(resources.s3, provider._id, 'S3', callback);
+                    deleteS3ResourceData(resources.s3, provider._id, callback);
                 },
                 rdsDelete: function (callback) {
-                    deleteResourceData(resources.rds, provider._id, 'RDS', callback);
+                    deleteRDSResourceData(resources.rds, provider._id, callback);
                 }
             }, function (err, results) {
                 if (err) {
@@ -111,171 +111,214 @@ function awsRDSS3ProviderSyncForProvider(provider,orgName) {
 };
 function saveS3Data(s3Info, callback) {
     var results = [];
-    if(s3Info.length == 0)
+    if(s3Info.length === 0) {
         return callback(null, results);
-    for(var i = 0; i < s3Info.length; i++) {
-        (function(s3) {
-            s3Model.getS3BucketData(s3,function(err,responseBucketData){
-                if(err) {
-                    callback(err,null);
-                }
-                if(responseBucketData.length === 0){
-                    s3Model.createNew(s3,function(err, bucketSavedData) {
-                        if(err) {
-                            callback(err,null);
-                        } else {
-                            results.push(bucketSavedData);
-                        }
-                        if(results.length === s3Info.length) {
-                            callback(null, results);
-                        }
-                    });
-                }else{
-                    s3Model.updateS3BucketData(s3,function(err, bucketUpdatedData) {
-                        if(err) {
-                            callback(err,null);
-                        } else {
-                            results.push(bucketUpdatedData);
-                        }
-                        if(results.length === s3Info.length) {
-                            callback(null, results);
-                        }
-                    });
-                }
-            })
-        })(s3Info[i]);
-    };
-};
+    }else {
+        for (var i = 0; i < s3Info.length; i++) {
+            (function (s3) {
+                s3Model.getS3BucketData(s3, function (err, responseBucketData) {
+                    if (err) {
+                        callback(err, null);
+                    }
+                    if (responseBucketData.length === 0) {
+                        s3Model.createNew(s3, function (err, bucketSavedData) {
+                            if (err) {
+                                callback(err, null);
+                            } else {
+                                results.push(bucketSavedData);
+                            }
+                            if (results.length === s3Info.length) {
+                                callback(null, results);
+                            }
+                        });
+                    } else {
+                        s3Model.updateS3BucketData(s3, function (err, bucketUpdatedData) {
+                            if (err) {
+                                callback(err, null);
+                            } else {
+                                results.push(bucketUpdatedData);
+                            }
+                            if (results.length === s3Info.length) {
+                                callback(null, results);
+                            }
+                        });
+                    }
+                })
+            })(s3Info[i]);
+        }
+    }
+}
 
 function saveRDSData(rdsInfo, callback) {
     var results = [];
-    if(rdsInfo.length == 0)
+    if(rdsInfo.length === 0) {
         return callback(null, results);
-    for(var i = 0; i < rdsInfo.length; i++) {
-        (function(rds) {
-            rdsModel.getRDSData(rds,function(err,responseRDSData){
-                if(err) {
-                    callback(err,null);
-                }
-                if(responseRDSData.length === 0){
-                    rdsModel.createNew(rds,function(err, rdsSavedData) {
-                        if(err) {
-                            callback(err,null);
-                        } else {
-                            results.push(rdsSavedData);
-                        }
-                        if(results.length === rdsInfo.length) {
-                            callback(null, results);
-                        }
-                    });
-                }else{
-                    rdsModel.updateRDSData(rds,function(err, rdsUpdatedData) {
-                        if(err) {
-                            callback(err,null);
-                        } else {
-                            results.push(rdsUpdatedData);
-                        }
-                        if(results.length === rdsInfo.length) {
-                            callback(null, results);
-                        }
-                    });
-                }
-            })
-        })(rdsInfo[i]);
-    };
+    }else {
+        for (var i = 0; i < rdsInfo.length; i++) {
+            (function (rds) {
+                rdsModel.getRDSData(rds, function (err, responseRDSData) {
+                    if (err) {
+                        callback(err, null);
+                    }
+                    if (responseRDSData.length === 0) {
+                        rdsModel.createNew(rds, function (err, rdsSavedData) {
+                            if (err) {
+                                callback(err, null);
+                                return;
+                            } else {
+                                results.push(rdsSavedData);
+                            }
+                            if (results.length === rdsInfo.length) {
+                                callback(null, results);
+                                return;
+                            }
+                        });
+                    } else {
+                        rdsModel.updateRDSData(rds, function (err, rdsUpdatedData) {
+                            if (err) {
+                                callback(err, null);
+                                return;
+                            } else {
+                                results.push(rdsUpdatedData);
+                            }
+                            if (results.length === rdsInfo.length) {
+                                callback(null, results);
+                                return;
+                            }
+                        });
+                    }
+                })
+            })(rdsInfo[i]);
+        }
+    }
 }
 
-function deleteResourceData(resourceInfo,providerId,resourceType, callback) {
-    var results = [];
-    if(resourceInfo.length === 0){
-        resourceModel.deleteResourcesByResourceType(resourceType,function(err,data){
-            if(err){
+function deleteS3ResourceData(s3Info,providerId, callback) {
+    if(s3Info.length === 0){
+        resourceModel.deleteResourcesByResourceType('S3', function (err, data) {
+            if (err) {
                 callback(err,null);
-            }else{
-                callback(null,data);
+                return;
+            } else {
+                callback(null,s3Info);
+                return;
             }
-        })
-    }else if(resourceType === 'S3'){
-        resourceModel.getResourcesByProviderResourceType(providerId,resourceType,function(err,s3data){
-            if(err){
-                callback(err,null);
-            }else {
-                var count = 0;
-                if (s3data.length === 0) {
-                    callback(null,[]);
-                } else {
-                    for (var i = 0; i < s3data.length; i++) {
-                        (function (s3) {
-                            for (var j = 0; j < resourceInfo.length; j++) {
-                                (function (resource) {
-                                    if (s3.resourceDetails.bucketName === resource.resourceDetails.bucketName) {
-                                        count++;
-                                        if (count === resourceInfo.length) {
-                                            callback(null, []);
-                                        }
-                                    } else {
-                                        resourceModel.deleteResourcesById(s3._id, function (err, data) {
-                                            if (err) {
-                                                callback(err, null);
-                                            } else {
-                                                count++;
-                                                if (count === resourceInfo.length) {
-                                                    callback(null, data);
-                                                }
-                                            }
-                                        })
-                                    }
-
-                                })(resourceInfo[j]);
-                            }
-
-                        })(s3data[i]);
+        });
+    }else {
+        async.waterfall([
+            function (next) {
+                bucketNameList(s3Info, next);
+            },
+            function (bucketNames, next) {
+                resourceModel.getResourcesByProviderResourceType(providerId, 'S3', function (err, s3data) {
+                    if (err) {
+                        next(err);
+                    } else {
+                        next(null, s3data, bucketNames);
                     }
+                });
+            },
+            function (s3Data, bucketNames, next) {
+                if (s3Data.length > 0) {
+                    var count = 0;
+                    for (var i = 0; i < s3Data.length; i++) {
+                        (function (s3) {
+                            if (bucketNames.indexOf(s3.resourceDetails.bucketName) === -1) {
+                                resourceModel.deleteResourcesById(s3._id, function (err, data) {
+                                    if (err) {
+                                        next(err);
+                                    } else {
+                                        count++;
+                                        if (count === s3Data.length) {
+                                            next(null, data);
+                                        }
+                                    }
+                                })
+                            } else {
+                                count++;
+                                if (count === s3Data.length) {
+                                    next(null, []);
+                                }
+                            }
+                        })(s3Data[i]);
+                    }
+                } else {
+                    next(null, bucketNames);
                 }
-            }
-        })
-    }else if(resourceType === 'RDS') {
-        resourceModel.getResourcesByProviderResourceType(providerId, resourceType, function (err, rdsdata) {
+            }], function (err, results) {
             if (err) {
                 callback(err, null);
-            } else {
-                var count = 0;
-                if (rdsdata.length === 0) {
-                    callback(null, []);
-                } else {
-                    for (var i = 0; i < rdsdata.length; i++) {
-                        (function (rds) {
-                            for (var j = 0; j < resourceInfo.length; j++) {
-                                (function (resource) {
-                                    if (rds.resourceDetails.dbName === resource.resourceDetails.dbName) {
-                                        count++;
-                                        if (count === resourceInfo.length) {
-                                            callback(null, []);
-                                        }
-                                    } else {
-                                        resourceModel.deleteResourcesById(rds._id, function (err, data) {
-                                            if (err) {
-                                                callback(err, null);
-                                            } else {
-                                                count++;
-                                                if (count === resourceInfo.length) {
-                                                    callback(null, data);
-                                                }
-                                            }
-                                        })
-                                    }
-
-                                })(resourceInfo[j]);
-                            }
-
-                        })(rdsdata[i]);
-                    }
-                }
+                return;
             }
+            callback(null, results);
+            return;
         })
     }
-
 }
+
+function deleteRDSResourceData(rdsInfo,providerId, callback) {
+    if(rdsInfo.length === 0){
+        resourceModel.deleteResourcesByResourceType('RDS', function (err, data) {
+            if (err) {
+                callback(err,null);
+                return;
+            } else {
+                callback(null,rdsInfo);
+                return;
+            }
+        });
+    }else {
+        async.waterfall([
+            function (next) {
+                rdsDBNameList(rdsInfo, next);
+            },
+            function (dbNames, next) {
+                resourceModel.getResourcesByProviderResourceType(providerId, 'RDS', function (err, rdsData) {
+                    if (err) {
+                        next(err);
+                    } else {
+                        next(null, rdsData, dbNames);
+                    }
+                });
+            },
+            function (rdsData, dbNames, next) {
+                if (rdsData.length > 0) {
+                    var count = 0;
+                    for (var i = 0; i < rdsData.length; i++) {
+                        (function (rds) {
+                            if (dbNames.indexOf(rds.resourceDetails.dbName) === -1) {
+                                resourceModel.deleteResourcesById(rds._id, function (err, data) {
+                                    if (err) {
+                                        next(err);
+                                    } else {
+                                        count++;
+                                        if (count === rdsData.length) {
+                                            next(null, data);
+                                        }
+                                    }
+                                })
+                            } else {
+                                count++;
+                                if (count === rdsData.length) {
+                                    next(null, []);
+                                }
+                            }
+                        })(rdsData[i]);
+                    }
+                } else {
+                    next(null, dbNames);
+                }
+            }], function (err, results) {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            callback(null, results);
+            return;
+        })
+    }
+}
+
 
 function tagMappingForResources(resources,provider,next){
     tagsModel.getTagsByProviderId(provider._id, function (err, tagDetails) {
@@ -385,4 +428,24 @@ function tagMappingForResources(resources,provider,next){
             next(null,resources);
         }
     });
+}
+
+function bucketNameList(s3Info,callback){
+    var bucketNames=[];
+    for(var i = 0; i < s3Info.length; i++){
+        bucketNames.push(s3Info[i].resourceDetails.bucketName);
+        if(bucketNames.length === s3Info.length){
+            callback(null,bucketNames);
+        }
+    }
+}
+
+function rdsDBNameList(rdsInfo,callback){
+    var dbNames=[];
+    for(var i = 0; i < rdsInfo.length; i++){
+        dbNames.push(rdsInfo[i].resourceDetails.dbName);
+        if(dbNames.length === rdsInfo.length){
+            callback(null,dbNames);
+        }
+    }
 }

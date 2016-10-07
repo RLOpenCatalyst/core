@@ -66,6 +66,11 @@ var UnmanagedInstanceSchema = new Schema({
 		type: String,
 		required: false,
 		trim: true
+	},
+	hostName: {
+		type: String,
+		required: false,
+		trim: true
 	}
 });
 UnmanagedInstanceSchema.plugin(mongoosePaginate);
@@ -299,6 +304,7 @@ UnmanagedInstanceSchema.statics.updateInstanceStatus = function updateInstanceSt
 		updateObj['subnetId']= instance.subnetId;
 		updateObj['ip'] = instance.ip;
 		updateObj['vpcId'] = instance.vpcId;
+		updateObj['hostName'] = instance.hostName;
 		updateObj['privateIpAddress'] = instance.privateIpAddress;
 		updateObj['tags'] = instance.tags;
 	}

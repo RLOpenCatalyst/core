@@ -15,6 +15,7 @@
 		<link rel="stylesheet" type="text/css" href="catalyst/partials/globals/header/header.css" />
 		<link rel='stylesheet' type='text/css' href='catalyst/partials/sections/login/login.css'>
 		<link rel="stylesheet" href="src/partials/globals/toaster/angular-toastr.css" />
+		<link rel="stylesheet" href="lib/nvd3/nv.d3.css" />
 		<!-- Library scripts -->
 		<script src="lib/jquery/jquery.min.js"></script>
 		<script src="lib/angular/angular.min.js"></script>
@@ -32,12 +33,16 @@
 		<script src="src/partials/globals/toaster/angular-toastr.tpls.js"></script>
 		<!-- Application configuration -->
 		<script src="uiConfig.js"></script>
+		<script src="lib/d3/d3.js"></script>
+		<script src="lib/nvd3/nv.d3.js"></script>
+		<script src="lib/angular-nvd3/angular-nvd3.js"></script>
 	</head>
-	<body>
-		<div class="globalPopup" id="globalSuccessMessage">
-			<span class="close green" ng-click="hideGlobalMessage()">×</span> 
-			<p>{{globalSuccessMessage}}</p>           
-		</div>
+	<body ng-class="{ 'loading-body': onBodyLoading === true }">
+	<loading size="large" name="onBodyLoading"  class="onbody-loading"></loading>
+		<!--<div class="globalPopup" id="globalSuccessMessage">-->
+			<!--<span class="close green" ng-click="hideGlobalMessage()">×</span> -->
+			<!--<p>{{globalSuccessMessage}}</p>           -->
+		<!--</div>-->
 		<div ng-controller="HeadNavigatorCtrl">
 			<div ng-show="app.isDashboard" class="dashboard">
 				<ng-include src="'src/partials/globals/header/headerDashboard.html'"></ng-include>
@@ -48,8 +53,14 @@
 		</div>
 		<div class="breadcrumb-wrapper">
 			<div class="container-fluid" id="breadcrumb-block" ng-controller="breadcrumbCtrl" ng-show="isBreadCrumbAvailable">
-				<div ng-cloak id="section-name" class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
-					{{sectionName}}
+				<div class="col-lg-2 col-md-2 col-sm-2 col-xs-2 no-padding">
+					<div id="section-name">
+						<span ng-mouseover="showTreeOverlay()" ng-mouseleave="hideTreeOverlay()" class="cursor">
+			                <i class="fa fa-bars tree-toggle">
+			                </i>
+			                Menu
+			            </span>
+					</div>
 				</div>
 				<div id="breadcrumb-nav" class="col-lg-10 col-md-10 col-sm-10 col-xs-10">
 					<ul>
@@ -84,6 +95,13 @@
 		<script src="src/partials/globals/messages/messagesDirective.js" ></script>
 		<script src="src/partials/globals/treeComponent/treeDirective.js"></script>
 		<script src="src/partials/globals/ui-gridOptions/uiGridOptionsServices.js"></script>
+		<script src="src/partials/sections/dashboard/dashboardCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/genericServices.js"></script>
+		<script src="src/partials/sections/dashboard/analytics/analytics.js"></script>
+		<script src="src/partials/sections/dashboard/analytics/analyticsServices.js"></script>
+		<script src="src/partials/sections/dashboard/analytics/controller/costCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/analytics/controller/capacityCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/analytics/controller/usageCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/design/designCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/help/helpCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/setting/organization/organizationCtrl.js"></script>
