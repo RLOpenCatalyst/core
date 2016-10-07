@@ -60,22 +60,33 @@ $imagePath : "../../../../../../cat3/images";
 
 /*CSS for header,breadcrumb and tree starts*/
 #breadcrumb-block { 
-    @include theme-bg-color;
-    color: white;
+  @include theme-bg-color;
+  color: white;
 }
 
 .tree-toggle {
-    z-index: 100;
-    color: #fff;
-    font-size: 1.2em;
-    padding-right: 4px;
+  z-index: 100;
+  color: #fff;
+  font-size: 1.2em;
+  padding: 6px 0px 6px 12px;
 }
 
 #section-name {
-    padding: 6px 0px 6px 12px;
     font-size: 14px;
     font-weight: bold;
-    width: 35%;
+
+    .menu-icon {
+      float: left;
+      height: 40px;
+      font-size: 20px;
+    }
+
+    .menu-text {
+      float: left;
+      margin: 11px 0 0 5px;
+      color: #fff;
+      height: 29px;
+    }
 }
 
 #breadcrumb-nav {
