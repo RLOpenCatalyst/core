@@ -83,7 +83,7 @@
                     genSevs.promiseGet(param).then(function (result) {
                        // angular.forEach(result[usage.splitUp], function (valu, keyChild) {
                            var va = [];
-                            //if(usage.splitUp === keyChild) {
+                            if(result && result.length >0) {
                                 angular.forEach(result[usage.splitUp].dataPoints, function (value) {
                                     va.push([Date.parse(value.fromTime), value.average]);
                                 });
@@ -91,9 +91,9 @@
                                     "key":$rootScope.filterNewEnt.platformId[resId],
                                     "values": va
                                 });
-                            //}
+                            }
                         });
-                   // });
+                  // }
                     });
                     }
                 };
