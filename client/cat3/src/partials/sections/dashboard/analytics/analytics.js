@@ -125,6 +125,8 @@
 					$rootScope.providers = result;
 					$scope.filter = [];
 					$scope.filter.providerId = result[0]._id;
+				} else{
+					$rootScope.organNewEnt.provider='';
 				}
             });
         };
@@ -215,7 +217,7 @@
         		$scope.selectedResources.splice(idx, 1);
 				
     		} else {
-    			if($scope.selectedResources.length === 5){
+    			if($scope.selectedResources.length === 10){
     				///toastr.error('Maximum 5 resources allowed.');
     			}else{
 					$rootScope.filterNewEnt.platformId[resourceId]=platformId;
