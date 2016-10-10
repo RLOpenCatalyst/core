@@ -34,6 +34,7 @@ analyticsService.aggregateEntityCosts
 		return appConfig.aws.services[key]
 	})
 
+	var offset = (new Date()).getTimezoneOffset()*60000
 	var startTime
 	var interval
 	switch (period) {
@@ -49,8 +50,8 @@ analyticsService.aggregateEntityCosts
 
 	async.forEach(catalystEntityHierarchy[parentEntity].children, function (childEntity, next0) {
 		var query = parentEntityQuery
-		query.startTime = {$gte: Date.parse(startTime)}
-		query.endTime = {$lte: Date.parse(endTime)}
+		query.startTime = {$gte: Date.parse(startTime) + offset}
+		query.endTime = {$lte: Date.parse(endTime) + offset}
 
 		async.waterfall([
 			function(next1) {
