@@ -53,8 +53,14 @@
 		</div>
 		<div class="breadcrumb-wrapper">
 			<div class="container-fluid" id="breadcrumb-block" ng-controller="breadcrumbCtrl" ng-show="isBreadCrumbAvailable">
-				<div id="section-name" class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
-					Menu
+				<div class="col-lg-2 col-md-2 col-sm-2 col-xs-2 no-padding">
+					<div id="section-name">
+						<span ng-mouseover="showTreeOverlay()" ng-mouseleave="hideTreeOverlay()" class="cursor">
+			                <i class="fa fa-bars tree-toggle">
+			                </i>
+			                Menu
+			            </span>
+					</div>
 				</div>
 				<div id="breadcrumb-nav" class="col-lg-10 col-md-10 col-sm-10 col-xs-10">
 					<ul>
@@ -97,6 +103,8 @@
 		<script src="src/partials/sections/dashboard/analytics/controller/capacityCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/analytics/controller/usageCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/design/designCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/design/controllers/blueprintCreateCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/design/controllers/blueprintListCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/help/helpCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/setting/organization/organizationCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/setting/organization/organizationListCtrl.js"></script>

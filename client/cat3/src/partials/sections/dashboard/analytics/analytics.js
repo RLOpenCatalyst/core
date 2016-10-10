@@ -43,7 +43,7 @@
 				url: "usage/",
 				templateUrl: "src/partials/sections/dashboard/analytics/view/usage.html",
 				controller: "usageCtrl as usage",
-				params:{filterView:{usage:true,org:true,provi:true,instanceType:true,resources:true,report:true}},
+				params:{filterView:{usage:true,org:true,provi:true,instanceType:true,resources:true}},
 				resolve: {
 					auth: ["$q", function ($q) {
 						var deferred = $q.defer();
@@ -64,7 +64,6 @@
 		var splitUp=null;
 		analytic.tabShowChat=true;
 		analytic.tabShowReport=false;
-		$scope.showTreeMenu = false;
 		$rootScope.isOpenSidebar = false;
 		$rootScope.dashboardChild = 'analytics';
 		$rootScope.stateItems = $state.params;
@@ -105,17 +104,10 @@
 		if (!$rootScope.stateParams.view) {
 			$state.go('dashboard.analytics.cost');
 		}
-		$scope.hideTreeOverlay =function (){
-			$scope.showTreeMenu = false;
-		};
-		$scope.showTreeOverlay =function (){
-			$scope.showTreeMenu = true;
-		};
 		analytic.tabShow=function(chat,report){
 			analytic.tabShowChat=chat;
 			analytic.tabShowReport=report;
 		};
-		$scope.hideTreeOverlay();
 		$scope.getAllRegionsList = function() {
             workzoneServices.getAllRegionsList().then(function(response) {
                 $scope.allRegions = response.data;
@@ -133,6 +125,8 @@
 					$rootScope.providers = result;
 					$scope.filter = [];
 					$scope.filter.providerId = result[0]._id;
+				} else{
+					$rootScope.organNewEnt.provider='';
 				}
             });
         };
@@ -223,7 +217,7 @@
         		$scope.selectedResources.splice(idx, 1);
 				
     		} else {
-    			if($scope.selectedResources.length === 5){
+    			if($scope.selectedResources.length === 10){
     				///toastr.error('Maximum 5 resources allowed.');
     			}else{
 					$rootScope.filterNewEnt.platformId[resourceId]=platformId;

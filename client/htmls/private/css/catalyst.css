@@ -1356,13 +1356,10 @@ button {
     }
 }
 @media (min-width: 767px) and (max-width: 979px) {
-    #main {
-        margin-left: 220px;
-    }
     #left-panel {
-        left: 0px;
         position: absolute;
         width: 220px;
+        margin-top: 34px;
     }
     .minified #left-panel {
         left: 0;
@@ -3389,7 +3386,7 @@ nav ul {
         min-height: 6%!important;
     }
     #ribbon {
-        min-height: 4%!important;
+        min-height: 8%!important;
     }
     .jarviswidget>div {
         font-size: 12px;
