@@ -56,7 +56,7 @@ function routeConfig($stateProvider, $urlRouterProvider, $httpProvider, modulePe
 	}).state('dashboard.design', {
 		url: "/design",
 		templateUrl: "src/partials/sections/dashboard/design/design.html",
-		controller: "designCtrl",
+		controller: "designCtrl as desCtrl",
 		resolve: {
 			auth: ["$q", function ($q) {
 				var deferred = $q.defer();
