@@ -831,7 +831,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 res.send(500);
                 return;
             }
-            var actionObj = action.charAt(0).toUpperCase() + action.slice(1)  ;
+            var actionObj = 'Container-'+ containers[0].Names+'-'+action.charAt(0).toUpperCase() + action.slice(1);
             instancesDao.getInstanceById(req.params.instanceid, function (err, instance) {
                 if (err) {
                     logger.error("Instance fetch Failed >> ", err);
@@ -844,7 +844,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 logsDao.insertLog({
                     referenceId: logReferenceIds,
                     err: false,
-                    log: "Docker-Container " + action.charAt(0).toUpperCase() + action.slice(1)  + 'ing',
+                    log: "Docker-Container "+ containers[0].Names + ' ' + action.charAt(0).toUpperCase() + action.slice(1)  + 'ing',
                     timestamp: timestampStarted
                 });
 
@@ -871,7 +871,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     createdOn: new Date().getTime(),
                     startedOn: new Date().getTime(),
                     providerType: instance[0].providerType ? instance[0].providerType:null,
-                    action: actionObj,
+                    action: action.charAt(0).toUpperCase() + action.slice(1),
                     logs: []
                 };
 
@@ -901,14 +901,14 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                         logsDao.insertLog({
                             referenceId: logReferenceIds,
                             err: false,
-                            log: "Docker-Container Successfully " + action.charAt(0).toUpperCase() + action.slice(1)  + 'ped',
+                            log: "Docker-Container Successfully "+ containers[0].Names + ' ' + action.charAt(0).toUpperCase() + action.slice(1)  + 'ped',
                             timestamp: timestampStarted
                         });
                     }else {
                         logsDao.insertLog({
                             referenceId: logReferenceIds,
                             err: false,
-                            log: "Docker-Container Successfully " + action.charAt(0).toUpperCase() + action.slice(1)  + 'ed',
+                            log: "Docker-Container Successfully " + containers[0].Names + ' ' + action.charAt(0).toUpperCase() + action.slice(1)  + 'ed',
                             timestamp: timestampStarted
                         });
                     }

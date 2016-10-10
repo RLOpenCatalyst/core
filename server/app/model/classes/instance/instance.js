@@ -413,7 +413,6 @@ var InstancesDao = function() {
             orgId: orgId
         }
         queryObj['docker.dockerEngineStatus'] = 'success';
-        queryObj['isDeleted'] = false;
         Instances.find(queryObj, function(err, data) {
             if (err) {
                 logger.error("Failed getInstancesWithContainersByOrgId (%s)", orgId, err);

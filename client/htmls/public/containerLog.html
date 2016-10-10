@@ -238,14 +238,14 @@
 		                    $tdStatus = $("<img title='Restart' class ='statusIcon' src = '../private/img/aws_logo_started.png' alt='statusType'/>");
 		                    break;
 		                case "Stop":
-		                    $tdStatus = $("<img title='Stop' class ='statusIcon' src = '../private/img/aws_logo_stopped.png' alt='statusType'/>");
-		                    break;
-		                case "Delete":
-		                	$tdStatus = $("<img title='Delete' class ='statusIcon' src = '../private/img/aws_logo_stopped.png' alt='statusType'/>");
+		                    $tdStatus = $("<img title='Stopped' class ='statusIcon' src = '../private/img/aws_logo_stopped.png' alt='statusType'/>");
 		                    break;
 		                case "Pause":
 		                    $tdStatus = $("<img title='Pause' class ='statusIcon' src = '../private/img/aws_logo_inactive.png' alt='statusType'/>");
 		                    break;
+						case "Terminated":
+							$tdStatus = $("<img title='Terminated' class ='statusIcon' src = '../private/img/aws_logo_stopped.png' alt='statusType'/>");
+							break;
 		                default:
 		                    $tdStatus = $("<img title='Start' class ='statusIcon' src = '../private/img/aws_logo_started.png' alt='statusType'/>");
 		                    break;
