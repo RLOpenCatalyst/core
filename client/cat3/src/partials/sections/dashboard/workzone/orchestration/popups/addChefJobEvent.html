@@ -1,0 +1,106 @@
+<div id='addEventsPage'>
+	<div class="modal-header">
+		<span class="close" ng-click="cancel()">×</span>
+		<h4 class="modal-title"><i class="fa fa-th-list"></i>&nbsp;Schedule your Task</h4>
+	</div>
+
+	<div class="modal-body">
+		<!--dropdown for selecting the repeat type-->
+		<fieldset>
+			<div class="parameter-section">
+				<div class="col-lg-12 col-md-12 col-sm-6 col-xs-6">
+					<label class="col-lg-3 col-md-3 col-sm-3 col-xs-3 text-padding control-label">Repeats:</label>
+					<div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
+						<select id="parametersSelect" class="ng-pristine ng-valid ng-touched" aria-invalid="false" ng-model="repeatsType">
+							 <option selected="selected" value="Daily" title="Repeats Daily">Daily</option>
+							 <option value="Weekly" title="Repeats Weekly">Weekly</option>
+							 <option value="Monthly" title="Repeats Monthly">Monthly</option>
+							 <option value="Yearly" title="Repeats Yearly">Yearly</option>
+						</select>
+					 </div>
+				</div>
+				 
+				<!--repeat on weekly -->
+				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 margintop10" ng-show="repeatsType==='Weekly'">
+				 	<label class="col-lg-3 col-md-3 col-sm-3 col-xs-3 text-padding control-label">Repeat On:</label>
+					 <div class="col-lg-9 col-md-9 col-sm-9 col-xs-9">
+					 	<select id="weekOfTheDay" class="ng-pristine ng-valid ng-touched" aria-invalid="false" ng-model="weekOfTheDay">
+							 <option value="" selected="selected">Choose The Day</option>
+							 <option ng-repeat="day in daysOfWeek" value="{{day}}" title="Repeats every {{day}} {{repeatsType}}">{{day}}</option>
+						</select>
+					 </div>
+				</div>
+				<!--repeat on weekly ends-->
+
+				<!--repeat on yearly for month starts -->
+				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 margintop10" ng-show=" repeatsType==='Yearly'">
+				 	<label class="col-lg-3 col-md-3 col-sm-3 col-xs-3 text-padding control-label">Choose Month:</label>
+					 <div class="col-lg-9 col-md-9 col-sm-9 col-xs-9">
+						<select id="monthOfTheYear" class="ng-pristine ng-valid ng-touched" aria-invalid="false" ng-model="selectedMonth">
+							 <option value="" selected="selected">Choose the Month</option>
+							 <option ng-repeat="selectedMonth in monthOfYear" value="{{selectedMonth}}" title="Repeats every {{day}} {{repeatsType}}">{{selectedMonth}}</option>
+						</select>
+					 </div>
+				</div>
+				<!--repeat on yearly for month ends-->
+
+				<!--repeat on monthly & yearly starts -->
+				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 margintop10" ng-show="repeatsType==='Monthly' || repeatsType==='Yearly'">
+				 	<label class="col-lg-3 col-md-3 col-sm-3 col-xs-3 text-padding control-label">Choose Day:</label>
+					 <div class="col-lg-9 col-md-9 col-sm-9 col-xs-9">
+						<select id="dayOfTheMonth" class="ng-pristine ng-valid ng-touched" aria-invalid="false" ng-model="selectedDayOfTheMonth">
+							 <option value="" selected="selected">Choose the Day</option>
+							 <option ng-repeat="selectedDayOfTheMonth in dayOfTheMonth(31)" value="{{selectedDayOfTheMonth}}" title="Day of the Month selected {{selectedDayOfTheMonth}}">{{selectedDayOfTheMonth}}</option>
+						</select>
+					 </div>
+				</div>
+				<!--repeat on monthly & yearly ends-->
+
+				<!--starts at dropdown-->
+				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 margintop10">
+				 	<label class="col-lg-3 col-md-3 col-sm-3 col-xs-3 text-padding control-label">Start Time:</label>
+					 <div class="col-lg-9 col-md-9 col-sm-9 col-xs-9">
+						<select id="timeSelect" class="ng-pristine ng-valid ng-touched" aria-invalid="false" ng-model="timeEventType">
+							 <option value="" selected="selected">Choose Start Hour</option>
+							 <option ng-repeat="timeNumber in timeCount(23)" value="{{timeNumber}}" title="Time Starts {{timeNumber}} {{repeatsType}}">{{timeNumber}}</option>
+						</select>
+						<span>Hrs</span>
+						<select id="timeSelectMinutes" class="ng-pristine ng-valid ng-touched" aria-invalid="false" ng-model="timeEventMinute">
+							 <option value="" selected="selected">Choose Start Minute</option>
+							 <option ng-repeat="timeNumberMinutes in timeCountMinutes(59)" value="{{timeNumberMinutes}}" title="Time Starts {{timeNumberMinutes}} {{repeatsType}}">{{timeNumberMinutes}}</option>
+						</select>
+						<span>Mins</span>
+					 </div>
+				</div>
+				<!--starts at dropdown ends here-->
+				<!--dropdown ends here-->
+				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 margintop10">
+				 	<label class="col-lg-3 col-md-3 col-sm-3 col-xs-3 text-padding control-label">Starts On:</label>
+					 <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
+						<input class="form-control" type="text" ng-model="currentDate" disabled/>
+					 </div>
+				</div>
+
+				<!-- <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 margintop10">
+				 	<label class="col-lg-3 col-md-3 col-sm-3 col-xs-3 text-padding control-label">Ends On:</label>
+					 <div class="col-lg-9 col-md-9 col-sm-9 col-xs-9">
+						<input type="checkbox" name="neverEndingCheck" ng-model="neverEndingCheck"/>&nbsp;Never
+						<br/>
+						<input type="checkbox" name="eventOccurenceCheck" ng-model="eventOccurenceCheck">&nbsp;After&nbsp;<input type="text" class="form-control" name="eventOccurence" ng-model="eventOccurence" disabled/>&nbsp;Occurences
+						<br/>
+						<input type="checkbox" ng-model="eventEndingCheck"/>&nbsp;On&nbsp;<p class="input-group"><input ng-disabled type="text" class="form-control" datepicker-popup="{{format}}" ng-model="currentEndDate" is-open="opened" min-date="minDate" datepicker-options="dateOptions" date-disabled="disabled(date, mode)" ng-required="true" close-text="Close" /><span class="input-group-btn"><button type="button" class="btn btn-default" ng-click="open($event)"><i class="fa fa-calendar"></i></button></span></p>
+					 </div>
+				</div> -->
+			</div>
+		</fieldset>
+	</div>
+
+	<div class="modal-footer">
+		<button type="button" class="btn cat-btn-close" ng-click="cancel()">
+			<i class="fa fa-times black"></i> Cancel
+		</button>
+		<button type="button" class="btn cat-btn-update" ng-click="ok()">
+			<i class="fa fa-check white"></i> Save
+		</button>		
+	</div>
+</div>

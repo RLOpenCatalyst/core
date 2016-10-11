@@ -20,7 +20,9 @@
 			$scope.cookbookAttributes = [];
 			$scope.scriptParamShow = false;
 			$scope.scriptSelectAll = false;
+			$scope.isEventAvailable = false;
 			$scope.scriptParamsObj = {};
+			$scope.chefTaskObj = {};
 			$scope.toggleAll = function() {
 				var toggleStatus = $scope.isAllSelected;
 				angular.forEach($scope.chefInstanceList, function(itm){ itm._isNodeSelected = toggleStatus;});
@@ -234,6 +236,78 @@
 						$scope.scriptParamsObj[scriptObj._id] = [];
 					}
 				},
+				addTaskEvent : function() {
+					$modal.open({
+						templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/addChefJobEvent.html',
+						controller: 'addChefJobEventCtrl',
+						backdrop: 'static',
+						keyboard: false
+					}).result.then(function (chefEventDetails) {
+						$scope.isEventAvailable = true;
+						$scope.chefTaskObj = chefEventDetails;
+						var startTimeMinute,startTimeHour,dayOfWeek,selectedDayOfTheMonth,selectedMonth;
+						startTimeMinute = $scope.chefTaskObj.startTimeMinute;
+						startTimeHour = $scope.chefTaskObj.startTime;
+						dayOfWeek = $scope.chefTaskObj.dayOfWeek;
+						selectedDayOfTheMonth = $scope.chefTaskObj.selectedDayOfTheMonth;
+						selectedMonth = $scope.chefTaskObj.monthOfYear;
+
+						if($scope.chefTaskObj.repeats ==='Daily'){
+							if(startTimeMinute !=='0' && startTimeHour === undefined){
+								$scope.cronPattern = "*/"+startTimeMinute+" * * * *";
+							} else if(startTimeMinute !=='0' && startTimeHour === '0'){
+								$scope.cronPattern = ""+startTimeMinute+" 0 * * *";
+							} else if(startTimeMinute ==='0' && startTimeHour !== '0'){
+								$scope.cronPattern = "0 "+startTimeHour+" * * *";
+							} else if(startTimeMinute !=='0' && startTimeHour !== '0'){
+								$scope.cronPattern = ""+startTimeMinute+" "+startTimeHour+" * * *";
+							} else {
+								$scope.cronPattern = "* * * * *";
+							}
+						}
+						if($scope.chefTaskObj.repeats ==='Weekly') {
+							if(startTimeMinute !=='0' && startTimeHour === undefined){
+								$scope.cronPattern = "*/"+startTimeMinute+" * * * "+dayOfWeek+"";
+							} else if(startTimeMinute !=='0' && startTimeHour !== '0') {
+								$scope.cronPattern = ""+startTimeMinute+" "+startTimeHour+" * * "+dayOfWeek+"";
+							} else if(startTimeMinute !=='0' && startTimeHour === '0'){
+								$scope.cronPattern = "* 0 * * "+dayOfWeek+"";
+							} else if(startTimeMinute ==='0' && startTimeHour !== '0'){
+								$scope.cronPattern = "0 "+startTimeHour+" * * "+dayOfWeek+"";
+							} else {
+								$scope.cronPattern = "* * * * "+dayOfWeek+"";
+							}
+						}
+						if($scope.chefTaskObj.repeats ==='Monthly') {
+							if(startTimeMinute !=='0' && startTimeHour === undefined){
+								$scope.cronPattern = "*/"+startTimeMinute+" * "+selectedDayOfTheMonth+" * *";
+							} else if(startTimeMinute !=='0' && startTimeHour !== '0') {
+								$scope.cronPattern = ""+startTimeMinute+" "+startTimeHour+" "+selectedDayOfTheMonth+" * *";
+							} else if(startTimeMinute !=='0' && startTimeHour === '0') {
+								$scope.cronPattern = ""+startTimeMinute+" 0 "+selectedDayOfTheMonth+" * *";
+							} else if(startTimeMinute ==='0' && startTimeHour !== '0') {
+								$scope.cronPattern = "0 "+startTimeHour+" "+selectedDayOfTheMonth+" * *";
+							} else {
+								$scope.cronPattern = "* * "+selectedDayOfTheMonth+" * *";
+							}
+						}
+						if($scope.chefTaskObj.repeats ==='Yearly') {
+							if(startTimeMinute !=='0' && startTimeHour === undefined){
+								$scope.cronPattern = "*/"+startTimeMinute+" * "+selectedDayOfTheMonth+" "+selectedMonth+" *";
+							} else if(startTimeMinute !=='0' && startTimeHour !== '0') {
+								$scope.cronPattern = ""+startTimeMinute+" "+startTimeHour+" "+selectedDayOfTheMonth+" "+selectedMonth+" *";
+							} else if(startTimeMinute !=='0' && startTimeHour === '0') {
+								$scope.cronPattern = ""+startTimeMinute+" 0 "+selectedDayOfTheMonth+" "+selectedMonth+" *";
+							} else if(startTimeMinute ==='0' && startTimeHour !== '0') {
+								$scope.cronPattern = "0 "+startTimeHour+" "+selectedDayOfTheMonth+" "+selectedMonth+" *";
+							} else {
+								$scope.cronPattern = "* * "+selectedDayOfTheMonth+" "+selectedMonth+" *";
+							}	
+						}
+					}, function () {
+						console.log('Dismiss time is ' + new Date());
+					});
+				},
 				clearRoleSelection : function(){
 					$scope.role.name = '';
 				},
@@ -310,6 +384,8 @@
 
 						taskJSON.runlist = responseFormatter.formatSelectedChefRunList($scope.chefrunlist);
 						taskJSON.attributes = responseFormatter.formatSelectedCookbookAttributes($scope.cookbookAttributes);
+						taskJSON.isScheduled = true;
+						taskJSON.cron = $scope.cronPattern;
 					}
 					/*This will get the values in order to create puppet type task and check for any puppet node selections*/
 					if ($scope.taskType === "puppet") {
@@ -413,6 +489,9 @@
 			};
 			$scope.isParameterized = {
 				flag: false
+			};
+			$scope.isExecution = {
+				flag: true
 			};
 			/*in backend at the time of edit of task the jobResultUrlPattern
 			 was going as null. So there was in issue with the links disappearing.*/

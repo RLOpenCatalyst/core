@@ -93,6 +93,21 @@
 									</select>
 								</span>
 							</div>
+							<!--chef execution details-->
+							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 margintop15" ng-if="taskType==='chef'">
+								<div class="jenkins-job-parameter-text">
+									<label class="lable-align">Job Execution</label>
+								</div>
+								<div class="jenkins-auto-sync-radio">
+									<input type="radio" name="parallelCheck" ng-value="true" ng-model="isExecution.flag">
+									<label class="lable-align">Parallel</label>
+								</div>
+								<div class="jenkins-auto-sync-radio">
+									<input  class="marginleft15" type="radio" ng-model="isExecution.flag" name="serialCheck" ng-value="false">
+									<label class="lable-align">Serial</label>
+								</div>
+							</div>
+							<!--chef execution details ends here-->
 							<!--scriptType ending here -->
 							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 margintop15">
 								<label class="control-label">Job Description</label>
@@ -110,7 +125,7 @@
 							</header>
 							<div class="jobDetailsContent">
 								<div class="chef-details-top">
-									<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+									<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 										<loading name="isTargetTypesLoading" size="medium" type="block" align="left"></loading>
 										<div ng-show="!isTargetTypesLoading" class="row margin0">
 
@@ -195,6 +210,12 @@
 												</tbody>
 											</table>
 										</div>
+									</div>
+									<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+										<label class="checkbox check-list">
+											<input type="checkbox" ng-checked="_isEventSelected" ng-model="_isEventSelected" ng-click="addTaskEvent();" class="checkbox-list"/>Schedule a Task
+										</label>
+										<input type="text" ng-show="isEventAvailable" class="form-control" disabled ng-model="cronPattern"/>
 									</div>
 								</div>
 							</div>
