@@ -218,21 +218,25 @@ taskService.getTaskActionList = function getTaskActionList(jsonData, callback) {
 
 
 taskService.executeScheduleJob = function executeScheduleJob(task) {
-    logger.debug("Task cton::::: ",task.cron);
-    crontab.cancelJob(task.cronJobId);
-    var jobId = crontab.scheduleJob(task.cron, function() {
-        taskService.executeTask(task._id, task.userName, "", "", "", function(err, historyData) {
-            if (err === 404) {
-                logger.error("Task not found.", err);
-            } else if (err) {
-                logger.error("Failed to execute task.", err);
-            }
-            logger.debug("Task Execution Success: ", task.name);
+    logger.debug("Task cron::::: ", task.cron);
+    if (task.cronEndedOn && task.cronEndedOn === new Date().getTime()) {
+        crontab.cancelJob(task.cronJobId);
+    } else {
+        crontab.cancelJob(task.cronJobId);
+        var jobId = crontab.scheduleJob(task.cron, function() {
+            taskService.executeTask(task._id, task.userName, "", "", "", function(err, historyData) {
+                if (err === 404) {
+                    logger.error("Task not found.", err);
+                } else if (err) {
+                    logger.error("Failed to execute task.", err);
+                }
+                logger.debug("Task Execution Success: ", task.name);
+            });
+            taskDao.updateCronJobId(task._id, jobId, function(err, updatedData) {
+                if (err) {
+                    logger.error("Failed to update task: ", err);
+                }
+            });
         });
-        taskDao.updateCronJobId(task._id, jobId, function(err, updatedData) {
-            if (err) {
-                logger.error("Failed to update task: ", err);
-            }
-        });
-    });
+    }
 }
