@@ -99,11 +99,11 @@
 									<label class="lable-align">Job Execution</label>
 								</div>
 								<div class="jenkins-auto-sync-radio">
-									<input type="radio" name="parallelCheck" ng-value="true" ng-model="isExecution.flag">
+									<input type="radio" name="parallelCheck" value="PARALLEL" ng-model="isExecution.flag">
 									<label class="lable-align">Parallel</label>
 								</div>
 								<div class="jenkins-auto-sync-radio">
-									<input  class="marginleft15" type="radio" ng-model="isExecution.flag" name="serialCheck" ng-value="false">
+									<input  class="marginleft15" type="radio" ng-model="isExecution.flag" name="serialCheck" value="SERIAL">
 									<label class="lable-align">Serial</label>
 								</div>
 							</div>
@@ -143,11 +143,11 @@
 											</div>
 
 										</div>
-										<div ng-show="targetType==='instance'">
+										<!-- <div ng-show="targetType==='instance'">
 											<label class="checkbox check-list">
 												Select All : &nbsp;<input type="checkbox" class="checkbox-list checkboxall-right" ng-click="toggleAll()" ng-model="$parent.isAllSelected" title="Select All">
 											</label>
-										</div>
+										</div> -->
 										<div ng-show="targetType==='blueprint'">
 											<label class="checkbox check-list cursor" ng-click="clearBluePrintSelection()">
 												<span class="clear-selection blue">Clear Selection</span>
@@ -160,13 +160,25 @@
 										</div>
 										<div class="clearfix"></div>
 										<div class="select-nodes">
-											<ul ng-show="targetType==='instance'">
+											<!-- <ul ng-show="targetType==='instance'">
 												<li ng-repeat="instance in chefInstanceList" ng-show="instance.instanceState=='running' || instance.instanceState=='unknown' || instance.instanceState=='pending'">
 													<label class="checkbox check-list">
 														<input type="checkbox" ng-change="optionToggled()" ng-checked="instance._isNodeSelected" ng-model="instance._isNodeSelected" class="checkbox-list">{{instance.name}}
 													</label>
 												</li>
-											</ul>
+											</ul> -->
+											<div class="section-headings" ng-show="targetType==='instance'">
+												<div class="col-lg-5 col-md-5 col-sm-6 col-xs-12 text-center paddingtopbottom10">
+													<span>Instance List</span>
+												</div>
+												<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 text-center paddingtopbottom10 assigned-tasks">
+													<span>Assigned Instances</span>
+												</div>
+											
+												<div id="component_for_instances">
+													<!-- Here HTML snippet will be append through chef component-->
+												</div>
+											</div>
 											<ul ng-show="targetType==='blueprint'">
 												<li ng-repeat="blueprint in chefBluePrintList">
 													<label class="checkbox check-list">
@@ -211,12 +223,16 @@
 											</table>
 										</div>
 									</div>
-									<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-										<label class="checkbox check-list">
-											<input type="checkbox" ng-checked="_isEventSelected" ng-model="_isEventSelected" ng-click="addTaskEvent();" class="checkbox-list"/>Schedule a Task
+									<span class="col-lg-5 col-md-5 col-sm-5 col-xs-10">
+										<label>
+											<input type="checkbox" ng-checked="_isEventSelected" ng-model="_isEventSelected" ng-change="selectTaskCheckbox()" class="checkbox-list"/>&nbsp;Schedule a Task&nbsp;
 										</label>
+										<i class="fa fa-plus-circle cursor" ng-show="showAddTask" title="Add Task" ng-click="addTaskEvent('new')"></i>
 										<input type="text" ng-show="isEventAvailable" class="form-control" disabled ng-model="cronPattern"/>
-									</div>
+									</span>
+									<span class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
+										<i class="fa fa-question-circle" title="This is a cron job interval pattern. Based on the pattern formed the cron job will get executed."></i>
+									</span>
 								</div>
 							</div>
 						</section>

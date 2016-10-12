@@ -8,8 +8,18 @@
 (function(angular){
 	"use strict";
 	angular.module('workzone.orchestration')
-		.controller('addChefJobEventCtrl',['$scope', '$modalInstance','toastr',function($scope, $modalInstance,toastr){
-			$scope.repeatsType = 'Daily';//default selection.
+		.controller('addChefJobEventCtrl',['$scope', '$modalInstance', 'items' ,'toastr',function($scope, $modalInstance , items , toastr){
+			if(items.type !== 'new'){
+				$scope.repeatsType = items.chefTaskObj.repeats;
+				$scope.timeEventMinute = items.chefTaskObj.startTimeMinute;
+				$scope.timeEventType = items.chefTaskObj.startTime;
+				$scope.weekOfTheDay = items.chefTaskObj.dayOfWeek;
+				$scope.currentDate = items.chefTaskObj.startDate;
+				$scope.selectedDayOfTheMonth = items.chefTaskObj.selectedDayOfTheMonth;
+				$scope.selectedMonth = items.chefTaskObj.monthOfYear;
+			} else {
+				$scope.repeatsType = 'Daily';//default selection.
+			}
 			$scope.repeatEveryCount = function(max, step) {
                 step = step || 1;
                 var input = [];
@@ -47,25 +57,7 @@
             $scope.isDaySelected = {
             	flag:true
             }
-			$scope.clear = function () {
-				$scope.dt = null;
-			};
-
-
-			$scope.open = function($event) {
-				$event.preventDefault();
-				$event.stopPropagation();
-
-				$scope.opened = true;
-			};
-
-			$scope.dateOptions = {
-				formatYear: 'yy',
-				startingDay: 1
-			};
-
-			$scope.formats = ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate'];
-			$scope.format = $scope.formats[0];
+			
 			$scope.daysOfWeek = [ 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' ]
 			;
 
