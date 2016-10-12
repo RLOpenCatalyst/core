@@ -91,7 +91,6 @@ angular.module('dashboard.workzone', ['angularTreeview', 'mgcrea.ngStrap', 'work
 		'use strict';
 		//For showing menu icon in menu over breadcrumb without position flickering during load
 		$scope.isLoading = true;
-		$scope.showTree = false;
 		function getParams(str) {
 			var l = str.split('&');
 			var list = [];
@@ -105,12 +104,6 @@ angular.module('dashboard.workzone', ['angularTreeview', 'mgcrea.ngStrap', 'work
 				env: list[3]
 			};
 		}
-		$scope.showTreeOverlay = function () {
- 			$scope.showTree = true;
- 		};
-		$scope.hideTreeOverlay = function () {
-			$scope.showTree = false;
-		};
 		//this function is applicable only if enviornments are only selectable items.
 		function getNames(node) {
 			return {

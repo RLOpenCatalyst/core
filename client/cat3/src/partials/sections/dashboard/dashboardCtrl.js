@@ -31,21 +31,5 @@
             $state.go('dashboard.settings');
         }
     }
-            $rootScope.hideTreeOverlay = function () {
-                $rootScope.showTreeMenu = false;
-                $(".panelRight").css("width", "calc(100% - 39px)");
-                $("#navigPage").addClass("tree-close");
-                $(".minifyme").css("left", "0px");
-                $(".minifyme").css("border-radius", "0px");
-                $(".minifyme").css("width", "35px");
-        };
-            $rootScope.showTreeOverlay = function () {
-                $rootScope.showTreeMenu = true;
-                $(".panelRight").css("width", "calc(100% - 258px)");
-                $("#navigPage").removeClass("tree-close");
-                $(".minifyme").css("left", "216px");
-                $(".minifyme").css("width", "38px");
-                $(".minifyme").css("border-radius", "5px 0 0 5px");
-        };
 }]);
 })(angular);

@@ -8,7 +8,7 @@
 	<div id="sidebar-wrapper" ng-class="{'show-wrapper':isOpenSidebar === true}">
 		<form>
 			<div>
-                <h4 class="repo-job-details-wrapper-inner" style="">Filter:</h4>
+                <div class="repo-job-details-wrapper-inner marginbottom10"  >Filter:</div>
                 <div class="col-lg-12 col-md-12 form-group filter-type" ng-show="stateItems.filterView.viewBy">
 					<label class="radio-inline">
 						<input type="radio" ng-model="analytic.viewByFilter" name="viewBy" value="orgView">Org
@@ -19,7 +19,7 @@
 				</div>
                 <div class="col-lg-12 col-md-12 form-group" ng-show="stateItems.filterView.org">
 					<label for="">Organization</label>
-					<select  ng-model="organNewEnt.org" class="chooseProjectExisting width-100 form-control">
+					<select  ng-model="organNewEnt.org" class="chooseProjectExisting width-100 form-control"  ng-change="getProviders(organObject[organNewEnt.org].rowid)">
 						<option value="">Select</option>
 						<option ng-repeat="org in organObject"  value="{{organObject.indexOf(org)}}" >{{org.name}}</option>
 					</select>
@@ -86,9 +86,12 @@
 							</div>
 							<div class="panel-body bp-panel-body list-resources">
 								<ul class="list-group">
-									<li class="list-group-item cursor" ng-repeat="resource in resourceList | filter:searchText.name | filter:{platformId: filters.platformId}" ng-class="{'selected':selectedResources.indexOf(resource._id)>-1}" ng-click="toggleResourceSelection(resource._id);">{{resource.platformId}}</li>
+									<li class="list-group-item cursor" ng-repeat="resource in resourceList | filter:searchText.name | filter:{platformId: filters.platformId}" ng-class="{'selected':selectedResources.indexOf(resource._id)>-1}" ng-click="toggleResourceSelection(resource._id,resource.platformId);">{{resource.platformId}}</li>
 								</ul>
 							</div>
+							<span class="error red" ng-show="selectedResources.length === 10">
+								Maximum 10 resources allowed.
+							</span>
 						</div>
 					</div>
 				</div>
@@ -105,7 +108,7 @@
 		<div id='rightPanel' class='container-fluid'>
 			<ul class="nav nav-tabs" >
 				<li ng-class="{'active':analytic.tabShowChat === true}"><a ng-click="analytic.tabShow(true,false)"  ><i class="fa fa-area-chart fa-2" aria-hidden="true"></i> Dashboard</a></li>
-				<li ng-show="!stateItems.filterView.report" ng-class="{'active':analytic.tabShowReport === true}"><a ng-click="analytic.tabShow(false,true)" ><i class="fa fa-file-text fa-2" aria-hidden="true"></i> Reports</a></li>
+				<li ng-class="{'active':analytic.tabShowReport === true}"><a ng-click="analytic.tabShow(false,true)" ><i class="fa fa-file-text fa-2" aria-hidden="true"></i> Reports</a></li>
 				<li class="form-group pull-right filter-btn" >
 					<button type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ng-click="isOpenSidebar = !isOpenSidebar">
 						<i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;Filter
@@ -114,10 +117,10 @@
 			</ul>
 			<div class="well" id="well">
 				<div class="col-lg-5 col-md-5 col-sm-12 btn-group" role="group" aria-label="...">
-					<button type="button" class="btn btn-sm btn-primary cat-btn-update" ng-class="{'active':filterNewEnt.period === 'day'}"  ng-click="analytic.applyFilter(true,'day')">DAY</button>
-					<button type="button" class="btn btn-sm btn-primary cat-btn-update" ng-class=" {'active':filterNewEnt.period === 'week'}"  ng-click="analytic.applyFilter(true,'week')">WEEK</button>
+					<button type="button" class="btn btn-sm btn-primary cat-btn-update" disabled="disabled" ng-class="{'active':filterNewEnt.period === 'day'}"  ng-click="analytic.applyFilter(true,'day')">DAY</button>
+					<button type="button" class="btn btn-sm btn-primary cat-btn-update" disabled="disabled" ng-class=" {'active':filterNewEnt.period === 'week'}"  ng-click="analytic.applyFilter(true,'week')">WEEK</button>
 					<button type="button" class="btn btn-sm btn-primary cat-btn-update" ng-class=" {'active':filterNewEnt.period === 'month'}" ng-click="analytic.applyFilter(true,'month')">MONTH</button>
-					<button type="button" class="btn btn-sm btn-primary cat-btn-update" ng-class=" {'active':filterNewEnt.period === 'year'}"  ng-click="analytic.applyFilter(true,'year')">YEAR</button>
+					<button type="button" class="btn btn-sm btn-primary cat-btn-update" disabled="disabled" ng-class=" {'active':filterNewEnt.period === 'year'}"  ng-click="analytic.applyFilter(true,'year')">YEAR</button>
 				</div>
                 <div class="col-lg-7 col-md-7 col-sm-12 filter-wrapper">
                     <span  ng-repeat="filt in filterNewEnt"  ng-if="filt !== '' && filt.title">

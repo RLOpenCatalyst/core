@@ -243,14 +243,31 @@ function saveAndUpdateContainers(containers,containerIds,instanceId,instance,nex
 
                                     }else{
                                         count++;
-                                        var actionObj = 'Start';
+                                        var containerStatus = container.Status;
+                                        var actionObj = '',action ='',logs = '',actionId;
+                                        if(containerStatus.indexOf('Paused') === -1){
+                                            actionObj = 'Container-'+container.Names+'-Pause';
+                                            action = 'Pause';
+                                            actionId = 4;
+                                            logs = "Docker-Container "+container.Names+" Paused";
+                                        }else if(containerStatus.indexOf('Exited') === -1){
+                                            actionObj = 'Container-'+container.Names+'-Stop';
+                                            action = 'Stop';
+                                            actionId = 2;
+                                            logs = "Docker-Container "+container.Names+" Stopped";
+                                        }else if(containerStatus.indexOf('Up') === -1){
+                                            actionObj = 'Container-'+container.Names+'-Start';
+                                            action = 'Start';
+                                            logs = "Docker-Container "+container.Names+" Started";
+                                        }
+                                        var actionObj = 'Container-'+container.Names+'-Start';
                                         var timestampStarted = new Date().getTime();
-                                        var actionLog = instancesDao.insertDockerActionLog(instanceId, instance.catUser, actionObj, 1, timestampStarted);
+                                        var actionLog = instancesDao.insertDockerActionLog(instanceId, instance.catUser, actionObj, actionId, timestampStarted);
                                         var logReferenceIds = [instance._id, actionLog._id];
                                         logsDao.insertLog({
                                             referenceId: logReferenceIds,
                                             err: false,
-                                            log: "Docker-Container Started",
+                                            log: logs,
                                             timestamp: timestampStarted
                                         });
 
@@ -265,7 +282,7 @@ function saveAndUpdateContainers(containers,containerIds,instanceId,instance,nex
                                             projectName: instance.projectName,
                                             envName: instance.environmentName,
                                             envId: instance.envId,
-                                            status: container.Status,
+                                            status: action,
                                             actionStatus: "success",
                                             instanceIP:instance.instanceIP,
                                             platformId: instance.platformId,
@@ -278,7 +295,7 @@ function saveAndUpdateContainers(containers,containerIds,instanceId,instance,nex
                                             createdOn: new Date().getTime(),
                                             startedOn: new Date().getTime(),
                                             providerType: instance.providerType ? instance.providerType:null,
-                                            action: actionObj,
+                                            action: action,
                                             logs: [{
                                                 err: false,
                                                 log: "Started container",
@@ -290,6 +307,7 @@ function saveAndUpdateContainers(containers,containerIds,instanceId,instance,nex
                                             logger.error("Failed to create or update containerLog: ", err);
                                             }
                                         });
+                                        instancesDao.updateActionLog(instance._id, actionLog._id, true, new Date().getTime());
                                         if(count === containers.length){
                                             next(null,containers);
                                         }
@@ -349,13 +367,13 @@ function deleteContainerByInstanceId(instanceDetails,next){
                     for(var i = 0; i < containerList.length;i++){
                         (function(container){
                             var timestampStarted = new Date().getTime();
-                            var actionObj = 'Terminated';
+                            var actionObj = 'Container-'+container.Names+'-Terminated';
                             var actionLog = instancesDao.insertDockerActionLog(instanceDetails._id,instanceDetails.catUser , actionObj, 6, timestampStarted);
                             var logReferenceIds = [instanceDetails._id, actionLog._id];
                             logsDao.insertLog({
                                 referenceId: logReferenceIds,
                                 err: false,
-                                log: "Docker-Container Terminated",
+                                log: "Docker-Container "+container.Names+" Terminated",
                                 timestamp: timestampStarted
                             });
 
@@ -369,8 +387,8 @@ function deleteContainerByInstanceId(instanceDetails,next){
                                 projectName: instanceDetails.projectName,
                                 envName: instanceDetails.environmentName,
                                 envId: instanceDetails.envId,
-                                status: container.Status,
-                                actionStatus: "pending",
+                                status: 'Terminated',
+                                actionStatus: "success",
                                 instanceIP:instanceDetails.instanceIP,
                                 platformId: instanceDetails.platformId,
                                 containerName: container.Names,
@@ -382,7 +400,7 @@ function deleteContainerByInstanceId(instanceDetails,next){
                                 createdOn: new Date().getTime(),
                                 startedOn: new Date().getTime(),
                                 providerType: instanceDetails.providerType ? instanceDetails.providerType:null,
-                                action: actionObj,
+                                action: 'Terminated',
                                 logs: []
                             };
 
@@ -392,6 +410,7 @@ function deleteContainerByInstanceId(instanceDetails,next){
                                 }
                                 count++;
                             });
+                            instancesDao.updateActionLog(instanceDetails._id, actionLog._id, true, new Date().getTime());
                             if(count === containers.length){
                                 next(null,containers);
                             }

@@ -43,7 +43,7 @@
 				url: "usage/",
 				templateUrl: "src/partials/sections/dashboard/analytics/view/usage.html",
 				controller: "usageCtrl as usage",
-				params:{filterView:{usage:true,org:true,provi:true,instanceType:true,resources:true,report:true}},
+				params:{filterView:{usage:true,org:true,provi:true,instanceType:true,resources:true}},
 				resolve: {
 					auth: ["$q", function ($q) {
 						var deferred = $q.defer();
@@ -64,7 +64,6 @@
 		var splitUp=null;
 		analytic.tabShowChat=true;
 		analytic.tabShowReport=false;
-		$scope.showTreeMenu = false;
 		$rootScope.isOpenSidebar = false;
 		$rootScope.dashboardChild = 'analytics';
 		$rootScope.stateItems = $state.params;
@@ -100,21 +99,15 @@
 		//get organisation
 		genericServices.getTreeNew().then(function (orgs) {
 			$rootScope.organObject = orgs;
+			$scope.getProviders(orgs[0].rowid)
 		});
 		if (!$rootScope.stateParams.view) {
 			$state.go('dashboard.analytics.cost');
 		}
-		$scope.hideTreeOverlay =function (){
-			$scope.showTreeMenu = false;
-		};
-		$scope.showTreeOverlay =function (){
-			$scope.showTreeMenu = true;
-		};
 		analytic.tabShow=function(chat,report){
 			analytic.tabShowChat=chat;
 			analytic.tabShowReport=report;
 		};
-		$scope.hideTreeOverlay();
 		$scope.getAllRegionsList = function() {
             workzoneServices.getAllRegionsList().then(function(response) {
                 $scope.allRegions = response.data;
@@ -122,14 +115,19 @@
                 toastr.error(error);
             });
         };
-        $scope.getProviders = function() {
-            workzoneServices.getProviders().then(function(response) {
-				$rootScope.providers=response.data;
-                $scope.providers = response.data;
-                $scope.filter = [];
-                $scope.filter.providerId = response.data[0]._id;
-            }, function(error) {
-                toastr.error(error);
+        $scope.getProviders = function(id) {
+			var param = {
+				 url: '/aws/providers/org/'+id
+			};
+			genericServices.promiseGet(param).then(function (result) {
+				$rootScope.providers=[];
+				if(result && result.length >0) {
+					$rootScope.providers = result;
+					$scope.filter = [];
+					$scope.filter.providerId = result[0]._id;
+				} else{
+					$rootScope.organNewEnt.provider='';
+				}
             });
         };
         $scope.getProviderRegions = function() {
@@ -161,7 +159,6 @@
         };
 
         $scope.getAllRegionsList();
-        $scope.getProviders();
 		$scope.fnProviderChange = function() {
             $scope.filter.regionId = '';
             $scope.filter.vpcId = '';
@@ -202,6 +199,7 @@
 						$scope.resourceList = response.data.data;
 						$scope.selectedResources.push(response.data.data[0]._id);
 						$rootScope.filterNewEnt.resources=$scope.selectedResources;
+						$rootScope.filterNewEnt.platformId[response.data.data[0]._id]=response.data.data[0].platformId;
 					} else {
 						$scope.resourceList = [];
 					}
@@ -210,25 +208,27 @@
 	            });
 	        }
         };
-		$scope.$on('INI_usage', function (event, id) {
+		$rootScope.$on('INI_usage', function (event, id) {
 			$scope.getResourse(id);
 		});
-        $scope.toggleResourceSelection = function(resourceId) {
-            // var idx = $scope.selectedResources.indexOf(resourceId);
-            // if(idx > -1) {
-        		// $scope.selectedResources.splice(idx, 1);
-    		// } else {
-    		// 	if($scope.selectedResources.length === 5){
-    		// 		toastr.error('Maximum 5 resources allowed.');
-    		// 	}else{
-    		// 		$scope.selectedResources.push(resourceId);
-    		// 	}
-    		// }
-			if($scope.selectedResources === resourceId){
-				$scope.selectedResources='';
-			} else{
-				$scope.selectedResources=resourceId;
-			}
+        $scope.toggleResourceSelection = function(resourceId,platformId) {
+            var idx = $scope.selectedResources.indexOf(resourceId);
+            if(idx > -1) {
+        		$scope.selectedResources.splice(idx, 1);
+				
+    		} else {
+    			if($scope.selectedResources.length === 10){
+    				///toastr.error('Maximum 5 resources allowed.');
+    			}else{
+					$rootScope.filterNewEnt.platformId[resourceId]=platformId;
+    				$scope.selectedResources.push(resourceId);
+    			}
+    		}
+            // if($scope.selectedResources === resourceId){
+				// $scope.selectedResources='';
+            // } else{
+				// $scope.selectedResources=resourceId;
+            // }
 
 			$rootScope.filterNewEnt.resources=$scope.selectedResources;
 		};

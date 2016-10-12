@@ -12,11 +12,11 @@
                     chart: {
                         //type: 'stackedAreaChart',
                         type: 'lineChart',
-                        height: 350,
+                        height: 400,
                         margin: {
                             top: 20,
                             right: 20,
-                            bottom: 30,
+                            bottom:70,
                             left: 40
                         },
                         x: function (d) {
@@ -33,7 +33,7 @@
                             axisLabel: 'Date',
                             showMaxMin: false,
                             tickFormat: function (d) {
-                                return d3.time.format('%x')(new Date(d))
+                                return d3.time.format('%d/%m %H:%M')(new Date(d))
                             }
                         },
                         yAxis: {
@@ -72,30 +72,47 @@
                  };
                 usage.getData=function(fltObj){
                     usage.trendLineChart.data = [];
+                    usage.costGridOptions.data=[];
                     var  $today = new Date();
                     var $yesterday = new Date($today);
                     $yesterday.setDate($today.getDate() - 1);
-                    // if(fltObj && fltObj.resources && fltObj.resources.length >0) {
-                    //angular.forEach(fltObj.resources, function (resId) {
+                    if(fltObj && fltObj.resources && fltObj.resources.length >0) {
+                    angular.forEach(fltObj.resources, function (resId) {
                     var param = {
-                        url: '/analytics/trend/usage?resource='+fltObj.resources+'&fromTimeStamp='+$yesterday+'&toTimeStamp='+ $today+'&interval=3600'
+                       url: '/analytics/trend/usage?resource='+resId+'&fromTimeStamp='+$yesterday+'&toTimeStamp='+ $today+'&interval=3600'
                     };
                     genSevs.promiseGet(param).then(function (result) {
-                        angular.forEach(result, function (valu, keyChild) {
-                            var va = [];
-                            if(usage.splitUp === keyChild) {
-                                angular.forEach(valu.dataPoints, function (value) {
+                       // angular.forEach(result[usage.splitUp], function (valu, keyChild) {
+                           var va = [];
+                            if(result && result.length >0) {
+                                usage.costGridOptions.columnDefs=[
+                                    {name: 'name', field: 'name'},
+                                    {name: 'fromTime', field: 'fromTime'},
+                                    {name: 'toTime', field: 'toTime'},
+                                    {name: 'maximum', field: 'maximum'},
+                                    {name: 'minimum', field: 'minimum'},
+                                    {name: 'average', field: 'average'},
+                                ]
+                                angular.forEach(result[usage.splitUp].dataPoints, function (value) {
+                                    usage.costGridOptions.data.push({
+                                        name:$rootScope.filterNewEnt.platformId[resId],
+                                        fromTime:value.fromTime,
+                                        toTime:value.toTime,
+                                        maximum:value.maximum,
+                                        minimum:value.minimum,
+                                        average:value.average
+                                    });
                                     va.push([Date.parse(value.fromTime), value.average]);
                                 });
                                 usage.trendLineChart.data.push({
-                                    "key": keyChild,
+                                    "key":$rootScope.filterNewEnt.platformId[resId],
                                     "values": va
                                 });
                             }
                         });
+                  // }
                     });
-                    ///});
-                    /// }
+                    }
                 };
                 $rootScope.applyFilter =function(filterApp,period){
                     analyticsServices.applyFilter(filterApp,period);
@@ -110,7 +127,7 @@
                 usage.init =function(){
                         $rootScope.organNewEnt.instanceType='Unassigned';
                         $rootScope.organNewEnt.provider='0';
-                        $scope.$emit('INI_usage', 'Unassigned');
+                    $rootScope.$emit('INI_usage', 'Unassigned');
                         $timeout(function(){$rootScope.applyFilter(true,'month')},500);
                         var treeNames = ['Analytics','Usage'];
                         $rootScope.$emit('treeNameUpdate', treeNames);
