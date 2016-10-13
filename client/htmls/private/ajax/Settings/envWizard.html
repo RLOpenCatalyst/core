@@ -3,11 +3,6 @@
         <div class="widget-box">
             <div class="widget-header">
                <h4 class="widget-margin" style="color:black;">Create Environment
-               <span class="widget-toolbar no-border">
-                  <div class="wizardAdd">
-                     <a href="ajax/Settings/envWizard.html" id="createNewEnv" style="margin-right:11px;" class="btn btn-primary"><i class="ace-icon ace-icon fa fa-plus bigger-110"></i>&nbsp;Add New Env</a>             
-                  </div>
-              </span>
               </h4>
             </div>
             <div class="widget-body">
@@ -115,6 +110,7 @@ function preprocess() {
 $(document).ready(function(e){
    var $optionOrg = $('<option></option>').val(orgNameForSetup).attr('rowid', orgIdForSetup).html(orgNameForSetup);
    $('#orgname').append($optionOrg);
+   getEnvValues();
    $('#orgname').change(function() {
        $('#projectname').empty();
        $.get('/d4dMasters/readmasterjsonnew/10', function(data) {
@@ -128,10 +124,7 @@ $(document).ready(function(e){
        $.get('/d4dMasters/readmasterjsonnew/4', function(data) {
            for (var i = 0; i < data.length; i++) {
                if (orgIdForSetup === data[i].orgname_rowid[0]) {
-                   var str = '',
-                       getTemplate = function(val, rowid) {
-                           return '<label class="toggle font-sm" style="padding-left:4px;"><input onclick="if($(this).is(&quot;:checked&quot;)) {$(this).closest(&quot;label&quot;).' + 'css(&quot;background-color&quot;,&quot;#eeeeee&quot;);$(this).css(&quot;border-color&quot;,&quot;#3b9ff3&quot;);}else{$(this).closest(&quot;label&quot;).css(&quot;background-color&quot;,&quot;#ffffff&quot;);$(this).css(&quot;border-' + 'color&quot;,&quot;red&quot;);}" type="checkbox" id="checkbox-toggle" name="checkbox-toggle"' +'value="'+ val +'"' + 'rowid="' + rowid + '" style="width:100%"><i data-swchoff-text="NO" data-swchon-text="YES"></i>' + val + '</label>';
-                       };
+                   var str = '';
                    str = str + getTemplate(data[i].projectname, data[i].rowid);
                    $('#projectname').append(str);
                }
@@ -249,15 +242,11 @@ $(document).ready(function(e){
       $('.content').load(this.getAttribute('href'));
     });
    $(".nextFormWizard").click(function() {
-       $('.content').empty();
-       if(configWizardEditValue){
-          getTeamValues();
-       }
-       $('.btn-2 a').removeClass('not-activeAnchor');
-       $('.btn-3 a').removeClass('not-activeAnchor');
-       $('.btn-3 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
-       $('.contentSetting').find('ol li#teamCreate').addClass('active');
-       $('.content').load('ajax/Settings/teamWizard.html');
+       toastr.success('Step 2 - Config Management Setup Completed');
+       $('#userConfiguration a').attr('href','ajax/Settings/userManagementWizard.html');
+       $('#startConfig a, #orgConfiguration a,#configManagement a').addClass('green-btn').removeClass('process-btn');
+       $('.wizardFlow').empty();
+       $('#userConfiguration a').trigger('click');
    });
 });
 </script>

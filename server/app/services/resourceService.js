@@ -89,6 +89,7 @@ function updateAWSResourceCostsFromCSV(provider, resources, downlaodedCSVPath, u
     var awsBillIndexes = appConfig.aws.billIndexes
     var awsServices = appConfig.aws.services
     var awsZones = appConfig.aws.zones
+    var lineNumber = 0
 
     var stream = fs.createReadStream(downlaodedCSVPath)
     csv.fromStream(stream, {headers: false}).on('data', function(data) {
@@ -104,7 +105,8 @@ function updateAWSResourceCostsFromCSV(provider, resources, downlaodedCSVPath, u
             resourceCostEntry.lastUpdateTime = Date.parse(updateTime)
             resourceCostEntry.interval = 3600
             resourceCostEntry.platformDetails.serviceName = data[awsBillIndexes.prod]
-            resourceCostEntry.billLineRecordId = data[awsBillIndexes.recordId]
+            resourceCostEntry.billLineItemId = ++lineNumber
+            resourceCostEntry.platformDetails.billRecordId = data[awsBillIndexes.recordId]
 
             if (data[awsBillIndexes.prod] in awsServices) {
                 resourceCostEntry.platformDetails.serviceId = awsServices[data[awsBillIndexes.prod]]
@@ -715,6 +717,7 @@ function getEC2InstancesInfo(provider,orgName,callback) {
                                         providerData: region,
                                         platformId: instance.InstanceId,
                                         ip: instance.PublicIpAddress || null,
+                                        hostName:instance.PrivateDnsName,
                                         os: (instance.Platform && instance.Platform === 'windows') ? 'windows' : 'linux',
                                         state: instance.State.Name,
                                         subnetId: instance.SubnetId,
@@ -1132,4 +1135,3 @@ function updateDomainNameForInstance(domainName,publicIP,instanceId,awsSettings,
         return;
     })
 }
-

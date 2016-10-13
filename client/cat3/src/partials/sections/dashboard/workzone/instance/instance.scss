@@ -607,6 +607,14 @@ $imagePath: "../../../../../../images";
     }
 }
 @media (min-width: 768px) and (max-width: 991px) {
+    .box.box-default.instance-filter.active {
+        height: 250px;
+    }
+
+    .box.box-default.instance-filter .box-body .cat-btn-update {
+        float: right;
+    }
+
     #assignJobPage {
         #container {
             .left-right-selection {

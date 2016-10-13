@@ -22,8 +22,8 @@ var appConfig = require('_pr/config');
 var chefSettings = appConfig.chef;
 var puppetSettings = appConfig.puppet;
 var logger = require('_pr/logger')(module);
-var blueprintdao = require('../dao/blueprints.js');
-var instancedao = require('../classes/instance/instance.js');
+var instanceModel = require('../classes/instance/instance.js');
+var async = require('async');
 
 function Configmgmt() {
     this.getDBModelFromID = function(id, callback) {
@@ -1131,104 +1131,76 @@ function Configmgmt() {
         });
     };
 
-    this.deleteCheck = function(rowid, formids, fieldname, callback) {
-        logger.debug("Delete Check request rcvd." + rowid + ' : ' + formids.toString() + ' : ' + fieldname);
-        var count = 0;
-        var exitloop = false;
-        //Building dynamic schema
-        var checkmasters = function(rowid, formids, fieldname) {
-            var delcheckquery = {};
-            delcheckquery.id = {
-                $in: formids
-            };
-            if (fieldname.indexOf(',') > 0) {
-                var fldn = fieldname.split(',');
-                for (flds in fldn) {
-                    delcheckquery[flds] = {
-                        $regex: ".*" + rowid + "*"
-                    };
-                }
-            } else
-                delcheckquery[fieldname] = {
-                    $regex: ".*" + rowid + "*"
-                };
-            d4dModelNew.d4dModelMastersGeneric.find(delcheckquery, function(err, d4dMasterJson) {
-                if (!err) {
-                    logger.debug(JSON.stringify(d4dMasterJson));
-                    if (d4dMasterJson.length > 0) {
-                        logger.debug('Found in ' + d4dMasterJson[0]['id'] + ' returning : ');
-                        callback(null, 'found');
-                        return;
-                    } else {
-                        callback(null, 'none');
-                        return;
-                    }
-
-                } else {
-                    logger.debug("Hit an error in deleteCheck:" + err);
-                    callback(err, null);
-                    return;
-                }
-
-            });
-        };
-        var checkBPInstances = function(rowid, tempplatescheck) {
-            blueprintdao.getBlueprintsByProjectId(rowid, function(err, data) {
-                if (!err) {
-                    logger.debug(JSON.stringify(data));
-                    if (data.length > 0) {
-                        logger.debug('Found in ' + data['name'] + ' returning : ');
-                        callback(null, 'found blueprints');
-                        return;
-                    } else {
-                        if (formids.indexOf('instances') < 0 && formids.indexOf('all') < 0) {
-                            callback(null, 'none');
-                            return;
-                        } else {
-                            instancedao.getInstanceByProjectId(rowid, function(err, data) {
-                                if (!err) {
-                                    if (data.length > 0) {
-                                        logger.debug('Found in ' + data['chefNodeName'] + ' returning : ');
-                                        callback(null, 'found instances');
-                                        return;
-                                    } else {
-                                        if (tempplatescheck != null) {
-                                            var ids = [];
-                                            ids.push('17');
-                                            ids.push('19');
-                                            checkmasters(rowid, ids, 'configname_rowid');
-                                        } else {
-                                            callback(null, 'none');
-                                            return;
-                                        }
+    this.deleteCheck = function(rowId,checkDependency, callback) {
+        if(checkDependency.length > 0) {
+            var results = [];
+            async.waterfall([
+                function(next){
+                    for (var i = 0; i < checkDependency.length; i++) {
+                        if (checkDependency[i].id === 'instances') {
+                            checkInstancesDependency(rowId, checkDependency[i], function (err, data) {
+                                if (err) {
+                                    logger.error(err);
+                                    next({errCode:500,
+                                        errMsg:"Error in Instance Dependency Check"}, null);
+                                }
+                                if (data !== 'none') {
+                                    next({errCode:412,
+                                        errMsg:data}, null);
+                                }else{
+                                    results.push(data);
+                                    if(results.length === checkDependency.length){
+                                        next(null, 'none');
                                     }
-                                } else {
-                                    logger.debug("Hit an error in deleteCheck getInstanceByProjectId:" + err);
-                                    callback(err, null);
+                                }
+                            });
+                        } else if (checkDependency[i].id === 'blueprints') {
+                            checkBPDependency(rowId, checkDependency[i], function (err, data) {
+                                if (err) {
+                                    logger.error(err);
+                                    next({errCode:500,
+                                        errMsg:"Error in Blueprint Dependency Check"}, null);
+                                }
+                                if (data !== 'none') {
+                                    next({errCode:412,
+                                        errMsg:data}, null);
+                                }else{
+                                    results.push(data);
+                                    if(results.length === checkDependency.length){
+                                        next(null, data);
+                                    }
+                                }
+                            });
+                        } else {
+                            checkMastersDependency(rowId, checkDependency[i], function (err, data) {
+                                if (err) {
+                                    logger.error(err);
+                                    next({errCode:500,
+                                        errMsg:"Error in Master Dependency Check"}, null);
                                     return;
+                                }
+                                if (data !== 'none') {
+                                    next({errCode:412,
+                                        errMsg:data}, null);
+                                }else{
+                                    results.push(data);
+                                    if(results.length === checkDependency.length){
+                                        next(null, data);
+                                    }
                                 }
                             });
                         }
                     }
-                } else {
-                    logger.debug("Hit an error in deleteCheck getBlueprintsByProjectId:" + err);
-                    callback(err, null);
+                }
+            ],function(err,results){
+                if(err){
+                    callback(err,null);
                     return;
                 }
-            });
-        };
-
-        if (formids.indexOf('blueprints') < 0 && formids.indexOf('instances') < 0 && formids.indexOf('all') < 0) {
-
-            checkmasters(rowid, formids, fieldname);
-        } else {
-            if (formids.indexOf('blueprints') >= 0) {
-
-                checkBPInstances(rowid, null);
-            } else if (formids.indexOf('all') >= 0) {
-                logger.debug('Entering all');
-                checkBPInstances(rowid, "checktemplates");
-            }
+                callback(null,results);
+            })
+        }else{
+            callback(null,'none');
         }
     };
 
@@ -1432,6 +1404,72 @@ function Configmgmt() {
         }); //d4dModelMastersUsers
     };
 
+}
+
+function checkBPDependency(rowid, bpCheckDetails,callback) {
+    var blueprintModel = require('../blueprint/blueprint.js');
+    blueprintModel.checkBPDependencyByFieldName(bpCheckDetails.fieldName,rowid, function(err, data) {
+        if (err) {
+            logger.error(err);
+            callback(err, null);
+            return;
+        } else if (data.length > 0) {
+            logger.debug('Blueprint Found in ' + data['name'] + ' returning : ');
+            callback(null, bpCheckDetails.errMsg);
+            return;
+        } else {
+            callback(null, 'none');
+            return;
+        }
+    });
+}
+
+function checkInstancesDependency(rowid, instanceCheckDetails,callback) {
+    instanceModel.checkInstancesDependencyByFieldName(instanceCheckDetails.fieldName,rowid, function(err, data) {
+        if (err) {
+            logger.error(err);
+            callback(err, null);
+            return;
+        } else if (data.length > 0) {
+            logger.debug('Instance Found in ' + data['name'] + ' returning : ');
+            callback(null, instanceCheckDetails.errMsg);
+            return;
+        } else {
+            callback(null, 'none');
+            return;
+        }
+    });
+}
+
+function checkMastersDependency(rowid, masterCheckDetails,callback) {
+    var checkDependentQuery = {};
+    checkDependentQuery.id = masterCheckDetails.id;
+    if (masterCheckDetails.fieldName.indexOf(',') > 0) {
+        var fieldNames = masterCheckDetails.fieldName.split(',');
+        for (i in fieldNames) {
+            checkDependentQuery[i] = {
+                $regex: rowid
+            };
+        }
+    }else{
+        checkDependentQuery[masterCheckDetails.fieldName] = {
+            $regex: rowid
+        };
+    }
+    d4dModelNew.d4dModelMastersGeneric.find(checkDependentQuery, function(err, d4dMasterJson) {
+        if (err) {
+            logger.error(err);
+            callback(err, null);
+            return;
+        } else if (d4dMasterJson.length > 0) {
+            logger.debug('Master data Found in returning : ');
+            callback(null, masterCheckDetails.errMsg);
+            return;
+        } else {
+            callback(null,'none');
+            return;
+        }
+    });
 }
 
 module.exports = new Configmgmt();

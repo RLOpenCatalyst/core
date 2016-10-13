@@ -91,7 +91,6 @@ angular.module('dashboard.workzone', ['angularTreeview', 'mgcrea.ngStrap', 'work
 		'use strict';
 		//For showing menu icon in menu over breadcrumb without position flickering during load
 		$scope.isLoading = true;
-		$scope.showTree = true;
 		function getParams(str) {
 			var l = str.split('&');
 			var list = [];
@@ -105,22 +104,6 @@ angular.module('dashboard.workzone', ['angularTreeview', 'mgcrea.ngStrap', 'work
 				env: list[3]
 			};
 		}
-		$scope.hideTreeOverlay = function () {
-			$scope.showTree = false;
-			$(".panelRight").css("width", "calc(100% - 39px)");
-			$("#navigPage").addClass("tree-close");
-			$(".minifyme").css("left", "0px");
-			$(".minifyme").css("border-radius", "0px");
-			$(".minifyme").css("width", "35px");
-		};
-		$scope.showTreeOverlay = function () {
-			$scope.showTree = true;
-			$(".panelRight").css("width", "calc(100% - 258px)");
-			$("#navigPage").removeClass("tree-close");
-			$(".minifyme").css("left", "216px");
-			$(".minifyme").css("width", "38px");
-			$(".minifyme").css("border-radius", "5px 0 0 5px");
-		};
 		//this function is applicable only if enviornments are only selectable items.
 		function getNames(node) {
 			return {
@@ -163,7 +146,6 @@ angular.module('dashboard.workzone', ['angularTreeview', 'mgcrea.ngStrap', 'work
 				$rootScope.$emit('WZ_ENV_CHANGE_START', requestParams, requestParamNames);
 				var treeNames = ['Workzone', requestParamNames.org, requestParamNames.bg, requestParamNames.proj, requestParamNames.env];
 				$rootScope.$emit('treeNameUpdate', treeNames);
-				$scope.showTreeOverlay();
 			}
 		};
 		$scope.relevancelab.selectNodeHeadCallback = function (node) {

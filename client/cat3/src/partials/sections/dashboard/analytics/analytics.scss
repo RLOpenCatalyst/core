@@ -80,6 +80,35 @@
     width: 11.2%;
   }
 }
+#analyticsPage .nvd3 .nv-groups path.nv-line {
+  stroke-width: 3px !important;
+}
+.usage{
+    .top-stats{
+        text-align: right;
+    }
+}
+
+.top-stats{
+    margin: 0px 0px 15px;
+    .box-title{
+        font-size: 16px;
+        .red{
+            font-size: 22px;
+        }
+    }
+    .badge{
+        margin-right: 2px; 
+        background: #40baf1; 
+        padding: 3px 10px;
+        margin-top: -5px;
+    }
+    .select2{
+        width: auto;
+        height: 31px;
+        display: table-cell;
+    }
+}
 
 #analyticsPage {
   background: #fff;
@@ -89,10 +118,9 @@
   }
 
   .panelRight {
-    width: calc(100% - 258px);
+    width: 100%;
     background: linear-gradient(to right, #ffffff 99%, #ffffff 100%) repeat scroll 0 0 rgba(0, 0, 0, 0);
     padding-right: 10px;
-    float: right;
     height: 571px;
     overflow-y: auto;
   }
@@ -188,7 +216,7 @@
   #sidebar-wrapper {
     padding: 10px 7px 0 7px;
     min-height: 80%;
-    top: 116px;
+    top: 121px;
 
     .repo-job-details-wrapper {
       padding: 0.05em 0.625em 0.25em;
@@ -268,4 +296,16 @@
   .selected {
     background: #E49C25;
   }
+}
+.nv-axislabel{
+  font-size: 14px !important;
+}
+.nvd3 text {
+  font: normal 10px Arial;
+}
+.font-size-15{
+  font-size: 15px !important;
+}
+.marginbottom10{
+  margin-bottom: 10px !important;
 }

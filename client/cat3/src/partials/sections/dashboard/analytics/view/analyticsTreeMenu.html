@@ -2,12 +2,8 @@
 <link rel="stylesheet" type="text/css" href="catalyst/partials/globals/treeComponent/treeDirective.css"/>
 
 <div id='analyticsTreeMenuPage' ng-controller="analyticsCtrl">
-	<span ng-show="!isLoading" class="tree-wrapper">
-		<span ng-click="analytic.showTreeOverlay()" class="minifyme cursor"> <i class="fa fa-arrow-circle-right black hit"></i> </span>
-		<span ng-click="analytic.hideTreeOverlay()" class="minifyme cursor" title="Hide Tree" ng-show="showTreeMenu"> <i class="fa fa-arrow-circle-left black hit"></i> </span>
-	</span>
-	<div id='navigPage'>
-		<div id='navigPage-inner' ng-show="showTreeMenu">
+	<div id='navigPage' ng-mouseover="showTreeOverlay()" ng-mouseleave="hideTreeOverlay()" ng-class="{'show-left-tree':showTree}">
+		<div id='navigPage-inner'>
 			<div id="treeParent">
 				<ul class="tree-ul">
 				    <li>
@@ -18,20 +14,29 @@
 				                <ul class="tree-ul">
 				                    <li ui-sref="dashboard.analytics.cost" class="pointer-cursor" ui-sref-active='activeSection'>
 				                        <div class="liContents">
-				                        	<i class="icon fa fa-money label-spacing"></i>
-					                        <span>Cost</span>
+				                        	<div class="liContents-wrapper">
+					                        	<i class="icon fa fa-money label-spacing"></i>
+						                        <span>Cost</span>
+						                        <i class="caret-spacing fa fa-caret-left pull-right" ng-show="stateItems.filterView.cost"></i>
+						                    </div>
 				                        </div>
 				                    </li>
 				                    <li ui-sref="dashboard.analytics.capacity" class="pointer-cursor" ui-sref-active='activeSection'>
 				                        <div class="liContents">
-				                        	<i class="icon fa fa-pie-chart label-spacing"></i>
-					                        <span>Capacity</span>
+				                        	<div class="liContents-wrapper">
+					                        	<i class="icon fa fa-pie-chart label-spacing"></i>
+						                        <span>Capacity</span>
+						                        <i class="caret-spacing fa fa-caret-left pull-right" ng-show="stateItems.filterView.capacity"></i>
+						                    </div>
 				                        </div>
 				                    </li >
 				                    <li ui-sref="dashboard.analytics.usage" class="pointer-cursor" ui-sref-active='activeSection'>
 				                        <div class="liContents">
-				                        	<i class="icon fa fa-line-chart label-spacing"></i>
-					                        <span>Usage</span>
+				                        	<div class="liContents-wrapper">
+					                        	<i class="icon fa fa-line-chart label-spacing"></i>
+						                        <span>Usage</span>
+						                        <i class="caret-spacing fa fa-caret-left pull-right" ng-show="stateItems.filterView.usage"></i>
+						                    </div>
 				                        </div>
 				                    </li>
 				                </ul>

@@ -14,14 +14,17 @@
  limitations under the License.
  */
 
-var mongoose = require('mongoose');
-var logger = require('_pr/logger')(module);
-var Schema = mongoose.Schema;
+var mongoose = require('mongoose')
+require('mongoose-double')(mongoose)
+var logger = require('_pr/logger')(module)
+
+var SchemaTypes = mongoose.Schema.Types
+var Schema = mongoose.Schema
 
 // @TODO Date field types to be revised
 var ResourceCostsSchema = new Schema({
     cost: {
-        type: Number,
+        type: SchemaTypes.Double,
         required: true
     },
     currency: {
@@ -67,7 +70,7 @@ var ResourceCostsSchema = new Schema({
         required: false,
         trim: true
     },
-    billLineRecordId: {
+    billLineItemId: {
         type: String,
         required: true,
         trim: true
@@ -82,6 +85,11 @@ var ResourceCostsSchema = new Schema({
             type: String,
             required: true,
             default: 'Other',
+            trim: true
+        },
+        billRecordId: {
+            type: String,
+            required: false,
             trim: true
         },
         serviceName: {
@@ -123,7 +131,7 @@ var ResourceCostsSchema = new Schema({
     }
 })
 
-ResourceCostsSchema.index({'organizationId': 1, 'resourceId': 1, 'billLineRecordId': 1,
+ResourceCostsSchema.index({'organizationId': 1, 'billLineItemId': 1,
     'startTime': 1, 'interval': 1}, {'unique': true})
 
 ResourceCostsSchema.statics.saveResourceCost = function saveResourceCost(resourceCostData, callback) {

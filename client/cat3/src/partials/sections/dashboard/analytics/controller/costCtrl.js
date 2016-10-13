@@ -4,8 +4,6 @@
         .controller('costCtrl', ['$scope', '$rootScope', '$state','analyticsServices', 'genericServices','$timeout', function ($scope,$rootScope,$state,analyticsServices,genSevs,$timeout){
         $rootScope.stateItems = $state.params;
             //analyticsServices.initFilter();
-        // var treeNames = ['Analytics','Cost'];
-        // $rootScope.$emit('treeNameUpdate', treeNames);
             var costObj =this;
             costObj.chartData=[];
             costObj.splitUp=null;
@@ -40,7 +38,7 @@
                             y: function (d) {
                                 return d.value;
                             },
-                            showLabels: true,
+                            showLabels: false,
                             labelType: "value",
                             labelThreshold: 0.01,
                             labelSunbeamLayout: true,
@@ -60,9 +58,9 @@
                                 top: 20,
                                 right: 20,
                                 bottom: 60,
-                                left: 40
+                                left: 60
                             },
-                            duration: 50,
+                            duration:1000,
                             stacked: true,
                             x: function (d) {
                                 return d.label;
@@ -73,11 +71,12 @@
                             showControls: true,
                             showValues: true,
                             xAxis: {
-                                axisLabel: '',
+                                axisLabel: 'Aggregate',
                                 showMaxMin: false,
                                 staggerLabels:false
                             },
                             yAxis: {
+                                axisLabel: 'Cost in $',
                                 tickFormat: function (d) {
                                     return d3.format(',.2f')(d);
                                 }
@@ -112,6 +111,7 @@
                     } else {
                         entityId=fltObj.org.id;
                     }
+                  //param.url='http://d4d.rlcatalyst.com/analytics/cost/aggregate?parentEntityId=46d1da9a-d927-41dc-8e9e-7e926d927537&entityId=57f49acdbc45e71f11491f8c&toTimeStamp=Wed%20Oct%2005%202016%2016:03:08%20GMT+0530%20(IST)&period=month';
                     param.url='/analytics/cost/aggregate?parentEntityId='+fltObj.org.id+'&entityId='+entityId+'&toTimeStamp='+new Date()+'&period='+fltObj.period;
                 }
 
@@ -125,15 +125,18 @@
                             });
                             $rootScope.splitUpCosts.push({id:key,val:a});
                         });
-                        $scope.$emit('CHANGE_splitUp', $rootScope.splitUpCosts[0].id);
-                        costObj.splitUp= $rootScope.splitUpCosts[0].val;
-                        costObj.createLable(result, $rootScope.splitUpCosts[0].id);
+                        if( $rootScope.splitUpCosts && $rootScope.splitUpCosts.length >0) {
+                            $scope.$emit('CHANGE_splitUp', $rootScope.splitUpCosts[0].id);
+                            costObj.splitUp = $rootScope.splitUpCosts[0].val;
+                            costObj.createLable(result, $rootScope.splitUpCosts[0].id);
+                        }
                     } else {
                         costObj.createLable(result,'provider');
                     }
                 });
             };
             costObj.createLable= function(result,viewType){
+                costObj.createChart();
                 if(result && result.cost) {
                     costObj.costGridOptions.data = [];
                     costObj.costGridOptions.columnDefs = [
@@ -188,12 +191,12 @@
                     chart: {
                         //type: 'stackedAreaChart',
                         type: 'lineChart',
-                        height: 250,
+                        height: 350,
                         margin: {
                             top: 20,
                             right: 20,
-                            bottom: 30,
-                            left: 40
+                            bottom: 40,
+                            left: 60
                         },
                         x: function (d) {
                             return d[0];
@@ -203,15 +206,17 @@
                         },
                         useVoronoi: false,
                         clipEdge: true,
-                        duration: 10,
+                        duration: 1000,
                         useInteractiveGuideline: true,
                         xAxis: {
                             showMaxMin: false,
+                            axisLabel: 'Date',
                             tickFormat: function (d) {
                                 return d3.time.format('%x')(new Date(d))
                             }
                         },
                         yAxis: {
+                            axisLabel: 'Cost in $',
                             tickFormat: function (d) {
                                 return d3.format(',.2f')(d);
                             }
@@ -240,7 +245,7 @@
                         entityId=fltObj.org.id;
                     }
                     //http://192.168.152.139:3001
-                    param.url='/analytics/cost/trend?parentEntityId='+fltObj.org.id+'&entityId='+fltObj.org.id+'&toTimeStamp='+new Date()+'&period='+fltObj.period+'&interval=86400'
+                   param.url='/analytics/cost/trend?parentEntityId='+fltObj.org.id+'&entityId='+fltObj.org.id+'&toTimeStamp='+new Date()+'&period='+fltObj.period+'&interval=86400'
                 }
 
                 genSevs.promiseGet(param).then(function (result) {
@@ -263,14 +268,17 @@
                                 "values": va
                             });
                         });
+                        costObj.trendLineChart.data[0].values.push([]);
                     }
                 });
             };
             $scope.$on('CHANGE_VIEW', function (event, data) {
-                costObj.splitUp=data.replace(/([A-Z])/g, ' $1').replace(/^./, function(str) {
-                    return str.toUpperCase();
-                });
-                costObj.createLable(costObj.chartData,data);
+                if (data) {
+                    costObj.splitUp = data.replace(/([A-Z])/g, ' $1').replace(/^./, function (str) {
+                        return str.toUpperCase();
+                    });
+                    costObj.createLable(costObj.chartData, data);
+                }
             });
             $rootScope.applyFilter =function(filterApp,period){
                 analyticsServices.applyFilter(filterApp,period);
@@ -284,7 +292,9 @@
                 $timeout(function () {
                     $rootScope.applyFilter(true,'month');
                     costObj.trendsChart($rootScope.filterNewEnt);
-                },200);
+                    var treeNames = ['Analytics','Cost'];
+                    $rootScope.$emit('treeNameUpdate', treeNames);
+                },500);
             };
             costObj.init();
 

@@ -328,36 +328,64 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     res.status(500).send("Failed to fetch User.");
                 }
                 if (anUser) {
-                    var tocheck = [];
-                    var fieldname = '';
+                    var toCheck = [];
                     switch (req.params.id) {
                         case "1":
-                            tocheck.push('2');
-                            tocheck.push('3');
-                            tocheck.push('10');
-                            fieldname = "orgname_rowid";
+                            toCheck.push({id:'10',
+                                errMsg:'Organization is associated with Chef-Server.To delete organization please delete respective Chef-Server first.',
+                                fieldName:'orgname_rowid'
+                            });
+                            toCheck.push({id:'3',
+                                errMsg:'Organization is associated with some Environments.To delete organization please delete respective Environments first.',
+                                fieldName:'orgname_rowid'
+                            });
+                            toCheck.push({id:'2',
+                                errMsg:'Organization is associated with some Business Groups.To delete organization please delete respective Business Groups first.',
+                                fieldName:'orgname_rowid'
+                            });
                             break;
                         case "2":
-                            tocheck.push('4');
-                            fieldname = "productgroupname_rowid";
+                            toCheck.push({id:'4',
+                                errMsg:'Business Group is associated with some Projects.To delete business group please delete respective Projects first.',
+                                fieldName:'productgroupname_rowid'
+                            });
                             break;
                         case "3":
-                            tocheck.push('4');
-                            fieldname = "environmentname_rowid,orgname_rowid";
+                            toCheck.push({id:'4',
+                                errMsg:'Environment is associated with some Projects.To delete business group please delete respective Projects first.',
+                                fieldName:'environmentname_rowid,orgname_rowid'
+                            });
                             break;
                         case "4":
-                            tocheck.push('blueprints');
-                            tocheck.push('instances');
-                            fieldname = "projectId";
+                            toCheck.push({id:'instances',
+                                errMsg:'Project is associated with some Instances.To delete Project please delete respective instances first.',
+                                fieldName:'projectId'
+                            });
+                            toCheck.push({id:'blueprints',
+                                errMsg:'Project is associated with some Blueprints.To delete Project please delete respective blueprints first.',
+                                fieldName:'projectId'
+                            });
                             break;
                         case "10":
-                            tocheck.push('all');
-                            fieldname = "configname_rowid";
+                            toCheck.push({id:'instances',
+                                errMsg:'Chef-Server already used by Some Instances.To delete Chef-Server please delete respective instances first.',
+                                fieldName:'configname_rowid'
+                            });
+                            toCheck.push({id:'3',
+                                errMsg:'Chef-Server already used by Some Enviornments.To delete Chef-Server please delete respective enviornments first.',
+                                fieldName : 'configname_rowid'
+                            });
+                            
                             break;
                         case "19":
-                            tocheck.push('blueprints');
-                            tocheck.push('instances');
-                            fieldname = "projectId";
+                            toCheck.push({id:'instances',
+                                errMsg:'Project is associated with some Instances.To delete Project please delete respective instances first.',
+                                fieldName:'projectId'
+                            });
+                            toCheck.push({id:'blueprints',
+                                errMsg:'Project is associated with some Blueprints.To delete Project please delete respective blueprints first.',
+                                fieldName:'projectId'
+                            });
                             break;
                     }
 
@@ -372,9 +400,17 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                     res.status(500).send("Error from DB.");
                                     return;
                                 }
-                                configmgmtDao.deleteCheck(req.params.fieldvalue, tocheck, fieldname, function(err, data) {
-                                    logger.debug("Delete check returned: %s", data);
-                                    if (data == "none") {
+                                configmgmtDao.deleteCheck(req.params.fieldvalue, toCheck, function(err, data) {
+                                    if(err){
+                                        if(err.errCode === 500){
+                                            res.status(500).send(err.errMsg);
+                                            return;
+                                        }else{
+                                            logger.debug("There are dependent elements which are not deleted");
+                                            res.send(412, err.errMsg);
+                                            return;
+                                        }
+                                    }else{
                                         logger.debug("entering delete");
                                         configmgmtDao.getDBModelFromID(req.params.id, function(err, dbtype) {
                                             if (err) {
@@ -398,17 +434,21 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                 }); //end findOne
                                             }
                                         }); //end configmgmtDao
-                                    } else {
-                                        logger.debug("There are dependent elements cannot delete");
-                                        res.send(412, "Cannot proceed with delete. \n Dependent elements found");
-                                        return;
                                     }
-                                }); //deleteCheck
+                                }); 
                             });
                         } else {
-                            configmgmtDao.deleteCheck(req.params.fieldvalue, tocheck, fieldname, function(err, data) {
-                                logger.debug("Delete check returned: %s", data);
-                                if (data == "none") {
+                            configmgmtDao.deleteCheck(req.params.fieldvalue, toCheck, function(err, data) {
+                                if(err){
+                                    if(err.errCode === 500){
+                                        res.status(500).send(err.errMsg);
+                                        return;
+                                    }else{
+                                        logger.debug("There are dependent elements which are not deleted");
+                                        res.send(412, err.errMsg);
+                                        return;
+                                    }
+                                }else{
                                     logger.debug("entering delete");
                                     configmgmtDao.getDBModelFromID(req.params.id, function(err, dbtype) {
                                         if (err) {
@@ -465,7 +505,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                 eval('d4dModelNew.' + dbtype).findOne({
                                                     rowid: req.params.fieldvalue
                                                 }, function (err,data) {
-                                                    logger.debug('data>>>',data);
                                                     if (err) {
                                                         logger.debug("Hit an errror on fetching data : %s", err);
                                                         res.send(500);
@@ -507,10 +546,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                             }
                                         }
                                     }); //end configmgmtDao
-                                } else {
-                                    logger.debug("There are dependent elements cannot delete");
-                                    res.send(412, "Cannot proceed with delete. \n Dependent elements found");
-                                    return;
                                 }
                             }); //deleteCheck
                         }
@@ -2501,27 +2536,27 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                             var templatetypename;
                                                             var designtemplateicon_filename;
                                                             var templatetype;
-                                                            if (x1 === 0) {
-                                                                templatetypename = "SoftwareStack";
-                                                                designtemplateicon_filename = "Appfactory.png";
-                                                                templatetype = "chef";
+                                                            if(x1 === 0) {
+                                                                templatetypename = "Docker";
+                                                                designtemplateicon_filename = "Docker.png";
+                                                                templatetype = "docker";
                                                             } else if (x1 === 1) {
                                                                 templatetypename = "OSImage";
                                                                 designtemplateicon_filename = "Desktop Provisining.png";
                                                                 templatetype = "ami";
                                                             } else if (x1 === 2) {
+                                                                templatetypename = "SoftwareStack";
+                                                                designtemplateicon_filename = "Appfactory.png";
+                                                                templatetype = "chef";
+                                                            } else if (x1 === 3) {
                                                                 templatetypename = "CloudFormation";
                                                                 designtemplateicon_filename = "CloudFormation.png";
                                                                 templatetype = "cft";
 
-                                                            } else if (x1 === 3) {
+                                                            } else if (x1 === 4) {
                                                                 templatetypename = "ARMTemplate";
                                                                 designtemplateicon_filename = "CloudFormation.png";
                                                                 templatetype = "arm";
-                                                            } else if(x1 === 4) {
-                                                                templatetypename = "Docker";
-                                                                designtemplateicon_filename = "Docker.png";
-                                                                templatetype = "docker";
                                                             } else {
                                                                 templatetypename = "Composite";
                                                                 designtemplateicon_filename = "composite.png";
@@ -2681,8 +2716,35 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
                                                     });
                                                     if (x === rowId.length - 1) {
-                                                        res.send(200);
-                                                        return;
+                                                        if (bodyJson['orgname_rowid'] === '' || bodyJson['orgname_rowid'] === null) {
+                                                            res.send(200);
+                                                            return;
+                                                        }else {
+                                                            settingWizard.getSettingWizardByOrgId(bodyJson['orgname_rowid'], function (err, settingWizards) {
+                                                                if (err) {
+                                                                    logger.error('Hit getting setting wizard error', err);
+                                                                    res.send(500);
+                                                                    return;
+                                                                }
+                                                                if (settingWizards.currentStep.name === 'User Configuration') {
+                                                                    var settingWizardSteps = appConfig.settingWizardSteps;
+                                                                    settingWizards.currentStep.nestedSteps[1].isCompleted = true;
+                                                                    settingWizards.currentStep.isCompleted = true;
+                                                                    settingWizards.previousStep = settingWizards.currentStep;
+                                                                    settingWizards.currentStep = settingWizards.nextStep;
+                                                                    settingWizards.nextStep = settingWizardSteps[5];
+                                                                    settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                                                                        if (err) {
+                                                                            logger.error('Hit getting setting wizard error', err);
+                                                                            res.send(500);
+                                                                            return;
+                                                                        }
+                                                                        res.send(200);
+                                                                        return;
+                                                                    });
+                                                                }
+                                                            })
+                                                        }
                                                     }
                                                 }
                                             });
@@ -2812,13 +2874,8 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         res.send(500);
                                                         return;
                                                     }
-                                                    if(settingWizards.currentStep.name === 'Config Management') {
-                                                        var settingWizardSteps = appConfig.settingWizardSteps;
-                                                        settingWizards.currentStep.nestedSteps[2].isCompleted = true;
-                                                        settingWizards.currentStep.isCompleted = true;
-                                                        settingWizards.previousStep = settingWizards.currentStep;
-                                                        settingWizards.currentStep = settingWizards.nextStep;
-                                                        settingWizards.nextStep = settingWizardSteps[4];
+                                                    if(settingWizards.currentStep.name === 'User Configuration') {
+                                                        settingWizards.currentStep.nestedSteps[0].isCompleted = true;
                                                         settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                                                             if (err) {
                                                                 logger.error('Hit getting setting wizard error', err);
@@ -2899,7 +2956,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         settingWizards.currentStep.isCompleted = true;
                                                         settingWizards.previousStep = settingWizards.currentStep;
                                                         settingWizards.currentStep = settingWizards.nextStep;
-                                                        settingWizards.nextStep = {wizardStatus:'true'};
+                                                        settingWizards.nextStep = settingWizards.nextStep;
                                                         settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                                                             if (err) {
                                                                 logger.error('Hit getting setting wizard error', err);
@@ -2937,7 +2994,12 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         return;
                                                     }
                                                     if(settingWizards.currentStep.name === 'Config Management') {
+                                                        var settingWizardSteps = appConfig.settingWizardSteps;
                                                         settingWizards.currentStep.nestedSteps[1].isCompleted = true;
+                                                        settingWizards.currentStep.isCompleted = true;
+                                                        settingWizards.previousStep = settingWizards.currentStep;
+                                                        settingWizards.currentStep = settingWizards.nextStep;
+                                                        settingWizards.nextStep = settingWizardSteps[4];
                                                         settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                                                             if (err) {
                                                                 logger.error('Hit getting setting wizard error', err);

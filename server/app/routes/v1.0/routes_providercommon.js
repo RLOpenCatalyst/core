@@ -425,6 +425,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                                 instanceIP: unmanagedInstance.ip,
                                                                 instanceState: unmanagedInstance.state,
                                                                 network: unmanagedInstance.network,
+                                                                vpcId: unmanagedInstance.vpcId,
+                                                                privateIpAddress: unmanagedInstance.privateIpAddress,
+                                                                hostName: unmanagedInstance.hostName,
                                                                 bootStrapStatus: 'waiting',
                                                                 hardware: {
                                                                     platform: 'unknown',
