@@ -18,7 +18,7 @@
 				$scope.selectedDayOfTheMonth = items.chefTaskObj.selectedDayOfTheMonth;
 				$scope.selectedMonth = items.chefTaskObj.monthOfYear;
 			} else {
-				$scope.repeatsType = 'Daily';//default selection.
+				$scope.repeatsType = 'Hourly';//default selection.
 			}
 			$scope.repeatEveryCount = function(max, step) {
                 step = step || 1;
