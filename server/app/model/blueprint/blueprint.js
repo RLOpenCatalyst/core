@@ -155,6 +155,12 @@ var BlueprintSchema = new Schema({
         type:Boolean,
         required:false,
         default:false
+    },
+    shortDesc: {
+        type: String
+    },
+    botType: {
+        type: String
     }
 
 });
@@ -434,7 +440,9 @@ BlueprintSchema.statics.createNew = function(blueprintData, callback) {
             docker: blueprintData.docker,
             version: count,
             parentId: blueprintData.id,
-            domainNameCheck: blueprintData.domainNameCheck
+            domainNameCheck: blueprintData.domainNameCheck,
+            shortDesc:blueprintData.shortDesc,
+            botType:blueprintData.botType
         };
         var blueprint = new Blueprints(blueprintObj);
         logger.debug(blueprint);
