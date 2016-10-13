@@ -26,6 +26,14 @@
 				var toggleStatus = $scope.isAllSelected;
 				angular.forEach($scope.chefInstanceList, function(itm){ itm._isNodeSelected = toggleStatus;});
 			};
+			$scope.botStatus = function() {
+				if($scope.checkBotType){
+					$scope.checkBotStatus = true;
+				}else{
+					$scope.checkBotStatus = false;
+				}
+
+			};
 			$scope.optionToggled = function(){
 				$scope.isAllSelected = $scope.chefInstanceList.every(function(itm){ return  itm._isNodeSelected; })
 			};
@@ -244,23 +252,24 @@
 					}
 				},
 				ok: function () {
-					$scope.taskSaving = true;
 					//these values are common across all task types
 					var taskJSON = {
 						taskType: $scope.taskType,
 						name: $scope.name,
 						botType: $scope.botType,
 						shortDesc: $scope.shortDesc,
-						description: $scope.description,
+						description: $scope.description
 					};
+					if($scope.checkBotType){
+						taskJSON.botType = $scope.botType;
+						taskJSON.shortDesc= $scope.shortDesc;
+						$scope.taskSaving = true;
+					}else{
+						$scope.taskSaving = true;
+					}
 					//checking for name of the task
 					if (!taskJSON.name.trim()) {
 						$scope.inputValidationMsg='Please enter the name of the task.';
-						$scope.taskSaving = false;
-						return false;
-					}
-					if (!taskJSON.shortDesc.trim()) {
-						$scope.inputValidationMsg='Please enter the short Description of the task.';
 						$scope.taskSaving = false;
 						return false;
 					}
@@ -571,6 +580,10 @@
 				$scope.description = items.description;
 				$scope.taskType = items.taskType;
 				$scope.name = items.name;
+				if(items.shortDesc && (items.shortDesc !== '' || items.shortDesc !== null)){
+					$scope.checkBotStatus = true;
+					$scope.checkBotType = true;
+				}
 				$scope.botType = items.botType;
 				$scope.shortDesc = items.shortDesc;
 				//properties specific to jenkins
