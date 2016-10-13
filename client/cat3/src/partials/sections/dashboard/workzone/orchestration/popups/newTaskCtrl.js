@@ -273,6 +273,8 @@
 								$scope.cronPattern = "*/"+startTimeMinute+" * * * *";
 							} else if(startTimeMinute !=='0' && startTimeHour === '0'){
 								$scope.cronPattern = ""+startTimeMinute+" 0 * * *";
+							} else if(startTimeMinute ==='0' && startTimeHour === undefined || startTimeHour === ''){
+								$scope.cronPattern = "0 * * * *";
 							} else if(startTimeMinute ==='0' && startTimeHour !== '0'){
 								$scope.cronPattern = "0 "+startTimeHour+" * * *";
 							} else if(startTimeMinute !=='0' && startTimeHour !== '0'){
@@ -290,6 +292,8 @@
 								$scope.cronPattern = ""+startTimeMinute+" "+startTimeHour+" * * "+dayOfWeek+"";
 							} else if(startTimeMinute !=='0' && startTimeHour === '0'){
 								$scope.cronPattern = "* 0 * * "+dayOfWeek+"";
+							} else if(startTimeMinute ==='0' && startTimeHour === undefined || startTimeHour === ''){
+								$scope.cronPattern = "0 * * * "+dayOfWeek+"";
 							} else if(startTimeMinute ==='0' && startTimeHour !== '0'){
 								$scope.cronPattern = "0 "+startTimeHour+" * * "+dayOfWeek+"";
 							} else if(startTimeMinute === undefined && startTimeHour !== '0' || startTimeHour === '0'){
@@ -305,6 +309,8 @@
 								$scope.cronPattern = ""+startTimeMinute+" "+startTimeHour+" "+selectedDayOfTheMonth+" * *";
 							} else if(startTimeMinute !=='0' && startTimeHour === '0') {
 								$scope.cronPattern = ""+startTimeMinute+" 0 "+selectedDayOfTheMonth+" * *";
+							} else if(startTimeMinute ==='0' && startTimeHour === undefined || startTimeHour === '') {
+								$scope.cronPattern = "0 * "+selectedDayOfTheMonth+" * *";
 							} else if(startTimeMinute ==='0' && startTimeHour !== '0') {
 								$scope.cronPattern = "0 "+startTimeHour+" "+selectedDayOfTheMonth+" * *";
 							} else if(startTimeMinute === undefined && startTimeHour !== '0' || startTimeHour === '0') {
@@ -320,6 +326,8 @@
 								$scope.cronPattern = ""+startTimeMinute+" "+startTimeHour+" "+selectedDayOfTheMonth+" "+selectedMonth+" *";
 							} else if(startTimeMinute !=='0' && startTimeHour === '0') {
 								$scope.cronPattern = ""+startTimeMinute+" 0 "+selectedDayOfTheMonth+" "+selectedMonth+" *";
+							} else if(startTimeMinute ==='0' && startTimeHour === undefined || startTimeHour === '') {
+								$scope.cronPattern = "0 * "+selectedDayOfTheMonth+" "+selectedMonth+" *";
 							} else if(startTimeMinute ==='0' && startTimeHour !== '0') {
 								$scope.cronPattern = "0 "+startTimeHour+" "+selectedDayOfTheMonth+" "+selectedMonth+" *";
 							} else if(startTimeMinute === undefined && startTimeHour !== '0' || startTimeHour === '0') {
