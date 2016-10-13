@@ -585,7 +585,8 @@
 			$scope.isTargetTypesLoading = true;
 			$scope.isScriptNodesLoading = true;
 			var allInstances = workzoneServices.getCurrentEnvInstances();
-			allInstances.then(function (response) {
+			$scope.allInstances=function(){
+				allInstances.then(function (response) {
 				var data, selectorList = [],
 					optionList = [];
 				if (response.data) {
@@ -618,6 +619,12 @@
 				});
 				$scope.isNewTaskPageLoading = false;
 			});
+			}
+			 $scope.$watch('taskType', function() {
+        		if($scope.taskType === 'chef'){
+					$scope.allInstances();
+        		}
+    		});
 			
 			var allBlueprints = workzoneServices.getBlueprints();
 			var allRunlist = workzoneServices.getCookBookListForOrg();
