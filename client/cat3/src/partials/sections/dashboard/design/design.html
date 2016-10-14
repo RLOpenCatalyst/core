@@ -1,6 +1,6 @@
 <div id="analyticsPage" class='fluid-container'>
 	<div class='col-xs-12 col-sm-12 col-md-12 col-lg-12 panelLeft no-padding'>
-		<link rel="stylesheet" type="text/css" href="catalyst/partials/sections/dashboard/analytics/view/analyticsTreeMenu.css"/>
+		<link rel="stylesheet" type="text/css" href="catalyst/partials/sections/dashboard/design/design.css"/>
 		<link rel="stylesheet" type="text/css" href="catalyst/partials/globals/treeComponent/treeDirective.css"/>
 
 		<div id='analyticsTreeMenuPage'>
@@ -69,7 +69,7 @@
 	<div class="panelRight">
 		<div id='rightPanel' class='container-fluid'>
 			<ul class="nav nav-tabs" >
-				<li ng-class="{'active':state.current.name === 'dashboard.design.list'}"  ui-sref="dashboard.design.list({providerName:state.params.providerName,templateObj:state.params.templateObj})"><a style="font-weight:600"><i class="fa fa-area-chart fa-2" aria-hidden="true"></i> List</a></li>
+				<li ng-class="{'active':state.current.name === 'dashboard.design.list'}"  ui-sref="dashboard.design.list({providerName:state.params.providerName,templateObj:state.params.templateObj})"><a style="font-weight:600"><i class="fa fa-list fa-2" aria-hidden="true"></i> List</a></li>
 				<li ng-class="{'active':state.current.name === 'dashboard.design.add'}" ui-sref="dashboard.design.add({providerName:state.params.providerName,templateObj:state.params.templateObj})"><a style="font-weight:600" ><i class="fa fa-file-text fa-2" aria-hidden="true"></i> New</a></li>
 				<li class="form-group pull-right filter-btn" >
 					<button type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ng-click="isOpenSidebar = !isOpenSidebar">
