@@ -72,6 +72,7 @@
                  };
                 usage.getData=function(fltObj){
                     usage.trendLineChart.data = [];
+                    usage.costGridOptions.data=[];
                     var  $today = new Date();
                     var $yesterday = new Date($today);
                     $yesterday.setDate($today.getDate() - 1);
@@ -84,7 +85,23 @@
                        // angular.forEach(result[usage.splitUp], function (valu, keyChild) {
                            var va = [];
                             if(result && result.length >0) {
+                                usage.costGridOptions.columnDefs=[
+                                    {name: 'name', field: 'name'},
+                                    {name: 'fromTime', field: 'fromTime'},
+                                    {name: 'toTime', field: 'toTime'},
+                                    {name: 'maximum', field: 'maximum'},
+                                    {name: 'minimum', field: 'minimum'},
+                                    {name: 'average', field: 'average'},
+                                ]
                                 angular.forEach(result[usage.splitUp].dataPoints, function (value) {
+                                    usage.costGridOptions.data.push({
+                                        name:$rootScope.filterNewEnt.platformId[resId],
+                                        fromTime:value.fromTime,
+                                        toTime:value.toTime,
+                                        maximum:value.maximum,
+                                        minimum:value.minimum,
+                                        average:value.average
+                                    });
                                     va.push([Date.parse(value.fromTime), value.average]);
                                 });
                                 usage.trendLineChart.data.push({

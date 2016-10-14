@@ -2716,32 +2716,35 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
                                                     });
                                                     if (x === rowId.length - 1) {
-                                            
-                                                settingWizard.getSettingWizardByOrgId(bodyJson['orgname_rowid'],function(err,settingWizards){
-                                                    if(err){
-                                                        logger.error('Hit getting setting wizard error', err);
-                                                        res.send(500);
-                                                        return;
-                                                    }
-                                                    if(settingWizards.currentStep.name === 'User Configuration') {
-                                                        var settingWizardSteps = appConfig.settingWizardSteps;
-                                                        settingWizards.currentStep.nestedSteps[1].isCompleted = true;
-                                                        settingWizards.currentStep.isCompleted = true;
-                                                        settingWizards.previousStep = settingWizards.currentStep;
-                                                        settingWizards.currentStep = settingWizards.nextStep;
-                                                        settingWizards.nextStep = settingWizardSteps[5];
-                                                        settingWizard.updateSettingWizard(settingWizards, function (err, data) {
-                                                            if (err) {
-                                                                logger.error('Hit getting setting wizard error', err);
-                                                                res.send(500);
-                                                                return;
-                                                            }
+                                                        if (bodyJson['orgname_rowid'] === '' || bodyJson['orgname_rowid'] === null) {
                                                             res.send(200);
-                                                                return;
-                                                        });
-                                                    }
-                                                })
-                                        
+                                                            return;
+                                                        }else {
+                                                            settingWizard.getSettingWizardByOrgId(bodyJson['orgname_rowid'], function (err, settingWizards) {
+                                                                if (err) {
+                                                                    logger.error('Hit getting setting wizard error', err);
+                                                                    res.send(500);
+                                                                    return;
+                                                                }
+                                                                if (settingWizards.currentStep.name === 'User Configuration') {
+                                                                    var settingWizardSteps = appConfig.settingWizardSteps;
+                                                                    settingWizards.currentStep.nestedSteps[1].isCompleted = true;
+                                                                    settingWizards.currentStep.isCompleted = true;
+                                                                    settingWizards.previousStep = settingWizards.currentStep;
+                                                                    settingWizards.currentStep = settingWizards.nextStep;
+                                                                    settingWizards.nextStep = settingWizardSteps[5];
+                                                                    settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                                                                        if (err) {
+                                                                            logger.error('Hit getting setting wizard error', err);
+                                                                            res.send(500);
+                                                                            return;
+                                                                        }
+                                                                        res.send(200);
+                                                                        return;
+                                                                    });
+                                                                }
+                                                            })
+                                                        }
                                                     }
                                                 }
                                             });

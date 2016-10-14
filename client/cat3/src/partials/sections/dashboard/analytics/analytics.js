@@ -43,7 +43,7 @@
 				url: "usage/",
 				templateUrl: "src/partials/sections/dashboard/analytics/view/usage.html",
 				controller: "usageCtrl as usage",
-				params:{filterView:{usage:true,org:true,provi:true,instanceType:true,resources:true,report:true}},
+				params:{filterView:{usage:true,org:true,provi:true,instanceType:true,resources:true}},
 				resolve: {
 					auth: ["$q", function ($q) {
 						var deferred = $q.defer();
