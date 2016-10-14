@@ -1,7 +1,7 @@
 <div ng-controller="blueprintListCtrl as bpList" >
 <div id="well" class="well well-sm">
     <div class="col-lg-8 col-md-8">
-        <b><i>{{stateItems.params.templateObj.templatetypename}} blueprints</i></b> <!--<span ng-if="bpList.selectedCards.length > 0"> : - <span class="badge">{{bpList.selectedCards.length}}</span> Selected Blueprints </span>-->
+        <b><i>{{state.params.templateObj.templatetypename}} blueprints</i></b> <!--<span ng-if="bpList.selectedCards.length > 0"> : - <span class="badge">{{bpList.selectedCards.length}}</span> Selected Blueprints </span>-->
     </div>
     <div class="col-lg-4 col-md-4 pull-right" >
         <button ng-show="stateItems.params.templateObj.templatetypename !== 'Composite'" type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ng-click="bpList.viewTypeList = !bpList.viewTypeList">

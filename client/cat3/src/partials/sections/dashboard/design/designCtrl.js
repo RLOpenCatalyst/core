@@ -1,12 +1,12 @@
 (function (angular) {
 	"use strict";
-	angular.module('dashboard.design', []).config(['$stateProvider', '$urlRouterProvider', '$httpProvider', 'modulePermissionProvider', function($stateProvider, $urlRouterProvider, $httpProvider, modulePermissionProvider) {
+	angular.module('dashboard.design', ['design.BpList','design.bpCreate']).config(['$stateProvider', '$urlRouterProvider', '$httpProvider', 'modulePermissionProvider', function($stateProvider, $urlRouterProvider, $httpProvider, modulePermissionProvider) {
 			var modulePerms = modulePermissionProvider.$get();
 			$stateProvider.state('dashboard.design.list', {
-				url: "/:provider/list",
+				url: "/:providerName/list",
 				templateUrl: "src/partials/sections/dashboard/design/view/designListView.html",
 				controller: "blueprintListCtrl as bpList",
-				params:{templateObj:null},
+				params:{templateObj:{}},
 				resolve: {
 					auth: ["$q", function ($q) {
 						var deferred = $q.defer();
@@ -21,10 +21,10 @@
 					}]
 				}
 			}).state('dashboard.design.add', {
-				url: "/:provider/new",
+				url: "/:providerName/new",
 				templateUrl: "src/partials/sections/dashboard/design/view/blueprintCreate.html",
 				controller: "blueprintCreateCtrl as bpAdd",
-				params:{templateObj:null},
+				params:{templateObj:{}},
 				resolve: {
 					auth: ["$q", function ($q) {
 						var deferred = $q.defer();
@@ -48,8 +48,9 @@
 				}
 			};
 		}])
-	.controller('designCtrl',['$scope','$state','genericServices', function ($scope,$state,genericServices) {
+	.controller('designCtrl',['$scope','$rootScope','$state','genericServices', function ($scope,$rootScope,$state,genericServices) {
 		var design= this;
+		$rootScope.state = $state;
 		design.providersList= function () {
 			var params = {
 				url: 'src/partials/sections/dashboard/design/data/providers.json'
@@ -72,11 +73,19 @@
 				//$rootScope.$emit('treeNameUpdate', treeNames);
 				//$state.go('dashboard.designSubView',{subItem:providers[0].name,view:'list',templateObj:template[0]});
 
-			});
+			
 			// get organigetion
-			genericServices.getTreeNew().then(function (orgs) {
-				design.organObject=orgs;
+				genericServices.getTreeNew().then(function (orgs) {
+					$rootScope.organObject=orgs;
+					$rootScope.organNewEnt=[];
+			$rootScope.organNewEnt.org = '0';
+			$rootScope.organNewEnt.buss='0';
+			$rootScope.organNewEnt.proj='0';
+					$state.go('dashboard.design.list',{providerName:providers[0].name,templateObj:template[0]});
+
+				});
 			});
+
 		};
 		design.providersList();
 		return design;

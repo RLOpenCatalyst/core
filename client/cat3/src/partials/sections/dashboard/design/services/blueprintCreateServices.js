@@ -1,7 +1,7 @@
 (function (angular) {
     "use strict";
     angular.module('design.bpCreate',[])
-        .service('blueprintCreateService',['$rootScope','$http','$q','toastr', 'designServices', function ($rootScope,$http,$q,toastr,designServices) {
+        .service('blueprintCreateService',['$rootScope','$http','$q','toastr', 'genericServices', function ($rootScope,$http,$q,toastr,genericServices) {
         	var blueprintServices = this;
         	//for getting the list of templates.
         	blueprintServices.getTemplates = function () {
@@ -9,7 +9,7 @@
 					url: '/d4dMasters/readmasterjsonnew/17',
 					inlineLoader:true
 				};
-				return designServices.promiseGet(params);
+				return genericServices.promiseGet(params);
 			};
 			//services listed for aws blueprints save and update.
 			blueprintServices.getImages = function () {
@@ -17,7 +17,7 @@
 					url: '/vmimages',
 					inlineLoader:true
 				};
-				return designServices.promiseGet(params);
+				return genericServices.promiseGet(params);
 			};
 			//list of operatig systems supported.
 			blueprintServices.getOperatingSytems = function () {
@@ -25,7 +25,7 @@
 					url: '/aws/ec2/amiids',
 					inlineLoader:true
 				};
-				return designServices.promiseGet(params);	
+				return genericServices.promiseGet(params);	
 			};
 			//listing down the aws providers.
 			blueprintServices.getAWSProviders = function () {
@@ -33,7 +33,7 @@
 					url: '/aws/providers',
 					inlineLoader:true
 				};
-				return designServices.promiseGet(params);
+				return genericServices.promiseGet(params);
 			};
 			/*getting the aws provider with respect to ID that can be used to list down the vmimage.
 			(gives region, key pair as well)*/
@@ -42,7 +42,7 @@
 					url: '/aws/providers/' + providerId,
 					inlineLoader:true
 				};
-				return designServices.promiseGet(params);
+				return genericServices.promiseGet(params);
 			};
 			//listing down the images created on the basis on aws providers.
 			blueprintServices.getImageLists = function (providerId) {
@@ -50,7 +50,7 @@
 					url: '/vmimages/providers/' + providerId,
 					inlineLoader:true
 				};
-				return designServices.promiseGet(params);
+				return genericServices.promiseGet(params);
 			};
 			//listing down the images created on the basis on aws providers.
 			blueprintServices.getRegionLists = function () {
@@ -58,7 +58,7 @@
 					url: '/vmimages/regions/list',
 					inlineLoader:true
 				};
-				return designServices.promiseGet(params);
+				return genericServices.promiseGet(params);
 			};
 			//listing down the instance type based upon the image selected.
 			blueprintServices.getInstanceType = function () {
@@ -66,7 +66,7 @@
 					url: '/vmimages/instancesizes/all/list',
 					inlineLoader:true
 				};
-				return designServices.promiseGet(params);
+				return genericServices.promiseGet(params);
 			};
 			//listing down the vpcs for aws providers.
 			blueprintServices.postVpcs = function (providerId,region) {
@@ -78,7 +78,7 @@
 	                    "region": region
                 	}
 				};
-				return designServices.promisePost(params);
+				return genericServices.promisePost(params);
 			};
 			//listing down the subnets based upon the VPC ID.(set the instance count to 10 from Ctrl)
 			blueprintServices.postSubnets = function (vpcId,providerId,region) {
@@ -90,7 +90,7 @@
 	                    "region": region
                 	}
 				};
-				return designServices.promisePost(params);
+				return genericServices.promisePost(params);
 			};
 			//listing down the security groups based upon the VPC ID.
 			blueprintServices.postSecurityGroups = function (vpcId,providerId,region) {
@@ -102,14 +102,14 @@
 	                    "region": region
                 	}
 				};
-				return designServices.promisePost(params);
+				return genericServices.promisePost(params);
 			};
 			//listing down the subnets based upon the VPC ID.(set the instance count to 10 from Ctrl)
 			blueprintServices.getOrgBuProj = function () {
 				var params = {
 					url: '/organizations/getTreeNew'
 				};
-				return designServices.promiseGet(params);
+				return genericServices.promiseGet(params);
 			};
 			//listing down the nexus server details associated to a project(on enabling checkbox, get GroupId)
 			blueprintServices.getNexusServerList = function () {
@@ -117,7 +117,7 @@
 					url: '/d4dMasters/readmasterjsonnew/26',
 					inlineLoader:true
 				};
-				return designServices.promiseGet(params);
+				return genericServices.promiseGet(params);
 			};
 			//listing down the docker details associate to a project(on enabling checkbox)
 			blueprintServices.getDockerList = function () {
@@ -125,7 +125,7 @@
 					url: '/d4dMasters/readmasterjsonnew/18',
 					inlineLoader:true
 				};
-				return designServices.promiseGet(params);
+				return genericServices.promiseGet(params);
 			};
 			//listing down the repos for nexus and docker based upon project and projectId(RepoName & group)
 			blueprintServices.getRepoList = function (projectId) {
@@ -133,7 +133,7 @@
 					url: '/d4dMasters/project/' + projectId,
 					inlineLoader:true
 				};
-				return designServices.promiseGet(params);
+				return genericServices.promiseGet(params);
 			};
 			//listing down the repo url related to the repository selected based upon nexusId
 			blueprintServices.getRepoUrl = function (nexusId) {
@@ -141,7 +141,7 @@
 					url: '/nexus/'+ nexusId +'/repositories',
 					inlineLoader:true
 				};
-				return designServices.promiseGet(params);
+				return genericServices.promiseGet(params);
 			};
 			//listing down the artifacts based upon nexusId,repo selected & the group.
 			blueprintServices.getArtifacts = function (nexusId, repoName, groupId) {
@@ -149,7 +149,7 @@
 					url: '/nexus/' + nexusId + '/repositories/' + repoName + '/group/' + groupId + '/artifact',
 					inlineLoader:true
 				};
-				return designServices.promiseGet(params);
+				return genericServices.promiseGet(params);
 			};
 			//listing down the versions based upon the nexuId, repo selected, group and artifact selected.
 			blueprintServices.getVersions = function (nexusId, repoName, groupId, artifactId) {
@@ -157,7 +157,7 @@
 					url: '/nexus/' + nexusId + '/repositories/' + repoName + '/group/' + groupId + '/artifact/' + artifactId + '/versions',
 					inlineLoader:true
 				};
-				return designServices.promiseGet(params);
+				return genericServices.promiseGet(params);
 			};
 			//list down the chefServer. 
 			blueprintServices.getChefServer = function () {
@@ -165,7 +165,7 @@
 					url: '/d4dMasters/readmasterjsonnew/10',
 					inlineLoader:true
 				};
-				return designServices.promiseGet(params);
+				return genericServices.promiseGet(params);
 			};
 			//get the cft file details.
 			blueprintServices.getCFTParams = function (cftTemplateFileName) {
@@ -173,17 +173,9 @@
 					url: '/d4dMasters/cftTemplate?templateFile=' + cftTemplateFileName,
 					inlineLoader:true
 				};
-				return designServices.promiseGet(params);
+				return genericServices.promiseGet(params);
 			};
-			//save api for creating a blueprint
-			blueprintServices.postBlueprintSave = function (orgId,bgId,projectId,blueprintData) {
-				var params = {
-					url: '/organizations/' + orgId + '/businessgroups/' + bgId + '/projects/' + projectId + '/blueprints',
-					data: blueprintData
-				};
-				return designServices.promisePost(params);
-			};
-
+			
 			//services listed for azure blueprints save and update.
 
 			//listing down the azure providers
@@ -192,7 +184,7 @@
 					url: '/azure/providers',
 					inlineLoader:true
 				};
-				return designServices.promiseGet(params);
+				return genericServices.promiseGet(params);
 			};
 			//listing down azure locations
 			blueprintServices.getAzureLocations = function (azureProviderId) {
@@ -201,7 +193,7 @@
 					url: '/azure/' + azureProviderId + '/locations',
 					inlineLoader:true
 				};
-				return designServices.promiseGet(params);
+				return genericServices.promiseGet(params);
 			};
 			//listing down the azure networks(VPC)
 			blueprintServices.getAzureVPC = function (azureProviderId) {
@@ -209,7 +201,34 @@
 					url: '/azure/'+ azureProviderId +'/networks',
 					inlineLoader:true
 				};
-				return designServices.promiseGet(params);
+				return genericServices.promiseGet(params);
+			};
+			//get the armTemplate file details.
+			blueprintServices.getARMTemplateParams = function (armTemplateFileName) {
+				var params = {
+					url: '/d4dMasters/cftTemplate?templateFile=' + armTemplateFileName,
+					inlineLoader:true
+				};
+				return genericServices.promiseGet(params);
+			};
+			//get the resource group based upon the provider.
+			blueprintServices.getProviderResourceGroup = function (providerId) {
+				var params = {
+					url: '/azure-arm/'+ providerId + '/resourceGroups'
+				};
+				return genericServices.promiseGet(params);
+			};
+			//post the azureEvalVM.
+			blueprintServices.postAzureVM = function (armParameters,armVMEvalVariables,armVMS) {
+				var params = {
+					url: '/azure-arm/evaluateVMs',
+					data: {
+	                    'parameters': armParameters,
+              			'variables': armVMEvalVariables,
+              			'vms': armVMS
+                	}
+				};
+				return genericServices.promisePost(params);
 			};
 
 			//services listed for openstack blueprints save and update.
@@ -219,7 +238,7 @@
 					url: '/openstack/providers',
 					inlineLoader:true
 				};
-				return designServices.promiseGet(params);
+				return genericServices.promiseGet(params);
 			};
 			//listing down the openstack flavors related to provider
 			blueprintServices.getProviderFlavors = function(providerId) {
@@ -227,7 +246,7 @@
 					url: '/openstack/' + providerId + '/flavors',
 					inlineLoader:true
 				};
-				return designServices.promiseGet(params);
+				return genericServices.promiseGet(params);
 			};
 			//listing down the openstack networks related to provider
 			blueprintServices.getProviderNetwork = function(providerId) {
@@ -235,7 +254,7 @@
 					url: '/openstack/' + providerId + '/networks',
 					inlineLoader:true
 				};
-				return designServices.promiseGet(params);
+				return genericServices.promiseGet(params);
 			};
 			//listing down the security groups related to provider
 			blueprintServices.getProviderSecurityGroup = function(providerId) {
@@ -243,7 +262,7 @@
 					url: '/openstack/' + providerId + '/securityGroups',
 					inlineLoader:true
 				};
-				return designServices.promiseGet(params);
+				return genericServices.promiseGet(params);
 			};
 
 			//services listed for vmware blueprints save and update.
@@ -253,7 +272,7 @@
 					url: '/vmware/providers',
 					inlineLoader:true
 				};
-				return designServices.promiseGet(params);
+				return genericServices.promiseGet(params);
 			};
 			//listing down dataStore related to Provider.
 			blueprintServices.getProviderDataStore = function(providerId) {
@@ -261,7 +280,25 @@
 					url: '/vmware/' + providerId + '/datastores',
 					inlineLoader:true
 				};
-				return designServices.promiseGet(params);
+				return genericServices.promiseGet(params);
+			};
+
+			//listing down docker templates
+			blueprintServices.getDockerTemplates = function(dockerTemplate,repoName) {
+				var params = {
+					url: '/d4dmasters/getdockertags/' + encodeURIComponent(dockerTemplate) + '/' + repoName,
+					inlineLoader:true
+				};
+				return genericServices.promiseGet(params);
+			};
+
+			//save api for creating a blueprint
+			blueprintServices.postBlueprintSave = function (orgId,bgId,projectId,blueprintData) {
+				var params = {
+					url: '/organizations/' + orgId + '/businessgroups/' + bgId + '/projects/' + projectId + '/blueprints',
+					data: blueprintData
+				};
+				return genericServices.promisePost(params);
 			};
         }]);
 })(angular);
