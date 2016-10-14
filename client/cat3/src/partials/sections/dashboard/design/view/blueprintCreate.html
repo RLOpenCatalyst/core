@@ -1,6 +1,33 @@
 <div ng-controller="blueprintCreateCtrl as bpCreate">
    <div id="create-bp" class="col-lg-12">
       <div id="content">
+      <div id="crumbs">
+   <ul class="simple-list">
+      <li class="finished col-lg-2">
+         <div class="singletab " >
+            <span class="stp">1</span> Templates
+            </div>
+         </li>
+      <li class="finished col-lg-2">
+         <div class="singletab " >
+            <span class="stp">2</span> Provider
+         </div>
+      </li>
+      <li class="selected active col-lg-2">
+         <div class="singletab" >
+            <span class="stp">3</span> Organization
+            </div>       </li>
+      <li class="disabled col-lg-2">
+         <div class="singletab" >
+            <span class="stp">4</span> Runlist
+         </div>         </li>
+      <li class="disabled col-lg-2">
+         <div class="singletab">
+            <span class="stp">5</span> Application
+         </div>         </li>
+   </ul>
+</div>
+
          <div next-text="Next" previous-text="Previous">
             <div ng-if="bpTypeName === 'Composite'">
                <form name="compositeBlueprintCreation" novalidate>

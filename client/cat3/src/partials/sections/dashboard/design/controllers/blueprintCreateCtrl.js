@@ -5,8 +5,8 @@
             var blueprintCreation = this;
             $rootScope.state = $state;
             //to get the templates listing.
-            if($state.params && $state.params.subItem && $state.params.templateObj){
-                $scope.providerType = $state.params.subItem.toUpperCase();
+            if($state.params &&  $state.params.templateObj){
+                $scope.providerType = $state.params.providerName.toUpperCase();
                 $scope.bpTypeName = $state.params.templateObj.templatetypename;   
             }
             $scope.logo = 'images/global/cat-logo.png';
@@ -52,7 +52,8 @@
 
             blueprintCreation.templateListing = function(){
                 bpCreateSer.getTemplates().then(function(data){
-                    $scope.templateList = data;    
+                    $scope.templateList = data; 
+                    console.log($scope.templateList);   
                 });
             };
 
