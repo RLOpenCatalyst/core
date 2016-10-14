@@ -341,6 +341,11 @@ var InstanceSchema = new Schema({
         type: Boolean,
         required: false,
         default: false
+    },
+    tagServer:{
+        type: String,
+        required: false,
+        trim: true
     }
 });
 
