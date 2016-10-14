@@ -1739,6 +1739,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     instanceIP: req.body.fqdn,
                                                     instanceState: nodeAlive,
                                                     bootStrapStatus: 'waiting',
+                                                    tagServer: req.body.tagServer,
                                                     runlist: [],
                                                     appUrls: appUrls,
                                                     users: [req.session.user.cn], //need to change this
