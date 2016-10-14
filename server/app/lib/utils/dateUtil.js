@@ -49,6 +49,18 @@ function getStartOfAMonthInUTC(date) {
 	}
 }
 
+function getStartOfAWeekInUTC(date) {
+	if( typeof date === 'undefined' || date === null ) {
+		return null;
+	}else{
+		var dateStartOfWeek = moment.utc(date).seconds(0);
+		dateStartOfWeek = moment.utc(dateStartOfWeek).minute(0);
+		dateStartOfWeek = moment.utc(dateStartOfWeek).hour(0);
+		dateStartOfWeek = moment.utc(dateStartOfWeek).day(0);
+		return dateStartOfWeek.format();
+	}
+}
+
 function getStartOfADayInUTC(date) {
 	if( typeof date === 'undefined' || date === null ){
 		var err = new Error("Invalid date");
@@ -186,3 +198,4 @@ momentDateUtil.getStartOfAYearInUTCAsync = getStartOfAYearInUTCAsync;
 momentDateUtil.getStartOfAMonthInUTC = getStartOfAMonthInUTC;
 momentDateUtil.getDateDifferenceInDays = getDateDifferenceInDays;
 momentDateUtil.getStartOfADayInUTC = getStartOfADayInUTC;
+momentDateUtil.getStartOfAWeekInUTC = getStartOfAWeekInUTC;

@@ -42,6 +42,10 @@ analyticsService.aggregateEntityCosts
 			startTime = dateUtil.getStartOfAMonthInUTC(endTime)
 			interval = costAggregationPeriods.month.intervalInSeconds
 			break
+		case 'week':
+			startTime = dateUtil.getStartOfAWeekInUTC(endTime)
+			interval = costAggregationPeriods.week.intervalInSeconds
+			break
 		case 'day':
 			startTime = dateUtil.getStartOfADayInUTC(endTime)
 			interval = costAggregationPeriods.day.intervalInSeconds
