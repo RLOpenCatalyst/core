@@ -1,7 +1,7 @@
 (function (angular) {
     "use strict";
     angular.module('design.BpList',[])
-        .service('blueprintService',['$rootScope','$http','$q','toastr','$state','$modal','confirmbox','designServices',function ($rootScope,$http,$q,toastr,$state,$modal,confirmbox,designServices) {
+        .service('blueprintService',['$rootScope','$http','$q','toastr','$state','$modal','confirmbox','genericServices',function ($rootScope,$http,$q,toastr,$state,$modal,confirmbox,genericServices) {
             var bpServ={};
              bpServ.createList = function(bpType){
                 var organObjectId=[];
@@ -15,7 +15,7 @@
                     var params = {
                         url: '/organizations/'+organObjectId.org+'/businessgroups/'+organObjectId.buss+'/projects/'+organObjectId.proj+'/blueprintList?pagination='+pagination+'&templateType='+tempType+'&providerType='+angular.lowercase($state.params.subItem)
                     };
-                    return designServices.promiseGet(params);
+                    return genericServices.promiseGet(params);
                 }
             };
             bpServ.launchBp = function (id) {
@@ -41,7 +41,7 @@
                             "environmentId": env
                         }
                     };
-                    designServices.promisePost(params).then(function () {
+                    genericServices.promisePost(params).then(function () {
                         toastr.success('Successfully launched.');
                     });
                 });
@@ -71,7 +71,7 @@
                             "blueprints":ids
                         }
                     };
-                    designServices.promisePost(params).then(function () {
+                    genericServices.promisePost(params).then(function () {
                         toastr.success('Successfully copied.');
                     });
                 });
@@ -95,7 +95,7 @@
                         url: '/blueprints',
                         data:{blueprints:bPIds}
                     };
-                    return designServices.promiseDelete(params).then(function(){
+                    return genericServices.promiseDelete(params).then(function(){
                         toastr.success('Successfully deleted');
                         angular.each(ids,function (val) {
                             angular.element('#'+val).hide();
