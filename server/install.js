@@ -404,7 +404,8 @@ function getDefaultsConfig() {
                 'Amazon Route 53': 'R53',
                 'Amazon Redshift': 'RedShift',
                 'Amazon ElastiCache': 'ElastiCache',
-                'Amazon CloudFront': 'CloudFront'
+                'Amazon CloudFront': 'CloudFront',
+                'Other': 'Other'
             },
 
             billIndexes: {
@@ -443,7 +444,7 @@ function getDefaultsConfig() {
         catalystEntityHierarchy: {
             organization: {
                 key: 'organizationId',
-                children: ['organization', 'businessGroup', 'provider', 'environment', 'region', 'resource']
+                children: ['organization', 'businessGroup', 'provider', 'environment', 'region']
             },
             businessGroup: {
                 key: 'businessGroupId',
@@ -491,8 +492,11 @@ function getDefaultsConfig() {
             },
             day: {
                 intervalInSeconds: 86400,
-                childInterval: null
-            },
+                childInterval: {
+                    name: 'hour',
+                    intervalInSeconds: 3600
+                }
+            }
         },
         costDefaultIds: {
             businessGroupId: 'Unassigned',

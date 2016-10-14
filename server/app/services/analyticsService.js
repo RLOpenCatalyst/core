@@ -66,36 +66,28 @@ analyticsService.aggregateEntityCosts
 				], next1)
 			},
 			function(totalCosts, next1) {
-				var serviceCosts = []
-				async.forEach(platformServices,
-					function(service, next2) {
-						query['platformDetails.serviceId'] = service
-
-						resourceCostsModel.aggregate([
-							{$match: query},
-							{$group: {_id: "$" + catalystEntityHierarchy[childEntity].key,
-								totalCost: {$sum: "$cost"},
-								service: {$first: "$platformDetails.serviceId"}}}
-						], function(err, serviceCost) {
-							if(err) {
-								next2(err)
-							} else {
-								serviceCosts.push(serviceCost)
-								next2()
-							}
-						})
-					},
-					function(err) {
-						if(err) {
-							return next1(err)
-						} else {
-							var aggregatedCosts = {totalCosts: totalCosts}
-							aggregatedCosts.serviceCosts = serviceCosts
-
-							next1(null, aggregatedCosts)
+				resourceCostsModel.aggregate([
+					{$match: query},
+					{
+						$group: {
+							_id: {
+								"entityId": "$" + catalystEntityHierarchy[childEntity].key,
+								"service": "$platformDetails.serviceId"
+							},
+							totalCost: {$sum: "$cost"},
+							service: {$first: "$platformDetails.serviceId"}
 						}
 					}
-				)
+				], function (err, serviceCosts) {
+					if (err) {
+						return next1(err)
+					} else {
+						var aggregatedCosts = {totalCosts: totalCosts}
+						aggregatedCosts.serviceCosts = serviceCosts
+
+						next1(null, aggregatedCosts)
+					}
+				})
 			}
 		],
 		function(err, aggregateCosts) {
@@ -104,7 +96,6 @@ analyticsService.aggregateEntityCosts
 			} else {
 				//@TODO Blocking call to be avoided
 				var entityCosts = {}
-
 				for(var i = 0; i < aggregateCosts.totalCosts.length; i++) {
 					entityCosts[aggregateCosts.totalCosts[i]._id] = {
 						entity: {
@@ -129,14 +120,22 @@ analyticsService.aggregateEntityCosts
 					}
 				}
 
-				// @TODO Blocking call to be avoided
-				for(var i = 0; i < aggregateCosts.serviceCosts.length; i++) {
+				/*for(var i = 0; i < aggregateCosts.serviceCosts.length; i++) {
 					for(var j = 0; j < aggregateCosts.serviceCosts[i].length; j++) {
 						if(aggregateCosts.serviceCosts[i][j]._id in entityCosts) {
 							entityCosts[aggregateCosts.serviceCosts[i][j]._id]
 								.costs.AWS.serviceCosts[aggregateCosts.serviceCosts[i][j].service]
 								= Math.round(aggregateCosts.serviceCosts[i][j].totalCost * 100) / 100
 						}
+					}
+				}*/
+
+				// @TODO Blocking call to be avoided
+				for(var i = 0; i < aggregateCosts.serviceCosts.length; i++) {
+					if(aggregateCosts.serviceCosts[i]._id.entityId in entityCosts) {
+						entityCosts[aggregateCosts.serviceCosts[i]._id.entityId]
+							.costs.AWS.serviceCosts[aggregateCosts.serviceCosts[i]._id.service]
+							= aggregateCosts.serviceCosts[i].totalCost
 					}
 				}
 
