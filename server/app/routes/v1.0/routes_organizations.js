@@ -1953,7 +1953,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         }
                                                     });
 
-                                                    credentialCryptography.decryptCredential(encryptedCredentials, function (err, decryptedCredentials) {
+                                                    /*credentialCryptography.decryptCredential(encryptedCredentials, function (err, decryptedCredentials) {
                                                         if (err) {
                                                             logger.error("unable to decrypt credentials", err);
                                                             var timestampEnded = new Date().getTime();
@@ -2347,10 +2347,54 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                             });
                                                         }); //end of chefcleanup
 
+                                                    });*/
+
+                                                    instancesDao.updateInstanceBootstrapStatus(instance.id, 'success', function (err, updateData) {
+                                                        if (err) {
+                                                            logger.error("Unable to set instance bootstarp status code != 0");
+                                                        } else {
+                                                            logger.debug("Instance bootstrap status set to failed");
+                                                        }
                                                     });
-                                                    res.send(instance);
-                                                    logger.debug("Exit post() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s/addInstance", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
-                                                });
+
+                                                    var timestampEnded = new Date().getTime();
+                                                    logsDao.insertLog({
+                                                        referenceId: logsRefernceIds,
+                                                        err: true,
+                                                        log: "Bootstrap Success",
+                                                        timestamp: timestampEnded
+                                                    });
+                                                    instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
+                                                    instanceLog.endedOn = new Date().getTime();
+                                                    instanceLog.actionStatus = "success";
+                                                    instanceLog.logs = {
+                                                        err: true,
+                                                        log: "Bootstrap success",
+                                                        timestamp: new Date().getTime()
+                                                    };
+                                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
+                                                        if (err) {
+                                                            logger.error("Failed to create or update instanceLog: ", err);
+                                                        }
+                                                    });
+                                                    var _docker = new Docker();
+                                                    _docker.checkDockerStatus(instance.id, function (err, retCode) {
+                                                        if (err) {
+                                                            logger.error("Failed _docker.checkDockerStatus", err);
+                                                            res.end('200');
+
+                                                        }
+                                                        logger.debug('Docker Check Returned:' + retCode);
+                                                        if (retCode == '0') {
+                                                            instancesDao.updateInstanceDockerStatus(instance.id, "success", '', function (data) {
+                                                                logger.debug('Instance Docker Status set to Success');
+                                                                res.send(instance);
+                                                                logger.debug("Exit post() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s/addInstance", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
+                                                            });
+
+                                                        }
+                                                    });
+                                                 });
                                             });
                                         } else {
                                             res.status(400).send({
