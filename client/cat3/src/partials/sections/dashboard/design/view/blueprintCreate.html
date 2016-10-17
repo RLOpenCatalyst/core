@@ -27,7 +27,6 @@
          </div>         </li>
    </ul>
 </div>
-
          <div next-text="Next" previous-text="Previous">
             <div ng-if="bpTypeName === 'Composite'">
                <form name="compositeBlueprintCreation" novalidate>
@@ -260,7 +259,7 @@
                               </label>
                               <select ng-model="bpCreate.newEnt.projectList" name="projectListInput" class="chooseProject width-100 form-control" ng-change="bpCreate.enableAppDeploy();" required>
                                  <option value="">Select Project</option>
-                                 <option ng-repeat="config in bpCreate.projListing" value="{{config.businessGroups[0].projects[0].rowid}}">{{config.businessGroups[0].projects[0].name}}</option>
+                                 <option ng-repeat="config in bpCreate.projListing" value="{{config.businessGroups[0].projects[0].rowId}}">{{config.businessGroups[0].projects[0].name}}</option>
                               </select>
                            </div>
                            
@@ -447,22 +446,22 @@
                               Configure Stack Parameters
                            </accordion-heading>
                            <div class="col-lg-6 col-md-6">
-                              <label for="orgnameSelect">Choose Provider <span class="red">&nbsp;*</span>
-                                 <span ng-show="newBlueprintForm.providerId.$touched && newBlueprintForm.providerId.$invalid" class="inputValidationMsg">Required</span>
-                              </label>
-                              <select ng-model="bpCreate.newEnt.providers" name="providerId" class="chooseOSProvider width-100 form-control" required>
-                                 <option value="">Select Provider</option>
-                                 <option ng-repeat="providerDetail in bpCreate.providerListing" value="{{providerDetail._id}}">{{providerDetail.providerName}}</option>
-                              </select>
-                           </div>
-                           <div class="col-lg-6 col-md-6">
                               <label for="region">Choose Region:<span class="red">&nbsp;*</span>
                                  <span ng-show="newBlueprintForm.region.$touched && newBlueprintForm.region.$invalid" class="inputValidationMsg">Required</span>
                                  <loading size="small" name="isRegionKeyPairLoading" type="inline"></loading>
                               </label>
                               <select ng-model="bpCreate.newEnt.region" name="region" class="chooseSecurity width-100 form-control" required>
                                  <option value="">Select Region</option>
-                                 <option value="{{bpCreate.regionListing}}">{{bpCreate.regionListing}}</option>
+                                 <option ng-repeat="regionDetails in bpCreate.getRegionLists" value="{{regionDetails.region}}">{{regionDetails.region_name}}</option>
+                              </select>
+                           </div>
+                           <div class="col-lg-6 col-md-6">
+                              <label for="orgnameSelect">Choose Provider <span class="red">&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.providerId.$touched && newBlueprintForm.providerId.$invalid" class="inputValidationMsg">Required</span>
+                              </label>
+                              <select ng-model="bpCreate.newEnt.providers" ng-change="bpCreate.getProviderImage();" name="providerId" class="chooseOSProvider width-100 form-control" required>
+                                 <option value="">Select Provider</option>
+                                 <option ng-repeat="providerDetail in bpCreate.providerListing" value="{{providerDetail._id}}">{{providerDetail.providerName}}</option>
                               </select>
                            </div>
                            <div class="col-lg-6 col-md-6 margintop15" ng-repeat="(key,value) in bpCreate.getCFTDetails.Parameters">

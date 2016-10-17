@@ -3,11 +3,12 @@
     angular.module('dashboard.design')
         .controller('blueprintCreateCtrl',['$scope','$rootScope','$modal','toastr','$state', 'blueprintCreateService','confirmbox', function ($scope,$rootScope,$modal,toastr,$state,bpCreateSer,confirmbox) {
             var blueprintCreation = this;
-            $rootScope.state = $state;
+            //$rootScope.state = $state;
             //to get the templates listing.
             if($state.params &&  $state.params.templateObj){
                 $scope.providerType = $state.params.providerName.toUpperCase();
-                $scope.bpTypeName = $state.params.templateObj.templatetypename;   
+                $scope.bpTypeName = $state.params.templateObj.templatetypename; 
+                console.log($scope.bpTypeName);  
             }
             $scope.logo = 'images/global/cat-logo.png';
             $scope.osImageLogo = 'images/global/linux.png';
@@ -66,7 +67,6 @@
                 $scope.dockerDetails = [];
                 //items gives the details of the selected blueprint.
                 var dockerParams = $scope.templateSelected;
-                console.log(dockerParams);
                 dockerParams.dockerlaunchparameters = '--name ' + dockerParams.templatename;
                 dockerParams.tagValue = 'latest';
                 console.log(dockerParams);
@@ -307,7 +307,13 @@
                         }
                     }
                 });
-            }; 
+            };
+
+            blueprintCreation.getRegionLists = function() {
+                bpCreateSer.getRegionLists().then(function(data){
+                    blueprintCreation.getRegionLists = data;
+                })
+            } 
 
             blueprintCreation.getTemplateParameters = function() {
                 $scope.cftTemplate = $scope.templateSelected;
@@ -436,6 +442,9 @@
                         blueprintCreation.getOrgBUProjDetails();
                         if($scope.bpTypeName === 'CloudFormation' || $scope.bpTypeName ==='ARMTemplate'){
                             blueprintCreation.getTemplateParameters();
+                        }
+                        if($scope.bpTypeName === 'CloudFormation') {
+                            blueprintCreation.getRegionLists();
                         }  
                     } else if (index === 0) {
                         $scope.isNextVisible = true;
@@ -564,12 +573,13 @@
                     if($scope.bpTypeName === 'Docker'){
                         blueprintCreateJSON.blueprintType = 'docker';
                         var dockercompose = [];
-                        angular.forEach(blueprintCreation.newEnt.cftModel , function(value, key) {
+                        console.log($scope.dockerDetails);
+                        angular.forEach($scope.dockerDetails , function(value, key) {
                             var parameterObj = {
                                 ParameterKey: key,
                                 ParameterValue: value.Default
                             }
-                            cftParameters.push(parameterObj);
+                            dockercompose.push(parameterObj);
                             blueprintCreateJSON.dockercompose = dockercompose;
                         });
                     }
