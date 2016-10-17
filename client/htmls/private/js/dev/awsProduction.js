@@ -12,6 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 var checkandupdateRunlistTable = function() {
     if (!$.fn.dataTable.isDataTable('#tableRunlistForBlueprint')) {
         $tasksRunlist = $('#tableRunlistForBlueprint').DataTable({
@@ -1554,6 +1555,8 @@ var saveblueprint = function(tempType) {
                     reqBody.orgId = $('#orgnameSelect').val();
                     reqBody.bgId = $('#bgListInput').val();
                     reqBody.projectId = $('#projectListInput').val();
+                    reqBody.botType = $('#botType').val();
+                    reqBody.shortDesc = $('#shortDesc').val();
                     var imageIdentifier = $('#imageId').val();
                     var imageId = $('#imageId').find('option:selected').attr('_id');
                     var securityGroupIds = getSecurityCheckedList();
@@ -3450,4 +3453,14 @@ $(".repoTypeSelectorRadioBtn").click(function() {
     var val = $(this).attr('data-repotype');
     $('.repoTypeClass').hide();
     $('#' + val).show();
+});
+
+$(document).ready(function() {
+    $('#serviceDeliveryCheck').click(function() {
+        if ($('#serviceDeliveryCheck').prop("checked")) {
+            $('.sevice-delivery-section').addClass('showservice');
+        } else {
+            $('.sevice-delivery-section').removeClass('showservice');
+        }
+    });
 });
