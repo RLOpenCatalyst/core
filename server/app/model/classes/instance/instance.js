@@ -804,7 +804,6 @@ var InstancesDao = function() {
 
 
     this.createInstance = function(instanceData, callback) {
-        logger.debug("Enter createInstance");
         var instance = new Instances(instanceData);
         instance.save(function(err, data) {
             if (err) {
@@ -812,7 +811,6 @@ var InstancesDao = function() {
                 callback(err, null);
                 return;
             }
-            logger.debug("Exit createInstance : " + JSON.stringify(data));
             callback(null, data);
         });
     };

@@ -1805,7 +1805,7 @@ var MasterUtil = function() {
         logger.debug("org rowids: ", envId);
         d4dModelNew.d4dModelMastersEnvironments.find({
             rowid: envId,
-            "id": 3
+            "id": '3'
         }, function(err, envs) {
             if (err) {
                 callback(err, null);
@@ -1835,15 +1835,27 @@ var MasterUtil = function() {
     };
 
     this.getEnvironmentByEnvId = function(envId, callback) {
-        logger.debug("org rowids: ", envId);
         d4dModelNew.d4dModelMastersEnvironments.find({
             rowid: envId,
-            "id": 3
+            "id": '3'
         }, function(err, envs) {
             if (err) {
                 callback(err, null);
             }
             callback(null, envs[0]);
+            return;
+        });
+    }
+
+    this.getProjectByProjectId = function(projectId, callback) {
+        d4dModelNew.d4dModelMastersProjects.find({
+            rowid: projectId,
+            "id": '4'
+        }, function(err, projects) {
+            if (err) {
+                callback(err, null);
+            }
+            callback(null, projects[0]);
             return;
         });
     }

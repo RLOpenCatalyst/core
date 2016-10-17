@@ -12,6 +12,7 @@ var instancesDao = require('_pr/model/classes/instance/instance');
 var assignedInstancesDao = require('_pr/model/unmanaged-instance');
 var logsDao = require('_pr/model/dao/logsdao.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
+var masterUtil = require('_pr/lib/utils/masterUtil.js');
 
 
 var AWSProviderSync = Object.create(CatalystCronJob);
@@ -76,9 +77,6 @@ function awsProviderSyncForProvider(provider,orgName) {
                         },
                         function(unassignedInstances,next){
                             tagMappingForInstances(unassignedInstances,provider,next);
-                        },
-                        function(assignedInstances,next){
-                            saveAssignedInstances(assignedInstances,next);
                         }
                     ],function(err,results){
                         if(err){
@@ -131,13 +129,13 @@ function saveEC2Data(ec2Info,provider, callback){
                         }
                     });
                 }else {
-                    assignedInstancesDao.getInstancesByProviderIdOrgIdAndPlatformId(ec2.orgId,ec2.providerId,ec2.platformId,function(err,assignedInstances) {
+                    unassignedInstancesModel.getInstancesByProviderIdOrgIdAndPlatformId(ec2.orgId, ec2.providerId, ec2.platformId, function (err, unassignedInstances) {
                         if (err) {
                             logger.error(err);
                             count++;
                             return;
-                        }else if (assignedInstances.length > 0) {
-                            assignedInstancesDao.updateInstanceStatus(assignedInstances[0]._id,ec2, function(err, updateInstanceData) {
+                        }else if (unassignedInstances.length === 0) {
+                            unassignedInstancesModel.createNew(ec2, function (err, saveUnassignedInstance) {
                                 if (err) {
                                     logger.error(err);
                                     count++;
@@ -150,37 +148,16 @@ function saveEC2Data(ec2Info,provider, callback){
                                 }
                             });
                         }else {
-                            unassignedInstancesModel.getInstancesByProviderIdOrgIdAndPlatformId(ec2.orgId, ec2.providerId, ec2.platformId, function (err, unassignedInstances) {
+                            unassignedInstancesModel.updateInstanceStatus(unassignedInstances[0]._id,ec2, function (err, updateInstanceData) {
                                 if (err) {
                                     logger.error(err);
                                     count++;
                                     return;
-                                }else if (unassignedInstances.length === 0) {
-                                    unassignedInstancesModel.createNew(ec2, function (err, saveUnassignedInstance) {
-                                        if (err) {
-                                            logger.error(err);
-                                            count++;
-                                            return;
-                                        } else {
-                                            count++;
-                                            if(count === ec2Info.length){
-                                                callback(null,ec2Info);
-                                            }
-                                        }
-                                    });
-                                }else {
-                                    unassignedInstancesModel.updateInstanceStatus(unassignedInstances[0]._id,ec2, function (err, updateInstanceData) {
-                                        if (err) {
-                                            logger.error(err);
-                                            count++;
-                                            return;
-                                        } else {
-                                            count++;
-                                            if(count === ec2Info.length){
-                                                callback(null,ec2Info);
-                                            }
-                                        }
-                                    });
+                                } else {
+                                    count++;
+                                    if(count === ec2Info.length){
+                                        callback(null,ec2Info);
+                                    }
                                 }
                             })
                         }
@@ -212,9 +189,8 @@ function tagMappingForInstances(instances,provider,next){
         }else{
             next(null,tagDetails);
         }
-        var count = 0;
-        var assignedInstanceList = [];
         if(instances.length > 0) {
+            var managedInstanceList = [];
             for (var i = 0; i < instances.length; i++) {
                 (function(instance) {
                     var catalystProjectId = null;
@@ -223,100 +199,126 @@ function tagMappingForInstances(instances,provider,next){
                     var catalystEnvironmentName = null;
                     var catalystBgId = null;
                     var catalystBgName = null;
-                    var assignmentFound = false;
-                    if(instance.tags) {
-                        if ((bgTag !== null || projectTag !== null || environmentTag !== null) && (instance.isDeleted === false)){
-                            if(bgTag !== null && bgTag.name in instance.tags) {
-                                for (var y = 0; y < bgTag.catalystEntityMapping.length; y++) {
-                                    if (bgTag.catalystEntityMapping[y].tagValue !== '' && instance.tags[bgTag.name] !== ''
-                                        && bgTag.catalystEntityMapping[y].tagValue === instance.tags[bgTag.name]) {
-                                        catalystBgId = bgTag.catalystEntityMapping[y].catalystEntityId;
-                                        catalystBgName = bgTag.catalystEntityMapping[y].catalystEntityName;
-                                        break;
-                                    }
+                    if(instance.tags && environmentTag !== null && (instance.isDeleted === false)) {
+                        managedInstanceList.push(instance);
+                        if (bgTag !== null && bgTag.name in instance.tags) {
+                            for (var y = 0; y < bgTag.catalystEntityMapping.length; y++) {
+                                if (bgTag.catalystEntityMapping[y].tagValue !== '' && instance.tags[bgTag.name] !== '' &&
+                                    bgTag.catalystEntityMapping[y].tagValue === instance.tags[bgTag.name]) {
+                                    catalystBgId = bgTag.catalystEntityMapping[y].catalystEntityId;
+                                    catalystBgName = bgTag.catalystEntityMapping[y].catalystEntityName;
+                                    break;
                                 }
                             }
-                            if(projectTag !== null && projectTag.name in instance.tags) {
-                                for (var y = 0; y < projectTag.catalystEntityMapping.length; y++) {
-                                    if (projectTag.catalystEntityMapping[y].tagValue !== '' && instance.tags[projectTag.name] !== '' &&
-                                        projectTag.catalystEntityMapping[y].tagValue === instance.tags[projectTag.name]) {
-                                        catalystProjectId = projectTag.catalystEntityMapping[y].catalystEntityId;
-                                        catalystProjectName = projectTag.catalystEntityMapping[y].catalystEntityName;
-                                        break;
-                                    }
+                        }
+                        if (projectTag !== null && projectTag.name in instance.tags) {
+                            for (var y = 0; y < projectTag.catalystEntityMapping.length; y++) {
+                                if (projectTag.catalystEntityMapping[y].tagValue !== '' && instance.tags[projectTag.name] !== '' &&
+                                    projectTag.catalystEntityMapping[y].tagValue === instance.tags[projectTag.name]) {
+                                    catalystProjectId = projectTag.catalystEntityMapping[y].catalystEntityId;
+                                    catalystProjectName = projectTag.catalystEntityMapping[y].catalystEntityName;
+                                    break;
                                 }
                             }
-                            if(environmentTag !== null && environmentTag.name in instance.tags) {
-                                for (var y = 0; y < environmentTag.catalystEntityMapping.length; y++) {
-                                    if (environmentTag.catalystEntityMapping[y].tagValue !== '' && instance.tags[environmentTag.name] !== '' &&
-                                        environmentTag.catalystEntityMapping[y].tagValue === instance.tags[environmentTag.name]) {
-                                        catalystEnvironmentId = environmentTag.catalystEntityMapping[y].catalystEntityId;
-                                        catalystEnvironmentName = environmentTag.catalystEntityMapping[y].catalystEntityName;
-                                        break;
-                                    }
+                        }
+                        if (environmentTag !== null && environmentTag.name in instance.tags) {
+                            for (var y = 0; y < environmentTag.catalystEntityMapping.length; y++) {
+                                if (environmentTag.catalystEntityMapping[y].tagValue !== '' && instance.tags[environmentTag.name] !== '' &&
+                                    environmentTag.catalystEntityMapping[y].tagValue === instance.tags[environmentTag.name]) {
+                                    catalystEnvironmentId = environmentTag.catalystEntityMapping[y].catalystEntityId;
+                                    catalystEnvironmentName = environmentTag.catalystEntityMapping[y].catalystEntityName;
+                                    break;
                                 }
                             }
-                            if (catalystBgId !== null || catalystProjectId !== null || catalystEnvironmentId !== null) {
-                                assignmentFound = true;
+                        }
+                        if (catalystEnvironmentId !== null) {
+                            var masterDetails = {
+                                envId: catalystEnvironmentId,
+                                envName: catalystEnvironmentName,
+                                bgId: catalystBgId,
+                                bgName: catalystBgName,
+                                projectId: catalystProjectId,
+                                projectName: catalystProjectName
                             }
-                            if (assignmentFound === true) {
+                            managedInstanceList.push(instance);
+                            if (catalystProjectId === null) {
+                                masterUtil.getEnvironmentByEnvId(catalystEnvironmentId, function (err, envs) {
+                                    if (err) {
+                                        logger.error(err);
+                                    } else {
+                                        catalystProjectId = envs.projectname_rowid.split(',')[0];
+                                        catalystProjectName = envs.projectname.split(',')[0];
+                                        if (catalystBgId === null && catalystProjectId !== null) {
+                                            masterDetails.projectId = catalystProjectId;
+                                            masterDetails.projectName = catalystProjectName;
+                                            masterUtil.getProjectByProjectId(catalystProjectId, function (err, projects) {
+                                                if (err) {
+                                                    logger.error(err);
+                                                } else {
+                                                    catalystBgId = projects.productgroupname_rowid;
+                                                    catalystBgName = projects.productgroupname;
+                                                    masterDetails.bgId = catalystBgId;
+                                                    masterDetails.bgName = catalystBgName;
+                                                    unassignedInstancesModel.removeInstanceById(instance._id, function (err, data) {
+                                                        if (err) {
+                                                            logger.error(err);
+                                                        } else {
+                                                            createManagedInstance(instance, masterDetails, function (err, data) {
+                                                                if (err) {
+                                                                    logger.error(err);
+                                                                }
+                                                            });
+                                                        }
+                                                    })
+                                                }
+                                            });
+                                        }
+                                    }
+                                });
+                            } else if (catalystBgId === null) {
+                                masterUtil.getProjectByProjectId(catalystProjectId, function (err, projects) {
+                                    if (err) {
+                                        logger.error(err);
+                                    } else {
+                                        catalystBgId = projects.productgroupname_rowid;
+                                        catalystBgName = projects.productgroupname;
+                                        masterDetails.bgId = catalystBgId;
+                                        masterDetails.bgName = catalystBgName;
+                                        unassignedInstancesModel.removeInstanceById(instance._id, function (err, data) {
+                                            if (err) {
+                                                logger.error(err);
+                                            } else {
+                                                createManagedInstance(instance, masterDetails, function (err, data) {
+                                                    if (err) {
+                                                        logger.error(err);
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                            else {
                                 unassignedInstancesModel.removeInstanceById(instance._id, function (err, data) {
                                     if (err) {
                                         logger.error(err);
-                                        count++;
-                                        return;
                                     } else {
-                                        var assignedInstanceObj = {
-                                            orgId: instance.orgId,
-                                            orgName: instance.orgName,
-                                            bgId: catalystBgId,
-                                            bgName: catalystBgName,
-                                            projectId: catalystProjectId,
-                                            projectName: catalystProjectName,
-                                            environmentId: catalystEnvironmentId,
-                                            environmentName: catalystEnvironmentName,
-                                            providerId: instance.providerId,
-                                            providerType: instance.providerType,
-                                            providerData: instance.providerData,
-                                            platformId: instance.platformId,
-                                            ip: instance.ip,
-                                            os: instance.os,
-                                            state: instance.state,
-                                            subnetId: instance.subnetId,
-                                            vpcId: instance.vpcId,
-                                            privateIpAddress: instance.privateIpAddress,
-                                            hostName:instance.hostName,
-                                            tags: instance.tags,
-                                        }
-                                        assignedInstanceList.push(assignedInstanceObj);
-                                        assignedInstanceObj = {};
-                                        count++;
-                                        if (count === instances.length) {
-                                            next(null, assignedInstanceList);
-                                        } else {
-                                            return;
-                                        }
+                                        createManagedInstance(instance, masterDetails, function (err, data) {
+                                            if (err) {
+                                                logger.error(err);
+                                            }
+                                        });
                                     }
-                                })
-                            } else {
-                                count++;
-                                if (count === instances.length) {
-                                    next(null, assignedInstanceList);
-                                }
-                            }
-                        }else {
-                            count++;
-                            if (count === instances.length) {
-                                next(null, assignedInstanceList);
+                                });
                             }
                         }
                     }else{
-                        count++;
-                        if (count === instances.length) {
-                            next(null, assignedInstanceList);
-                        }
+                        managedInstanceList.push(instance);
                     }
                 })(instances[i]);
+            }
+            if(managedInstanceList.length === instances.length){
+                next(null,managedInstanceList);
             }
         }else{
             logger.info("Please configure Instances for Tag Mapping");
@@ -325,29 +327,107 @@ function tagMappingForInstances(instances,provider,next){
     });
 }
 
-function saveAssignedInstances(assignedInstances,callback){
-    if(assignedInstances.length > 0){
-        var results=[];
-        for(var i = 0; i < assignedInstances.length; i++){
-            (function(assignedInstance){
-                assignedInstancesDao.createNew(assignedInstance,function(err,data){
-                    if(err){
-                        logger.error(err);
-                        results.push(err);
+function createManagedInstance(instance,masterDetails,callback){
+    if(instance !== null){
+        var instanceObj = {
+            name: instance.platformId,
+            orgId: instance.orgId,
+            orgName: instance.orgName,
+            bgId: masterDetails.bgId,
+            bgName: masterDetails.bgName,
+            projectId: masterDetails.projectId,
+            projectName: masterDetails.projectName,
+            environmentName: masterDetails.envName,
+            envId: masterDetails.envId,
+            providerId: instance.providerId,
+            providerType: instance.providerType,
+            providerData: {
+                region: instance.providerData.region
+            },
+            chefNodeName: instance.platformId,
+            runlist: [],
+            platformId: instance.platformId,
+            appUrls: [],
+            instanceIP: instance.ip,
+            instanceState: instance.state,
+            vpcId: instance.vpcId,
+            privateIpAddress: instance.privateIpAddress,
+            hostName: instance.hostName,
+            bootStrapStatus: 'success',
+            hardware: {
+                platform: 'unknown',
+                platformVersion: 'unknown',
+                architecture: 'unknown',
+                memory: {
+                    total: 'unknown',
+                    free: 'unknown',
+                },
+                os: instance.os
+            },
+            credentials:{
+                username:'ubuntu'
+            },
+            blueprintData: {
+                blueprintName: instance.platformId,
+                templateId: "chef_import",
+                iconPath: "../private/img/templateicons/chef_import.png"
+            }
+        }
+        instancesDao.createInstance(instanceObj,function(err,data) {
+            if (err) {
+                logger.error("Failed to create or update instance: ", err);
+                callback(err,null);
+                return;
+            } else {
+                var timestampStarted = new Date().getTime();
+                var user = instance.catUser ? instance.catUser : 'superadmin';
+                var actionLog = instancesDao.insertInstanceStatusActionLog(instance._id, user, instance.state, timestampStarted);
+                var logReferenceIds = [instance._id, actionLog._id];
+                logsDao.insertLog({
+                    referenceId: logReferenceIds,
+                    err: false,
+                    log: "Instance : "+instance.state,
+                    timestamp: timestampStarted
+                });
+                var instanceLog = {
+                    actionId: actionLog._id,
+                    instanceId: instance._id,
+                    orgName: instance.orgName,
+                    bgName: masterDetails.bgName,
+                    projectName: masterDetails.projectName,
+                    envName: masterDetails.envName,
+                    status: instance.state,
+                    actionStatus: "success",
+                    platformId: instance.platformId,
+                    blueprintName: instance.platformId,
+                    data: instance.runlist,
+                    platform: 'unknown',
+                    os: instance.os,
+                    size: instance.instanceType,
+                    user: user,
+                    createdOn: new Date().getTime(),
+                    startedOn: new Date().getTime(),
+                    providerType: instance.providerType,
+                    action: instance.state,
+                    logs: []
+                };
+                instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function (err, logData) {
+                    if (err) {
+                        logger.error("Failed to create or update instanceLog: ", err);
+                        callback(err,null);
                         return;
                     }else{
-                        results.push(data);
-                        if(results.length === assignedInstances.length){
-                            callback(null,assignedInstances);
-                        }
+                        callback(null,logData);
+                        return;
                     }
-                })
-            })(assignedInstances[i]);
-        }
+                });
+            }
+        });
     }else{
-        callback(null,assignedInstances);
+        callback(null,instance);
     }
 }
+
 
 function instanceSyncWithAWS(ec2Instances,providerId,callback){
     if(ec2Instances.length > 0){
@@ -427,42 +507,6 @@ function instanceSyncWithAWS(ec2Instances,providerId,callback){
                             }
                         }else{
                             callback(null,instances);
-                        }
-                    });
-                },
-                assignedInstance:function(callback){
-                    assignedInstancesDao.getInstanceByProviderId(providerId,function(err,assignedInstances){
-                        if(err){
-                            callback(err,null);
-                        }else if(assignedInstances.length > 0){
-                            var assignedInstanceCount = 0;
-                            for(var k = 0;k < assignedInstances.length;k++){
-                                (function(assignedInstance){
-                                    if(ec2InstanceIds.indexOf(assignedInstance.platformId) !== -1){
-                                        assignedInstanceCount++;
-                                        if(assignedInstanceCount === assignedInstances.length){
-                                            callback(null,assignedInstances);
-                                            return;
-                                        }
-                                    }else{
-                                        assignedInstancesDao.removeInstanceById(assignedInstance._id,function(err,data){
-                                            if(err){
-                                                assignedInstanceCount++;
-                                                logger.error(err);
-                                                return;
-                                            }
-                                            assignedInstanceCount++;
-                                            if(assignedInstanceCount === assignedInstances.length){
-                                                callback(null,assignedInstances);
-                                                return;
-                                            }
-                                        })
-                                    }
-
-                                })(assignedInstances[k]);
-                            }
-                        }else{
-                            callback(null,assignedInstances);
                         }
                     });
                 },
