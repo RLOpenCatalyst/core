@@ -7,8 +7,7 @@
             //to get the templates listing.
             if($state.params &&  $state.params.templateObj){
                 $scope.providerType = $state.params.providerName.toUpperCase();
-                $scope.bpTypeName = $state.params.templateObj.templatetypename; 
-                console.log($scope.bpTypeName);  
+                $scope.bpTypeName = $state.params.templateObj.templatetypename;   
             }
             $scope.logo = 'images/global/cat-logo.png';
             $scope.osImageLogo = 'images/global/linux.png';
@@ -374,7 +373,7 @@
 
             //modal to show the Docker Parameters Popup                                             
 
-            //wizard data setting for step 1 and step 2.
+            //wizard data setting for step 1, step 2, step 3, step 4, step 5 .
             var index = 0, // points to the current step in the steps array
             steps = $scope.steps = [{
                 'isDisplayed': true,
@@ -382,8 +381,20 @@
                 'title': 'Choose Templates'
             }, {
                 'isDisplayed': false,
-                'name': 'Create Blueprint',
-                'title': 'Create Blueprint'
+                'name': 'Create Provider',
+                'title': 'Create Provider'
+            },{
+                'isDisplayed': false,
+                'name': 'Create Organization',
+                'title': 'Create Organization'
+            },{
+                'isDisplayed': false,
+                'name': 'Create Runlist',
+                'title': 'Create Runlist'
+            },{
+                'isDisplayed': false,
+                'name': 'Create Application',
+                'title': 'Create Application'
             }];
 
             //on initial load.
@@ -429,12 +440,10 @@
                 },
                 /* Sets the correct buttons to be enabled or disabled.*/
                 setButtons : function() {
-                    if (index === steps.length - 1) {
+                    if (index === 1) {
                         $scope.isFirstOpen = true;
                         $scope.isOrgOpen = true;
-                        $scope.isNextVisible = false;
-                        $scope.previousEnabled = true;
-                        $scope.isSubmitVisible = true;
+                        
                         if($scope.bpTypeName !=='Docker'){
                             blueprintCreation.getOperatingSytems();
                             blueprintCreation.getAllProviders();        
@@ -455,6 +464,10 @@
                         $scope.templateSelected.selected = false;
                         $scope.previousEnabled = false;
                         $scope.nextEnabled = false;
+                    } else if(index=== steps.length -1){
+                        $scope.isNextVisible = false;
+                        $scope.previousEnabled = true;
+                        $scope.isSubmitVisible = true;
                     } else {
                         $scope.nextEnabled = true;
                         $scope.previousEnabled = true;
@@ -543,6 +556,16 @@
                         name:blueprintCreation.newEnt.blueprintName
                     };
 
+                    var masterDetails = {};
+                    /*masterDetails = {
+                        orgName:,
+                        orgId:blueprintCreation.newEnt.orgList,
+                        bgName:,
+                        bgId:blueprintCreation.newEnt.bgList,
+                        projectName:,
+                        projectId:blueprintCreation.newEnt.projectList
+                    }
+                    blueprintCreateJSON.masterDetails = masterDetails;*/
                     if($scope.bpTypeName === 'OSImage'){
                         blueprintCreateJSON.templateId = $scope.templateSelected.name;
                     } else {
