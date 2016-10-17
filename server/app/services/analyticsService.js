@@ -35,18 +35,8 @@ analyticsService.aggregateEntityCosts
 	})
 
 	var offset = (new Date()).getTimezoneOffset()*60000
-	var startTime
-	var interval
-	switch (period) {
-		case 'month':
-			startTime = dateUtil.getStartOfAMonthInUTC(endTime)
-			interval = costAggregationPeriods.month.intervalInSeconds
-			break
-		case 'day':
-			startTime = dateUtil.getStartOfADayInUTC(endTime)
-			interval = costAggregationPeriods.day.intervalInSeconds
-			break
-	}
+	var interval = costAggregationPeriods[period].intervalInSeconds
+	var startTime = dateUtil.getStartOfPeriod(period, endTime)
 
 	async.forEach(catalystEntityHierarchy[parentEntity].children, function (childEntity, next0) {
 		var query = parentEntityQuery
@@ -62,36 +52,28 @@ analyticsService.aggregateEntityCosts
 				], next1)
 			},
 			function(totalCosts, next1) {
-				var serviceCosts = []
-				async.forEach(platformServices,
-					function(service, next2) {
-						query['platformDetails.serviceId'] = service
-
-						resourceCostsModel.aggregate([
-							{$match: query},
-							{$group: {_id: "$" + catalystEntityHierarchy[childEntity].key,
-								totalCost: {$sum: "$cost"},
-								service: {$first: "$platformDetails.serviceId"}}}
-						], function(err, serviceCost) {
-							if(err) {
-								next2(err)
-							} else {
-								serviceCosts.push(serviceCost)
-								next2()
-							}
-						})
-					},
-					function(err) {
-						if(err) {
-							return next1(err)
-						} else {
-							var aggregatedCosts = {totalCosts: totalCosts}
-							aggregatedCosts.serviceCosts = serviceCosts
-
-							next1(null, aggregatedCosts)
+				resourceCostsModel.aggregate([
+					{$match: query},
+					{
+						$group: {
+							_id: {
+								"entityId": "$" + catalystEntityHierarchy[childEntity].key,
+								"service": "$platformDetails.serviceId"
+							},
+							totalCost: {$sum: "$cost"},
+							service: {$first: "$platformDetails.serviceId"}
 						}
 					}
-				)
+				], function (err, serviceCosts) {
+					if (err) {
+						return next1(err)
+					} else {
+						var aggregatedCosts = {totalCosts: totalCosts}
+						aggregatedCosts.serviceCosts = serviceCosts
+
+						next1(null, aggregatedCosts)
+					}
+				})
 			}
 		],
 		function(err, aggregateCosts) {
@@ -100,17 +82,10 @@ analyticsService.aggregateEntityCosts
 			} else {
 				//@TODO Blocking call to be avoided
 				var entityCosts = {}
-
 				for(var i = 0; i < aggregateCosts.totalCosts.length; i++) {
 					entityCosts[aggregateCosts.totalCosts[i]._id] = {
-						entity: {
-							id: aggregateCosts.totalCosts[i]._id,
-							type: childEntity
-						},
-						parentEntity: {
-							id: parentEntityId,
-							type: parentEntity
-						},
+						entity: { id: aggregateCosts.totalCosts[i]._id, type: childEntity},
+						parentEntity: {id: parentEntityId, type: parentEntity},
 						costs: {
 							totalCost: Math.round(aggregateCosts.totalCosts[i].totalCost * 100) / 100,
 							AWS: {
@@ -127,12 +102,10 @@ analyticsService.aggregateEntityCosts
 
 				// @TODO Blocking call to be avoided
 				for(var i = 0; i < aggregateCosts.serviceCosts.length; i++) {
-					for(var j = 0; j < aggregateCosts.serviceCosts[i].length; j++) {
-						if(aggregateCosts.serviceCosts[i][j]._id in entityCosts) {
-							entityCosts[aggregateCosts.serviceCosts[i][j]._id]
-								.costs.AWS.serviceCosts[aggregateCosts.serviceCosts[i][j].service]
-								= Math.round(aggregateCosts.serviceCosts[i][j].totalCost * 100) / 100
-						}
+					if(aggregateCosts.serviceCosts[i]._id.entityId in entityCosts) {
+						entityCosts[aggregateCosts.serviceCosts[i]._id.entityId]
+							.costs.AWS.serviceCosts[aggregateCosts.serviceCosts[i]._id.service]
+							= Math.round(aggregateCosts.serviceCosts[i].totalCost * 100) / 100
 					}
 				}
 
@@ -176,23 +149,15 @@ analyticsService.validateAndParseCostQuery
 		var err = new Error('Invalid request')
 		err.errors = [{messages: 'Mandatory fields missing'}]
 		err.status = 400
-		callback(err)
+		return callback(err)
 	}
 
-	var startTime
-	switch (requestQuery.period) {
-		case 'month':
-			startTime = dateUtil.getStartOfAMonthInUTC(requestQuery.toTimeStamp)
-			break
-		/*case 'year':
-			startTime = dateUtil.getStartOfAMonthInUTC(requestQuery.toTimeStamp)
-			break*/
-		default:
-			var err = new Error('Invalid request')
-			err.errors = [{messages: 'Period is invalid'}]
-			err.status = 400
-			return callback(err)
-			break
+	var startTime = dateUtil.getStartOfPeriod(requestQuery.period, requestQuery.toTimeStamp)
+	if(startTime == null) {
+		var err = new Error('Invalid request')
+		err.errors = [{messages: 'Period is invalid'}]
+		err.status = 400
+		return callback(err)
 	}
 
 	//@TODO Query object format to be changed
