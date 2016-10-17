@@ -73,6 +73,23 @@ function getStartOfADayInUTC(date) {
 	}
 }
 
+function getStartOfPeriod(period, date) {
+	var startTime = null
+	switch(period) {
+		case 'month':
+			startTime = getStartOfAMonthInUTC(date);
+			break;
+		case 'week':
+			startTime = getStartOfAWeekInUTC(date);
+			break;
+		case 'day':
+			startTime = getStartOfADayInUTC(date);
+			break;
+	}
+
+	return startTime;
+}
+
 /*
  * Get Date in UTC Format
  * date - JavaScript Date
@@ -199,3 +216,4 @@ momentDateUtil.getStartOfAMonthInUTC = getStartOfAMonthInUTC;
 momentDateUtil.getDateDifferenceInDays = getDateDifferenceInDays;
 momentDateUtil.getStartOfADayInUTC = getStartOfADayInUTC;
 momentDateUtil.getStartOfAWeekInUTC = getStartOfAWeekInUTC;
+momentDateUtil.getStartOfPeriod = getStartOfPeriod;
