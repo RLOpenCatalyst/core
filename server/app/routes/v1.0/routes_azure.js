@@ -111,7 +111,11 @@ module.exports.setRoutes = function(app, verificationFunc) {
 
         logger.debug('Inside azure get locations');
         logger.debug('Provider Id:', req.params.id);
-
+        if(req.params.id === null || req.params.id === 'null'){
+            logger.debug("Provider Id is pass as Null in params");
+            res.status(500).send(req.params.id);
+            return;
+        }
         azureProvider.getAzureCloudProviderById(req.params.id, function(err, providerdata) {
             if (err) {
                 logger.error('getAzureCloudProviderById ' + err);

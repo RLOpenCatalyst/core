@@ -13,7 +13,7 @@
             <div class="alert alert-info text-center" ng-show="blueprints.length===0">
                 No Blueprints Available
             </div>
-            <div class="container" ng-init="getAllCompsiteBlueprint();">
+            <div class="container">
                 <accordion>
                     <div ng-if="blueprints.software_stack.length>0">
                         <accordion-group ng-init="accGroupStatus = {opened: isFirstOpen}" is-open="accGroupStatus.opened">

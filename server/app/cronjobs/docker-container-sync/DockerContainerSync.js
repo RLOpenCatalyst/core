@@ -5,117 +5,61 @@ var MasterUtils = require('_pr/lib/utils/masterUtil.js');
 var credentialCrpto = require('_pr/lib/credentialcryptography.js');
 var instancesDao = require('_pr/model/classes/instance/instance');
 var containerDao = require('_pr/model/container');
+var containerLogModel = require('_pr/model/log-trail/containerLog.js');
 var SSH = require('_pr/lib/utils/sshexec');
 var fileIo = require('_pr/lib/utils/fileio');
 var toPairs = require('lodash.topairs');
 var async = require('async');
+var logsDao = require('_pr/model/dao/logsdao.js');
 
 var DockerContainerSync = Object.create(CatalystCronJob);
-DockerContainerSync.interval = '*/5 * * * *';
+DockerContainerSync.interval = '*/2 * * * *';
 DockerContainerSync.execute = dockerContainerSync;
 
 module.exports = DockerContainerSync;
 
-function dockerContainerSync(){
-    async.parallel({
-        containerDataSync: function(callback){
-            containerDao.getAllContainers(function(err,containers){
-                if(err){
-                    logger.error(err);
-                    callback(err,null);
-                    return;
-                }else if(containers.length > 0){
-                    var count = 0;
-                    for(var i = 0;i < containers.length; i++){
-                        (function(container){
-                            instancesDao.getInstanceById(container.instanceId,function(err,instances){
-                                count++;
-                                if(err) {
-                                    logger.error(err);
-                                    return;
-                                }else if(instances.length > 0){
-                                   if(count === containers.length){
-                                       callback(null,containers);
-                                       return;
-                                   }
-                                }else{
-                                    containerDao.deleteContainerByInstanceId(container.instanceId,function(err,deleteStatus){
-                                        if(err){
-                                            logger.error(err);
-                                            return;
-                                        }
-                                        if(count === containers.length){
-                                            callback(null,containers);
-                                            return;
-                                        }
-                                    })
-                                }
-                            })
-                        })(containers[i]);
-                    }
-                }else{
-                    logger.info("Containers are not present in catalyst for instance sync");
-                    callback(null,containers);
-                    return;
-                }
-            })
-        },
-        instanceDataSync: function(callback){
-            MasterUtils.getAllActiveOrg(function(err, orgs) {
-                if(err) {
-                    logger.error(err);
-                    callback(err,null);
-                    return;
-                }else if(orgs.length > 0){
-                    for(var i = 0; i < orgs.length; i++){
-                        (function(org){
-                            instancesDao.getInstancesWithContainersByOrgId(org.rowid, function(err, instances) {
-                                if(err) {
-                                    logger.error(err);
-                                    callback(err,null);
-                                    return;
-                                }else if(instances.length > 0){
-                                    var count = 0;
-                                    for(var j = 0; j < instances.length; j++){
-                                        (function(instance){
-                                            count++;
-                                            aggregateDockerContainerForInstance(instance)
-                                        })(instances[j]);
-                                    }
-                                    if(count === instances.length){
-                                        callback(null,instances);
-                                        return;
-                                    }
-                                }else{
-                                    logger.info("There is no Instance in "+org.orgname+" Organization who have docker installed");
-                                    callback(null,instances);
-                                    return;
-                                }
-                            });
-
-                        })(orgs[i]);
-                    }
-
-                }else{
-                    logger.info("There is no Active Organization for Docker Container Sync");
-                    callback(null,orgs);
-                    return;
-                }
-            });
-        }
-    },function(err,results){
-        if(err){
+function dockerContainerSync() {
+    MasterUtils.getAllActiveOrg(function (err, orgs) {
+        if (err) {
             logger.error(err);
+            return;
+        } else if (orgs.length > 0) {
+            for (var i = 0; i < orgs.length; i++) {
+                (function (org) {
+                    instancesDao.getInstancesWithContainersByOrgId(org.rowid, function (err, instances) {
+                        if (err) {
+                            logger.error(err);
+                            return;
+                        } else if (instances.length > 0) {
+                            var count = 0;
+                            for (var j = 0; j < instances.length; j++) {
+                                (function (instance) {
+                                    count++;
+                                    aggregateDockerContainerForInstance(instance)
+                                })(instances[j]);
+                            }
+                            if (count === instances.length) {
+                                return;
+                            }
+                        } else {
+                            logger.info("There is no Instance in " + org.orgname + " Organization who have docker installed");
+                            return;
+                        }
+                    });
+                })(orgs[i]);
+            }
+        } else {
+            logger.info("There is no Active Organization for Docker Container Sync");
+            return;
         }
-        logger.info("Docker Container Sync job is successfully executed");
-        return;
     });
-}
+};
+
 
 function aggregateDockerContainerForInstance(instance){
     logger.info("Docker Container Sync started for Instance IP "+instance.instanceIP);
     if(instance.instanceState === 'terminated' || instance.instanceState === 'stopped'){
-        deleteContainerByInstanceId(instance._id,function(err,data){
+        deleteContainerByInstanceId(instance,function(err,data){
             if(err){
                 logger.error(err);
                 return;
@@ -261,7 +205,7 @@ function aggregateDockerContainerForInstance(instance){
                 if(containers.operation === 'delete'){
                     deleteContainerByInstanceId(containers.instanceId,next);
                 }else if (containers.operation === 'create'){
-                    saveAndUpdateContainers(containers.containers,containers.containerIds,containers.instanceId,next)
+                    saveAndUpdateContainers(containers.containers,containers.containerIds,containers.instanceId,instance,next)
                 }else{
                     next(null,containers);
                 }
@@ -278,7 +222,7 @@ function aggregateDockerContainerForInstance(instance){
     }
 };
 
-function saveAndUpdateContainers(containers,containerIds,instanceId,next){
+function saveAndUpdateContainers(containers,containerIds,instanceId,instance,next){
     async.waterfall([
             function(next){
                 containerDao.deleteContainersByContainerIds(instanceId,containerIds,next);
@@ -296,8 +240,74 @@ function saveAndUpdateContainers(containers,containerIds,instanceId,next){
                                     if(err){
                                         logger.error(err);
                                         return;
+
                                     }else{
                                         count++;
+                                        var containerStatus = container.Status;
+                                        var actionObj = '',action ='',logs = '',actionId;
+                                        if(containerStatus.indexOf('Paused') === -1){
+                                            actionObj = 'Container-'+container.Names+'-Pause';
+                                            action = 'Pause';
+                                            actionId = 4;
+                                            logs = "Docker-Container "+container.Names+" Paused";
+                                        }else if(containerStatus.indexOf('Exited') === -1){
+                                            actionObj = 'Container-'+container.Names+'-Stop';
+                                            action = 'Stop';
+                                            actionId = 2;
+                                            logs = "Docker-Container "+container.Names+" Stopped";
+                                        }else if(containerStatus.indexOf('Up') === -1){
+                                            actionObj = 'Container-'+container.Names+'-Start';
+                                            action = 'Start';
+                                            logs = "Docker-Container "+container.Names+" Started";
+                                        }
+                                        var actionObj = 'Container-'+container.Names+'-Start';
+                                        var timestampStarted = new Date().getTime();
+                                        var actionLog = instancesDao.insertDockerActionLog(instanceId, instance.catUser, actionObj, actionId, timestampStarted);
+                                        var logReferenceIds = [instance._id, actionLog._id];
+                                        logsDao.insertLog({
+                                            referenceId: logReferenceIds,
+                                            err: false,
+                                            log: logs,
+                                            timestamp: timestampStarted
+                                        });
+
+
+                                        var containerLogs ={
+                                            actionId: actionLog._id,
+                                            containerId: container.Id,
+                                            orgName: instance.orgName,
+                                            orgId: instance.orgId,
+                                            bgName: instance.bgName,
+                                            bgId: instance.bgId,
+                                            projectName: instance.projectName,
+                                            envName: instance.environmentName,
+                                            envId: instance.envId,
+                                            status: action,
+                                            actionStatus: "success",
+                                            instanceIP:instance.instanceIP,
+                                            platformId: instance.platformId,
+                                            containerName: container.Names,
+                                            Image: container.Image,
+                                            ImageID: container.ImageID,
+                                            platform: instance.hardware.platform,
+                                            os: instance.hardware.os,
+                                            user: instance.catUser,
+                                            createdOn: new Date().getTime(),
+                                            startedOn: new Date().getTime(),
+                                            providerType: instance.providerType ? instance.providerType:null,
+                                            action: action,
+                                            logs: [{
+                                                err: false,
+                                                log: "Started container",
+                                                timestamp: new Date().getTime()
+                                            }]
+                                        };
+                                        containerLogModel.createOrUpdate(containerLogs, function(err, logData){
+                                            if (err) {
+                                            logger.error("Failed to create or update containerLog: ", err);
+                                            }
+                                        });
+                                        instancesDao.updateActionLog(instance._id, actionLog._id, true, new Date().getTime());
                                         if(count === containers.length){
                                             next(null,containers);
                                         }
@@ -341,11 +351,76 @@ function dockerContainerStatus(status){
     }
 };
 
-function deleteContainerByInstanceId(instanceId,next){
+function deleteContainerByInstanceId(instanceDetails,next){
+    var containerList = [];
+    var count = 0;
     async.waterfall([
             function(next){
-                containerDao.deleteContainerByInstanceId(instanceId,next);
-            }],
+                containerDao.getContainerByInstanceId(instanceDetails._id,next);
+            },
+            function(containers,next){
+                containerList = containers;
+                containerDao.deleteContainerByInstanceId(instanceDetails._id,next);
+            },
+        function(containers,next){
+                if(containerList.length > 0){
+                    for(var i = 0; i < containerList.length;i++){
+                        (function(container){
+                            var timestampStarted = new Date().getTime();
+                            var actionObj = 'Container-'+container.Names+'-Terminated';
+                            var actionLog = instancesDao.insertDockerActionLog(instanceDetails._id,instanceDetails.catUser , actionObj, 6, timestampStarted);
+                            var logReferenceIds = [instanceDetails._id, actionLog._id];
+                            logsDao.insertLog({
+                                referenceId: logReferenceIds,
+                                err: false,
+                                log: "Docker-Container "+container.Names+" Terminated",
+                                timestamp: timestampStarted
+                            });
+
+                            var containerLog ={
+                                actionId: actionLog._id,
+                                containerId: container.Id,
+                                orgName: instanceDetails.orgName,
+                                orgId: instanceDetails.orgId,
+                                bgName: instanceDetails.bgName,
+                                bgId: instanceDetails.bgId,
+                                projectName: instanceDetails.projectName,
+                                envName: instanceDetails.environmentName,
+                                envId: instanceDetails.envId,
+                                status: 'Terminated',
+                                actionStatus: "success",
+                                instanceIP:instanceDetails.instanceIP,
+                                platformId: instanceDetails.platformId,
+                                containerName: container.Names,
+                                Image: container.Image,
+                                ImageID: container.ImageID,
+                                platform: instanceDetails.hardware.platform,
+                                os: instanceDetails.hardware.os,
+                                user: instanceDetails.catUser,
+                                createdOn: new Date().getTime(),
+                                startedOn: new Date().getTime(),
+                                providerType: instanceDetails.providerType ? instanceDetails.providerType:null,
+                                action: 'Terminated',
+                                logs: []
+                            };
+
+                            containerLogModel.createOrUpdate(containerLog, function(err, logData){
+                                if (err) {
+                                    logger.error("Failed to create or update containerLog: ", err);
+                                }
+                                count++;
+                            });
+                            instancesDao.updateActionLog(instanceDetails._id, actionLog._id, true, new Date().getTime());
+                            if(count === containers.length){
+                                next(null,containers);
+                            }
+                        })(containerList[i]);
+                    }
+                }else{
+                    next(null,containerList);
+                }
+        }
+        ],
         function (err, results) {
             if(err){
                 logger.error("Error in deleteContainerByInstanceId ");

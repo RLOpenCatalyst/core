@@ -21,9 +21,18 @@
 			$scope.scriptParamShow = false;
 			$scope.scriptSelectAll = false;
 			$scope.scriptParamsObj = {};
+			$scope.isSudo = false;
 			$scope.toggleAll = function() {
 				var toggleStatus = $scope.isAllSelected;
 				angular.forEach($scope.chefInstanceList, function(itm){ itm._isNodeSelected = toggleStatus;});
+			};
+			$scope.botStatus = function() {
+				if($scope.checkBotType){
+					$scope.checkBotStatus = true;
+				}else{
+					$scope.checkBotStatus = false;
+				}
+
 			};
 			$scope.optionToggled = function(){
 				$scope.isAllSelected = $scope.chefInstanceList.every(function(itm){ return  itm._isNodeSelected; })
@@ -243,13 +252,21 @@
 					}
 				},
 				ok: function () {
-					$scope.taskSaving = true;
 					//these values are common across all task types
 					var taskJSON = {
 						taskType: $scope.taskType,
 						name: $scope.name,
-						description: $scope.description,
+						botType: $scope.botType,
+						shortDesc: $scope.shortDesc,
+						description: $scope.description
 					};
+					if($scope.checkBotType){
+						taskJSON.botType = $scope.botType;
+						taskJSON.shortDesc= $scope.shortDesc;
+						$scope.taskSaving = true;
+					}else{
+						$scope.taskSaving = true;
+					}
 					//checking for name of the task
 					if (!taskJSON.name.trim()) {
 						$scope.inputValidationMsg='Please enter the name of the task.';
@@ -355,6 +372,7 @@
 					if ($scope.taskType === "script") {
 						taskJSON.nodeIds = [];
 						taskJSON.scriptDetails = [];
+						taskJSON.isSudo = $scope.isSudo;
 						for (var si = 0; si < $scope.chefInstanceList.length; si++) {
 							if ($scope.chefInstanceList[si]._isNodeSelected) {
 								taskJSON.nodeIds.push($scope.chefInstanceList[si]._id);
@@ -405,7 +423,9 @@
 				}
 			});
 			$scope.name = "";
+			$scope.shortDesc = "";
 			$scope.taskType = "chef";//default Task type selection;
+			$scope.botType = "Task";//default Task type selection;
 			$scope.isEditMode = false;//default edit mode is false;
 			$scope.taskSaving = false;//to disable submit button, dfault false
 			$scope.autoSync = {
@@ -433,7 +453,6 @@
 			workzoneServices.getEnvironmentTaskList().then(function (response) {
 				var data, selectorList = [],
 					optionList = [];
-
 				if (response.data) {
 					data = response.data;
 				} else {
@@ -519,11 +538,13 @@
 				/*Identifying the nodes and script list and checking for task type to be script*/
 				if ($scope.taskType === "script") {
 					if($scope.isEditMode){
+						$scope.isSudo=items.taskConfig.isSudo;
 						$scope.chefInstanceList = responseFormatter.identifyAvailableChefNode(responseFormatter.getChefList(instances), items.taskConfig.nodeIds);
 						$scope.isScriptInstanceLoading = false;
 						$scope.isNewTaskPageLoading = false;
 						$scope.targetType="instance";
 					}else{
+						$scope.isSudo = false;
 						$scope.chefInstanceList = responseFormatter.identifyAvailableChefNode(responseFormatter.getChefList(instances), []);
 						$scope.isScriptInstanceLoading = false;
 						$scope.isNewTaskPageLoading = false;
@@ -559,6 +580,12 @@
 				$scope.description = items.description;
 				$scope.taskType = items.taskType;
 				$scope.name = items.name;
+				if(items.shortDesc && (items.shortDesc !== '' || items.shortDesc !== null)){
+					$scope.checkBotStatus = true;
+					$scope.checkBotType = true;
+				}
+				$scope.botType = items.botType;
+				$scope.shortDesc = items.shortDesc;
 				//properties specific to jenkins
 				if (items.taskType === "jenkins") {
 					$scope.jobUrl = items.taskConfig.jobURL;

@@ -307,7 +307,7 @@ providerService.getTagMappingsByProviderId
 providerService.getTagByCatalystEntityTypeAndProvider
     = function getTagByCatalystEntityTypeAndProvider(providerId, catalystEntityType, callback) {
     // @TODO entity types to be moved to config
-    if((catalystEntityType != 'project') && (catalystEntityType != 'environment')) {
+    if((catalystEntityType != 'project') && (catalystEntityType != 'environment') &&  (catalystEntityType != 'bgName')) {
         var err = new Error('Malformed Request');
         err.status = 400;
         return callback(err);
@@ -387,7 +387,7 @@ providerService.addMultipleTagMappings = function addMultipleTagMappings(provide
 
             // @TODO entity types to be moved to config
             if ((tagMapping.catalystEntityType != 'project')
-                && (tagMapping.catalystEntityType != 'environment')) {
+                && (tagMapping.catalystEntityType != 'environment') && (tagMapping.catalystEntityType != 'bgName')) {
                 var err = new Error('Malformed Request');
                 err.status = 400;
                 return callback(err);

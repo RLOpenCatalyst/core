@@ -70,6 +70,24 @@ function routeConfig($stateProvider, $urlRouterProvider, $httpProvider, modulePe
 				return deferred.promise;
 			}]
 		}
+	}).state('dashboard.analytics', {
+		url: "/analytics/",
+		templateUrl: "src/partials/sections/dashboard/analytics/analytics.html",
+		controller: "analyticsCtrl as analytic",
+		resolve: {
+			auth: ["$q", function ($q) {
+				var deferred = $q.defer();
+				// instead, go to a different page
+				if (modulePerms.analyticsBool()) {
+					// everything is fine, proceed
+					deferred.resolve();
+				} else {
+					deferred.reject({redirectTo: 'dashboard'});
+				}
+				return deferred.promise;
+
+			}]
+		}
 	}).state('dashboard.settings', {
 		url: "/settings",
 		templateUrl: "src/partials/sections/dashboard/setting/setting.html",
