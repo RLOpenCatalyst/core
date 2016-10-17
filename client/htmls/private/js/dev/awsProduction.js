@@ -1555,8 +1555,10 @@ var saveblueprint = function(tempType) {
                     reqBody.orgId = $('#orgnameSelect').val();
                     reqBody.bgId = $('#bgListInput').val();
                     reqBody.projectId = $('#projectListInput').val();
-                    reqBody.botType = $('#botType').val();
-                    reqBody.shortDesc = $('#shortDesc').val();
+                    if ($('#serviceDeliveryCheck').prop("checked")) {
+                        reqBody.botType = $('#botType').val();
+                        reqBody.shortDesc = $('#shortDesc').val();
+                    }
                     var imageIdentifier = $('#imageId').val();
                     var imageId = $('#imageId').find('option:selected').attr('_id');
                     var securityGroupIds = getSecurityCheckedList();
