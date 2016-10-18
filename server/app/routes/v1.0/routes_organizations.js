@@ -246,6 +246,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
             },
             function(masterDetails,next){
                 if(masterDetails.length > 0){
+                    console.log(JSON.stringify(masterDetails));
                     masterDetailList = masterDetails;
                     d4dModelNew.d4dModelMastersOrg.find({
                         id: '1',
