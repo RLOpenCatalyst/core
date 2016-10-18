@@ -39,6 +39,18 @@
 						<i class="fa fa-area-chart white"></i> ANALYTICS
 					</div>
 				</li>
+				<li>
+					<div id="service" class="headNavigItem" ng-if="serviceBool" ui-sref='dashboard.service' ui-sref-active='activeSection'>
+						<i class="fa fa-area-chart white"></i> SERVICE
+					</div>
+				</li>
+				<li>
+					<div id="settings" class="headNavigItem" ng-if='settingsBool' ui-sref-active='activeSection'>
+						<a href="/private/index.html#ajax/Settings/Dashboard.html">
+							<i class="fa fa-cog white"></i> SETTINGS
+						</a>
+					</div>
+				</li>
 				<li class="header-right">
 					<div id="header-menu">
 						<div id="userInfo" class="headNavigItem" title="{{appDetails.roleId}}">
@@ -46,18 +58,26 @@
 							{{appDetails.cn | uppercase}}
 							[{{appDetails.roleId}}]
 						</div>
-						<div id="settings" class="headNavigItem" ng-if='settingsBool' ui-sref-active='activeSection'>
-							<a href="/private/index.html#ajax/Settings/Dashboard.html">
-								<i class="fa fa-cog white"></i> SETTINGS
-							</a>
-						</div>
-						<div id="help" class="headNavigItem">
-							<a href="https://catalyst.readthedocs.org" target="_blank">
-								<i class="fa fa-question white"></i> HELP
-							</a>
-						</div>
-						<div id="logout" ng-click="logoutConfirmation();" class="headNavigItem" title="Logout">
-							<i class="fa fa-sign-out white"></i>
+						<div class="btn-icons dropdown pull-right" title="Menu">
+							<i class="fa fa-ellipsis-v white dropdown-toggle cursor" data-toggle="dropdown"></i>
+							<ul class="dropdown-menu">
+								<li class="cursor">
+									<span>
+										<div title="Help">
+											<a href="https://catalyst.readthedocs.org" target="_blank">
+											<i class="fa fa-question blue"></i> HELP
+											</a>
+										</div>
+									</span>
+								</li>
+								<li class="cursor">
+									<span>
+										<div ng-click="logoutConfirmation();" title="Logout">
+											<i class="fa fa-sign-out blue"></i> LOGOUT
+										</div>
+									</span>
+								</li>
+							</ul>
 						</div>
 					</div>
 				</li>
