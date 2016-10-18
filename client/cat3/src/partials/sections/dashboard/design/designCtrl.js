@@ -78,9 +78,9 @@
 				genericServices.getTreeNew().then(function (orgs) {
 					$rootScope.organObject=orgs;
 					$rootScope.organNewEnt=[];
-			$rootScope.organNewEnt.org = '0';
-			$rootScope.organNewEnt.buss='0';
-			$rootScope.organNewEnt.proj='0';
+					$rootScope.organNewEnt.org = orgs[0];
+					$rootScope.organNewEnt.buss='0';
+					$rootScope.organNewEnt.proj='0';
 					$state.go('dashboard.design.list',{providerName:providers[0].name,templateObj:template[0]});
 
 				});

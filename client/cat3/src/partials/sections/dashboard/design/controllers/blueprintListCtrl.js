@@ -77,10 +77,10 @@
         var lanIns = this;
         lanIns.newEnt=[];
         if($rootScope.organObject){
-            lanIns.envOptions=$rootScope.organObject[$rootScope.organNewEnt.org].environments;
-            lanIns.newEnt.org =$rootScope.organObject[$rootScope.organNewEnt.org].name;
-            lanIns.newEnt.buss=$rootScope.organObject[$rootScope.organNewEnt.org].businessGroups[$rootScope.organNewEnt.buss].name;
-            lanIns.newEnt.proj=$rootScope.organObject[$rootScope.organNewEnt.org].businessGroups[$rootScope.organNewEnt.buss].projects[$rootScope.organNewEnt.proj].name;
+            //lanIns.envOptions=$rootScope.organObject[$rootScope.organNewEnt.org].environments;
+            lanIns.newEnt.org =$rootScope.organNewEnt.org.name;
+            lanIns.newEnt.buss=$rootScope.organNewEnt.buss.name;
+            lanIns.newEnt.proj=$rootScope.organNewEnt.proj.name;
         }
         lanIns.launch = function (){
             $modalInstance.close(lanIns.newEnt.env);
