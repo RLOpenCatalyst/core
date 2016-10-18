@@ -1,32 +1,30 @@
 
    <div id="create-bp" class="col-lg-12">
       <div id="content">
-      <div id="crumbs">
-   <ul class="simple-list">
-      <li class="selected active col-lg-2">
-         <div class="singletab " >
-            <span class="stp">1</span> Templates
+         <div id="wizardContainer" class="col-lg-12 wizardContainer">
+            <div class="btn-cls" style="width:{{bpCreate.createStp.stepWidth}}px">
+               <div class="btn-1" ng-show="bpCreate.createStp.tempStep">
+                  <a ng-click="stepClick(1);" type="button" ng-class="bpCreate.btnStatus.temp" class=" btn wizardbtn-circle process-btn wizardActiveBtn">{{bpCreate.createStp.stpCount.temp}}</a><br>
+                  <p class="wizardLabelName">Templates</p>
+               </div>
+               <div class="btn-1" ng-show="bpCreate.createStp.provStep">
+                  <a type="button" ng-click="stepClick(2);" ng-class="bpCreate.btnStatus.prov" class=" btn wizardbtn-circle process-btn wizardActiveBtn">{{bpCreate.createStp.stpCount.prov}}</a><br>
+                  <p class="wizardLabelName">Provider</p>
+               </div>
+               <div class="btn-1" ng-show="bpCreate.createStp.orgStep">
+                  <a type="button" ng-click="stepClick(3);"  ng-class="bpCreate.btnStatus.org" class=" btn wizardbtn-circle process-btn wizardActiveBtn">{{bpCreate.createStp.stpCount.org}}</a><br>
+                  <p class="wizardLabelName">Organization</p>
+               </div>
+               <div class="btn-1" ng-show="bpCreate.createStp.confStep">
+                  <a type="button" ng-click="stepClick(4);" ng-class="bpCreate.btnStatus.conf" class=" btn wizardbtn-circle process-btn wizardActiveBtn">{{bpCreate.createStp.stpCount.conf}}</a><br>
+                  <p class="wizardLabelName">Server Configuration</p>
+               </div>
+               <div class="btn-1" ng-show="bpCreate.createStp.appStep">
+                  <a type="button" ng-click="stepClick(5);" ng-class="bpCreate.btnStatus.app" class=" btn wizardbtn-circle process-btn wizardActiveBtn">{{bpCreate.createStp.stpCount.app}}</a><br>
+                  <p class="wizardLabelName">Application</p>
+               </div>
             </div>
-         </li>
-      <li class="col-lg-2">
-         <div class="singletab " >
-            <span class="stp">2</span> Provider
          </div>
-      </li>
-      <li class="col-lg-2">
-         <div class="singletab" >
-            <span class="stp">3</span> Organization
-            </div>       </li>
-      <li class="disabled col-lg-2">
-         <div class="singletab" >
-            <span class="stp">4</span> Runlist
-         </div>         </li>
-      <li class="disabled col-lg-2">
-         <div class="singletab">
-            <span class="stp">5</span> Application
-         </div>         </li>
-   </ul>
-</div>
          <div next-text="Next" previous-text="Previous">
             <div ng-if="bpTypeName === 'Composite'">
                <form name="compositeBlueprintCreation" novalidate>
@@ -34,7 +32,7 @@
                </form>
             </div>
             <form name="newBlueprintForm" novalidate>
-               <div ng-show="steps[0].isDisplayed">
+               <div ng-show="stpLen ==1">
                   <div class="col-sm-3 col-lg-3 col-md-3 blueprintTemplate" ng-repeat="templateDetail in templateList" ng-if="bpTypeName == templateDetail.templatetypename" ng-class="{'blueprintTemplateSelected':templateDetail.selected}" ng-click="blueprintTemplateClick(templateDetail);">
                      <ul class="list-unstyled system-prop" style="text-align:center;">
                         <li>
@@ -53,7 +51,7 @@
                      </ul>
                   </div>
                </div>
-               <div ng-show="steps[1].isDisplayed">
+               <div ng-show="stpLen ==2">
                   <!-- <div class="col-sm-2 col-lg-2 col-md-2 blueprintTemplate blueprintTemplateSelected" ng-show="templateSelected.templatetypename !== 'Docker'">
                      <ul class="list-unstyled system-prop" style="text-align:center;">
                         <li ng-if="templateSelected.templatetypename === 'SoftwareStack' || templateSelected.templatetypename === 'CloudFormation' || templateSelected.templatetypename === 'ARMTemplate'">
@@ -226,7 +224,7 @@
                      </accordion>
                   </div>
                </div>
-               <div ng-show="steps[2].isDisplayed"> 
+               <div ng-show="stpLen ==3"> 
                   <div class="col-sm-12 col-lg-12 col-md-12 margintop15">
                      <accordion>
                  <!--adding organisation parameters starts here-->
@@ -302,7 +300,7 @@
                         </accordion>
                   </div>
                </div>
-               <div ng-show="steps[3].isDisplayed"> 
+               <div ng-show="stpLen ==4"> 
                   <div class="col-sm-12 col-lg-12 col-md-12 margintop15">
                      <accordion>
                         <!--configure runlist collapse starts here-->
@@ -340,7 +338,7 @@
                         </accordion>
                   </div>
                </div>
-               <div ng-show="steps[4].isDisplayed"> 
+               <div ng-show="stpLen == 5"> 
                   <div class="col-sm-12 col-lg-12 col-md-12 margintop15">
                      <accordion>
                         <!--execute modal starts here-->
@@ -594,8 +592,8 @@
       </div>
    </div>
    <div class="pager">
-      <button class="btn  cat-btn-update" ng-click="previous()" ng-disabled="!previousEnabled" ng-show="!isSubmitComposite">Previous</button>
-      <button class="btn cat-btn-update" ng-show="isNextVisible" ng-click="next()" ng-disabled="!nextEnabled">Next</button>
+      <button class="btn  cat-btn-update" ng-click="previous(stpLen)" ng-disabled="!previousEnabled" ng-show="!isSubmitComposite">Previous</button>
+      <button class="btn cat-btn-update" ng-show="isNextVisible" ng-click="next(stpLen)" ng-disabled="!nextEnabled">Next</button>
       <button class="btn  cat-btn-update" ng-show="isSubmitVisible" ng-disabled="newBlueprintForm.$invalid" ng-click="submit()">Save</button>
       <button class="btn  cat-btn-update" ng-show="isSubmitComposite" ng-disabled="compositeBlueprintCreation.$invalid" ng-click="compositeSave()">Save</button>
    </div>

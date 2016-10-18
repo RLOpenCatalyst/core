@@ -33,28 +33,28 @@
 			</div>
 		</div>
 </div>
-	<div id="sidebar-wrapper" ng-class="{'show-wrapper':isOpenSidebar === true}">
+	<div id="sidebar-wrapper" style="top:120px;" ng-class="{'show-wrapper':isOpenSidebar === true}">
 		<form>
 			<div>
 				<div class="repo-job-details-wrapper-inner marginbottom10"  >Filter:</div>
 
 				<div class="col-lg-12 col-md-12 form-group">
 					<label for="">Organization</label>
-					<select  ng-model="organNewEnt.org" class="chooseProjectExisting width-100 form-control"  ng-change="getProviders(organObject[organNewEnt.org].rowid)">
+					<select  ng-model="organNewEnt.org" ng-options="org.name group by org.a for org in organObject" class="chooseProjectExisting width-100 form-control"  ng-change="getProviders(organObject[organNewEnt.org].rowid)">
 						<option value="">Select</option>
-						<option ng-repeat="org in organObject"  value="{{organObject.indexOf(org)}}" >{{org.name}}</option>
+
 					</select>
 				</div>
 				<div class="col-lg-12 col-md-12 form-group">
                     <label for="">Business Group</label>
-                    <select id="bgListInputExisting" class="chooseBGExisting width-100 form-control"  ng-model="organNewEnt.buss">
-                        <option ng-repeat="buss in organObject[organNewEnt.org].businessGroups" value="{{organObject[organNewEnt.org].businessGroups.indexOf(buss)}}" >{{buss.name}}</option>
-                    </select>
+                    <select id="bgListInputExisting" class="chooseBGExisting width-100 form-control" ng-options="buss.name group by buss.a for buss in organObject[organObject.indexOf(organNewEnt.org)].businessGroups"  ng-model="organNewEnt.buss">
+						<option value="">Select</option>
+					</select>
                 </div>
                 <div class="col-lg-12 col-md-12 form-group">
                     <label >Project</label>
-                    <select class="chooseProjectExisting width-100 form-control" ng-model="organNewEnt.proj">
-                        <option ng-repeat="proj in organObject[organNewEnt.org].businessGroups[organNewEnt.buss].projects"  value="{{organObject[organNewEnt.org].businessGroups[organNewEnt.buss].projects.indexOf(proj)}}" >{{proj.name}}</option>
+                    <select class="chooseProjectExisting width-100 form-control" ng-options="buss.name group by buss.a for buss in organObject[organObject.indexOf(organNewEnt.org)].businessGroups[organObject[organObject.indexOf(organNewEnt.org)].businessGroups.indexOf(organNewEnt.buss)].projects" ng-model="organNewEnt.proj">
+						<option value="">Select</option>
                     </select>
                 </div>
 				<div class="col-lg-12 col-md-12 marginbottom5">
@@ -71,7 +71,7 @@
 			<ul class="nav nav-tabs" >
 				<li ng-class="{'active':state.current.name === 'dashboard.design.list'}"  ui-sref="dashboard.design.list({providerName:state.params.providerName,templateObj:state.params.templateObj})"><a style="font-weight:600"><i class="fa fa-list fa-2" aria-hidden="true"></i> List</a></li>
 				<li ng-class="{'active':state.current.name === 'dashboard.design.add'}" ui-sref="dashboard.design.add({providerName:state.params.providerName,templateObj:state.params.templateObj})"><a style="font-weight:600" ><i class="fa fa-file-text fa-2" aria-hidden="true"></i> New</a></li>
-				<li class="form-group pull-right filter-btn" >
+				<li class="form-group pull-right filter-btn" style="padding: 8px;" >
 					<button type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ng-click="isOpenSidebar = !isOpenSidebar">
 						<i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;Filter
 					</button>
