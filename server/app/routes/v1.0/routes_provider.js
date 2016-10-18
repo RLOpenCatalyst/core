@@ -2238,7 +2238,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	// TODO Use async to reduce callbacks
 	app.post('/aws/providers', function(req, res) {
 		logger.debug("Enter post() for /providers.", typeof req.body.fileName);
-		logger.debug("Req Body for providers ", JSON.stringify(req.body));
 		var user = req.session.user;
 		var category = configmgmtDao.getCategoryFromID("9");
 		var permissionto = 'create';
@@ -2249,12 +2248,12 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		var orgId = req.body.orgId;
 		var s3BucketName=req.body.s3BucketName;
 		var plannedCost=req.body.plannedCost;
-		if(plannedCost === null || plannedCost ===''){
-			plannedCost=0.0;
-		}
 		var isDefault = (req.body.isDefault === 'true') ? true : false;
 		var hasDefaultProvider = false;
 
+		if(plannedCost === null || plannedCost ===''){
+			plannedCost=0.0;
+		}
 		if ((typeof accessKey === 'undefined' || accessKey.length === 0) && !isDefault) {
 			res.status(400).send("Please Enter AccessKey.");
 			return;
@@ -2287,44 +2286,58 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				return;
 			} else {
 				logger.debug("Adding provider");
+				if(req.body.region) {
+					var region;
+					if (typeof req.body.region === 'string') {
+						logger.debug("inside single region: ", req.body.region);
+						region = req.body.region;
+					} else {
+						region = req.body.region[0];
+					}
+					logger.debug("Final Region:  ", region);
 
-				var region;
-				if (typeof req.body.region === 'string') {
-					logger.debug("inside single region: ", req.body.region);
-					region = req.body.region;
-				} else {
-					region = req.body.region[0];
-				}
-				logger.debug("Final Region:  ", region);
+					var providerData = {
+						id: 9,
+						providerName: providerName,
+						providerType: providerType,
+						orgId: orgId,
+						isDefault: isDefault,
+						s3BucketName: s3BucketName,
+						plannedCost:plannedCost
+					};
+					var ec2;
+					if (isDefault == true) {
+						ec2 = new EC2({
+							"isDefault": true,
+							"region": region
+						});
+					} else {
+						ec2 = new EC2({
+							"access_key": accessKey,
+							"secret_key": secretKey,
+							"region": region
+						});
 
-				var providerData = {
-					id: 9,
-					providerName: providerName,
-					providerType: providerType,
-					orgId: orgId,
-					isDefault: isDefault,
-					s3BucketName:s3BucketName,
-					plannedCost:plannedCost
-				};
-				var ec2;
-				if (isDefault == true) {
-					ec2 = new EC2({
-						"isDefault": true,
-						"region": region
-					});
-				} else {
-					ec2 = new EC2({
-						"access_key": accessKey,
-						"secret_key": secretKey,
-						"region": region
-					});
-
+						providerData.accessKey = cryptography.encryptText(accessKey, cryptoConfig.encryptionEncoding,
+							cryptoConfig.decryptionEncoding);
+						providerData.secretKey = cryptography.encryptText(secretKey, cryptoConfig.encryptionEncoding,
+							cryptoConfig.decryptionEncoding);
+					}
+				}else{
+					var providerData = {
+						id: 9,
+						providerName: providerName,
+						providerType: providerType,
+						orgId: orgId,
+						isDefault: isDefault,
+						s3BucketName: s3BucketName,
+						plannedCost:plannedCost
+					};
 					providerData.accessKey = cryptography.encryptText(accessKey, cryptoConfig.encryptionEncoding,
 						cryptoConfig.decryptionEncoding);
 					providerData.secretKey = cryptography.encryptText(secretKey, cryptoConfig.encryptionEncoding,
 						cryptoConfig.decryptionEncoding);
 				}
-
 				usersDao.haspermission(user.cn, category, permissionto, null, req.session.user.permissionset,
 					function (err, data) {
 						if (!err) {
@@ -2345,77 +2358,115 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 								return;
 							}
 							if (anUser) {
-								ec2.describeKeyPairs(function (err, data) {
-									if(err && isDefault) {
-										logger.debug("Unable to get AWS Keypairs");
-										res.status(500).send("Not able to get catalyst instance metadata.");
-										return;
-									} else if (err) {
-										logger.debug("Unable to get AWS Keypairs");
-										res.status(500).send("Invalid AccessKey or SecretKey.");
-										return;
-									}  else {
-										logger.debug("Able to get AWS Keypairs. %s", JSON.stringify(data));
-										AWSProvider.getAWSProviderByName(providerData.providerName, providerData.orgId,
-											function (err, prov) {
-												if (err) {
-													logger.error("err. ", err);
-												}
-												if (prov) {
-													logger.debug("getAWSProviderByName: ", JSON.stringify(prov));
-													res.status(409).send("Provider name already exist.");
-													return;
-												}
-												AWSProvider.createNew(providerData, function (err, provider) {
-													if (err) {
-														logger.error("err. ", err);
-														res.status(500).send("Failed to create Provider.");
-														return;
-													}
-													AWSKeyPair.createNew(req, provider._id, function (err, keyPair) {
-														masterUtil.getOrgByRowId(providerData.orgId, function (err, orgs) {
-															if (err) {
-																res.status(500).send("Not able to fetch org.");
-																return;
-															}
-															trackSettingWizard(providerData.orgId,function(err,data) {
-																if (err) {
-																	res.status(500).send("Not able to update wizards.");
-																	return;
-																}
-																if (orgs.length > 0) {
-																	if (keyPair) {
-																		var dommyProvider = {
-																			_id: provider._id,
-																			id: 9,
-																			//accessKey: provider.accessKey,
-																			//secretKey: provider.secretKey,
-																			providerName: provider.providerName,
-																			providerType: provider.providerType,
-																			s3BucketName: provider.s3BucketName,
-																			orgId: orgs[0].rowid,
-																			orgName: orgs[0].orgname,
-																			plannedCost: provider.plannedCost,
-																			__v: provider.__v,
-																			keyPairs: keyPair
-																		};
-																		res.send(dommyProvider);
-																		return;
-																	}
-																}
-															});
-														})
-													});
-													logger.debug("Exit post() for /providers");
-												});
-											});
-									}
-								});
+								if (req.body.region) {
+									ec2.describeKeyPairs(function (err, data) {
+										if (err && isDefault) {
+											logger.debug("Unable to get AWS Keypairs");
+											res.status(500).send("Not able to get catalyst instance metadata.");
+											return;
+										} else if (err) {
+											logger.debug("Unable to get AWS Keypairs");
+											res.status(500).send("Invalid AccessKey or SecretKey.");
+											return;
+										} else {
+											logger.debug("Able to get AWS Keypairs. %s", JSON.stringify(data));
+											createProvider(providerData);
+										}
+									});
+								}else {
+									createProvider(providerData);
+								}
 							}
 						});
 					});
 			}
 		});
+
+		function createProvider(providerData){
+			AWSProvider.getAWSProviderByName(providerData.providerName, providerData.orgId,
+				function (err, prov) {
+					if (err) {
+						logger.error("err. ", err);
+					}
+					if (prov) {
+						logger.debug("getAWSProviderByName: ", JSON.stringify(prov));
+						res.status(409).send("Provider name already exist.");
+						return;
+					}
+					AWSProvider.createNew(providerData, function (err, provider) {
+						if (err) {
+							logger.error("err. ", err);
+							res.status(500).send("Failed to create Provider.");
+							return;
+						}
+						if(req.body.region) {
+							AWSKeyPair.createNew(req, provider._id, function (err, keyPair) {
+								masterUtil.getOrgByRowId(providerData.orgId, function (err, orgs) {
+									if (err) {
+										res.status(500).send("Not able to fetch org.");
+										return;
+									}
+									trackSettingWizard(providerData.orgId,function(err,data) {
+										if (err) {
+											res.status(500).send("Not able to update wizards.");
+											return;
+										}
+										if (orgs.length > 0) {
+											if (keyPair) {
+												var dommyProvider = {
+													_id: provider._id,
+													id: 9,
+													//accessKey: provider.accessKey,
+													//secretKey: provider.secretKey,
+													providerName: provider.providerName,
+													providerType: provider.providerType,
+													s3BucketName: provider.s3BucketName,
+													orgId: orgs[0].rowid,
+													orgName: orgs[0].orgname,
+													plannedCost: provider.plannedCost,
+													__v: provider.__v,
+													keyPairs: keyPair
+												};
+												res.send(dommyProvider);
+												return;
+											}
+										}
+									});
+								})
+							});
+							logger.debug("Exit post() for /providers");
+						}else{
+							masterUtil.getOrgByRowId(providerData.orgId, function (err, orgs) {
+								if (err) {
+									res.status(500).send("Not able to fetch org.");
+									return;
+								}
+								trackSettingWizard(providerData.orgId,function(err,data) {
+									if (err) {
+										res.status(500).send("Not able to update wizards.");
+										return;
+									}
+									if (orgs.length > 0) {
+										var dummyProvider = {
+											_id: provider._id,
+											id: 9,
+											providerName: provider.providerName,
+											providerType: provider.providerType,
+											s3BucketName: provider.s3BucketName,
+											orgId: orgs[0].rowid,
+											orgName: orgs[0].orgname,
+											plannedCost: provider.plannedCost,
+											__v: provider.__v
+										};
+										res.send(dummyProvider);
+										return;
+									}
+								});
+							})
+						}
+					});
+				});
+		}
 	});
 
 	// Return list of all available AWS Providers.
