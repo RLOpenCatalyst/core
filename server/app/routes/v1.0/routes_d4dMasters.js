@@ -4020,4 +4020,10 @@ module.exports.setRoutes = function(app, sessionVerification) {
         });
     });
 
+    // Tagging Server List
+    app.get('/d4dMasters/taggingServerList', function(req, res) {
+        var serverList = appConfig.taggingServerList;
+        res.send(serverList);
+    });
+
 }

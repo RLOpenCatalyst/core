@@ -128,6 +128,7 @@ function getDefaultsConfig() {
                 return config.catalystHome + this.puppetReposDirName + '/';
             }
         },
+        taggingServerList: ['Sensu Server','LDAP Server','AD Server'],
         aws: {
             pemFileLocation: __dirname + '/app/config/',
             s3BucketDownloadFileLocation: currentDirectory + '/catdata/catalyst/temp/',
