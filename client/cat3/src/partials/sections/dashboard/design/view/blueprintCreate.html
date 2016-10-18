@@ -1,4 +1,4 @@
-<div>
+
    <div id="create-bp" class="col-lg-12">
       <div id="content">
       <div id="crumbs">
@@ -288,9 +288,9 @@
                                  <tbody>
                                     <tr ng-repeat="docker in dockerDetails">
                                        <td>{{$index+1}}</td>
-                                       <td>{{docker.templatename}}</td>
+                                       <td>{{docker.dockercontainerpathstitle}}</td>
                                        <td>{{docker.dockercontainerpaths}}</td>
-                                       <td>{{docker.tagValue}}</td>
+                                       <td>{{docker.dockerrepotags}}</td>
                                        <td><input type="text" ng-model="docker.dockerlaunchparameters"><i class="btn icon-append fa fa-list-alt fa-lg" title="Launch Parameters" ng-click="launchParam(docker, $index)"></i></td>
                                        <td><i class="fa fa-chevron-circle-up fa-lg" ng-click="moveUpChoice(dockerDetails,this.$index)"></i><i class="fa fa-chevron-circle-down fa-lg marginleft5" ng-click="moveDownChoice(dockerDetails,this.$index)"></i></td>
                                     </tr>
@@ -319,7 +319,7 @@
                                  <lable class="control-label" ng-if="isEditMode && chefrunlist.length>0">Edit Runlist</lable>
                               </label> -->
                               <span class="cursor pull-right">
-                                 <i class="fa fa-plus-circle cursor" title="Edit Runlist" ng-click="updateCookbook()"></i>
+                                 <i class="fa fa-plus-circle cursor" title="Add Runlist" ng-click="updateCookbook()"></i>
                               </span>
                               <div class="view-runlist">
                                  <table class="table table-bordered text-center">
@@ -599,4 +599,3 @@
       <button class="btn  cat-btn-update" ng-show="isSubmitVisible" ng-disabled="newBlueprintForm.$invalid" ng-click="submit()">Save</button>
       <button class="btn  cat-btn-update" ng-show="isSubmitComposite" ng-disabled="compositeBlueprintCreation.$invalid" ng-click="compositeSave()">Save</button>
    </div>
-</div>

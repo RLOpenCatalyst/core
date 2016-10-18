@@ -130,7 +130,7 @@
                 });
             }
         };
-        /*genericServices.editRunlist = function(chefRunlist, chefAttribute) {
+        genericServices.updateCookbook = function(chefRunlist, chefAttribute) {
             $modal.open({
                 templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationUpdateChefRunlist.html',
                 controller: 'orchestrationUpdateChefRunlistCtrl',
@@ -151,6 +151,6 @@
             }, function () {
                 console.log('Dismiss time is ' + new Date());
             });
-        };*/
+        };
     }]);
 })(angular);
