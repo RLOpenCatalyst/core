@@ -13,6 +13,7 @@ var assignedInstancesDao = require('_pr/model/unmanaged-instance');
 var logsDao = require('_pr/model/dao/logsdao.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
+var Docker = require('_pr/model/docker.js');
 
 
 var AWSProviderSync = Object.create(CatalystCronJob);
@@ -417,8 +418,21 @@ function createManagedInstance(instance,masterDetails,callback){
                         callback(err,null);
                         return;
                     }else{
-                        callback(null,logData);
-                        return;
+                        var _docker = new Docker();
+                        _docker.checkDockerStatus(instance._id, function(err, retCode) {
+                            if (err) {
+                                logger.error("Failed to create or update instanceLog: ", err);
+                                callback(err,null);
+                                return;
+                            }
+                            if (retCode == '0') {
+                                instancesDao.updateInstanceDockerStatus(instance._id, "success", '', function(data) {
+                                    logger.debug('Instance Docker Status set to Success');
+                                    callback(null,data);
+                                    return;
+                                });
+                            }
+                        });
                     }
                 });
             }
