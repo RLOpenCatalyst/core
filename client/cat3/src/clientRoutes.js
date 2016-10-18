@@ -88,6 +88,23 @@ function routeConfig($stateProvider, $urlRouterProvider, $httpProvider, modulePe
 
 			}]
 		}
+	}).state('dashboard.service', {
+		url: "/service/",
+		templateUrl: "src/partials/sections/dashboard/service/service.html",
+		controller: "serviceCtrl",
+		resolve: {
+			auth: ["$q", function ($q) {
+				var deferred = $q.defer();
+				// instead, go to a different page
+				if (modulePerms.serviceBool()) {
+					// everything is fine, proceed
+					deferred.resolve();
+				} else {
+					deferred.reject({redirectTo: 'dashboard'});
+				}
+				return deferred.promise;
+			}]
+		}
 	}).state('dashboard.settings', {
 		url: "/settings",
 		templateUrl: "src/partials/sections/dashboard/setting/setting.html",
