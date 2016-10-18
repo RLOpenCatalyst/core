@@ -229,6 +229,13 @@
                         </select>
 
                     </div>
+                    <div class="col-lg-6 hidden" style="margin-top:15px;">
+                        <label class="">Assign Users<span class="control-label redSpan">&nbsp;*</span></label>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                        <label class="control-label">Tag imported server : </label>
+                        <input type="checkbox" id="tagServer" class="checkbox-list"/> 
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <div class="marginForButtons">
@@ -498,6 +505,11 @@
             reqBody.projectId = $projectList.val();
             reqBody.orgName = $orgListInput.find('option:selected').text();
             reqBody.bgName = $bgList.find('option:selected').text();
+            if ($('#tagServer').prop("checked")) {
+                reqBody.tagServer = true;
+            } else {
+                reqBody.tagServer = false;
+            }
             reqBody.projectName = $projectList.find('option:selected').text();
             if (!((reqBody.bgId && reqBody.bgId.length) && (reqBody.projectId && reqBody.projectId.length) && reqBody.projectId !== 'choose' && reqBody.bgId !== 'choose')) {
                 alert('Please Select a Business Group & Project');
