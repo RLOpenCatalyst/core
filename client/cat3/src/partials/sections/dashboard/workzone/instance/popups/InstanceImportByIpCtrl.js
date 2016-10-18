@@ -48,6 +48,7 @@
 					reqBody.fqdn = $scope.ipAddress;
 					reqBody.os = $scope.os;
 					reqBody.configManagmentId = $scope.selectedConfig;
+					reqBody.tagServer = $scope.tagServer;
 					reqBody.credentials = {
 						username: $scope.username
 					};
