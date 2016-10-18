@@ -337,17 +337,17 @@ module.exports.setRoutes = function(app, verificationFunc) {
                                         callback(err, null);
                                         return;
                                     }
-                                    logsDao.insertLog({
-                                        referenceId: data._id,
-                                        err: false,
-                                        log: "Node Imported",
-                                        timestamp: new Date().getTime()
-                                    });
-                                    var instance = data;
                                     instance.id = data._id;
                                     instance._id = data._id;
                                     var timestampStarted = new Date().getTime();
-                                    var actionLog = instancesDao.insertBootstrapActionLog(instance.id, [], req.session.user.cn, timestampStarted);
+                                    var actionLog = instancesDao.insertBootstrapActionLogForChef(instance.id, [], req.session.user.cn, timestampStarted);
+                                    var logsReferenceIds = [instance.id, actionLog._id];
+                                    logsDao.insertLog({
+                                        referenceId: logsReferenceIds,
+                                        err: false,
+                                        log: "Node Imported",
+                                        timestamp: timestampStarted
+                                    });
                                     var instanceLog = {
                                         actionId: actionLog._id,
                                         instanceId: instance.id,
@@ -357,6 +357,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                                         envName: envName,
                                         status: "running",
                                         bootStrap: "success",
+                                        actionStatus: "success",
                                         platformId: platformId,
                                         blueprintName: node.name,
                                         data: runlist,

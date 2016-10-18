@@ -607,6 +607,14 @@ $imagePath: "../../../../../../images";
     }
 }
 @media (min-width: 768px) and (max-width: 991px) {
+    .box.box-default.instance-filter.active {
+        height: 250px;
+    }
+
+    .box.box-default.instance-filter .box-body .cat-btn-update {
+        float: right;
+    }
+
     #assignJobPage {
         #container {
             .left-right-selection {
@@ -671,6 +679,12 @@ $imagePath: "../../../../../../images";
         padding: 2px 10px;
         font-size: 13px;
         vertical-align: top;
+    }
+    .marginleft5 {
+        margin-left: 5px;
+    }
+    .instanceSelection {
+        margin-left: 28%;
     }
     #tableView {
         width: 100%;
@@ -760,6 +774,13 @@ $imagePath: "../../../../../../images";
 /*Common CSS which is used for all devices ends here*/
 /*CSS for all Popups starts here*/
 
+#instanceUsagePage {
+    .usage-dropdown {
+        width: auto;
+        height: 31px;
+        display: table-cell;
+    }
+}
 #deleteInstancePage {
     .font-normal {
         font-weight: normal;

@@ -653,11 +653,6 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                                     };
                                                                                     instanceLog.actionStatus = "success";
                                                                                     instanceLog.endedOn = new Date().getTime();
-                                                                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
-                                                                                        if (err) {
-                                                                                            logger.error("Failed to create or update instanceLog: ", err);
-                                                                                        }
-                                                                                    });
 
                                                                                     launchParams.infraManager.getNode(instance.chefNodeName, function(err, nodeData) {
                                                                                         if (err) {
@@ -677,6 +672,13 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                                             hardwareData.memory.free = nodeData.automatic.memory.free;
                                                                                         }
                                                                                         hardwareData.os = instance.hardware.os;
+                                                                                        instanceLog.platform=nodeData.automatic.platform;
+                                                                                        instanceLog.os=instance.hardware.os;
+                                                                                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                                                            if (err) {
+                                                                                                logger.error("Failed to create or update instanceLog: ", err);
+                                                                                            }
+                                                                                        });
                                                                                         instancesDao.setHardwareDetails(instance.id, hardwareData, function(err, updateData) {
                                                                                             if (err) {
                                                                                                 logger.error("Unable to set instance hardware details  code (setHardwareDetails)", err);

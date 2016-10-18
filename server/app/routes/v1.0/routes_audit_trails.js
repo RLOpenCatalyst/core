@@ -20,6 +20,7 @@ var instanceService = require('_pr/services/instanceService');
 var logger = require('_pr/logger')(module);
 var taskService = require('_pr/services/taskService');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
+var containerLogModel = require('_pr/model/log-trail/containerLog.js');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
@@ -30,7 +31,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         var reqData = {};
         async.waterfall(
             [
-
                 function(next) {
                     apiUtil.paginationRequest(req.query, 'instanceLogs', next);
                 },
@@ -41,11 +41,10 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 function(instanceActions, next) {
                     apiUtil.paginationResponse(instanceActions, reqData, next);
                 }
-
             ],
             function(err, results) {
                 if (err)
-                    next(err);
+                    return res.status(500).send(err);
                 else
                     return res.status(200).send(results);
             });
@@ -63,7 +62,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             ],
             function(err, results) {
                 if (err)
-                    next(err);
+                    return res.status(500).send(err);
                 else
                     return res.status(200).send(results);
             });
@@ -77,7 +76,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             [
 
                 function(next) {
-                    apiUtil.paginationRequest(req.query, 'taskLogs', next);
+                    apiUtil.paginationRequest(req[0].query, 'taskLogs', next);
                 },
                 function(paginationReq, next) {
                     reqData = paginationReq;
@@ -90,7 +89,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             ],
             function(err, results) {
                 if (err)
-                    next(err);
+                    return res.status(500).send(err);
                 else
                     return res.status(200).send(results);
             });
@@ -109,7 +108,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             ],
             function(err, results) {
                 if (err)
-                    next(err);
+                    return res.status(500).send(err);
                 else
                     return res.status(200).send(results);
             });
@@ -122,22 +121,19 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         if (timestamp) {
             timestamp = parseInt(timestamp);
         }
-
         async.waterfall(
             [
-
                 function(next) {
-                    instanceLogModel.pollInstanceActionLog(req.params.actionId, timestamp, next);
+                    logsDao.getLogsByReferenceId(req.params.actionId, timestamp, next);
                 }
             ],
             function(err, results) {
                 if (err)
-                    next(err);
+                    return res.status(500).send(err);
                 else
                     return res.status(200).send(results);
             });
     }
-
     app.get('/audit-trail/task-action/:actionId/logs', pollTaskActionLog);
 
     function pollTaskActionLog(req, res, next) {
@@ -145,19 +141,70 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         if (timestamp) {
             timestamp = parseInt(timestamp);
         }
-
         async.waterfall(
             [
-
                 function(next) {
-                    instanceLogModel.pollInstanceActionLog(req.params.actionId, timestamp, next);
+                    logsDao.getLogsByReferenceId(req.params.actionId, timestamp, next);
                 }
             ],
             function(err, results) {
                 if (err)
-                    next(err);
+                    return res.status(500).send(err);
                 else
                     return res.status(200).send(results);
             });
     }
+
+
+    app.get('/audit-trail/container-action', getContainerActionList);
+
+    function getContainerActionList(req, res, next) {
+        var reqData = {};
+        async.waterfall(
+            [
+                function(next) {
+                    apiUtil.paginationRequest(req.query, 'containerLogs', next);
+                },
+                function(paginationReq, next) {
+                    paginationReq['searchColumns'] = ['platformId', 'status', 'action', 'user', 'actionStatus', 'orgName', 'bgName', 'projectName', 'environmentName', 'containerName', 'image'];
+                    reqData = paginationReq;
+                    apiUtil.databaseUtil(paginationReq, next);
+                },
+                function(dataQuery, next) {
+                    containerLogModel.getContainerActionLogs(dataQuery, next);
+                },
+                function(instanceActions, next) {
+                    apiUtil.paginationResponse(instanceActions, reqData, next);
+                }
+            ],
+            function(err, results) {
+                if (err)
+                    return res.status(500).send(err);
+                else
+                    return res.status(200).send(results);
+            });
+    }
+
+    app.get('/audit-trail/container-action/:actionId/logs', pollContainerActionLog);
+
+    function pollContainerActionLog(req, res, next) {
+        var timestamp = req.query.timestamp;
+        if (timestamp) {
+            timestamp = parseInt(timestamp);
+        }
+        async.waterfall(
+            [
+                function(next) {
+                    logsDao.getLogsByReferenceId(req.params.actionId, timestamp, next);
+                }
+            ],
+            function(err, results) {
+                if (err)
+                    return res.status(500).send(err);
+                else
+                    return res.status(200).send(results);
+            });
+    }
+
+
 };

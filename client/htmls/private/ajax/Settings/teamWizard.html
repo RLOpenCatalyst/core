@@ -1,0 +1,65 @@
+
+    <form action="" id="myForm3">
+        <div class="widget-box">
+            <div class="widget-header">
+                <h4 class="widget-margin" style="color:black;">Create Team</h4>
+            </div>
+            <div class="widget-body">
+                <div class="widget-main" style="min-height:350px">
+                    <div class="jarviswidget" data-widget-editbutton="false" data-widget-custombutton="false">
+                        <div>
+                                 <!-- widget content -->
+                                 <div class="widget-body no-padding">
+                                  
+                                  <div class="col-lg-6 col-md-6">
+                                          <label for="name">Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                                          <label id="msgOrgName" style="display:none;color:red;float:right;">Required</label>
+                                          <br>
+                                          <input autofocus name="ctl00$MainContent$orgname" value="" id="teamname" class="form-control" type="text"  cdata="catalyst" cat-validation="required,nospecial,max22,nospace"  unique="true"  uniqueconditionedby="teamname">
+                                       
+                                       </div>
+                                       <div class="col-lg-6 col-md-6">
+                                          <label for="name">Description:</label>
+                                          <input name="ctl00$MainContent$orgname" value="" id="description" class="form-control" type="text"  cdata="catalyst" maxlength="50">
+                                       </div>
+                                  <div class="col-lg-6 col-md-6 margintop20">
+                                          <label for="">Organization:<span class="control-label redSpan">&nbsp;*</span></label>
+                                          <select id="orgname" class="form-control chooseOrganization width-100" sourcepath="1" datapath="masterjson.rows.row" linkedfields="['projectname','loginname']"  cdata="catalyst" cat-validation="required">
+                                            
+                                          </select>
+                                       </div>
+                                    
+                                 <div class="col-lg-6 col-md-6 smart-form margintop20">
+                                    <label for="category">Users:</label>
+                                    <div  id="loginname" multiselect="multiselect" datatype="select" datapath="masterjson.rows.row"  class="input-group from-control col-md-12" style="height:150px;overflow-y:auto;padding:2px;border:1px solid silver;width:100%" sourcepath="7" cdata="catalyst" linkedto="orgname">
+                                    </div>
+                                 </div>
+                                 <div class="col-lg-6 col-md-6 smart-form margintop20">
+                                    <label for="category">Assign Projects:</label>
+                                    <div  id="projectname" sourcepath="4" multiselect="multiselect" datatype="select" datapath="masterjson.rows.row"  class="input-group from-control col-md-12" style="height:150px;overflow-y:auto;padding:2px;border:1px solid silver;width:100%" cdata="catalyst" linkedto="orgname" >
+                                    </div>
+                                 </div>
+                                
+
+                                 
+                                 <!-- end widget content -->
+                                 </div>
+                              </div>
+                    </div>
+                </div>
+            </div>
+            <div class="widget-toolbox clearfix">
+                <div class="btn-group pull-right">
+                 <button name="next1" id="saveConfigTeam" style="margin-right:11px;" class="saveFormWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
+                 <input type="button" disabled="disabled" name="next1" id="next1" class="nextFormWizard btn btn-primary" value="Next"/>
+              </div>
+            </div>
+        </div>
+    </form>
+
+<script>
+   
+   $(".nextFormWizard").click(function() {
+       
+   });
+</script>

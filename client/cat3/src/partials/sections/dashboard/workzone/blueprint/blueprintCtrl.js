@@ -75,6 +75,7 @@
 				$scope.requestParams=requestParams;
 				$scope.isBlueprintPageLoading = true;
 				$scope.blueprintListCards();
+				$scope.getAllCompsiteBlueprint();
 			});
 			
 			angular.extend($scope, {

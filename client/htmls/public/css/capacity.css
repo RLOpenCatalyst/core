@@ -1,0 +1,82 @@
+.form-controls {
+     display: inline;
+     height: 32px;
+     padding: 6px 12px;
+     font-size: 13px;
+     line-height: 1.428571429;
+     color: #555;
+     vertical-align: middle;
+     background-color: #fff;
+     background-image: none;
+     border: 1px solid #ccc;
+     transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+     height: 29px;
+     width:100%;
+ }
+
+ .page-name {
+     font-size: 18px;
+     margin: 5px 0 15px 10px;
+ }
+
+ .providerSelect {
+     float: right;
+ }
+
+#capacityDashboard .borderTop {
+     border-top: 1px dashed #ddd;
+ }
+
+#capacityDashboard .marginTop20 {
+     margin-top: 20px;
+ }
+
+#capacityDashboard .marginBottom15 {
+     margin-bottom: 15px;
+     font-size: 16px;
+ }
+
+#capacityDashboard .footer {
+     background: none repeat scroll 0 0 white;
+     left: 0;
+     right: 0;
+ }
+
+#capacityDashboard .form-actions {
+     display: block;
+     padding: 13px 14px 15px;
+     border-top: 1px solid rgba(0, 0, 0, .1);
+     background: rgba(249, 249, 249, .9);
+     margin-left: -13px;
+     margin-right: -13px;
+ }
+
+ .orgClass {
+     font-weight: 200;
+     font-size: 14px;
+ }
+
+ .orgWidth {
+     width: 45%;
+ }
+
+ #instanceActionListLoader {
+    opacity: 0.6;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    background: #ddd;
+}
+
+#capacityDashboard tr, tr input {
+     font-size: 12px!important;
+}
+
+#instanceUnAssignedContainer {
+     min-height: 280px;
+}
+
+.selectComponent {
+    border: 5px solid #396ea2;
+    margin-top: -5px;
+}

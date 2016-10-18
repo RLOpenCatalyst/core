@@ -566,7 +566,7 @@ $imagePath : "/cat3/images";
 			font-size: 18px;
 		}
 
-		.instance-state-unknown, .instance-state-pending {
+		.instance-state-unknown, .instance-state-pending, .instance-state-shutting-down{
 			background: url("#{$imagePath}/instance-states/aws-inactive.png");
 		}
 

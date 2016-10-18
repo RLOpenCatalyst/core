@@ -876,169 +876,172 @@ var MasterUtil = function() {
 
     // Return all settings for User.
     this.getAllSettingsForUser = function(loggedInUser, callback) {
-        var userid;
-        var teams = [];
-        var orgs = [];
-        var projects = [];
-        var bunits = [];
         var returnObj = [];
         var catObj = {};
-        var orgObj = {};
-        var loopCount = 0;
         d4dModelNew.d4dModelMastersUsers.find({
-            loginname: loggedInUser
-        }, function(err, users) {
-            if (users) {
-                for (var x = 0; x < users.length; x++) {
-                    (function(usr) {
-                        if (users[usr].id === '7') {
-                            logger.debug("Got User");
-                            catObj = {
-                                userid: users[usr].rowid,
-                                teams: [],
-                                orgs: [],
-                                projects: [],
-                                bunits: []
-                            };
-                            logger.debug("User Id: ", users[usr].rowid);
-                            d4dModelNew.d4dModelMastersTeams.find({
-                                loginname_rowid: {
-                                    $regex: users[usr].rowid
-                                },
-                                id: "21"
-                            }, function(err, team) {
-                                if (err) {
-                                    callback(err, null);
-                                    return;
-                                }
-
-                                logger.debug("Available team: ", JSON.stringify(team));
-                                if (typeof team === 'undefined' || team.length <= 0) {
-                                    callback(null, returnObj);
-                                    return;
-                                }
-                                if (team) {
-                                    for (var tm = 0; tm < team.length; tm++) {
-                                        if (team[tm].id === '21') {
-                                            logger.debug("Inside team : ", team[tm].rowid);
-                                            teams.push(team[tm].rowid);
-
-                                            var orgTm = team[tm].orgname_rowid[0];
-                                            if (!orgObj[orgTm]) {
-                                                orgObj[orgTm] = true;
-                                            }
-                                        }
-                                    }
-                                }
-                                logger.debug("Team array: ", JSON.stringify(teams));
-                                catObj.teams = teams;
-                                var allObj = Object.keys(orgObj);
-                                for (var tmOrg = 0; tmOrg < allObj.length; tmOrg++) {
-                                    loopCount++;
-                                    d4dModelNew.d4dModelMastersTeams.find({
-                                        orgname_rowid: allObj[tmOrg],
-                                        rowid: {
-                                            $in: catObj.teams
-                                        },
-                                        id: "21"
-                                    }, function(err, allTeams) {
-                                        if (err) {
-                                            callback(err, null);
-                                            return;
-                                        }
-                                        for (var xy = 0; xy < allTeams.length; xy++) {
-                                            (function(xy) {
-                                                if (typeof allTeams[xy].orgname_rowid != "undefined" && typeof allTeams[xy].projectname_rowid != "undefined") {
+            loginname: loggedInUser,
+            id: '7'
+        }, function (err, users) {
+            if (err) {
+                callback(err, null);
+                return;
+            } else if (users.length > 0) {
+                for (var i = 0; i < users.length; i++) {
+                    (function (user) {
+                        catObj = {
+                            userid: user.rowid,
+                            teams: [],
+                            orgs: [],
+                            projects: [],
+                            bunits: []
+                        };
+                        d4dModelNew.d4dModelMastersTeams.find({
+                            loginname_rowid: {
+                                $regex: user.rowid
+                            },
+                            id: "21"
+                        }, function (err, teams) {
+                            if (err) {
+                                callback(err, null);
+                                return;
+                            } else if (teams.length > 0) {
+                                var orgIdList = [],bgIdList=[],projectIdList=[];
+                                for (var j = 0; j < teams.length; j++) {
+                                    (function (team) {
+                                        if (catObj.teams.indexOf(team.rowid) === -1) {
+                                            catObj.teams.push(team.rowid);
+                                            async.waterfall([
+                                                function(next){
                                                     d4dModelNew.d4dModelMastersOrg.find({
                                                         rowid: {
-                                                            $in: allTeams[xy].orgname_rowid
+                                                            $in: team.orgname_rowid
                                                         },
                                                         id: "1",
                                                         active: true
-                                                    }, function(err, org) {
+                                                    }, function (err, orgs) {
                                                         if (err) {
                                                             callback(err, null);
-                                                        }
-                                                        if (org) {
-                                                            logger.debug("Available Org: ", JSON.stringify(org));
-                                                            for (var x = 0; x < org.length; x++) {
-                                                                if (org[x].id === '1') {
-                                                                    orgs.push(org[x].rowid);
-                                                                    logger.debug("Orgs list rowid: ", org[x].rowid);
-                                                                }
-                                                            }
-                                                            catObj.orgs = orgs;
-                                                        }
-                                                        d4dModelNew.d4dModelMastersProjects.find({
-                                                            orgname_rowid: {
-                                                                $in: allTeams[xy].orgname_rowid
-                                                            },
-                                                            rowid: {
-                                                                $in: allTeams[xy].projectname_rowid.split(",")
-                                                            },
-                                                            id: "4"
-                                                        }, function(err, project) {
-                                                            if (err) {
-                                                                callback(err, null);
-                                                            }
-                                                            if (project) {
-                                                                logger.debug("Available project: ", JSON.stringify(project));
-                                                                for (var x1 = 0; x1 < project.length; x1++) {
-                                                                    if (project[x1].id === '4') {
-                                                                        projects.push(project[x1].rowid);
-                                                                        logger.debug("projectList: ", project[x1].rowid);
+                                                            return;
+                                                        }else if (orgs.length > 0) {
+                                                            var orgCount = 0;
+                                                            for (var k = 0; k < orgs.length; k++) {
+                                                                (function(org){
+                                                                    orgCount++;
+                                                                    if(orgIdList.indexOf(org.rowid) === -1){
+                                                                        orgIdList.push(org.rowid);
                                                                     }
+                                                                })(orgs[k]);
+                                                                if(orgCount === orgs.length){
+                                                                    next(null,orgIdList);
+                                                                    return;
                                                                 }
-                                                                catObj.projects = projects;
                                                             }
+                                                        }else {
+                                                            next(null, orgIdList);
+                                                            return;
+                                                        }
+                                                    });
+                                                },
+                                                function(orgIds,next) {
+                                                    catObj.orgs = orgIds;
+                                                    async.parallel({
+                                                        bgIds: function (callback) {
                                                             d4dModelNew.d4dModelMastersProductGroup.find({
                                                                 orgname_rowid: {
-                                                                    $in: allTeams[xy].orgname_rowid
+                                                                    $in: orgIds
                                                                 },
                                                                 id: "2"
-                                                            }, function(err, bg) {
+                                                            }, function (err, bgs) {
                                                                 if (err) {
                                                                     callback(err, null);
-                                                                }
-                                                                if (bg) {
-                                                                    for (var x2 = 0; x2 < bg.length; x2++) {
-                                                                        if (bg[x2].id === '2') {
-                                                                            bunits.push(bg[x2].rowid);
+                                                                }else if (bgs.length > 0) {
+                                                                    var bgCount = 0;
+                                                                    for (var l = 0; l < bgs.length; l++) {
+                                                                        (function(bg){
+                                                                            bgCount++;
+                                                                            if(bgIdList.indexOf(bg.rowid) === -1){
+                                                                                bgIdList.push(bg.rowid);
+                                                                            }
+                                                                        })(bgs[l]);
+                                                                        if(bgCount === bgs.length){
+                                                                            callback(null,bgIdList);
+                                                                            return;
                                                                         }
                                                                     }
-                                                                    catObj.bunits = bunits;
-                                                                    returnObj.push(catObj);
-                                                                    logger.debug("returnObj: ", returnObj);
-                                                                    if (allObj.length === loopCount) {
-                                                                        logger.debug("Condition matched:");
-                                                                        callback(null, returnObj);
-                                                                        return;
-                                                                    }
+                                                                }else {
+                                                                    callback(null, bgIdList);
+                                                                    return;
                                                                 }
                                                             });
+                                                        },
+                                                        projectIds: function (callback) {
+                                                            d4dModelNew.d4dModelMastersProjects.find({
+                                                                orgname_rowid: {
+                                                                    $in: orgIds
+                                                                },
+                                                                id: "4"
+                                                            }, function (err, projects) {
+                                                                if (err) {
+                                                                    callback(err, null);
+                                                                }else if (projects.length > 0) {
+                                                                    var projectCount = 0;
+                                                                    for (var m = 0; m < projects.length; m++) {
+                                                                        (function(project){
+                                                                            projectCount++;
+                                                                            if(projectIdList.indexOf(project.rowid) === -1){
+                                                                                projectIdList.push(project.rowid);
+                                                                            }
+                                                                        })(projects[m]);
+                                                                        if(projectCount === projects.length){
+                                                                            callback(null,projectIdList);
+                                                                            return;
+                                                                        }
+                                                                    }
+                                                                }else {
+                                                                    callback(null, projectIdList);
+                                                                    return;
+                                                                }
+                                                            });
+                                                        }
 
-                                                        });
-                                                        // }
-
-                                                    });
-                                                } //if
-                                            })(xy);
+                                                    },function(err,results){
+                                                        if (err) {
+                                                            next(err, null);
+                                                        }
+                                                        catObj.projects = results.projectIds;
+                                                        catObj.bunits = results.bgIds;
+                                                        next(null,catObj);
+                                                    })
+                                                }],function (err, results) {
+                                                if (err) {
+                                                    callback(err, null);
+                                                }
+                                                returnObj.push(catObj);
+                                                catObj = {};
+                                                if (returnObj.length === teams.length) {
+                                                    callback(null, returnObj);
+                                                    return;
+                                                }
+                                            })
                                         }
-                                    });
-                                } // for multiple orgs
-
-                            });
-
-                        }
-                    })(x);
+                                    })(teams[j]);
+                                }
+                            } else {
+                                logger.debug("No Team in Catalyst")
+                                callback(null, returnObj);
+                                return;
+                            }
+                        });
+                    })(users[i]);
                 }
+
             } else {
-                callback(err, returnObj);
+                logger.debug("No User in Catalyst")
+                callback(null, users);
                 return;
             }
-
         });
-    }
+    };
 
     // check valid user permission
     this.checkPermission = function(username, callback) {
@@ -1802,7 +1805,7 @@ var MasterUtil = function() {
         logger.debug("org rowids: ", envId);
         d4dModelNew.d4dModelMastersEnvironments.find({
             rowid: envId,
-            "id": 3
+            "id": '3'
         }, function(err, envs) {
             if (err) {
                 callback(err, null);
@@ -1832,15 +1835,27 @@ var MasterUtil = function() {
     };
 
     this.getEnvironmentByEnvId = function(envId, callback) {
-        logger.debug("org rowids: ", envId);
         d4dModelNew.d4dModelMastersEnvironments.find({
             rowid: envId,
-            "id": 3
+            "id": '3'
         }, function(err, envs) {
             if (err) {
                 callback(err, null);
             }
             callback(null, envs[0]);
+            return;
+        });
+    }
+
+    this.getProjectByProjectId = function(projectId, callback) {
+        d4dModelNew.d4dModelMastersProjects.find({
+            rowid: projectId,
+            "id": '4'
+        }, function(err, projects) {
+            if (err) {
+                callback(err, null);
+            }
+            callback(null, projects[0]);
             return;
         });
     }
