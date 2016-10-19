@@ -681,6 +681,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
         var blueprintId = req.body.blueprintData.blueprintId;
         var shortDesc = req.body.blueprintData.shortDesc;
         var botType = req.body.blueprintData.botType;
+        var serviceDeliveryCheck = req.body.blueprintData.serviceDeliveryCheck;
         if(req.body.blueprintData.domainNameCheck === 'true'){
             domainNameCheck = true;
         }
@@ -729,6 +730,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 docker: docker,
                 shortDesc:shortDesc,
                 botType:botType,
+                serviceDeliveryCheck:serviceDeliveryCheck,
                 domainNameCheck:domainNameCheck
             };
             //adding bluerpintID if present (edit mode)

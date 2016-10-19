@@ -527,6 +527,10 @@
 				getUnassignedInstances:function (providerId) {
 					var url ='/providers/'+providerId+'/unassigned-instances';
 					return $http.get(fullUrl(url),Auth.getHeaderObject());
+				},
+				getBotTypeList:function () {
+					var url ='/config-data/bot-type';
+					return $http.get(fullUrl(url),Auth.getHeaderObject());
 				}
 			};
 			return serviceInterface;

@@ -1558,6 +1558,7 @@ var saveblueprint = function(tempType) {
                     if ($('#serviceDeliveryCheck').prop("checked")) {
                         reqBody.botType = $('#botType').val();
                         reqBody.shortDesc = $('#shortDesc').val();
+                        reqBody.serviceDeliveryCheck = true;
                     }
                     var imageIdentifier = $('#imageId').val();
                     var imageId = $('#imageId').find('option:selected').attr('_id');
