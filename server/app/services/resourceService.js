@@ -615,10 +615,12 @@ function getBucketsInfo(provider,orgName,callback) {
         if(err){
             logger.error(err);
             callback(err,null);
+            return;
         }else{
             var results=[];
             if(data.Buckets.length === 0){
                 callback(null,results);
+                return;
             }else{
                 for(var i = 0; i < data.Buckets.length; i++){
                     (function(bucket) {
@@ -645,25 +647,22 @@ function getBucketsInfo(provider,orgName,callback) {
                         s3.getBucketSize(bucket.Name, function (err, bucketSize) {
                             if (err) {
                                 logger.error(err);
-                                callback(err, null);
-                            } else {
-                                bucketObj.resourceDetails.bucketSize = Math.round(bucketSize);
-                                s3.getBucketTag(bucket.Name, function(err,bucketTag){
-                                    if (err) {
-                                        logger.error(err);
-                                        callback(err, null);
-                                    } else {
-                                        bucketObj.tags = bucketTag;
-                                        bucketObj.projectTag = bucketTag['Owner'];
-                                        bucketObj.environmentTag = bucketTag['Environment'];
-                                        results.push(bucketObj);
-                                        bucketObj={};
-                                        if (results.length === data.Buckets.length) {
-                                            callback(null, results);
-                                        }
-                                    }
-                                })
                             }
+                            bucketObj.resourceDetails.bucketSize = Math.round(bucketSize);
+                            s3.getBucketTag(bucket.Name, function(err,bucketTag){
+                                if (err) {
+                                    logger.error(err);
+                                }
+                                bucketObj.tags = bucketTag;
+                                bucketObj.projectTag = bucketTag['Owner'];
+                                bucketObj.environmentTag = bucketTag['Environment'];
+                                results.push(bucketObj);
+                                bucketObj={};
+                                if (results.length === data.Buckets.length) {
+                                    callback(null, results);
+                                    return;
+                                }
+                            })
                         })
                     })(data.Buckets[i]);
                 }
@@ -761,10 +760,12 @@ function getRDSInstancesInfo(provider,orgName,callback) {
         if(err){
             logger.error(err);
             callback(err,null);
+            return;
         }else{
             var results=[];
             if(dbInstances.length === 0){
                 callback(null,results);
+                return;
             }else{
                 var sysDate=new Date();
                 for(var i = 0; i < dbInstances.length; i++){
@@ -817,16 +818,14 @@ function getRDSInstancesInfo(provider,orgName,callback) {
                         rds.getRDSDBInstanceTag(params,function(err,rdsTags){
                             if(err){
                                 logger.error(err);
-                                callback(err,null);
-                            }else{
-                                rdsDbInstanceObj.tags = rdsTags;
-                                rdsDbInstanceObj.projectTag = rdsTags['Owner'];
-                                rdsDbInstanceObj.environmentTag = rdsTags['Environment'];
-                                results.push(rdsDbInstanceObj);
-                                rdsDbInstanceObj={};
-                                if(dbInstances.length === results.length){
-                                    callback(null,results);
-                                }
+                            }
+                            rdsDbInstanceObj.tags = rdsTags;
+                            rdsDbInstanceObj.projectTag = rdsTags['Owner'];
+                            rdsDbInstanceObj.environmentTag = rdsTags['Environment'];
+                            results.push(rdsDbInstanceObj);
+                            rdsDbInstanceObj={};
+                            if(dbInstances.length === results.length){
+                                callback(null,results);
                             }
                         })
 

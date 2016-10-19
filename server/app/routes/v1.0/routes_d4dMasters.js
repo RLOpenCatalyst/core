@@ -2718,7 +2718,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                     res.send(500);
                                                                     return;
                                                                 }
-                                                                if (settingWizards.currentStep.name === 'User Configuration') {
+                                                                if (settingWizards.currentStep && settingWizards.currentStep.name === 'User Configuration') {
                                                                     var settingWizardSteps = appConfig.settingWizardSteps;
                                                                     settingWizards.currentStep.nestedSteps[1].isCompleted = true;
                                                                     settingWizards.currentStep.isCompleted = true;
@@ -2761,7 +2761,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     return;
                                                 }
                                                 var settingWizardSteps = appConfig.settingWizardSteps;
-                                                if(settingWizards.currentStep.name === 'Org Configuration') {
+                                                if(settingWizards.currentStep && settingWizards.currentStep.name === 'Org Configuration') {
                                                     settingWizards.currentStep.nestedSteps[2].isCompleted = true;
                                                     settingWizards.currentStep.isCompleted = true;
                                                     settingWizards.previousStep = settingWizards.currentStep;
@@ -2798,7 +2798,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     res.send(500);
                                                     return;
                                                 }
-                                                if(settingWizards.currentStep.name === 'Devops Roles') {
+                                                if(settingWizards.currentStep && settingWizards.currentStep.name === 'Devops Roles') {
                                                     settingWizards.currentStep.nestedSteps[0].isCompleted = true;
                                                     settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                                                         if (err) {
@@ -2832,7 +2832,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     res.send(500);
                                                     return;
                                                 }
-                                                if(settingWizards.currentStep.name === 'Devops Roles') {
+                                                if(settingWizards.currentStep && settingWizards.currentStep.name === 'Devops Roles') {
                                                     settingWizards.currentStep.nestedSteps[1].isCompleted = true;
                                                     settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                                                         if (err) {
@@ -2869,7 +2869,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         res.send(500);
                                                         return;
                                                     }
-                                                    if(settingWizards.currentStep.name === 'User Configuration') {
+                                                    if(settingWizards.currentStep && settingWizards.currentStep.name === 'User Configuration') {
                                                         settingWizards.currentStep.nestedSteps[0].isCompleted = true;
                                                         settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                                                             if (err) {
@@ -2888,7 +2888,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         res.send(500);
                                                         return;
                                                     }
-                                                    if(settingWizards.currentStep.name === 'Org Configuration') {
+                                                    if(settingWizards.currentStep && settingWizards.currentStep.name === 'Org Configuration') {
                                                         settingWizards.currentStep.nestedSteps[1].isCompleted = true;
                                                         settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                                                             if (err) {
@@ -2907,7 +2907,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         res.send(500);
                                                         return;
                                                     }
-                                                    if(settingWizards.currentStep.name === 'Config Management') {
+                                                    if(settingWizards.currentStep && settingWizards.currentStep.name === 'Config Management') {
                                                         settingWizards.currentStep.nestedSteps[0].isCompleted = true;
                                                         settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                                                             if (err) {
@@ -2926,7 +2926,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         res.send(500);
                                                         return;
                                                     }
-                                                    if(settingWizards.currentStep.name === 'Gallery Setup') {
+                                                    if(settingWizards.currentStep && settingWizards.currentStep.name === 'Gallery Setup') {
                                                         settingWizards.currentStep.nestedSteps[1].isCompleted = true;
                                                         settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                                                             if (err) {
@@ -2946,7 +2946,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         return;
                                                     }
                                                     var settingWizardSteps = appConfig.settingWizardSteps;
-                                                    if(settingWizards.currentStep.name === 'Devops Roles') {
+                                                    if(settingWizards.currentStep && settingWizards.currentStep.name === 'Devops Roles') {
                                                         settingWizards.currentStep.nestedSteps[2].isCompleted = true;
                                                         settingWizards.currentStep.isCompleted = true;
                                                         settingWizards.previousStep = settingWizards.currentStep;
@@ -2969,7 +2969,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         res.send(500);
                                                         return;
                                                     }
-                                                    if(settingWizards.currentStep.name === 'Gallery Setup') {
+                                                    if(settingWizards.currentStep && settingWizards.currentStep.name === 'Gallery Setup') {
                                                         settingWizards.currentStep.nestedSteps[0].isCompleted = true;
                                                         settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                                                             if (err) {
@@ -2988,7 +2988,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         res.send(500);
                                                         return;
                                                     }
-                                                    if(settingWizards.currentStep.name === 'Config Management') {
+                                                    if(settingWizards.currentStep && settingWizards.currentStep.name === 'Config Management') {
                                                         var settingWizardSteps = appConfig.settingWizardSteps;
                                                         settingWizards.currentStep.nestedSteps[1].isCompleted = true;
                                                         settingWizards.currentStep.isCompleted = true;
