@@ -24,7 +24,7 @@
             }, {
                 "category": "instancelaunch",
                 "type": "action",
-                "access": ["read", "execute"]
+                "access": ["read"]
             }, {
                 "category": "instancestart",
                 "type": "action",
@@ -191,7 +191,7 @@
             }, {
                 "category": "instancelaunch",
                 "type": "action",
-                "access": ["read", "execute"]
+                "access": ["read"]
             }, {
                 "category": "instancestart",
                 "type": "action",

@@ -371,11 +371,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                 errMsg:'Chef-Server already used by Some Instances.To delete Chef-Server please delete respective instances first.',
                                 fieldName:'configname_rowid'
                             });
-                            toCheck.push({id:'3',
-                                errMsg:'Chef-Server already used by Some Enviornments.To delete Chef-Server please delete respective enviornments first.',
-                                fieldName : 'configname_rowid'
-                            });
-                            
                             break;
                         case "19":
                             toCheck.push({id:'instances',
@@ -2374,9 +2369,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
     app.post('/d4dMasters/savemasterjsonrownew/:id/:fileinputs/:orgname', function(req, res) {
         logger.debug("Enter post() for /d4dMasters/savemasterjsonrownew/%s/%s/%s", req.params.id, req.params.fileinputs, req.params.orgname);
-        console.log("***********************");
-        console.log(JSON.stringify(req.body));
-        console.log("***********************");
         var bodyJson = JSON.parse(JSON.stringify(req.body));
         //pushing the rowid field
         var editMode = false; //to identify if in edit mode.
@@ -2715,7 +2707,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         });
 
                                                     });
-                                                    if (x === rowId.length - 1) {
+                                                    if (x === rowId.length-1) {
                                                         if (bodyJson['orgname_rowid'] === '' || bodyJson['orgname_rowid'] === null) {
                                                             res.send(200);
                                                             return;
@@ -2742,6 +2734,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                         res.send(200);
                                                                         return;
                                                                     });
+                                                                }else{
+                                                                    res.send(200);
+                                                                    return;
                                                                 }
                                                             })
                                                         }
