@@ -430,19 +430,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 		}); // end haspermission
 	});
-    app.get('/blueprints/:blueprintId/blueprintInfo', function(req, res) {
-        Blueprints.getBlueprintInfoById(req.params.blueprintId, function(err, blueprintInfo) {
-            if (err) {
-                res.status(500).send({
-                    code: 500,
-                    errMessage: "Blueprint Info fetch failed"
-                });
-                return;
-            }
-            res.status(200).send(blueprintInfo);
-        });
-
-    });
     //  List blueprints w.r.t. org,bg and project
     /**
      * @api {get} /blueprints/organization/:orgId/businessgroup/:bgId/project/:projectId Request List of Blueprints

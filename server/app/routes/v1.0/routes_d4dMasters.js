@@ -2536,31 +2536,38 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                             var templatetypename;
                                                             var designtemplateicon_filename;
                                                             var templatetype;
+                                                            var providerType;
                                                             if(x1 === 0) {
                                                                 templatetypename = "Docker";
                                                                 designtemplateicon_filename = "Docker.png";
                                                                 templatetype = "docker";
+                                                                providerType = []
                                                             } else if (x1 === 1) {
                                                                 templatetypename = "OSImage";
                                                                 designtemplateicon_filename = "Desktop Provisining.png";
                                                                 templatetype = "ami";
+                                                                providerType=['aws','azure','openstack','vmware']
                                                             } else if (x1 === 2) {
                                                                 templatetypename = "SoftwareStack";
                                                                 designtemplateicon_filename = "Appfactory.png";
                                                                 templatetype = "chef";
+                                                                providerType=['aws','azure','openstack','vmware']
                                                             } else if (x1 === 3) {
                                                                 templatetypename = "CloudFormation";
                                                                 designtemplateicon_filename = "CloudFormation.png";
                                                                 templatetype = "cft";
+                                                                providerType=['aws']
 
                                                             } else if (x1 === 4) {
                                                                 templatetypename = "ARMTemplate";
                                                                 designtemplateicon_filename = "CloudFormation.png";
                                                                 templatetype = "arm";
+                                                                providerType=['azure']
                                                             } else {
                                                                 templatetypename = "Composite";
                                                                 designtemplateicon_filename = "composite.png";
                                                                 templatetype = "composite";
+                                                                providerType=['aws']
                                                             }
 
                                                             var templateTypeData = {
@@ -2569,7 +2576,8 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                 "orgname_rowid": bodyJson["rowid"],
                                                                 "rowid": uuid.v4(),
                                                                 "id": "16",
-                                                                "templatetype": templatetype
+                                                                "templatetype": templatetype,
+                                                                "providerType":providerType
 
                                                             };
 
