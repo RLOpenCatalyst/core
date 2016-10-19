@@ -129,6 +129,7 @@ function getDefaultsConfig() {
             }
         },
         taggingServerList: ['Sensu Server','LDAP Server','AD Server'],
+        botTypeList: ['Task','Check','Learning', 'Composite','Built with other'],
         aws: {
             pemFileLocation: __dirname + '/app/config/',
             s3BucketDownloadFileLocation: currentDirectory + '/catdata/catalyst/temp/',
