@@ -16,7 +16,7 @@
                         if(dockerTemplates[j]._id === $scope.dockerTemplateForTag){
                             $scope.dockerTemplateName = dockerTemplates[j].dockercontainerpaths.replace(/\//g, "$$$");
                             $scope.dockerTemplateTypeName = dockerTemplates[j].templatename;
-                            $scope.dockerLaunchParameters = '--name ' + dockerTemplates[j].templatename;
+                            $scope.dockerLaunchParameters = ' --name ' + dockerTemplates[j].templatename;
                             if(dockerTemplates[j].dockerreponame !== ''){
                                 $scope.dockerRepo = dockerTemplates[j].dockerreponame;
                             } else {
@@ -34,10 +34,10 @@
                 },
                 ok:function() {
                     $scope.dockerTags = {
-                        templatename : $scope.dockerTemplateTypeName,
+                        dockercontainerpathstitle : $scope.dockerTemplateTypeName,
                         dockercontainerpaths : $scope.dockerTemplateName,
-                        tagValue : $scope.dockerTemplatetag,
-                        dockerlaunchparameters : $scope.dockerLaunchParameters,
+                        dockerrepotags : $scope.dockerTemplatetag,
+                        dockerlaunchparameters : ''+$scope.dockerLaunchParameters,
                         dockerreponame : $scope.dockerRepo
                     };
                     $modalInstance.close($scope.dockerTags);    

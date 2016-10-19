@@ -108,9 +108,9 @@ label {
   overflow: auto;
 }
 
-//.selected{
-//  border: 2px solid #40BAF1 !important;
-//}
+.selected{
+  border: 2px solid #40BAF1 !important;
+}
 
 .fa-question-circle {
   font-size: 18px;
@@ -200,8 +200,7 @@ label {
     /*#7d7676*/
     color: #fff;
     box-shadow: 0 0 5px #888888;
-    cursor: not-allowed !important;
-    pointer-events: none;
+    
   }
   .disable {
     cursor: not-allowed !important;
@@ -258,6 +257,8 @@ label {
   .select {
     background: #286090 !important;
     color: #fff !important;
+    cursor: not-allowed !important;
+    pointer-events: none;
   }
 }
 
