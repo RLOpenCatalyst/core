@@ -9,6 +9,7 @@
    "use strict";
 	angular.module('workzone.blueprint')
 		.controller('blueprintLaunchCtrl', ['$scope', '$rootScope', '$modalInstance', 'bpItem', 'workzoneServices', 'workzoneEnvironment', 'instanceLogs', function($scope, $rootScope, $modalInstance, bpItem, workzoneServices, workzoneEnvironment, instanceLogs) {
+			console.log(bpItem);
 			$scope.isBPLogsLoading = true;
 			$scope.isNewInstanceLogsPromise = false;
 			var helper = {
@@ -79,7 +80,7 @@
 				versionOptional = versionsList[versionsList.length-1].ver;
 			}
 			var selectedVersionBpId = bpItem.bp.selectedVersionBpId;
-			workzoneServices.launchBlueprint(selectedVersionBpId, versionOptional, envParams.env, bpItem.stackName,bpItem.domainName).then(function(bpLaunchResponse) {
+			workzoneServices.launchBlueprint(selectedVersionBpId, versionOptional, envParams.env, bpItem.stackName,bpItem.domainName,bpItem.tagServer).then(function(bpLaunchResponse) {
 				$scope.isBPLogsLoading = false;
 				var launchingInstance;
 				if(bpLaunchResponse.data.id && bpLaunchResponse.data.id.length>0){
