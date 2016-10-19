@@ -485,6 +485,10 @@
                         case 'OSImage':
                         case 'SoftwareStack':
                             break;
+                        case 'CloudFormation':
+                            $scope.stpLen=3;
+                            $scope.stpLen=5;
+                            break;
                         }
                     $scope.setButtons();
                     blueprintCreation.wizardStep($scope.bpTypeName,$scope.stpLen);
@@ -498,6 +502,10 @@
                             break;
                         case 'OSImage':
                         case 'SoftwareStack':
+                            break;
+                        case 'CloudFormation':
+                            $scope.stpLen=3;
+                            $scope.stpLen=1;
                             break;
                         }
                     $scope.setButtons();
@@ -518,6 +526,16 @@
                         if($scope.bpTypeName !=='Docker'){
                             blueprintCreation.getOperatingSytems();
                             blueprintCreation.getAllProviders();        
+                        }
+                        blueprintCreation.getOrgBUProjDetails();
+                        $scope.previousEnabled = true;
+                    } else if($scope.stpLen === 3 && $scope.bpTypeName === 'CloudFormation' || $scope.bpTypeName ==='ARMTemplate'){
+                        if($scope.bpTypeName === 'CloudFormation' || $scope.bpTypeName ==='ARMTemplate'){
+                            blueprintCreation.getTemplateParameters();
+                        }
+                        if($scope.bpTypeName === 'CloudFormation') {
+                            blueprintCreation.getRegionLists();
+                            blueprintCreation.getAllProviders(); 
                         }
                         blueprintCreation.getOrgBUProjDetails();
                         $scope.previousEnabled = true;
