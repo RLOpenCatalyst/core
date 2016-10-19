@@ -88,10 +88,10 @@ function routeConfig($stateProvider, $urlRouterProvider, $httpProvider, modulePe
 
 			}]
 		}
-	}).state('dashboard.service', {
-		url: "/service/",
-		templateUrl: "src/partials/sections/dashboard/service/service.html",
-		controller: "serviceCtrl",
+	}).state('dashboard.bots', {
+		url: "/bots",
+		templateUrl: "src/partials/sections/dashboard/bots/bots.html",
+		controller: "botsCtrl as bts",
 		resolve: {
 			auth: ["$q", function ($q) {
 				var deferred = $q.defer();
