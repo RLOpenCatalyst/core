@@ -13,23 +13,37 @@
                     multiSelect :false,
                 },
                 columnDefs: [
-                    { name: 'type'},
-                    { name: 'name'},
-                    { name: 'description'},
+                    { name: 'type',field:'botType'},
+                    { name: 'name',field:'name'},
+                    { name: 'description',field:'shortDesc'},
                     { name: 'run Bot' },
                     { name: 'history' },
                     { name: 'last run'},
-                    { name: 'bot Action'}
+                    { name: 'bot Action',cellTemplate:'<span class="btn cat-btn-update control-panel-button" title="Launch" ng-click="grid.appScope.launchInstance(row.rowEntity);"><i class="fa fa-location-arrow white"></i></span>'}
                 ],
-                data:[{},{}]
+                data:[]
             };
+            $scope.launchInstance = function(lunch){
+                    if(lunch.botType === 'Task'){
+                        genSevs.executeTask(lunch);
 
+                    } else if(lunch.botType === 'blueprint') {
+                        genSevs.lunchBlueprint(lunch);
+                    }
+            };
             lib.int =function(){
+                lib.gridOptions.data=[];
                 var param={
-                    url:'/config-data/bot-type'
+                    url:'/blueprints/serviceDelivery'
                 };
                 genSevs.promiseGet(param).then(function (result) {
-
+                    angular.extend(lib.gridOptions.data,result);
+                });
+                var param2={
+                    url:'/tasks/serviceDelivery'
+                };
+                genSevs.promiseGet(param2).then(function (resultTask) {
+                    angular.extend(lib.gridOptions.data,resultTask);
                 });
             };
             lib.int();
