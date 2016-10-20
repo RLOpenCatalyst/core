@@ -13,37 +13,44 @@
                     multiSelect :false,
                 },
                 columnDefs: [
-                    { name: 'type',field:'botType'},
-                    { name: 'name',field:'name'},
+                    { name: 'bots type',field:'botType'},
+                    { name: 'bots name',field:'name'},
                     { name: 'description',field:'shortDesc'},
-                    { name: 'run Bot' },
                     { name: 'history' },
                     { name: 'last run'},
-                    { name: 'bot Action',cellTemplate:'<span class="btn cat-btn-update control-panel-button" title="Launch" ng-click="grid.appScope.launchInstance(row.rowEntity);"><i class="fa fa-location-arrow white"></i></span>'}
+                    { name: 'bot Action',cellTemplate:'<span class="btn cat-btn-update control-panel-button" title="Launch" ng-click="grid.appScope.launchInstance(row.entity);"><i class="fa fa-location-arrow white"></i></span>'}
                 ],
                 data:[]
             };
             $scope.launchInstance = function(lunch){
-                    if(lunch.botType === 'Task'){
+                    if(lunch.launcType === 'task'){
                         genSevs.executeTask(lunch);
 
-                    } else if(lunch.botType === 'blueprint') {
+                    } else if(lunch.launcType === 'bp') {
                         genSevs.lunchBlueprint(lunch);
                     }
             };
             lib.int =function(){
                 lib.gridOptions.data=[];
                 var param={
-                    url:'/blueprints/serviceDelivery/?serviceDeliveryCheck=true'
+                    //url:'/blueprints/serviceDelivery/?serviceDeliveryCheck=true'
+                    url:'src/partials/sections/dashboard/bots/data/bp.json'
                 };
                 genSevs.promiseGet(param).then(function (result) {
-                    angular.extend(lib.gridOptions.data,result);
+                    angular.forEach(result,function (val) {
+                        angular.extend(val,{launcType:'bp'});
+                        lib.gridOptions.data.push(val);
+                    });
                 });
                 var param2={
-                    url:'/tasks/serviceDelivery/?serviceDeliveryCheck=true'
+                   // url:'/tasks/serviceDelivery/?serviceDeliveryCheck=true'
+                    url:'src/partials/sections/dashboard/bots/data/t.json'
                 };
                 genSevs.promiseGet(param2).then(function (resultTask) {
-                    angular.extend(lib.gridOptions.data,resultTask);
+                    angular.forEach(resultTask,function (val) {
+                        angular.extend(val,{launcType:'task'});
+                        lib.gridOptions.data.push(val);
+                    });
                 });
             };
             lib.int();
