@@ -13,11 +13,19 @@
 			var osList = items[1].data;
 			var configList = items[2].data;
 			var reqBody = {};
+			$scope.tagServer = 'Monitoring';
 			if (!configAvailable.length) {
 				$scope.cancel();
 				toastr.error('Chef Or Puppet is not Available');
 				return false;
 			}
+			$scope.tagServerChecking = function() {
+				if($scope.tagServerCheck){
+					$scope.tagServerStatus = true;
+				}else{
+					$scope.tagServerStatus = false;
+				}
+			};
 			angular.extend($scope, {
 				osList: osList,
 				configList: configList,
@@ -48,6 +56,11 @@
 					reqBody.fqdn = $scope.ipAddress;
 					reqBody.os = $scope.os;
 					reqBody.configManagmentId = $scope.selectedConfig;
+					if($scope.tagServerCheck) {
+						reqBody.tagServer = $scope.tagServer;
+					} else {
+						reqBody.tagServer = '';
+					}
 					reqBody.credentials = {
 						username: $scope.username
 					};
