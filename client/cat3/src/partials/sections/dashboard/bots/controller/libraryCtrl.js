@@ -34,13 +34,13 @@
             lib.int =function(){
                 lib.gridOptions.data=[];
                 var param={
-                    url:'/blueprints/serviceDelivery'
+                    url:'/blueprints/serviceDelivery/?serviceDeliveryCheck=true'
                 };
                 genSevs.promiseGet(param).then(function (result) {
                     angular.extend(lib.gridOptions.data,result);
                 });
                 var param2={
-                    url:'/tasks/serviceDelivery'
+                    url:'/tasks/serviceDelivery/?serviceDeliveryCheck=true'
                 };
                 genSevs.promiseGet(param2).then(function (resultTask) {
                     angular.extend(lib.gridOptions.data,resultTask);
