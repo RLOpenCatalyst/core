@@ -79,7 +79,7 @@
 				versionsList = bpItem.bp.blueprintConfig.infraManagerData.versionsList;
 				versionOptional = versionsList[versionsList.length-1].ver;
 			}
-			var selectedVersionBpId = bpItem.bp.selectedVersionBpId;
+			var selectedVersionBpId = bpItem.bp.selectedVersionBpId || bpItem._id;
 			workzoneServices.launchBlueprint(selectedVersionBpId, versionOptional, envParams.env, bpItem.stackName,bpItem.domainName,bpItem.tagServer).then(function(bpLaunchResponse) {
 				$scope.isBPLogsLoading = false;
 				var launchingInstance;
