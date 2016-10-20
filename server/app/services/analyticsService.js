@@ -26,6 +26,7 @@ var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvi
 
 var analyticsService = module.exports = {}
 
+// @TODO To be re-factored
 analyticsService.aggregateEntityCosts
 	= function aggregateEntityCosts(parentEntity, parentEntityId, parentEntityQuery, endTime, period, callback) {
 	var catalystEntityHierarchy = appConfig.catalystEntityHierarchy
@@ -80,7 +81,7 @@ analyticsService.aggregateEntityCosts
 			if(err) {
 				next0(err)
 			} else {
-				//@TODO Blocking call to be avoided
+				// @TODO To be improved
 				var entityCosts = {}
 				for(var i = 0; i < aggregateCosts.totalCosts.length; i++) {
 					entityCosts[aggregateCosts.totalCosts[i]._id] = {
@@ -100,7 +101,7 @@ analyticsService.aggregateEntityCosts
 					}
 				}
 
-				// @TODO Blocking call to be avoided
+				// @TODO To be improved
 				for(var i = 0; i < aggregateCosts.serviceCosts.length; i++) {
 					if(aggregateCosts.serviceCosts[i]._id.entityId in entityCosts) {
 						entityCosts[aggregateCosts.serviceCosts[i]._id.entityId]
@@ -410,9 +411,6 @@ analyticsService.formatCostTrend = function formatCostTrend(entityCosts, callbac
 //@TODO To be optimized. Better abstractions and attribute naming conventions will guarantee less code duplication
 //@TODO Centralized error handling to reduce code duplication
 analyticsService.getEntityDetails = function getEntityDetails(entityType, entityId, callback) {
-	var notFoundError = new Error('Invalid entity id')
-	notFoundError.status = 404
-
 	var internalServerError =  new Error('Internal Server Error')
 	internalServerError.status = 500
 
@@ -427,7 +425,7 @@ analyticsService.getEntityDetails = function getEntityDetails(entityType, entity
 					} else if (organizations.length > 0) {
 						callback(null, {'name': organizations[0].orgname})
 					} else {
-						callback(notFoundError)
+						callback(null, {'name': 'Unknown'})
 					}
 				}
 			)
@@ -440,7 +438,7 @@ analyticsService.getEntityDetails = function getEntityDetails(entityType, entity
 						logger.error(err)
 						callback(internalServerError)
 					} else if(provider == null) {
-						callback(notFoundError)
+						callback(null, {'name': 'Unknown'})
 					} else {
 						callback(null, {'name': provider.providerName})
 					}
@@ -457,7 +455,7 @@ analyticsService.getEntityDetails = function getEntityDetails(entityType, entity
 					} else if(businessGroups.length > 0) {
 						callback(null, {'name': businessGroups[0].productgroupname})
 					} else {
-						callback(notFoundError)
+						callback(null, {'name': 'Unknown'})
 					}
 				}
 			)
@@ -472,7 +470,7 @@ analyticsService.getEntityDetails = function getEntityDetails(entityType, entity
 					} else if(projects.length > 0) {
 						callback(null, {'name': projects[0].projectname})
 					} else {
-						callback(notFoundError)
+						callback(null, {'name': 'Unknown'})
 					}
 				}
 			)
@@ -487,7 +485,7 @@ analyticsService.getEntityDetails = function getEntityDetails(entityType, entity
 					} else if (environments.length > 0) {
 						callback(null, {'name': environments[0].environmentname})
 					} else {
-						callback(notFoundError)
+						callback(null, {'name': 'Unknown'})
 					}
 				}
 			)

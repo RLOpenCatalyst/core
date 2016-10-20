@@ -112,6 +112,7 @@ $imagePath : "../../../../../../cat3/images";
   z-index: 10;
   transition: all .4s ease 0s;
   left: -254px;
+    height: 100%;
 
   &.show-left-tree {
       left: 0px;
@@ -121,6 +122,7 @@ $imagePath : "../../../../../../cat3/images";
       background: linear-gradient(to right, #2c3638 99%, #2c3638 100%);
       color: #fff;
       overflow-y: auto;
+      height: 100%;
   }
 
   div[data-angular-treeview] {
@@ -1161,4 +1163,10 @@ option.script {
 }
 .loading-body{
     opacity: 0.4;
+}
+#bots .control-panel-button {
+    border-radius: 11px;
+    padding: 2px 5px;
+    width: 25px;
+    height: 25px;
 }

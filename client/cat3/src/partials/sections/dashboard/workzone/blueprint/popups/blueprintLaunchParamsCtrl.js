@@ -9,15 +9,25 @@
 	"use strict";
 	angular.module('workzone.blueprint')
 		.controller('blueprintLaunchParamsCtrl', ['$scope', '$modalInstance', 'items', function($scope, $modalInstance, items) {
+			console.log(items);
 			var launchHelper = {
 				launch : function(){
-					$modalInstance.close({bp:items,stackName:$scope.stackName,domainName:$scope.domainName});
+					$modalInstance.close({bp:items,stackName:$scope.stackName,domainName:$scope.domainName,tagServer:$scope.tagServer});
 				}
 			};
 			$scope.stackName='';
 			$scope.domainName='';
+			$scope.tagServer = "Monitoring";
 			$scope.cancel = function() {
 				$modalInstance.dismiss('cancel');
+			};
+			$scope.tagServerChecking = function() {
+				if($scope.tagServerCheck){
+					$scope.tagServerStatus = true;
+				}else{
+					$scope.tagServerStatus = false;
+					$scope.tagServer = '';
+				}
 			};
 			$scope.launchBP = function() {
 				if(items.blueprintType === "aws_cf") {

@@ -73,6 +73,7 @@ var auditTrail = require('./routes_audit_trails');
 var scripts = require('./routes_scripts');
 var fileUpload = require('./routes_fileUpload');
 var settingWizard = require('./routes_setting_wizard');
+var configData = require('./routes_config_data');
 var monitors = require('./routes_monitors');
 /*
  * @TODO
@@ -183,6 +184,8 @@ module.exports.setRoutes = function(app) {
     settingWizard.setRoutes(app, sessionVerificationFunc);
     
     monitors.setRoutes(app, sessionVerificationFunc);
+
+    configData.setRoutes(app, sessionVerificationFunc);
 
 
     app.get('/', function(req, res) {
