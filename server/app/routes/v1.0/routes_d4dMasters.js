@@ -2374,9 +2374,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
     app.post('/d4dMasters/savemasterjsonrownew/:id/:fileinputs/:orgname', function(req, res) {
         logger.debug("Enter post() for /d4dMasters/savemasterjsonrownew/%s/%s/%s", req.params.id, req.params.fileinputs, req.params.orgname);
-        console.log("***********************");
-        console.log(JSON.stringify(req.body));
-        console.log("***********************");
         var bodyJson = JSON.parse(JSON.stringify(req.body));
         //pushing the rowid field
         var editMode = false; //to identify if in edit mode.
@@ -2427,6 +2424,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     }
                     if (req.params.id === "18") {
                         bodyJson["configType"] = "docker";
+                    }
+                    if (req.params.id === "17" && bodyJson.templatesicon_filename) {
+                        bodyJson["templatesicon_filePath"] = bodyJson["rowid"]+'__templatesicon__'+bodyJson["templatesicon_filename"];
                     }
                     logger.debug("Full bodyJson:::: ", JSON.stringify(bodyJson));
                     if (req.params.id === "25") {
