@@ -21,12 +21,52 @@ const appConfig = require('_pr/config');
 
 var monitorsService = module.exports = {};
 
-monitorsService.createMonitor = function(monitor, callback) {
+
+monitorsService.checkIfMonitorExists = function (monitorId, callback) {
+    monitorsModel.getById(monitorId, function (err, monitor) {
+        if (err) {
+            var err = new Error('Internal server error');
+            err.status = 500;
+            return callback(err);
+        } else if (!monitor) {
+            var err = new Error('Monitor not found');
+            err.status = 404;
+            return callback(err);
+        } else {
+            return callback(null, monitor);
+        }
+    });
+};
+
+monitorsService.responseFormatter = function (monitor) {
+    var formatted = {};
+    switch (monitor.serverType) {
+        case 'sensu':
+        case 'Sensu':
+            formatted._id = monitor._id;
+            formatted.serverType = monitor.serverType;
+            if (monitor.organization.length) {
+                formatted.organization = {
+                    id: monitor.organization[0].rowid,
+                    name: monitor.organization[0].orgname
+                };
+            }
+            formatted.serverParameters = monitor.serverParameters;
+            if (formatted.serverParameters.transportProtocolParameters['password']) {
+                delete formatted.serverParameters.transportProtocolParameters['password'];
+            }
+            break;
+    }
+    return formatted;
+};
+
+
+monitorsService.createMonitor = function (monitor, callback) {
 
     switch (monitor.serverType) {
         case 'sensu':
         case 'Sensu':
-            monitorsModel.createNew(monitor, function(err, monitor) {
+            monitorsModel.createNew(monitor, function (err, monitor) {
                 //@TODO To be generalized
                 if (err && err.name === 'ValidationError') {
                     var err = new Error('Bad Request');
@@ -50,36 +90,21 @@ monitorsService.createMonitor = function(monitor, callback) {
 
 };
 
-monitorsService.updateMonitor = function updateMonitor(monitor, updateFields, callback) {
-    var fields = {};
-    if ('name' in updateFields) {
-        fields.name = updateFields.name;
-        monitor.name = updateFields.name;
-    }
-
-    switch (monitor.type) {
-        case 'gcp':
-            if ('monitorDetails' in updateFields) {
-                if ('projectId' in updateFields.monitorDetails) {
-                    fields['monitorDetails.projectId'] = updateFields.monitorDetails.projectId;
-                    monitor.monitorDetails.projectId = updateFields.monitorDetails.projectId;
-                }
-
-                if ('keyFile' in updateFields.monitorDetails)
-                    fields['monitorDetails.keyFile'] = updateFields.monitorDetails.keyFile;
-
-                if ('sshPrivateKey' in updateFields.monitorDetails)
-                    fields['monitorDetails.sshPrivateKey'] = updateFields.monitorDetails.sshPrivateKey;
-
-                if ('sshPublicKey' in updateFields.monitorDetails)
-                    fields['monitorDetails.sshPrivateKey'] = updateFields.monitorDetails.sshPublicKey;
-            }
-            gcpMonitorModel.updateById(monitor._id, fields, function(err, result) {
-                if (err || !result) {
+monitorsService.updateMonitor = function updateMonitor(monitorId, updateFields, callback) {
+    switch (updateFields.serverType) {
+        case 'sensu':
+        case 'Sensu':
+            monitorsModel.updateMonitors(monitorId, updateFields, function (err, monitor) {
+                //@TODO To be generalized
+                if (err && err.name === 'ValidationError') {
+                    var err = new Error('Bad Request');
+                    err.status = 400;
+                    callback(err);
+                } else if (err) {
                     var err = new Error('Internal Server Error');
                     err.status = 500;
                     callback(err);
-                } else if (result) {
+                } else {
                     callback(null, monitor);
                 }
             });
@@ -92,8 +117,8 @@ monitorsService.updateMonitor = function updateMonitor(monitor, updateFields, ca
     }
 };
 
-monitorsService.deleteMonitors = function(monitorId, callback) {
-    monitorsModel.deleteMonitors(monitorId, function(err, monitor) {
+monitorsService.deleteMonitors = function (monitorId, callback) {
+    monitorsModel.deleteMonitors(monitorId, function (err, monitor) {
         if (err) {
             var err = new Error('Internal server error');
             err.status = 500;
@@ -109,27 +134,32 @@ monitorsService.deleteMonitors = function(monitorId, callback) {
     });
 };
 
-monitorsService.getMonitors = function(query, callback) {
+monitorsService.getMonitors = function (query, callback) {
     var params = {};
     logger.debug('get monitors');
     if ('filterBy' in query) {
         params = monitorsService.parseFilterBy(query.filterBy);
-        logger.debug(JSON.stringify(params));
     }
-    monitorsModel.getMonitors(params, function(err, monitors) {
+    monitorsModel.getMonitors(params, function (err, monitors) {
         if (err) {
             logger.error(err);
             var err = new Error('Internal Server Error');
             err.status = 500;
             callback(err);
         } else {
-            callback(null, monitors);
+            var res = [];
+            if (monitors.length > 0) {
+                for (i = 0; i < monitors.length; i++) {
+                    res[i] = monitorsService.responseFormatter(monitors[i]);
+                }
+            }
+            callback(null, res);
         }
     });
 };
 
-monitorsService.getMonitor = function(monitorId, callback) {
-    monitorsModel.getById(monitorId, function(err, monitor) {
+monitorsService.getMonitor = function (monitorId, callback) {
+    monitorsModel.getMonitor(monitorId, function (err, monitor) {
         if (err) {
             var err = new Error('Internal Server Error');
             err.status = 500;
@@ -139,22 +169,23 @@ monitorsService.getMonitor = function(monitorId, callback) {
             err.status = 404;
             return callback(err);
         } else if (monitor) {
+            monitor = monitorsService.responseFormatter(monitor);
             callback(null, monitor);
         }
     });
 };
 
-// @TODO Query builder to be made generic and reused in analytics after schema changes
-monitorsService.parseFilterBy = function parseFilterBy(filterByString) {
+// @TODO Query builder to be made generic
+monitorsService.parseFilterBy = function (filterByString) {
     var filterQuery = {};
 
-    var filters = filterByString.split('+')
+    var filters = filterByString.split('+');
     for (var i = 0; i < filters.length; i++) {
-        var filter = filters[i].split(':')
-        var filterQueryValues = filter[1].split(",")
+        var filter = filters[i].split(':');
+        var filterQueryValues = filter[1].split(",");
 
-        filterQuery[filter[0]] = { '$in': filterQueryValues }
+        filterQuery[filter[0]] = {'$in': filterQueryValues};
     }
 
     return filterQuery;
-}
+};
