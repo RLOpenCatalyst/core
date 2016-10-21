@@ -9,27 +9,48 @@
 
 	<form name="cftForm" ng-submit="cftSubmitHandler(cftForm.$valid)" novalidate>
 		<div class="modal-body" ng-show="!isBPLogsLoading">
-			<div ng-show="!showCFTInputs && !showARMInputs && !showBlueprintInputs">Are you sure you want to launch the Blueprint? Press Ok To continue</div>
-			<div ng-show="showCFTInputs || showARMInputs" class="CFTInputs-block">
-				<span class="acknowledge-text">(Only numbers,letters allowed. No spaces and underscores)</span>
-				<span class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-					<input type="text" name="stackInpt" ng-model="stackName" ng-trim="false" ng-pattern="/^[a-zA-Z0-9]*$/" maxlength="20" class="form-control" required>
-					<div class="text-danger help-block" ng-messages="cftForm.stackInpt.$error">
-						<div ng-messages-include="src/partials/globals/formMessages/messages.html"></div>
-					</div>
-				</span>
-			</div>
-
-			<div ng-show="showBlueprintInputs" class="CFTInputs-block">
-				<span class="acknowledge-text">(Only numbers,letters allowed. No spaces and underscores)</span>
-				<span class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-					<input type="text" name="domainInpt" ng-model="domainName" ng-trim="false" ng-pattern="/^[a-zA-Z0-9]*$/" maxlength="20" class="form-control" required>
-					<div class="text-danger help-block" ng-messages="cftForm.domainInpt.$error">
+			<fieldset>
+				<div ng-show="!showCFTInputs && !showARMInputs && !showBlueprintInputs">
+					Are you sure you want to launch the Blueprint? Press Ok To continue <br />
+					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 no-padding">
+						<label class="control-label">Tag Server: </label>
+		                <input type="checkbox" ng-model="tagServerCheck" class="checkbox-list" ng-click="tagServerChecking()" />
+		                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 no-padding" ng-show="tagServerStatus">
+		                	<span class="col-lg-3 col-md-3 col-sm-12 col-xs-12 no-padding">
+			                    <label class="control-label">Select server
+			                        <span class="control-label red">&nbsp;*</span>
+			                    </label>
+			                </span>
+		                    <span class="col-lg-6 col-md-6 col-sm-12 col-xs-12 no-padding">
+		                      <select class="form-control" ng-modal="tagServer">
+		                        <option selected="selected" value="Monitoring">Monitoring Server</option>
+		                        <option value="LDAP">LDAP Server</option>
+		                        <option value="AD">AD Server</option>
+		                      </select>
+		                    </span>
+		                </div>
+		            </div>
+				</div>
+				<div ng-show="showCFTInputs || showARMInputs" class="CFTInputs-block">
+					<span class="acknowledge-text">(Only numbers,letters allowed. No spaces and underscores)</span>
+					<span class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+						<input type="text" name="stackInpt" ng-model="stackName" ng-trim="false" ng-pattern="/^[a-zA-Z0-9]*$/" maxlength="20" class="form-control" required>
+						<div class="text-danger help-block" ng-messages="cftForm.stackInpt.$error">
 							<div ng-messages-include="src/partials/globals/formMessages/messages.html"></div>
-					</div>
-				</span>
-			</div>
+						</div>
+					</span>
+				</div>
 
+				<div ng-show="showBlueprintInputs" class="CFTInputs-block">
+					<span class="acknowledge-text">(Only numbers,letters allowed. No spaces and underscores)</span>
+					<span class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+						<input type="text" name="domainInpt" ng-model="domainName" ng-trim="false" ng-pattern="/^[a-zA-Z0-9]*$/" maxlength="20" class="form-control" required>
+						<div class="text-danger help-block" ng-messages="cftForm.domainInpt.$error">
+								<div ng-messages-include="src/partials/globals/formMessages/messages.html"></div>
+						</div>
+					</span>
+				</div>
+			</fieldset>
 		</div>
 
 		<div class="modal-footer" ng-show="!isBPLogsLoading">

@@ -404,7 +404,8 @@ function getDefaultsConfig() {
                 'Amazon Route 53': 'R53',
                 'Amazon Redshift': 'RedShift',
                 'Amazon ElastiCache': 'ElastiCache',
-                'Amazon CloudFront': 'CloudFront'
+                'Amazon CloudFront': 'CloudFront',
+                'Other': 'Other'
             },
 
             billIndexes: {
@@ -462,30 +463,40 @@ function getDefaultsConfig() {
             },
             region: {
                 key: 'platformDetails.region'
+            },
+            resource: {
+                key: 'resourceId'
             }
         },
         costAggregationPeriods: {
-            'year': {
+            /*'year': {
                 intervalInSeconds: null,
                 childInterval: {
                     name: 'monthly',
                     intervalInSeconds: 2592000
                 }
-            },
+            },*/
             'month': {
                 intervalInSeconds: 2592000,
                 childInterval: {
-                    name: 'daily',
+                    name: 'week',
+                    intervalInSeconds: 86400
+                }
+            },
+            week: {
+                intervalInSeconds: 604800,
+                childInterval: {
+                    name: 'day',
                     intervalInSeconds: 86400
                 }
             },
             day: {
                 intervalInSeconds: 86400,
                 childInterval: {
-                    name: 'hourly',
+                    name: 'hour',
                     intervalInSeconds: 3600
                 }
-            },
+            }
         },
         costDefaultIds: {
             businessGroupId: 'Unassigned',

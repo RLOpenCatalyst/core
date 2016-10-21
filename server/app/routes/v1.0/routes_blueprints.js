@@ -430,19 +430,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 		}); // end haspermission
 	});
-    app.get('/blueprints/:blueprintId/blueprintInfo', function(req, res) {
-        Blueprints.getBlueprintInfoById(req.params.blueprintId, function(err, blueprintInfo) {
-            if (err) {
-                res.status(500).send({
-                    code: 500,
-                    errMessage: "Blueprint Info fetch failed"
-                });
-                return;
-            }
-            res.status(200).send(blueprintInfo);
-        });
-
-    });
     //  List blueprints w.r.t. org,bg and project
     /**
      * @api {get} /blueprints/organization/:orgId/businessgroup/:bgId/project/:projectId Request List of Blueprints
@@ -527,14 +514,25 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         var orgId = req.params.orgId;
         var bgId = req.params.bgId;
         var projectId = req.params.projectId;
+        var serviceDeliveryCheck = false;
+        if(req.query.serviceDeliveryCheck){
+            serviceDeliveryCheck = req.query.serviceDeliveryCheck;
+        }
         if (!orgId || !bgId || !projectId) {
             res.status(400).send("Either orgId or bgId or projectId missing.");
             return;
         }
+
         var jsonData = {};
         jsonData['orgId'] = orgId;
         jsonData['bgId'] = bgId;
         jsonData['projectId'] = projectId;
+
+        if(serviceDeliveryCheck === 'true' || serviceDeliveryCheck === true){
+            jsonData['botType'] = {$ne:null};
+            jsonData['shortDesc'] = {$ne:null};
+        }
+
         Blueprints.getBlueprintsByOrgBgProject(jsonData, function(err, blueprints) {
             if (err) {
                 res.status(500).send({

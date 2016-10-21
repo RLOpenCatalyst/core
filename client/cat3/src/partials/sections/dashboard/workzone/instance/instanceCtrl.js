@@ -217,6 +217,7 @@
                                 so that it gets replaced with instanceIP*/
                                 helper.setHostToIp(result.data.instances);
                                 $scope.tabData = $scope.instanceList;
+                                console.log($scope.instanceList);
                                 if ($scope.totalCards > $scope.paginationParams.pageSize) {
                                     $scope.cardsAvailable = true;
                                 } else {
@@ -515,6 +516,21 @@
                         console.log('Modal dismissed at: ' + new Date());
                     });
                 };
+                $scope.showInstanceUsage = function(inst) {
+                    var modalInstance = $modal.open({
+                        animation: true,
+                        templateUrl: 'src/partials/sections/dashboard/workzone/instance/popups/instanceUsage.html',
+                        controller: 'instanceUsageCtrl',
+                        size: 'lg',
+                        backdrop: 'static',
+                        keyboard: false,
+                        resolve: {
+                            items: function() {
+                                return inst;
+                            }
+                        }
+                    });
+                }
                 $scope.rdpFileLink = function(instanceObj) {
                     var fileLink = '/instances/rdp/' + instanceObj.instanceIP + '/3389';
                     return fileLink;

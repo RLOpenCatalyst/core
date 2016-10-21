@@ -2374,9 +2374,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
     app.post('/d4dMasters/savemasterjsonrownew/:id/:fileinputs/:orgname', function(req, res) {
         logger.debug("Enter post() for /d4dMasters/savemasterjsonrownew/%s/%s/%s", req.params.id, req.params.fileinputs, req.params.orgname);
-        console.log("***********************");
-        console.log(JSON.stringify(req.body));
-        console.log("***********************");
         var bodyJson = JSON.parse(JSON.stringify(req.body));
         //pushing the rowid field
         var editMode = false; //to identify if in edit mode.
@@ -2427,6 +2424,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     }
                     if (req.params.id === "18") {
                         bodyJson["configType"] = "docker";
+                    }
+                    if (req.params.id === "17" && bodyJson.templatesicon_filename) {
+                        bodyJson["templatesicon_filePath"] = bodyJson["rowid"]+'__templatesicon__'+bodyJson["templatesicon_filename"];
                     }
                     logger.debug("Full bodyJson:::: ", JSON.stringify(bodyJson));
                     if (req.params.id === "25") {
@@ -2536,31 +2536,38 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                             var templatetypename;
                                                             var designtemplateicon_filename;
                                                             var templatetype;
+                                                            var providerType;
                                                             if(x1 === 0) {
                                                                 templatetypename = "Docker";
                                                                 designtemplateicon_filename = "Docker.png";
                                                                 templatetype = "docker";
+                                                                providerType = []
                                                             } else if (x1 === 1) {
                                                                 templatetypename = "OSImage";
                                                                 designtemplateicon_filename = "Desktop Provisining.png";
                                                                 templatetype = "ami";
+                                                                providerType=['aws','azure','openstack','vmware']
                                                             } else if (x1 === 2) {
                                                                 templatetypename = "SoftwareStack";
                                                                 designtemplateicon_filename = "Appfactory.png";
                                                                 templatetype = "chef";
+                                                                providerType=['aws','azure','openstack','vmware']
                                                             } else if (x1 === 3) {
                                                                 templatetypename = "CloudFormation";
                                                                 designtemplateicon_filename = "CloudFormation.png";
                                                                 templatetype = "cft";
+                                                                providerType=['aws']
 
                                                             } else if (x1 === 4) {
                                                                 templatetypename = "ARMTemplate";
                                                                 designtemplateicon_filename = "CloudFormation.png";
                                                                 templatetype = "arm";
+                                                                providerType=['azure']
                                                             } else {
                                                                 templatetypename = "Composite";
                                                                 designtemplateicon_filename = "composite.png";
                                                                 templatetype = "composite";
+                                                                providerType=['aws']
                                                             }
 
                                                             var templateTypeData = {
@@ -2569,7 +2576,8 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                 "orgname_rowid": bodyJson["rowid"],
                                                                 "rowid": uuid.v4(),
                                                                 "id": "16",
-                                                                "templatetype": templatetype
+                                                                "templatetype": templatetype,
+                                                                "providerType":providerType
 
                                                             };
 
@@ -2726,7 +2734,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                     res.send(500);
                                                                     return;
                                                                 }
-                                                                if (settingWizards.currentStep.name === 'User Configuration') {
+                                                                if (settingWizards.currentStep && settingWizards.currentStep.name === 'User Configuration') {
                                                                     var settingWizardSteps = appConfig.settingWizardSteps;
                                                                     settingWizards.currentStep.nestedSteps[1].isCompleted = true;
                                                                     settingWizards.currentStep.isCompleted = true;
@@ -2766,7 +2774,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     return;
                                                 }
                                                 var settingWizardSteps = appConfig.settingWizardSteps;
-                                                if(settingWizards.currentStep.name === 'Org Configuration') {
+                                                if(settingWizards.currentStep && settingWizards.currentStep.name === 'Org Configuration') {
                                                     settingWizards.currentStep.nestedSteps[2].isCompleted = true;
                                                     settingWizards.currentStep.isCompleted = true;
                                                     settingWizards.previousStep = settingWizards.currentStep;
@@ -2803,7 +2811,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     res.send(500);
                                                     return;
                                                 }
-                                                if(settingWizards.currentStep.name === 'Devops Roles') {
+                                                if(settingWizards.currentStep && settingWizards.currentStep.name === 'Devops Roles') {
                                                     settingWizards.currentStep.nestedSteps[0].isCompleted = true;
                                                     settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                                                         if (err) {
@@ -2837,7 +2845,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     res.send(500);
                                                     return;
                                                 }
-                                                if(settingWizards.currentStep.name === 'Devops Roles') {
+                                                if(settingWizards.currentStep && settingWizards.currentStep.name === 'Devops Roles') {
                                                     settingWizards.currentStep.nestedSteps[1].isCompleted = true;
                                                     settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                                                         if (err) {
@@ -2874,7 +2882,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         res.send(500);
                                                         return;
                                                     }
-                                                    if(settingWizards.currentStep.name === 'User Configuration') {
+                                                    if(settingWizards.currentStep && settingWizards.currentStep.name === 'User Configuration') {
                                                         settingWizards.currentStep.nestedSteps[0].isCompleted = true;
                                                         settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                                                             if (err) {
@@ -2893,7 +2901,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         res.send(500);
                                                         return;
                                                     }
-                                                    if(settingWizards.currentStep.name === 'Org Configuration') {
+                                                    if(settingWizards.currentStep && settingWizards.currentStep.name === 'Org Configuration') {
                                                         settingWizards.currentStep.nestedSteps[1].isCompleted = true;
                                                         settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                                                             if (err) {
@@ -2912,7 +2920,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         res.send(500);
                                                         return;
                                                     }
-                                                    if(settingWizards.currentStep.name === 'Config Management') {
+                                                    if(settingWizards.currentStep && settingWizards.currentStep.name === 'Config Management') {
                                                         settingWizards.currentStep.nestedSteps[0].isCompleted = true;
                                                         settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                                                             if (err) {
@@ -2931,7 +2939,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         res.send(500);
                                                         return;
                                                     }
-                                                    if(settingWizards.currentStep.name === 'Gallery Setup') {
+                                                    if(settingWizards.currentStep && settingWizards.currentStep.name === 'Gallery Setup') {
                                                         settingWizards.currentStep.nestedSteps[1].isCompleted = true;
                                                         settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                                                             if (err) {
@@ -2951,7 +2959,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         return;
                                                     }
                                                     var settingWizardSteps = appConfig.settingWizardSteps;
-                                                    if(settingWizards.currentStep.name === 'Devops Roles') {
+                                                    if(settingWizards.currentStep && settingWizards.currentStep.name === 'Devops Roles') {
                                                         settingWizards.currentStep.nestedSteps[2].isCompleted = true;
                                                         settingWizards.currentStep.isCompleted = true;
                                                         settingWizards.previousStep = settingWizards.currentStep;
@@ -2974,7 +2982,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         res.send(500);
                                                         return;
                                                     }
-                                                    if(settingWizards.currentStep.name === 'Gallery Setup') {
+                                                    if(settingWizards.currentStep && settingWizards.currentStep.name === 'Gallery Setup') {
                                                         settingWizards.currentStep.nestedSteps[0].isCompleted = true;
                                                         settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                                                             if (err) {
@@ -2993,7 +3001,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         res.send(500);
                                                         return;
                                                     }
-                                                    if(settingWizards.currentStep.name === 'Config Management') {
+                                                    if(settingWizards.currentStep && settingWizards.currentStep.name === 'Config Management') {
                                                         var settingWizardSteps = appConfig.settingWizardSteps;
                                                         settingWizards.currentStep.nestedSteps[1].isCompleted = true;
                                                         settingWizards.currentStep.isCompleted = true;

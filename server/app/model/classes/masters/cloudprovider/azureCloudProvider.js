@@ -220,7 +220,6 @@ azurecloudProviderSchema.statics.getAzureCloudProvidersForOrg = function(orgList
 };
 
 azurecloudProviderSchema.statics.getAzureCloudProviderById = function(providerId, callback) {
-	logger.debug("Enter getAzureCloudProviderById   "+providerId);
 	this.find({
 		"_id": new ObjectId(providerId)
 	}, function(err, aProvider) {
@@ -230,9 +229,7 @@ azurecloudProviderSchema.statics.getAzureCloudProviderById = function(providerId
 			return;
 		}
 		if (aProvider.length) {
-			logger.debug("provider details:", aProvider);
 			var p = JSON.stringify(aProvider[0]);
-			logger.debug("Exit getAzureCloudProviderById with provider present", p);
 			callback(null, p);
 			return;
 		} else {
