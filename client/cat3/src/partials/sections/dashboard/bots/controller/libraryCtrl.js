@@ -31,8 +31,8 @@
             lib.int =function(){
                 lib.gridOptions.data=[];
                 var param={
-                    //url:'/blueprints/serviceDelivery/?serviceDeliveryCheck=true'
-                    url:'src/partials/sections/dashboard/bots/data/bp.json'
+                    url:'/blueprints/serviceDelivery/?serviceDeliveryCheck=true'
+                    //url:'src/partials/sections/dashboard/bots/data/bp.json'
                 };
                 genSevs.promiseGet(param).then(function (result) {
                     angular.forEach(result,function (val) {
@@ -41,8 +41,8 @@
                     });
                 });
                 var param2={
-                   //url:'/tasks/serviceDelivery/?serviceDeliveryCheck=true'
-                    url:'src/partials/sections/dashboard/bots/data/t.json'
+                   url:'/tasks/serviceDelivery/?serviceDeliveryCheck=true'
+                    //url:'src/partials/sections/dashboard/bots/data/t.json'
                 };
                 genSevs.promiseGet(param2).then(function (resultTask) {
                     angular.forEach(resultTask,function (val) {
