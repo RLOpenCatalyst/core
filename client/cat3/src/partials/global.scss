@@ -114,7 +114,7 @@ $imagePath : "../../../../../../cat3/images";
   transition: all .4s ease 0s;
   left: -254px;
     font-size: 12px !important;
-
+    height: 100%;
 
   &.show-left-tree {
       left: 0px;
@@ -1165,4 +1165,10 @@ option.script {
 }
 .loading-body{
     opacity: 0.4;
+}
+#bots .control-panel-button {
+    border-radius: 11px;
+    padding: 2px 5px;
+    width: 25px;
+    height: 25px;
 }

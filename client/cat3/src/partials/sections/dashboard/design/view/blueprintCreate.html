@@ -137,7 +137,6 @@
                               </label>
                               <select  ng-model="bpCreate.newEnt.images" name="imageId" class="chooseSecurity width-100 form-control" ng-change="bpCreate.getInstanceType();" ng-disabled="isOSImage" required>
                                  <option ng-if="templateSelected.templatetypename === 'SoftwareStack'" value="">Select Image</option>
-                                 {{bpCreate.imageListing}}
                                  <option ng-if="templateSelected.templatetypename === 'SoftwareStack'" ng-repeat="imageDetail in bpCreate.imageListing" value="{{imageDetail._id}}">{{imageDetail.name}}</option>
                                   <option ng-if="templateSelected.osType" ng-repeat="imageDetail in bpCreate.imageListing" value="{{imageDetail._id}}">{{imageDetail.name}}</option>
                               </select>
@@ -155,7 +154,7 @@
                               </label>
                               <select ng-model="bpCreate.newEnt.region" name="region" class="chooseSecurity width-100 form-control" ng-change="bpCreate.listVpcs();" required>
                                  <option value="">Select Region</option>
-                                 <option ng-if="providerType === 'AWS'" value="{{bpCreate.regionListing}}">{{bpCreate.regionListing}}</option>
+                                 <option ng-if="providerType === 'AWS'" value="{{bpCreate.regionListing.region}}">{{bpCreate.regionListing.region_name}} | {{bpCreate.regionListing.region}}</option>
                                  <option ng-repeat="location in bpCreate.regionListingAzure" ng-if="providerType === 'AZURE'" value="{{location.Name}}">{{location.Name}}</option>
                               </select>
                            </div>
@@ -166,7 +165,7 @@
                               </label>
                               <select ng-model="bpCreate.newEnt.flavour" name="flavour" class="width-100 form-control" required>
                                  <option value="">Select Flavour</option>
-                                 <!-- <option ng-repeat="flavours in bpCreate.flavourListing" value="{{location.Name}}">{{location.Name}}</option> -->
+                                 <option ng-repeat="flavours in bpCreate.flavourListing" value="{{location.Name}}">{{location.Name}}</option>
                               </select>
                            </div>
                            <div class="col-lg-4 col-md-4 margintop15" ng-if="providerType === 'OPENSTACK'">
@@ -176,7 +175,7 @@
                               </label>
                               <select ng-model="bpCreate.newEnt.network" name="network" class="width-100 form-control" required>
                                  <option value="">Select Network</option>
-                                 <!-- <option ng-repeat="flavours in bpCreate.flavourListing" value="{{location.Name}}">{{location.Name}}</option> -->
+                                 <option ng-repeat="flavours in bpCreate.flavourListing" value="{{location.Name}}">{{location.Name}}</option>
                               </select>
                            </div>
                            <div class="col-lg-4 col-md-4 margintop15" ng-if="providerType === 'AWS'  || providerType === 'AZURE'">
@@ -187,7 +186,7 @@
                               <select ng-model="bpCreate.newEnt.vpcId" name="vpcId" class="chooseSelect chooseImage width-100 form-control" ng-change="bpCreate.postSubnets();" required>
                                  <option value="">Select VPC</option>
                                  <option ng-if="providerType === 'AWS'" ng-repeat="vpcDetails in bpCreate.vpcListing" value="{{vpcDetails.VpcId}}">{{vpcDetails.VpcId}} ({{vpcDetails.CidrBlock}}) {{vpcDetails.Tags[0].Value}}</option>
-                                 <option ng-if="providerType === 'AZURE'" ng-repeat="vpcDetailsAzure in bpCreate.vpcListing" value="{{vpcDetailsAzure.Id}}">{{vpcDetailsAzure.Name}}</option>
+                                 <option ng-if="providerType === 'AZURE'" ng-repeat="vpcDetailsAzure in bpCreate.vpcListing" value="{{vpcDetailsAzure.Name}}">{{vpcDetailsAzure.Name}}</option>
                               </select>
                            </div>
                            <div class="col-lg-4 col-md-4 margintop15" ng-if="providerType !=='VMWARE'">
@@ -233,7 +232,7 @@
                               </div>
                               <select  ng-model="bpCreate.newEnt.securityGroup" name="securityGroup" class="width-100 chooseSelect form-control" required ng-if="providerType ==='OPENSTACK'">
                                  <option value="">Select Security Group</option>
-                                 <!-- <option ng-repeat="instanceCount in bpCreate.instanceCount(10)" value="{{instanceCount}}">{{instanceCount}}</option> -->
+                                 <option ng-repeat="instanceCount in bpCreate.instanceCount(10)" value="{{instanceCount}}">{{instanceCount}}</option>
                               </select>
                            </div>
                            <div class="col-lg-4 col-md-4 margintop15" ng-if="providerType === 'AWS'  || providerType === 'AZURE'">
@@ -393,81 +392,102 @@
                            <div class="col-lg-6 col-md-6 margintop15" ng-show="showRepoServerName">
                               <label for="">Repository Server:<span class="redSpan">*</span>
                               </label>
-                              <select ng-model="bpCreate.newEnt.nexusDockerServer" name="" class=" width-100 form-control" ng-change="bpCreate.selectServer();">
+                              <select ng-model="bpCreate.newEnt.nexusDockerServer" name="" class=" width-100 form-control" ng-change="bpCreate.getRepository();">
                                  <option value="">Choose Server</option>
-                                 <option  value="">{{}}</option>
+                                 <option ng-repeat="serverOption in bpCreate.serverRepos" value="{{bpCreate.serverRepos.indexOf(serverOption)}}">{{(serverOption.nexusservername) ? serverOption.nexusservername : serverOption.dockerreponame}}</option>
                               </select>
                            </div>
-                           <div class="col-lg-6 col-md-6 margintop15" ng-show="showRepoServerName">
-                              <label for="">Repository Name:<span class="redSpan">*</span>
-                              </label>
-                              <select id="chooseRepository" name="" class=" width-100 form-control">
-                                 <option value="">Choose Repositories</option>
-                              </select>
-                           </div>
-                           <div class="col-lg-6 col-md-6 margintop15 groupClass" ng-show="showRepoDetails">
-                              <label for="">Group ID:<span class="redSpan">*</span>
-                              </label>
-                              <select id="chooseGroupId" name="" class=" width-100 form-control">
-                                 <option value="">Choose Group ID</option>
-                              </select>
-                           </div>
-                           <div class="col-lg-6 col-md-6 margintop15 artifactClass" ng-show="showRepoDetails">
-                              <label for="">Artifacts:<span class="redSpan">*</span>
-                              </label>
-                              <select id="chooseArtifacts" name="" class=" width-100 form-control">
-                                 <option value="">Choose Artifacts</option>
-                              </select>
-                           </div>
-                           <div class="col-lg-6 col-md-6 margintop15 versionClass" ng-show="showRepoDetails">
-                              <label for="">Versions:<span class="redSpan">*</span>
-                              </label>
-                              <select id="chooseVersions" name="" class=" width-100 form-control">
-                                 <option value="">Choose Versions</option>
-                              </select>
-                           </div>
-                           <div class="col-lg-12 col-md-12 margintop15 repoUrlClass" ng-show="showRepoDetails">
-                              <label>Repository URL:<span class="redSpan">*</span>
-                              </label>
-                              <input id="repositoryUrl" type="text" class="form-control" name="" disabled>
-                           </div>
-                           <div class="col-lg-6 col-md-6 margintop15 imageTagClass" ng-show="">
-                              <label for="">Tags:<span class="redSpan">*</span>
-                              </label>
-                              <select id="imageTag" name="" class="width-100 form-control">
-                                 <option value="">Choose Tag</option>
-                              </select>
-                           </div>
-                           <div class="col-lg-6 col-md-6 margintop15 containerClass containerIdClass containerUpgradeDeploy" ng-show="">
-                              <label>Container Name/ID:
-                              </label>
-                              <input id="containerIdDiv" type="text" class="form-control" />
-                           </div>
-                           <div class="col-lg-6 col-md-6 margintop15 containerClass  containerPortClass containerUpgradeDeploy" ng-show="">
-                              <label>Container Port:<span class="redSpan">*</span>
-                              </label>
-                              <input id="containerPort" type="text" class="form-control" name="">
-                           </div>
-                           <div class="col-lg-6 col-md-6 margintop15 containerClass hostPortClass containerUpgradeDeploy" ng-show="">
-                              <label>Host Port:<span class="redSpan">*</span>
-                              </label>
-                              <input id="hostPort" type="text" class="form-control" />
-                           </div>
-                           <div class="col-lg-6 col-md-6 margintop15 containerClass dockerUserClass containerUpgradeDeploy" ng-show="">
-                              <label>User Name:
-                              </label>
-                              <input id="dockerUser" type="text" class="form-control" />
-                           </div>
-                           <div class="col-lg-6 col-md-6 margintop15 containerClass dockerPasswordClass containerUpgradeDeploy" ng-show="">
-                              <label>Password:
-                              </label>
-                              <input id="dockerPassword" type="text" class="form-control" />
-                           </div>
-                           <div class="col-lg-6 col-md-6 margintop15 containerClass dockerEmailIdClass containerUpgradeDeploy" ng-show="">
-                              <label>Email ID:
-                              </label>
-                              <input id="dockerEmailId" type="text" class="form-control" />
-                           </div>
+                           
+               <div ng-if="bpCreate.newEnt.serverType==='docker'">
+                  <div class="col-lg-6 col-md-6">
+                     <label >Repository:<span class="red">*</span>
+                        <loading size="small" name="isLoadingNexus" type="inline"></loading>
+                     </label>
+                     <div class="input-groups">
+                        <select name="repositories" class="form-control" ng-model="bpCreate.newEnt.repositoryIMG" ng-change="bpCreate.changeRepository();" required>
+                           <option value="">Choose Repositories</option>
+                           <option ng-repeat="(key,value) in bpCreate.repositoryOptions" value="{{value}}">{{value}}</option>
+                        </select>
+                     </div>
+                  </div>
+                  <div class="col-lg-6 col-md-6 margintop15">
+                     <label>Tags:<span class="red">*</span>
+                        <loading size="small" name="isLoadingDocTag" type="inline"></loading>
+                     </label>
+                     <select class="form-control" ng-model="bpCreate.newEnt.tag"  required>
+                        <option value="">Choose Tag</option>
+                        <option ng-repeat="tagOption in bpCreate.tagOptions" value="{{tagOption.name}}">{{tagOption.name}}</option>
+                     </select>
+                  </div>
+                  <div class="col-lg-6 col-md-6 margintop15">
+                     <label>Container Port:<span class="red">*</span>
+                        <!--<loading size="small" name="isLoadingNexus" type="inline"></loading>-->
+                     </label>
+                     <div class="input-groups"><input type="text" name="contPort" class="form-control" ng-model="bpCreate.newEnt.contPort" required></div>
+                  </div>
+                  <div class="col-lg-6 col-md-6 margintop15" >
+                     <label ng-click="showHideLoader()">Host Port:<span class="red">*</span></label>
+                     <!--<loading size="small" name="isLoadingContainer" type="inline"></loading>-->
+                     <input type="text" class="form-control" name="hostPort" ng-model="bpCreate.newEnt.hostPort" required>
+                  </div>
+                  <div class="col-lg-6 col-md-6 margintop15" >
+                     <label ng-click="showHideLoader()">Container Name/ID:</label>
+                     <!--<loading size="small" name="isLoadingContainer" type="inline"></loading>-->
+                     <input type="text" class="form-control" ng-model="bpCreate.newEnt.ContNameId" >
+                  </div>
+               </div>
+               <div  ng-if="bpCreate.newEnt.serverType==='nexus'">
+                  <div class="col-lg-6 col-md-6">
+                     <label >Repository:<span class="red">*</span> <span ng-if="bpCreate.errorMsg.repository" messages msg-config="bpCreate.errorMsg"></span>
+                        <loading size="small" name="isLoadingNexus" type="inline"></loading>
+                     </label>
+                     <div class="input-groups">
+                        <select name="repositoryInd" class="form-control" ng-model="bpCreate.newEnt.repositoryInd" ng-change="bpCreate.changeRepository();" required>
+                           <option value="">Choose Repositories</option>
+                           <option ng-repeat="repository in bpCreate.repositoryOptions" value="{{bpCreate.repositoryOptions.indexOf(repository)}}">{{repository.name}}</option>
+                        </select>
+                     </div>
+                  </div>
+                  <div class="col-lg-6 col-md-6 margintop15" >
+                     <label>Group ID:<span class="red">*</span>
+                        <loading size="small" n ame="isLoadingNexus" type="inline"></loading>
+                     </label>
+                     <div class="input-groups">
+                        <select class="form-control" name="groupId" ng-model="bpCreate.newEnt.groupId"  ng-change="bpCreate.getArtifacts()" required>
+                           <option value="">Choose Group ID</option>
+                           <option ng-repeat="(key , val) in bpCreate.groupOptions" value="{{val}}">{{val}}</option>
+                        </select>
+                     </div>
+                  </div>
+                  <div class="col-lg-6 col-md-6 margintop15">
+                     <label>Artifacts:<span class="red">*</span>
+                        <loading size="small" name="isLoadingArtifacts" type="inline"></loading>
+                     </label>
+                     <div class="input-groups">
+                        <select class="form-control" name="artifactInd" ng-model="bpCreate.newEnt.artifact" ng-change="bpCreate.getVersions();" required>
+                           <option value="">Choose Artifacts</option>
+                           <option ng-repeat="(key , artifact) in  bpCreate.artifactsOptions" value="{{artifact}}">{{artifact}}</option>
+                        </select>
+                     </div>
+                  </div>
+                  <div class="col-lg-6 col-md-6 margintop15" >
+                     <label for="">Versions:<span class="red">*</span>
+                        <loading size="small" name="isLoadingNexusVersion" type="inline"></loading>
+                     </label>
+                     <div class="input-groups">
+                        <select class="form-control" name="version" ng-model="bpCreate.newEnt.version" required>
+                           <option value="">Choose Versions</option>
+                           <option ng-repeat="(key , values) in bpCreate.versionsOptions" value="{{values}}">{{values}}</option>
+                        </select>
+                     </div>
+                  </div>
+                  <div class="col-lg-12 col-md-12 margintop15">
+                     <label>Repository URL:<span class="red">*</span>
+                        <!--<loading size="small" name="isLoadingNexus" type="inline"></loading>-->
+                     </label>
+                     <input type="text" class="form-control" disabled="" ng-model="bpCreate.newEnt.repositoryURL">
+                  </div>
+               </div>
                            <hr/>
                            <div class="col-md-12 col-sm-12 col-xs-12 col-lg-12 applicationUrl-text">
                               <span class="lable-align"><b>Application URL</b></span>

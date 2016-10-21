@@ -39,6 +39,7 @@
         			}
         			break;
         			case 'CloudFormation':
+        			case 'ARMTemplate':
         			return {
         				tempStep:true,
         				orgStep:true,
@@ -182,9 +183,9 @@
 				return genericServices.promiseGet(params);
 			};
 			//listing down list of repositories along with the url
-			blueprintServices.getNexusRepoList = function (nexusId) {
+			blueprintServices.getNexusRepoList = function (nexusId,projectId) {
 				var params = {
-					url: '/nexus/'+ nexusId+ '/repositories',
+					url: '/app-deploy/nexus/'+nexusId+'/project/' + projectId + '/nexusRepositoryList',
 					inlineLoader:true
 				};
 				return genericServices.promiseGet(params);
@@ -206,17 +207,17 @@
 				return genericServices.promiseGet(params);
 			};
 			//listing down the artifacts based upon nexusId,repo selected & the group.
-			blueprintServices.getArtifacts = function (nexusId, repoName, groupId) {
+			blueprintServices.getArtifacts = function (requestData) {
 				var params = {
-					url: '/nexus/' + nexusId + '/repositories/' + repoName + '/group/' + groupId + '/artifact',
+					url: '/nexus/' + requestData.nexus + '/repositories/' + requestData.repositories + '/group/' + requestData.group + '/artifact',
 					inlineLoader:true
 				};
 				return genericServices.promiseGet(params);
 			};
 			//listing down the versions based upon the nexuId, repo selected, group and artifact selected.
-			blueprintServices.getVersions = function (nexusId, repoName, groupId, artifactId) {
+			blueprintServices.getNexusVersions = function (requestData) {
 				var params = {
-					url: '/nexus/' + nexusId + '/repositories/' + repoName + '/group/' + groupId + '/artifact/' + artifactId + '/versions',
+					url: '/app-deploy/nexus/'+requestData.nexus+'/repositories/'+requestData.repositories+'/group/'+requestData.group+'/artifact/'+requestData.artifactId+'/versionList',
 					inlineLoader:true
 				};
 				return genericServices.promiseGet(params);

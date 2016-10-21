@@ -109,7 +109,9 @@
             blueprintCreation.regionListingAzure = []; 
             blueprintCreation.subnetListingAzure = [];
             blueprintCreation.dataStore = [];
-
+            blueprintCreation.artifactsOptions = [];
+            blueprintCreation.artifactsVersion = [];
+            blueprintCreation.versionsOptions = [];
             blueprintCreation.templateListing = function(){
                 bpCreateSer.getTemplates().then(function(data){
                     $scope.templateList = data;    
@@ -202,7 +204,7 @@
                 blueprintCreation.newEnt.images = null
                 blueprintCreation.imageListing = [];
                 blueprintCreation.instanceType = [];
-                blueprintCreation.regionListing = '';
+                blueprintCreation.regionListing = null;
                 blueprintCreation.keyPairListing = '';
                 blueprintCreation.regionListingAzure = [];
                 blueprintCreation.newEnt.vpcId = null
@@ -210,7 +212,6 @@
                 blueprintCreation.subnetListing = [];
                 blueprintCreation.newEnt.subnetId = null;
                 blueprintCreation.securityGroupListing = [];
-                blueprintCreation.instanceCount = [];
                 if(blueprintCreation.newEnt.osListing !== undefined){
                     blueprintCreation.getAllProviders();
                 }
@@ -246,7 +247,7 @@
                 if($scope.providerType === 'AWS'){
                     bpCreateSer.getAWSProviderWithId(blueprintCreation.newEnt.providers).then(function(data){
                         if(blueprintCreation.newEnt.providers){
-                            blueprintCreation.regionListing = data.keyPairs[0].region;
+                            blueprintCreation.regionListing = data.providerRegion;
                             blueprintCreation.keyPairListing = data.keyPairs[0].keyPairName;
                             $scope.isRegionKeyPairLoading = false;
                         }
@@ -339,7 +340,7 @@
                     } else if($scope.providerType === 'AZURE'){
                         var subnetsAzure = blueprintCreation.vpcListing;
                         for(var i =0;i<subnetsAzure.length;i++){
-                            if(blueprintCreation.newEnt.vpcId === subnetsAzure[i].Id){
+                            if(blueprintCreation.newEnt.vpcId === subnetsAzure[i].Name){
                                 blueprintCreation.subnetListingAzure = subnetsAzure[i].Subnets.Subnet;
                             }  
                         }
@@ -401,6 +402,94 @@
                         blueprintCreation.serverRepos = blueprintCreation.serverRepos.concat(data);
                     });
                 }
+            };
+
+            blueprintCreation.getRepository = function(){
+                if (blueprintCreation.newEnt.nexusDockerServer){
+                    blueprintCreation.newEnt.serverType = blueprintCreation.serverRepos[blueprintCreation.newEnt.nexusDockerServer].configType;
+                } else {
+                    blueprintCreation.newEnt.serverType = '';
+                }
+                $scope.isLoadingNexus = true;
+                if(blueprintCreation.newEnt.serverType === 'nexus'){
+                    // create group select box options
+                    blueprintCreation.groupOptions = blueprintCreation.serverRepos[blueprintCreation.newEnt.nexusDockerServer].groupid;
+                    bpCreateSer.getNexusRepoList(blueprintCreation.serverRepos[blueprintCreation.newEnt.nexusDockerServer].rowid,blueprintCreation.newEnt.projectList).then(function (data) {
+                        blueprintCreation.repositoryOptions = data;
+                        console.log(blueprintCreation.repositoryOptions);
+                        $scope.isLoadingNexus = false;
+                    });
+                } else if(blueprintCreation.newEnt.serverType === 'docker'){
+                    bpCreateSer.getRepoList(bpCreate.serverRepos[bpCreate.newEnt.nexusDockerServer].rowid).then(function (repositoryResult) {
+                        $scope.isLoadingNexus = false;
+                        blueprintCreation.repositoryOptions = repositoryResult.data[0].repositories.docker;
+                        if(blueprintCreation.repositoryOptions.length == 0){
+                            blueprintCreation.errorMsg= {
+                                text: "Repository is not defined",
+                                type: "warning",
+                                repository:true,
+                                role:"tooltip",
+                                positions:"bottom"
+                            }
+                        }
+                    });
+                }
+            };
+
+            blueprintCreation.changeRepository = function(){
+                if(blueprintCreation.newEnt.serverType === 'docker') {
+                    var repository=blueprintCreation.newEnt.repositoryIMG.split('/');
+                    blueprintCreation.newEnt.repository=blueprintCreation.newEnt.repositoryIMG;
+                    var tagRep='';
+                    if(blueprintCreation.newEnt.repositoryIMG && blueprintCreation.newEnt.repositoryIMG.indexOf('/') === -1){
+                        tagRep='library';
+                        blueprintCreation.newEnt.image=blueprintCreation.newEnt.repository;
+                    } else {
+                        tagRep=repository[0];
+                        blueprintCreation.newEnt.image=repository[1];
+                    }
+                    $scope.isLoadingDocTag=true;
+                    var requestObject={
+                        dockerId:blueprintCreation.serverRepos[blueprintCreation.newEnt.nexusDockerServer].rowid,
+                        repository:tagRep,
+                        image:blueprintCreation.newEnt.image
+                    };
+                    workSvs.getDockerImageTags(requestObject).then(function(tagResult){
+                        blueprintCreation.tagOptions = tagResult.data;
+                        $scope.isLoadingDocTag=false;
+                    });
+                } else {
+                    blueprintCreation.newEnt.repository = blueprintCreation.repositoryOptions[blueprintCreation.newEnt.repositoryInd].id;
+                    blueprintCreation.newEnt.repositoryURL = blueprintCreation.repositoryOptions[blueprintCreation.newEnt.repositoryInd].resourceURI;
+                }
+            };
+
+            blueprintCreation.getArtifacts= function(){
+                $scope.isLoadingArtifacts = true;
+                blueprintCreation.requestData={
+                    nexus:blueprintCreation.serverRepos[blueprintCreation.newEnt.nexusDockerServer].rowid,
+                    repositories:blueprintCreation.newEnt.repository,
+                    group:blueprintCreation.newEnt.groupId
+                };
+                bpCreateSer.getArtifacts(blueprintCreation.requestData).then(function (artifactsResult) {
+                    var artVerObj=[];
+                    angular.forEach(artifactsResult,function(val){
+                        artVerObj[val.version]=val;
+                        blueprintCreation.artifactsVersion[val.artifactId]=artVerObj;
+                        if (blueprintCreation.artifactsOptions.indexOf(val.artifactId) === -1) {
+                            blueprintCreation.artifactsOptions.push(val.artifactId);
+                        }
+                    });
+                    $scope.isLoadingArtifacts = false;
+                });
+            };
+            blueprintCreation.getVersions= function(){
+                $scope.isLoadingNexusVersion = true;
+                blueprintCreation.requestData.artifactId = blueprintCreation.newEnt.artifact;
+                    bpCreateSer.getNexusVersions(blueprintCreation.requestData).then(function (versionsResult) {
+                    blueprintCreation.versionsOptions = versionsResult;
+                    $scope.isLoadingNexusVersion = false;
+                });
             };
 
             blueprintCreation.getRepositoryDetails = function() {
@@ -524,7 +613,7 @@
                 /* Moves to the next step*/
                 next : function (stCount) {
                     $scope.stpLen = $scope.stpLen+1;
-                    if($scope.bpTypeName === 'CloudFormation' && $scope.stpLen >3){
+                    if($scope.bpTypeName === 'CloudFormation' && $scope.stpLen >3 || $scope.bpTypeName === 'ARMTemplate' && $scope.stpLen >3){
                         $scope.stpLen=5;
                         $scope.setButtons();
                         blueprintCreation.wizardStep($scope.bpTypeName,$scope.stpLen);
@@ -538,6 +627,7 @@
                         case 'SoftwareStack':
                             break;
                         case 'CloudFormation':
+                        case 'ARMTemplate':
                             $scope.stpLen=3;
                             break;
                         }
@@ -547,7 +637,7 @@
                 /* Moves to the previous step*/
                 previous : function (stCount) {
                     $scope.stpLen = $scope.stpLen-1;
-                    if($scope.bpTypeName === 'CloudFormation' && $scope.stpLen <3){
+                    if($scope.bpTypeName === 'CloudFormation' && $scope.stpLen <3 || $scope.bpTypeName === 'ARMTemplate' && $scope.stpLen <3){
                         $scope.stpLen=1;
                         $scope.setButtons();
                         blueprintCreation.wizardStep($scope.bpTypeName,$scope.stpLen);
@@ -561,6 +651,7 @@
                         case 'SoftwareStack':
                             break;
                         case 'CloudFormation':
+                        case 'ARMTemplate':
                             $scope.stpLen=3;
                             break;
                         }
@@ -587,11 +678,11 @@
                         $scope.previousEnabled = true;
                     } else if($scope.stpLen === 3 && $scope.bpTypeName === 'CloudFormation' || $scope.bpTypeName ==='ARMTemplate'){
                         if($scope.bpTypeName === 'CloudFormation' || $scope.bpTypeName ==='ARMTemplate'){
+                            blueprintCreation.getAllProviders();
                             blueprintCreation.getTemplateParameters();
                         }
                         if($scope.bpTypeName === 'CloudFormation') {
-                            blueprintCreation.getRegionLists();
-                            blueprintCreation.getAllProviders(); 
+                            blueprintCreation.getRegionLists(); 
                         }
                         blueprintCreation.getOrgBUProjDetails();
                         $scope.previousEnabled = true;
@@ -723,8 +814,32 @@
                         });
                     }
 
+                    if(blueprintCreation.newEnt.appDeployCheck_isChecked){
+                        if(blueprintCreation.newEnt.serverType === 'nexus'){
+                            var nexus = {
+                                "rowId": blueprintCreation.serverRepos[blueprintCreation.newEnt.nexusDockerServer].rowid,
+                                "repoId": blueprintCreation.serverRepos[blueprintCreation.newEnt.nexusDockerServer].rowid,
+                                "url": blueprintCreation.artifactsVersion[blueprintCreation.newEnt.artifact][blueprintCreation.newEnt.version].resourceURI,
+                                "version": blueprintCreation.newEnt.version,
+                                "repoName": blueprintCreation.repositoryOptions[blueprintCreation.newEnt.repositoryInd].name,
+                                "artifactId": blueprintCreation.newEnt.artifact,
+                                "groupId": blueprintCreation.newEnt.groupId
+                            }
+                            blueprintCreateJSON.nexus = nexus;
+                }else{
+                    depNewApp.deploymentData.sourceData.docker={
+                        "image": depNewApp.newEnt.repositoryIMG,
+                        "containerName": depNewApp.newEnt.ContNameId,
+                        "containerPort": depNewApp.newEnt.contPort,
+                        "hostPort": depNewApp.newEnt.hostPort,
+                        "imageTag": depNewApp.newEnt.tag,
+                        "rowId":depNewApp.serverOptions[depNewApp.newEnt.serverTypeInd].rowid
+                    };
+                }
+                    }
+
                     if($scope.bpTypeName === 'SoftwareStack' || $scope.bpTypeName === 'OSImage' || $scope.bpTypeName === 'CloudFormation' || $scope.bpTypeName === 'ARMTemplate'){
-                        blueprintCreateJSON.instanceOS=blueprintCreation.newEnt.osListing;
+                        blueprintCreateJSON.instanceOS=blueprintCreation.newEnt.osListing.osType;
                     }
 
                     if($scope.bpTypeName === 'CloudFormation'){

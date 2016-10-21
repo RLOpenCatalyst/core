@@ -31,77 +31,68 @@ module.exports.setRoutes = function(app, verificationFunc) {
     app.all('/azure/*', verificationFunc);
 
     app.get('/azure/:id/networks', function(req, res) {
+
         logger.debug('Inside azure get networks');
-        var location = req.query.location;
+        logger.debug('Provider id:', req.params.id);
+
         azureProvider.getAzureCloudProviderById(req.params.id, function(err, providerdata) {
             if (err) {
                 logger.error('getAzureCloudProviderById ' + err);
                 return;
             }
+
+            logger.debug('providerdata:', providerdata);
             providerdata = JSON.parse(providerdata);
+
             var settings = appConfig;
             var pemFile = settings.instancePemFilesDir + providerdata._id + providerdata.pemFileName;
             var keyFile = settings.instancePemFilesDir + providerdata._id + providerdata.keyFileName;
+
+
             var cryptoConfig = appConfig.cryptoSettings;
             var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+
             var uniqueVal = uuid.v4().split('-')[0];
+
             var decryptedPemFile = pemFile + '_' + uniqueVal + '_decypted';
             var decryptedKeyFile = keyFile + '_' + uniqueVal + '_decypted';
+
             cryptography.decryptFile(pemFile, cryptoConfig.decryptionEncoding, decryptedPemFile, cryptoConfig.encryptionEncoding, function(err) {
                 if (err) {
                     logger.error('Pem file decryption failed>> ', err);
                     return;
                 }
+
                 cryptography.decryptFile(keyFile, cryptoConfig.decryptionEncoding, decryptedKeyFile, cryptoConfig.encryptionEncoding, function(err) {
                     if (err) {
                         logger.error('key file decryption failed>> ', err);
                         return;
                     }
+
                     var options = {
                         subscriptionId: providerdata.subscriptionId,
                         certLocation: decryptedPemFile,
                         keyLocation: decryptedKeyFile
                     };
+
                     var azureCloud = new AzureCloud(options);
+
                     azureCloud.getNetworks(function(err, networks) {
                         if (err) {
                             logger.error('azurecloud networks fetch error', err);
                             res.status(500).send(err);
                             return;
                         }
-                        var netWorkJsonObj = JSON.parse(xml2json.toJson(networks));
-                        var vpcList =[],subnetList =[],instanceSizeList =[],count = 0;
-                        for(var i = 0; i < netWorkJsonObj.VirtualNetworkSites.VirtualNetworkSite.length; i++){
-                            (function(VirtualNetworkSite){
-                                if(VirtualNetworkSite.Location === location){
-                                    var networkName = VirtualNetworkSite.Name
-                                    vpcList.push(networkName);
-                                    var subNets = {};
-                                    if(VirtualNetworkSite.Subnets.Subnet.length > 0){
-                                        subNets[networkName] = VirtualNetworkSite.Subnets.Subnet;
-                                    }else{
-                                        subNets[networkName] = [VirtualNetworkSite.Subnets.Subnet];
-                                    }
-                                    subnetList.push(subNets);
-                                    count++;
-                                }else{
-                                    count++;
-                                }
-                            })(netWorkJsonObj.VirtualNetworkSites.VirtualNetworkSite[i]);
-                        }
-                        if(count === netWorkJsonObj.VirtualNetworkSites.VirtualNetworkSite.length){
-                            var results = {
-                                vpcList:vpcList,
-                                subnetList:subnetList,
-                                instanceSizeList:instanceSizeList
-                            }
-                            res.send(results);
-                        }
+                        var json = xml2json.toJson(networks);
+                        res.send(json);
+                        logger.debug('Exit azure get networks:' + JSON.stringify(networks));
+
                         fs.unlink(decryptedPemFile, function(err) {
                             logger.debug("Deleting decryptedPemFile..");
                             if (err) {
                                 logger.error("Error in deleting decryptedPemFile..");
                             }
+
                             fs.unlink(decryptedKeyFile, function(err) {
                                 logger.debug("Deleting decryptedKeyFile ..");
                                 if (err) {
@@ -117,6 +108,9 @@ module.exports.setRoutes = function(app, verificationFunc) {
     });
 
     app.get('/azure/:id/locations', function(req, res) {
+
+        logger.debug('Inside azure get locations');
+        logger.debug('Provider Id:', req.params.id);
         if(req.params.id === null || req.params.id === 'null'){
             logger.debug("Provider Id is pass as Null in params");
             res.status(500).send(req.params.id);
@@ -127,13 +121,20 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 logger.error('getAzureCloudProviderById ' + err);
                 return;
             }
+
+            logger.debug('providerdata:', providerdata);
             providerdata = JSON.parse(providerdata);
+
             var settings = appConfig;
             var pemFile = settings.instancePemFilesDir + providerdata._id + providerdata.pemFileName;
             var keyFile = settings.instancePemFilesDir + providerdata._id + providerdata.keyFileName;
+
+
             var cryptoConfig = appConfig.cryptoSettings;
             var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+
             var uniqueVal = uuid.v4().split('-')[0];
+
             var decryptedPemFile = pemFile + '_' + uniqueVal + '_decypted';
             var decryptedKeyFile = keyFile + '_' + uniqueVal + '_decypted';
 
@@ -142,11 +143,13 @@ module.exports.setRoutes = function(app, verificationFunc) {
                     logger.error('Pem file decryption failed>> ', err);
                     return;
                 }
+
                 cryptography.decryptFile(keyFile, cryptoConfig.decryptionEncoding, decryptedKeyFile, cryptoConfig.encryptionEncoding, function(err) {
                     if (err) {
                         logger.error('key file decryption failed>> ', err);
                         return;
                     }
+
                     var options = {
                         subscriptionId: providerdata.subscriptionId,
                         certLocation: decryptedPemFile,
@@ -154,38 +157,23 @@ module.exports.setRoutes = function(app, verificationFunc) {
                     };
 
                     var azureCloud = new AzureCloud(options);
+
                     azureCloud.getLocations(function(err, locations) {
                         if (err) {
                             logger.error('azurecloud locations fetch error', err);
                             res.status(500).send(err);
                             return;
                         }
-                      /*  var json = xml2json.toJson(locations);
+                        var json = xml2json.toJson(locations);
                         res.send(json);
-                        logger.debug('Exit azure get locations:' + JSON.stringify(locations));*/
-                        var locationObj = JSON.parse(xml2json.toJson(locations));
-                        var locationList =[],instanceSizeList =[],count = 0;
-                        for(var i = 0; i < locationObj.Locations.Location.length; i++){
-                            (function(location){
-                                locationList.push(location.Name);
-                                var instanceSize = {};
-                                instanceSize[location.Name] =location.ComputeCapabilities.VirtualMachinesRoleSizes.RoleSize;
-                                instanceSizeList.push(instanceSize);
-                                count++;
-                            })(locationObj.Locations.Location[i]);
-                        }
-                        if(count === locationObj.Locations.Location.length){
-                            var results = {
-                                locationList:locationList,
-                                instanceSizeList:instanceSizeList
-                            }
-                            res.send(results);
-                        }
+                        logger.debug('Exit azure get locations:' + JSON.stringify(locations));
+
                         fs.unlink(decryptedPemFile, function(err) {
                             logger.debug("Deleting decryptedPemFile..");
                             if (err) {
                                 logger.error("Error in deleting decryptedPemFile..");
                             }
+
                             fs.unlink(decryptedKeyFile, function(err) {
                                 logger.debug("Deleting decryptedKeyFile ..");
                                 if (err) {
@@ -194,8 +182,12 @@ module.exports.setRoutes = function(app, verificationFunc) {
                             });
                         });
                     });
+
                 });
+
             });
+
         });
     });
+
 }
