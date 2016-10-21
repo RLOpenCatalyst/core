@@ -32,7 +32,11 @@
 									if(projval.rowId === items.projectId){
 										$scope.projSeleted=projval.name;
 										$scope.envOptions=projval.environments;
-										$scope.envSeleted=projval.environments[0].rowid;
+										if(workzoneEnvironment.getEnvParams() && workzoneEnvironment.getEnvParams().env){
+											$scope.envSeleted=workzoneEnvironment.getEnvParams().env;
+										} else {
+											$scope.envSeleted=projval.environments[0].rowid;
+										}
 									}
 								});
 							}
