@@ -8,20 +8,28 @@ services:
          - "27017:27017"
        networks:
          rlcnet:
-           ipv4_address: 172.10.1.12
+           ipv4_address: 172.10.1.3
        command: "--smallfiles --logpath=/dev/null"
 
   nodeapp:
-       image: .
+       build: .
        restart: always
        ports:
           - "3001:3001"
        networks:
          rlcnet:
-           ipv4_address: 172.10.1.11
+           ipv4_address: 172.10.1.2
        environment:
          PORT: 3001
-         DB_HOST: 172.10.1.12
+         DB_HOST: 172.10.1.3
+
+  dataloader:
+       image: mongo
+       networks:
+          - rlcnet
+       volumes:
+          - ${PWD}:/data
+       command: "mongorestore --host 172.10.1.3 --port 27017 --db devops_new --drop /data/seed/mongodump/devops_new/"
 
   webfront:
        image: nginx
@@ -32,7 +40,7 @@ services:
        restart: always
        networks:
          rlcnet:
-           ipv4_address: 172.10.1.10
+           ipv4_address: 172.10.1.1
 
 networks:
   rlcnet:

@@ -20,17 +20,10 @@ WORKDIR /rlc/client/cat3
 RUN npm install --production
 RUN npm run-script build-prod 
 
-WORKDIR /rlc/server
-
-
 ## Server
+WORKDIR /rlc/server
 ADD ./server /rlc/server
-RUN npm install
-
-##messy solution to avoid cross-device link not permitted err
-##must find better way
-RUN rm -rf /rlc/server/node_modules/farmhash
-RUN npm install farmhash
+RUN node install.js
 
 EXPOSE 3001
 
