@@ -14,13 +14,6 @@
 				<div ng-show="!showCFTInputs && !showARMInputs && !showBlueprintInputs">
 					Are you sure you want to launch the Blueprint? Press Ok To continue <br /><br />
 
-					<div class="col-lg-6 col-md-6 projectRepo margintop15">
-						<label for="" class="">Select server:</label>
-						<select class="form-control"  ng-model="tagSerSelected">
-							<option selected="selected" value="">No Server</option>
-							<option ng-repeat="(key , value) in taggingServerList" value="{{value}}">{{value}}</option>
-						</select>
-					</div>
 
 					<div class="col-lg-6 col-md-6 projectRepo margintop15">
 						<label for="" class="">Organization:<span class="red">*</span></label>
@@ -48,6 +41,15 @@
 							<option ng-repeat="envOption in envOptions" value="{{envOption.rowid}}">{{envOption.name}}</option>
 						</select>
 					</div>
+
+					<div class="col-lg-6 col-md-6 projectRepo margintop15">
+						<label for="" class="">Tag Server:</label>
+						<select class="form-control"  ng-model="tagSerSelected">
+							<option selected="selected" value="">No Server</option>
+							<option ng-repeat="(key , value) in taggingServerList" value="{{value}}">{{value}}</option>
+						</select>
+					</div>
+
 				</div>
 				<div ng-show="showCFTInputs || showARMInputs" class="CFTInputs-block">
 					<span class="acknowledge-text">(Only numbers,letters allowed. No spaces and underscores)</span>
