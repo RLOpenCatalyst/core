@@ -79,8 +79,8 @@
 					$rootScope.organObject=orgs;
 					$rootScope.organNewEnt=[];
 					$rootScope.organNewEnt.org = orgs[0];
-					$rootScope.organNewEnt.buss='0';
-					$rootScope.organNewEnt.proj='0';
+					$rootScope.organNewEnt.buss = orgs[0].businessGroups[0];
+					$rootScope.organNewEnt.proj = orgs[0].businessGroups[0].projects[0];
 					$state.go('dashboard.design.list',{providerName:providers[0].name,templateObj:template[0]});
 
 				});

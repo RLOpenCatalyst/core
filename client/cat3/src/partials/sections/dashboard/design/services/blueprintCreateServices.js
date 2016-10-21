@@ -44,7 +44,7 @@
         				orgStep:true,
         				appStep:true,
         				stepWidth:420,
-        				numberStp:4,
+        				numberStp:5,
         				stpCount:{
         					temp:1,
         					org:2,
@@ -177,6 +177,14 @@
 			blueprintServices.getDockerList = function () {
 				var params = {
 					url: '/d4dMasters/readmasterjsonnew/18',
+					inlineLoader:true
+				};
+				return genericServices.promiseGet(params);
+			};
+			//listing down list of repositories along with the url
+			blueprintServices.getNexusRepoList = function (nexusId) {
+				var params = {
+					url: '/nexus/'+ nexusId+ '/repositories',
 					inlineLoader:true
 				};
 				return genericServices.promiseGet(params);

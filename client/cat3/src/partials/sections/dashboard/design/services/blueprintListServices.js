@@ -11,9 +11,9 @@
                     var pagination =(bpType) ? false :true;
                     organObjectId.org =$rootScope.organNewEnt.org.rowid;
                     organObjectId.buss=$rootScope.organNewEnt.buss.rowid;
-                    organObjectId.proj=$rootScope.organNewEnt.proj.rowid;
+                    organObjectId.proj=$rootScope.organNewEnt.proj.rowId;
                     var params = {
-                        url: '/organizations/'+organObjectId.org+'/businessgroups/'+organObjectId.buss+'/projects/'+organObjectId.proj+'/blueprintList?pagination='+pagination+'&templateType='+tempType+'&providerType='+angular.lowercase($state.params.subItem)
+                        url: '/organizations/'+organObjectId.org+'/businessgroups/'+organObjectId.buss+'/projects/'+organObjectId.proj+'/blueprintList?pagination='+pagination+'&templateType='+tempType+'&providerType='+angular.lowercase($state.params.providerName)
                     };
                     return genericServices.promiseGet(params);
                 }
