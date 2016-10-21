@@ -112,6 +112,7 @@ $imagePath : "../../../../../../cat3/images";
   z-index: 10;
   transition: all .4s ease 0s;
   left: -254px;
+    height: 100%;
 
   &.show-left-tree {
       left: 0px;
@@ -121,6 +122,7 @@ $imagePath : "../../../../../../cat3/images";
       background: linear-gradient(to right, #2c3638 99%, #2c3638 100%);
       color: #fff;
       overflow-y: auto;
+      height: 100%;
   }
 
   div[data-angular-treeview] {
@@ -1102,7 +1104,7 @@ option.script {
     background-color: #E49C25 !important;
 }
 .ui-grid-menu-button{
-    height: 28px !important;
+    height: 36px !important;
     background-color: #5bc0de !important;
     border-color: #46b8da !important;
     display: inline-block;
@@ -1161,4 +1163,23 @@ option.script {
 }
 .loading-body{
     opacity: 0.4;
+}
+#bots .control-panel-button {
+    border-radius: 17px;
+    padding: 2px 0px 0 5px;
+    width: 25px;
+    height: 25px;
+}
+
+// ui grid style
+.ui-grid-header-cell-row{
+    background: #636363 !important;
+    color: #FBFBFB !important;
+}
+.ui-grid-cell-contents.ui-grid-header-cell-primary-focus{
+    min-height: 36px;
+    line-height: 25px;
+}
+.ui-grid-column-menu-button{
+    top:5px !important;
 }
