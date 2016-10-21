@@ -42,7 +42,7 @@
                 });
                 var param2={
                    url:'/tasks/serviceDelivery/?serviceDeliveryCheck=true'
-                   // url:'src/partials/sections/dashboard/bots/data/t.json'
+                    //url:'src/partials/sections/dashboard/bots/data/t.json'
                 };
                 genSevs.promiseGet(param2).then(function (resultTask) {
                     angular.forEach(resultTask,function (val) {
