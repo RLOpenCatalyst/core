@@ -37,7 +37,6 @@
 						<label for="" class="">Choose Environment:<span class="red">*</span></label>
 						<label id="spinnerForEnv" class="hidden"><img style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label>
 						<select id="envSelect" ng-model="envSeleted" class="width-100 form-control" required>
-							<option value="">Select</option>
 							<option ng-repeat="envOption in envOptions" value="{{envOption.rowid}}">{{envOption.name}}</option>
 						</select>
 					</div>

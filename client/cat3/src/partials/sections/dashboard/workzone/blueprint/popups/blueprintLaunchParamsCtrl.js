@@ -8,7 +8,7 @@
 (function(angular){
 	"use strict";
 	angular.module('workzone.blueprint')
-		.controller('blueprintLaunchParamsCtrl', ['$scope', '$modalInstance', 'items','workzoneServices','genericServices', function($scope, $modalInstance, items,workzoneServices,genericServices) {
+		.controller('blueprintLaunchParamsCtrl', ['$scope', '$modalInstance', 'items','workzoneServices','genericServices','workzoneEnvironment', function($scope, $modalInstance, items,workzoneServices,genericServices,workzoneEnvironment) {
 			console.log(items);
 			var launchHelper = {
 				launch : function(){
