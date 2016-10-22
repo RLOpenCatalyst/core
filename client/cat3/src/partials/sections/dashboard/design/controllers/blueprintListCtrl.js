@@ -25,16 +25,14 @@
                         pbList.blueprintList.list.columnDefs = [
                             { name:'Name',minWidth:150,field:'name' },
                             { name:'Name',minWidth:150,field:'name' },
-                            { name:'InstanceOs',minWidth:150,cellTemplate:''},
-                            { name:'vpcId',minWidth:150,cellTemplate:''},
-                            { name:'Region',minWidth:150,cellTemplate:'',visible: false},
-                            { name:'Operating System',minWidth:150,cellTemplate:'',visible: false},
-                            { name:'Instance Type',minWidth:150,cellTemplate:''},
-                            { name:'Image',minWidth:150,cellTemplate:'',visible: false},
-                            { name:'Keypair',minWidth:150,cellTemplate:'',visible: false},
-                            { name:'Subnet',minWidth:150,cellTemplate:'',visible: false},
-                            { name:'Security Group',width:150,cellTemplate:''},
-                            { name:'Runlist',minWidth:150,cellTemplate:''},
+                            { name:'InstanceOs',minWidth:150,field:'blueprintConfig.cloudProviderData.instanceOS'},
+                            { name:'vpcId',minWidth:150,field:'blueprintConfig.cloudProviderData.vpcId'},
+                            { name:'Region',minWidth:150,field:'blueprintConfig.cloudProviderData.region',visible: false},
+                            { name:'Template Type',minWidth:150,field:'templateType'},
+                            { name:'Instance Type',minWidth:150,field:'blueprintConfig.cloudProviderData.instanceType'},
+                            { name:'Keypair',minWidth:150,field:'blueprintConfig.cloudProviderData.keyPairId',visible: false},
+                            { name:'Subnet',minWidth:150,field:'blueprintConfig.cloudProviderData.subnetId',visible: false},
+                            { name:'Security Group',width:150,field:'blueprintConfig.cloudProviderData.securityGroupIds[0]'},
                             { name:'Action',minWidth:150,cellTemplate:'<span class="badge cat-btn-update" title="Clone"><i class="fa fa-clone fa-2 white" aria-hidden="true"></i></span> ' +
                             '&nbsp; <span class="badge cat-btn-update" title="Info" ng-click="grid.appScope.blueprintInfo($event,row.entity,null);"><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>' +
                             '&nbsp; <span class="badge cat-btn-update" title="Delete"  ng-click="grid.appScope.deleteBp(row.entity._id);"><i class="fa fa-trash-o fa-2 white" aria-hidden="true"></i></span>' +

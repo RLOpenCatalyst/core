@@ -114,7 +114,12 @@
             blueprintCreation.versionsOptions = [];
             blueprintCreation.templateListing = function(){
                 bpCreateSer.getTemplates().then(function(data){
-                    $scope.templateList = data;    
+                    $scope.templateList = data;
+                    for(var i=0;i<$scope.templateList.length;i++){
+                        if($scope.templateList[i].templatesicon_filePath){
+                            $scope.filePath = '/d4dMasters/image/' + $scope.templateList[i].templatesicon_filePath;
+                        }
+                    }    
                 });
             };
 

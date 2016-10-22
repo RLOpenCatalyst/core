@@ -72,7 +72,8 @@
                   <div class="col-sm-3 col-lg-3 col-md-3 blueprintTemplate" ng-repeat="templateDetail in templateList" ng-if="bpTypeName == templateDetail.templatetypename" ng-class="{'blueprintTemplateSelected':templateDetail.selected}" ng-click="blueprintTemplateClick(templateDetail);">
                      <ul class="list-unstyled system-prop" style="text-align:center;">
                         <li>
-                           <img style="height:40px;width:auto;" alt="templateLogo" ng-src="{{logo}}">
+                           <img style="height:40px;width:auto;" ng-if="templateDetail.templatesicon_filePath" alt="templateLogo" ng-src="{{filePath}}">
+                           <img style="height:40px;width:auto;" ng-if="!templateDetail.templatesicon_filePath" ng-src="{{logo}}">
                         </li>
                         <li style="font-size:12px;"><u><b>{{templateDetail.templatename}}</b></u></li>
                         <li style="font-size:10px;" ng-repeat="item in templateDetail.templatescookbooks.split(',')">{{item}}</li>
@@ -389,7 +390,7 @@
                            <input type="checkbox" ng-model="bpCreate.newEnt.appDeployCheck_isChecked" ng-change="bpCreate.showRepoServers();" class="checkConfigApp">
                            <i></i>Deploy app during Bootstrap
                            </label>
-                           <div class="col-lg-6 col-md-6 margintop15" ng-show="showRepoServerName">
+                           <div class="col-lg-4 col-md-4 margintop15" ng-show="showRepoServerName">
                               <label for="">Repository Server:<span class="redSpan">*</span>
                               </label>
                               <select ng-model="bpCreate.newEnt.nexusDockerServer" name="" class=" width-100 form-control" ng-change="bpCreate.getRepository();">
@@ -398,96 +399,96 @@
                               </select>
                            </div>
                            
-               <div ng-if="bpCreate.newEnt.serverType==='docker'">
-                  <div class="col-lg-6 col-md-6">
-                     <label >Repository:<span class="red">*</span>
-                        <loading size="small" name="isLoadingNexus" type="inline"></loading>
-                     </label>
-                     <div class="input-groups">
-                        <select name="repositories" class="form-control" ng-model="bpCreate.newEnt.repositoryIMG" ng-change="bpCreate.changeRepository();" required>
-                           <option value="">Choose Repositories</option>
-                           <option ng-repeat="(key,value) in bpCreate.repositoryOptions" value="{{value}}">{{value}}</option>
-                        </select>
-                     </div>
-                  </div>
-                  <div class="col-lg-6 col-md-6 margintop15">
-                     <label>Tags:<span class="red">*</span>
-                        <loading size="small" name="isLoadingDocTag" type="inline"></loading>
-                     </label>
-                     <select class="form-control" ng-model="bpCreate.newEnt.tag"  required>
-                        <option value="">Choose Tag</option>
-                        <option ng-repeat="tagOption in bpCreate.tagOptions" value="{{tagOption.name}}">{{tagOption.name}}</option>
-                     </select>
-                  </div>
-                  <div class="col-lg-6 col-md-6 margintop15">
-                     <label>Container Port:<span class="red">*</span>
-                        <!--<loading size="small" name="isLoadingNexus" type="inline"></loading>-->
-                     </label>
-                     <div class="input-groups"><input type="text" name="contPort" class="form-control" ng-model="bpCreate.newEnt.contPort" required></div>
-                  </div>
-                  <div class="col-lg-6 col-md-6 margintop15" >
-                     <label ng-click="showHideLoader()">Host Port:<span class="red">*</span></label>
-                     <!--<loading size="small" name="isLoadingContainer" type="inline"></loading>-->
-                     <input type="text" class="form-control" name="hostPort" ng-model="bpCreate.newEnt.hostPort" required>
-                  </div>
-                  <div class="col-lg-6 col-md-6 margintop15" >
-                     <label ng-click="showHideLoader()">Container Name/ID:</label>
-                     <!--<loading size="small" name="isLoadingContainer" type="inline"></loading>-->
-                     <input type="text" class="form-control" ng-model="bpCreate.newEnt.ContNameId" >
-                  </div>
-               </div>
-               <div  ng-if="bpCreate.newEnt.serverType==='nexus'">
-                  <div class="col-lg-6 col-md-6">
-                     <label >Repository:<span class="red">*</span> <span ng-if="bpCreate.errorMsg.repository" messages msg-config="bpCreate.errorMsg"></span>
-                        <loading size="small" name="isLoadingNexus" type="inline"></loading>
-                     </label>
-                     <div class="input-groups">
-                        <select name="repositoryInd" class="form-control" ng-model="bpCreate.newEnt.repositoryInd" ng-change="bpCreate.changeRepository();" required>
-                           <option value="">Choose Repositories</option>
-                           <option ng-repeat="repository in bpCreate.repositoryOptions" value="{{bpCreate.repositoryOptions.indexOf(repository)}}">{{repository.name}}</option>
-                        </select>
-                     </div>
-                  </div>
-                  <div class="col-lg-6 col-md-6 margintop15" >
-                     <label>Group ID:<span class="red">*</span>
-                        <loading size="small" n ame="isLoadingNexus" type="inline"></loading>
-                     </label>
-                     <div class="input-groups">
-                        <select class="form-control" name="groupId" ng-model="bpCreate.newEnt.groupId"  ng-change="bpCreate.getArtifacts()" required>
-                           <option value="">Choose Group ID</option>
-                           <option ng-repeat="(key , val) in bpCreate.groupOptions" value="{{val}}">{{val}}</option>
-                        </select>
-                     </div>
-                  </div>
-                  <div class="col-lg-6 col-md-6 margintop15">
-                     <label>Artifacts:<span class="red">*</span>
-                        <loading size="small" name="isLoadingArtifacts" type="inline"></loading>
-                     </label>
-                     <div class="input-groups">
-                        <select class="form-control" name="artifactInd" ng-model="bpCreate.newEnt.artifact" ng-change="bpCreate.getVersions();" required>
-                           <option value="">Choose Artifacts</option>
-                           <option ng-repeat="(key , artifact) in  bpCreate.artifactsOptions" value="{{artifact}}">{{artifact}}</option>
-                        </select>
-                     </div>
-                  </div>
-                  <div class="col-lg-6 col-md-6 margintop15" >
-                     <label for="">Versions:<span class="red">*</span>
-                        <loading size="small" name="isLoadingNexusVersion" type="inline"></loading>
-                     </label>
-                     <div class="input-groups">
-                        <select class="form-control" name="version" ng-model="bpCreate.newEnt.version" required>
-                           <option value="">Choose Versions</option>
-                           <option ng-repeat="(key , values) in bpCreate.versionsOptions" value="{{values}}">{{values}}</option>
-                        </select>
-                     </div>
-                  </div>
-                  <div class="col-lg-12 col-md-12 margintop15">
-                     <label>Repository URL:<span class="red">*</span>
-                        <!--<loading size="small" name="isLoadingNexus" type="inline"></loading>-->
-                     </label>
-                     <input type="text" class="form-control" disabled="" ng-model="bpCreate.newEnt.repositoryURL">
-                  </div>
-               </div>
+                           <div ng-if="bpCreate.newEnt.serverType==='docker'">
+                              <div class="col-lg-4 col-md-4 margintop15">
+                                 <label >Repository:<span class="red">*</span>
+                                    <loading size="small" name="isLoadingNexus" type="inline"></loading>
+                                 </label>
+                                 <div class="input-groups">
+                                    <select name="repositories" class="form-control" ng-model="bpCreate.newEnt.repositoryIMG" ng-change="bpCreate.changeRepository();" required>
+                                       <option value="">Choose Repositories</option>
+                                       <option ng-repeat="(key,value) in bpCreate.repositoryOptions" value="{{value}}">{{value}}</option>
+                                    </select>
+                                 </div>
+                              </div>
+                              <div class="col-lg-4 col-md-4 margintop15">
+                                 <label>Tags:<span class="red">*</span>
+                                    <loading size="small" name="isLoadingDocTag" type="inline"></loading>
+                                 </label>
+                                 <select class="form-control" ng-model="bpCreate.newEnt.tag"  required>
+                                    <option value="">Choose Tag</option>
+                                    <option ng-repeat="tagOption in bpCreate.tagOptions" value="{{tagOption.name}}">{{tagOption.name}}</option>
+                                 </select>
+                              </div>
+                              <div class="col-lg-4 col-md-4 margintop15">
+                                 <label>Container Port:<span class="red">*</span>
+                                    <!--<loading size="small" name="isLoadingNexus" type="inline"></loading>-->
+                                 </label>
+                                 <div class="input-groups"><input type="text" name="contPort" class="form-control" ng-model="bpCreate.newEnt.contPort" required></div>
+                              </div>
+                              <div class="col-lg-4 col-md-4 margintop15" >
+                                 <label ng-click="showHideLoader()">Host Port:<span class="red">*</span></label>
+                                 <!--<loading size="small" name="isLoadingContainer" type="inline"></loading>-->
+                                 <input type="text" class="form-control" name="hostPort" ng-model="bpCreate.newEnt.hostPort" required>
+                              </div>
+                              <div class="col-lg-4 col-md-4 margintop15" >
+                                 <label ng-click="showHideLoader()">Container Name/ID:</label>
+                                 <!--<loading size="small" name="isLoadingContainer" type="inline"></loading>-->
+                                 <input type="text" class="form-control" ng-model="bpCreate.newEnt.ContNameId" >
+                              </div>
+                           </div>
+                           <div  ng-if="bpCreate.newEnt.serverType==='nexus'">
+                              <div class="col-lg-4 col-md-4 margintop15">
+                                 <label >Repository:<span class="red">*</span> <span ng-if="bpCreate.errorMsg.repository" messages msg-config="bpCreate.errorMsg"></span>
+                                    <loading size="small" name="isLoadingNexus" type="inline"></loading>
+                                 </label>
+                                 <div class="input-groups">
+                                    <select name="repositoryInd" class="form-control" ng-model="bpCreate.newEnt.repositoryInd" ng-change="bpCreate.changeRepository();" required>
+                                       <option value="">Choose Repositories</option>
+                                       <option ng-repeat="repository in bpCreate.repositoryOptions" value="{{bpCreate.repositoryOptions.indexOf(repository)}}">{{repository.name}}</option>
+                                    </select>
+                                 </div>
+                              </div>
+                              <div class="col-lg-4 col-md-4 margintop15" >
+                                 <label>Group ID:<span class="red">*</span>
+                                    <loading size="small" n ame="isLoadingNexus" type="inline"></loading>
+                                 </label>
+                                 <div class="input-groups">
+                                    <select class="form-control" name="groupId" ng-model="bpCreate.newEnt.groupId"  ng-change="bpCreate.getArtifacts()" required>
+                                       <option value="">Choose Group ID</option>
+                                       <option ng-repeat="(key , val) in bpCreate.groupOptions" value="{{val}}">{{val}}</option>
+                                    </select>
+                                 </div>
+                              </div>
+                              <div class="col-lg-4 col-md-4 margintop15">
+                                 <label>Artifacts:<span class="red">*</span>
+                                    <loading size="small" name="isLoadingArtifacts" type="inline"></loading>
+                                 </label>
+                                 <div class="input-groups">
+                                    <select class="form-control" name="artifactInd" ng-model="bpCreate.newEnt.artifact" ng-change="bpCreate.getVersions();" required>
+                                       <option value="">Choose Artifacts</option>
+                                       <option ng-repeat="(key , artifact) in  bpCreate.artifactsOptions" value="{{artifact}}">{{artifact}}</option>
+                                    </select>
+                                 </div>
+                              </div>
+                              <div class="col-lg-4 col-md-4 margintop15" >
+                                 <label for="">Versions:<span class="red">*</span>
+                                    <loading size="small" name="isLoadingNexusVersion" type="inline"></loading>
+                                 </label>
+                                 <div class="input-groups">
+                                    <select class="form-control" name="version" ng-model="bpCreate.newEnt.version" required>
+                                       <option value="">Choose Versions</option>
+                                       <option ng-repeat="(key , values) in bpCreate.versionsOptions" value="{{values}}">{{values}}</option>
+                                    </select>
+                                 </div>
+                              </div>
+                              <div class="col-lg-12 col-md-12 margintop15">
+                                 <label>Repository URL:<span class="red">*</span>
+                                    <!--<loading size="small" name="isLoadingNexus" type="inline"></loading>-->
+                                 </label>
+                                 <input type="text" class="form-control" disabled="" ng-model="bpCreate.newEnt.repositoryURL">
+                              </div>
+                           </div>
                            <hr/>
                            <div class="col-md-12 col-sm-12 col-xs-12 col-lg-12 applicationUrl-text">
                               <span class="lable-align"><b>Application URL</b></span>
