@@ -21,6 +21,7 @@
   float: left;
   padding-top: 7px;
   margin-left: 10px;
+  padding-left:10px;
 }
 .productdiv1 {
   position: relative;
@@ -97,9 +98,9 @@ label {
 }
 
 .cardLogo {
-  height: 64px;
+  height: 52px;
   padding-top: 11px;
-  margin-top: 5px;
+  margin-top: 20px;
   margin-left: 8px;
 }
 
@@ -402,4 +403,11 @@ ul.simple-list > li::after {
    box-shadow: none;
    opacity: .65;
    pointer-events: none;
+}
+.Cardtextoverflow{
+  font-size: 12px;
+  overflow: hidden;
+  padding-left: 0px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

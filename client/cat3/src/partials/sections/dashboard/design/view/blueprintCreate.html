@@ -82,7 +82,8 @@
                   <div class="col-sm-3 col-lg-3 col-md-3 blueprintTemplate" ng-repeat="templateDetail in imageList" ng-if="bpTypeName === 'OSImage'" ng-class="{'blueprintTemplateSelected':templateDetail.selected}" ng-click="blueprintTemplateClick(templateDetail);">
                      <ul class="list-unstyled system-prop" style="text-align:center;">
                         <li>
-                           <img style="height:40px;width:auto;" alt="templateLogo" ng-src="{{osImageLogo}}">
+                           <img style="height:40px;width:auto;" ng-if="templateDetail.osType =='linux'" alt="templateLogo" ng-src="{{osImageLogo}}">
+                           <img style="height:40px;width:auto;" ng-if="templateDetail.osType =='windows'" alt="templateLogo" ng-src="{{osImageLogoWindows}}">
                         </li>
                         <li style="font-size:12px;"><u><b>{{templateDetail.name}}</b></u></li>
                      </ul>
@@ -114,10 +115,12 @@
                                  <span ng-show="newBlueprintForm.osListing.$touched && newBlueprintForm.osListing.$invalid" class="inputValidationMsg">Required</span>
                                  <loading size="small" name="isOSLoading" type="inline"></loading>
                               </label>
-                              <select name="osListing" ng-model="bpCreate.newEnt.osListing" class="chooseOS width-100 form-control" ng-options="osListing.os_name group by osListing.os for osListing in bpCreate.osListing" ng-disabled="isOSImage" ng-change="bpCreate.changeImageOS();" required>
-                                 <option ng-if="templateSelected.templatetypename === 'SoftwareStack'" value="">Select OS</option>
+                              <select name="osListing" ng-if="templateSelected.templatetypename === 'SoftwareStack'" ng-model="bpCreate.newEnt.osListing" class="chooseOS width-100 form-control" ng-options="osListing.os_name group by osListing.os for osListing in bpCreate.osListing" ng-change="bpCreate.changeImageOS();" required>
+                                 <option value="">Select OS</option>
                                  <!-- <option ng-if="templateSelected.templatetypename === 'SoftwareStack'" ng-repeat="name in bpCreate.osListing" value="{{name.osType}}">{{name.os_name}}</option> -->
-                                 <option ng-if="templateSelected.osType" value="{{templateSelected.osType}}">{{templateSelected.osName}}</option>
+                              </select>
+                              <select name="osListing" ng-if="templateSelected.osType" ng-model="bpCreate.newEnt.osListing" class="chooseOS width-100 form-control" ng-disabled="isOSImage" ng-change="bpCreate.changeImageOS();" required>
+                                 <option value="{{templateSelected.osType}}">{{templateSelected.osName}}</option>
                               </select>
                            </div>
                            <div class="col-lg-4 col-md-4">
@@ -576,7 +579,7 @@
                               </accordion-group>
                            </accordion>
                         </accordion-group>
-                        <accordion-group ng-if="templateSelected.templatetypename ==='ARMTemplate'" ng-init="accGroupStatus = {opened: false}" is-open="accGroupStatus.opened">
+                        <accordion-group ng-if="templateSelected.templatetypename ==='ARMTemplate'" ng-init="accGroupStatus = {opened: isFirstOpen}" is-open="accGroupStatus.opened">
                            <accordion-heading>
                               <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
                               Configure Template Parameters

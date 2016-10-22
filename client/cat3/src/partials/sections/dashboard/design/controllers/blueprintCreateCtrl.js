@@ -71,6 +71,7 @@
             };
             $scope.logo = 'images/global/cat-logo.png';
             $scope.osImageLogo = 'images/global/linux.png';
+            $scope.osImageLogoWindows = 'images/osIcons/windows.png';
             $scope.isOSImage = false;
             $scope.isVMEvalsVisible = false;
             $scope.isVMVisible = false;
@@ -171,7 +172,7 @@
                 bpCreateSer.getOperatingSytems().then(function(data){
                     blueprintCreation.osListing = data;
                     if($scope.bpTypeName === 'OSImage'){
-                        blueprintCreation.newEnt.osListing.osType = $scope.templateSelected.osType;
+                        blueprintCreation.newEnt.osListing = $scope.templateSelected.osType;
                         $scope.isOSImage = true;
                     }
                     $scope.isOSLoading = false;
@@ -227,13 +228,16 @@
                 $scope.isRegionKeyPairLoading = true;      
                 bpCreateSer.getImageLists(blueprintCreation.newEnt.providers).then(function(data){
                     if(blueprintCreation.newEnt.providers){
-                        for(var i=0;i<data.length;i++){
-                           if(blueprintCreation.newEnt.osListing.os_name === data[i].osName){
-                                blueprintCreation.imageListing.push(data[i]);
-                                console.log(blueprintCreation.imageListing);
-                           } 
+                        if($scope.bpTypeName === 'SoftwareStack'){
+                            for(var i=0;i<data.length;i++){
+                               if(blueprintCreation.newEnt.osListing.os_name === data[i].osName){
+                                    blueprintCreation.imageListing.push(data[i]);
+                                    console.log(blueprintCreation.imageListing);
+                               } 
+                            }
                         }
                         if($scope.bpTypeName === 'OSImage'){
+                            blueprintCreation.imageListing = data;
                             blueprintCreation.newEnt.images = $scope.templateSelected._id;
                             $scope.isOSImage = true;
                             blueprintCreation.getInstanceType();
@@ -648,6 +652,11 @@
                         blueprintCreation.wizardStep($scope.bpTypeName,$scope.stpLen);
                         return false;
                     }
+                    if($scope.stpLen <5 && $scope.bpTypeName === 'SoftwareStack' || $scope.stpLen <5 && $scope.bpTypeName === 'OSImage'){
+                        $scope.isNextVisible = true;
+                        $scope.nextEnabled = true;
+                        $scope.isSubmitVisible = false;
+                    }
                     switch($scope.bpTypeName){
                         case 'Docker':
                             $scope.stpLen=1;
@@ -658,6 +667,9 @@
                         case 'CloudFormation':
                         case 'ARMTemplate':
                             $scope.stpLen=3;
+                            $scope.isNextVisible = true;
+                            $scope.nextEnabled = true;
+                            $scope.isSubmitVisible = false;
                             break;
                         }
                     $scope.setButtons();
@@ -682,10 +694,8 @@
                         blueprintCreation.getOrgBUProjDetails();
                         $scope.previousEnabled = true;
                     } else if($scope.stpLen === 3 && $scope.bpTypeName === 'CloudFormation' || $scope.bpTypeName ==='ARMTemplate'){
-                        if($scope.bpTypeName === 'CloudFormation' || $scope.bpTypeName ==='ARMTemplate'){
-                            blueprintCreation.getAllProviders();
-                            blueprintCreation.getTemplateParameters();
-                        }
+                        blueprintCreation.getAllProviders();
+                        blueprintCreation.getTemplateParameters();
                         if($scope.bpTypeName === 'CloudFormation') {
                             blueprintCreation.getRegionLists(); 
                         }
