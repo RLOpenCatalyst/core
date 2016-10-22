@@ -831,16 +831,17 @@
                                 "groupId": blueprintCreation.newEnt.groupId
                             }
                             blueprintCreateJSON.nexus = nexus;
-                }else{
-                    depNewApp.deploymentData.sourceData.docker={
-                        "image": depNewApp.newEnt.repositoryIMG,
-                        "containerName": depNewApp.newEnt.ContNameId,
-                        "containerPort": depNewApp.newEnt.contPort,
-                        "hostPort": depNewApp.newEnt.hostPort,
-                        "imageTag": depNewApp.newEnt.tag,
-                        "rowId":depNewApp.serverOptions[depNewApp.newEnt.serverTypeInd].rowid
-                    };
-                }
+                        }else{
+                            var docker = {
+                                "image": blueprintCreation.newEnt.repositoryIMG,
+                                "containerName": blueprintCreation.newEnt.ContNameId,
+                                "containerPort": blueprintCreation.newEnt.contPort,
+                                "hostPort": blueprintCreation.newEnt.hostPort,
+                                "imageTag": blueprintCreation.newEnt.tag,
+                                "rowId":blueprintCreation.serverRepos[blueprintCreation.newEnt.nexusDockerServer].rowid
+                            };
+                            blueprintCreateJSON.docker = docker;
+                        }
                     }
 
                     if($scope.bpTypeName === 'SoftwareStack' || $scope.bpTypeName === 'OSImage' || $scope.bpTypeName === 'CloudFormation' || $scope.bpTypeName === 'ARMTemplate'){
