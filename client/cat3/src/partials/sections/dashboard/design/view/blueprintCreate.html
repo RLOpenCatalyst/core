@@ -1,66 +1,5 @@
  <div id="create-bp" class="col-lg-12">
       <div id="content">
-         <div id="wizardContainer" class="col-lg-12 wizardContainer">
-            <!-- <div id="crumbs">
-   <ul class="simple-list" style="width:{{bpCreate.createStp.stepWidth}}px">
-      <li class=" col-lg-2">
-         <div class="singletab " >
-            <a ng-click="stepClick(1);" type="button" ng-class="bpCreate.btnStatus.temp" class=" btn wizardbtn-circle process-btn wizardActiveBtn">{{bpCreate.createStp.stpCount.temp}}</a><br>
-                  <p class="wizardLabelName">Templates</p>
-               </div>
-            
-         </li>
-      <li class=" col-lg-2">
-         <div class="singletab " ng-show="bpCreate.createStp.provStep">
-            <a type="button" ng-click="stepClick(2);" ng-class="bpCreate.btnStatus.prov" class=" btn wizardbtn-circle process-btn wizardActiveBtn">{{bpCreate.createStp.stpCount.prov}}</a><br>
-                  <p class="wizardLabelName">Provider</p>
-            
-         </div>
-      </li>
-      <li class=" active col-lg-2">
-         <div class="singletab" ng-show="bpCreate.createStp.orgStep">
-            <a type="button" ng-click="stepClick(3);"  ng-class="bpCreate.btnStatus.org" class=" btn wizardbtn-circle process-btn wizardActiveBtn">{{bpCreate.createStp.stpCount.org}}</a><br>
-                  <p class="wizardLabelName">Organization</p>
-            
-            </div>       </li>
-      <li class=" col-lg-2">
-         <div class="singletab" ng-show="bpCreate.createStp.confStep">
-            <a type="button" ng-click="stepClick(4);" ng-class="bpCreate.btnStatus.conf" class=" btn wizardbtn-circle process-btn wizardActiveBtn">{{bpCreate.createStp.stpCount.conf}}</a><br>
-                  <p class="wizardLabelName">Server Configuration</p>
-            
-         </div>         </li>
-      <li class=" col-lg-2">
-         <div class="singletab" ng-show="bpCreate.createStp.appStep">
-            <a type="button" ng-click="stepClick(5);" ng-class="bpCreate.btnStatus.app" class=" btn wizardbtn-circle process-btn wizardActiveBtn">{{bpCreate.createStp.stpCount.app}}</a><br>
-                  <p class="wizardLabelName">Application</p>
-            
-
-         </div>         </li>
-   </ul>
-</div> -->
-            <!-- <div class="btn-cls" style="width:{{bpCreate.createStp.stepWidth}}px">
-               <div class="btn-1" ng-show="bpCreate.createStp.tempStep">
-                  <a ng-click="stepClick(1);" type="button" ng-class="bpCreate.btnStatus.temp" class=" btn wizardbtn-circle process-btn wizardActiveBtn">{{bpCreate.createStp.stpCount.temp}}</a><br>
-                  <p class="wizardLabelName">Templates</p>
-               </div>
-               <div class="btn-1" ng-show="bpCreate.createStp.provStep">
-                  <a type="button" ng-click="stepClick(2);" ng-class="bpCreate.btnStatus.prov" class=" btn wizardbtn-circle process-btn wizardActiveBtn">{{bpCreate.createStp.stpCount.prov}}</a><br>
-                  <p class="wizardLabelName">Provider</p>
-               </div>
-               <div class="btn-1" ng-show="bpCreate.createStp.orgStep">
-                  <a type="button" ng-click="stepClick(3);"  ng-class="bpCreate.btnStatus.org" class=" btn wizardbtn-circle process-btn wizardActiveBtn">{{bpCreate.createStp.stpCount.org}}</a><br>
-                  <p class="wizardLabelName">Organization</p>
-               </div>
-               <div class="btn-1" ng-show="bpCreate.createStp.confStep">
-                  <a type="button" ng-click="stepClick(4);" ng-class="bpCreate.btnStatus.conf" class=" btn wizardbtn-circle process-btn wizardActiveBtn">{{bpCreate.createStp.stpCount.conf}}</a><br>
-                  <p class="wizardLabelName">Server Configuration</p>
-               </div>
-               <div class="btn-1" ng-show="bpCreate.createStp.appStep">
-                  <a type="button" ng-click="stepClick(5);" ng-class="bpCreate.btnStatus.app" class=" btn wizardbtn-circle process-btn wizardActiveBtn">{{bpCreate.createStp.stpCount.app}}</a><br>
-                  <p class="wizardLabelName">Application</p>
-               </div>
-            </div> -->
-         </div>
          <div next-text="Next" previous-text="Previous">
             <div ng-if="bpTypeName === 'Composite'">
                <form name="compositeBlueprintCreation" novalidate>
@@ -68,7 +7,7 @@
                </form>
             </div>
             <form name="newBlueprintForm" novalidate>
-               <div ng-show="stpLen ==1">
+               <div ng-show="steps[0].isDisplayed">
                   <div class="col-sm-3 col-lg-3 col-md-3 blueprintTemplate" ng-repeat="templateDetail in templateList" ng-if="bpTypeName == templateDetail.templatetypename" ng-class="{'blueprintTemplateSelected':templateDetail.selected}" ng-click="blueprintTemplateClick(templateDetail);">
                      <ul class="list-unstyled system-prop" style="text-align:center;">
                         <li>
@@ -89,8 +28,8 @@
                      </ul>
                   </div>
                </div>
-               <div ng-show="stpLen ==2">
-                  <!-- <div class="col-sm-2 col-lg-2 col-md-2 blueprintTemplate blueprintTemplateSelected" ng-show="templateSelected.templatetypename !== 'Docker'">
+               <div ng-show="steps[1].isDisplayed">
+                  <div class="col-sm-2 col-lg-2 col-md-2 blueprintTemplate blueprintTemplateSelected" ng-show="templateSelected.templatetypename !== 'Docker'">
                      <ul class="list-unstyled system-prop" style="text-align:center;">
                         <li ng-if="templateSelected.templatetypename === 'SoftwareStack' || templateSelected.templatetypename === 'CloudFormation' || templateSelected.templatetypename === 'ARMTemplate'">
                            <img style="height:40px;width:auto;" alt="templateLogo" ng-src="{{logo}}">
@@ -102,8 +41,8 @@
                         <li ng-if="templateSelected.osType" style="font-size:12px;"><u><b>{{templateSelected.name}}</b></u></li>
                         <li ng-if="templateSelected.templatetypename === 'SoftwareStack'" style="font-size:10px;" ng-repeat="item in templateSelected.templatescookbooks.split(',')">{{item}}</li>
                      </ul>
-                  </div> -->
-                  <div class="col-sm-12 col-lg-12 col-md-12 margintop15">
+                  </div>
+                  <div class="col-sm-10 col-lg-10 col-md-10 margintop15">
                      <accordion>
                         <accordion-group ng-if="templateSelected.templatetypename !== 'Docker' && templateSelected.templatetypename !=='CloudFormation' && templateSelected.templatetypename !== 'ARMTemplate'" ng-init="accGroupStatus = {opened: isFirstOpen}" is-open="accGroupStatus.opened">
                            <accordion-heading>
@@ -270,14 +209,8 @@
                            </div>
                            <!--To add the Swipe Functionality-->                            
                         </accordion-group>
-                     </accordion>
-                  </div>
-               </div>
-               <div ng-show="stpLen ==3"> 
-                  <div class="col-sm-12 col-lg-12 col-md-12 margintop15">
-                     <accordion>
-                 <!--adding organisation parameters starts here-->
-                        <accordion-group ng-init="accGroupStatus = {opened: isFirstOpen}" is-open="accGroupStatus.opened">
+                        <!--adding organisation parameters starts here-->
+                        <accordion-group ng-init="accGroupStatus = {opened: isOrgOpen}" is-open="accGroupStatus.opened">
                            <accordion-heading>
                               <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
                               Configure Organization Parameters
@@ -346,14 +279,8 @@
                            </div>
                            <!-- End Docker Image selection table -->
                         </accordion-group>
-                        </accordion>
-                  </div>
-               </div>
-               <div ng-show="stpLen ==4"> 
-                  <div class="col-sm-12 col-lg-12 col-md-12 margintop15">
-                     <accordion>
                         <!--configure runlist collapse starts here-->
-                        <accordion-group ng-if="templateSelected.templatetypename !== 'Docker' && templateSelected.templatetypename !=='CloudFormation' && templateSelected.templatetypename !== 'ARMTemplate'" ng-init="accGroupStatus = {opened: isFirstOpen}" is-open="accGroupStatus.opened">
+                        <accordion-group ng-if="templateSelected.templatetypename !== 'Docker' && templateSelected.templatetypename !=='CloudFormation' && templateSelected.templatetypename !== 'ARMTemplate'" ng-init="accGroupStatus = {opened: false}" is-open="accGroupStatus.opened">
                            <accordion-heading>
                               <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
                               Configure Runlist Parameters
@@ -384,19 +311,13 @@
                               </div>
                            </div>
                         </accordion-group>
-                        </accordion>
-                  </div>
-               </div>
-               <div ng-show="stpLen == 5"> 
-                  <div class="col-sm-12 col-lg-12 col-md-12 margintop15">
-                     <accordion>
                         <!--execute modal starts here-->
                         <!--configure runlist collapse ends here-->                  
                         <!--adding new collapse-->
-                        <accordion-group ng-if="templateSelected.templatetypename !== 'Docker' && templateSelected.templatetypename !=='CloudFormation' && templateSelected.templatetypename !== 'ARMTemplate'" ng-init="accGroupStatus = {opened: isFirstOpen}" is-open="accGroupStatus.opened">
+                        <accordion-group ng-if="templateSelected.templatetypename !== 'Docker' && templateSelected.templatetypename !=='CloudFormation' && templateSelected.templatetypename !== 'ARMTemplate'" ng-init="accGroupStatus = {opened: false}" is-open="accGroupStatus.opened">
                            <accordion-heading>
                               <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
-                              Configure Application Parameters
+                              Configure Application
                            </accordion-heading>
                            <label style="margin: 5px;font-size:13px;" class="checkbox">
                            <input type="checkbox" ng-model="bpCreate.newEnt.appDeployCheck_isChecked" ng-change="bpCreate.showRepoServers();" class="checkConfigApp">
@@ -526,9 +447,9 @@
                            </div>
                         </accordion-group>
                         <!--adding new collapse-->    
-                        <accordion-group ng-if="templateSelected.templatetypename ==='CloudFormation'" ng-init="accGroupStatus = {opened: isFirstOpen}" is-open="accGroupStatus.opened">
+                        <accordion-group ng-if="templateSelected.templatetypename ==='CloudFormation'" ng-init="accGroupStatus = {opened: false}" is-open="accGroupStatus.opened">
                            <accordion-heading>
-                               <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
+                              <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
                               Configure Stack Parameters
                            </accordion-heading>
                            <div class="col-lg-6 col-md-6">
@@ -588,7 +509,7 @@
                               </accordion-group>
                            </accordion>
                         </accordion-group>
-                        <accordion-group ng-if="templateSelected.templatetypename ==='ARMTemplate'" ng-init="accGroupStatus = {opened: isFirstOpen}" is-open="accGroupStatus.opened">
+                        <accordion-group ng-if="templateSelected.templatetypename ==='ARMTemplate'" ng-init="accGroupStatus = {opened: false}" is-open="accGroupStatus.opened">
                            <accordion-heading>
                               <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
                               Configure Template Parameters

@@ -3,61 +3,6 @@
     angular.module('design.bpCreate',[])
         .service('blueprintCreateService',['$rootScope','$http','$q','toastr', 'genericServices', function ($rootScope,$http,$q,toastr,genericServices) {
         	var blueprintServices = this;
-        	blueprintServices.steps=function(tmpType){
-        		var stepObj={};
-        		switch(tmpType){
-        			case 'Docker':
-        			return {
-        				tempStep:true,
-        				orgStep:true,
-        				stepWidth:280,
-        				numberStp:3,
-        				stpCount:{
-        					temp:1,
-        					org:2
-        				}
-
-        			}
-        			break;
-        			case 'OSImage':
-        			case 'SoftwareStack':
-        			return {
-        				tempStep:true,
-        				orgStep:true,
-        				provStep:true,
-        				confStep:true,
-        				appStep:true,
-        				stepWidth:700,
-        				numberStp:5,
-        				stpCount:{
-        					temp:1,
-        					org:3,
-        					prov:2,
-        					conf:4,
-        					app:5
-        				}
-        			}
-        			break;
-        			case 'CloudFormation':
-        			case 'ARMTemplate':
-        			return {
-        				tempStep:true,
-        				orgStep:true,
-        				appStep:true,
-        				stepWidth:420,
-        				numberStp:5,
-        				stpCount:{
-        					temp:1,
-        					org:2,
-        					app:3
-        				}
-
-        			}
-        			break;
-
-        		}
-        	
-        	};
         	//for getting the list of templates.
         	blueprintServices.getTemplates = function () {
 				var params = {

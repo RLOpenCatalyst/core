@@ -39,7 +39,7 @@
                                     <li class="list-group-item" ng-repeat="bp in createCBP.ExBlueprintList | filter :searchText">
                                         <span class="badge cat-btn-update" ng-click="createCBP.addBP(createCBP.ExBlueprintList.indexOf(bp))" ><i class="fa fa-arrow-right white fa-2" aria-hidden="true"></i></span>
                                         <span class="badge cat-btn-update" ng-click="createCBP.selectBpInfo($event,bp)" ><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>
-                                        <img src="./images/img.jpg" class="cardLogo" alt="{{bp.name}}"> &nbsp;{{bp.name}}
+                                        <img src="./images/rsz_layers.png" alt="{{bp.name}}"> &nbsp;{{bp.name}}
                                     </li>
                                 </ul>
                             </div>
@@ -62,7 +62,7 @@
                                         <span class="badge cat-btn-update" ng-click="createCBP.editSelectBpInfo($event,selectedp)" ><i class="fa fa-pencil-square-o fa-2 white" aria-hidden="true"></i></span>
                                         <span class="badge cat-btn-update" ng-click="createCBP.selectBpInfo($event,selectedp)" ><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>
                                         <span class="badge cat-btn-update" ng-click="createCBP.deSelect($event,createCBP.SelectedBPList.indexOf(selectedp))" ><i class="fa fa-arrow-left fa-2 white" aria-hidden="true"></i></span>
-                                        <span class="badge pull-left" >{{(+createCBP.SelectedBPList.indexOf(selectedp)) +1}}</span><img src="./images/img.jpg" class="cardLogo" alt="{{selectedp.name}}"> &nbsp;{{selectedp.name}}
+                                        <span class="badge pull-left" >{{(+createCBP.SelectedBPList.indexOf(selectedp)) +1}}</span><img src="./images/rsz_layers.png"  alt="{{selectedp.name}}"> &nbsp;{{selectedp.name}}
                                     </li>
                                 </ul>
                                 
