@@ -13,10 +13,11 @@
                     multiSelect :false,
                 },
                 columnDefs: [
+                    { name: 'Icon',field:'',width:100},
                     { name: 'bots type',field:'botType'},
                     { name: 'bots name',field:'name'},
                     { name: 'description',field:'shortDesc'},
-                    { name: 'bot Action',cellTemplate:'<span class="btn cat-btn-update control-panel-button" title="Launch" ng-click="grid.appScope.launchInstance(row.entity);"><i class="fa fa-location-arrow white"></i></span>'}
+                    { name: 'bot Action',cellTemplate:'<span class="btn cat-btn-update control-panel-button" title="Launch" ng-click="grid.appScope.launchInstance(row.entity);"><i class="fa fa-play white"></i></span>'}
                 ],
                 data:[]
             };

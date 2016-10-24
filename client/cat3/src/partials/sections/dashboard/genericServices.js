@@ -204,7 +204,7 @@
             $modal.open({
                     animate: true,
                     templateUrl: "src/partials/sections/dashboard/workzone/blueprint/popups/blueprintLaunchParams.html",
-                    controller: "blueprintLaunchParamsCtrl",
+                    controller: "blueprintLaunchParamsCtrl as bPLP",
                     backdrop : 'static',
                     keyboard: false,
                     resolve: {
