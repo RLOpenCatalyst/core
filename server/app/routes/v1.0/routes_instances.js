@@ -230,12 +230,10 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     apiUtil.paginationRequest(req.query, 'instances', next);
                 },
                 function(paginationReq, next) {
-                    console.log('here again',paginationReq);
                     reqData = paginationReq;
                     instancesDao.getInstanceList(paginationReq, next);
                 },
                 function(instances, next) {
-                    console.log('here again again',instances);
                     apiUtil.paginationResponse(instances, reqData, next);
                 }
             ],
