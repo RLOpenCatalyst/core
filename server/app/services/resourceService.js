@@ -108,9 +108,9 @@ function updateAWSResourceCostsFromCSV(provider, resources, downlaodedCSVPath, u
             resourceCostEntry.billLineItemId = ++lineNumber
             resourceCostEntry.platformDetails.billRecordId = data[awsBillIndexes.recordId]
 
-            if (data[awsBillIndexes.prod] in awsServices) {
-                resourceCostEntry.platformDetails.serviceId = awsServices[data[awsBillIndexes.prod]]
-            }
+            resourceCostEntry.platformDetails.serviceId
+                = (data[awsBillIndexes.prod] in awsServices)?awsServices[data[awsBillIndexes.prod]]
+                :resourceCostEntry.platformDetails.serviceId = 'Other'
 
             resourceCostEntry.platformDetails.zone = (data[awsBillIndexes.zone] == null)
                 ? 'Global' : data[awsBillIndexes.zone]

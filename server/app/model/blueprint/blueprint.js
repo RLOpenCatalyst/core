@@ -155,6 +155,16 @@ var BlueprintSchema = new Schema({
         type:Boolean,
         required:false,
         default:false
+    },
+    shortDesc: {
+        type: String
+    },
+    botType: {
+        type: String
+    },
+    serviceDeliveryCheck: {
+        type: Boolean,
+        default:false
     }
 
 });
@@ -333,6 +343,7 @@ BlueprintSchema.methods.launch = function(opts, callback) {
                                 sessionUser: opts.sessionUser,
                                 users: self.users,
                                 blueprintData: self,
+                                tagServer: opts.tagServer,
                             }, function(err, launchData) {
                                 callback(err, launchData);
                             });
@@ -356,6 +367,7 @@ BlueprintSchema.methods.launch = function(opts, callback) {
                             sessionUser: opts.sessionUser,
                             users: self.users,
                             blueprintData: self,
+                            tagServer: opts.tagServer,
                         }, function(err, launchData) {
                             callback(err, launchData);
                         });
@@ -434,7 +446,10 @@ BlueprintSchema.statics.createNew = function(blueprintData, callback) {
             docker: blueprintData.docker,
             version: count,
             parentId: blueprintData.id,
-            domainNameCheck: blueprintData.domainNameCheck
+            domainNameCheck: blueprintData.domainNameCheck,
+            shortDesc:blueprintData.shortDesc,
+            botType:blueprintData.botType,
+            serviceDeliveryCheck:blueprintData.serviceDeliveryCheck
         };
         var blueprint = new Blueprints(blueprintObj);
         logger.debug(blueprint);
@@ -964,6 +979,33 @@ BlueprintSchema.statics.getBlueprintsByOrgBgProject = function(jsonData, callbac
 
     });
 
+};
+
+
+BlueprintSchema.statics.getBlueprintsServiceDeliveryCheck = function(serviceDeliveryCheck, callback) {
+    this.find({serviceDeliveryCheck:serviceDeliveryCheck}, function(err, blueprints) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, blueprints);
+        return;
+    });
+};
+
+BlueprintSchema.statics.removeServiceDeliveryBlueprints = function(blueprintId, callback) {
+    this.update({ "_id": new ObjectId(blueprintId)}, {serviceDeliveryCheck: false}, function (err, data) {
+        if (err) {
+            logger.error(err);
+            callback(err, null);
+            return;
+        }
+        if (data.length) {
+            callback(null, data[0]);
+        } else {
+            callback(null, null);
+        }
+    });
 };
 
 BlueprintSchema.statics.getBlueprintsByOrgBgProjectProvider = function(jsonData, callback) {

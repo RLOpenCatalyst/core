@@ -319,6 +319,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                                     instanceState: 'running',
                                     bootStrapStatus: 'success',
                                     hardware: hardwareData,
+                                    tagServer: reqBody.tagServer,
                                     credentials: encryptedCredentials,
                                     users: users,
                                     chef: {
