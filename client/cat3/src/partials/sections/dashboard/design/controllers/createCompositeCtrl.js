@@ -1,7 +1,7 @@
 (function (angular) {
     "use strict";
     angular.module('dashboard.design')
-        .controller('createCompositeCtrl',['$scope','$rootScope','$state','toastr','blueprintService','genericServices','designServices', function ($scope,$rootScope,$state,toastr,bpServ,gencSers,designServices) {
+        .controller('createCompositeCtrl',['$scope','$rootScope','$state','toastr','blueprintService','genericServices', function ($scope,$rootScope,$state,toastr,bpServ,gencSers) {
             var createCBP = this;
             createCBP.ExBlueprintList=[];
             createCBP.SelectedBPList=[];
@@ -53,9 +53,9 @@
                     return true;
                 }
                 if($rootScope.organObject){
-                    createCBP.newEnt.org =$rootScope.organObject[$rootScope.organNewEnt.org].rowid;
-                    createCBP.newEnt.buss=$rootScope.organObject[$rootScope.organNewEnt.org].businessGroups[$rootScope.organNewEnt.buss].rowid;
-                    createCBP.newEnt.proj=$rootScope.organObject[$rootScope.organNewEnt.org].businessGroups[$rootScope.organNewEnt.buss].projects[$rootScope.organNewEnt.proj].rowid;
+                    createCBP.newEnt.org =$rootScope.organNewEnt.org.rowid;
+                    createCBP.newEnt.buss=$rootScope.organNewEnt.buss.rowid;
+                    createCBP.newEnt.proj=$rootScope.organNewEnt.proj.rowid;
                 }
                 var params = {
                     url: '/composite-blueprints/',
@@ -68,7 +68,7 @@
                         "cloudProviderType": 'aws'
                     }
                 };
-                designServices.promisePost(params).then(function () {
+                gencSers.promisePost(params).then(function () {
                     toastr.success('Successfully Created.');
                     $state.go('dashboard.designSubView',{subItem:$state.params.subItem,view:'list'});
                 });
