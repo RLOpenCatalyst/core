@@ -1,3 +1,71 @@
-<div>
-	<strong>{{Text}}</strong>
+<div id="analyticsPage" class='fluid-container'>
+	<div class='col-xs-12 col-sm-12 col-md-12 col-lg-12 panelLeft no-padding'>
+		<link rel="stylesheet" type="text/css" href="catalyst/partials/sections/dashboard/analytics/view/analyticsTreeMenu.css"/>
+		<link rel="stylesheet" type="text/css" href="catalyst/partials/globals/treeComponent/treeDirective.css"/>
+
+		<div id='analyticsTreeMenuPage'>
+			<div id='navigPage' ng-mouseover="showTreeOverlay()" ng-mouseleave="hideTreeOverlay()" ng-class="{'show-left-tree':showTree}">
+				<div id='navigPage-inner'>
+					<div id="treeParent">
+						<ul class="tree-ul">
+							<li  ng-repeat="provider in desCtrl.providersMenu">
+								<div class="liContents">
+									<i class="icon fa fa-building label-spacing"></i>
+									<span>{{provider.name}}</span>
+									<div data-ng-hide="node.collapsed" data-tree-id="relevancelab" data-analytics-tree-model="node.nodes" data-node-id="rowid" data-node-label="text" data-node-children="nodes">
+										<ul class="tree-ul">
+											<li ng-repeat='tempType in desCtrl.templateTypes | inArray:provider.filterArray:"templatetype"' ui-sref="dashboard.design.list({provider:provider.name,templateObj:tempType})" class="pointer-cursor" >
+												<div class="liContents">
+													<div class="liContents-wrapper">
+														<i class="icon fa fa-money label-spacing"></i>
+														<span>{{tempType.templatetypename}}</span>
+														<i class="caret-spacing fa fa-caret-left pull-right" ng-show="stateItems.filterView.cost"></i>
+													</div>
+												</div>
+											</li>
+										</ul>
+									</div>
+								</div>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+</div>
+	<div id="sidebar-wrapper" ng-class="{'show-wrapper':isOpenSidebar === true}">
+		<form>
+			<div>
+				<div class="repo-job-details-wrapper-inner marginbottom10"  >Filter:</div>
+
+				<div class="col-lg-12 col-md-12 form-group" ng-show="stateItems.filterView.org">
+					<label for="">Organization</label>
+					<select  ng-model="organNewEnt.org" class="chooseProjectExisting width-100 form-control"  ng-change="getProviders(organObject[organNewEnt.org].rowid)">
+						<option value="">Select</option>
+						<option ng-repeat="org in organObject"  value="{{organObject.indexOf(org)}}" >{{org.name}}</option>
+					</select>
+				</div>
+				<div class="col-lg-12 col-md-12 marginbottom5">
+					<button type="button" class="btn btn-primary" ng-click="applyFilter(true,filterNewEnt.period);isOpenSidebar=false;"><i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;Apply</button>
+					<button type="button" class="btn btn-default" ng-click="applyFilter(false,filterNewEnt.period);isOpenSidebar=false;"><i class="fa fa-times fa-2" aria-hidden="true"></i>&nbsp;Clear</button>
+				</div>
+			</div>
+		</form>
+		<br/>
+	</div>
+
+	<div class="panelRight">
+		<div id='rightPanel' class='container-fluid'>
+			<ul class="nav nav-tabs" >
+				<li ng-class="{'active':analytic.tabShowChat === true}"><a ng-click="tabShow(true,false)"  ><i class="fa fa-area-chart fa-2" aria-hidden="true"></i> Dashboard</a></li>
+				<li ng-class="{'active':analytic.tabShowReport === true}"><a ng-click="tabShow(false,true)" ><i class="fa fa-file-text fa-2" aria-hidden="true"></i> Reports</a></li>
+				<li class="form-group pull-right filter-btn" >
+					<button type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ng-click="isOpenSidebar = !isOpenSidebar">
+						<i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;Filter
+					</button>
+				</li>
+			</ul>
+			<div ui-view></div>
+		</div>
+	</div>
 </div>
