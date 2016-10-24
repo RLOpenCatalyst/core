@@ -21,11 +21,11 @@ var monitorsValidator = module.exports = {};
 monitorsValidator.create = {
     body: {
         "orgId": Joi.string().max(40).required(),
-        "serverType": Joi.valid('sensu', 'other'),
-        "serverParameters": Joi.object()
+        "type": Joi.valid('sensu', 'other'),
+        "parameters": Joi.object()
             .keys({
                 "url": Joi.string(),
-                "transportProtocolName": Joi.valid('rabbitmq', 'redis'),
+                "transportProtocol": Joi.valid('rabbitmq', 'redis'),
                 "transportProtocolParameters": Joi.object().keys({
                         "host": Joi.string().required(),
                         "port": Joi.number().required(),
@@ -39,15 +39,15 @@ monitorsValidator.create = {
                             "privateKeyFileId": Joi.string().required()
                         }),
                     })
-                    .when('transportProtocolName', {
+                    .when('transportProtocol', {
                         is: 'rabbitmq',
                         then: Joi.object({ 'vhost': Joi.required(), 'user': Joi.required(), 'heartbeat': Joi.required(), 'prefetch': Joi.required() })
                     })
             })
             .required()
-            .when('serverType', {
+            .when('type', {
                 is: 'sensu',
-                then: Joi.object({ 'url': Joi.required(), 'transportProtocolName': Joi.required(), 'transportProtocolParameters': Joi.required() })
+                then: Joi.object({ 'url': Joi.required(), 'transportProtocol': Joi.required(), 'transportProtocolParameters': Joi.required() })
             })
     }
 };
@@ -55,11 +55,11 @@ monitorsValidator.create = {
 monitorsValidator.update = {
     body: {
         "orgId": Joi.string().max(40).required(),
-        "serverType": Joi.valid('sensu', 'other'),
-        "serverParameters": Joi.object()
+        "type": Joi.valid('sensu', 'other'),
+        "parameters": Joi.object()
             .keys({
                 "url": Joi.string(),
-                "transportProtocolName": Joi.valid('rabbitmq', 'redis'),
+                "transportProtocol": Joi.valid('rabbitmq', 'redis'),
                 "transportProtocolParameters": Joi.object().keys({
                         "host": Joi.string().required(),
                         "port": Joi.number().required(),
@@ -73,15 +73,15 @@ monitorsValidator.update = {
                             "privateKeyFileId": Joi.string().required()
                         }),
                     })
-                    .when('transportProtocolName', {
+                    .when('transportProtocol', {
                         is: 'rabbitmq',
                         then: Joi.object({ 'vhost': Joi.required(), 'user': Joi.required(), 'heartbeat': Joi.required(), 'prefetch': Joi.required() })
                     })
             })
             .required()
-            .when('serverType', {
+            .when('type', {
                 is: 'sensu',
-                then: Joi.object({ 'url': Joi.required(), 'transportProtocolName': Joi.required(), 'transportProtocolParameters': Joi.required() })
+                then: Joi.object({ 'url': Joi.required(), 'transportProtocol': Joi.required(), 'transportProtocolParameters': Joi.required() })
             })
     }
 };

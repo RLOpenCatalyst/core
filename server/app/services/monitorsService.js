@@ -40,20 +40,20 @@ monitorsService.checkIfMonitorExists = function (monitorId, callback) {
 
 monitorsService.responseFormatter = function (monitor) {
     var formatted = {};
-    switch (monitor.serverType) {
+    switch (monitor.type) {
         case 'sensu':
         case 'Sensu':
             formatted._id = monitor._id;
-            formatted.serverType = monitor.serverType;
+            formatted.type = monitor.type;
             if (monitor.organization.length) {
                 formatted.organization = {
                     id: monitor.organization[0].rowid,
                     name: monitor.organization[0].orgname
                 };
             }
-            formatted.serverParameters = monitor.serverParameters;
-            if (formatted.serverParameters.transportProtocolParameters['password']) {
-                delete formatted.serverParameters.transportProtocolParameters['password'];
+            formatted.parameters = monitor.parameters;
+            if (formatted.parameters.transportProtocolParameters['password']) {
+                delete formatted.parameters.transportProtocolParameters['password'];
             }
             break;
     }
@@ -63,7 +63,7 @@ monitorsService.responseFormatter = function (monitor) {
 
 monitorsService.createMonitor = function (monitor, callback) {
 
-    switch (monitor.serverType) {
+    switch (monitor.type) {
         case 'sensu':
         case 'Sensu':
             monitorsModel.createNew(monitor, function (err, monitor) {
@@ -91,7 +91,7 @@ monitorsService.createMonitor = function (monitor, callback) {
 };
 
 monitorsService.updateMonitor = function updateMonitor(monitorId, updateFields, callback) {
-    switch (updateFields.serverType) {
+    switch (updateFields.type) {
         case 'sensu':
         case 'Sensu':
             monitorsModel.updateMonitors(monitorId, updateFields, function (err, monitor) {

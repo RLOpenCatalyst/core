@@ -19,7 +19,7 @@ var appConfig = require('_pr/config');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var monitorsValidator = require('_pr/validators/monitorsValidator');
 
-module.exports.setRoutes = function (app, sessionVerificationFunc) {
+module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     app.all('/monitors/*', sessionVerificationFunc);
     /**
@@ -39,11 +39,11 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      * @apiSuccess {Object} organization       Monitor Organization
      * @apiSuccess {String} organization.id        Monitor organization id
      * @apiSuccess {String} organization.name      Monitor organization name
-     * @apiSuccess {String} serverType         Monitor Server type     
-     * @apiSuccess {Object} serverParameters       Monitor Server Parameters
-     * @apiSuccess {String} serverParameters.url   Monitor Server Url
-     * @apiSuccess {String} serverParameters.transportProtocolName   Monitor Server Transport Protocols Name
-     * @apiSuccess {Object} serverParameters.transportProtocolParameters   Monitor Server Transport Protocols Parameters
+     * @apiSuccess {String} type         Monitor Server type     
+     * @apiSuccess {Object} parameters       Monitor Server Parameters
+     * @apiSuccess {String} parameters.url   Monitor Server Url
+     * @apiSuccess {String} parameters.transportProtocol   Monitor Server Transport Protocols Name
+     * @apiSuccess {Object} parameters.transportProtocolParameters   Monitor Server Transport Protocols Parameters
      * @apiSuccessExample {json} Monitor-Success-Response:
      *      HTTP/1.1 200 OK
      *      {[
@@ -52,8 +52,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *              "id": "",
      *              "name": "Organization name"
      *          },
-     *          "serverType": "Sensu",
-     *          "serverParameters": {
+     *          "type": "Sensu",
+     *          "parameters": {
      *              "url": "Server Url",
      *              "transportProtocol": {
      *                  "name": "rabbitmq",
@@ -77,8 +77,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *              "id": "",
      *              "name": "Organization name"
      *          },
-     *          "serverType": "Sensu",
-     *          "serverParameters": {
+     *          "type": "Sensu",
+     *          "parameters": {
      *              "url": "Server Url",
      *              "transportProtocol": {
      *                  "name": "redis",
@@ -96,10 +96,10 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
 
         //@TODO Authorization to be implemented after fixing provider schema
         async.waterfall([
-            function (next) {
+            function(next) {
                 monitorsService.getMonitors(req.query, next);
             }
-        ], function (err, monitors) {
+        ], function(err, monitors) {
             if (err) {
                 next(err);
             } else {
@@ -119,11 +119,11 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      * @apiSuccess {Object} organization       Monitor Organization
      * @apiSuccess {String} organization.id        Monitor organization id
      * @apiSuccess {String} organization.name      Monitor organization name
-     * @apiSuccess {String} serverType         Monitor Server type     
-     * @apiSuccess {Object} serverParameters       Monitor Server Parameters
-     * @apiSuccess {String} serverParameters.url   Monitor Server Url
-     * @apiSuccess {String} serverParameters.transportProtocolName   Monitor Server Transport Protocols Name
-     * @apiSuccess {Object} serverParameters.transportProtocolParameters   Monitor Server Transport Protocols Parameters
+     * @apiSuccess {String} type         Monitor Server type     
+     * @apiSuccess {Object} parameters       Monitor Server Parameters
+     * @apiSuccess {String} parameters.url   Monitor Server Url
+     * @apiSuccess {String} parameters.transportProtocol   Monitor Server Transport Protocols Name
+     * @apiSuccess {Object} parameters.transportProtocolParameters   Monitor Server Transport Protocols Parameters
      * @apiSuccessExample {json} Monitor-Success-Response:
      *      HTTP/1.1 200 OK
      *      {
@@ -132,8 +132,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *              "id": "",
      *              "name": "Organization name"
      *          },
-     *          "serverType": "Sensu",
-     *          "serverParameters": {
+     *          "type": "Sensu",
+     *          "parameters": {
      *              "url": "Server Url",
      *              "transportProtocol": {
      *                  "name": "rabbitmq",
@@ -157,8 +157,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *              "id": "",
      *              "name": "Organization name"
      *          },
-     *          "serverType": "Sensu",
-     *          "serverParameters": {
+     *          "type": "Sensu",
+     *          "parameters": {
      *              "url": "Server Url",
      *              "transportProtocol": {
      *                  "name": "redis",
@@ -174,18 +174,18 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
 
     function getMonitor(req, res, next) {
         async.waterfall(
-                [
-                    function (next) {
-                        monitorsService.getMonitor(req.params.monitorId, next);
-                    }
-                ],
-                function (err, results) {
-                    if (err) {
-                        next(err);
-                    } else {
-                        return res.status(200).send(results);
-                    }
+            [
+                function(next) {
+                    monitorsService.getMonitor(req.params.monitorId, next);
                 }
+            ],
+            function(err, results) {
+                if (err) {
+                    next(err);
+                } else {
+                    return res.status(200).send(results);
+                }
+            }
         );
     }
 
@@ -196,47 +196,47 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *
      * @apiSuccess {Object} monitor             monitor data
      * @apiSuccess {String} orgId        Organization Id
-     * @apiSuccess {String} serverType         Monitor Server type     
-     * @apiSuccess {Object} serverParameters       Monitor Server Parameters
-     * @apiSuccess {String} serverParameters.url   Monitor Server Url
-     * @apiSuccess {String} serverParameters.transportProtocolName   Monitor Server Transport Protocols Name
-     * @apiSuccess {Object} serverParameters.transportProtocolParameters   Monitor Server Transport Protocols Parameters
+     * @apiSuccess {String} type         Monitor Server type     
+     * @apiSuccess {Object} parameters       Monitor Server Parameters
+     * @apiSuccess {String} parameters.url   Monitor Server Url
+     * @apiSuccess {String} parameters.transportProtocol   Monitor Server Transport Protocols Name
+     * @apiSuccess {Object} parameters.transportProtocolParameters   Monitor Server Transport Protocols Parameters
      * @apiParamExample {json} Request-Example:
      *      HTTP/1.1 200 OK
      *      {
      *          "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927535",
-     *          "serverType": "sensu",
-     *          "serverParameters": {
-     *  		"url": "Server Url",
-     *  		"transportProtocolName": "redis",
-     *  		"transportProtocolParameters":{
-     *  			"host": "10.0.0.6",
-     *  			"port": 5671,
-     *  			"password": "secret",
-     *  			
-     *    		}
+     *          "type": "sensu",
+     *          "parameters": {
+     *              "url": "Server Url",
+     *              "transportProtocol": "redis",
+     *              "transportProtocolParameters":{
+     *                  "host": "10.0.0.6",
+     *                  "port": 5671,
+     *                  "password": "secret",
+     *              
+     *              }
      *          }
      *      }
      *
      *      {
      *          "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927535",
-     *          "serverType": "sensu",
-     *          "serverParameters": {
-     *  		"url": "Server Url",
-     *  		"transportProtocolName": "rabbitmq",
-     *  		"transportProtocolParameters":{
-     *  			"host": "10.0.0.6",
-     *  			"port": 5671,
-     *  			"vhost": "/sensu",
-     *          		"user": "sensu",
-     *  			"password": "secret",
-     *  			"heartbeat": 30,
-     *  			"prefetch": 50,
-     *  			"ssl": {
-     *  				"certChainFileId": "SomeId",
-     *  				"privateKeyFileId": "SomeId"
-     *  			}
-     *    		}
+     *          "type": "sensu",
+     *          "parameters": {
+     *          "url": "Server Url",
+     *          "transportProtocol": "rabbitmq",
+     *          "transportProtocolParameters":{
+     *              "host": "10.0.0.6",
+     *              "port": 5671,
+     *              "vhost": "/sensu",
+     *              "user": "sensu",
+     *              "password": "secret",
+     *              "heartbeat": 30,
+     *              "prefetch": 50,
+     *              "ssl": {
+     *                  "certChainFileId": "SomeId",
+     *                  "privateKeyFileId": "SomeId"
+     *              }
+     *          }
      *          }
      *      }
      *
@@ -246,14 +246,14 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *      {
      *          "__v": 0,
      *          "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927535",
-     *          "serverType": "sensu",
-     *          "serverParameters": {
+     *          "type": "sensu",
+     *          "parameters": {
      *              "transportProtocolParameters": {
      *                  "password": "iEhK5+u/dBHRNbilkF7f7Q==",
      *                  "port": 5671,
      *                  "host": "10.0.0.6"
      *              },
-     *              "transportProtocolName": "redis",
+     *              "transportProtocol": "redis",
      *              "url": "Server Url"
      *          },
      *          "_id": "58071046efa15bb50b7ccdf8",
@@ -263,8 +263,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *      {
      *          "__v": 0,
      *          "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927535",
-     *          "serverType": "sensu",
-     *          "serverParameters": {
+     *          "type": "sensu",
+     *          "parameters": {
      *              "transportProtocolParameters": {
      *                  "ssl": {
      *                      "privateKeyFileId": "SomeId",
@@ -278,7 +278,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *                  "port": 5671,
      *                  "host": "10.0.0.6"
      *              },
-     *              "transportProtocolName": "rabbitmq",
+     *              "transportProtocol": "rabbitmq",
      *              "url": "Server Url"
      *          },
      *          "_id": "58071104efa15bb50b7cce41",
@@ -289,24 +289,24 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
 
     function createMonitors(req, res, next) {
         async.waterfall(
-                [
-                    function (next) {
-                        if (req.body.serverType === 'sensu' && req.body.serverParameters.transportProtocolParameters['password']) {
-                            var cryptoConfig = appConfig.cryptoSettings;
-                            var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-                            var encryptedPassword = cryptography.encryptText(req.body.serverParameters.transportProtocolParameters['password'], cryptoConfig.encryptionEncoding, cryptoConfig.decryptionEncoding);
-                            req.body.serverParameters.transportProtocolParameters['password'] = encryptedPassword;
-                        }
-                        monitorsService.createMonitor(req.body, next);
+            [
+                function(next) {
+                    if (req.body.type === 'sensu' && req.body.parameters.transportProtocolParameters['password']) {
+                        var cryptoConfig = appConfig.cryptoSettings;
+                        var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+                        var encryptedPassword = cryptography.encryptText(req.body.parameters.transportProtocolParameters['password'], cryptoConfig.encryptionEncoding, cryptoConfig.decryptionEncoding);
+                        req.body.parameters.transportProtocolParameters['password'] = encryptedPassword;
                     }
-                ],
-                function (err, results) {
-                    if (err) {
-                        next(err);
-                    } else {
-                        return res.status(201).send(results);
-                    }
+                    monitorsService.createMonitor(req.body, next);
                 }
+            ],
+            function(err, results) {
+                if (err) {
+                    next(err);
+                } else {
+                    return res.status(201).send(results);
+                }
+            }
         );
     }
 
@@ -318,46 +318,46 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *
      * @apiSuccess {Object} monitor             monitor data
      * @apiSuccess {String} orgId        Organization Id
-     * @apiSuccess {String} serverType         Monitor Server type     
-     * @apiSuccess {Object} serverParameters       Monitor Server Parameters
-     * @apiSuccess {String} serverParameters.url   Monitor Server Url
-     * @apiSuccess {String} serverParameters.transportProtocolName   Monitor Server Transport Protocols Name
-     * @apiSuccess {Object} serverParameters.transportProtocolParameters   Monitor Server Transport Protocols Parameters
+     * @apiSuccess {String} type         Monitor Server type     
+     * @apiSuccess {Object} parameters       Monitor Server Parameters
+     * @apiSuccess {String} parameters.url   Monitor Server Url
+     * @apiSuccess {String} parameters.transportProtocol   Monitor Server Transport Protocols Name
+     * @apiSuccess {Object} parameters.transportProtocolParameters   Monitor Server Transport Protocols Parameters
      * @apiParamExample {json} Request-Example:
      *      HTTP/1.1 200 OK
      *      {
      *          "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927535",
-     *          "serverType": "sensu",
-     *          "serverParameters": {
+     *          "type": "sensu",
+     *          "parameters": {
      *              "url": "Server Url",
-     *              "transportProtocolName": "redis",
+     *              "transportProtocol": "redis",
      *              "transportProtocolParameters":{
      *                  "host": "10.0.0.6",
      *                  "port": 5671,
      *                  "password": "secret",
-     *  			}
+     *              }
      *          }
      *      }
      *
      *      {
      *          "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927535",
-     *          "serverType": "sensu",
-     *          "serverParameters": {
-     *  		"url": "Server Url",
-     *  		"transportProtocolName": "rabbitmq",
-     *  		"transportProtocolParameters":{
-     *  			"host": "10.0.0.6",
-     *  			"port": 5671,
-     *  			"vhost": "/sensu",
-     *          	"user": "sensu",
-     *  			"password": "secret",
-     *  			"heartbeat": 30,
-     *  			"prefetch": 50,
-     *  			"ssl": {
-     *  				"certChainFileId": "SomeId",
-     *  				"privateKeyFileId": "SomeId"
-     *  			}
-     *    		}
+     *          "type": "sensu",
+     *          "parameters": {
+     *          "url": "Server Url",
+     *          "transportProtocol": "rabbitmq",
+     *          "transportProtocolParameters":{
+     *              "host": "10.0.0.6",
+     *              "port": 5671,
+     *              "vhost": "/sensu",
+     *              "user": "sensu",
+     *              "password": "secret",
+     *              "heartbeat": 30,
+     *              "prefetch": 50,
+     *              "ssl": {
+     *                  "certChainFileId": "SomeId",
+     *                  "privateKeyFileId": "SomeId"
+     *              }
+     *          }
      *          }
      *      }
      *
@@ -367,14 +367,14 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *      {
      *          "__v": 0,
      *          "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927535",
-     *          "serverType": "sensu",
-     *          "serverParameters": {
+     *          "type": "sensu",
+     *          "parameters": {
      *              "transportProtocolParameters": {
      *                  "password": "iEhK5+u/dBHRNbilkF7f7Q==",
      *                  "port": 5671,
      *                  "host": "10.0.0.6"
      *              },
-     *              "transportProtocolName": "redis",
+     *              "transportProtocol": "redis",
      *              "url": "Server Url"
      *          },
      *          "_id": "58071046efa15bb50b7ccdf8",
@@ -384,8 +384,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *      {
      *          "__v": 0,
      *          "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927535",
-     *          "serverType": "sensu",
-     *          "serverParameters": {
+     *          "type": "sensu",
+     *          "parameters": {
      *              "transportProtocolParameters": {
      *                  "ssl": {
      *                      "privateKeyFileId": "SomeId",
@@ -399,7 +399,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *                  "port": 5671,
      *                  "host": "10.0.0.6"
      *              },
-     *              "transportProtocolName": "rabbitmq",
+     *              "transportProtocol": "rabbitmq",
      *              "url": "Server Url"
      *          },
      *          "_id": "58071104efa15bb50b7cce41",
@@ -410,27 +410,27 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
 
     function updateMonitor(req, res, next) {
         async.waterfall(
-                [
-                    function (next) {
-                        monitorsService.checkIfMonitorExists(req.params.monitorId, next);
-                    },
-                    function (monitor, next) {
-                        if (req.body.serverType === 'sensu' && req.body.serverParameters.transportProtocolParameters['password']) {
-                            var cryptoConfig = appConfig.cryptoSettings;
-                            var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-                            var encryptedPassword = cryptography.encryptText(req.body.serverParameters.transportProtocolParameters['password'], cryptoConfig.encryptionEncoding, cryptoConfig.decryptionEncoding);
-                            req.body.serverParameters.transportProtocolParameters['password'] = encryptedPassword;
-                        }
-                        monitorsService.updateMonitor(req.params.monitorId,req.body, next);
+            [
+                function(next) {
+                    monitorsService.checkIfMonitorExists(req.params.monitorId, next);
+                },
+                function(monitor, next) {
+                    if (req.body.type === 'sensu' && req.body.parameters.transportProtocolParameters['password']) {
+                        var cryptoConfig = appConfig.cryptoSettings;
+                        var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+                        var encryptedPassword = cryptography.encryptText(req.body.parameters.transportProtocolParameters['password'], cryptoConfig.encryptionEncoding, cryptoConfig.decryptionEncoding);
+                        req.body.parameters.transportProtocolParameters['password'] = encryptedPassword;
                     }
-                ],
-                function (err, results) {
-                    if (err) {
-                        next(err);
-                    } else {
-                        return res.status(200).send(results);
-                    }
+                    monitorsService.updateMonitor(req.params.monitorId, req.body, next);
                 }
+            ],
+            function(err, results) {
+                if (err) {
+                    next(err);
+                } else {
+                    return res.status(200).send(results);
+                }
+            }
         );
     }
 
@@ -449,21 +449,21 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
 
     function deleteMonitor(req, res, next) {
         async.waterfall(
-                [
-                    function (next) {
-                        monitorsService.checkIfMonitorExists(req.params.monitorId, next);
-                    },
-                    function (monitor, next) {
-                        monitorsService.deleteMonitors(req.params.monitorId, next);
-                    }
-                ],
-                function (err, results) {
-                    if (err) {
-                        next(err);
-                    } else {
-                        return res.status(200).send(results);
-                    }
+            [
+                function(next) {
+                    monitorsService.checkIfMonitorExists(req.params.monitorId, next);
+                },
+                function(monitor, next) {
+                    monitorsService.deleteMonitors(req.params.monitorId, next);
                 }
+            ],
+            function(err, results) {
+                if (err) {
+                    next(err);
+                } else {
+                    return res.status(200).send(results);
+                }
+            }
         );
     }
 };
