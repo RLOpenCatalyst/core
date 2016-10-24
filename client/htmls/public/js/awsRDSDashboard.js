@@ -154,9 +154,42 @@ $(document).ready(function() {
         "ajax": '/resources?filterBy=providerId:'+ providerId +'+resourceType:RDS+category:assigned',
         "columns": [
             {"data": "resourceDetails.dbName",  "orderable" : true},
-            {"data": "masterDetails.orgName","orderable" : false  },
-            {"data": "masterDetails.projectName","orderable" : false  },
-            {"data": "masterDetails.envName","orderable" : false  },
+            {"data": "masterDetails.orgName","orderable" : false,
+                "render": function (data) {
+                    if(data !== null){
+                        return data;
+                    }else{
+                        return '-';
+                    }
+                }
+            },
+            {"data": "masterDetails.bgName","orderable" : false,
+                "render": function (data) {
+                    if(data !== null){
+                        return data;
+                    }else{
+                        return '-';
+                    }
+                }
+            },
+            {"data": "masterDetails.projectName","orderable" : false,
+                "render": function (data) {
+                    if(data !== null){
+                        return data;
+                    }else{
+                        return '-';
+                    }
+                }
+            },
+            {"data": "masterDetails.envName","orderable" : false,
+                "render": function (data) {
+                    if(data !== null){
+                        return data;
+                    }else{
+                        return '-';
+                    }
+                }
+            },
             {"data": "resourceDetails.dbEngine","orderable" : true  },
             {"data": "resourceDetails.dbInstanceStatus","orderable" : true  },
             {"data": "resourceDetails.region","orderable" : false  },
@@ -178,9 +211,42 @@ $(document).ready(function() {
             "ajax": '/resources?filterBy=resourceType:RDS+category:assigned',
             "columns": [
                 {"data": "resourceDetails.dbName",  "orderable" : true},
-                {"data": "masterDetails.orgName","orderable" : false  },
-                {"data": "masterDetails.projectName","orderable" : false  },
-                {"data": "masterDetails.envName","orderable" : false  },
+                {"data": "masterDetails.orgName","orderable" : false,
+                    "render": function (data) {
+                        if(data !== null){
+                            return data;
+                        }else{
+                            return '-';
+                        }
+                    }
+                },
+                {"data": "masterDetails.bgName","orderable" : false,
+                    "render": function (data) {
+                        if(data !== null){
+                            return data;
+                        }else{
+                            return '-';
+                        }
+                    }
+                },
+                {"data": "masterDetails.projectName","orderable" : false,
+                    "render": function (data) {
+                        if(data !== null){
+                            return data;
+                        }else{
+                            return '-';
+                        }
+                    }
+                },
+                {"data": "masterDetails.envName","orderable" : false,
+                    "render": function (data) {
+                        if(data !== null){
+                            return data;
+                        }else{
+                            return '-';
+                        }
+                    }
+                },
                 {"data": "resourceDetails.dbEngine","orderable" : true  },
                 {"data": "resourceDetails.dbInstanceStatus","orderable" : true  },
                 {"data": "resourceDetails.region","orderable" : false  },

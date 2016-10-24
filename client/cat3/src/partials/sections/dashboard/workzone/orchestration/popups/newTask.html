@@ -15,7 +15,7 @@
 		<div class="modal-body">
 			<loading name="isNewTaskPageLoading" size="large" type="block" align="center"></loading>
 			<div class="row new-task-wrapper" ng-show="!isNewTaskPageLoading">
-				<div class="col-lg-4 col-md-4 col-sm-12 col-xs-12 border no-padding">
+				<div class="col-lg-5 col-md-5 col-sm-12 col-xs-12 border no-padding">
 					<section class="jobDetailsBox">
 						<header class="jobDetailsHeader">
 							<h5>Job Details</h5>
@@ -49,6 +49,38 @@
 								   <input type="text" name="taskName" class="form-control" required autofocus ng-model="name" maxlength="50" />
 								</span>
 							</div>
+							<div class="col-md-12 col-sm-12 col-xs-12 margintop15">
+								<label class="control-label">Add to Service Delivery : </label>
+								<input type="checkbox" class="checkbox-list" ng-model="checkBotType" ng-click="botStatus()"/>
+							</div>
+							<div class="col-md-6 col-sm-6 col-xs-6 " ng-show="checkBotStatus">
+								<label class="control-label">Bot Type
+									<span class="control-label red">&nbsp;*</span>
+									<span ng-show="newTaskForm.botType.$touched && newTaskForm.botType.$invalid" class="inputValidationMsg">required
+									</span>
+								</label>
+								<br />
+								<span class="col-md-12 col-sm-12 col-xs-12 no-padding">
+									<select name="botType" class="form-control" ng-model="botType" ng-required="checkBotStatus" ng-disabled="isEditMode">
+										<option selected="selected" value="Task">Task</option>
+										<option ng-show="!createChefJob" value="Check">Check</option>
+										<option ng-show="!createChefJob" value="Learning">Learning</option>
+										<option ng-show="!createChefJob" value="Composite">Composite</option>
+										<option ng-show="!createChefJob" value="Built with other">Built with other</option>
+									</select>
+								</span>
+							</div>
+							<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 " ng-show="checkBotStatus">
+								<label class="control-label">Short Description
+									<span class="control-label red">&nbsp;*</span>
+									<span ng-show="newTaskForm.shortDesc.$touched && newTaskForm.shortDesc.$invalid" class="inputValidationMsg">required
+									</span>
+								</label>
+								<br />
+								<span class="col-md-12 col-sm-12 col-xs-12 no-padding">
+								   <input type="text" name="shortDesc" class="form-control" ng-required="checkBotStatus"  autofocus ng-model="shortDesc" maxlength="50" />
+								</span>
+							</div>
 							<div class="col-md-6 col-sm-6 col-xs-6 margintop15" ng-if="taskType==='jenkins'">
 								<label class="control-label">Server
 									<span class="control-label red">&nbsp;*</span>
@@ -80,21 +112,33 @@
 							<!--for script adding the scriptType dropdown -->
 							<!--commented will be used in future-->
 							<div class="col-md-12 col-sm-12 col-xs-12 margintop15" ng-if="taskType==='script'">
-								<label class="control-label">Script Type
-									<span class="control-label red">&nbsp;*</span>
-									<span ng-show="newTaskForm.scriptType.$touched && newTaskForm.scriptType.$invalid" class="inputValidationMsg">required
+								<div class="col-md-6 col-sm-6 col-xs-6 margintop15 no-padding">
+									<label class="control-label">Script Type
+										<span class="control-label red">&nbsp;*</span>
+										<span ng-show="newTaskForm.scriptType.$touched && newTaskForm.scriptType.$invalid" class="inputValidationMsg">required
+										</span>
+									</label>
+									<br />
+									<span class="col-md-12 col-sm-12 col-xs-12 paddingleft0">
+										<select class="form-control" name="scriptType" ng-model="$parent.scriptTypeSelelct" ng-change="changeNodeScriptList();" required>
+											<option value="">Select</option>
+											<option value="Bash">Bash</option>
+										</select>
 									</span>
-								</label>
-								<br />
-								<span class="col-md-12 col-sm-12 col-xs-12 no-padding">
-									<select class="form-control" name="scriptType" ng-model="$parent.scriptTypeSelelct" ng-change="changeNodeScriptList();" required>
-										<option value="">Select</option>
-										<option value="Bash">Bash</option>
-									</select>
-								</span>
+								</div>
+								<div class="col-md-6 col-sm-6 col-xs-6 margintop15">
+									<label class="control-label">Run as Sudo:</label>
+									<br />
+									<div class="paddingtop8">
+										<input type="radio" ng-value="true" ng-model="$parent.isSudo" name="scriptIsSudo" />
+										<label for="scriptIsSudo" class="paddingright15">Yes</label>
+										<input type="radio" ng-value="false" ng-model="$parent.isSudo" name="scriptIsSudo" />
+										<label for="scriptIsSudo">No</label>
+									</div>
+								</div>
 							</div>
 							<!--scriptType ending here -->
-							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 margintop15">
+							<div class="col-lg-12 col-md-12col-sm-12 col-xs-12 margintop15">
 								<label class="control-label">Job Description</label>
 								<textarea id="chefDescription" rows="9" cols="15" name="description" ng-model="description"></textarea>
 							</div>
@@ -102,7 +146,7 @@
 					</section>
 				</div>
 				<!--Second Column:Chef -->
-				<div class="col-lg-8 col-md-8 col-sm-12 col-xs-12 left-padding">
+				<div class="col-lg-7 col-md-7 col-sm-12 col-xs-12 left-padding">
 					<div class="col-md-12 col-sm-12 col-xs-12 border no-padding" ng-if="taskType==='chef'">
 						<section class="Chef">
 							<header class="jobDetailsHeader">
@@ -110,7 +154,7 @@
 							</header>
 							<div class="jobDetailsContent">
 								<div class="chef-details-top">
-									<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+									<div class="col-lg-7 col-md-7 col-sm-7 col-xs-12">
 										<loading name="isTargetTypesLoading" size="medium" type="block" align="left"></loading>
 										<div ng-show="!isTargetTypesLoading" class="row margin0">
 
@@ -154,7 +198,7 @@
 											</ul>
 											<ul ng-show="targetType==='blueprint'">
 												<li ng-repeat="blueprint in chefBluePrintList">
-													<label class="checkbox check-list">
+													<label class="checkbox check-list" ng-if="blueprint.blueprintType === 'instance_launch'">
 														<input name="blueprint" ng-value="blueprint._id" type="radio" ng-model="blueprint._isBlueprintSelected" class="radiobutton-list blueprint-{{blueprint._isBlueprintSelected}}">{{blueprint.name}}
 													</label>
 												</li>
@@ -171,7 +215,7 @@
 
 										</div>
 									</div>
-									<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+									<div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
 										<label>
 											<i class="fa fa-list-ul addRunList-icon"></i>
 											<lable class="control-label" ng-if="!isEditMode">Add Runlist</lable>
@@ -441,8 +485,11 @@
 												</thead>
 												<tbody>
 												<tr ng-repeat="param in scriptParamsObj[selectedScript._id] track by $index">
-													<td>{{param}}</td>
-													<td><button type="button" ng-click="removeScriptParams(selectedScript._id,param);"><i class=" fa fa-trash-o"></i></button></td>
+													<td ng-if="param !== ''">{{param}}</td>
+													<td ng-if="param === ''">.....</td>
+													<td>
+														<button title="Delete" type="button" ng-click="removeScriptParams(selectedScript._id,param);"><i class=" fa fa-trash-o"></i></button>
+													</td>
 												</tr>
 												</tbody>
 											</table>
@@ -456,7 +503,6 @@
 				</div>
 			</div>
 		</div>
-
 		<div class="modal-footer">
 			<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12" >
 				<span class="pull-left inputValidationMsg" ><h5 ng-bind="inputValidationMsg"></h5></span>

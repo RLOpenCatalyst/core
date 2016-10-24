@@ -1,0 +1,34 @@
+<div class="content">
+   <div class="widget-box">
+      <div class="widget-main" style="min-height:200px">
+         <div class="jarviswidget" id="wid-id-3" data-widget-editbutton="false" data-widget-custombutton="false">
+            <div>
+               <div class="widget-body no-padding" id="introWizard">
+                  <h3 class="introText">This wizard will help you to setup and configure Catalyst to manage DevOps assets across data center and cloud.</h3>
+                  <ul>
+                     <li><span class="introHeader">1.&nbsp;Configuration Management:</span><span class="introTextDescription">&nbsp;Configure your own chef server. You can add either a hosted chef server or an on-premise installation of chefserver.</span></li>
+                     <br/>
+                     <li><span class="introHeader">2.&nbsp;Provider Configuration:</span>&nbsp;<span class="introTextDescription">You can configure multiple cloud provider accounts of type Aws, Azure, OpenStack and VmWare within RLCatalyst.</span></li>
+                     <br/>
+                     <li><span class="introHeader">3.&nbsp;Repositories:</span>&nbsp;<span class="introTextDescription">You can configure Nexus repository, Docker Repository and Jenkins Server.</span></li>
+                     <br/>
+                     <li><span class="introHeader">4.&nbsp;Telemetry Configuration:</span>&nbsp;<span class="introTextDescription">Configure ELK, StackStorm and Sensu application for monitoring heath of the data center.</span></li>
+                     <br/>
+                     <li><span class="introHeader">5.&nbsp;CMDB Configuration:</span>&nbsp;<span class="introTextDescription">You can configure Configure ServiceNow ITMS application.</span></li>
+                  </ul>
+               </div>
+            </div>
+         </div>
+      </div>
+      <div class="widget-toolbox clearfix">
+         <div class="btn-group pull-right">
+            <input type="button" name="next1" id="next1" class="nextFormWizard btn btn-primary" value="Next"/>
+         </div>
+      </div>
+   </div>
+</div>
+<script>
+$('.nextFormWizard').click(function(e) {
+    $('#orgConfiguration a').trigger('click');
+});
+</script>

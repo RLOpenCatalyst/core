@@ -37,7 +37,7 @@ function getDateInUTC(date) {
 /*
  * Get Start of a month in UTC
  */
-function getStartOfAMonthInUTC(date, callback) {
+function getStartOfAMonthInUTC(date) {
 	if( typeof date === 'undefined' || date === null ) {
 		return null;
 	}else{
@@ -46,6 +46,18 @@ function getStartOfAMonthInUTC(date, callback) {
 		dateStartOfMonth = moment.utc(dateStartOfMonth).hour(0);
 		dateStartOfMonth = moment.utc(dateStartOfMonth).date(1);
 		return dateStartOfMonth.format();
+	}
+}
+
+function getStartOfADayInUTC(date) {
+	if( typeof date === 'undefined' || date === null ){
+		var err = new Error("Invalid date");
+		return null;
+	}else{
+		var dateStartOfDay = moment.utc(date).seconds(0);
+		dateStartOfDay = moment.utc(dateStartOfDay).minute(0);
+		dateStartOfDay = moment.utc(dateStartOfDay).hour(0);
+		return dateStartOfDay.format();
 	}
 }
 
@@ -173,3 +185,4 @@ momentDateUtil.getStartOfAMonthInUTCAsync = getStartOfAMonthInUTCAsync;
 momentDateUtil.getStartOfAYearInUTCAsync = getStartOfAYearInUTCAsync;
 momentDateUtil.getStartOfAMonthInUTC = getStartOfAMonthInUTC;
 momentDateUtil.getDateDifferenceInDays = getDateDifferenceInDays;
+momentDateUtil.getStartOfADayInUTC = getStartOfADayInUTC;
