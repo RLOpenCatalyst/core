@@ -225,6 +225,16 @@
                                  <option ng-if="providerType === 'AZURE'" ng-repeat="instanceType in bpCreate.instanceType" value="{{instanceType}}">{{instanceType}}</option>
                               </select>
                            </div>
+                           <div class="col-lg-4 col-md-4 margintop15" ng-if="providerType === 'AWS'  || providerType === 'AZURE'">
+                              <label for="instanceCount">Instances to Launch:<span class="red">&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.instanceCount.$touched && newBlueprintForm.instanceCount.$invalid" class="inputValidationMsg">Required</span>
+                                 <loading size="small" name="isImageLoading" type="inline"></loading>
+                              </label>
+                              <select  ng-model="bpCreate.newEnt.instanceCount" name="instanceCount" class="width-100 chooseSelect form-control" required>
+                                 <option value="">Select No. Of Instances</option>
+                                 <option ng-repeat="instanceCount in bpCreate.instanceCount(10)" value="{{instanceCount}}">{{instanceCount}}</option>
+                              </select>
+                           </div>
                            <div class="col-lg-4 col-md-4 margintop15" ng-if="providerType ==='AWS'   || providerType ==='OPENSTACK'">
                               <label for="checkbox-toggle">Security Group:<span class="red">&nbsp;*</span>
                                  <loading size="small" name="isSecurityGroupLoading" type="inline"></loading>
@@ -238,17 +248,16 @@
                                  <option value="">Select Security Group</option>
                                  <option ng-repeat="instanceCount in bpCreate.instanceCount(10)" value="{{instanceCount}}">{{instanceCount}}</option>
                               </select>
-                           </div>
-                           <div class="col-lg-4 col-md-4 margintop15" ng-if="providerType === 'AWS'  || providerType === 'AZURE'">
-                              <label for="instanceCount">Instances to Launch:<span class="red">&nbsp;*</span>
-                                 <span ng-show="newBlueprintForm.instanceCount.$touched && newBlueprintForm.instanceCount.$invalid" class="inputValidationMsg">Required</span>
-                                 <loading size="small" name="isImageLoading" type="inline"></loading>
-                              </label>
-                              <select  ng-model="bpCreate.newEnt.instanceCount" name="instanceCount" class="width-100 chooseSelect form-control" required>
-                                 <option value="">Select No. Of Instances</option>
-                                 <option ng-repeat="instanceCount in bpCreate.instanceCount(10)" value="{{instanceCount}}">{{instanceCount}}</option>
-                              </select>
-                           </div>
+                            </div>
+                            <div class="col-lg-4 col-md-4 margintop15" ng-if="providerType ==='AWS'">
+                              <label>Do you want to configure Domain Name at the time of Blueprint Launch?:</label>
+                              <div class="input-groups">
+                                <input type="radio" ng-value="true" ng-model="bpCreate.newEnt.domainCheck" name="domainCheck" />
+                                 <label for="domainCheck" class="paddingright15">Yes</label>
+                                <input type="radio" ng-value="false" ng-model="bpCreate.newEnt.domainCheck" name="domainCheck" />
+                                 <label for="domainCheck">No</label>
+                              </div>
+                            </div>
                            <div class="col-lg-4 col-md-4 margintop15" ng-if="providerType === 'VMWARE'">
                               <label for="dataStore">Choose Data Store:<span class="red">&nbsp;*</span>
                                  <span ng-show="newBlueprintForm.dataStore.$touched && newBlueprintForm.dataStore.$invalid" class="inputValidationMsg">Required</span>

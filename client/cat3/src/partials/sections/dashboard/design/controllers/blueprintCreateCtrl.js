@@ -113,6 +113,7 @@
             blueprintCreation.artifactsOptions = [];
             blueprintCreation.artifactsVersion = [];
             blueprintCreation.versionsOptions = [];
+            blueprintCreation.newEnt.domainCheck = false;
             blueprintCreation.templateListing = function(){
                 bpCreateSer.getTemplates().then(function(data){
                     $scope.templateList = data;
@@ -799,6 +800,7 @@
 
                     if($scope.bpTypeName === 'OSImage' || $scope.bpTypeName === 'SoftwareStack') {
                         if($scope.providerType === 'AWS'){
+                            blueprintCreateJSON.domainNameCheck = blueprintCreation.newEnt.domainCheck
                             blueprintCreateJSON.blueprintType = 'instance_launch';
                             blueprintCreateJSON.instanceCount = blueprintCreation.newEnt.instanceCount;    
                         } else if($scope.providerType === 'AZURE'){
