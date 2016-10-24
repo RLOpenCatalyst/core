@@ -74,6 +74,20 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		});
 	});
 
+	app.delete('/blueprints/serviceDelivery/:blueprintId', function(req, res) {
+		Blueprints.removeServiceDeliveryBlueprints(req.params.taskId, function(err, data) {
+			if (err) {
+				logger.error("Failed to delete ", err);
+				res.send(500, errorResponses.db.error);
+				return;
+			}
+			res.send(200, {
+				message: "deleted"
+			});
+		});
+	});
+
+
 	// This post() Not in use
 	app.post('/blueprints', function(req, res) {
 		logger.debug("Enter post() for /blueprints");
@@ -427,7 +441,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 							ver: req.query.version,
 							stackName: stackName,
 							domainName:domainName,
-							sessionUser: req.session.user.cn
+							sessionUser: req.session.user.cn,
+                            tagServer: req.query.tagServer
 						}, function(err, launchData) {
 							if (err) {
 								res.status(500).send({
