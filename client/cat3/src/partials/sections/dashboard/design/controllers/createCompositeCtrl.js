@@ -53,9 +53,9 @@
                     return true;
                 }
                 if($rootScope.organObject){
-                    createCBP.newEnt.org =$rootScope.organObject[$rootScope.organNewEnt.org].rowid;
-                    createCBP.newEnt.buss=$rootScope.organObject[$rootScope.organNewEnt.org].businessGroups[$rootScope.organNewEnt.buss].rowid;
-                    createCBP.newEnt.proj=$rootScope.organObject[$rootScope.organNewEnt.org].businessGroups[$rootScope.organNewEnt.buss].projects[$rootScope.organNewEnt.proj].rowid;
+                    createCBP.newEnt.org =$rootScope.organNewEnt.org.rowid;
+                    createCBP.newEnt.buss=$rootScope.organNewEnt.buss.rowid;
+                    createCBP.newEnt.proj=$rootScope.organNewEnt.proj.rowid;
                 }
                 var params = {
                     url: '/composite-blueprints/',

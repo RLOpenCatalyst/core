@@ -38,6 +38,24 @@
 						return deferred.promise;
 					}]
 				}
+			}).state('dashboard.design.compositeNew', {
+				url: "/:providerName/composite",
+				templateUrl: "src/partials/sections/dashboard/design/view/createComposite.html",
+				controller: "createCompositeCtrl as createCBP",
+				params:{templateObj:{}},
+				resolve: {
+					auth: ["$q", function ($q) {
+						var deferred = $q.defer();
+						// instead, go to a different page
+						if (modulePerms.analyticsBool()) {
+							// everything is fine, proceed
+							deferred.resolve();
+						} else {
+							deferred.reject({redirectTo: 'dashboard'});
+						}
+						return deferred.promise;
+					}]
+				}
 			})
 		}]).filter('inArray',['$filter', function($filter){
 			return function(list, arrayFilter, element){
