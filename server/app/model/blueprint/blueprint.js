@@ -161,6 +161,10 @@ var BlueprintSchema = new Schema({
     },
     botType: {
         type: String
+    },
+    serviceDeliveryCheck: {
+        type: Boolean,
+        default:false
     }
 
 });
@@ -442,7 +446,8 @@ BlueprintSchema.statics.createNew = function(blueprintData, callback) {
             parentId: blueprintData.id,
             domainNameCheck: blueprintData.domainNameCheck,
             shortDesc:blueprintData.shortDesc,
-            botType:blueprintData.botType
+            botType:blueprintData.botType,
+            serviceDeliveryCheck:blueprintData.serviceDeliveryCheck
         };
         var blueprint = new Blueprints(blueprintObj);
         logger.debug(blueprint);
@@ -970,6 +975,19 @@ BlueprintSchema.statics.getBlueprintsByOrgBgProject = function(jsonData, callbac
         var blueprints1 = consolidateVersionOnBlueprint(blueprints);
         callback(null, blueprints1);
 
+    });
+
+};
+
+
+BlueprintSchema.statics.getBlueprintsServiceDeliveryCheck = function(serviceDeliveryCheck, callback) {
+    this.find({serviceDeliveryCheck:serviceDeliveryCheck}, function(err, blueprints) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, blueprints);
+        return;
     });
 
 };

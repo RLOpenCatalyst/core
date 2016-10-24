@@ -176,6 +176,11 @@
 					var idx = $scope.jenkinsParamsList.indexOf(params);
 					$scope.jenkinsParamsList.splice(idx,1);
 				},
+                botTypeList : function() {
+                    workzoneServices.getBotTypeList().then(function (response) {
+                        $scope.botTypeList = response;
+                    });
+                },
 				removeScriptParams: function (scriptObject,params) {
 					var idx = $scope.scriptParamsObj[scriptObject].indexOf(params);
 					$scope.scriptParamsObj[scriptObject].splice(idx,1);
@@ -253,18 +258,23 @@
 				},
 				ok: function () {
 					//these values are common across all task types
-					var taskJSON = {
-						taskType: $scope.taskType,
-						name: $scope.name,
-						botType: $scope.botType,
-						shortDesc: $scope.shortDesc,
-						description: $scope.description
-					};
+					var taskJSON={}
 					if($scope.checkBotType){
-						taskJSON.botType = $scope.botType;
-						taskJSON.shortDesc= $scope.shortDesc;
+						taskJSON = {
+							taskType: $scope.taskType,
+							name: $scope.name,
+							description: $scope.description,
+							botType:$scope.botType,
+						    shortDesc:$scope.shortDesc,
+							serviceDeliveryCheck:$scope.checkBotType
+						};
 						$scope.taskSaving = true;
 					}else{
+						taskJSON = {
+							taskType: $scope.taskType,
+							name: $scope.name,
+							description: $scope.description
+						};
 						$scope.taskSaving = true;
 					}
 					//checking for name of the task
@@ -580,12 +590,12 @@
 				$scope.description = items.description;
 				$scope.taskType = items.taskType;
 				$scope.name = items.name;
-				if(items.shortDesc && (items.shortDesc !== '' || items.shortDesc !== null)){
+				if(items.serviceDeliveryCheck &&  items.serviceDeliveryCheck === true){
 					$scope.checkBotStatus = true;
 					$scope.checkBotType = true;
+                    $scope.botType = items.botType;
+                    $scope.shortDesc = items.shortDesc;
 				}
-				$scope.botType = items.botType;
-				$scope.shortDesc = items.shortDesc;
 				//properties specific to jenkins
 				if (items.taskType === "jenkins") {
 					$scope.jobUrl = items.taskConfig.jobURL;

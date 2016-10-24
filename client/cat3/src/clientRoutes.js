@@ -88,6 +88,23 @@ function routeConfig($stateProvider, $urlRouterProvider, $httpProvider, modulePe
 
 			}]
 		}
+	}).state('dashboard.bots', {
+		url: "/bots",
+		templateUrl: "src/partials/sections/dashboard/bots/bots.html",
+		controller: "botsCtrl as bts",
+		resolve: {
+			auth: ["$q", function ($q) {
+				var deferred = $q.defer();
+				// instead, go to a different page
+				if (modulePerms.serviceBool()) {
+					// everything is fine, proceed
+					deferred.resolve();
+				} else {
+					deferred.reject({redirectTo: 'dashboard'});
+				}
+				return deferred.promise;
+			}]
+		}
 	}).state('dashboard.settings', {
 		url: "/settings",
 		templateUrl: "src/partials/sections/dashboard/setting/setting.html",
