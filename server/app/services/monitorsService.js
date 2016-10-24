@@ -38,7 +38,7 @@ monitorsService.checkIfMonitorExists = function (monitorId, callback) {
     });
 };
 
-monitorsService.responseFormatter = function (monitor) {
+monitorsService.formatResponse = function (monitor) {
     var formatted = {};
     switch (monitor.type) {
         case 'sensu':
@@ -150,7 +150,7 @@ monitorsService.getMonitors = function (query, callback) {
             var res = [];
             if (monitors.length > 0) {
                 for (i = 0; i < monitors.length; i++) {
-                    res[i] = monitorsService.responseFormatter(monitors[i]);
+                    res[i] = monitorsService.formatResponse(monitors[i]);
                 }
             }
             callback(null, res);
@@ -169,7 +169,7 @@ monitorsService.getMonitor = function (monitorId, callback) {
             err.status = 404;
             return callback(err);
         } else if (monitor) {
-            monitor = monitorsService.responseFormatter(monitor);
+            monitor = monitorsService.formatResponse(monitor);
             callback(null, monitor);
         }
     });
