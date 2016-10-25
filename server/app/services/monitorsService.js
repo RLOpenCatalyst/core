@@ -44,6 +44,7 @@ monitorsService.formatResponse = function (monitor) {
         case 'sensu':
         case 'Sensu':
             formatted._id = monitor._id;
+            formatted.name = monitor.name;
             formatted.type = monitor.type;
             if (monitor.organization.length) {
                 formatted.organization = {

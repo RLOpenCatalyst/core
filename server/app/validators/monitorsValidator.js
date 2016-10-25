@@ -21,6 +21,7 @@ var monitorsValidator = module.exports = {};
 monitorsValidator.create = {
     body: {
         "orgId": Joi.string().max(40).required(),
+        "name": Joi.string().max(40).required(),
         "type": Joi.valid('sensu', 'other'),
         "parameters": Joi.object()
             .keys({
@@ -55,6 +56,7 @@ monitorsValidator.create = {
 monitorsValidator.update = {
     body: {
         "orgId": Joi.string().max(40).required(),
+        "name": Joi.string().max(40).required(),
         "type": Joi.valid('sensu', 'other'),
         "parameters": Joi.object()
             .keys({
