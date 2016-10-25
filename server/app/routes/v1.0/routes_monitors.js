@@ -40,6 +40,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      * @apiSuccess {String} organization.id        Monitor organization id
      * @apiSuccess {String} organization.name      Monitor organization name
      * @apiSuccess {String} type         Monitor Server type     
+     * @apiSuccess {String} name         Monitor Server name     
      * @apiSuccess {Object} parameters       Monitor Server Parameters
      * @apiSuccess {String} parameters.url   Monitor Server Url
      * @apiSuccess {String} parameters.transportProtocol   Monitor Server Transport Protocols Name
@@ -48,6 +49,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *      HTTP/1.1 200 OK
      *      {[
      *          "_id": "",
+     *          "name": "someName",
      *          "organization": {
      *              "id": "",
      *              "name": "Organization name"
@@ -73,6 +75,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *      HTTP/1.1 200 OK
      *      {[
      *          "_id": "",
+     *          "name": "someName",
      *          "organization": {
      *              "id": "",
      *              "name": "Organization name"
@@ -120,6 +123,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      * @apiSuccess {String} organization.id        Monitor organization id
      * @apiSuccess {String} organization.name      Monitor organization name
      * @apiSuccess {String} type         Monitor Server type     
+     * @apiSuccess {String} name         Monitor Server name
      * @apiSuccess {Object} parameters       Monitor Server Parameters
      * @apiSuccess {String} parameters.url   Monitor Server Url
      * @apiSuccess {String} parameters.transportProtocol   Monitor Server Transport Protocols Name
@@ -128,6 +132,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *      HTTP/1.1 200 OK
      *      {
      *          "_id": "",
+     *          "name": "someName",
      *          "organization": {
      *              "id": "",
      *              "name": "Organization name"
@@ -153,6 +158,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *      HTTP/1.1 200 OK
      *      {
      *          "_id": "",
+     *          "name": "someName",
      *          "organization": {
      *              "id": "",
      *              "name": "Organization name"
@@ -197,6 +203,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      * @apiSuccess {Object} monitor             monitor data
      * @apiSuccess {String} orgId        Organization Id
      * @apiSuccess {String} type         Monitor Server type     
+     * @apiSuccess {String} name         Monitor Server name     
      * @apiSuccess {Object} parameters       Monitor Server Parameters
      * @apiSuccess {String} parameters.url   Monitor Server Url
      * @apiSuccess {String} parameters.transportProtocol   Monitor Server Transport Protocols Name
@@ -206,6 +213,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *      {
      *          "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927535",
      *          "type": "sensu",
+     *          "name": "someName",
      *          "parameters": {
      *              "url": "Server Url",
      *              "transportProtocol": "redis",
@@ -221,6 +229,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *      {
      *          "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927535",
      *          "type": "sensu",
+     *          "name": "someName",
      *          "parameters": {
      *          "url": "Server Url",
      *          "transportProtocol": "rabbitmq",
@@ -247,6 +256,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *          "__v": 0,
      *          "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927535",
      *          "type": "sensu",
+     *          "name": "someName",
      *          "parameters": {
      *              "transportProtocolParameters": {
      *                  "password": "iEhK5+u/dBHRNbilkF7f7Q==",
@@ -264,6 +274,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *          "__v": 0,
      *          "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927535",
      *          "type": "sensu",
+     *          "name": "someName",
      *          "parameters": {
      *              "transportProtocolParameters": {
      *                  "ssl": {
@@ -312,13 +323,14 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 
     /**
-     * @api {post} /monitors/:monitorId  Update Monitor
+     * @api {put} /monitors/:monitorId  Update Monitor
      * @apiName updateMonitor
      * @apiGroup monitors
      *
      * @apiSuccess {Object} monitor             monitor data
      * @apiSuccess {String} orgId        Organization Id
      * @apiSuccess {String} type         Monitor Server type     
+     * @apiSuccess {String} name         Monitor Server name     
      * @apiSuccess {Object} parameters       Monitor Server Parameters
      * @apiSuccess {String} parameters.url   Monitor Server Url
      * @apiSuccess {String} parameters.transportProtocol   Monitor Server Transport Protocols Name
@@ -328,6 +340,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *      {
      *          "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927535",
      *          "type": "sensu",
+     *          "name": "someName",
      *          "parameters": {
      *              "url": "Server Url",
      *              "transportProtocol": "redis",
@@ -342,6 +355,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *      {
      *          "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927535",
      *          "type": "sensu",
+     *          "name": "someName",
      *          "parameters": {
      *          "url": "Server Url",
      *          "transportProtocol": "rabbitmq",
@@ -368,6 +382,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *          "__v": 0,
      *          "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927535",
      *          "type": "sensu",
+     *          "name": "someName",
      *          "parameters": {
      *              "transportProtocolParameters": {
      *                  "password": "iEhK5+u/dBHRNbilkF7f7Q==",
@@ -384,6 +399,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *      {
      *          "__v": 0,
      *          "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927535",
+     *          "name": "someName",
      *          "type": "sensu",
      *          "parameters": {
      *              "transportProtocolParameters": {
