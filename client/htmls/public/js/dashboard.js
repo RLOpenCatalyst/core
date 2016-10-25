@@ -253,7 +253,11 @@ $(document).ready(function () {
                         return data ? data : '-';
                     }
                 },
-                {"data": "instanceIP", "orderable": true},
+                {"data": "instanceIP", "orderable": true,
+                    "render": function (data, type, full, meta) {
+                        return full.instanceIP ? full.instanceIP : full.privateIpAddress;
+                    }
+                },
                 {"data": "", "orderable": true,
                     "render": function (data, type, full, meta) {
                         return full.region ? full.region : full.providerData ? full.providerData.region : '-';

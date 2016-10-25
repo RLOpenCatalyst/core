@@ -23,13 +23,24 @@
                                                 <!-- widget content -->
                                                 <div class="widget-body no-padding">
                                                     <div class="col-lg-6 col-md-6">
+                                                        <label for="name">Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                                                        <label id="msgOrgName" style="display:none;color:red;float:right;">Required</label>
+                                                        <br>
+                                                        <input autofocus name="ctl00$MainContent$orgname" value="" id="environmentname" class="form-control" type="text"  cdata="catalyst" cat-validation="required,nospecial,max15,nospace"  unique="true"  uniqueconditionedby="orgname,environmentname">
+                                                    </div>
+                                                    <div class="col-lg-6 col-md-6">
+                                                        <label for="name">Description:</label>
+                                                        <input name="ctl00$MainContent$orgname" value="" id="description" class="form-control" type="text"  cdata="catalyst" maxlength="50">
+                                                    </div>
+
+                                                    <div class="col-lg-6 col-md-6" style="margin-top:25px;">
                                                         <label for="category">Organization:<span class="control-label redSpan">&nbsp;*</span>
                                                         </label>
-                                                        <select id="orgname" class="chooseOrganization width-100" sourcepath="1" datapath="masterjson.rows.row" valuelinkfield="costcode" style="vertical-align:central" cdata="catalyst" cat-validation="required" cat-validation="required" linkedfields="['configname','projectname','puppetservername']" onchange="$('#configname').change();$('#puppetservername').change();">
+                                                        <select id="orgname" class="chooseOrganization width-100" sourcepath="1" datapath="masterjson.rows.row" valuelinkfield="costcode" style="vertical-align:central" cdata="catalyst" cat-validation="required" linkedfields="['projectname']"  onchange="$('#projectname').change()">
                                                             <option value="">Select an Organization</option>
                                                         </select>
                                                     </div>
-                                                    <div class="col-lg-6 col-md-6">
+                                                   <!-- <div class="col-lg-6 col-md-6">
                                                         <label for="category">Chef Server:
                                                         </label>
                                                         <select id="configname" class="chooseOrganization width-100" sourcepath="10" datapath="masterjson.rows.row" style="vertical-align:central" cdata="catalyst" linkedto="orgname">
@@ -58,7 +69,7 @@
                                                         <select id="puppetenvironmentname" class="chooseOrganization width-100" datapath="masterjson.rows.row" style="vertical-align:central" cdata="catalyst">
                                                             <option value="">Select an Puppet Environment</option>
                                                         </select>
-                                                    </div>
+                                                    </div>-->
                                                     <!-- <div class="col-lg-6 col-md-6 smart-form" style="margin-top:25px;">
                                                         <label for="category">Assign Teams:<span class="control-label redSpan">&nbsp;*</span></label>
                                                         <div id="teamname" multiselect="multiselect" datatype="select" datapath="masterjson.rows.row" class="input-group from-control col-md-12 widthBox"  sourcepath="21" cdata="catalyst" cat-validation="onechecked" linkedto="orgname">
@@ -168,6 +179,7 @@
 //Form Name
 $(document).ready(function() {
     $(".chooseOrganization").select2();
+    $(".chooseBG").select2();
     //isUserTypeSuperAdmin();
 });
 
@@ -735,7 +747,7 @@ $(document).ready(function() {
 
         if ($(this).valid) {
             /* alert('valid form submitted'); // for demo*/
-            var chefEnv = $('#environmentname option:selected').val();
+           /* var chefEnv = $('#environmentname option:selected').val();
             var puppetEnv = $('#puppetenvironmentname option:selected').val();
             if (!chefEnv && !puppetEnv) {
                 alert('Either Chef or Puppet Environment Required.');
@@ -748,13 +760,13 @@ $(document).ready(function() {
                     return false;
                 }
             }
-
-            if (!puppetEnv) {
+*/
+           /* if (!puppetEnv) {
                 $('#puppetservername').val('');
             }
             if (!chefEnv) {
                 $('#configname').val('');
-            }
+            }*/
             if (!saveform('3')) return false;
         } else {
             alert('invalid valid form submitted'); // for demo
