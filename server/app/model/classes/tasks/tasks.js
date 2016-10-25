@@ -161,7 +161,7 @@ var taskSchema = new Schema({
         type: String
     },
     cronEndedOn:{
-        type: Number
+        type: String
     }
 });
 taskSchema.plugin(mongoosePaginate);

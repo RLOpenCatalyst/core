@@ -219,7 +219,8 @@ taskService.getTaskActionList = function getTaskActionList(jsonData, callback) {
 
 taskService.executeScheduleJob = function executeScheduleJob(task) {
     logger.debug("Task cron::::: ", task.cron);
-    if (task.cronEndedOn && task.cronEndedOn === new Date().getTime()) {
+    var cronEnd = new Date().getDate()+" "+new Date().getMonth()+" "+new Date().getFullYear();
+    if (task.cronEndedOn && task.cronEndedOn === cronEnd) {
         crontab.cancelJob(task.cronJobId);
     } else {
         crontab.cancelJob(task.cronJobId);
