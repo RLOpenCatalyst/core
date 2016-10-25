@@ -101,6 +101,19 @@
 					}
 					return list;
 				},
+				formatInstanceList: function (obj) {
+					var list = [];
+					for (var i = 0; i < obj.length; i++) {
+						if (obj[i].instanceState === "running" || obj[i].instanceState === "pending" || obj[i].instanceState === "unknown") {
+							list.push({
+								className: 'chef',
+								value: obj[i].name,
+								data: obj[i]._id
+							});
+						}
+					}
+					return list;
+				},
 				formatRunListFromComponent: function (nodesList) {
 					var reqBody = {
 						cookbooks: [],

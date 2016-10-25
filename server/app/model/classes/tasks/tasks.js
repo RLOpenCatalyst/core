@@ -131,6 +131,32 @@ var taskSchema = new Schema({
     cron: {
         type: String
     },
+    cronDetails: {
+        repeats: {
+            type: String
+        },
+        selectedDayOfTheMonth: {
+            type: String
+        },
+        dayOfWeek: {
+            type: String
+        },
+        monthOfYear: {
+            type: String
+        },
+        startTime: {
+            type: String
+        },
+        startTimeMinute: {
+            type: String
+        },
+        pattern: {
+            type: String
+        },
+        type: {
+            type: String
+        }
+    }, 
     cronJobId: {
         type: String
     },
@@ -505,7 +531,8 @@ taskSchema.statics.createNew = function(taskData, callback) {
             nodeIds: taskData.nodeIds,
             runlist: taskData.runlist,
             attributes: taskData.attributes,
-            role: taskData.role
+            role: taskData.role,
+            executionOrder: taskData.executionOrder
         });
     } else if (taskData.taskType === TASK_TYPE.PUPPET_TASK) {
 
@@ -687,7 +714,8 @@ taskSchema.statics.updateTaskById = function(taskId, taskData, callback) {
             nodeIds: taskData.nodeIds,
             runlist: taskData.runlist,
             attributes: taskData.attributes,
-            role: taskData.role
+            role: taskData.role,
+            executionOrder: taskData.executionOrder
         });
     } else if (taskData.taskType === TASK_TYPE.PUPPET_TASK) {
 
@@ -724,7 +752,9 @@ taskSchema.statics.updateTaskById = function(taskId, taskData, callback) {
             taskType: taskData.taskType,
             description: taskData.description,
             jobResultURLPattern: taskData.jobResultURL,
-            blueprintIds: taskData.blueprintIds
+            blueprintIds: taskData.blueprintIds,
+            cron: taskData.cron,
+            cronDetails: taskData.cronDetails
         }
     }, {
         upsert: false
