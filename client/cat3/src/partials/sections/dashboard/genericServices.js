@@ -102,6 +102,24 @@
             }
 
         };
+        genericServices.log=function(id,historyId,taskType) {
+            $modal.open({
+                animation: true,
+                templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationLog.html',
+                controller: 'orchestrationLogCtrl as orchLogCtrl',
+                backdrop: 'static',
+                keyboard: false,
+                resolve: {
+                    items: function() {
+                        return {
+                            taskId: id,
+                            historyId: historyId,
+                            taskType: taskType
+                        };
+                    }
+                }
+            });
+        };
         genericServices.removeBlueprint= function(blueprintObj, bpType) {
             var modalOptions = {
                 closeButtonText: 'Cancel',
@@ -130,7 +148,114 @@
                 });
             }
         };
-        genericServices.updateCookbook = function(chefRunlist, chefAttribute) {
+
+        genericServices.executeTask =function(task) {
+            if (task.taskConfig.parameterized && task.taskConfig.parameterized.length) {
+                $modal.open({
+                    animation: true,
+                    templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/runParamConfig.html',
+                    controller: 'runParamConfigCtrl',
+                    backdrop: 'static',
+                    keyboard: false,
+                    resolve: {
+                        items: function() {
+                            return angular.extend([], task.taskConfig.parameterized);
+                        }
+                    }
+                }).result.then(function(selectedItems) {
+                    var choiceParam = {};
+                    var p = selectedItems;
+                    for (var i = 0; i < p.length; i++) {
+                        choiceParam[p[i].name] = p[i].defaultValue[0];
+                    }
+                    workSvs.runTask(task._id, {
+                        "choiceParam": choiceParam
+                    }).then(function(response) {
+                        helper.orchestrationLogModal(task._id, response.data.historyId, task.taskType);
+                        $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
+                    });
+                }, function() {
+                    console.log("Dismiss at " + new Date());
+                });
+            } else {
+                $modal.open({
+                    animation: true,
+                    templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/confirmJobRun.html',
+                    controller: 'confirmJobRunCtrl',
+                    backdrop: 'static',
+                    keyboard: false,
+                    resolve: {
+                        items: function() {
+                            return task._id;
+                        }
+                    }
+                }).result.then(function(response) {
+                    genericServices.log(task._id,response.historyId,task.taskType);
+                    if(response.blueprintMessage){
+                        $rootScope.$emit('WZ_INSTANCES_SHOW_LATEST');
+                    }
+                    $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
+                }, function() {
+                    $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
+                });
+            }
+        }
+        genericServices.lunchBlueprint=function(blueprintObj) {
+            $modal.open({
+                    animate: true,
+                    templateUrl: "src/partials/sections/dashboard/workzone/blueprint/popups/blueprintLaunchParams.html",
+                    controller: "blueprintLaunchParamsCtrl as bPLP",
+                    backdrop : 'static',
+                    keyboard: false,
+                    resolve: {
+                        items: function() {
+                            return blueprintObj;
+                        }
+                    }
+                })
+                .result.then(function(bpObj) {
+                if (bpObj.bp.blueprintType === "docker") {
+                    $modal.open({
+                        animate: true,
+                        templateUrl: "src/partials/sections/dashboard/workzone/blueprint/popups/dockerLaunchParams.html",
+                        controller: "dockerLaunchParamsCtrl",
+                        backdrop: 'static',
+                        keyboard: false,
+                        size: 'lg',
+                        resolve: {
+                            items: function() {
+                                return bpObj.bp;
+                            }
+                        }
+                    }).result.then(function() {
+                        console.log('The modal close is not getting invoked currently. Goes to cancel handler');
+                    }, function() {
+                        console.log('Cancel Handler getting invoked');
+                    });
+                }else{
+                    $modal.open({
+                            animate: true,
+                            templateUrl: "src/partials/sections/dashboard/workzone/blueprint/popups/blueprintLaunch.html",
+                            controller: "blueprintLaunchCtrl",
+                            backdrop: 'static',
+                            keyboard: false,
+                            resolve: {
+                                bpItem: function() {
+                                    return bpObj;
+                                }
+                            }
+                        })
+                        .result.then(function(selectedItem) {
+                        $scope.selected = selectedItem;
+                    }, function() {
+
+                    });
+                }
+            }, function() {
+
+            });
+        };
+        /*genericServices.editRunlist = function(chefRunlist, chefAttribute) {
             $modal.open({
                 templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationUpdateChefRunlist.html',
                 controller: 'orchestrationUpdateChefRunlistCtrl',
@@ -151,6 +276,6 @@
             }, function () {
                 console.log('Dismiss time is ' + new Date());
             });
-        };
+        };*/
     }]);
 })(angular);

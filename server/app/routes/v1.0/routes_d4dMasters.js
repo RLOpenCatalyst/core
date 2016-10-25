@@ -4027,5 +4027,4 @@ module.exports.setRoutes = function(app, sessionVerification) {
             }
         });
     });
-
 }

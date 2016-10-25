@@ -80,7 +80,19 @@
 				versionOptional = versionsList[versionsList.length-1].ver;
 			}
 			var selectedVersionBpId = bpItem.bp.selectedVersionBpId;
-			workzoneServices.launchBlueprint(selectedVersionBpId, versionOptional, envParams.env, bpItem.stackName,bpItem.domainName,bpItem.tagServer).then(function(bpLaunchResponse) {
+			if(bpItem && bpItem.bp && bpItem.bp.selectedVersionBpId){
+				selectedVersionBpId = bpItem.bp.selectedVersionBpId;
+			} else {
+				selectedVersionBpId = bpItem.bp._id;
+			}
+			var lEnv=null;
+			if(envParams && envParams.env){
+				lEnv=envParams.env;
+			} 
+			if(bpItem.launchEnv){
+				lEnv=bpItem.launchEnv;
+			}
+			workzoneServices.launchBlueprint(selectedVersionBpId, versionOptional, lEnv, bpItem.stackName,bpItem.domainName,bpItem.tagServer).then(function(bpLaunchResponse) {
 				$scope.isBPLogsLoading = false;
 				var launchingInstance;
 				if(bpLaunchResponse.data.id && bpLaunchResponse.data.id.length>0){

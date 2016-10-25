@@ -38,6 +38,37 @@ var fileIo = require('_pr/lib/utils/fileio');
 module.exports.setRoutes = function(app, sessionVerification) {
     app.all('/tasks/*', sessionVerification);
 
+    app.get('/tasks/serviceDelivery', function(req, res) {
+        var serviceDeliveryCheck = false;
+        if(req.query.serviceDeliveryCheck &&
+            (req.query.serviceDeliveryCheck === 'true' || req.query.serviceDeliveryCheck === true)) {
+            serviceDeliveryCheck = true;
+        }
+        Tasks.getTasksServiceDeliveryCheck(serviceDeliveryCheck, function(err, tasks) {
+            if (err) {
+                res.status(500).send({
+                    code: 500,
+                    errMessage: "Task fetch failed."
+                });
+                return;
+            }
+            res.status(200).send(tasks);
+         });
+    });
+
+    app.delete('/tasks/serviceDelivery/:taskId', function(req, res) {
+        Tasks.removeServiceDeliveryTask(req.params.taskId, function(err, data) {
+            if (err) {
+                logger.error("Failed to delete service delivery Task", err);
+                res.send(500, errorResponses.db.error);
+                return;
+            }
+            res.send(200, {
+                message: "deleted"
+            });
+        });
+    });
+
     app.get('/tasks/history/list/all', function(req, res) {
         logger.debug("------------------ ",JSON.stringify(TaskHistory));
         TaskHistory.listHistory(function(err, tHistories) {
@@ -574,6 +605,8 @@ module.exports.setRoutes = function(app, sessionVerification) {
         });
 
     });
+
+
 };
 
 function encryptedParam(paramDetails,existingParams,callback){
@@ -612,3 +645,5 @@ function encryptedParam(paramDetails,existingParams,callback){
         })(paramDetails[i]);
     }
 }
+
+

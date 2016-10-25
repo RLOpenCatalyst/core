@@ -3,60 +3,6 @@
     angular.module('design.bpCreate',[])
         .service('blueprintCreateService',['$rootScope','$http','$q','toastr', 'genericServices', function ($rootScope,$http,$q,toastr,genericServices) {
         	var blueprintServices = this;
-        	blueprintServices.steps=function(tmpType){
-        		var stepObj={};
-        		switch(tmpType){
-        			case 'Docker':
-        			return {
-        				tempStep:true,
-        				orgStep:true,
-        				stepWidth:280,
-        				numberStp:3,
-        				stpCount:{
-        					temp:1,
-        					org:2
-        				}
-
-        			}
-        			break;
-        			case 'OSImage':
-        			case 'SoftwareStack':
-        			return {
-        				tempStep:true,
-        				orgStep:true,
-        				provStep:true,
-        				confStep:true,
-        				appStep:true,
-        				stepWidth:700,
-        				numberStp:5,
-        				stpCount:{
-        					temp:1,
-        					org:3,
-        					prov:2,
-        					conf:4,
-        					app:5
-        				}
-        			}
-        			break;
-        			case 'CloudFormation':
-        			return {
-        				tempStep:true,
-        				orgStep:true,
-        				appStep:true,
-        				stepWidth:420,
-        				numberStp:4,
-        				stpCount:{
-        					temp:1,
-        					org:2,
-        					app:3
-        				}
-
-        			}
-        			break;
-
-        		}
-        	
-        	};
         	//for getting the list of templates.
         	blueprintServices.getTemplates = function () {
 				var params = {
@@ -181,6 +127,14 @@
 				};
 				return genericServices.promiseGet(params);
 			};
+			//listing down list of repositories along with the url
+			blueprintServices.getNexusRepoList = function (nexusId,projectId) {
+				var params = {
+					url: '/app-deploy/nexus/'+nexusId+'/project/' + projectId + '/nexusRepositoryList',
+					inlineLoader:true
+				};
+				return genericServices.promiseGet(params);
+			};
 			//listing down the repos for nexus and docker based upon project and projectId(RepoName & group)
 			blueprintServices.getRepoList = function (projectId) {
 				var params = {
@@ -198,17 +152,17 @@
 				return genericServices.promiseGet(params);
 			};
 			//listing down the artifacts based upon nexusId,repo selected & the group.
-			blueprintServices.getArtifacts = function (nexusId, repoName, groupId) {
+			blueprintServices.getArtifacts = function (requestData) {
 				var params = {
-					url: '/nexus/' + nexusId + '/repositories/' + repoName + '/group/' + groupId + '/artifact',
+					url: '/nexus/' + requestData.nexus + '/repositories/' + requestData.repositories + '/group/' + requestData.group + '/artifact',
 					inlineLoader:true
 				};
 				return genericServices.promiseGet(params);
 			};
 			//listing down the versions based upon the nexuId, repo selected, group and artifact selected.
-			blueprintServices.getVersions = function (nexusId, repoName, groupId, artifactId) {
+			blueprintServices.getNexusVersions = function (requestData) {
 				var params = {
-					url: '/nexus/' + nexusId + '/repositories/' + repoName + '/group/' + groupId + '/artifact/' + artifactId + '/versions',
+					url: '/app-deploy/nexus/'+requestData.nexus+'/repositories/'+requestData.repositories+'/group/'+requestData.group+'/artifact/'+requestData.artifactId+'/versionList',
 					inlineLoader:true
 				};
 				return genericServices.promiseGet(params);

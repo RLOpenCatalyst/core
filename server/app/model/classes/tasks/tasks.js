@@ -91,6 +91,10 @@ var taskSchema = new Schema({
     description: {
         type: String
     },
+    serviceDeliveryCheck: {
+        type: Boolean,
+        default:false
+    },
     jobResultURLPattern: {
         type: [String]
     },
@@ -565,6 +569,32 @@ taskSchema.statics.getScriptTypeTask = function(callback){
     });
 };
 
+taskSchema.statics.getTasksServiceDeliveryCheck = function(serviceDeliveryCheck, callback) {
+    this.find({serviceDeliveryCheck:serviceDeliveryCheck}, function(err, tasks) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, tasks);
+        return;
+    });
+};
+
+taskSchema.statics.removeServiceDeliveryTask = function(taskId, callback) {
+    this.update({ "_id": new ObjectId(taskId)}, {serviceDeliveryCheck:false}, function (err, data) {
+        if (err) {
+            logger.error(err);
+            callback(err, null);
+            return;
+        }
+        if (data.length) {
+            callback(null, data[0]);
+        } else {
+            callback(null, null);
+        }
+    });
+};
+
 taskSchema.statics.getTaskById = function(taskId, callback) {
     this.find({
         "_id": new ObjectId(taskId)
@@ -680,6 +710,7 @@ taskSchema.statics.updateTaskById = function(taskId, taskData, callback) {
             taskType: taskData.taskType,
             shortDesc: taskData.shortDesc,
             botType: taskData.botType,
+            serviceDeliveryCheck:taskData.serviceDeliveryCheck,
             description: taskData.description,
             jobResultURLPattern: taskData.jobResultURL,
             blueprintIds: taskData.blueprintIds

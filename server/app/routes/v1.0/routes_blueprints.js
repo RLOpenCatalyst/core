@@ -55,6 +55,39 @@ var blueprintService = require('_pr/services/blueprintService.js');
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	app.all('/blueprints/*', sessionVerificationFunc);
 
+	app.get('/blueprints/serviceDelivery', function(req, res) {
+		var serviceDeliveryCheck = false;
+		if(req.query.serviceDeliveryCheck &&
+			(req.query.serviceDeliveryCheck === 'true' || req.query.serviceDeliveryCheck === true)) {
+			serviceDeliveryCheck = true;
+		}
+
+		Blueprints.getBlueprintsServiceDeliveryCheck(serviceDeliveryCheck, function(err, blueprints) {
+			if (err) {
+				res.status(500).send({
+					code: 500,
+					errMessage: "Blueprints fetch failed."
+				});
+				return;
+			}
+			res.status(200).send(blueprints);
+		});
+	});
+
+	app.delete('/blueprints/serviceDelivery/:blueprintId', function(req, res) {
+		Blueprints.removeServiceDeliveryBlueprints(req.params.taskId, function(err, data) {
+			if (err) {
+				logger.error("Failed to delete ", err);
+				res.send(500, errorResponses.db.error);
+				return;
+			}
+			res.send(200, {
+				message: "deleted"
+			});
+		});
+	});
+
+
 	// This post() Not in use
 	app.post('/blueprints', function(req, res) {
 		logger.debug("Enter post() for /blueprints");
@@ -408,7 +441,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 							ver: req.query.version,
 							stackName: stackName,
 							domainName:domainName,
-							sessionUser: req.session.user.cn
+							sessionUser: req.session.user.cn,
+                            tagServer: req.query.tagServer
 						}, function(err, launchData) {
 							if (err) {
 								res.status(500).send({
@@ -514,10 +548,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         var orgId = req.params.orgId;
         var bgId = req.params.bgId;
         var projectId = req.params.projectId;
-        var serviceDeliveryCheck = false;
-        if(req.query.serviceDeliveryCheck){
-            serviceDeliveryCheck = req.query.serviceDeliveryCheck;
-        }
+
         if (!orgId || !bgId || !projectId) {
             res.status(400).send("Either orgId or bgId or projectId missing.");
             return;
@@ -527,11 +558,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         jsonData['orgId'] = orgId;
         jsonData['bgId'] = bgId;
         jsonData['projectId'] = projectId;
-
-        if(serviceDeliveryCheck === 'true' || serviceDeliveryCheck === true){
-            jsonData['botType'] = {$ne:null};
-            jsonData['shortDesc'] = {$ne:null};
-        }
 
         Blueprints.getBlueprintsByOrgBgProject(jsonData, function(err, blueprints) {
             if (err) {
