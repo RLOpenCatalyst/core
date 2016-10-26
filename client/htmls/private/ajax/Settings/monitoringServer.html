@@ -26,7 +26,7 @@ input[type="file"] {
             <table id="monitorTable" class="tableData table table-striped table-bordered table-hover dataTable no-footer textCenter" cellpadding="5px">
               <thead>
                 <tr class="rowCustomStyle">
-                  <!-- <td>Name</td> -->
+                  <td>Name</td>
                   <td>Organization</td>
                   <td>Type</td>
                   <td>Server Url</td>
@@ -178,9 +178,9 @@ if (!$.fn.dataTable.isDataTable('#monitorTable')) {
         "bFilter": false,
         "aoColumns": [{
             "bSortable": false
-        }, /*{
+        }, {
             "bSortable": false
-        },*/ {
+        }, {
             "bSortable": false
         }, {
             "bSortable": false
@@ -260,6 +260,26 @@ var validator = $('#monitorServerForm').validate({
         },
         protocolPassword : {
           required: true
+        },
+        certificateFile: {
+            extension: "pem"
+        },
+        privateFile: {
+            extension: "pem"
+        },
+        monitorName: {
+            maxlength: 15
+        }
+    },
+    messages: {
+        certificateFile: {
+            extension: "Only .pem files can be uploaded"
+        },
+        privateFile: {
+            extension: "Only .pem files can be uploaded"
+        },
+        scriptName: {
+            maxlength: "Limited to 15 chars"
         }
     },
     onkeyup: false,
@@ -344,8 +364,10 @@ function getGlobalMonitorServers() {
 //creating a table for showcasing the list of track items on the dashboard page..
 function createTableForMonitorList(monitorData) { 
   var $monitorList = $('#monitorTable tbody');
-  var $tr = $('<tr class="monitorItemRow"></tr>').attr('data-monitorId', monitorData._id).attr('data-type', monitorData.type).attr('transportProtocol-type', monitorData.parameters.transportProtocol).attr('orgId',monitorData.organization.id).attr('orgName',monitorData.organization.name);
+  var $tr = $('<tr class="monitorItemRow"></tr>').attr('data-name',monitorData.name).attr('data-monitorId', monitorData._id).attr('data-type', monitorData.type).attr('transportProtocol-type', monitorData.parameters.transportProtocol).attr('orgId',monitorData.organization.id).attr('orgName',monitorData.organization.name);
   $tr.data('monitorData', monitorData);
+
+  var $tdName = $('<td class="monitorName">' + monitorData.name + '</td>');
 
   var $tdOrganization = $('<td class="monitorOrg">' + monitorData.organization.name + '</td>');
 
@@ -372,9 +394,9 @@ function createTableForMonitorList(monitorData) {
       var $editModal = $('#modalForTrackEdit');
       $editModal.modal('show');
       $editModal.find('#monitorEditHiddenInput').val('edit');
-      $editModal.find('h4.modal-title').html('Edit Monitor Item &nbsp;-&nbsp;&nbsp;');
-      //$editModal.find('#orgName').val(monitorData.name);
-      $editModal.find('#orgName').append('<option value="'+$this.parents('tr').attr("orgId")+'">'+$this.parents('tr').attr("orgName")+'</option>').attr('disabled','disabled');
+      $editModal.find('h4.modal-title').html('Edit Monitor Item &nbsp;-&nbsp;&nbsp;' + monitorData.name);
+      $editModal.find('#monitorName').val(monitorData.name);
+      $editModal.find('#orgName').empty().append('<option value="'+$this.parents('tr').attr("orgId")+'">'+$this.parents('tr').attr("orgName")+'</option>').attr('disabled','disabled');
       $editModal.find('#serverType').val(monitorData.type);
       $editModal.find('.serverUrl').val(monitorData.parameters.url);
       $editModal.find('#protocolType').val(monitorData.parameters.transportProtocol).change().attr('disabled','disabled');
@@ -394,7 +416,7 @@ function createTableForMonitorList(monitorData) {
       var $tr = $this.parents('tr.monitorItemRow');
       var monitorId = monitorData._id;
       bootbox.confirm({
-          message: 'Are you sure you want to Delete Monitor Item -&nbsp;',
+          message: 'Are you sure you want to Delete Monitor Item -&nbsp;' + monitorData.name,
           title: "Warning",
           callback: function(result) {
               if (result) {
@@ -424,7 +446,7 @@ function createTableForMonitorList(monitorData) {
       return false;
   });
 
-  $tr.append($tdOrganization).append($tdServerType).append($tdServerURL).append($tdProtocolType).append($tdProtocolHost).append($tdProtocolPort).append($tdAction);
+  $tr.append($tdName).append($tdOrganization).append($tdServerType).append($tdServerURL).append($tdProtocolType).append($tdProtocolHost).append($tdProtocolPort).append($tdAction);
   $monitorList.append($tr);
   $monitorDatatable.row.add($tr).draw();
 };
@@ -445,6 +467,7 @@ function saveForm(methodName,url,reqBody,createNewEdit,monitorId,parameters) {
           $('#saveBtnTrack').removeAttr('disabled');
       } else {
           var $tr = $('tr[data-monitorId="' + monitorId + '"]');
+          $tr.find('.monitorName').html(reqBody.name);
           $tr.find('.monitorServerType').html(reqBody.type);
           $tr.find('.monitorServerURL').html(reqBody.parameters.url);
           $tr.find('.monitorProtocolHost').html(reqBody.parameters.transportProtocolParameters.host);
@@ -549,6 +572,7 @@ $('#monitorServerForm').submit(function(e) {
                                 }
                             };
                             reqBody = {
+                                "name": name,
                                 "orgId": orgValue,
                                 "type": serverType,
                                 "parameters": parameters
@@ -580,6 +604,7 @@ $('#monitorServerForm').submit(function(e) {
                 };
             }
             reqBody = {
+                "name": name,
                 "orgId": orgValue,
                 "type": serverType,
                 "parameters": parameters
