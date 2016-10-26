@@ -580,6 +580,20 @@ taskSchema.statics.getTasksServiceDeliveryCheck = function(serviceDeliveryCheck,
     });
 };
 
+taskSchema.statics.removeServiceDeliveryTask = function(taskId, callback) {
+    this.update({ "_id": new ObjectId(taskId)}, {serviceDeliveryCheck:false}, function (err, data) {
+        if (err) {
+            logger.error(err);
+            callback(err, null);
+            return;
+        }
+        if (data.length) {
+            callback(null, data[0]);
+        } else {
+            callback(null, null);
+        }
+    });
+};
 
 taskSchema.statics.getTaskById = function(taskId, callback) {
     this.find({

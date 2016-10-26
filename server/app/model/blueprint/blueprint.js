@@ -343,6 +343,7 @@ BlueprintSchema.methods.launch = function(opts, callback) {
                                 sessionUser: opts.sessionUser,
                                 users: self.users,
                                 blueprintData: self,
+                                tagServer: opts.tagServer,
                             }, function(err, launchData) {
                                 callback(err, launchData);
                             });
@@ -366,6 +367,7 @@ BlueprintSchema.methods.launch = function(opts, callback) {
                             sessionUser: opts.sessionUser,
                             users: self.users,
                             blueprintData: self,
+                            tagServer: opts.tagServer,
                         }, function(err, launchData) {
                             callback(err, launchData);
                         });
@@ -989,7 +991,21 @@ BlueprintSchema.statics.getBlueprintsServiceDeliveryCheck = function(serviceDeli
         callback(null, blueprints);
         return;
     });
+};
 
+BlueprintSchema.statics.removeServiceDeliveryBlueprints = function(blueprintId, callback) {
+    this.update({ "_id": new ObjectId(blueprintId)}, {serviceDeliveryCheck: false}, function (err, data) {
+        if (err) {
+            logger.error(err);
+            callback(err, null);
+            return;
+        }
+        if (data.length) {
+            callback(null, data[0]);
+        } else {
+            callback(null, null);
+        }
+    });
 };
 
 BlueprintSchema.statics.getBlueprintsByOrgBgProjectProvider = function(jsonData, callback) {

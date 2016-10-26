@@ -21,6 +21,7 @@ var monitorsValidator = module.exports = {};
 monitorsValidator.create = {
     body: {
         "orgId": Joi.string().max(40).required(),
+        "name": Joi.string().max(40).required(),
         "type": Joi.valid('sensu', 'other'),
         "parameters": Joi.object()
             .keys({
@@ -37,7 +38,7 @@ monitorsValidator.create = {
                         "ssl": Joi.object().keys({
                             "certChainFileId": Joi.string().required(),
                             "privateKeyFileId": Joi.string().required()
-                        }),
+                        })
                     })
                     .when('transportProtocol', {
                         is: 'rabbitmq',
@@ -55,6 +56,7 @@ monitorsValidator.create = {
 monitorsValidator.update = {
     body: {
         "orgId": Joi.string().max(40).required(),
+        "name": Joi.string().max(40).required(),
         "type": Joi.valid('sensu', 'other'),
         "parameters": Joi.object()
             .keys({
@@ -65,13 +67,13 @@ monitorsValidator.update = {
                         "port": Joi.number().required(),
                         "vhost": Joi.string(),
                         "user": Joi.string(),
-                        "password": Joi.string().required(),
+                        "password": Joi.string(),
                         "heartbeat": Joi.number(),
                         "prefetch": Joi.number(),
                         "ssl": Joi.object().keys({
-                            "certChainFileId": Joi.string().required(),
-                            "privateKeyFileId": Joi.string().required()
-                        }),
+                            "certChainFileId": Joi.string(),
+                            "privateKeyFileId": Joi.string()
+                        })
                     })
                     .when('transportProtocol', {
                         is: 'rabbitmq',

@@ -44,6 +44,7 @@ monitorsService.formatResponse = function (monitor) {
         case 'sensu':
         case 'Sensu':
             formatted._id = monitor._id;
+            formatted.name = monitor.name;
             formatted.type = monitor.type;
             if (monitor.organization.length) {
                 formatted.organization = {
@@ -61,12 +62,35 @@ monitorsService.formatResponse = function (monitor) {
 };
 
 
-monitorsService.createMonitor = function (monitor, callback) {
+monitorsService.createMonitor = function (monitorsObj, callback) {
 
-    switch (monitor.type) {
+    switch (monitorsObj.type) {
         case 'sensu':
         case 'Sensu':
-            monitorsModel.createNew(monitor, function (err, monitor) {
+            var saveobj = {};
+            saveobj['orgId'] = monitorsObj['orgId'];
+            saveobj['type'] = monitorsObj['type'];
+            saveobj['name'] = monitorsObj['name'];
+            saveobj['parameters'] = {
+
+            };
+            saveobj['parameters']['url'] = monitorsObj['parameters']['url'];
+            saveobj['parameters']['transportProtocol'] = monitorsObj['parameters']['transportProtocol'];
+            saveobj['parameters']['transportProtocolParameters'] = {};
+            saveobj['parameters']['transportProtocolParameters']['host'] = monitorsObj['parameters']['transportProtocolParameters']['host'];
+            saveobj['parameters']['transportProtocolParameters']['port'] = monitorsObj['parameters']['transportProtocolParameters']['port'];
+            saveobj['parameters']['transportProtocolParameters']['password'] = monitorsObj['parameters']['transportProtocolParameters']['password'];
+            if (monitorsObj['parameters']['transportProtocol'] === 'rabbitmq') {
+                saveobj['parameters']['transportProtocolParameters']['vhost'] = monitorsObj['parameters']['transportProtocolParameters']['vhost'];
+                saveobj['parameters']['transportProtocolParameters']['user'] = monitorsObj['parameters']['transportProtocolParameters']['user'];
+                saveobj['parameters']['transportProtocolParameters']['heartbeat'] = monitorsObj['parameters']['transportProtocolParameters']['heartbeat'];
+                saveobj['parameters']['transportProtocolParameters']['prefetch'] = monitorsObj['parameters']['transportProtocolParameters']['prefetch'];
+                if (monitorsObj['parameters']['transportProtocolParameters']['ssl']) {
+                    saveobj['parameters']['transportProtocolParameters']['ssl']['certChainFileId'] = monitorsObj['parameters']['transportProtocolParameters']['ssl']['certChainFileId'];
+                    saveobj['parameters']['transportProtocolParameters']['ssl']['privateKeyFileId'] = monitorsObj['parameters']['transportProtocolParameters']['ssl']['privateKeyFileId'];
+                }
+            }
+            monitorsModel.createNew(saveobj, function (err, monitor) {
                 //@TODO To be generalized
                 if (err && err.name === 'ValidationError') {
                     var err = new Error('Bad Request');
@@ -90,10 +114,36 @@ monitorsService.createMonitor = function (monitor, callback) {
 
 };
 
-monitorsService.updateMonitor = function updateMonitor(monitorId, updateFields, callback) {
-    switch (updateFields.type) {
+monitorsService.updateMonitor = function updateMonitor(monitorId, monitorsObj, callback) {
+    switch (monitorsObj.type) {
         case 'sensu':
         case 'Sensu':
+            var updateFields = {};
+            updateFields['orgId'] = monitorsObj['orgId'];
+            updateFields['type'] = monitorsObj['type'];
+            updateFields['name'] = monitorsObj['name'];
+            updateFields['parameters.url'] = monitorsObj['parameters']['url'];
+            updateFields['parameters.transportProtocol'] = monitorsObj['parameters']['transportProtocol'];
+            updateFields['parameters.transportProtocolParameters.host'] = monitorsObj['parameters']['transportProtocolParameters']['host'];
+            updateFields['parameters.transportProtocolParameters.port'] = monitorsObj['parameters']['transportProtocolParameters']['port'];
+            if (monitorsObj['parameters']['transportProtocolParameters']['password']) {
+                updateFields['parameters.transportProtocolParameters.password'] = monitorsObj['parameters']['transportProtocolParameters']['password'];
+            }
+            if (monitorsObj['parameters']['transportProtocol'] === 'rabbitmq') {
+                updateFields['parameters.transportProtocolParameters.vhost'] = monitorsObj['parameters']['transportProtocolParameters']['vhost'];
+                updateFields['parameters.transportProtocolParameters.user'] = monitorsObj['parameters']['transportProtocolParameters']['user'];
+                updateFields['parameters.transportProtocolParameters.heartbeat'] = monitorsObj['parameters']['transportProtocolParameters']['heartbeat'];
+                updateFields['parameters.transportProtocolParameters.prefetch'] = monitorsObj['parameters']['transportProtocolParameters']['prefetch'];
+                if (monitorsObj['parameters']['transportProtocolParameters']['ssl']) {
+                    if (monitorsObj['parameters']['transportProtocolParameters']['ssl']['certChainFileId']) {
+                        updateFields['parameters.transportProtocolParameters.ssl.certChainFileId'] = monitorsObj['parameters']['transportProtocolParameters']['ssl']['certChainFileId'];
+                    }
+                    if (monitorsObj['parameters']['transportProtocolParameters']['ssl']['privateKeyFileId']) {
+                        updateFields['parameters.transportProtocolParameters.ssl.privateKeyFileId'] = monitorsObj['parameters']['transportProtocolParameters']['ssl']['privateKeyFileId'];
+                    }
+
+                }
+            }
             monitorsModel.updateMonitors(monitorId, updateFields, function (err, monitor) {
                 //@TODO To be generalized
                 if (err && err.name === 'ValidationError') {
