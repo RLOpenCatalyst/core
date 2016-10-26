@@ -278,7 +278,7 @@ var validator = $('#monitorServerForm').validate({
         privateFile: {
             extension: "Only .pem files can be uploaded"
         },
-        scriptName: {
+        monitorName: {
             maxlength: "Limited to 15 chars"
         }
     },
@@ -364,7 +364,7 @@ function getGlobalMonitorServers() {
 //creating a table for showcasing the list of track items on the dashboard page..
 function createTableForMonitorList(monitorData) { 
   var $monitorList = $('#monitorTable tbody');
-  var $tr = $('<tr class="monitorItemRow"></tr>').attr('data-name',monitorData.name).attr('data-monitorId', monitorData._id).attr('data-type', monitorData.type).attr('transportProtocol-type', monitorData.parameters.transportProtocol).attr('orgId',monitorData.organization.id).attr('orgName',monitorData.organization.name);
+  var $tr = $('<tr class="monitorItemRow"></tr>').attr('data-monitorId', monitorData._id).attr('data-type', monitorData.type).attr('transportProtocol-type', monitorData.parameters.transportProtocol).attr('orgId',monitorData.organization.id).attr('orgName',monitorData.organization.name).attr('data-ssl',monitorData.parameters.transportProtocolParameters.ssl);
   $tr.data('monitorData', monitorData);
 
   var $tdName = $('<td class="monitorName">' + monitorData.name + '</td>');
@@ -406,6 +406,10 @@ function createTableForMonitorList(monitorData) {
       $editModal.find('.protocolVhost').val(monitorData.parameters.transportProtocolParameters.vhost);
       $editModal.find('.protocolUser').val(monitorData.parameters.transportProtocolParameters.user);
       $editModal.find('#monitorEditHiddenInputId').val(monitorData._id);
+      if(monitorData.parameters.transportProtocol.ssl) {
+          $editModal.find('#monitorHiddenCertificateFile').val(monitorData.parameters.transportProtocolParameters.ssl.certChainFileId);
+          $editModal.find('#monitorHiddenPrivateFile').val(monitorData.parameters.transportProtocolParameters.ssl.privateKeyFileId);
+      }
       return false;
   });
 
@@ -451,7 +455,7 @@ function createTableForMonitorList(monitorData) {
   $monitorDatatable.row.add($tr).draw();
 };
 
-function saveForm(methodName,url,reqBody,createNewEdit,monitorId,parameters) {
+function saveForm(methodName,url,reqBody,createNewEdit,monitorId,parameters,name,serverType) {
   $.ajax({
   method: methodName,
   url: url,
@@ -473,6 +477,7 @@ function saveForm(methodName,url,reqBody,createNewEdit,monitorId,parameters) {
           $tr.find('.monitorProtocolHost').html(reqBody.parameters.transportProtocolParameters.host);
           $tr.find('.monitorProtocolPort').html(reqBody.parameters.transportProtocolParameters.port);
           $tr.data('monitorData', {
+              name:name,
               _id: monitorId,
               type: serverType,
               parameters:parameters
@@ -577,7 +582,7 @@ $('#monitorServerForm').submit(function(e) {
                                 "type": serverType,
                                 "parameters": parameters
                             }
-                            saveForm(methodName,url,reqBody,dashboardEditNew,monitorId,parameters);
+                            saveForm(methodName,url,reqBody,dashboardEditNew,monitorId,parameters,name,serverType);
                         }
                     });
                 }
@@ -609,7 +614,7 @@ $('#monitorServerForm').submit(function(e) {
                 "type": serverType,
                 "parameters": parameters
             }
-            saveForm(methodName,url,reqBody,dashboardEditNew,monitorId,parameters);
+            saveForm(methodName,url,reqBody,dashboardEditNew,monitorId,parameters,name,serverType);
         }
         
         
