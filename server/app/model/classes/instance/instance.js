@@ -346,6 +346,11 @@ var InstanceSchema = new Schema({
         type: String,
         required: false,
         trim: true
+    },
+    monitorId:{
+        type: String,
+        required: false,
+        trim: true
     }
 });
 
