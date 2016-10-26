@@ -24,6 +24,11 @@ var MonitorsSchema = new Schema({
         required: true,
         trim: true
     },
+    name: {
+        type: String,
+        required: true,
+        trim: true
+    },
     type: {
         type: String,
         trim: true,

@@ -1,0 +1,40 @@
+<div class="modal-header">
+    <span class="close" ng-click="lanIns.cancel()">×</span>
+    <h4 class="modal-title">
+        <i class="fa fa-bar-chart-o"></i> Launching Blueprint
+    </h4>
+</div>
+
+<div class="modal-body">
+    <form name="launchBP" novalidate>
+    <fieldset>
+        <div class="col-lg-6 col-md-6">
+            <label for="">Organization</label>
+            <input id="blueprintOrgEnv" ng-model="lanIns.newEnt.org" disabled="disabled" class="form-control">
+        </div>
+        <div class="col-lg-6 col-md-6">
+            <label for="" class="">Business Group</label>
+            <input id="blueprintBuEnv" ng-model="lanIns.newEnt.buss" disabled="disabled" class="form-control">
+        </div>
+        <div class="col-lg-6 col-md-6 projectRepo">
+            <label for="" class="">Project Name
+            </label>
+            <input id="blueprintProEnv" ng-model="lanIns.newEnt.proj" disabled="disabled" class="form-control">
+        </div>
+        <div class="col-lg-6 col-md-6 projectRepo">
+            <label for="" class="">Choose Environment:<span class="red">*</span></label>
+            <label id="spinnerForEnv" class="hidden"><img style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label>
+            <select id="envSelect" ng-model="lanIns.newEnt.env" class="width-100 form-control" required>
+                <option value="">Select</option>
+                <option ng-repeat="envOption in lanIns.envOptions" value="{{envOption.rowid}}">{{envOption.name}}</option>
+            </select>
+        </div>
+        <input type="hidden" id="selectedVersion" value="578775ea942b1fbf345932ff">
+    </fieldset>
+        </form>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn cat-btn-close" ng-click="lanIns.cancel()">
+        <i class="fa fa-times black"></i> Close</button>
+    <button type="button" class="btn cat-btn-update" data-dismiss="modal" ng-disabled="launchBP.$invalid" ng-click="lanIns.launch();">Launch</button>
+</div>

@@ -80,11 +80,12 @@
                     angular.forEach(fltObj.resources, function (resId) {
                     var param = {
                        url: '/analytics/trend/usage?resource='+resId+'&fromTimeStamp='+$yesterday+'&toTimeStamp='+ $today+'&interval=3600'
+                        //url:'src/partials/sections/dashboard/analytics/data/usage.json'
                     };
                     genSevs.promiseGet(param).then(function (result) {
                        // angular.forEach(result[usage.splitUp], function (valu, keyChild) {
                            var va = [];
-                            if(result && result.length >0) {
+                            if(result) {
                                 usage.costGridOptions.columnDefs=[
                                     {name: 'name', field: 'name'},
                                     {name: 'fromTime', field: 'fromTime'},
