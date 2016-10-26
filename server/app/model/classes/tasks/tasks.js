@@ -856,30 +856,28 @@ function filterScriptTaskData(data,callback){
     var taskList = [];
     for(var i = 0; i < data.length; i++){
         (function(task){
-            if(task.taskType === 'script'){
-                if(task.taskConfig.scriptDetails.length > 0){
-                    for(var j = 0;j < task.taskConfig.scriptDetails.length;j++) {
-                        (function (scriptTask) {
-                            if(scriptTask.scriptParameters.length > 0){
-                                var count = 0;
-                                for(var k = 0; k < scriptTask.scriptParameters.length;k++){
-                                    (function(params){
-                                        count++;
-                                        scriptTask.scriptParameters[k] = '';
-                                        if(count === scriptTask.scriptParameters.length){
-                                            taskList.push(task)
-                                        }
-                                    })(scriptTask.scriptParameters[k]);
-                                }
-                            }else{
-                                taskList.push(task)
+            if ((task.taskType === 'script')
+                && ('scriptDetails' in task.taskConfig)
+                && (task.taskConfig.scriptDetails.length > 0)) {
+                for (var j = 0; j < task.taskConfig.scriptDetails.length; j++) {
+                    (function (scriptTask) {
+                        if (scriptTask.scriptParameters.length > 0) {
+                            var count = 0;
+                            for (var k = 0; k < scriptTask.scriptParameters.length; k++) {
+                                (function (params) {
+                                    count++;
+                                    scriptTask.scriptParameters[k] = '';
+                                    if (count === scriptTask.scriptParameters.length) {
+                                        taskList.push(task)
+                                    }
+                                })(scriptTask.scriptParameters[k]);
                             }
-                        })(task.taskConfig.scriptDetails[j]);
-                    }
-                }else{
-                    taskList.push(task)
+                        } else {
+                            taskList.push(task)
+                        }
+                    })(task.taskConfig.scriptDetails[j]);
                 }
-            }else{
+            } else {
                 taskList.push(task);
             }
         })(data[i]);
