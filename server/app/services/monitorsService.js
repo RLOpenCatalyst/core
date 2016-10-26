@@ -71,9 +71,7 @@ monitorsService.createMonitor = function (monitorsObj, callback) {
             saveobj['orgId'] = monitorsObj['orgId'];
             saveobj['type'] = monitorsObj['type'];
             saveobj['name'] = monitorsObj['name'];
-            saveobj['parameters'] = {
-
-            };
+            saveobj['parameters'] = {};
             saveobj['parameters']['url'] = monitorsObj['parameters']['url'];
             saveobj['parameters']['transportProtocol'] = monitorsObj['parameters']['transportProtocol'];
             saveobj['parameters']['transportProtocolParameters'] = {};
@@ -86,6 +84,7 @@ monitorsService.createMonitor = function (monitorsObj, callback) {
                 saveobj['parameters']['transportProtocolParameters']['heartbeat'] = monitorsObj['parameters']['transportProtocolParameters']['heartbeat'];
                 saveobj['parameters']['transportProtocolParameters']['prefetch'] = monitorsObj['parameters']['transportProtocolParameters']['prefetch'];
                 if (monitorsObj['parameters']['transportProtocolParameters']['ssl']) {
+                    saveobj['parameters']['transportProtocolParameters']['ssl'] = {};
                     saveobj['parameters']['transportProtocolParameters']['ssl']['certChainFileId'] = monitorsObj['parameters']['transportProtocolParameters']['ssl']['certChainFileId'];
                     saveobj['parameters']['transportProtocolParameters']['ssl']['privateKeyFileId'] = monitorsObj['parameters']['transportProtocolParameters']['ssl']['privateKeyFileId'];
                 }
