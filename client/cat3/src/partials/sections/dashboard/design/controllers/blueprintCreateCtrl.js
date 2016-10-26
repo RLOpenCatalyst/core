@@ -87,8 +87,8 @@
                     dockerParams.dockerrepotags = 'latest';
                     //gives the dockerParams details to show up the image in the first step of wizard.
                     $scope.dockerDetails.push(dockerParams);
-                    console.log($scope.dockerDetails);
                 }
+                $scope.next();
             };
 
             blueprintCreation.getImages = function(){
@@ -528,7 +528,7 @@
 
 
             $scope.updateCookbook = function() {
-                genericServices.updateCookbook();
+                genericServices.editRunlist();
             }
             //modal to show the Docker Parameters Popup                                             
             //on initial load.
@@ -851,6 +851,7 @@
                             } else if($scope.bpTypeName === 'ARMTemplate') {
                                 toastr.success('ARM Template Blueprint Created Successfully');
                             }
+                            $state.go('dashboard.design.list',{providerName:$state.params.providerName,templateObj:$state.params.templateObj});
                         }, function(data) {
                             toastr.error('error:: ' + data.toString());
                         });
