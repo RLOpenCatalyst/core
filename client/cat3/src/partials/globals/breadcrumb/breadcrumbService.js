@@ -49,5 +49,13 @@
 		$rootScope.$on('HIDE_BREADCRUMB',function(){
 			$rootScope.isBreadCrumbAvailable=false;
 		});
+		$rootScope.showTree=false;
+		$rootScope.showTreeOverlay = function () {
+	        $rootScope.showTree = true;
+	    };
+
+	    $rootScope.hideTreeOverlay = function () {
+	        $rootScope.showTree = false;
+	    };
 	}]);
 })(angular);

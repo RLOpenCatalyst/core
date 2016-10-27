@@ -82,11 +82,12 @@ width:100%;
               <div class="input-groups">
                 <select id="trackType" name="trackType" class="required form-control width-100" style="vertical-align:central">
                   <option value="">Choose Type</option>
-                  <option value="Provider">Provider</option>
-                  <option value="Monitoring">Monitoring</option>
-                  <option value="Logs">Logs</option>
-                  <option value="Notifications">Notifications</option>
-                  <option value="Audit Trail">Audit Trail</option>
+                  <option value="Capacity">Capacity</option>
+                  <option value="Providers">Providers</option>
+                  <option value="Health">Health</option>
+                  <option value="Telemetry">Telemetry</option>
+                  <option value="CI/CD">CI/CD</option>
+                  <option value="Service Delivery">Service Delivery</option>
                 </select>
               </div>
             </div>
@@ -118,7 +119,7 @@ width:100%;
         </div>
         <div class="modal-footer">
           <label id="saveItemSpinner" class="hidden"><img  style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label>
-          <a type="button" class="btn btn-default" data-dismiss="modal"><i class="ace-icon fa fa-times bigger-110"></i>&nbsp;Close</a>
+          <a type="button" class="btn btn-default" data-dismiss="modal"><i class="ace-icon fa fa-times bigger-110"></i>&nbsp;Cancel</a>
           <button type="submit" id="saveBtnTrack" class="btn btn-primary" value="Save"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</button>
         </div>
       </form>
@@ -134,7 +135,7 @@ if (!$.fn.dataTable.isDataTable('#trackTable')) {
         "pagingType": "full_numbers",
         "bInfo": false,
         "bLengthChange": false,
-        "paging": false,
+        "paging": true,
         "bFilter": false,
         "aoColumns": [{
             "bSortable": false

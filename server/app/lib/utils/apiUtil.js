@@ -120,18 +120,31 @@ var ApiUtil = function() {
     };
 
     this.changeRequestForJqueryPagination=function(req,callback){
-        var columnIndex = parseInt(req.order[0].column);
-        var reqObj={
-            'pageSize': req.length,
-            'page' : req.start === 0 ? 1 : Math.ceil(req.start/req.length)+1,
-            'draw' : req.draw,
-            'filterBy' : req.filterBy,
-            'sortOrder':req.order[0].dir,
-            'sortBy':req.columns[columnIndex].data
+       var reqObj = {};
+
+        if('order' in req) {
+            var columnIndex = parseInt(req.order[0].column);
         }
-        if(req.search.value !== ''){
+
+        if ('draw' in req) {
+            reqObj = {
+                'pageSize': req.length,
+                'page': req.start === 0 ? 1 : Math.ceil(req.start / req.length) + 1,
+                'draw': req.draw,
+                'filterBy': req.filterBy,
+                'sortOrder': req.order[0].dir,
+                'sortBy': req.columns[columnIndex].data
+            }
+        }
+
+        if(('search' in req) && req.search.value !== ''){
          reqObj['search'] =   req.search.value;
         }
+
+        if('filterBy' in req){
+            reqObj['filterBy'] =   req.filterBy;
+        }
+
         callback(null,reqObj);
     };
     this.paginationRequest=function(data,key, callback) {
@@ -169,15 +182,6 @@ var ApiUtil = function() {
             var a = data.filterBy.split(" ");
             for (var i = 0; i < a.length; i++) {
                 var b = a[i].split(":");
-                /*if(b[0]=='region'){
-                 var c=b[1].split(",");
-                 if(c.length > 1)
-                 filterBy['providerData.region'] =  {'$in':c};
-                 else
-                 filterBy['providerData.region']=b[1];
-                 }
-
-                 else {*/
                 var c = b[1].split(",");
                 if (c.length > 1) {
                     filterBy[b[0]] = {'$in': c};
@@ -188,7 +192,6 @@ var ApiUtil = function() {
                         filterBy[b[0]] = b[1];
                     }
                 }
-                //}
             }
             request['filterBy'] = filterBy;
         }

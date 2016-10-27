@@ -75,6 +75,7 @@
 				$scope.requestParams=requestParams;
 				$scope.isBlueprintPageLoading = true;
 				$scope.blueprintListCards();
+				$scope.getAllCompsiteBlueprint();
 			});
 			
 			angular.extend($scope, {
@@ -269,11 +270,11 @@
 
 				launchInstanceCompoBlueprint:function(compositeBlueprintId){
 					var modalOptions = {
-						closeButtonText: ' No ',
-						actionButtonText: ' Yes ',
+						closeButtonText: ' Cancel ',
+						actionButtonText: ' Ok ',
 						actionButtonStyle: 'cat-btn-update',
-						headerText: 'Launch Instance Composite Blueprint',
-						bodyText: 'Are you sure you want to launch the composite blueprint? Press Yes To continue.'
+						headerText: 'Confirmation',
+						bodyText: 'Are you sure you want to launch the Blueprint? Press Ok To continue'
 					};
 					var compBlue={
 						"blueprintId": compositeBlueprintId,

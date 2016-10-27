@@ -195,6 +195,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
 };
+
 function trackFormatData(tracks,next){
     if(tracks.length > 0){
         var trackMenuList = appConfig.trackMenu;

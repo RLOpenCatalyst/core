@@ -154,6 +154,27 @@ taskService.getTaskActionList = function getTaskActionList(jsonData, callback) {
                                 }
                             });
                         }
+                    } else if (histories.docs[i] && histories.docs[i].taskType == "script") {
+                        for (var p1 = 0; p1 < histories.docs[i].nodeIdsWithActionLog.length; p1++) {
+                            (function(p1) {
+                                instancesDao.getInstanceById(histories.docs[i].nodeIdsWithActionLog[p1].nodeId, function(err, instance) {
+                                    if (err) {
+                                        logger.error("Failed to fetch instance: ", err);
+                                    }
+                                    var obj = {
+                                        "executionId": histories.docs[i].nodeIdsWithActionLog[p1].actionLogId,
+                                        "actionId": histories.docs[i].nodeIdsWithActionLog[p1].actionLogId,
+                                        "status": histories.docs[i].status,
+                                        "instanceId": histories.docs[i].nodeIdsWithActionLog[p1].nodeId
+                                    };
+                                    var instanceName ="";
+                                    if (instance && instance.length) {
+                                        obj['instanceName'] = instance[0].name;
+                                    }
+                                    histories.docs[i].executionResults.push(obj);
+                                });
+                            })(p1);
+                        }
                     }
                     if (histories.docs[i] && histories.docs[i].taskType == "composite") {
                         if (histories.docs[i].taskHistoryIds && histories.docs[i].taskHistoryIds.length) {

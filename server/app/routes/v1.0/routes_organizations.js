@@ -51,6 +51,7 @@ var validate = require('express-validation');
 var taskService = require('_pr/services/taskService');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var compositeBlueprintModel = require('_pr/model/composite-blueprints/composite-blueprints.js');
+var Cryptography = require('_pr/lib/utils/cryptography');
 
 module.exports.setRoutes = function(app, sessionVerification) {
     /*
@@ -806,11 +807,10 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
         //validating if user has permission to save a blueprint
         logger.debug('Verifying User permission set');
-        console.log(req.body);
-        console.log(JSON.stringify(req.body));
         var user = req.session.user;
         var category = 'blueprints';
         var permissionto = 'create';
+        var domainNameCheck = false;
         var orgId = req.params.orgId;
         var bgId = req.params.bgId;
         var projectId = req.params.projectId;
@@ -825,7 +825,11 @@ module.exports.setRoutes = function(app, sessionVerification) {
         var docker = req.body.blueprintData.docker;
         var region = req.body.blueprintData.region;
         var blueprintId = req.body.blueprintData.blueprintId;
-
+        var shortDesc = req.body.blueprintData.shortDesc;
+        var botType = req.body.blueprintData.botType;
+        if(req.body.blueprintData.domainNameCheck === 'true'){
+            domainNameCheck = true;
+        }
         // a temp fix for invalid appurl data. will be removed in next iteration
         var tempAppUrls = [];
         if (!appUrls) {
@@ -868,7 +872,10 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 users: users,
                 blueprintType: blueprintType,
                 nexus: nexus,
-                docker: docker
+                docker: docker,
+                shortDesc:shortDesc,
+                botType:botType,
+                domainNameCheck:domainNameCheck
             };
             //adding bluerpintID if present (edit mode)
             if (blueprintId)
@@ -1093,7 +1100,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
     });
 
     app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/instanceList', validate(orgValidator.get), getInstanceList);
-
+    
     function getInstanceList(req, res, next) {
         var reqData = {};
         async.waterfall([
@@ -1130,7 +1137,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
     }
 
     app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/taskList', validate(orgValidator.get), getTaskList);
-
+    
     function getTaskList(req, res, next) {
         var reqData = {};
         async.waterfall([
@@ -1330,18 +1337,15 @@ module.exports.setRoutes = function(app, sessionVerification) {
         taskData.envId = req.params.envId;
         taskData.autoSyncFlag = req.body.taskData.autoSyncFlag;
         taskData.userName = req.session.user.cn;
-
         masterUtil.getParticularProject(req.params.projectId, function(err, project) {
             if (err) {
-                callback({
-                    message: "Failed to get project via project id"
-                }, null);
+                logger.error(err);
+                res.status(500).send("Failed to get project via project id: ", err);
                 return;
             };
             if (project.length === 0) {
-                callback({
-                    "message": "Unable to find Project Information from project id"
-                });
+                logger.error(err);
+                res.status(500).send("Unable to find Project Information from project id: ", err);
                 return;
             }
             taskData.orgName = project[0].orgname;
@@ -1353,26 +1357,79 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     return;
                 }
                 taskData.envName = envName;
-                Task.createNew(taskData, function(err, task) {
-                    if (err) {
-                        logger.err(err);
-                        res.status(500).send("Failed to create task: ", err);
-                        return;
-                    }
-                    if (task.isScheduled && task.cron) {
-                        taskService.executeScheduleJob(task);
-                    }
+                if(taskData.taskType === 'script'){
+                    encryptedParam(taskData.scriptDetails,function(err,encryptedParam){
+                        if(err){
+                            logger.error(err);
+                            res.status(500).send("Failed to encrypted script parameters: ", err);
+                            return;
+                        }else{
+                            taskData.scriptDetails = encryptedParam;
+                            Task.createNew(taskData, function (err, task) {
+                                if (err) {
+                                    logger.error(err);
+                                    res.status(500).send("Failed to create task: ", err);
+                                    return;
+                                }
+                                if (task.isScheduled && task.cron) {
+                                    taskService.executeScheduleJob(task);
+                                }
+                                res.send(task);
+                                logger.debug("Exit post() for /organizations/%s/businessGroups/%s/projects/%s/environments/%s/tasks", req.params.orgId, req.params.bgId, req.params.projectId, req.params.environments);
+                            });
+                        }
+                    })
+                }else {
+                    Task.createNew(taskData, function(err, task) {
+                        if (err) {
+                            logger.err(err);
+                            res.status(500).send("Failed to create task: ", err);
+                            return;
+                        }
+                        if (task.isScheduled && task.cron) {
+                            taskService.executeScheduleJob(task);
+                        }
 
-                    res.send(task);
-                    logger.debug("Exit post() for /organizations/%s/businessGroups/%s/projects/%s/environments/%s/tasks", req.params.orgId, req.params.bgId, req.params.projectId, req.params.environments);
-                    return;
-                });
+                        res.send(task);
+                        logger.debug("Exit post() for /organizations/%s/businessGroups/%s/projects/%s/environments/%s/tasks", req.params.orgId, req.params.bgId, req.params.projectId, req.params.environments);
+                        return;
+                    });
+                }
             });
         });
     });
 
-
-
+    function encryptedParam(paramDetails,callback){
+        var cryptoConfig = appConfig.cryptoSettings;
+        var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+        var count = 0;
+        var encryptedList = [];
+        for(var i = 0; i < paramDetails.length; i++){
+            (function(param){
+                if(param.scriptParameters.length > 0){
+                    count++;
+                    for(var j = 0; j < param.scriptParameters.length; j++){
+                        (function(scriptParameter){
+                            var encryptedText = cryptography.encryptText(scriptParameter, cryptoConfig.encryptionEncoding,
+                                cryptoConfig.decryptionEncoding);
+                            encryptedList.push(encryptedText);
+                            if(encryptedList.length === param.scriptParameters.length){
+                                param.scriptParameters = encryptedList;
+                                encryptedList = [];
+                            }
+                        })(param.scriptParameters[j]);
+                    }
+                }else{
+                    count++;
+                }
+                if(count === paramDetails.length){
+                    callback(null,paramDetails);
+                    return;
+                }
+            })(paramDetails[i]);
+        }
+    }
+    
 
     app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/cftList', validate(orgValidator.get), getCftList);
 
@@ -1415,26 +1472,25 @@ module.exports.setRoutes = function(app, sessionVerification) {
     function getAzureArmList(req, res, next) {
         var reqData = {};
         async.waterfall([
-                function(next) {
-                    apiUtil.paginationRequest(req.query, 'azureArms', next);
-                },
-                function(paginationReq, next) {
-                    paginationReq['orgId'] = req.params.orgId;
-                    paginationReq['bgId'] = req.params.bgId;
-                    paginationReq['projectId'] = req.params.projectId;
-                    paginationReq['envId'] = req.params.envId;
-                    paginationReq['searchColumns'] = ['cloudProviderId', 'deploymentName'];
-                    reqData = paginationReq;
-                    apiUtil.databaseUtil(paginationReq, next);
-                },
-                function(queryObj, next) {
-                    queryObj['pagination'] = true;
-                    AzureArm.findByOrgBgProjectAndEnvId(queryObj, next);
-                },
-                function(armsData, next) {
-                    apiUtil.paginationResponse(armsData, reqData, next);
-                }
-            ],
+            function(next) {
+                apiUtil.paginationRequest(req.query, 'azureArms', next);
+            },
+            function(paginationReq, next) {
+                paginationReq['orgId'] = req.params.orgId;
+                paginationReq['bgId'] = req.params.bgId;
+                paginationReq['projectId'] = req.params.projectId;
+                paginationReq['envId'] = req.params.envId;
+                paginationReq['searchColumns'] = ['cloudProviderId', 'deploymentName'];
+                reqData = paginationReq;
+                apiUtil.databaseUtil(paginationReq, next);
+            },
+            function(queryObj, next) {
+                queryObj['pagination'] = true;
+                AzureArm.findByOrgBgProjectAndEnvId(queryObj, next);
+            },
+            function(armsData, next) {
+                apiUtil.paginationResponse(armsData, reqData, next);
+            }],
             function(err, results) {
                 if (err) {
                     res.send({
@@ -1482,70 +1538,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
             }
         });
     };
-
-
-
-    app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/:provider', function(req, res) {
-        var jsonData = {};
-        jsonData['orgId'] = req.params.orgId;
-        jsonData['bgId'] = req.params.bgId;
-        jsonData['projectId'] = req.params.projectId;
-        jsonData['envId'] = req.params.envId;
-        jsonData['instanceType'] = req.params.instanceType;
-        jsonData['userName'] = req.session.user.cn;
-        jsonData['blueprintType'] = req.query.blueprintType;
-        jsonData['providerType'] = req.params.provider;
-
-        configmgmtDao.getTeamsOrgBuProjForUser(req.session.user.cn, function(err, orgbuprojs) {
-            if (orgbuprojs.length === 0) {
-                res.send(401, "User not part of team to see project.");
-                return;
-            }
-            if (!err) {
-                if (typeof orgbuprojs[0].projects !== "undefined" && orgbuprojs[0].projects.indexOf(req.params.projectId) >= 0) {
-                    async.parallel({
-                            tasks: function(callback) {
-                                Task.getTasksByOrgBgProjectAndEnvId(jsonData, callback);
-                            },
-                            instances: function(callback) {
-                                instancesDao.getInstancesByOrgBgProjectAndEnvId(jsonData, callback);
-                            },
-                            blueprints: function(callback) {
-                                Blueprints.getBlueprintsByOrgBgProjectProvider(jsonData, callback);
-                            },
-                            stacks: function(callback) {
-                                CloudFormation.findByOrgBgProjectAndEnvId(jsonData, callback);
-                            },
-                            arms: function(callback) {
-                                AzureArm.findByOrgBgProjectAndEnvId(jsonData, callback);
-                            }
-                        },
-                        function(err, results) {
-                            if (err) {
-                                res.status(500).send("Internal Server Error");
-                            } else if (!results) {
-                                res.status(400).send("Data Not Found");
-                            } else {
-                                res.status(200).send(results);
-                            }
-                        }
-                    );
-
-                } else {
-                    res.status(401).send("User not part of team to see project");
-                    return;
-                }
-            } else {
-                res.status(500).send("Internal Server Error");
-                return;
-            }
-        });
-    });
-
-
-
-
-
 
     app.get('/organizations/:orgId/chefserver', function(req, res) {
         logger.debug("Enter get() for /organizations/%s/chefserver", req.params.orgId);
@@ -1967,7 +1959,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         status: nodeAlive,
                                                         actionStatus: "waiting",
                                                         platformId: req.body.fqdn,
-                                                        blueprintName: "",
+                                                        blueprintName: req.body.fqdn,
                                                         data: [],
                                                         platform: "unknown",
                                                         os: req.body.os,
@@ -2403,40 +2395,39 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 });
             });
         });
-
-        function checkNodeCredentials(credentials, nodeDetail, callback) {
-            if (nodeDetail.nodeOs !== 'windows') {
-                var sshOptions = {
-                    username: credentials.username,
-                    host: nodeDetail.nodeIp,
-                    port: 22,
-                }
-                if (credentials.pemFileLocation) {
-                    sshOptions.privateKey = credentials.pemFileLocation;
-                    sshOptions.pemFileData = credentials.pemFileData;
-                } else {
-                    sshOptions.password = credentials.password;
-                }
-                var sshExec = new SSHExec(sshOptions);
-
-                sshExec.exec('echo Welcome', function(err, retCode) {
-                    if (err) {
-                        callback(err, null);
-                        return;
-                    } else if (retCode === 0) {
-                        callback(null, true);
-                    } else {
-                        callback(null, false);
+            function checkNodeCredentials(credentials,nodeDetail,callback){
+                if(nodeDetail.nodeOs !== 'windows') {
+                    var sshOptions = {
+                        username: credentials.username,
+                        host: nodeDetail.nodeIp,
+                        port: 22,
                     }
-                }, function(stdOut) {
-                    logger.debug(stdOut.toString('ascii'));
-                }, function(stdErr) {
-                    logger.error(stdErr.toString('ascii'));
-                });
-            } else {
-                callback(null, true);
+                    if (credentials.pemFileLocation) {
+                        sshOptions.privateKey = credentials.pemFileLocation;
+                        sshOptions.pemFileData = credentials.pemFileData;
+                    } else {
+                        sshOptions.password = credentials.password;
+                    }
+                    var sshExec = new SSHExec(sshOptions);
+
+                    sshExec.exec('echo Welcome', function (err, retCode) {
+                        if (err) {
+                            callback(err, null);
+                            return;
+                        } else if (retCode === 0) {
+                            callback(null, true);
+                        } else {
+                            callback(null, false);
+                        }
+                    }, function (stdOut) {
+                        logger.debug(stdOut.toString('ascii'));
+                    }, function (stdErr) {
+                        logger.error(stdErr.toString('ascii'));
+                    });
+                } else {
+                    callback(null, true);
+                }
             }
-        }
     });
 
     app.post('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/blueprints/docker', function(req, res) {
@@ -2495,6 +2486,66 @@ module.exports.setRoutes = function(app, sessionVerification) {
         });
     });
 
+    app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/:provider', function(req, res) {
+        var jsonData = {};
+        jsonData['orgId'] = req.params.orgId;
+        jsonData['bgId'] = req.params.bgId;
+        jsonData['projectId'] = req.params.projectId;
+        jsonData['envId'] = req.params.envId;
+        jsonData['instanceType'] = req.params.instanceType;
+        jsonData['userName'] = req.session.user.cn;
+        jsonData['blueprintType'] = req.query.blueprintType;
+        if(req.params.provider === null || req.params.provider ==='null'){
+            jsonData['providerType'] = 'aws';
+        }else{
+            jsonData['providerType'] = req.params.provider;
+        }
+        configmgmtDao.getTeamsOrgBuProjForUser(req.session.user.cn, function(err, orgbuprojs) {
+            if (orgbuprojs.length === 0) {
+                res.send(401, "User not part of team to see project.");
+                return;
+            }
+            if (!err) {
+                if (typeof orgbuprojs[0].projects !== "undefined" && orgbuprojs[0].projects.indexOf(req.params.projectId) >= 0) {
+                    async.parallel({
+                            tasks: function(callback) {
+                                Task.getTasksByOrgBgProjectAndEnvId(jsonData, callback);
+                            },
+                            instances: function(callback) {
+                                instancesDao.getInstancesByOrgBgProjectAndEnvId(jsonData, callback);
+                            },
+                            blueprints: function(callback) {
+                                Blueprints.getBlueprintsByOrgBgProjectProvider(jsonData, callback);
+                            },
+                            stacks: function(callback) {
+                                CloudFormation.findByOrgBgProjectAndEnvId(jsonData, callback);
+                            },
+                            arms: function(callback) {
+                                AzureArm.findByOrgBgProjectAndEnvId(jsonData, callback);
+                            }
+                        },
+                        function(err, results) {
+                            if (err) {
+                                res.status(500).send("Internal Server Error");
+                            } else if (!results) {
+                                res.status(400).send("Data Not Found");
+                            } else {
+                                res.status(200).send(results);
+                            }
+                        }
+                    );
+
+                } else {
+                    res.status(401).send("User not part of team to see project");
+                    return;
+                }
+            } else {
+                res.status(500).send("Internal Server Error");
+                return;
+            }
+        });
+    });
+
     // End point which will give list of all Docker instances for Org,BG,Proj and Env.
     app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/docker/instances', function(req, res) {
         instancesDao.getInstancesByOrgBgProjectAndEnvForDocker(req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId, function(err, instances) {
@@ -2509,7 +2560,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
             return;
         });
     });
-
+    
 
     app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/blueprintList', validate(orgValidator.applications), getBluePrintList);
 
@@ -2517,51 +2568,219 @@ module.exports.setRoutes = function(app, sessionVerification) {
     function getBluePrintList(req, res, next) {
         var reqData = {};
         async.waterfall([
-            function(next) {
-                apiUtil.paginationRequest(req.query, 'blueprints', next);
-            },
-            function(paginationReq, next) {
-                if (req.query.templateType === 'composite') {
-                    paginationReq['organizationId'] = req.params.orgId;
-                    paginationReq['businessGroupId'] = req.params.bgId;
-                    paginationReq['projectId'] = req.params.projectId;
-                    paginationReq['cloudProviderType'] = req.query.providerType;
-                    paginationReq['searchColumns'] = ['name'];
-                } else {
-                    paginationReq['orgId'] = req.params.orgId;
-                    paginationReq['bgId'] = req.params.bgId;
-                    paginationReq['projectId'] = req.params.projectId;
-                    paginationReq['templateType'] = req.query.templateType;
-                    paginationReq['blueprintConfig.cloudProviderType'] = req.query.providerType;
-                    paginationReq['searchColumns'] = ['name'];
-                }
-                reqData = paginationReq;
-                apiUtil.databaseUtil(paginationReq, next);
+                function(next) {
+                    apiUtil.paginationRequest(req.query, 'blueprints', next);
+                },
+                function(paginationReq, next) {
+                    if(req.query.templateType === 'composite'){
+                        paginationReq['organizationId'] = req.params.orgId;
+                        paginationReq['businessGroupId'] = req.params.bgId;
+                        paginationReq['projectId'] = req.params.projectId;
+                        paginationReq['cloudProviderType'] = req.query.providerType;
+                        paginationReq['searchColumns'] = ['name'];
+                    }else{
+                        paginationReq['orgId'] = req.params.orgId;
+                        paginationReq['bgId'] = req.params.bgId;
+                        paginationReq['projectId'] = req.params.projectId;
+                        paginationReq['templateType'] = req.query.templateType;
+                        paginationReq['blueprintConfig.cloudProviderType'] = req.query.providerType;
+                        paginationReq['searchColumns'] = ['name'];
+                    }
+                    reqData = paginationReq;
+                    apiUtil.databaseUtil(paginationReq, next);
 
-            },
-            function(queryObj, next) {
-                if (req.query.templateType === 'composite') {
-                    compositeBlueprintModel.getCompositeBlueprintByOrgBgProject(queryObj, next)
-                } else {
-                    Blueprints.getBlueprintByOrgBgProjectProviderType(queryObj, next);
+                },
+                function(queryObj, next) {
+                    if(req.query.templateType === 'composite'){
+                        compositeBlueprintModel.getCompositeBlueprintByOrgBgProject(queryObj, next)
+                    }else {
+                        Blueprints.getBlueprintByOrgBgProjectProviderType(queryObj, next);
+                    }
+                },
+                function(blueprints, next) {
+                    if(req.query.pagination === 'true'){
+                        apiUtil.paginationResponse(blueprints, reqData, next);
+                    }else{
+                        next(null,blueprints.docs);
+                    }
+                }], function(err, results) {
+                if (err) {
+                    res.send({
+                        "errorCode": 500,
+                        "message": "Error occured while fetching Blueprints."
+                    });
+                } else{
+                    return res.send(results);
                 }
-            },
-            function(blueprints, next) {
-                if (req.query.pagination === 'true') {
-                    apiUtil.paginationResponse(blueprints, reqData, next);
-                } else {
-                    next(null, blueprints.docs);
-                }
-            }
-        ], function(err, results) {
-            if (err) {
-                res.send({
-                    "errorCode": 500,
-                    "message": "Error occured while fetching Blueprints."
-                });
-            } else {
-                return res.send(results);
-            }
-        });
+            });
     }
+
+}
+
+
+function syncDesignTreeWithProjectAndEnv(orgId,bgId,callback){
+    var projectObjList = [];
+    d4dModelNew.d4dModelMastersProjects.find({
+        id: '4',
+        orgname_rowid: {
+        $in: [orgId]
+        },
+        productgroupname_rowid: bgId
+    }, function(err, projectList) {
+        if(err){
+            callback (err,null);;
+        }else if(projectList.length > 0){
+            for(var i = 0; i < projectList.length;i++){
+                if(projectList[i].environmentname_rowid && projectList[i].environmentname_rowid !== ''){
+                    var envIds = projectList[i].environmentname_rowid.split(',');
+                    var envNames = projectList[i].environmentname.split(',');
+                    var envObjList =[];
+                    for(var j = 0; j < envIds.length; j++) {
+                        envObjList.push({
+                            name: envNames[j],
+                            rowid: envIds[j],
+                        });
+                    }
+                    if(envObjList.length === envIds.length){
+                        var projectObj = {
+                            name:projectList[i].projectname,
+                            rowId:projectList[i].rowid,
+                            environments:envObjList
+                        }
+                        projectObjList.push(projectObj);
+                        projectObj = {};
+                        if(projectObjList.length === projectList.length){
+                            callback (null,projectObjList);
+                        }
+                    }
+                }else{
+                    var projectObj = {
+                        name:projectList[i].projectname,
+                        rowId:projectList[i].rowid,
+                        environments:[""]
+                    }
+                    projectObjList.push(projectObj);
+                    projectObj = {};
+                    if(projectObjList.length === projectList.length){
+                        callback (null,projectObjList);
+                    }
+                }
+
+            }
+        }else{
+            callback (null,projectObjList);
+        }
+    })
+}
+
+function syncWorkZoneTreeWithProjectAndEnv(orgId,orgName,bgId,bgName,callback){
+    var resultObj = {};
+    var projectObjList =[],projectNodeObjList =[];
+    d4dModelNew.d4dModelMastersProjects.find({
+        id: '4',
+        orgname_rowid: {
+            $in: [orgId]
+        },
+        productgroupname_rowid: bgId
+    }, function(err, projectList) {
+        if(err){
+            callback (err,null);;
+        }else if(projectList.length > 0){
+            for(var i = 0; i < projectList.length;i++){
+                (function(project){
+                    if(project.environmentname_rowid && project.environmentname_rowid !== '') {
+                        var envIds = project.environmentname_rowid.split(',');
+                        var envNames = project.environmentname.split(',');
+                        var envNodeList =[],envObjList =[];
+                        for (var j = 0; j < envIds.length; j++) {
+                            envObjList.push({
+                                name: envNames[j],
+                                text: envNames[j],
+                                rowid: envIds[j],
+                            });
+                            envNodeList.push({
+                                text: envNames[j],
+                                href: '#ajax/Dev.html?org=' + orgId + '&bg=' + bgId + '&projid=' + project.rowid + '&envid=' + envIds[j],
+                                orgname: orgName,
+                                orgid: orgId,
+                                rowid: envIds[j],
+                                projname: project.projectname,
+                                bgname: bgName,
+                                itemtype: 'env',
+                                tooltip: envNames[j],
+                                icon: 'fa fa-fw fa-1x fa-desktop'
+                            });
+                        }
+                        if (envNodeList.length === envIds.length && envObjList.length === envIds.length) {
+                            var projectObj = {
+                                name: project.projectname,
+                                text: project.projectname,
+                                rowid: project.rowid,
+                                environments: envObjList
+                            }
+                            var selectable = !!appConfig.features.appcard;
+                            var nodeProjectObj = {
+                                name: project.projectname,
+                                text: project.projectname,
+                                rowid: project.rowid,
+                                orgname: orgName,
+                                orgid: orgId,
+                                bgname: bgName,
+                                icon: 'fa fa-fw fa-1x fa-tasks',
+                                nodes: envNodeList,
+                                borderColor: '#000',
+                                selectable: selectable,
+                                itemtype: 'proj',
+                                href: selectable ? '#ajax/ProjectSummary.html?org=' + orgId + '&bg=' + bgId + '&projid=' + project.rowid : 'javascript:void(0)',
+                                environments: envObjList
+                            }
+                            projectObjList.push(projectObj);
+                            projectNodeObjList.push(nodeProjectObj);
+                            if (projectObjList.length === projectList.length && projectNodeObjList.length === projectList.length) {
+                                resultObj = {
+                                    projectObj: projectObjList,
+                                    projectNodeObj: projectNodeObjList
+                                }
+                                callback(null, resultObj);
+                            }
+                        }
+                    }else{
+                        var projectObj = {
+                            name: project.projectname,
+                            text: project.projectname,
+                            rowid: project.rowid,
+                            environments: [""]
+                        }
+                        var selectable = !!appConfig.features.appcard;
+                        var nodeProjectObj = {
+                            name: project.projectname,
+                            text: project.projectname,
+                            rowid: project.rowid,
+                            orgname: orgName,
+                            orgid: orgId,
+                            bgname: bgName,
+                            icon: 'fa fa-fw fa-1x fa-tasks',
+                            nodes: [],
+                            borderColor: '#000',
+                            selectable: selectable,
+                            itemtype: 'proj',
+                            href: 'javascript:void(0)',
+                            environments: [""]
+                        }
+                        projectObjList.push(projectObj);
+                        projectNodeObjList.push(nodeProjectObj);
+                        if (projectObjList.length === projectList.length && projectNodeObjList.length === projectList.length) {
+                            resultObj = {
+                                projectObj: projectObjList,
+                                projectNodeObj: projectNodeObjList
+                            }
+                            callback(null, resultObj);
+                        }
+                    }
+                })(projectList[i]);
+            }
+        }else{
+            callback (null,resultObj);
+        }
+    })
 }

@@ -67,10 +67,22 @@ var awsProviderSchema = new Schema({
 		type: String,
 		required: false,
 		trim: true
+	},
+	lastBillUpdateTime: {
+		type: Number,
+		required: false
+	},
+	plannedCost: {
+		type: Number,
+		required:false,
+		default:0.0
 	}
 });
+awsProviderSchema.path('plannedCost').get(function(num) {
+	return (num).toFixed(2);
+});
 
-// Static methods :- 
+// Static methods :-
 
 // creates a new Provider
 awsProviderSchema.statics.createNew = function(providerData, callback) {
@@ -201,7 +213,8 @@ awsProviderSchema.statics.updateAWSProviderById = function(providerId, providerD
 			providerName: providerData.providerName,
 			accessKey: providerData.accessKey,
 			secretKey: providerData.secretKey,
-			s3BucketName: providerData.s3BucketName
+			s3BucketName: providerData.s3BucketName,
+			plannedCost:providerData.plannedCost
 		}
 	}, {
 		upsert: false
@@ -215,6 +228,25 @@ awsProviderSchema.statics.updateAWSProviderById = function(providerId, providerD
 		callback(null, updateCount);
 		return;
 
+	});
+};
+
+awsProviderSchema.statics.updateLastBillUpdateTime = function(providerId, billUpdateTime, callback) {
+	console.log(providerId)
+	this.update({
+		"_id": new ObjectId(providerId)
+	}, {
+		$set: {
+			lastBillUpdateTime: billUpdateTime
+		}
+	}, {
+		upsert: false
+	}, function(err, updateCount) {
+		if (err) {
+			return callback(err, null);
+		}
+
+		return callback(null);
 	});
 };
 

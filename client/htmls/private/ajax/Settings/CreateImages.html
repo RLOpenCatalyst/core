@@ -257,10 +257,11 @@ function getProviderList(_val) {
             $('#osType').on('change',function(){
               var ostype = $('#osType').find("option:selected").val();
               if($('#osType').val() == 'Windows'){
-                $('.forazurepassword').find('#password').attr('cat-validation', 'required,min8');
-              }
-              else{
-                $('.forazurepassword').find('#password').removeAttr('cat-validation');
+                  $('.forazurepassword').find('#password').attr('cat-validation', 'required,min8');
+                  $('.forazurepassword label').html('Admin  Password:').append('<span class="control-label redSpan">&nbsp;*</span>');
+              }else{
+                  $('.forazurepassword label').html('Admin  Password:');
+                  $('.forazurepassword').find('#password').removeAttr('cat-validation');
               }
             });
         }

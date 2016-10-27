@@ -42,6 +42,7 @@ var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var SSHExec = require('_pr/lib/utils/sshexec');
 // @TODO Authorization to be checked for all end points
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
+
     app.all("/providers/*", sessionVerificationFunc);
     // @TODO To be refactored
     app.get('/providers/:providerId', function(req, res) {
@@ -88,25 +89,24 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         var reqObj = {};
         async.waterfall(
             [
-                function(next) {
+                function (next) {
                     apiUtil.changeRequestForJqueryPagination(req.query, next);
                 },
-                function(reqData, next) {
+                function (reqData, next) {
                     reqObj = reqData;
                     apiUtil.paginationRequest(reqData, 'managedInstances', next);
                 },
-                function(paginationReq, next) {
+                function (paginationReq, next) {
                     paginationReq['providerId'] = req.params.providerId;
-                    paginationReq['searchColumns'] = ['instanceIP', 'instanceState'];
+                    paginationReq['searchColumns'] = ['instanceIP', 'instanceState','platformId','hardware.os','projectName','environmentName'];
                     apiUtil.databaseUtil(paginationReq, next);
                 },
-                function(queryObj, next) {
+                function (queryObj, next) {
                     instancesDao.getByProviderId(queryObj, next);
                 },
-                function(managedInstances, next) {
+                function (managedInstances, next) {
                     apiUtil.changeResponseForJqueryPagination(managedInstances, reqObj, next);
-                },
-
+                }
             ],
             function(err, results) {
                 if (err)
@@ -122,22 +122,21 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         var reqData = {};
         async.waterfall(
             [
-                function(next) {
+                function (next) {
                     apiUtil.paginationRequest(req.query, 'managedInstances', next);
                 },
-                function(paginationReq, next) {
+                function (paginationReq, next) {
                     paginationReq['providerId'] = req.params.providerId;
-                    paginationReq['searchColumns'] = ['instanceIP', 'instanceState'];
+                    paginationReq['searchColumns'] = ['instanceIP', 'instanceState','platformId','hardware.os','projectName','environmentName'];
                     reqData = paginationReq;
                     apiUtil.databaseUtil(paginationReq, next);
                 },
-                function(queryObj, next) {
+                function (queryObj, next) {
                     instancesDao.getByProviderId(queryObj, next);
                 },
-                function(managedInstances, next) {
+                function (managedInstances, next) {
                     apiUtil.paginationResponse(managedInstances, reqData, next);
                 }
-
             ],
             function(err, results) {
                 if (err)
@@ -159,7 +158,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 },
                 function(paginationReq, next) {
                     paginationReq['providerId'] = req.params.providerId;
-                    paginationReq['searchColumns'] = ['ip', 'platformId'];
+                    paginationReq['searchColumns'] = ['ip', 'platformId','os','state','projectName','environmentName','providerData.region'];
                     reqData = paginationReq;
                     apiUtil.databaseUtil(paginationReq, next);
                 },
@@ -194,7 +193,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 },
                 function(paginationReq, next) {
                     paginationReq['providerId'] = req.params.providerId;
-                    paginationReq['searchColumns'] = ['ip', 'platformId'];
+                    paginationReq['searchColumns'] = ['ip', 'platformId','os','state','projectName','environmentName','providerData.region'];
                     apiUtil.databaseUtil(paginationReq, next);
                 },
                 function(queryObj, next) {
@@ -391,12 +390,12 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                         return;
                                                     }
                                                     var nodeDetails = {
-                                                        nodeIp : unmanagedInstance.ip,
-                                                        nodeOs:unmanagedInstance.os,
-                                                        nodeName:unmanagedInstance.platformId,
-                                                        nodeEnv:req.body.environmentName
+                                                        nodeIp: unmanagedInstance.ip,
+                                                        nodeOs: unmanagedInstance.os,
+                                                        nodeName: unmanagedInstance.platformId,
+                                                        nodeEnv: req.body.environmentName
                                                     }
-                                                    checkNodeCredentials(credentials,nodeDetails,function(err,credentialStatus) {
+                                                    checkNodeCredentials(credentials, nodeDetails, function(err, credentialStatus) {
                                                         if (err) {
                                                             logger.error(err);
                                                             res.status(400).send({
@@ -425,7 +424,10 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                                 appUrls: appUrls,
                                                                 instanceIP: unmanagedInstance.ip,
                                                                 instanceState: unmanagedInstance.state,
-                                                                network:unmanagedInstance.network,
+                                                                network: unmanagedInstance.network,
+                                                                vpcId: unmanagedInstance.vpcId,
+                                                                privateIpAddress: unmanagedInstance.privateIpAddress,
+                                                                hostName: unmanagedInstance.hostName,
                                                                 bootStrapStatus: 'waiting',
                                                                 hardware: {
                                                                     platform: 'unknown',
@@ -480,7 +482,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                                     instanceId: instance.id,
                                                                     orgName: req.body.orgName,
                                                                     bgName: req.body.bgName,
-                                                                    projectName: req.body.projectname,
+                                                                    projectName: req.body.projectName,
                                                                     envName: req.body.environmentName,
                                                                     status: unmanagedInstance.state,
                                                                     actionStatus: "waiting",
@@ -773,6 +775,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                                                                 logger.error(err);
                                                                                                 return;
                                                                                             }
+
+                                                                                            instanceLog.platform = nodeData.automatic.platform;
+                                                                                            instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                                                                if (err) {
+                                                                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                                                                }
+                                                                                            });
                                                                                             hardwareData.architecture = nodeData.automatic.kernel.machine;
                                                                                             hardwareData.platform = nodeData.automatic.platform;
                                                                                             hardwareData.platformVersion = nodeData.automatic.platform_version;
@@ -899,7 +908,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
                                                                 });
                                                             });
-                                                        }else{
+
+                                                        } else {
                                                             updateTaskStatusNode(unmanagedInstance.platformId, "The username or password/pemfile you entered is incorrect " + unmanagedInstance.platformId + ". Cannot sync this node.", true, count);
                                                             return;
                                                         }
@@ -919,8 +929,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 });
             });
         });
-        function checkNodeCredentials(credentials,nodeDetail,callback){
-            if(nodeDetail.nodeOs !== 'windows') {
+
+        function checkNodeCredentials(credentials, nodeDetail, callback) {
+            if (nodeDetail.nodeOs !== 'windows') {
                 var sshOptions = {
                     username: credentials.username,
                     host: nodeDetail.nodeIp,
@@ -934,7 +945,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 }
                 var sshExec = new SSHExec(sshOptions);
 
-                sshExec.exec('echo Welcome', function (err, retCode) {
+                sshExec.exec('echo Welcome', function(err, retCode) {
                     if (err) {
                         callback(err, null);
                         return;
@@ -943,9 +954,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     } else {
                         callback(null, false);
                     }
-                }, function (stdOut) {
+                }, function(stdOut) {
                     logger.debug(stdOut.toString('ascii'));
-                }, function (stdErr) {
+                }, function(stdErr) {
                     logger.error(stdErr.toString('ascii'));
                 });
             } else {
@@ -1510,7 +1521,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 },
                 function(paginationReq, next) {
                     paginationReq['providerId'] = req.params.providerId;
-                    paginationReq['searchColumns'] = ['ip', 'platformId'];
+                    paginationReq['searchColumns'] = ['ip', 'platformId','os','state','providerData.region'];
                     reqData = paginationReq;
                     apiUtil.databaseUtil(paginationReq, next);
                 },
@@ -1673,7 +1684,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     function updateTagMapping(req, res, next) {
         async.waterfall(
             [
-
                 function(next) {
                     providerService.checkIfProviderExists(req.params.providerId, next);
                 },
@@ -1809,4 +1819,3 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         );
     }
 };
-
