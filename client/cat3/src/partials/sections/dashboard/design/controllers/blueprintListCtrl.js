@@ -24,7 +24,6 @@
                         pbList.blueprintList.list.enableSorting= false;
                         pbList.blueprintList.list.columnDefs = [
                             { name:'Name',minWidth:150,field:'name' },
-                            { name:'Name',minWidth:150,field:'name' },
                             { name:'InstanceOs',minWidth:150,field:'blueprintConfig.cloudProviderData.instanceOS'},
                             { name:'vpcId',minWidth:150,field:'blueprintConfig.cloudProviderData.vpcId'},
                             { name:'Region',minWidth:150,field:'blueprintConfig.cloudProviderData.region',visible: false},

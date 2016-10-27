@@ -47,7 +47,7 @@
                         <accordion-group ng-if="templateSelected.templatetypename !== 'Docker' && templateSelected.templatetypename !=='CloudFormation' && templateSelected.templatetypename !== 'ARMTemplate'" ng-init="accGroupStatus = {opened: isFirstOpen}" is-open="accGroupStatus.opened">
                            <accordion-heading>
                               <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
-                              Configure Provider Parameters
+                             Provider Parameters
                            </accordion-heading>
                            <div class="col-lg-4 col-md-4">
                               <label for="instanceOS">Choose Operating System:<span class="red">&nbsp;*</span>
@@ -179,9 +179,7 @@
                                  <loading size="small" name="isSecurityGroupLoading" type="inline"></loading>
                               </label>
                               <div class="col-lg-6 securityGroupComponent" ng-if="providerType === 'AWS'">
-                                 <ul>
-                                    <li ng-repeat="securityGroupDetails in bpCreate.securityGroupListing" id="securityGroupIds" name="securityGroupIds"  class="input-group col-md-12 widthBox"><label class="checkbox check-list"><input class="checkbox-list" type="checkbox" ng-checked="securityGroupDetails._isChecked" ng-model="securityGroupDetails._isChecked" name="bpCreate.newEnt.securityGroupCheck"/>{{securityGroupDetails.GroupId}} | {{securityGroupDetails.GroupName}} </label></li>
-                                 </ul>
+                                    <li style="border-bottom: 1px solid #9C9C9C;" ng-repeat="securityGroupDetails in bpCreate.securityGroupListing" id="securityGroupIds" name="securityGroupIds"  class="input-group col-md-12 widthBox"><label  style="padding-left: 26px;" class="checkbox check-list"><input class="checkbox-list" type="checkbox" ng-checked="securityGroupDetails._isChecked" ng-model="securityGroupDetails._isChecked" name="bpCreate.newEnt.securityGroupCheck"/>{{securityGroupDetails.GroupId}} | {{securityGroupDetails.GroupName}} </label></li>
                               </div>
                               <select  ng-model="bpCreate.newEnt.securityGroup" name="securityGroup" class="width-100 chooseSelect form-control" required ng-if="providerType ==='OPENSTACK'">
                                  <option value="">Select Security Group</option>
@@ -213,8 +211,14 @@
                         <accordion-group ng-init="accGroupStatus = {opened: isOrgOpen}" is-open="accGroupStatus.opened">
                            <accordion-heading>
                               <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
-                              Configure Organization Parameters
+                              Blueprint name & Organization
                            </accordion-heading>
+                           <div class="col-lg-4 col-md-4">
+                              <label for="blueprintNameInput">Enter Blueprint Name:<span class="red"  >&nbsp;*</span>
+                                 <span ng-show="newBlueprintForm.blueprintNameInput.$touched && newBlueprintForm.blueprintNameInput.$invalid" class="inputValidationMsg">Required</span>
+                              </label>
+                              <input ng-model="bpCreate.newEnt.blueprintName" name="blueprintNameInput" class="form-control" type="text" autofocus="autofocus" required>
+                           </div>
                            <div class="col-lg-4 col-md-4">
                               <label for="orgnameSelect">Choose Organization <span class="red">&nbsp;*</span>
                                  <span ng-show="newBlueprintForm.orgnameSelect.$touched && newBlueprintForm.orgnameSelect.$invalid" class="inputValidationMsg">Required</span>
@@ -224,12 +228,7 @@
                                  <option ng-repeat="config in bpCreate.orgBUProjListing" value="{{config.orgid}}">{{config.name}}</option>
                               </select>
                            </div>
-                           <div class="col-lg-4 col-md-4">
-                              <label for="blueprintNameInput">Enter Blueprint Name:<span class="red"  >&nbsp;*</span>
-                                 <span ng-show="newBlueprintForm.blueprintNameInput.$touched && newBlueprintForm.blueprintNameInput.$invalid" class="inputValidationMsg">Required</span>
-                              </label>
-                              <input ng-model="bpCreate.newEnt.blueprintName" name="blueprintNameInput" class="form-control" type="text" autofocus="autofocus" required>
-                           </div>
+
                            <div class="col-lg-4 col-md-4">
                               <label for="bgListInput">Choose Business Group <span class="red">&nbsp;*</span>
                                  <span ng-show="newBlueprintForm.bgListInput.$touched && newBlueprintForm.bgListInput.$invalid" class="inputValidationMsg">Required</span>
@@ -283,7 +282,7 @@
                         <accordion-group ng-if="templateSelected.templatetypename !== 'Docker' && templateSelected.templatetypename !=='CloudFormation' && templateSelected.templatetypename !== 'ARMTemplate'" ng-init="accGroupStatus = {opened: false}" is-open="accGroupStatus.opened">
                            <accordion-heading>
                               <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
-                              Configure Runlist Parameters
+                              Runlist Configuretion
                            </accordion-heading>
                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                               <!-- <label>
@@ -317,12 +316,14 @@
                         <accordion-group ng-if="templateSelected.templatetypename !== 'Docker' && templateSelected.templatetypename !=='CloudFormation' && templateSelected.templatetypename !== 'ARMTemplate'" ng-init="accGroupStatus = {opened: false}" is-open="accGroupStatus.opened">
                            <accordion-heading>
                               <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
-                              Configure Application
+                              Application Deployment
                            </accordion-heading>
-                           <label style="margin: 5px;font-size:13px;" class="checkbox">
-                           <input type="checkbox" ng-model="bpCreate.newEnt.appDeployCheck_isChecked" ng-change="bpCreate.showRepoServers();" class="checkConfigApp">
-                           <i></i>Deploy app during Bootstrap
-                           </label>
+                           <div class="col-lg-12 col-md-12 margintop15">
+                              <label class="btn btn-primary git stat">
+                                 <input type="checkbox" autocomplete="off" ng-model="bpCreate.newEnt.appDeployCheck_isChecked" ng-change="bpCreate.showRepoServers();"> Deploy app during Bootstrap
+                              </label>
+                           </div>
+
                            <div class="col-lg-4 col-md-4 margintop15" ng-show="showRepoServerName">
                               <label for="">Repository Server:<span class="redSpan">*</span>
                               </label>
