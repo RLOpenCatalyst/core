@@ -213,9 +213,14 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                                             }
                                                                                         } else {
                                                                                             var envList = bgTree.projects[p].environments;
-                                                                                            var envIds = team.environmentname_rowid.split(',');
-                                                                                            var envNames = team.environmentname.split(',');
+                                                                                            var envIds;
+                                                                                            var envNames;
+                                                                                            if(team && team.environmentname_rowid){
+                                                                                                envIds = team.environmentname_rowid.split(',');
+                                                                                                envNames = team.environmentname.split(',');
+                                                                                            }
                                                                                             var envCount = 0;
+                                                                                            if(envIds && envIds.length){
                                                                                             for (var r = 0; r < envIds.length; r++) {
                                                                                                 if (envIds[q] !== "") {
                                                                                                     if (checkDuplicateEnvList.indexOf(envNames[r]) === -1) {
@@ -233,7 +238,8 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                                                     return;
                                                                                                 }
                                                                                             }
-                                                                                            if (envCount === envIds.length) {
+                                                                                        }
+                                                                                            if (envCount === envIds && envIds.length) {
                                                                                                 bgTree.projects[p].environments = envList;
                                                                                                 tree.environments = envList;
                                                                                             }
