@@ -222,6 +222,7 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                             region: aKeyPair.region,
                             chefNodeName: instanceData.InstanceId,
                             tagServer: launchParams.tagServer,
+                            monitorId: launchParams.monitorId,
                             runlist: paramRunList,
                             attributes: paramAttributes,
                             platformId: instanceData.InstanceId,
