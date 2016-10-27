@@ -224,6 +224,7 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                 providerId: self.cloudProviderId,
                 providerType: self.cloudProviderType,
                 tagServer: launchParams.tagServer,
+                monitorId: launchParams.monitorId,
                 keyPairId: 'unknown',
                 region: self.region,
                 chefNodeName: instanceData.server.id,

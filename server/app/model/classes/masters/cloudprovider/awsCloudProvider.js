@@ -76,6 +76,12 @@ var awsProviderSchema = new Schema({
 		type: Number,
 		required:false,
 		default:0.0
+	},
+	monitorId: {
+		type: String,
+		required:false,
+		trim: true,
+		default: null
 	}
 });
 awsProviderSchema.path('plannedCost').get(function(num) {

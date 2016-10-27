@@ -277,6 +277,7 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                             providerId: self.cloudProviderId,
                                             providerType: self.cloudProviderType,
                                             tagServer: launchParams.tagServer,
+                                            monitorId: launchParams.monitorId,
                                             keyPairId: 'azure',
                                             region: self.region,
                                             chefNodeName: launchparamsazure.VMName,
