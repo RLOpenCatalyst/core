@@ -418,10 +418,10 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                                             checkDuplicateProjectList.push(projectNames[p]);
                                                                                             var envIds = "";
                                                                                             var envNames = "";
-                                                                                            if(team.environmentname_rowid){
+                                                                                            if (team.environmentname_rowid) {
                                                                                                 envIds = team.environmentname_rowid.split(',');
                                                                                             }
-                                                                                            if(team.environmentname){
+                                                                                            if (team.environmentname) {
                                                                                                 envNames = team.environmentname.split(',');
                                                                                             }
                                                                                             var envList = [];
@@ -478,33 +478,39 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                                             }
                                                                                         } else {
                                                                                             var envList = tree.nodes[0].nodes[p].nodes;
-                                                                                            var envIds = team.environmentname_rowid.split(',');
-                                                                                            var envNames = team.environmentname.split(',');
+                                                                                            var envIds;
+                                                                                            var envNames;
+                                                                                            if (team && team.environmentname_rowid) {
+                                                                                                envIds = team.environmentname_rowid.split(',');
+                                                                                                envNames = team.environmentname.split(',');
+                                                                                            }
                                                                                             var envCount = 0;
-                                                                                            for (var r = 0; r < envIds.length; r++) {
-                                                                                                if (envIds[q] !== "" && checkDuplicateEnvList.indexOf(envNames[r]) === -1) {
-                                                                                                    envCount++;
-                                                                                                    checkDuplicateEnvList.push(envNames[r]);
-                                                                                                    environmentCount++;
-                                                                                                    envList.push({
-                                                                                                        text: envNames[r],
-                                                                                                        href: '#ajax/Dev.html?org=' + tree.rowid + '&bg=' + bgTree.rowid + '&projid=' + projectIds[p] + '&envid=' + envIds[r],
-                                                                                                        orgname: tree.name,
-                                                                                                        orgid: tree.rowid,
-                                                                                                        rowid: envIds[r],
-                                                                                                        projname: projectNames[p],
-                                                                                                        bgname: bgTree.name,
-                                                                                                        itemtype: 'env',
-                                                                                                        tooltip: envNames[r],
-                                                                                                        icon: 'fa fa-fw fa-1x fa-desktop'
-                                                                                                    });
-                                                                                                    tree.environments.push(envNames[r]);
-                                                                                                    tree.businessGroups[0].projects[p].environments.push(envIds[r]);
-                                                                                                } else {
-                                                                                                    envCount++;
-                                                                                                }
-                                                                                                if (envCount === envIds.length) {
-                                                                                                    tree.nodes[0].nodes[p].nodes = envList;
+                                                                                            if (envIds && envIds.length) {
+                                                                                                for (var r = 0; r < envIds.length; r++) {
+                                                                                                    if (envIds[q] !== "" && checkDuplicateEnvList.indexOf(envNames[r]) === -1) {
+                                                                                                        envCount++;
+                                                                                                        checkDuplicateEnvList.push(envNames[r]);
+                                                                                                        environmentCount++;
+                                                                                                        envList.push({
+                                                                                                            text: envNames[r],
+                                                                                                            href: '#ajax/Dev.html?org=' + tree.rowid + '&bg=' + bgTree.rowid + '&projid=' + projectIds[p] + '&envid=' + envIds[r],
+                                                                                                            orgname: tree.name,
+                                                                                                            orgid: tree.rowid,
+                                                                                                            rowid: envIds[r],
+                                                                                                            projname: projectNames[p],
+                                                                                                            bgname: bgTree.name,
+                                                                                                            itemtype: 'env',
+                                                                                                            tooltip: envNames[r],
+                                                                                                            icon: 'fa fa-fw fa-1x fa-desktop'
+                                                                                                        });
+                                                                                                        tree.environments.push(envNames[r]);
+                                                                                                        tree.businessGroups[0].projects[p].environments.push(envIds[r]);
+                                                                                                    } else {
+                                                                                                        envCount++;
+                                                                                                    }
+                                                                                                    if (envCount === envIds.length) {
+                                                                                                        tree.nodes[0].nodes[p].nodes = envList;
+                                                                                                    }
                                                                                                 }
                                                                                             }
 
@@ -827,7 +833,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
         var blueprintId = req.body.blueprintData.blueprintId;
         var shortDesc = req.body.blueprintData.shortDesc;
         var botType = req.body.blueprintData.botType;
-        if(req.body.blueprintData.domainNameCheck === 'true'){
+        if (req.body.blueprintData.domainNameCheck === 'true') {
             domainNameCheck = true;
         }
         // a temp fix for invalid appurl data. will be removed in next iteration
@@ -873,9 +879,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 blueprintType: blueprintType,
                 nexus: nexus,
                 docker: docker,
-                shortDesc:shortDesc,
-                botType:botType,
-                domainNameCheck:domainNameCheck
+                shortDesc: shortDesc,
+                botType: botType,
+                domainNameCheck: domainNameCheck
             };
             //adding bluerpintID if present (edit mode)
             if (blueprintId)
@@ -1100,7 +1106,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
     });
 
     app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/instanceList', validate(orgValidator.get), getInstanceList);
-    
+
     function getInstanceList(req, res, next) {
         var reqData = {};
         async.waterfall([
@@ -1137,7 +1143,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
     }
 
     app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/taskList', validate(orgValidator.get), getTaskList);
-    
+
     function getTaskList(req, res, next) {
         var reqData = {};
         async.waterfall([
@@ -1357,15 +1363,15 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     return;
                 }
                 taskData.envName = envName;
-                if(taskData.taskType === 'script'){
-                    encryptedParam(taskData.scriptDetails,function(err,encryptedParam){
-                        if(err){
+                if (taskData.taskType === 'script') {
+                    encryptedParam(taskData.scriptDetails, function(err, encryptedParam) {
+                        if (err) {
                             logger.error(err);
                             res.status(500).send("Failed to encrypted script parameters: ", err);
                             return;
-                        }else{
+                        } else {
                             taskData.scriptDetails = encryptedParam;
-                            Task.createNew(taskData, function (err, task) {
+                            Task.createNew(taskData, function(err, task) {
                                 if (err) {
                                     logger.error(err);
                                     res.status(500).send("Failed to create task: ", err);
@@ -1379,7 +1385,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                             });
                         }
                     })
-                }else {
+                } else {
                     Task.createNew(taskData, function(err, task) {
                         if (err) {
                             logger.err(err);
@@ -1399,37 +1405,37 @@ module.exports.setRoutes = function(app, sessionVerification) {
         });
     });
 
-    function encryptedParam(paramDetails,callback){
+    function encryptedParam(paramDetails, callback) {
         var cryptoConfig = appConfig.cryptoSettings;
         var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
         var count = 0;
         var encryptedList = [];
-        for(var i = 0; i < paramDetails.length; i++){
-            (function(param){
-                if(param.scriptParameters.length > 0){
+        for (var i = 0; i < paramDetails.length; i++) {
+            (function(param) {
+                if (param.scriptParameters.length > 0) {
                     count++;
-                    for(var j = 0; j < param.scriptParameters.length; j++){
-                        (function(scriptParameter){
+                    for (var j = 0; j < param.scriptParameters.length; j++) {
+                        (function(scriptParameter) {
                             var encryptedText = cryptography.encryptText(scriptParameter, cryptoConfig.encryptionEncoding,
                                 cryptoConfig.decryptionEncoding);
                             encryptedList.push(encryptedText);
-                            if(encryptedList.length === param.scriptParameters.length){
+                            if (encryptedList.length === param.scriptParameters.length) {
                                 param.scriptParameters = encryptedList;
                                 encryptedList = [];
                             }
                         })(param.scriptParameters[j]);
                     }
-                }else{
+                } else {
                     count++;
                 }
-                if(count === paramDetails.length){
-                    callback(null,paramDetails);
+                if (count === paramDetails.length) {
+                    callback(null, paramDetails);
                     return;
                 }
             })(paramDetails[i]);
         }
     }
-    
+
 
     app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/cftList', validate(orgValidator.get), getCftList);
 
@@ -1472,25 +1478,26 @@ module.exports.setRoutes = function(app, sessionVerification) {
     function getAzureArmList(req, res, next) {
         var reqData = {};
         async.waterfall([
-            function(next) {
-                apiUtil.paginationRequest(req.query, 'azureArms', next);
-            },
-            function(paginationReq, next) {
-                paginationReq['orgId'] = req.params.orgId;
-                paginationReq['bgId'] = req.params.bgId;
-                paginationReq['projectId'] = req.params.projectId;
-                paginationReq['envId'] = req.params.envId;
-                paginationReq['searchColumns'] = ['cloudProviderId', 'deploymentName'];
-                reqData = paginationReq;
-                apiUtil.databaseUtil(paginationReq, next);
-            },
-            function(queryObj, next) {
-                queryObj['pagination'] = true;
-                AzureArm.findByOrgBgProjectAndEnvId(queryObj, next);
-            },
-            function(armsData, next) {
-                apiUtil.paginationResponse(armsData, reqData, next);
-            }],
+                function(next) {
+                    apiUtil.paginationRequest(req.query, 'azureArms', next);
+                },
+                function(paginationReq, next) {
+                    paginationReq['orgId'] = req.params.orgId;
+                    paginationReq['bgId'] = req.params.bgId;
+                    paginationReq['projectId'] = req.params.projectId;
+                    paginationReq['envId'] = req.params.envId;
+                    paginationReq['searchColumns'] = ['cloudProviderId', 'deploymentName'];
+                    reqData = paginationReq;
+                    apiUtil.databaseUtil(paginationReq, next);
+                },
+                function(queryObj, next) {
+                    queryObj['pagination'] = true;
+                    AzureArm.findByOrgBgProjectAndEnvId(queryObj, next);
+                },
+                function(armsData, next) {
+                    apiUtil.paginationResponse(armsData, reqData, next);
+                }
+            ],
             function(err, results) {
                 if (err) {
                     res.send({
@@ -2395,39 +2402,40 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 });
             });
         });
-            function checkNodeCredentials(credentials,nodeDetail,callback){
-                if(nodeDetail.nodeOs !== 'windows') {
-                    var sshOptions = {
-                        username: credentials.username,
-                        host: nodeDetail.nodeIp,
-                        port: 22,
-                    }
-                    if (credentials.pemFileLocation) {
-                        sshOptions.privateKey = credentials.pemFileLocation;
-                        sshOptions.pemFileData = credentials.pemFileData;
-                    } else {
-                        sshOptions.password = credentials.password;
-                    }
-                    var sshExec = new SSHExec(sshOptions);
 
-                    sshExec.exec('echo Welcome', function (err, retCode) {
-                        if (err) {
-                            callback(err, null);
-                            return;
-                        } else if (retCode === 0) {
-                            callback(null, true);
-                        } else {
-                            callback(null, false);
-                        }
-                    }, function (stdOut) {
-                        logger.debug(stdOut.toString('ascii'));
-                    }, function (stdErr) {
-                        logger.error(stdErr.toString('ascii'));
-                    });
-                } else {
-                    callback(null, true);
+        function checkNodeCredentials(credentials, nodeDetail, callback) {
+            if (nodeDetail.nodeOs !== 'windows') {
+                var sshOptions = {
+                    username: credentials.username,
+                    host: nodeDetail.nodeIp,
+                    port: 22,
                 }
+                if (credentials.pemFileLocation) {
+                    sshOptions.privateKey = credentials.pemFileLocation;
+                    sshOptions.pemFileData = credentials.pemFileData;
+                } else {
+                    sshOptions.password = credentials.password;
+                }
+                var sshExec = new SSHExec(sshOptions);
+
+                sshExec.exec('echo Welcome', function(err, retCode) {
+                    if (err) {
+                        callback(err, null);
+                        return;
+                    } else if (retCode === 0) {
+                        callback(null, true);
+                    } else {
+                        callback(null, false);
+                    }
+                }, function(stdOut) {
+                    logger.debug(stdOut.toString('ascii'));
+                }, function(stdErr) {
+                    logger.error(stdErr.toString('ascii'));
+                });
+            } else {
+                callback(null, true);
             }
+        }
     });
 
     app.post('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/blueprints/docker', function(req, res) {
@@ -2495,9 +2503,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
         jsonData['instanceType'] = req.params.instanceType;
         jsonData['userName'] = req.session.user.cn;
         jsonData['blueprintType'] = req.query.blueprintType;
-        if(req.params.provider === null || req.params.provider ==='null'){
+        if (req.params.provider === null || req.params.provider === 'null') {
             jsonData['providerType'] = 'aws';
-        }else{
+        } else {
             jsonData['providerType'] = req.params.provider;
         }
         configmgmtDao.getTeamsOrgBuProjForUser(req.session.user.cn, function(err, orgbuprojs) {
@@ -2560,7 +2568,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
             return;
         });
     });
-    
+
 
     app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/blueprintList', validate(orgValidator.applications), getBluePrintList);
 
@@ -2568,114 +2576,59 @@ module.exports.setRoutes = function(app, sessionVerification) {
     function getBluePrintList(req, res, next) {
         var reqData = {};
         async.waterfall([
-                function(next) {
-                    apiUtil.paginationRequest(req.query, 'blueprints', next);
-                },
-                function(paginationReq, next) {
-                    if(req.query.templateType === 'composite'){
-                        paginationReq['organizationId'] = req.params.orgId;
-                        paginationReq['businessGroupId'] = req.params.bgId;
-                        paginationReq['projectId'] = req.params.projectId;
-                        paginationReq['cloudProviderType'] = req.query.providerType;
-                        paginationReq['searchColumns'] = ['name'];
-                    }else{
-                        paginationReq['orgId'] = req.params.orgId;
-                        paginationReq['bgId'] = req.params.bgId;
-                        paginationReq['projectId'] = req.params.projectId;
-                        paginationReq['templateType'] = req.query.templateType;
-                        paginationReq['blueprintConfig.cloudProviderType'] = req.query.providerType;
-                        paginationReq['searchColumns'] = ['name'];
-                    }
-                    reqData = paginationReq;
-                    apiUtil.databaseUtil(paginationReq, next);
-
-                },
-                function(queryObj, next) {
-                    if(req.query.templateType === 'composite'){
-                        compositeBlueprintModel.getCompositeBlueprintByOrgBgProject(queryObj, next)
-                    }else {
-                        Blueprints.getBlueprintByOrgBgProjectProviderType(queryObj, next);
-                    }
-                },
-                function(blueprints, next) {
-                    if(req.query.pagination === 'true'){
-                        apiUtil.paginationResponse(blueprints, reqData, next);
-                    }else{
-                        next(null,blueprints.docs);
-                    }
-                }], function(err, results) {
-                if (err) {
-                    res.send({
-                        "errorCode": 500,
-                        "message": "Error occured while fetching Blueprints."
-                    });
-                } else{
-                    return res.send(results);
+            function(next) {
+                apiUtil.paginationRequest(req.query, 'blueprints', next);
+            },
+            function(paginationReq, next) {
+                if (req.query.templateType === 'composite') {
+                    paginationReq['organizationId'] = req.params.orgId;
+                    paginationReq['businessGroupId'] = req.params.bgId;
+                    paginationReq['projectId'] = req.params.projectId;
+                    paginationReq['cloudProviderType'] = req.query.providerType;
+                    paginationReq['searchColumns'] = ['name'];
+                } else {
+                    paginationReq['orgId'] = req.params.orgId;
+                    paginationReq['bgId'] = req.params.bgId;
+                    paginationReq['projectId'] = req.params.projectId;
+                    paginationReq['templateType'] = req.query.templateType;
+                    paginationReq['blueprintConfig.cloudProviderType'] = req.query.providerType;
+                    paginationReq['searchColumns'] = ['name'];
                 }
-            });
+                reqData = paginationReq;
+                apiUtil.databaseUtil(paginationReq, next);
+
+            },
+            function(queryObj, next) {
+                if (req.query.templateType === 'composite') {
+                    compositeBlueprintModel.getCompositeBlueprintByOrgBgProject(queryObj, next)
+                } else {
+                    Blueprints.getBlueprintByOrgBgProjectProviderType(queryObj, next);
+                }
+            },
+            function(blueprints, next) {
+                if (req.query.pagination === 'true') {
+                    apiUtil.paginationResponse(blueprints, reqData, next);
+                } else {
+                    next(null, blueprints.docs);
+                }
+            }
+        ], function(err, results) {
+            if (err) {
+                res.send({
+                    "errorCode": 500,
+                    "message": "Error occured while fetching Blueprints."
+                });
+            } else {
+                return res.send(results);
+            }
+        });
     }
 
 }
 
 
-function syncDesignTreeWithProjectAndEnv(orgId,bgId,callback){
+function syncDesignTreeWithProjectAndEnv(orgId, bgId, callback) {
     var projectObjList = [];
-    d4dModelNew.d4dModelMastersProjects.find({
-        id: '4',
-        orgname_rowid: {
-        $in: [orgId]
-        },
-        productgroupname_rowid: bgId
-    }, function(err, projectList) {
-        if(err){
-            callback (err,null);;
-        }else if(projectList.length > 0){
-            for(var i = 0; i < projectList.length;i++){
-                if(projectList[i].environmentname_rowid && projectList[i].environmentname_rowid !== ''){
-                    var envIds = projectList[i].environmentname_rowid.split(',');
-                    var envNames = projectList[i].environmentname.split(',');
-                    var envObjList =[];
-                    for(var j = 0; j < envIds.length; j++) {
-                        envObjList.push({
-                            name: envNames[j],
-                            rowid: envIds[j],
-                        });
-                    }
-                    if(envObjList.length === envIds.length){
-                        var projectObj = {
-                            name:projectList[i].projectname,
-                            rowId:projectList[i].rowid,
-                            environments:envObjList
-                        }
-                        projectObjList.push(projectObj);
-                        projectObj = {};
-                        if(projectObjList.length === projectList.length){
-                            callback (null,projectObjList);
-                        }
-                    }
-                }else{
-                    var projectObj = {
-                        name:projectList[i].projectname,
-                        rowId:projectList[i].rowid,
-                        environments:[""]
-                    }
-                    projectObjList.push(projectObj);
-                    projectObj = {};
-                    if(projectObjList.length === projectList.length){
-                        callback (null,projectObjList);
-                    }
-                }
-
-            }
-        }else{
-            callback (null,projectObjList);
-        }
-    })
-}
-
-function syncWorkZoneTreeWithProjectAndEnv(orgId,orgName,bgId,bgName,callback){
-    var resultObj = {};
-    var projectObjList =[],projectNodeObjList =[];
     d4dModelNew.d4dModelMastersProjects.find({
         id: '4',
         orgname_rowid: {
@@ -2683,15 +2636,73 @@ function syncWorkZoneTreeWithProjectAndEnv(orgId,orgName,bgId,bgName,callback){
         },
         productgroupname_rowid: bgId
     }, function(err, projectList) {
-        if(err){
-            callback (err,null);;
-        }else if(projectList.length > 0){
-            for(var i = 0; i < projectList.length;i++){
-                (function(project){
-                    if(project.environmentname_rowid && project.environmentname_rowid !== '') {
+        if (err) {
+            callback(err, null);;
+        } else if (projectList.length > 0) {
+            for (var i = 0; i < projectList.length; i++) {
+                if (projectList[i].environmentname_rowid && projectList[i].environmentname_rowid !== '') {
+                    var envIds = projectList[i].environmentname_rowid.split(',');
+                    var envNames = projectList[i].environmentname.split(',');
+                    var envObjList = [];
+                    for (var j = 0; j < envIds.length; j++) {
+                        envObjList.push({
+                            name: envNames[j],
+                            rowid: envIds[j],
+                        });
+                    }
+                    if (envObjList.length === envIds.length) {
+                        var projectObj = {
+                            name: projectList[i].projectname,
+                            rowId: projectList[i].rowid,
+                            environments: envObjList
+                        }
+                        projectObjList.push(projectObj);
+                        projectObj = {};
+                        if (projectObjList.length === projectList.length) {
+                            callback(null, projectObjList);
+                        }
+                    }
+                } else {
+                    var projectObj = {
+                        name: projectList[i].projectname,
+                        rowId: projectList[i].rowid,
+                        environments: [""]
+                    }
+                    projectObjList.push(projectObj);
+                    projectObj = {};
+                    if (projectObjList.length === projectList.length) {
+                        callback(null, projectObjList);
+                    }
+                }
+
+            }
+        } else {
+            callback(null, projectObjList);
+        }
+    })
+}
+
+function syncWorkZoneTreeWithProjectAndEnv(orgId, orgName, bgId, bgName, callback) {
+    var resultObj = {};
+    var projectObjList = [],
+        projectNodeObjList = [];
+    d4dModelNew.d4dModelMastersProjects.find({
+        id: '4',
+        orgname_rowid: {
+            $in: [orgId]
+        },
+        productgroupname_rowid: bgId
+    }, function(err, projectList) {
+        if (err) {
+            callback(err, null);;
+        } else if (projectList.length > 0) {
+            for (var i = 0; i < projectList.length; i++) {
+                (function(project) {
+                    if (project.environmentname_rowid && project.environmentname_rowid !== '') {
                         var envIds = project.environmentname_rowid.split(',');
                         var envNames = project.environmentname.split(',');
-                        var envNodeList =[],envObjList =[];
+                        var envNodeList = [],
+                            envObjList = [];
                         for (var j = 0; j < envIds.length; j++) {
                             envObjList.push({
                                 name: envNames[j],
@@ -2744,7 +2755,7 @@ function syncWorkZoneTreeWithProjectAndEnv(orgId,orgName,bgId,bgName,callback){
                                 callback(null, resultObj);
                             }
                         }
-                    }else{
+                    } else {
                         var projectObj = {
                             name: project.projectname,
                             text: project.projectname,
@@ -2779,8 +2790,8 @@ function syncWorkZoneTreeWithProjectAndEnv(orgId,orgName,bgId,bgName,callback){
                     }
                 })(projectList[i]);
             }
-        }else{
-            callback (null,resultObj);
+        } else {
+            callback(null, resultObj);
         }
     })
 }
