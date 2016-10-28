@@ -343,8 +343,7 @@ BlueprintSchema.methods.launch = function(opts, callback) {
                                 sessionUser: opts.sessionUser,
                                 users: self.users,
                                 blueprintData: self,
-                                tagServer: opts.tagServer,
-                                monitorId: opts.monitorId
+                                tagServer: opts.tagServer
                             }, function(err, launchData) {
                                 callback(err, launchData);
                             });
@@ -368,8 +367,7 @@ BlueprintSchema.methods.launch = function(opts, callback) {
                             sessionUser: opts.sessionUser,
                             users: self.users,
                             blueprintData: self,
-                            tagServer: opts.tagServer,
-                            monitorId: opts.monitorId
+                            tagServer: opts.tagServer
                         }, function(err, launchData) {
                             callback(err, launchData);
                         });
