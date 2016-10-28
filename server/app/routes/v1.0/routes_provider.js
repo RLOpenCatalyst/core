@@ -76,27 +76,24 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                     keyPairs: keyPair,
                                     isDefault: providers[i].isDefault
                                 };
-                                getMonitorDetail(providers[i], function (data) {
-                                    providers[i] = data;
-                                    dommyProvider.monitor = providers[i].monitor;
+                                var cryptoConfig = appConfig.cryptoSettings;
+                                var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
 
+                                if (!providers[i].isDefault) {
                                     var cryptoConfig = appConfig.cryptoSettings;
-                                    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+                                    var cryptography = new Cryptography(cryptoConfig.algorithm,
+                                        cryptoConfig.password);
 
-                                    if (!providers[i].isDefault) {
-                                        var cryptoConfig = appConfig.cryptoSettings;
-                                        var cryptography = new Cryptography(cryptoConfig.algorithm,
-                                            cryptoConfig.password);
-
-                                        dommyProvider.accessKey = cryptography.decryptText(providers[i].accessKey,
-                                            cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-                                        dommyProvider.secretKey = cryptography.decryptText(providers[i].secretKey,
-                                            cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-                                    }
-
-                                    providerList.push(dommyProvider);
+                                    dommyProvider.accessKey = cryptography.decryptText(providers[i].accessKey,
+                                        cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                                    dommyProvider.secretKey = cryptography.decryptText(providers[i].secretKey,
+                                        cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                                }
+                                getMonitorDetail(providers[i], function (data) {
+                                    dommyProvider.monitor = data.monitor;
+                                     providerList.push(dommyProvider);
                                     logger.debug("count: ", count);
-                                    if (count === providers.length) {
+                                    if (providers.length === providers.length) {
                                         res.send(providerList);
                                         return;
                                     }
@@ -2461,8 +2458,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                             if (providers && providers.length > 0) {
                                 for (var i = 0; i < providers.length; i++) {
                                     getMonitorDetail(providers[i], function (data) {
-                                        providers[i] = data;
-                                        providersList.push(providers[i]);
+                                        providersList.push(data);
                                         if (providers.length === providersList.length) {
                                             res.send(providersList);
                                             return;
@@ -2580,6 +2576,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             res.status(400).send("{Please Enter ProviderId.}");
             return;
         }
+
         // if (typeof accessKey === 'undefined' || accessKey.length === 0) {
         // 	res.status(400).send("{Please Enter AccessKey.}");
         // 	return;

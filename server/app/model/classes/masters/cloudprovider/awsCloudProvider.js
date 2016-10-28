@@ -220,6 +220,7 @@ awsProviderSchema.statics.updateAWSProviderById = function(providerId, providerD
 			accessKey: providerData.accessKey,
 			secretKey: providerData.secretKey,
 			s3BucketName: providerData.s3BucketName,
+			monitorId:providerData.monitorId,
 			plannedCost:providerData.plannedCost
 		}
 	}, {
