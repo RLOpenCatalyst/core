@@ -1,0 +1,264 @@
+<div class="content">
+<form action="" id="myForm22">
+   <div class="widget-box">
+      <div class="widget-header">
+           <h4 class="widget-margin" style="color:black;">Create VMImages
+           <span class="widget-toolbar no-border">
+              <div class="wizardAdd">
+                 <a href="ajax/Settings/vmImageWizard.html" id="createNewVmImage" style="margin-right:11px;" class="btn btn-primary"><i class="ace-icon ace-icon fa fa-plus bigger-110"></i>&nbsp;Add New VmImage</a>             
+              </div>
+          </span>
+          </h4>
+      </div>
+      <div class="widget-body">
+         <div class="widget-main" style="height:400px">
+            <div class="jarviswidget" data-widget-editbutton="false" data-widget-custombutton="false">
+               <div>
+                  <!-- widget content -->
+                  <div class="widget-body no-padding">
+                     
+                        <div class="col-lg-6">
+                           <label for="">Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                           <input name="ctl00$MainContent$orgname" placeholder="Please Enter Image Name" id="name" class="form-control imageNameForVM" type="text"  cdata="catalyst" cat-validation="required,max15">
+                        </div>
+                        <div class="col-lg-6">
+                           <label for="name">Organization Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                           <select id="orgId" name="orgId" unique="true" uniqueconditionedby="orgname"  class="form-control chooseOrganization width-100" style="vertical-align:central"  cdata="catalyst"  cat-validation="required">
+                           </select>
+                        </div>
+                     
+                     
+                        <div class="col-lg-6 margintop20">
+                           <label for="name">Choose Provider:<span class="control-label redSpan">&nbsp;*</span></label>
+                           <select id="providerId" disabled="disabled" unique="true" uniqueconditionedby="orgname"  class="form-control chooseOrganization width-100 providerVMImageDisplay" datapath="masterjson.rows.row" valuelinkfield="costcode" style="vertical-align:central">
+                              <option value="">Choose Provider</option>
+                           </select>
+                           <input id="providerIdHiddenName" disabled="disabled" unique="true" uniqueconditionedby="orgname"  class="hidden form-control chooseOrganization width-100" datapath="masterjson.rows.row" valuelinkfield="costcode" style="vertical-align:central">
+                        </div>
+                        <div class="col-lg-6 margintop20">
+                           <label for="name">Operating System:<span class="control-label redSpan">&nbsp;*</span></label>
+                           <select id="osType" unique="true" uniqueconditionedby="orgname"  class="form-control chooseOrganization width-100" style="vertical-align:central"  cdata="catalyst"  cat-validation="required">
+                           </select>
+                           <input id="osType" disabled="disabled" unique="true" uniqueconditionedby="orgname"  class="hidden form-control chooseOrganization width-100" style="vertical-align:central"  cdata="catalyst"/>
+                        </div>
+                     
+                     
+                        <div class="col-lg-6 margintop20">
+                           <label for=""> Image ID:<span class="control-label redSpan">&nbsp;*</span></label>
+                           <input name="ctl00$MainContent$orgname" Placeholder="Enter Image Identifier" id="imageidentifire" class="form-control" type="text"  cdata="catalyst" cat-validation="required">
+                        </div>
+                        <div class="col-lg-6 margintop20">
+                           <label for=""> Admin  User Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                           <input name="ctl00$MainContent$orgname" Placeholder="Enter The Admin UserName" id="UserName" class="form-control" type="text"  cdata="catalyst" cat-validation="required,max15">
+                        </div>
+                        <div class="col-lg-6 forazurepassword margintop20">
+                           <label for=""> Admin  Password:</label>
+                           <input name="ctl00$MainContent$orgname" Placeholder="Enter The Admin Password" id="password" class="form-control" type="password" autocomplete="false"  cdata="catalyst">
+                        </div>
+                  </div>
+                  <!-- end widget content -->
+               </div>
+            </div>
+         </div>
+      </div>
+      <div class="widget-toolbox clearfix">
+            <div class="btn-group pull-right">
+             <button name="next1" id="saveImageWizard" style="margin-right:11px;" class="saveFormWizard saveImageWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
+             <input type="button" disabled="disabled" name="next1" id="next1" class="nextFormWizard btn btn-primary" value="Next"/>
+          </div>
+       </div>
+   </div>
+</form>
+</div>
+<script>
+    var $option = $('<option></option>').val(orgIdForSetup).html(orgNameForSetup);
+    $('#orgId').append($option);
+    $("#orgId").on('change', function(e) {
+        getProviderList($("#orgId").val());
+    });
+    $('#orgId').trigger('change');
+    function appendLoader() {
+        removeLoader();
+        $("form[id*='myForm']").find("div.pull-right > button").attr('disabled', 'disabled').parent().prepend('<label id="masterssavespinner" class="" style="float:left;"><img  style="margin-left:5px;margin-right:25px;margin-top:8px;" src="img/select2-spinner.gif" /></label>');
+    }
+
+    function removeLoader() {
+        $('#masterssavespinner').remove();
+        $("form[id*='myForm']").find("div.pull-right > button").removeAttr('disabled');
+    }
+
+    function getProviderList(_val) {
+
+        $.ajax({
+            type: "GET",
+            url: "/allproviders/list",
+            success: function(data) {
+                var str = "";
+                for (var key in data) {
+                    if (data.hasOwnProperty(key)) {
+                        for (var i = 0; i < data[key].length; i++) {
+                            if (_val == data[key][i].orgId) {
+                                if (key === "awsProviders") {
+                                    str = str + '<option value="' + data[key][i]._id + '" secretKey="' + data[key][i].secretKey + '" accessKey="' + data[key][i].accessKey + '" providerType="' + data[key][i].providerType + '">' + data[key][i].providerName + '</option>';
+                                } else if (key === "openstackProviders") {
+                                    str += '<option value="' + data[key][i]._id + '" username="' + data[key][i].userName + '" password="' + data[key][i].password + '" providerType="' + data[key][i].providerType + '">' + data[key][i].providerName + '</option>';
+                                } else if (key === "vmwareProviders") {
+                                    str += '<option value="' + data[key][i]._id + '" username="' + data[key][i].userName + '" password="' + data[key][i].password + '" providerType="' + data[key][i].providerType + '">' + data[key][i].providerName + '</option>';
+                                } else if (key === "hpPlublicCloudProviders") {
+                                    str += '<option value="' + data[key][i]._id + '" username="' + data[key][i].userName + '" password="' + data[key][i].password + '" providerType="' + data[key][i].providerType + '">' + data[key][i].providerName + '</option>';
+                                } else if (key === "azureProviders") {
+                                    str += '<option value="' + data[key][i]._id + '" subscriptionId="' + data[key][i].subscriptionId + '" storageAccount="' + data[key][i].storageAccount + '" providerType="' + data[key][i].providerType + '">' + data[key][i].providerName + '</option>';
+                                }
+                            }
+                        }
+                    }
+                }
+
+                $('#providerId').html(str);
+                $('#providerId option:eq(0)').attr('selected', 'selected');
+                $('#providerId').prop("disabled", false);
+
+                if ($('#providerId').attr('answer')) {
+                    $('#providerId').val($('#providerId').attr('answer'));
+                }
+
+
+                $('#osType').on('change', function() {
+                    var ostype = $('#osType').find("option:selected").val();
+                    if ($('#osType').val() == 'Windows') {
+                        $('.forazurepassword').find('#password').attr('cat-validation', 'required,min8');
+                        $('.forazurepassword label').html('Admin  Password:').append('<span class="control-label redSpan">&nbsp;*</span>');
+                    } else {
+                        $('.forazurepassword label').html('Admin  Password:');
+                        $('.forazurepassword').find('#password').removeAttr('cat-validation');
+                    }
+                });
+            }
+        });
+    }
+
+    function saveImageForm() {
+        appendLoader();
+        var imageIdentifier = $('#imageidentifire').val().trim(),
+            name = $('#name').val().trim(),
+            osName = $('#osType').val().trim(),
+            providerId = $('#providerId').val().trim(),
+            url, osType = $('#osType').find('option:selected').attr('ostype'),
+            userName = $('#UserName').val(),
+            orgId = $('#orgId').val().trim();
+        var pt = $('#providerId').find('option:selected').attr('providertype');
+        //alert(orgId);
+
+        var password = $('#password').val().trim();
+
+        if (imageIdentifier && providerId && osType && name && osName && userName && orgId) {
+            appendLoader();
+            if (!UtilityMethods.getIdFromURL()) {
+                url = "/vmimages";
+            }
+
+            //debugger;
+            $.ajax({
+                method: "POST",
+                url: url,
+                data: {
+                    "providerId": providerId,
+                    "osType": osType,
+                    "name": name,
+                    "imageIdentifier": imageIdentifier,
+                    "osName": osName,
+                    "userName": userName,
+                    "orgId": orgId,
+                    "providertype": pt,
+                    "password": password
+                },
+                success: function(data, success) {
+                    if (data != 500) {
+                        if ($('#btncancel').length) {
+                            $('#btncancel').click();
+                        }
+                        removeLoader();
+                        $('#saveImageWizard').attr('disabled',true);
+                        $('.nextFormWizard').removeAttr('disabled','disabled');
+                    } else {
+                        removeLoader();
+                        alert(data.toString());
+                    }
+                },
+                error: function(jqxhr) {
+                    removeLoader();
+                    bootbox.alert(jqxhr.responseText);
+                },
+                failure: function(data) {
+                    bootbox.alert(data.responseText);
+                    removeLoader();
+                }
+            });
+
+        }
+    }
+
+    function populateOSList() {
+        $.ajax({
+            type: "GET",
+            url: "/vmimages/os/type/all/list",
+            success: function(data) {
+                data = typeof data == "string" ? JSON.parse(data) : data;
+                var str = ' <option value="">Select OS Type</option>',
+                    len = data.length;
+                for (var i = 0; i < len; i++) {
+                    str = str + '<option value="' + data[i]["os_name"] + '" ostype="' + data[i]["osType"] + '">' + data[i]["os_name"] + '</option>';
+
+                }
+                $('#osType').html(str);
+                if ($('#osType').attr('answer')) {
+                    $('#osType').val($('#osType').attr('answer'));
+                }
+            },
+            failure: function(data) {
+                alert(data.toString());
+            }
+        });
+    }
+
+    var UtilityMethods = {
+        initTooltip: function() {
+            var $tool = $("[rel=tooltip]");
+            if ($tool.length) {
+                $tool.tooltip();
+            }
+        },
+        getRandomNumber: function() {
+            return parseInt(Math.random() * 10000000000);
+        },
+        getIdFromURL: function() {
+            var options = location.toString().split('?');
+            return options.length > 1 ? (options[1] !== "new" ? options[1] : "") : "";
+        }
+    };
+
+    $(document).ready(function() {
+        $("#name").focus();
+        $('#myForm22').submit(function() {
+            if (isFormValid()) {
+                saveImageForm();
+            } else {}
+            return false;
+        });
+        populateOSList();
+    });
+
+    $('#createNewVmImage').click(function(e){
+     $('.content').empty();
+     e.preventDefault();   
+     $('.content').load(this.getAttribute('href'));
+   });
+
+    $(".nextFormWizard").click(function() {
+        $('#galleryConfiguration a').attr('href','ajax/Settings/galleryWizard.html');
+        toastr.success('Step 3 - Provider Configuration Setup Completed');
+        $('#galleryConfiguration a').trigger('click');
+        $('#startConfig a, #orgConfiguration a,#configManagement a,#providerConfiguration a').addClass('green-btn').removeClass('process-btn');
+        $('.wizardFlow').empty();
+    });
+</script>

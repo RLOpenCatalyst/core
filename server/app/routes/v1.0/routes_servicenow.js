@@ -31,6 +31,8 @@ var configmgmtDao = require('_pr/model/d4dmasters/configmgmt.js');
 var Chef = require('_pr/lib/chef.js');
 var taskStatusModule = require('_pr/model/taskstatus');
 var waitForPort = require('wait-for-port');
+var settingWizard = require('_pr/model/setting-wizard');
+var settingsService = require('_pr/services/settingsService');
 
 module.exports.setRoutes = function(app, verificationFunc) {
 
@@ -459,9 +461,9 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 res.status(500).send("Failed to save Org.");
                 return;
             }
-
             logger.debug("save response:" + data);
             res.send(data);
+            return;
         });
     });
 
@@ -532,18 +534,15 @@ module.exports.setRoutes = function(app, verificationFunc) {
     });
 
     app.delete('/servicenow/removeItem/id/:id', function(req, res) {
-        logger.debug("Deleting servicenow item");
-
-        CMDBConfig.removeServerById(req.params.id, function(err, data) {
-            if (err) {
-                logger.error("Failed to remove item (%s)", err);
-                res.status(500).send(err);
-                return;
-            }
-            logger.debug("Exit removeInstancebyId (%s)", req.params.id);
-            res.send(data);
-        });
-
-    });
-
+       logger.debug("Deleting servicenow item");
+       CMDBConfig.removeServerById(req.params.id, function (err, servicedata) {
+        if (err) {
+               logger.error("Failed to remove item (%s)", err);
+               res.status(500).send(err);
+               return;
+        }
+        logger.debug("Exit removeInstancebyId (%s)", req.params.id);
+        res.send(servicedata);
+     });
+   });
 }

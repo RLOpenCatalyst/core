@@ -67,6 +67,10 @@ var ResourceMetricsSchema = new Schema({
         type: Date,
         required: true
     },
+    interval: {
+        type: Number,
+        required: true
+    },
     metrics: Schema.Types.Mixed
 });
 
@@ -94,6 +98,45 @@ ResourceMetricsSchema.statics.removeResourceUsageByProviderId = function(provide
         }
         callback(null, data);
     });
+};
+
+ResourceMetricsSchema.statics.getByParams = function(resourceId, interval, startTime, endTime, callback) {
+	var query = ResourceMetrics.find();
+	query.where('resourceId', resourceId);
+	query.where('interval', interval);
+	query.where('startTime').gte(startTime);
+	query.where('endTime').lte(endTime);
+	query.select('startTime endTime metrics');
+	/*query.select('metrics.NetworkIn metrics.NetworkOut');*/
+	/*query.select('metrics.NetworkIn.average metrics.NetworkIn.minimum metrics.NetworkOut.maximum');*/
+	query.exec(function (err, docs) {
+		if(err){
+			callback(err, null);
+		}else{
+			callback(null, docs);
+		}
+	});
+};
+
+ResourceMetricsSchema.statics.getList = function getList(query, callback) {
+    ResourceMetrics.aggregate(
+        [
+            { $match: {$and: query }},
+            {
+                $sort: {
+                    startTime: 1
+                }
+            }
+        ],
+        function(err, usageMetricsEntries) {
+            if (err) {
+                logger.error(err)
+                callback(err, null)
+            } else {
+                callback(null,usageMetricsEntries)
+            }
+        }
+    )
 };
 
 var ResourceMetrics = mongoose.model('ResourceMetrics', ResourceMetricsSchema);

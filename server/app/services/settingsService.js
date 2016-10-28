@@ -18,330 +18,430 @@
 var logger = require('_pr/logger')(module);
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var async = require("async");
+var settingWizard = require('_pr/model/setting-wizard');
+var appConfig = require('_pr/config');
 
 const errorType = 'settingsService';
 
 var settingsService = module.exports = {};
 
-
-settingsService.updateTeamDataByEnv = function updateTeamDataByEnv(enviornment,callback){
-    async.waterfall([
-        function(next){
-            masterUtil.getTeamByEnvId(enviornment.rowid,next);
-        },
-        function(masterTeamData,next){
-            if(masterTeamData.length > 0){
-                var count = 0;
-                for(var i = 0; i < masterTeamData.length; i++){
-                    (function(team){
-                        var envNames=team.environmentname.split(",");
-                        var envIds=team.environmentname_rowid.split(",");
-                        if(envNames.indexOf(enviornment.environmentname) === -1 && envIds.indexOf(enviornment.rowid) === -1){
-                            count++;
-                            if(count === masterTeamData.length){
-                                next(null,masterTeamData)
-                            }
+settingsService.updateProjectData = function updateProjectData(enviornment,callback){
+    var projectIds = enviornment.projectname_rowid.split(",");
+    var count = 0;
+    for(var i = 0; i < projectIds.length; i++){
+        (function(projectId){
+            async.waterfall([
+                function(next){
+                    count++;
+                    masterUtil.getParticularProject(projectId,next);
+                },
+                function(masterProjectData,next){
+                    if(masterProjectData.length > 0){
+                        var envNames=masterProjectData[0].environmentname.split(",");
+                        var envIds=masterProjectData[0].environmentname_rowid.split(",");
+                        if(envNames.indexOf(enviornment.environmentname) === -1 && envIds.indexOf(enviornment.environmentname_rowid) === -1){
+                            next(null,null);
                         }else{
-                            var teamObj={
-                                teamId:team.rowid,
+                            var projectObj={
+                                projectId:projectId,
                                 envNames:changeArrayToString(envNames,enviornment.environmentname),
-                                envIds:changeArrayToString(envIds,enviornment.rowid),
-                                action:'env'
+                                envIds:changeArrayToString(envIds,enviornment.rowid)
                             }
-                            masterUtil.updateParticularTeam(teamObj,function(err,data){
-                                if(err){
-                                    next(err,null);
-                                }
-                                count++;
-                                teamObj = {};
-                                if(count === masterTeamData.length){
-                                    next(null,masterTeamData)
-                                }
-                            });
-                        }
-                    })(masterTeamData[i]);
-                }
-            }else{
-                next(null,masterTeamData);
-            }
-        }
-    ],function(err,results){
-        if (err) {
-            logger.error("Error while updating Environments in Master Data Team "+err);
-            callback(err,null);
-            return;
-        }else{
-            callback(null,results);
-            return;
-        }
-
-    })
-};
-
-settingsService.updateTeamDataByUser = function updateTeamDataByUser(user,callback){
-    async.waterfall([
-        function(next){
-            masterUtil.getTeamByUserId(user.rowid,next);
-        },
-        function(masterTeamData,next){
-            if(masterTeamData.length > 0){
-                var count = 0;
-                for(var i = 0; i < masterTeamData.length; i++){
-                    (function(team){
-                        var userNames=team.loginname.split(",");
-                        var userIds=team.loginname_rowid.split(",");
-                        if(userNames.indexOf(user.loginname) === -1 && userIds.indexOf(user.rowid) === -1){
-                            count++;
-                            if(count === masterTeamData.length){
-                                next(null,masterTeamData)
-                            }
-                        }else{
-                            var teamObj={
-                                teamId:team.rowid,
-                                userNames:changeArrayToString(userNames,user.loginname),
-                                userIds:changeArrayToString(userIds,user.rowid),
-                                action:'user'
-                            }
-                            masterUtil.updateParticularTeam(teamObj,function(err,data){
-                                if(err){
-                                    next(err,null);
-                                }
-                                count++;
-                                teamObj = {};
-                                if(count === masterTeamData.length){
-                                    next(null,masterTeamData)
-                                }
-                            });
-                        }
-                    })(masterTeamData[i]);
-                }
-            }else{
-                next(null,masterTeamData);
-            }
-        }
-    ],function(err,results){
-        if (err) {
-            logger.error("Error while updating User in Master Data Team "+err);
-            callback(err,null);
-            return;
-        }else{
-            callback(null,results);
-            return;
-        }
-
-    })
-};
-
-settingsService.updateTeamDataByProject = function updateTeamDataByProject(project,callback){
-    async.waterfall([
-        function(next){
-            masterUtil.getTeamByProjectId(project.rowid,next);
-        },
-        function(masterTeamData,next){
-            if(masterTeamData.length > 0){
-                var count = 0;
-                for(var i = 0; i < masterTeamData.length; i++){
-                    (function(team){
-                        var projectNames=team.projectname.split(",");
-                        var projectIds=team.projectname_rowid.split(",");
-                        if(projectNames.indexOf(project.projectname) === -1 && projectIds.indexOf(project.rowid) === -1){
-                            count++;
-                            if(count === masterTeamData.length){
-                                next(null,masterTeamData)
-                            }
-                        }else{
-                            var teamObj={
-                                teamId:team.rowid,
-                                projectNames:changeArrayToString(projectNames,project.projectname),
-                                projectIds:changeArrayToString(projectIds,project.rowid),
-                                action:'project'
-                            }
-                            masterUtil.updateParticularTeam(teamObj,function(err,data){
-                                if(err){
-                                    next(err,null);
-                                }
-                                count++;
-                                teamObj = {};
-                                if(count === masterTeamData.length){
-                                    next(null,masterTeamData)
-                                }
-                            });
-                        }
-                    })(masterTeamData[i]);
-                }
-            }else{
-                next(null,masterTeamData);
-            }
-        }
-    ],function(err,results) {
-        if (err) {
-            logger.error("Error while updating Project in Master Data Team " + err);
-            callback(err, null);
-            return;
-        } else {
-            callback(null, results);
-            return;
-        }
-    });
-}
-
-settingsService.updateMasterDataByTeam = function updateMasterDataByTeam(team,callback){
-    async.parallel({
-        envData: function (callback) {
-            async.waterfall([
-                function(next){
-                    masterUtil.getEnvironmentByTeam(team.rowid,next);
-                },
-                function(envs,next){
-                    if(envs.length > 0){
-                        var count = 0;
-                        for(var i = 0; i < envs.length; i++){
-                            (function(env){
-                                var teamNames=env.teamname.split(",");
-                                var teamIds=env.teamname_rowid.split(",");
-                                if(teamNames.indexOf(team.teamname) === -1 && teamIds.indexOf(team.rowid) === -1){
-                                    count++;
-                                    if(count === envs.length){
-                                        next(null,envs)
-                                    }
-                                }else{
-                                    var envObj={
-                                        envId:env.rowid,
-                                        teamNames:changeArrayToString(teamNames,team.teamname),
-                                        teamIds:changeArrayToString(teamIds,team.rowid)
-                                    }
-                                    masterUtil.updateEnvByTeam(envObj,function(err,data){
-                                        if(err){
-                                            next(err,null);
-                                        }
-                                        count++;
-                                        envObj = {};
-                                        if(count === envs.length){
-                                            next(null,envs)
-                                        }
-                                    });
-                                }
-                            })(envs[i]);
+                            next(null,projectObj);
                         }
                     }else{
-                        next(null,envs);
+                        next(null,null);
+                    }
+                },
+                function(updatedMasterProjectObj,next){
+                    if(updatedMasterProjectObj){
+                        masterUtil.updateParticularProject(updatedMasterProjectObj,next);
+                    }else{
+                        next(null,updatedMasterProjectObj);
                     }
                 }
             ],function(err,results){
-                if(err){
+                if (err) {
+                    logger.error("Error while updating Environments in Master Data Project "+err);
                     callback(err,null);
-                }
-                callback(null,results)
-            })
-        },
-        projectData: function (callback) {
-            async.waterfall([
-                function(next){
-                    masterUtil.getProjectByTeam(team.rowid,next);
-                },
-                function(projects,next){
-                    if(projects.length > 0){
-                        var count = 0;
-                        for(var i = 0; i < projects.length; i++){
-                            (function(project){
-                                var teamNames=project.teamname.split(",");
-                                var teamIds=project.teamname_rowid.split(",");
-                                if(teamNames.indexOf(team.teamname) === -1 && teamIds.indexOf(team.rowid) === -1){
-                                    count++;
-                                    if(count === projects.length){
-                                        next(null,projects)
-                                    }
-                                }else{
-                                    var projectObj={
-                                        projectId:project.rowid,
-                                        teamNames:changeArrayToString(teamNames,team.teamname),
-                                        teamIds:changeArrayToString(teamIds,team.rowid)
-                                    }
-                                    masterUtil.updateProjectByTeam(projectObj,function(err,data){
-                                        if(err){
-                                            next(err,null);
-                                        }
-                                        count++;
-                                        projectObj = {};
-                                        if(count === projects.length){
-                                            next(null,projects)
-                                        }
-                                    });
-                                }
-                            })(projects[i]);
-                        }
+                    return;
+                }else{
+                    if(projectIds.length ===  count) {
+                        callback(null, results);
+                        return;
                     }else{
-                        next(null,projects);
+                        return;
                     }
                 }
 
-            ],function(err,results){
-                if(err){
-                    callback(err,null);
-                }
-                callback(null,results)
             })
-        },
-        userData: function (callback) {
-            async.waterfall([
-                function(next){
-                    masterUtil.getUserByTeam(team.rowid,next);
-                },
-                function(users,next){
-                    if(users.length > 0){
-                        var count = 0;
-                        for(var i = 0; i < users.length; i++){
-                            (function(user){
-                                var teamNames=user.teamname.split(",");
-                                var teamIds=user.teamname_rowid.split(",");
-                                if(teamNames.indexOf(team.teamname) === -1 && teamIds.indexOf(team.rowid) === -1){
-                                    count++;
-                                    if(count === users.length){
-                                        next(null,users)
-                                    }
-                                }else{
-                                    var userObj={
-                                        userId:user.rowid,
-                                        teamNames:changeArrayToString(teamNames,team.teamname),
-                                        teamIds:changeArrayToString(teamIds,team.rowid)
-                                    }
-                                    masterUtil.updateUserByTeam(userObj,function(err,data){
-                                        if(err){
-                                            next(err,null);
-                                        }
-                                        count++;
-                                        userObj = {};
-                                        if(count === users.length){
-                                            next(null,users)
-                                        }
-                                    });
-                                }
-                            })(users[i]);
-                        }
-                    }else{
-                        next(null,users);
-                    }
-                }
+        })(projectIds[i]);
+    }
 
-            ],function(err,results){
-                if(err){
-                    callback(err,null);
-                }
-                callback(null,results)
-            })
-        }
-    },function(err,results){
-        if (err) {
-            logger.error("Error while updating Master Data By Team "+err);
-            callback(err,null);
-            return;
-        }else{
-            callback(null,results);
-            return;
-        }
-    })
 };
 
+settingsService.trackSettingWizard = function trackSettingWizard(id,orgId,callback){
+   if(id === '1'){
+       settingWizard.removeSettingWizardByOrgId(orgId,function(err,data){
+           if(err){
+               callback(err,null);
+               return;
+           }
+           callback(null,data);
+       })
+   }else if(id === '2'){
+       settingWizard.getSettingWizardByOrgId(orgId,function(err,settingWizards) {
+           if (err) {
+               callback(err, null);
+               return;
+           }
+           logger.debug(JSON.stringify(settingWizards));
+           if (settingWizards.currentStep.name === 'Org Configuration'
+               && settingWizards.currentStep.nestedSteps[1].isCompleted === true) {
+               settingWizards.currentStep.nestedSteps[1].isCompleted = false;
+               settingWizards.currentStep.nestedSteps[2].isCompleted = false;
+               settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                   if (err) {
+                       callback(err,null);
+                       return;
+                   }
+                   callback(null,data);
+               });
+           }else{
+               callback(null,settingWizards);
+               return;
+           }
+       })
+   }else if(id === '4'){
+       settingWizard.getSettingWizardByOrgId(orgId,function(err,settingWizards) {
+           if (err) {
+               callback(err, null);
+               return;
+           }
+           if (settingWizards.currentStep.name === 'Config Management' && settingWizards.currentStep.nestedSteps[0].isCompleted === false) {
+               var settingWizardSteps = appConfig.settingWizardSteps;
+               settingWizards.currentStep = settingWizards.previousStep;
+               settingWizards.currentStep.nestedSteps[2].isCompleted = false;
+               settingWizards.currentStep.isCompleted = false;
+               settingWizards.previousStep = settingWizardSteps[0];
+               settingWizards.nextStep = settingWizardSteps[2];
+               settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                   if (err) {
+                       callback(err,null);
+                       return;
+                   }
+                   callback(null,data);
+               });
+           }else{
+               callback(null,settingWizards);
+               return;
+           }
+       })
+   }else if(id === '10'){
+       settingWizard.getSettingWizardByOrgId(orgId,function(err,settingWizards) {
+           if (err) {
+               callback(err, null);
+               return;
+           }
+           if (settingWizards.currentStep.name === 'Config Management'
+               && settingWizards.currentStep.nestedSteps[1].isCompleted === false) {
+               settingWizards.currentStep.nestedSteps[0].isCompleted = false;
+               settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                   if (err) {
+                       callback(err,null);
+                       return;
+                   }
+                   callback(null,data);
+               });
+           }else{
+               callback(null,settingWizards);
+               return;
+           }
+       })
+   }else if(id === '3'){
+       settingWizard.getSettingWizardByOrgId(orgId,function(err,settingWizards) {
+           if (err) {
+               callback(err, null);
+               return;
+           }
+           if (settingWizards.currentStep.name === 'User Configuration'
+               && settingWizards.currentStep.nestedSteps[0].isCompleted === false) {
+               var settingWizardSteps = appConfig.settingWizardSteps;
+               var previousStep = settingWizardSteps[1];
+               previousStep.nestedSteps[0].isCompleted = true;
+               previousStep.nestedSteps[1].isCompleted = true;
+               previousStep.nestedSteps[2].isCompleted = true;
+               previousStep.isCompleted = true;
+               settingWizards.currentStep = settingWizards.previousStep;
+               settingWizards.currentStep.nestedSteps[1].isCompleted = false;
+               settingWizards.currentStep.isCompleted = false;
+               settingWizards.previousStep = previousStep;
+               settingWizards.nextStep = settingWizardSteps[3];
+               settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                   if (err) {
+                       callback(err,null);
+                       return;
+                   }
+                   callback(null,data);
+               });
+           }else{
+               callback(null,settingWizards);
+               return;
+           }
+       })
+   }else if(id === '21'){
+        settingWizard.getSettingWizardByOrgId(orgId,function(err,settingWizards) {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            if (settingWizards.currentStep.name === 'User Configuration'
+                && settingWizards.currentStep.nestedSteps[1].isCompleted === false) {
+                settingWizards.currentStep.nestedSteps[0].isCompleted = false;
+                settingWizards.currentStep.isCompleted = false;
+                settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                    if (err) {
+                        callback(err,null);
+                        return;
+                    }
+                    callback(null,data);
+                });
+            }else{
+                callback(null,settingWizards);
+                return;
+            }
+        })
+    }else if(id === '7'){
+       settingWizard.getSettingWizardByOrgId(orgId,function(err,settingWizards) {
+           if (err) {
+               callback(err, null);
+               return;
+           }
+           if (settingWizards.currentStep.name === 'Provider Configuration'
+               && settingWizards.currentStep.nestedSteps[0].isCompleted === false) {
+               var settingWizardSteps = appConfig.settingWizardSteps;
+               var previousStep = settingWizardSteps[2];
+               previousStep.nestedSteps[0].isCompleted = true;
+               previousStep.nestedSteps[1].isCompleted = true;
+               previousStep.isCompleted = true;
+               settingWizards.currentStep = settingWizards.previousStep;
+               settingWizards.currentStep.nestedSteps[1].isCompleted = false;
+               settingWizards.currentStep.isCompleted = false;
+               settingWizards.previousStep = previousStep;
+               settingWizards.nextStep = settingWizardSteps[4];
+               settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                   if (err) {
+                       callback(err,null);
+                       return;
+                   }
+                   callback(null,data);
+               });
+           }else{
+               callback(null,settingWizards);
+               return;
+           }
+       })
+   }else if(id === '26'){
+       settingWizard.getSettingWizardByOrgId(orgId,function(err,settingWizards) {
+           if (err) {
+               callback(err, null);
+               return;
+           }
+           if (settingWizards.currentStep.name === 'Devops Roles'
+               && settingWizards.currentStep.nestedSteps[1].isCompleted === false) {
+               settingWizards.currentStep.nestedSteps[0].isCompleted = false;
+               settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                   if (err) {
+                       callback(err,null);
+                       return;
+                   }
+                   callback(null,data);
+               });
+           }else{
+               callback(null,settingWizards);
+               return;
+           }
+       })
+   }else if(id === '18'){
+       settingWizard.getSettingWizardByOrgId(orgId,function(err,settingWizards) {
+           if (err) {
+               callback(err, null);
+               return;
+           }
+           if (settingWizards.currentStep.name === 'Devops Roles'
+               && settingWizards.currentStep.nestedSteps[2].isCompleted === false) {
+               settingWizards.currentStep.nestedSteps[1].isCompleted = false;
+               settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                   if (err) {
+                       callback(err,null);
+                       return;
+                   }
+                   callback(null,data);
+               });
+           }else{
+               callback(null,settingWizards);
+               return;
+           }
+       })
+   }else if(id === '20'){
+       settingWizard.getSettingWizardByOrgId(orgId,function(err,settingWizards) {
+           if (err) {
+               callback(err, null);
+               return;
+           }
+           if (settingWizards.currentStep.name === 'Wizard Status'
+               && settingWizards.currentStep.isCompleted === true) {
+               var settingWizardSteps = appConfig.settingWizardSteps;
+               var previousStep = settingWizardSteps[5];
+               previousStep.nestedSteps[0].isCompleted = true;
+               previousStep.nestedSteps[1].isCompleted = true;
+               previousStep.nestedSteps[2].isCompleted = true;
+               previousStep.isCompleted = true;
+               settingWizards.currentStep = settingWizards.previousStep;
+               settingWizards.currentStep.nestedSteps[2].isCompleted = false;
+               settingWizards.currentStep.isCompleted = false;
+               settingWizards.previousStep = previousStep;
+               settingWizards.nextStep = {name:'Wizard Status',isCompleted:true};
+               settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                   if (err) {
+                       callback(err,null);
+                       return;
+                   }
+                   callback(null,data);
+               });
+           }else{
+               callback(null,settingWizards);
+               return;
+           }
+       })
+   }else if(id === '17'){
+       settingWizard.getSettingWizardByOrgId(orgId,function(err,settingWizards) {
+           if (err) {
+               callback(err, null);
+               return;
+           }
+           if (settingWizards.currentStep.name === 'Gallery Setup'
+               && settingWizards.nestedSteps[1].isCompleted === false) {
+               settingWizards.nestedSteps[0].isCompleted = false;
+               settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                   if (err) {
+                       callback(err,null);
+                       return;
+                   }
+                   callback(null,data);
+               });
+           }else{
+               callback(null,settingWizards);
+               return;
+           }
+       })
+   }else if(id === '19'){
+       settingWizard.getSettingWizardByOrgId(orgId,function(err,settingWizards) {
+           if (err) {
+               callback(err, null);
+               return;
+           }
+           if (settingWizards.currentStep.name === 'Gallery Setup'
+               && settingWizards.nestedSteps[2].isCompleted === false) {
+               settingWizards.nestedSteps[1].isCompleted = false;
+               settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                   if (err) {
+                       callback(err,null);
+                       return;
+                   }
+                   callback(null,data);
+               });
+           }else{
+               callback(null,settingWizards);
+               return;
+           }
+       })
+   }else if(id === 'provider'){
+       settingWizard.getSettingWizardByOrgId(orgId,function(err,settingWizards) {
+           if (err) {
+               callback(err, null);
+               return;
+           }
+           if (settingWizards.currentStep.name === 'Provider Configuration'
+               && settingWizards.currentStep.nestedSteps[1].isCompleted === false) {
+               settingWizards.currentStep.nestedSteps[0].isCompleted = false;
+               settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                   if (err) {
+                       callback(err,null);
+                       return;
+                   }
+                   callback(null,data);
+               });
+           }else{
+               callback(null,settingWizards);
+               return;
+           }
+       })
+   }else if(id === 'vmImage'){
+       settingWizard.getSettingWizardByOrgId(orgId,function(err,settingWizards) {
+           if (err) {
+               callback(err, null);
+               return;
+           }
+           if (settingWizards.currentStep.name === 'Gallery Setup'
+               && settingWizards.currentStep.nestedSteps[0].isCompleted === false) {
+               var settingWizardSteps = appConfig.settingWizardSteps;
+               var previousStep = settingWizardSteps[3];
+               previousStep.nestedSteps[0].isCompleted = true;
+               previousStep.nestedSteps[1].isCompleted = true;
+               previousStep.isCompleted = true;
+               settingWizards.currentStep = settingWizards.previousStep;
+               settingWizards.currentStep.nestedSteps[1].isCompleted = false;
+               settingWizards.currentStep.isCompleted = false;
+               settingWizards.previousStep = previousStep;
+               settingWizards.nextStep = settingWizardSteps[5];
+               settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                   if (err) {
+                       callback(err,null);
+                       return;
+                   }
+                   callback(null,data);
+               });
+           }else{
+               callback(null,settingWizards);
+               return;
+           }
+       })
+   }else if(id === 'scriptGallery'){
+       settingWizard.getSettingWizardByOrgId(orgId,function(err,settingWizards) {
+           if (err) {
+               callback(err, null);
+               return;
+           }
+           if (settingWizards.currentStep.name === 'Devops Roles' && settingWizards.currentStep.nestedSteps[0].isCompleted === false) {
+               var settingWizardSteps = appConfig.settingWizardSteps;
+               var previousStep = settingWizardSteps[4];
+               previousStep.nestedSteps[0].isCompleted = true;
+               previousStep.nestedSteps[1].isCompleted = true;
+               previousStep.isCompleted = true;
+               settingWizards.currentStep = settingWizards.previousStep;
+               settingWizards.currentStep.nestedSteps[2].isCompleted = false;
+               settingWizards.currentStep.isCompleted = false;
+               settingWizards.previousStep = previousStep;
+               settingWizards.nextStep = settingWizardSteps[6];
+               settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                   if (err) {
+                       callback(err,null);
+                       return;
+                   }
+                   callback(null,data);
+                   return;
+               });
+           }else{
+               callback(null,settingWizards);
+               return;
+           }
+       })
+   }else{
+    callback(null,null);
+    return;
+   }
+};
 
 function changeArrayToString(list,str){
     var resultStr='';
@@ -363,4 +463,3 @@ function changeArrayToString(list,str){
         return resultStr;
     }
 }
-

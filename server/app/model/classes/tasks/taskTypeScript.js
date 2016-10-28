@@ -30,10 +30,16 @@ var fileIo = require('_pr/lib/utils/fileio');
 var uuid = require('node-uuid');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var TaskHistory = require('_pr/model/classes/tasks/taskHistory');
+var Cryptography = require('_pr/lib/utils/cryptography');
 
 var scriptTaskSchema = taskTypeSchema.extend({
     nodeIds: [String],
     scriptTypeName: String,
+	isSudo:{
+		type:Boolean,
+		required:false,
+		default:false
+	},
     scriptDetails: [{
         scriptId: {
             type: String,

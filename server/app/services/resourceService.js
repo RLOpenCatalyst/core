@@ -1,12 +1,9 @@
 /*
  Copyright [2016] [Relevance Lab]
-
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
-
  http://www.apache.org/licenses/LICENSE-2.0
-
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,13 +21,19 @@ var CW = require('_pr/lib/cloudwatch.js');
 var S3 = require('_pr/lib/s3.js');
 var EC2 = require('_pr/lib/ec2.js');
 var RDS = require('_pr/lib/rds.js');
+var Route53 = require('_pr/lib/route53.js');
 var resourceCost = require('_pr/model/resource-costs');
 var csv = require("fast-csv");
 var fs = require('fs');
 var async = require('async');
-resourceService.getCostForResources = getCostForResources;
-resourceService.getTotalCost = getTotalCost;
-resourceService.getCostForServices = getCostForServices;
+var dateUtil = require('_pr/lib/utils/dateUtil');
+var unassignedInstancesModel = require('_pr/model/unassigned-instances');
+var unManagedInstancesModel = require('_pr/model/unmanaged-instance');
+var instancesModel = require('_pr/model/classes/instance/instance');
+var entityCosts = require('_pr/model/entity-costs');
+var mongoDbClient = require('mongodb').MongoClient;
+
+resourceService.getCostForServices = getCostForServices_deprecated;
 resourceService.getEC2InstanceUsageMetrics=getEC2InstanceUsageMetrics;
 resourceService.getS3BucketsMetrics=getS3BucketsMetrics;
 resourceService.getBucketsInfo=getBucketsInfo;
@@ -41,330 +44,141 @@ resourceService.bulkUpdateResourceProviderTags=bulkUpdateResourceProviderTags;
 resourceService.bulkUpdateUnassignedResourceTags=bulkUpdateUnassignedResourceTags;
 resourceService.bulkUpdateAWSResourcesTags=bulkUpdateAWSResourcesTags;
 resourceService.getEC2InstancesInfo=getEC2InstancesInfo;
+resourceService.getAllResourcesForProvider =  getAllResourcesForProvider;
+resourceService.updateAWSResourceCostsFromCSV = updateAWSResourceCostsFromCSV
+resourceService.updateDomainNameForInstance = updateDomainNameForInstance
 
-
-function getCostForResources(updatedTime,provider,bucketNames,instanceIds,dbInstanceNames,fileName, callback) {
-    var temp = String(updatedTime).split(',');
-    var ec2Cost = 0, totalCost = 0, rdCost = 0, rstCost = 0, elcCost = 0, cdfCost = 0, r53Cost = 0, s3Cost = 0 , vpcCost = 0;
-    var regionOne = 0, regionTwo = 0, regionThree = 0, regionFour = 0, regionFive = 0, regionSix = 0, regionSeven = 0, regionEight = 0, regionNine = 0, regionTen = 0, catTagCost = 0, jjTagCost = 0, accentureTagCost=0;
-    var stream = fs.createReadStream(fileName);
-    var costIndex = 18,zoneIndex = 11,usageIndex= 9,prodIndex=5,tagIndex =22,totalCostIndex=3;
-    var instanceCostMetrics = [],bucketCostMetrics=[],dbInstanceCostMetrics=[];
-    var endTime = new Date();
-    var startTime = new Date(endTime.getTime() - 1000*60*60*24);
-    csv.fromStream(stream, {headers : false}).on("data", function(data){
-        if(data[totalCostIndex] === 'StatementTotal'){
-            totalCost = Number(data[costIndex]);
-        }
-        if(data[prodIndex] === "Amazon Elastic Compute Cloud")
-        {
-            ec2Cost += Number(data[costIndex]);
-            if (instanceIds.indexOf(data[21]) >=0) {
-                var instanceCostMetricsObj = {};
-                instanceCostMetricsObj['usageCost'] = Number(data[costIndex]);
-                instanceCostMetricsObj['resourceId'] = data[21];
-                instanceCostMetrics.push(instanceCostMetricsObj);
-                instanceCostMetricsObj = {};
-            }
-            /*Virginia*/
-            if(data[zoneIndex] === "us-east-1a" || data[zoneIndex] === "us-east-1b" || data[zoneIndex] === "us-east-1c" || data[zoneIndex] === "us-east-1d" || data[zoneIndex] == "us-east-1e" || data[usageIndex] == "EBS:VolumeUsage" || data[usageIndex] == "EBS:VolumeUsage.gp2" || data[usageIndex] == "EBS:SnapshotUsage" || data[usageIndex] == "EBS:SnapshotUsag.gp2" || data[usageIndex] == "LoadBalancerUsage" || data[usageIndex] == "DataTransfer-Out-Bytes" || data[usageIndex] == "DataTransfer-In-Bytes" || data[usageIndex] == "ElasticIP:IdleAddress") {
-                regionOne += Number(data[costIndex]);
-            }/*California*/else if(data[zoneIndex] == "us-west-1a" || data[zoneIndex] == "us-west-1b" || data[zoneIndex] == "us-west-1c" || data[zoneIndex] == "us-west-1d" || data[zoneIndex] == "us-west-1e" || data[usageIndex] == "USW1-EBS:VolumeUsage" || data[usageIndex] == "USW1-EBS:VolumeUsage.gp2" || data[usageIndex] == "USW1-EBS:SnapshotUsage" || data[usageIndex] == "USW1-EBS:SnapshotUsag.gp2" || data[usageIndex] == "USW1-LoadBalancerUsage" || data[usageIndex] == "USW1-DataTransfer-Out-Bytes" || data[usageIndex] == "USW1-DataTransfer-In-Bytes" || data[usageIndex] == "USW1-ElasticIP:IdleAddress") {
-                regionTwo += Number(data[costIndex]);
-            }/*Oregon*/else if(data[zoneIndex] == "us-west-2a" || data[zoneIndex] == "us-west-2b" || data[zoneIndex] == "us-west-2c" || data[zoneIndex] == "us-west-2d" || data[zoneIndex] == "us-west-2e" || data[usageIndex] == "USW2-EBS:VolumeUsage" || data[usageIndex] == "USW2-EBS:VolumeUsage.gp2" || data[usageIndex] == "USW2-EBS:SnapshotUsage" || data[usageIndex] == "USW2-EBS:SnapshotUsag.gp2" || data[usageIndex] == "USW2-LoadBalancerUsage" || data[usageIndex] == "USW2-DataTransfer-Out-Bytes" || data[usageIndex] == "USW2-DataTransfer-In-Bytes" || data[usageIndex] == "USW2-ElasticIP:IdleAddress") {
-                regionThree += Number(data[costIndex]);
-            }/*Ireland*/else if(data[zoneIndex] == "eu-west-1a" || data[zoneIndex] == "eu-west-1b" || data[zoneIndex] == "eu-west-1c" ||data[zoneIndex] == "eu-west-1d" || data[zoneIndex] == "eu-west-1e" || data[usageIndex] == "EUW1-EBS:VolumeUsage" || data[usageIndex] == "EUW1-EBS:VolumeUsage.gp2" || data[usageIndex] == "EUW1-EBS:SnapshotUsage" || data[usageIndex] == "EUW1-EBS:SnapshotUsag.gp2" || data[usageIndex] == "EUW1-LoadBalancerUsage" || data[usageIndex] == "EUW1-DataTransfer-Out-Bytes" || data[usageIndex] == "EUW1-DataTransfer-In-Bytes" || data[usageIndex] == "EUW1-ElasticIP:IdleAddress") {
-                regionFour += Number(data[costIndex]);
-            }/*Frankfurt*/else if(data[zoneIndex] == "eu-central-1a" || data[zoneIndex] == "eu-central-1b" || data[zoneIndex] == "eu-central-1c" || data[zoneIndex] == "eu-central-1d" || data[zoneIndex] == "eu-central-1e" || data[usageIndex] == "EUC1-EBS:VolumeUsage" || data[usageIndex] == "EUC1-EBS:VolumeUsage.gp2" || data[usageIndex] == "EUC1-EBS:SnapshotUsage" || data[usageIndex] == "EUC1-EBS:SnapshotUsag.gp2" || data[usageIndex] == "EUC1-LoadBalancerUsage" || data[usageIndex] == "EUC1-DataTransfer-Out-Bytes" || data[usageIndex] == "EUC1-DataTransfer-In-Bytes" || data[usageIndex] == "EUC1-ElasticIP:IdleAddress") {
-                regionFive += Number(data[costIndex]);
-            }/*Tokyo*/else if(data[zoneIndex] == "ap-northeast-1a" || data[zoneIndex] == "ap-northeast-1b" || data[zoneIndex] == "ap-northeast-1c" || data[zoneIndex] == "ap-northeast-1d" || data[zoneIndex] == "ap-northeast-1e" || data[usageIndex] == "APN1-EBS:VolumeUsage" || data[usageIndex] == "APN1-EBS:VolumeUsage.gp2" || data[usageIndex] == "APN1-EBS:SnapshotUsage" || data[usageIndex] == "APN1-EBS:SnapshotUsag.gp2" || data[usageIndex] == "APN1-LoadBalancerUsage" || data[usageIndex] == "APN1-DataTransfer-Out-Bytes" || data[usageIndex] == "APN1-DataTransfer-In-Bytes" || data[usageIndex] == "APN1-ElasticIP:IdleAddress") {
-                regionSix += Number(data[costIndex]);
-            }/*Seoul*/ else if(data[zoneIndex] == "ap-northeast-2a" || data[zoneIndex] == "ap-northeast-2b" || data[zoneIndex] == "ap-northeast-2c" || data[zoneIndex] == "ap-northeast-2d" || data[zoneIndex] == "ap-northeast-2e" || data[usageIndex] == "APN2-EBS:VolumeUsage" || data[usageIndex] == "APN2-EBS:VolumeUsage.gp2" || data[usageIndex] == "APN2-EBS:SnapshotUsage" || data[usageIndex] == "APN2-EBS:SnapshotUsag.gp2" || data[usageIndex] == "APN2-LoadBalancerUsage" || data[usageIndex] == "APN2-DataTransfer-Out-Bytes" || data[usageIndex] == "APN2-DataTransfer-In-Bytes" || data[usageIndex] == "APN2-ElasticIP:IdleAddress") {
-                regionSeven += Number(data[costIndex]);
-            }/*Singapore*/else if(data[zoneIndex] == "ap-southeast-1a" || data[zoneIndex] == "ap-southeast-1b" || data[zoneIndex] == "ap-southeast-1c" || data[zoneIndex] == "ap-southeast-1d" || data[zoneIndex] == "ap-southeast-1e" || data[usageIndex] == "APS1-EBS:VolumeUsage" || data[usageIndex] == "APS1-EBS:VolumeUsage.gp2" || data[usageIndex] == "APS1-EBS:SnapshotUsage" || data[usageIndex] == "APS1-EBS:SnapshotUsag.gp2" || data[usageIndex] == "APS1-LoadBalancerUsage" || data[usageIndex] == "APS1-DataTransfer-Out-Bytes" || data[usageIndex] == "APS1-DataTransfer-In-Bytes" || data[usageIndex] == "APS1-ElasticIP:IdleAddress") {
-                regionEight += Number(data[costIndex]);
-            }/*Sydney*/else if(data[zoneIndex] == "ap-southeast-2a" || data[zoneIndex] == "ap-southeast-2b" || data[zoneIndex] == "ap-southeast-2c" || data[zoneIndex] == "ap-southeast-2d" || data[zoneIndex] == "ap-southeast-2e" || data[usageIndex] == "APN2-EBS:VolumeUsage" || data[usageIndex] == "APN2-EBS:VolumeUsage.gp2" || data[usageIndex] == "APN2-EBS:SnapshotUsage" || data[usageIndex] == "APN2-EBS:SnapshotUsag.gp2" || data[usageIndex] == "APN2-LoadBalancerUsage" || data[usageIndex] == "APN2-DataTransfer-Out-Bytes" || data[usageIndex] == "APN2-DataTransfer-In-Bytes" || data[usageIndex] == "APN2-ElasticIP:IdleAddress") {
-                regionNine += Number(data[costIndex]);
-            }/*São Paulo*/else if(data[zoneIndex] == "sa-east-1a" || data[zoneIndex] == "sa-east-1b" || data[zoneIndex] == "sa-east-1c" || data[zoneIndex] == "sa-east-1d" || data[zoneIndex] == "sa-east-1e" || data[usageIndex] == "SAE1-EBS:VolumeUsage" || data[usageIndex] == "SAE1-EBS:VolumeUsage.gp2" || data[usageIndex] == "SAE1-EBS:SnapshotUsage" || data[usageIndex] == "SAE1-EBS:SnapshotUsag.gp2" || data[usageIndex] == "SAE1-LoadBalancerUsage" || data[usageIndex] == "SAE1-DataTransfer-Out-Bytes" || data[usageIndex] == "SAE1-DataTransfer-In-Bytes" || data[usageIndex] == "SAE1-ElasticIP:IdleAddress") {
-                regionTen += Number(data[costIndex]);
-            }
-        }else if(data[prodIndex] === "Amazon RDS Service") {
-            rdCost += Number(data[costIndex]);
-            if (dbInstanceNames.indexOf(data[21]) >=0) {
-                var dbInstanceCostMetricsObj = {};
-                dbInstanceCostMetricsObj['usageCost'] = Number(data[costIndex]);
-                dbInstanceCostMetricsObj['resourceId'] = data[21];
-                dbInstanceCostMetrics.push(dbInstanceCostMetricsObj);
-                dbInstanceCostMetricsObj = {};
-            }
-            /*Virginia*/
-            if(data[zoneIndex] === "us-east-1") {
-                regionOne += Number(data[costIndex]);
-            }/*California*/else if(data[zoneIndex] == "us-west-1") {
-                regionTwo += Number(data[costIndex]);
-            }/*Oregon*/else if(data[zoneIndex] == "us-west-2") {
-                regionThree += Number(data[costIndex]);
-            }/*Ireland*/else if(data[zoneIndex] == "eu-west-1") {
-                regionFour += Number(data[costIndex]);
-            }/*Frankfurt*/else if(data[zoneIndex] == "eu-central-1") {
-                regionFive += Number(data[costIndex]);
-            }/*Tokyo*/ else if(data[zoneIndex] == "ap-northeast-1") {
-                regionSix += Number(data[costIndex]);
-            }/*Seoul*/ else if(data[zoneIndex] == "ap-northeast-2") {
-                regionSeven += Number(data[costIndex]);
-            }/*Singapore*/ else if(data[zoneIndex] == "ap-southeast-1") {
-                regionEight += Number(data[costIndex]);
-            }/*Sydney*/else if(data[zoneIndex] == "ap-southeast-2") {
-                regionNine += Number(data[costIndex]);
-            }/*São Paulo*/else if(data[zoneIndex] == "sa-east-1") {
-                regionTen += Number(data[costIndex]);
-            }
-        }else if(data[prodIndex] === "Amazon Redshift") {
-            rstCost += Number(data[costIndex]);
-            /*Virginia*/
-            if(data[zoneIndex] == "us-east-1") {
-                regionOne += Number(data[costIndex]);
-            }/*California*/else if(data[zoneIndex] == "us-west-1") {
-                regionTwo += Number(data[costIndex]);
-            }/*Oregon*/else if(data[zoneIndex] == "us-west-2") {
-                regionThree += Number(data[costIndex]);
-            }/*Ireland*/else if(data[zoneIndex] == "eu-west-1") {
-                regionFour += Number(data[costIndex]);
-            }/*Frankfurt*/else if(data[zoneIndex] == "eu-central-1") {
-                regionFive += Number(data[costIndex]);
-            }/*Tokyo*/ else if(data[zoneIndex] == "ap-northeast-1") {
-                regionSix += Number(data[costIndex]);
-            }/*Seoul*/ else if(data[zoneIndex] == "ap-northeast-2") {
-                regionSeven += Number(data[costIndex]);
-            }/*Singapore*/ else if(data[zoneIndex] == "ap-southeast-1") {
-                regionEight += Number(data[costIndex]);
-            }/*Sydney*/else if(data[zoneIndex] == "ap-southeast-2") {
-                regionNine += Number(data[costIndex]);
-            }/*São Paulo*/else if(data[zoneIndex] == "sa-east-1") {
-                regionTen += Number(data[costIndex]);
-            }
-        }else if(data[prodIndex] === "Amazon ElastiCache") {
-            elcCost += Number(data[costIndex]);
-            /*Virginia*/
-            if(data[zoneIndex] == "us-east-1") {
-                regionOne += Number(data[costIndex]);
-            }/*California*/else if(data[zoneIndex] == "us-west-1") {
-                regionTwo += Number(data[costIndex]);
-            }/*Oregon*/else if(data[zoneIndex] == "us-west-2") {
-                regionThree += Number(data[costIndex]);
-            }/*Ireland*/else if(data[zoneIndex] == "eu-west-1") {
-                regionFour += Number(data[costIndex]);
-            }/*Frankfurt*/else if(data[zoneIndex] == "eu-central-1") {
-                regionFive += Number(data[costIndex]);
-            }/*Tokyo*/ else if(data[zoneIndex] == "ap-northeast-1") {
-                regionSix += Number(data[costIndex]);
-            }/*Seoul*/ else if(data[zoneIndex] == "ap-northeast-2") {
-                regionSeven += Number(data[costIndex]);
-            }/*Singapore*/ else if(data[zoneIndex] == "ap-southeast-1") {
-                regionEight += Number(data[costIndex]);
-            }/*Sydney*/else if(data[zoneIndex] == "ap-southeast-2") {
-                regionNine += Number(data[costIndex]);
-            }/*São Paulo*/else if(data[zoneIndex] == "sa-east-1") {
-                regionTen += Number(data[costIndex]);
-            }
-        }else if(data[prodIndex] === "Amazon CloudFront") {
-            cdfCost += Number(data[costIndex]);
-        }else if(data[prodIndex] === "Amazon Route 53") {
-            r53Cost += Number(data[costIndex]);
-        }else if(data[prodIndex] === "Amazon Simple Storage Service") {
-            s3Cost += Number(data[costIndex]);
-            if (bucketNames.indexOf(data[21]) >=0) {
-                var bucketCostMetricsObj = {};
-                bucketCostMetricsObj['usageCost'] = Number(data[costIndex]);
-                bucketCostMetricsObj['resourceId'] = data[21];
-                bucketCostMetrics.push(bucketCostMetricsObj);
-                bucketCostMetricsObj = {};
-            }
-        }else if(data[prodIndex] === "Amazon Virtual Private Cloud") {
-            vpcCost += Number(data[costIndex]);
-        }
-        //Calculate Cost of Tags
-        if(data[tagIndex] === "Catalyst"){
-            catTagCost += Number(data[costIndex]);
-        }else if(data[tagIndex] === "J&J") {
-            jjTagCost += Number(data[costIndex]);
-        }else if(data[tagIndex] === "Accenture") {
-            accentureTagCost += Number(data[costIndex]);
-        }
-    }).on("end", function(){
-        var awsResourceCostObject = {
-            organisationId: provider.orgId,
-            providerId: provider._id,
-            providerType: provider.providerType,
-            providerName: provider.providerName,
-            resourceType: "csv",
-            resourceId: "RLBilling",
-            aggregateResourceCost:totalCost,
-            costMetrics : {
-                serviceCost: {
-                    "ec2Cost": ec2Cost,
-                    "rdCost": rdCost,
-                    "rstCost": rstCost,
-                    "elcCost": elcCost,
-                    "cdfCost": cdfCost,
-                    "r53Cost": r53Cost,
-                    "s3Cost": s3Cost,
-                    "vpcCost": vpcCost,
-                    "otherService": (totalCost - ec2Cost - vpcCost - s3Cost - r53Cost - elcCost - cdfCost - rdCost - rstCost)
-                },
-                regionCost: {
-                    "Virginia": regionOne,
-                    "California": regionTwo,
-                    "Oregon": regionThree,
-                    "Ireland": regionFour,
-                    "Frankfurt": regionFive,
-                    "Tokyo": regionSix,
-                    "Seoul": regionSeven,
-                    "Singapore": regionEight,
-                    "Sydney": regionNine,
-                    "Paulo": regionTen,
-                    "GlServices": (totalCost - regionOne - regionTwo - regionThree - regionFour - regionFive - regionSix - regionSeven - regionEight - regionNine - regionTen)
-                },
-                tagCost: {
-                    "Catalyst": catTagCost,
-                    "J&J": jjTagCost,
-                    "Accenture":accentureTagCost
-                },
-                currency:'USD',
-                symbol:"$"
+// @TODO To be cached if needed. In memory data will not exceed 200MB for upto 2000 instances.
+function getAllResourcesForProvider(provider, next) {
+    async.parallel([
+            function(callback) {
+                instancesModel.getInstanceByProviderId(provider._id, callback);
             },
-            updatedTime : updatedTime,
-            startTime: Date.parse(startTime),
-            endTime: Date.parse(endTime)
-        };
-        if(totalCost > 0) {
-            resourceCost.saveResourceCost(awsResourceCostObject, function (err, resourceCostData) {
-                if (err) {
-                    callback(err, null);
-                } else {
-                    var resultCostMetrics={
-                        instanceCostMetrics:instanceCostMetrics,
-                        bucketCostMetrics:bucketCostMetrics,
-                        dbInstanceCostMetrics:dbInstanceCostMetrics
-                    };
-                    callback(null, resultCostMetrics);
-                }
-            })
-        }else{
-            callback(null,[]);
-        }
-    });
-};
-
-function getTotalCost(provider,callback)
-{
-    var cryptoConfig = appConfig.cryptoSettings;
-    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-    var decryptedAccessKey = cryptography.decryptText(provider.accessKey,
-        cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-    var decryptedSecretKey = cryptography.decryptText(provider.secretKey,
-        cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-    var cwConfig = {
-        access_key: decryptedAccessKey,
-        secret_key: decryptedSecretKey,
-        region:"us-east-1"
-    };
-    cw = new CW(cwConfig);
-    var endDate= new Date();
-    var startDate = new Date(endDate.getTime() - (1000*60*60*6));
-    var startDateOne = new Date(endDate.getTime() - (1000*60*60*24));
-    var startDateTwo = new Date(endDate.getTime() - (1000*60*60*24*2));
-    var accDim = [ { Name: 'Currency', Value: 'USD'} ];
-    var costOfMonth = 0, costOfDay = 0, costOfYesterday = 0, tempCost = 0;
-    var resultCostObj={};
-    cw.getTotalCost(startDate,endDate,'Maximum',accDim,function(err,cost)
-    {
-        if(err){
-            callback(err,null);
-        }
-        costOfMonth = cost['Maximum'];
-        /*For getting the cost of current day by subtracting the Maximum cost with Minimum of the day*/
-        cw.getTotalCost(startDateOne,endDate,'Minimum',accDim,function(err,cost)
-        {
-            if(err){
-                callback(err,null);
+            function(callback) {
+                //@TODO Duplicate function of  getByProviderId, to be cleaned up
+                unManagedInstancesModel.getInstanceByProviderId(provider._id, callback);
+            },
+            function(callback) {
+                unassignedInstancesModel.getUnAssignedInstancesByProviderId(provider._id, callback);
             }
-            if(costOfMonth != 0) {
-                costOfDay = costOfMonth - cost['Minimum'];
-                tempCost = cost['Minimum'];
+            /*function(callback) {
+             resources.getResourcesByProviderId(provider._id, callback);
+             }*/
+        ],
+        function(err, results) {
+            if (err) {
+                var err = new Error('Internal server error');
+                err.status = 500;
+                next(err)
             } else {
-                costOfDay = 0;
-                tempCost = 0;
+                var resultsArray = [].concat.apply([], results);
+                var resultsObject = resultsArray.reduce(function(temp, current) {
+                    if('platformId' in current) {
+                        temp[current.platformId] = current;
+                    }
+                    return temp;
+                }, {})
+
+                next(null, resultsObject);
             }
-            /*For getting the previous day cost using the above logic*/
-            cw.getTotalCost(startDateTwo,startDateOne,'Minimum',accDim,function(err,cost){
-                if(err){
-                    callback(err,null);
-                }
-                if(tempCost >= 0 && tempCost >= cost['Minimum']) {
-                    costOfYesterday =  tempCost - cost['Minimum'];
-                    var awsResourceCostObject = {
-                        organisationId: provider.orgId,
-                        providerId: provider._id,
-                        providerType: provider.providerType,
-                        providerName: provider.providerName,
-                        resourceType: "totalCost",
-                        resourceId: "totalCost",
-                        aggregateResourceCost:costOfMonth,
-                        costMetrics : {
-                            monthCost:costOfMonth,
-                            dayCost:costOfDay,
-                            yesterdayCost:costOfYesterday,
-                            currency:'USD',
-                            symbol:"$"
-                        },
-                        updatedTime : Date.parse(endDate),
-                        startTime: Date.parse(endDate),
-                        endTime: Date.parse(startDateOne),
-                    };
-                    resourceCost.saveResourceCost(awsResourceCostObject,function(err,resourceCostData){
-                        if(err){
-                            callback(err,null);
-                        } else{
-                            callback(null,resourceCostData);
-                        }
-                    })
-                } else {
-                    costOfYesterday = 0;
-                    var awsResourceCostObject = {
-                        organisationId: provider.orgId,
-                        providerId: provider._id,
-                        providerType: provider.providerType,
-                        providerName: provider.providerName,
-                        resourceType: "totalCost",
-                        resourceId: "totalCost",
-                        aggregateResourceCost:costOfMonth,
-                        costMetrics : {
-                            monthCost:costOfMonth,
-                            dayCost:costOfDay,
-                            yesterdayCost:costOfYesterday,
-                            currency:'USD',
-                            symbol:"$"
-                        },
-                        updatedTime : Date.parse(endDate),
-                        startTime: Date.parse(endDate),
-                        endTime: Date.parse(startDateOne),
-                    };
-                    resourceCost.saveResourceCost(awsResourceCostObject,function(err,resourceCostData){
-                        if(err){
-                            callback(err,null);
-                        } else{
-                            callback(null,resourceCostData);
-                        }
-                    })
-                }
-            });
-        });
-    });
+        }
+    );
 }
 
+function updateAWSResourceCostsFromCSV(provider, resources, downlaodedCSVPath, updateTime, callback) {
+    var awsBillIndexes = appConfig.aws.billIndexes
+    var awsServices = appConfig.aws.services
+    var awsZones = appConfig.aws.zones
+    var lineNumber = 0
 
-function getCostForServices(provider,callback) {
+    var stream = fs.createReadStream(downlaodedCSVPath)
+    csv.fromStream(stream, {headers: false}).on('data', function(data) {
+        if(data[awsBillIndexes.totalCost] == 'LineItem') {
+            var resourceCostEntry = {platformDetails: {}}
+
+            resourceCostEntry.organizationId = provider.orgId
+            resourceCostEntry.providerId = provider._id
+            resourceCostEntry.providerType = provider.providerType
+            resourceCostEntry.cost = data[awsBillIndexes.cost]
+            resourceCostEntry.startTime = Date.parse(data[awsBillIndexes.startDate])
+            resourceCostEntry.endTime = Date.parse(data[awsBillIndexes.endDate])
+            resourceCostEntry.lastUpdateTime = Date.parse(updateTime)
+            resourceCostEntry.interval = 3600
+            resourceCostEntry.platformDetails.serviceName = data[awsBillIndexes.prod]
+            resourceCostEntry.billLineItemId = ++lineNumber
+            resourceCostEntry.platformDetails.billRecordId = data[awsBillIndexes.recordId]
+
+            if (data[awsBillIndexes.prod] in awsServices) {
+                resourceCostEntry.platformDetails.serviceId = awsServices[data[awsBillIndexes.prod]]
+            }
+
+            resourceCostEntry.platformDetails.zone = (data[awsBillIndexes.zone] == null)
+                ? 'Global' : data[awsBillIndexes.zone]
+
+            resourceCostEntry.platformDetails.region = (data[awsBillIndexes.zone] in awsZones)
+                ? awsZones[data[awsBillIndexes.zone]] : 'Global'
+
+            if (data[awsBillIndexes.instanceId] != null) {
+                resourceCostEntry.platformDetails.instanceId = data[awsBillIndexes.instanceId]
+            }
+
+            if(data[awsBillIndexes.usageType] != null) {
+                resourceCostEntry.platformDetails.usageType = data[awsBillIndexes.usageType]
+            }
+
+            if (data[awsBillIndexes.instanceId] in resources) {
+                var resource = resources[data[awsBillIndexes.instanceId]]
+
+                resourceCostEntry.resourceId = resource._id
+
+                if (('bgId' in resource) && (resource.bgId != null)) {
+                    resourceCostEntry.businessGroupId = resource['bgId']
+                }
+
+                if (('projectId' in resource) && (resource.projectId != null)) {
+                    resourceCostEntry.projectId = resource['projectId']
+                }
+
+                if (('environmentId' in resource) && (resource.environmentId != null)) {
+                    resourceCostEntry.environmentId = resource['environmentId']
+                }
+
+                if (('masterDetails.bgId' in resource) && (resource.masterDetails.bgId != null)) {
+                    console.log("BG: " + resource['bgId'])
+                    resourceCostEntry.businessGroupId = resource['bgId']
+                }
+
+                if (('masterDetails.projectId' in resource)
+                    && (resource.masterDetails.projectId != null)) {
+                    resourceCostEntry.projectId = resource['projectId']
+                }
+
+                if (('masterDetails.environmentId' in resource)
+                    && (resource.masterDetails.environmentId != null)) {
+                    resourceCostEntry.environmentId = resource['environmentId']
+                }
+            }
+
+            resourceCostEntry.businessGroupId
+                = ('businessGroupId' in resourceCostEntry)?resourceCostEntry.businessGroupId:'Unassigned'
+            resourceCostEntry.projectId
+                = ('projectId' in resourceCostEntry)?resourceCostEntry.projectId:'Unassigned'
+            resourceCostEntry.environmentId
+                = ('environmentId' in resourceCostEntry)?resourceCostEntry.environmentId:'Unassigned'
+
+            resourceCost.upsertResourceCost(resourceCostEntry, function (err, costEntry) {
+                if (err) {
+                    logger.error(err)
+                    return callback(new Error('Database Error'))
+                }
+            })
+        }
+    }).on('end', function() {
+        callback(null)
+    })
+}
+
+function getCostForServices_deprecated(provider,callback) {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var decryptedAccessKey = cryptography.decryptText(provider.accessKey,
@@ -383,62 +197,86 @@ function getCostForServices(provider,callback) {
     /*This the Dimension that is required to passed for different services*/
     var ec2Dim = [ { Name: 'ServiceName',Value: 'AmazonEC2'},{ Name: 'Currency', Value: 'USD'} ];
     var rdsDim = [ { Name: 'ServiceName',Value: 'AmazonRDS'},{ Name: 'Currency', Value: 'USD'} ];
-    var ec2Cost = 0, rdsCost = 0;
     /*Getting the cost of EC2 & RDS for the current day*/
-    cw.getTotalCost(startDate,endDate,'Maximum',ec2Dim,function(err,presentCost)
-    {
+    async.parallel({
+        ec2Cost:function(callback){
+            var ec2Cost = 0;
+            cw.getTotalCost(startDate,endDate,'Maximum',ec2Dim,function(err,presentEC2Cost) {
+                if (err) {
+                    callback(err, null);
+                }
+                cw.getTotalCost(startDateOne, endDate, 'Minimum', ec2Dim, function (err, yesterdayEC2Cost) {
+                    if (err) {
+                        callback(err, null);
+                    }else if (typeof presentEC2Cost === "undefined" && typeof yesterdayEC2Cost === "undefined"){
+                        callback(null,ec2Cost);
+                    }else if(presentEC2Cost.Maximum && yesterdayEC2Cost.Minimum) {
+                        ec2Cost = presentEC2Cost['Maximum'] - yesterdayEC2Cost['Minimum'];
+                        callback(null, ec2Cost);
+                    }else {
+                        callback(null, ec2Cost);
+                    }
+                });
+            });
+        },
+        rdsCost:function(callback){
+            var rdsCost = 0;
+            cw.getTotalCost(startDate,endDate,'Maximum',rdsDim,function(err,presentRDSCost) {
+                if (err) {
+                    callback(err, null);
+                }
+                cw.getTotalCost(startDateOne, endDate, 'Minimum', rdsDim, function (err, yesterdayRDSCost) {
+                    if (err) {
+                        callback(err, null);
+                    }else if (typeof presentRDSCost === "undefined" && typeof yesterdayRDSCost === "undefined"){
+                        callback(null,rdsCost);
+                    }else if(presentRDSCost.Maximum && yesterdayRDSCost.Minimum) {
+                        rdsCost = presentRDSCost['Maximum'] - yesterdayRDSCost['Minimum'];
+                        callback(null, rdsCost);
+                    }else {
+                        callback(null, rdsCost);
+                    }
+                });
+            });
+        }
+
+    },function(err,results){
         if(err){
             callback(err,null);
-        }
-        cw.getTotalCost(startDateOne,endDate,'Minimum',ec2Dim,function(err,yesterdayCost)
-        {
-            if(err){
-                callback(err,null);
-            }
-            ec2Cost = presentCost['Maximum'] - yesterdayCost['Minimum'];
-        });
-        cw.getTotalCost(startDate,endDate,'Maximum',rdsDim,function(err,presentRdsCost)
-        {
-            if(err){
-                callback(err,null);
-            }
-            cw.getTotalCost(startDateOne,endDate,'Minimum',rdsDim,function(err,yesterdayRdsCost)
-            {
-                if(err){
-                    callback(err,null);
+            return;
+        }else {
+            var awsResourceCostObject = {
+                organisationId: provider.orgId,
+                providerId: provider._id,
+                providerType: provider.providerType,
+                providerName: provider.providerName,
+                resourceType: "serviceCost",
+                resourceId: "serviceCost",
+                aggregateResourceCost: results.ec2Cost + results.rdsCost,
+                costMetrics: {
+                    ec2Cost: results.ec2Cost,
+                    rdsCost: results.rdsCost,
+                    currency: 'USD',
+                    symbol: "$"
+                },
+                updatedTime: Date.parse(endDate),
+                startTime: Date.parse(endDate),
+                endTime: Date.parse(startDateOne)
+            };
+            resourceCost.saveResourceCost(awsResourceCostObject, function (err, resourceCostData) {
+                if (err) {
+                    callback(err, null);
+                    return;
+                } else {
+                    callback(null, resourceCostData);
+                    return;
                 }
-                rdsCost = presentRdsCost['Maximum'] - yesterdayRdsCost['Minimum'];
-                var awsResourceCostObject = {
-                    organisationId: provider.orgId,
-                    providerId: provider._id,
-                    providerType: provider.providerType,
-                    providerName: provider.providerName,
-                    resourceType: "serviceCost",
-                    resourceId: "serviceCost",
-                    aggregateResourceCost:ec2Cost + rdsCost,
-                    costMetrics : {
-                        ec2Cost:ec2Cost,
-                        rdsCost:rdsCost,
-                        currency:'USD',
-                        symbol:"$"
-                    },
-                    updatedTime : Date.parse(endDate),
-                    startTime: Date.parse(endDate),
-                    endTime: Date.parse(startDateOne)
-                };
-                resourceCost.saveResourceCost(awsResourceCostObject,function(err,resourceCostData){
-                    if(err){
-                        callback(err,null);
-                    } else{
-                        callback(null,resourceCostData);
-                    }
-                })
-            });
-        });
+            })
+        }
     });
 }
 
-function getEC2InstanceUsageMetrics(provider, instances, callback) {
+function getEC2InstanceUsageMetrics(provider, instances, startTime, endTime, period, callback) {
     var metricsUnits = appConfig.aws.cwMetricsUnits;
     var instanceUsageMetrics = [];
     var instnacesWithMetrics = instances.length;
@@ -471,8 +309,8 @@ function getEC2InstanceUsageMetrics(provider, instances, callback) {
         };
     }
 
-    var endTime = new Date();
-    var startTime = new Date(endTime.getTime() - 1000*60*60*24);
+    /*var endTime = new Date();
+     var startTime = new Date(endTime.getTime() - 1000*60*60*24);*/
     for(var i = 0; i < instances.length; i++) {
         (function(j) {
             if(('providerData' in instances[j]) && (typeof instances[j].providerData !== undefined)
@@ -482,25 +320,37 @@ function getEC2InstanceUsageMetrics(provider, instances, callback) {
 
                 async.parallel({
                         CPUUtilization: function (callback) {
-                            cw.getUsageMetrics('CPUUtilization', metricsUnits.CPUUtilization,'AWS/EC2',[{Name:'InstanceId',Value:instances[j].platformId}], startTime, endTime, callback);
+                            cw.getUsageMetrics('CPUUtilization', metricsUnits.CPUUtilization,'AWS/EC2',[{Name:'InstanceId',Value:instances[j].platformId}], startTime, endTime, period, callback);
                         },
                         NetworkOut: function (callback) {
-                            cw.getUsageMetrics('NetworkOut', metricsUnits.NetworkOut,'AWS/EC2',[{Name:'InstanceId',Value:instances[j].platformId}], startTime, endTime, callback);
+                            cw.getUsageMetrics('NetworkOut', metricsUnits.NetworkOut,'AWS/EC2',[{Name:'InstanceId',Value:instances[j].platformId}], startTime, endTime, period, callback);
                         },
                         NetworkIn: function (callback) {
-                            cw.getUsageMetrics('NetworkIn', metricsUnits.NetworkIn,'AWS/EC2',[{Name:'InstanceId',Value:instances[j].platformId}], startTime, endTime, callback);
+                            cw.getUsageMetrics('NetworkIn', metricsUnits.NetworkIn,'AWS/EC2',[{Name:'InstanceId',Value:instances[j].platformId}], startTime, endTime, period, callback);
                         },
                         DiskReadBytes: function (callback) {
-                            cw.getUsageMetrics('DiskReadBytes', metricsUnits.DiskReadBytes,'AWS/EC2',[{Name:'InstanceId',Value:instances[j].platformId}], startTime, endTime, callback);
+                            cw.getUsageMetrics('DiskReadBytes', metricsUnits.DiskReadBytes,'AWS/EC2',[{Name:'InstanceId',Value:instances[j].platformId}], startTime, endTime, period, callback);
                         },
                         DiskWriteBytes: function (callback) {
-                            cw.getUsageMetrics('DiskWriteBytes', metricsUnits.DiskWriteBytes,'AWS/EC2',[{Name:'InstanceId',Value:instances[j].platformId}], startTime, endTime, callback);
+                            cw.getUsageMetrics('DiskWriteBytes', metricsUnits.DiskWriteBytes,'AWS/EC2',[{Name:'InstanceId',Value:instances[j].platformId}], startTime, endTime, period, callback);
                         }
                     },
                     function (err, results) {
                         if(err) {
                             logger.error(err)
                         } else {
+                            /* TODO: To split up into different entries.*/
+                            /* TODO: startTime and endTime should be got from the response object, not from what we pass.*/
+
+                            /* Currently modifying the start time and end time with the period.
+                             * For Example, if the query is to get the data point from 10.00 to 11.00, period is 3600
+                             * 		AWS starttime - 10.00 is inclusive and endtime 11.00 is exclusive.
+                             * 		We will get a cron for the datapoint at 10.00 [which is nothing but for the period 10.00 to 11.00]
+                             * 		Hence the datapoint in the db will be with starttime - 10.00 to endtime - 11.00
+                             */
+                            var dbEndTime = startTime;
+                            var dbStartTime = getStartTime(dbEndTime, period);
+
                             instanceUsageMetrics.push({
                                 providerId: provider._id,
                                 providerType: provider.providerType,
@@ -510,8 +360,9 @@ function getEC2InstanceUsageMetrics(provider, instances, callback) {
                                 platform: 'AWS',
                                 platformId: instances[j].platformId,
                                 resourceType: 'EC2',
-                                startTime: startTime,
-                                endTime: endTime,
+                                startTime: dbStartTime,
+                                endTime: dbEndTime,
+                                interval: period,
                                 metrics: results
                             });
                         }
@@ -530,7 +381,7 @@ function getEC2InstanceUsageMetrics(provider, instances, callback) {
     }
 };
 
-function getS3BucketsMetrics(provider, buckets, callback) {
+function getS3BucketsMetrics(provider, buckets, startTime, endTime, period, callback) {
     var bucketUsageMetrics = [];
     var bucketWithMetrics = buckets.length;
     if(bucketWithMetrics == 0)
@@ -561,23 +412,39 @@ function getS3BucketsMetrics(provider, buckets, callback) {
             "region":"us-east-1"
         };
     }
-    var endTime= new Date();
-    var startTime = new Date(endTime.getTime() - (1000*60*60*24));
+    /*var endTime= new Date();
+     var startTime = new Date(endTime.getTime() - (1000*60*60*24));*/
     for(var i = 0; i < buckets.length; i++) {
         (function(bucket) {
             cw = new CW(amazonConfig);
             async.parallel({
                     BucketSizeBytes: function (callback) {
-                        cw.getUsageMetrics('BucketSizeBytes','Bytes','AWS/S3',[{Name:'BucketName',Value:bucket.resourceDetails.bucketName},{Name:'StorageType',Value:'StandardStorage'}],startTime, endTime, callback);
+                        cw.getUsageMetrics('BucketSizeBytes','Bytes','AWS/S3',
+                            [{Name:'BucketName',Value:bucket.resourceDetails.bucketName},
+                                {Name:'StorageType',Value:'StandardStorage'}],startTime, endTime, period, callback);
                     },
                     NumberOfObjects: function (callback) {
-                        cw.getUsageMetrics('NumberOfObjects','Count','AWS/S3',[{Name:'BucketName',Value:bucket.resourceDetails.bucketName},{Name:'StorageType',Value:'AllStorageTypes'}],startTime, endTime, callback);
+                        cw.getUsageMetrics('NumberOfObjects','Count','AWS/S3',[{Name:'BucketName',
+                                Value:bucket.resourceDetails.bucketName},{Name:'StorageType',Value:'AllStorageTypes'}],
+                            startTime, endTime, period, callback);
                     }
                 },
                 function (err, results) {
                     if(err) {
                         logger.error(err)
                     } else {
+                        /* TODO: To split up into different entries.*/
+                        /* TODO: startTime and endTime should be got from the response object, not from what we pass.*/
+
+                        /* Currently modifying the start time and end time with the period.
+                         * For Example, if the query is to get the data point from 10.00 to 11.00, period is 3600
+                         * 		AWS starttime - 10.00 is inclusive and endtime 11.00 is exclusive.
+                         * 		We will get a cron for the datapoint at 10.00 [which is nothing but for the period 10.00 to 11.00]
+                         * 		Hence the datapoint in the db will be with starttime - 10.00 to endtime - 11.00
+                         */
+                        var dbEndTime = startTime;
+                        var dbStartTime = getStartTime(dbEndTime, period);
+
                         bucketUsageMetrics.push({
                             providerId: provider._id,
                             providerType: provider.providerType,
@@ -586,8 +453,9 @@ function getS3BucketsMetrics(provider, buckets, callback) {
                             platform: 'AWS',
                             platformId: bucket.resourceDetails.bucketName,
                             resourceType: 'S3',
-                            startTime: startTime,
-                            endTime: endTime,
+                            startTime: dbStartTime,
+                            endTime: dbEndTime,
+                            interval: period,
                             metrics: results
                         });
                     }
@@ -599,7 +467,7 @@ function getS3BucketsMetrics(provider, buckets, callback) {
     }
 };
 
-function getRDSDBInstanceMetrics(provider, dbInstances, callback) {
+function getRDSDBInstanceMetrics(provider, dbInstances, startTime, endTime, period, callback) {
     var rdsUsageMetrics = [];
     var rdsWithMetrics = dbInstances.length;
     if(rdsWithMetrics == 0)
@@ -630,71 +498,84 @@ function getRDSDBInstanceMetrics(provider, dbInstances, callback) {
             "region":"us-east-1"
         };
     }
-    var endTime= new Date();
-    var startTime = new Date(endTime.getTime() - (1000*60*60*24));
+    /*var endTime= new Date();
+     var startTime = new Date(endTime.getTime() - (1000*60*60*24));*/
     for(var i = 0; i < dbInstances.length; i++) {
         (function(rds) {
             cw = new CW(amazonConfig);
             async.parallel({
                     CPUUtilization: function (callback) {
-                        cw.getUsageMetrics('CPUUtilization','Percent','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, callback);
+                        cw.getUsageMetrics('CPUUtilization','Percent','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
                     },
                     BinLogDiskUsage: function (callback) {
-                        cw.getUsageMetrics('BinLogDiskUsage','Bytes','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, callback);
+                        cw.getUsageMetrics('BinLogDiskUsage','Bytes','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
                     },
                     CPUCreditUsage: function (callback) {
-                        cw.getUsageMetrics('CPUCreditUsage','Count','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, callback);
+                        cw.getUsageMetrics('CPUCreditUsage','Count','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
                     },
                     CPUCreditBalance: function (callback) {
-                        cw.getUsageMetrics('CPUCreditBalance','Count','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, callback);
+                        cw.getUsageMetrics('CPUCreditBalance','Count','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
                     },
                     DatabaseConnections: function (callback) {
-                        cw.getUsageMetrics('DatabaseConnections','Count','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, callback);
+                        cw.getUsageMetrics('DatabaseConnections','Count','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
                     },
                     DiskQueueDepth: function (callback) {
-                        cw.getUsageMetrics('DiskQueueDepth','Count','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, callback);
+                        cw.getUsageMetrics('DiskQueueDepth','Count','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
                     },
                     FreeableMemory: function (callback) {
-                        cw.getUsageMetrics('FreeableMemory','Bytes','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, callback);
+                        cw.getUsageMetrics('FreeableMemory','Bytes','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
                     },
                     FreeStorageSpace: function (callback) {
-                        cw.getUsageMetrics('FreeStorageSpace','Bytes','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, callback);
+                        cw.getUsageMetrics('FreeStorageSpace','Bytes','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
                     },
                     ReplicaLag: function (callback) {
-                        cw.getUsageMetrics('ReplicaLag','Seconds','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, callback);
+                        cw.getUsageMetrics('ReplicaLag','Seconds','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
                     },
                     SwapUsage: function (callback) {
-                        cw.getUsageMetrics('SwapUsage','Bytes','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, callback);
+                        cw.getUsageMetrics('SwapUsage','Bytes','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
                     },
                     ReadIOPS: function (callback) {
-                        cw.getUsageMetrics('ReadIOPS','Count/Second','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, callback);
+                        cw.getUsageMetrics('ReadIOPS','Count/Second','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
                     },
                     WriteIOPS: function (callback) {
-                        cw.getUsageMetrics('WriteIOPS','Count/Second','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, callback);
+                        cw.getUsageMetrics('WriteIOPS','Count/Second','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
                     },
                     ReadLatency: function (callback) {
-                        cw.getUsageMetrics('ReadLatency','Seconds','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, callback);
+                        cw.getUsageMetrics('ReadLatency','Seconds','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
                     },
                     WriteLatency: function (callback) {
-                        cw.getUsageMetrics('WriteLatency','Seconds','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, callback);
+                        cw.getUsageMetrics('WriteLatency','Seconds','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
                     },
                     ReadThroughput: function (callback) {
-                        cw.getUsageMetrics('ReadThroughput','Bytes/Second','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, callback);
+                        cw.getUsageMetrics('ReadThroughput','Bytes/Second','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
                     },
                     WriteThroughput: function (callback) {
-                        cw.getUsageMetrics('WriteThroughput','Bytes/Second','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, callback);
+                        cw.getUsageMetrics('WriteThroughput','Bytes/Second','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
                     },
                     NetworkReceiveThroughput: function (callback) {
-                        cw.getUsageMetrics('NetworkReceiveThroughput','Bytes/Second','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, callback);
+                        cw.getUsageMetrics('NetworkReceiveThroughput','Bytes/Second','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
                     },
                     NetworkTransmitThroughput: function (callback) {
-                        cw.getUsageMetrics('NetworkTransmitThroughput','Bytes/Second','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, callback);
+                        cw.getUsageMetrics('NetworkTransmitThroughput','Bytes/Second','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
                     }
                 },
                 function (err, results) {
                     if(err) {
                         logger.error(err)
                     } else {
+
+                        /* TODO: To split up into different entries.*/
+                        /* TODO: startTime and endTime should be got from the response object, not from what we pass.*/
+
+                        /* Currently modifying the start time and end time with the period.
+                         * For Example, if the query is to get the data point from 10.00 to 11.00, period is 3600
+                         * 		AWS starttime - 10.00 is inclusive and endtime 11.00 is exclusive.
+                         * 		We will get a cron for the datapoint at 10.00 [which is nothing but for the period 10.00 to 11.00]
+                         * 		Hence the datapoint in the db will be with starttime - 10.00 to endtime - 11.00
+                         */
+                        var dbEndTime = startTime;
+                        var dbStartTime = getStartTime(dbEndTime, period);
+
                         rdsUsageMetrics.push({
                             providerId: provider._id,
                             providerType: provider.providerType,
@@ -703,8 +584,9 @@ function getRDSDBInstanceMetrics(provider, dbInstances, callback) {
                             platform: 'AWS',
                             platformId: rds.resourceDetails.dbName,
                             resourceType: 'RDS',
-                            startTime: startTime,
-                            endTime: endTime,
+                            startTime: dbStartTime,
+                            endTime: dbEndTime,
+                            interval: period,
                             metrics: results
                         });
                     }
@@ -790,7 +672,7 @@ function getBucketsInfo(provider,orgName,callback) {
     })
 };
 
-function getEC2InstancesInfo(provider,orgId,orgName,callback) {
+function getEC2InstancesInfo(provider,orgName,callback) {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var decryptedAccessKey = cryptography.decryptText(provider.accessKey,
@@ -828,19 +710,19 @@ function getEC2InstancesInfo(provider,orgId,orgName,callback) {
                                         tagInfo[jsonData.Key] = jsonData.Value;
                                     }
                                     var instanceObj = {
-                                        orgId: orgId,
+                                        orgId: provider.orgId[0],
                                         orgName:orgName,
                                         providerId: provider._id,
                                         providerType: 'aws',
                                         providerData: region,
                                         platformId: instance.InstanceId,
-                                        ip: instance.PublicIpAddress || instance.PrivateIpAddress,
+                                        ip: instance.PublicIpAddress || null,
+                                        hostName:instance.PrivateDnsName,
                                         os: (instance.Platform && instance.Platform === 'windows') ? 'windows' : 'linux',
                                         state: instance.State.Name,
-                                        network:{
-                                            subnet:instance.SubnetId,
-                                            vpc:instance.VpcId
-                                        },
+                                        subnetId: instance.SubnetId,
+                                        vpcId: instance.VpcId,
+                                        privateIpAddress: instance.PrivateIpAddress,
                                         tags:tagInfo,
                                         environmentTag:tagInfo.Environment,
                                         projectTag:tagInfo.Owner
@@ -869,12 +751,12 @@ function getRDSInstancesInfo(provider,orgName,callback) {
         cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
     var decryptedSecretKey = cryptography.decryptText(provider.secretKey,
         cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-    var s3Config = {
+    var rdsConfig = {
         access_key: decryptedAccessKey,
         secret_key: decryptedSecretKey,
         region: "us-west-1"
     };
-    var rds = new RDS(s3Config);
+    var rds = new RDS(rdsConfig);
     rds.getRDSDBInstances(function(err,dbInstances){
         if(err){
             logger.error(err);
@@ -1124,4 +1006,132 @@ function bulkUpdateAWSResourcesTags(provider, resources, callback) {
     }else{
         return callback(null, resources);
     }
+}
+
+function getStartTime(endTime, period){
+    var startTime = new Date(endTime);
+    var subtractedDateInMilliSeconds = startTime.getTime() - (period*1000);
+    var subtractedDate = new Date(subtractedDateInMilliSeconds);
+    return dateUtil.getDateInUTC(subtractedDate);
+}
+
+function updateDomainNameForInstance(domainName,publicIP,instanceId,awsSettings,callback){
+    var route53 = new Route53(awsSettings);
+    async.waterfall([
+        function(next){
+            route53.listHostedZones({},next);
+        },
+        function(hostedZones,next){
+            if(hostedZones.HostedZones.length > 0){
+                var count = 0,resourceCount = 0;
+                var params = {};
+                var paramList = [];
+                for(var i = 0; i < hostedZones.HostedZones.length; i++) {
+                    (function (hostedZone) {
+                        count++;
+                        route53.listResourceRecordSets({HostedZoneId:hostedZone.Id}, function(err,resourceData) {
+                            if(err){
+                                next(err,null);
+                            }else {
+                                for(var j = 0;j < resourceData.ResourceRecordSets.length;j++) {
+                                    (function (resourceRecord) {
+                                        resourceCount++;
+                                        if(resourceRecord.ResourceRecords.length  === 1 && resourceRecord.ResourceRecords[0].Value === publicIP){
+                                            params = {
+                                                ChangeBatch: {
+                                                    Changes: [
+                                                        {
+                                                            Action: 'UPSERT',
+                                                            ResourceRecordSet: {
+                                                                Name: domainName+'.rlcatalyst.com.',
+                                                                "Type": "CNAME",
+                                                                "TTL": 30,
+                                                                ResourceRecords: [
+                                                                    {
+                                                                        "Value": resourceRecord.Name
+                                                                    }
+                                                                ]
+                                                            }
+                                                        }
+                                                    ]
+                                                },
+                                                HostedZoneId: hostedZone.Id
+                                            }
+                                            paramList.push(params);
+                                        }else{
+                                            for(var k = 0; k < resourceRecord.ResourceRecords.length; k++ ){
+                                                if(resourceRecord.ResourceRecords[k].Value === publicIP){
+                                                    params = {
+                                                        ChangeBatch: {
+                                                            Changes: [
+                                                                {
+                                                                    Action: 'UPSERT',
+                                                                    ResourceRecordSet: {
+                                                                        Name: domainName+'.rlcatalyst.com.',
+                                                                        "Type": "CNAME",
+                                                                        "TTL": 30,
+                                                                        ResourceRecords: [
+                                                                            {
+                                                                                "Value": resourceRecord.Name
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                }
+                                                            ]
+                                                        },
+                                                        HostedZoneId: hostedZone.Id
+                                                    }
+                                                    paramList.push(params);
+                                                }
+                                            }
+                                        }
+                                    })(resourceData.ResourceRecordSets[j]);
+                                }
+                                if(count === hostedZones.HostedZones.length && resourceCount === resourceData.ResourceRecordSets.length){
+                                    next(null,paramList);
+                                }
+                            }
+                        });
+                    })(hostedZones.HostedZones[i]);
+                }
+            }else{
+                next(null,null);
+            }
+        },
+        function(paramList,next){
+            if(paramList.length > 0){
+                var count = 0;
+                for(var i = 0; i < paramList.length;i++){
+                    (function(params){
+                        route53.changeResourceRecordSets(params,function(err,data){
+                            count++;
+                            if(err){
+                                next(err,null);
+                            }
+                            if(count === paramList.length){
+                                next(null,paramList);
+                            }
+                        });
+                    })(paramList[i]);
+
+                }
+            }else{
+                next(null,paramList);
+            }
+        },
+        function(hostedParamList,next){
+            if(hostedParamList.length > 0){
+                instancesModel.updatedRoute53HostedZoneParam(instanceId,hostedParamList,next);
+            }else{
+                next(null,hostedParamList);
+            }
+        }
+    ],function(err,results){
+        if(err){
+            callback(err,null);
+            return;
+        }
+        callback(null,results);
+        return;
+    })
 }

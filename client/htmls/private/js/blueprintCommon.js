@@ -17,6 +17,36 @@ function getTreeDetails(){
             var $projectListforcopy = $('#projectListInputExistingforcopy');
             var $envListforcopy = $('#envListExistingforcopy');
 
+            $orgListInput.change(function(e) {
+                var orgName = $(this).val();
+                if (orgName == 'choose') {
+                    return;
+                }
+                var $selectedOrgOption = $(this).find(":selected");
+                $bgList.empty();
+                var getBg = orgBg[orgName];
+                for (var i = 0; i < getBg.length; i++) {
+                    var $option = $('<option></option>').val(getBg[i].rowid).html(getBg[i].name);
+                    $bgList.append($option);
+                }
+                $bgList.trigger('change');
+            });
+
+            $orgListInputforcopy.change(function(e) {
+                var orgName = $(this).val();
+                if (orgName == 'choose') {
+                    return;
+                }
+                var $selectedOrgOption = $(this).find(":selected");
+                $bgListforcopy.empty();
+                var getBg = orgBg[orgName];
+                for (var i = 0; i < getBg.length; i++) {
+                    var $option = $('<option></option>').val(getBg[i].rowid).html(getBg[i].name);
+                    $bgListforcopy.append($option);
+                }
+                $bgListforcopy.trigger('change');
+            });
+
             $bgList.change(function(e) {
                 var bgName = $(this).val();
                 if (bgName == 'choose') {
@@ -26,7 +56,7 @@ function getTreeDetails(){
                 $projectList.empty();
                 var getProjs = bgProjects[bgName];
                 for (var i = 0; i < getProjs.length; i++) {
-                    var $option = $('<option></option>').val(getProjs[i].rowid).html(getProjs[i].name);
+                    var $option = $('<option></option>').val(getProjs[i].rowId).html(getProjs[i].name);
                     $projectList.append($option);
                 }
                 $projectList.trigger('change');
@@ -41,7 +71,7 @@ function getTreeDetails(){
                 $projectListforcopy.empty();
                 var getProjs = bgProjects[bgName];
                 for (var i = 0; i < getProjs.length; i++) {
-                    var $option = $('<option></option>').val(getProjs[i].rowid).html(getProjs[i].name);
+                    var $option = $('<option></option>').val(getProjs[i].rowId).html(getProjs[i].name);
                     $projectListforcopy.append($option);
                 }
                 $projectListforcopy.trigger('change');
@@ -76,15 +106,17 @@ function getTreeDetails(){
             }); //choose env gets over
 
             var bgProjects = {};
+            var orgBg ={};
             for (var i = 0; i < data.length; i++) {
                 $orgListInput.append($('<option></option>').val(data[i].rowid).html(data[i].name).data('bglist', data[i].businessGroups).data('envList', data[i].environments));
+                orgBg[data[i].rowid] = data[i].businessGroups;
                 for (var j = 0; j < data[i].businessGroups.length; j++) {
                     var rowid = data[i].businessGroups[j].rowid;
-                    $bgList.append($('<option></option').val(rowid).html(data[i].businessGroups[j].name));
+                    /*$bgList.append($('<option></option').val(rowid).html(data[i].businessGroups[0].name));
                     //Dropdowns on the copy popup
-                    $bgListforcopy.append($('<option></option').val(rowid).html(data[i].businessGroups[j].name));
+                    $bgListforcopy.append($('<option></option').val(rowid).html(data[i].businessGroups[0].name));
 
-
+                    orgBg[data[i].rowid] = data[i].businessGroups;*/
                     bgProjects[rowid] = data[i].businessGroups[j].projects;
                 }
                 for (var k = 0; k < data[i].environments.length; k++) {
@@ -94,6 +126,8 @@ function getTreeDetails(){
                 //Dropdowns on the copy popup
                 $orgListInputforcopy.append($('<option></option>').val(data[i].rowid).html(data[i].name).data('bglist', data[i].businessGroups).data('envList', data[i].environments));
             }
+            $orgListInput.trigger('change');
+            $orgListInputforcopy.trigger('change');
             $bgList.trigger('change');
             $bgListforcopy.trigger('change');
             $('.chooseOrgSelectExisting').change(function(e) {
@@ -140,7 +174,7 @@ function softwareStackListing() {
                 $projectList.empty();
                 var getProjs = bgProjects[bgName];
                 for (var i = 0; i < getProjs.length; i++) {
-                    var $option = $('<option></option>').val(getProjs[i].rowid).html(getProjs[i].name);
+                    var $option = $('<option></option>').val(getProjs[i].rowId).html(getProjs[i].name);
                     $projectList.append($option);
                 }
                 $projectList.trigger('change');
@@ -155,7 +189,7 @@ function softwareStackListing() {
                 $projectListforcopy.empty();
                 var getProjs = bgProjects[bgName];
                 for (var i = 0; i < getProjs.length; i++) {
-                    var $option = $('<option></option>').val(getProjs[i].rowid).html(getProjs[i].name);
+                    var $option = $('<option></option>').val(getProjs[i].rowId).html(getProjs[i].name);
                     $projectListforcopy.append($option);
                 }
                 $projectListforcopy.trigger('change');

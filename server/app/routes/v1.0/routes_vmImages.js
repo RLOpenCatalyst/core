@@ -30,6 +30,9 @@ var usersDao = require('_pr/model/users.js');
 var configmgmtDao = require('_pr/model/d4dmasters/configmgmt.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var appConfig = require('_pr/config');
+var settingWizard = require('_pr/model/setting-wizard');
+var settingsService = require('_pr/services/settingsService');
+
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all('/vmimages/*', sessionVerificationFunc);
@@ -109,19 +112,18 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         };
 
         usersDao.haspermission(user.cn, category, permissionto, null, req.session.user.permissionset, function(err, data) {
-            if (!err) {
+            if(!err) {
                 logger.debug('Returned from haspermission : ' + data + ' : ' + (data == false));
                 if (data == false) {
                     logger.debug('No permission to ' + permissionto + ' on ' + category);
                     res.send(401, "You don't have permission to perform this operation.");
                     return;
                 }
-            } else {
+            }else {
                 logger.error("Hit and error in haspermission:", err);
                 res.send(500);
                 return;
             }
-
             masterUtil.getLoggedInUser(user.cn, function(err, anUser) {
                 if (err) {
                     res.status(500).send("Failed to fetch User.");
@@ -216,9 +218,35 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                 res.status(500).send("Selected is already registered.");
                                                 return;
                                             }
-                                            logger.debug("Exit post() for /vmimages");
-                                            res.send(anImage);
-                                            return;
+                                            settingWizard.getSettingWizardByOrgId(orgId,function(err,settingWizards){
+                                                if(err){
+                                                    logger.error('Hit getting setting wizard error', err);
+                                                    res.send(500);
+                                                    return;
+                                                }
+                                                var settingWizardSteps = appConfig.settingWizardSteps;
+                                                if(settingWizards.currentStep.name === 'Provider Configuration') {
+                                                    settingWizards.currentStep.nestedSteps[1].isCompleted = true;
+                                                    settingWizards.currentStep.isCompleted = true;
+                                                    settingWizards.previousStep = settingWizards.currentStep;
+                                                    settingWizards.currentStep = settingWizards.nextStep;
+                                                    settingWizards.nextStep = settingWizardSteps[6];
+                                                    settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                                                        if (err) {
+                                                            logger.error('Hit getting setting wizard error', err);
+                                                            res.send(500);
+                                                            return;
+                                                        }
+                                                        logger.debug("Exit post() for /vmimages");
+                                                        res.send(anImage);
+                                                        return;
+                                                    });
+                                                }else{
+                                                    logger.debug("Exit post() for /vmimages");
+                                                    res.send(anImage);
+                                                    return;
+                                                }
+                                            })
                                         });
                                     } else {
                                         res.status(500).send("The image is empty for amid: " + vmimageData.imageIdentifier);
@@ -307,7 +335,12 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             }
             if (anImage) {
                 logger.debug("Exit get() for /vmimages/%s", req.params.imageId);
-                res.send(anImage);
+                if (anImage.instancePassword && anImage.instancePassword !== '') {
+                    anImage.instancePassword = cryptography.decryptText(anImage.instancePassword.trim(),cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding)
+                    res.send(anImage);
+                }else{
+                    res.send(anImage);
+                }
             } else {
                 res.send(404);
             }
@@ -562,31 +595,48 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     return;
                 }
                 if (anUser) {
-                    blueprintsDao.getBlueprintByImageId(imageId, function(err, data) {
+                    VMImage.getImageById(imageId, function(err, anImage) {
                         if (err) {
-                            logger.error('Failed to getBlueprint. Error = ', err);
-                            res.send(500);
+                            logger.error(err);
+                            res.status(500).send(errorResponses.db.error);
                             return;
                         }
-                        if (data) {
-                            res.send(403, "Image already used by some Blueprints.To delete Image please delete respective Blueprints first.");
-                            return;
-                        }
-                        VMImage.removeImageById(req.params.imageId, function(err, deleteCount) {
-                            if (err) {
-                                logger.error(err);
-                                res.status(500).send(errorResponses.db.error);
-                                return;
-                            }
-                            if (deleteCount) {
-                                logger.debug("Exit delete() for /vmimages/%s", req.params.imageId);
-                                res.send({
-                                    deleteCount: deleteCount
+                        if (anImage) {
+                            blueprintsDao.getBlueprintByImageId(imageId, function (err, data) {
+                                if (err) {
+                                    logger.error('Failed to getBlueprint. Error = ', err);
+                                    res.send(500);
+                                    return;
+                                }
+                                if (data) {
+                                    res.send(403, "Image already used by some Blueprints.To delete Image please delete respective Blueprints first.");
+                                    return;
+                                }
+                                VMImage.removeImageById(req.params.imageId, function (err, deleteCount) {
+                                    if (err) {
+                                        logger.error(err);
+                                        res.status(500).send(errorResponses.db.error);
+                                        return;
+                                    }
+                                    if (deleteCount) {
+                                        settingsService.trackSettingWizard('vmImage', anImage.orgId[0], function (err, results) {
+                                            if (err) {
+                                                logger.error(err);
+                                                res.status(500).send(errorResponses.db.error);
+                                                return;
+                                            } else {
+                                                logger.debug("Exit delete() for /vmimages/%s", req.params.imageId);
+                                                res.send({
+                                                    deleteCount: deleteCount
+                                                });
+                                            }
+                                        })
+                                    } else {
+                                        res.send(400);
+                                    }
                                 });
-                            } else {
-                                res.send(400);
-                            }
-                        });
+                            });
+                        }
                     });
                 }
             });

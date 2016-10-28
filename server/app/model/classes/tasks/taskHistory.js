@@ -179,6 +179,7 @@ taskHistorySchema.statics.listHistoryWithPagination = function(jsonData, callbac
                 err.status = 500;
                 return callback(err);
             } else {
+                databaseCall.queryObj.$or =[{taskType:'jenkins',orgName:{$ne:null}},{taskType:'chef'},{taskType:'composite'},{taskType:'script'},{taskType:'puppet'}];
                 TaskHistory.paginate(databaseCall.queryObj, databaseCall.options, function(err, taskActions) {
                     if (err) {
                         logger.error(err);

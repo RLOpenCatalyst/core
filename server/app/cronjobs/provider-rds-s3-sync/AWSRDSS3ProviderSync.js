@@ -53,15 +53,15 @@ function awsRDSS3ProviderSync() {
 }
 
 function awsRDSS3ProviderSyncForProvider(provider,orgName) {
-    logger.info("S3/RDS Data Fetching started for Provider "+provider._id);
+    logger.info("S3/RDS Data Fetching started for Provider "+provider.providerName);
     async.waterfall([
         function (next) {
             async.parallel({
                 s3: function (callback) {
-                    resourceService.getBucketsInfo(provider, orgName, callback);
+                    resourceService.getBucketsInfo(provider,orgName, callback);
                 },
                 rds: function (callback) {
-                    resourceService.getRDSInstancesInfo(provider, orgName, callback);
+                    resourceService.getRDSInstancesInfo(provider,orgName, callback);
                 }
             }, function (err, results) {
                 if (err) {
@@ -80,10 +80,10 @@ function awsRDSS3ProviderSyncForProvider(provider,orgName) {
                     saveRDSData(resources.rds, callback);
                 },
                 s3Delete: function (callback) {
-                    deleteResourceData(resources.s3, provider._id, 'S3', callback);
+                    deleteS3ResourceData(resources.s3, provider._id, callback);
                 },
                 rdsDelete: function (callback) {
-                    deleteResourceData(resources.rds, provider._id, 'RDS', callback);
+                    deleteRDSResourceData(resources.rds, provider._id, callback);
                 }
             }, function (err, results) {
                 if (err) {
@@ -104,178 +104,221 @@ function awsRDSS3ProviderSyncForProvider(provider,orgName) {
             logger.error(err);
             return;
         } else {
-            logger.info("S3/RDS Data Successfully Added for Provider "+provider._id);
+            logger.info("S3/RDS Data Successfully Added for Provider "+provider.providerName);
             return;
         }
     });
 };
 function saveS3Data(s3Info, callback) {
     var results = [];
-    if(s3Info.length == 0)
+    if(s3Info.length === 0) {
         return callback(null, results);
-    for(var i = 0; i < s3Info.length; i++) {
-        (function(s3) {
-            s3Model.getS3BucketData(s3,function(err,responseBucketData){
-                if(err) {
-                    callback(err,null);
-                }
-                if(responseBucketData.length === 0){
-                    s3Model.createNew(s3,function(err, bucketSavedData) {
-                        if(err) {
-                            callback(err,null);
-                        } else {
-                            results.push(bucketSavedData);
-                        }
-                        if(results.length === s3Info.length) {
-                            callback(null, results);
-                        }
-                    });
-                }else{
-                    s3Model.updateS3BucketData(s3,function(err, bucketUpdatedData) {
-                        if(err) {
-                            callback(err,null);
-                        } else {
-                            results.push(bucketUpdatedData);
-                        }
-                        if(results.length === s3Info.length) {
-                            callback(null, results);
-                        }
-                    });
-                }
-            })
-        })(s3Info[i]);
-    };
-};
+    }else {
+        for (var i = 0; i < s3Info.length; i++) {
+            (function (s3) {
+                s3Model.getS3BucketData(s3, function (err, responseBucketData) {
+                    if (err) {
+                        callback(err, null);
+                    }
+                    if (responseBucketData.length === 0) {
+                        s3Model.createNew(s3, function (err, bucketSavedData) {
+                            if (err) {
+                                callback(err, null);
+                            } else {
+                                results.push(bucketSavedData);
+                            }
+                            if (results.length === s3Info.length) {
+                                callback(null, results);
+                            }
+                        });
+                    } else {
+                        s3Model.updateS3BucketData(s3, function (err, bucketUpdatedData) {
+                            if (err) {
+                                callback(err, null);
+                            } else {
+                                results.push(bucketUpdatedData);
+                            }
+                            if (results.length === s3Info.length) {
+                                callback(null, results);
+                            }
+                        });
+                    }
+                })
+            })(s3Info[i]);
+        }
+    }
+}
 
 function saveRDSData(rdsInfo, callback) {
     var results = [];
-    if(rdsInfo.length == 0)
+    if(rdsInfo.length === 0) {
         return callback(null, results);
-    for(var i = 0; i < rdsInfo.length; i++) {
-        (function(rds) {
-            rdsModel.getRDSData(rds,function(err,responseRDSData){
-                if(err) {
-                    callback(err,null);
-                }
-                if(responseRDSData.length === 0){
-                    rdsModel.createNew(rds,function(err, rdsSavedData) {
-                        if(err) {
-                            callback(err,null);
-                        } else {
-                            results.push(rdsSavedData);
-                        }
-                        if(results.length === rdsInfo.length) {
-                            callback(null, results);
-                        }
-                    });
-                }else{
-                    rdsModel.updateRDSData(rds,function(err, rdsUpdatedData) {
-                        if(err) {
-                            callback(err,null);
-                        } else {
-                            results.push(rdsUpdatedData);
-                        }
-                        if(results.length === rdsInfo.length) {
-                            callback(null, results);
-                        }
-                    });
-                }
-            })
-        })(rdsInfo[i]);
-    };
+    }else {
+        for (var i = 0; i < rdsInfo.length; i++) {
+            (function (rds) {
+                rdsModel.getRDSData(rds, function (err, responseRDSData) {
+                    if (err) {
+                        callback(err, null);
+                    }
+                    if (responseRDSData.length === 0) {
+                        rdsModel.createNew(rds, function (err, rdsSavedData) {
+                            if (err) {
+                                callback(err, null);
+                                return;
+                            } else {
+                                results.push(rdsSavedData);
+                            }
+                            if (results.length === rdsInfo.length) {
+                                callback(null, results);
+                                return;
+                            }
+                        });
+                    } else {
+                        rdsModel.updateRDSData(rds, function (err, rdsUpdatedData) {
+                            if (err) {
+                                callback(err, null);
+                                return;
+                            } else {
+                                results.push(rdsUpdatedData);
+                            }
+                            if (results.length === rdsInfo.length) {
+                                callback(null, results);
+                                return;
+                            }
+                        });
+                    }
+                })
+            })(rdsInfo[i]);
+        }
+    }
 }
 
-function deleteResourceData(resourceInfo,providerId,resourceType, callback) {
-    var results = [];
-    if(resourceInfo.length === 0){
-        resourceModel.deleteResourcesByResourceType(resourceType,function(err,data){
-            if(err){
+function deleteS3ResourceData(s3Info,providerId, callback) {
+    if(s3Info.length === 0){
+        resourceModel.deleteResourcesByResourceType('S3', function (err, data) {
+            if (err) {
                 callback(err,null);
-            }else{
-                callback(null,data);
+                return;
+            } else {
+                callback(null,s3Info);
+                return;
             }
-        })
-    }else if(resourceType === 'S3'){
-        resourceModel.getResourcesByProviderResourceType(providerId,resourceType,function(err,s3data){
-            if(err){
-                callback(err,null);
-            }else {
-                var count = 0;
-                if (s3data.length === 0) {
-                    callback(null,[]);
-                } else {
-                    for (var i = 0; i < s3data.length; i++) {
-                        (function (s3) {
-                            for (var j = 0; j < resourceInfo.length; j++) {
-                                (function (resource) {
-                                    if (s3.resourceDetails.bucketName === resource.resourceDetails.bucketName) {
-                                        count++;
-                                        if (count === resourceInfo.length) {
-                                            callback(null, []);
-                                        }
-                                    } else {
-                                        resourceModel.deleteResourcesById(s3._id, function (err, data) {
-                                            if (err) {
-                                                callback(err, null);
-                                            } else {
-                                                count++;
-                                                if (count === resourceInfo.length) {
-                                                    callback(null, data);
-                                                }
-                                            }
-                                        })
-                                    }
-
-                                })(resourceInfo[j]);
-                            }
-
-                        })(s3data[i]);
+        });
+    }else {
+        async.waterfall([
+            function (next) {
+                bucketNameList(s3Info, next);
+            },
+            function (bucketNames, next) {
+                resourceModel.getResourcesByProviderResourceType(providerId, 'S3', function (err, s3data) {
+                    if (err) {
+                        next(err);
+                    } else {
+                        next(null, s3data, bucketNames);
                     }
+                });
+            },
+            function (s3Data, bucketNames, next) {
+                if (s3Data.length > 0) {
+                    var count = 0;
+                    for (var i = 0; i < s3Data.length; i++) {
+                        (function (s3) {
+                            if (bucketNames.indexOf(s3.resourceDetails.bucketName) === -1) {
+                                resourceModel.deleteResourcesById(s3._id, function (err, data) {
+                                    if (err) {
+                                        next(err);
+                                    } else {
+                                        count++;
+                                        if (count === s3Data.length) {
+                                            next(null, data);
+                                        }
+                                    }
+                                })
+                            } else {
+                                count++;
+                                if (count === s3Data.length) {
+                                    next(null, []);
+                                }
+                            }
+                        })(s3Data[i]);
+                    }
+                } else {
+                    next(null, bucketNames);
                 }
-            }
-        })
-    }else if(resourceType === 'RDS') {
-        resourceModel.getResourcesByProviderResourceType(providerId, resourceType, function (err, rdsdata) {
+            }], function (err, results) {
             if (err) {
                 callback(err, null);
-            } else {
-                var count = 0;
-                if (rdsdata.length === 0) {
-                    callback(null, []);
-                } else {
-                    for (var i = 0; i < rdsdata.length; i++) {
-                        (function (rds) {
-                            for (var j = 0; j < resourceInfo.length; j++) {
-                                (function (resource) {
-                                    if (rds.resourceDetails.dbName === resource.resourceDetails.dbName) {
-                                        count++;
-                                        if (count === resourceInfo.length) {
-                                            callback(null, []);
-                                        }
-                                    } else {
-                                        resourceModel.deleteResourcesById(rds._id, function (err, data) {
-                                            if (err) {
-                                                callback(err, null);
-                                            } else {
-                                                count++;
-                                                if (count === resourceInfo.length) {
-                                                    callback(null, data);
-                                                }
-                                            }
-                                        })
-                                    }
-
-                                })(resourceInfo[j]);
-                            }
-
-                        })(rdsdata[i]);
-                    }
-                }
+                return;
             }
+            callback(null, results);
+            return;
         })
     }
-
 }
+
+function deleteRDSResourceData(rdsInfo,providerId, callback) {
+    if(rdsInfo.length === 0){
+        resourceModel.deleteResourcesByResourceType('RDS', function (err, data) {
+            if (err) {
+                callback(err,null);
+                return;
+            } else {
+                callback(null,rdsInfo);
+                return;
+            }
+        });
+    }else {
+        async.waterfall([
+            function (next) {
+                rdsDBNameList(rdsInfo, next);
+            },
+            function (dbNames, next) {
+                resourceModel.getResourcesByProviderResourceType(providerId, 'RDS', function (err, rdsData) {
+                    if (err) {
+                        next(err);
+                    } else {
+                        next(null, rdsData, dbNames);
+                    }
+                });
+            },
+            function (rdsData, dbNames, next) {
+                if (rdsData.length > 0) {
+                    var count = 0;
+                    for (var i = 0; i < rdsData.length; i++) {
+                        (function (rds) {
+                            if (dbNames.indexOf(rds.resourceDetails.dbName) === -1) {
+                                resourceModel.deleteResourcesById(rds._id, function (err, data) {
+                                    if (err) {
+                                        next(err);
+                                    } else {
+                                        count++;
+                                        if (count === rdsData.length) {
+                                            next(null, data);
+                                        }
+                                    }
+                                })
+                            } else {
+                                count++;
+                                if (count === rdsData.length) {
+                                    next(null, []);
+                                }
+                            }
+                        })(rdsData[i]);
+                    }
+                } else {
+                    next(null, dbNames);
+                }
+            }], function (err, results) {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            callback(null, results);
+            return;
+        })
+    }
+}
+
 
 function tagMappingForResources(resources,provider,next){
     tagsModel.getTagsByProviderId(provider._id, function (err, tagDetails) {
@@ -285,12 +328,15 @@ function tagMappingForResources(resources,provider,next){
         }
         var projectTag = null;
         var environmentTag = null;
+        var bgTag = null;
         if(tagDetails.length > 0) {
             for (var i = 0; i < tagDetails.length; i++) {
                 if (('catalystEntityType' in tagDetails[i]) && tagDetails[i].catalystEntityType == 'project') {
                     projectTag = tagDetails[i];
-                } else if (('catalystEntityType' in tagDetails[i]) && tagDetails[i].catalystEntityType == 'environment') {
+                }else if (('catalystEntityType' in tagDetails[i]) && tagDetails[i].catalystEntityType == 'environment') {
                     environmentTag = tagDetails[i];
+                }else if (('catalystEntityType' in tagDetails[i]) && tagDetails[i].catalystEntityType == 'bgName') {
+                    bgTag = tagDetails[i];
                 }
             }
         }else{
@@ -299,56 +345,82 @@ function tagMappingForResources(resources,provider,next){
         var count = 0;
         if(resources.length > 0) {
             for (var j = 0; j < resources.length; j++) {
-                var catalystProjectId = null;
-                var catalystProjectName = null;
-                var catalystEnvironmentId = null;
-                var catalystEnvironmentName = null;
-                var assignmentFound = false;
-                if (projectTag && environmentTag && (resources[j].isDeleted === false)
-                    && (resources[j].projectTag) && (resources[j].environmentTag)) {
-                    for (var y = 0; y < projectTag.catalystEntityMapping.length; y++) {
-                        if (projectTag.catalystEntityMapping[y].tagValue == resources[j].projectTag) {
-                            catalystProjectId = projectTag.catalystEntityMapping[y].catalystEntityId;
-                            catalystProjectName = projectTag.catalystEntityMapping[y].catalystEntityName;
-                            break;
-                        }
-                    }
-                    for (var y = 0; y < environmentTag.catalystEntityMapping.length; y++) {
-                        if (environmentTag.catalystEntityMapping[y].tagValue == resources[j].environmentTag) {
-                            catalystEnvironmentId = environmentTag.catalystEntityMapping[y].catalystEntityId;
-                            catalystEnvironmentName = environmentTag.catalystEntityMapping[y].catalystEntityName;
-                            break;
-                        }
-                    }
-                    if (catalystProjectId && catalystEnvironmentId) {
-                        assignmentFound = true;
-                    }
-                    if(assignmentFound === true){
-                        count++;
-                        var masterDetails={
-                            orgId:resources[j].masterDetails.orgId,
-                            orgName:resources[j].masterDetails.orgName,
-                            projectId:catalystProjectId,
-                            projectName:catalystProjectName,
-                            envId:catalystEnvironmentId,
-                            envName:catalystEnvironmentName
-                        }
-                        resourceModel.updateResourcesForAssigned(resources[j]._id,masterDetails,function(err,data){
-                            if(err){
-                                logger.error(err);
-                                return;
-                            }else{
-                                masterDetails={};
+                if (resources[j].tags) {
+                    var catalystProjectId = null;
+                    var catalystProjectName = null;
+                    var catalystEnvironmentId = null;
+                    var catalystEnvironmentName = null;
+                    var catalystBgId = null;
+                    var catalystBgName = null;
+                    var assignmentFound = false;
+                    if ((bgTag !== null || projectTag !== null || environmentTag !== null) && (resources[j].isDeleted === false)){
+                        if(bgTag !== null && bgTag.name in resources[j].tags) {
+                            for (var y = 0; y < bgTag.catalystEntityMapping.length; y++) {
+                                if (bgTag.catalystEntityMapping[y].tagValue !== '' && resources[j].tags[bgTag.name] !== ''
+                                    && bgTag.catalystEntityMapping[y].tagValue === resources[j].tags[bgTag.name]) {
+                                    catalystBgId = bgTag.catalystEntityMapping[y].catalystEntityId;
+                                    catalystBgName = bgTag.catalystEntityMapping[y].catalystEntityName;
+                                    break;
+                                }
                             }
-                        })
-                    }else{
+                        }
+                        if(projectTag !== null && projectTag.name in resources[j].tags) {
+                            for (var y = 0; y < projectTag.catalystEntityMapping.length; y++) {
+                                if (projectTag.catalystEntityMapping[y].tagValue !== '' && resources[j].tags[projectTag.name] !== '' &&
+                                    projectTag.catalystEntityMapping[y].tagValue === resources[j].tags[projectTag.name]) {
+                                    catalystProjectId = projectTag.catalystEntityMapping[y].catalystEntityId;
+                                    catalystProjectName = projectTag.catalystEntityMapping[y].catalystEntityName;
+                                    break;
+                                }
+                            }
+                        }
+                        if(environmentTag !== null && environmentTag.name in resources[j].tags) {
+                            for (var y = 0; y < environmentTag.catalystEntityMapping.length; y++) {
+                                if (environmentTag.catalystEntityMapping[y].tagValue !== '' && resources[j].tags[environmentTag.name] !== '' &&
+                                    environmentTag.catalystEntityMapping[y].tagValue === resources[j].tags[environmentTag.name]) {
+                                    catalystEnvironmentId = environmentTag.catalystEntityMapping[y].catalystEntityId;
+                                    catalystEnvironmentName = environmentTag.catalystEntityMapping[y].catalystEntityName;
+                                    break;
+                                }
+                            }
+                        }
+                        if (catalystBgId !== null || catalystProjectId !== null || catalystEnvironmentId !== null) {
+                            assignmentFound = true;
+                        }
+                        if (assignmentFound === true) {
+                            count++;
+                            var masterDetails = {
+                                orgId: resources[j].masterDetails.orgId,
+                                orgName: resources[j].masterDetails.orgName,
+                                bgId: catalystBgId,
+                                bgName: catalystBgName,
+                                projectId: catalystProjectId,
+                                projectName: catalystProjectName,
+                                envId: catalystEnvironmentId,
+                                envName: catalystEnvironmentName
+                            }
+                            resourceModel.updateResourcesForAssigned(resources[j]._id, masterDetails, function (err, data) {
+                                if (err) {
+                                    logger.error(err);
+                                    return;
+                                } else {
+                                    masterDetails = {};
+                                }
+                            })
+                        } else {
+                            count++;
+                        }
+                    } else {
                         count++;
                     }
-                } else{
+                    if (count === resources.length) {
+                        next(null, resources);
+                    }
+                }else{
                     count++;
-                }
-                if(count === resources.length){
-                    next(null,resources);
+                    if (count === resources.length) {
+                        next(null, resources);
+                    }
                 }
             }
         }else{
@@ -356,4 +428,24 @@ function tagMappingForResources(resources,provider,next){
             next(null,resources);
         }
     });
+}
+
+function bucketNameList(s3Info,callback){
+    var bucketNames=[];
+    for(var i = 0; i < s3Info.length; i++){
+        bucketNames.push(s3Info[i].resourceDetails.bucketName);
+        if(bucketNames.length === s3Info.length){
+            callback(null,bucketNames);
+        }
+    }
+}
+
+function rdsDBNameList(rdsInfo,callback){
+    var dbNames=[];
+    for(var i = 0; i < rdsInfo.length; i++){
+        dbNames.push(rdsInfo[i].resourceDetails.dbName);
+        if(dbNames.length === rdsInfo.length){
+            callback(null,dbNames);
+        }
+    }
 }

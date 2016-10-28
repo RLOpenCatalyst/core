@@ -46,7 +46,7 @@ var TagSchema = new Schema({
     },
     catalystEntityType: {
         type: String,
-        enum: ['project', 'environment'],
+        enum: ['project', 'environment','bgName'],
         trim: true,
         required: false
     },

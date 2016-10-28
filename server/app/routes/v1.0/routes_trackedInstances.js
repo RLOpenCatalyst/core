@@ -102,23 +102,32 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     // @TODO Relook at pagination to allow validation of query parameters
                     // @TODO Whether databaseUtil should be renamed
                     if(category === 'managed') {
-                        paginationRequest['searchColumns'] = ['instanceIP', 'instanceState'];
+                        paginationRequest['searchColumns'] = ['instanceIP', 'instanceState','platformId','hardware.os','projectName','environmentName'];;
                     }else if(category === 'assigned'){
-                        paginationRequest['searchColumns'] = ['ip', 'state'];
+                        paginationRequest['searchColumns'] = ['ip', 'platformId','os','state','projectName','environmentName','providerData.region'];
                     }else{
-                        paginationRequest['searchColumns'] = ['ip', 'state'];
+                        paginationRequest['searchColumns'] = ['ip', 'platformId','os','state','providerData.region'];
                     }
                     apiUtil.databaseUtil(paginationRequest, next);
                 },
                 function(filterQuery, next) {
-                    // @TODO Modify to work without sessions as well
-                    userService.getUserOrgs(req.session.user, function(err, orgs) {
-                        if(err) {
-                            next(err);
-                        } else {
-                            instanceService.validateListInstancesQuery(orgs, filterQuery, next);
+                    if(filterQuery.queryObj['$and'][0].orgId){
+                        if(filterQuery.queryObj['$and'][0].providerId){
+                            next(null,filterQuery);
+                        }else{
+                            filterQuery.queryObj['$and'][0].providerId ={ '$ne': null };
+                            next(null,filterQuery);
                         }
-                    });
+                    }else {
+                        // @TODO Modify to work without sessions as well
+                        userService.getUserOrgs(req.session.user, function (err, orgs) {
+                            if (err) {
+                                next(err);
+                            } else {
+                                instanceService.validateListInstancesQuery(orgs, filterQuery, next);
+                            }
+                        });
+                    }
                 },
                 function(filterQuery, next) {
                     instanceService.getTrackedInstances(filterQuery,category, next);

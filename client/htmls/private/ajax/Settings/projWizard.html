@@ -1,0 +1,123 @@
+<form action="" id="myForm3" class="content">
+   <div class="widget-box">
+      <div class="widget-header">
+         <h4 class="widget-margin" style="color:black;">Create Project
+         <span class="widget-toolbar no-border">
+            <div class="wizardAdd">
+               <a href="ajax/Settings/projWizard.html" id="createNewProj" style="margin-right:11px;" class="btn btn-primary"><i class="ace-icon ace-icon fa fa-plus bigger-110"></i>&nbsp;Add New Project</a>             
+            </div>
+        </span>
+        </h4>
+      </div>
+      <div class="widget-body">
+         <div class="widget-main" style="min-height:200px">
+            <div class="jarviswidget" id="wid-id-3" data-widget-editbutton="false" data-widget-custombutton="false">
+               <div>
+                  <div class="widget-body no-padding">
+                     <div class="col-lg-6 col-md-6">
+                        <label for="name">Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                        <label id="msgOrgName" style="display:none;color:red;float:right;">Required</label>
+                        <br>
+                        <input autofocus name="ctl00$MainContent$orgname" value="" id="projectname" class="form-control" type="text"  cdata="catalyst" cat-validation="required,nospecial,max15,nospace"  unique="true"  uniqueconditionedby="projectname,orgname,productgroupname">
+                     </div>
+                     <div class="col-lg-6 col-md-6">
+                        <label for="name">Description:</label>
+                        <input name="ctl00$MainContent$orgname" value="" id="description" class="form-control" type="text"  cdata="catalyst" maxlength="50">
+                     </div>
+                     <div class="col-lg-6 col-md-6" style="margin-top:25px;">
+                        <label for="">Organization:<span class="control-label redSpan">&nbsp;*</span></label>
+                        <select id="orgname" class="chooseOrganization form-control width-100" linkedfields="['productgroupname','environmentname','teamname']"  cdata="catalyst" cat-validation="required">
+                        </select>
+                     </div>
+                     <div class="col-lg-6 col-md-6" style="margin-top:25px;">
+                        <label for="">Business Group:<span class="control-label redSpan">&nbsp;*</span></label>
+                        <select id="productgroupname" class="chooseBG form-control width-100" linkedto="orgname"  cdata="catalyst" cat-validation="required">
+                        </select>
+                     </div>
+                     <div class="col-lg-6 col-md-6 smart-form hidden" style="margin-top:25px;">
+                        <label for="category">Environments:</label>
+                        <div  id="environmentname" multiselect="multiselect" datatype="select" sourcepath="3" datapath="masterjson.rows.row"  linkedto="orgname" class="input-group from-control col-md-12 widthBox" cdata="catalyst">
+                        </div>
+                     </div>
+                     <!-- end widget content -->
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <div class="widget-toolbox clearfix">
+            <div class="btn-group pull-right">
+             <button name="next1" id="saveProj" style="margin-right:11px;" class="saveFormWizard saveProjWizard btn btn-primary"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</i></button>
+             <input type="button" disabled="disabled" name="next1" id="nextProjWizard" class="nextFormWizard btn btn-primary" value="Next"/>
+          </div>
+       </div>
+   </div>
+</form>
+
+
+<script>
+//to get the businessGroupname corresponding to the organisation.
+function getBusinessGroupName(orgId) {
+    $.get('/d4dMasters/readmasterjsonnew/2', function(data) {
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].orgname_rowid[0] === orgId) {
+                var $option = $('<option></option>').val(data[i].productgroupname).attr('rowid', data[i].rowid).html(data[i].productgroupname);
+                $('#productgroupname').append($option);
+            }
+        }
+    });
+}
+//if orgId already available
+if (selectedDropdownValue) {
+    $('.btn-2 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+    $('.btn-3 a').parent('.bwizard-steps li').removeClass('active').addClass('green-btn');
+    var $optionSelect = $('<option></option').val(orgForBg).attr('rowid', selectedDropdownValue).html(orgForBg);
+    $('#orgname').append($optionSelect);
+    getBusinessGroupName(selectedDropdownValue);
+    $('.nextFormWizard').removeAttr('disabled');
+} else {
+    $('.btn-3 a').removeClass('not-activeAnchor');
+    orgNameForSetup = $('#orgDropdown option:last').attr('rowid');
+    orgIdForSetup = $('#orgDropdown option:last').val();
+    $('#orgDropdown option:last').attr('selected', 'selected')
+    var $optionSelect = $('<option></option').val(orgNameForSetup).attr('rowid', orgIdForSetup).html(orgNameForSetup);
+    $('#orgname').append($optionSelect);
+    $('#orgname').change(function(e) {
+        $('#productgroupname').empty();
+        var orgValue = $('#orgname option:selected').attr('rowid');
+        orgValueSelected = $('#orgname option:selected').attr('rowid');
+        getBusinessGroupName(orgIdForSetup);
+    });
+}
+$('#orgname').trigger('change');
+enableUniqueCheckingForInputs(4);
+//form submit for project.
+$('#myForm3').submit(function() {
+    $(this).validate();
+    if ($(this).valid) {
+        if (!saveform('4')) {
+            return false;
+        }
+    } else {
+        toastr.error('invalid form submitted'); // for demo
+    }
+    return false; // for demo
+});
+
+$('#createNewProj').click(function(e){
+  $('.content').empty();
+  e.preventDefault();   
+  $('.content').load(this.getAttribute('href'));
+});
+
+$(".nextFormWizard").click(function() {
+    $('#wizardActionListLoader').show();
+    $('#configManagement a').attr('href','ajax/Settings/configManagementWizard.html');
+    $('#configManagement a').trigger('click');
+    $('#startConfig a, #orgConfiguration a').addClass('green-btn').removeClass('process-btn');
+    $('.wizardFlow').empty();
+    toastr.success('Step 1 - Org Setup Completed');
+    $('#createNew').removeClass('hidden');
+    $('#cancelWizard').addClass('hidden');
+});
+</script>

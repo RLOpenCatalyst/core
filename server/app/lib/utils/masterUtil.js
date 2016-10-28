@@ -817,10 +817,11 @@ var MasterUtil = function() {
         });
     }
 
-    this.getOrgByRowId = function(orgRowId, callback) {
+    this.getOrgByRowId = function(orgId, callback) {
         var orgList = [];
         d4dModelNew.d4dModelMastersOrg.find({
-            rowid: orgRowId
+            rowid: orgId,
+            id:'1'
         }, function(err, orgs) {
             if (orgs) {
                 for (var i = 0; i < orgs.length; i++) {
