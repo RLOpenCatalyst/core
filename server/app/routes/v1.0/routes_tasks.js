@@ -157,7 +157,17 @@ module.exports.setRoutes = function(app, sessionVerification) {
             });
         });
         */
-        taskService.executeTask(taskId, user, hostProtocol, choiceParam, appData, function(err, historyData) {
+
+        var attributes = req.body.attributes;
+        var parameterized = req.body.parameterized;
+        var scriptDetails = req.body.scriptDetails;
+        var paramOptions = {
+            attributes : attributes,
+            parameterized : parameterized,
+            scriptDetails : scriptDetails
+        };
+
+        taskService.executeTask(taskId, user, hostProtocol, choiceParam, appData, paramOptions, function(err, historyData) {
             if (err === 404) {
                 res.status(404).send("Task not found.");
                 return;
