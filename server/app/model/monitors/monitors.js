@@ -44,7 +44,7 @@ var MonitorsSchema = new Schema({
     }
 });
 
-var hiddenFields = { '_id': 0, 'isDeleted': 0 };
+var hiddenFields = { 'isDeleted': 0 };
 
 MonitorsSchema.statics.createNew = function createNew(data, callback) {
     var self = this;
@@ -100,7 +100,7 @@ MonitorsSchema.statics.getById = function(monitorId, callback) {
                 callback(null, null);
                 return;
             } else {
-                return callback(null, monitors);
+                return callback(null, monitors[0]);
             }
         }
     );

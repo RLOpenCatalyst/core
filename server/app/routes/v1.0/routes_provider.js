@@ -76,46 +76,32 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                     keyPairs: keyPair,
                                     isDefault: providers[i].isDefault
                                 };
-                                if (providers[i].monitorId) {
-                                    var monitorId = providers[i].monitorId;
-                                    monitorsModel.getById(monitorId, function (err, monitor) {
-                                        if (err || !monitor) {
-                                            dommyProvider.monitor = null;
-                                        } else {
-                                            dommyProvider.monitor = {};
-                                            dommyProvider.monitor['id'] = monitor._id;
-                                            dommyProvider.monitor['name'] = monitor.name;
-                                            dommyProvider.monitor['type'] = monitor.type;
-                                            if (monitor.type === 'sensu') {
-                                                dommyProvider.monitor['parameters'] = {};
-                                                dommyProvider.monitor['parameters']['url'] = monitor['parameters']['url'];
-                                                dommyProvider.monitor['parameters']['transportProtocol'] = monitor['parameters']['transportProtocol'];
-                                            }
-                                        }
-                                    });
-                                } else {
-                                    dommyProvider.monitor = null;
-                                }
-                                var cryptoConfig = appConfig.cryptoSettings;
-                                var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+                                getMonitorDetail(providers[i], function (data) {
+                                    providers[i] = data;
+                                    dommyProvider.monitor = providers[i].monitor;
 
-                                if (!providers[i].isDefault) {
                                     var cryptoConfig = appConfig.cryptoSettings;
-                                    var cryptography = new Cryptography(cryptoConfig.algorithm,
-                                        cryptoConfig.password);
+                                    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
 
-                                    dommyProvider.accessKey = cryptography.decryptText(providers[i].accessKey,
-                                        cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-                                    dommyProvider.secretKey = cryptography.decryptText(providers[i].secretKey,
-                                        cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-                                }
+                                    if (!providers[i].isDefault) {
+                                        var cryptoConfig = appConfig.cryptoSettings;
+                                        var cryptography = new Cryptography(cryptoConfig.algorithm,
+                                            cryptoConfig.password);
 
-                                providerList.push(dommyProvider);
-                                logger.debug("count: ", count);
-                                if (count === providers.length) {
-                                    res.send(providerList);
-                                    return;
-                                }
+                                        dommyProvider.accessKey = cryptography.decryptText(providers[i].accessKey,
+                                            cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                                        dommyProvider.secretKey = cryptography.decryptText(providers[i].secretKey,
+                                            cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                                    }
+
+                                    providerList.push(dommyProvider);
+                                    logger.debug("count: ", count);
+                                    if (count === providers.length) {
+                                        res.send(providerList);
+                                        return;
+                                    }
+                                });
+
                             }
 
                         });
@@ -150,35 +136,24 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                         }
                         if (orgs.length > 0) {
                             if (keyPair) {
-                                if (aProvider.monitorId) {
-                                    var monitorId = aProvider.monitorId;
-                                    monitorsModel.getById(monitorId, function (err, monitor) {
-                                        if (err || !monitor) {
-                                            aProvider.monitor = null;
-                                        } else {
-                                            aProvider.monitor = {};
-                                            aProvider.monitor['id'] = monitor._id;
-                                            aProvider.monitor['name'] = monitor.name;
-                                        }
-                                    });
-                                } else {
-                                    aProvider.monitor = null;
-                                }
-                                var dommyProvider = {
-                                    _id: aProvider._id,
-                                    id: 9,
-                                    providerName: aProvider.providerName,
-                                    providerType: aProvider.providerType,
-                                    s3BucketName: aProvider.s3BucketName,
-                                    orgId: aProvider.orgId,
-                                    plannedCost: aProvider.plannedCost,
-                                    orgName: orgs[0].orgname,
-                                    __v: aProvider.__v,
-                                    keyPairs: keyPair,
-                                    monitor: aProvider.monitor,
-                                    isDefault: aProvider.isDefault
-                                };
-                                res.send(dommyProvider);
+                                getMonitorDetail(aProvider, function (data) {
+                                    aProvider = data;
+                                    var dommyProvider = {
+                                        _id: aProvider._id,
+                                        id: 9,
+                                        providerName: aProvider.providerName,
+                                        providerType: aProvider.providerType,
+                                        s3BucketName: aProvider.s3BucketName,
+                                        orgId: aProvider.orgId,
+                                        plannedCost: aProvider.plannedCost,
+                                        orgName: orgs[0].orgname,
+                                        __v: aProvider.__v,
+                                        keyPairs: keyPair,
+                                        monitor: aProvider.monitor,
+                                        isDefault: aProvider.isDefault
+                                    };
+                                    res.send(dommyProvider);
+                                });
                             }
                         }
                     });
@@ -2485,26 +2460,15 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                             var providersList = [];
                             if (providers && providers.length > 0) {
                                 for (var i = 0; i < providers.length; i++) {
-                                    if (providers[i].monitorId) {
-                                        var monitorId = providers[i].monitorId;
-                                        delete providers[i].monitorId;
-                                        monitorsModel.getById(monitorId, function (err, monitor) {
-                                            if (err || !monitor) {
-                                                providers[i].monitor = null;
-                                            } else {
-                                                providers[i].monitor = {};
-                                                providers[i].monitor['id'] = monitor._id;
-                                                providers[i].monitor['name'] = monitor.name;
-                                            }
-                                        });
-                                    } else {
-                                        providers[i].monitor = null;
-                                    }
-                                    providersList.push(providers[i]);
-                                    if (providers.length === providersList.length) {
-                                        res.send(providersList);
-                                        return;
-                                    }
+                                    getMonitorDetail(providers[i], function (data) {
+                                        providers[i] = data;
+                                        providersList.push(providers[i]);
+                                        if (providers.length === providersList.length) {
+                                            res.send(providersList);
+                                            return;
+                                        }
+                                    });
+
 
                                     /*var keys = [];
                                      keys.push(providers[i].accessKey);
@@ -2550,26 +2514,15 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                             }
                             if (providers.length > 0) {
                                 for (var i = 0; i < providers.length; i++) {
-                                    if (providers[i].monitorId) {
-                                        var monitorId = providers[i].monitorId;
-                                        delete providers[i].monitorId;
-                                        monitorsModel.getById(monitorId, function (err, monitor) {
-                                            if (err || !monitor) {
-                                                providers[i].monitor = null;
-                                            } else {
-                                                providers[i].monitor = {};
-                                                providers[i].monitor['id'] = monitor._id;
-                                                providers[i].monitor['name'] = monitor.name;
-                                            }
-                                        });
-                                    } else {
-                                        providers[i].monitor = null;
-                                    }
-                                    providersList.push(providers[i]);
-                                    if (providers.length === providersList.length) {
-                                        res.send(providersList);
-                                        return;
-                                    }
+                                    getMonitorDetail(providers[i], function (data) {
+                                        providers[i] = data;
+                                        providersList.push(providers[i]);
+                                        if (providers.length === providersList.length) {
+                                            res.send(providersList);
+                                            return;
+                                        }
+                                    });
+
                                     /*var keys = [];
                                      keys.push(providers[i].accessKey);
                                      keys.push(providers[i].secretKey);
@@ -3730,5 +3683,32 @@ function trackSettingWizard(orgId, callback) {
     } else {
         callback(null, null);
         return;
+    }
+}
+function getMonitorDetail(data, callback) {
+    data = data.toObject();
+    if (data.monitorId) {
+        var monitorId = data.monitorId;
+        delete data.monitorId;
+        monitorsModel.getById(monitorId, function (err, monitor) {
+            if (err || !monitor) {
+                data.monitor = null;
+            } else {
+                data.monitor = {};
+                data.monitor['id'] = monitor._id;
+                data.monitor['name'] = monitor.name;
+                data.monitor['type'] = monitor.type;
+                if (monitor.type === 'sensu') {
+                    data.monitor['parameters'] = {};
+                    data.monitor['parameters']['url'] = monitor['parameters']['url'];
+                    data.monitor['parameters']['transportProtocol'] = monitor['parameters']['transportProtocol'];
+                }
+            }
+            callback(data);
+        });
+    } else {
+        delete data['monitorId'];
+        data.monitor = null;
+        callback(data);
     }
 }
