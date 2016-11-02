@@ -419,19 +419,6 @@ $imagePath : "../../../../../../images";
 #orchestrationHistoryPage {
 	font-size: 12px;
 
-	.success, .SUCCESS, .failure, .failed {
-		color: #fff;
-		padding: 8px;
-	}
-
-	.success, .SUCCESS {
-		background: $color-green;
-	}
-
-	.failure, .failed {
-		background: $color-red;
-	}
-
 	.fa-info-circle {
 		font-size: 23px;
 	}
