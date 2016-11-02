@@ -4068,8 +4068,6 @@ function getMonitorDetail(data, callback) {
                 data.monitor['id'] = monitor._id;
                 data.monitor['name'] = monitor.name;
             }
-            logger.debug("data.monitor: ", JSON.stringify(monitor));
-            logger.debug("data: ", JSON.stringify(data));
             callback(data);
         });
     } else {

@@ -39,7 +39,7 @@ monitorsService.checkIfMonitorExists = function (monitorId, callback) {
     });
 };
 
-monitorsService.formatResponse = function (monitor) {
+monitorsService.formatResponse = function (monitor, callback) {
     var formatted = {};
     switch (monitor.type) {
         case 'sensu':
@@ -78,10 +78,15 @@ monitorsService.formatResponse = function (monitor) {
                             formatted.parameters.transportProtocolParameters.ssl['privateKeyFile']['name'] = file.fileName;
                             formatted.parameters.transportProtocolParameters.ssl['privateKeyFile']['file'] = file.fileData;
                         }
+                        callback(formatted);
                     });
                 });
+            } else {
+                callback(formatted);
             }
-            return formatted;
+            break;
+        default:
+            callback(null);
     }
 };
 
@@ -223,7 +228,12 @@ monitorsService.getMonitors = function (query, callback) {
             var res = [];
             if (monitors.length > 0) {
                 for (i = 0; i < monitors.length; i++) {
-                    res[i] = monitorsService.formatResponse(monitors[i]);
+                    monitorsService.formatResponse(monitors[i], function (monitor) {
+                        res.push(monitor);
+                        if (res.length === monitors.length) {
+                            callback(null, res);
+                        }
+                    });
                 }
             }
             callback(null, res);
@@ -242,8 +252,9 @@ monitorsService.getMonitor = function (monitorId, callback) {
             err.status = 404;
             return callback(err);
         } else if (monitor) {
-            monitor = monitorsService.formatResponse(monitor);
-            callback(null, monitor);
+            monitorsService.formatResponse(monitor, function (monitor) {
+                callback(null, monitor);
+            });
         }
     });
 };
