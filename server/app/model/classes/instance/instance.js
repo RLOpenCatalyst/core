@@ -346,6 +346,21 @@ var InstanceSchema = new Schema({
         type: String,
         required: false,
         trim: true
+    },
+    scheduler:{
+        instanceStart:{
+            cron: String,
+            startOn: String,
+            endOn: String,
+            cronJobId: String
+        },
+        instanceStop:{
+            cron: String,
+            startOn: String,
+            endOn: String,
+            cronJobId: String
+        },
+        cronEndedOn: String
     }
 });
 
