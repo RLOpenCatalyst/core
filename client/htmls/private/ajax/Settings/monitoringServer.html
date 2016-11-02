@@ -121,13 +121,13 @@ input[type="file"] {
             <div class="col-lg-6 col-md-6 col-xs-6 margintop15 hidden showForRabbit">
               <label for="protocolVhost">Vhost:<span class="control-label redSpan">&nbsp;*</span></label>
               <div class="input-groups">
-                <input type="text" name="protocolVhost" class="required protocolVhost form-control" id="protocolVhost">
+                <input type="text" name="protocolVhost" class=" protocolVhost form-control" id="protocolVhost">
               </div>
             </div>
             <div class="col-lg-6 col-md-6 col-xs-6 margintop15 hidden showForRabbit">
               <label for="protocolUser">User:<span class="control-label redSpan">&nbsp;*</span></label>
               <div class="input-groups">
-                <input type="text" name="protocolUser" class="required protocolUser form-control" id="protocolUser">
+                <input type="text" name="protocolUser" class=" protocolUser form-control" id="protocolUser">
               </div>
             </div>
             <div class="col-lg-6 col-md-6 col-xs-6 margintop15 hidden showForRabbit">
@@ -222,6 +222,9 @@ $('.addDashboardItem').click(function(e) {
     getOrganizationList();
     $('#orgName,#protocolType').removeAttr('disabled');
     $('#protocolType').change();
+    $('#monitorEditHiddenInputId,#monitorHiddenCertificateFile,#monitorHiddenPrivateFile').val('');
+    $('#certificateFileNameDisplay').empty();
+    $('#privateFileNameDisplay').empty();
 });
 
 //to list down the organization for creating the monitoring server item.
@@ -365,7 +368,7 @@ function getGlobalMonitorServers() {
 //creating a table for showcasing the list of track items on the dashboard page..
 function createTableForMonitorList(monitorData) { 
   var $monitorList = $('#monitorTable tbody');
-  var $tr = $('<tr class="monitorItemRow"></tr>').attr('data-monitorId', monitorData._id).attr('data-type', monitorData.type).attr('transportProtocol-type', monitorData.parameters.transportProtocol).attr('orgId',monitorData.organization.id).attr('orgName',monitorData.organization.name).attr('data-ssl',monitorData.parameters.transportProtocolParameters.ssl);
+  var $tr = $('<tr class="monitorItemRow"></tr>').attr('data-monitorId', monitorData._id).attr('data-type', monitorData.type).attr('transportProtocol-type', monitorData.parameters.transportProtocol).attr('orgId',monitorData.organization.id).attr('orgName',monitorData.organization.name);
   $tr.data('monitorData', monitorData);
 
   var $tdName = $('<td class="monitorName">' + monitorData.name + '</td>');
@@ -408,8 +411,10 @@ function createTableForMonitorList(monitorData) {
       $editModal.find('.protocolUser').val(monitorData.parameters.transportProtocolParameters.user);
       $editModal.find('#monitorEditHiddenInputId').val(monitorData._id);
       if(monitorData.parameters.transportProtocolParameters.ssl) {
-          $editModal.find('#monitorHiddenCertificateFile').val(monitorData.parameters.transportProtocolParameters.ssl.certChainFileId);
-          $editModal.find('#monitorHiddenPrivateFile').val(monitorData.parameters.transportProtocolParameters.ssl.privateKeyFileId);
+          $editModal.find('#monitorHiddenCertificateFile').val(monitorData.parameters.transportProtocolParameters.ssl.certChainFile.id);
+          $editModal.find('#certificateFileNameDisplay').empty().append(monitorData.parameters.transportProtocolParameters.ssl.certChainFile.name);
+          $editModal.find('#monitorHiddenPrivateFile').val(monitorData.parameters.transportProtocolParameters.ssl.privateKeyFile.id);
+          $editModal.find('#privateFileNameDisplay').empty().append(monitorData.parameters.transportProtocolParameters.ssl.privateKeyFile.name);
       }
       return false;
   });
@@ -534,8 +539,12 @@ $('#monitorServerForm').submit(function(e) {
         var reqBody = {};
         var methodName;
         //for edit of form.
+        var fileCertificate = $('#certificateFile').get(0).files[0];
+        var filePrivate = $('#privateFile').get(0).files[0];
         var formData = new FormData();
-        formData.append('file', $('input[type=file]')[0].files[0]);
+        formData.append('file', fileCertificate);
+        var newFormData = new FormData();
+        newFormData.append('file', filePrivate);
         if (dashboardEditNew === 'edit') {
             url = '../monitors/' + monitorId;
             methodName = 'PUT';
@@ -556,7 +565,7 @@ $('#monitorServerForm').submit(function(e) {
                     $.ajax({
                         method: "POST",
                         url: '../fileUpload?fileId=' + privateKeyFileId,
-                        data: formData,
+                        data: newFormData,
                         cache: false,
                         contentType: false,
                         processData: false,

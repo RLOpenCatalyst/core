@@ -48,11 +48,13 @@
                                                 </select>
                                                 <span data-val-controltovalidate="domainname" id="MainContent_Req_domainname" data-val="true" data-val-evaluationfunction="RequiredFieldValidatorEvaluateIsValid" data-val-initialvalue="" style="visibility:hidden;">Required</span>
                                              </div>
-                                          
-                                          <hr/>
-                                            <!-- <div class="col-lg-6 col-md-6 display:none" >
-                                                <input name="ctl00$MainContent$orgname" value="chef" id="configType" class="form-control" type="text"  cdata="catalyst" hidden>
-                                             </div> -->
+                                          <div class="hidden col-lg-6 col-md-6 margintop20  monitoringCheck">
+                                              <input type="checkbox" name="updateMonitoringInfo" style="vertical-align: middle;" id="updateMonitoringInfo"/>
+                                              <label for="">Enable Monitoring:</label>
+                                              <select id="monitorId" name="monitorId" class="hidden chooseOrganization width-100" style="vertical-align: central" cdata="catalyst" skiprowid="yes">
+                                                  <option value="">Select Monitor</option>
+                                              </select>
+                                          </div>
                                              <input type="hidden" name="ctl00$MainContent$orgname" value="chef" id="configType" class="form-control"  cdata="catalyst">
                                           
                                              <div class="col-lg-6 col-md-6" id="frmconfigmanagement" style="margin-top:20px">
@@ -155,6 +157,32 @@
     //   alert(folderpath);
        $('#folderpath').val(folderpath);
    }
+
+   $('select#orgname').change(function(e){
+        getMonitorValues();
+    });
+
+    function getMonitorValues(){
+        $('.monitoringCheck').removeClass('hidden');
+        $.get('../monitors',function(data){
+            var orgValue = $('#orgname option:selected').attr('rowid'); 
+            console.log(orgValue);
+            for(var i=0;i<data.length;i++){
+                if(orgValue === data[i].organization.id){
+                    var str = $('<option></option>').val(data[i]._id).html(data[i].name);
+                    $('#monitorId').append(str);
+                }
+            }
+        });
+    }
+
+    $('input[name="updateMonitoringInfo"]').change(function(e){
+        if(this.checked){
+            $('#monitorId').removeClass('hidden');
+        }  else {  
+            $('#monitorId').addClass('hidden');
+        }
+    });
    
    function isUserTypeSuperAdmin(){
     $.get('/d4dMasters/loggedInUser',function(data){
@@ -220,6 +248,7 @@ if(isEditActivate){
   $('#userpemfile').removeAttr('cat-validation');
   $('#validatorpemfile').removeAttr('cat-validation');
   $('#kniferbfile').removeAttr('cat-validation');
+  
 }          
  if(validateForm()) {setfolderpath(); saveform('10');};
            return false; // for demo
