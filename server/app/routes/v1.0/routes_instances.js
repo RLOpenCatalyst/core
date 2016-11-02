@@ -220,6 +220,31 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         });
     });*/
 
+    // Instance list for tagging server
+    app.get('/instancesList', function(req, res, next) {
+
+        var reqData = {};
+        async.waterfall(
+            [
+                function(next) {
+                    apiUtil.paginationRequest(req.query, 'instances', next);
+                },
+                function(paginationReq, next) {
+                    reqData = paginationReq;
+                    instancesDao.getInstanceList(paginationReq, next);
+                },
+                function(instances, next) {
+                    apiUtil.paginationResponse(instances, reqData, next);
+                }
+            ],
+            function(err, results) {
+                if (err)
+                    next(err);
+                else
+                    return res.status(200).send(results);
+            });
+    });
+
     app.get('/instances', getInstanceList);
 
     function getInstanceList(req, res, next) {

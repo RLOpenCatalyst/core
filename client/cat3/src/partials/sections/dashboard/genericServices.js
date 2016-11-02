@@ -328,27 +328,25 @@
 
             });
         };
-        /*genericServices.editRunlist = function(chefRunlist, chefAttribute) {
+        genericServices.scheduleTime=function (ids) {
             $modal.open({
-                templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationUpdateChefRunlist.html',
-                controller: 'orchestrationUpdateChefRunlistCtrl',
+                animate: true,
+                templateUrl: "src/partials/sections/dashboard/popups/view/schedule.html",
+                controller: "scheduleCtrl as sch",
                 backdrop: 'static',
                 keyboard: false,
-                resolve : {
-                    cookbookRunlistAttr: function(){
-                        return {
-                            chefrunlist: chefRunlist,
-                            attributes: chefAttribute
-                        };
+                resolve: {
+                    items: function() {
+                        return ids;
                     }
                 }
-            }).result.then(function (selectedCookBooks) {
-                //$rootScope.editRunListAttributes = false;
-               // $rootScope.chefrunlist = selectedCookBooks.list;
-               // $rootScope.cookbookAttributes = selectedCookBooks.cbAttributes;
-            }, function () {
-                console.log('Dismiss time is ' + new Date());
-            });
-        };*/
+            })
+        };
+        genericServices.instanceStart=function (ids) {
+
+        };
+        genericServices.instanceStop=function () {
+
+        };
     }]);
 })(angular);
