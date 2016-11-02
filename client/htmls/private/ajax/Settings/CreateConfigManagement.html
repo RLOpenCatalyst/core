@@ -166,7 +166,6 @@
         $('.monitoringCheck').removeClass('hidden');
         $.get('../monitors',function(data){
             var orgValue = $('#orgname option:selected').attr('rowid'); 
-            console.log(orgValue);
             for(var i=0;i<data.length;i++){
                 if(orgValue === data[i].organization.id){
                     var str = $('<option></option>').val(data[i]._id).html(data[i].name);
@@ -229,27 +228,27 @@
 </script>
 <script>
    $(document).ready(function () {
+    var isEditActivateLocation = location.href.toString().split('?')[1]==="new"?false:true;
+    var rowid = url.substr(url.indexOf("?") + 1);
+    if(isEditActivateLocation){
+      $.get('/d4dMasters/readmasterjsonrecord/10'+ '/' + rowid,function(data){
+          if(data.monitor !== null){
+            $('.monitoringCheck').removeClass('hidden');
+            $("input[name='updateMonitoringInfo']").attr('checked', true);
+            $('#monitorId').removeClass('hidden');
+            $('#monitorId').empty().append('<option value="'+data.monitor.id+'">'+data.monitor.name+'</option>').select2().attr('disabled','disabled');
+          }
+      });
+    }
       $("#configname").focus();
        $('#myForm22').submit(function() {
 
-           // $(this).validate();
-   
-           // if($(this).valid){
-           //      /*alert('valid form submitted'); // for demo*/
-           //     
-           // }else{
-           //      alert('invalid valid form submitted'); // for demo
-           // }
-         //  alert('in 1');
-         var isEditActivate= location.href.toString().split('?')[1]==="new"?false:true;
-       //  var operationType='';
 
-if(isEditActivate){
-  $('#userpemfile').removeAttr('cat-validation');
-  $('#validatorpemfile').removeAttr('cat-validation');
-  $('#kniferbfile').removeAttr('cat-validation');
-  
-}          
+  if(isEditActivateLocation){
+    $('#userpemfile').removeAttr('cat-validation');
+    $('#validatorpemfile').removeAttr('cat-validation');
+    $('#kniferbfile').removeAttr('cat-validation');
+  }          
  if(validateForm()) {setfolderpath(); saveform('10');};
            return false; // for demo
        });
