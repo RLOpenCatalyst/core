@@ -59,22 +59,24 @@ monitorsService.formatResponse = function (monitor, callback) {
             }
             if (monitor.parameters.transportProtocol === 'rabbitmq' && monitor.parameters.transportProtocolParameters.ssl) {
                 fileUpload.getReadStreamFileByFileId(monitor.parameters.transportProtocolParameters.ssl.certChainFileId, function (err, file) {
+                    var certChainFileId =  monitor.parameters.transportProtocolParameters.ssl.certChainFileId;
                     delete formatted.parameters.transportProtocolParameters.ssl.certChainFileId;
                     if (err) {
                         formatted.parameters.transportProtocolParameters.ssl['certChainFile'] = null;
                     } else {
                         formatted.parameters.transportProtocolParameters.ssl['certChainFile'] = {};
-                        formatted.parameters.transportProtocolParameters.ssl['certChainFile']['id'] = monitor.parameters.transportProtocolParameters.ssl.certChainFileId;
+                        formatted.parameters.transportProtocolParameters.ssl['certChainFile']['id'] = certChainFileId;
                         formatted.parameters.transportProtocolParameters.ssl['certChainFile']['name'] = file.fileName;
                         formatted.parameters.transportProtocolParameters.ssl['certChainFile']['file'] = file.fileData;
                     }
                     fileUpload.getReadStreamFileByFileId(monitor.parameters.transportProtocolParameters.ssl.privateKeyFileId, function (err, file) {
+                        var privateKeyFileId =  monitor.parameters.transportProtocolParameters.ssl.privateKeyFileId;
                         delete formatted.parameters.transportProtocolParameters.ssl.privateKeyFileId;
                         if (err) {
                             formatted.parameters.transportProtocolParameters.ssl['privateKeyFile'] = null;
                         } else {
                             formatted.parameters.transportProtocolParameters.ssl['privateKeyFile'] = {};
-                            formatted.parameters.transportProtocolParameters.ssl['privateKeyFile']['id'] = monitor.parameters.transportProtocolParameters.ssl.privateKeyFileId;
+                            formatted.parameters.transportProtocolParameters.ssl['privateKeyFile']['id'] = privateKeyFileId;
                             formatted.parameters.transportProtocolParameters.ssl['privateKeyFile']['name'] = file.fileName;
                             formatted.parameters.transportProtocolParameters.ssl['privateKeyFile']['file'] = file.fileData;
                         }
@@ -235,8 +237,9 @@ monitorsService.getMonitors = function (query, callback) {
                         }
                     });
                 }
+            } else {
+                callback(null, res);
             }
-            callback(null, res);
         }
     });
 };
