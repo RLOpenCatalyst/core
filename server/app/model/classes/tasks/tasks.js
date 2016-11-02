@@ -135,7 +135,7 @@ taskSchema.plugin(mongoosePaginate);
 
 
 // Executes a task
-taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, blueprintIds, envId, callback, onComplete) {
+taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, blueprintIds, envId, paramOptions, callback, onComplete) {
     logger.debug('Executing');
     var task;
     var self = this;
@@ -155,12 +155,13 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
 
         taskHistoryData.nodeIds = this.taskConfig.nodeIds;
         taskHistoryData.runlist = this.taskConfig.runlist;
-        taskHistoryData.attributes = this.taskConfig.attributes;
-
+        //taskHistoryData.attributes = this.taskConfig.attributes;
+        taskHistoryData.attributes = (!paramOptions) ? this.taskConfig.attributes : paramOptions;
     } else if (this.taskType === TASK_TYPE.JENKINS_TASK) {
         task = new JenkinsTask(this.taskConfig);
         taskHistoryData.jenkinsServerId = this.taskConfig.jenkinsServerId;
         taskHistoryData.jobName = this.taskConfig.jobName;
+        taskHistoryData.parameterized = (!paramOptions) ? this.taskConfig.parameterized : paramOptions;
     } else if (this.taskType === TASK_TYPE.PUPPET_TASK) {
         task = new PuppetTask(this.taskConfig);
         taskHistoryData.nodeIds = this.taskConfig.nodeIds;
@@ -179,7 +180,8 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
     } else if (this.taskType === TASK_TYPE.SCRIPT_TASK) {
         task = new ScriptTask(this.taskConfig);
         taskHistoryData.nodeIds = this.taskConfig.nodeIds;
-        taskHistoryData.scriptDetails = this.taskConfig.scriptDetails;
+        //taskHistoryData.scriptDetails = this.taskConfig.scriptDetails;
+        taskHistoryData.scriptDetails = (!paramOptions) ? this.taskConfig.scriptDetails : paramOptions;
     } else {
         callback({
             message: "Invalid Task Type"
