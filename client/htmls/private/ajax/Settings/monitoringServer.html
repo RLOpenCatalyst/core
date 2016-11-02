@@ -133,7 +133,7 @@ input[type="file"] {
             <div class="col-lg-6 col-md-6 col-xs-6 margintop15 hidden showForRabbit">
               <label for="certificateFile">Certificate File:</label>
               <div class="input-groups">
-                <input type="file" name="certificateFile" id="certificateFile" class="form-control form-controls" onchange="setFileNameCertificate(this.value);"/>
+                <input type="file" extension="pem" name="certificateFile" id="certificateFile" class="form-control form-controls" onchange="setFileNameCertificate(this.value);"/>
               </div>
                 <span class="pull-left">
                     <label title="Please choose a Certificate file" class="choose-file cursor" for="certificateFile">Choose File</label>
@@ -143,7 +143,7 @@ input[type="file"] {
             <div class="col-lg-6 col-md-6 col-xs-6 margintop15 hidden showForRabbit">
               <label for="privateFile">Private File:</label>
               <div class="input-groups">
-                <input type="file" name="privateFile" id="privateFile" class="form-control form-controls" onchange="setFileNamePrivate(this.value);"/>
+                <input type="file" extension="pem" name="privateFile" id="privateFile" class="form-control form-controls" onchange="setFileNamePrivate(this.value);"/>
               </div>
                 <span class="pull-left">
                     <label title="Please choose a Private file" class="choose-file cursor" for="privateFile">Choose File</label>
@@ -254,6 +254,7 @@ $('#protocolType').change(function(e){
 
 //form validation for dashboard save
 var validator = $('#monitorServerForm').validate({
+    ignore: [],
     rules: {
         serverUrl: {
             url: true
@@ -273,10 +274,10 @@ var validator = $('#monitorServerForm').validate({
     },
     messages: {
         certificateFile: {
-            extension: "Only .pem files can be uploaded"
+            extension: "Only .pem files"
         },
         privateFile: {
-            extension: "Only .pem files can be uploaded"
+            extension: "Only .pem files"
         },
         monitorName: {
             maxlength: "Limited to 15 chars"
@@ -406,7 +407,7 @@ function createTableForMonitorList(monitorData) {
       $editModal.find('.protocolVhost').val(monitorData.parameters.transportProtocolParameters.vhost);
       $editModal.find('.protocolUser').val(monitorData.parameters.transportProtocolParameters.user);
       $editModal.find('#monitorEditHiddenInputId').val(monitorData._id);
-      if(monitorData.parameters.transportProtocol.ssl) {
+      if(monitorData.parameters.transportProtocolParameters.ssl) {
           $editModal.find('#monitorHiddenCertificateFile').val(monitorData.parameters.transportProtocolParameters.ssl.certChainFileId);
           $editModal.find('#monitorHiddenPrivateFile').val(monitorData.parameters.transportProtocolParameters.ssl.privateKeyFileId);
       }
@@ -543,6 +544,7 @@ $('#monitorServerForm').submit(function(e) {
             url = '../monitors';
         }
         if (protocolType === 'rabbitmq') {
+          if(certChainFileId === '' && privateKeyFileId === ''){
             $.ajax({
                 method: "POST",
                 url: '../fileUpload?fileId=' + certChainFileId,
@@ -587,6 +589,51 @@ $('#monitorServerForm').submit(function(e) {
                     });
                 }
             });
+          } else {
+            if (passwordName !== '') {
+              parameters = {
+                  url: serverUrl,
+                  transportProtocol: protocolType,
+                  transportProtocolParameters: {
+                      host: host,
+                      port: port,
+                      vhost: vhost,
+                      user: user,
+                      password: passwordName,
+                      heartbeat: 30,
+                      prefetch: 50,
+                      ssl: {
+                          certChainFileId: certChainFileId,
+                          privateKeyFileId: privateKeyFileId
+                      }
+                  }
+              };
+            } else {
+              parameters = {
+                  url: serverUrl,
+                  transportProtocol: protocolType,
+                  transportProtocolParameters: {
+                      host: host,
+                      port: port,
+                      vhost: vhost,
+                      user: user,
+                      heartbeat: 30,
+                      prefetch: 50,
+                      ssl: {
+                          certChainFileId: certChainFileId,
+                          privateKeyFileId: privateKeyFileId
+                      }
+                  }
+              };
+            }
+            reqBody = {
+                "name": name,
+                "orgId": orgValue,
+                "type": serverType,
+                "parameters": parameters
+            }
+            saveForm(methodName,url,reqBody,dashboardEditNew,monitorId,parameters,name,serverType);
+          }
         } else if (protocolType === 'redis') {
             if (passwordName !== '') {
                 parameters = {
@@ -616,9 +663,6 @@ $('#monitorServerForm').submit(function(e) {
             }
             saveForm(methodName,url,reqBody,dashboardEditNew,monitorId,parameters,name,serverType);
         }
-        
-        
-
         return false;
     }
 });

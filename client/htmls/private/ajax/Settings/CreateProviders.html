@@ -244,6 +244,13 @@
                                                                 <option value="">Select Organization</option>
                                                             </select>
                                                         </div>
+                                                        <div class="hidden col-lg-6 col-md-6 margintop20 foraws monitoringCheck">
+                                                            <input type="checkbox" name="updateMonitoringInfo" style="vertical-align: middle;" id="updateMonitoringInfo"/>
+                                                            <label for="">Monitoring Check:</label>
+                                                            <select id="monitorId" name="monitorId" class="hidden chooseOrganization width-100" style="vertical-align: central" cdata="catalyst">
+                                                                <option value="">Select Monitor</option>
+                                                            </select>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <!-- end widget div -->
@@ -279,7 +286,32 @@
 <!--Popup for selecting a cloud provider before proceeding-->
 <script type="text/javascript" src="js/jquery.form.js"></script>
 <script>
+    
+    $('select#orgId').change(function(e){
+        getMonitorValues();
+    });
 
+    function getMonitorValues(){
+        $('.monitoringCheck').removeClass('hidden');
+        $.get('../monitors',function(data){
+            var orgValue = $('select#orgId').val(); 
+            for(var i=0;i<data.length;i++){
+                if(orgValue === data[i].organization.id){
+                    var str = $('<option></option>').val(data[i]._id).html(data[i].name);
+                    $('#monitorId').append(str);
+                }
+            }
+        });
+    }
+
+    $('input[name="updateMonitoringInfo"]').change(function(e){
+        if(this.checked){
+            $('#monitorId').removeClass('hidden');
+        }  else {  
+            $('#monitorId').addClass('hidden');
+        }
+    });
+    
     var UtilityMethods = {
         initTooltip: function() {
             var $tool = $("[rel=tooltip]");
@@ -630,7 +662,12 @@
             $('.aws-secret-info').hide();
             $('.secretInfo').removeAttr('cat-validation');
         }
-
+        if(data.monitor !== null){
+            $('.monitoringCheck').removeClass('hidden');
+            $("input[name='updateMonitoringInfo']").attr('checked', true);
+            $('#monitorId').removeClass('hidden');
+            $('#monitorId').empty().append('<option value="'+data.monitor.id+'">'+data.monitor.name+'</option>').attr('answer',data.monitor.id).select2().attr('disabled','disabled');
+        }
         var parentList = $('.addNewRegion');
         $('select.region').on('change', checkForKeyPair);
         for (var i = 0; i < data.keyPairs.length; i++) {
