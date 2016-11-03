@@ -78,6 +78,7 @@ instanceService.instanceSyncWithAWS = instanceSyncWithAWS;
 instanceService.startInstance = startInstance;
 instanceService.stopInstance = stopInstance;
 instanceService.executeScheduleJob = executeScheduleJob;
+instanceService.updatedScheduler = updatedScheduler;
 
 function checkIfUnassignedInstanceExists(providerId, instanceId, callback) {
     unassignedInstancesModel.getById(instanceId,
@@ -1489,11 +1490,9 @@ function executeScheduleJob(instance) {
         if (instance[0] && instance[0].scheduler && instance[0].scheduler.instanceStart && instance[0].scheduler.instanceStart.cron) {
             crontab.cancelJob(instance[0].scheduler.instanceStart.cronJobId);
             var jobId = crontab.scheduleJob(instance[0].scheduler.instanceStart.cron, function() {
-                //if(instance[0].instanceState === 'stopped'){
-                    logger.debug("Start api called...");
-                    startInstance(null,instance);
-                //}
-                
+                logger.debug("Start api called...");
+                startInstance(null, instance);
+
                 instancesDao.updateCronJobId(instance[0], jobId, "start", function(err, updatedData) {
                     if (err) {
                         logger.error("Failed to update task: ", err);
@@ -1505,12 +1504,10 @@ function executeScheduleJob(instance) {
         if (instance[0] && instance[0].scheduler && instance[0].scheduler.instanceStop && instance[0].scheduler.instanceStop.cron) {
             crontab.cancelJob(instance[0].scheduler.instanceStop.cronJobId);
             var jobId = crontab.scheduleJob(instance[0].scheduler.instanceStop.cron, function() {
-                //if(instance[0].instanceState === 'running'){
-                    logger.debug("Stop api called...");
-                    stopInstance(null,instance);
-                //}
-                
-                instancesDao.updateCronJobId(instance[0], jobId,"stop", function(err, updatedData) {
+                logger.debug("Stop api called...");
+                stopInstance(null, instance);
+
+                instancesDao.updateCronJobId(instance[0], jobId, "stop", function(err, updatedData) {
                     if (err) {
                         logger.error("Failed to update task: ", err);
                     }
@@ -2514,10 +2511,10 @@ function startInstance(req, data, callback) {
                                         return;
                                     }
 
-                                   /* callback(null, {
-                                        instanceCurrentState: currentState,
-                                        actionLogId: actionLog._id
-                                    });*/
+                                    /* callback(null, {
+                                         instanceCurrentState: currentState,
+                                         actionLogId: actionLog._id
+                                     });*/
 
                                     instancesDao.updateInstanceState(data[0]._id, "starting", function(err, updateCount) {
                                         if (err) {
@@ -2834,7 +2831,7 @@ function startInstance(req, data, callback) {
                                     actionLogId: actionLog._id
                                 });
                                 error.status = 500;
-                                callback(error, null);
+                                //callback(error, null);
                                 return;
                             }
                             /*callback(null, {
@@ -2845,19 +2842,19 @@ function startInstance(req, data, callback) {
                             instancesDao.updateInstanceState(data[0]._id, startingInstances[0].CurrentState.Name, function(err, updateCount) {
                                 if (err) {
                                     logger.error("update instance state err ==>", err);
-                                    return ;
+                                    return;
                                 }
                                 logger.debug('instance state upadated');
                             });
 
                         }, function(err, state) {
                             if (err) {
-                                return ;
+                                return;
                             }
                             instancesDao.updateInstanceState(data[0]._id, state, function(err, updateCount) {
                                 if (err) {
                                     logger.error("update instance state err ==>", err);
-                                    return ;
+                                    return;
                                 }
                                 logger.debug('instance state upadated');
                             });
@@ -2886,14 +2883,14 @@ function startInstance(req, data, callback) {
                             ec2.describeInstances([data[0].platformId], function(err, data1) {
                                 if (err) {
                                     logger.error("Hit some error: ", err);
-                                    return ;
+                                    return;
                                 }
                                 if (data1.Reservations.length && data1.Reservations[0].Instances.length) {
                                     logger.debug("ip =>", data1.Reservations[0].Instances[0].PublicIpAddress);
                                     instancesDao.updateInstanceIp(data[0]._id, data1.Reservations[0].Instances[0].PublicIpAddress, function(err, updateCount) {
                                         if (err) {
                                             logger.error("update instance ip err ==>", err);
-                                            return ;
+                                            return;
                                         }
                                         logger.debug('instance ip upadated');
                                     });
@@ -3693,7 +3690,7 @@ function stopInstance(req, data, callback) {
                                 instancesDao.updateInstanceState(data[0]._id, 'stopped', function(err, updateCount) {
                                     if (err) {
                                         logger.error("update instance state err ==>", err);
-                                        return ;
+                                        return;
                                     }
                                     logger.debug('instance state upadated');
                                 });
@@ -3747,7 +3744,7 @@ function stopInstance(req, data, callback) {
                                 });
                                 var error = new Error();
                                 error.status = 500;
-                               // callback(error, null);
+                                // callback(error, null);
                                 return;
                             }
                         });
@@ -3794,7 +3791,7 @@ function stopInstance(req, data, callback) {
                 azureProvider.getAzureCloudProviderById(data[0].providerId, function(err, providerdata) {
                     if (err) {
                         logger.error('getAzureCloudProviderById ', err);
-                        return ;
+                        return;
                     }
 
                     logger.debug('providerdata:', providerdata);
@@ -3818,13 +3815,13 @@ function stopInstance(req, data, callback) {
                     cryptography.decryptFile(pemFile, cryptoConfig.decryptionEncoding, decryptedPemFile, cryptoConfig.encryptionEncoding, function(err) {
                         if (err) {
                             logger.error('Pem file decryption failed>> ', err);
-                            return ;
+                            return;
                         }
 
                         cryptography.decryptFile(keyFile, cryptoConfig.decryptionEncoding, decryptedKeyFile, cryptoConfig.encryptionEncoding, function(err) {
                             if (err) {
                                 logger.error('key file decryption failed>> ', err);
-                                return ;
+                                return;
                             }
 
                             var options = {
@@ -3874,7 +3871,7 @@ function stopInstance(req, data, callback) {
                                     instancesDao.updateInstanceState(data[0]._id, "stopping", function(err, updateCount) {
                                         if (err) {
                                             logger.error("update instance state err ==>", err);
-                                            return ;
+                                            return;
                                         }
                                         logger.debug('instance state upadated');
                                     });
@@ -3883,12 +3880,12 @@ function stopInstance(req, data, callback) {
                                 },
                                 function(err, state) {
                                     if (err) {
-                                        return ;
+                                        return;
                                     }
                                     instancesDao.updateInstanceState(data[0]._id, 'stopped', function(err, updateCount) {
                                         if (err) {
                                             logger.error("update instance state err ==>", err);
-                                            return ;
+                                            return;
                                         }
 
                                         logger.debug('instance state upadated');
@@ -3997,14 +3994,14 @@ function stopInstance(req, data, callback) {
                             instancesDao.updateInstanceIp(data[0]._id, vmResponse.ip, function(err, updateCount) {
                                 if (err) {
                                     logger.error("update instance ip err ==>", err);
-                                    return ;
+                                    return;
                                 }
                                 logger.debug('instance ip upadated');
                             });
                             instancesDao.updateInstanceState(data[0]._id, "stopped", function(err, updateCount) {
                                 if (err) {
                                     logger.error("update instance state err ==>", err);
-                                    return ;
+                                    return;
                                 }
                                 logger.debug('instance state upadated');
                             });
@@ -4129,12 +4126,12 @@ function stopInstance(req, data, callback) {
                                 //callback(error, null);
                                 return;
                             }
-                            
+
 
                             instancesDao.updateInstanceState(data[0]._id, stoppingInstances[0].CurrentState.Name, function(err, updateCount) {
                                 if (err) {
                                     logger.error("update instance state err ==>", err);
-                                    return ;
+                                    return;
                                 }
                                 logger.debug('instance state upadated');
                             });
@@ -4145,13 +4142,13 @@ function stopInstance(req, data, callback) {
 
                         }, function(err, state) {
                             if (err) {
-                                return ;
+                                return;
                             }
 
                             instancesDao.updateInstanceState(data[0]._id, state, function(err, updateCount) {
                                 if (err) {
                                     logger.error("update instance state err ==>", err);
-                                    return ;
+                                    return;
                                 }
                                 logger.debug('instance state upadated');
                             });
@@ -4189,4 +4186,23 @@ function stopInstance(req, data, callback) {
             return;
         }
     }
+}
+
+function updatedScheduler(instanceId, scheduler, isScheduled, callback) {
+    instancesDao.updatedScheduler(instanceId, scheduler, isScheduled, function(err, updatedResult) {
+        if (err) {
+            logger.error("Failed to Update Instance: ", err);
+            return callback(err, null);
+        }
+        instancesDao.getInstanceById(instanceId, function(err, instance) {
+            if (err) {
+                logger.error("Failed to get Instance: ", err);
+                return callback(err, null);
+            }
+            if(instance && instance.length){
+                executeScheduleJob(instance);
+            }
+        });
+        callback(null, updatedResult);
+    });
 }

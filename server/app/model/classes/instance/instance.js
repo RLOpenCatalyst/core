@@ -2291,6 +2291,25 @@ var InstancesDao = function() {
             callback(null, instances);
         })
     }
+
+    this.updatedScheduler = function(instanceId, scheduler, isScheduled, callback) {
+        Instances.update({
+            "_id": ObjectId(instanceId)
+        }, {
+            $set: {
+                scheduler: scheduler,
+                isScheduled: isScheduled
+            }
+        }, function(err, data) {
+            if (err) {
+                logger.error("Failed to update managed Instance status data", err);
+                callback(err, null);
+                return;
+            }
+            logger.debug("=================== ",JSON.stringify(data));
+            callback(null, data);
+        });
+    };
 };
 
 module.exports = new InstancesDao();
