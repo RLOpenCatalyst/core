@@ -2121,7 +2121,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.get('/instances/:instanceId/stopInstance', function(req, res) {
         logger.debug("Enter get() for /instances/%s/stopInstance", req.params.instanceId);
         logger.debug('Verifying User permission set for stopInstance.');
-        instanceService.stopInstance(req,function(err,data){
+        instanceService.stopInstance(req,null,function(err,data){
             if(err){
                 return res.send(err);
             }
@@ -2132,7 +2132,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.get('/instances/:instanceId/startInstance', function(req, res) {
         logger.debug("Enter get() for /instances/%s/startInstance", req.params.instanceId);
         logger.debug('Verifying User permission set for startInstance.');
-        instanceService.startInstance(req,function(err,data){
+        instanceService.startInstance(req,null,function(err,data){
             if(err){
                 return res.send(err);
             }

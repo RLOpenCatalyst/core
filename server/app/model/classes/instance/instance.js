@@ -318,8 +318,8 @@ var InstanceSchema = new Schema({
     },
     subnetId: {
         type: String,
-            required: false,
-            trim: true
+        required: false,
+        trim: true
     },
     vpcId: {
         type: String,
@@ -342,26 +342,27 @@ var InstanceSchema = new Schema({
         required: false,
         default: false
     },
-    tagServer:{
+    tagServer: {
         type: String,
         required: false,
         trim: true
     },
-    scheduler:{
-        instanceStart:{
+    scheduler: {
+        instanceStart: {
             cron: String,
             startOn: String,
             endOn: String,
             cronJobId: String
         },
-        instanceStop:{
+        instanceStop: {
             cron: String,
-            startOn: String,
+            stopOn: String,
             endOn: String,
             cronJobId: String
         },
         cronEndedOn: String
-    }
+    },
+    isScheduled: Boolean
 });
 
 InstanceSchema.plugin(uniqueValidator);
@@ -737,7 +738,7 @@ var InstancesDao = function() {
         });
     };
 
-    this.checkInstancesDependencyByFieldName = function(fieldName,id, callback) {
+    this.checkInstancesDependencyByFieldName = function(fieldName, id, callback) {
         logger.debug("Enter checkInstancesDependencyByFieldName (%s,)", id);
         var queryObj = {
             $or: [{
@@ -747,7 +748,7 @@ var InstancesDao = function() {
             }, {
                 serviceIds: id
             }],
-            isDeleted:false
+            isDeleted: false
         }
         Instances.find(queryObj, function(err, data) {
             if (err) {
@@ -1553,7 +1554,7 @@ var InstancesDao = function() {
     };
 
 
-    this.insertDockerActionLog = function(instanceId, user,action,actionId, timestampStarted, callback) {
+    this.insertDockerActionLog = function(instanceId, user, action, actionId, timestampStarted, callback) {
         logger.debug("Enter insertDockerActionLog ", instanceId, user, timestampStarted);
         var log = {
             type: actionId,
@@ -1723,8 +1724,8 @@ var InstancesDao = function() {
         return log;
     };
 
-    this.insertInstanceStatusActionLog = function(instanceId,user,instanceState, timestampStarted, callback) {
-        logger.debug("Enter insertInstanceStatusActionLog ", instanceId,user,instanceState, timestampStarted);
+    this.insertInstanceStatusActionLog = function(instanceId, user, instanceState, timestampStarted, callback) {
+        logger.debug("Enter insertInstanceStatusActionLog ", instanceId, user, instanceState, timestampStarted);
         var log = {
             completed: true,
             success: true,
@@ -1734,21 +1735,21 @@ var InstancesDao = function() {
                 'instance-State': instanceState
             }
         };
-        if(instanceState === 'terminated'){
+        if (instanceState === 'terminated') {
             log.type = ACTION_LOG_TYPES.TERMINATED.type;
             log.name = ACTION_LOG_TYPES.TERMINATED.name
-        }else if(instanceState === 'deleted'){
+        } else if (instanceState === 'deleted') {
             log.type = ACTION_LOG_TYPES.DELETE.type;
             log.name = ACTION_LOG_TYPES.DELETE.name
-        }else if(instanceState === 'stopped'){
+        } else if (instanceState === 'stopped') {
             log.type = ACTION_LOG_TYPES.STOP.type;
             log.name = ACTION_LOG_TYPES.STOP.name
-        }else if(instanceState === 'shutting-down'){
+        } else if (instanceState === 'shutting-down') {
             log.type = ACTION_LOG_TYPES.SHUTDOWN.type;
             log.name = ACTION_LOG_TYPES.SHUTDOWN.name
-        }else{
+        } else {
             log.type = ACTION_LOG_TYPES.START.type;
-            log.name = ACTION_LOG_TYPES.START.name  
+            log.name = ACTION_LOG_TYPES.START.name
         }
         var logId = insertActionLog(instanceId, log, callback);
         log._id = logId;
@@ -2143,16 +2144,16 @@ var InstancesDao = function() {
 
     this.updateInstanceStatus = function(instanceId, instance, callback) {
         var updateObj = {};
-        if(instance.status && instance.status === 'shutting-down'){
+        if (instance.status && instance.status === 'shutting-down') {
             updateObj['instanceState'] = instance.status;
             updateObj['isDeleted'] = true;
-        }else if(instance.state === 'terminated' || instance.state === 'shutting-down'){
+        } else if (instance.state === 'terminated' || instance.state === 'shutting-down') {
             updateObj['instanceState'] = instance.state;
             updateObj['isDeleted'] = true;
-        }else{
+        } else {
             updateObj['instanceState'] = instance.state;
             updateObj['isDeleted'] = false;
-            updateObj['subnetId']= instance.subnetId;
+            updateObj['subnetId'] = instance.subnetId;
             updateObj['instanceIP'] = instance.ip;
             updateObj['vpcId'] = instance.vpcId;
             updateObj['hostName'] = instance.hostName;
@@ -2203,12 +2204,12 @@ var InstancesDao = function() {
         });
     };
 
-    this.updatedRoute53HostedZoneParam = function(instanceId,route53HostedZoneParams,callback){
+    this.updatedRoute53HostedZoneParam = function(instanceId, route53HostedZoneParams, callback) {
         Instances.update({
             "_id": ObjectId(instanceId)
         }, {
             $set: {
-                route53HostedParams:route53HostedZoneParams
+                route53HostedParams: route53HostedZoneParams
             }
         }, function(err, data) {
             if (err) {
@@ -2219,6 +2220,77 @@ var InstancesDao = function() {
             callback(null, data);
         });
     };
+
+    this.updateCronJobId = function(instance, jobId, flag, callback) {
+        if (flag === 'start') {
+            Instances.update({
+                "_id": new ObjectId(instance._id),
+            }, {
+                $set: {
+                    scheduler: {
+                        instanceStart: {
+                            cron: instance.scheduler.instanceStart.cron,
+                            startOn: instance.scheduler.instanceStart.startOn,
+                            endOn: instance.scheduler.instanceStart.endOn,
+                            cronJobId: jobId
+                        },
+                        instanceStop: {
+                            cron: instance.scheduler.instanceStop.cron,
+                            stopOn: instance.scheduler.instanceStop.startOn,
+                            endOn: instance.scheduler.instanceStop.endOn,
+                            cronJobId: instance.scheduler.instanceStop.cronJobId
+                        }
+                    }
+                }
+            }, {
+                upsert: false
+            }, function(err, data) {
+                if (err) {
+                    callback(err, null);
+                    return;
+                }
+                callback(null, data);
+            });
+        } else {
+            Instances.update({
+                "_id": new ObjectId(instance._id),
+            }, {
+                $set: {
+                    scheduler: {
+                        instanceStop: {
+                            cron: instance.scheduler.instanceStop.cron,
+                            stopOn: instance.scheduler.instanceStop.startOn,
+                            endOn: instance.scheduler.instanceStop.endOn,
+                            cronJobId: jobId
+                        },
+                        instanceStart: {
+                            cron: instance.scheduler.instanceStart.cron,
+                            startOn: instance.scheduler.instanceStart.startOn,
+                            endOn: instance.scheduler.instanceStart.endOn,
+                            cronJobId: instance.scheduler.instanceStart.cronJobId
+                        }
+                    }
+                }
+            }, {
+                upsert: false
+            }, function(err, data) {
+                if (err) {
+                    callback(err, null);
+                    return;
+                }
+                callback(null, data);
+            });
+        }
+    };
+
+    this.getScheduledInstances = function(callback) {
+        Instances.find({ isScheduled: true }, function(err, instances) {
+            if (err) {
+                return callback(err, null);
+            }
+            callback(null, instances);
+        })
+    }
 };
 
 module.exports = new InstancesDao();
