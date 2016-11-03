@@ -762,7 +762,6 @@
         }
         $('#myForm54').ajaxForm({
             beforeSubmit: function(arr, $form, options) {
-                console.log(options);
                 if (location.toString().indexOf('?new') === -1) {
                     var orgValue = $('#orgId').val();
                     arr.push({name:'orgId',value:orgValue,type:'select-one',required:false});
@@ -794,7 +793,6 @@
                         return false;
                 } else {
                     if (isFormValid()) {
-                        console.log(arr);
                         appendLoader();
                         return true;
                     } else {
@@ -804,7 +802,6 @@
             },
             dataType: 'json',
             success: function(data, success) {
-                console.log("save",data);
                 if (data != 500) {
                     if ($('#btncancel').length) {
                         $('#btncancel').click();
