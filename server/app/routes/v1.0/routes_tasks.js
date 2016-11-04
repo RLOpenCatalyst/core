@@ -158,12 +158,10 @@ module.exports.setRoutes = function(app, sessionVerification) {
         });
         */
 
-        var attributes = req.body.attributes;
-        var parameterized = req.body.parameterized;
-        var scriptDetails = req.body.scriptDetails;
+        var attributes = req.body.taskData.attributes;
+        var scriptDetails = req.body.taskData.scriptDetails;
         var paramOptions = {
             attributes : attributes,
-            parameterized : parameterized,
             scriptDetails : scriptDetails
         };
 
