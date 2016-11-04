@@ -57,7 +57,7 @@ chefTaskSchema.methods.getNodes = function() {
 };
 
 // Instance Method :- run task
-chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, blueprintIds, envId, onExecute, onComplete) {
+chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, blueprintIds, envId, paramOptions, onExecute, onComplete) {
     logger.debug("chef appData: ", JSON.stringify(appData));
     var self = this;
 
