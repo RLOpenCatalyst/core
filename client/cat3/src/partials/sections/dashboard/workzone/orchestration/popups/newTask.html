@@ -70,7 +70,20 @@
 									</select>
 								</span>
 							</div>
-							<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 " ng-show="checkBotStatus">
+							<div class="col-md-6 col-sm-6 col-xs-6 " ng-show="checkBotStatus">
+								<label class="control-label">Catagory
+									<span class="control-label red">&nbsp;*</span>
+									<span ng-show="newTaskForm.botCatagory.$touched && newTaskForm.botCatagory.$invalid" class="inputValidationMsg">required
+									</span>
+								</label>
+								<br />
+								<span class="col-md-12 col-sm-12 col-xs-12 no-padding">
+									<select name="botCatagory" class="form-control" ng-model="botCatagory" ng-required="checkBotStatus" ng-disabled="isEditMode">
+										<option ng-repeat="(key , value) in botCatagoryList" value="{{value}}">{{value}}</option>
+									</select>
+								</span>
+							</div>
+							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" ng-show="checkBotStatus">
 								<label class="control-label">Short Description
 									<span class="control-label red">&nbsp;*</span>
 									<span ng-show="newTaskForm.shortDesc.$touched && newTaskForm.shortDesc.$invalid" class="inputValidationMsg">required

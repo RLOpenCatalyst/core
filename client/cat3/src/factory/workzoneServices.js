@@ -539,6 +539,10 @@
 					var url ='/config-data/tagging-server';
 					return $http.get(fullUrl(url),Auth.getHeaderObject());
 				},
+				getBotCategoryList:function () {
+					var url ='/config-data/category-type';
+					return $http.get(fullUrl(url),Auth.getHeaderObject());
+				},
 				deleteBot: function (taskId) {
 					return $http({
 						method: "delete",

@@ -20,11 +20,14 @@
                     multiSelect :false,
                 },
                 columnDefs: [
-                    { name:'Icon', width:100,field:'botType' ,cellTemplate:'<img src="images/devops-roles/devopsRole3.png" ng-show="row.entity.botType==\'Task\'" alt="row.entity.botType" class="task-type-img" />'+
-                        '<img src="images/devops-roles/devopsRole1.png" ng-show="row.entity.botType==\'Check\'" alt="row.entity.botType" class="task-type-img" />'
+                    { name:'Task Type', width:100,field:'taskType' ,cellTemplate:'<img src="images/orchestration/chef.png" ng-show="row.entity.taskType==\'chef\'" alt="row.entity.taskType" title="Chef" class="task-type-img" />'+
+                        '<img src="images/orchestration/jenkins.png" ng-show="row.entity.taskType==\'jenkins\'" alt="row.entity.taskType" title="Jenkins" class="task-type-img" />'+
+                        '<img src="images/orchestration/script.jpg" ng-show="row.entity.taskType==\'script\'" alt="row.entity.taskType" title="Script" class="task-type-img" />'+
+                        '<img src="images/devops-roles/devopsRole1.png" ng-show="row.entity.blueprintType" alt="row.entity.botType" title="Blueprint" class="task-type-img" />'
                         ,cellTooltip: true},
                     { name: 'bot Type',field:'botType'},
                     { name: 'bot Name',field:'name'},
+                    { name: 'Category',field:'name'},
                     { name: 'description',field:'shortDesc'},
                     { name: 'bot History',cellTemplate:'<span class="btn cat-btn-update control-panel-button" title="History" ng-click="grid.appScope.botLogs(row.entity);"><i class="fa fa-header white"></i></span>'},
                     { name: 'bot Action',cellTemplate:'<span class="btn cat-btn-update control-panel-button" title="Execute" ng-click="grid.appScope.launchInstance(row.entity);"><i class="fa fa-play white"></i></span>' +

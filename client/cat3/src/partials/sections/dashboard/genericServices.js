@@ -235,20 +235,14 @@
                             return task;
                         }
                     }
-                }).result.then(function(selectedItems, selectedCookBooks) {
-                    var choiceParam = {};
-                    var p = selectedItems;
-                    for (var i = 0; i < p.length; i++) {
-                        choiceParam[p[i].name] = p[i].defaultValue[0];
+                }).result.then(function(response) {
+                    genericServices.log(task._id,response.historyId,task.taskType);
+                    if(response.blueprintMessage){
+                        $rootScope.$emit('WZ_INSTANCES_SHOW_LATEST');
                     }
-                    workSvs.runTask(task._id, {
-                        "choiceParam": choiceParam
-                    }).then(function(response) {
-                        helper.orchestrationLogModal(task._id, response.data.historyId, task.taskType);
-                        $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
-                    });
+                    $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
                 }, function() {
-                    console.log("Dismiss at " + new Date());
+                    $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
                 });
             } else {
                 $modal.open({
@@ -305,21 +299,21 @@
                     }, function() {
                         console.log('Cancel Handler getting invoked');
                     });
-                }else{
+                } else {
                     $modal.open({
-                            animate: true,
-                            templateUrl: "src/partials/sections/dashboard/workzone/blueprint/popups/blueprintLaunch.html",
-                            controller: "blueprintLaunchCtrl",
-                            backdrop: 'static',
-                            keyboard: false,
-                            resolve: {
-                                bpItem: function() {
-                                    return bpObj;
-                                }
+                        animate: true,
+                        templateUrl: "src/partials/sections/dashboard/workzone/blueprint/popups/blueprintLaunch.html",
+                        controller: "blueprintLaunchCtrl",
+                        backdrop: 'static',
+                        keyboard: false,
+                        resolve: {
+                            bpItem: function() {
+                                return bpObj;
                             }
-                        })
-                        .result.then(function(selectedItem) {
-                        $scope.selected = selectedItem;
+                        }
+                    })
+                    .result.then(function(selectedItem) {
+                    $scope.selected = selectedItem;
                     }, function() {
 
                     });
