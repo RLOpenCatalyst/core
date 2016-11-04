@@ -1,0 +1,61 @@
+<div id='addJenkinsParamsPage'>
+    <form name="scheduleForm" novalidate>
+    <div class="modal-header">
+        <span class="close" ng-click="sch.cancel()">×</span>
+        <h4 class="modal-title"><i class="fa fa-calendar"></i> Manage Schedule</h4>
+    </div>
+
+    <div class="modal-body">
+
+        <div class="col-lg-6 col-md-6 margintop15">
+            <label>Starts on: <span class="red">*</span>
+            </label>
+            <input required  type="text" ng-model="sch.schedule.startsOn" class="form-control"  >
+        </div>
+        <div class="col-lg-6 col-md-6 margintop15">
+            <label>Ends:
+            </label>
+            <input type="text" ng-model="sch.schedule.ends" class="form-control"  >
+        </div>
+        <div class="col-lg-6 col-md-6 margintop15">
+            <label>Repeats: <span class="red">*</span>
+            </label>
+            <select class="form-control" ng-model="sch.schedule.repeat"  required>
+                <option value="Daily" title="Hourly">Hourly</option>
+                <option value="Daily" title="Daily">Daily</option>
+                <option value="Weekly" title="Weekly">Weekly</option>
+                <option value="Monthly" title="Monthly">Monthly</option>
+                <option value="Yearly" title="Yearly">Yearly</option>
+            </select>
+        </div>
+        <div class="col-lg-6 col-md-6 margintop15">
+            <label>Repeat every: <span class="red">*</span>
+            </label>
+            <select class="form-control" ng-model="sch.schedule.repeatTimes"  required>
+                <option value="1" selected="selected" title="Daily">1</option>
+                <option value="2" title="Daily">2</option>
+                <option value="3" title="Daily">3</option>
+                <option value="4" title="Daily">4</option>
+                <option value="5" title="Daily">5</option>
+                <option value="6" title="Daily">6</option>
+                <option value="7" title="Daily">7</option>
+                <option value="8" title="Daily">8</option>
+                <option value="9" title="Daily">9</option>
+                <option value="10" title="Daily">10</option>
+            </select>
+        </div>
+
+
+        <div class="clearfix"></div>
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn cat-btn-close" ng-click="sch.cancel()">
+            <i class="fa fa-times black"></i> Cancel
+        </button>
+        <button type="button" class="btn cat-btn-update" ng-disabled="scheduleForm.$invalid" ng-click="sch.ok()">
+            <i class="fa fa-check white"></i> Save
+        </button>
+    </div>
+    </form>
+</div>

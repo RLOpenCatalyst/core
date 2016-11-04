@@ -19,6 +19,17 @@
                 </button>
             </span>
 			<span class="pull-right">
+				<span ng-show="selectedInstanceId.length >0">
+					<button type="button" title="Schedule" class="btn btn-xs cat-btn-update" ng-click="scheduleInt()">
+						<i class="fa fa-calendar white"></i>
+					</button>
+					<button type="button" title="Stope" class="btn btn-xs cat-btn-update" ng-click="instanceStop()">
+						Stop
+					</button>
+					<button type="button" title="Start" class="btn btn-xs cat-btn-update" ng-click="instanceStart()">
+						Start
+					</button>
+				</span>
                 <span ng-if="filterBy">
                     <span ng-repeat="chip in filterChips" class="chip"><strong>{{chip.key}}:&nbsp;</strong>{{chip.value}}</span>
                     <span class="chip"><i class="fa fa-fw fa-close black cursor" ng-click="resetFilter()"></i></span>
@@ -103,7 +114,7 @@
         
         <section id="cardView" class="scrollContent" ng-show="isCardViewActive">
 			<div class="card-wrapper" ng-repeat="inst in instanceList" ng-mouseover="overHandler()" ng-mouseout="outHandler()">
-				<div class="card" ng-click="selectCard(inst._id);" ng-class="{'card-border' :inst._id == selectedCard}">
+				<div class="card" ng-click="selectCard(inst._id);" ng-class="{'card-border' :selectedInstanceId.indexOf(inst._id) !== -1}">
 					<div class="card-title">
 						<div class="card-title-role">
 							<img class="instanceRoleLogo" ng-src="{{getRoleLogo(inst)}}" />
@@ -242,7 +253,7 @@
 		<section id="tableView" ng-show="!isCardViewActive">
 			<div class="instance-grid-wrapper">
 				<!-- <loading size="large" name="isinstancesTableLoading" type="block"></loading>-->
-				<div id="grid2" ng-if="tabData.length >0" ui-grid="instancesGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid instance-status" style="height: {{gridHeight}}px"></div>
+				<div id="grid2" ng-if="tabData.length >0" ui-grid="instancesGridOptions" ui-grid-selection ui-grid-pagination ui-grid-auto-resize class="grid instance-status" style="height: {{gridHeight}}px"></div>
 			</div>
 		</section>
 	</div>
