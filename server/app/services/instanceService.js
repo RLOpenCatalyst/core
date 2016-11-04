@@ -56,6 +56,7 @@ var AzureCloud = require('_pr/lib/azure');
 var providerService = require('_pr/services/providerService.js');
 var gcpProviderModel = require('_pr/model/v2.0/providers/gcp-providers');
 var GCP = require('_pr/lib/gcp.js');
+var crontab = require('node-crontab');
 
 
 var instanceService = module.exports = {};
@@ -1476,8 +1477,6 @@ function createOrUpdateInstanceLogs(instance, instanceState, action, user, times
         next(null, routeHostedZoneParamList);
     });
 }
-
-var crontab = require('node-crontab');
 
 function executeScheduleJob(instance) {
     logger.debug("Instance scheduler::::: ");
