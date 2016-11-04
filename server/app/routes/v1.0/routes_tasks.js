@@ -158,13 +158,12 @@ module.exports.setRoutes = function(app, sessionVerification) {
         });
         */
 
-        var attributes = req.body.taskData.attributes;
-        var scriptDetails = req.body.taskData.scriptDetails;
+        var attributes = req.body.attributes;
+        var scriptDetails = req.body.scriptDetails;
         var paramOptions = {
             attributes : attributes,
             scriptDetails : scriptDetails
         };
-
         taskService.executeTask(taskId, user, hostProtocol, choiceParam, appData, paramOptions, function(err, historyData) {
             if (err === 404) {
                 res.status(404).send("Task not found.");
