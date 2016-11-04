@@ -1489,11 +1489,11 @@ function executeScheduleJob(instance) {
         logger.debug("Cron started...");
         if (instance[0] && instance[0].scheduler && instance[0].scheduler.instanceStart && instance[0].scheduler.instanceStart.cron) {
             crontab.cancelJob(instance[0].scheduler.instanceStart.cronJobId);
-            var jobId = crontab.scheduleJob(instance[0].scheduler.instanceStart.cron, function() {
+            var startJobId = crontab.scheduleJob(instance[0].scheduler.instanceStart.cron, function() {
                 logger.debug("Start api called...");
                 startInstance(null, instance);
 
-                instancesDao.updateCronJobId(instance[0], jobId, "start", function(err, updatedData) {
+                instancesDao.updateCronJobId(instance[0], startJobId, "start", function(err, updatedData) {
                     if (err) {
                         logger.error("Failed to update task: ", err);
                     }
@@ -1503,11 +1503,11 @@ function executeScheduleJob(instance) {
 
         if (instance[0] && instance[0].scheduler && instance[0].scheduler.instanceStop && instance[0].scheduler.instanceStop.cron) {
             crontab.cancelJob(instance[0].scheduler.instanceStop.cronJobId);
-            var jobId = crontab.scheduleJob(instance[0].scheduler.instanceStop.cron, function() {
+            var stopJobId = crontab.scheduleJob(instance[0].scheduler.instanceStop.cron, function() {
                 logger.debug("Stop api called...");
                 stopInstance(null, instance);
 
-                instancesDao.updateCronJobId(instance[0], jobId, "stop", function(err, updatedData) {
+                instancesDao.updateCronJobId(instance[0], stopJobId, "stop", function(err, updatedData) {
                     if (err) {
                         logger.error("Failed to update task: ", err);
                     }
@@ -4200,7 +4200,9 @@ function updatedScheduler(instanceId, scheduler, isScheduled, callback) {
                 return callback(err, null);
             }
             if(instance && instance.length){
-                executeScheduleJob(instance);
+                if(isScheduled){
+                    executeScheduleJob(instance);
+                }
             }
         });
         callback(null, updatedResult);
