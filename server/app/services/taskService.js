@@ -89,11 +89,8 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
             return callback(error, null);
         }
         if (task) {
-
             if(task.taskType.CHEF_TASK){
                 paramOptions = paramOptions.attributes;
-            }else if(task.taskType.JENKINS_TASK){
-                paramOptions = paramOptions.parameterized;
             }else if(task.taskType.SCRIPT_TASK) {
                 paramOptions = paramOptions.scriptDetails;
             }
