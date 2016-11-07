@@ -88,6 +88,9 @@ var taskSchema = new Schema({
     botType: {
         type: String
     },
+    botCategory: {
+        type: String
+    },
     description: {
         type: String
     },
@@ -161,7 +164,7 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
         task = new JenkinsTask(this.taskConfig);
         taskHistoryData.jenkinsServerId = this.taskConfig.jenkinsServerId;
         taskHistoryData.jobName = this.taskConfig.jobName;
-        taskHistoryData.parameterized = (!paramOptions) ? this.taskConfig.parameterized : paramOptions;
+        //taskHistoryData.parameterized = (!paramOptions) ? this.taskConfig.parameterized : paramOptions;
     } else if (this.taskType === TASK_TYPE.PUPPET_TASK) {
         task = new PuppetTask(this.taskConfig);
         taskHistoryData.nodeIds = this.taskConfig.nodeIds;
@@ -192,8 +195,8 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
     var taskHistory = null;
     task.orgId = this.orgId;
     task.envId = this.envId;
-    task.execute(userName, baseUrl, choiceParam, appData, blueprintIds, envId, function(err, taskExecuteData, taskHistoryEntry) {
-        if (err) {
+    task.execute(userName, baseUrl, choiceParam, appData, blueprintIds, envId, paramOptions, function(err, taskExecuteData, taskHistoryEntry) {
+      if (err) {
             callback(err, null);
             return;
         }
@@ -281,7 +284,6 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
             taskHistory = new TaskHistory(taskHistoryData);
             taskHistory.save();
         }
-
         callback(null, taskExecuteData, taskHistory);
     }, function(err, status, resultData) {
         self.timestampEnded = new Date().getTime();
@@ -712,6 +714,7 @@ taskSchema.statics.updateTaskById = function(taskId, taskData, callback) {
             taskType: taskData.taskType,
             shortDesc: taskData.shortDesc,
             botType: taskData.botType,
+            botCategory:taskData.botCategory,
             serviceDeliveryCheck:taskData.serviceDeliveryCheck,
             description: taskData.description,
             jobResultURLPattern: taskData.jobResultURL,
