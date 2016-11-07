@@ -98,17 +98,11 @@
 
         $scope.executeTask = function(taskData){
            if (items.taskConfig.taskType === 'jenkins') {
-                var reqBody = {
-                    choiceParam
-                };
+                var reqBody = choiceParam;
             } else if (items.taskConfig.taskType === 'chef'){
-                var reqBody = {
-                    attributes
-                };
+                var reqBody = attributes;
             } else  if (items.taskConfig.taskType === 'script') {
-                var reqBody = {
-                    scriptDetails
-                };
+                var reqBody = scriptDetails;
             }
             workzoneServices.runTask(items._id, reqBody).then(
                 function (response) {
