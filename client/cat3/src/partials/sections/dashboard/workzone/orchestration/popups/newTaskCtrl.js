@@ -22,9 +22,9 @@
 			$scope.scriptSelectAll = false;
 			$scope.scriptParamsObj = {};
 			$scope.isSudo = false;
-			$scope.botCatagoryList = [];
+			$scope.botCategoryList = [];
 			workzoneServices.getBotCategoryList().then(function (catList) {
-	            $scope.botCatagoryList=catList.data;
+	            $scope.botCategoryList=catList.data;
 	        });
 			$scope.toggleAll = function() {
 				var toggleStatus = $scope.isAllSelected;
@@ -268,7 +268,7 @@
 							name: $scope.name,
 							description: $scope.description,
 							botType:$scope.botType,
-							botCatagory: $scope.botCatagory,
+							botCategory: $scope.botCategory,
 						    shortDesc:$scope.shortDesc,
 							serviceDeliveryCheck:$scope.checkBotType
 						};
@@ -440,7 +440,7 @@
 			$scope.shortDesc = "";
 			$scope.taskType = "chef";//default Task type selection;
 			$scope.botType = "Task";//default Bot type selection;
-			$scope.botCatagory = '';
+			$scope.botCategory = 'Active Directory';
 			$scope.isEditMode = false;//default edit mode is false;
 			$scope.taskSaving = false;//to disable submit button, dfault false
 			$scope.autoSync = {
@@ -599,7 +599,7 @@
 					$scope.checkBotStatus = true;
 					$scope.checkBotType = true;
                     $scope.botType = items.botType;
-                    $scope.botCatagory = items.botCatagory;
+                    $scope.botCategory = items.botCategory;
                     $scope.shortDesc = items.shortDesc;
 				}
 				//properties specific to jenkins

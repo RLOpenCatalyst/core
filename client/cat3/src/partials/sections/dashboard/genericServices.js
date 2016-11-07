@@ -170,58 +170,6 @@
             }
         };
 
-        /*genericServices.executeTask =function(task) {
-            if (task.taskConfig.parameterized && task.taskConfig.parameterized.length) {
-                $modal.open({
-                    animation: true,
-                    templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/runParamConfig.html',
-                    controller: 'runParamConfigCtrl',
-                    backdrop: 'static',
-                    keyboard: false,
-                    resolve: {
-                        items: function() {
-                            return angular.extend([], task.taskConfig.parameterized);
-                        }
-                    }
-                }).result.then(function(selectedItems) {
-                    var choiceParam = {};
-                    var p = selectedItems;
-                    for (var i = 0; i < p.length; i++) {
-                        choiceParam[p[i].name] = p[i].defaultValue[0];
-                    }
-                    workSvs.runTask(task._id, {
-                        "choiceParam": choiceParam
-                    }).then(function(response) {
-                        helper.orchestrationLogModal(task._id, response.data.historyId, task.taskType);
-                        $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
-                    });
-                }, function() {
-                    console.log("Dismiss at " + new Date());
-                });
-            } else {
-                $modal.open({
-                    animation: true,
-                    templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/confirmJobRun.html',
-                    controller: 'confirmJobRunCtrl',
-                    backdrop: 'static',
-                    keyboard: false,
-                    resolve: {
-                        items: function() {
-                            return task._id;
-                        }
-                    }
-                }).result.then(function(response) {
-                    genericServices.log(task._id,response.historyId,task.taskType);
-                    if(response.blueprintMessage){
-                        $rootScope.$emit('WZ_INSTANCES_SHOW_LATEST');
-                    }
-                    $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
-                }, function() {
-                    $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
-                });
-            }
-        }*/
-
         genericServices.executeTask =function(task) {
             if ((task.taskConfig.parameterized && task.taskConfig.parameterized.length) || (task.taskConfig.attributes && task.taskConfig.attributes.length) || (task.taskConfig.scriptDetails && task.taskConfig.scriptDetails.length)) {
                 $modal.open({

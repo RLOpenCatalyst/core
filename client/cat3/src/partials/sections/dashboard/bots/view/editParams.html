@@ -39,7 +39,6 @@
 			                <td>
 			                	<input type="text" class="cookbook-edit-text" ng-model="value.default" ng-if="!value.choice.length" />
                                 <select ng-if="value.choice.length" class="cookbook-edit-text" ng-options="choice for choice in value.choice" ng-model="value.default" ng-disabled="!isAttributesEditable"></select>
-                                <!-- <i class="fa fa-info cookbook-edit-info" title="{{value.description}}"></i> -->
 			                </td>
 			            </tr>
 					</tbody>
@@ -51,9 +50,7 @@
 					<thead>
 						<tr>
 							<th class="header-name">Name</th>
-							<!-- <th class="header-name">Type</th> -->
 							<th class="header-name">Value</th>
-							<!-- <th class="header-name">Description</th> -->
 						</tr>
 					</thead>
 					<tbody>
@@ -61,15 +58,9 @@
 			                <td>
 			                	<input type="text" ng-model="params.name" class="form-control">
 			                </td>
-			                <!-- <td>
-			                	<input type="text" ng-model="params.parameterName" class="form-control">
-			                </td> -->
 			                <td>
 			                	<input type="text" ng-model="params.defaultValue" class="form-control">
 			                </td>
-			                <!-- <td>
-			                	<input type="text" ng-model="params.description" class="form-control">
-			                </td> -->
 			            </tr>
 					</tbody>
 				</table>

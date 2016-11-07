@@ -55,7 +55,9 @@
         $scope.scriptparams = items.taskConfig.scriptDetails;
         $scope.parameters=[''];
         var taskData={};
-        var choiceParam = [];
+        var attributes = [];
+        var scriptDetails = [];
+        var choiceParam = {}, key;
         $scope.add = function() {
             $scope.parameters.push('');
         };
@@ -76,18 +78,20 @@
                 }
                 if(checkParam){
                     //$modalInstance.close($scope.parameters);
-                    taskData.scriptDetails = $scope.parameters;
-                    taskData.taggedServer = taggedServer;
+                    scriptDetails = $scope.parameters;
+                    taggedServer = taggedServer;
                 }
             }
             if (items.taskConfig.taskType === 'chef') {
                 //taskJSON.runlist = responseFormatter.formatSelectedChefRunList($scope.chefrunlist);
-                taskData.attributes = responseFormatter.formatSelectedCookbookAttributes($scope.chefattributes);
-                taskData.taggedServer = taggedServer;
+                attributes = responseFormatter.formatSelectedCookbookAttributes($scope.chefattributes);
+                taggedServer = taggedServer;
             }
             if (items.taskConfig.taskType === 'jenkins') {
-                choiceParam = $scope.jenkinsparams;
-                console.log(choiceParam);
+                for(var i=0;i<$scope.jenkinsparams.length;i++){
+                    key = $scope.jenkinsparams[i].name;
+                    choiceParam[key] = $scope.jenkinsparams[i].defaultValue[0];
+                }
             }
             $scope.executeTask(taskData);
         };
@@ -97,9 +101,13 @@
                 var reqBody = {
                     choiceParam
                 };
-            } else {
+            } else if (items.taskConfig.taskType === 'chef'){
                 var reqBody = {
-                    taskData
+                    attributes
+                };
+            } else  if (items.taskConfig.taskType === 'script') {
+                var reqBody = {
+                    scriptDetails
                 };
             }
             workzoneServices.runTask(items._id, reqBody).then(
