@@ -23,7 +23,6 @@ var uniqueValidator = require('mongoose-unique-validator');
 var logger = require('_pr/logger')(module);
 var textSearch = require('mongoose-text-search');
 var apiUtils = require('_pr/lib/utils/apiUtil.js');
-var monitorsModel = require('_pr/model/monitors/monitors.js');
 
 var Schema = mongoose.Schema;
 
@@ -347,11 +346,6 @@ var InstanceSchema = new Schema({
         type: String,
         required: false,
         trim: true
-    },
-    monitorId: {
-        type: String,
-        required: false,
-        trim: true
     }
 });
 
@@ -591,7 +585,7 @@ var InstancesDao = function () {
                     var instanceList = instances.docs;
                     var count = 0;
                     for (var i = 0; i < instanceList.length; i++) {
-                        (function (instance, i) {
+                        (function (instance) {
                             if (instance.taskIds.length > 0) {
                                 tasks.getTaskByIds(instance.taskIds, function (err, tasks) {
                                     if (err) {
@@ -613,29 +607,24 @@ var InstancesDao = function () {
                                         }
                                         ;
                                         instance['tasks'] = taskList;
-                                        getMonitorDetail(instance, function (data) {
-                                            count++;
-                                            instanceList[i] = instance = data;
+                                        count++;
                                             if (instanceList.length === count) {
                                                 instances.docs = instanceList;
                                                 return callback(null, instances);
                                             }
-                                        });
+                                      
 
                                     }
                                 })
                             } else {
-                                getMonitorDetail(instance, function (data) {
-                                    count++;
-                                    instanceList[i] = instance = data;
+                                count++;
                                     if (instanceList.length === count) {
                                         instances.docs = instanceList;
                                         return callback(null, instances);
                                     }
-                                });
 
                             }
-                        })(instanceList[i], i);
+                        })(instanceList[i]);
                     }
                 }
             });
@@ -2221,27 +2210,5 @@ var InstancesDao = function () {
         });
     };
 };
-
-function getMonitorDetail(data, callback) {
-    data = data.toObject();
-    if (data.monitorId) {
-        var monitorId = data.monitorId;
-        delete data['monitorId'];
-        monitorsModel.getById(monitorId, function (err, monitor) {
-            if (err || !monitor) {
-                data.monitor = null;
-            } else {
-                data.monitor = {};
-                data.monitor['id'] = monitor._id;
-                data.monitor['name'] = monitor.name;
-            }
-            callback(data);
-        });
-    } else {
-        delete data['monitorId'];
-        data.monitor = null;
-        callback(data);
-    }
-}
 
 module.exports = new InstancesDao();
