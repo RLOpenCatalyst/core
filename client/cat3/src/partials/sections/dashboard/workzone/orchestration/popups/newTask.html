@@ -49,7 +49,7 @@
 								   <input type="text" name="taskName" class="form-control" required autofocus ng-model="name" maxlength="50" />
 								</span>
 							</div>
-							<div class="col-md-12 col-sm-12 col-xs-12 margintop15">
+							<div class="col-md-12 col-sm-12 col-xs-12 margintop15" ng-hide="taskType === 'composite' || taskType === 'puppet'">
 								<label class="control-label">Add to Service Delivery : </label>
 								<input type="checkbox" class="checkbox-list" ng-model="checkBotType" ng-click="botStatus()"/>
 							</div>

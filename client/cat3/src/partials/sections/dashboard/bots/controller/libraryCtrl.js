@@ -29,7 +29,8 @@
                 { name: 'bot Name',field:'name'},
                 { name: 'Category',field:'botCategory'},
                 { name: 'description',field:'shortDesc'},
-                { name: 'bot History',cellTemplate:'<span class="btn cat-btn-update control-panel-button" title="History" ng-click="grid.appScope.botLogs(row.entity);"><i class="fa fa-header white"></i></span>'},
+                { name: 'bot History',cellTemplate:'<span ng-show="row.entity.blueprintType">NA</span>'+
+                        '<span class="btn cat-btn-update control-panel-button" title="History" ng-show="row.entity.taskType" ng-click="grid.appScope.botLogs(row.entity);"><i class="fa fa-header white"></i></span>'},
                 { name: 'bot Action',cellTemplate:'<span class="btn cat-btn-update control-panel-button" title="Execute" ng-click="grid.appScope.launchInstance(row.entity);"><i class="fa fa-play white"></i></span>' +
                     '<span class="btn btn-danger control-panel-button" title="Delete" ng-click="grid.appScope.deleteBot(row.entity);"><i class="fa fa-trash-o white"></i></span>'}
             ],
@@ -57,23 +58,16 @@
             };
             confirmbox.showModal({}, modalOptions).then(function() {
                 workzoneServices.deleteBot(bot._id).then(function(response) {
-                    if (response.data.deleteCount.ok) {
+                    if (response) {
                         toastr.success('Successfully deleted');
-                        $scope.removeTask();
+                        lib.init();
                     }
                 }, function(data) {
                     toastr.error('error:: ' + data.toString());
                 });
             });
         };
-        $scope.removeTask = function() {
-            /*need to set the totalItems(less) when there is only 1 task available. Need to repaint
-            the grid on delete.*/
-            $scope.gridOptions.totalItems = $scope.gridOptions.totalItems -1;
-            $timeout(function() {
-                //$scope.taskListGridView();
-            },100);
-        }
+
         lib.init =function(){
             lib.gridOptions.data=[];
             var param={
