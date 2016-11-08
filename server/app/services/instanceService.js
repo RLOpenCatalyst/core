@@ -79,7 +79,7 @@ instanceService.instanceSyncWithAWS = instanceSyncWithAWS;
 instanceService.startInstance = startInstance;
 instanceService.stopInstance = stopInstance;
 instanceService.executeScheduleJob = executeScheduleJob;
-instanceService.updatedScheduler = updatedScheduler;
+instanceService.updateScheduler = updateScheduler;
 
 function checkIfUnassignedInstanceExists(providerId, instanceId, callback) {
     unassignedInstancesModel.getById(instanceId,
@@ -1481,14 +1481,14 @@ function createOrUpdateInstanceLogs(instance, instanceState, action, user, times
 function executeScheduleJob(instance) {
     logger.debug("Instance scheduler::::: ");
     var cronEnd = new Date().getDate() + " " + new Date().getMonth() + " " + new Date().getFullYear();
-    if (instance[0].scheduler && instance[0].scheduler.cronEndedOn === cronEnd) {
-        crontab.cancelJob(instance[0].scheduler.instanceStart.cronJobId);
-        crontab.cancelJob(instance[0].scheduler.instanceStop.cronJobId);
+    if (instance[0] && instance[0].cronEndedOn === cronEnd) {
+        crontab.cancelJob(instance[0].instanceStart.cronJobId);
+        crontab.cancelJob(instance[0].instanceStop.cronJobId);
     } else {
         logger.debug("Cron started...");
-        if (instance[0] && instance[0].scheduler && instance[0].scheduler.instanceStart && instance[0].scheduler.instanceStart.cron) {
-            crontab.cancelJob(instance[0].scheduler.instanceStart.cronJobId);
-            var startJobId = crontab.scheduleJob(instance[0].scheduler.instanceStart.cron, function() {
+        if (instance[0] && instance[0].instanceStart && instance[0].instanceStart.cron) {
+            crontab.cancelJob(instance[0].instanceStart.cronJobId);
+            var startJobId = crontab.scheduleJob(instance[0].instanceStart.cron, function() {
                 logger.debug("Start api called...");
                 startInstance(null, instance);
 
@@ -1500,9 +1500,9 @@ function executeScheduleJob(instance) {
             });
         }
 
-        if (instance[0] && instance[0].scheduler && instance[0].scheduler.instanceStop && instance[0].scheduler.instanceStop.cron) {
-            crontab.cancelJob(instance[0].scheduler.instanceStop.cronJobId);
-            var stopJobId = crontab.scheduleJob(instance[0].scheduler.instanceStop.cron, function() {
+        if (instance[0] && instance[0].instanceStop && instance[0].instanceStop.cron) {
+            crontab.cancelJob(instance[0].instanceStop.cronJobId);
+            var stopJobId = crontab.scheduleJob(instance[0].instanceStop.cron, function() {
                 logger.debug("Stop api called...");
                 stopInstance(null, instance);
 
@@ -4187,8 +4187,8 @@ function stopInstance(req, data, callback) {
     }
 }
 
-function updatedScheduler(instanceId, scheduler, isScheduled, callback) {
-    instancesDao.updatedScheduler(instanceId, scheduler, isScheduled, function(err, updatedResult) {
+function updateScheduler(instanceId, scheduler, isScheduled, callback) {
+    instancesDao.updateScheduler(instanceId, scheduler, isScheduled, function(err, updatedResult) {
         if (err) {
             logger.error("Failed to Update Instance: ", err);
             return callback(err, null);

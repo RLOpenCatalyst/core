@@ -3264,11 +3264,11 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             }   
      */
 
-    app.put('/instances/:instanceId/scheduler/update', function(req, res) {
-        var scheduler = req.body.scheduler;
+    app.put('/instances/:instanceId/schedule', function(req, res) {
+        var scheduler = req.body;
         var isScheduled = req.body.isScheduled;
         if (scheduler) {
-            instanceService.updatedScheduler(req.params.instanceId, scheduler, isScheduled, function(err, updatedResult) {
+            instanceService.updateScheduler(req.params.instanceId, scheduler, isScheduled, function(err, updatedResult) {
                 if (err) {
                     logger.error("Failed to update scheduler: ", err);
                     return res.status(500).send("Failed to update scheduler.");

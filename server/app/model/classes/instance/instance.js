@@ -347,25 +347,23 @@ var InstanceSchema = new Schema({
         required: false,
         trim: true
     },
-    scheduler: {
-        instanceStart: {
-            cron: String,
-            startOn: String,
-            endOn: String,
-            repeats: String,
-            repeatEvery: Number,
-            cronJobId: String
-        },
-        instanceStop: {
-            cron: String,
-            stopOn: String,
-            endOn: String,
-            repeats: String,
-            repeatEvery: Number,
-            cronJobId: String
-        },
-        cronEndedOn: String
+    instanceStart: {
+        cron: String,
+        startOn: String,
+        endOn: String,
+        repeats: String,
+        repeatEvery: Number,
+        cronJobId: String
     },
+    instanceStop: {
+        cron: String,
+        stopOn: String,
+        endOn: String,
+        repeats: String,
+        repeatEvery: Number,
+        cronJobId: String
+    },
+    cronEndedOn: String,
     isScheduled: Boolean
 });
 
@@ -2236,25 +2234,23 @@ var InstancesDao = function() {
                             "_id": new ObjectId(instance._id),
                         }, {
                             $set: {
-                                scheduler: {
-                                    instanceStart: {
-                                        cron: anInstance[0].scheduler.instanceStart.cron,
-                                        startOn: anInstance[0].scheduler.instanceStart.startOn,
-                                        endOn: anInstance[0].scheduler.instanceStart.endOn,
-                                        repeats: anInstance[0].scheduler.instanceStart.repeats,
-                                        repeatEvery: anInstance[0].scheduler.instanceStart.repeatEvery,
-                                        cronJobId: jobId
-                                    },
-                                    instanceStop: {
-                                        cron: anInstance[0].scheduler.instanceStop.cron,
-                                        stopOn: anInstance[0].scheduler.instanceStop.stopOn,
-                                        endOn: anInstance[0].scheduler.instanceStop.endOn,
-                                        repeats: anInstance[0].scheduler.instanceStop.repeats,
-                                        repeatEvery: anInstance[0].scheduler.instanceStop.repeatEvery,
-                                        cronJobId: anInstance[0].scheduler.instanceStop.cronJobId
-                                    },
-                                    cronEndedOn: anInstance[0].scheduler.cronEndedOn
-                                }
+                                instanceStart: {
+                                    cron: anInstance[0].instanceStart.cron,
+                                    startOn: anInstance[0].instanceStart.startOn,
+                                    endOn: anInstance[0].instanceStart.endOn,
+                                    repeats: anInstance[0].instanceStart.repeats,
+                                    repeatEvery: anInstance[0].instanceStart.repeatEvery,
+                                    cronJobId: jobId
+                                },
+                                instanceStop: {
+                                    cron: anInstance[0].instanceStop.cron,
+                                    stopOn: anInstance[0].instanceStop.stopOn,
+                                    endOn: anInstance[0].instanceStop.endOn,
+                                    repeats: anInstance[0].instanceStop.repeats,
+                                    repeatEvery: anInstance[0].instanceStop.repeatEvery,
+                                    cronJobId: anInstance[0].instanceStop.cronJobId
+                                },
+                                cronEndedOn: anInstance[0].cronEndedOn
                             }
                         }, {
                             upsert: false
@@ -2270,25 +2266,23 @@ var InstancesDao = function() {
                             "_id": new ObjectId(instance._id),
                         }, {
                             $set: {
-                                scheduler: {
-                                    instanceStop: {
-                                        cron: anInstance[0].scheduler.instanceStop.cron,
-                                        stopOn: anInstance[0].scheduler.instanceStop.stopOn,
-                                        endOn: anInstance[0].scheduler.instanceStop.endOn,
-                                        repeats: anInstance[0].scheduler.instanceStop.repeats,
-                                        repeatEvery: anInstance[0].scheduler.instanceStop.repeatEvery,
-                                        cronJobId: jobId
-                                    },
-                                    instanceStart: {
-                                        cron: anInstance[0].scheduler.instanceStart.cron,
-                                        startOn: anInstance[0].scheduler.instanceStart.startOn,
-                                        endOn: anInstance[0].scheduler.instanceStart.endOn,
-                                        repeats: anInstance[0].scheduler.instanceStart.repeats,
-                                        repeatEvery: anInstance[0].scheduler.instanceStart.repeatEvery,
-                                        cronJobId: anInstance[0].scheduler.instanceStart.cronJobId
-                                    },
-                                    cronEndedOn: anInstance[0].scheduler.cronEndedOn
-                                }
+                                instanceStop: {
+                                    cron: anInstance[0].instanceStop.cron,
+                                    stopOn: anInstance[0].instanceStop.stopOn,
+                                    endOn: anInstance[0].instanceStop.endOn,
+                                    repeats: anInstance[0].instanceStop.repeats,
+                                    repeatEvery: anInstance[0].instanceStop.repeatEvery,
+                                    cronJobId: jobId
+                                },
+                                instanceStart: {
+                                    cron: anInstance[0].instanceStart.cron,
+                                    startOn: anInstance[0].instanceStart.startOn,
+                                    endOn: anInstance[0].instanceStart.endOn,
+                                    repeats: anInstance[0].instanceStart.repeats,
+                                    repeatEvery: anInstance[0].instanceStart.repeatEvery,
+                                    cronJobId: anInstance[0].instanceStart.cronJobId
+                                },
+                                cronEndedOn: anInstance[0].cronEndedOn
                             }
                         }, {
                             upsert: false
@@ -2308,7 +2302,7 @@ var InstancesDao = function() {
     };
 
     this.getScheduledInstances = function(callback) {
-        Instances.find({ isScheduled: true ,instanceState:{$ne: 'terminated'}}, function(err, instances) {
+        Instances.find({ isScheduled: true, instanceState: { $ne: 'terminated' } }, function(err, instances) {
             if (err) {
                 return callback(err, null);
             }
@@ -2316,12 +2310,14 @@ var InstancesDao = function() {
         })
     }
 
-    this.updatedScheduler = function(instanceId, scheduler, isScheduled, callback) {
+    this.updateScheduler = function(instanceId, scheduler, isScheduled, callback) {
         Instances.update({
             "_id": ObjectId(instanceId)
         }, {
             $set: {
-                scheduler: scheduler,
+                instanceStart: scheduler.instanceStart,
+                instanceStop: scheduler.instanceStop,
+                cronEndedOn: scheduler.cronEndedOn,
                 isScheduled: isScheduled
             }
         }, function(err, data) {
