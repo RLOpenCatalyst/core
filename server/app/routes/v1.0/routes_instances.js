@@ -3210,31 +3210,29 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
     /**
-     * @api {put} /instances/:instanceId/scheduler/update  Update Scheduler for instance
-     * @apiName updatedScheduler
-     * @apiGroup scheduler
+     * @api {put} /instances/:instanceId/schedule  Update Scheduler for instance
+     * @apiName updateScheduler
+     * @apiGroup schedule
      *
      * @apiParam {String} instanceId                            Instance ID
      * @apiParam {Boolean} isScheduled                          To identify instance is scheduled or not
-     * @apiParam {Object} scheduler                             scheduler object in request body
-     * @apiParam {String} scheduler.cronEndedOn                 Date to stop scheduler
-     * @apiParam {Object} scheduler.instanceStart               instanceStart object in request body
-     * @apiParam {String} scheduler.instanceStart.cron          start cron pattern
-     * @apiParam {String} scheduler.instanceStart.startOn       date to start scheduler
-     * @apiParam {String} scheduler.instanceStart.endOn         end date to start scheduler
-     * @apiParam {String} scheduler.instanceStart.repeats       repeat start scheduler
-     * @apiParam {Number} scheduler.instanceStart.repeatEvery   interval to repeat start scheduler
+     * @apiParam {String} cronEndedOn                 Date to stop scheduler
+     * @apiParam {Object} instanceStart               instanceStart object in request body
+     * @apiParam {String} instanceStart.cron          start cron pattern
+     * @apiParam {String} instanceStart.startOn       date to start scheduler
+     * @apiParam {String} instanceStart.endOn         end date to start scheduler
+     * @apiParam {String} instanceStart.repeats       repeat start scheduler
+     * @apiParam {Number} instanceStart.repeatEvery   interval to repeat start scheduler
 
-     * @apiParam {Object} scheduler.instanceStop               instanceStop object in request body
-     * @apiParam {String} scheduler.instanceStop.cron          stop cron pattern
-     * @apiParam {String} scheduler.instanceStop.startOn       date to stop scheduler
-     * @apiParam {String} scheduler.instanceStop.endOn         end date to stop scheduler
-     * @apiParam {String} scheduler.instanceStop.repeats       repeat stop scheduler
-     * @apiParam {Number} scheduler.instanceStop.repeatEvery   interval to repeat stop scheduler
+     * @apiParam {Object} instanceStop               instanceStop object in request body
+     * @apiParam {String} instanceStop.cron          stop cron pattern
+     * @apiParam {String} instanceStop.startOn       date to stop scheduler
+     * @apiParam {String} instanceStop.endOn         end date to stop scheduler
+     * @apiParam {String} instanceStop.repeats       repeat stop scheduler
+     * @apiParam {Number} instanceStop.repeatEvery   interval to repeat stop scheduler
      
      * @apiParamExample {json} Request-Example:
-     *  {
-            "scheduler": {
+     *      {
                 "instanceStart": {
                     "cron": "String",
                     "startOn": "String",
@@ -3249,10 +3247,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     "repeats": "String",
                     "repeatEvery": Number
                 },
-                "cronEndedOn": "String"
-            },
-            "isScheduled": Boolean
-        }
+                "cronEndedOn": "String",
+                "isScheduled": Boolean
+            }
      *
      
      * @apiSuccess {String} message    success response
