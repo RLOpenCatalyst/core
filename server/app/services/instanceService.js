@@ -4204,6 +4204,6 @@ function updatedScheduler(instanceId, scheduler, isScheduled, callback) {
                 }
             }
         });
-        callback(null, updatedResult);
+        callback(null, {"message": "Scheduler Updated."});
     });
 }

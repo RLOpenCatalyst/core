@@ -3209,7 +3209,62 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     });
 
-    app.post('/instances/:instanceId/scheduler/update', function(req, res) {
+    /**
+     * @api {put} /instances/:instanceId/scheduler/update  Update Scheduler for instance
+     * @apiName updatedScheduler
+     * @apiGroup scheduler
+     *
+     * @apiParam {String} instanceId                            Instance ID
+     * @apiParam {Boolean} isScheduled                          To identify instance is scheduled or not
+     * @apiParam {Object} scheduler                             scheduler object in request body
+     * @apiParam {String} scheduler.cronEndedOn                 Date to stop scheduler
+     * @apiParam {Object} scheduler.instanceStart               instanceStart object in request body
+     * @apiParam {String} scheduler.instanceStart.cron          start cron pattern
+     * @apiParam {String} scheduler.instanceStart.startOn       date to start scheduler
+     * @apiParam {String} scheduler.instanceStart.endOn         end date to start scheduler
+     * @apiParam {String} scheduler.instanceStart.repeats       repeat start scheduler
+     * @apiParam {Number} scheduler.instanceStart.repeatEvery   interval to repeat start scheduler
+
+     * @apiParam {Object} scheduler.instanceStop               instanceStop object in request body
+     * @apiParam {String} scheduler.instanceStop.cron          stop cron pattern
+     * @apiParam {String} scheduler.instanceStop.startOn       date to stop scheduler
+     * @apiParam {String} scheduler.instanceStop.endOn         end date to stop scheduler
+     * @apiParam {String} scheduler.instanceStop.repeats       repeat stop scheduler
+     * @apiParam {Number} scheduler.instanceStop.repeatEvery   interval to repeat stop scheduler
+     
+     * @apiParamExample {json} Request-Example:
+     *  {
+            "scheduler": {
+                "instanceStart": {
+                    "cron": "String",
+                    "startOn": "String",
+                    "endOn": "String",
+                    "repeats": "String",
+                    "repeatEvery": Number
+                },
+                "instanceStop": {
+                    "cron": "String",
+                    "stopOn": "String",
+                    "endOn": "String",
+                    "repeats": "String",
+                    "repeatEvery": Number
+                },
+                "cronEndedOn": "String"
+            },
+            "isScheduled": Boolean
+        }
+     *
+     
+     * @apiSuccess {String} message    success response
+     *
+     * @apiSuccessExample {json} Success-Response:
+     *      HTTP/1.1 200 OK
+     *      {
+                "message": "Scheduler Updated."
+            }   
+     */
+
+    app.put('/instances/:instanceId/scheduler/update', function(req, res) {
         var scheduler = req.body.scheduler;
         var isScheduled = req.body.isScheduled;
         if (scheduler) {
