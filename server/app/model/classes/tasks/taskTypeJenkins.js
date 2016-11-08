@@ -46,7 +46,7 @@ var jenkinsTaskSchema = taskTypeSchema.extend({
 });
 
 // Instance Method :- run task
-jenkinsTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexusData, blueprintIds, envId, paramOptions, onExecute, onComplete) {
+jenkinsTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexusData, blueprintIds, envId, onExecute, onComplete) {
     logger.debug("Choice Param in::: ", choiceParam);
     var self = this;
     // For now removed blueprint launch via jenkins, later will use this

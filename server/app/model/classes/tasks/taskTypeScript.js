@@ -52,7 +52,7 @@ scriptTaskSchema.methods.getNodes = function() {
     return this.nodeIds;
 };
 
-scriptTaskSchema.methods.execute = function (userName, baseUrl, choiceParam, nexusData, blueprintIds, envId, paramOptions, onExecute, onComplete) {
+scriptTaskSchema.methods.execute = function (userName, baseUrl, choiceParam, nexusData, blueprintIds, envId, onExecute, onComplete) {
 	var self = this;
 	var instanceIds = this.nodeIds;
 	var sudoFlag = this.isSudo;
@@ -146,7 +146,11 @@ scriptTaskSchema.methods.execute = function (userName, baseUrl, choiceParam, nex
 									return;
 								} else {
 									if (scripts.type === 'Bash') {
-										executeBashScript(scripts, sshOptions, logsReferenceIds, script.scriptParameters,instanceLog);
+										var params = script.scriptParameters;
+										if(self.botParams && self.botParams.scriptParams) {
+											params = self.botParams.scriptParams;
+										}
+										executeBashScript(scripts, sshOptions, logsReferenceIds, params,instanceLog);
 									} else {
 										return;
 									}

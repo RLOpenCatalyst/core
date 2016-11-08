@@ -99,7 +99,9 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
             if (task.blueprintIds && task.blueprintIds.length) {
                 blueprintIds = task.blueprintIds;
             }
-            task.execute(user, hostProtocol, choiceParam, appData, blueprintIds, task.envId, paramOptions, function(err, taskRes, historyData) {
+            console.log(paramOptions);
+            task.botParams = paramOptions;
+            task.execute(user, hostProtocol, choiceParam, appData, blueprintIds, task.envId, function(err, taskRes, historyData) {
                 if (err) {
                     var error = new Error('Failed to execute task.');
                     error.status = 500;

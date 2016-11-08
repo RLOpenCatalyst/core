@@ -57,7 +57,7 @@ chefTaskSchema.methods.getNodes = function() {
 };
 
 // Instance Method :- run task
-chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, blueprintIds, envId, paramOptions, onExecute, onComplete) {
+chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, blueprintIds, envId, onExecute, onComplete) {
     logger.debug("chef appData: ", JSON.stringify(appData));
     var self = this;
 
@@ -192,8 +192,12 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
         //merging attributes Objects
         var attributeObj = {};
         var objectArray = [];
-        for (var i = 0; i < self.attributes.length; i++) {
-            objectArray.push(self.attributes[i].jsonObj);
+        var attr = self.attributes;
+        if (self.botParams && self.botParams.cookbookAttributes) {
+            attr = self.botParams.cookbookAttributes;
+        }
+        for (var i = 0; i < attr.length; i++) {
+            objectArray.push(attr[i].jsonObj);
         }
 
         var instanceIds = this.nodeIds;
