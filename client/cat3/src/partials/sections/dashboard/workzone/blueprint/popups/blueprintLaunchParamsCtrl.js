@@ -17,7 +17,7 @@
 			};
 			var bPLP=this;
 			$scope.taggingServerList=[];
-			$scope.envOptions=[]
+			$scope.envOptions=[];
 			workzoneServices.getTaggingServer().then(function (topSer) {
 				$scope.taggingServerList=topSer.data;
 			});
