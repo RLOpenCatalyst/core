@@ -546,7 +546,7 @@
 				deleteBot: function (taskId) {
 					return $http({
 						method: "delete",
-						url: fullUrl('/tasks/serviceDelivery/?serviceDeliveryCheck=false/' + taskId),
+						url: fullUrl('/tasks/serviceDelivery/' + taskId),
 						async: false
 					});
 				}

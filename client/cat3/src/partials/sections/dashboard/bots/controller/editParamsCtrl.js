@@ -121,26 +121,6 @@
             );
         };
 
-        $scope.deleteBot = function(botObj) {
-            var modalOptions = {
-                closeButtonText: 'Cancel',
-                actionButtonText: 'Delete',
-                actionButtonStyle: 'cat-btn-delete',
-                headerText: 'Delete Bot',
-                bodyText: 'Are you sure you want to delete this Bot?'
-            };
-            confirmbox.showModal({}, modalOptions).then(function() {
-                workzoneServices.deleteBot(botObj._id).then(function(response) {
-                    if (response.data.deleteCount.ok) {
-                        toastr.success('Successfully deleted');
-                        //helper.removeTask();
-                    }
-                }, function(data) {
-                    toastr.error('error:: ' + data.toString());
-                });
-            });
-        }
-
         $scope.cancel= function() {
             $modalInstance.dismiss('cancel');
         };
