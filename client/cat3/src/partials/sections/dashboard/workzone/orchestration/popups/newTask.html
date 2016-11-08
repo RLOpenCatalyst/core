@@ -110,8 +110,23 @@
 								</span>
 							</div>
 							<!--for script adding the scriptType dropdown -->
+							<!--job execution details-->
+							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 margintop15" ng-if="taskType==='chef' || taskType==='script'">
+								<span class="pull-left">
+									<label class="control-label">Job Execution</label>
+								</span>
+								<div class="jenkins-auto-sync-radio">
+									<input type="radio" name="parallelCheck" value="PARALLEL" ng-model="isExecution.flag">
+									<label class="lable-align">Parallel</label>
+								</div>
+								<div class="jenkins-auto-sync-radio">
+									<input  class="marginleft15" type="radio" ng-model="isExecution.flag" name="serialCheck" value="SERIAL">
+									<label class="lable-align">Serial</label>
+								</div>
+							</div>
+							<!--job execution details ends here-->
 							<!--commented will be used in future-->
-							<div class="col-md-12 col-sm-12 col-xs-12 margintop15" ng-if="taskType==='script'">
+							<div class="col-md-12 col-sm-12 col-xs-12" ng-if="taskType==='script'">
 								<div class="col-md-6 col-sm-6 col-xs-6 margintop15 no-padding">
 									<label class="control-label">Script Type
 										<span class="control-label red">&nbsp;*</span>
@@ -137,23 +152,8 @@
 									</div>
 								</div>
 							</div>
-							<!--chef execution details-->
-							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 margintop15" ng-if="taskType==='chef'">
-								<div class="jenkins-job-parameter-text">
-									<label class="lable-align">Job Execution</label>
-								</div>
-								<div class="jenkins-auto-sync-radio">
-									<input type="radio" name="parallelCheck" value="PARALLEL" ng-model="isExecution.flag">
-									<label class="lable-align">Parallel</label>
-								</div>
-								<div class="jenkins-auto-sync-radio">
-									<input  class="marginleft15" type="radio" ng-model="isExecution.flag" name="serialCheck" value="SERIAL">
-									<label class="lable-align">Serial</label>
-								</div>
-							</div>
-							<!--chef execution details ends here-->
 							<!--scriptType ending here -->
-							<div class="col-lg-12 col-md-12col-sm-12 col-xs-12 margintop15">
+							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 margintop15">
 								<label class="control-label">Job Description</label>
 								<textarea id="chefDescription" rows="9" cols="15" name="description" ng-model="description"></textarea>
 							</div>
@@ -203,7 +203,7 @@
 											</label>
 										</div>
 										<div class="clearfix"></div>
-										<div class="select-nodes">
+										<div class="select-nodeInstance">
 											<!-- <ul ng-show="targetType==='instance'">
 												<li ng-repeat="instance in chefInstanceList" ng-show="instance.instanceState=='running' || instance.instanceState=='unknown' || instance.instanceState=='pending'">
 													<label class="checkbox check-list">
@@ -219,7 +219,7 @@
 													<span>Assigned Instances</span>
 												</div>
 											
-												<div id="component_for_instances">
+												<div class="component_for_instances">
 													<!-- Here HTML snippet will be append through chef component-->
 												</div>
 											</div>
@@ -359,10 +359,20 @@
 									</tbody>
 								</table>
 							</div>
-							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-								<div class="jenkins-job-parameter-text">
-									<label class="lable-align">This Job is parameterized</label>
-								</div>
+							<span class="col-lg-5 col-md-5 col-sm-5 col-xs-10 margintop7">
+								<label>
+									<input type="checkbox" ng-checked="_isEventSelected" ng-model="_isEventSelected" ng-change="selectTaskCheckbox()" class="checkbox-list"/>&nbsp;Schedule a Task&nbsp;
+								</label>
+								<i class="fa fa-plus-circle cursor" ng-show="showAddTask" title="Add Task" ng-click="addTaskEvent('new')"></i>
+								<input type="text" ng-show="isEventAvailable" class="form-control" disabled ng-model="cronPattern"/>
+							</span>
+							<span class="col-lg-1 col-md-1 col-sm-1 col-xs-1 margintop7">
+								<i class="fa fa-question-circle" title="This is a cron job interval pattern. Based on the pattern formed the cron job will get executed."></i>
+							</span>
+							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 margintop7">
+								<span class="pull-left">
+									<label class="control-label">This Job is parameterized</label>
+								</span>
 								<div class="jenkins-auto-sync-radio">
 									<input type="radio" name="paramCheck" ng-value="true" ng-model="isParameterized.flag">
 									<label class="lable-align">Yes</label>
@@ -460,27 +470,46 @@
 							</header>
 							<div class="jobDetailsContent">
 								<div class="chef-details-top">
-									<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 script-task">
+									<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 script-task">
 										<loading name="isScriptNodesLoading" size="medium" type="block" align="left"></loading>
 										<div class="row margin0" ng-show="!isScriptNodesLoading">
 											<div class="radio-instances col-lg-6 no-padding">
 												<input type="radio" name="nodesSpecification" id="rdInstance" value="instance" ng-model="targetType" />
 												<label for="rdInstance" class="lable-align">Nodes</label>
 											</div>
-											<label class="checkbox check-list checkboxStyling">
-												Select All : &nbsp;<input  type="checkbox" class="checkbox-list checkboxall-right" ng-click="toggleAllScriptInstance()" ng-model="$parent.isAllInstanceScriptSelected" title="Select All ">
-											</label>
 										</div>
 
-										<div class="select-nodes">
+										<div class="select-nodeInstance">
 											<!-- <loading name="isScriptInstanceLoading" size="large" type="block" align="center"></loading> -->
-											<ul ng-show="targetType==='instance'">
+											<!-- <ul ng-show="targetType==='instance'">
 												<li ng-repeat="instance in chefInstanceList" ng-show="instance.instanceState=='running' || instance.instanceState=='unknown' || instance.instanceState=='pending'">
 													<label class="checkbox check-list">
 														<input type="checkbox" ng-change="optionInstanceToggled()" ng-checked="instance._isNodeSelected" ng-model="instance._isNodeSelected" class="checkbox-list">{{instance.name}}
 													</label>
 												</li>
-											</ul>
+											</ul> -->
+											<div class="section-headings" ng-show="targetType==='instance'">
+												<div class="col-lg-5 col-md-5 col-sm-6 col-xs-12 text-center paddingtopbottom10">
+													<span>Instance List</span>
+												</div>
+												<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 text-center paddingtopbottom10 assigned-tasks">
+													<span>Assigned Instances</span>
+												</div>
+											
+												<div class="component_for_instances">
+													<!-- Here HTML snippet will be append through chef component-->
+												</div>
+											</div>
+											<span class="col-lg-5 col-md-5 col-sm-5 col-xs-10 margintop7">
+												<label>
+													<input type="checkbox" ng-checked="_isEventSelected" ng-model="_isEventSelected" ng-change="selectTaskCheckbox()" class="checkbox-list"/>&nbsp;Schedule a Task&nbsp;
+												</label>
+												<i class="fa fa-plus-circle cursor" ng-show="showAddTask" title="Add Task" ng-click="addTaskEvent('new')"></i>
+												<input type="text" ng-show="isEventAvailable" class="form-control" disabled ng-model="cronPattern"/>
+											</span>
+											<span class="col-lg-1 col-md-1 col-sm-1 col-xs-1 margintop7">
+												<i class="fa fa-question-circle" title="This is a cron job interval pattern. Based on the pattern formed the cron job will get executed."></i>
+											</span>
 										</div>
 									</div>
 									<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
@@ -504,15 +533,15 @@
 										</div>
 									</div>
 									<!--for showing the radio buttons for script params-->
-									<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" ng-show="scriptParamShow">
+									<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6" ng-show="scriptParamShow">
 
-										<div class="jenkins-job-parameter-text">
+										<div class="col-lg-12 no-padding">
 											<span class="lable-align"><b>{{selectedScript.name}}</b>&nbsp;Parameters</span>
 											<i class="fa fa-plus-circle cursor" title="Add Script Parameters" ng-click="addScriptParams(selectedScript)"></i>
 										</div>
 										<!--script params ends here-->
 										<!--table for adding the script params starts here-->
-										<div class="col-lg-12 col-md-12 add-parameters">
+										<div class="col-lg-12 col-md-12 add-parameters margintop7">
 											<table class="table table-striped table-bordered table-hover dataTable no-footer">
 												<thead>
 												<tr class="rowCustomStyle" role="row">

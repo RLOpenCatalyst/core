@@ -559,7 +559,8 @@ taskSchema.statics.createNew = function(taskData, callback) {
             nodeIds: taskData.nodeIds,
             scriptTypeName: taskData.scriptTypeName,
             scriptDetails: taskData.scriptDetails,
-            isSudo: taskData.isSudo
+            isSudo: taskData.isSudo,
+            executionOrder: taskData.executionOrder
         });
     } else {
         callback({
@@ -764,7 +765,8 @@ taskSchema.statics.updateTaskById = function(taskId, taskData, callback) {
             nodeIds: taskData.nodeIds,
             scriptTypeName: taskData.scriptTypeName,
             scriptDetails: taskData.scriptDetails,
-            isSudo: taskData.isSudo
+            isSudo: taskData.isSudo,
+            executionOrder: taskData.executionOrder
         });
     } else {
         callback({

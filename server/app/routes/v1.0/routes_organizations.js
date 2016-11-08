@@ -509,6 +509,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                                                             tooltip: envNames[r],
                                                                                                             icon: 'fa fa-fw fa-1x fa-desktop'
                                                                                                         });
+                                                                                                        if(tree && tree.environments)
                                                                                                         tree.environments.push(envNames[r]);
                                                                                                         tree.businessGroups[0].projects[p].environments.push(envIds[r]);
                                                                                                     } else {

@@ -22,7 +22,7 @@
 			$scope.scriptSelectAll = false;
 			$scope.isEventAvailable = false;
 			$scope.scriptParamsObj = {};
-			$scope.chefTaskObj = {};
+			$scope.chefJenkScriptTaskObj = {};
 			$scope.cronDetails = {};
 			$scope.type = 'new';
 			$scope.showAddTask = false;
@@ -267,23 +267,23 @@
 						resolve: {
 							items: function () {
 								return {
-									chefTaskObj:$scope.chefTaskObj,
+									chefJenkScriptTaskObj:$scope.chefJenkScriptTaskObj,
 									type:$scope.type
 								}
 							}
 						}
 					}).result.then(function (chefEventDetails) {
 						$scope.isEventAvailable = true;
-						$scope.chefTaskObj = chefEventDetails;
+						$scope.chefJenkScriptTaskObj = chefEventDetails;
 						var startTimeMinute,startTimeHour,dayOfWeek,selectedDayOfTheMonth,selectedMonth;
-						startTimeMinute = $scope.chefTaskObj.startTimeMinute;
-						startTimeHour = $scope.chefTaskObj.startTime;
-						dayOfWeek = $scope.chefTaskObj.dayOfWeek;
-						selectedDayOfTheMonth = $scope.chefTaskObj.selectedDayOfTheMonth;
-						selectedMonth = $scope.chefTaskObj.monthOfYear;
+						startTimeMinute = $scope.chefJenkScriptTaskObj.startTimeMinute;
+						startTimeHour = $scope.chefJenkScriptTaskObj.startTime;
+						dayOfWeek = $scope.chefJenkScriptTaskObj.dayOfWeek;
+						selectedDayOfTheMonth = $scope.chefJenkScriptTaskObj.selectedDayOfTheMonth;
+						selectedMonth = $scope.chefJenkScriptTaskObj.monthOfYear;
 						$scope.type = 'edit';
 						$scope._isEventSelected = true;
-						if($scope.chefTaskObj.repeats ==='Daily'){
+						if($scope.chefJenkScriptTaskObj.repeats ==='Daily'){
 							if(startTimeMinute !=='0' && startTimeHour === undefined || startTimeHour === ''){
 								$scope.cronPattern = "*/"+startTimeMinute+" * * * *";
 							} else if(startTimeMinute !=='0' && startTimeHour === '0'){
@@ -300,7 +300,7 @@
 								$scope.cronPattern = "* * * * *";
 							}
 						}
-						if($scope.chefTaskObj.repeats ==='Hourly'){
+						if($scope.chefJenkScriptTaskObj.repeats ==='Hourly'){
 							if(startTimeMinute !=='0' && startTimeHour === undefined || startTimeHour === ''){
 								$scope.cronPattern = "*/"+startTimeMinute+" * * * *";
 							} else if(startTimeMinute !=='0' && startTimeHour === '0'){
@@ -317,7 +317,7 @@
 								$scope.cronPattern = "* * * * *";
 							}
 						}
-						if($scope.chefTaskObj.repeats ==='Weekly') {
+						if($scope.chefJenkScriptTaskObj.repeats ==='Weekly') {
 							if(startTimeMinute !=='0' && startTimeHour === undefined || startTimeHour === ''){
 								$scope.cronPattern = "*/"+startTimeMinute+" * * * "+dayOfWeek+"";
 							} else if(startTimeMinute !=='0' && startTimeHour !== '0') {
@@ -334,7 +334,7 @@
 								$scope.cronPattern = "* * * * "+dayOfWeek+"";
 							}
 						}
-						if($scope.chefTaskObj.repeats ==='Monthly') {
+						if($scope.chefJenkScriptTaskObj.repeats ==='Monthly') {
 							if(startTimeMinute !=='0' && startTimeHour === undefined || startTimeHour === ''){
 								$scope.cronPattern = "*/"+startTimeMinute+" * "+selectedDayOfTheMonth+" * *";
 							} else if(startTimeMinute !=='0' && startTimeHour !== '0') {
@@ -351,7 +351,7 @@
 								$scope.cronPattern = "* * "+selectedDayOfTheMonth+" * *";
 							}
 						}
-						if($scope.chefTaskObj.repeats ==='Yearly') {
+						if($scope.chefJenkScriptTaskObj.repeats ==='Yearly') {
 							if(startTimeMinute !=='0' && startTimeHour === undefined || startTimeHour === ''){
 								$scope.cronPattern = "*/"+startTimeMinute+" * "+selectedDayOfTheMonth+" "+selectedMonth+" *";
 							} else if(startTimeMinute !=='0' && startTimeHour !== '0') {
@@ -370,12 +370,12 @@
 						}
 
 						$scope.cronDetails = {
-							repeats: $scope.chefTaskObj.repeats,
-							selectedDayOfTheMonth: $scope.chefTaskObj.selectedDayOfTheMonth,
-							dayOfWeek: $scope.chefTaskObj.dayOfWeek,
-							monthOfYear: $scope.chefTaskObj.monthOfYear,
-							startTime: $scope.chefTaskObj.startTime,
-							startTimeMinute: $scope.chefTaskObj.startTimeMinute,
+							repeats: $scope.chefJenkScriptTaskObj.repeats,
+							selectedDayOfTheMonth: $scope.chefJenkScriptTaskObj.selectedDayOfTheMonth,
+							dayOfWeek: $scope.chefJenkScriptTaskObj.dayOfWeek,
+							monthOfYear: $scope.chefJenkScriptTaskObj.monthOfYear,
+							startTime: $scope.chefJenkScriptTaskObj.startTime,
+							startTimeMinute: $scope.chefJenkScriptTaskObj.startTimeMinute,
 							pattern: $scope.cronPattern
 						}
 					}, function () {
@@ -431,15 +431,6 @@
 						taskJSON.nodeIds = [];
 						taskJSON.blueprintIds = [];
 						taskJSON.role = $scope.role.name;
-						var selectedList = instanceSelector.getSelectorList();
-						if (selectedList && selectedList.length) {
-							for (var i = 0; i < selectedList.length; i++) {
-								taskJSON.nodeIds.push(selectedList[i].data);
-							}
-						} else {
-							$scope.inputValidationMsg='Please select atleast one node';
-							return false;
-						}
 						for(var bi = 0; bi < $scope.chefBluePrintList.length; bi++){
 							if ($scope.chefBluePrintList[bi]._isBlueprintSelected) {
 								taskJSON.blueprintIds.push($scope.chefBluePrintList[bi]._id);
@@ -467,12 +458,9 @@
 							$scope.taskSaving = false;
 							return false;
 						}
-						taskJSON.executionOrder = $scope.isExecution.flag;
+						
 						taskJSON.runlist = responseFormatter.formatSelectedChefRunList($scope.chefrunlist);
 						taskJSON.attributes = responseFormatter.formatSelectedCookbookAttributes($scope.cookbookAttributes);
-						taskJSON.isScheduled = $scope._isEventSelected;
-						taskJSON.cron = $scope.cronPattern;
-						taskJSON.cronDetails = $scope.cronDetails;
 					}
 					/*This will get the values in order to create puppet type task and check for any puppet node selections*/
 					if ($scope.taskType === "puppet") {
@@ -510,6 +498,9 @@
 						}
 						taskJSON.isParameterized = $scope.isParameterized.flag;
 						taskJSON.jobResultURL = $scope.jobResultURL;
+						taskJSON.isScheduled = $scope._isEventSelected;
+						taskJSON.cron = $scope.cronPattern;
+						taskJSON.cronDetails = $scope.cronDetails;
 						//first time execute will get result from jobResultURLPattern.
 						taskJSON.jobResultURLPattern = taskJSON.jobResultURL;
 						taskJSON.parameterized = $scope.jenkinsParamsList;
@@ -519,19 +510,10 @@
 						taskJSON.nodeIds = [];
 						taskJSON.scriptDetails = [];
 						taskJSON.isSudo = $scope.isSudo;
-						for (var si = 0; si < $scope.chefInstanceList.length; si++) {
-							if ($scope.chefInstanceList[si]._isNodeSelected) {
-								taskJSON.nodeIds.push($scope.chefInstanceList[si]._id);
-							}
-						}
+						
 						taskJSON.scriptTypeName = $scope.scriptTypeSelelct;
 						if (!taskJSON.scriptTypeName.length) {
 							$scope.inputValidationMsg='Please select one Script Type';
-							$scope.taskSaving = false;
-							return false;
-						}
-						if (!taskJSON.nodeIds.length) {
-							$scope.inputValidationMsg='Please select a node';
 							$scope.taskSaving = false;
 							return false;
 						}
@@ -552,6 +534,21 @@
 						if (!taskJSON.scriptDetails.length) {
 							$scope.inputValidationMsg = 'Please select a script';
 							$scope.taskSaving = false;
+							return false;
+						}
+					}
+					if($scope.taskType === "chef" || $scope.taskType === "script") {
+						taskJSON.executionOrder = $scope.isExecution.flag;
+						taskJSON.isScheduled = $scope._isEventSelected;
+						taskJSON.cron = $scope.cronPattern;
+						taskJSON.cronDetails = $scope.cronDetails;
+						var selectedList = instanceSelector.getSelectorList();
+						if (selectedList && selectedList.length) {
+							for (var i = 0; i < selectedList.length; i++) {
+								taskJSON.nodeIds.push(selectedList[i].data);
+							}
+						} else {
+							$scope.inputValidationMsg='Please select atleast one node';
 							return false;
 						}
 					}
@@ -637,41 +634,41 @@
 			var allInstances = workzoneServices.getCurrentEnvInstances();
 			$scope.allInstances=function(){
 				allInstances.then(function (response) {
-				var data, selectorList = [],
-					optionList = [];
-				if (response.data) {
-					data = response.data;
-				} else {
-					data = response;
-				}
+					var data, selectorList = [],
+						optionList = [];
+					if (response.data) {
+						data = response.data;
+					} else {
+						data = response;
+					}
 
-				if (items.taskType && items.taskType === "chef") {
-					for (var j = 0; j < items.taskConfig.nodeIds.length; j++) {
-						for (var i = 0; i < data.length; i++) {
-							if (items.taskConfig.nodeIds[j] === data[i]._id) {
-								selectorList.push(data[i]);
+					if (items.taskType && items.taskType === "chef" || items.taskType && items.taskType === "script") {
+						for (var j = 0; j < items.taskConfig.nodeIds.length; j++) {
+							for (var i = 0; i < data.length; i++) {
+								if (items.taskConfig.nodeIds[j] === data[i]._id) {
+									selectorList.push(data[i]);
+								}
 							}
 						}
+					} else {
+						selectorList = [];
 					}
-				} else {
-					selectorList = [];
-				}
-				optionList = data;
-				var factory = chefSelectorComponent.getComponent;
-				instanceSelector = new factory({
-					scopeElement: '#component_for_instances',
-					optionList: responseFormatter.formatInstanceList(optionList),
-					selectorList: responseFormatter.formatInstanceList(selectorList),
-					isSortList: true,
-					isSearchBoxEnable: false,
-					isOverrideHtmlTemplate: true,
-					isExcludeDataFromOption: true
+					optionList = data;
+					var factory = chefSelectorComponent.getComponent;
+					instanceSelector = new factory({
+						scopeElement: '.component_for_instances',
+						optionList: responseFormatter.formatInstanceList(optionList),
+						selectorList: responseFormatter.formatInstanceList(selectorList),
+						isSortList: true,
+						isSearchBoxEnable: false,
+						isOverrideHtmlTemplate: true,
+						isExcludeDataFromOption: true
+					});
+					$scope.isNewTaskPageLoading = false;
 				});
-				$scope.isNewTaskPageLoading = false;
-			});
 			}
 			 $scope.$watch('taskType', function() {
-        		if($scope.taskType === 'chef'){
+        		if($scope.taskType === 'chef' || $scope.taskType === 'script'){
 					$scope.allInstances();
         		}
     		});
@@ -789,17 +786,20 @@
 					$scope.isNewTaskPageLoading = false;
 					$scope.changeNodeScriptList();
 				}
-				if(items.taskType === "chef") {
+				if(items.taskType === "chef" || items.taskType === "script") {
 					$scope.isExecution.flag = items.taskConfig.executionOrder;
+				}
+				if(items.taskType === "chef" || items.taskType === "jenkins" || items.taskType === "script") {
 					if(items.cron){
 						$scope._isEventSelected = items.isScheduled;
 						$scope.showAddTask = true;
 						$scope.isEventAvailable = true;
 						$scope.cronPattern = items.cron;
-						$scope.chefTaskObj = items.cronDetails;
+						$scope.chefJenkScriptTaskObj = items.cronDetails;
 						$scope.type = 'edit';
 					}
 				}
+
 			}
 		}
 		]);

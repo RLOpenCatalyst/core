@@ -113,6 +113,11 @@ $imagePath : "../../../../../../images";
 			padding-right: 0px;
 		}
 	}
+	.my-modal-popup {
+		.modal-lg {
+			width:1056px;
+		}
+	}
 }
 
 #orchestrationPage {
@@ -232,6 +237,16 @@ $imagePath : "../../../../../../images";
 	}
 
 	.select-nodes {
+		border: 1px solid #dddddd;
+		list-style: none outside none;
+		height: 150px;
+		overflow-y: auto;
+		margin-top: 5px;
+		margin-bottom: 10px;
+		padding: 5px;
+	}
+
+	.select-nodeInstance {
 		border: 1px solid #dddddd;
 		list-style: none outside none;
 		height: 350px;
@@ -500,4 +515,8 @@ a.marginleft23 {
 	float: right;
 	margin-right: 14px !important;
 	margin-top: 2px !important;
+}
+
+.margintop7 {
+	margin-top: 7px;
 }
