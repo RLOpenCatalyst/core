@@ -583,4 +583,30 @@ function formatData(datapoints){
 	return metric;
 }
 
+function aggregateEntityCapacity(parentEntity, parentEntityId, parentEntityQuery, endTime, period, callback) {
+	async.parallel({
+		'managed': function() {
+
+		},
+		'assigned': function() {
+
+		},
+		'unassigned': function() {
+
+		},
+		's3': function() {
+
+		},
+		'rds': function() {
+
+		}
+	}, function(err, instanceCounts) {
+		if(err) {
+			callback(err)
+		} else {
+
+		}
+	})
+}
+
 analyticsService.getTrendUsage = getTrendUsage;
