@@ -45,8 +45,10 @@ var RDS = function(awsSettings) {
             if(err){
                 logger.error(err);
                 callback(err,null);
+                return;
             } else{
                 callback(null,data.DBInstances);
+                return;
             }
         });
     };
