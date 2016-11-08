@@ -204,9 +204,9 @@
 				return genericServices.promiseGet(params);
 			};
 			//listing down the azure networks(VPC)
-			blueprintServices.getAzureVPC = function (azureProviderId) {
+			blueprintServices.getAzureVPC = function (azureProviderId,location) {
 				var params = {
-					url: '/azure/'+ azureProviderId +'/networks',
+					url: '/azure/'+ azureProviderId +'/networks?location='+location,
 					inlineLoader:true
 				};
 				return genericServices.promiseGet(params);

@@ -206,7 +206,8 @@
                 } else if($scope.providerType === 'AZURE'){
                     bpCreateSer.getAzureLocations(blueprintCreation.newEnt.providers).then(function(data){
                         if(blueprintCreation.newEnt.providers){
-                            blueprintCreation.regionListingAzure = data.Locations.Location;
+                            blueprintCreation.regionListingAzure = data.locationList;
+                            blueprintCreation.instanceSizeListingAzure = data.instanceSizeList;
                             $scope.isRegionKeyPairLoading = false;
                         }
                     });
@@ -247,33 +248,27 @@
 
             blueprintCreation.listVpcs = function(){
                 $scope.isVPCLoading = true;
-                if($scope.providerType === 'AWS'){
-                    bpCreateSer.postVpcs(blueprintCreation.newEnt.providers,blueprintCreation.newEnt.region).then(function(data){
-                        if(blueprintCreation.newEnt.region){
-                            blueprintCreation.vpcListing = data.Vpcs;    
-                            $scope.isVPCLoading = false;
-                        }
-                    });    
-                } else if($scope.providerType === 'AZURE'){
-                    bpCreateSer.getAzureVPC(blueprintCreation.newEnt.providers).then(function(data){
-                        if(blueprintCreation.newEnt.region){
-                            var azureVpc = data.VirtualNetworkSites.VirtualNetworkSite;
-                            for(var i =0; i<azureVpc.length;i++){
-                                if(blueprintCreation.newEnt.region === azureVpc[i].Location){
-                                    blueprintCreation.vpcListing.push(azureVpc[i]);
-                                    $scope.isVPCLoading = false;        
-                                }
+                if(blueprintCreation.newEnt.region) {
+                    if ($scope.providerType === 'AWS') {
+                        bpCreateSer.postVpcs(blueprintCreation.newEnt.providers, blueprintCreation.newEnt.region).then(function (data) {
+                                blueprintCreation.vpcListing = data.Vpcs;
+                                $scope.isVPCLoading = false;
+                        });
+                    } else if ($scope.providerType === 'AZURE') {
+                        bpCreateSer.getAzureVPC(blueprintCreation.newEnt.providers, blueprintCreation.newEnt.region).then(function (data) {
+                                blueprintCreation.vpcListing = data.vpcList;
+                                blueprintCreation.subnetListing = data.subnetList;
+                                $scope.isVPCLoading = false;
+                        });
+                        var instanceSizeList = blueprintCreation.instanceSizeListingAzure;
+                        for (var i = 0; i < instanceSizeList.length; i++) {
+                            if (blueprintCreation.newEnt.region === Object.keys(instanceSizeList[i])[0]) {
+                                blueprintCreation.instanceType = instanceSizeList[i][blueprintCreation.newEnt.region];
+                                $scope.isInstanceTypeLoading = false;
                             }
                         }
-                    });
-                    var regionInstanceType = blueprintCreation.regionListingAzure;
-                    for(var i=0;i<regionInstanceType.length;i++){
-                        if(blueprintCreation.newEnt.region === regionInstanceType[i].Name){
-                            blueprintCreation.instanceType = regionInstanceType[i].ComputeCapabilities.VirtualMachinesRoleSizes.RoleSize;
-                            $scope.isInstanceTypeLoading = false;
-                        }
                     }
-                }
+                };
             };
 
             blueprintCreation.postSubnets = function() {
@@ -289,11 +284,11 @@
                             }    
                         });    
                     } else if($scope.providerType === 'AZURE'){
-                        var subnetsAzure = blueprintCreation.vpcListing;
-                        for(var i =0;i<subnetsAzure.length;i++){
-                            if(blueprintCreation.newEnt.vpcId === subnetsAzure[i].Name){
-                                blueprintCreation.subnetListingAzure = subnetsAzure[i].Subnets.Subnet;
-                            }  
+                        var subnetList = blueprintCreation.subnetListing;
+                        for(var i=0;i<subnetList.length;i++){
+                            if(blueprintCreation.newEnt.vpcId === Object.keys(subnetList[i])[0]){
+                                blueprintCreation.subnetListingAzure = subnetList[i][blueprintCreation.newEnt.vpcId];
+                            }
                         }
                     }
                 }else{

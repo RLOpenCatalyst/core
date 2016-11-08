@@ -286,7 +286,7 @@ function deleteRDSResourceData(rdsInfo,providerId, callback) {
                     var count = 0;
                     for (var i = 0; i < rdsData.length; i++) {
                         (function (rds) {
-                            if (dbNames.indexOf(rds.resourceDetails.dbName) === -1) {
+                            if (dbNames.indexOf(rds.resourceDetails.dbInstanceIdentifier) === -1) {
                                 resourceModel.deleteResourcesById(rds._id, function (err, data) {
                                     if (err) {
                                         next(err);
@@ -443,7 +443,7 @@ function bucketNameList(s3Info,callback){
 function rdsDBNameList(rdsInfo,callback){
     var dbNames=[];
     for(var i = 0; i < rdsInfo.length; i++){
-        dbNames.push(rdsInfo[i].resourceDetails.dbName);
+        dbNames.push(rdsInfo[i].resourceDetails.dbInstanceIdentifier);
         if(dbNames.length === rdsInfo.length){
             callback(null,dbNames);
         }
