@@ -138,7 +138,7 @@ taskSchema.plugin(mongoosePaginate);
 
 
 // Executes a task
-taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, blueprintIds, envId, paramOptions, callback, onComplete) {
+taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, blueprintIds, envId, callback, onComplete) {
     logger.debug('Executing');
     var task;
     var self = this;
@@ -159,7 +159,7 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
         taskHistoryData.nodeIds = this.taskConfig.nodeIds;
         taskHistoryData.runlist = this.taskConfig.runlist;
         //taskHistoryData.attributes = this.taskConfig.attributes;
-        taskHistoryData.attributes = (!paramOptions) ? this.taskConfig.attributes : paramOptions;
+        taskHistoryData.attributes = (!self.botParams.cookbookAttributes) ? this.taskConfig.attributes : self.botParams.cookbookAttributes;
     } else if (this.taskType === TASK_TYPE.JENKINS_TASK) {
         task = new JenkinsTask(this.taskConfig);
         taskHistoryData.jenkinsServerId = this.taskConfig.jenkinsServerId;
@@ -183,8 +183,9 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
     } else if (this.taskType === TASK_TYPE.SCRIPT_TASK) {
         task = new ScriptTask(this.taskConfig);
         taskHistoryData.nodeIds = this.taskConfig.nodeIds;
-        //taskHistoryData.scriptDetails = this.taskConfig.scriptDetails;
-        taskHistoryData.scriptDetails = (!paramOptions) ? this.taskConfig.scriptDetails : paramOptions;
+        var scriptDetails = JSON.parse(JSON.stringify(this.taskConfig.scriptDetails));
+        scriptDetails.scriptParameters = (!self.botParams.scriptParams) ? scriptDetails.scriptParameters : self.botParams.scriptParams;
+        taskHistoryData.scriptDetails = scriptDetails;
     } else {
         callback({
             message: "Invalid Task Type"
@@ -195,7 +196,9 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
     var taskHistory = null;
     task.orgId = this.orgId;
     task.envId = this.envId;
-    task.execute(userName, baseUrl, choiceParam, appData, blueprintIds, envId, paramOptions, function(err, taskExecuteData, taskHistoryEntry) {
+    task.botParams = self.botParams;
+    task.botTagServer = self.botTagServer;
+    task.execute(userName, baseUrl, choiceParam, appData, blueprintIds, envId, function(err, taskExecuteData, taskHistoryEntry) {
       if (err) {
             callback(err, null);
             return;
