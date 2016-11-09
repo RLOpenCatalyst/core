@@ -508,7 +508,13 @@ var InstancesDao = function() {
                     err.status = 500;
                     return callback(err);
                 } else {
-                    databaseCall.queryObj['$or'] = [{ "instanceState": "running" }, { "instanceState": "stopped" }, { "instanceState": "pending" }];
+                    databaseCall.queryObj['$or'] = [{
+                        "instanceState": "running"
+                    }, {
+                        "instanceState": "stopped"
+                    }, {
+                        "instanceState": "pending"
+                    }];
                     Instances.paginate(databaseCall.queryObj, databaseCall.options, function(err, instances) {
                         if (err) {
                             logger.error(err);
@@ -2197,7 +2203,10 @@ var InstancesDao = function() {
     };
 
     this.getAllTerminatedInstances = function(orgId, callback) {
-        Instances.find({ "orgId": orgId, "instanceState": "terminated" }, function(err, data) {
+        Instances.find({
+            "orgId": orgId,
+            "instanceState": "terminated"
+        }, function(err, data) {
             if (err) {
                 return callback(err, null);
             } else {
@@ -2327,6 +2336,18 @@ var InstancesDao = function() {
                 return;
             }
             callback(null, data);
+        });
+    };
+
+    this.getInstancesByTagServer = function(tagServer, callback) {
+        Instances.find({
+            "tagServer": tagServer
+        }, function(err, data) {
+            if (err) {
+                return callback(err, null);
+            } else {
+                callback(null, data);
+            }
         });
     };
 };
