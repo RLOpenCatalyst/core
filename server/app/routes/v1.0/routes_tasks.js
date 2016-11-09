@@ -134,6 +134,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
         var appData = req.body.appData;
         var scriptParams = req.body.scriptParams;
         var cookbookAttributes = req.body.cookbookAttributes;
+        var botTagServer = req.body.tagServer;
 
 
         logger.debug('reqbody ======>', JSON.stringify(req.body));
@@ -167,7 +168,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
         */
 
         var paramOptions = {
-            cookbookAttributes: cookbookAttributes,
+            cookbookAttributesP: cookbookAttributes,
             scriptParams: scriptParams
         };
 
@@ -187,7 +188,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
 
 
-        taskService.executeTask(taskId, user, hostProtocol, choiceParam, appData, paramOptions, function(err, historyData) {
+        taskService.executeTask(taskId, user, hostProtocol, choiceParam, appData, paramOptions, botTagServer, function(err, historyData) {
             if (err === 404) {
                 res.status(404).send("Task not found.");
                 return;

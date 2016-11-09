@@ -197,6 +197,7 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
     task.orgId = this.orgId;
     task.envId = this.envId;
     task.botParams = self.botParams;
+    task.botTagServer = self.botTagServer;
     task.execute(userName, baseUrl, choiceParam, appData, blueprintIds, envId, function(err, taskExecuteData, taskHistoryEntry) {
       if (err) {
             callback(err, null);
