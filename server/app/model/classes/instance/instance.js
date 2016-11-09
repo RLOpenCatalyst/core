@@ -347,24 +347,57 @@ var InstanceSchema = new Schema({
         required: false,
         trim: true
     },
-    instanceStart: {
-        cron: String,
-        startOn: String,
-        endOn: String,
-        repeats: String,
-        repeatEvery: Number,
-        cronJobId: String
-    },
-    instanceStop: {
-        cron: String,
-        stopOn: String,
-        endOn: String,
-        repeats: String,
-        repeatEvery: Number,
-        cronJobId: String
-    },
-    cronEndedOn: String,
-    isScheduled: Boolean
+    instanceScheduler: {
+        pattern:{
+            type: String,
+            required: false,
+            trim: true
+        },
+        selectedDayOfTheMonth: {
+            type: String,
+            required: false,
+            trim: true
+        },
+        dayOfWeek: {
+            type: String,
+            required: false,
+            trim: true
+        },
+        monthOfYear: {
+            type: String,
+            required: false,
+            trim: true
+        },
+        startTime: {
+            type: String,
+            required: false,
+            trim: true
+        },
+        startTimeMinute: {
+            type: String,
+            required: false,
+            trim: true
+        },
+        startOn: {
+            type: Number,
+            required: false,
+            trim: true
+        },
+        endOn: {
+            type: Number,
+            required: false,
+            trim: true
+        },
+        repeats: {
+            type: String,
+            required: false,
+            trim: true
+        },
+        isScheduled: {
+            type: Boolean,
+            required: false
+        }
+    }
 });
 
 InstanceSchema.plugin(uniqueValidator);
@@ -2319,15 +2352,12 @@ var InstancesDao = function() {
         })
     }
 
-    this.updateScheduler = function(instanceId, scheduler, isScheduled, callback) {
+    this.updateScheduler = function(instanceId, instanceScheduler, callback) {
         Instances.update({
             "_id": ObjectId(instanceId)
         }, {
             $set: {
-                instanceStart: scheduler.instanceStart,
-                instanceStop: scheduler.instanceStop,
-                cronEndedOn: scheduler.cronEndedOn,
-                isScheduled: isScheduled
+                instanceScheduler: instanceScheduler
             }
         }, function(err, data) {
             if (err) {

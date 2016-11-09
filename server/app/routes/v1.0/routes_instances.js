@@ -3233,22 +3233,14 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      
      * @apiParamExample {json} Request-Example:
      *      {
-                "instanceStart": {
-                    "cron": "String",
+                "instanceScheduler": {
                     "startOn": "String",
                     "endOn": "String",
                     "repeats": "String",
-                    "repeatEvery": Number
-                },
-                "instanceStop": {
-                    "cron": "String",
-                    "stopOn": "String",
-                    "endOn": "String",
-                    "repeats": "String",
-                    "repeatEvery": Number
-                },
-                "cronEndedOn": "String",
-                "isScheduled": Boolean
+                    "repeatEvery": Number,
+                    "action":"String",
+                    "isScheduled":Boolean"
+                }
             }
      *
      
@@ -3262,10 +3254,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      */
 
     app.put('/instances/:instanceId/schedule', function(req, res) {
-        var scheduler = req.body;
-        var isScheduled = req.body.isScheduled;
-        if (scheduler) {
-            instanceService.updateScheduler(req.params.instanceId, scheduler, isScheduled, function(err, updatedResult) {
+        if(req.body !== null) {
+            instanceService.updateScheduler(req.params.instanceId, req.body, function(err, updatedResult) {
                 if (err) {
                     logger.error("Failed to update scheduler: ", err);
                     return res.status(500).send("Failed to update scheduler.");

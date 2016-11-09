@@ -4187,23 +4187,126 @@ function stopInstance(req, data, callback) {
     }
 }
 
-function updateScheduler(instanceId, scheduler, isScheduled, callback) {
-    instancesDao.updateScheduler(instanceId, scheduler, isScheduled, function(err, updatedResult) {
-        if (err) {
-            logger.error("Failed to Update Instance: ", err);
-            return callback(err, null);
+function updateScheduler(instanceId, instanceScheduler, callback) {
+    async.waterfall([
+        function(next){
+            createCronJobPattern(instanceScheduler,next);
+        },
+        function(schedulerDetails,next){
+            instancesDao.updateScheduler(instanceId, schedulerDetails,next);
         }
-        instancesDao.getInstanceById(instanceId, function(err, instance) {
-            if (err) {
-                logger.error("Failed to get Instance: ", err);
-                return callback(err, null);
-            }
-            if(instance && instance.length){
-                if(isScheduled){
+    ],function(err,results){
+        if(err){
+            return callback(err, null);
+        }else{
+            instancesDao.getInstanceById(instanceId, function(err, instance) {
+                if (err) {
+                    logger.error("Failed to get Instance: ", err);
+                    return callback(err, null);
+                }
+                if(instance.length > 0 && instanceScheduler.isScheduled){
                     executeScheduleJob(instance);
                 }
-            }
-        });
-        callback(null, {"message": "Scheduler Updated."});
+            });
+            callback(null, {"message": "Scheduler Updated."});
+        }
     });
+}
+
+function createCronJobPattern(instanceScheduler,callback){
+    if(instanceScheduler.repeats ==='Daily'){
+        if(instanceScheduler.startTimeMinute !=='0' && instanceScheduler.startTimeHour === undefined || instanceScheduler.startTimeHour === ''){
+            instanceScheduler.pattern = "*/"+instanceScheduler.startTimeMinute+" * * * *";
+        } else if(instanceScheduler.startTimeMinute !=='0' && instanceScheduler.startTimeHour === '0'){
+            instanceScheduler.pattern = ""+instanceScheduler.startTimeMinute+" 0 * * *";
+        } else if(instanceScheduler.startTimeMinute ==='0' && instanceScheduler.startTimeHour === undefined || instanceScheduler.startTimeHour === ''){
+            instanceScheduler.pattern = "0 * * * *";
+        } else if(instanceScheduler.startTimeMinute ==='0' && instanceScheduler.startTimeHour !== '0'){
+            instanceScheduler.pattern = "0 "+instanceScheduler.startTimeHour+" * * *";
+        } else if(instanceScheduler.startTimeMinute !=='0' && instanceScheduler.startTimeHour !== '0'){
+            instanceScheduler.pattern = ""+instanceScheduler.startTimeMinute+" "+instanceScheduler.startTimeHour+" * * *";
+        } else if(instanceScheduler.startTimeMinute === undefined && instanceScheduler.startTimeHour !== '0' || instanceScheduler.startTimeHour === '0'){
+            instanceScheduler.pattern = "* "+instanceScheduler.startTimeHour+" * * *";
+        } else {
+            instanceScheduler.pattern = "* * * * *";
+        }
+    }
+    if(instanceScheduler.repeats ==='Hourly'){
+        if(instanceScheduler.startTimeMinute !=='0' && startTimeHour === undefined || startTimeHour === ''){
+            instanceScheduler.pattern = "*/"+instanceScheduler.startTimeMinute+" * * * *";
+        } else if(instanceScheduler.startTimeMinute !=='0' && instanceScheduler.startTimeHour === '0'){
+            instanceScheduler.pattern = ""+instanceScheduler.startTimeMinute+" 0 * * *";
+        } else if(instanceScheduler.startTimeMinute ==='0' && instanceScheduler.startTimeHour === undefined || instanceScheduler.startTimeHour === ''){
+            instanceScheduler.pattern = "0 * * * *";
+        } else if(instanceScheduler.startTimeMinute ==='0' && instanceScheduler.startTimeHour !== '0'){
+            instanceScheduler.pattern = "0 */"+instanceScheduler.startTimeHour+" * * *";
+        } else if(instanceScheduler.startTimeMinute !=='0' && instanceScheduler.startTimeHour !== '0'){
+            instanceScheduler.pattern = ""+instanceScheduler.startTimeMinute+" */"+instanceScheduler.startTimeHour+" * * *";
+        } else if(instanceScheduler.startTimeMinute === undefined && instanceScheduler.startTimeHour !== '0' || instanceScheduler.startTimeHour === '0'){
+            instanceScheduler.pattern = "* "+startTimeHour+" * * *";
+        } else {
+            instanceScheduler.pattern = "* * * * *";
+        }
+    }
+    if(instanceScheduler.repeats ==='Weekly') {
+        if(instanceScheduler.startTimeMinute !=='0' && instanceScheduler.startTimeHour === undefined || instanceScheduler.startTimeHour === ''){
+            instanceScheduler.pattern = "*/"+instanceScheduler.startTimeMinute+" * * * "+instanceScheduler.dayOfWeek+"";
+        } else if(instanceScheduler.startTimeMinute !=='0' && instanceScheduler.startTimeHour !== '0') {
+            instanceScheduler.pattern = ""+instanceScheduler.startTimeMinute+" "+instanceScheduler.startTimeHour+" * * "+instanceScheduler.dayOfWeek+"";
+        } else if(instanceScheduler.startTimeMinute !=='0' && instanceScheduler.startTimeHour === '0'){
+            instanceScheduler.pattern = "* 0 * * "+instanceScheduler.dayOfWeek+"";
+        } else if(instanceScheduler.startTimeMinute ==='0' && instanceScheduler.startTimeHour === undefined || instanceScheduler.startTimeHour === ''){
+            instanceScheduler.pattern = "0 * * * "+instanceScheduler.dayOfWeek+"";
+        } else if(instanceScheduler.startTimeMinute ==='0' && instanceScheduler.startTimeHour !== '0'){
+            instanceScheduler.pattern = "0 "+instanceScheduler.startTimeHour+" * * "+instanceScheduler.dayOfWeek+"";
+        } else if(instanceScheduler.startTimeMinute === undefined && instanceScheduler.startTimeHour !== '0' || instanceScheduler.startTimeHour === '0'){
+            instanceScheduler.pattern = "* "+instanceScheduler.startTimeHour+" * * "+instanceScheduler.dayOfWeek+"";
+        } else {
+            instanceScheduler.pattern = "* * * * "+instanceScheduler.dayOfWeek+"";
+        }
+    }
+    if(instanceScheduler.repeats ==='Monthly') {
+        if(instanceScheduler.startTimeMinute !=='0' && instanceScheduler.startTimeHour === undefined || instanceScheduler.startTimeHour === ''){
+            instanceScheduler.pattern = "*/"+instanceScheduler.startTimeMinute+" * "+instanceScheduler.selectedDayOfTheMonth+" * *";
+        } else if(instanceScheduler.startTimeMinute !=='0' && instanceScheduler.startTimeHour !== '0') {
+            instanceScheduler.pattern = ""+instanceScheduler.startTimeMinute+" "+instanceScheduler.startTimeHour+" "+instanceScheduler.selectedDayOfTheMonth+" * *";
+        } else if(instanceScheduler.startTimeMinute !=='0' && instanceScheduler.startTimeHour === '0') {
+            instanceScheduler.pattern = ""+instanceScheduler.startTimeMinute+" 0 "+instanceScheduler.selectedDayOfTheMonth+" * *";
+        } else if(instanceScheduler.startTimeMinute ==='0' && instanceScheduler.startTimeHour === undefined || instanceScheduler.startTimeHour === '') {
+            instanceScheduler.pattern = "0 * "+instanceScheduler.selectedDayOfTheMonth+" * *";
+        } else if(instanceScheduler.startTimeMinute ==='0' && instanceScheduler.startTimeHour !== '0') {
+            instanceScheduler.pattern = "0 "+instanceScheduler.startTimeHour+" "+instanceScheduler.selectedDayOfTheMonth+" * *";
+        } else if(instanceScheduler.startTimeMinute === undefined && instanceScheduler.startTimeHour !== '0' || instanceScheduler.startTimeHour === '0') {
+            instanceScheduler.pattern = "* "+instanceScheduler.startTimeHour+" "+instanceScheduler.selectedDayOfTheMonth+" * *";
+        } else {
+            instanceScheduler.pattern = "* * "+instanceScheduler.selectedDayOfTheMonth+" * *";
+        }
+    }
+    if(instanceScheduler.repeats ==='Yearly') {
+        if(instanceScheduler.startTimeMinute !=='0' && instanceScheduler.startTimeHour === undefined || instanceScheduler.startTimeHour === ''){
+            instanceScheduler.pattern = "*/"+instanceScheduler.startTimeMinute+" * "+instanceScheduler.selectedDayOfTheMonth+" "+instanceScheduler.selectedMonth+" *";
+        } else if(instanceScheduler.startTimeMinute !=='0' && instanceScheduler.startTimeHour !== '0') {
+            instanceScheduler.pattern = ""+startTimeMinute+" "+startTimeHour+" "+selectedDayOfTheMonth+" "+selectedMonth+" *";
+        } else if(instanceScheduler.startTimeMinute !=='0' && instanceScheduler.startTimeHour === '0') {
+            instanceScheduler.pattern = ""+instanceScheduler.startTimeMinute+" 0 "+instanceScheduler.selectedDayOfTheMonth+" "+instanceScheduler.selectedMonth+" *";
+        } else if(instanceScheduler.startTimeMinute ==='0' && startTimeHour === undefined || startTimeHour === '') {
+            instanceScheduler.pattern = "0 * "+instanceScheduler.selectedDayOfTheMonth+" "+instanceScheduler.selectedMonth+" *";
+        } else if(instanceScheduler.startTimeMinute ==='0' && startTimeHour !== '0') {
+            instanceScheduler.pattern = "0 "+instanceScheduler.startTimeHour+" "+instanceScheduler.selectedDayOfTheMonth+" "+instanceScheduler.selectedMonth+" *";
+        } else if(instanceScheduler.startTimeMinute === undefined && instanceScheduler.startTimeHour !== '0' || instanceScheduler.startTimeHour === '0') {
+            instanceScheduler.pattern = "* "+instanceScheduler.startTimeHour+" "+instanceScheduler.selectedDayOfTheMonth+" "+instanceScheduler.selectedMonth+" *";
+        } else {
+            instanceScheduler.pattern = "* * "+instanceScheduler.selectedDayOfTheMonth+" "+instanceScheduler.selectedMonth+" *";
+        }
+    }
+    var schedularDetails = {
+        repeats: instanceScheduler.repeats,
+        selectedDayOfTheMonth: instanceScheduler.selectedDayOfTheMonth,
+        dayOfWeek: instanceScheduler.dayOfWeek,
+        monthOfYear: instanceScheduler.monthOfYear,
+        startTime: instanceScheduler.startTime,
+        startTimeMinute: instanceScheduler.startTimeMinute,
+        pattern: instanceScheduler.pattern
+    }
+    callback(null,schedularDetails);
 }
