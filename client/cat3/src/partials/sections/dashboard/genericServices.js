@@ -171,7 +171,7 @@
         };
 
         genericServices.executeTask =function(task) {
-            if ((task.taskConfig.parameterized && task.taskConfig.parameterized.length) || (task.taskConfig.attributes && task.taskConfig.attributes.length) || (task.taskConfig.scriptDetails && task.taskConfig.scriptDetails.length)) {
+            if ((task.taskConfig.parameterized && task.taskConfig.parameterized.length) || (task.taskType === 'chef') || (task.taskType === 'script')) {
                 $modal.open({
                     animation: true,
                     templateUrl: 'src/partials/sections/dashboard/bots/view/editParams.html',
