@@ -31,10 +31,10 @@
 					<tbody ng-repeat="attr in chefattributes">
 						<tr ng-repeat="(key, value) in attr.attributes">
 			                <td>
-			                	<input type="text" ng-model="attr.cookbookName" class="form-control" ng-disabled="true">
+			                	<span>{{attr.cookbookName}}</span>
 			                </td>
 			                <td>
-			                	<input type="text" ng-model="value.display_name" class="form-control" ng-disabled="true">
+			                	{{value.display_name}}
 			                </td>
 			                <td style="text-align: left">
 			                	<input type="text" class="cookbook-edit-text" ng-model="value.default" ng-if="!value.choice.length" />
@@ -56,7 +56,7 @@
 					<tbody>
 						<tr ng-repeat="params in jenkinsparams">
 			                <td>
-			                	<input type="text" ng-model="params.name" class="form-control" ng-disabled="true">
+			                	<span style="vertical-align: -webkit-baseline-middle;">{{params.name}}</span>
 			                </td>
 			                <td>
 			                	<input type="text" ng-model="params.defaultValue" class="form-control">
@@ -84,13 +84,6 @@
 									<td><button ng-show="$index>0" class="scriptParamsDelete" title="Delete Row" type="button" ng-click="removeScriptInputParams(parameters[$index]);"><i class=" fa fa-trash-o"></i></button></td>
 								</tr>
 							</tbody>
-							<!-- <tbody>
-							<tr ng-repeat="param in params track by $index">
-								<td class="booleanParam"><label class="control-label" for="choiceName">Parameter {{$index+1}}:<span class="red">*</span></label></td>
-								<td><input id="value" type="text" class="form-control" name="value" ng-model="params[$index]"></td>
-								<td><button ng-show="$index>0" class="scriptParamsDelete" title="Delete Row" type="button" ng-click="removeScriptInputParams(params[$index]);"><i class=" fa fa-trash-o"></i></button></td>
-							</tr>
-						</tbody> -->
 						</table>
 					</div>
 					<a id="addParams" class="marginleft23 cursor" type="button" id="add" ng-click="add()">Add More</a>
@@ -124,5 +117,9 @@
 
 	.margintop8 {
 		margin-top: 8px;
+	}
+
+	.cookbook-edit-text {
+		background: #fff;
 	}
 </style>
