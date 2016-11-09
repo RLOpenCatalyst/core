@@ -346,7 +346,25 @@ var InstanceSchema = new Schema({
         type: String,
         required: false,
         trim: true
-    }
+    },
+    instanceStart: {
+        cron: String,
+        startOn: String,
+        endOn: String,
+        repeats: String,
+        repeatEvery: Number,
+        cronJobId: String
+    },
+    instanceStop: {
+        cron: String,
+        stopOn: String,
+        endOn: String,
+        repeats: String,
+        repeatEvery: Number,
+        cronJobId: String
+    },
+    cronEndedOn: String,
+    isScheduled: Boolean
 });
 
 InstanceSchema.plugin(uniqueValidator);
@@ -2203,6 +2221,113 @@ var InstancesDao = function() {
         }, {
             $set: {
                 route53HostedParams: route53HostedZoneParams
+            }
+        }, function(err, data) {
+            if (err) {
+                logger.error("Failed to update managed Instance status data", err);
+                callback(err, null);
+                return;
+            }
+            callback(null, data);
+        });
+    };
+
+    this.updateCronJobId = function(instance, jobId, flag, callback) {
+        Instances.find(instance._id, function(err, anInstance) {
+            if (err) {
+                logger.debug("Failed to fetch Instance.", err);
+            } else {
+                if (anInstance && anInstance.length) {
+                    if (flag === 'start') {
+                        Instances.update({
+                            "_id": new ObjectId(instance._id),
+                        }, {
+                            $set: {
+                                instanceStart: {
+                                    cron: anInstance[0].instanceStart.cron,
+                                    startOn: anInstance[0].instanceStart.startOn,
+                                    endOn: anInstance[0].instanceStart.endOn,
+                                    repeats: anInstance[0].instanceStart.repeats,
+                                    repeatEvery: anInstance[0].instanceStart.repeatEvery,
+                                    cronJobId: jobId
+                                },
+                                instanceStop: {
+                                    cron: anInstance[0].instanceStop.cron,
+                                    stopOn: anInstance[0].instanceStop.stopOn,
+                                    endOn: anInstance[0].instanceStop.endOn,
+                                    repeats: anInstance[0].instanceStop.repeats,
+                                    repeatEvery: anInstance[0].instanceStop.repeatEvery,
+                                    cronJobId: anInstance[0].instanceStop.cronJobId
+                                },
+                                cronEndedOn: anInstance[0].cronEndedOn
+                            }
+                        }, {
+                            upsert: false
+                        }, function(err, data) {
+                            if (err) {
+                                callback(err, null);
+                                return;
+                            }
+                            callback(null, data);
+                        });
+                    } else {
+                        Instances.update({
+                            "_id": new ObjectId(instance._id),
+                        }, {
+                            $set: {
+                                instanceStop: {
+                                    cron: anInstance[0].instanceStop.cron,
+                                    stopOn: anInstance[0].instanceStop.stopOn,
+                                    endOn: anInstance[0].instanceStop.endOn,
+                                    repeats: anInstance[0].instanceStop.repeats,
+                                    repeatEvery: anInstance[0].instanceStop.repeatEvery,
+                                    cronJobId: jobId
+                                },
+                                instanceStart: {
+                                    cron: anInstance[0].instanceStart.cron,
+                                    startOn: anInstance[0].instanceStart.startOn,
+                                    endOn: anInstance[0].instanceStart.endOn,
+                                    repeats: anInstance[0].instanceStart.repeats,
+                                    repeatEvery: anInstance[0].instanceStart.repeatEvery,
+                                    cronJobId: anInstance[0].instanceStart.cronJobId
+                                },
+                                cronEndedOn: anInstance[0].cronEndedOn
+                            }
+                        }, {
+                            upsert: false
+                        }, function(err, data) {
+                            if (err) {
+                                callback(err, null);
+                                return;
+                            }
+                            callback(null, data);
+                        });
+                    }
+                } else {
+                    logger.debug("No Instance Found.");
+                }
+            }
+        });
+    };
+
+    this.getScheduledInstances = function(callback) {
+        Instances.find({ isScheduled: true, instanceState: { $ne: 'terminated' } }, function(err, instances) {
+            if (err) {
+                return callback(err, null);
+            }
+            callback(null, instances);
+        })
+    }
+
+    this.updateScheduler = function(instanceId, scheduler, isScheduled, callback) {
+        Instances.update({
+            "_id": ObjectId(instanceId)
+        }, {
+            $set: {
+                instanceStart: scheduler.instanceStart,
+                instanceStop: scheduler.instanceStop,
+                cronEndedOn: scheduler.cronEndedOn,
+                isScheduled: isScheduled
             }
         }, function(err, data) {
             if (err) {
