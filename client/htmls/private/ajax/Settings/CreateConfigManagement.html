@@ -48,13 +48,6 @@
                                                 </select>
                                                 <span data-val-controltovalidate="domainname" id="MainContent_Req_domainname" data-val="true" data-val-evaluationfunction="RequiredFieldValidatorEvaluateIsValid" data-val-initialvalue="" style="visibility:hidden;">Required</span>
                                              </div>
-                                          <div class="hidden col-lg-6 col-md-6 margintop20  monitoringCheck">
-                                              <input type="checkbox" name="updateMonitoringInfo" style="vertical-align: middle;" id="updateMonitoringInfo"/>
-                                              <label for="">Enable Monitoring:</label>
-                                              <select id="monitorId" name="monitorId" disabled class="chooseOrganization width-100" style="vertical-align: central" cdata="catalyst" skiprowid="yes">
-                                                  <option value="">Select Monitor</option>
-                                              </select>
-                                          </div>
                                              <input type="hidden" name="ctl00$MainContent$orgname" value="chef" id="configType" class="form-control"  cdata="catalyst">
                                           
                                              <div class="col-lg-6 col-md-6" id="frmconfigmanagement" style="margin-top:20px">
@@ -107,7 +100,13 @@
                                                    </label>
                                                 </div>
                                              </div>
-                                          
+                                             <div class="hidden col-lg-6 col-md-6 margintop20  monitoringCheck">
+                                              <input type="checkbox" name="updateMonitoringInfo" style="vertical-align: middle;" id="updateMonitoringInfo"/>
+                                              <label for="">Enable Monitoring:</label>
+                                              <select id="monitorId" name="monitorId" disabled class="chooseOrganization width-100" style="vertical-align: central" cdata="catalyst" skiprowid="yes">
+                                                  <option value="">Select Monitor</option>
+                                              </select>
+                                            </div>
                                           
                                     </div>
                                     <!-- end widget content -->
@@ -158,9 +157,14 @@
    }
 
    $('select#orgname').change(function(e){
-        $('#monitorId').attr('disabled','disabled');
-        $('input[name="updateMonitoringInfo"]').removeAttr('checked');
-        getMonitorValues();
+        var orgValueSelect = $(this).val();
+        if(orgValueSelect !== ''){
+            $('#monitorId').attr('disabled','disabled');
+            $('input[name="updateMonitoringInfo"]').removeAttr('checked');
+            getMonitorValues();
+        } else {
+            $('.monitoringCheck').addClass('hidden');
+        }
     });
 
     function getMonitorValues(){

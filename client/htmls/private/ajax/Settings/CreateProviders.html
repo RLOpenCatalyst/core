@@ -289,9 +289,14 @@
 <script>
     
     $('select#orgId').change(function(e){
-        $('#monitorId').attr('disabled','disabled');
-        $('input[name="updateMonitoringInfo"]').removeAttr('checked');
-        getMonitorValues();
+        var orgValueSelect = $(this).val();
+        if(orgValueSelect !== ''){
+            $('#monitorId').attr('disabled','disabled');
+            $('input[name="updateMonitoringInfo"]').removeAttr('checked');
+            getMonitorValues();
+        } else {
+            $('.monitoringCheck').addClass('hidden');
+        }
     });
 
     function getMonitorValues(){
