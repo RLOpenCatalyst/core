@@ -6,7 +6,7 @@
 
 	<div class="modal-body">
 		<fieldset>
-			<div class="col-lg-12 col-md-12 paddingbottom10">
+			<div class="col-lg-12 col-md-12 paddingbottom10" ng-hide="taskType === 'jenkins'">
 				<div class="col-lg-2 col-md-2 no-padding">
 					<label for="" class="margintop8">Tag Server:</label>
 				</div>
@@ -17,7 +17,7 @@
 					</select>
 				</div>
 			</div>
-			<div class="col-lg-12 col-md-12" ng-show="taskType === 'chef'">
+			<div class="col-lg-12 col-md-12" ng-show="taskType === 'chef' && chefAttributesFlag">
 				<h4 style="margin-top: 0px;">Edit Parameters:</h4>
 				<loading size="large" name="isChefattributesLoading" type="block" align="center"></loading>
 				<table class="table table-bordered text-center" ng-show="!isChefattributesLoading">
@@ -31,14 +31,14 @@
 					<tbody ng-repeat="attr in chefattributes">
 						<tr ng-repeat="(key, value) in attr.attributes">
 			                <td>
-			                	<input type="text" ng-model="attr.cookbookName" class="form-control">
+			                	<input type="text" ng-model="attr.cookbookName" class="form-control" ng-disabled="true">
 			                </td>
 			                <td>
-			                	<input type="text" ng-model="value.display_name" class="form-control">
+			                	<input type="text" ng-model="value.display_name" class="form-control" ng-disabled="true">
 			                </td>
-			                <td>
+			                <td style="text-align: left">
 			                	<input type="text" class="cookbook-edit-text" ng-model="value.default" ng-if="!value.choice.length" />
-                                <select ng-if="value.choice.length" class="cookbook-edit-text" ng-options="choice for choice in value.choice" ng-model="value.default" ng-disabled="!isAttributesEditable"></select>
+                                <select ng-if="value.choice.length" class="cookbook-edit-text" ng-options="choice for choice in value.choice" ng-model="value.default"></select>
 			                </td>
 			            </tr>
 					</tbody>
@@ -56,7 +56,7 @@
 					<tbody>
 						<tr ng-repeat="params in jenkinsparams">
 			                <td>
-			                	<input type="text" ng-model="params.name" class="form-control">
+			                	<input type="text" ng-model="params.name" class="form-control" ng-disabled="true">
 			                </td>
 			                <td>
 			                	<input type="text" ng-model="params.defaultValue" class="form-control">
@@ -65,7 +65,7 @@
 					</tbody>
 				</table>
 			</div>
-			<div class="col-lg-12 col-md-12" ng-show="taskType === 'script'">
+			<div class="col-lg-12 col-md-12" ng-if="taskType === 'script' && scriptParamsFlag">
 				<h4 style="margin-top: 0px;">Add Parameters:</h4>
 				<div class="parameter-section">
 					<div class="col-lg-12 col-md-12 margintop15">
@@ -74,14 +74,23 @@
 								<tr>
 									<th class="headParamTable">Key</th>
 									<th class="headParamTable">Value</th>
+									<th class="headParamTable">Delete</th>
 								</tr>
 							</thead>
 							<tbody>
 								<tr ng-repeat="param in parameters track by $index">
 									<td class="booleanParam"><label class="control-label" for="choiceName">Parameter {{$index+1}}:<span class="red">*</span></label></td>
 									<td><input id="value" type="text" class="form-control" name="value" ng-model="parameters[$index]"></td>
+									<td><button ng-show="$index>0" class="scriptParamsDelete" title="Delete Row" type="button" ng-click="removeScriptInputParams(parameters[$index]);"><i class=" fa fa-trash-o"></i></button></td>
 								</tr>
 							</tbody>
+							<!-- <tbody>
+							<tr ng-repeat="param in params track by $index">
+								<td class="booleanParam"><label class="control-label" for="choiceName">Parameter {{$index+1}}:<span class="red">*</span></label></td>
+								<td><input id="value" type="text" class="form-control" name="value" ng-model="params[$index]"></td>
+								<td><button ng-show="$index>0" class="scriptParamsDelete" title="Delete Row" type="button" ng-click="removeScriptInputParams(params[$index]);"><i class=" fa fa-trash-o"></i></button></td>
+							</tr>
+						</tbody> -->
 						</table>
 					</div>
 					<a id="addParams" class="marginleft23 cursor" type="button" id="add" ng-click="add()">Add More</a>

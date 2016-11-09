@@ -67,7 +67,9 @@
                 });
             });
         };
-
+        $rootScope.$on('BOTS_LIBRARY_REFRESH', function() {
+            lib.init();
+        });
         lib.init =function(){
             lib.gridOptions.data=[];
             var param={

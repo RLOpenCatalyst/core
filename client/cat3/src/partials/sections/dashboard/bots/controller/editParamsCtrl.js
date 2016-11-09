@@ -15,6 +15,18 @@
         workzoneServices.getTaggingServer().then(function (topSer) {
             $scope.taggingServerList=topSer.data;
         });
+        $scope.chefAttributesFlag = false;
+        $scope.scriptParamsFlag = false;
+        if(items.taskConfig.attributes && items.taskConfig.attributes.length) {
+            $scope.chefAttributesFlag = true;
+        }
+        if(items.taskType === 'script') {
+            for (var i=0; i<items.taskConfig.scriptDetails.length; i++) {
+                if(items.taskConfig.scriptDetails[i].scriptParameters.length > 0) {
+                    $scope.scriptParamsFlag = true;
+                }
+            }
+        }
         $scope.isChefattributesLoading = true;
         if (items.taskType === 'chef') {
             $scope.chefComponentSelectorList = responseFormatter.findDataForEditValue(items.taskConfig.runlist);
@@ -55,37 +67,39 @@
         $scope.scriptparams = items.taskConfig.scriptDetails;
         $scope.parameters=[''];
         var taskData={};
-        var attributes = [];
-        var scriptDetails = [];
+        var cookbookAttributes = [];
+        var scriptParams = [];
         var choiceParam = {}, key;
+        var tagServer = "";
+        $scope.tagSerSelected;
         $scope.add = function() {
             $scope.parameters.push('');
         };
 
+        $scope.removeScriptInputParams = function(paramInput) {
+            if($scope.parameters.length > 1){
+                var idx = $scope.parameters.indexOf(paramInput);
+                $scope.parameters.splice(idx,1);
+            }else{
+                toastr.error('Cannot delete the row');
+            }
+        }
+
         $scope.executeBot=function(){
-            var taskData={};
-            var taggedServer = $scope.tagSerSelected;
+            //var taskData={};
             if (items.taskConfig.taskType === 'script') {
                 var checkParam = false;
-                for(var i =0; i<$scope.parameters.length; i++){
-                    if($scope.parameters[i] === '' || $scope.parameters[i] === null){
-                        checkParam = false;
-                        toastr.error('Please enter parameters');
-                        return false;
-                    } else {
-                        checkParam = true;
-                    }
+                if ($scope.scriptParamsFlag) {
+                    checkParam = true;
                 }
                 if(checkParam){
                     //$modalInstance.close($scope.parameters);
-                    scriptDetails = $scope.parameters;
-                    taggedServer = taggedServer;
-                }
+                    scriptParams = $scope.parameters;
+                } 
             }
             if (items.taskConfig.taskType === 'chef') {
-                //taskJSON.runlist = responseFormatter.formatSelectedChefRunList($scope.chefrunlist);
-                attributes = responseFormatter.formatSelectedCookbookAttributes($scope.chefattributes);
-                taggedServer = taggedServer;
+                cookbookAttributes = responseFormatter.formatSelectedCookbookAttributes($scope.chefattributes);
+                
             }
             if (items.taskConfig.taskType === 'jenkins') {
                 for(var i=0;i<$scope.jenkinsparams.length;i++){
@@ -97,17 +111,24 @@
         };
 
         $scope.executeTask = function(taskData){
-           if (items.taskConfig.taskType === 'jenkins') {
-                var reqBody = choiceParam;
+            var reqBody = {};
+            if (items.taskConfig.taskType === 'jenkins') {
+                reqBody.choiceParams = choiceParam;
             } else if (items.taskConfig.taskType === 'chef'){
-                var reqBody = attributes;
+                reqBody.tagServer = $scope.tagSerSelected;
+                if ($scope.chefAttributesFlag) {
+                    reqBody.cookbookAttributes = cookbookAttributes;
+                }
             } else  if (items.taskConfig.taskType === 'script') {
-                var reqBody = scriptDetails;
+                reqBody.tagServer = $scope.tagSerSelected;
+                if ($scope.scriptParamsFlag) {
+                    reqBody.scriptParams = scriptParams;
+                }
             }
             workzoneServices.runTask(items._id, reqBody).then(
                 function (response) {
                     $modalInstance.close(response.data);
-                    helper.orchestrationLogModal(task._id, response.data.historyId, task.taskType);
+                    $rootScope.$emit('BOTS_LIBRARY_REFRESH');
                     $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
                 },
                 function (error) {
