@@ -84,44 +84,26 @@ input[type="file"] {
                 </select>
               </div>
             </div>
-            <div class="col-lg-6 col-md-6 margintop15">
+            <div class="col-lg-6 col-md-6 margintop15 serverType hidden">
                 <label for="serverUrl">Server URL:<span class="control-label redSpan">&nbsp;*</span></label>
                 <div class="input-groups">
                   <input type="url" name="serverUrl" class="required serverUrl form-control" id="serverUrl"/> 
                 </div>
             </div>
-            <div class="col-lg-6 col-md-6 col-xs-6 margintop15">
+            <div class="col-lg-6 col-md-6 col-xs-6 margintop15 serverType hidden">
               <label for="">Protocol Type:<span class="control-label redSpan">&nbsp;*</span></label>
               <div class="input-groups">
                 <select id="protocolType" name="protocolType" class="required form-control width-100" style="vertical-align:central">
                   <option value="">Choose Protocol Type</option>
-                  <option value="redis">Redis</option>
+                  <!-- <option value="redis">Redis</option> -->
                   <option value="rabbitmq">RabbitMq</option>
                 </select>
               </div>
             </div>
-            <div class="col-lg-6 col-md-6 col-xs-6 margintop15">
+            <div class="col-lg-6 col-md-6 col-xs-6 margintop15 hidden showForRabbit">
               <label for="protocolHost">Host:<span class="control-label redSpan">&nbsp;*</span></label>
               <div class="input-groups">
                 <input type="text" name="protocolHost" class="required protocolHost form-control" id="protocolHost">
-              </div>
-            </div>
-            <div class="col-lg-6 col-md-6 col-xs-6 margintop15">
-              <label for="protocolPort">Port:<span class="control-label redSpan">&nbsp;*</span></label>
-              <div class="input-groups">
-                <input type="text" name="protocolPort" class="required protocolPort form-control" id="protocolPort">
-              </div>
-            </div>
-            <div class="col-lg-6 col-md-6 col-xs-6 margintop15">
-              <label for="protocolPassword">Password:<span class="control-label redSpan">&nbsp;*</span></label>
-              <div class="input-groups">
-                <input type="password" name="protocolPassword" class="protocolPassword form-control" id="protocolPassword">
-              </div>
-            </div>
-            <div class="col-lg-6 col-md-6 col-xs-6 margintop15 hidden showForRabbit">
-              <label for="protocolVhost">Vhost:<span class="control-label redSpan">&nbsp;*</span></label>
-              <div class="input-groups">
-                <input type="text" name="protocolVhost" class=" protocolVhost form-control" id="protocolVhost">
               </div>
             </div>
             <div class="col-lg-6 col-md-6 col-xs-6 margintop15 hidden showForRabbit">
@@ -130,6 +112,25 @@ input[type="file"] {
                 <input type="text" name="protocolUser" class=" protocolUser form-control" id="protocolUser">
               </div>
             </div>
+            <div class="col-lg-6 col-md-6 col-xs-6 margintop15 hidden showForRabbit">
+              <label for="protocolPassword">Password:<span class="control-label redSpan">&nbsp;*</span></label>
+              <div class="input-groups">
+                <input type="password" name="protocolPassword" class="protocolPassword form-control" id="protocolPassword">
+              </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-xs-6 margintop15 hidden showForRabbit">
+              <label for="protocolPort">Port:<span class="control-label redSpan">&nbsp;*</span></label>
+              <div class="input-groups">
+                <input type="text" name="protocolPort" class="required protocolPort form-control" id="protocolPort">
+              </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-xs-6 margintop15 hidden showForRabbit">
+              <label for="protocolVhost">Vhost:<span class="control-label redSpan">&nbsp;*</span></label>
+              <div class="input-groups">
+                <input type="text" name="protocolVhost" class=" protocolVhost form-control" id="protocolVhost">
+              </div>
+            </div>
+            
             <div class="col-lg-6 col-md-6 col-xs-6 margintop15 hidden showForRabbit">
               <label for="certificateFile">Certificate File:</label>
               <div class="input-groups">
@@ -214,6 +215,27 @@ function setFileNamePrivate(val){
     $("#privateFileNameDisplay").append(fileNamePrivate);
 }
 
+var serverTypeValue = $('#serverType').val();
+$('#serverType').change(function(e){
+    var val = $(this).val();
+    if(val === 'sensu') {
+      $('.serverType').removeClass('hidden');
+    }else {
+      $('.serverType').addClass('hidden');
+      $('.showForRabbit').addClass('hidden');
+      $('#protocolType').val('');
+    }
+});
+
+$('#protocolType').change(function(e){
+    var val = $(this).val();
+    if (val === 'rabbitmq') {
+        $('.showForRabbit').removeClass('hidden');
+    } else {
+        $('.showForRabbit').addClass('hidden');
+    }
+});
+
 //when the user clicks on the new button the setting the value to 'new' for the hidden field to know that user is creating the new item..
 $('.addDashboardItem').click(function(e) {
     $('#monitorServerForm').trigger('reset');
@@ -244,16 +266,6 @@ function getOrganizationList() {
 $(document).on('shown.bs.modal', function(e) {
     $('[autofocus]', e.target).focus();
 });
-
-$('#protocolType').change(function(e){
-    var val = $(this).val();
-    if (val === 'rabbitmq') {
-        $('.showForRabbit').removeClass('hidden');
-    } else {
-        $('.showForRabbit').addClass('hidden');
-    }
-});
-
 
 //form validation for dashboard save
 var validator = $('#monitorServerForm').validate({
@@ -387,10 +399,10 @@ function createTableForMonitorList(monitorData) {
 
   var $tdAction = $('<td/>');
 
-  $tdAction.append('<div class="btn-group"><button class="btn btn-info pull-left btn-sg tableactionbutton editMonitorRow" data-placement="top" value="Update" title="Edit"><i class="ace-icon fa fa-pencil bigger-120"></i></button></div>').append('<div style="margin-left:14px;" class="btn-group"><button class="btn btn-danger pull-left btn-sg tableactionbutton globalMonitorRemove" data-placement="top" value="Remove" title="Delete"><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>');
+  $tdAction.append('<div class="btn-group">').append('<div style="margin-left:14px;" class="btn-group"><button class="btn btn-danger pull-left btn-sg tableactionbutton globalMonitorRemove" data-placement="top" value="Remove" title="Delete"><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>');
 
   //for editing track items from the table...
-  $tdAction.find('button.editMonitorRow').click(function() {
+  /*$tdAction.find('button.editMonitorRow').click(function() {
       var $this = $(this);
       var $tr = $this.parents('tr.monitorItemRow');
       var monitorData = $tr.data('monitorData');
@@ -417,7 +429,7 @@ function createTableForMonitorList(monitorData) {
           $editModal.find('#privateFileNameDisplay').empty().append(monitorData.parameters.transportProtocolParameters.ssl.privateKeyFile.name);
       }
       return false;
-  });
+  });*/
 
   //for deletion of track items from the table..
   $tdAction.find('button.globalMonitorRemove').click(function() {

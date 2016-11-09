@@ -51,7 +51,7 @@
                                           <div class="hidden col-lg-6 col-md-6 margintop20  monitoringCheck">
                                               <input type="checkbox" name="updateMonitoringInfo" style="vertical-align: middle;" id="updateMonitoringInfo"/>
                                               <label for="">Enable Monitoring:</label>
-                                              <select id="monitorId" name="monitorId" class="hidden chooseOrganization width-100" style="vertical-align: central" cdata="catalyst" skiprowid="yes">
+                                              <select id="monitorId" name="monitorId" disabled class="chooseOrganization width-100" style="vertical-align: central" cdata="catalyst" skiprowid="yes">
                                                   <option value="">Select Monitor</option>
                                               </select>
                                           </div>
@@ -154,11 +154,12 @@
    }
    function setfolderpath(){
        var folderpath = '/' + $('#loginname').val() + "/.chef/";
-    //   alert(folderpath);
        $('#folderpath').val(folderpath);
    }
 
    $('select#orgname').change(function(e){
+        $('#monitorId').attr('disabled','disabled');
+        $('input[name="updateMonitoringInfo"]').removeAttr('checked');
         getMonitorValues();
     });
 
@@ -178,9 +179,9 @@
 
     $('input[name="updateMonitoringInfo"]').change(function(e){
         if(this.checked){
-            $('#monitorId').removeClass('hidden');
+            $('#monitorId').removeAttr('disabled').attr('cat-validation','required');
         }  else {  
-            $('#monitorId').addClass('hidden');
+            $('#monitorId').removeAttr('cat-validation').attr('disabled','disabled');;
         }
     });
    
@@ -240,13 +241,6 @@
             $('#monitorId').empty().append('<option value="'+data.monitor.id+'">'+data.monitor.name+'</option>').select2().attr('disabled','disabled');
           } else {
             getMonitorValues();
-            $('input[name="updateMonitoringInfo"]').change(function(e){
-                if(this.checked){
-                    $('#monitorId').removeClass('hidden');
-                }  else {  
-                    $('#monitorId').addClass('hidden');
-                }
-            });
           }
       });
     }

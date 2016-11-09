@@ -247,10 +247,11 @@
                                                         <div class="hidden col-lg-6 col-md-6 margintop20 foraws monitoringCheck">
                                                             <input type="checkbox" name="updateMonitoringInfo" style="vertical-align: middle;" id="updateMonitoringInfo"/>
                                                             <label for="">Enable Monitoring:</label>
-                                                            <select id="monitorId" unique="true" name="monitorId" class="hidden chooseOrganization width-100" style="vertical-align: central" cdata="catalyst" skiprowid="yes">
+                                                            <select id="monitorId" unique="true" name="monitorId" disabled class="chooseOrganization width-100" style="vertical-align: central" cdata="catalyst" skiprowid="yes">
                                                                 <option value="">Select Monitor</option>
                                                             </select>
                                                         </div>
+                                                        <input type="hidden" id="hiddenMonitorValue"/>
                                                     </div>
                                                 </div>
                                                 <!-- end widget div -->
@@ -288,7 +289,7 @@
 <script>
     
     $('select#orgId').change(function(e){
-        $('#monitorId').addClass('hidden');
+        $('#monitorId').attr('disabled','disabled');
         $('input[name="updateMonitoringInfo"]').removeAttr('checked');
         getMonitorValues();
     });
@@ -309,9 +310,9 @@
 
     $('input[name="updateMonitoringInfo"]').change(function(e){
         if(this.checked){
-            $('#monitorId').removeClass('hidden');
+            $('#monitorId').removeAttr('disabled').attr('cat-validation','required');
         }  else {  
-            $('#monitorId').addClass('hidden');
+            $('#monitorId').removeAttr('cat-validation').attr('disabled','disabled');;
         }
     });
     
@@ -669,15 +670,10 @@
             $('input[name="updateMonitoringInfo"]').attr('checked', true);
             $('#monitorId').removeClass('hidden');
             $('select#monitorId').attr('answer',data.monitor.id).html('<option value="'+data.monitor.id+'">'+data.monitor.name+'</option>').select2().attr('disabled','disabled');
+            $('#hiddenMonitorValue').val(data.monitor.id);
         } else {
+            $('#hiddenMonitorValue').val('');
             getMonitorValues();
-            $('input[name="updateMonitoringInfo"]').change(function(e){
-                if(this.checked){
-                    $('#monitorId').removeClass('hidden');
-                }  else {  
-                    $('#monitorId').addClass('hidden');
-                }
-            });
         }
         var parentList = $('.addNewRegion');
         $('select.region').on('change', checkForKeyPair);
@@ -765,8 +761,12 @@
                 if (location.toString().indexOf('?new') === -1) {
                     var orgValue = $('#orgId').val();
                     arr.push({name:'orgId',value:orgValue,type:'select-one',required:false});
-                    var monitorValue = $('#monitorId').val();
-                    arr.push({name:'monitorId',value:monitorValue,type:'select-one',required:false})
+                    var monitorValue = $('#hiddenMonitorValue').val();
+                    if(!monitorValue) {
+                        arr =  arr.concat({name:'monitorId',value:monitorValue,type:'select-one',required:false});
+                    } else {
+                        arr.push({name:'monitorId',value:monitorValue,type:'select-one',required:false});
+                    }
                 }
                 if (location.toString().indexOf('?new') === -1 && $('#providertype').val() == 'AZURE') {
                     var azureSubscriptionId = $('#azureSubscriptionId').val();
