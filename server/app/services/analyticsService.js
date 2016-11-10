@@ -534,7 +534,11 @@ analyticsService.getEntityDetails = function getEntityDetails(entityType, entity
 			break
 		// NOTE: Works only for AWS regions as of now
 		case 'region':
-			callback(null, {'name': appConfig.aws.regionMappings[entityId].name})
+			if(entityId in appConfig.aws.regionMappings) {
+				callback(null, {'name': appConfig.aws.regionMappings[entityId].name})
+			} else {
+				callback(null, {'name': 'Global'})
+			}
 			break
 	}
 }
@@ -600,8 +604,8 @@ analyticsService.aggregateEntityCapacity
 	})
 
 	var offset = (new Date()).getTimezoneOffset() * 60000
-	startTime = dateUtil.getStartOfAHourInUTC(endTime)
-	interval = 3600
+	startTime = dateUtil.getStartOfADayInUTC(endTime)
+	interval = 86400
 
 	var instanceParamsMapping = {
 		'organizationId': 'orgId',
@@ -696,7 +700,7 @@ analyticsService.aggregateEntityCapacity
 					for (var key in instanceCounts) {
 						for (var i = 0; i < instanceCounts[key].length; i++) {
 							var entityId = (instanceCounts[key][i]._id == null)
-								? 'unassigned' : instanceCounts[key][i]._id
+								? 'Unassigned' : instanceCounts[key][i]._id
 							var count = (instanceCounts[key][i].count == null) ? 0 : instanceCounts[key][i].count
 
 							if (!(entityId in entityCapacities)) {
@@ -722,7 +726,7 @@ analyticsService.aggregateEntityCapacity
 									},
 									startTime: Date.parse(startTime),
 									endTime: Date.parse(endTime),
-									period: 'hour',
+									period: 'day',
 									interval: interval
 								}
 							}
@@ -766,4 +770,162 @@ analyticsService.updateEntityCapacity = function updateEntityCapacity(entityCapa
 			return callback()
 		}
 	)
+}
+
+// @TODO To be reviewed and improved
+analyticsService.validateAndParseCapacityQuery
+	= function validateAndParseCapacityQuery(requestQuery, callback) {
+
+	if ((!('parentEntityId' in requestQuery)) || (!('entityId' in requestQuery))
+		|| (!('toTimeStamp' in requestQuery)) || (!('period' in requestQuery))) {
+		var err = new Error('Invalid request')
+		err.errors = [{messages: 'Mandatory fields missing'}]
+		err.status = 400
+		callback(err)
+	}
+
+	var startTime
+	switch (requestQuery.period) {
+		case 'day':
+			startTime = dateUtil.getStartOfADayInUTC(requestQuery.toTimeStamp)
+			break
+		default:
+			var err = new Error('Invalid request')
+			err.errors = [{messages: 'Period is invalid'}]
+			err.status = 400
+			return callback(err)
+			break
+	}
+
+	//@TODO Query object format to be changed
+	var capacityQuery = {
+		totalCapacityQuery: [
+			{'parentEntity.id': requestQuery.parentEntityId},
+			{'entity.id': requestQuery.entityId},
+			{'startTime': Date.parse(startTime)},
+			{'period': requestQuery.period}
+		],
+		splitUpCapacityQuery: [
+			{'parentEntity.id': requestQuery.entityId},
+			{'startTime': Date.parse(startTime)},
+			{'period': requestQuery.period}
+		]
+	}
+
+	return callback(null, capacityQuery)
+}
+
+analyticsService.getEntityCapacity = function getEntityCapacity(capacityQuery, callback) {
+	async.parallel({
+		totalCapacity: function(next) {
+			entityCapacityModel.getEntityCapacity(capacityQuery.totalCapacityQuery, next)
+		},
+		splitUpCapacities: function(next) {
+			entityCapacityModel.getEntityCapacity(capacityQuery.splitUpCapacityQuery, next)
+		}
+	}, function(err, entityCapacity) {
+		if(err) {
+			logger.error(err)
+			var err = new Error('Internal Server Error')
+			err.status = 500
+			return callback(err)
+		} else if(entityCapacity.totalCapacity == null) {
+			var err = new Error('Data not available')
+			err.status = 400
+			return callback(err)
+		} else {
+			return callback(null, entityCapacity)
+		}
+	})
+}
+
+// @TODO Try to opitmize
+analyticsService.formatEntityCapacity = function formatEntityCapacity(entityCapacities, callback) {
+	async.waterfall([
+		function(next) {
+			var formattedCapacity = {
+				period: entityCapacities.totalCapacity[0].period,
+				fromTime: entityCapacities.totalCapacity[0].startTime,
+				toTime: entityCapacities.totalCapacity[0].endTime,
+				entity: {
+					type: entityCapacities.totalCapacity[0].entity.type,
+					id: entityCapacities.totalCapacity[0].entity.id
+				},
+				capacity: entityCapacities.totalCapacity[0].capacity,
+				splitUpCapacities: {}
+			}
+
+			if (formattedCapacity.entity.id != 'Unassigned') {
+				analyticsService.getEntityDetails(formattedCapacity.entity.type,
+					formattedCapacity.entity.id,
+					function (err, entityDetails) {
+						if (err) {
+							next(err)
+						} else {
+							formattedCapacity.entity.name = entityDetails.name
+							next(null, formattedCapacity)
+						}
+					}
+				)
+			} else {
+				formattedCapacity.entity.name = formattedCapacity.entity.id
+				next(null, formattedCapacity)
+			}
+		},
+		function(formattedCapacity, next) {
+			async.forEach(entityCapacities.splitUpCapacities,
+				function(capacityEntry, next0) {
+					if (capacityEntry.entity.type == entityCapacities.totalCapacity[0].entity.type) {
+						return next0()
+					}
+
+					if (!(capacityEntry.entity.type in formattedCapacity.splitUpCapacities)) {
+						formattedCapacity.splitUpCapacities[capacityEntry.entity.type] = []
+					}
+
+					var splitUpCapacity = {
+						id: capacityEntry.entity.id,
+						// name: costEntry.entity.name,
+						capacity: capacityEntry.capacity
+					}
+
+					if (capacityEntry.entity.id != 'Unassigned') {
+						analyticsService.getEntityDetails(capacityEntry.entity.type, capacityEntry.entity.id,
+							function (err, entityDetails) {
+								if (err) {
+									next0(err)
+								} else {
+									splitUpCapacity.name = entityDetails.name
+									formattedCapacity.splitUpCapacities[capacityEntry
+										.entity.type].push(splitUpCapacity)
+									next0()
+								}
+							}
+						)
+					} else {
+						splitUpCapacity.name = capacityEntry.entity.id
+						formattedCapacity.splitUpCapacities[capacityEntry
+							.entity.type].push(splitUpCapacity)
+						next0()
+					}
+				},
+				function(err) {
+					if(err) {
+						return next(err)
+					} else {
+						return next(null, formattedCapacity)
+					}
+				}
+			)
+		}
+	], function(err, formattedCapacity) {
+		if(err) {
+			logger.error(err)
+			var err = new Error('Internal Server Error')
+			err.status = 500
+			callback(err)
+		} else {
+			return callback(null, formattedCapacity)
+		}
+	})
 }

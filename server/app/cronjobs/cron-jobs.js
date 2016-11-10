@@ -29,7 +29,7 @@ var chefSync = require('_pr/cronjobs/chef-sync');
 
 module.exports.start = function start() {
 
-	 logger.info('Cost aggregation started with interval ==> '+ costAggregation.getInterval());
+	logger.info('Cost aggregation started with interval ==> '+ costAggregation.getInterval());
 	var costAggregationJobId
 		= crontab.scheduleJob(costAggregation.getInterval(), costAggregation.execute);
 

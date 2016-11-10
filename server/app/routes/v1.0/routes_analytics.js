@@ -356,7 +356,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 }
             }
           },
-          "splitUpCosts": {
+          "splitUpCapacities": {
             "businessUnits": [
               {
                 "id": "<businessUnit_1_id>",
@@ -454,24 +454,24 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
           }
         }
     */
-    app.get("/analytics/capactiy", getCapacity)
+    app.get("/analytics/capacity", getCapacity)
     function getCapacity(req, res, callback) {
         // @TODO Authentication to be added
         async.waterfall([
             function(next) {
-                analyticsService.validateAndParseCapacityQuery('aggregate', req.query, next)
+                analyticsService.validateAndParseCapacityQuery(req.query, next)
             },
             function (capacityQuery, next) {
-                analyticsService.getEntityAggregateCapacity(costQuery, next)
+                analyticsService.getEntityCapacity(capacityQuery, next)
             },
             function (entityCapacity, next) {
-                analyticsService.formatAggregateCapacity(entityCapacity, next)
+                analyticsService.formatEntityCapacity(entityCapacity, next)
             }
-        ], function(err, entityCosts) {
+        ], function(err, entityCapacity) {
             if(err) {
                 callback(err)
             } else {
-                res.status(200).send(entityCosts)
+                res.status(200).send(entityCapacity)
             }
         })
     }
