@@ -58,8 +58,11 @@
 			                <td>
 			                	<span style="vertical-align: -webkit-baseline-middle;">{{params.name}}</span>
 			                </td>
-			                <td>
-			                	<input type="text" ng-model="params.defaultValue" class="form-control">
+			                <td ng-init="jenparams[params.name]=params.defaultValue[0]">
+			                	<input ng-if="params.parameterName !== 'Choice'" type="text" ng-model="jenparams[params.name]" class="form-control" ng-value="params.defaultValue[0]">
+			                	<select  ng-if="params.parameterName === 'Choice'" ng-model="jenparams[params.name]" class="cookbook-edit-text">
+			                        <option ng-repeat="val in params.defaultValue" value="{{val}}">{{val}}</option>
+			                    </select>
 			                </td>
 			            </tr>
 					</tbody>

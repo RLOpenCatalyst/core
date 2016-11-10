@@ -71,6 +71,7 @@
         var scriptParams = [];
         var choiceParam = {}, key;
         var tagServer = "";
+        $scope.jenparams = {};
         $scope.tagSerSelected;
         $scope.add = function() {
             $scope.parameters.push('');
@@ -86,14 +87,20 @@
         }
 
         $scope.executeBot=function(){
-            //var taskData={};
             if (items.taskConfig.taskType === 'script') {
                 var checkParam = false;
                 if ($scope.scriptParamsFlag) {
-                    checkParam = true;
+                    for(var i =0; i<$scope.parameters.length; i++){
+                        if($scope.parameters[i] === '' || $scope.parameters[i] === null){
+                            checkParam = false;
+                            toastr.error('Please enter parameters');
+                            return false;
+                        } else {
+                            checkParam = true;
+                        }
+                    }
                 }
                 if(checkParam){
-                    //$modalInstance.close($scope.parameters);
                     scriptParams = $scope.parameters;
                 } 
             }
@@ -102,10 +109,7 @@
                 
             }
             if (items.taskConfig.taskType === 'jenkins') {
-                for(var i=0;i<$scope.jenkinsparams.length;i++){
-                    key = $scope.jenkinsparams[i].name;
-                    choiceParam[key] = $scope.jenkinsparams[i].defaultValue[0];
-                }
+                choiceParam = $scope.jenparams;
             }
             $scope.executeTask(taskData);
         };
