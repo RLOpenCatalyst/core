@@ -1524,7 +1524,7 @@ function executeScheduleJob(instance) {
                         if(err){
                             callback(err,null);
                         }
-                        callback(null,startJobId);
+                        callback(null,stopJobId);
                     });
                 });
             }

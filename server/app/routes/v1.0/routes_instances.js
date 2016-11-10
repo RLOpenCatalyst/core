@@ -3247,7 +3247,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      * @apiName updateScheduler
      * @apiGroup schedule
      *
-     * @apiParam {String} instanceId                            Instance ID
+     * @apiParam {Array} instanceIds                            List of Instance Ids
      * @apiParam {Boolean} isScheduled                          To identify instance is scheduled or not
      * @apiParam {Object} instanceStartScheduler               instanceStart object in request body
      * @apiParam {String} instanceStartScheduler.startOn       date to start scheduler
@@ -3262,6 +3262,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
      * @apiParamExample {json} Request-Example:
      *      {
+                instanceIds:["String"],
                 "instanceStartScheduler": {
                     "startOn": "String",
                     "endOn": "String",
