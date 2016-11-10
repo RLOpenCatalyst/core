@@ -341,6 +341,16 @@
                 }
             };
 
+            blueprintCreation.botTypes = function() {
+                if(blueprintCreation.newEnt.serviceDelivery_isChecked) {
+                    $scope.botTypes = true;
+                    blueprintCreation.newEnt.botTypeValue = "Task";
+                    blueprintCreation.newEnt.botCategoryValue  = "Active Directory";
+                } else {
+                    $scope.botTypes = false;
+                }
+            };
+
             blueprintCreation.showRepoServers = function() {
                 if(blueprintCreation.newEnt.appDeployCheck_isChecked) {
                     bpCreateSer.getNexusServerList().then(function(data){
@@ -732,7 +742,12 @@
                             console.log(blueprintCreateJSON.dockercompose);
                         });
                     }
-
+                    if(blueprintCreation.newEnt.serviceDelivery_isChecked){
+                        blueprintCreateJSON.botType = blueprintCreation.newEnt.botTypeValue;
+                        blueprintCreateJSON.shortDesc = blueprintCreation.newEnt.botDescription;
+                        blueprintCreateJSON.botCategory = blueprintCreation.newEnt.botCategoryValue;
+                        blueprintCreateJSON.serviceDeliveryCheck = true;
+                    }
                     if(blueprintCreation.newEnt.appDeployCheck_isChecked){
                         if(blueprintCreation.newEnt.serverType === 'nexus'){
                             var nexus = {

@@ -255,24 +255,38 @@
                            </div>
                            
                            <div class="col-lg-4 col-md-4 margintop15" ng-show="botTypes">
-                              <label for="">Bot Type:<span class="redSpan">*</span>
+                              <label for="">Bot Type:<span class="red">*</span>
                               </label>
                               <select ng-model="bpCreate.newEnt.botTypeValue" name="" class=" width-100 form-control">
-                                 <option ng-repeat="" value="{{}}">{{}}</option>
+                                <option selected="selected" value="Task">Task</option>
+                                <option value="Check">Check</option>
+                                <option value="Learning">Learning</option>
+                                <option value="Composite">Composite</option>
+                                <option value="Built with other">Built with other</option>
                               </select>
                            </div>
 
                            <div class="col-lg-4 col-md-4 margintop15" ng-show="botTypes">
-                              <label for="">Short Description:<span class="redSpan">*</span>
+                              <label for="">Short Description:<span class="red">*</span>
                               </label>
                               <input ng-model="bpCreate.newEnt.botDescription" name="" class=" width-100 form-control">
                            </div>
 
                            <div class="col-lg-4 col-md-4 margintop15" ng-show="botTypes">
-                              <label for="">Bot Category:<span class="redSpan">*</span>
+                              <label for="">Bot Category:<span class="red">*</span>
                               </label>
-                              <select ng-model="bpCreate.newEnt.nexusDockerServer" name="" class=" width-100 form-control">
-                                 <option ng-repeat="serverOption in bpCreate.serverRepos" value="{{bpCreate.serverRepos.indexOf(serverOption)}}">{{(serverOption.nexusservername) ? serverOption.nexusservername : serverOption.dockerreponame}}</option>
+                              <select ng-model="bpCreate.newEnt.botCategoryValue" name="" class=" width-100 form-control">
+                                <option selected="selected" value="Active Directory">Active Directory</option>
+                                <option value="Amazon Web Services">Amazon Web Services</option>
+                                <option value="VMWare">VMWare</option>
+                                <option value="Windows Services">Windows Services</option>
+                                <option value="Acitve Directory Workflow">Acitve Directory Workflow</option>
+                                <option value="OpenDJ LDAP Workflow">OpenDJ LDAP Workflow</option>
+                                <option value="Application Deployment">Application Deployment</option>
+                                <option value="Learning">Installation & Configuration</option>
+                                <option value="Database Management">Database Management</option>
+                                <option value="Upgrade">Upgrade</option>
+                                <option value="Installation">Installation</option>
                               </select>
                            </div>
                            <!-- Docker Image selection table -->
