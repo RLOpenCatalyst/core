@@ -441,6 +441,10 @@
 			$scope.puppetInstanceList = [];
 			$scope.cookbookAttributes = [];
 			$scope.editRunListAttributes = false;
+
+			$rootScope.$on('WZ_ORCHESTRATION_REFRESH_CURRENT', function(event,reqParams) {
+                $scope.chefrunlist = reqParams.list;
+            });
 			var compositeSelector;
 			workzoneServices.getEnvironmentTaskList().then(function (response) {
 				var data, selectorList = [],

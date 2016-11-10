@@ -230,6 +230,20 @@ $imagePath : "../../../../../../cat3/images";
 }
 
 @media (min-width : 0px) and (max-width: 320px) {
+    #orchestrationUpdateChefRunlistPage {
+        font-size: 12px;
+
+        .searchCookbooksRolesLabel {
+            font-size: 10px;
+        }
+
+        .attribute-table-wrapper {
+            max-width: 226px;
+            overflow-x: auto;
+            width: 222px;
+        }
+    }
+
     .selectCookbooksandRecipesdiv {
         width: 85%;
 
@@ -253,6 +267,24 @@ $imagePath : "../../../../../../cat3/images";
 }
 
 @media (min-width : 321px) and (max-width: 480px) {
+    #orchestrationUpdateChefRunlistPage {
+        font-size: 12px;
+
+        .radio-all {
+            width: 20%;
+            float: left;
+        }
+
+        .radio-deploy, .chef-factory {
+            width: 35%;
+            float: left;
+        }
+
+        .chef-factory {
+            margin: 3px 0 0 5%;
+        }
+    }
+
     .selectCookbooksandRecipesdiv {
         .selectCookbooksandRecipes {
             min-width: 289px;
@@ -267,6 +299,21 @@ $imagePath : "../../../../../../cat3/images";
 
     .logsArea {
         height: 30px;
+    }
+}
+
+@media (min-width : 481px) {
+    #orchestrationUpdateChefRunlistPage {
+        font-size: 12px;
+
+        .radio-all, .radio-deploy, .chef-factory {
+            width: 30%;
+            float: left;
+        }
+
+        .chef-factory {
+            margin: 3px 0 0 10%;
+        }
     }
 }
 

@@ -247,7 +247,34 @@
                                  <option ng-repeat="config in bpCreate.projListing" value="{{config.businessGroups[0].projects[0].rowId}}">{{config.businessGroups[0].projects[0].name}}</option>
                               </select>
                            </div>
+
+                           <div class="col-lg-12 col-md-12 margintop15">
+                              <label class="btn btn-primary git stat">
+                                 <input type="checkbox" autocomplete="off" ng-model="bpCreate.newEnt.serviceDelivery_isChecked" ng-change="bpCreate.botTypes();"> Add to Service Delivery
+                              </label>
+                           </div>
                            
+                           <div class="col-lg-4 col-md-4 margintop15" ng-show="botTypes">
+                              <label for="">Bot Type:<span class="redSpan">*</span>
+                              </label>
+                              <select ng-model="bpCreate.newEnt.botTypeValue" name="" class=" width-100 form-control">
+                                 <option ng-repeat="" value="{{}}">{{}}</option>
+                              </select>
+                           </div>
+
+                           <div class="col-lg-4 col-md-4 margintop15" ng-show="botTypes">
+                              <label for="">Short Description:<span class="redSpan">*</span>
+                              </label>
+                              <input ng-model="bpCreate.newEnt.botDescription" name="" class=" width-100 form-control">
+                           </div>
+
+                           <div class="col-lg-4 col-md-4 margintop15" ng-show="botTypes">
+                              <label for="">Bot Category:<span class="redSpan">*</span>
+                              </label>
+                              <select ng-model="bpCreate.newEnt.nexusDockerServer" name="" class=" width-100 form-control">
+                                 <option ng-repeat="serverOption in bpCreate.serverRepos" value="{{bpCreate.serverRepos.indexOf(serverOption)}}">{{(serverOption.nexusservername) ? serverOption.nexusservername : serverOption.dockerreponame}}</option>
+                              </select>
+                           </div>
                            <!-- Docker Image selection table -->
                            <div ng-if="templateSelected.templatetypename === 'Docker'" class="col-lg-12 col-md-12" style="margin-top:9px;">
                               <label for="category">Docker Images<span class="red">&nbsp;*</span>
@@ -302,8 +329,8 @@
                                        </tr>
                                     </thead>
                                     <tbody>
-                                       <tr ng-repeat="item in templateSelected.templatescookbooks.split(',')">
-                                          <td>{{item}}</td>
+                                       <tr ng-repeat="item in templateSelected.templatescookbooks">
+                                          <td>{{item.value}}</td>
                                        </tr>
                                     </tbody>
                                  </table>

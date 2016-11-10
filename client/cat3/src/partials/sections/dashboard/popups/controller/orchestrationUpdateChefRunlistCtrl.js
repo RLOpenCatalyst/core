@@ -21,14 +21,32 @@
 			
 			$scope.getCookBookListForOrg = function(getCookBooks) {
 				var p = workzoneEnvironment.getEnvParams();
-				var param = {
-                    url: '/organizations/'+p.org+'/chefRunlist'
-                };
+				genericServices.getTreeNew().then(function (orgs) {
+					$scope.organObject=orgs;
+				});
+				
+				var param;
+				if(p){
+					param = {
+                    	url: '/organizations/'+p.org+'/chefRunlist'
+                	};	
+				} else {
+					param = {
+						url: '/organizations/' + $scope.organObject[0].orgid + '/chefRunlist'
+					}
+				}
             	genericServices.promiseGet(param).then(function (result) {
                		$scope.getCookBooks = result;
-               		var params = {
-	                    url: '/d4dMasters/org/' + p.org + '/templateType/SoftwareStack/templates'
-	                };
+               		var params;
+               		if(p){
+               			params = {
+               				url: '/d4dMasters/org/' + p.org + '/templateType/SoftwareStack/templates'
+               			}
+               		}else {
+               			params = {
+               				url: '/d4dMasters/org/' + $scope.organObject[0].orgid + '/templateType/SoftwareStack/templates'
+               			}
+               		}
 	            	genericServices.promiseGet(params).then(function (result) {
 	               		$scope.getTemplates = result;
 	               		console.log($scope.getCookBooks);
@@ -66,7 +84,7 @@
 			$scope.getCookBookListForOrg();
 			function registerUpdateEvent(obj) {
 				obj.addListUpdateListener('updateList', $scope.updateAttributeList);
-			}
+			};
 
 			$scope.init = function () {
 				$timeout(function () {
@@ -121,7 +139,7 @@
 							}
 						}
 						if (data.length > 0) {
-							genericServices.getcookBookAttributes(data, $scope.chefServerID).then(function (response) {
+							workzoneServices.getcookBookAttributes(data, $scope.chefServerID).then(function (response) {
 								var data;
 								if (response.data) {
 									data = response.data;

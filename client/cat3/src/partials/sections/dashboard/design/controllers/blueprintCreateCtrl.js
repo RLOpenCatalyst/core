@@ -527,6 +527,11 @@
             $scope.updateCookbook = function() {
                 genericServices.editRunlist($scope.chefrunlist,$scope.cookbookAttributes);
             }
+
+            $rootScope.$on('WZ_ORCHESTRATION_REFRESH_CURRENT', function(event,reqParams) {
+                $scope.templateSelected.templatescookbooks = reqParams.list;
+                console.log($scope.templateSelected.templatescookbooks);
+            });
             //modal to show the Docker Parameters Popup                                             
             //on initial load.
             //wizard data setting for step 1 and step 2.
