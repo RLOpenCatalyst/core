@@ -2339,6 +2339,10 @@ var InstancesDao = function() {
         });
     };
 
+    this.aggregate = function(aggregationParams, callback) {
+        Instances.aggregate(aggregationParams, callback);
+    };
+
     this.getInstancesByTagServer = function(tagServer, callback) {
         Instances.find({
             "tagServer": tagServer
