@@ -23,6 +23,10 @@ var appConfig = require('_pr/config');
 var async = require('async')
 var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js')
 var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js')
+var instancesModel = require('_pr/model/classes/instance/instance')
+var assignedInstancesModel = require('_pr/model/unmanaged-instance')
+var unassignedInstancesModel = require('_pr/model/unassigned-instances')
+var resourcesModel = require('_pr/model/resources/resources')
 
 var analyticsService = module.exports = {}
 
@@ -535,7 +539,7 @@ analyticsService.getEntityDetails = function getEntityDetails(entityType, entity
 }
 
 /*analyticsService.getTrendUsage = function getTrendUsage(resourceId, interval, startTime, endTime, callback) {*/
-function getTrendUsage(resourceId, interval, startTime, endTime, callback) {
+analyticsService.getTrendUsage = function getTrendUsage(resourceId, interval, startTime, endTime, callback) {
 	resourceMetricsModel.getByParams(resourceId, interval, startTime, endTime, function(err, datapoints){
 		if(err) {
 			callback(err, null);
@@ -583,30 +587,145 @@ function formatData(datapoints){
 	return metric;
 }
 
-function aggregateEntityCapacity(parentEntity, parentEntityId, parentEntityQuery, endTime, period, callback) {
-	async.parallel({
-		'managed': function() {
+// Only current capacity is aggregated
+// @TODO Remove hard coding
+analyticsService.aggregateEntityCapacity
+	= function aggregateEntityCapacity(parentEntity, parentEntityId, endTime, callback) {
 
-		},
-		'assigned': function() {
-
-		},
-		'unassigned': function() {
-
-		},
-		's3': function() {
-
-		},
-		'rds': function() {
-
-		}
-	}, function(err, instanceCounts) {
-		if(err) {
-			callback(err)
-		} else {
-
-		}
+	var catalystEntityHierarchy = appConfig.catalystEntityHierarchy
+	var platformServices = Object.keys(appConfig.aws.services).map(function(key) {
+		return appConfig.aws.services[key]
 	})
-}
 
-analyticsService.getTrendUsage = getTrendUsage;
+	var offset = (new Date()).getTimezoneOffset()*60000
+	startTime = dateUtil.getStartOfAHourInUTC(endTime)
+	interval = 3600
+
+	var instanceParamsMapping = {
+		'organizationId': 'orgId',
+		'businessGroupId': 'bgId',
+		'projectId': 'projectId',
+		'environmentId': 'envId',
+		'providerId': 'providerId'
+	}
+
+	var query, resourceQuery
+	if(parentEntity == 'organization') {
+		var query = {'orgId': parentEntityId}
+		var resourceQuery = {'masterDetails.orgId': parentEntityId}
+	}
+
+	async.forEach(catalystEntityHierarchy[parentEntity].children, function (childEntity, next1) {
+			var countParams = {$group: {_id: "$" + instanceParamsMapping[catalystEntityHierarchy[childEntity].key],
+				count: {$sum: 1}}}
+
+			var resourceCountParams
+			if(childEntity == 'provider') {
+				resourceCountParams = {$group: {_id: "$providerDetails."
+					+ instanceParamsMapping[catalystEntityHierarchy[childEntity].key],
+						count: {$sum: 1}}}
+			} else {
+				resourceCountParams = {$group: {_id: "$masterDetails."
+				+ instanceParamsMapping[catalystEntityHierarchy[childEntity].key],
+					count: {$sum: 1}}}
+			}
+
+			async.parallel({
+				'managed': function(next0) {
+					instancesModel.aggregate([
+						{$match: query},
+						countParams], next0)
+				},
+				'assigned': function(next0) {
+					if(childEntity == 'environment') {
+						assignedInstancesModel.aggregate([
+							{$match: query},
+							{$group: {_id: "$" + catalystEntityHierarchy[childEntity].key,
+								count: {$sum: 1}}}], next0)
+					} else {
+						assignedInstancesModel.aggregate([
+							{$match: query},
+							countParams], next0)
+					}
+				},
+				'unassigned': function(next0) {
+					unassignedInstancesModel.aggregate([
+						{$match: query},
+						countParams], next0)
+				},
+				'S3': function(next0) {
+					var s3Query = resourceQuery
+					s3Query.resourceType = 's3'
+
+					resourcesModel.aggregate([
+						{$match: s3Query},
+						resourceCountParams], next0)
+				},
+				'RDS': function(next0) {
+					var rdsQuery = resourceQuery
+					rdsQuery.resourceType = 'rds'
+
+					resourcesModel.aggregate([
+						{$match: rdsQuery},
+						resourceCountParams], next0)
+				}
+			}, function(err, instanceCounts) {
+				if(err) {
+					next1(err)
+				} else {
+					var entityCapacity = {}
+
+					for(var key in instanceCounts) {
+						for (var i = 0; i < instanceCounts[key].length; i++) {
+							var entityId = (instanceCounts[key][i]._id == null)
+								? 'unassigned' : instanceCounts[key][i]._id
+							var count = (instanceCounts[key][i].count == null) ? 0 : instanceCounts[key][i].count
+
+							if (!(entityId in entityCapacity)) {
+								entityCapacity[entityId] = {
+									entity: {
+										id: entityId,
+										type: childEntity
+									},
+									parentEntity: {
+										id: parentEntityId,
+										type: parentEntity
+									},
+									capacity: {
+										'totalCapacity': 0,
+										'AWS': {
+											'totalCapcity': 0,
+											'services': {
+												'EC2': 0,
+												'RDS': 0,
+												'S3': 0
+											}
+										}
+									},
+									startTime: Date.parse(startTime),
+									endTime: Date.parse(endTime),
+									period: 'hour',
+									interval: interval
+								}
+							}
+
+							entityCapacity[entityId].capacity.totalCapacity += count
+							entityCapacity[entityId].capacity.AWS.totalCapacity += count
+							entityCapacity[entityId].capacity.AWS.services[key] += count
+						}
+					}
+
+					// @TODO save entity capacity
+
+					next1()
+				}
+			})
+		},
+		function(err) {
+			if(err) {
+				callback(err)
+			} else {
+				callback()
+			}
+		});
+}

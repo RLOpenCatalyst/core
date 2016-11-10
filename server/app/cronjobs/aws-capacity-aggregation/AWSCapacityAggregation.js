@@ -15,10 +15,17 @@ var async = require('async')
 var appConfig = require('_pr/config')
 var analyticsService = require('_pr/services/analyticsService')
 var dateUtil = require('_pr/lib/utils/dateUtil')
+var CatalystCronJob = require('_pr/cronjobs/CatalystCronJob')
+var MasterUtils = require('_pr/lib/utils/masterUtil.js')
 
 var AWSCapacityAggregation = Object.create(CatalystCronJob)
 AWSCapacityAggregation.interval = '0 * * * *'
 AWSCapacityAggregation.execute = aggregateAWSCapacity
+
+var date = new Date()
+AWSCapacityAggregation.currentCronRunTime = dateUtil.getDateInUTC(date)
+
+AWSCapacityAggregation.execute()
 
 module.exports = AWSCapacityAggregation
 
@@ -29,7 +36,9 @@ function aggregateAWSCapacity() {
         function(next) {
             MasterUtils.getAllActiveOrg(next)
         },
-        AWSCapacityAggregation.aggregateEntityCapacityByOrg
+        function(orgs, next) {
+            AWSCapacityAggregation.aggregateEntityCapacityByOrg(orgs, next)
+        }
     ], function(err) {
         if (err) {
             logger.error(err)
@@ -42,7 +51,7 @@ function aggregateAWSCapacity() {
 function aggregateEntityCapacityByOrg(orgs, callback) {
     async.forEach(orgs, function(org, next) {
         analyticsService.aggregateEntityCapacity('organization', org.rowid,
-            {'organizationId': org.rowid}, period, next)
+            AWSCapacityAggregation.currentCronRunTime, next)
     }, function(err) {
         if(err) {
             callback(err)

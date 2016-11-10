@@ -2199,6 +2199,10 @@ var InstancesDao = function() {
             callback(null, data);
         });
     };
+
+    this.aggregate = function(aggregationParams, callback) {
+        Instances.aggregate(aggregationParams, callback);
+    }
 };
 
 module.exports = new InstancesDao();
