@@ -165,6 +165,7 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                         environmentName: launchParams.envName,
                         providerId: self.cloudProviderId,
                         providerType: 'azure',
+                        tagServer: launchParams.tagServer,
                         keyPairId: 'azure',
                         region: self.region,
                         chefNodeName: instanceData.name,

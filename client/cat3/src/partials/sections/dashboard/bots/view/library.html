@@ -1,0 +1,12 @@
+<div id="botLibraryPage">
+	<div id="grid1" ng-if="libr.gridOptions.data.length > 0" ui-grid="libr.gridOptions" ui-grid-pagination class="grid" style="height: {{gridHeight}}px"></div>
+	<div class="alert alert-info text-center" ng-if="!libr.gridOptions.data.length > 0">
+	    No data Available
+	</div>
+</div>
+
+<style>
+	.task-type-img {
+		height: 30px;
+	}
+</style>

@@ -71,7 +71,7 @@ var ResourceCostsSchema = new Schema({
         trim: true
     },
     billLineItemId: {
-        type: String,
+        type: Number,
         required: true,
         trim: true
     },
@@ -131,7 +131,8 @@ var ResourceCostsSchema = new Schema({
     }
 })
 
-ResourceCostsSchema.index({'organizationId': 1, 'billLineItemId': 1,
+ResourceCostsSchema.index({'platformDetails.serviceId' : 1})
+ResourceCostsSchema.index({'organizationId': 1, 'providerId': 1, 'billLineItemId': 1,
     'startTime': 1, 'interval': 1}, {'unique': true})
 
 ResourceCostsSchema.statics.saveResourceCost = function saveResourceCost(resourceCostData, callback) {
@@ -148,8 +149,8 @@ ResourceCostsSchema.statics.saveResourceCost = function saveResourceCost(resourc
 ResourceCostsSchema.statics.upsertResourceCost = function upsertResourceCost(resourceCostData, callback) {
     var query = {
         organizationId: resourceCostData.organizationId,
-        resourceId: resourceCostData.resourceId,
-        billLineRecordId: resourceCostData.billLineRecordId,
+        providerId: resourceCostData.providerId,
+        billLineItemId: resourceCostData.billLineItemId,
         startTime: resourceCostData.startTime,
         interval: resourceCostData.interval
     }

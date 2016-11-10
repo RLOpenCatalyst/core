@@ -49,6 +49,18 @@ function getStartOfAMonthInUTC(date) {
 	}
 }
 
+function getStartOfAWeekInUTC(date) {
+	if( typeof date === 'undefined' || date === null ) {
+		return null;
+	}else{
+		var dateStartOfWeek = moment.utc(date).seconds(0);
+		dateStartOfWeek = moment.utc(dateStartOfWeek).minute(0);
+		dateStartOfWeek = moment.utc(dateStartOfWeek).hour(0);
+		dateStartOfWeek = moment.utc(dateStartOfWeek).day(0);
+		return dateStartOfWeek.format();
+	}
+}
+
 function getStartOfADayInUTC(date) {
 	if( typeof date === 'undefined' || date === null ){
 		var err = new Error("Invalid date");
@@ -62,14 +74,31 @@ function getStartOfADayInUTC(date) {
 }
 
 function getStartOfAHourInUTC(date, callback) {
-	if( typeof date === 'undefined' || date === null ){
+	if (typeof date === 'undefined' || date === null) {
 		var err = new Error("Invalid date");
 		callback(err, null);
-	}else{
+	} else {
 		var dateStartOfHour = moment.utc(date).second(0);
 		dateStartOfHour = moment.utc(dateStartOfHour).minute(0);
 		return dateStartOfHour.format();
 	}
+}
+
+function getStartOfPeriod(period, date) {
+	var startTime = null
+	switch(period) {
+		case 'month':
+			startTime = getStartOfAMonthInUTC(date);
+			break;
+		case 'week':
+			startTime = getStartOfAWeekInUTC(date);
+			break;
+		case 'day':
+			startTime = getStartOfADayInUTC(date);
+			break;
+	}
+
+	return startTime;
 }
 
 /*
@@ -198,3 +227,5 @@ momentDateUtil.getStartOfAMonthInUTC = getStartOfAMonthInUTC;
 momentDateUtil.getDateDifferenceInDays = getDateDifferenceInDays;
 momentDateUtil.getStartOfADayInUTC = getStartOfADayInUTC;
 momentDateUtil.getStartOfAHourInUTC = getStartOfAHourInUTC;
+momentDateUtil.getStartOfAWeekInUTC = getStartOfAWeekInUTC;
+momentDateUtil.getStartOfPeriod = getStartOfPeriod;

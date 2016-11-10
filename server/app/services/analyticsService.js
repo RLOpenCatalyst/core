@@ -31,6 +31,7 @@ var resourcesModel = require('_pr/model/resources/resources')
 
 var analyticsService = module.exports = {}
 
+// @TODO To be re-factored
 analyticsService.aggregateEntityCosts
 	= function aggregateEntityCosts(parentEntity, parentEntityId, parentEntityQuery, endTime, period, callback) {
 	var catalystEntityHierarchy = appConfig.catalystEntityHierarchy
@@ -40,18 +41,8 @@ analyticsService.aggregateEntityCosts
 	})
 
 	var offset = (new Date()).getTimezoneOffset()*60000
-	var startTime
-	var interval
-	switch (period) {
-		case 'month':
-			startTime = dateUtil.getStartOfAMonthInUTC(endTime)
-			interval = costAggregationPeriods.month.intervalInSeconds
-			break
-		case 'day':
-			startTime = dateUtil.getStartOfADayInUTC(endTime)
-			interval = costAggregationPeriods.day.intervalInSeconds
-			break
-	}
+	var interval = costAggregationPeriods[period].intervalInSeconds
+	var startTime = dateUtil.getStartOfPeriod(period, endTime)
 
 	async.forEach(catalystEntityHierarchy[parentEntity].children, function (childEntity, next0) {
 		var query = parentEntityQuery
@@ -67,55 +58,40 @@ analyticsService.aggregateEntityCosts
 				], next1)
 			},
 			function(totalCosts, next1) {
-				var serviceCosts = []
-				async.forEach(platformServices,
-					function(service, next2) {
-						query['platformDetails.serviceId'] = service
-
-						resourceCostsModel.aggregate([
-							{$match: query},
-							{$group: {_id: "$" + catalystEntityHierarchy[childEntity].key,
-								totalCost: {$sum: "$cost"},
-								service: {$first: "$platformDetails.serviceId"}}}
-						], function(err, serviceCost) {
-							if(err) {
-								next2(err)
-							} else {
-								serviceCosts.push(serviceCost)
-								next2()
-							}
-						})
-					},
-					function(err) {
-						if(err) {
-							return next1(err)
-						} else {
-							var aggregatedCosts = {totalCosts: totalCosts}
-							aggregatedCosts.serviceCosts = serviceCosts
-
-							next1(null, aggregatedCosts)
+				resourceCostsModel.aggregate([
+					{$match: query},
+					{
+						$group: {
+							_id: {
+								"entityId": "$" + catalystEntityHierarchy[childEntity].key,
+								"service": "$platformDetails.serviceId"
+							},
+							totalCost: {$sum: "$cost"},
+							service: {$first: "$platformDetails.serviceId"}
 						}
 					}
-				)
+				], function (err, serviceCosts) {
+					if (err) {
+						return next1(err)
+					} else {
+						var aggregatedCosts = {totalCosts: totalCosts}
+						aggregatedCosts.serviceCosts = serviceCosts
+
+						next1(null, aggregatedCosts)
+					}
+				})
 			}
 		],
 		function(err, aggregateCosts) {
 			if(err) {
 				next0(err)
 			} else {
-				//@TODO Blocking call to be avoided
+				// @TODO To be improved
 				var entityCosts = {}
-
 				for(var i = 0; i < aggregateCosts.totalCosts.length; i++) {
 					entityCosts[aggregateCosts.totalCosts[i]._id] = {
-						entity: {
-							id: aggregateCosts.totalCosts[i]._id,
-							type: childEntity
-						},
-						parentEntity: {
-							id: parentEntityId,
-							type: parentEntity
-						},
+						entity: { id: aggregateCosts.totalCosts[i]._id, type: childEntity},
+						parentEntity: {id: parentEntityId, type: parentEntity},
 						costs: {
 							totalCost: Math.round(aggregateCosts.totalCosts[i].totalCost * 100) / 100,
 							AWS: {
@@ -130,14 +106,12 @@ analyticsService.aggregateEntityCosts
 					}
 				}
 
-				// @TODO Blocking call to be avoided
+				// @TODO To be improved
 				for(var i = 0; i < aggregateCosts.serviceCosts.length; i++) {
-					for(var j = 0; j < aggregateCosts.serviceCosts[i].length; j++) {
-						if(aggregateCosts.serviceCosts[i][j]._id in entityCosts) {
-							entityCosts[aggregateCosts.serviceCosts[i][j]._id]
-								.costs.AWS.serviceCosts[aggregateCosts.serviceCosts[i][j].service]
-								= Math.round(aggregateCosts.serviceCosts[i][j].totalCost * 100) / 100
-						}
+					if(aggregateCosts.serviceCosts[i]._id.entityId in entityCosts) {
+						entityCosts[aggregateCosts.serviceCosts[i]._id.entityId]
+							.costs.AWS.serviceCosts[aggregateCosts.serviceCosts[i]._id.service]
+							= Math.round(aggregateCosts.serviceCosts[i].totalCost * 100) / 100
 					}
 				}
 
@@ -181,23 +155,15 @@ analyticsService.validateAndParseCostQuery
 		var err = new Error('Invalid request')
 		err.errors = [{messages: 'Mandatory fields missing'}]
 		err.status = 400
-		callback(err)
+		return callback(err)
 	}
 
-	var startTime
-	switch (requestQuery.period) {
-		case 'month':
-			startTime = dateUtil.getStartOfAMonthInUTC(requestQuery.toTimeStamp)
-			break
-		/*case 'year':
-			startTime = dateUtil.getStartOfAMonthInUTC(requestQuery.toTimeStamp)
-			break*/
-		default:
-			var err = new Error('Invalid request')
-			err.errors = [{messages: 'Period is invalid'}]
-			err.status = 400
-			return callback(err)
-			break
+	var startTime = dateUtil.getStartOfPeriod(requestQuery.period, requestQuery.toTimeStamp)
+	if(startTime == null) {
+		var err = new Error('Invalid request')
+		err.errors = [{messages: 'Period is invalid'}]
+		err.status = 400
+		return callback(err)
 	}
 
 	//@TODO Query object format to be changed
@@ -450,9 +416,6 @@ analyticsService.formatCostTrend = function formatCostTrend(entityCosts, callbac
 //@TODO To be optimized. Better abstractions and attribute naming conventions will guarantee less code duplication
 //@TODO Centralized error handling to reduce code duplication
 analyticsService.getEntityDetails = function getEntityDetails(entityType, entityId, callback) {
-	var notFoundError = new Error('Invalid entity id')
-	notFoundError.status = 404
-
 	var internalServerError =  new Error('Internal Server Error')
 	internalServerError.status = 500
 
@@ -467,7 +430,7 @@ analyticsService.getEntityDetails = function getEntityDetails(entityType, entity
 					} else if (organizations.length > 0) {
 						callback(null, {'name': organizations[0].orgname})
 					} else {
-						callback(notFoundError)
+						callback(null, {'name': 'Unknown'})
 					}
 				}
 			)
@@ -480,7 +443,7 @@ analyticsService.getEntityDetails = function getEntityDetails(entityType, entity
 						logger.error(err)
 						callback(internalServerError)
 					} else if(provider == null) {
-						callback(notFoundError)
+						callback(null, {'name': 'Unknown'})
 					} else {
 						callback(null, {'name': provider.providerName})
 					}
@@ -497,7 +460,7 @@ analyticsService.getEntityDetails = function getEntityDetails(entityType, entity
 					} else if(businessGroups.length > 0) {
 						callback(null, {'name': businessGroups[0].productgroupname})
 					} else {
-						callback(notFoundError)
+						callback(null, {'name': 'Unknown'})
 					}
 				}
 			)
@@ -512,7 +475,7 @@ analyticsService.getEntityDetails = function getEntityDetails(entityType, entity
 					} else if(projects.length > 0) {
 						callback(null, {'name': projects[0].projectname})
 					} else {
-						callback(notFoundError)
+						callback(null, {'name': 'Unknown'})
 					}
 				}
 			)
@@ -527,7 +490,7 @@ analyticsService.getEntityDetails = function getEntityDetails(entityType, entity
 					} else if (environments.length > 0) {
 						callback(null, {'name': environments[0].environmentname})
 					} else {
-						callback(notFoundError)
+						callback(null, {'name': 'Unknown'})
 					}
 				}
 			)

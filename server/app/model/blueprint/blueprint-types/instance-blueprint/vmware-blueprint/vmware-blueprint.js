@@ -212,6 +212,7 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                 environmentName: launchParams.envName,
                                 providerId: self.cloudProviderId,
                                 providerType: self.cloudProviderType,
+                                tagServer: launchParams.tagServer,
                                 keyPairId: 'unknown',
                                 region: self.region,
                                 chefNodeName: createserverdata["vm_name"],

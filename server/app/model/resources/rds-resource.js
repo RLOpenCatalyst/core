@@ -24,6 +24,11 @@ var Schema = mongoose.Schema;
 
 var RDSResourcesSchema = new BaseResourcesSchema({
     resourceDetails: {
+        dbInstanceIdentifier:{
+            type: String,
+            required: true,
+            trim: true
+        },
         dbName: {
             type: String,
             required: true,

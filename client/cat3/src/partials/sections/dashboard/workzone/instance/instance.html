@@ -19,6 +19,17 @@
                 </button>
             </span>
 			<span class="pull-right">
+				<span ng-show="selectedInstanceId.length >0">
+					<button type="button" title="Schedule" class="btn btn-xs cat-btn-update" ng-click="scheduleInt()">
+						<i class="fa fa-calendar white"></i>
+					</button>
+					<button type="button" title="Stope" class="btn btn-xs cat-btn-update" ng-click="instanceStop()">
+						Stop
+					</button>
+					<button type="button" title="Start" class="btn btn-xs cat-btn-update" ng-click="instanceStart()">
+						Start
+					</button>
+				</span>
                 <span ng-if="filterBy">
                     <span ng-repeat="chip in filterChips" class="chip"><strong>{{chip.key}}:&nbsp;</strong>{{chip.value}}</span>
                     <span class="chip"><i class="fa fa-fw fa-close black cursor" ng-click="resetFilter()"></i></span>
@@ -48,14 +59,14 @@
             <div class="box-body form-horizontal">
                 <div class="row">
                     <div class="col-md-3">
-                                               <div class="form-group">
-                                <label for="selectProvider" class="col-sm-3 control-label">Provider:</label>
-                                <div class="col-sm-9">
-                                    <select class="form-control select2 select2-hidden-accessible" id="selectProvider" ng-model="filter.providerId" ng-options="provider._id as provider.providerName for provider in providers" ng-change="fnProviderChange()">
-                                        <option value=''>All</option>
-                                   </select>
-                                </div>
-                            </div>                                        
+                        <div class="form-group">
+                            <label for="selectProvider" class="col-sm-3 control-label">Provider:</label>
+                            <div class="col-sm-9">
+                                <select class="form-control select2 select2-hidden-accessible" id="selectProvider" ng-model="filter.providerId" ng-options="provider._id as provider.providerName for provider in providers" ng-change="fnProviderChange()">
+                                    <option value=''>All</option>
+                               </select>
+                            </div>
+                        </div>                                   
                     </div>
                     <div class="col-md-1 loader-container">
                        <span ng-show="providerLoading">
@@ -64,13 +75,13 @@
                     </div>
                     <div class="col-md-3">
                         <div class="form-group">
-                                <label for="selectRegion" class="col-sm-3 control-label">Region:</label>
-                                <div class="col-sm-9">
-                                    <select class="form-control select2 select2-hidden-accessible" id="selectRegion" ng-model="filter.regionId" ng-options="region.region as region.region_name +' | '+region.region for region in regions" ng-change="fnRegionChange()">
-                                        <option value=''>All</option>
-                                    </select>
-                                </div>
-                            </div> 
+                            <label for="selectRegion" class="col-sm-3 control-label">Region:</label>
+                            <div class="col-sm-9">
+                                <select class="form-control select2 select2-hidden-accessible" id="selectRegion" ng-model="filter.regionId" ng-options="region.region as region.region_name +' | '+region.region for region in regions" ng-change="fnRegionChange()">
+                                    <option value=''>All</option>
+                                </select>
+                            </div>
+                        </div> 
                     </div>
                     <div class="col-md-1 loader-container">
                        <span ng-show="regionLoading">
@@ -79,18 +90,18 @@
                     </div>
                     <div class="col-md-3">
                        <div class="form-group">
-                                <label for="selectVPC" class="col-sm-3 control-label">VPC:</label>
-                                <div class="col-sm-9">
-                                    <select class="form-control select2 select2-hidden-accessible" id="selectVPC" ng-options="vpc.VpcId as vpc.VpcId +' ('+vpc.CidrBlock+')' for vpc in vpcs" ng-model="filter.vpcId">
-                                        <option value=''>All</option>
-                                    </select>
-                                </div>
-                            </div> 
+                            <label for="selectVPC" class="col-sm-3 control-label">VPC:</label>
+                            <div class="col-sm-9">
+                                <select class="form-control select2 select2-hidden-accessible" id="selectVPC" ng-options="vpc.VpcId as vpc.VpcId +' ('+vpc.CidrBlock+')' for vpc in vpcs" ng-model="filter.vpcId">
+                                    <option value=''>All</option>
+                                </select>
+                            </div>
+                        </div> 
                     </div>
                     <div class="col-md-1">
                        <button type="button" title="Search" class="btn btn-xs cat-btn-update" ng-click="fnSearchFilters()">
-					<i class="fa fa-fw fa-search white"></i>
-				</button>
+							<i class="fa fa-fw fa-search white"></i>
+						</button>
                     </div>
                 </div>
                 <!-- /.row -->
@@ -103,7 +114,7 @@
         
         <section id="cardView" class="scrollContent" ng-show="isCardViewActive">
 			<div class="card-wrapper" ng-repeat="inst in instanceList" ng-mouseover="overHandler()" ng-mouseout="outHandler()">
-				<div class="card" ng-click="selectCard(inst._id);" ng-class="{'card-border' :inst._id == selectedCard}">
+				<div class="card" ng-click="selectCard(inst._id);" ng-class="{'card-border' :selectedInstanceId.indexOf(inst._id) !== -1}">
 					<div class="card-title">
 						<div class="card-title-role">
 							<img class="instanceRoleLogo" ng-src="{{getRoleLogo(inst)}}" />
@@ -129,6 +140,7 @@
 					</div>
 					<div class="provider-id" title="{{getPlatformId(inst.providerType,inst.platformId)}}">
 						{{getPlatformId(inst.providerType,inst.platformId)}}
+						<i class="fa fa-line-chart cursor marginleft5" title="Usage" ng-show="inst.providerType" ng-click="showInstanceUsage(inst);"></i>
 					</div>
 					<div class="card-btns" ng-hide="hoverEdit">
 						<div ng-show="actionSet.isChefEnabled(inst) &amp;&amp; perms.chefClientRun" title="Chef Client Run" class="btn-icons icon-chef" ng-click="operationSet.updateCookbook(inst);">
@@ -241,7 +253,7 @@
 		<section id="tableView" ng-show="!isCardViewActive">
 			<div class="instance-grid-wrapper">
 				<!-- <loading size="large" name="isinstancesTableLoading" type="block"></loading>-->
-				<div id="grid2" ng-if="tabData.length >0" ui-grid="instancesGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid instance-status" style="height: {{gridHeight}}px"></div>
+				<div id="grid2" ng-if="tabData.length >0" ui-grid="instancesGridOptions" ui-grid-selection ui-grid-pagination ui-grid-auto-resize class="grid instance-status" style="height: {{gridHeight}}px"></div>
 			</div>
 		</section>
 	</div>
