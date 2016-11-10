@@ -192,14 +192,18 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
         //merging attributes Objects
         var attributeObj = {};
         var objectArray = [];
-        for (var i = 0; i < self.attributes.length; i++) {
-            objectArray.push(self.attributes[i].jsonObj);
+        var attr = self.attributes;
+        if (self.botParams && self.botParams.cookbookAttributes) {
+            attr = self.botParams.cookbookAttributes;
+        }
+        for (var i = 0; i < attr.length; i++) {
+            objectArray.push(attr[i].jsonObj);
         }
 
         var instanceIds = this.nodeIds;
 
 
-        function getInstances(role, instanceIds, callback) {
+        function getInstances(role, instanceIds, tagServer, callback) {
             if (role) {
                 configmgmtDao.getChefServerDetailsByOrgname(self.orgId, function(err, chefDetails) {
                     if (err) {
@@ -265,6 +269,19 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                     });
                 });
 
+            } else if (tagServer) {
+                logger.debug('in tagServer',tagServer);
+                instancesDao.getInstancesByTagServer(tagServer, function(err, instances) {
+                    if (err) {
+                        logger.error(err);
+                        if (typeof onExecute === 'function') {
+                            onExecute(err, null);
+                        }
+                        return;
+                    }
+                    callback(null, instances);
+                });
+
             } else {
 
                 if (!(instanceIds && instanceIds.length)) {
@@ -289,7 +306,8 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
 
         }
         logger.debug('role ==>', self.role);
-        getInstances(self.role, instanceIds, function(err, instances) {
+        getInstances(self.role, instanceIds, self.botTagServer, function(err, instances) {
+            logger.debug("instance length ==>",instances.length);
             if (err) {
                 logger.error(err);
                 if (typeof onExecute === 'function') {

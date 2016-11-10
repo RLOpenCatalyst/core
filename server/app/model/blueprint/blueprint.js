@@ -165,8 +165,10 @@ var BlueprintSchema = new Schema({
     serviceDeliveryCheck: {
         type: Boolean,
         default:false
+    },
+    botCategory: {
+        type: String
     }
-
 });
 
 BlueprintSchema.plugin(mongoosePaginate);
@@ -449,7 +451,8 @@ BlueprintSchema.statics.createNew = function(blueprintData, callback) {
             domainNameCheck: blueprintData.domainNameCheck,
             shortDesc:blueprintData.shortDesc,
             botType:blueprintData.botType,
-            serviceDeliveryCheck:blueprintData.serviceDeliveryCheck
+            serviceDeliveryCheck:blueprintData.serviceDeliveryCheck,
+            botCategory:blueprintData.botCategory
         };
         var blueprint = new Blueprints(blueprintObj);
         logger.debug(blueprint);

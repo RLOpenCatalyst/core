@@ -78,7 +78,7 @@ taskService.getChefTasksByOrgBgProjectAndEnvId = function getChefTasksByOrgBgPro
     });
 };
 
-taskService.executeTask = function executeTask(taskId, user, hostProtocol, choiceParam, appData, paramOptions, callback) {
+taskService.executeTask = function executeTask(taskId, user, hostProtocol, choiceParam, appData, paramOptions, botTagServer, callback) {
     if (appData) {
         appData['taskId'] = taskId;
     }
@@ -89,12 +89,9 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
             return callback(error, null);
         }
         if (task) {
-
-            if(task.taskType.CHEF_TASK){
+            if (task.taskType.CHEF_TASK) {
                 paramOptions = paramOptions.attributes;
-            }else if(task.taskType.JENKINS_TASK){
-                paramOptions = paramOptions.parameterized;
-            }else if(task.taskType.SCRIPT_TASK) {
+            } else if (task.taskType.SCRIPT_TASK) {
                 paramOptions = paramOptions.scriptDetails;
             }
 
@@ -102,7 +99,10 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
             if (task.blueprintIds && task.blueprintIds.length) {
                 blueprintIds = task.blueprintIds;
             }
-            task.execute(user, hostProtocol, choiceParam, appData, blueprintIds, task.envId, paramOptions, function(err, taskRes, historyData) {
+            console.log(paramOptions);
+            task.botParams = paramOptions;
+            task.botTagServer = botTagServer;
+            task.execute(user, hostProtocol, choiceParam, appData, blueprintIds, task.envId, function(err, taskRes, historyData) {
                 if (err) {
                     var error = new Error('Failed to execute task.');
                     error.status = 500;
@@ -175,7 +175,7 @@ taskService.getTaskActionList = function getTaskActionList(jsonData, callback) {
                                         "status": histories.docs[i].status,
                                         "instanceId": histories.docs[i].nodeIdsWithActionLog[p1].nodeId
                                     };
-                                    var instanceName ="";
+                                    var instanceName = "";
                                     if (instance && instance.length) {
                                         obj['instanceName'] = instance[0].name;
                                     }
