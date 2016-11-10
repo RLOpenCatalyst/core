@@ -117,7 +117,7 @@
         $scope.executeTask = function(taskData){
             var reqBody = {};
             if (items.taskConfig.taskType === 'jenkins') {
-                reqBody.choiceParams = choiceParam;
+                reqBody.choiceParam = choiceParam;
             } else if (items.taskConfig.taskType === 'chef'){
                 reqBody.tagServer = $scope.tagSerSelected;
                 if ($scope.chefAttributesFlag) {
