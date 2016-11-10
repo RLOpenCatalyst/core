@@ -18,6 +18,7 @@ var logger = require('_pr/logger')(module);
 var resourceMetricsModel = require('_pr/model/resource-metrics');
 var resourceCostsModel =  require('_pr/model/resource-costs')
 var entityCostsModel =  require('_pr/model/entity-costs')
+var entityCapacityModel = require('_pr/model/entity-capacity')
 const dateUtil = require('_pr/lib/utils/dateUtil')
 var appConfig = require('_pr/config');
 var async = require('async')
@@ -589,15 +590,16 @@ function formatData(datapoints){
 
 // Only current capacity is aggregated
 // @TODO Remove hard coding
+// @TODO Refactor and reduce function size by redefining resource abstraction
 analyticsService.aggregateEntityCapacity
 	= function aggregateEntityCapacity(parentEntity, parentEntityId, endTime, callback) {
 
 	var catalystEntityHierarchy = appConfig.catalystEntityHierarchy
-	var platformServices = Object.keys(appConfig.aws.services).map(function(key) {
+	var platformServices = Object.keys(appConfig.aws.services).map(function (key) {
 		return appConfig.aws.services[key]
 	})
 
-	var offset = (new Date()).getTimezoneOffset()*60000
+	var offset = (new Date()).getTimezoneOffset() * 60000
 	startTime = dateUtil.getStartOfAHourInUTC(endTime)
 	interval = 3600
 
@@ -610,50 +612,66 @@ analyticsService.aggregateEntityCapacity
 	}
 
 	var query, resourceQuery
-	if(parentEntity == 'organization') {
+	if (parentEntity == 'organization') {
 		var query = {'orgId': parentEntityId}
 		var resourceQuery = {'masterDetails.orgId': parentEntityId}
 	}
 
 	async.forEach(catalystEntityHierarchy[parentEntity].children, function (childEntity, next1) {
-			var countParams = {$group: {_id: "$" + instanceParamsMapping[catalystEntityHierarchy[childEntity].key],
-				count: {$sum: 1}}}
+			var countParams = {
+				$group: {
+					_id: "$" + instanceParamsMapping[catalystEntityHierarchy[childEntity].key],
+					count: {$sum: 1}
+				}
+			}
 
 			var resourceCountParams
-			if(childEntity == 'provider') {
-				resourceCountParams = {$group: {_id: "$providerDetails."
-					+ instanceParamsMapping[catalystEntityHierarchy[childEntity].key],
-						count: {$sum: 1}}}
+			if (childEntity == 'provider') {
+				resourceCountParams = {
+					$group: {
+						_id: "$providerDetails."
+						+ instanceParamsMapping[catalystEntityHierarchy[childEntity].key],
+						count: {$sum: 1}
+					}
+				}
 			} else {
-				resourceCountParams = {$group: {_id: "$masterDetails."
-				+ instanceParamsMapping[catalystEntityHierarchy[childEntity].key],
-					count: {$sum: 1}}}
+				resourceCountParams = {
+					$group: {
+						_id: "$masterDetails."
+						+ instanceParamsMapping[catalystEntityHierarchy[childEntity].key],
+						count: {$sum: 1}
+					}
+				}
 			}
 
 			async.parallel({
-				'managed': function(next0) {
+				'managed': function (next0) {
 					instancesModel.aggregate([
 						{$match: query},
 						countParams], next0)
 				},
-				'assigned': function(next0) {
-					if(childEntity == 'environment') {
+				'assigned': function (next0) {
+					if (childEntity == 'environment') {
 						assignedInstancesModel.aggregate([
 							{$match: query},
-							{$group: {_id: "$" + catalystEntityHierarchy[childEntity].key,
-								count: {$sum: 1}}}], next0)
+							{
+								$group: {
+									_id: "$" + catalystEntityHierarchy[childEntity].key,
+									count: {$sum: 1}
+								}
+							}], next0)
 					} else {
 						assignedInstancesModel.aggregate([
 							{$match: query},
 							countParams], next0)
 					}
 				},
-				'unassigned': function(next0) {
+				'unassigned': function (next0) {
 					unassignedInstancesModel.aggregate([
 						{$match: query},
 						countParams], next0)
 				},
-				'S3': function(next0) {
+				'S3': function (next0) {
 					var s3Query = resourceQuery
 					s3Query.resourceType = 's3'
 
@@ -661,7 +679,7 @@ analyticsService.aggregateEntityCapacity
 						{$match: s3Query},
 						resourceCountParams], next0)
 				},
-				'RDS': function(next0) {
+				'RDS': function (next0) {
 					var rdsQuery = resourceQuery
 					rdsQuery.resourceType = 'rds'
 
@@ -669,20 +687,20 @@ analyticsService.aggregateEntityCapacity
 						{$match: rdsQuery},
 						resourceCountParams], next0)
 				}
-			}, function(err, instanceCounts) {
-				if(err) {
+			}, function (err, instanceCounts) {
+				if (err) {
 					next1(err)
 				} else {
-					var entityCapacity = {}
+					var entityCapacities = {}
 
-					for(var key in instanceCounts) {
+					for (var key in instanceCounts) {
 						for (var i = 0; i < instanceCounts[key].length; i++) {
 							var entityId = (instanceCounts[key][i]._id == null)
 								? 'unassigned' : instanceCounts[key][i]._id
 							var count = (instanceCounts[key][i].count == null) ? 0 : instanceCounts[key][i].count
 
-							if (!(entityId in entityCapacity)) {
-								entityCapacity[entityId] = {
+							if (!(entityId in entityCapacities)) {
+								entityCapacities[entityId] = {
 									entity: {
 										id: entityId,
 										type: childEntity
@@ -694,7 +712,7 @@ analyticsService.aggregateEntityCapacity
 									capacity: {
 										'totalCapacity': 0,
 										'AWS': {
-											'totalCapcity': 0,
+											'totalCapacity': 0,
 											'services': {
 												'EC2': 0,
 												'RDS': 0,
@@ -709,23 +727,43 @@ analyticsService.aggregateEntityCapacity
 								}
 							}
 
-							entityCapacity[entityId].capacity.totalCapacity += count
-							entityCapacity[entityId].capacity.AWS.totalCapacity += count
-							entityCapacity[entityId].capacity.AWS.services[key] += count
+							entityCapacities[entityId].capacity.totalCapacity += count
+							entityCapacities[entityId].capacity.AWS.totalCapacity += count
+							if(['managed', 'unassigned', 'assigned'].indexOf(key) > -1) {
+								entityCapacities[entityId].capacity.AWS.services['EC2'] += count
+							} else {
+								entityCapacities[entityId].capacity.AWS.services[key] += count
+							}
 						}
 					}
 
-					// @TODO save entity capacity
+					if(Object.keys(entityCapacities).length > 0)
+						analyticsService.updateEntityCapacity(entityCapacities, next1)
+					else
+						next1()
 
-					next1()
 				}
 			})
 		},
-		function(err) {
-			if(err) {
+		function (err) {
+			if (err) {
 				callback(err)
 			} else {
 				callback()
 			}
 		});
+}
+
+analyticsService.updateEntityCapacity = function updateEntityCapacity(entityCapacities, callback) {
+	async.forEach(entityCapacities,
+		function(entityCapacity, next) {
+			entityCapacityModel.upsertEntityCapacity(entityCapacity, next)
+		},
+		function(err) {
+			if(err)
+				return callback(err)
+
+			return callback()
+		}
+	)
 }
