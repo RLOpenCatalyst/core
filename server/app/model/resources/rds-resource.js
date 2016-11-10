@@ -131,13 +131,11 @@ RDSResourcesSchema.statics.updateRDSData = function(rdsData,callback){
     var queryObj={};
     queryObj['providerDetails.id'] = rdsData.providerDetails.id;
     queryObj['resourceType'] = rdsData.resourceType;
-    queryObj['resourceDetails.dbName'] = rdsData.resourceDetails.dbName;
+    queryObj['resourceDetails.dbiResourceId'] = rdsData.resourceDetails.dbiResourceId;
     RDSResources.update(queryObj, {
         $set: {
             resourceDetails: rdsData.resourceDetails,
-            tags: rdsData.tags,
-            projectTag: rdsData.projectTag,
-            environmentTag: rdsData.environmentTag
+            tags: rdsData.tags
         }
     }, {
         upsert: false
@@ -154,7 +152,7 @@ RDSResourcesSchema.statics.getRDSData = function(rdsData,callback){
     var queryObj={};
     queryObj['providerDetails.id'] = rdsData.providerDetails.id;
     queryObj['resourceType'] = rdsData.resourceType;
-    queryObj['resourceDetails.dbName'] = rdsData.resourceDetails.dbName;
+    queryObj['resourceDetails.dbiResourceId'] = rdsData.resourceDetails.dbiResourceId;
     queryObj['isDeleted']=false;
     RDSResources.find(queryObj, function(err, data) {
         if (err) {

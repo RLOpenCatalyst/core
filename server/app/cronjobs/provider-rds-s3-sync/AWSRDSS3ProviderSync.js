@@ -270,23 +270,23 @@ function deleteRDSResourceData(rdsInfo,providerId, callback) {
     }else {
         async.waterfall([
             function (next) {
-                rdsDBNameList(rdsInfo, next);
+                rdsDBResourceIdList(rdsInfo, next);
             },
-            function (dbNames, next) {
+            function (rdsDBResourceIds, next) {
                 resourceModel.getResourcesByProviderResourceType(providerId, 'RDS', function (err, rdsData) {
                     if (err) {
                         next(err);
                     } else {
-                        next(null, rdsData, dbNames);
+                        next(null, rdsData, rdsDBResourceIds);
                     }
                 });
             },
-            function (rdsData, dbNames, next) {
+            function (rdsData, rdsDBResourceIds, next) {
                 if (rdsData.length > 0) {
                     var count = 0;
                     for (var i = 0; i < rdsData.length; i++) {
                         (function (rds) {
-                            if (dbNames.indexOf(rds.resourceDetails.dbInstanceIdentifier) === -1) {
+                            if (rdsDBResourceIds.indexOf(rds.resourceDetails.dbiResourceId) === -1) {
                                 resourceModel.deleteResourcesById(rds._id, function (err, data) {
                                     if (err) {
                                         next(err);
@@ -440,12 +440,12 @@ function bucketNameList(s3Info,callback){
     }
 }
 
-function rdsDBNameList(rdsInfo,callback){
-    var dbNames=[];
+function rdsDBResourceIdList(rdsInfo,callback){
+    var rdsDBResourceIds=[];
     for(var i = 0; i < rdsInfo.length; i++){
-        dbNames.push(rdsInfo[i].resourceDetails.dbInstanceIdentifier);
-        if(dbNames.length === rdsInfo.length){
-            callback(null,dbNames);
+        rdsDBResourceIds.push(rdsInfo[i].resourceDetails.dbiResourceId);
+        if(rdsDBResourceIds.length === rdsInfo.length){
+            callback(null,rdsDBResourceIds);
         }
     }
 }

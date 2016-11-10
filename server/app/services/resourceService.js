@@ -654,8 +654,6 @@ function getBucketsInfo(provider,orgName,callback) {
                                         callback(err, null);
                                     } else {
                                         bucketObj.tags = bucketTag;
-                                        bucketObj.projectTag = bucketTag['Owner'];
-                                        bucketObj.environmentTag = bucketTag['Environment'];
                                         results.push(bucketObj);
                                         bucketObj={};
                                         if (results.length === data.Buckets.length) {
@@ -822,8 +820,6 @@ function getRDSInstancesInfo(provider,orgName,callback) {
                                 logger.error(err);
                             }
                             rdsDbInstanceObj.tags = rdsTags;
-                            rdsDbInstanceObj.projectTag = rdsTags['Owner'];
-                            rdsDbInstanceObj.environmentTag = rdsTags['Environment'];
                             results.push(rdsDbInstanceObj);
                             rdsDbInstanceObj={};
                             if(dbInstances.length === results.length){
