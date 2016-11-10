@@ -3243,25 +3243,22 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 
     /**
-     * @api {put} /instances/:instanceId/schedule  Update Scheduler for instance
+     * @api {put} /instances/schedule  Update Scheduler for instance
      * @apiName updateScheduler
      * @apiGroup schedule
      *
      * @apiParam {String} instanceId                            Instance ID
      * @apiParam {Boolean} isScheduled                          To identify instance is scheduled or not
-     * @apiParam {String} cronEndedOn                 Date to stop scheduler
-     * @apiParam {Object} instanceStart               instanceStart object in request body
-     * @apiParam {String} instanceStart.cron          start cron pattern
-     * @apiParam {String} instanceStart.startOn       date to start scheduler
-     * @apiParam {String} instanceStart.endOn         end date to start scheduler
-     * @apiParam {String} instanceStart.repeats       repeat start scheduler
-     * @apiParam {Number} instanceStart.repeatEvery   interval to repeat start scheduler
-     * @apiParam {Object} instanceStop               instanceStop object in request body
-     * @apiParam {String} instanceStop.cron          stop cron pattern
-     * @apiParam {String} instanceStop.startOn       date to stop scheduler
-     * @apiParam {String} instanceStop.endOn         end date to stop scheduler
-     * @apiParam {String} instanceStop.repeats       repeat stop scheduler
-     * @apiParam {Number} instanceStop.repeatEvery   interval to repeat stop scheduler
+     * @apiParam {Object} instanceStartScheduler               instanceStart object in request body
+     * @apiParam {String} instanceStartScheduler.startOn       date to start scheduler
+     * @apiParam {String} instanceStartScheduler.endOn         end date to start scheduler
+     * @apiParam {String} instanceStartScheduler.repeats       repeat start scheduler
+     * @apiParam {Number} instanceStartScheduler.repeatEvery   interval to repeat start scheduler
+     * @apiParam {Object} instanceStopScheduler               instanceStop object in request body
+     * @apiParam {String} instanceStopScheduler.startOn       date to stop scheduler
+     * @apiParam {String} instanceStopScheduler.endOn         end date to stop scheduler
+     * @apiParam {String} instanceStopScheduler.repeats       repeat stop scheduler
+     * @apiParam {Number} instanceStopScheduler.repeatEvery   interval to repeat stop scheduler
 
      * @apiParamExample {json} Request-Example:
      *      {
