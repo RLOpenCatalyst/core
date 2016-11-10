@@ -32,7 +32,9 @@
                 { name: 'bot History',cellTemplate:'<span ng-show="row.entity.blueprintType">NA</span>'+
                         '<span class="btn cat-btn-update control-panel-button" title="History" ng-show="row.entity.taskType" ng-click="grid.appScope.botLogs(row.entity);"><i class="fa fa-header white"></i></span>'},
                 { name: 'bot Action',cellTemplate:'<span class="btn cat-btn-update control-panel-button" title="Execute" ng-click="grid.appScope.launchInstance(row.entity);"><i class="fa fa-play white"></i></span>' +
-                    '<span class="btn btn-danger control-panel-button" title="Delete" ng-click="grid.appScope.deleteBot(row.entity);"><i class="fa fa-trash-o white"></i></span>'}
+                    '<span class="btn btn-danger control-panel-button" title="Delete Task" ng-show="row.entity.taskType" ng-click="grid.appScope.deleteBotTask(row.entity);"><i class="fa fa-trash-o white"></i></span>' + 
+                    '<span class="btn btn-danger control-panel-button" title="Delete Blueprint" ng-show="row.entity.blueprintType" ng-click="grid.appScope.deleteBotBP(row.entity);"><i class="fa fa-trash-o white"></i></span>'
+                }
             ],
             data:[]
         };
@@ -48,7 +50,7 @@
         $scope.botLogs = function(bot){
             genSevs.botHistory(bot);
         };
-        $scope.deleteBot = function(bot) {
+        $scope.deleteBotTask = function(bot) {
             var modalOptions = {
                 closeButtonText: 'Cancel',
                 actionButtonText: 'Delete',
@@ -57,7 +59,26 @@
                 bodyText: 'Are you sure you want to delete this bot?'
             };
             confirmbox.showModal({}, modalOptions).then(function() {
-                workzoneServices.deleteBot(bot._id).then(function(response) {
+                workzoneServices.deleteBotTask(bot._id).then(function(response) {
+                    if (response) {
+                        toastr.success('Successfully deleted');
+                        lib.init();
+                    }
+                }, function(data) {
+                    toastr.error('error:: ' + data.toString());
+                });
+            });
+        };
+        $scope.deleteBotBP = function(bot) {
+            var modalOptions = {
+                closeButtonText: 'Cancel',
+                actionButtonText: 'Delete',
+                actionButtonStyle: 'cat-btn-delete',
+                headerText: 'Delete Bot',
+                bodyText: 'Are you sure you want to delete this bot?'
+            };
+            confirmbox.showModal({}, modalOptions).then(function() {
+                workzoneServices.deleteBotBP(bot._id).then(function(response) {
                     if (response) {
                         toastr.success('Successfully deleted');
                         lib.init();
