@@ -680,6 +680,12 @@ $imagePath: "../../../../../../images";
         font-size: 13px;
         vertical-align: top;
     }
+    .marginleft5 {
+        margin-left: 5px;
+    }
+    .instanceSelection {
+        margin-left: 28%;
+    }
     #tableView {
         width: 100%;
         padding: 0px 0px 42px 0px;
@@ -768,6 +774,13 @@ $imagePath: "../../../../../../images";
 /*Common CSS which is used for all devices ends here*/
 /*CSS for all Popups starts here*/
 
+#instanceUsagePage {
+    .usage-dropdown {
+        width: auto;
+        height: 31px;
+        display: table-cell;
+    }
+}
 #deleteInstancePage {
     .font-normal {
         font-weight: normal;

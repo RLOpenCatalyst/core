@@ -27,7 +27,8 @@ var angularApp = angular.module('catapp', ['ui.router','ngTouch','toastr',
 	'ui.grid.autoResize','ui.grid.exporter',
 	'ui.grid.resizeColumns',
 	'global.uiGridOptions',
-	'global.messages'
+	'global.messages',
+	'ui.grid.selection'
 ]);
 
 angularApp.run(['$rootScope', 'auth', '$state', '$stateParams','$http','$window',
@@ -90,13 +91,15 @@ angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', '$http', '$l
 			design: modulePerms.designAccess(),
 			settings: modulePerms.settingsAccess(),
 			track: modulePerms.trackAccess(),
-			analyticsBool: modulePerms.analyticsBool()
+			analyticsBool: modulePerms.analyticsBool(),
+			serviceBool: modulePerms.serviceBool()
 		};
 		$rootScope.workZoneBool = _permSet.workzone;
 		$rootScope.designBool = _permSet.design;
 		$rootScope.settingsBool = _permSet.settings;
 		$rootScope.trackBool = _permSet.track;
 		$rootScope.analyticsBool = _permSet.analyticsBool;
+		$rootScope.serviceBool = _permSet.serviceBool;
 	});
 	$rootScope.$emit('SET_HEADER', $rootScope.appDetails);
 	$scope.showLogoutConfirmationSection = false;

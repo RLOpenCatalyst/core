@@ -8,8 +8,8 @@
     "use strict";
     angular.module('workzone.instance', ['ui.bootstrap', 'utility.validation', 'filter.currentTime', 'apis.workzone', 'utility.array', 'workzonePermission', 'instanceServices', 'chefDataFormatter', 'utility.pagination', 'ngFileUpload'])
         .controller('instanceCtrl', ['chefSelectorComponent', '$scope', '$rootScope', '$modal', '$q', 'workzoneServices', 'arrayUtil', 'instancePermission',
-            'instanceActions', 'instanceOperations', 'workzoneEnvironment', '$timeout', 'workzoneUIUtils', 'uiGridOptionsService', 'confirmbox',
-            function(chefSelectorComponent, $scope, $rootScope, $modal, $q, workzoneServices, arrayUtil, instancePerms, instanceActions, instanceOperations, workzoneEnvironment, $timeout, workzoneUIUtils, uiGridOptionsService, confirmbox) {
+            'instanceActions', 'instanceOperations', 'workzoneEnvironment', '$timeout', 'workzoneUIUtils', 'uiGridOptionsService', 'confirmbox','genericServices',
+            function(chefSelectorComponent, $scope, $rootScope, $modal, $q, workzoneServices, arrayUtil, instancePerms, instanceActions, instanceOperations, workzoneEnvironment, $timeout, workzoneUIUtils, uiGridOptionsService, confirmbox,genericServices) {
                 var helper = {
                     attachListOfTaskWithInstance: function(completeData) {
                         var instanceList = completeData.instances;
@@ -73,6 +73,7 @@
                         }
                     }
                 };
+                $scope.selectedInstanceId=[];
                 $scope.instancePageLevelLoader = true;
                 $scope.instStartStopFlag = false;
                 $scope.isImportClickEnabled = true;
@@ -91,7 +92,15 @@
                 $scope.filterChips = [];
                 $scope.providerLoading = false;
                 $scope.regionLoading = false;
-
+                $scope.scheduleInt = function(){
+                    genericServices.scheduleTime($scope.selectedInstanceId);
+                };
+                $scope.instanceStop=function () {
+                    genericServices.instanceStop($scope.selectedInstanceId);
+                };
+                $scope.instanceStart=function () {
+                    genericServices.instanceStart($scope.selectedInstanceId);
+                };
                 $scope.openContainersTab = function() {
                     $scope.$parent.$parent.activateTab('Containers');
                 };
@@ -112,6 +121,9 @@
                 $scope.isInstancePageLoading = true;
                 var gridBottomSpace = 5;
                 var instanceUIGridDefaults = uiGridOptionsService.options();
+                angular.extend(instanceUIGridDefaults.gridOption, {enableRowSelection: true,
+                    enableSelectAll: true,
+                    selectionRowHeaderWidth: 35,multiSelect:true,enableRowHeaderSelection: true});
                 $scope.paginationParams = instanceUIGridDefaults.pagination;
                 $scope.currentCardPage = instanceUIGridDefaults.pagination.page;
                 $scope.cardsPerPage = instanceUIGridDefaults.pagination.pageSize;
@@ -180,7 +192,23 @@
                 $scope.instancesGridOptions = angular.extend(instanceUIGridDefaults.gridOption, {
                     onRegisterApi: function(gridApi) {
                         $scope.gridApi = gridApi;
+                        gridApi.selection.on.rowSelectionChanged($scope,function(row){
+                            if(row.isSelected){
+                                $scope.selectedInstanceId.push(row.entity._id);
+                            } else {
+                                $scope.selectedInstanceId.splice(row.entity._id,1);
+                            }
 
+                        });
+                        gridApi.selection.on.rowSelectionChangedBatch($scope,function(rows){
+                            angular.forEach(rows,function(row){
+                                if(row.isSelected){
+                                    $scope.selectedInstanceId.push(row.entity._id);
+                                } else {
+                                    $scope.selectedInstanceId.splice(row.entity._id,1);
+                                }
+                            });
+                        });
                         //Sorting for sortBy and sortOrder
                         gridApi.core.on.sortChanged($scope, function(grid, sortColumns) {
                             if (sortColumns[0] && sortColumns[0].field && sortColumns[0].sort && sortColumns[0].sort.direction) {
@@ -217,6 +245,7 @@
                                 so that it gets replaced with instanceIP*/
                                 helper.setHostToIp(result.data.instances);
                                 $scope.tabData = $scope.instanceList;
+                                console.log($scope.instanceList);
                                 if ($scope.totalCards > $scope.paginationParams.pageSize) {
                                     $scope.cardsAvailable = true;
                                 } else {
@@ -515,6 +544,21 @@
                         console.log('Modal dismissed at: ' + new Date());
                     });
                 };
+                $scope.showInstanceUsage = function(inst) {
+                    var modalInstance = $modal.open({
+                        animation: true,
+                        templateUrl: 'src/partials/sections/dashboard/workzone/instance/popups/instanceUsage.html',
+                        controller: 'instanceUsageCtrl',
+                        size: 'lg',
+                        backdrop: 'static',
+                        keyboard: false,
+                        resolve: {
+                            items: function() {
+                                return inst;
+                            }
+                        }
+                    });
+                }
                 $scope.rdpFileLink = function(instanceObj) {
                     var fileLink = '/instances/rdp/' + instanceObj.instanceIP + '/3389';
                     return fileLink;
@@ -529,8 +573,15 @@
                 };
                 $scope.selectCard = function(identi) {
                     $scope.selectedCard = identi;
+                    console.log($scope.selectedInstanceId.indexOf(identi));
+                    if($scope.selectedInstanceId.indexOf(identi) === -1){
+                        $scope.selectedInstanceId.push(identi);
+                    } else {
+                        $scope.selectedInstanceId.splice($scope.selectedInstanceId.indexOf(identi),1);
+                    }
                 };
                 $scope.setCardView = function() {
+                    $scope.selectedInstanceId=[];
                     $scope.isCardViewActive = true;
                     $scope.instanceCardViewSelection = "instance-tab-active";
                     $scope.instanceTableViewSelection = "";
@@ -565,6 +616,7 @@
                     });
                 };
                 $scope.instanceTableView = function() {
+                    $scope.selectedInstanceId=[];
                     $scope.isCardViewActive = false;
                     $scope.instanceTableViewSelection = "instance-tab-active";
                     $scope.instanceCardViewSelection = "";

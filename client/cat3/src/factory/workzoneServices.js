@@ -99,9 +99,9 @@
 					var url = '/blueprints/' + blueprintID;
 					return $http.delete(fullUrl(url), Auth.getHeaderObject());
 				},
-				launchBlueprint: function (blueprintID, version, envId, stackName,domainName) {
+				launchBlueprint: function (blueprintID, version, envId, stackName,domainName, tagServer) {
 					var url = '/blueprints/' + blueprintID + '/launch?version=' + version +
-							'&envId=' + envId + '&stackName=' + stackName + '&domainName=' + domainName;
+							'&envId=' + envId + '&stackName=' + stackName + '&domainName=' + domainName + '&tagServer=' + tagServer;
 					return $http.get(fullUrl(url), Auth.getHeaderObject());
 				},
 				getBlueprintById: function(blueprintId) {
@@ -344,9 +344,12 @@
 					var url = "/instances/" + inst._id;
 					return $http.get(fullUrl(url), Auth.getHeaderObject());
 				},
-				getCookBookListForOrg: function () {
-					var p = workzoneEnvironment.getEnvParams();
-					var url='/organizations/'+p.org+'/chefRunlist';
+				getCookBookListForOrg: function (orgId) {
+					if(!orgId){
+						var p = workzoneEnvironment.getEnvParams();
+						orgId = p.org;
+					}
+					var url='/organizations/'+orgId+'/chefRunlist';
 					return $http.get(url,Auth.getHeaderObject());
 				},
 				getSoftwareTemplatesForOrg: function () {
@@ -527,6 +530,25 @@
 				getUnassignedInstances:function (providerId) {
 					var url ='/providers/'+providerId+'/unassigned-instances';
 					return $http.get(fullUrl(url),Auth.getHeaderObject());
+				},
+				getBotTypeList:function () {
+					var url ='/config-data/bot-type';
+					return $http.get(fullUrl(url),Auth.getHeaderObject());
+				},
+				getTaggingServer:function () {
+					var url ='/config-data/tagging-server';
+					return $http.get(fullUrl(url),Auth.getHeaderObject());
+				},
+				getBotCategoryList:function () {
+					var url ='/config-data/category-type';
+					return $http.get(fullUrl(url),Auth.getHeaderObject());
+				},
+				deleteBot: function (taskId) {
+					return $http({
+						method: "delete",
+						url: fullUrl('/tasks/serviceDelivery/' + taskId),
+						async: false
+					});
 				}
 			};
 			return serviceInterface;

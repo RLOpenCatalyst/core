@@ -26,6 +26,9 @@ $imagePath : "../../../../../../cat3/images";
     color: $selected-color !important;
 }
 /*CSS for defining colors Globally ends*/
+.fa-info-circle {
+    font-size: 20px;
+}
 
 .cursor {
     cursor: pointer;
@@ -41,6 +44,19 @@ $imagePath : "../../../../../../cat3/images";
 
 .errorMsg {
     color: $color-red;
+}
+
+.success, .SUCCESS, .failure, .failed {
+    color: #fff;
+    padding: 8px;
+}
+
+.success, .SUCCESS {
+    background: $color-green;
+}
+
+.failure, .failed {
+    background: $color-red;
 }
 
 .inputValidationMsg {
@@ -114,7 +130,7 @@ $imagePath : "../../../../../../cat3/images";
   transition: all .4s ease 0s;
   left: -254px;
     font-size: 12px !important;
-
+    height: 100%;
 
   &.show-left-tree {
       left: 0px;
@@ -1106,7 +1122,7 @@ option.script {
     background-color: #E49C25 !important;
 }
 .ui-grid-menu-button{
-    height: 28px !important;
+    height: 36px !important;
     background-color: #5bc0de !important;
     border-color: #46b8da !important;
     display: inline-block;
@@ -1165,4 +1181,22 @@ option.script {
 }
 .loading-body{
     opacity: 0.4;
+}
+#bots .control-panel-button {
+    border-radius: 50%;
+    padding: 2px 8px;
+    margin-right: 5px;
+}
+
+// ui grid style
+.ui-grid-header-cell-row{
+    background: #636363 !important;
+    color: #FBFBFB !important;
+}
+.ui-grid-cell-contents.ui-grid-header-cell-primary-focus{
+    min-height: 36px;
+    line-height: 25px;
+}
+.ui-grid-column-menu-button{
+    top:5px !important;
 }
