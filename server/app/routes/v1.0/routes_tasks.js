@@ -168,7 +168,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
         */
 
         var paramOptions = {
-            cookbookAttributesP: cookbookAttributes,
+            cookbookAttributes: cookbookAttributes,
             scriptParams: scriptParams
         };
 
