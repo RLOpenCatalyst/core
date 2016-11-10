@@ -55,6 +55,8 @@
             blueprintCreation.artifactsVersion = [];
             blueprintCreation.versionsOptions = [];
             blueprintCreation.newEnt.domainCheck = false;
+            $scope.chefrunlist = [];
+            $scope.cookbookAttributes = [];
             blueprintCreation.templateListing = function(){
                 bpCreateSer.getTemplates().then(function(data){
                     $scope.templateList = data;
@@ -523,7 +525,7 @@
 
 
             $scope.updateCookbook = function() {
-                genericServices.editRunlist();
+                genericServices.editRunlist($scope.chefrunlist,$scope.cookbookAttributes);
             }
             //modal to show the Docker Parameters Popup                                             
             //on initial load.

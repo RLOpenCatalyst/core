@@ -7,9 +7,9 @@
 
 (function (angular) {
 	"use strict";
-	angular.module('workzone.orchestration')
-		.controller('orchestrationUpdateChefRunlistCtrl', ['$scope', '$q', '$modalInstance', 'responseFormatter', 'cookbookRunlistAttr', 'chefSelectorComponent', '$timeout', '$http', 'workzoneServices',
-		function ($scope, $q, $modalInstance, responseFormatter, cookbookRunlistAttr, chefSelectorComponent, $timeout, $http, workzoneServices) {
+	angular.module('dashboard')
+		.controller('orchestrationUpdateChefRunlistCtrl', ['$scope', '$q', '$modalInstance', 'responseFormatter', 'cookbookRunlistAttr', 'chefSelectorComponent', '$timeout', '$http', 'workzoneServices','workzoneEnvironment','genericServices',
+		function ($scope, $q, $modalInstance, responseFormatter, cookbookRunlistAttr, chefSelectorComponent, $timeout, $http, workzoneServices, workzoneEnvironment , genericServices) {
 			/*Open only One Accordian-Group at a time*/
 			$scope.oneAtATime = true;
 			/*Initialising First Accordian-group open on load*/
@@ -18,29 +18,52 @@
 			var totalElements, selectedElements, factory, compositeSelector;
 			$scope.allCBAttributes = [];
 			$scope.editRunListAttributes = [];
-			//promise contain list of cookbooks and roles list
-			var c = workzoneServices.getCookBookListForOrg();
-			//promise contains template list
-			var t = workzoneServices.getSoftwareTemplatesForOrg();
-			//promise contains selected runlist for edit.
-			var s = cookbookRunlistAttr.chefrunlist;
-			//promise contains edited cookbook attributes list
-			var a = cookbookRunlistAttr.attributes;
-			var e = $scope.editRunListAttributes;
-			//var allPromise = $q.all([c, t, s, a, e]);
-			$q.all([c, t, s, a, e]).then(function (allPromise) {
-				$scope.chefServerID = allPromise[0].data.serverId;
-				var list = responseFormatter.formatDataForChefClientRun(allPromise[0].data);
-				var template = responseFormatter.formatTemplateDataForChefClient(allPromise[1].data);
-				totalElements = responseFormatter.merge(list, template);
-				selectedElements = allPromise[2];
-				factory = chefSelectorComponent.getComponent;
-				$scope.allCBAttributes = allPromise[3];
-				$scope.editRunListAttributes = allPromise[4];
-				$scope.isOrchestrationUpdateChefRunLoading = false;
-				$scope.init();
-			});
+			
+			$scope.getCookBookListForOrg = function(getCookBooks) {
+				var p = workzoneEnvironment.getEnvParams();
+				var param = {
+                    url: '/organizations/'+p.org+'/chefRunlist'
+                };
+            	genericServices.promiseGet(param).then(function (result) {
+               		$scope.getCookBooks = result;
+               		var params = {
+	                    url: '/d4dMasters/org/' + p.org + '/templateType/SoftwareStack/templates'
+	                };
+	            	genericServices.promiseGet(params).then(function (result) {
+	               		$scope.getTemplates = result;
+	               		console.log($scope.getCookBooks);
+	               		//$scope.getSoftwareTemplatesForOrg();
+	               		var c = $scope.getCookBooks;
+						//promise contains template list
+						var t = $scope.getTemplates;
+						//promise contains selected runlist for edit.
+						var s = cookbookRunlistAttr.chefrunlist;
+						//promise contains edited cookbook attributes list
+						var a = cookbookRunlistAttr.attributes;
+						var e = $scope.editRunListAttributes;
+						$scope.allPromiseMethod(c,t,s,a,e);
+	                });
+                });
+			};
 
+			//promise contain list of cookbooks and roles list
+			$scope.allPromiseMethod = function(c,t,s,a,e) {
+				var allPromise = $q.all([c, t, s, a, e]);
+				$q.all([c, t, s, a, e]).then(function (allPromise) {
+					console.log(allPromise);
+					$scope.chefServerID = allPromise[0].serverId;
+					var list = responseFormatter.formatDataForChefClientRun(allPromise[0]);
+					var template = responseFormatter.formatTemplateDataForChefClient(allPromise[1]);
+					totalElements = responseFormatter.merge(list, template);
+					selectedElements = allPromise[2];
+					factory = chefSelectorComponent.getComponent;
+					$scope.allCBAttributes = allPromise[3];
+					$scope.editRunListAttributes = allPromise[4];
+					$scope.isOrchestrationUpdateChefRunLoading = false;
+					$scope.init();
+				});
+			}
+			$scope.getCookBookListForOrg();
 			function registerUpdateEvent(obj) {
 				obj.addListUpdateListener('updateList', $scope.updateAttributeList);
 			}
@@ -98,7 +121,7 @@
 							}
 						}
 						if (data.length > 0) {
-							workzoneServices.getcookBookAttributes(data, $scope.chefServerID).then(function (response) {
+							genericServices.getcookBookAttributes(data, $scope.chefServerID).then(function (response) {
 								var data;
 								if (response.data) {
 									data = response.data;

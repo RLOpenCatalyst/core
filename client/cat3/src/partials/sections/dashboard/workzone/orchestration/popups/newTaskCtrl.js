@@ -8,12 +8,12 @@
 (function (angular) {
 	'use strict';
 	angular.module('workzone.orchestration')
-		.controller('newTaskCtrl', ['chefSelectorComponent', '$scope', '$modalInstance', 'items', '$modal', 'arrayUtil', 'workzoneServices', 'responseFormatter', '$rootScope', '$q', function (chefSelectorComponent, $scope, $modalInstance, items, $modal, arrayUtil, workzoneServices, responseFormatter, $rootScope, $q) {
+		.controller('newTaskCtrl', ['chefSelectorComponent', '$scope', '$modalInstance', 'items', '$modal', 'arrayUtil', 'workzoneServices', 'responseFormatter', '$rootScope', '$q', 'genericServices', function (chefSelectorComponent, $scope, $modalInstance, items, $modal, arrayUtil, workzoneServices, responseFormatter, $rootScope, $q, genericServices) {
 
 			$scope.role={
 				name : ''
 			};
-
+			console.log(items);
 			$scope.isNewTaskPageLoading = true;
 			$scope.isScriptInstanceLoading = true;
 			$scope.chefrunlist = [];
@@ -22,6 +22,7 @@
 			$scope.scriptSelectAll = false;
 			$scope.scriptParamsObj = {};
 			$scope.isSudo = false;
+			$scope.orgId = '';
 			$scope.toggleAll = function() {
 				var toggleStatus = $scope.isAllSelected;
 				angular.forEach($scope.chefInstanceList, function(itm){ itm._isNodeSelected = toggleStatus;});
@@ -63,26 +64,7 @@
 				parentItems:items,
 				updateCookbook: function () {
 					if ($scope.chefInstanceList.length || $scope.chefBluePrintList.length) {
-						$modal.open({
-							templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationUpdateChefRunlist.html',
-							controller: 'orchestrationUpdateChefRunlistCtrl',
-							backdrop: 'static',
-							keyboard: false,
-							resolve : {
-								cookbookRunlistAttr: function(){
-									return {
-										chefrunlist:$scope.chefrunlist,
-										attributes:$scope.cookbookAttributes
-									};
-								}
-							}
-						}).result.then(function (selectedCookBooks) {
-							$scope.editRunListAttributes = false;
-							$scope.chefrunlist = selectedCookBooks.list;
-							$scope.cookbookAttributes = selectedCookBooks.cbAttributes;
-						}, function () {
-							console.log('Dismiss time is ' + new Date());
-						});
+						genericServices.editRunlist($scope.chefrunlist,$scope.cookbookAttributes);
 					}
 				},
 				changeJobURL: function () {
