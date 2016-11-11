@@ -142,12 +142,10 @@
 							<span class="control-label red">&nbsp;*</span>
 						</label>
 						<div class="input-groups">
-							<select class="form-control" ng-modal="tagServer">
+							<select class="form-control"  ng-model="tagSerSelected">
 								<option selected="selected" value="">Choose Tag Server</option>
-		                        <option value="Monitoring">Monitoring Server</option>
-		                        <option value="LDAP">LDAP Server</option>
-		                        <option value="AD">AD Server</option>
-		                      </select>
+								<option ng-repeat="(key , value) in taggingServerList" value="{{value}}">{{value}}</option>
+							</select>
 						</div>
 					</div>
 				</div>
