@@ -2134,7 +2134,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     res.send(error);
                     return;
                 } else {
-                    instanceService.startStopInstance(req.params.instanceId,user.cn,'Stop',function (err, data) {
+                    instanceService.stopInstance(req.params.instanceId,user.cn,function (err, data) {
                         if (err) {
                             return res.send(err);
                         }
@@ -2161,7 +2161,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     res.send(error);
                     return;
                 } else {
-                    instanceService.startStopInstance(req.params.instanceId,user.cn,'Start',function (err, data) {
+                    instanceService.startInstance(req.params.instanceId,user.cn,function (err, data) {
                         if (err) {
                             return res.send(err);
                         }
