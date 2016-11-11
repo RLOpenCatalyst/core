@@ -316,7 +316,9 @@
     $('input[name="updateMonitoringInfo"]').change(function(e){
         if(this.checked){
             $('#monitorId').removeAttr('disabled').attr('cat-validation','required');
-        }  else {  
+        }  else {
+            $('#hiddenMonitorValue').val('');  
+            $('#monitorId').val('').attr('selected', true).change();
             $('#monitorId').removeAttr('cat-validation').attr('disabled','disabled');;
         }
     });
@@ -674,8 +676,19 @@
             $('.monitoringCheck').removeClass('hidden');
             $('input[name="updateMonitoringInfo"]').attr('checked', true);
             $('#monitorId').removeClass('hidden');
-            $('select#monitorId').attr('answer',data.monitor.id).html('<option value="'+data.monitor.id+'">'+data.monitor.name+'</option>').select2().attr('disabled','disabled');
-            $('#hiddenMonitorValue').val(data.monitor.id);
+            $.get('../monitors',function(monitorData){
+                var orgValue = $('select#orgId').val();
+                var str = '';
+                for(var i=0;i<monitorData.length;i++){
+                    if(orgValue === monitorData[i].organization.id){
+                        str = '<option value="'+monitorData[i]._id+'">'+monitorData[i].name+'</option>';
+                        $('#monitorId').append(str).removeAttr('disabled');
+                        $("#monitorId").val(data.monitor.id).attr('selected', true).change();
+                    }
+                }
+            });
+            var monitorHiddenValue = $('#monitorId').val();
+            $('#hiddenMonitorValue').val(monitorHiddenValue);
         } else {
             $('#hiddenMonitorValue').val('');
             getMonitorValues();
