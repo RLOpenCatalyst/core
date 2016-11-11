@@ -1636,6 +1636,15 @@ function startInstance(instanceId,catUser,cronJobId, callback) {
                                     instanceCurrentState: 'running',
                                     actionLogId: actionLog._id
                                 });
+                                crontab.cancelJob(cronJobId);
+                                var stopJobId = crontab.scheduleJob(data[0].instanceStopScheduler.cronPattern, function() {
+                                    stopInstance(data[0]._id,data[0].catUser,stopJobId,function(err,data){
+                                        if(err){
+                                            logger.error(err);
+                                            return;
+                                        }
+                                    });
+                                });
                                 return;
                             } else {
                                 logger.debug('Error in action query :', err);
@@ -1658,6 +1667,7 @@ function startInstance(instanceId,catUser,cronJobId, callback) {
                                         logger.error("Failed to create or update instanceLog: ", err);
                                     }
                                 });
+                                crontab.cancelJob(cronJobId);
                                 var error = new Error("Internal Server Error.");
                                 error.status = 500;
                                 callback(error, null);
@@ -1666,6 +1676,7 @@ function startInstance(instanceId,catUser,cronJobId, callback) {
                         });
                     } else {
                         logger.debug('No Provider found :');
+                        crontab.cancelJob(cronJobId);
                         var error = new Error("No Provider found.");
                         error.status = 400;
                         callback(error, null);
@@ -1694,10 +1705,12 @@ function startInstance(instanceId,catUser,cronJobId, callback) {
                 };
                 instanceLogModel.createOrUpdate(actionLog._id, data[0]._id, instanceLog, function (err, logData) {
                     if (err) {
+                        crontab.cancelJob(cronJobId);
                         logger.error("Failed to create or update instanceLog: ", err);
                     }
                 });
                 if (!data[0].providerId) {
+                    crontab.cancelJob(cronJobId);
                     var error = new Error("Insufficient provider details, to complete the operation");
                     error.status = 500;
                     callback(error, null);
@@ -1716,6 +1729,7 @@ function startInstance(instanceId,catUser,cronJobId, callback) {
                     };
                     instanceLogModel.createOrUpdate(actionLog._id, data[0]._id, instanceLog, function (err, logData) {
                         if (err) {
+                            crontab.cancelJob(cronJobId);
                             logger.error("Failed to create or update instanceLog: ", err);
                         }
                     });
@@ -1723,6 +1737,7 @@ function startInstance(instanceId,catUser,cronJobId, callback) {
                 }
                 azureProvider.getAzureCloudProviderById(data[0].providerId, function (err, providerdata) {
                     if (err) {
+                        crontab.cancelJob(cronJobId);
                         logger.error('getAzureCloudProviderById ', err);
                         return;
                     }
@@ -1740,11 +1755,13 @@ function startInstance(instanceId,catUser,cronJobId, callback) {
                     var decryptedKeyFile = keyFile + '_' + uniqueVal + '_decypted';
                     cryptography.decryptFile(pemFile, cryptoConfig.decryptionEncoding, decryptedPemFile, cryptoConfig.encryptionEncoding, function (err) {
                         if (err) {
+                            crontab.cancelJob(cronJobId);
                             logger.error('Pem file decryption failed>> ', err);
                             return;
                         }
                         cryptography.decryptFile(keyFile, cryptoConfig.decryptionEncoding, decryptedKeyFile, cryptoConfig.encryptionEncoding, function (err) {
                             if (err) {
+                                crontab.cancelJob(cronJobId);
                                 logger.error('key file decryption failed>> ', err);
                                 return;
                             }
@@ -1756,6 +1773,7 @@ function startInstance(instanceId,catUser,cronJobId, callback) {
                             var azureCloud = new AzureCloud(options);
                             azureCloud.startVM(data[0].chefNodeName, function (err, currentState) {
                                     if (err) {
+                                        crontab.cancelJob(cronJobId);
                                         var timestampEnded = new Date().getTime();
                                         logsDao.insertLog({
                                             referenceId: logReferenceIds,
@@ -1783,29 +1801,12 @@ function startInstance(instanceId,catUser,cronJobId, callback) {
                                         callback(error, null);
                                         return;
                                     }
-                                    logger.debug("Exit get() for /instances/%s/startInstance", instanceId);
-                                    callback(null, {
-                                        instanceCurrentState: currentState,
-                                        actionLogId: actionLog._id
-                                    });
-                                    instancesDao.updateInstanceState(instanceId, "starting", function (err, updateCount) {
-                                        if (err) {
-                                            logger.error("update instance state err ==>", err);
-                                            return;
-                                        }
-                                        logger.debug('instance state upadated');
-                                    });
-                                },
-                                function (err, state) {
-                                    if (err) {
-                                        return callback(err, null);
-                                    }
                                     instancesDao.updateInstanceState(instanceId, "running", function (err, updateCount) {
                                         if (err) {
+                                            crontab.cancelJob(cronJobId);
                                             logger.error("update instance state err ==>", err);
                                             return callback(err, null);
                                         }
-
                                         logger.debug('instance state upadated');
                                     });
                                     var timestampEnded = new Date().getTime();
@@ -1826,9 +1827,23 @@ function startInstance(instanceId,catUser,cronJobId, callback) {
                                     };
                                     instanceLogModel.createOrUpdate(actionLog._id, data[0]._id, instanceLog, function (err, logData) {
                                         if (err) {
+                                            crontab.cancelJob(cronJobId);
                                             logger.error("Failed to create or update instanceLog: ", err);
                                         }
                                     });
+                                callback(null, {
+                                    instanceCurrentState: "running",
+                                    actionLogId: actionLog._id
+                                });
+                                crontab.cancelJob(cronJobId);
+                                var stopJobId = crontab.scheduleJob(data[0].instanceStopScheduler.cronPattern, function() {
+                                    stopInstance(data[0]._id,data[0].catUser,stopJobId,function(err,data){
+                                        if(err){
+                                            logger.error(err);
+                                            return;
+                                        }
+                                    });
+                                });
                                     fs.unlink(decryptedPemFile, function (err) {
                                         logger.debug("Deleting decryptedPemFile..");
                                         if (err) {
@@ -1852,6 +1867,7 @@ function startInstance(instanceId,catUser,cronJobId, callback) {
                 var GCP = require('_pr/lib/gcp.js');
                 providerService.getProvider(data[0].providerId, function (err, provider) {
                     if (err) {
+                        crontab.cancelJob(cronJobId);
                         var error = new Error("Error while fetching Provider.");
                         error.status = 500;
                         callback(error, null);
@@ -1892,44 +1908,44 @@ function startInstance(instanceId,catUser,cronJobId, callback) {
                     };
                     instanceLogModel.createOrUpdate(actionLog._id, data[0]._id, instanceLog, function (err, logData) {
                         if (err) {
+                            crontab.cancelJob(cronJobId);
                             logger.error("Failed to create or update instanceLog: ", err);
                         }
                     });
                     gcp.startVM(gcpParam, function (err, vmResponse) {
                         if (err) {
-                            if (err) {
-                                var timestampEnded = new Date().getTime();
-                                logsDao.insertLog({
-                                    referenceId: logReferenceIds,
-                                    err: true,
-                                    log: "Unable to start instance",
-                                    timestamp: timestampEnded
-                                });
-                                instancesDao.updateActionLog(instanceId, actionLog._id, false, timestampEnded);
-                                instanceLog.endedOn = new Date().getTime();
-                                instanceLog.actionStatus = "failed";
-                                instanceLog.logs = {
-                                    err: true,
-                                    log: "Unable to start instance",
-                                    timestamp: new Date().getTime()
-                                };
-                                instanceLogModel.createOrUpdate(actionLog._id, data[0]._id, instanceLog, function (err, logData) {
-                                    if (err) {
-                                        logger.error("Failed to create or update instanceLog: ", err);
-                                    }
-                                });
-                                fs.unlink('/tmp/' + provider.id + '.json', function (err) {
-                                    if (err) {
-                                        logger.error("Unable to delete json file.");
-                                    }
-                                });
-                                var error = new Error({
-                                    actionLogId: actionLog._id
-                                });
-                                error.status = 500;
-                                callback(error, null);
-                                return;
-                            }
+                            var timestampEnded = new Date().getTime();
+                            logsDao.insertLog({
+                                referenceId: logReferenceIds,
+                                err: true,
+                                log: "Unable to start instance",
+                                timestamp: timestampEnded
+                            });
+                            instancesDao.updateActionLog(instanceId, actionLog._id, false, timestampEnded);
+                            instanceLog.endedOn = new Date().getTime();
+                            instanceLog.actionStatus = "failed";
+                            instanceLog.logs = {
+                                err: true,
+                                log: "Unable to start instance",
+                                timestamp: new Date().getTime()
+                            };
+                            instanceLogModel.createOrUpdate(actionLog._id, data[0]._id, instanceLog, function (err, logData) {
+                                if (err) {
+                                    logger.error("Failed to create or update instanceLog: ", err);
+                                }
+                            });
+                            fs.unlink('/tmp/' + provider.id + '.json', function (err) {
+                                if (err) {
+                                    logger.error("Unable to delete json file.");
+                                }
+                            });
+                            var error = new Error({
+                                actionLogId: actionLog._id
+                            });
+                            crontab.cancelJob(cronJobId);
+                            error.status = 500;
+                            callback(error, null);
+                            return;
                         } else {
                             instancesDao.updateInstanceIp(instanceId, vmResponse.ip, function (err, updateCount) {
                                 if (err) {
@@ -1990,6 +2006,7 @@ function startInstance(instanceId,catUser,cronJobId, callback) {
             } else {
                 AWSProvider.getAWSProviderById(data[0].providerId, function (err, aProvider) {
                     if (err) {
+                        crontab.cancelJob(cronJobId);
                         logger.error(err);
                         var error = new Error("Unable to find Provider.");
                         error.status = 500;
@@ -2004,6 +2021,7 @@ function startInstance(instanceId,catUser,cronJobId, callback) {
                         } else {
                             AWSKeyPair.getAWSKeyPairByProviderId(aProvider._id, function (err, keyPair) {
                                 if (err) {
+                                    crontab.cancelJob(cronJobId);
                                     callback(err);
                                     return;
                                 }
@@ -2063,6 +2081,7 @@ function startInstance(instanceId,catUser,cronJobId, callback) {
                         }
                         ec2.startInstance([data[0].platformId], function (err, state) {
                             if (err) {
+                                crontab.cancelJob(cronJobId);
                                 var timestampEnded = new Date().getTime();
                                 logsDao.insertLog({
                                     referenceId: logReferenceIds,
@@ -2154,6 +2173,7 @@ function startInstance(instanceId,catUser,cronJobId, callback) {
                 });
             }
         } else {
+            crontab.cancelJob(cronJobId);
             var error = new Error();
             error.status = 404;
             callback(error, null);
@@ -2165,6 +2185,7 @@ function startInstance(instanceId,catUser,cronJobId, callback) {
 function stopInstance(instanceId, catUser,cronJobId, callback) {
     instancesDao.getInstanceById(instanceId, function(err, data) {
         if (err) {
+            crontab.cancelJob(cronJobId);
             logger.error("Error hits getting instance: ", err);
             var error = new Error("Error hits getting instance");
             error.status = 500;
@@ -2218,6 +2239,7 @@ function stopInstance(instanceId, catUser,cronJobId, callback) {
                 }
             });
             if (!data[0].providerId) {
+                crontab.cancelJob(cronJobId);
                 var error = new Error("Insufficient provider details, to complete the operation");
                 error.status = 500;
                 callback(error, null);
@@ -2265,7 +2287,6 @@ function stopInstance(instanceId, catUser,cronJobId, callback) {
                         vmWare.startstopVM(vmWareConfig.serviceHost, data[0].platformId, 'poweroff', function (err, vmdata) {
                             if (!err) {
                                 var timestampEnded = new Date().getTime();
-
                                 logsDao.insertLog({
                                     referenceId: logReferenceIds,
                                     err: false,
@@ -2293,8 +2314,6 @@ function stopInstance(instanceId, catUser,cronJobId, callback) {
                                     logger.debug('instance state upadated');
                                 });
                                 var timestampEnded = new Date().getTime();
-
-
                                 logsDao.insertLog({
                                     referenceId: logReferenceIds,
                                     err: false,
@@ -2314,12 +2333,22 @@ function stopInstance(instanceId, catUser,cronJobId, callback) {
                                         logger.error("Failed to create or update instanceLog: ", err);
                                     }
                                 });
+                                logger.debug("Exit get() for /instances/%s/stopInstance", instanceId);
                                 callback(null, {
                                     instanceCurrentState: 'stopped',
                                     actionLogId: actionLog._id
                                 });
-                                return;
+                                crontab.cancelJob(cronJobId);
+                                var startJobId = crontab.scheduleJob(data[0].instanceStartScheduler.cronPattern, function() {
+                                    startInstance(data[0]._id,data[0].catUser,startJobId,function(err,data){
+                                        if(err){
+                                            logger.error(err);
+                                            return;
+                                        }
+                                    });
+                                });
                             } else {
+                                crontab.cancelJob(cronJobId);
                                 logger.debug('Error in action query :', err);
                                 var timestampEnded = new Date().getTime();
                                 logsDao.insertLog({
@@ -2348,6 +2377,7 @@ function stopInstance(instanceId, catUser,cronJobId, callback) {
                         });
                     } else {
                         //no provider found.
+                        crontab.cancelJob(cronJobId);
                         logger.debug('No Provider found :');
                         var error = new Error("No Provider found");
                         error.status = 404;
@@ -2357,6 +2387,7 @@ function stopInstance(instanceId, catUser,cronJobId, callback) {
                 });
 
             } else if (data[0].providerType && data[0].providerType == 'openstack') {
+                crontab.cancelJob(cronJobId);
                 var timestampEnded = new Date().getTime();
                 logsDao.insertLog({
                     referenceId: logReferenceIds,
@@ -2386,6 +2417,7 @@ function stopInstance(instanceId, catUser,cronJobId, callback) {
                 logger.debug("Stopping Azure ");
                 azureProvider.getAzureCloudProviderById(data[0].providerId, function (err, providerdata) {
                     if (err) {
+                        crontab.cancelJob(cronJobId);
                         logger.error('getAzureCloudProviderById ', err);
                         return callback(err, null);
                     }
@@ -2400,11 +2432,13 @@ function stopInstance(instanceId, catUser,cronJobId, callback) {
                     var decryptedKeyFile = keyFile + '_' + uniqueVal + '_decypted';
                     cryptography.decryptFile(pemFile, cryptoConfig.decryptionEncoding, decryptedPemFile, cryptoConfig.encryptionEncoding, function (err) {
                         if (err) {
+                            crontab.cancelJob(cronJobId);
                             logger.error('Pem file decryption failed>> ', err);
                             return callback(err, null);
                         }
                         cryptography.decryptFile(keyFile, cryptoConfig.decryptionEncoding, decryptedKeyFile, cryptoConfig.encryptionEncoding, function (err) {
                             if (err) {
+                                crontab.cancelJob(cronJobId);
                                 logger.error('key file decryption failed>> ', err);
                                 return callback(err, null);
                             }
@@ -2416,6 +2450,7 @@ function stopInstance(instanceId, catUser,cronJobId, callback) {
                             var azureCloud = new AzureCloud(options);
                             azureCloud.shutDownVM(data[0].chefNodeName, function (err, currentState) {
                                     if (err) {
+                                        crontab.cancelJob(cronJobId);
                                         var timestampEnded = new Date().getTime();
                                         logsDao.insertLog({
                                             referenceId: logReferenceIds,
@@ -2443,7 +2478,7 @@ function stopInstance(instanceId, catUser,cronJobId, callback) {
                                         callback(error, null);
                                         return;
                                     }
-                                    logger.debug("Exit get() for /instances/%s/stopInstance", instanceId);
+                                /*    logger.debug("Exit get() for /instances/%s/stopInstance", instanceId);
                                     callback(null, {
                                         instanceCurrentState: currentState,
                                         actionLogId: actionLog._id
@@ -2459,10 +2494,11 @@ function stopInstance(instanceId, catUser,cronJobId, callback) {
                                 function (err, state) {
                                     if (err) {
                                         return callback(err, null);
-                                    }
+                                    }*/
                                     instancesDao.updateInstanceState(instanceId, 'stopped', function (err, updateCount) {
                                         if (err) {
                                             logger.error("update instance state err ==>", err);
+                                            crontab.cancelJob(cronJobId);
                                             return callback(err, null);
                                         }
                                         logger.debug('instance state upadated');
@@ -2489,6 +2525,20 @@ function stopInstance(instanceId, catUser,cronJobId, callback) {
                                             logger.error("Failed to create or update instanceLog: ", err);
                                         }
                                     });
+                                    logger.debug("Exit get() for /instances/%s/stopInstance", instanceId);
+                                    callback(null, {
+                                        instanceCurrentState: currentState,
+                                        actionLogId: actionLog._id
+                                    });
+                                    crontab.cancelJob(cronJobId);
+                                    var startJobId = crontab.scheduleJob(data[0].instanceStartScheduler.cronPattern, function() {
+                                        startInstance(data[0]._id,data[0].catUser,startJobId,function(err,data){
+                                            if(err){
+                                                logger.error(err);
+                                                return;
+                                            }
+                                        });
+                                    });
                                     fs.unlink(decryptedPemFile, function (err) {
                                         logger.debug("Deleting decryptedPemFile..");
                                         if (err) {
@@ -2510,6 +2560,7 @@ function stopInstance(instanceId, catUser,cronJobId, callback) {
             } else if (data[0].providerType && data[0].providerType == 'gcp') {
                 providerService.getProvider(data[0].providerId, function (err, provider) {
                     if (err) {
+                        crontab.cancelJob(cronJobId);
                         var error = new Error("Error while fetching Provider.");
                         error.status = 500;
                         callback(error, null);
@@ -2531,49 +2582,51 @@ function stopInstance(instanceId, catUser,cronJobId, callback) {
                     }
                     gcp.stopVM(gcpParam, function (err, vmResponse) {
                         if (err) {
-                            if (err) {
-                                var timestampEnded = new Date().getTime();
-                                logsDao.insertLog({
-                                    referenceId: logReferenceIds,
-                                    err: true,
-                                    log: "Unable to stop instance",
-                                    timestamp: timestampEnded
-                                });
-                                instancesDao.updateActionLog(instanceId, actionLog._id, false, timestampEnded);
-                                instanceLog.endedOn = new Date().getTime();
-                                instanceLog.actionStatus = "failed";
-                                instanceLog.logs = {
-                                    err: true,
-                                    log: "Unable to stop instance",
-                                    timestamp: new Date().getTime()
-                                };
-                                instanceLogModel.createOrUpdate(actionLog._id, instanceId, instanceLog, function (err, logData) {
-                                    if (err) {
-                                        logger.error("Failed to create or update instanceLog: ", err);
-                                    }
-                                });
-                                fs.unlink('/tmp/' + provider.id + '.json', function (err) {
-                                    if (err) {
-                                        logger.error("Unable to delete json file.");
-                                    }
-                                });
-                                var error = new Error({
-                                    actionLogId: actionLog._id
-                                });
-                                error.status = 500;
-                                callback(error, null);
-                                return;
-                            }
+                            crontab.cancelJob(cronJobId);
+                            var timestampEnded = new Date().getTime();
+                            logsDao.insertLog({
+                                referenceId: logReferenceIds,
+                                err: true,
+                                log: "Unable to stop instance",
+                                timestamp: timestampEnded
+                            });
+                            instancesDao.updateActionLog(instanceId, actionLog._id, false, timestampEnded);
+                            instanceLog.endedOn = new Date().getTime();
+                            instanceLog.actionStatus = "failed";
+                            instanceLog.logs = {
+                                err: true,
+                                log: "Unable to stop instance",
+                                timestamp: new Date().getTime()
+                            };
+                            instanceLogModel.createOrUpdate(actionLog._id, instanceId, instanceLog, function (err, logData) {
+                                if (err) {
+                                    logger.error("Failed to create or update instanceLog: ", err);
+                                }
+                            });
+                            fs.unlink('/tmp/' + provider.id + '.json', function (err) {
+                                if (err) {
+                                    logger.error("Unable to delete json file.");
+                                }
+                            });
+                            var error = new Error({
+                                actionLogId: actionLog._id
+                            });
+                            error.status = 500;
+                            callback(error, null);
+                            return;
+                            
                         } else {
                             instancesDao.updateInstanceIp(instanceId, vmResponse.ip, function (err, updateCount) {
                                 if (err) {
                                     logger.error("update instance ip err ==>", err);
+                                    crontab.cancelJob(cronJobId);
                                     return callback(err, null);
                                 }
                                 logger.debug('instance ip upadated');
                             });
                             instancesDao.updateInstanceState(instanceId, "stopped", function (err, updateCount) {
                                 if (err) {
+                                    crontab.cancelJob(cronJobId);
                                     logger.error("update instance state err ==>", err);
                                     return callback(err, null);
                                 }
@@ -2604,7 +2657,15 @@ function stopInstance(instanceId, catUser,cronJobId, callback) {
                                 instanceCurrentState: "stopped",
                                 actionLogId: actionLog._id
                             });
-
+                            crontab.cancelJob(cronJobId);
+                            var startJobId = crontab.scheduleJob(data[0].instanceStartScheduler.cronPattern, function() {
+                                startInstance(data[0]._id,data[0].catUser,startJobId,function(err,data){
+                                    if(err){
+                                        logger.error(err);
+                                        return;
+                                    }
+                                });
+                            });
                             fs.unlink('/tmp/' + provider.id + '.json', function (err) {
                                 if (err) {
                                     logger.error("Unable to delete json file.");
@@ -2617,6 +2678,7 @@ function stopInstance(instanceId, catUser,cronJobId, callback) {
                 AWSProvider.getAWSProviderById(data[0].providerId, function (err, aProvider) {
                     if (err) {
                         logger.error(err);
+                        crontab.cancelJob(cronJobId);
                         var error = new Error("Unable to get Provider.");
                         error.status = 500;
                         callback(error, null);
@@ -2630,6 +2692,7 @@ function stopInstance(instanceId, catUser,cronJobId, callback) {
                         } else {
                             AWSKeyPair.getAWSKeyPairByProviderId(aProvider._id, function (err, keyPair) {
                                 if (err) {
+                                    crontab.cancelJob(cronJobId);
                                     callback(err, null);
                                     return;
                                 }
@@ -2641,6 +2704,7 @@ function stopInstance(instanceId, catUser,cronJobId, callback) {
                         if (err) {
                             var error = new Error("Error getting to fetch Keypair.");
                             error.status = 500;
+                            crontab.cancelJob(cronJobId);
                             callback(error, null);
                         }
                         var ec2;
@@ -2666,6 +2730,7 @@ function stopInstance(instanceId, catUser,cronJobId, callback) {
                         }
                         ec2.stopInstance([data[0].platformId], function (err, state) {
                             if (err) {
+                                crontab.cancelJob(cronJobId);
                                 var timestampEnded = new Date().getTime();
                                 logsDao.insertLog({
                                     referenceId: logReferenceIds,
