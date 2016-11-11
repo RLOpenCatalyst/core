@@ -30,6 +30,7 @@
                 }
                 genericServices.promisePost(params).then(function(){
                     toastr.success('successfully created');
+                    $modalInstance.dismiss('cancel');
                 });
             };
         }]);
