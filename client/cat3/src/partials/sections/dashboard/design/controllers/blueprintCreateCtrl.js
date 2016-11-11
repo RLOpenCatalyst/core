@@ -1,7 +1,7 @@
 (function (angular) {
     "use strict";
     angular.module('dashboard.design')
-        .controller('blueprintCreateCtrl',['$scope','$rootScope','$modal','toastr','$state', 'blueprintCreateService','genericServices','confirmbox', function ($scope,$rootScope,$modal,toastr,$state,bpCreateSer,genericServices,confirmbox) {
+        .controller('blueprintCreateCtrl',['$scope','$rootScope','$modal','toastr','$state', 'blueprintCreateService','responseFormatter','genericServices','confirmbox', function ($scope,$rootScope,$modal,toastr,$state,bpCreateSer,responseFormatter,genericServices,confirmbox) {
             var blueprintCreation = this;
             //$rootScope.state = $state;
             //to get the templates listing.
@@ -72,8 +72,10 @@
                 templateDetail.selected = true;
                 $scope.nextEnabled = true;
                 $scope.templateSelected = templateDetail; 
-                console.log($scope.templateSelected);
-
+                $scope.chefComponentSelectorList = $scope.templateSelected.templatescookbooks;
+                console.log($scope.chefComponentSelectorList);
+                $scope.chefrunlist = responseFormatter.findDataForEditValueString($scope.chefComponentSelectorList);
+                console.log($scope.chefrunlist);
                 $scope.dockerDetails = [];
                 //items gives the details of the selected blueprint.
                 if($scope.templateSelected.templatetypename === 'Docker'){
@@ -539,8 +541,7 @@
             }
 
             $rootScope.$on('WZ_ORCHESTRATION_REFRESH_CURRENT', function(event,reqParams) {
-                $scope.templateSelected.templatescookbooks = reqParams.list;
-                console.log($scope.templateSelected.templatescookbooks);
+                $scope.chefrunlist = reqParams.list;
             });
             //modal to show the Docker Parameters Popup                                             
             //on initial load.
@@ -829,8 +830,10 @@
                     }
 
                     blueprintCreateJSON.runlist = [];
-                    if($scope.templateSelected.templatescookbooks){
-                        blueprintCreateJSON.runlist = $scope.templateSelected.templatescookbooks.split(',');    
+                    if($scope.chefrunlist){
+                        blueprintCreateJSON.runlist = responseFormatter.formatSelectedChefRunList($scope.chefrunlist);    
+                        blueprintCreateJSON.attributes = responseFormatter.formatSelectedCookbookAttributes($scope.cookbookAttributes);
+
                     }
                     if($scope.providerType === 'AWS'){
                         blueprintCreateJSON.securityGroupIds = [];

@@ -323,7 +323,7 @@
                         <accordion-group ng-if="templateSelected.templatetypename !== 'Docker' && templateSelected.templatetypename !=='CloudFormation' && templateSelected.templatetypename !== 'ARMTemplate'" ng-init="accGroupStatus = {opened: false}" is-open="accGroupStatus.opened">
                            <accordion-heading>
                               <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
-                              Runlist Configuretion
+                              Runlist Configuration
                            </accordion-heading>
                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                               <!-- <label>
@@ -343,7 +343,7 @@
                                        </tr>
                                     </thead>
                                     <tbody>
-                                       <tr ng-repeat="item in templateSelected.templatescookbooks">
+                                       <tr ng-repeat="item in chefrunlist">
                                           <td>{{item.value}}</td>
                                        </tr>
                                     </tbody>
