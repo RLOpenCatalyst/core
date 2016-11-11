@@ -10,7 +10,6 @@ instanceSync.executeScheduledInstances = function executeScheduledInstances() {
             logger.error("Failed to fetch Instance: ", err);
             return;
         }
-        //logger.debug("instances:   ", JSON.stringify(instances));
         if (instances && instances.length) {
             for (var i = 0; i < instances.length; i++) {
                 (function(i) {

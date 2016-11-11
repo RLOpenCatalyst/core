@@ -347,24 +347,70 @@ var InstanceSchema = new Schema({
         required: false,
         trim: true
     },
-    instanceStart: {
-        cron: String,
-        startOn: String,
-        endOn: String,
-        repeats: String,
-        repeatEvery: Number,
-        cronJobId: String
+    instanceStartScheduler: {
+        cronPattern:{
+            type: String,
+            required: false,
+            trim: true
+        },
+        startOn: {
+            type: Number,
+            required: false,
+            trim: true
+        },
+        endOn: {
+            type: Number,
+            required: false,
+            trim: true
+        },
+        repeats: {
+            type: String,
+            required: false,
+            trim: true
+        },
+        repeatEvery:{
+            type: String,
+            required: false,
+            trim: true
+        }
     },
-    instanceStop: {
-        cron: String,
-        stopOn: String,
-        endOn: String,
-        repeats: String,
-        repeatEvery: Number,
-        cronJobId: String
+    instanceStopScheduler: {
+        cronPattern:{
+            type: String,
+            required: false,
+            trim: true
+        },
+        startOn: {
+            type: Number,
+            required: false,
+            trim: true
+        },
+        endOn: {
+            type: Number,
+            required: false,
+            trim: true
+        },
+        repeats: {
+            type: String,
+            required: false,
+            trim: true
+        },
+        repeatEvery:{
+            type: String,
+            required: false,
+            trim: true
+        }
     },
-    cronEndedOn: String,
-    isScheduled: Boolean
+    isInstanceStartScheduled: {
+        type: Boolean,
+        required: false,
+        default:false
+    },
+    isInstanceStopScheduled: {
+        type: Boolean,
+        required: false,
+        default:false
+    }
 });
 
 InstanceSchema.plugin(uniqueValidator);
@@ -2232,111 +2278,93 @@ var InstancesDao = function() {
         });
     };
 
-    this.updateCronJobId = function(instance, jobId, flag, callback) {
-        Instances.find(instance._id, function(err, anInstance) {
-            if (err) {
-                logger.debug("Failed to fetch Instance.", err);
-            } else {
-                if (anInstance && anInstance.length) {
-                    if (flag === 'start') {
-                        Instances.update({
-                            "_id": new ObjectId(instance._id),
-                        }, {
-                            $set: {
-                                instanceStart: {
-                                    cron: anInstance[0].instanceStart.cron,
-                                    startOn: anInstance[0].instanceStart.startOn,
-                                    endOn: anInstance[0].instanceStart.endOn,
-                                    repeats: anInstance[0].instanceStart.repeats,
-                                    repeatEvery: anInstance[0].instanceStart.repeatEvery,
-                                    cronJobId: jobId
-                                },
-                                instanceStop: {
-                                    cron: anInstance[0].instanceStop.cron,
-                                    stopOn: anInstance[0].instanceStop.stopOn,
-                                    endOn: anInstance[0].instanceStop.endOn,
-                                    repeats: anInstance[0].instanceStop.repeats,
-                                    repeatEvery: anInstance[0].instanceStop.repeatEvery,
-                                    cronJobId: anInstance[0].instanceStop.cronJobId
-                                },
-                                cronEndedOn: anInstance[0].cronEndedOn
-                            }
-                        }, {
-                            upsert: false
-                        }, function(err, data) {
-                            if (err) {
-                                callback(err, null);
-                                return;
-                            }
-                            callback(null, data);
-                        });
-                    } else {
-                        Instances.update({
-                            "_id": new ObjectId(instance._id),
-                        }, {
-                            $set: {
-                                instanceStop: {
-                                    cron: anInstance[0].instanceStop.cron,
-                                    stopOn: anInstance[0].instanceStop.stopOn,
-                                    endOn: anInstance[0].instanceStop.endOn,
-                                    repeats: anInstance[0].instanceStop.repeats,
-                                    repeatEvery: anInstance[0].instanceStop.repeatEvery,
-                                    cronJobId: jobId
-                                },
-                                instanceStart: {
-                                    cron: anInstance[0].instanceStart.cron,
-                                    startOn: anInstance[0].instanceStart.startOn,
-                                    endOn: anInstance[0].instanceStart.endOn,
-                                    repeats: anInstance[0].instanceStart.repeats,
-                                    repeatEvery: anInstance[0].instanceStart.repeatEvery,
-                                    cronJobId: anInstance[0].instanceStart.cronJobId
-                                },
-                                cronEndedOn: anInstance[0].cronEndedOn
-                            }
-                        }, {
-                            upsert: false
-                        }, function(err, data) {
-                            if (err) {
-                                callback(err, null);
-                                return;
-                            }
-                            callback(null, data);
-                        });
-                    }
-                } else {
-                    logger.debug("No Instance Found.");
+    this.updateInstanceScheduler = function(instanceId,flag,callback) {
+        if (flag === 'start') {
+            Instances.update({
+                "_id": new ObjectId(instanceId),
+            }, {
+                $set: {
+                    isInstanceStartScheduled: false
                 }
-            }
-        });
+            }, {
+                upsert: false
+            }, function(err, data) {
+                if (err) {
+                    callback(err, null);
+                    return;
+                }
+                callback(null, data);
+            });
+        } else {
+            Instances.update({
+                "_id": new ObjectId(instanceId),
+            }, {
+                $set: {
+                    isInstanceStopScheduled: false
+                }
+            }, {
+                upsert: false
+            }, function (err, data) {
+                if (err) {
+                    callback(err, null);
+                    return;
+                }
+                callback(null, data);
+            });
+        }
     };
 
     this.getScheduledInstances = function(callback) {
-        Instances.find({ isScheduled: true, instanceState: { $ne: 'terminated' } }, function(err, instances) {
+        Instances.find({
+            $or: [{isInstanceStartScheduled: true},{isInstanceStopScheduled: true}],
+            isDeleted: false }, function(err, instances) {
             if (err) {
+                logger.error(err);
                 return callback(err, null);
             }
             callback(null, instances);
         })
     }
 
-    this.updateScheduler = function(instanceId, scheduler, isScheduled, callback) {
-        Instances.update({
-            "_id": ObjectId(instanceId)
-        }, {
-            $set: {
-                instanceStart: scheduler.instanceStart,
-                instanceStop: scheduler.instanceStop,
-                cronEndedOn: scheduler.cronEndedOn,
-                isScheduled: isScheduled
+    this.updateScheduler = function(instanceIds, instanceScheduler, callback) {
+        var instanceIdList=[];
+        if(instanceIds.length > 0){
+            for(var i = 0;i < instanceIds.length;i++){
+                instanceIdList.push(ObjectId(instanceIds[i]));
             }
-        }, function(err, data) {
-            if (err) {
-                logger.error("Failed to update managed Instance status data", err);
-                callback(err, null);
-                return;
+            if(instanceIdList.length === instanceIds.length){
+                Instances.update({
+                    "_id": {
+                        $in:instanceIdList
+                    }
+                },{
+                    $set: {
+                        instanceStartScheduler: instanceScheduler.instanceStartScheduler,
+                        instanceStopScheduler: instanceScheduler.instanceStopScheduler,
+                        isInstanceStartScheduled: instanceScheduler.isScheduled,
+                        isInstanceStopScheduled: instanceScheduler.isScheduled
+                    }
+                }, function(err, data) {
+                    if (err) {
+                        logger.error("Failed to update managed Instance status data", err);
+                        callback(err, null);
+                        return;
+                    }
+                    callback(null, data);
+                });
             }
-            callback(null, data);
-        });
+        }else{
+            logger.error("There is no instance Id attached for updating scheduler");
+            callback({
+                errMsg:"There is no instance Id attached for updating scheduler",
+                errCode:400
+            }, null);
+            return;
+        }
+    };
+
+    this.aggregate = function(aggregationParams, callback) {
+        Instances.aggregate(aggregationParams, callback);
     };
 
     this.getInstancesByTagServer = function(tagServer, callback) {
