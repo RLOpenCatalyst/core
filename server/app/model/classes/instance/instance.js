@@ -359,7 +359,7 @@ var InstanceSchema = new Schema({
             trim: true
         },
         repeatEvery:{
-            type: String,
+            type: Number,
             required: false,
             trim: true
         }
@@ -376,7 +376,7 @@ var InstanceSchema = new Schema({
             trim: true
         },
         repeatEvery:{
-            type: String,
+            type: Number,
             required: false,
             trim: true
         }
