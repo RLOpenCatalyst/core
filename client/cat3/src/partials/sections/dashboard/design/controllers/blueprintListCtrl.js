@@ -11,6 +11,9 @@
             pbList.viewTypeList=true;
             pbList.selectedCards=[];
             pbList.blueprintType=$state.params.templateName;
+            
+            var treeNames=['Design', $state.params.providerName,$state.params.templateObj.templatetypename];
+            $rootScope.$emit('treeNameUpdate', treeNames);
             pbList.createList = function (){
                 var getResult = bpServ.createList();
                 if(getResult){

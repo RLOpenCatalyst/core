@@ -55,6 +55,8 @@
             blueprintCreation.artifactsVersion = [];
             blueprintCreation.versionsOptions = [];
             blueprintCreation.newEnt.domainCheck = false;
+            $scope.chefrunlist = [];
+            $scope.cookbookAttributes = [];
             blueprintCreation.templateListing = function(){
                 bpCreateSer.getTemplates().then(function(data){
                     $scope.templateList = data;
@@ -339,6 +341,16 @@
                 }
             };
 
+            blueprintCreation.botTypes = function() {
+                if(blueprintCreation.newEnt.serviceDelivery_isChecked) {
+                    $scope.botTypes = true;
+                    blueprintCreation.newEnt.botTypeValue = "Task";
+                    blueprintCreation.newEnt.botCategoryValue  = "Active Directory";
+                } else {
+                    $scope.botTypes = false;
+                }
+            };
+
             blueprintCreation.showRepoServers = function() {
                 if(blueprintCreation.newEnt.appDeployCheck_isChecked) {
                     bpCreateSer.getNexusServerList().then(function(data){
@@ -523,8 +535,13 @@
 
 
             $scope.updateCookbook = function() {
-                genericServices.editRunlist();
+                genericServices.editRunlist($scope.chefrunlist,$scope.cookbookAttributes);
             }
+
+            $rootScope.$on('WZ_ORCHESTRATION_REFRESH_CURRENT', function(event,reqParams) {
+                $scope.templateSelected.templatescookbooks = reqParams.list;
+                console.log($scope.templateSelected.templatescookbooks);
+            });
             //modal to show the Docker Parameters Popup                                             
             //on initial load.
             //wizard data setting for step 1 and step 2.
@@ -725,7 +742,12 @@
                             console.log(blueprintCreateJSON.dockercompose);
                         });
                     }
-
+                    if(blueprintCreation.newEnt.serviceDelivery_isChecked){
+                        blueprintCreateJSON.botType = blueprintCreation.newEnt.botTypeValue;
+                        blueprintCreateJSON.shortDesc = blueprintCreation.newEnt.botDescription;
+                        blueprintCreateJSON.botCategory = blueprintCreation.newEnt.botCategoryValue;
+                        blueprintCreateJSON.serviceDeliveryCheck = true;
+                    }
                     if(blueprintCreation.newEnt.appDeployCheck_isChecked){
                         if(blueprintCreation.newEnt.serverType === 'nexus'){
                             var nexus = {

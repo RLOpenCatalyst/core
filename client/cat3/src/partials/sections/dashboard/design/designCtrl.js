@@ -86,12 +86,10 @@
 			};
 			genericServices.promiseGet(params).then(function (template){
 				design.templateTypes=template;
+				var treeNames=['Design', $state.params.providerName,template[0].templatetypename];
+				$rootScope.$emit('treeNameUpdate', treeNames);
+				$state.go('dashboard.design.list',{providerName:$state.params.providerName,templateObj:template[0],view:'list'});
 
-				//var treeNames=['DESIGN', $state.params.subItem,template[0].templateName,'list'];
-				//$rootScope.$emit('treeNameUpdate', treeNames);
-				//$state.go('dashboard.designSubView',{subItem:providers[0].name,view:'list',templateObj:template[0]});
-
-			
 			// get organigetion
 				genericServices.getTreeNew().then(function (orgs) {
 					$rootScope.organObject=orgs;
