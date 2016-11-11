@@ -13,7 +13,7 @@ instanceSync.executeScheduledInstances = function executeScheduledInstances() {
         if (instances && instances.length) {
             for (var i = 0; i < instances.length; i++) {
                 (function(i) {
-                       instanceService.executeScheduleJob([instances[i]]);
+                    instanceService.executeScheduleJob([instances[i]]);
                 })(i);
             }
         }else{

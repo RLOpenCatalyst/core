@@ -2134,7 +2134,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     res.send(error);
                     return;
                 } else {
-                    instanceService.stopInstance(req.params.instanceId,user,function (err, data) {
+                    instanceService.startStopInstance(req.params.instanceId,user.cn,'Stop',function (err, data) {
                         if (err) {
                             return res.send(err);
                         }
@@ -2161,7 +2161,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     res.send(error);
                     return;
                 } else {
-                    instanceService.startInstance(req.params.instanceId,user,function (err, data) {
+                    instanceService.startStopInstance(req.params.instanceId,user.cn,'Start',function (err, data) {
                         if (err) {
                             return res.send(err);
                         }
@@ -3249,33 +3249,29 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      *
      * @apiParam {Array} instanceIds                            List of Instance Ids
      * @apiParam {Boolean} isScheduled                          To identify instance is scheduled or not
+     * @apiParam {String} schedulerStartOn                      start date for Instance scheduler
+     * @apiParam {String} schedulerEndOn                        end date for Instance scheduler
      * @apiParam {Object} instanceStartScheduler               instanceStart object in request body
-     * @apiParam {String} instanceStartScheduler.startOn       date to start scheduler
-     * @apiParam {String} instanceStartScheduler.endOn         end date to start scheduler
      * @apiParam {String} instanceStartScheduler.repeats       repeat start scheduler
      * @apiParam {Number} instanceStartScheduler.repeatEvery   interval to repeat start scheduler
      * @apiParam {Object} instanceStopScheduler               instanceStop object in request body
-     * @apiParam {String} instanceStopScheduler.startOn       date to stop scheduler
-     * @apiParam {String} instanceStopScheduler.endOn         end date to stop scheduler
      * @apiParam {String} instanceStopScheduler.repeats       repeat stop scheduler
      * @apiParam {Number} instanceStopScheduler.repeatEvery   interval to repeat stop scheduler
 
      * @apiParamExample {json} Request-Example:
      *      {
-                instanceIds:["String"],
+                "instanceIds":["String"],
+                "schedulerStartOn":"String",
+                "schedulerEndOn":"String",
+                "isScheduled": Boolean,
                 "instanceStartScheduler": {
-                    "startOn": "String",
-                    "endOn": "String",
                     "repeats": "String",
                     "repeatEvery": Number
                 },
                 "instanceStopScheduler": {
-                    "stopOn": "String",
-                    "endOn": "String",
                     "repeats": "String",
                     "repeatEvery": Number
-                },
-                "isScheduled": Boolean
+                }
             }
      *
 
