@@ -50,6 +50,7 @@ var mongoose = require('mongoose');
 logger.debug('Starting Catalyst');
 logger.debug('Logger Initialized');
 var LDAPUser = require('_pr/model/ldap-user/ldap-user.js');
+var instanceSync = require('_pr/cronjobs/instance-sync/instanceSync.js');
 LDAPUser.getLdapUser(function(err, ldapData) {
     if (err) {
         logger.error("Failed to get ldap-user: ", err);
@@ -215,7 +216,7 @@ io.sockets.on('connection', function(socket) {
 
 var cronTabManager = require('_pr/cronjobs');
 cronTabManager.start();
-
+instanceSync.executeScheduledInstances();
 server.listen(app.get('port'), function() {
     logger.debug('Express server listening on port ' + app.get('port'));
 });

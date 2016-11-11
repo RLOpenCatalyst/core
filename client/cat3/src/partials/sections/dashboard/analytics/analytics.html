@@ -115,12 +115,12 @@
 					</button>
 				</li>
 			</ul>
-			<div class="well" id="well">
+			<div class="well" id="well" ng-hide="stateItems.filterView.period">
 				<div class="col-lg-5 col-md-5 col-sm-12 btn-group" role="group" aria-label="...">
-					<button type="button" class="btn btn-sm btn-primary cat-btn-update" disabled="disabled" ng-class="{'active':filterNewEnt.period === 'day'}"  ng-click="analytic.applyFilter(true,'day')">DAY</button>
-					<button type="button" class="btn btn-sm btn-primary cat-btn-update" disabled="disabled" ng-class=" {'active':filterNewEnt.period === 'week'}"  ng-click="analytic.applyFilter(true,'week')">WEEK</button>
-					<button type="button" class="btn btn-sm btn-primary cat-btn-update" ng-class=" {'active':filterNewEnt.period === 'month'}" ng-click="analytic.applyFilter(true,'month')">MONTH</button>
-					<button type="button" class="btn btn-sm btn-primary cat-btn-update" disabled="disabled" ng-class=" {'active':filterNewEnt.period === 'year'}"  ng-click="analytic.applyFilter(true,'year')">YEAR</button>
+					<button type="button" class="btn btn-sm btn-primary cat-btn-update" ng-class="{'active':filterNewEnt.period === 'day'}"  ng-click="applyFilter(true,'day')">DAY</button>
+					<button type="button" class="btn btn-sm btn-primary cat-btn-update" ng-class=" {'active':filterNewEnt.period === 'week'}"  ng-click="applyFilter(true,'week')">WEEK</button>
+					<button type="button" class="btn btn-sm btn-primary cat-btn-update" ng-class=" {'active':filterNewEnt.period === 'month'}" ng-click="applyFilter(true,'month')">MONTH</button>
+					<button type="button" class="btn btn-sm btn-primary cat-btn-update" disabled="disabled" ng-class=" {'active':filterNewEnt.period === 'year'}"  ng-click="applyFilter(true,'year')">YEAR</button>
 				</div>
                 <div class="col-lg-7 col-md-7 col-sm-12 filter-wrapper">
                     <span  ng-repeat="filt in filterNewEnt"  ng-if="filt !== '' && filt.title">
