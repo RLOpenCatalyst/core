@@ -1481,55 +1481,41 @@ function createOrUpdateInstanceLogs(instance, instanceState, action, user, times
 function executeScheduleJob(instance) {
     logger.debug("Instance scheduler::::: ");
     var currentDate = new Date();
-    async.parallel({
-        instanceStartSchedule: function(callback){
-            if(instance[0].isInstanceStartScheduled === false){
-                logger.debug("Instance cannot start schedule for Start");
-                callback(null,null);
-            }
-            if (instance[0].isInstanceStartScheduled === true && currentDate >= instance[0].instanceStartScheduler.endOn) {
-                instancesDao.updateInstanceScheduler(instance[0]._id,'start',function(err, updatedData) {
+    async.waterfall([
+        function(next){
+           if (currentDate >= instance[0].schedulerEndOn) {
+                instancesDao.updateInstanceScheduler(instance[0]._id,function(err, updatedData) {
                     if (err) {
-                        logger.error("Failed to update task: ", err);
-                        callback(err,null);
+                        logger.error("Failed to update Instance Scheduler: ", err);
+                        next(err);
+                    }else{
+                        next(null,updatedData);
                     }
                 });
-            }else{
-                var startJobId = crontab.scheduleJob(instance[0].instanceStartScheduler.cronPattern, function() {
-                    startInstance(instance[0]._id,instance[0].catUser,function(err,callback){
-                        if(err){
-                            callback(err,null);
-                        }
-                        callback(null,startJobId);
-                    });
-                });
-            }
-        },
-        instanceStopSchedule: function(callback){
-            if(instance[0].isInstanceStopScheduled === false){
-                logger.debug("Instance cannot start schedule for Stop");
-                callback(null,null);
-            }
-            if (instance[0].isInstanceStopScheduled === true && currentDate >= instance[0].instanceStopScheduler.endOn) {
-                instancesDao.updateInstanceScheduler(instance[0]._id,'stop',function(err, updatedData) {
-                    if (err) {
-                        logger.error("Failed to update task: ", err);
-                        callback(err,null);
-                    }
-                });
-            }else{
+           }else if(instance[0].instanceState === 'running'){
                 var stopJobId = crontab.scheduleJob(instance[0].instanceStopScheduler.cronPattern, function() {
-                    logger.debug("Stop api called...");
-                    stopInstance(instance[0]._id,instance[0].catUser,function(err,callback){
+                    stopInstance(instance[0]._id,instance[0].catUser,function(err,data){
                         if(err){
-                            callback(err,null);
+                            next(err);
                         }
-                        callback(null,stopJobId);
+                        next(null,stopJobId);
                     });
                 });
-            }
-        }
-    },function(err,results){
+            }else if(instance[0].instanceState === 'stopped'){
+               var startJobId = crontab.scheduleJob(instance[0].instanceStartScheduler.cronPattern, function() {
+                   startInstance(instance[0]._id,instance[0].catUser,function(err,data){
+                       if(err){
+                           next(err);
+                       }
+                       next(null,startJobId);
+                   });
+               });
+           }else{
+               logger.debug("Instance current state is match as per scheduler "+instance[0].instanceState);
+               next(null,null);
+           }
+        },
+    ],function(err,results){
         if(err){
             logger.error(err);
             return;
@@ -1579,9 +1565,7 @@ function startInstance(instanceId,catUser, callback) {
                     if (actionLog) {
                         logReferenceIds.push(actionLog._id);
                     }
-                    logger.debug('IN getvmwareProviderById: data: ');
-                    logger.debug(JSON.stringify(data));
-                    var vmwareconfig = {
+                    var vmWareConfig = {
                         host: '',
                         username: '',
                         password: '',
@@ -1589,18 +1573,17 @@ function startInstance(instanceId,catUser, callback) {
                         serviceHost: ''
                     };
                     if (providerdata) {
-                        vmwareconfig.host = providerdata.host;
-                        vmwareconfig.username = providerdata.username;
-                        vmwareconfig.password = providerdata.password;
-                        vmwareconfig.dc = providerdata.dc;
-                        vmwareconfig.serviceHost = appConfig.vmware.serviceHost;
-                        logger.debug('IN getvmwareProviderById: vmwareconfig: ');
+                        vmWareConfig.host = providerdata.host;
+                        vmWareConfig.username = providerdata.username;
+                        vmWareConfig.password = providerdata.password;
+                        vmWareConfig.dc = providerdata.dc;
+                        vmWareConfig.serviceHost = appConfig.vmware.serviceHost;
                     } else {
-                        vmwareconfig = null;
+                        vmWareConfig = null;
                     }
-                    if (vmwareconfig) {
-                        var vmware = new VMware(vmwareconfig);
-                        vmware.startstopVM(vmwareconfig.serviceHost, data[0].platformId, 'poweron', function (err, vmdata) {
+                    if (vmWareConfig) {
+                        var vmWare = new VMware(vmWareConfig);
+                        vmWare.startstopVM(vmWareConfig.serviceHost, data[0].platformId, 'poweron', function (err, vmdata) {
                             if (!err) {
                                 var timestampEnded = new Date().getTime();
                                 logsDao.insertLog({
@@ -1824,9 +1807,7 @@ function startInstance(instanceId,catUser, callback) {
 
                                         logger.debug('instance state upadated');
                                     });
-
                                     var timestampEnded = new Date().getTime();
-
                                     logsDao.insertLog({
                                         referenceId: logReferenceIds,
                                         err: false,
@@ -1852,7 +1833,6 @@ function startInstance(instanceId,catUser, callback) {
                                         if (err) {
                                             logger.error("Error in deleting decryptedPemFile..");
                                         }
-
                                         fs.unlink(decryptedKeyFile, function (err) {
                                             logger.debug("Deleting decryptedKeyFile ..");
                                             if (err) {
@@ -1890,15 +1870,12 @@ function startInstance(instanceId,catUser, callback) {
                         "zone": data[0].zone,
                         "name": data[0].name
                     }
-
                     var timestampStarted = new Date().getTime();
                     var actionLog = instancesDao.insertStartActionLog(instanceId, catUser, timestampStarted);
                     var logReferenceIds = [instanceId];
                     if (actionLog) {
                         logReferenceIds.push(actionLog._id);
                     }
-
-
                     logsDao.insertLog({
                         referenceId: logReferenceIds,
                         err: false,
@@ -1917,7 +1894,6 @@ function startInstance(instanceId,catUser, callback) {
                             logger.error("Failed to create or update instanceLog: ", err);
                         }
                     });
-
                     gcp.startVM(gcpParam, function (err, vmResponse) {
                         if (err) {
                             if (err) {
@@ -2117,7 +2093,6 @@ function startInstance(instanceId,catUser, callback) {
                                 }
                                 logger.debug('instance state upadated');
                             });
-
                         }, function (err, state) {
                             if (err) {
                                 return callback(err, null);
@@ -2170,7 +2145,6 @@ function startInstance(instanceId,catUser, callback) {
                     });
                 });
             }
-
         } else {
             var error = new Error();
             error.status = 404;
@@ -2189,7 +2163,6 @@ function stopInstance(instanceId, catUser, callback) {
             callback(error, null);
             return;
         }
-        logger.debug("data.providerId: ::::   ", JSON.stringify(data[0]));
         if (data.length) {
             var instanceLog = {
                 actionId: "",
@@ -2263,7 +2236,7 @@ function stopInstance(instanceId, catUser, callback) {
             if (data[0].providerType && data[0].providerType == 'vmware') {
                 vmwareCloudProvider.getvmwareProviderById(data[0].providerId, function (err, providerdata) {
                     logger.debug('IN getvmwareProviderById: data: ');
-                    var vmwareconfig = {
+                    var vmWareConfig = {
                         host: '',
                         username: '',
                         password: '',
@@ -2271,20 +2244,17 @@ function stopInstance(instanceId, catUser, callback) {
                         serviceHost: ''
                     };
                     if (data) {
-                        vmwareconfig.host = providerdata.host;
-                        vmwareconfig.username = providerdata.username;
-                        vmwareconfig.password = providerdata.password;
-                        vmwareconfig.dc = providerdata.dc;
-                        vmwareconfig.serviceHost = appConfig.vmware.serviceHost;
-                        logger.debug('IN getvmwareProviderById: vmwareconfig: ');
-                        logger.debug(JSON.stringify(appConfig.vmware));
-                        logger.debug(JSON.stringify(vmwareconfig));
+                        vmWareConfig.host = providerdata.host;
+                        vmWareConfig.username = providerdata.username;
+                        vmWareConfig.password = providerdata.password;
+                        vmWareConfig.dc = providerdata.dc;
+                        vmWareConfig.serviceHost = appConfig.vmware.serviceHost;
                     } else {
-                        vmwareconfig = null;
+                        vmWareConfig = null;
                     }
-                    if (vmwareconfig) {
-                        var vmware = new VMware(vmwareconfig);
-                        vmware.startstopVM(vmwareconfig.serviceHost, data[0].platformId, 'poweroff', function (err, vmdata) {
+                    if (vmWareConfig) {
+                        var vmWare = new VMware(vmWareConfig);
+                        vmWare.startstopVM(vmWareConfig.serviceHost, data[0].platformId, 'poweroff', function (err, vmdata) {
                             if (!err) {
                                 var timestampEnded = new Date().getTime();
 
@@ -2405,55 +2375,38 @@ function stopInstance(instanceId, catUser, callback) {
                 callback(error, null);
 
             } else if (data[0].keyPairId && data[0].keyPairId == 'azure') {
-
                 logger.debug("Stopping Azure ");
-
                 azureProvider.getAzureCloudProviderById(data[0].providerId, function (err, providerdata) {
                     if (err) {
                         logger.error('getAzureCloudProviderById ', err);
                         return callback(err, null);
                     }
-
-                    logger.debug('providerdata:', providerdata);
                     providerdata = JSON.parse(providerdata);
-
                     var settings = appConfig;
                     var pemFile = settings.instancePemFilesDir + providerdata._id + providerdata.pemFileName;
                     var keyFile = settings.instancePemFilesDir + providerdata._id + providerdata.keyFileName;
-
-                    logger.debug("pemFile path:", pemFile);
-                    logger.debug("keyFile path:", pemFile);
-
                     var cryptoConfig = appConfig.cryptoSettings;
                     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-
                     var uniqueVal = uuid.v4().split('-')[0];
-
                     var decryptedPemFile = pemFile + '_' + uniqueVal + '_decypted';
                     var decryptedKeyFile = keyFile + '_' + uniqueVal + '_decypted';
-
                     cryptography.decryptFile(pemFile, cryptoConfig.decryptionEncoding, decryptedPemFile, cryptoConfig.encryptionEncoding, function (err) {
                         if (err) {
                             logger.error('Pem file decryption failed>> ', err);
                             return callback(err, null);
                         }
-
                         cryptography.decryptFile(keyFile, cryptoConfig.decryptionEncoding, decryptedKeyFile, cryptoConfig.encryptionEncoding, function (err) {
                             if (err) {
                                 logger.error('key file decryption failed>> ', err);
                                 return callback(err, null);
                             }
-
                             var options = {
                                 subscriptionId: providerdata.subscriptionId,
                                 certLocation: decryptedPemFile,
                                 keyLocation: decryptedKeyFile
                             };
-
                             var azureCloud = new AzureCloud(options);
-
                             azureCloud.shutDownVM(data[0].chefNodeName, function (err, currentState) {
-
                                     if (err) {
                                         var timestampEnded = new Date().getTime();
                                         logsDao.insertLog({
@@ -2482,13 +2435,11 @@ function stopInstance(instanceId, catUser, callback) {
                                         callback(error, null);
                                         return;
                                     }
-
                                     logger.debug("Exit get() for /instances/%s/stopInstance", instanceId);
                                     callback(null, {
                                         instanceCurrentState: currentState,
                                         actionLogId: actionLog._id
                                     });
-
                                     instancesDao.updateInstanceState(instanceId, "stopping", function (err, updateCount) {
                                         if (err) {
                                             logger.error("update instance state err ==>", err);
@@ -2496,8 +2447,6 @@ function stopInstance(instanceId, catUser, callback) {
                                         }
                                         logger.debug('instance state upadated');
                                     });
-
-
                                 },
                                 function (err, state) {
                                     if (err) {
@@ -2508,19 +2457,16 @@ function stopInstance(instanceId, catUser, callback) {
                                             logger.error("update instance state err ==>", err);
                                             return callback(err, null);
                                         }
-
                                         logger.debug('instance state upadated');
                                     });
 
                                     var timestampEnded = new Date().getTime();
-
                                     logsDao.insertLog({
                                         referenceId: logReferenceIds,
                                         err: false,
                                         log: "Instance Stopped",
                                         timestamp: timestampEnded
                                     });
-
                                     instancesDao.updateActionLog(instanceId, actionLog._id, true, timestampEnded);
                                     instanceLog.endedOn = new Date().getTime();
                                     instanceLog.status = "stopped";
@@ -2540,7 +2486,6 @@ function stopInstance(instanceId, catUser, callback) {
                                         if (err) {
                                             logger.error("Error in deleting decryptedPemFile..");
                                         }
-
                                         fs.unlink(decryptedKeyFile, function (err) {
                                             logger.debug("Deleting decryptedKeyFile ..");
                                             if (err) {
@@ -2669,7 +2614,6 @@ function stopInstance(instanceId, catUser, callback) {
                         callback(error, null);
                         return;
                     }
-
                     function getRegion(callback) {
                         if (data[0].providerData && data[0].providerData.region) {
                             process.nextTick(function () {
@@ -2683,19 +2627,14 @@ function stopInstance(instanceId, catUser, callback) {
                                 }
                                 callback(null, keyPair[0].region);
                             });
-
                         }
-
                     }
-
                     getRegion(function (err, region) {
-
                         if (err) {
                             var error = new Error("Error getting to fetch Keypair.");
                             error.status = 500;
                             callback(error, null);
                         }
-
                         var ec2;
                         if (aProvider.isDefault) {
                             ec2 = new EC2({
@@ -2711,14 +2650,12 @@ function stopInstance(instanceId, catUser, callback) {
                                 cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
                             var decryptedSecretKey = cryptography.decryptText(aProvider.secretKey,
                                 cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-
                             ec2 = new EC2({
                                 "access_key": decryptedAccessKey,
                                 "secret_key": decryptedSecretKey,
                                 "region": region
                             });
                         }
-
                         ec2.stopInstance([data[0].platformId], function (err, stoppingInstances) {
                             if (err) {
                                 var timestampEnded = new Date().getTime();
@@ -2753,7 +2690,6 @@ function stopInstance(instanceId, catUser, callback) {
                                 instanceCurrentState: stoppingInstances[0].CurrentState.Name,
                                 actionLogId: actionLog._id
                             });
-
                             instancesDao.updateInstanceState(instanceId, stoppingInstances[0].CurrentState.Name, function (err, updateCount) {
                                 if (err) {
                                     logger.error("update instance state err ==>", err);
@@ -2761,12 +2697,10 @@ function stopInstance(instanceId, catUser, callback) {
                                 }
                                 logger.debug('instance state upadated');
                             });
-
                         }, function (err, state) {
                             if (err) {
                                 return callback(err, null);
                             }
-
                             instancesDao.updateInstanceState(instanceId, state, function (err, updateCount) {
                                 if (err) {
                                     logger.error("update instance state err ==>", err);
@@ -2799,8 +2733,6 @@ function stopInstance(instanceId, catUser, callback) {
                     });
                 });
             }
-
-
         } else {
             var error = new Error();
             error.status = 404;
@@ -2814,9 +2746,11 @@ function updateScheduler(instanceScheduler, callback) {
     async.waterfall([
         function(next){
             var scheduler= {
-                instanceStartScheduler:createCronJobPattern(instanceScheduler.instanceStartScheduler),
-                instanceStopScheduler:createCronJobPattern(instanceScheduler.instanceStopScheduler),
-                isScheduled:instanceScheduler.isScheduled
+                instanceStartScheduler:createCronJobPattern(instanceScheduler.instanceStartScheduler,instanceScheduler.schedulerStartOn),
+                instanceStopScheduler:createCronJobPattern(instanceScheduler.instanceStopScheduler,instanceScheduler.schedulerStartOn),
+                schedulerStartOn: Date.parse(instanceScheduler.schedulerStartOn),
+                schedulerEndOn: Date.parse(instanceScheduler.schedulerEndOn),
+                isScheduled:true
             };
             next(null,scheduler);
         },
@@ -2827,15 +2761,14 @@ function updateScheduler(instanceScheduler, callback) {
         if(err){
             return callback(err, null);
         }else{
-            var count = 0
             for(var i = 0;i < instanceScheduler.instanceIds.length; i++){
                 (function(instanceId){
                     instancesDao.getInstanceById(instanceId, function(err, instance) {
                         if (err) {
                             logger.error("Failed to get Instance: ", err);
-                            return
+                            return;
                         }
-                        if(instance.length > 0 && instanceScheduler.isScheduled){
+                        if(instance.length > 0 && instance[0].isScheduled){
                             executeScheduleJob(instance);
                         }
                     });
@@ -2846,18 +2779,19 @@ function updateScheduler(instanceScheduler, callback) {
     });
 }
 
-function createCronJobPattern(instanceScheduler){
+function createCronJobPattern(instanceScheduler,startOn){
+    instanceScheduler.repeatEvery = parseInt(instanceScheduler.repeatEvery);
     if(instanceScheduler.repeats ==='Minutes'){
         instanceScheduler.pattern = '*/'+instanceScheduler.repeatEvery+' * * * *';
     }else if(instanceScheduler.repeats ==='Hourly'){
         instanceScheduler.pattern = '0 */'+instanceScheduler.repeatEvery+' * * *';
     }else if(instanceScheduler.repeats ==='Daily'){
-        var startOn = new Date(instanceScheduler.startOn);
+        var startOn = Date.parse(startOn);
         var startHours= startOn.getHours();
         var startMinutes= startOn.getMinutes();
         instanceScheduler.pattern = startMinutes+' '+startHours+' */'+instanceScheduler.repeatEvery+' * *';
     }else if(instanceScheduler.repeats ==='Weekly') {
-        var startOn = new Date(instanceScheduler.startOn);
+        var startOn = Date.parse(startOn);
         var startDay= startOn.getDay();
         var startHours= startOn.getHours();
         var startMinutes= startOn.getMinutes();
@@ -2872,7 +2806,7 @@ function createCronJobPattern(instanceScheduler){
         }
     }
     if(instanceScheduler.repeats ==='Monthly') {
-        var startOn = new Date(instanceScheduler.startOn);
+        var startOn = Date.parse(startOn);
         var startDate= startOn.getDate();
         var startMonth= startOn.getMonth();
         var startDay= startOn.getDay();
@@ -2885,7 +2819,7 @@ function createCronJobPattern(instanceScheduler){
         }
     }
     if(instanceScheduler.repeats ==='Yearly') {
-        var startOn = new Date(instanceScheduler.startOn);
+        var startOn = Date.parse(startOn);
         var startDate= startOn.getDate();
         var startYear= startOn.getFullYear();
         var startMonth= startOn.getMonth();
@@ -2894,11 +2828,11 @@ function createCronJobPattern(instanceScheduler){
         instanceScheduler.pattern ='0 '+startMinutes+' '+startHours+' '+startDate+' '+startMonth+' ? '+startYear/instanceScheduler.repeatEvery;
     }
     var scheduler = {
-        "startOn": new Date(instanceScheduler.startOn),
-        "endOn": new Date(instanceScheduler.endOn),
         "repeats": instanceScheduler.repeats,
         "repeatEvery": instanceScheduler.repeatEvery,
-        "pattern":instanceScheduler.pattern
+        "cronPattern":instanceScheduler.pattern
     }
     return scheduler;
 }
+
+

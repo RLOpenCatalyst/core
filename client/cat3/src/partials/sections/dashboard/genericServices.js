@@ -40,7 +40,21 @@
                 });
             return deferred.promise;
         };
-
+        genericServices.promisePut = function (paramsObject) {
+            if(!paramsObject.inlineLoader){ $rootScope.onBodyLoading=true;}
+            var deferred = $q.defer();
+            $http.put(paramsObject.url,paramsObject.data)
+                .success(function(data) {
+                    $rootScope.onBodyLoading=false;
+                    deferred.resolve(data);
+                })
+                .error(function(data, status) {
+                    $rootScope.onBodyLoading=false;
+                    deferred.reject();
+                    toastr.error(data.message, status);
+                });
+            return deferred.promise;
+        };
         genericServices.promiseDelete= function (paramsObject) {
             $rootScope.onBodyLoading=true;
             var deferred = $q.defer();

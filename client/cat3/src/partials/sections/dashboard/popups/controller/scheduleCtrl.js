@@ -13,11 +13,11 @@
             sch.schedulerStartOn=new Date();
             sch.schedulerEndOn=new Date();
             sch.instanceStartScheduler={
-                repeats:'Day',
+                repeats:'Minutes',
                 repeatEvery:'1'
             };
             sch.instanceStopScheduler={
-                repeats:'Day',
+                repeats:'Minutes',
                 repeatEvery:'1'
             };
             sch.cancel = function() {
@@ -28,7 +28,7 @@
                     url:'/instances/schedule',
                     data:sch
                 }
-                genericServices.promisePost(params).then(function(){
+                genericServices.promisePut(params).then(function(){
                     toastr.success('successfully created');
                     $modalInstance.dismiss('cancel');
                 });
