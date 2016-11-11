@@ -64,6 +64,8 @@
 									<select name="botType" class="form-control" ng-model="botType" ng-required="checkBotStatus" ng-disabled="isEditMode">
 										<option selected="selected" value="Task">Task</option>
 										<option ng-show="!createChefJob" value="Check">Check</option>
+										<option ng-show="!createChefJob" value="Run">Run</option>
+										<option ng-show="!createChefJob" value="UI">UI</option>
 										<option ng-show="!createChefJob" value="Learning">Learning</option>
 										<option ng-show="!createChefJob" value="Composite">Composite</option>
 										<option ng-show="!createChefJob" value="Built with other">Built with other</option>

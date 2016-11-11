@@ -129,8 +129,8 @@ function getDefaultsConfig() {
             }
         },
         taggingServerList: ['Sensu Server','LDAP Server','AD Server'],
-        botTypeList: ['Task','Check','Learning', 'Composite','Built with other'],
-        categoryList: ['Active Directory','Amazon Web Services','VMWare', 'Windows Services', 'Acitve Directory Workflow', 'OpenDJ LDAP Workflow', 'Application Deployment', 'Installation & Configuration', 'Database Management', 'Upgrade', 'Installation'],
+        botTypeList: ['Task','Check','Learning', 'Composite','Built with other','Run','UI'],
+        categoryList: ['Active Directory', 'OpenDJ LDAP','Monitoring', 'Application Deployment', 'Service Management', 'Database Management', 'Upgrade', 'Installation'],
         aws: {
             pemFileLocation: __dirname + '/app/config/',
             s3BucketDownloadFileLocation: currentDirectory + '/catdata/catalyst/temp/',

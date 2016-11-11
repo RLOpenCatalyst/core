@@ -414,6 +414,13 @@ $imagePath : "../../../../../../images";
 	.table>tbody>tr>td {
 		border-top: 0px;
 	}
+
+	.fa-question-circle {
+		position: absolute;
+	    left: 100px;
+	    top: 102px;
+	    font-size: 18px;
+	}
 }
 
 #orchestrationHistoryPage {

@@ -168,7 +168,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
         */
 
         var paramOptions = {
-            cookbookAttributesP: cookbookAttributes,
+            cookbookAttributes: cookbookAttributes,
             scriptParams: scriptParams
         };
 
@@ -186,8 +186,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
         }
 
 
-
-
+        
         taskService.executeTask(taskId, user, hostProtocol, choiceParam, appData, paramOptions, botTagServer, function(err, historyData) {
             if (err === 404) {
                 res.status(404).send("Task not found.");
