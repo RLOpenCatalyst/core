@@ -10,12 +10,13 @@
         <div class="col-lg-6 col-md-6 margintop15">
             <label>Starts on: <span class="red">*</span>
             </label>
-            <input required datetime-picker is-open="openedStart"  ng-click="openCalendarStart()" type="text" ng-model="sch.schedulerStartOn" class="form-control"  >
+            <input ng-change="dateChange()" required datetime-picker is-open="openedStart"  ng-click="openCalendarStart()" type="text" ng-model="sch.schedulerStartOn" class="form-control"  >
         </div>
         <div class="col-lg-6 col-md-6 margintop15">
-            <label>Ends:
+            <label>Ends on: <span class="red">*</span>
             </label>
-            <input type="text" datetime-picker is-open="openedEnd" ng-click="openCalendarEnd()" ng-model="sch.schedulerEndOn" class="form-control"  >
+            <input ng-change="dateChange()" type="text" datetime-picker is-open="openedEnd" ng-click="openCalendarEnd()" ng-model="sch.schedulerEndOn" class="form-control" required >
+            <span class="error red" ng-show="validDateRange">Start Date should be less than End date !</span>
         </div>
         <div class="clearfix margintop15"></div>
         <div class="clearfix margintop15"></div>
@@ -90,7 +91,7 @@
         <button type="button" class="btn cat-btn-close" ng-click="sch.cancel()">
             <i class="fa fa-times black"></i> Cancel
         </button>
-        <button type="button" class="btn cat-btn-update" ng-disabled="scheduleForm.$invalid" ng-click="sch.ok()">
+        <button type="button" class="btn cat-btn-update" ng-disabled="scheduleForm.$invalid || validDateRange" ng-click="sch.ok()">
             <i class="fa fa-check white"></i> Save
         </button>
     </div>
