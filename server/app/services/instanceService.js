@@ -1480,6 +1480,7 @@ function createOrUpdateInstanceLogs(instance, instanceState, action, user, times
 
 function executeScheduleJob(instance) {
     logger.debug("Instance scheduler::::: ");
+    logger.debug(instance[0].instanceState);
     var currentDate = new Date();
     async.waterfall([
         function(next){
@@ -1494,7 +1495,7 @@ function executeScheduleJob(instance) {
                 });
            }else if(instance[0].instanceState === 'running'){
                 var stopJobId = crontab.scheduleJob(instance[0].instanceStopScheduler.cronPattern, function() {
-                    stopInstance(instance[0]._id,instance[0].catUser,function(err,data){
+                    stopInstance(instance[0]._id,instance[0].catUser,stopJobId,function(err,data){
                         if(err){
                             next(err);
                         }
@@ -1503,7 +1504,7 @@ function executeScheduleJob(instance) {
                 });
             }else if(instance[0].instanceState === 'stopped'){
                var startJobId = crontab.scheduleJob(instance[0].instanceStartScheduler.cronPattern, function() {
-                   startInstance(instance[0]._id,instance[0].catUser,function(err,data){
+                   startInstance(instance[0]._id,instance[0].catUser,startJobId,function(err,data){
                        if(err){
                            next(err);
                        }
@@ -1511,7 +1512,7 @@ function executeScheduleJob(instance) {
                    });
                });
            }else{
-               logger.debug("Instance current state is match as per scheduler "+instance[0].instanceState);
+               logger.debug("Instance current state is not match as per scheduler "+instance[0].instanceState);
                next(null,null);
            }
         },
@@ -1526,7 +1527,7 @@ function executeScheduleJob(instance) {
     })
 }
 
-function startInstance(instanceId,catUser, callback) {
+function startInstance(instanceId,catUser,cronJobId, callback) {
     instancesDao.getInstanceById(instanceId, function (err, data) {
         if (err) {
             var error = new Error("Internal Server Error.");
@@ -1944,10 +1945,6 @@ function startInstance(instanceId,catUser, callback) {
                                 }
                                 logger.debug('instance state upadated');
                             });
-                            callback(null, {
-                                instanceCurrentState: "running",
-                                actionLogId: actionLog._id
-                            });
                             var timestampEnded = new Date().getTime()
                             logsDao.insertLog({
                                 referenceId: logReferenceIds,
@@ -1973,6 +1970,19 @@ function startInstance(instanceId,catUser, callback) {
                                 if (err) {
                                     logger.error("Unable to delete json file.");
                                 }
+                                callback(null, {
+                                    instanceCurrentState: "running",
+                                    actionLogId: actionLog._id
+                                });
+                                crontab.cancelJob(cronJobId);
+                                var stopJobId = crontab.scheduleJob(data[0].instanceStopScheduler.cronPattern, function() {
+                                    stopInstance(data[0]._id,data[0].catUser,stopJobId,function(err,data){
+                                        if(err){
+                                            logger.error(err);
+                                            return;
+                                        }
+                                    });
+                                });
                             });
                         }
                     });
@@ -2051,7 +2061,7 @@ function startInstance(instanceId,catUser, callback) {
                                 "region": region
                             });
                         }
-                        ec2.startInstance([data[0].platformId], function (err, startingInstances) {
+                        ec2.startInstance([data[0].platformId], function (err, state) {
                             if (err) {
                                 var timestampEnded = new Date().getTime();
                                 logsDao.insertLog({
@@ -2081,28 +2091,12 @@ function startInstance(instanceId,catUser, callback) {
                                 callback(error, null);
                                 return;
                             }
-                            logger.debug("Exit get() for /instances/%s/startInstance", instanceId);
-                            callback(null, {
-                                instanceCurrentState: startingInstances[0].CurrentState.Name,
-                                actionLogId: actionLog._id
-                            });
-                            instancesDao.updateInstanceState(instanceId, startingInstances[0].CurrentState.Name, function (err, updateCount) {
-                                if (err) {
-                                    logger.error("update instance state err ==>", err);
-                                    return callback(err, null);
-                                }
-                                logger.debug('instance state upadated');
-                            });
-                        }, function (err, state) {
-                            if (err) {
-                                return callback(err, null);
-                            }
                             instancesDao.updateInstanceState(instanceId, state, function (err, updateCount) {
                                 if (err) {
                                     logger.error("update instance state err ==>", err);
                                     return callback(err, null);
                                 }
-                                logger.debug('instance state upadated');
+                                logger.debug('instance state updated');
                             });
                             var timestampEnded = new Date().getTime()
                             logsDao.insertLog({
@@ -2125,19 +2119,33 @@ function startInstance(instanceId,catUser, callback) {
                                     logger.error("Failed to create or update instanceLog: ", err);
                                 }
                             });
-                            ec2.describeInstances([data[0].platformId], function (err, data) {
+                            ec2.describeInstances([data[0].platformId], function (err, instanceData) {
                                 if (err) {
                                     logger.error("Hit some error: ", err);
                                     return callback(err, null);
                                 }
-                                if (data.Reservations.length && data.Reservations[0].Instances.length) {
-                                    logger.debug("ip =>", data.Reservations[0].Instances[0].PublicIpAddress);
-                                    instancesDao.updateInstanceIp(instanceId, data.Reservations[0].Instances[0].PublicIpAddress, function (err, updateCount) {
+                                if (instanceData.Reservations.length && instanceData.Reservations[0].Instances.length) {
+                                    logger.debug("ip =>", instanceData.Reservations[0].Instances[0].PublicIpAddress);
+                                    instancesDao.updateInstanceIp(instanceId, instanceData.Reservations[0].Instances[0].PublicIpAddress, function (err, updateCount) {
                                         if (err) {
                                             logger.error("update instance ip err ==>", err);
                                             return callback(err, null);
                                         }
-                                        logger.debug('instance ip upadated');
+                                        logger.debug('instance ip updated');
+                                        logger.debug("Exit get() for /instances/%s/startInstance", instanceId);
+                                        crontab.cancelJob(cronJobId);
+                                        var stopJobId = crontab.scheduleJob(data[0].instanceStopScheduler.cronPattern, function() {
+                                            stopInstance(data[0]._id,data[0].catUser,stopJobId,function(err,data){
+                                                if(err){
+                                                    logger.error(err);
+                                                    return;
+                                                }
+                                            });
+                                        });
+                                        callback(null, {
+                                            instanceCurrentState: state,
+                                            actionLogId: actionLog._id
+                                        });
                                     });
                                 }
                             });
@@ -2154,7 +2162,7 @@ function startInstance(instanceId,catUser, callback) {
     });
 }
 
-function stopInstance(instanceId, catUser, callback) {
+function stopInstance(instanceId, catUser,cronJobId, callback) {
     instancesDao.getInstanceById(instanceId, function(err, data) {
         if (err) {
             logger.error("Error hits getting instance: ", err);
@@ -2656,7 +2664,7 @@ function stopInstance(instanceId, catUser, callback) {
                                 "region": region
                             });
                         }
-                        ec2.stopInstance([data[0].platformId], function (err, stoppingInstances) {
+                        ec2.stopInstance([data[0].platformId], function (err, state) {
                             if (err) {
                                 var timestampEnded = new Date().getTime();
                                 logsDao.insertLog({
@@ -2685,28 +2693,12 @@ function stopInstance(instanceId, catUser, callback) {
                                 callback(error, null);
                                 return;
                             }
-                            logger.debug("Exit get() for /instances/%s/stopInstance", instanceId);
-                            callback(null, {
-                                instanceCurrentState: stoppingInstances[0].CurrentState.Name,
-                                actionLogId: actionLog._id
-                            });
-                            instancesDao.updateInstanceState(instanceId, stoppingInstances[0].CurrentState.Name, function (err, updateCount) {
-                                if (err) {
-                                    logger.error("update instance state err ==>", err);
-                                    return callback(err, null);
-                                }
-                                logger.debug('instance state upadated');
-                            });
-                        }, function (err, state) {
-                            if (err) {
-                                return callback(err, null);
-                            }
                             instancesDao.updateInstanceState(instanceId, state, function (err, updateCount) {
                                 if (err) {
                                     logger.error("update instance state err ==>", err);
-                                    return callback(err, null);
+                                    //return callback(err, null);
                                 }
-                                logger.debug('instance state upadated');
+                                logger.debug('instance state updated');
                             });
                             var timestampEnded = new Date().getTime();
                             logsDao.insertLog({
@@ -2727,7 +2719,22 @@ function stopInstance(instanceId, catUser, callback) {
                             instanceLogModel.createOrUpdate(actionLog._id, instanceId, instanceLog, function (err, logData) {
                                 if (err) {
                                     logger.error("Failed to create or update instanceLog: ", err);
+                                    return callback(err, null);
                                 }
+                                logger.debug("Exit get() for /instances/%s/stopInstance", instanceId);
+                                crontab.cancelJob(cronJobId);
+                                var startJobId = crontab.scheduleJob(data[0].instanceStartScheduler.cronPattern, function() {
+                                    startInstance(data[0]._id,data[0].catUser,startJobId,function(err,data){
+                                        if(err){
+                                            logger.error(err);
+                                            return;
+                                        }
+                                    });
+                                });
+                                callback(null, {
+                                    instanceCurrentState: state,
+                                    actionLogId: actionLog._id
+                                });
                             });
                         });
                     });
