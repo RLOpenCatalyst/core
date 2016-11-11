@@ -7,8 +7,65 @@
  */
 angular.module("ui.bootstrap", ["ui.bootstrap.tpls", "ui.bootstrap.collapse","ui.bootstrap.accordion","ui.bootstrap.alert","ui.bootstrap.bindHtml","ui.bootstrap.buttons","ui.bootstrap.carousel","ui.bootstrap.dateparser","ui.bootstrap.position","ui.bootstrap.datepicker","ui.bootstrap.dropdown","ui.bootstrap.modal","ui.bootstrap.pagination","ui.bootstrap.tooltip","ui.bootstrap.popover","ui.bootstrap.progressbar","ui.bootstrap.rating","ui.bootstrap.tabs","ui.bootstrap.timepicker","ui.bootstrap.transition","ui.bootstrap.typeahead"]);
 angular.module("ui.bootstrap.tpls", ["template/accordion/accordion-group.html","template/accordion/accordion.html","template/alert/alert.html","template/carousel/carousel.html","template/carousel/slide.html","template/datepicker/datepicker.html","template/datepicker/day.html","template/datepicker/month.html","template/datepicker/popup.html","template/datepicker/year.html","template/modal/backdrop.html","template/modal/window.html","template/pagination/pager.html","template/pagination/pagination.html","template/tooltip/tooltip-html-popup.html","template/tooltip/tooltip-html-unsafe-popup.html","template/tooltip/tooltip-popup.html","template/tooltip/tooltip-template-popup.html","template/popover/popover-html.html","template/popover/popover-template.html","template/popover/popover.html","template/progressbar/bar.html","template/progressbar/progress.html","template/progressbar/progressbar.html","template/rating/rating.html","template/tabs/tab.html","template/tabs/tabset.html","template/timepicker/timepicker.html","template/typeahead/typeahead-match.html","template/typeahead/typeahead-popup.html"]);
-angular.module('ui.bootstrap.collapse', [])
-    .service('uibDateParser', ['$log', '$locale', 'dateFilter', 'orderByFilter', function($log, $locale, dateFilter, orderByFilter) {
+angular.module('ui.bootstrap.collapse', []).directive('collapse', ['$animate', function($animate) {
+        return {
+            link: function(scope, element, attrs) {
+                function expand() {
+                    element.removeClass('collapse')
+                        .addClass('collapsing')
+                        .attr('aria-expanded', true)
+                        .attr('aria-hidden', false);
+
+                    $animate.addClass(element, 'in', {
+                        to: { height: element[0].scrollHeight + 'px' }
+                    }).then(expandDone);
+                }
+
+                function expandDone() {
+                    element.removeClass('collapsing');
+                    element.css({height: 'auto'});
+                }
+
+                function collapse() {
+                    if (!element.hasClass('collapse') && !element.hasClass('in')) {
+                        return collapseDone();
+                    }
+
+                    element
+                    // IMPORTANT: The height must be set before adding "collapsing" class.
+                    // Otherwise, the browser attempts to animate from height 0 (in
+                    // collapsing class) to the given height here.
+                        .css({height: element[0].scrollHeight + 'px'})
+                        // initially all panel collapse have the collapse class, this removal
+                        // prevents the animation from jumping to collapsed state
+                        .removeClass('collapse')
+                        .addClass('collapsing')
+                        .attr('aria-expanded', false)
+                        .attr('aria-hidden', true);
+
+                    $animate.removeClass(element, 'in', {
+                        to: {height: '0'}
+                    }).then(collapseDone);
+                }
+
+                function collapseDone() {
+                    element.css({height: '0'}); // Required so that collapse works when animation is disabled
+                    element.removeClass('collapsing');
+                    element.addClass('collapse');
+                }
+
+                scope.$watch(attrs.collapse, function(shouldCollapse) {
+                    if (shouldCollapse) {
+                        collapse();
+                    } else {
+                        expand();
+                    }
+                });
+            }
+        };
+    }])
+    .service('uibDateParser', ['$log', '$locale', 'dateFilter', 'orderByFilter', function($log, $locale, dateFilter, orderByFilter)
+    {
       // Pulled from https://github.com/mbostock/d3/blob/master/src/format/requote.js
       var SPECIAL_CHARACTERS_REGEXP = /[\\\^\$\*\+\?\|\[\]\(\)\.\{\}]/g;
 
@@ -566,64 +623,7 @@ angular.module('ui.bootstrap.isClass', [])
             }
           }
         };
-      }])
-    .directive('collapse', ['$animate', function($animate) {
-      return {
-        link: function(scope, element, attrs) {
-          function expand() {
-            element.removeClass('collapse')
-                .addClass('collapsing')
-                .attr('aria-expanded', true)
-                .attr('aria-hidden', false);
-
-            $animate.addClass(element, 'in', {
-              to: { height: element[0].scrollHeight + 'px' }
-            }).then(expandDone);
-          }
-
-          function expandDone() {
-            element.removeClass('collapsing');
-            element.css({height: 'auto'});
-          }
-
-          function collapse() {
-            if (!element.hasClass('collapse') && !element.hasClass('in')) {
-              return collapseDone();
-            }
-
-            element
-              // IMPORTANT: The height must be set before adding "collapsing" class.
-              // Otherwise, the browser attempts to animate from height 0 (in
-              // collapsing class) to the given height here.
-                .css({height: element[0].scrollHeight + 'px'})
-              // initially all panel collapse have the collapse class, this removal
-              // prevents the animation from jumping to collapsed state
-                .removeClass('collapse')
-                .addClass('collapsing')
-                .attr('aria-expanded', false)
-                .attr('aria-hidden', true);
-
-            $animate.removeClass(element, 'in', {
-              to: {height: '0'}
-            }).then(collapseDone);
-          }
-
-          function collapseDone() {
-            element.css({height: '0'}); // Required so that collapse works when animation is disabled
-            element.removeClass('collapsing');
-            element.addClass('collapse');
-          }
-
-          scope.$watch(attrs.collapse, function(shouldCollapse) {
-            if (shouldCollapse) {
-              collapse();
-            } else {
-              expand();
-            }
-          });
-        }
-      };
-    }]);
+      }]);
 
 angular.module('ui.bootstrap.accordion', ['ui.bootstrap.collapse'])
 

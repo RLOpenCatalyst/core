@@ -10,6 +10,16 @@
             $scope.openCalendarEnd = function(e, picker) {
                 $scope.openedEnd = true;
             };
+            $scope.validDateRange=false;
+            $scope.dateChange= function () {
+                var startDate =  Date.parse(sch.schedulerStartOn);
+                var endDate =  Date.parse(sch.schedulerEndOn);
+                if(startDate > endDate){
+                    $scope.validDateRange=true;
+                } else {
+                    $scope.validDateRange=false;
+                }
+            };
             sch.schedulerStartOn=new Date();
             sch.schedulerEndOn=new Date();
             sch.instanceStartScheduler={
