@@ -567,7 +567,8 @@ analyticsService.aggregateEntityCapacity
 	})
 
 	var offset = (new Date()).getTimezoneOffset() * 60000
-	startTime = dateUtil.getStartOfADayInUTC(endTime)
+	// All start dates defaulted to beginning of month
+	startTime = dateUtil.getStartOfAMonthInUTC(endTime)
 	interval = 86400
 
 	var instanceParamsMapping = {
@@ -750,7 +751,9 @@ analyticsService.validateAndParseCapacityQuery
 	var startTime
 	switch (requestQuery.period) {
 		case 'day':
-			startTime = dateUtil.getStartOfADayInUTC(requestQuery.toTimeStamp)
+			// startTime = dateUtil.getStartOfADayInUTC(requestQuery.toTimeStamp)
+			// All start dates defaulted to beginning of month
+			startTime = dateUtil.getStartOfAMonthInUTC(requestQuery.toTimeStamp)
 			break
 		default:
 			var err = new Error('Invalid request')
