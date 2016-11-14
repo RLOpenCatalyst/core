@@ -569,7 +569,7 @@ analyticsService.aggregateEntityCapacity
 	var offset = (new Date()).getTimezoneOffset() * 60000
 	// All start dates defaulted to beginning of month
 	startTime = dateUtil.getStartOfAMonthInUTC(endTime)
-	interval = 86400
+	interval = 2592000
 
 	var instanceParamsMapping = {
 		'organizationId': 'orgId',
@@ -690,7 +690,7 @@ analyticsService.aggregateEntityCapacity
 									},
 									startTime: Date.parse(startTime),
 									endTime: Date.parse(endTime),
-									period: 'day',
+									period: 'month',
 									interval: interval
 								}
 							}
@@ -750,7 +750,7 @@ analyticsService.validateAndParseCapacityQuery
 
 	var startTime
 	switch (requestQuery.period) {
-		case 'day':
+		case 'month':
 			// startTime = dateUtil.getStartOfADayInUTC(requestQuery.toTimeStamp)
 			// All start dates defaulted to beginning of month
 			startTime = dateUtil.getStartOfAMonthInUTC(requestQuery.toTimeStamp)
