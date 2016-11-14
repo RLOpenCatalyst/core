@@ -558,7 +558,12 @@
                             }
                         }
                     });
-                }
+                    modalInstance.result.then(function() {
+                        
+                    }, function() {
+                        
+                    });
+                };
                 $scope.rdpFileLink = function(instanceObj) {
                     var fileLink = '/instances/rdp/' + instanceObj.instanceIP + '/3389';
                     return fileLink;

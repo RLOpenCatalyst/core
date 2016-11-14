@@ -228,7 +228,7 @@
                     $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
                 });
             }
-        }
+        };
 
         genericServices.lunchBlueprint=function(blueprintObj) {
             $modal.open({
@@ -275,7 +275,7 @@
                         }
                     })
                     .result.then(function(selectedItem) {
-                    $scope.selected = selectedItem;
+                    //$scope.selected = selectedItem;
                     }, function() {
 
                     });
@@ -296,9 +296,9 @@
                         return ids;
                     }
                 }
-            })
+            });
         };
-        genericServices.instanceStart=function (ids) {
+        genericServices.instanceStart=function () {
 
         };
         genericServices.instanceStop=function () {

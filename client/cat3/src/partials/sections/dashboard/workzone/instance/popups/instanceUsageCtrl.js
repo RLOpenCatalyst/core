@@ -8,7 +8,7 @@
 (function(angular){
 	"use strict";
 	angular.module('workzone.instance')
-		.controller('instanceUsageCtrl', ['$scope', '$rootScope', '$modalInstance', 'items', '$state','analyticsServices', 'genericServices','$timeout', function($scope, $rootScope, $modalInstance, items, $state,analyticsServices,genSevs,$timeout) {
+		.controller('instanceUsageCtrl', ['$scope', '$rootScope', '$modalInstance', 'items', '$state','analyticsServices', 'genericServices', function($scope, $rootScope, $modalInstance, items, $state,analyticsServices,genSevs) {
 			console.log(items);
 			$scope.instanceName = items.name;
 			var resId = items.platformId;
@@ -40,7 +40,7 @@
                             axisLabel: 'Date',
                             showMaxMin: false,
                             tickFormat: function (d) {
-                                return d3.time.format('%d/%m %H:%M')(new Date(d))
+                                return d3.time.format('%d/%m %H:%M')(new Date(d));
                             }
                         },
                         yAxis: {

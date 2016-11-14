@@ -84,7 +84,6 @@
                         }
                     },
                     data: []
-
                 };
 
                 capaCtr.capaGridOptions = {
@@ -97,7 +96,6 @@
                         $scope.gridApi = gridApi;
                     }
                 };
-
             };
             capaCtr.getCapacityData=function(fltObj){
                 var param = {
@@ -162,7 +160,7 @@
                             capaCtr.capaGridOptions.columnDefs.push({
                                 name: keyChild,
                                 field: 'capacity.AWS.services.' + keyChild
-                            })
+                            });
                             angular.forEach(result.splitUpCapacity[viewType], function (valBar) {
                                 var chVal = '';
                                 if (valBar.capacity.AWS.services[keyChild]) {
@@ -212,7 +210,7 @@
                             showMaxMin: false,
                             axisLabel: 'Date',
                             tickFormat: function (d) {
-                                return d3.time.format('%x')(new Date(d))
+                                return d3.time.format('%x')(new Date(d));
                             }
                         },
                         yAxis: {

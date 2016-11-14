@@ -32,14 +32,14 @@
 				workSvs.repositoryServerList().then(function (serverResult) {
 					$scope.isLoadingServer=false;
 					depNewApp.serverOptions = serverResult.data.server;
-					if(serverResult.data.server.length == 0){
+					if(serverResult.data.server.length === 0){
 						depNewApp.errorMsg= {
 							text:"Server is not defined",
 							type: "warning",
 							server:true,
 							role:"tooltip",
 							positions:"bottom"
-						}
+						};
 					}
 				});
 				depNewApp.getAllChefJobs();
@@ -70,14 +70,14 @@
 					workSvs.getDockerRepository(depNewApp.serverOptions[depNewApp.newEnt.serverTypeInd].rowid).then(function (repositoryResult) {
 						$scope.isLoadingNexus = false;
 						depNewApp.repositoryOptions = repositoryResult.data[0].repositories.docker;
-						if(depNewApp.repositoryOptions.length == 0){
+						if(depNewApp.repositoryOptions.length === 0){
 							depNewApp.errorMsg= {
 								text: "Repository is not defined",
 								type: "warning",
 								repository:true,
 								role:"tooltip",
 								positions:"bottom"
-							}
+							};
 						}
 					});
 				}
