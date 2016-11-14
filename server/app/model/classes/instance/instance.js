@@ -391,6 +391,11 @@ var InstanceSchema = new Schema({
         required: false,
         trim: true
     },
+    cronJobId: {
+        type: String,
+        required: false,
+        trim: true
+    },
     isScheduled: {
         type: Boolean,
         required: false,
@@ -2273,6 +2278,23 @@ var InstancesDao = function() {
             }, {
                 upsert: false
             }, function(err, data) {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            callback(null, data);
+        });
+    };
+    this.updateInstanceSchedulerCronJobId = function(instanceId,cronJobId,callback) {
+        Instances.update({
+            "_id": new ObjectId(instanceId),
+        }, {
+            $set: {
+                cronJobId: cronJobId
+            }
+        }, {
+            upsert: false
+        }, function(err, data) {
             if (err) {
                 callback(err, null);
                 return;
