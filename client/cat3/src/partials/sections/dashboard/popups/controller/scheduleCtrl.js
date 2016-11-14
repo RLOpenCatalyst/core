@@ -10,14 +10,24 @@
             $scope.openCalendarEnd = function(e, picker) {
                 $scope.openedEnd = true;
             };
+            $scope.validDateRange=false;
+            $scope.dateChange= function () {
+                var startDate =  Date.parse(sch.schedulerStartOn);
+                var endDate =  Date.parse(sch.schedulerEndOn);
+                if(startDate > endDate){
+                    $scope.validDateRange=true;
+                } else {
+                    $scope.validDateRange=false;
+                }
+            };
             sch.schedulerStartOn=new Date();
             sch.schedulerEndOn=new Date();
             sch.instanceStartScheduler={
-                repeats:'Day',
+                repeats:'Minutes',
                 repeatEvery:'1'
             };
             sch.instanceStopScheduler={
-                repeats:'Day',
+                repeats:'Minutes',
                 repeatEvery:'1'
             };
             sch.cancel = function() {
@@ -28,8 +38,9 @@
                     url:'/instances/schedule',
                     data:sch
                 }
-                genericServices.promisePost(params).then(function(){
+                genericServices.promisePut(params).then(function(){
                     toastr.success('successfully created');
+                    $modalInstance.dismiss('cancel');
                 });
             };
         }]);
