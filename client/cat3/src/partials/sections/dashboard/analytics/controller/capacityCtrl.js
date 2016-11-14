@@ -38,6 +38,11 @@
                             y: function (d) {
                                 return d.value;
                             },
+                            pie: {
+                                valueFormat: function (d) {
+                                    return d3.round(d);
+                                }
+                            },
                             showLabels: false,
                             labelType: "value",
                             labelThreshold: 0.01,
@@ -76,9 +81,9 @@
                                 staggerLabels:false
                             },
                             yAxis: {
-                                axisLabel: 'Cost in $',
+                                axisLabel: 'Count',
                                 tickFormat: function (d) {
-                                    return d3.format(',.2f')(d);
+                                    return d3.round(d);
                                 }
                             }
                         }
@@ -111,24 +116,24 @@
                     } else {
                         entityId=fltObj.org.id;
                     }
-                    //param.url='http://d4d.rlcatalyst.com/analytics/cost/aggregate?parentEntityId=46d1da9a-d927-41dc-8e9e-7e926d927537&entityId=57f49acdbc45e71f11491f8c&toTimeStamp=Wed%20Oct%2005%202016%2016:03:08%20GMT+0530%20(IST)&period=month';
-                    param.url='/analytics/capacity?parentEntityId='+fltObj.org.id+'&entityId='+entityId+'&toTimeStamp='+new Date()+'&period='+fltObj.period;
+                    //param.url='http://d4d.rlcatalyst.com/analytics/capacity?parentEntityId=46d1da9a-d927-41dc-8e9e-7e926d927537&entityId=46d1da9a-d927-41dc-8e9e-7e926d927537&toTimeStamp=Mon%20Nov%2014%202016%2010:41:29%20GMT+0530%20(IST)&period=month';
+                   param.url='/analytics/capacity?parentEntityId='+fltObj.org.id+'&entityId='+entityId+'&toTimeStamp='+new Date()+'&period=month';
                 }
 
                 genSevs.promiseGet(param).then(function (result) {
                     capaCtr.chartData=result;
-                    $rootScope.splitUpCapacity=[];
-                    if(result.splitUpCapacity) {
-                        angular.forEach(result.splitUpCapacity, function (val, key) {
+                    $rootScope.splitUpCapacities=[];
+                    if(result.splitUpCapacities) {
+                        angular.forEach(result.splitUpCapacities, function (val, key) {
                             var a=key.replace(/([A-Z])/g, ' $1').replace(/^./, function(str) {
                                 return str.toUpperCase();
                             });
-                            $rootScope.splitUpCapacity.push({id:key,val:a});
+                            $rootScope.splitUpCapacities.push({id:key,val:a});
                         });
-                        if( $rootScope.splitUpCapacity && $rootScope.splitUpCapacity.length >0) {
-                            $scope.$emit('CHANGE_splitUp', $rootScope.splitUpCapacity[0].id);
-                            capaCtr.splitUp = $rootScope.splitUpCapacity[0].val;
-                            capaCtr.createLable(result, $rootScope.splitUpCapacity[0].id);
+                        if( $rootScope.splitUpCapacities && $rootScope.splitUpCapacities.length >0) {
+                            $scope.$emit('CHANGE_splitUp', $rootScope.splitUpCapacities[0].id);
+                            capaCtr.splitUp = $rootScope.splitUpCapacities[0].val;
+                            capaCtr.createLable(result, $rootScope.splitUpCapacities[0].id);
                         }
                     } else {
                         capaCtr.createLable(result,'provider');
@@ -148,8 +153,8 @@
                     capaCtr.barChat.data = [];
                     // create bar
                     //if(viewType === 'ProviderView'){
-                    capaCtr.capaGridOptions.data = result.splitUpCapacity[viewType];
-                    angular.forEach(result.splitUpCapacity[viewType], function (value) {
+                    capaCtr.capaGridOptions.data = result.splitUpCapacities[viewType];
+                    angular.forEach(result.splitUpCapacities[viewType], function (value) {
                         capaCtr.pieChat.data.push({
                             key: value.name,
                             value: value.capacity.totalCapacity
@@ -163,7 +168,7 @@
                                 name: keyChild,
                                 field: 'capacity.AWS.services.' + keyChild
                             })
-                            angular.forEach(result.splitUpCapacity[viewType], function (valBar) {
+                            angular.forEach(result.splitUpCapacities[viewType], function (valBar) {
                                 var chVal = '';
                                 if (valBar.capacity.AWS.services[keyChild]) {
                                     chVal = valBar.capacity.AWS.services[keyChild];
@@ -216,9 +221,9 @@
                             }
                         },
                         yAxis: {
-                            axisLabel: 'capacity in $',
+                            axisLabel: 'Count',
                             tickFormat: function (d) {
-                                return d3.format(',.2f')(d);
+                                return d3.round(d);
                             }
                         },
                         zoom: {
