@@ -353,23 +353,13 @@ var InstanceSchema = new Schema({
             required: false,
             trim: true
         },
-        startOn: {
-            type: Number,
-            required: false,
-            trim: true
-        },
-        endOn: {
-            type: Number,
-            required: false,
-            trim: true
-        },
         repeats: {
             type: String,
             required: false,
             trim: true
         },
         repeatEvery:{
-            type: String,
+            type: Number,
             required: false,
             trim: true
         }
@@ -380,33 +370,33 @@ var InstanceSchema = new Schema({
             required: false,
             trim: true
         },
-        startOn: {
-            type: Number,
-            required: false,
-            trim: true
-        },
-        endOn: {
-            type: Number,
-            required: false,
-            trim: true
-        },
         repeats: {
             type: String,
             required: false,
             trim: true
         },
         repeatEvery:{
-            type: String,
+            type: Number,
             required: false,
             trim: true
         }
     },
-    isInstanceStartScheduled: {
-        type: Boolean,
+    schedulerStartOn: {
+        type: Number,
         required: false,
-        default:false
+        trim: true
     },
-    isInstanceStopScheduled: {
+    schedulerEndOn: {
+        type: Number,
+        required: false,
+        trim: true
+    },
+    cronJobId: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    isScheduled: {
         type: Boolean,
         required: false,
         default:false
@@ -2278,46 +2268,45 @@ var InstancesDao = function() {
         });
     };
 
-    this.updateInstanceScheduler = function(instanceId,flag,callback) {
-        if (flag === 'start') {
-            Instances.update({
+    this.updateInstanceScheduler = function(instanceId,callback) {
+        Instances.update({
                 "_id": new ObjectId(instanceId),
             }, {
                 $set: {
-                    isInstanceStartScheduled: false
+                    isScheduled: false
                 }
             }, {
                 upsert: false
             }, function(err, data) {
-                if (err) {
-                    callback(err, null);
-                    return;
-                }
-                callback(null, data);
-            });
-        } else {
-            Instances.update({
-                "_id": new ObjectId(instanceId),
-            }, {
-                $set: {
-                    isInstanceStopScheduled: false
-                }
-            }, {
-                upsert: false
-            }, function (err, data) {
-                if (err) {
-                    callback(err, null);
-                    return;
-                }
-                callback(null, data);
-            });
-        }
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            callback(null, data);
+        });
     };
-
+    this.updateInstanceSchedulerCronJobId = function(instanceId,cronJobId,callback) {
+        Instances.update({
+            "_id": new ObjectId(instanceId),
+        }, {
+            $set: {
+                cronJobId: cronJobId
+            }
+        }, {
+            upsert: false
+        }, function(err, data) {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            callback(null, data);
+        });
+    };
     this.getScheduledInstances = function(callback) {
         Instances.find({
-            $or: [{isInstanceStartScheduled: true},{isInstanceStopScheduled: true}],
-            isDeleted: false }, function(err, instances) {
+            isScheduled: true,
+            isDeleted: false
+        }, function(err, instances) {
             if (err) {
                 logger.error(err);
                 return callback(err, null);
@@ -2341,8 +2330,9 @@ var InstancesDao = function() {
                     $set: {
                         instanceStartScheduler: instanceScheduler.instanceStartScheduler,
                         instanceStopScheduler: instanceScheduler.instanceStopScheduler,
-                        isInstanceStartScheduled: instanceScheduler.isScheduled,
-                        isInstanceStopScheduled: instanceScheduler.isScheduled
+                        schedulerStartOn: instanceScheduler.schedulerStartOn,
+                        schedulerEndOn: instanceScheduler.schedulerEndOn,
+                        isScheduled: instanceScheduler.isScheduled
                     }
                 }, function(err, data) {
                     if (err) {
