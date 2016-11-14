@@ -2333,8 +2333,8 @@ var InstancesDao = function() {
                         schedulerStartOn: instanceScheduler.schedulerStartOn,
                         schedulerEndOn: instanceScheduler.schedulerEndOn,
                         isScheduled: instanceScheduler.isScheduled
-                    }
-                }, function(err, data) {
+                    },
+                },{multi:true}, function(err, data) {
                     if (err) {
                         logger.error("Failed to update managed Instance status data", err);
                         callback(err, null);
