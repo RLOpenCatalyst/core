@@ -38,6 +38,11 @@
                             y: function (d) {
                                 return d.value;
                             },
+                            pie: {
+                                valueFormat: function (d) {
+                                    return d3.round(d);
+                                }
+                            },
                             showLabels: false,
                             labelType: "value",
                             labelThreshold: 0.01,
@@ -76,9 +81,9 @@
                                 staggerLabels:false
                             },
                             yAxis: {
-                                axisLabel: 'Cost in $',
+                                axisLabel: 'Count',
                                 tickFormat: function (d) {
-                                    return d3.format(',.2f')(d);
+                                    return d3.round(d);
                                 }
                             }
                         }
@@ -216,9 +221,9 @@
                             }
                         },
                         yAxis: {
-                            axisLabel: 'capacity in $',
+                            axisLabel: 'Count',
                             tickFormat: function (d) {
-                                return d3.format(',.2f')(d);
+                                return d3.round(d);
                             }
                         },
                         zoom: {

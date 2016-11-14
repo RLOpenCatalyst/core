@@ -2,9 +2,9 @@
     <br>
     <div class="col-lg-12 col-md-12 col-sm-12 top-stats">
         <div class="col-lg-9 col-md-9 col-sm-12 no-padding" >
-            <span class="box-title font-size-15" ng-show="capaCtr.pieChat.data.length >0" ><span>Total capaCtr:</span> <span class="red">${{capaCtr.pieChat.totalCoust}}</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                             <span class="box-title font-size-15" ng-show="capaCtr.pieChat.data.length >0"><span>Services Capacity</span>
-                         <span class="badge" ng-repeat="(value , key) in capaCtr.serviceCapacity"> {{value}} : ${{key}}</span>
+            <span class="box-title font-size-15" ng-show="capaCtr.pieChat.data.length >0" ><span>Total Capacity:</span> <span class="red">{{capaCtr.pieChat.totalCoust}}</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                             <span class="box-title font-size-15" ng-show="capaCtr.pieChat.data.length >0"><span>Services</span>
+                         <span class="badge" ng-repeat="(value , key) in capaCtr.serviceCapacity"> {{value}} : {{key}}</span>
                          </span>
         </div>
         <div class="col-lg-3 col-md-3 col-sm-12 text-right no-padding" >
