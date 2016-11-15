@@ -10,6 +10,9 @@
         .controller('instanceCtrl', ['chefSelectorComponent', '$scope', '$rootScope', '$modal', '$q', 'workzoneServices', 'arrayUtil', 'instancePermission',
             'instanceActions', 'instanceOperations', 'workzoneEnvironment', '$timeout', 'workzoneUIUtils', 'uiGridOptionsService', 'confirmbox','genericServices',
             function(chefSelectorComponent, $scope, $rootScope, $modal, $q, workzoneServices, arrayUtil, instancePerms, instanceActions, instanceOperations, workzoneEnvironment, $timeout, workzoneUIUtils, uiGridOptionsService, confirmbox,genericServices) {
+                $scope.openCalendarStart = function() {
+                    $scope.openedStart = true;
+                };
                 var helper = {
                     attachListOfTaskWithInstance: function(completeData) {
                         var instanceList = completeData.instances;
@@ -73,6 +76,7 @@
                         }
                     }
                 };
+
                 $scope.selectedInstanceId=[];
                 $scope.instancePageLevelLoader = true;
                 $scope.instStartStopFlag = false;
