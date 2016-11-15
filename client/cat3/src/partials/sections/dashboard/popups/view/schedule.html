@@ -1,0 +1,101 @@
+<div id='addJenkinsParamsPage'>
+    <form name="scheduleForm" novalidate>
+    <div class="modal-header">
+        <span class="close" ng-click="sch.cancel()">×</span>
+        <h4 class="modal-title"><i class="fa fa-calendar"></i> Manage Schedule</h4>
+    </div>
+
+    <div class="modal-body">
+
+        <div class="col-lg-6 col-md-6 margintop15">
+            <label>Starts on: <span class="red">*</span>
+            </label>
+            <input ng-change="dateChange()" required datetime-picker is-open="openedStart"  ng-click="openCalendarStart()" type="text" ng-model="sch.schedulerStartOn" class="form-control"  >
+        </div>
+        <div class="col-lg-6 col-md-6 margintop15">
+            <label>Ends on: <span class="red">*</span>
+            </label>
+            <input ng-change="dateChange()" type="text" datetime-picker is-open="openedEnd" ng-click="openCalendarEnd()" ng-model="sch.schedulerEndOn" class="form-control" required >
+            <span class="error red" ng-show="validDateRange">Start Date should be less than End date !</span>
+        </div>
+        <div class="clearfix margintop15"></div>
+        <div class="clearfix margintop15"></div>
+        <fieldset class="repo-job-details-wrapper">
+            <legend class="repo-job-details-wrapper-inner"><i class="fa fa-hourglass-start" ></i> Start Interval </legend>
+        <div class="col-lg-6 col-md-6 margintop15">
+            <label>Repeats: <span class="red">*</span>
+            </label>
+            <select class="form-control" ng-model="sch.instanceStartScheduler.repeats"  required>
+                <option value="Minutes" title="Minute">Minutes</option>
+                <option value="Hourly" title="Hour">Hourly</option>
+                <option value="Daily" title="Day">Daily</option>
+                <option value="Weekly" title="Week">Weekly</option>
+                <option value="Monthly" title="Month">Monthly</option>
+                <option value="Yearly" title="Year">Yearly</option>
+            </select>
+        </div>
+        <div class="col-lg-6 col-md-6 margintop15">
+            <label>Repeat every: <span class="red">*</span>
+            </label>
+            <select class="form-control" ng-model="sch.instanceStartScheduler.repeatEvery"  required>
+                <option value="1">1</option>
+                <option value="2" >2</option>
+                <option value="3" >3</option>
+                <option value="4" >4</option>
+                <option value="5" >5</option>
+                <option value="6" >6</option>
+                <option value="7" >7</option>
+                <option value="8" >8</option>
+                <option value="9" >9</option>
+                <option value="10" >10</option>
+            </select>
+        </div>
+
+</fieldset>
+        <div class="clearfix margintop15"></div>
+        <div class="clearfix margintop15"></div>
+        <fieldset class="repo-job-details-wrapper">
+            <legend class="repo-job-details-wrapper-inner"><i class="fa fa-hourglass-start" ></i> Stop Interval </legend>
+            <div class="col-lg-6 col-md-6 margintop15">
+                <label>Repeats: <span class="red">*</span>
+                </label>
+                <select class="form-control" ng-model="sch.instanceStopScheduler.repeats"  required>
+                    <option value="Minutes" title="Minute">Minutes</option>
+                    <option value="Hourly" title="Hour">Hourly</option>
+                    <option value="Daily" title="Day">Daily</option>
+                    <option value="Weekly" title="Week">Weekly</option>
+                    <option value="Monthly" title="Month">Monthly</option>
+                    <option value="Yearly" title="Year">Yearly</option>
+                </select>
+            </div>
+            <div class="col-lg-6 col-md-6 margintop15">
+                <label>Repeat every: <span class="red">*</span>
+                </label>
+                <select class="form-control" ng-model="sch.instanceStopScheduler.repeatEvery" required>
+                    <option value="1">1</option>
+                    <option value="2" >2</option>
+                    <option value="3" >3</option>
+                    <option value="4" >4</option>
+                    <option value="5" >5</option>
+                    <option value="6" >6</option>
+                    <option value="7" >7</option>
+                    <option value="8" >8</option>
+                    <option value="9" >9</option>
+                    <option value="10" >10</option>
+                </select>
+            </div>
+
+        </fieldset>
+        <div class="clearfix"></div>
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn cat-btn-close" ng-click="sch.cancel()">
+            <i class="fa fa-times black"></i> Cancel
+        </button>
+        <button type="button" class="btn cat-btn-update" ng-disabled="scheduleForm.$invalid || validDateRange" ng-click="sch.ok()">
+            <i class="fa fa-check white"></i> Save
+        </button>
+    </div>
+    </form>
+</div>

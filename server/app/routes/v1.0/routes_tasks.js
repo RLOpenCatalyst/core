@@ -40,7 +40,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
     app.get('/tasks/serviceDelivery', function(req, res) {
         var serviceDeliveryCheck = false;
-        if(req.query.serviceDeliveryCheck &&
+        if (req.query.serviceDeliveryCheck &&
             (req.query.serviceDeliveryCheck === 'true' || req.query.serviceDeliveryCheck === true)) {
             serviceDeliveryCheck = true;
         }
@@ -53,7 +53,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 return;
             }
             res.status(200).send(tasks);
-         });
+        });
     });
 
     app.delete('/tasks/serviceDelivery/:taskId', function(req, res) {
@@ -70,7 +70,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
     });
 
     app.get('/tasks/history/list/all', function(req, res) {
-        logger.debug("------------------ ",JSON.stringify(TaskHistory));
+        logger.debug("------------------ ", JSON.stringify(TaskHistory));
         TaskHistory.listHistory(function(err, tHistories) {
             if (err) {
                 res.status(500).send(errorResponses.db.error);
@@ -132,6 +132,15 @@ module.exports.setRoutes = function(app, sessionVerification) {
         var hostProtocol = req.protocol + '://' + req.get('host');
         var choiceParam = req.body.choiceParam;
         var appData = req.body.appData;
+        var scriptParams = req.body.scriptParams;
+        var cookbookAttributes = req.body.cookbookAttributes;
+        var botTagServer = req.body.tagServer;
+
+
+        logger.debug('reqbody ======>', JSON.stringify(req.body));
+
+
+
         /*Tasks.getTaskById(req.params.taskId, function(err, task) {
 
             if (err) {
@@ -157,7 +166,28 @@ module.exports.setRoutes = function(app, sessionVerification) {
             });
         });
         */
-        taskService.executeTask(taskId, user, hostProtocol, choiceParam, appData, function(err, historyData) {
+
+        var paramOptions = {
+            cookbookAttributes: cookbookAttributes,
+            scriptParams: scriptParams
+        };
+
+        // encrypting script bot params if any
+        if (paramOptions.scriptParams && paramOptions.scriptParams.length) {
+            var cryptoConfig = appConfig.cryptoSettings;
+            var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+            var encryptedParams = [];
+            for (var i = 0; i < paramOptions.scriptParams.length; i++) {
+                var encryptedText = cryptography.encryptText(paramOptions.scriptParams[i], cryptoConfig.encryptionEncoding,
+                    cryptoConfig.decryptionEncoding);
+                encryptedParams.push(encryptedText);
+            }
+            paramOptions.scriptParams = encryptedParams;
+        }
+
+
+        
+        taskService.executeTask(taskId, user, hostProtocol, choiceParam, appData, paramOptions, botTagServer, function(err, historyData) {
             if (err === 404) {
                 res.status(404).send("Task not found.");
                 return;
@@ -198,9 +228,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
                             return;
                         }
                         if (deleteCount) {
-                            TaskHistory.removeByTaskId(req.params.taskId,function(err,removed){
-                                if(err){
-                                    logger.error("Failed to remove history: ",err);
+                            TaskHistory.removeByTaskId(req.params.taskId, function(err, removed) {
+                                if (err) {
+                                    logger.error("Failed to remove history: ", err);
                                 }
                             });
                             res.send({
@@ -519,21 +549,21 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
     app.post('/tasks/:taskId/update', function(req, res) {
         var taskData = req.body.taskData;
-        if(taskData.taskType === 'script'){
+        if (taskData.taskType === 'script') {
             Tasks.getTaskById(req.params.taskId, function(err, scriptTask) {
                 if (err) {
                     logger.error(err);
                     res.status(500).send(errorResponses.db.error);
                     return;
                 }
-                encryptedParam(taskData.scriptDetails,scriptTask.taskConfig.scriptDetails, function (err, encryptedParam) {
+                encryptedParam(taskData.scriptDetails, scriptTask.taskConfig.scriptDetails, function(err, encryptedParam) {
                     if (err) {
                         logger.error(err);
                         res.status(500).send("Failed to encrypted script parameters: ", err);
                         return;
                     } else {
                         taskData.scriptDetails = encryptedParam;
-                        Tasks.updateTaskById(req.params.taskId, taskData, function (err, updateCount) {
+                        Tasks.updateTaskById(req.params.taskId, taskData, function(err, updateCount) {
                             if (err) {
                                 logger.error(err);
                                 res.status(500).send(errorResponses.db.error);
@@ -550,8 +580,8 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     }
                 })
             });
-        }else {
-            Tasks.updateTaskById(req.params.taskId, taskData, function (err, updateCount) {
+        } else {
+            Tasks.updateTaskById(req.params.taskId, taskData, function(err, updateCount) {
                 if (err) {
                     logger.error(err);
                     res.status(500).send(errorResponses.db.error);
@@ -609,41 +639,39 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
 };
 
-function encryptedParam(paramDetails,existingParams,callback){
+function encryptedParam(paramDetails, existingParams, callback) {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var count = 0;
     var encryptedList = [];
-    for(var i = 0; i < paramDetails.length; i++){
-        (function(param){
-            if(param.scriptParameters.length > 0){
+    for (var i = 0; i < paramDetails.length; i++) {
+        (function(param) {
+            if (param.scriptParameters.length > 0) {
                 count++;
-                for(var j = 0; j < param.scriptParameters.length; j++){
-                    (function(scriptParameter){
-                        if(scriptParameter === ''){
+                for (var j = 0; j < param.scriptParameters.length; j++) {
+                    (function(scriptParameter) {
+                        if (scriptParameter === '') {
                             encryptedList.push(existingParams[i].scriptParameters[j]);
-                        }else if(scriptParameter === existingParams[i].scriptParameters[j]){
+                        } else if (scriptParameter === existingParams[i].scriptParameters[j]) {
                             encryptedList.push(scriptParameter);
-                        }else {
+                        } else {
                             var encryptedText = cryptography.encryptText(scriptParameter, cryptoConfig.encryptionEncoding,
                                 cryptoConfig.decryptionEncoding);
                             encryptedList.push(encryptedText);
                         }
-                        if(encryptedList.length === param.scriptParameters.length){
+                        if (encryptedList.length === param.scriptParameters.length) {
                             param.scriptParameters = encryptedList;
                             encryptedList = [];
                         }
                     })(param.scriptParameters[j]);
                 }
-            }else{
+            } else {
                 count++;
             }
-            if(count === paramDetails.length){
-                callback(null,paramDetails);
+            if (count === paramDetails.length) {
+                callback(null, paramDetails);
                 return;
             }
         })(paramDetails[i]);
     }
 }
-
-

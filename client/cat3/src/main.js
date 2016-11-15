@@ -12,7 +12,7 @@
  * All modules/feature will be through
  * */
 
-var angularApp = angular.module('catapp', ['ui.router','ngTouch','toastr',
+var angularApp = angular.module('catapp', ['ui.router','ngTouch','toastr','ui.bootstrap.datetimepicker',
 	'global.login',
 	'global.breadcrumb',
 	'authentication',
@@ -27,12 +27,19 @@ var angularApp = angular.module('catapp', ['ui.router','ngTouch','toastr',
 	'ui.grid.autoResize','ui.grid.exporter',
 	'ui.grid.resizeColumns',
 	'global.uiGridOptions',
-	'global.messages'
+	'global.messages',
+	'ui.grid.selection'
 ]);
 
-angularApp.run(['$rootScope', 'auth', '$state', '$stateParams',
-	function ($rootScope, Auth, $state, $stateParams) {
+angularApp.run(['$rootScope', 'auth', '$state', '$stateParams','$http','$window',
+	function ($rootScope, Auth, $state, $stateParams,$http,$window) {
 		'use strict';
+		$http.get('/organizations/getTreeNew').success(function (result) {
+			// if(result.data && result.data.length >0){
+			// 	console.log(result);
+			// 	$window.location.href="/private/index.html#ajax/Settings/Dashboard.html";
+			// }
+		});
 		$rootScope.$on('$stateChangeStart', function (event, toState) {
 			//More function params: function (event, toState, toParams, fromState, fromParams)
 			function checkAuthentication() {

@@ -270,6 +270,7 @@
 				//method to get the runlist array and then assign the className to each value.
 				findDataForEditValue: function (list) {
 					var runlist = list;
+					console.log(runlist);
 					var temp = [];
 					if (runlist) {
 						/*jslint forin: true */
@@ -289,6 +290,38 @@
 								data: {}
 							});
 						}
+					}else {
+
+					}
+					return temp;
+				},
+				//method to get the runlist array and then assign the className to each value.
+				findDataForEditValueString: function (list) {
+					var runlist = list;
+					
+					runlist = runlist.split(',');
+					console.log(runlist);
+					var temp = [];
+					if (runlist) {
+						/*jslint forin: true */
+						for (var i = 0; i < runlist.length; i++) {
+							var className;
+							if (runlist[i].indexOf('recipe') === 0) {
+								className = "cookbook";
+							} else if (runlist[i].indexOf('role') === 0) {
+								className = "role";
+							} else {
+								className = "template";
+							}
+							var item = runlist[i];
+							temp.push({
+								value: item,
+								className: className,
+								data: {}
+							});
+						}
+					}else {
+						
 					}
 					return temp;
 				},

@@ -33,4 +33,10 @@ module.exports.setRoutes = function(app, sessionVerification) {
         var botTypeList = appConfig.botTypeList;
         res.send(botTypeList);
     });
+
+    // Category List
+    app.get('/config-data/category-type', function(req, res) {
+        var categoryList = appConfig.categoryList;
+        res.send(categoryList);
+    });
 }

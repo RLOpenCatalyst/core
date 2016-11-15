@@ -654,8 +654,6 @@ function getBucketsInfo(provider,orgName,callback) {
                                         callback(err, null);
                                     } else {
                                         bucketObj.tags = bucketTag;
-                                        bucketObj.projectTag = bucketTag['Owner'];
-                                        bucketObj.environmentTag = bucketTag['Environment'];
                                         results.push(bucketObj);
                                         bucketObj={};
                                         if (results.length === data.Buckets.length) {
@@ -761,10 +759,12 @@ function getRDSInstancesInfo(provider,orgName,callback) {
         if(err){
             logger.error(err);
             callback(err,null);
+            return;
         }else{
             var results=[];
             if(dbInstances.length === 0){
                 callback(null,results);
+                return;
             }else{
                 var sysDate=new Date();
                 for(var i = 0; i < dbInstances.length; i++){
@@ -818,18 +818,12 @@ function getRDSInstancesInfo(provider,orgName,callback) {
                         rds.getRDSDBInstanceTag(params,function(err,rdsTags){
                             if(err){
                                 logger.error(err);
-                                callback(err,null);
-                                return;
-                            }else{
-                                rdsDbInstanceObj.tags = rdsTags;
-                                rdsDbInstanceObj.projectTag = rdsTags['Owner'];
-                                rdsDbInstanceObj.environmentTag = rdsTags['Environment'];
-                                results.push(rdsDbInstanceObj);
-                                rdsDbInstanceObj={};
-                                if(dbInstances.length === results.length){
-                                    callback(null,results);
-                                    return;
-                                }
+                            }
+                            rdsDbInstanceObj.tags = rdsTags;
+                            results.push(rdsDbInstanceObj);
+                            rdsDbInstanceObj={};
+                            if(dbInstances.length === results.length){
+                                callback(null,results);
                             }
                         })
 

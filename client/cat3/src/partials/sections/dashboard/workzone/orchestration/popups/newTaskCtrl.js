@@ -22,7 +22,10 @@
 			$scope.scriptSelectAll = false;
 			$scope.scriptParamsObj = {};
 			$scope.isSudo = false;
-			$scope.orgId = '';
+			$scope.botCategoryList = [];
+			workzoneServices.getBotCategoryList().then(function (catList) {
+	            $scope.botCategoryList=catList.data;
+	        });
 			$scope.toggleAll = function() {
 				var toggleStatus = $scope.isAllSelected;
 				angular.forEach($scope.chefInstanceList, function(itm){ itm._isNodeSelected = toggleStatus;});
@@ -33,7 +36,6 @@
 				}else{
 					$scope.checkBotStatus = false;
 				}
-
 			};
 			$scope.optionToggled = function(){
 				$scope.isAllSelected = $scope.chefInstanceList.every(function(itm){ return  itm._isNodeSelected; })
@@ -247,6 +249,7 @@
 							name: $scope.name,
 							description: $scope.description,
 							botType:$scope.botType,
+							botCategory: $scope.botCategory,
 						    shortDesc:$scope.shortDesc,
 							serviceDeliveryCheck:$scope.checkBotType
 						};
@@ -417,7 +420,8 @@
 			$scope.name = "";
 			$scope.shortDesc = "";
 			$scope.taskType = "chef";//default Task type selection;
-			$scope.botType = "Task";//default Task type selection;
+			$scope.botType = "Task";//default Bot type selection;
+			$scope.botCategory = 'Active Directory';
 			$scope.isEditMode = false;//default edit mode is false;
 			$scope.taskSaving = false;//to disable submit button, dfault false
 			$scope.autoSync = {
@@ -580,6 +584,7 @@
 					$scope.checkBotStatus = true;
 					$scope.checkBotType = true;
                     $scope.botType = items.botType;
+                    $scope.botCategory = items.botCategory;
                     $scope.shortDesc = items.shortDesc;
 				}
 				//properties specific to jenkins
