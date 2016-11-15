@@ -30,6 +30,14 @@ var AWSKeyPair = require('_pr/model/classes/masters/cloudprovider/keyPair.js');
 var appConfig = require('_pr/config');
 var Cryptography = require('../lib/utils/cryptography');
 var catalystSync = null;
+var vmWareProvider = require('_pr/model/classes/masters/cloudprovider/vmwareCloudProvider.js');
+var vmWare = require('_pr/lib/vmware');
+var azureProvider = require('_pr/model/classes/masters/cloudprovider/azureCloudProvider.js');
+var azureCloud = require('_pr/lib/azure');
+var fs = require('fs');
+var providerService = require('_pr/services/providerService.js');
+var gcpProviderModel = require('_pr/model/v2.0/providers/gcp-providers');
+var GCP = require('_pr/lib/gcp.js');
 
 schedulerService.executeSchedulerForInstances = function executeSchedulerForInstances(instance,callback) {
     logger.debug("Instance Scheduler is started for Instance. "+instance.platformId);
@@ -128,8 +136,8 @@ schedulerService.startStopInstance= function startStopInstance(instanceId,catUse
                 error.status = 500;
                 next(error, null);
                 return;
-            }else if(instanceDetails[0].providerType ==='aws'){
-                startStopAwsInstance(instanceDetails[0],catUser,action,next);
+            }else{
+                startStopManagedInstance(instanceDetails[0],catUser,action,next);
             }
         }
     ],function(err,results){
@@ -144,16 +152,20 @@ schedulerService.startStopInstance= function startStopInstance(instanceId,catUse
 
 }
 
-function startStopAwsInstance(instance,catUser,action,callback){
-    var actionStartLog = '',actionCompleteLog='',actionFailedLog='';
+function startStopManagedInstance(instance,catUser,action,callback){
+    var actionStartLog = '',actionCompleteLog='',actionFailedLog='',vmWareAction='',instanceState='';
     if(action === 'Start'){
         actionStartLog = 'Instance Starting';
         actionCompleteLog = 'Instance Started';
-        actionFailedLog='Unable to start instance'
+        actionFailedLog='Unable to start instance';
+        vmWareAction='poweron';
+        instanceState='running';
     }else if(action === 'Stop'){
         actionStartLog = 'Instance Stopping';
         actionCompleteLog = 'Instance Stopped';
-        actionFailedLog='Unable to stop instance'
+        actionFailedLog='Unable to stop instance';
+        vmWareAction='poweroff';
+        instanceState='stopped';
     }else{
         logger.debug("Action is not matched for corresponding operation. "+action);
         callback(null,null);
@@ -203,116 +215,363 @@ function startStopAwsInstance(instance,catUser,action,callback){
             logger.error("Failed to create or update instanceLog: ", err);
         }
     });
-    AWSProvider.getAWSProviderById(instance.providerId, function (err, providerData) {
-        if (err) {
-            logger.error(err);
-            var error = new Error("Unable to find Provider.");
-            error.status = 500;
-            callback(error, null);
-            return;
-        }
-        function getRegion(callback) {
-            if (instance.providerData && instance.providerData.region) {
-                process.nextTick(function () {
-                    callback(null, instance.providerData.region);
-                });
-            } else {
-                AWSKeyPair.getAWSKeyPairByProviderId(providerData._id, function (err, keyPair) {
-                    if (err) {
-                        callback(err);
-                        return;
-                    }
-                    callback(null, keyPair[0].region);
-                });
-            }
-        }
-        getRegion(function (err, region) {
+    if(instance.providerType === 'aws') {
+        AWSProvider.getAWSProviderById(instance.providerId, function (err, providerData) {
             if (err) {
-                var error = new Error("Error while fetching Keypair.");
+                logger.error(err);
+                var error = new Error("Unable to find Provider.");
                 error.status = 500;
                 callback(error, null);
                 return;
             }
-            var ec2;
-            if (providerData.isDefault) {
-                ec2 = new EC2({
-                    "isDefault": true,
-                    "region": region
-                });
-            } else {
-                var cryptoConfig = appConfig.cryptoSettings;
-                var cryptography = new Cryptography(cryptoConfig.algorithm,
-                    cryptoConfig.password);
-                var decryptedAccessKey = cryptography.decryptText(providerData.accessKey,
-                    cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-                var decryptedSecretKey = cryptography.decryptText(providerData.secretKey,
-                    cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-                ec2 = new EC2({
-                    "access_key": decryptedAccessKey,
-                    "secret_key": decryptedSecretKey,
-                    "region": region
-                });
+            function getRegion(callback) {
+                if (instance.providerData && instance.providerData.region) {
+                    process.nextTick(function () {
+                        callback(null, instance.providerData.region);
+                    });
+                } else {
+                    AWSKeyPair.getAWSKeyPairByProviderId(providerData._id, function (err, keyPair) {
+                        if (err) {
+                            callback(err);
+                            return;
+                        }
+                        callback(null, keyPair[0].region);
+                    });
+                }
             }
-            if(action === 'Start') {
-                ec2.startInstance([instance.platformId], function (err, state) {
+
+            getRegion(function (err, region) {
+                if (err) {
+                    var error = new Error("Error while fetching Keypair.");
+                    error.status = 500;
+                    callback(error, null);
+                    return;
+                }
+                var ec2;
+                if (providerData.isDefault) {
+                    ec2 = new EC2({
+                        "isDefault": true,
+                        "region": region
+                    });
+                } else {
+                    var cryptoConfig = appConfig.cryptoSettings;
+                    var cryptography = new Cryptography(cryptoConfig.algorithm,
+                        cryptoConfig.password);
+                    var decryptedAccessKey = cryptography.decryptText(providerData.accessKey,
+                        cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                    var decryptedSecretKey = cryptography.decryptText(providerData.secretKey,
+                        cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                    ec2 = new EC2({
+                        "access_key": decryptedAccessKey,
+                        "secret_key": decryptedSecretKey,
+                        "region": region
+                    });
+                }
+                if (action === 'Start') {
+                    ec2.startInstance([instance.platformId], function (err, state) {
+                        if (err) {
+                            checkFailedInstanceAction(logReferenceIds, instanceLog, actionFailedLog, function (err) {
+                                callback(err, null);
+                                return;
+                            })
+                        }
+                        checkSuccessInstanceAction(logReferenceIds, state, instanceLog, actionCompleteLog, function (err, successData) {
+                            if (err) {
+                                callback(err, null);
+                                return;
+                            }
+                            ec2.describeInstances([instance.platformId], function (err, instanceData) {
+                                if (err) {
+                                    logger.error("Hit some error: ", err);
+                                    return callback(err, null);
+                                }
+                                if (instanceData.Reservations.length && instanceData.Reservations[0].Instances.length) {
+                                    logger.debug("ip =>", instanceData.Reservations[0].Instances[0].PublicIpAddress);
+                                    instancesDao.updateInstanceIp(instance._id, instanceData.Reservations[0].Instances[0].PublicIpAddress, function (err, updateCount) {
+                                        if (err) {
+                                            logger.error("update instance ip err ==>", err);
+                                            return callback(err, null);
+                                        }
+                                        logger.debug('instance ip updated');
+                                        logger.debug("Exit get() for /instances/%s/startInstance", instance._id);
+                                        callback(null, {
+                                            instanceCurrentState: state,
+                                            actionLogId: actionLog._id
+                                        });
+                                        return;
+                                    });
+                                }
+                            });
+                        })
+                    });
+                } else {
+                    ec2.stopInstance([instance.platformId], function (err, state) {
+                        if (err) {
+                            checkFailedInstanceAction(logReferenceIds, instanceLog, actionFailedLog, function (err) {
+                                callback(err, null);
+                                return;
+                            })
+                        }
+                        checkSuccessInstanceAction(logReferenceIds, state, instanceLog, actionCompleteLog, function (err, successData) {
+                            if (err) {
+                                callback(err, null);
+                                return;
+                            }
+                            callback(null, {
+                                instanceCurrentState: state,
+                                actionLogId: actionLog._id
+                            });
+                            return;
+                        })
+                    });
+                }
+            });
+        });
+    }else if(instance.providerType === 'vmware'){
+        vmWareProvider.getvmwareProviderById(instance.providerId, function (err, providerdata) {
+            var timestampStarted = new Date().getTime();
+            var actionLog = instancesDao.insertStartActionLog(instance._id, catUser, timestampStarted);
+            var logReferenceIds = [instance._id];
+            if (actionLog) {
+                logReferenceIds.push(actionLog._id);
+            }
+            var vmWareConfig = {
+                host: '',
+                username: '',
+                password: '',
+                dc: '',
+                serviceHost: ''
+            };
+            if (providerdata) {
+                vmWareConfig.host = providerdata.host;
+                vmWareConfig.username = providerdata.username;
+                vmWareConfig.password = providerdata.password;
+                vmWareConfig.dc = providerdata.dc;
+                vmWareConfig.serviceHost = appConfig.vmware.serviceHost;
+            } else {
+                vmWareConfig = null;
+            }
+            if (vmWareConfig) {
+                var vmWare = new vmWare(vmWareConfig);
+                vmWare.startstopVM(vmWareConfig.serviceHost, instance.platformId, vmWareAction, function (err, vmdata) {
                     if (err) {
                         checkFailedInstanceAction(logReferenceIds, instanceLog, actionFailedLog, function (err) {
                             callback(err, null);
                             return;
-                        })
-                    }
-                    checkSuccessInstanceAction(logReferenceIds, state, instanceLog, actionCompleteLog, function (err, successData) {
-                        if (err) {
-                            callback(err, null);
-                            return;
-                        }
-                        ec2.describeInstances([instance.platformId], function (err, instanceData) {
+                        });
+                    } else {
+                        checkSuccessInstanceAction(logReferenceIds, instanceState, instanceLog, actionCompleteLog, function (err, successData) {
                             if (err) {
-                                logger.error("Hit some error: ", err);
-                                return callback(err, null);
+                                callback(err, null);
+                                return;
                             }
-                            if (instanceData.Reservations.length && instanceData.Reservations[0].Instances.length) {
-                                logger.debug("ip =>", instanceData.Reservations[0].Instances[0].PublicIpAddress);
-                                instancesDao.updateInstanceIp(instance._id, instanceData.Reservations[0].Instances[0].PublicIpAddress, function (err, updateCount) {
+                            callback(null, {
+                                instanceCurrentState: instanceState,
+                                actionLogId: actionLog._id
+                            });
+                            return;
+                        });
+                    }
+                });
+            }
+        })
+    }else if(instance.providerType === 'azure'){
+        azureProvider.getAzureCloudProviderById(instance.providerId, function (err, providerdata) {
+            if (err) {
+                logger.error('getAzureCloudProviderById ', err);
+                callback(err,null);
+                return;
+            }
+            providerdata = JSON.parse(providerdata);
+            var pemFile = appConfig.instancePemFilesDir + providerdata._id + providerdata.pemFileName;
+            var keyFile = appConfig.instancePemFilesDir + providerdata._id + providerdata.keyFileName;
+            logger.debug("pemFile path:", pemFile);
+            logger.debug("keyFile path:", pemFile);
+            var cryptoConfig = appConfig.cryptoSettings;
+            var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+            var uniqueVal = uuid.v4().split('-')[0];
+            var decryptedPemFile = pemFile + '_' + uniqueVal + '_decypted';
+            var decryptedKeyFile = keyFile + '_' + uniqueVal + '_decypted';
+            cryptography.decryptFile(pemFile, cryptoConfig.decryptionEncoding, decryptedPemFile, cryptoConfig.encryptionEncoding, function (err) {
+                if (err) {
+                    logger.error('Pem file decryption failed>> ', err);
+                    callback(err,null);
+                    return;
+                }
+                cryptography.decryptFile(keyFile, cryptoConfig.decryptionEncoding, decryptedKeyFile, cryptoConfig.encryptionEncoding, function (err) {
+                    if (err) {
+                        logger.error('key file decryption failed>> ', err);
+                        callback(err,null);
+                        return;
+                    }
+                    var options = {
+                        subscriptionId: providerdata.subscriptionId,
+                        certLocation: decryptedPemFile,
+                        keyLocation: decryptedKeyFile
+                    };
+                    var azureCloud = new azureCloud(options);
+                    if(action === 'Start') {
+                        azureCloud.startVM(instance.chefNodeName, function (err, currentState) {
+                            if (err) {
+                                checkFailedInstanceAction(logReferenceIds, instanceLog, actionFailedLog, function (err) {
+                                    callback(err, null);
+                                    return;
+                                })
+                            }
+                            checkSuccessInstanceAction(logReferenceIds, instanceState, instanceLog, actionCompleteLog, function (err, successData) {
+                                if (err) {
+                                    callback(err, null);
+                                    return;
+                                }
+                                callback(null, {
+                                    instanceCurrentState: instanceState,
+                                    actionLogId: actionLog._id
+                                });
+                                fs.unlink(decryptedPemFile, function (err) {
+                                    logger.debug("Deleting decryptedPemFile..");
                                     if (err) {
-                                        logger.error("update instance ip err ==>", err);
-                                        return callback(err, null);
+                                        logger.error("Error in deleting decryptedPemFile..");
                                     }
-                                    logger.debug('instance ip updated');
-                                    logger.debug("Exit get() for /instances/%s/startInstance", instance._id);
-                                    callback(null, {
-                                        instanceCurrentState: state,
-                                        actionLogId: actionLog._id
+                                    fs.unlink(decryptedKeyFile, function (err) {
+                                        logger.debug("Deleting decryptedKeyFile ..");
+                                        if (err) {
+                                            logger.error("Error in deleting decryptedKeyFile..");
+                                        }
                                     });
+                                });
+                                return;
+                            })
+                        });
+                    }else{
+                        azureCloud.shutDownVM(instance.chefNodeName, function (err, currentState) {
+                            if (err) {
+                                checkFailedInstanceAction(logReferenceIds, instanceLog, actionFailedLog, function (err) {
+                                    callback(err, null);
                                     return;
                                 });
                             }
+                            checkSuccessInstanceAction(logReferenceIds, instanceState, instanceLog, actionCompleteLog, function (err, successData) {
+                                if (err) {
+                                    callback(err, null);
+                                    return;
+                                }
+                                callback(null, {
+                                    instanceCurrentState: instanceState,
+                                    actionLogId: actionLog._id
+                                });
+                                fs.unlink(decryptedPemFile, function (err) {
+                                    logger.debug("Deleting decryptedPemFile..");
+                                    if (err) {
+                                        logger.error("Error in deleting decryptedPemFile..");
+                                    }
+                                    fs.unlink(decryptedKeyFile, function (err) {
+                                        logger.debug("Deleting decryptedKeyFile ..");
+                                        if (err) {
+                                            logger.error("Error in deleting decryptedKeyFile..");
+                                        }
+                                    });
+                                });
+                                return;
+                            });
                         });
-                    })
+                    }
                 });
-            }else{
-                ec2.stopInstance([instance.platformId], function (err, state) {
+            });
+        })
+    }else if(instance.providerType === 'gcp'){
+        providerService.getProvider(instance.providerId, function (err, provider) {
+            if (err) {
+                var error = new Error("Error while fetching Provider.");
+                error.status = 500;
+                callback(error, null);
+                return;
+            }
+            var gcpProvider = new gcpProviderModel(provider);
+            // Get file from provider decode it and save, after use delete file
+            // Decode file content with base64 and save.
+            var base64Decoded = new Buffer(gcpProvider.providerDetails.keyFile, 'base64').toString();
+            fs.writeFile('/tmp/' + provider.id + '.json', base64Decoded);
+            var params = {
+                "projectId": gcpProvider.providerDetails.projectId,
+                "keyFilename": '/tmp/' + provider.id + '.json'
+            }
+            var gcp = new GCP(params);
+            var gcpParam = {
+                "zone": data[0].zone,
+                "name": data[0].name
+            }
+            if(action === 'Start') {
+                gcp.startVM(gcpParam, function (err, vmResponse) {
                     if (err) {
                         checkFailedInstanceAction(logReferenceIds, instanceLog, actionFailedLog, function (err) {
                             callback(err, null);
                             return;
-                        })
+                        });
                     }
-                    checkSuccessInstanceAction(logReferenceIds, state, instanceLog, actionCompleteLog, function (err, successData) {
+                    checkSuccessInstanceAction(logReferenceIds, instanceState, instanceLog, actionCompleteLog, function (err, successData) {
                         if (err) {
                             callback(err, null);
                             return;
                         }
+                        instancesDao.updateInstanceIp(instance._id, vmResponse.ip, function (err, updateCount) {
+                            if (err) {
+                                logger.error("update instance ip err ==>", err);
+                                return callback(err, null);
+                            }
+                            logger.debug('instance ip upadated');
+                        });
                         callback(null, {
-                            instanceCurrentState: state,
+                            instanceCurrentState: instanceState,
                             actionLogId: actionLog._id
                         });
+                        fs.unlink('/tmp/' + provider.id + '.json', function (err) {
+                            if (err) {
+                                logger.error("Unable to delete json file.");
+                            }
+                        });
                         return;
-                    })
+                    });
+                });
+            }else{
+                gcp.stopVM(gcpParam, function (err, vmResponse) {
+                    if (err) {
+                        checkFailedInstanceAction(logReferenceIds, instanceLog, actionFailedLog, function (err) {
+                            callback(err, null);
+                            return;
+                        });
+                    }
+                    checkSuccessInstanceAction(logReferenceIds, instanceState, instanceLog, actionCompleteLog, function (err, successData) {
+                        if (err) {
+                            callback(err, null);
+                            return;
+                        }
+                        instancesDao.updateInstanceIp(instance._id, vmResponse.ip, function (err, updateCount) {
+                            if (err) {
+                                logger.error("update instance ip err ==>", err);
+                                return callback(err, null);
+                            }
+                            logger.debug('instance ip upadated');
+                        });
+                        callback(null, {
+                            instanceCurrentState: instanceState,
+                            actionLogId: actionLog._id
+                        });
+                        fs.unlink('/tmp/' + provider.id + '.json', function (err) {
+                            if (err) {
+                                logger.error("Unable to delete json file.");
+                            }
+                        });
+                        return;
+                    });
                 });
             }
         });
-    });
+    }else{
+        checkFailedInstanceAction(logReferenceIds,instanceLog,actionFailedLog,function(err){
+            callback(err, null);
+            return;
+        });
+    }
 }
 
 function checkFailedInstanceAction(logReferenceIds,instanceLog,actionFailedLog,callback) {
