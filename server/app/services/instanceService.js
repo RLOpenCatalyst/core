@@ -22,6 +22,7 @@ var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvi
 var logger = require('_pr/logger')(module);
 var appConfig = require('_pr/config');
 var EC2 = require('_pr/lib/ec2.js');
+var instanceSync = null;
 var Cryptography = require('../lib/utils/cryptography');
 var tagsModel = require('_pr/model/tags/tags.js');
 var resourceCost = require('_pr/model/resource-costs-deprecated/resource-costs-deprecated.js');
@@ -47,6 +48,17 @@ var utils = require('_pr/model/classes/utils/utils.js');
 var AppData = require('_pr/model/app-deploy/app-data');
 var instancesDao = require('_pr/model/classes/instance/instance');
 
+var usersDao = require('_pr/model/users.js');
+var AWSKeyPair = require('_pr/model/classes/masters/cloudprovider/keyPair.js');
+var VMware = require('_pr/lib/vmware');
+var vmwareCloudProvider = require('_pr/model/classes/masters/cloudprovider/vmwareCloudProvider.js');
+var azureProvider = require('_pr/model/classes/masters/cloudprovider/azureCloudProvider.js');
+var AzureCloud = require('_pr/lib/azure');
+var providerService = require('_pr/services/providerService.js');
+var gcpProviderModel = require('_pr/model/v2.0/providers/gcp-providers');
+var GCP = require('_pr/lib/gcp.js');
+var crontab = require('node-crontab');
+
 
 var instanceService = module.exports = {};
 instanceService.checkIfUnassignedInstanceExists = checkIfUnassignedInstanceExists;
@@ -65,6 +77,10 @@ instanceService.validateListInstancesQuery = validateListInstancesQuery;
 instanceService.removeInstanceById = removeInstanceById;
 instanceService.removeInstancesByProviderId = removeInstancesByProviderId;
 instanceService.instanceSyncWithAWS = instanceSyncWithAWS;
+instanceService.startInstance = startInstance;
+instanceService.stopInstance = stopInstance;
+instanceService.executeScheduleJob = executeScheduleJob;
+instanceService.updateScheduler = updateScheduler;
 
 function checkIfUnassignedInstanceExists(providerId, instanceId, callback) {
     unassignedInstancesModel.getById(instanceId,
@@ -125,10 +141,10 @@ function validateListInstancesQuery(orgs, filterQuery, callback) {
 
     if (orgIds.length > 0) {
         if (queryObjectAndCondition.providerId) {
-            filterQuery.queryObj['$and'][0].orgId = {'$in': orgIds}
+            filterQuery.queryObj['$and'][0].orgId = { '$in': orgIds }
         } else {
-            filterQuery.queryObj['$and'][0].providerId ={ '$ne': null };
-            filterQuery.queryObj['$and'][0].orgId = {'$in': orgIds};
+            filterQuery.queryObj['$and'][0].providerId = { '$ne': null };
+            filterQuery.queryObj['$and'][0].orgId = { '$in': orgIds };
         }
     }
 
@@ -439,12 +455,12 @@ function getTrackedInstances(query, category, next) {
             function(callback) {
                 if (category === 'managed') {
                     instancesModel.getAll(query, callback);
-                }else if (category === 'assigned') {
+                } else if (category === 'assigned') {
                     unManagedInstancesModel.getAll(query, callback);
-                }else if(category === 'unassigned'){
-                    unassignedInstancesModel.getAll(query,callback);
-                }else{
-                    callback(null, [{docs:[],total:0}]);
+                } else if (category === 'unassigned') {
+                    unassignedInstancesModel.getAll(query, callback);
+                } else {
+                    callback(null, [{ docs: [], total: 0 }]);
                 }
             }
         ],
@@ -1240,7 +1256,7 @@ instanceService.getInstanceAction = function getInstanceAction(actionId, callbac
             logsDao.getLogsByReferenceId(actionId, null, function(err, data) {
                 if (err) {
                     logger.error("Failed to fetch Logs: ", err);
-                    res.send(500);
+                    callback(500, null);
                     return;
                 }
                 instanceAction['logs'] = data;
@@ -1306,33 +1322,33 @@ function removeInstancesByProviderId(providerId, callback) {
     })
 }
 
-function instanceSyncWithAWS(instanceId,instanceData,providerDetails,callback){
+function instanceSyncWithAWS(instanceId, instanceData, providerDetails, callback) {
     async.waterfall([
-        function(next){
-            instancesModel.getInstanceById(instanceId,next);
+        function(next) {
+            instancesModel.getInstanceById(instanceId, next);
         },
-        function(instances,next){
+        function(instances, next) {
             var instance = instances[0];
             var routeHostedZoneParamList = [];
-            if(instance.instanceState !== instanceData.state && instance.bootStrapStatus ==='success') {
+            if (instance.instanceState !== instanceData.state && instance.bootStrapStatus === 'success') {
                 var timestampStarted = new Date().getTime();
                 var user = instance.catUser ? instance.catUser : 'superadmin';
-                var action ='';
-                if(instanceData.state === 'stopped' || instanceData.state === 'stopping'){
+                var action = '';
+                if (instanceData.state === 'stopped' || instanceData.state === 'stopping') {
                     action = 'Stop';
-                }else if(instanceData.state === 'terminated'){
-                    action ='Terminated';
-                    if(instance.route53HostedParams){
+                } else if (instanceData.state === 'terminated') {
+                    action = 'Terminated';
+                    if (instance.route53HostedParams) {
                         routeHostedZoneParamList = instance.route53HostedParams;
                     }
-                }else if(instanceData.state === 'shutting-down'){
-                    action ='Shutting-Down';
-                }else{
-                    action ='Start';
+                } else if (instanceData.state === 'shutting-down') {
+                    action = 'Shutting-Down';
+                } else {
+                    action = 'Start';
                 };
-                if(instanceData.state === 'terminated' && instance.instanceState === 'shutting-down'){
-                    instanceLogModel.getLogsByInstanceIdStatus(instance._id,instance.instanceState,function(err,data){
-                        if(err){
+                if (instanceData.state === 'terminated' && instance.instanceState === 'shutting-down') {
+                    instanceLogModel.getLogsByInstanceIdStatus(instance._id, instance.instanceState, function(err, data) {
+                        if (err) {
                             logger.error("Failed to get Instance Logs: ", err);
                             next(err, null);
                         }
@@ -1342,12 +1358,12 @@ function instanceSyncWithAWS(instanceId,instanceData,providerDetails,callback){
                         data.actionStatus = "success";
                         data.endedOn = new Date().getTime();
                         logsDao.insertLog({
-                            referenceId: [data.actionId,data.instanceId],
+                            referenceId: [data.actionId, data.instanceId],
                             err: false,
                             log: "Instance " + instanceData.state,
                             timestamp: timestampStarted
                         });
-                        instanceLogModel.createOrUpdate(data.actionId, instance._id, data, function (err, logData) {
+                        instanceLogModel.createOrUpdate(data.actionId, instance._id, data, function(err, logData) {
                             if (err) {
                                 logger.error("Failed to create or update instanceLog: ", err);
                                 next(err, null);
@@ -1355,62 +1371,62 @@ function instanceSyncWithAWS(instanceId,instanceData,providerDetails,callback){
                             next(null, routeHostedZoneParamList);
                         });
                     })
-                }else {
-                    createOrUpdateInstanceLogs(instance,instanceData.state,action,user,timestampStarted,routeHostedZoneParamList,next);
+                } else {
+                    createOrUpdateInstanceLogs(instance, instanceData.state, action, user, timestampStarted, routeHostedZoneParamList, next);
                 }
-            }else{
-                next(null,routeHostedZoneParamList);
+            } else {
+                next(null, routeHostedZoneParamList);
             }
         },
-       function(paramList,next) {
-           async.parallel({
-               instanceDataSync: function(callback){
-                   instancesModel.updateInstanceStatus(instanceId,instanceData,callback);
-               },
-               route53Sync: function(callback){
-                   if(paramList.length > 0){
-                       var cryptoConfig = appConfig.cryptoSettings;
-                       var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-                       var decryptedAccessKey = cryptography.decryptText(providerDetails.accessKey,
-                           cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-                       var decryptedSecretKey = cryptography.decryptText(providerDetails.secretKey,
-                           cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-                       var route53Config = {
-                           access_key: decryptedAccessKey,
-                           secret_key: decryptedSecretKey,
-                           region:'us-west-1'
-                       };
-                       var route53 = new Route53(route53Config);
-                       var count = 0;
-                       for(var i = 0; i < paramList.length;i++){
-                           (function(params){
-                               params.ChangeBatch.Changes[0].Action = 'DELETE';
-                               route53.changeResourceRecordSets(params,function(err,data){
-                                   count++;
-                                   if(err){
-                                       callback(err,null);
-                                   }
-                                   if(count === paramList.length){
-                                       callback(null,paramList);
-                                   }
-                               });
-                           })(paramList[i]);
+        function(paramList, next) {
+            async.parallel({
+                instanceDataSync: function(callback) {
+                    instancesModel.updateInstanceStatus(instanceId, instanceData, callback);
+                },
+                route53Sync: function(callback) {
+                    if (paramList.length > 0) {
+                        var cryptoConfig = appConfig.cryptoSettings;
+                        var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+                        var decryptedAccessKey = cryptography.decryptText(providerDetails.accessKey,
+                            cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                        var decryptedSecretKey = cryptography.decryptText(providerDetails.secretKey,
+                            cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                        var route53Config = {
+                            access_key: decryptedAccessKey,
+                            secret_key: decryptedSecretKey,
+                            region: 'us-west-1'
+                        };
+                        var route53 = new Route53(route53Config);
+                        var count = 0;
+                        for (var i = 0; i < paramList.length; i++) {
+                            (function(params) {
+                                params.ChangeBatch.Changes[0].Action = 'DELETE';
+                                route53.changeResourceRecordSets(params, function(err, data) {
+                                    count++;
+                                    if (err) {
+                                        callback(err, null);
+                                    }
+                                    if (count === paramList.length) {
+                                        callback(null, paramList);
+                                    }
+                                });
+                            })(paramList[i]);
 
-                       }
-                   }else{
-                       callback(null,paramList);
-                   }
-               }
-           },function(err,results){
-               if(err){
-                   next(err);
-               }else{
-                   next(null,results);
-               }
-           })
+                        }
+                    } else {
+                        callback(null, paramList);
+                    }
+                }
+            }, function(err, results) {
+                if (err) {
+                    next(err);
+                } else {
+                    next(null, results);
+                }
+            })
 
-       }
-    ], function(err,results){
+        }
+    ], function(err, results) {
         if (err) {
             callback(err, null);
         } else {
@@ -1419,7 +1435,7 @@ function instanceSyncWithAWS(instanceId,instanceData,providerDetails,callback){
     })
 }
 
-function createOrUpdateInstanceLogs(instance,instanceState,action,user,timestampStarted,routeHostedZoneParamList,next){
+function createOrUpdateInstanceLogs(instance, instanceState, action, user, timestampStarted, routeHostedZoneParamList, next) {
     var actionLog = instancesModel.insertInstanceStatusActionLog(instance._id, user, instanceState, timestampStarted);
     var actionStatus = 'success';
     var logReferenceIds = [instance._id, actionLog._id];
@@ -1429,7 +1445,7 @@ function createOrUpdateInstanceLogs(instance,instanceState,action,user,timestamp
         log: "Instance " + instanceState,
         timestamp: timestampStarted
     });
-    if(instanceState === 'shutting-down'){
+    if (instanceState === 'shutting-down') {
         actionStatus = 'pending';
     }
     var instanceLog = {
@@ -1454,7 +1470,7 @@ function createOrUpdateInstanceLogs(instance,instanceState,action,user,timestamp
         action: action,
         logs: []
     };
-    instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function (err, logData) {
+    instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
         if (err) {
             logger.error("Failed to create or update instanceLog: ", err);
             next(err, null);
@@ -1462,3 +1478,1359 @@ function createOrUpdateInstanceLogs(instance,instanceState,action,user,timestamp
         next(null, routeHostedZoneParamList);
     });
 }
+
+function executeScheduleJob(instance,callback) {
+    logger.debug("Instance scheduler::::: ");
+    logger.debug("Instance current state. "+instance.instanceState);
+    async.waterfall([
+        function(next) {
+            if (instance.cronJobId && instance.cronJobId !== null) {
+                crontab.cancelJob(instance.cronJobId);
+                next(null, instance.cronJobId);
+            } else {
+                next(null, instance.cronJobId);
+            }
+        },
+        function(jobId,next){
+            var catUser = 'superadmin';
+            if(instance.catUser){
+                catUser = instance.catUser;
+            }
+            if(instance.instanceState === 'running'){
+                var stopJobId = crontab.scheduleJob(instance.instanceStopScheduler.cronPattern, function() {
+                    instancesDao.updateInstanceSchedulerCronJobId(instance._id,stopJobId,function(err,data){
+                        if(err){
+                            logger.error(err);
+                        }
+                        logger.debug(data);
+                    });
+                    stopInstance(instance._id,catUser,function(err,data){
+                        if(err){
+                            crontab.cancelJob(stopJobId);
+                            next(err);
+                        }
+                        crontab.cancelJob(stopJobId);
+                        next(null,stopJobId);
+                    });
+                });
+            }else if(instance.instanceState === 'stopped'){
+               var startJobId = crontab.scheduleJob(instance.instanceStartScheduler.cronPattern, function() {
+                   instancesDao.updateInstanceSchedulerCronJobId(instance._id,startJobId,function(err,data){
+                       if(err){
+                           logger.error(err);
+                       }
+                       logger.debug(data);
+                   });
+                   startInstance(instance._id,catUser,function(err,data){
+                       if(err){
+                           crontab.cancelJob(startJobId);
+                           next(err);
+                       }
+                       crontab.cancelJob(startJobId);
+                       next(null,startJobId);
+                   });
+               });
+            }else{
+                logger.debug("Instance current state is not match as per scheduler "+instance.instanceState);
+                next(null,null);
+            }
+        },
+    ],function(err,results){
+        if(err){
+            logger.error(err);
+            instanceSync = require('_pr/cronjobs/instance-sync/instanceSync.js');
+            instanceSync.executeScheduledInstances();
+            callback(err,null);
+            return;
+        }else{
+            logger.debug("Instance Scheduler Finished");
+            instanceSync = require('_pr/cronjobs/instance-sync/instanceSync.js');
+            instanceSync.executeScheduledInstances();
+            callback(null,results);
+            return;
+        }
+    })
+}
+
+function startInstance(instanceId,catUser,callback) {
+    instancesDao.getInstanceById(instanceId, function (err, data) {
+        if (err) {
+            var error = new Error("Internal Server Error.");
+            error.status = 500;
+            callback(error, null);
+            return;
+        }
+        if (data.length > 0) {
+            var currentDate = new Date();
+            if (data[0].isScheduled && data[0].isScheduled === true && currentDate >= data[0].schedulerEndOn) {
+                instancesDao.updateInstanceScheduler(data[0]._id,function(err, updatedData) {
+                    if (err) {
+                        logger.error("Failed to update Instance Scheduler: ", err);
+                        callback(err);
+                    }
+                    logger.debug("Scheduler is ended on for Instance. "+data[0].platformId);
+                    callback(null,updatedData);
+                    return;
+                });
+            }else {
+                var instanceLog = {
+                    actionId: "",
+                    instanceId: data[0]._id,
+                    orgName: data[0].orgName,
+                    bgName: data[0].bgName,
+                    projectName: data[0].projectName,
+                    envName: data[0].environmentName,
+                    status: data[0].instanceState,
+                    actionStatus: "pending",
+                    platformId: data[0].platformId,
+                    blueprintName: data[0].blueprintData.blueprintName,
+                    data: data[0].runlist,
+                    platform: data[0].hardware.platform,
+                    os: data[0].hardware.os,
+                    size: data[0].instanceType,
+                    user: catUser,
+                    createdOn: new Date().getTime(),
+                    startedOn: new Date().getTime(),
+                    providerType: data[0].providerType,
+                    action: "Start",
+                    logs: []
+                };
+                if (data[0].providerType && data[0].providerType == 'vmware') {
+                    vmwareCloudProvider.getvmwareProviderById(data[0].providerId, function (err, providerdata) {
+                        var timestampStarted = new Date().getTime();
+                        var actionLog = instancesDao.insertStartActionLog(instanceId, catUser, timestampStarted);
+                        var logReferenceIds = [instanceId];
+                        if (actionLog) {
+                            logReferenceIds.push(actionLog._id);
+                        }
+                        var vmWareConfig = {
+                            host: '',
+                            username: '',
+                            password: '',
+                            dc: '',
+                            serviceHost: ''
+                        };
+                        if (providerdata) {
+                            vmWareConfig.host = providerdata.host;
+                            vmWareConfig.username = providerdata.username;
+                            vmWareConfig.password = providerdata.password;
+                            vmWareConfig.dc = providerdata.dc;
+                            vmWareConfig.serviceHost = appConfig.vmware.serviceHost;
+                        } else {
+                            vmWareConfig = null;
+                        }
+                        if (vmWareConfig) {
+                            var vmWare = new VMware(vmWareConfig);
+                            vmWare.startstopVM(vmWareConfig.serviceHost, data[0].platformId, 'poweron', function (err, vmdata) {
+                                if (!err) {
+                                    var timestampEnded = new Date().getTime();
+                                    logsDao.insertLog({
+                                        referenceId: logReferenceIds,
+                                        err: false,
+                                        log: "Instance Starting",
+                                        timestamp: timestampEnded
+                                    });
+                                    instanceLog.actionId = actionLog._id;
+                                    instanceLog.logs = {
+                                        err: false,
+                                        log: "Instance Starting",
+                                        timestamp: new Date().getTime()
+                                    };
+                                    instanceLogModel.createOrUpdate(actionLog._id, data[0]._id, instanceLog, function (err, logData) {
+                                        if (err) {
+                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        }
+                                    });
+                                    instancesDao.updateInstanceState(instanceId, 'running', function (err, updateCount) {
+                                        if (err) {
+                                            logger.error("update instance state err ==>", err);
+                                            return;
+                                        }
+                                        logger.debug('instance state updated');
+                                    });
+                                    var timestampEnded = new Date().getTime();
+                                    logsDao.insertLog({
+                                        referenceId: logReferenceIds,
+                                        err: false,
+                                        log: "Instance Started",
+                                        timestamp: timestampEnded
+                                    });
+                                    instancesDao.updateActionLog(instanceId, actionLog._id, true, timestampEnded);
+                                    instanceLog.endedOn = new Date().getTime();
+                                    instanceLog.status = "running";
+                                    instanceLog.actionStatus = "success";
+                                    instanceLog.logs = {
+                                        err: false,
+                                        log: "Instance Started",
+                                        timestamp: new Date().getTime()
+                                    };
+                                    instanceLogModel.createOrUpdate(actionLog._id, data[0]._id, instanceLog, function (err, logData) {
+                                        if (err) {
+                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        }
+                                    });
+                                    callback(null, {
+                                        instanceCurrentState: 'running',
+                                        actionLogId: actionLog._id
+                                    });
+                                    return;
+                                } else {
+                                    logger.debug('Error in action query :', err);
+                                    var timestampEnded = new Date().getTime();
+                                    logsDao.insertLog({
+                                        referenceId: logReferenceIds,
+                                        err: true,
+                                        log: "Unable to start instance",
+                                        timestamp: timestampEnded
+                                    });
+                                    instanceLog.endedOn = new Date().getTime();
+                                    instanceLog.actionStatus = "failed";
+                                    instanceLog.logs = {
+                                        err: true,
+                                        log: "Unable to start instance",
+                                        timestamp: new Date().getTime()
+                                    };
+                                    instanceLogModel.createOrUpdate(actionLog._id, data[0]._id, instanceLog, function (err, logData) {
+                                        if (err) {
+                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        }
+                                    });
+                                    var error = new Error("Internal Server Error.");
+                                    error.status = 500;
+                                    callback(error, null);
+                                    return;
+                                }
+                            });
+                        } else {
+                            logger.debug('No Provider found :');
+                            var error = new Error("No Provider found.");
+                            error.status = 400;
+                            callback(error, null);
+                            return;
+                        }
+                    });
+                } else if (data[0].keyPairId && data[0].keyPairId == 'azure') {
+                    logger.debug("Starting Azure instance..");
+                    var timestampStarted = new Date().getTime();
+                    var actionLog = instancesDao.insertStopActionLog(instanceId, catUser, timestampStarted);
+                    var logReferenceIds = [instanceId];
+                    if (actionLog) {
+                        logReferenceIds.push(actionLog._id);
+                    }
+                    logsDao.insertLog({
+                        referenceId: logReferenceIds,
+                        err: false,
+                        log: "Instance Starting",
+                        timestamp: timestampStarted
+                    });
+                    instanceLog.actionId = actionLog._id;
+                    instanceLog.logs = {
+                        err: false,
+                        log: "Instance Starting",
+                        timestamp: new Date().getTime()
+                    };
+                    instanceLogModel.createOrUpdate(actionLog._id, data[0]._id, instanceLog, function (err, logData) {
+                        if (err) {
+                           
+                            logger.error("Failed to create or update instanceLog: ", err);
+                        }
+                    });
+                    if (!data[0].providerId) {
+                        var error = new Error("Insufficient provider details, to complete the operation");
+                        error.status = 500;
+                        callback(error, null);
+                        logsDao.insertLog({
+                            referenceId: logReferenceIds,
+                            err: true,
+                            log: "Insufficient provider details, to complete the operation",
+                            timestamp: new Date().getTime()
+                        });
+                        instanceLog.endedOn = new Date().getTime();
+                        instanceLog.actionStatus = "failed";
+                        instanceLog.logs = {
+                            err: true,
+                            log: "Insufficient provider details, to complete the operation",
+                            timestamp: new Date().getTime()
+                        };
+                        instanceLogModel.createOrUpdate(actionLog._id, data[0]._id, instanceLog, function (err, logData) {
+                            if (err) {
+                               
+                                logger.error("Failed to create or update instanceLog: ", err);
+                            }
+                        });
+                        return;
+                    }
+                    azureProvider.getAzureCloudProviderById(data[0].providerId, function (err, providerdata) {
+                        if (err) {
+                            logger.error('getAzureCloudProviderById ', err);
+                            return;
+                        }
+                        logger.debug('providerdata:', providerdata);
+                        providerdata = JSON.parse(providerdata);
+                        var settings = appConfig;
+                        var pemFile = settings.instancePemFilesDir + providerdata._id + providerdata.pemFileName;
+                        var keyFile = settings.instancePemFilesDir + providerdata._id + providerdata.keyFileName;
+                        logger.debug("pemFile path:", pemFile);
+                        logger.debug("keyFile path:", pemFile);
+                        var cryptoConfig = appConfig.cryptoSettings;
+                        var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+                        var uniqueVal = uuid.v4().split('-')[0];
+                        var decryptedPemFile = pemFile + '_' + uniqueVal + '_decypted';
+                        var decryptedKeyFile = keyFile + '_' + uniqueVal + '_decypted';
+                        cryptography.decryptFile(pemFile, cryptoConfig.decryptionEncoding, decryptedPemFile, cryptoConfig.encryptionEncoding, function (err) {
+                            if (err) {
+                               
+                                logger.error('Pem file decryption failed>> ', err);
+                                return;
+                            }
+                            cryptography.decryptFile(keyFile, cryptoConfig.decryptionEncoding, decryptedKeyFile, cryptoConfig.encryptionEncoding, function (err) {
+                                if (err) {
+                                   
+                                    logger.error('key file decryption failed>> ', err);
+                                    return;
+                                }
+                                var options = {
+                                    subscriptionId: providerdata.subscriptionId,
+                                    certLocation: decryptedPemFile,
+                                    keyLocation: decryptedKeyFile
+                                };
+                                var azureCloud = new AzureCloud(options);
+                                azureCloud.startVM(data[0].chefNodeName, function (err, currentState) {
+                                    if (err) {
+                                        var timestampEnded = new Date().getTime();
+                                        logsDao.insertLog({
+                                            referenceId: logReferenceIds,
+                                            err: true,
+                                            log: "Unable to start instance",
+                                            timestamp: timestampEnded
+                                        });
+                                        instancesDao.updateActionLog(instanceId, actionLog._id, false, timestampEnded);
+                                        instanceLog.endedOn = new Date().getTime();
+                                        instanceLog.actionStatus = "failed";
+                                        instanceLog.logs = {
+                                            err: true,
+                                            log: "Unable to start instance",
+                                            timestamp: new Date().getTime()
+                                        };
+                                        instanceLogModel.createOrUpdate(actionLog._id, data[0]._id, instanceLog, function (err, logData) {
+                                            if (err) {
+                                                logger.error("Failed to create or update instanceLog: ", err);
+                                            }
+                                        });
+                                        var error = new Error({
+                                            actionLogId: actionLog._id
+                                        });
+                                        error.status = 500;
+                                        callback(error, null);
+                                        return;
+                                    }
+                                    instancesDao.updateInstanceState(instanceId, "running", function (err, updateCount) {
+                                        if (err) {
+                                            logger.error("update instance state err ==>", err);
+                                            return callback(err, null);
+                                        }
+                                        logger.debug('instance state upadated');
+                                    });
+                                    var timestampEnded = new Date().getTime();
+                                    logsDao.insertLog({
+                                        referenceId: logReferenceIds,
+                                        err: false,
+                                        log: "Instance Started",
+                                        timestamp: timestampEnded
+                                    });
+                                    instancesDao.updateActionLog(instanceId, actionLog._id, true, timestampEnded);
+                                    instanceLog.endedOn = new Date().getTime();
+                                    instanceLog.status = "running";
+                                    instanceLog.actionStatus = "success";
+                                    instanceLog.logs = {
+                                        err: false,
+                                        log: "Instance Started",
+                                        timestamp: new Date().getTime()
+                                    };
+                                    instanceLogModel.createOrUpdate(actionLog._id, data[0]._id, instanceLog, function (err, logData) {
+                                        if (err) {
+                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        }
+                                    });
+                                    callback(null, {
+                                        instanceCurrentState: "running",
+                                        actionLogId: actionLog._id
+                                    });
+                                    fs.unlink(decryptedPemFile, function (err) {
+                                        logger.debug("Deleting decryptedPemFile..");
+                                        if (err) {
+                                            logger.error("Error in deleting decryptedPemFile..");
+                                        }
+                                        fs.unlink(decryptedKeyFile, function (err) {
+                                            logger.debug("Deleting decryptedKeyFile ..");
+                                            if (err) {
+                                                logger.error("Error in deleting decryptedKeyFile..");
+                                            }
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    })
+                }
+                else if (data[0].providerType && data[0].providerType == 'gcp') {
+                    var providerService = require('_pr/services/providerService.js');
+                    var gcpProviderModel = require('_pr/model/v2.0/providers/gcp-providers');
+                    var GCP = require('_pr/lib/gcp.js');
+                    providerService.getProvider(data[0].providerId, function (err, provider) {
+                        if (err) {
+                            var error = new Error("Error while fetching Provider.");
+                            error.status = 500;
+                            callback(error, null);
+                            return;
+                        }
+                        var gcpProvider = new gcpProviderModel(provider);
+                        // Get file from provider decode it and save, after use delete file
+                        // Decode file content with base64 and save.
+                        var base64Decoded = new Buffer(gcpProvider.providerDetails.keyFile, 'base64').toString();
+                        fs.writeFile('/tmp/' + provider.id + '.json', base64Decoded);
+                        var params = {
+                            "projectId": gcpProvider.providerDetails.projectId,
+                            "keyFilename": '/tmp/' + provider.id + '.json'
+                        }
+                        var gcp = new GCP(params);
+                        var gcpParam = {
+                            "zone": data[0].zone,
+                            "name": data[0].name
+                        }
+                        var timestampStarted = new Date().getTime();
+                        var actionLog = instancesDao.insertStartActionLog(instanceId, catUser, timestampStarted);
+                        var logReferenceIds = [instanceId];
+                        if (actionLog) {
+                            logReferenceIds.push(actionLog._id);
+                        }
+                        logsDao.insertLog({
+                            referenceId: logReferenceIds,
+                            err: false,
+                            log: "Instance Starting",
+                            timestamp: timestampStarted
+                        });
+
+                        instanceLog.actionId = actionLog._id;
+                        instanceLog.logs = {
+                            err: false,
+                            log: "Instance Starting",
+                            timestamp: new Date().getTime()
+                        };
+                        instanceLogModel.createOrUpdate(actionLog._id, data[0]._id, instanceLog, function (err, logData) {
+                            if (err) {
+                                logger.error("Failed to create or update instanceLog: ", err);
+                            }
+                        });
+                        gcp.startVM(gcpParam, function (err, vmResponse) {
+                            if (err) {
+                                var timestampEnded = new Date().getTime();
+                                logsDao.insertLog({
+                                    referenceId: logReferenceIds,
+                                    err: true,
+                                    log: "Unable to start instance",
+                                    timestamp: timestampEnded
+                                });
+                                instancesDao.updateActionLog(instanceId, actionLog._id, false, timestampEnded);
+                                instanceLog.endedOn = new Date().getTime();
+                                instanceLog.actionStatus = "failed";
+                                instanceLog.logs = {
+                                    err: true,
+                                    log: "Unable to start instance",
+                                    timestamp: new Date().getTime()
+                                };
+                                instanceLogModel.createOrUpdate(actionLog._id, data[0]._id, instanceLog, function (err, logData) {
+                                    if (err) {
+                                        logger.error("Failed to create or update instanceLog: ", err);
+                                    }
+                                });
+                                fs.unlink('/tmp/' + provider.id + '.json', function (err) {
+                                    if (err) {
+                                        logger.error("Unable to delete json file.");
+                                    }
+                                });
+                                var error = new Error({
+                                    actionLogId: actionLog._id
+                                });
+                                error.status = 500;
+                                callback(error, null);
+                                return;
+                            } else {
+                                instancesDao.updateInstanceIp(instanceId, vmResponse.ip, function (err, updateCount) {
+                                    if (err) {
+                                        logger.error("update instance ip err ==>", err);
+                                        return;
+                                    }
+                                    logger.debug('instance ip upadated');
+                                });
+                                instancesDao.updateInstanceState(instanceId, "running", function (err, updateCount) {
+                                    if (err) {
+                                        logger.error("update instance state err ==>", err);
+                                        return;
+                                    }
+                                    logger.debug('instance state upadated');
+                                });
+                                var timestampEnded = new Date().getTime()
+                                logsDao.insertLog({
+                                    referenceId: logReferenceIds,
+                                    err: false,
+                                    log: "Instance Started",
+                                    timestamp: timestampEnded
+                                });
+                                instancesDao.updateActionLog(instanceId, actionLog._id, true, timestampEnded);
+                                instanceLog.endedOn = new Date().getTime();
+                                instanceLog.status = "running";
+                                instanceLog.actionStatus = "success";
+                                instanceLog.logs = {
+                                    err: false,
+                                    log: "Instance Started",
+                                    timestamp: new Date().getTime()
+                                };
+                                instanceLogModel.createOrUpdate(actionLog._id, data[0]._id, instanceLog, function (err, logData) {
+                                    if (err) {
+                                        logger.error("Failed to create or update instanceLog: ", err);
+                                    }
+                                });
+                                fs.unlink('/tmp/' + provider.id + '.json', function (err) {
+                                    if (err) {
+                                        logger.error("Unable to delete json file.");
+                                    }
+                                    callback(null, {
+                                        instanceCurrentState: "running",
+                                        actionLogId: actionLog._id
+                                    });
+                                    return;
+                                });
+                            }
+                        });
+                    });
+                } else {
+                    AWSProvider.getAWSProviderById(data[0].providerId, function (err, aProvider) {
+                        if (err) {
+                            logger.error(err);
+                            var error = new Error("Unable to find Provider.");
+                            error.status = 500;
+                            callback(error, null);
+                            return;
+                        }
+                        function getRegion(callback) {
+                            if (data[0].providerData && data[0].providerData.region) {
+                                process.nextTick(function () {
+                                    callback(null, data[0].providerData.region);
+                                });
+                            } else {
+                                AWSKeyPair.getAWSKeyPairByProviderId(aProvider._id, function (err, keyPair) {
+                                    if (err) {
+                                        callback(err);
+                                        return;
+                                    }
+                                    callback(null, keyPair[0].region);
+                                });
+                            }
+                        }
+
+                        getRegion(function (err, region) {
+                            if (err) {
+                                var error = new Error("Error while fetching Keypair.");
+                                error.status = 500;
+                                callback(error, null);
+                                return;
+                            }
+                            var timestampStarted = new Date().getTime();
+                            var actionLog = instancesDao.insertStartActionLog(instanceId, catUser, timestampStarted);
+                            var logReferenceIds = [instanceId];
+                            if (actionLog) {
+                                logReferenceIds.push(actionLog._id);
+                            }
+                            logsDao.insertLog({
+                                referenceId: logReferenceIds,
+                                err: false,
+                                log: "Instance Starting",
+                                timestamp: timestampStarted
+                            });
+                            instanceLog.actionId = actionLog._id;
+                            instanceLog.logs = {
+                                err: false,
+                                log: "Instance Starting",
+                                timestamp: new Date().getTime()
+                            };
+                            instanceLogModel.createOrUpdate(actionLog._id, data[0]._id, instanceLog, function (err, logData) {
+                                if (err) {
+                                    logger.error("Failed to create or update instanceLog: ", err);
+                                }
+                            });
+                            var ec2;
+                            if (aProvider.isDefault) {
+                                ec2 = new EC2({
+                                    "isDefault": true,
+                                    "region": region
+                                });
+                            } else {
+                                var cryptoConfig = appConfig.cryptoSettings;
+                                var cryptography = new Cryptography(cryptoConfig.algorithm,
+                                    cryptoConfig.password);
+                                var decryptedAccessKey = cryptography.decryptText(aProvider.accessKey,
+                                    cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                                var decryptedSecretKey = cryptography.decryptText(aProvider.secretKey,
+                                    cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                                ec2 = new EC2({
+                                    "access_key": decryptedAccessKey,
+                                    "secret_key": decryptedSecretKey,
+                                    "region": region
+                                });
+                            }
+                            ec2.startInstance([data[0].platformId], function (err, state) {
+                                if (err) {
+                                    var timestampEnded = new Date().getTime();
+                                    logsDao.insertLog({
+                                        referenceId: logReferenceIds,
+                                        err: true,
+                                        log: "Unable to start instance",
+                                        timestamp: timestampEnded
+                                    });
+                                    instancesDao.updateActionLog(instanceId, actionLog._id, false, timestampEnded);
+                                    instanceLog.endedOn = new Date().getTime();
+                                    instanceLog.actionId = actionLog._id;
+                                    instanceLog.actionStatus = "failed";
+                                    instanceLog.logs = {
+                                        err: true,
+                                        log: "Unable to start instance",
+                                        timestamp: new Date().getTime()
+                                    };
+                                    instanceLogModel.createOrUpdate(actionLog._id, data[0]._id, instanceLog, function (err, logData) {
+                                        if (err) {
+                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        }
+                                    });
+                                    var error = new Error({
+                                        actionLogId: actionLog._id
+                                    });
+                                    error.status = 500;
+                                    callback(error, null);
+                                    return;
+                                }
+                                instancesDao.updateInstanceState(instanceId, state, function (err, updateCount) {
+                                    if (err) {
+                                        logger.error("update instance state err ==>", err);
+                                        return callback(err, null);
+                                    }
+                                    logger.debug('instance state updated');
+                                });
+                                var timestampEnded = new Date().getTime()
+                                logsDao.insertLog({
+                                    referenceId: logReferenceIds,
+                                    err: false,
+                                    log: "Instance Started",
+                                    timestamp: timestampEnded
+                                });
+                                instancesDao.updateActionLog(instanceId, actionLog._id, true, timestampEnded);
+                                instanceLog.endedOn = new Date().getTime();
+                                instanceLog.status = state;
+                                instanceLog.actionStatus = "success";
+                                instanceLog.logs = {
+                                    err: false,
+                                    log: "Instance Started",
+                                    timestamp: new Date().getTime()
+                                };
+                                instanceLogModel.createOrUpdate(actionLog._id, data[0]._id, instanceLog, function (err, logData) {
+                                    if (err) {
+                                        logger.error("Failed to create or update instanceLog: ", err);
+                                    }
+                                });
+                                ec2.describeInstances([data[0].platformId], function (err, instanceData) {
+                                    if (err) {
+                                        logger.error("Hit some error: ", err);
+                                        return callback(err, null);
+                                    }
+                                    if (instanceData.Reservations.length && instanceData.Reservations[0].Instances.length) {
+                                        logger.debug("ip =>", instanceData.Reservations[0].Instances[0].PublicIpAddress);
+                                        instancesDao.updateInstanceIp(instanceId, instanceData.Reservations[0].Instances[0].PublicIpAddress, function (err, updateCount) {
+                                            if (err) {
+                                                logger.error("update instance ip err ==>", err);
+                                                return callback(err, null);
+                                            }
+                                            logger.debug('instance ip updated');
+                                            logger.debug("Exit get() for /instances/%s/startInstance", instanceId);
+                                            callback(null, {
+                                                instanceCurrentState: state,
+                                                actionLogId: actionLog._id
+                                            });
+                                            return;
+                                        });
+                                    }
+                                });
+                            });
+                        });
+                    });
+                }
+            }
+        } else {
+            var error = new Error();
+            error.status = 404;
+            callback(error, null);
+            return;
+        }
+    });
+}
+
+function stopInstance(instanceId, catUser, callback) {
+    instancesDao.getInstanceById(instanceId, function(err, data) {
+        if (err) {
+            logger.error("Error hits getting instance: ", err);
+            var error = new Error("Error hits getting instance");
+            error.status = 500;
+            callback(error, null);
+            return;
+        }
+        if (data.length > 0) {
+            var currentDate = new Date();
+            if (data[0].isScheduled && data[0].isScheduled === true && currentDate >= data[0].schedulerEndOn) {
+                instancesDao.updateInstanceScheduler(data[0]._id,function(err, updatedData) {
+                    if (err) {
+                        logger.error("Failed to update Instance Scheduler: ", err);
+                        callback(err,null);
+                        return;
+                    }
+                    logger.debug("Scheduler is ended on for Instance. "+data[0].platformId);
+                    callback(null,updatedData);
+                    return;
+                });
+            }else {
+                var instanceLog = {
+                    actionId: "",
+                    instanceId: data[0]._id,
+                    orgName: data[0].orgName,
+                    bgName: data[0].bgName,
+                    projectName: data[0].projectName,
+                    envName: data[0].environmentName,
+                    status: data[0].instanceState,
+                    actionStatus: "pending",
+                    platformId: data[0].platformId,
+                    blueprintName: data[0].blueprintData.blueprintName,
+                    data: data[0].runlist,
+                    platform: data[0].hardware.platform,
+                    os: data[0].hardware.os,
+                    size: data[0].instanceType,
+                    user: catUser,
+                    createdOn: new Date().getTime(),
+                    startedOn: new Date().getTime(),
+                    providerType: data[0].providerType,
+                    action: "Stop",
+                    logs: []
+                };
+                var timestampStarted = new Date().getTime();
+                var actionLog = instancesDao.insertStopActionLog(instanceId, catUser, timestampStarted);
+                var logReferenceIds = [instanceId];
+                if (actionLog) {
+                    logReferenceIds.push(actionLog._id);
+                }
+                logsDao.insertLog({
+                    referenceId: logReferenceIds,
+                    err: false,
+                    log: "Instance Stopping",
+                    timestamp: timestampStarted
+                });
+                instanceLog.actionId = actionLog._id;
+                instanceLog.logs = {
+                    err: false,
+                    log: "Instance Stopping",
+                    timestamp: new Date().getTime()
+                };
+                instanceLogModel.createOrUpdate(actionLog._id, instanceId, instanceLog, function (err, logData) {
+                    if (err) {
+                        logger.error("Failed to create or update instanceLog: ", err);
+                    }
+                });
+                if (!data[0].providerId) {
+                    var error = new Error("Insufficient provider details, to complete the operation");
+                    error.status = 500;
+                    callback(error, null);
+                    logsDao.insertLog({
+                        referenceId: logReferenceIds,
+                        err: true,
+                        log: "Insufficient provider details, to complete the operation",
+                        timestamp: new Date().getTime()
+                    });
+                    instanceLog.endedOn = new Date().getTime();
+                    instanceLog.actionStatus = "failed";
+                    instanceLog.logs = {
+                        err: false,
+                        log: "Insufficient provider details, to complete the operation",
+                        timestamp: new Date().getTime()
+                    };
+                    instanceLogModel.createOrUpdate(actionLog._id, instanceId, instanceLog, function (err, logData) {
+                        if (err) {
+                            logger.error("Failed to create or update instanceLog: ", err);
+                        }
+                    });
+                    return;
+                }
+                if (data[0].providerType && data[0].providerType == 'vmware') {
+                    vmwareCloudProvider.getvmwareProviderById(data[0].providerId, function (err, providerdata) {
+                        logger.debug('IN getvmwareProviderById: data: ');
+                        var vmWareConfig = {
+                            host: '',
+                            username: '',
+                            password: '',
+                            dc: '',
+                            serviceHost: ''
+                        };
+                        if (data) {
+                            vmWareConfig.host = providerdata.host;
+                            vmWareConfig.username = providerdata.username;
+                            vmWareConfig.password = providerdata.password;
+                            vmWareConfig.dc = providerdata.dc;
+                            vmWareConfig.serviceHost = appConfig.vmware.serviceHost;
+                        } else {
+                            vmWareConfig = null;
+                        }
+                        if (vmWareConfig) {
+                            var vmWare = new VMware(vmWareConfig);
+                            vmWare.startstopVM(vmWareConfig.serviceHost, data[0].platformId, 'poweroff', function (err, vmdata) {
+                                if (!err) {
+                                    var timestampEnded = new Date().getTime();
+                                    logsDao.insertLog({
+                                        referenceId: logReferenceIds,
+                                        err: false,
+                                        log: "Instance Stopping",
+                                        timestamp: timestampEnded
+                                    });
+                                    instanceLog.endedOn = new Date().getTime();
+                                    instanceLog.status = "stopped";
+                                    instanceLog.actionStatus = "success";
+                                    instanceLog.logs = {
+                                        err: false,
+                                        log: "Instance Stopping",
+                                        timestamp: new Date().getTime()
+                                    };
+                                    instanceLogModel.createOrUpdate(actionLog._id, instanceId, instanceLog, function (err, logData) {
+                                        if (err) {
+                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        }
+                                    });
+                                    instancesDao.updateInstanceState(instanceId, 'stopped', function (err, updateCount) {
+                                        if (err) {
+                                            logger.error("update instance state err ==>", err);
+                                            return callback(err, null);
+                                        }
+                                        logger.debug('instance state upadated');
+                                    });
+                                    var timestampEnded = new Date().getTime();
+                                    logsDao.insertLog({
+                                        referenceId: logReferenceIds,
+                                        err: false,
+                                        log: "Instance Stopped",
+                                        timestamp: timestampEnded
+                                    });
+                                    instancesDao.updateActionLog(instanceId, actionLog._id, true, timestampEnded);
+                                    instanceLog.endedOn = new Date().getTime();
+                                    instanceLog.actionStatus = "success";
+                                    instanceLog.logs = {
+                                        err: false,
+                                        log: "Instance Stopped",
+                                        timestamp: new Date().getTime()
+                                    };
+                                    instanceLogModel.createOrUpdate(actionLog._id, instanceId, instanceLog, function (err, logData) {
+                                        if (err) {
+                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        }
+                                    });
+                                    logger.debug("Exit get() for /instances/%s/stopInstance", instanceId);
+                                    callback(null, {
+                                        instanceCurrentState: 'stopped',
+                                        actionLogId: actionLog._id
+                                    });
+                                    return;
+                                } else {
+                                    logger.debug('Error in action query :', err);
+                                    var timestampEnded = new Date().getTime();
+                                    logsDao.insertLog({
+                                        referenceId: logReferenceIds,
+                                        err: true,
+                                        log: "Unable to stop instance",
+                                        timestamp: timestampEnded
+                                    });
+                                    instanceLog.endedOn = new Date().getTime();
+                                    instanceLog.actionStatus = "failed";
+                                    instanceLog.logs = {
+                                        err: false,
+                                        log: "Unable to stop instance",
+                                        timestamp: new Date().getTime()
+                                    };
+                                    instanceLogModel.createOrUpdate(actionLog._id, instanceId, instanceLog, function (err, logData) {
+                                        if (err) {
+                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        }
+                                    });
+                                    var error = new Error();
+                                    error.status = 500;
+                                    callback(error, null);
+                                    return;
+                                }
+                            });
+                        } else {
+                            logger.debug('No Provider found :');
+                            var error = new Error("No Provider found");
+                            error.status = 404;
+                            callback(error, null);
+                            return;
+                        }
+                    });
+
+                } else if (data[0].providerType && data[0].providerType == 'openstack') {
+                    var timestampEnded = new Date().getTime();
+                    logsDao.insertLog({
+                        referenceId: logReferenceIds,
+                        err: true,
+                        log: "Unable to stop openstack instance",
+                        timestamp: timestampEnded
+                    });
+                    instanceLog.endedOn = new Date().getTime();
+                    instanceLog.actionStatus = "failed";
+                    instanceLog.logs = {
+                        err: true,
+                        log: "Unable to stop openstack instance",
+                        timestamp: new Date().getTime()
+                    };
+                    instanceLogModel.createOrUpdate(actionLog._id, instanceId, instanceLog, function (err, logData) {
+                        if (err) {
+                            logger.error("Failed to create or update instanceLog: ", err);
+                        }
+                    });
+                    var error = new Error({
+                        message: "Unable to stop openstack instance "
+                    });
+                    error.status = 500;
+                    callback(error, null);
+
+                } else if (data[0].keyPairId && data[0].keyPairId == 'azure') {
+                    logger.debug("Stopping Azure ");
+                    azureProvider.getAzureCloudProviderById(data[0].providerId, function (err, providerdata) {
+                        if (err) {
+                            logger.error('getAzureCloudProviderById ', err);
+                            return callback(err, null);
+                        }
+                        providerdata = JSON.parse(providerdata);
+                        var settings = appConfig;
+                        var pemFile = settings.instancePemFilesDir + providerdata._id + providerdata.pemFileName;
+                        var keyFile = settings.instancePemFilesDir + providerdata._id + providerdata.keyFileName;
+                        var cryptoConfig = appConfig.cryptoSettings;
+                        var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+                        var uniqueVal = uuid.v4().split('-')[0];
+                        var decryptedPemFile = pemFile + '_' + uniqueVal + '_decypted';
+                        var decryptedKeyFile = keyFile + '_' + uniqueVal + '_decypted';
+                        cryptography.decryptFile(pemFile, cryptoConfig.decryptionEncoding, decryptedPemFile, cryptoConfig.encryptionEncoding, function (err) {
+                            if (err) {
+                                logger.error('Pem file decryption failed>> ', err);
+                                return callback(err, null);
+                            }
+                            cryptography.decryptFile(keyFile, cryptoConfig.decryptionEncoding, decryptedKeyFile, cryptoConfig.encryptionEncoding, function (err) {
+                                if (err) {
+                                    logger.error('key file decryption failed>> ', err);
+                                    return callback(err, null);
+                                }
+                                var options = {
+                                    subscriptionId: providerdata.subscriptionId,
+                                    certLocation: decryptedPemFile,
+                                    keyLocation: decryptedKeyFile
+                                };
+                                var azureCloud = new AzureCloud(options);
+                                azureCloud.shutDownVM(data[0].chefNodeName, function (err, currentState) {
+                                    if (err) {
+                                        var timestampEnded = new Date().getTime();
+                                        logsDao.insertLog({
+                                            referenceId: logReferenceIds,
+                                            err: true,
+                                            log: "Unable to stop instance",
+                                            timestamp: timestampEnded
+                                        });
+                                        instancesDao.updateActionLog(instanceId, actionLog._id, false, timestampEnded);
+                                        instanceLog.endedOn = new Date().getTime();
+                                        instanceLog.actionStatus = "failed";
+                                        instanceLog.logs = {
+                                            err: true,
+                                            log: "Unable to stop instance",
+                                            timestamp: new Date().getTime()
+                                        };
+                                        instanceLogModel.createOrUpdate(actionLog._id, instanceId, instanceLog, function (err, logData) {
+                                            if (err) {
+                                                logger.error("Failed to create or update instanceLog: ", err);
+                                            }
+                                        });
+                                        var error = new Error({
+                                            actionLogId: actionLog._id
+                                        });
+                                        error.status = 500;
+                                        callback(error, null);
+                                        return;
+                                    }
+                                    instancesDao.updateInstanceState(instanceId, 'stopped', function (err, updateCount) {
+                                        if (err) {
+                                            logger.error("update instance state err ==>", err);
+                                            return callback(err, null);
+                                        }
+                                        logger.debug('instance state upadated');
+                                    });
+
+                                    var timestampEnded = new Date().getTime();
+                                    logsDao.insertLog({
+                                        referenceId: logReferenceIds,
+                                        err: false,
+                                        log: "Instance Stopped",
+                                        timestamp: timestampEnded
+                                    });
+                                    instancesDao.updateActionLog(instanceId, actionLog._id, true, timestampEnded);
+                                    instanceLog.endedOn = new Date().getTime();
+                                    instanceLog.status = "stopped";
+                                    instanceLog.actionStatus = "success";
+                                    instanceLog.logs = {
+                                        err: false,
+                                        log: "Instance Stopped",
+                                        timestamp: new Date().getTime()
+                                    };
+                                    instanceLogModel.createOrUpdate(actionLog._id, instanceId, instanceLog, function (err, logData) {
+                                        if (err) {
+                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        }
+                                    });
+                                    logger.debug("Exit get() for /instances/%s/stopInstance", instanceId);
+                                    callback(null, {
+                                        instanceCurrentState: currentState,
+                                        actionLogId: actionLog._id
+                                    });
+                                    fs.unlink(decryptedPemFile, function (err) {
+                                        logger.debug("Deleting decryptedPemFile..");
+                                        if (err) {
+                                            logger.error("Error in deleting decryptedPemFile..");
+                                        }
+                                        fs.unlink(decryptedKeyFile, function (err) {
+                                            logger.debug("Deleting decryptedKeyFile ..");
+                                            if (err) {
+                                                logger.error("Error in deleting decryptedKeyFile..");
+                                            }
+                                        });
+                                    });
+                                });
+
+                            });
+                        });
+                    });
+
+                } else if (data[0].providerType && data[0].providerType == 'gcp') {
+                    providerService.getProvider(data[0].providerId, function (err, provider) {
+                        if (err) {
+                            var error = new Error("Error while fetching Provider.");
+                            error.status = 500;
+                            callback(error, null);
+                            return;
+                        }
+                        var gcpProvider = new gcpProviderModel(provider);
+                        // Get file from provider decode it and save, after use delete file
+                        // Decode file content with base64 and save.
+                        var base64Decoded = new Buffer(gcpProvider.providerDetails.keyFile, 'base64').toString();
+                        fs.writeFile('/tmp/' + provider.id + '.json', base64Decoded);
+                        var params = {
+                            "projectId": gcpProvider.providerDetails.projectId,
+                            "keyFilename": '/tmp/' + provider.id + '.json'
+                        }
+                        var gcp = new GCP(params);
+                        var gcpParam = {
+                            "zone": data[0].zone,
+                            "name": data[0].name
+                        }
+                        gcp.stopVM(gcpParam, function (err, vmResponse) {
+                            if (err) {
+                                var timestampEnded = new Date().getTime();
+                                logsDao.insertLog({
+                                    referenceId: logReferenceIds,
+                                    err: true,
+                                    log: "Unable to stop instance",
+                                    timestamp: timestampEnded
+                                });
+                                instancesDao.updateActionLog(instanceId, actionLog._id, false, timestampEnded);
+                                instanceLog.endedOn = new Date().getTime();
+                                instanceLog.actionStatus = "failed";
+                                instanceLog.logs = {
+                                    err: true,
+                                    log: "Unable to stop instance",
+                                    timestamp: new Date().getTime()
+                                };
+                                instanceLogModel.createOrUpdate(actionLog._id, instanceId, instanceLog, function (err, logData) {
+                                    if (err) {
+                                        logger.error("Failed to create or update instanceLog: ", err);
+                                    }
+                                });
+                                fs.unlink('/tmp/' + provider.id + '.json', function (err) {
+                                    if (err) {
+                                        logger.error("Unable to delete json file.");
+                                    }
+                                });
+                                var error = new Error({
+                                    actionLogId: actionLog._id
+                                });
+                                error.status = 500;
+                                callback(error, null);
+                                return;
+
+                            } else {
+                                instancesDao.updateInstanceIp(instanceId, vmResponse.ip, function (err, updateCount) {
+                                    if (err) {
+                                        logger.error("update instance ip err ==>", err);
+                                        return callback(err, null);
+                                    }
+                                    logger.debug('instance ip upadated');
+                                });
+                                instancesDao.updateInstanceState(instanceId, "stopped", function (err, updateCount) {
+                                    if (err) {
+                                        logger.error("update instance state err ==>", err);
+                                        return callback(err, null);
+                                    }
+                                    logger.debug('instance state upadated');
+                                });
+                                var timestampEnded = new Date().getTime();
+                                logsDao.insertLog({
+                                    referenceId: logReferenceIds,
+                                    err: false,
+                                    log: "Instance Stopped",
+                                    timestamp: timestampEnded
+                                });
+                                instancesDao.updateActionLog(instanceId, actionLog._id, true, timestampEnded);
+                                instanceLog.endedOn = new Date().getTime();
+                                instanceLog.status = "stopped";
+                                instanceLog.actionStatus = "success";
+                                instanceLog.logs = {
+                                    err: false,
+                                    log: "Instance Stopped",
+                                    timestamp: new Date().getTime()
+                                };
+                                instanceLogModel.createOrUpdate(actionLog._id, instanceId, instanceLog, function (err, logData) {
+                                    if (err) {
+                                        logger.error("Failed to create or update instanceLog: ", err);
+                                    }
+                                });
+                                callback(null, {
+                                    instanceCurrentState: "stopped",
+                                    actionLogId: actionLog._id
+                                });
+                                fs.unlink('/tmp/' + provider.id + '.json', function (err) {
+                                    if (err) {
+                                        logger.error("Unable to delete json file.");
+                                    }
+                                });
+                            }
+                        });
+                    });
+                } else {
+                    AWSProvider.getAWSProviderById(data[0].providerId, function (err, aProvider) {
+                        if (err) {
+                            logger.error(err);
+                            var error = new Error("Unable to get Provider.");
+                            error.status = 500;
+                            callback(error, null);
+                            return;
+                        }
+                        function getRegion(callback) {
+                            if (data[0].providerData && data[0].providerData.region) {
+                                process.nextTick(function () {
+                                    callback(null, data[0].providerData.region);
+                                });
+                            } else {
+                                AWSKeyPair.getAWSKeyPairByProviderId(aProvider._id, function (err, keyPair) {
+                                    if (err) {
+                                        callback(err, null);
+                                        return;
+                                    }
+                                    callback(null, keyPair[0].region);
+                                });
+                            }
+                        }
+                        getRegion(function (err, region) {
+                            if (err) {
+                                var error = new Error("Error getting to fetch Keypair.");
+                                error.status = 500;
+                                callback(error, null);
+                            }
+                            var ec2;
+                            if (aProvider.isDefault) {
+                                ec2 = new EC2({
+                                    "isDefault": true,
+                                    "region": region
+                                });
+                            } else {
+                                var cryptoConfig = appConfig.cryptoSettings;
+                                var cryptography = new Cryptography(cryptoConfig.algorithm,
+                                    cryptoConfig.password);
+
+                                var decryptedAccessKey = cryptography.decryptText(aProvider.accessKey,
+                                    cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                                var decryptedSecretKey = cryptography.decryptText(aProvider.secretKey,
+                                    cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                                ec2 = new EC2({
+                                    "access_key": decryptedAccessKey,
+                                    "secret_key": decryptedSecretKey,
+                                    "region": region
+                                });
+                            }
+                            ec2.stopInstance([data[0].platformId], function (err, state) {
+                                if (err) {
+                                    var timestampEnded = new Date().getTime();
+                                    logsDao.insertLog({
+                                        referenceId: logReferenceIds,
+                                        err: true,
+                                        log: "Unable to stop instance",
+                                        timestamp: timestampEnded
+                                    });
+                                    instancesDao.updateActionLog(instanceId, actionLog._id, false, timestampEnded);
+                                    instanceLog.endedOn = new Date().getTime();
+                                    instanceLog.actionStatus = "failed";
+                                    instanceLog.logs = {
+                                        err: false,
+                                        log: "Unable to stop instance",
+                                        timestamp: new Date().getTime()
+                                    };
+                                    instanceLogModel.createOrUpdate(actionLog._id, instanceId, instanceLog, function (err, logData) {
+                                        if (err) {
+                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        }
+                                    });
+                                    var error = new Error({
+                                        actionLogId: actionLog._id
+                                    });
+                                    error.status = 500;
+                                    callback(error, null);
+                                    return;
+                                }
+                                instancesDao.updateInstanceState(instanceId, state, function (err, updateCount) {
+                                    if (err) {
+                                        logger.error("update instance state err ==>", err);
+                                        //return callback(err, null);
+                                    }
+                                    logger.debug('instance state updated');
+                                });
+                                var timestampEnded = new Date().getTime();
+                                logsDao.insertLog({
+                                    referenceId: logReferenceIds,
+                                    err: false,
+                                    log: "Instance Stopped",
+                                    timestamp: timestampEnded
+                                });
+                                instancesDao.updateActionLog(instanceId, actionLog._id, true, timestampEnded);
+                                instanceLog.endedOn = new Date().getTime();
+                                instanceLog.status = "stopped";
+                                instanceLog.actionStatus = "success";
+                                instanceLog.logs = {
+                                    err: false,
+                                    log: "Instance Stopped",
+                                    timestamp: new Date().getTime()
+                                };
+                                instanceLogModel.createOrUpdate(actionLog._id, instanceId, instanceLog, function (err, logData) {
+                                    if (err) {
+                                        logger.error("Failed to create or update instanceLog: ", err);
+                                        return callback(err, null);
+                                    }
+                                    logger.debug("Exit get() for /instances/%s/stopInstance", instanceId);
+                                    callback(null, {
+                                        instanceCurrentState: state,
+                                        actionLogId: actionLog._id
+                                    });
+                                    return;
+                                });
+                            });
+                        });
+                    });
+                }
+            }
+        } else {
+            var error = new Error();
+            error.status = 404;
+            callback(error, null);
+            return;
+        }
+    });
+}
+
+function updateScheduler(instanceScheduler, callback) {
+    async.waterfall([
+        function(next){
+            var scheduler= {
+                instanceStartScheduler:createCronJobPattern(instanceScheduler.instanceStartScheduler,instanceScheduler.schedulerStartOn),
+                instanceStopScheduler:createCronJobPattern(instanceScheduler.instanceStopScheduler,instanceScheduler.schedulerStartOn),
+                schedulerStartOn: Date.parse(instanceScheduler.schedulerStartOn),
+                schedulerEndOn: Date.parse(instanceScheduler.schedulerEndOn),
+                isScheduled:true
+            };
+            next(null,scheduler);
+        },
+        function(schedulerDetails,next){
+            instancesDao.updateScheduler(instanceScheduler.instanceIds, schedulerDetails,next);
+        }
+    ],function(err,results){
+        if(err){
+            return callback(err, null);
+        }else{
+            callback(null, {"message": "Scheduler Updated."});
+            logger.debug("Durgesh");
+            instanceSync = require('_pr/cronjobs/instance-sync/instanceSync.js');
+            instanceSync.executeScheduledInstances();
+            return;
+        }
+    });
+}
+
+function createCronJobPattern(instanceScheduler,startOn){
+    instanceScheduler.repeatEvery = parseInt(instanceScheduler.repeatEvery);
+    if(instanceScheduler.repeats ==='Minutes'){
+        instanceScheduler.pattern = '*/'+instanceScheduler.repeatEvery+' * * * *';
+    }else if(instanceScheduler.repeats ==='Hourly'){
+        instanceScheduler.pattern = '0 */'+instanceScheduler.repeatEvery+' * * *';
+    }else if(instanceScheduler.repeats ==='Daily'){
+        var startOn = Date.parse(startOn);
+        var startHours= startOn.getHours();
+        var startMinutes= startOn.getMinutes();
+        instanceScheduler.pattern = startMinutes+' '+startHours+' */'+instanceScheduler.repeatEvery+' * *';
+    }else if(instanceScheduler.repeats ==='Weekly') {
+        var startOn = Date.parse(startOn);
+        var startDay= startOn.getDay();
+        var startHours= startOn.getHours();
+        var startMinutes= startOn.getMinutes();
+        if(instanceScheduler.repeatEvery === 2) {
+            instanceScheduler.pattern = startMinutes+' '+startHours+' 8-14 * ' + startDay;
+        }else if(instanceScheduler.repeatEvery === 3) {
+            instanceScheduler.pattern = startMinutes+' '+startHours+' 15-21 * ' + startDay;
+        }else if(instanceScheduler.repeatEvery === 4) {
+            instanceScheduler.pattern = startMinutes+' '+startHours+' 22-28 * ' + startDay;
+        }else{
+            instanceScheduler.pattern = startMinutes+' '+startHours+' * * ' + startDay;
+        }
+    }
+    if(instanceScheduler.repeats ==='Monthly') {
+        var startOn = Date.parse(startOn);
+        var startDate= startOn.getDate();
+        var startMonth= startOn.getMonth();
+        var startDay= startOn.getDay();
+        var startHours= startOn.getHours();
+        var startMinutes= startOn.getMinutes();
+        if(instanceScheduler.repeatEvery === 1) {
+            instanceScheduler.pattern = startMinutes+' '+startHours+' '+startDate+' * *';
+        }else{
+            instanceScheduler.pattern = startMinutes+' '+startHours+' '+startDate+' */'+instanceScheduler.repeatEvery+' *';
+        }
+    }
+    if(instanceScheduler.repeats ==='Yearly') {
+        var startOn = Date.parse(startOn);
+        var startDate= startOn.getDate();
+        var startYear= startOn.getFullYear();
+        var startMonth= startOn.getMonth();
+        var startHours= startOn.getHours();
+        var startMinutes= startOn.getMinutes();
+        instanceScheduler.pattern ='0 '+startMinutes+' '+startHours+' '+startDate+' '+startMonth+' ? '+startYear/instanceScheduler.repeatEvery;
+    }
+    var scheduler = {
+        "repeats": instanceScheduler.repeats,
+        "repeatEvery": instanceScheduler.repeatEvery,
+        "cronPattern":instanceScheduler.pattern
+    }
+    return scheduler;
+}
+
+

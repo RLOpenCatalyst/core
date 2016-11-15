@@ -73,6 +73,17 @@ function getStartOfADayInUTC(date) {
 	}
 }
 
+function getStartOfAHourInUTC(date, callback) {
+	if (typeof date === 'undefined' || date === null) {
+		var err = new Error("Invalid date");
+		callback(err, null);
+	} else {
+		var dateStartOfHour = moment.utc(date).second(0);
+		dateStartOfHour = moment.utc(dateStartOfHour).minute(0);
+		return dateStartOfHour.format();
+	}
+}
+
 function getStartOfPeriod(period, date) {
 	var startTime = null
 	switch(period) {
@@ -215,5 +226,6 @@ momentDateUtil.getStartOfAYearInUTCAsync = getStartOfAYearInUTCAsync;
 momentDateUtil.getStartOfAMonthInUTC = getStartOfAMonthInUTC;
 momentDateUtil.getDateDifferenceInDays = getDateDifferenceInDays;
 momentDateUtil.getStartOfADayInUTC = getStartOfADayInUTC;
+momentDateUtil.getStartOfAHourInUTC = getStartOfAHourInUTC;
 momentDateUtil.getStartOfAWeekInUTC = getStartOfAWeekInUTC;
 momentDateUtil.getStartOfPeriod = getStartOfPeriod;

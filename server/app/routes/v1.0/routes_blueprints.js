@@ -75,7 +75,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	});
 
 	app.delete('/blueprints/serviceDelivery/:blueprintId', function(req, res) {
-		Blueprints.removeServiceDeliveryBlueprints(req.params.taskId, function(err, data) {
+		Blueprints.removeServiceDeliveryBlueprints(req.params.blueprintId, function(err, data) {
 			if (err) {
 				logger.error("Failed to delete ", err);
 				res.send(500, errorResponses.db.error);

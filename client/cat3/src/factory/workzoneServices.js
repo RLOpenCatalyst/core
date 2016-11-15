@@ -344,9 +344,12 @@
 					var url = "/instances/" + inst._id;
 					return $http.get(fullUrl(url), Auth.getHeaderObject());
 				},
-				getCookBookListForOrg: function () {
-					var p = workzoneEnvironment.getEnvParams();
-					var url='/organizations/'+p.org+'/chefRunlist';
+				getCookBookListForOrg: function (orgId) {
+					if(!orgId){
+						var p = workzoneEnvironment.getEnvParams();
+						orgId = p.org;
+					}
+					var url='/organizations/'+orgId+'/chefRunlist';
 					return $http.get(url,Auth.getHeaderObject());
 				},
 				getSoftwareTemplatesForOrg: function () {
@@ -535,6 +538,24 @@
 				getTaggingServer:function () {
 					var url ='/config-data/tagging-server';
 					return $http.get(fullUrl(url),Auth.getHeaderObject());
+				},
+				getBotCategoryList:function () {
+					var url ='/config-data/category-type';
+					return $http.get(fullUrl(url),Auth.getHeaderObject());
+				},
+				deleteBotTask: function (taskId) {
+					return $http({
+						method: "delete",
+						url: fullUrl('/tasks/serviceDelivery/' + taskId),
+						async: false
+					});
+				},
+				deleteBotBP: function (blueprintId) {
+					return $http({
+						method: "delete",
+						url: fullUrl('/blueprints/serviceDelivery/' + blueprintId),
+						async: false
+					});
 				}
 			};
 			return serviceInterface;

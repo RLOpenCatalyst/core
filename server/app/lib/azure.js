@@ -391,8 +391,7 @@ var AzureCloud = function(options) {
         });
     }
 
-    this.shutDownVM = function(vmName, callback, onCompleteCallback) {
-
+    this.shutDownVM = function(vmName, callback) {
         logger.debug("START:: shutDownVM");
         fs.readFile(certFile, function(err, certData) {
             if (err) {
@@ -443,7 +442,12 @@ var AzureCloud = function(options) {
                 });
 
                 pollInstanceState(vmName, instanceStateList.STOPPED, function(err, state) {
-                    onCompleteCallback(err, state);
+                    if(err){
+                        callback(err,null);
+                        return;
+                    }
+                    callback(null, state);
+                    return;
                 });
 
             });
@@ -451,7 +455,7 @@ var AzureCloud = function(options) {
 
     }
 
-    this.startVM = function(vmName, callback, onCompleteCallback) {
+    this.startVM = function(vmName, callback) {
 
         logger.debug("START:: startVM");
         fs.readFile(certFile, function(err, certData) {
@@ -503,7 +507,12 @@ var AzureCloud = function(options) {
                 });
 
                 pollInstanceState(vmName, instanceStateList.RUNNING, function(err, state) {
-                    onCompleteCallback(err, state);
+                    if(err){
+                        callback(err, null);
+                        return;
+                    }
+                    callback(null, state);
+                    return;
                 });
 
             });

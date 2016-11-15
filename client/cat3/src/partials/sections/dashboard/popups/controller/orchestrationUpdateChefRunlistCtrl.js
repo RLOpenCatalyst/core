@@ -159,12 +159,15 @@
 										//checking condition if the attribute length is > 0 and has been edited.
 										if ($scope.allCBAttributes.length > 0) {
 											$scope.allCBAttributes = angular.copy($scope.allCBAttributes, data);
+											console.log($scope.allCBAttributes);
 										} else {
 											$scope.allCBAttributes = data;
+											console.log($scope.allCBAttributes);
 										}
 										$scope.editRunListAttributes = false;
 									} else {
 										$scope.allCBAttributes = $scope.allCBAttributes.concat(data);
+										console.log($scope.allCBAttributes);
 									}
 									if (updatedList.length > 1) {
 										var tmp = [];
@@ -177,6 +180,7 @@
 											}
 										}
 										$scope.allCBAttributes = tmp;
+										console.log($scope.allCBAttributes);
 									}
 								});
 							});
