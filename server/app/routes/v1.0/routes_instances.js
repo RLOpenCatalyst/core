@@ -58,6 +58,7 @@ var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var containerLogModel = require('_pr/model/log-trail/containerLog.js');
 var instanceService = require('_pr/services/instanceService');
+var schedulerService = require('_pr/services/schedulerService');
 var chefDao = require('_pr/model/dao/chefDao.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
@@ -2134,7 +2135,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     res.send(error);
                     return;
                 } else {
-                    instanceService.stopInstance(req.params.instanceId,user.cn,function (err, data) {
+                    schedulerService.startStopInstance(req.params.instanceId,user.cn,'Stop',function (err, data) {
                         if (err) {
                             return res.send(err);
                         }
@@ -2161,7 +2162,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     res.send(error);
                     return;
                 } else {
-                    instanceService.startInstance(req.params.instanceId,user.cn,function (err, data) {
+                    schedulerService.startStopInstance(req.params.instanceId,user.cn,'Start',function (err, data) {
                         if (err) {
                             return res.send(err);
                         }
