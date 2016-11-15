@@ -196,7 +196,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 logger.debug('dockerurl:' + dockerUrl);
                 client.registerMethod("jsonMethod", dockerUrl, "GET");
                 var reqSubmit = client.methods.jsonMethod(function(data, response) {
-                    console.log("response: ", data);
                     res.send(JSON.stringify(data));
                     return;
                 });

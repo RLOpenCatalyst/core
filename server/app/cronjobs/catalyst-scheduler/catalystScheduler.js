@@ -1,11 +1,11 @@
 var logger = require('_pr/logger')(module);
 var instancesDao = require('_pr/model/classes/instance/instance');
-var instanceService = require('_pr/services/instanceService');
+var schedulerService = require('_pr/services/schedulerService');
 var async = require('async');
 
-var instanceSync = module.exports = {};
+var catalystSync = module.exports = {};
 
-instanceSync.executeScheduledInstances = function executeScheduledInstances() {
+catalystSync.executeScheduledInstances = function executeScheduledInstances() {
     instancesDao.getScheduledInstances(function(err, instances) {
         if (err) {
             logger.error("Failed to fetch Instance: ", err);
@@ -15,7 +15,7 @@ instanceSync.executeScheduledInstances = function executeScheduledInstances() {
             var resultList =[];
             for (var i = 0; i < instances.length; i++) {
                 (function(instance) {
-                    resultList.push(function(callback){ instanceService.executeScheduleJob(instance,callback);});
+                    resultList.push(function(callback){schedulerService.executeSchedulerForInstances(instance,callback);});
                     if(resultList.length === instances.length){
                         async.parallel(resultList,function(err,results){
                             if(err){
@@ -30,6 +30,7 @@ instanceSync.executeScheduledInstances = function executeScheduledInstances() {
             }
         }else{
             logger.debug("There is no scheduled Instance right now.");
+            return;
         }
     });
 }
