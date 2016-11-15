@@ -31,7 +31,10 @@
 				templates: {
 					actionhistory: {
 						"url": "src/partials/sections/dashboard/workzone/instance/manage/templates/cpActionHistory.html"
-					}, 
+					},
+					Schedule: {
+						"url": "src/partials/sections/dashboard/workzone/instance/manage/templates/cpSchedule.html"
+					},
 					information: {
 						"url": "src/partials/sections/dashboard/workzone/instance/manage/templates/cpInfo.html"
 					}, 
@@ -55,11 +58,36 @@
 			}
 			//The cpInstance from this scope is used in the controllers of child tabs.
 			$scope.cpInstance = instance;
+			console.log(instance);
 			$scope.instInfo = $scope.cpInstance;
 			//To activate the selected tab
 			$scope.activateTab = function (tabName) {
 				$scope.tab.setTab(tabName);
 			};
 		}
-	]);
+	]).controller('cpScheduleCtrl', ['$scope','genericServices', function ($scope, genericServices) {
+		var cpInstance = $scope.$parent.cpInstance;
+		var params={
+			url:'/instances/'+cpInstance._id
+			//url:'src/partials/sections/dashboard/workzone/data/oneIns.json'
+		}
+		genericServices.promiseGet(params).then(function (result) {
+			$scope.schedule={
+				isScheduled:result.isScheduled,
+				schedulerStartOn:moment(result.schedulerStartOn).format('DD/MM/YYYY HH:mm'),
+				schedulerEndOn:moment(result.schedulerEndOn).format('DD/MM/YYYY HH:mm'),
+				instanceStartScheduler:{
+					repeats:result.instanceStartScheduler.repeats,
+					repeatEvery:result.instanceStartScheduler.repeatEvery.toString()
+				},
+				instanceStopScheduler:{
+					repeats:result.instanceStopScheduler.repeats,
+					repeatEvery:result.instanceStopScheduler.repeatEvery.toString()
+				}
+			};
+		});
+		$scope.saveOk=function () {
+
+		};
+	}]);
 })(angular);
