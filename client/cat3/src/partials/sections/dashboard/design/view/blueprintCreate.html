@@ -223,9 +223,9 @@
                               <label for="orgnameSelect">Select Organization <span class="red">&nbsp;*</span>
                                  <span ng-show="newBlueprintForm.orgnameSelect.$touched && newBlueprintForm.orgnameSelect.$invalid" class="inputValidationMsg">Required</span>
                               </label>
-                              <select ng-model="bpCreate.newEnt.orgList" name="orgnameSelect" class="chooseOrgselect2 width-100 form-control" ng-change="bpCreate.getBG();" required>
+                              <select ng-model="bpCreate.newEnt.orgList" name="orgnameSelect" class="chooseOrgselect2 width-100 form-control" required>
                                  <option value="">Select Organization</option>
-                                 <option ng-repeat="config in bpCreate.orgBUProjListing" value="{{config.orgid}}">{{config.name}}</option>
+                                 <option ng-repeat="org in organObject"  value="{{organObject.indexOf(org)}}" >{{org.name}}</option>
                               </select>
                            </div>
 
@@ -233,9 +233,9 @@
                               <label for="bgListInput">Select Business Group <span class="red">&nbsp;*</span>
                                  <span ng-show="newBlueprintForm.bgListInput.$touched && newBlueprintForm.bgListInput.$invalid" class="inputValidationMsg">Required</span>
                               </label>
-                              <select ng-model="bpCreate.newEnt.bgList" name="bgListInput" class="chooseBG width-100 form-control" ng-change="bpCreate.getProject();" required>
+                              <select ng-model="bpCreate.newEnt.bgList" name="bgListInput" class="chooseBG width-100 form-control" required>
                                  <option value="">Select Business Group</option>
-                                 <option ng-repeat="config in bpCreate.bgListing" value="{{config.businessGroups[0].rowid}}">{{config.businessGroups[0].name}}</option>
+                                 <option ng-repeat="buss in organObject[bpCreate.newEnt.orgList].businessGroups" value="{{organObject[bpCreate.newEnt.orgList].businessGroups.indexOf(buss)}}" >{{buss.name}}</option>
                               </select>
                            </div>
                            <div class="col-lg-4 col-md-4 margintop15">
@@ -244,7 +244,7 @@
                               </label>
                               <select ng-model="bpCreate.newEnt.projectList" name="projectListInput" class="chooseProject width-100 form-control" ng-change="bpCreate.enableAppDeploy();" required>
                                  <option value="">Select Project</option>
-                                 <option ng-repeat="config in bpCreate.projListing" value="{{config.businessGroups[0].projects[0].rowId}}">{{config.businessGroups[0].projects[0].name}}</option>
+                                 <option ng-repeat="proj in organObject[bpCreate.newEnt.orgList].businessGroups[bpCreate.newEnt.bgList].projects"  value="{{organObject[bpCreate.newEnt.orgList].businessGroups[bpCreate.newEnt.bgList].projects.indexOf(proj)}}" >{{proj.name}}</option>
                               </select>
                            </div>
 
@@ -585,7 +585,7 @@
                               </select>
                            </div>
                            <br/>
-                           <button class="btn btn-primary" ng-show="isVMEvalsVisible" ng-click="bpCreate.showVMs();">Configure VMs</button>
+                           <button class="btn btn-primary margintop15" ng-show="isVMEvalsVisible" ng-click="bpCreate.showVMs();">Configure VMs</button>
                            <div class="accordionClear"></div>
                            <br/>
                            <accordion ng-if="isVMVisible" ng-repeat="vmName in bpCreate.getAzureVMDetails">
@@ -627,6 +627,6 @@
    <div class="pager">
       <button class="btn  cat-btn-update" ng-click="previous(stpLen)" ng-disabled="!previousEnabled" ng-show="!isSubmitComposite">Previous</button>
       <button class="btn cat-btn-update" ng-show="isNextVisible" ng-click="next(stpLen)" ng-disabled="!nextEnabled">Next</button>
-      <button class="btn  cat-btn-update" ng-show="isSubmitVisible" ng-disabled="newBlueprintForm.$invalid" ng-click="submit()">Save</button>
+      <button class="btn  cat-btn-update" ng-show="isSubmitVisible" ng-disabled="newBlueprintForm.$invalid || vmEnabled" ng-click="submit()">Save</button>
       <button class="btn  cat-btn-update" ng-show="isSubmitComposite" ng-disabled="compositeBlueprintCreation.$invalid" ng-click="compositeSave()">Save</button>
    </div>
