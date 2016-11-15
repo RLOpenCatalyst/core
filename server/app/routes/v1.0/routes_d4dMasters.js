@@ -196,7 +196,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 logger.debug('dockerurl:' + dockerUrl);
                 client.registerMethod("jsonMethod", dockerUrl, "GET");
                 var reqSubmit = client.methods.jsonMethod(function(data, response) {
-                    console.log("response: ", data);
                     res.send(JSON.stringify(data));
                     return;
                 });
@@ -2374,9 +2373,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
     app.post('/d4dMasters/savemasterjsonrownew/:id/:fileinputs/:orgname', function(req, res) {
         logger.debug("Enter post() for /d4dMasters/savemasterjsonrownew/%s/%s/%s", req.params.id, req.params.fileinputs, req.params.orgname);
-        console.log("***********************");
-        console.log(JSON.stringify(req.body));
-        console.log("***********************");
         var bodyJson = JSON.parse(JSON.stringify(req.body));
         //pushing the rowid field
         var editMode = false; //to identify if in edit mode.
