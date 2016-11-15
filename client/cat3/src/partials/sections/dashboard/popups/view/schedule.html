@@ -10,12 +10,12 @@
         <div class="col-lg-6 col-md-6 margintop15">
             <label>Starts on: <span class="red">*</span>
             </label>
-            <input ng-change="dateChange()" required datetime-picker is-open="openedStart"  ng-click="openCalendarStart()" type="text" ng-model="sch.schedulerStartOn" class="form-control"  >
+            <input id="date-start"  ng-change="dateChange()" required  type="text"  ng-model="sch.schedulerStartOn" class="form-control"  >
         </div>
         <div class="col-lg-6 col-md-6 margintop15">
             <label>Ends on: <span class="red">*</span>
             </label>
-            <input ng-change="dateChange()" type="text" datetime-picker is-open="openedEnd" ng-click="openCalendarEnd()" ng-model="sch.schedulerEndOn" class="form-control" required >
+            <input ng-change="dateChange()" type="text"  id="date-end" ng-model="sch.schedulerEndOn" class="form-control" required >
             <span class="error red" ng-show="validDateRange">Start Date should be less than End date !</span>
         </div>
         <div class="clearfix margintop15"></div>
@@ -97,3 +97,25 @@
     </div>
     </form>
 </div>
+<script>
+    $(document).ready(function()
+    {
+        $('#date-end').bootstrapMaterialDatePicker({
+            format: 'DD/MM/YYYY HH:mm',
+            nowButton : true,
+            switchOnClick : true,
+            currentDate:new Date()
+        });
+        $('#date-start').bootstrapMaterialDatePicker({
+            format: 'DD/MM/YYYY HH:mm',
+            nowButton : true,
+            switchOnClick : true,
+            currentDate:new Date()
+        }).on('change', function(e, date)
+        {
+            $('#date-end').bootstrapMaterialDatePicker('setMinDate', date);
+        });
+        $.material.init()
+    });
+
+</script>
