@@ -284,6 +284,29 @@
 
             });
         };
+        genericServices.editRunlist = function(chefRunlist, chefAttribute) {
+            $modal.open({
+                templateUrl: 'src/partials/sections/dashboard/popups/view/orchestrationUpdateChefRunlist.html',
+                controller: 'orchestrationUpdateChefRunlistCtrl',
+                backdrop: 'static',
+                keyboard: false,
+                resolve : {
+                    cookbookRunlistAttr: function(){
+                        return {
+                            chefrunlist: chefRunlist,
+                            attributes: chefAttribute                            
+                        };
+                    }
+                }
+            }).result.then(function (selectedCookBooks) {
+                $rootScope.editRunListAttributes = false;
+                $rootScope.chefrunlist = selectedCookBooks.list;
+                $rootScope.cookbookAttributes = selectedCookBooks.cbAttributes;
+                $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT',selectedCookBooks);
+            }, function () {
+                console.log('Dismiss time is ' + new Date());
+            });
+        };
         genericServices.scheduleTime=function (ids) {
             $modal.open({
                 animate: true,

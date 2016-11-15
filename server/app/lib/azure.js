@@ -54,7 +54,6 @@ function execute(cmd, isJsonResponse, callback) {
         }
     };
     options.onStdOut = function(data) {
-        logger.debug('Process out :', data.toString());
         output = output + data.toString();
     };
     options.onStdErr = function(data) {
@@ -357,8 +356,6 @@ var AzureCloud = function(options) {
                 callback(err, null);
                 return;
             }
-
-            logger.debug("Set SubscriptionById is success", data);
             callback(null, data);
             return;
         });
@@ -530,13 +527,11 @@ var AzureCloud = function(options) {
                 logger.error("Error reading certFile..", err);
                 return;
             }
-            logger.debug("certFile loaded");
             fs.readFile(keyFile, function(err, keyData) {
                 if (err) {
                     logger.error("Error reading keyFile..", err);
                     return;
                 }
-                logger.debug("keyFile loaded");
                 var opts = {
                     url: "https://management.core.windows.net/" + options.subscriptionId + "/locations",
                     agentOptions: {
@@ -549,9 +544,7 @@ var AzureCloud = function(options) {
                 }
 
                 request.get(opts, function(err, response, body) {
-
                     logger.debug("getLocations response.statusCode: ", response.statusCode);
-
                     if (err) {
                         logger.error("Error...", err);
                         callback(err, null);
@@ -559,7 +552,6 @@ var AzureCloud = function(options) {
                     }
 
                     if (response.statusCode == '200') {
-                        logger.debug("END:: getLocations");
                         callback(null, body);
                         return;
                     } else {
@@ -582,14 +574,11 @@ var AzureCloud = function(options) {
                 logger.error("Error reading certFile..", err);
                 return;
             }
-            logger.debug("certFile loaded");
             fs.readFile(keyFile, function(err, keyData) {
                 if (err) {
                     logger.error("Error reading keyFile..", err);
                     return;
                 }
-                logger.debug("keyFile loaded");
-
                 var opts = {
                     url: "https://management.core.windows.net/" + options.subscriptionId + "/services/networking/virtualnetwork",
                     agentOptions: {
@@ -600,33 +589,23 @@ var AzureCloud = function(options) {
                         "x-ms-version": "2015-04-01"
                     }
                 }
-
                 request.get(opts, function(err, response, body) {
-
-                    logger.debug("getNetworks response.statusCode: ", response.statusCode);
-
                     if (err) {
                         logger.error("Error...", err);
                         callback(err, null);
                         return;
                     }
-
                     if (response.statusCode == '200') {
-                        logger.debug("END:: getNetworks");
                         callback(null, body);
                         return;
                     } else {
                         callback(body, null);
                         return;
                     }
-
                 });
-
             });
         });
-
     }
-
     this.createVirtualMachine = function(cloudService, reqBody, callback) {
         logger.debug("START:: createVirtualMachine");
         fs.readFile(certFile, function(err, certData) {
