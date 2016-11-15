@@ -321,10 +321,11 @@
                 /*bpCreateSer.getOrgBuProj().then(function(data){
                     blueprintCreation.orgBUProjListing = data;
                 });*/
-                console.log($rootScope.organObject);
                 blueprintCreation.newEnt.orgList='0';
                 blueprintCreation.newEnt.bgList='0';
                 blueprintCreation.newEnt.projectList='0';
+                blueprintCreation.getChefServer();
+                blueprintCreation.enableAppDeploy();
             };
 
             /*blueprintCreation.getBG = function() {
@@ -342,7 +343,6 @@
             };*/
 
             blueprintCreation.enableAppDeploy = function() {
-                blueprintCreation.getChefServer();
                 if(blueprintCreation.newEnt.projectList) {
                     $scope.showRepoServerName = true;
                 } else {
