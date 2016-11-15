@@ -68,8 +68,8 @@
 	]).controller('cpScheduleCtrl', ['$scope','genericServices', function ($scope, genericServices) {
 		var cpInstance = $scope.$parent.cpInstance;
 		var params={
-			//url:'/instances/'+cpInstance._id
-			url:'src/partials/sections/dashboard/workzone/data/oneIns.json'
+			url:'/instances/'+cpInstance._id
+			//url:'src/partials/sections/dashboard/workzone/data/oneIns.json'
 		}
 		genericServices.promiseGet(params).then(function (result) {
 			$scope.schedule={
