@@ -7,12 +7,13 @@
 
 (function (angular) {
     "use strict";
-    angular.module('library.bots', ['library.params'])
-    .controller('libraryCtrl',['$scope', '$rootScope', '$state', 'genericServices', 'confirmbox', 'workzoneServices', 'toastr', 'workzoneUIUtils', function ($scope, $rootScope, $state, genSevs, confirmbox, workzoneServices, toastr, workzoneUIUtils) {
-        var treeNames = ['Bots','Library'];
-        $rootScope.$emit('treeNameUpdate', treeNames);
-        var lib=this;
-        lib.gridOptions={
+    angular.module('library.bots')
+    .controller('audittrailCtrl',['$scope', '$rootScope', '$state', 'genericServices', 'confirmbox', 'workzoneServices', 'toastr', 'workzoneUIUtils', '$modal', 
+    function ($scope, $rootScope, $state, genSevs, confirmbox, workzoneServices, toastr, workzoneUIUtils, $modal) {
+        //var treeNames = ['Bots','Library'];
+        //$rootScope.$emit('treeNameUpdate', treeNames);
+        var audit=this;
+        audit.gridOptions={
             gridOption:{
                 paginationPageSizes: [10, 25, 50, 75],
                 paginationPageSize: 10,
@@ -20,13 +21,22 @@
                 multiSelect :false,
             },
             columnDefs: [
-                { name:'Task Type', width:100,field:'taskType' ,cellTemplate:'<img src="images/orchestration/chef.png" ng-show="row.entity.taskType==\'chef\'" alt="row.entity.taskType" title="Chef" class="task-type-img" />'+
+                { name: 'Start Time',field:'startedOn'},
+                { name: 'End Time',field:'endedOn'},
+                { name: 'bot Type',field:'botType'},
+                { name: 'bot Name',field:'name'},
+                { name: 'Status',field:'Status'},
+                { name: 'Org',field:'orgName'},
+                { name: 'BU',field:'bgName'},
+                { name: 'Project',field:'ProjectName'},
+                { name: 'Env',field:'envName'},
+                { name: 'User',field:'user'},
+                { name: 'Logs',cellTemplate: '<span class="btn cat-btn-update control-panel-button" title="Logs" ng-show="row.entity.taskType" ng-click="grid.appScope.botAuditTrailLogs(row.entity);"><i class="fa fa-info white"></i></span>'},
+                /*{ name:'Task Type', width:100,field:'taskType' ,cellTemplate:'<img src="images/orchestration/chef.png" ng-show="row.entity.taskType==\'chef\'" alt="row.entity.taskType" title="Chef" class="task-type-img" />'+
                     '<img src="images/orchestration/jenkins.png" ng-show="row.entity.taskType==\'jenkins\'" alt="row.entity.taskType" title="Jenkins" class="task-type-img" />'+
                     '<img src="images/orchestration/script.jpg" ng-show="row.entity.taskType==\'script\'" alt="row.entity.taskType" title="Script" class="task-type-img" />'+
                     '<img src="images/devops-roles/devopsRole1.png" ng-show="row.entity.blueprintType" alt="row.entity.botType" title="Blueprint" class="task-type-img" />'
                     ,cellTooltip: true},
-                { name: 'bot Type',field:'botType'},
-                { name: 'bot Name',field:'name'},
                 { name: 'Category',field:'botCategory'},
                 { name: 'description',field:'shortDesc'},
                 { name: 'bot History',cellTemplate:'<span ng-show="row.entity.blueprintType">NA</span>'+
@@ -34,65 +44,42 @@
                 { name: 'bot Action',cellTemplate:'<span class="btn cat-btn-update control-panel-button" title="Execute" ng-click="grid.appScope.launchInstance(row.entity);"><i class="fa fa-play white"></i></span>' +
                     '<span class="btn btn-danger control-panel-button" title="Delete Task" ng-show="row.entity.taskType" ng-click="grid.appScope.deleteBotTask(row.entity);"><i class="fa fa-trash-o white"></i></span>' + 
                     '<span class="btn btn-danger control-panel-button" title="Delete Blueprint" ng-show="row.entity.blueprintType" ng-click="grid.appScope.deleteBotBP(row.entity);"><i class="fa fa-trash-o white"></i></span>'
-                }
+                }*/
             ],
             data:[]
         };
-        var gridBottomSpace = 90;
+        var gridBottomSpace = 40;
         $scope.gridHeight = workzoneUIUtils.makeTabScrollable('botLibraryPage') - gridBottomSpace;
-        $scope.launchInstance = function(launch){
-            if(launch.launcType === 'task'){
-                genSevs.executeTask(launch);
-            } else if(launch.launcType === 'bp') {
-                genSevs.lunchBlueprint(launch);
-            }
-        };
-        $scope.botLogs = function(bot){
-            genSevs.botHistory(bot);
-        };
-        $scope.deleteBotTask = function(bot) {
-            var modalOptions = {
-                closeButtonText: 'Cancel',
-                actionButtonText: 'Delete',
-                actionButtonStyle: 'cat-btn-delete',
-                headerText: 'Delete Bot',
-                bodyText: 'Are you sure you want to delete this bot?'
-            };
-            confirmbox.showModal({}, modalOptions).then(function() {
-                workzoneServices.deleteBotTask(bot._id).then(function(response) {
-                    if (response) {
-                        toastr.success('Successfully deleted');
-                        lib.init();
+        
+        $scope.botAuditTrailLogs=function(hist) {
+            var modalInstance = $modal.open({
+                animation: true,
+                templateUrl: 'src/partials/sections/dashboard/bots/view/botLogs.html',
+                controller: 'botLogsCtrl',
+                backdrop : 'static',
+                keyboard: false,
+                resolve: {
+                    items: function() {
+                        return {
+                            taskId : hist.taskId,
+                            historyId : hist._id,
+                            taskType:hist.taskType
+                        };
                     }
-                }, function(data) {
-                    toastr.error('error:: ' + data.toString());
-                });
+                }
+            });
+            modalInstance.result.then(function(selectedItem) {
+                $scope.selected = selectedItem;
+            }, function() {
+                console.log('Modal Dismissed at ' + new Date());
             });
         };
-        $scope.deleteBotBP = function(bot) {
-            var modalOptions = {
-                closeButtonText: 'Cancel',
-                actionButtonText: 'Delete',
-                actionButtonStyle: 'cat-btn-delete',
-                headerText: 'Delete Bot',
-                bodyText: 'Are you sure you want to delete this bot?'
-            };
-            confirmbox.showModal({}, modalOptions).then(function() {
-                workzoneServices.deleteBotBP(bot._id).then(function(response) {
-                    if (response) {
-                        toastr.success('Successfully deleted');
-                        lib.init();
-                    }
-                }, function(data) {
-                    toastr.error('error:: ' + data.toString());
-                });
-            });
-        };
+
         $rootScope.$on('BOTS_LIBRARY_REFRESH', function() {
-            lib.init();
+            audit.init();
         });
-        lib.init =function(){
-            lib.gridOptions.data=[];
+        audit.init =function(){
+            audit.gridOptions.data=[];
             var param={
                 url:'/blueprints/serviceDelivery/?serviceDeliveryCheck=true'
                 //url:'src/partials/sections/dashboard/bots/data/bp.json'
@@ -100,20 +87,21 @@
             genSevs.promiseGet(param).then(function (result) {
                 angular.forEach(result,function (val) {
                     angular.extend(val,{launcType:'bp'});
-                    lib.gridOptions.data.push(val);
+                    audit.gridOptions.data.push(val);
                 });
             });
             var param2={
-               url:'/tasks/serviceDelivery/?serviceDeliveryCheck=true'
-               // url:'src/partials/sections/dashboard/bots/data/t.json'
+                //url:'/tasks/serviceDelivery/?serviceDeliveryCheck=true'
+                url:'src/partials/sections/dashboard/bots/data/bots_audit-trail.json'
             };
             genSevs.promiseGet(param2).then(function (resultTask) {
+                console.log(resultTask);
                 angular.forEach(resultTask,function (val) {
                     angular.extend(val,{launcType:'task'});
-                    lib.gridOptions.data.push(val);
+                    audit.gridOptions.data.push(val);
                 });
             });
         };
-        lib.init();
+        audit.init();
     }]);
 })(angular);

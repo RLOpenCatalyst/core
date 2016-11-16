@@ -1,0 +1,30 @@
+{
+    "actionId": "5829bcd05c9655ae32d6e53d",
+    "auditId": "5829b93ceec496882f8959f0",
+    "auditType": "BOTs",
+    "auditCategory": "Task",
+    "masterDetails": {
+        "orgId" : "46d1da9a-d927-41dc-8e9e-7e926d927537",
+        "orgName": "Phoenix",
+        "bgId" : "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
+        "bgName": "PhoenixBG",
+        "projectId" : "b38ccedc-da2c-4e2c-a278-c66333564719",
+        "projectName": "PhoenixApp",
+        "envId" : "dc13782c-d1ee-4cec-ac8e-83c883e57c3b",
+        "envName": "Demo"
+    },
+    "auditTrailConfig":{
+      "id": "5829b93ceec496882f8959f0",
+      "name":"LDAP - Create User",
+      "type": "Task",
+      "description":"Create new ldap user",
+      "category":"OpenDJ LDAP"
+    }
+    "status": "running",
+    "actionStatus": "success",
+    "user": "superadmin",
+    "startedOn": 1479130320046,
+    "action": "Start",
+    "logs": {},
+    "endedOn": 1479130341855
+}
