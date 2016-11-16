@@ -139,6 +139,14 @@
                                 '<i title="Edit Instance Name" class="pull-right fa fa-pencil edit-instance-name cursor"></i>' +
                                 '</span>',
                             cellTooltip: true
+                        },{
+                            name: 'Id',
+                            field: 'platformId',
+                            cellTemplate: '<span>{{row.entity.platformId}}</span>' +
+                                '<span class="marginleft5" ng-click="grid.appScope.operationSet.editInstanceName(row.entity);">' +
+                                '<i title="Edit Instance Name" class="pull-right fa fa-pencil edit-instance-name cursor"></i>' +
+                                '</span>',
+                            cellTooltip: true
                         }, {
                             name: 'Provider Name',
                             displayName: 'Provider Name',

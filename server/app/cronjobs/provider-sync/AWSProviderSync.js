@@ -330,8 +330,12 @@ function tagMappingForInstances(instances,provider,next){
 
 function createManagedInstance(instance,masterDetails,callback){
     if(instance !== null){
+        var instanceName = instance.platformId;
+        if(instance.tags && instance.tags.Name) {
+            instanceName = instance.tags.Name;
+        }
         var instanceObj = {
-            name: instance.platformId,
+            name: instanceName,
             orgId: instance.orgId,
             orgName: instance.orgName,
             bgId: masterDetails.bgId,
