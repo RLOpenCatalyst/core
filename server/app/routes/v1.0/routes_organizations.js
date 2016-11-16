@@ -183,39 +183,40 @@ module.exports.setRoutes = function(app, sessionVerification) {
             },
             function(orgBgProjectTree,next){
                 if(orgBgProjectTree.length > 0) {
-                    d4dModelNew.d4dModelMastersEnvironments.find({
-                        id: '3',
-                        orgname_rowid: {
-                            $in: orgIds
-                        }
-                    }, function(err, envList) {
-                        if(err){
-                            next(err);
-                        }else if(envList.length > 0){
-                            var orgCount = 0;
-                            var envObjList = [];
-                            for (var i = 0; i < orgBgProjectTree.length; i++) {
-                                (function(orgTree){
-                                    orgCount++;
+                    var orgCount = 0;
+                    var envObjList = [];
+                    for (var i = 0; i < orgBgProjectTree.length; i++) {
+                        (function (orgTree) {
+                            orgCount++;
+                            d4dModelNew.d4dModelMastersEnvironments.find({
+                                id: '3',
+                                orgname_rowid: {
+                                    $in: [orgTree.rowid]
+                                }
+                            }, function (err, envList) {
+                                if (err) {
+                                    next(err);
+                                } else if (envList.length > 0) {
                                     for (var j = 0; j < envList.length; j++) {
-                                        if (orgTree.rowid === envList[j].orgname_rowid[0]) {
-                                            var envObj = {
-                                                name: envList[j].environmentname,
-                                                rowid: envList[j].rowid
-                                            }
-                                            orgTree.environments.push(envObj);
-                                            envObjList.push(envObj);
-                                            if(orgCount === orgBgProjectTree.length && envObjList.length === envList.length){
-                                                next(null,orgBgProjectTree);
-                                            }
+                                        var envObj = {
+                                            name: envList[j].environmentname,
+                                            rowid: envList[j].rowid
+                                        }
+                                        orgTree.environments.push(envObj);
+                                        envObjList.push(envObj);
+                                        if (orgCount === orgBgProjectTree.length && envObjList.length === envList.length) {
+                                            next(null, orgBgProjectTree);
                                         }
                                     }
-                                })(orgBgProjectTree[i]);
-                            }
-                        }else{
-                            next(null,orgBgProjectTree);
-                        }
-                    });
+                                }else{
+                                    orgTree.environments.push('');
+                                    if (orgCount === orgBgProjectTree.length) {
+                                        next(null, orgBgProjectTree);
+                                    }
+                                }
+                            });
+                        })(orgBgProjectTree[i]);
+                    }
                 }else{
                     next(null,orgBgProjectTree);
                 }
@@ -363,39 +364,40 @@ module.exports.setRoutes = function(app, sessionVerification) {
             },
             function(orgBgProjectTree,next){
                 if(orgBgProjectTree.length > 0) {
-                    d4dModelNew.d4dModelMastersEnvironments.find({
-                        id: '3',
-                        orgname_rowid: {
-                            $in: orgIds
-                        }
-                    }, function(err, envList) {
-                        if(err){
-                            next(err);
-                        }else if(envList.length > 0){
-                            var orgCount = 0;
-                            var envObjList = [];
-                            for (var i = 0; i < orgBgProjectTree.length; i++) {
-                                (function(orgTree){
-                                    orgCount++;
+                    var orgCount = 0;
+                    var envObjList = [];
+                    for (var i = 0; i < orgBgProjectTree.length; i++) {
+                        (function (orgTree) {
+                            orgCount++;
+                            d4dModelNew.d4dModelMastersEnvironments.find({
+                                id: '3',
+                                orgname_rowid: {
+                                    $in: [orgTree.rowid]
+                                }
+                            }, function (err, envList) {
+                                if (err) {
+                                    next(err);
+                                } else if (envList.length > 0) {
                                     for (var j = 0; j < envList.length; j++) {
-                                        if (orgTree.rowid === envList[j].orgname_rowid[0]) {
-                                            var envObj = {
-                                                name: envList[j].environmentname,
-                                                rowid: envList[j].rowid
-                                            }
-                                            orgTree.environments.push(envObj);
-                                            envObjList.push(envObj);
-                                            if(orgCount === orgBgProjectTree.length && envObjList.length === envList.length){
-                                                next(null,orgBgProjectTree);
-                                            }
+                                        var envObj = {
+                                            name: envList[j].environmentname,
+                                            rowid: envList[j].rowid
+                                        }
+                                        orgTree.environments.push(envObj);
+                                        envObjList.push(envObj);
+                                        if (orgCount === orgBgProjectTree.length && envObjList.length === envList.length) {
+                                            next(null, orgBgProjectTree);
                                         }
                                     }
-                                })(orgBgProjectTree[i]);
-                            }
-                        }else{
-                            next(null,orgBgProjectTree);
-                        }
-                    });
+                                }else{
+                                    orgTree.environments.push('');
+                                    if (orgCount === orgBgProjectTree.length) {
+                                        next(null, orgBgProjectTree);
+                                    }
+                                }
+                            })
+                        })(orgBgProjectTree[i]);
+                    }
                 }else{
                     next(null,orgBgProjectTree);
                 }
@@ -407,240 +409,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
             res.status(200).send(results);
         })
     });
-    
-    app.get('/organizations/getTree', function(req, res) {
-        logger.debug("Enter get() for /organizations/getTree");
-        d4dModelNew.d4dModelMastersOrg.find({
-            id: 1,
-
-        }, function(err, docorgs) {
-            var orgnames = docorgs.map(function(docorgs1) {
-                return docorgs1.orgname;
-            });
-
-            var orgTree = [];
-            var orgCount = 0;
-            orgnames.forEach(function(k, v) {
-                orgTree.push({
-                    name: k,
-                    businessGroups: [],
-                    environments: []
-                });
-            });
-            orgCount++;
-            d4dModelNew.d4dModelMastersProductGroup.find({
-                id: 2,
-                orgname: {
-                    $in: orgnames
-                }
-            }, function(err, docbgs) {
-                var counter = 0;
-                for (var k = 0; k < docbgs.length; k++) {
-                    for (var i = 0; i < orgTree.length; i++) {
-                        if (orgTree[i]['name'] == docbgs[k]['orgname']) {
-                            orgTree[i]['businessGroups'].push({
-                                name: docbgs[k]['productgroupname'],
-                                projects: []
-                            });
-                            d4dModelNew.d4dModelMastersProjects.find({
-                                id: 4,
-                                orgname: orgTree[i]['name'],
-                                productgroupname: docbgs[k]['productgroupname']
-                            }, function(err, docprojs) {
-                                var prjnames = docprojs.map(function(docprojs1) {
-                                    return docprojs1.projectname;
-                                });
-
-                                for (var _i = 0; _i < orgTree.length; _i++) {
-                                    logger.debug("Orgnames:%s", orgTree[_i]['name']);
-                                    for (var __i = 0; __i < orgTree[_i]['businessGroups'].length; __i++) {
-                                        logger.debug("businessGroups:%s%s and docprojs.length:%s", orgTree[_i]['businessGroups'], [__i]['name'], docprojs.length);
-                                        for (var _bg = 0; _bg < docprojs.length; _bg++) {
-
-                                            if (docprojs[_bg]['orgname'] == orgTree[_i]['name'] && docprojs[_bg]['productgroupname'] == orgTree[_i]['businessGroups'][__i]['name']) {
-                                                if (orgTree[_i]['businessGroups'][__i]['projects'].length <= 0) {
-                                                    for (var prjname in prjnames)
-                                                        orgTree[_i]['businessGroups'][__i]['projects'].push(prjnames[prjname]);
-                                                }
-
-                                                logger.debug("Env:%s", docprojs[_bg]['environmentname']);
-                                            }
-                                        }
-                                    }
-                                }
-                                logger.debug("OrgTree:%s", JSON.stringify(orgTree));
-                                if (counter >= docbgs.length - 1) {
-                                    d4dModelNew.d4dModelMastersEnvironments.find({
-                                        id: 3,
-                                        orgname: {
-                                            $in: orgnames
-                                        }
-                                    }, function(err, docenvs) {
-                                        for (var _i = 0; _i < orgTree.length; _i++) {
-                                            for (var _env = 0; _env < docenvs.length; _env++) {
-                                                if (orgTree[_i]['name'] == docenvs[_env]['orgname']) {
-                                                    orgTree[_i]['environments'].push(docenvs[_env]['environmentname']);
-                                                }
-                                            }
-                                            if (_i >= orgTree.length - 1) {
-                                                res.send(orgTree);
-                                                logger.debug("Exit get() for /organizations/getTree");
-                                                return;
-                                            }
-                                        }
-                                    });
-
-                                }
-                                counter++;
-                            });
-
-                        }
-
-                    }
-
-                }
-            });
-        });
-    });
-
-    app.get('/organizations/getTreeOld', function(req, res) {
-        logger.debug("Enter get() for /organizations/getTreeOld");
-        masterjsonDao.getMasterJson("1", function(err, orgsJson) {
-            if (err) {
-                res.send(500);
-                return;
-            }
-            var orgTree = [];
-
-            if (orgsJson.masterjson && orgsJson.masterjson.rows && orgsJson.masterjson.rows.row) {
-                for (var i = 0; i < orgsJson.masterjson.rows.row.length; i++) {
-                    for (var j = 0; j < orgsJson.masterjson.rows.row[i].field.length; j++) {
-                        if (orgsJson.masterjson.rows.row[i].field[j].name = "orgname") {
-                            orgTree.push({
-                                name: orgsJson.masterjson.rows.row[i].field[j].values.value,
-                                businessGroups: [],
-                                environments: []
-                            });
-                            break;
-                        }
-                    }
-                }
-
-                masterjsonDao.getMasterJson("2", function(err, buJson) {
-                    if (err) {
-                        res.send(500);
-                        return;
-                    }
-                    if (buJson.masterjson && buJson.masterjson.rows && buJson.masterjson.rows.row) {
-                        for (var i = 0; i < orgTree.length; i++) {
-                            for (var j = 0; j < buJson.masterjson.rows.row.length; j++) {
-                                var isFilterdRow = false;
-                                var orgname = '';
-                                for (var k = 0; k < buJson.masterjson.rows.row[j].field.length; k++) {
-                                    if (buJson.masterjson.rows.row[j].field[k].name == "orgname") {
-                                        if (orgTree[i].name == buJson.masterjson.rows.row[j].field[k].values.value) {
-                                            isFilterdRow = true;
-                                            break;
-                                        }
-                                    }
-                                }
-                                if (isFilterdRow) {
-                                    for (var k = 0; k < buJson.masterjson.rows.row[j].field.length; k++) {
-                                        if (buJson.masterjson.rows.row[j].field[k].name == "productgroupname") {
-                                            orgTree[i].businessGroups.push({
-                                                name: buJson.masterjson.rows.row[j].field[k].values.value,
-                                                projects: []
-                                            });
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        //getting projects
-                        masterjsonDao.getMasterJson("4", function(err, buJson) {
-                            if (err) {
-                                res.send(500);
-                                return;
-                            }
-                            if (buJson.masterjson && buJson.masterjson.rows && buJson.masterjson.rows.row) {
-                                for (var i = 0; i < orgTree.length; i++) {
-                                    if (orgTree[i].businessGroups.length) {
-                                        var businessGroups = orgTree[i].businessGroups;
-                                        for (var j = 0; j < businessGroups.length; j++) {
-                                            for (var k = 0; k < buJson.masterjson.rows.row.length; k++) {
-                                                var isFilterdRow = false;
-                                                for (var l = 0; l < buJson.masterjson.rows.row[k].field.length; l++) {
-                                                    if (buJson.masterjson.rows.row[k].field[l].name == "productgroupname") {
-                                                        if (businessGroups[j].name == buJson.masterjson.rows.row[k].field[l].values.value) {
-                                                            isFilterdRow = true;
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-                                                if (isFilterdRow) {
-                                                    for (var l = 0; l < buJson.masterjson.rows.row[k].field.length; l++) {
-                                                        if (buJson.masterjson.rows.row[k].field[l].name == "projectname") {
-                                                            businessGroups[j].projects.push(buJson.masterjson.rows.row[k].field[l].values.value);
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-                                            }
-
-                                        }
-                                    }
-
-                                }
-                                //getting environments
-                                masterjsonDao.getMasterJson("3", function(err, buJson) {
-                                    if (err) {
-                                        res.send(500);
-                                        return;
-                                    }
-                                    if (buJson.masterjson && buJson.masterjson.rows && buJson.masterjson.rows.row) {
-                                        for (var i = 0; i < orgTree.length; i++) {
-                                            for (var j = 0; j < buJson.masterjson.rows.row.length; j++) {
-                                                var isFilterdRow = false;
-                                                var orgname = '';
-                                                for (var k = 0; k < buJson.masterjson.rows.row[j].field.length; k++) {
-                                                    if (buJson.masterjson.rows.row[j].field[k].name == "orgname") {
-                                                        if (orgTree[i].name == buJson.masterjson.rows.row[j].field[k].values.value) {
-                                                            isFilterdRow = true;
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-                                                if (isFilterdRow) {
-                                                    for (var k = 0; k < buJson.masterjson.rows.row[j].field.length; k++) {
-                                                        if (buJson.masterjson.rows.row[j].field[k].name == "environmentname") {
-                                                            orgTree[i].environments.push(buJson.masterjson.rows.row[j].field[k].values.value);
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    res.send(orgTree);
-                                });
-
-                            }
-
-                        });
-                    }
-                });
-
-            } else {
-                res.send(orgTree);
-            }
-            logger.debug("Exit get() for /organizations/getTreeOld");
-        });
-
-    });
-
-
     app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/blueprints', function(req, res) {
         logger.debug("Enter get() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s/blueprints", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
         //getting the list of projects and confirming if user has permission on project
@@ -682,6 +450,8 @@ module.exports.setRoutes = function(app, sessionVerification) {
         var blueprintId = req.body.blueprintData.blueprintId;
         var shortDesc = req.body.blueprintData.shortDesc;
         var botType = req.body.blueprintData.botType;
+        var botCategory = req.body.blueprintData.botCategory;
+        var serviceDeliveryCheck = req.body.blueprintData.serviceDeliveryCheck;
         if(req.body.blueprintData.domainNameCheck === 'true'){
             domainNameCheck = true;
         }
@@ -730,6 +500,8 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 docker: docker,
                 shortDesc:shortDesc,
                 botType:botType,
+                botCategory:botCategory,
+                serviceDeliveryCheck:serviceDeliveryCheck,
                 domainNameCheck:domainNameCheck
             };
             //adding bluerpintID if present (edit mode)
@@ -1740,6 +1512,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     instanceIP: req.body.fqdn,
                                                     instanceState: nodeAlive,
                                                     bootStrapStatus: 'waiting',
+                                                    tagServer: req.params.tagServer,
                                                     runlist: [],
                                                     appUrls: appUrls,
                                                     users: [req.session.user.cn], //need to change this

@@ -26,6 +26,9 @@ $imagePath : "../../../../../../cat3/images";
     color: $selected-color !important;
 }
 /*CSS for defining colors Globally ends*/
+.fa-info-circle {
+    font-size: 20px;
+}
 
 .cursor {
     cursor: pointer;
@@ -41,6 +44,19 @@ $imagePath : "../../../../../../cat3/images";
 
 .errorMsg {
     color: $color-red;
+}
+
+.success, .SUCCESS, .failure, .failed {
+    color: #fff;
+    padding: 8px;
+}
+
+.success, .SUCCESS {
+    background: $color-green;
+}
+
+.failure, .failed {
+    background: $color-red;
 }
 
 .inputValidationMsg {
@@ -110,8 +126,11 @@ $imagePath : "../../../../../../cat3/images";
   position: fixed;
   width: 254px;
   z-index: 10;
+    height: 100% !important;
   transition: all .4s ease 0s;
   left: -254px;
+    font-size: 12px !important;
+    height: 100%;
 
   &.show-left-tree {
       left: 0px;
@@ -121,6 +140,7 @@ $imagePath : "../../../../../../cat3/images";
       background: linear-gradient(to right, #2c3638 99%, #2c3638 100%);
       color: #fff;
       overflow-y: auto;
+      height: 100% !important;
   }
 
   div[data-angular-treeview] {
@@ -226,6 +246,20 @@ $imagePath : "../../../../../../cat3/images";
 }
 
 @media (min-width : 0px) and (max-width: 320px) {
+    #orchestrationUpdateChefRunlistPage {
+        font-size: 12px;
+
+        .searchCookbooksRolesLabel {
+            font-size: 10px;
+        }
+
+        .attribute-table-wrapper {
+            max-width: 226px;
+            overflow-x: auto;
+            width: 222px;
+        }
+    }
+
     .selectCookbooksandRecipesdiv {
         width: 85%;
 
@@ -249,6 +283,24 @@ $imagePath : "../../../../../../cat3/images";
 }
 
 @media (min-width : 321px) and (max-width: 480px) {
+    #orchestrationUpdateChefRunlistPage {
+        font-size: 12px;
+
+        .radio-all {
+            width: 20%;
+            float: left;
+        }
+
+        .radio-deploy, .chef-factory {
+            width: 35%;
+            float: left;
+        }
+
+        .chef-factory {
+            margin: 3px 0 0 5%;
+        }
+    }
+
     .selectCookbooksandRecipesdiv {
         .selectCookbooksandRecipes {
             min-width: 289px;
@@ -263,6 +315,21 @@ $imagePath : "../../../../../../cat3/images";
 
     .logsArea {
         height: 30px;
+    }
+}
+
+@media (min-width : 481px) {
+    #orchestrationUpdateChefRunlistPage {
+        font-size: 12px;
+
+        .radio-all, .radio-deploy, .chef-factory {
+            width: 30%;
+            float: left;
+        }
+
+        .chef-factory {
+            margin: 3px 0 0 10%;
+        }
     }
 }
 
@@ -1102,7 +1169,7 @@ option.script {
     background-color: #E49C25 !important;
 }
 .ui-grid-menu-button{
-    height: 28px !important;
+    height: 36px !important;
     background-color: #5bc0de !important;
     border-color: #46b8da !important;
     display: inline-block;
@@ -1161,4 +1228,25 @@ option.script {
 }
 .loading-body{
     opacity: 0.4;
+}
+#bots .control-panel-button {
+    border-radius: 50%;
+    padding: 2px 8px;
+    margin-right: 5px;
+}
+
+.margin-left6{
+    margin-left: 6px !important;
+}
+// ui grid style
+.ui-grid-header-cell-row{
+    background: #636363 !important;
+    color: #FBFBFB !important;
+}
+.ui-grid-cell-contents.ui-grid-header-cell-primary-focus{
+    min-height: 36px;
+    line-height: 25px;
+}
+.ui-grid-column-menu-button{
+    top:5px !important;
 }

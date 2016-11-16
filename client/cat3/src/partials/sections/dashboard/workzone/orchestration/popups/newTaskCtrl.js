@@ -8,12 +8,12 @@
 (function (angular) {
 	'use strict';
 	angular.module('workzone.orchestration')
-		.controller('newTaskCtrl', ['chefSelectorComponent', '$scope', '$modalInstance', 'items', '$modal', 'arrayUtil', 'workzoneServices', 'responseFormatter', '$rootScope', '$q', function (chefSelectorComponent, $scope, $modalInstance, items, $modal, arrayUtil, workzoneServices, responseFormatter, $rootScope, $q) {
+		.controller('newTaskCtrl', ['chefSelectorComponent', '$scope', '$modalInstance', 'items', '$modal', 'arrayUtil', 'workzoneServices', 'responseFormatter', '$rootScope', '$q', 'genericServices', function (chefSelectorComponent, $scope, $modalInstance, items, $modal, arrayUtil, workzoneServices, responseFormatter, $rootScope, $q, genericServices) {
 
 			$scope.role={
 				name : ''
 			};
-
+			console.log(items);
 			$scope.isNewTaskPageLoading = true;
 			$scope.isScriptInstanceLoading = true;
 			$scope.chefrunlist = [];
@@ -22,6 +22,10 @@
 			$scope.scriptSelectAll = false;
 			$scope.scriptParamsObj = {};
 			$scope.isSudo = false;
+			$scope.botCategoryList = [];
+			workzoneServices.getBotCategoryList().then(function (catList) {
+	            $scope.botCategoryList=catList.data;
+	        });
 			$scope.toggleAll = function() {
 				var toggleStatus = $scope.isAllSelected;
 				angular.forEach($scope.chefInstanceList, function(itm){ itm._isNodeSelected = toggleStatus;});
@@ -32,7 +36,6 @@
 				}else{
 					$scope.checkBotStatus = false;
 				}
-
 			};
 			$scope.optionToggled = function(){
 				$scope.isAllSelected = $scope.chefInstanceList.every(function(itm){ return  itm._isNodeSelected; })
@@ -63,26 +66,7 @@
 				parentItems:items,
 				updateCookbook: function () {
 					if ($scope.chefInstanceList.length || $scope.chefBluePrintList.length) {
-						$modal.open({
-							templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationUpdateChefRunlist.html',
-							controller: 'orchestrationUpdateChefRunlistCtrl',
-							backdrop: 'static',
-							keyboard: false,
-							resolve : {
-								cookbookRunlistAttr: function(){
-									return {
-										chefrunlist:$scope.chefrunlist,
-										attributes:$scope.cookbookAttributes
-									};
-								}
-							}
-						}).result.then(function (selectedCookBooks) {
-							$scope.editRunListAttributes = false;
-							$scope.chefrunlist = selectedCookBooks.list;
-							$scope.cookbookAttributes = selectedCookBooks.cbAttributes;
-						}, function () {
-							console.log('Dismiss time is ' + new Date());
-						});
+						genericServices.editRunlist($scope.chefrunlist,$scope.cookbookAttributes);
 					}
 				},
 				changeJobURL: function () {
@@ -176,6 +160,11 @@
 					var idx = $scope.jenkinsParamsList.indexOf(params);
 					$scope.jenkinsParamsList.splice(idx,1);
 				},
+                botTypeList : function() {
+                    workzoneServices.getBotTypeList().then(function (response) {
+                        $scope.botTypeList = response;
+                    });
+                },
 				removeScriptParams: function (scriptObject,params) {
 					var idx = $scope.scriptParamsObj[scriptObject].indexOf(params);
 					$scope.scriptParamsObj[scriptObject].splice(idx,1);
@@ -253,18 +242,24 @@
 				},
 				ok: function () {
 					//these values are common across all task types
-					var taskJSON = {
-						taskType: $scope.taskType,
-						name: $scope.name,
-						botType: $scope.botType,
-						shortDesc: $scope.shortDesc,
-						description: $scope.description
-					};
+					var taskJSON={}
 					if($scope.checkBotType){
-						taskJSON.botType = $scope.botType;
-						taskJSON.shortDesc= $scope.shortDesc;
+						taskJSON = {
+							taskType: $scope.taskType,
+							name: $scope.name,
+							description: $scope.description,
+							botType:$scope.botType,
+							botCategory: $scope.botCategory,
+						    shortDesc:$scope.shortDesc,
+							serviceDeliveryCheck:$scope.checkBotType
+						};
 						$scope.taskSaving = true;
 					}else{
+						taskJSON = {
+							taskType: $scope.taskType,
+							name: $scope.name,
+							description: $scope.description
+						};
 						$scope.taskSaving = true;
 					}
 					//checking for name of the task
@@ -425,7 +420,8 @@
 			$scope.name = "";
 			$scope.shortDesc = "";
 			$scope.taskType = "chef";//default Task type selection;
-			$scope.botType = "Task";//default Task type selection;
+			$scope.botType = "Task";//default Bot type selection;
+			$scope.botCategory = 'Active Directory';
 			$scope.isEditMode = false;//default edit mode is false;
 			$scope.taskSaving = false;//to disable submit button, dfault false
 			$scope.autoSync = {
@@ -449,6 +445,10 @@
 			$scope.puppetInstanceList = [];
 			$scope.cookbookAttributes = [];
 			$scope.editRunListAttributes = false;
+
+			$rootScope.$on('WZ_ORCHESTRATION_REFRESH_CURRENT', function(event,reqParams) {
+                $scope.chefrunlist = reqParams.list;
+            });
 			var compositeSelector;
 			workzoneServices.getEnvironmentTaskList().then(function (response) {
 				var data, selectorList = [],
@@ -580,12 +580,13 @@
 				$scope.description = items.description;
 				$scope.taskType = items.taskType;
 				$scope.name = items.name;
-				if(items.shortDesc && (items.shortDesc !== '' || items.shortDesc !== null)){
+				if(items.serviceDeliveryCheck &&  items.serviceDeliveryCheck === true){
 					$scope.checkBotStatus = true;
 					$scope.checkBotType = true;
+                    $scope.botType = items.botType;
+                    $scope.botCategory = items.botCategory;
+                    $scope.shortDesc = items.shortDesc;
 				}
-				$scope.botType = items.botType;
-				$scope.shortDesc = items.shortDesc;
 				//properties specific to jenkins
 				if (items.taskType === "jenkins") {
 					$scope.jobUrl = items.taskConfig.jobURL;

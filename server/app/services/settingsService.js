@@ -118,8 +118,8 @@ settingsService.trackSettingWizard = function trackSettingWizard(id,orgId,callba
                callback(err, null);
                return;
            }
-           if (settingWizards.currentStep && settingWizards.currentStep.nestedSteps &&
-               settingWizards.currentStep.name === 'Config Management' && settingWizards.currentStep.nestedSteps[0].isCompleted === false) {
+           if (settingWizards.currentStep && settingWizards.currentStep.nestedSteps
+               && settingWizards.currentStep.name === 'Config Management' && settingWizards.currentStep.nestedSteps[0].isCompleted === false) {
                var settingWizardSteps = appConfig.settingWizardSteps;
                settingWizards.currentStep = settingWizards.previousStep;
                settingWizards.currentStep.nestedSteps[2].isCompleted = false;
@@ -296,7 +296,8 @@ settingsService.trackSettingWizard = function trackSettingWizard(id,orgId,callba
                callback(err, null);
                return;
            }
-           if (settingWizards.currentStep && settingWizards.currentStep.name === 'Wizard Status'
+           if (settingWizards.currentStep && settingWizards.currentStep.nestedSteps
+               && settingWizards.currentStep.name === 'Wizard Status'
                && settingWizards.currentStep.isCompleted === true) {
                var settingWizardSteps = appConfig.settingWizardSteps;
                var previousStep = settingWizardSteps[5];

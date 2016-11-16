@@ -176,6 +176,30 @@
 	}
 }
 
+.header-right {
+	.dropdown {
+		margin: 11px 0px 0 10px;
+	}
+	
+	.dropdown-toggle {
+		font-size: 18px; 
+		margin-top: 5px;
+	}
+
+	.dropdown-menu {
+		color: #000;
+		background: #fff;
+		padding: 6px;
+		min-width: 100px;
+		line-height: 2;
+	}
+
+	a {
+		color: #000;
+		text-decoration: none;
+	}
+}
+
 /*Styles for Logout Confirmation starts here*/
 .divMessageBox {
 	width: 100%;
