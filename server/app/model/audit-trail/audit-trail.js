@@ -19,38 +19,10 @@ var mongoose = require('mongoose');
 var BaseAuditTrail = require('./base-audit-trail');
 var mongoosePaginate = require('mongoose-paginate');
 
-var auditTrailSchema = new BaseAuditTrail();
-auditTrailSchema.plugin(mongoosePaginate);
+var AuditTrailSchema = new BaseAuditTrail();
+AuditTrailSchema.plugin(mongoosePaginate);
 
-auditTrailSchema.statics.insertAuditTrail = function(auditTrailData, callback) {
-    console.log("Durgesh");
-    if (auditTrailData.auditType === 'BOTs' && auditTrailData.auditTrailConfig) {
-        auditTrailData.auditTrailConfig = botAuditTrail.createNew(auditTrailData.auditTrailConfig);
-    } else if (auditTrailData.auditType === 'Instances' && auditTrailData.auditTrailConfig) {
-        auditTrailData.auditTrailConfig = instanceAuditTrail.createNew(auditTrailData.auditTrailConfig);
-    } else if (auditTrailData.auditType === 'Containers' && auditTrailData.auditTrailConfig) {
-        auditTrailData.auditTrailConfig = containerAuditTrail.createNew(auditTrailData.auditTrailConfig);
-    } else {
-        process.nextTick(function() {
-            callback({
-                message: "Invalid Audit Trail Type. "
-            }, null);
-        });
-        return;
-    }
-    var auditTrail = new auditTrail(auditTrailData);
-    auditTrail.save(function(err, auditTrail) {
-        if (err) {
-            logger.error(err);
-            callback(err, null);
-            return;
-        }
-        callback(null, auditTrail);
-        return;
-    });
-};
-
-auditTrailSchema.statics.getAuditTrailList = function(auditTrailQuery,callback){
+AuditTrailSchema.statics.getAuditTrailList = function(auditTrailQuery,callback){
     auditTrail.paginate(auditTrailQuery.queryObj, auditTrailQuery.options, function(err, auditTrailList) {
         if (err) {
             logger.error(err);
@@ -62,7 +34,7 @@ auditTrailSchema.statics.getAuditTrailList = function(auditTrailQuery,callback){
     });
 };
 
-auditTrailSchema.statics.updateAuditTrail = function(queryObj,auditObj,callback){
+AuditTrailSchema.statics.updateAuditTrail = function(queryObj,auditObj,callback){
     auditTrail.update(queryObj,{$set:auditObj},{upsert:false}, function(err, updateAuditTrail) {
         if (err) {
             logger.error(err);
@@ -74,5 +46,5 @@ auditTrailSchema.statics.updateAuditTrail = function(queryObj,auditObj,callback)
     });
 };
 
-var auditTrail = mongoose.model('auditTrail', auditTrailSchema);
-module.exports = new auditTrail();
+var AuditTrail = mongoose.model('auditTrail', AuditTrailSchema);
+module.exports = new AuditTrail();

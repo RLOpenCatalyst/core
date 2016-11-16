@@ -46,11 +46,16 @@ var InstanceAuditTrailSchema = new BaseAuditTrail({
     }
 });
 
-InstanceAuditTrailSchema.statics.createNew = function(instanceAuditTrailData) {
-    var self = this;
-    var instanceAuditTrail = new self(instanceAuditTrailData);
-    return instanceAuditTrail;
-};
+InstanceAuditTrailSchema.statics.createNew = function(instanceAuditTrail,callback){
+    var InstanceAuditTrail = new InstanceAuditTrail(instanceAuditTrail);
+    InstanceAuditTrail.save(function(err, data) {
+        if (err) {
+            logger.error("createNew Failed", err, data);
+            return;
+        }
+        callback(null,data);
+    });
+}
 
 var InstanceAuditTrail = AuditTrail.discriminator('instanceAuditTrail', InstanceAuditTrailSchema);
 module.exports = InstanceAuditTrail;

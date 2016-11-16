@@ -14,38 +14,47 @@
  limitations under the License.
  */
 
-
+var logger = require('_pr/logger')(module);
 var mongoose = require('mongoose');
+var BaseAuditTrail = require('./base-audit-trail.js');
+var AuditTrail = require('./audit-trail.js');
 
-var Schema = mongoose.Schema;
-var botAuditTrailSchema = new Schema({
-    id: {
-        type: String,
-        trim:true
-    },
-    name: {
-        type: String,
-        trim:true
-    },
-    type: {
-        type: String,
-        unique: true,
-        trim:true
-    },
-    description:{
-        type: String,
-        trim:true
-    },
-    category:{
-        type: String,
-        trim:true
+var BotAuditTrailSchema = new BaseAuditTrail({
+    auditTrailConfig: {
+        id: {
+            type: String,
+            trim:true
+        },
+        name: {
+            type: String,
+            trim:true
+        },
+        type: {
+            type: String,
+            unique: true,
+            trim:true
+        },
+        description:{
+            type: String,
+            trim:true
+        },
+        category:{
+            type: String,
+            trim:true
+        }
     }
 });
 
-botAuditTrailSchema.statics.createNew = function(botAuditTrailData) {
-    var self = this;
-    var botAuditTrail = new self(botAuditTrailData);
-    return botAuditTrail;
+BotAuditTrailSchema.statics.createNew = function(botAuditTrail,callback){
+    var BotAuditTrail = new BotAuditTrail(botAuditTrail);
+    BotAuditTrail.save(function(err, data) {
+        if (err) {
+            logger.error("createNew Failed", err, data);
+            return;
+        }
+        callback(null,data);
+    });
 };
-var botAuditTrail = mongoose.model('botAuditTrail', botAuditTrailSchema);
-module.exports = new botAuditTrail();
+
+var BotAuditTrail = AuditTrail.discriminator('botAuditTrail', BotAuditTrailSchema);
+BotAuditTrail
