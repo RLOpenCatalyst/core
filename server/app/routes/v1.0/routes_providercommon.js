@@ -413,6 +413,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                                                 projectId: req.body.projectId,
                                                                 projectName: req.body.projectName,
                                                                 envId: req.body.envId,
+                                                                tagServer: req.body.tagServer,
                                                                 providerId: provider._id,
                                                                 providerType: 'aws',
                                                                 providerData: {

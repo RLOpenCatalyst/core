@@ -1,0 +1,24 @@
+<div id="sidebar-wrapper" ng-class="{'show-wrapper':isOpenSidebar === true}">
+    <form>
+        <fieldset class="repo-job-details-wrapper">
+            <legend class="repo-job-details-wrapper-inner">Filter:</legend>
+            <div class="col-lg-12 ">
+                <div class="col-lg-12 col-md-12 form-group">
+                    <label for="">Business Group</label>
+                    <select id="bgListInputExisting" class="chooseBGExisting width-100 form-control"  ng-model="organNewEnt.buss">
+                        <option ng-repeat="buss in organObject[organNewEnt.org].businessGroups" value="{{organObject[organNewEnt.org].businessGroups.indexOf(buss)}}" >{{buss.name}}</option>
+                    </select>
+                </div>
+                <div class="col-lg-12 col-md-12 form-group">
+                    <label >Project</label>
+                    <select class="chooseProjectExisting width-100 form-control" ng-model="organNewEnt.proj">
+                        <option ng-repeat="proj in organObject[organNewEnt.org].businessGroups[organNewEnt.buss].projects"  value="{{organObject[organNewEnt.org].businessGroups[organNewEnt.buss].projects.indexOf(proj)}}" >{{proj.name}}</option>
+                    </select>
+                </div>
+                <div class="col-lg-12 col-md-12 form-group">
+                    <button type="button" class="btn btn-primary" ng-click="bpList.createList();"><i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;Apply</button>
+                </div>
+            </div>
+        </fieldset>
+    </form>
+</div>
