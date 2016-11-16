@@ -381,7 +381,7 @@
                 if(blueprintCreation.newEnt.serverType === 'nexus'){
                     // create group select box options
                     blueprintCreation.groupOptions = blueprintCreation.serverRepos[blueprintCreation.newEnt.nexusDockerServer].groupid;
-                    bpCreateSer.getNexusRepoList(blueprintCreation.serverRepos[blueprintCreation.newEnt.nexusDockerServer].rowid,blueprintCreation.newEnt.projectList).then(function (data) {
+                    bpCreateSer.getNexusRepoList(blueprintCreation.serverRepos[blueprintCreation.newEnt.nexusDockerServer].rowid,$rootScope.organObject[blueprintCreation.newEnt.orgList].businessGroups[blueprintCreation.newEnt.bgList].projects[blueprintCreation.newEnt.projectList].rowId).then(function (data) {
                         blueprintCreation.repositoryOptions = data;
                         $scope.isLoadingNexus = false;
                     });
