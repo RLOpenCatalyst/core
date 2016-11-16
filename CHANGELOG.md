@@ -1,3 +1,18 @@
+3.5.0 - November 10th , 2016
+----------------------------
+* Cloud Management - Capacity Report
+* Telemetry Enhancements - SAE Dashboards
+* Improved 'Design' page written in AngularJS
+* Bots Library
+
+3.4.0 - October 1st , 2016
+----------------------------
+* Cloud Management - Daily/Weekly/Monthly cost and usage reports and trends
+* Provider wise listing of unassigned instances in track
+* New Wizard for setup
+* Audit Trail for docker containers
+
+
 3.3.0 - August 11th , 2016
 ----------------------------
 * Composite blueprints enhancements
