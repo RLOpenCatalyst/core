@@ -391,6 +391,11 @@ var InstanceSchema = new Schema({
         required: false,
         trim: true
     },
+    cronJobId: {
+        type: String,
+        required: false,
+        trim: true
+    },
     isScheduled: {
         type: Boolean,
         required: false,
@@ -2280,6 +2285,23 @@ var InstancesDao = function() {
             callback(null, data);
         });
     };
+    this.updateInstanceSchedulerCronJobId = function(instanceId,cronJobId,callback) {
+        Instances.update({
+            "_id": new ObjectId(instanceId),
+        }, {
+            $set: {
+                cronJobId: cronJobId
+            }
+        }, {
+            upsert: false
+        }, function(err, data) {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            callback(null, data);
+        });
+    };
     this.getScheduledInstances = function(callback) {
         Instances.find({
             isScheduled: true,
@@ -2311,8 +2333,8 @@ var InstancesDao = function() {
                         schedulerStartOn: instanceScheduler.schedulerStartOn,
                         schedulerEndOn: instanceScheduler.schedulerEndOn,
                         isScheduled: instanceScheduler.isScheduled
-                    }
-                }, function(err, data) {
+                    },
+                },{multi:true}, function(err, data) {
                     if (err) {
                         logger.error("Failed to update managed Instance status data", err);
                         callback(err, null);

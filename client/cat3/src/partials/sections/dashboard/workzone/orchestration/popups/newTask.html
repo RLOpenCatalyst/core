@@ -61,7 +61,7 @@
 								</label>
 								<br />
 								<span class="col-md-12 col-sm-12 col-xs-12 no-padding">
-									<select name="botType" class="form-control" ng-model="botType" ng-required="checkBotStatus" ng-disabled="isEditMode">
+									<select name="botType" class="form-control" ng-model="botType" ng-required="checkBotStatus">
 										<option selected="selected" value="Task">Task</option>
 										<option ng-show="!createChefJob" value="Check">Check</option>
 										<option ng-show="!createChefJob" value="Run">Run</option>
@@ -73,14 +73,14 @@
 								</span>
 							</div>
 							<div class="col-md-6 col-sm-6 col-xs-6 " ng-show="checkBotStatus">
-								<label class="control-label">Catagory
+								<label class="control-label">Category
 									<span class="control-label red">&nbsp;*</span>
 									<span ng-show="newTaskForm.botCategory.$touched && newTaskForm.botCategory.$invalid" class="inputValidationMsg">required
 									</span>
 								</label>
 								<br />
 								<span class="col-md-12 col-sm-12 col-xs-12 no-padding">
-									<select name="botCategory" class="form-control" ng-model="botCategory" ng-required="checkBotStatus" ng-disabled="isEditMode">
+									<select name="botCategory" class="form-control" ng-model="botCategory" ng-required="checkBotStatus">
 										<option ng-repeat="(key , value) in botCategoryList" value="{{value}}">{{value}}</option>
 									</select>
 								</span>
