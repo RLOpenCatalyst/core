@@ -5,7 +5,7 @@
 * Improved 'Design' page written in AngularJS
 * Bots Library
 
-3.4.0 - October 1st , 2016
+3.4.0 - SEptember 2nd , 2016
 ----------------------------
 * Cloud Management - Daily/Weekly/Monthly cost and usage reports and trends
 * Provider wise listing of unassigned instances in track
