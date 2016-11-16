@@ -158,7 +158,8 @@
                         }, {
                             name: 'Provider Name',
                             displayName: 'Provider Name',
-                            field: 'providerId',
+                            cellTemplate: '<span ng-show="row.entity.providerName">{{row.entity.providerName}}</span>' +
+                                '<span ng-hide="row.entity.providerName">NA</span>',
                             cellTooltip: true
                         }, {
                             name: 'Ip Address',
