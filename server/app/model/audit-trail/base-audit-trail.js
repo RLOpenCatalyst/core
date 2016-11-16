@@ -1,0 +1,132 @@
+/*
+ Copyright [2016] [Relevance Lab]
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
+
+var mongoose = require('mongoose');
+var util = require('util');
+var Schema = mongoose.Schema;
+
+var AuditTrailSchema = function AuditTrail() {
+    Schema.apply(this, arguments);
+    this.add({
+        actionId: {
+            type: String,
+            unique: true,
+            trim:true,
+            required:true
+        },
+        auditId: {
+            type: String,
+            unique: true,
+            trim:true,
+            required:true
+        },
+        masterDetails:{
+            orgName: {
+                type: String,
+                trim:true,
+                required:true
+            },
+            orgId: {
+                type: String,
+                trim:true,
+                required:true
+            },
+            bgName: {
+                type: String,
+                trim:true,
+                required:true
+            },
+            bgId: {
+                type: String,
+                trim:true,
+                required:true
+            },
+            projectName: {
+                type: String,
+                trim:true,
+                required:true
+            },
+            projectId: {
+                type: String,
+                trim:true,
+                required:true
+            },
+            envName: {
+                type: String,
+                trim:true,
+                required:true
+            },
+            envId: {
+                type: String,
+                trim:true,
+                required:true
+            }
+        },
+        auditType: {
+            type: String,
+            trim:true,
+            required:false
+        },
+        auditCategory: {
+            type: String,
+            trim:true,
+            required:false
+        },
+        user: {
+            type: String,
+            trim:true,
+            required:false
+        },
+        startedOn: {
+            type: Number,
+            trim:true,
+            required:false
+        },
+        endedOn: {
+            type: Number,
+            trim:true,
+            required:false
+        },
+        providerType: {
+            type: String,
+            trim:true,
+            required:false
+        },
+        action: {
+            type: String,
+            trim:true,
+            required:false
+        },
+        status: {
+            type: String,
+            trim:true,
+            required:false
+        },
+        actionStatus: {
+            type: String,
+            trim:true,
+            required:false
+        },
+        logs: [{
+            err: Boolean,
+            log: String,
+            timestamp: Number
+        }]
+    });
+};
+util.inherits(AuditTrailSchema, Schema);
+
+module.exports = AuditTrailSchema;

@@ -52,6 +52,7 @@ var taskService = require('_pr/services/taskService');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var compositeBlueprintModel = require('_pr/model/composite-blueprints/composite-blueprints.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
+var auditTrailService = require('_pr/services/auditTrailService');
 
 module.exports.setRoutes = function(app, sessionVerification) {
     /*
@@ -1562,6 +1563,21 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         log: "Bootstrapping instance",
                                                         timestamp: timestampStarded
                                                     });
+                                                    //For Audit-Trail Implementation
+                                                    var actionObj = {
+                                                        log:"Bootstrapping instance",
+                                                        action:"ImportByIP",
+                                                        actionStatus:"waiting",
+                                                        status:nodeAlive,
+                                                        catUser:req.session.user.cn,
+                                                        auditType:'Instances'
+                                                    };
+                                                    auditTrailService.insertAuditTrail(data,actionLog,actionObj,function(err,auditTrail){
+                                                        if (err) {
+                                                            logger.error("Failed to create or update instanceLog: ", err);
+                                                        }
+                                                    });
+                                                    //
 
                                                     var instanceLog = {
                                                         actionId: actionLog._id,
@@ -1613,6 +1629,20 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                 log: "Unable to decrypt credentials. Bootstrap Failed",
                                                                 timestamp: new Date().getTime()
                                                             };
+                                                            var auditObj = {
+                                                                logs:{
+                                                                    err: true,
+                                                                    log: "Unable to decrypt credentials. Bootstrap Failed",
+                                                                    timestamp: new Date().getTime()
+                                                                },
+                                                                endedOn:new Date().getTime(),
+                                                                actionStatus : "failed"
+                                                            }
+                                                            auditTrailService.updateAuditTrail(instance.id,actionLog._id,auditObj,function(err,auditData){
+                                                                if (err) {
+                                                                    logger.error("Failed to create or update audit Trail: ", err);
+                                                                }
+                                                            })
                                                             instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
                                                                 if (err) {
                                                                     logger.error("Failed to create or update instanceLog: ", err);
@@ -1719,6 +1749,20 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                             log: err.message,
                                                                             timestamp: new Date().getTime()
                                                                         };
+                                                                        var auditObj = {
+                                                                            logs:{
+                                                                                err: true,
+                                                                                log: err.message,
+                                                                                timestamp: new Date().getTime()
+                                                                            },
+                                                                            endedOn:new Date().getTime(),
+                                                                            actionStatus : "failed"
+                                                                        }
+                                                                        auditTrailService.updateAuditTrail(instance.id,actionLog._id,auditObj,function(err,auditData){
+                                                                            if (err) {
+                                                                                logger.error("Failed to create or update audit Trail: ", err);
+                                                                            }
+                                                                        })
                                                                         instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
                                                                             if (err) {
                                                                                 logger.error("Failed to create or update instanceLog: ", err);
@@ -1741,6 +1785,20 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                         log: "Bootstrap Failed",
                                                                         timestamp: new Date().getTime()
                                                                     };
+                                                                    var auditObj = {
+                                                                        logs:{
+                                                                            err: true,
+                                                                            log: "Bootstrap Failed",
+                                                                            timestamp: new Date().getTime()
+                                                                        },
+                                                                        endedOn:new Date().getTime(),
+                                                                        actionStatus : "failed"
+                                                                    }
+                                                                    auditTrailService.updateAuditTrail(instance.id,actionLog._id,auditObj,function(err,auditData){
+                                                                        if (err) {
+                                                                            logger.error("Failed to create or update audit Trail: ", err);
+                                                                        }
+                                                                    })
                                                                     instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
                                                                         if (err) {
                                                                             logger.error("Failed to create or update instanceLog: ", err);
@@ -1787,6 +1845,20 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                             log: "Instance Bootstrapped Successfully",
                                                                             timestamp: new Date().getTime()
                                                                         };
+                                                                        var auditObj = {
+                                                                            logs:{
+                                                                                err: false,
+                                                                                log: "Instance Bootstrapped Successfully",
+                                                                                timestamp: new Date().getTime()
+                                                                            },
+                                                                            endedOn:new Date().getTime(),
+                                                                            actionStatus : "success"
+                                                                        }
+                                                                        auditTrailService.updateAuditTrail(instance.id,actionLog._id,auditObj,function(err,auditData){
+                                                                            if (err) {
+                                                                                logger.error("Failed to create or update audit Trail: ", err);
+                                                                            }
+                                                                        })
                                                                         instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
                                                                             if (err) {
                                                                                 logger.error("Failed to create or update instanceLog: ", err);
@@ -1940,6 +2012,20 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                             log: "Bootstrap Failed",
                                                                             timestamp: new Date().getTime()
                                                                         };
+                                                                        var auditObj = {
+                                                                            logs:{
+                                                                                err: true,
+                                                                                log: "Bootstrap Failed",
+                                                                                timestamp: new Date().getTime()
+                                                                            },
+                                                                            endedOn:new Date().getTime(),
+                                                                            actionStatus : "failed"
+                                                                        }
+                                                                        auditTrailService.updateAuditTrail(instance.id,actionLog._id,auditObj,function(err,auditData){
+                                                                            if (err) {
+                                                                                logger.error("Failed to create or update audit Trail: ", err);
+                                                                            }
+                                                                        })
                                                                         instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
                                                                             if (err) {
                                                                                 logger.error("Failed to create or update instanceLog: ", err);
