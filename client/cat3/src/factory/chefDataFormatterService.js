@@ -270,7 +270,6 @@
 				//method to get the runlist array and then assign the className to each value.
 				findDataForEditValue: function (list) {
 					var runlist = list;
-					console.log(runlist);
 					var temp = [];
 					if (runlist) {
 						/*jslint forin: true */
@@ -300,7 +299,6 @@
 					var runlist = list;
 					
 					runlist = runlist.split(',');
-					console.log(runlist);
 					var temp = [];
 					if (runlist) {
 						/*jslint forin: true */

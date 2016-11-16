@@ -62,13 +62,19 @@
                         }
                     }
                 }).result.then(function(orgDetails) {
+                    var bPIds=[];
+                    if(angular.isArray(ids)){
+                        bPIds=ids;
+                    } else {
+                        bPIds.push(ids);
+                    }
                     var params = {
-                        url: '/blueprints/copy/',
+                        url: '/blueprints/copy',
                         data:{
                             "orgid": $rootScope.organObject[orgDetails.copyOrg].rowid,
                             "buid": $rootScope.organObject[orgDetails.copyOrg].businessGroups[orgDetails.copyBuss].rowid,
-                            "projid": $rootScope.organObject[orgDetails.copyOrg].businessGroups[orgDetails.copyBuss].projects[orgDetails.copyProj].rowid,
-                            "blueprints":ids
+                            "projid": $rootScope.organObject[orgDetails.copyOrg].businessGroups[orgDetails.copyBuss].projects[orgDetails.copyProj].rowId,
+                            "blueprints":bPIds
                         }
                     };
                     genericServices.promisePost(params).then(function () {
@@ -95,7 +101,7 @@
                         url: '/blueprints',
                         data:{blueprints:bPIds}
                     };
-                    return genericServices.promiseDelete(params).then(function(){
+                    genericServices.promiseDelete(params).then(function(){
                         toastr.success('Successfully deleted');
                         angular.each(ids,function (val) {
                             angular.element('#'+val).hide();

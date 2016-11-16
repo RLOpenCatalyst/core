@@ -15,14 +15,14 @@
             </div>
 
 
-            <div class="col-lg-12 col-md-12">
+            <div class="col-lg-12 col-md-12 margintop15">
                 <label for="" class="lblbpc">Business Group   <span style="color:red">*</span></label>
                 <select id="bgListInputExisting" class="chooseBGExisting width-100 form-control"  ng-model="bpCopy.newEnt.copyBuss" required>
                     <option ng-repeat="buss in organObject[bpCopy.newEnt.copyOrg].businessGroups" value="{{organObject[bpCopy.newEnt.copyOrg].businessGroups.indexOf(buss)}}" >{{buss.name}}</option>
                 </select>
             </div>
 
-            <div class="col-lg-12 col-md-12">
+            <div class="col-lg-12 col-md-12 margintop15">
                 <label class="lblbpc">Project  <span style="color:red">*</span>
                 </label>
                 <select class="chooseProjectExisting width-100 form-control" ng-model="bpCopy.newEnt.copyProj" required>
