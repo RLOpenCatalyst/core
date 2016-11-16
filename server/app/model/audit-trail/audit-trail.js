@@ -17,13 +17,14 @@
 var logger = require('_pr/logger')(module);
 var mongoose = require('mongoose');
 var BaseAuditTrail = require('./base-audit-trail');
+var ObjectId = require('mongoose').Types.ObjectId;
 var mongoosePaginate = require('mongoose-paginate');
 
 var AuditTrailSchema = new BaseAuditTrail();
 AuditTrailSchema.plugin(mongoosePaginate);
 
 AuditTrailSchema.statics.getAuditTrailList = function(auditTrailQuery,callback){
-    auditTrail.paginate(auditTrailQuery.queryObj, auditTrailQuery.options, function(err, auditTrailList) {
+    AuditTrail.paginate(auditTrailQuery.queryObj, auditTrailQuery.options, function(err, auditTrailList) {
         if (err) {
             logger.error(err);
             var error = new Error('Internal server error');
@@ -35,7 +36,7 @@ AuditTrailSchema.statics.getAuditTrailList = function(auditTrailQuery,callback){
 };
 
 AuditTrailSchema.statics.updateAuditTrail = function(queryObj,auditObj,callback){
-    auditTrail.update(queryObj,{$set:auditObj},{upsert:false}, function(err, updateAuditTrail) {
+    AuditTrail.update(queryObj,{$set:auditObj},{upsert:false}, function(err, updateAuditTrail) {
         if (err) {
             logger.error(err);
             var error = new Error('Internal server error');
@@ -46,5 +47,7 @@ AuditTrailSchema.statics.updateAuditTrail = function(queryObj,auditObj,callback)
     });
 };
 
-var AuditTrail = mongoose.model('auditTrail', AuditTrailSchema);
-module.exports = new AuditTrail();
+
+var AuditTrail = mongoose.model('auditTrails', AuditTrailSchema);
+module.exports = AuditTrail;
+

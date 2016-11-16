@@ -1466,6 +1466,7 @@ function createOrUpdateInstanceLogs(instance, instanceState, action, user, times
 }
 
 function updateScheduler(instanceScheduler, callback) {
+    console.log(JSON.stringify(instanceScheduler));
     async.waterfall([
         function(next){
             var scheduler= {
