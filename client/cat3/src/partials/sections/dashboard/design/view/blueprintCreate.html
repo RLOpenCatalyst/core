@@ -249,7 +249,7 @@
                            </div>
 
                            <div class="col-lg-12 col-md-12 margintop15">
-                              <label class="btn btn-primary git stat">
+                              <label class="git stat">
                                  <input type="checkbox" autocomplete="off" ng-model="bpCreate.newEnt.serviceDelivery_isChecked" ng-change="bpCreate.botTypes();"> Add to Service Delivery
                               </label>
                            </div>
@@ -360,13 +360,13 @@
                               Application Deployment
                            </accordion-heading>
                            <div class="col-lg-12 col-md-12 margintop15">
-                              <label class="btn btn-primary git stat">
+                              <label class="git stat">
                                  <input type="checkbox" autocomplete="off" ng-model="bpCreate.newEnt.appDeployCheck_isChecked" ng-change="bpCreate.showRepoServers();"> Deploy app during Bootstrap
                               </label>
                            </div>
 
                            <div class="col-lg-4 col-md-4 margintop15" ng-show="showRepoServerName">
-                              <label for="">Repository Server:<span class="redSpan">*</span>
+                              <label for="">Repository Server:<span class="red">*</span>
                               </label>
                               <select ng-model="bpCreate.newEnt.nexusDockerServer" name="" class=" width-100 form-control" ng-change="bpCreate.getRepository();">
                                  <option value="">Select Server</option>
