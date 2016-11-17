@@ -1250,3 +1250,31 @@ option.script {
 .ui-grid-column-menu-button{
     top:5px !important;
 }
+
+//sch
+#sch{
+    .table>thead>tr>th {
+        text-align: center;
+    }
+    .table{
+        text-align: center;
+    }
+    .form-group{
+        margin-bottom: 0px !important;
+    }
+    .stt{
+        height: 28px !important;
+        line-height: 34;
+        font-size: 13px !important;
+    }
+    .btnDay{
+        border-radius: 15px;
+        margin: 0 3px;
+        height: 24px;
+        width: 24px;
+        font-weight: 600;
+    }
+    .activeDay {
+        background: #0B5475 !important;
+    }
+}
