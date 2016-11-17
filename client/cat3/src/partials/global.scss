@@ -90,6 +90,7 @@ $imagePath : "../../../../../../cat3/images";
 #section-name {
     font-size: 14px;
     font-weight: bold;
+    padding: 10px 0;
 
     .menu-icon {
       float: left;
@@ -110,14 +111,17 @@ $imagePath : "../../../../../../cat3/images";
     padding-left: 60px;
 }
 
-#breadcrumb-block #breadcrumb-nav ul {
-    margin: 0px;
-    padding: 0px;
-}
-
-#breadcrumb-block #breadcrumb-nav ul li {
-    list-style: none;
-    display: inline;
+#breadcrumb-block {
+    #breadcrumb-nav {
+        ul {
+            margin: 0px;
+            padding: 10px 0;
+            li {
+                list-style: none;
+                display: inline;
+            }
+        }
+    }
 }
 
 /*CSS for tree starts here*/
@@ -206,6 +210,9 @@ $imagePath : "../../../../../../cat3/images";
 
   i,span {
       color:#fff;
+  }
+  i {
+      font-size: 14px;
   }
 }
 
@@ -397,7 +404,8 @@ $imagePath : "../../../../../../cat3/images";
 
 /*Global Confirmation Modal Buttons Styles starts*/
 .cat-btn-update, .cat-btn-save {
-    color: #fff;  
+    color: #fff;
+    border-color: #40BAF1 !important;
     @include btn-theme; 
 }
 
@@ -641,10 +649,14 @@ option.script {
     background: #fcfcfc;
     border-bottom-width: 1px;
     @include theme-border-color;
-    height: 30px;
+    min-height: 40px !important;
     padding: 5px 15px;
     position:relative;
     z-index:3;
+}
+
+accordion .panel-heading {
+    padding: 12px 15px;
 }
 
 .panel-title {
@@ -729,7 +741,7 @@ option.script {
 
 /*ui grid css starts here*/
 .ui-grid {
-    font-size: 13px;
+    font-size: 14px;
     text-align: center;
 
     li.ng-binding.ng-scope {
@@ -1249,4 +1261,81 @@ option.script {
 }
 .ui-grid-column-menu-button{
     top:5px !important;
+}
+
+i{
+    font-style: normal;
+}
+
+.btn-group-xs >.btn, .btn-xs {
+    padding: 3px 8px;
+    font-size: 14px;
+}
+
+div#well {
+    padding: 0 9px 9px 9px;
+}
+
+.badge {
+    min-width: 30px;
+    padding: 6px;
+    font-size: 13px;
+    border-radius: 10px;
+}
+
+.ui-grid-menu .ui-grid-menu-inner ul li button:hover, .ui-grid-menu .ui-grid-menu-inner ul li button:focus {
+    box-shadow: none;
+    background: #E8E8E8;
+}
+
+.nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover {
+    color: #40BAF1;
+}
+
+.nav-tabs > li > a {
+    color: #555;
+}
+
+.nav-tabs > li > a:hover, .btn-link{
+    color: #40BAF1;
+}
+
+.nav-tabs>li {
+    margin-bottom: -4px;
+}
+
+.productdiv1 {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 0 5px #ccc;
+}
+
+.cardLogo{
+    margin-left: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 10px;
+}
+
+.Cardtextoverflow{
+    u {
+    text-decoration: none;
+    font-size: 13px;
+    b {
+        font-weight: normal;
+    }
+    } 
+}
+
+.productdiv4 {
+    width: 180px !important;
+}
+
+.btn-link:focus, .btn-link:hover {
+    text-decoration: none;
+}
+
+label {
+    &.stat {
+        font-size: 15px;
+    }
 }
