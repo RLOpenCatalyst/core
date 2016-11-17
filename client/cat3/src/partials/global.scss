@@ -76,15 +76,15 @@ $imagePath : "../../../../../../cat3/images";
 
 /*CSS for header,breadcrumb and tree starts*/
 #breadcrumb-block { 
-  @include theme-bg-color;
-  color: white;
+    @include theme-bg-color;
+    color: white;
 }
 
 .tree-toggle {
-  z-index: 100;
-  color: #fff;
-  font-size: 1.2em;
-  padding: 6px 0px 6px 12px;
+    z-index: 100;
+    color: #fff;
+    font-size: 1.2em;
+    padding: 6px 0px 6px 12px;
 }
 
 #section-name {
@@ -93,16 +93,16 @@ $imagePath : "../../../../../../cat3/images";
     padding: 10px 0;
 
     .menu-icon {
-      float: left;
-      height: 40px;
-      font-size: 20px;
+        float: left;
+        height: 40px;
+        font-size: 20px;
     }
 
     .menu-text {
-      float: left;
-      margin: 11px 0 0 5px;
-      color: #fff;
-      height: 29px;
+        float: left;
+        margin: 11px 0 0 5px;
+        color: #fff;
+        height: 29px;
     }
 }
 
@@ -126,123 +126,123 @@ $imagePath : "../../../../../../cat3/images";
 
 /*CSS for tree starts here*/
 #navigPage {
-  background: transparent;
-  position: fixed;
-  width: 254px;
-  z-index: 10;
+    background: transparent;
+    position: fixed;
+    width: 254px;
+    z-index: 10;
     height: 100% !important;
-  transition: all .4s ease 0s;
-  left: -254px;
+    transition: all .4s ease 0s;
+    left: -254px;
     font-size: 12px !important;
     height: 100%;
 
-  &.show-left-tree {
-      left: 0px;
-  }
+    &.show-left-tree {
+        left: 0px;
+    }
 
-  #navigPage-inner {
-      background: linear-gradient(to right, #2c3638 99%, #2c3638 100%);
-      color: #fff;
-      overflow-y: auto;
-      height: 100% !important;
-  }
+    #navigPage-inner {
+        background: linear-gradient(to right, #2c3638 99%, #2c3638 100%);
+        color: #fff;
+        overflow-y: auto;
+        height: 100% !important;
+    }
 
-  div[data-angular-treeview] {
-      color: #fff;
-      font-size: 12px;
-      font-family: "Open Sans", Arial, Helvetica, Sans-Serif;
-  }
+    div[data-angular-treeview] {
+        color: #fff;
+        font-size: 12px;
+        font-family: "Open Sans", Arial, Helvetica, Sans-Serif;
+    }
 
-  div[data-tree-model] li .selected {
-      padding: 0px;
-  }
+    div[data-tree-model] li .selected {
+        padding: 0px;
+    }
 
-  div[data-tree-model] li span:hover {
-      text-decoration: underline;
-  }
+    div[data-tree-model] li span:hover {
+        text-decoration: underline;
+    }
 
-  div[data-tree-model] li {
-      line-height: 2.2;
-      padding: 0;
-  }
-      
-  div[data-tree-model] ul {
-      margin-left:-10px;
-      ul {
-          margin-left:-20px;
-          ul {
-              margin-left:-30px;
-              ul {
-                  margin-left:-40px;
-              }
-          }
-      }
-  }
+    div[data-tree-model] li {
+        line-height: 2.2;
+        padding: 0;
+    }
 
-  div[data-tree-model] .liContents {
-      margin-left: 20px;
-      .liContents  {
-          margin-left: 30px;
-          .liContents {
-              margin-left: 40px;
-              .liContents {
-                  margin-left: 50px;
-              }
-          }
-      }
-  }
+    div[data-tree-model] ul {
+        margin-left:-10px;
+        ul {
+            margin-left:-20px;
+            ul {
+                margin-left:-30px;
+                ul {
+                    margin-left:-40px;
+                }
+            }
+        }
+    }
 
-  div[data-tree-model] li.selected{
-      background:#3b4142;
-  }
+    div[data-tree-model] .liContents {
+        margin-left: 20px;
+        .liContents  {
+            margin-left: 30px;
+            .liContents {
+                margin-left: 40px;
+                .liContents {
+                    margin-left: 50px;
+                }
+            }
+        }
+    }
 
-  .collapse-spacing {
-      padding-right: 10px;
-  }
+    div[data-tree-model] li.selected{
+        background:#3b4142;
+    }
 
-  .label-spacing {
-      padding-right: 5px;
-  }
+    .collapse-spacing {
+        padding-right: 10px;
+    }
 
-  .caret-spacing {
-      margin-top: 8px;
-  }
+    .label-spacing {
+        padding-right: 5px;
+    }
 
-  i,span {
-      color:#fff;
-  }
-  i {
-      font-size: 14px;
-  }
+    .caret-spacing {
+        margin-top: 8px;
+    }
+
+    i,span {
+        color:#fff;
+    }
+    i {
+        font-size: 14px;
+    }
 }
 
 #analyticsTreeMenuPage {
-  #navigPage {
-    .tree-ul {
-      padding: 0px;
+    #navigPage {
+        .tree-ul {
+            padding: 0px;
+        }
+
+        .liContents {
+            line-height: 2.2;
+
+            .liContents-wrapper {
+                margin-left: 15px;
+            }
+
+            .caret-spacing {
+                margin-top: 8px;
+            }
+
+            .fa {
+                margin-left: 15px;
+            }
+        }
+
+        .activeSection {
+            font-weight: bold;
+            background: #3b4142;
+        }
     }
-
-    .liContents {
-      line-height: 2.2;
-
-      .liContents-wrapper {
-        margin-left: 15px;
-      }
-
-      .caret-spacing {
-        margin-top: 8px;
-      }
-
-      .fa {
-        margin-left: 15px;
-      }
-    }
-
-    .activeSection {
-      font-weight: bold;
-      background: #3b4142;
-    }
-  }
 }
 /*CSS for tree ends here*/
 
@@ -1272,8 +1272,10 @@ i{
     font-size: 14px;
 }
 
-div#well {
-    padding: 0 9px 9px 9px;
+div{
+    &#well {
+        padding: 0 9px 9px 9px;
+    }
 }
 
 .badge {
@@ -1283,24 +1285,33 @@ div#well {
     border-radius: 10px;
 }
 
-.ui-grid-menu .ui-grid-menu-inner ul li button:hover, .ui-grid-menu .ui-grid-menu-inner ul li button:focus {
-    box-shadow: none;
-    background: #E8E8E8;
+.ui-grid-menu .ui-grid-menu-inner ul li button {
+    &:hover, &:focus {
+        box-shadow: none;
+        background: #E8E8E8;
+    }
 }
 
-.nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover {
+.nav-tabs > li {
+    &.active > a {
+        color: #40BAF1;
+        &:focus, &:hover {
+            color: #40BAF1;
+        }
+    }
+    > a {
+        color: #555;
+        &:hover {
+            color: #40BAF1;
+        }
+    }
+}
+
+.btn-link {
     color: #40BAF1;
 }
 
-.nav-tabs > li > a {
-    color: #555;
-}
-
-.nav-tabs > li > a:hover, .btn-link{
-    color: #40BAF1;
-}
-
-.nav-tabs>li {
+.nav-tabs > li {
     margin-bottom: -4px;
 }
 
@@ -1318,11 +1329,11 @@ div#well {
 
 .Cardtextoverflow{
     u {
-    text-decoration: none;
-    font-size: 13px;
-    b {
-        font-weight: normal;
-    }
+        text-decoration: none;
+        font-size: 13px;
+        b {
+            font-weight: normal;
+        }
     } 
 }
 
@@ -1337,5 +1348,32 @@ div#well {
 label {
     &.stat {
         font-size: 15px;
+    }
+}
+//sch
+#sch{
+    .table>thead>tr>th {
+        text-align: center;
+    }
+    .table{
+        text-align: center;
+    }
+    .form-group{
+        margin-bottom: 0px !important;
+    }
+    .stt{
+        height: 28px !important;
+        line-height: 34;
+        font-size: 13px !important;
+    }
+    .btnDay{
+        border-radius: 15px;
+        margin: 0 3px;
+        height: 24px;
+        width: 24px;
+        font-weight: 600;
+    }
+    .activeDay {
+        background: #0B5475 !important;
     }
 }
