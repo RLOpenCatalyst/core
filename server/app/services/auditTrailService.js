@@ -32,7 +32,7 @@ auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,acti
     var auditTrailObj = {
         actionId: actionLog._id,
         auditId: auditDetails._id,
-        auditType: auditDetails.auditType,
+        auditType: actionObj.auditType,
         masterDetails:{
             orgId: auditDetails.orgId,
             orgName: auditDetails.orgName,

@@ -30,9 +30,9 @@ var InstanceAuditTrailSchema = new BaseAuditTrail({
     }
 });
 
-InstanceAuditTrailSchema.statics.createNew = function(instanceAuditTrail,callback){
-    var InstanceAuditTrail = new InstanceAuditTrail(instanceAuditTrail);
-    InstanceAuditTrail.save(function(err, data) {
+InstanceAuditTrailSchema.statics.createNew = function(auditTrail,callback){
+    var instanceAuditTrail = new InstanceAuditTrail(auditTrail);
+    instanceAuditTrail.save(function(err, data) {
         if (err) {
             logger.error("createNew Failed", err, data);
             return;
