@@ -3242,49 +3242,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     });
 
-
-    /**
-     * @api {put} /instances/schedule  Update Scheduler for instance
-     * @apiName updateScheduler
-     * @apiGroup schedule
-     *
-     * @apiParam {Array} instanceIds                            List of Instance Ids
-     * @apiParam {Boolean} isScheduled                          To identify instance is scheduled or not
-     * @apiParam {String} schedulerStartOn                      start date for Instance scheduler
-     * @apiParam {String} schedulerEndOn                        end date for Instance scheduler
-     * @apiParam {Object} instanceStartScheduler               instanceStart object in request body
-     * @apiParam {String} instanceStartScheduler.repeats       repeat start scheduler
-     * @apiParam {Number} instanceStartScheduler.repeatEvery   interval to repeat start scheduler
-     * @apiParam {Object} instanceStopScheduler               instanceStop object in request body
-     * @apiParam {String} instanceStopScheduler.repeats       repeat stop scheduler
-     * @apiParam {Number} instanceStopScheduler.repeatEvery   interval to repeat stop scheduler
-
-     * @apiParamExample {json} Request-Example:
-     *      {
-                "instanceIds":["String"],
-                "schedulerStartOn":"String",
-                "schedulerEndOn":"String",
-                "isScheduled": Boolean,
-                "instanceStartScheduler": {
-                    "repeats": "String",
-                    "repeatEvery": Number
-                },
-                "instanceStopScheduler": {
-                    "repeats": "String",
-                    "repeatEvery": Number
-                }
-            }
-     *
-
-     * @apiSuccess {String} message    success response
-     *
-     * @apiSuccessExample {json} Success-Response:
-     *      HTTP/1.1 200 OK
-     *      {
-                "message": "Scheduler Updated."
-            }
-     */
-
     app.put('/instances/schedule', function(req, res) {
         if (req.body !== null) {
             instanceService.updateScheduler(req.body, function(err, updatedResult) {
@@ -3299,5 +3256,4 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             res.status(400).send("Bad Request.");
         }
     });
-
 };
