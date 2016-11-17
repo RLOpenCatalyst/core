@@ -73,10 +73,8 @@
         var taskData={};
         var cookbookAttributes = [];
         var scriptParams = [];
-        var choiceParam = {}, key;
-        var tagServer = "";
+        var choiceParam = {};
         $scope.jenparams = {};
-        $scope.tagSerSelected;
         $scope.add = function() {
             $scope.parameters.push('');
         };
@@ -88,7 +86,7 @@
             }else{
                 toastr.error('Cannot delete the row');
             }
-        }
+        };
 
         $scope.executeBot=function(){
             if (items.taskConfig.taskType === 'script') {
@@ -115,10 +113,10 @@
             if (items.taskConfig.taskType === 'jenkins') {
                 choiceParam = $scope.jenparams;
             }
-            $scope.executeTask(taskData);
+            $scope.executeTask();
         };
 
-        $scope.executeTask = function(taskData){
+        $scope.executeTask = function(){
             var reqBody = {};
             if (items.taskConfig.taskType === 'jenkins') {
                 reqBody.choiceParam = choiceParam;

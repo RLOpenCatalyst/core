@@ -26,7 +26,7 @@
 					return deferred.promise;
 				}]
 			}
-		})
+		});
 	}])
 	.controller('botsCtrl',['$scope', '$rootScope', '$state', function ($scope, $rootScope, $state) {
 		var treeNames = ['Bots'];

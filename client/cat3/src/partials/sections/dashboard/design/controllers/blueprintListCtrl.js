@@ -30,18 +30,42 @@
                             { name:'InstanceOs',minWidth:150,field:'blueprintConfig.cloudProviderData.instanceOS'},
                             { name:'vpcId',minWidth:150,field:'blueprintConfig.cloudProviderData.vpcId'},
                             { name:'Region',minWidth:150,field:'blueprintConfig.cloudProviderData.region',visible: false},
-                            { name:'Template Type',minWidth:150,field:'templateType'},
+                            { name:'Template Type',minWidth:150,cellTemplate:'<div>{{grid.appScope.getTemplate(row.entity.templateType)}}</div>'},
                             { name:'Instance Type',minWidth:150,field:'blueprintConfig.cloudProviderData.instanceType'},
                             { name:'Keypair',minWidth:150,field:'blueprintConfig.cloudProviderData.keyPairId',visible: false},
                             { name:'Subnet',minWidth:150,field:'blueprintConfig.cloudProviderData.subnetId',visible: false},
                             { name:'Security Group',width:150,field:'blueprintConfig.cloudProviderData.securityGroupIds[0]'},
-                            { name:'Action',minWidth:150,cellTemplate:'<span class="badge cat-btn-update" title="Clone"><i class="fa fa-clone fa-2 white" aria-hidden="true"></i></span> ' +
+                            { name:'Action',minWidth:150,cellTemplate:'<span class="badge cat-btn-update" title="Clone" ng-click="grid.appScope.copyBp(row.entity._id)"><i class="fa fa-clone fa-2 white" aria-hidden="true"></i></span> ' +
                             '&nbsp; <span class="badge cat-btn-update" title="Info" ng-click="grid.appScope.blueprintInfo($event,row.entity,null);"><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>' +
-                            '&nbsp; <span class="badge cat-btn-update" title="Delete"  ng-click="grid.appScope.deleteBp(row.entity._id);"><i class="fa fa-trash-o fa-2 white" aria-hidden="true"></i></span>' +
-                            '&nbsp; <span class="badge cat-btn-update" title="Launch"  ng-click="grid.appScope.launchInstance($event,row.entity);"><i class="fa fa-location-arrow fa-2 white" aria-hidden="true"></i></span>'}
+                            '&nbsp; <span class="badge cat-btn-update" title="Launch"  ng-click="grid.appScope.launchInstance($event,row.entity);"><i class="fa fa-location-arrow fa-2 white" aria-hidden="true"></i></span>' +
+                            '&nbsp; <span class="badge cat-btn-update" title="Delete"  ng-click="grid.appScope.deleteBp($event,row.entity,null);"><i class="fa fa-trash-o fa-2 white" aria-hidden="true"></i></span>'}
                         ];
                     });
                 }
+            };
+            /*method to get the instance role*/
+            $scope.getTemplate = function(templateType) {
+                var templateName = '';
+                var type = '';
+                type = templateType;
+                switch (type) {
+                    case 'chef':
+                        templateName = 'SoftwareStack';
+                        break;
+                    case 'ami':
+                        templateName = 'OSImage';
+                        break;
+                    case 'cft':
+                        templateName = 'CloudFormation';
+                        break;
+                    case 'docker':
+                        templateName = 'Docker';
+                        break;
+                    case 'arm':
+                        templateName = 'ArmTemplate';
+                        break;
+                }
+                return templateName;
             };
             pbList.blueprintInfo = $scope.blueprintInfo =function($event,bpDetails,bpType){
                 $event.stopPropagation();
@@ -63,8 +87,12 @@
             pbList.copyBp = $scope.copyBp =function(ids){
                 bpServ.copyBp(ids);
             };
-            pbList.deleteBp = $scope.deleteBp =function(ids){
-                bpServ.deleteBp(ids);
+            pbList.deleteBp = $scope.deleteBp =function($event,bpDetails,bpType){
+                $event.stopPropagation();
+                gencSers.removeBlueprint(bpDetails,bpType);
+            };
+            $scope.refreshCurrentPageBp = function() {
+                pbList.createList();
             };
             pbList.cloneBlueprint = $scope.cloneBlueprint =function($event,pbId){
                 $event.stopPropagation();
@@ -72,6 +100,9 @@
                 $state.go('dashboard.designSubView',{subItem:$state.params.subItem,view:'edit'});
 
             };
+            $rootScope.$on('BP_BLUEPRINTS_REFRESH_CURRENT', function() {
+                pbList.createList();
+            });
             pbList.createList();
     }]).controller('bpCopyCtrl',['$rootScope','$modalInstance',function ($rootScope,$modalInstance) {
         var bpCopy = this;

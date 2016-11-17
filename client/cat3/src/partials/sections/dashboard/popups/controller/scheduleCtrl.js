@@ -6,12 +6,6 @@
             sch.instanceIds=items;
             sch.interval=[{ind:0,"days":[],"action":"start"}];
             $timeout(function(){$('input.time').trigger('click');},100);
-            $scope.openCalendarStart = function(e, picker) {
-                $scope.openedStart = true;
-            };
-            $scope.openCalendarEnd = function(e, picker) {
-                $scope.openedEnd = true;
-            };
             $scope.validDateRange=false;
             $scope.dateChange= function () {
                 var startDate =  Date.parse(sch.schedulerStartOn);
@@ -46,7 +40,7 @@
                 var params={
                     url:'/instances/schedule',
                     data:sch
-                }
+                };
                 genericServices.promisePut(params).then(function(){
                     toastr.success('successfully created');
                     $modalInstance.dismiss('cancel');
