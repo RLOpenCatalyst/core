@@ -645,34 +645,15 @@ var InstancesDao = function () {
                     return callback(null, instances);
                 } else {
 
-                    // @TODO Workaround to avoid circular dependency to be addressed
-                    var tasks = require('_pr/model/classes/tasks/tasks.js');
                     var instanceList = [];
                     async.forEach(instances.docs, function (instance, next0) {
                         instance = instance.toObject();
                         async.waterfall([
                             function (next) {
                                 if (instance.taskIds.length > 0) {
-                                    tasks.getTaskByIds(instance.taskIds, function (err, tasks) {
-                                        if (err) {
-                                            next(null);
-                                        } else if (tasks.length === 0) {
-                                            next(null);
-                                        } else {
-                                            var taskObj = {};
-                                            var taskList = [];
-                                            for (var j = 0; j < tasks.length; j++) {
-                                                taskObj['id'] = tasks[j]._id;
-                                                taskObj['taskName'] = tasks[j].name;
-                                                taskObj['taskType'] = tasks[j].taskType;
-                                                taskObj['taskConfig'] = tasks[j].taskConfig;
-                                                taskList.push(taskObj);
-                                                taskObj = {};
-                                            }
-                                            ;
-                                            instance['tasks'] = taskList;
-                                            next(null);
-                                        }
+                                    getTasks(instance.taskIds, function (taskList) {
+                                        instance['tasks'] = taskList;
+                                        next(null);
                                     });
                                 } else {
                                     next(null);
@@ -2388,6 +2369,27 @@ var InstancesDao = function () {
 };
 
 module.exports = new InstancesDao();
+
+function getTasks(taskIds, callback) {
+    // @TODO Workaround to avoid circular dependency to be addressed
+    var tasks = require('_pr/model/classes/tasks/tasks.js');
+    var taskList = [];
+    tasks.getTaskByIds(taskIds, function (err, tasks) {
+        if (tasks.length > 0) {
+            var taskObj = {};
+            for (var j = 0; j < tasks.length; j++) {
+                taskObj['id'] = tasks[j]._id;
+                taskObj['taskName'] = tasks[j].name;
+                taskObj['taskType'] = tasks[j].taskType;
+                taskObj['taskConfig'] = tasks[j].taskConfig;
+                taskList.push(taskObj);
+                taskObj = {};
+            }
+            ;
+        }
+        callback(taskList);
+    });
+}
 
 function getProviderDetail(providerId, providerType, callback) {
     if (providerType === 'azure') {
