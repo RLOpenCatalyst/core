@@ -1,9 +1,11 @@
 (function(){
     "use strict";
     angular.module('dashboard')
-        .controller('scheduleCtrl', ['$scope', '$modalInstance', 'items','$filter','genericServices','toastr',function($scope, $modalInstance, items,$filter,genericServices,toastr) {
+        .controller('scheduleCtrl', ['$scope', '$modalInstance', 'items','$filter','genericServices','toastr','$timeout',function($scope, $modalInstance, items,$filter,genericServices,toastr,$timeout) {
             var sch=this;
             sch.instanceIds=items;
+            sch.interval=[{ind:0,"days":[],"action":"start"}];
+            $timeout(function(){$('input.time').trigger('click');},100);
             $scope.openCalendarStart = function(e, picker) {
                 $scope.openedStart = true;
             };
@@ -20,16 +22,23 @@
                     $scope.validDateRange=false;
                 }
             };
+            $scope.addNewTime = function () {
+                sch.interval.push({ind: sch.interval.length,"days":[],"action":"start"});
+                $timeout(function(){$('input.time').trigger('click');},100);
+            };
+            $scope.selectDays=function (d,i) {
+                if(sch.interval[i].days.indexOf(d) === -1){
+                    sch.interval[i].days.push(d);
+                } else {
+                    sch.interval[i].days.splice(sch.interval[i].days.indexOf(d),1);
+                }
+
+            };
+            $scope.removeTime = function (ind) {
+                sch.interval.splice(ind,1);
+            };
             sch.schedulerStartOn=new Date();
             sch.schedulerEndOn=new Date();
-            sch.instanceStartScheduler={
-                repeats:'Minutes',
-                repeatEvery:'1'
-            };
-            sch.instanceStopScheduler={
-                repeats:'Minutes',
-                repeatEvery:'1'
-            };
             sch.cancel = function() {
                 $modalInstance.dismiss('cancel');
             };

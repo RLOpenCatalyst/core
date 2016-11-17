@@ -1,123 +1,141 @@
 <div id='addJenkinsParamsPage'>
     <form name="scheduleForm" novalidate>
-    <div class="modal-header">
-        <span class="close" ng-click="sch.cancel()">×</span>
-        <h4 class="modal-title"><i class="fa fa-calendar"></i> Manage Schedule</h4>
-    </div>
+        <div class="modal-header">
+            <span class="close" ng-click="sch.cancel()">×</span>
+            <h4 class="modal-title"><i class="fa fa-calendar"></i> Manage Schedule</h4>
+        </div>
 
-    <div class="modal-body">
+        <div class="modal-body">
 
-        <div class="col-lg-6 col-md-6 margintop15">
+            <div class="col-lg-6 col-md-6 ">
             <label>Starts on: <span class="red">*</span>
             </label>
             <input id="date-start"  ng-change="dateChange()" required  type="text"  ng-model="sch.schedulerStartOn" class="form-control"  >
-        </div>
-        <div class="col-lg-6 col-md-6 margintop15">
+            </div>
+            <div class="col-lg-6 col-md-6 ">
             <label>Ends on: <span class="red">*</span>
             </label>
             <input ng-change="dateChange()" type="text"  id="date-end" ng-model="sch.schedulerEndOn" class="form-control" required >
             <span class="error red" ng-show="validDateRange">Start Date should be less than End date !</span>
-        </div>
-        <div class="clearfix margintop15"></div>
-        <div class="clearfix margintop15"></div>
-        <fieldset class="repo-job-details-wrapper">
-            <legend class="repo-job-details-wrapper-inner"><i class="fa fa-hourglass-start" ></i> Start Interval </legend>
-        <div class="col-lg-6 col-md-6 margintop15">
-            <label>Repeats: <span class="red">*</span>
-            </label>
-            <select class="form-control" ng-model="sch.instanceStartScheduler.repeats"  required>
-                <option value="Minutes" title="Minute">Minutes</option>
-                <option value="Hourly" title="Hour">Hourly</option>
-                <option value="Daily" title="Day">Daily</option>
-                <option value="Weekly" title="Week">Weekly</option>
-                <option value="Monthly" title="Month">Monthly</option>
-                <option value="Yearly" title="Year">Yearly</option>
-            </select>
-        </div>
-        <div class="col-lg-6 col-md-6 margintop15">
-            <label>Repeat every: <span class="red">*</span>
-            </label>
-            <select class="form-control" ng-model="sch.instanceStartScheduler.repeatEvery"  required>
-                <option value="1">1</option>
-                <option value="2" >2</option>
-                <option value="3" >3</option>
-                <option value="4" >4</option>
-                <option value="5" >5</option>
-                <option value="6" >6</option>
-                <option value="7" >7</option>
-                <option value="8" >8</option>
-                <option value="9" >9</option>
-                <option value="10" >10</option>
-            </select>
-        </div>
+            </div>
+            <div class="clearfix margintop15"></div>
+            <div class="clearfix margintop15"></div>
 
+            <fieldset class="repo-job-details-wrapper">
+            <legend class="repo-job-details-wrapper-inner"><i class="fa fa-hourglass-start" ></i> Interval </legend>
+
+            <table class="table table-striped">
+                <thead>
+                <tr>
+
+                    <th style="width:100px;">Time</th>
+                    <th>Days</th>
+                    <th>Action</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="newTime in sch.interval">
+                    <td><input required type="text" ng-model="newTime.time" class="form-control time"></td>
+                    <td>
+                        <button type="button" class=" btn btn-info btn-xs cat-btn-update btnDay" ng-class="{'activeDay':newTime.days.indexOf(0) !== -1}" ng-click="selectDays(0,sch.interval.indexOf(newTime))" >S</button>
+                        <button type="button" class="btn btn-info btn-xs cat-btn-update btnDay" ng-class="{'activeDay':newTime.days.indexOf(1) !== -1}" ng-click="selectDays(1,sch.interval.indexOf(newTime))"  >M</button>
+                        <button type="button" class="btn btn-info btn-xs cat-btn-update btnDay" ng-class="{'activeDay':newTime.days.indexOf(2) !== -1}" ng-click="selectDays(2,sch.interval.indexOf(newTime))">T</button>
+                        <button type="button" class="btn btn-info btn-xs cat-btn-update btnDay" ng-class="{'activeDay':newTime.days.indexOf(3) !== -1}" ng-click="selectDays(3,sch.interval.indexOf(newTime))" >W</button>
+                        <button type="button" class="btn btn-info btn-xs cat-btn-update btnDay" ng-class="{'activeDay':newTime.days.indexOf(4) !== -1}" ng-click="selectDays(4,sch.interval.indexOf(newTime))" >T</button>
+                        <button type="button" class="btn btn-info btn-xs cat-btn-update btnDay" ng-class="{'activeDay':newTime.days.indexOf(5) !== -1}" ng-click="selectDays(5,sch.interval.indexOf(newTime))" >F</button>
+                        <button type="button" class="btn btn-info btn-xs cat-btn-update btnDay" ng-class="{'activeDay':newTime.days.indexOf(6) !== -1}" ng-click="selectDays(6,sch.interval.indexOf(newTime))" >S</button>
+                    </td>
+                    <td>
+                        <select class="form-control stt" ng-model="newTime.action">
+                            <option value="start">Start</option>
+                            <option value="stop">Stop</option>
+                        </select>
+
+                    </td>
+                    <td><i class="fa fa-times" aria-hidden="true" ng-show="sch.interval.indexOf(newTime) !== 0" ng-click="removeTime(sch.interval.indexOf(newTime))"></i></td>
+                </tr>
+                </tbody>
+            </table>
+                <div class="pull-right">
+                    <button type="button" ng-click="addNewTime()" title="Import By Ip" class="btn btn-xs cat-btn-update" >
+                        <i class="fa fa-plus white"></i>
+                        Add
+                    </button>
+                </div>
 </fieldset>
-        <div class="clearfix margintop15"></div>
-        <div class="clearfix margintop15"></div>
-        <fieldset class="repo-job-details-wrapper">
-            <legend class="repo-job-details-wrapper-inner"><i class="fa fa-hourglass-start" ></i> Stop Interval </legend>
-            <div class="col-lg-6 col-md-6 margintop15">
-                <label>Repeats: <span class="red">*</span>
-                </label>
-                <select class="form-control" ng-model="sch.instanceStopScheduler.repeats"  required>
-                    <option value="Minutes" title="Minute">Minutes</option>
-                    <option value="Hourly" title="Hour">Hourly</option>
-                    <option value="Daily" title="Day">Daily</option>
-                    <option value="Weekly" title="Week">Weekly</option>
-                    <option value="Monthly" title="Month">Monthly</option>
-                    <option value="Yearly" title="Year">Yearly</option>
-                </select>
-            </div>
-            <div class="col-lg-6 col-md-6 margintop15">
-                <label>Repeat every: <span class="red">*</span>
-                </label>
-                <select class="form-control" ng-model="sch.instanceStopScheduler.repeatEvery" required>
-                    <option value="1">1</option>
-                    <option value="2" >2</option>
-                    <option value="3" >3</option>
-                    <option value="4" >4</option>
-                    <option value="5" >5</option>
-                    <option value="6" >6</option>
-                    <option value="7" >7</option>
-                    <option value="8" >8</option>
-                    <option value="9" >9</option>
-                    <option value="10" >10</option>
-                </select>
-            </div>
+            <div class="clearfix"></div>
 
-        </fieldset>
-        <div class="clearfix"></div>
-    </div>
+        </div>
 
-    <div class="modal-footer">
-        <button type="button" class="btn cat-btn-close" ng-click="sch.cancel()">
-            <i class="fa fa-times black"></i> Cancel
-        </button>
-        <button type="button" class="btn cat-btn-update" ng-disabled="scheduleForm.$invalid || validDateRange" ng-click="sch.ok()">
-            <i class="fa fa-check white"></i> Save
-        </button>
-    </div>
+        <div class="modal-footer">
+            <button type="button" class="btn cat-btn-close" ng-click="sch.cancel()">
+                <i class="fa fa-times black"></i> Cancel
+            </button>
+            <button type="button" class="btn cat-btn-update" ng-disabled="scheduleForm.$invalid || validDateRange"
+                    ng-click="sch.ok()">
+                <i class="fa fa-check white"></i> Save
+            </button>
+        </div>
     </form>
 </div>
+<style>
+    .table>thead>tr>th {
+        text-align: center;
+    }
+    .table{
+        text-align: center;
+    }
+    .form-group{
+        margin-bottom: 0px !important;
+    }
+    .stt{
+        height: 28px !important;
+        line-height: 34;
+        font-size: 13px !important;
+    }
+    .btnDay{
+        border-radius: 15px;
+        margin: 0 3px;
+        height: 24px;
+        width: 24px;
+        font-weight: 600;
+    }
+    .activeDay {
+        background: #0B5475 !important;
+    }
+</style>
 <script>
-    $(document).ready(function()
-    {
+    $(document).ready(function () {
         $('#date-end').bootstrapMaterialDatePicker({
-            format: 'DD/MM/YYYY HH:mm',
-            nowButton : true,
+            format: 'DD/MM/YYYY ',
+            weekStart: 1,
+            time: false,
             switchOnClick : true,
             currentDate:new Date()
         });
         $('#date-start').bootstrapMaterialDatePicker({
-            format: 'DD/MM/YYYY HH:mm',
-            nowButton : true,
+            format: 'DD/MM/YYYY',
+            weekStart: 1,
+            time: false,
             switchOnClick : true,
             currentDate:new Date()
         }).on('change', function(e, date)
         {
             $('#date-end').bootstrapMaterialDatePicker('setMinDate', date);
         });
-        $.material.init()
+        $.material.init();
+        $(document).on('click', 'input.time', function(){
+            var $this = $(this);
+            setTimeout(function () {
+                $this.bootstrapMaterialDatePicker({
+                    format: 'HH:mm',
+                    date: false
+                });
+            },100);
+
+        });
+                $.material.init()
     });
 
 </script>
