@@ -103,6 +103,22 @@
 			});
 
 		};
+		$scope.applyFilter = function(bpType) {
+			var organObjectId=[];
+            ///organObjectId.envOptions=$rootScope.organObject[$rootScope.organNewEnt.org].environments;
+            if($rootScope.organObject){
+                var tempType=(bpType) ? bpType :$state.params.templateObj.templatetype;
+                var pagination =(bpType) ? true :false;
+                organObjectId.org =$rootScope.organNewEnt.org.rowid;
+                organObjectId.buss=$rootScope.organNewEnt.buss.rowid;
+                organObjectId.proj=$rootScope.organNewEnt.proj.rowId;
+                var params = {
+                    url: '/organizations/'+organObjectId.org+'/businessgroups/'+organObjectId.buss+'/projects/'+organObjectId.proj+'/blueprintList?pagination='+pagination+'&templateType='+tempType+'&providerType='+angular.lowercase($state.params.providerName)
+                };
+                $rootScope.$emit('BP_BLUEPRINTS_REFRESH_CURRENT');
+                return genericServices.promiseGet(params);
+            }
+		}
 		design.providersList();
 		return design;
 	}]);

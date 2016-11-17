@@ -72,11 +72,9 @@
                 templateDetail.selected = true;
                 $scope.nextEnabled = true;
                 $scope.templateSelected = templateDetail;
-                if($scope.templateSelected.templatescookbooks !== ''){
-                    if($scope.templateSelected.templatetypename === "SoftwareStack"){
-                        $scope.chefComponentSelectorList = $scope.templateSelected.templatescookbooks;
-                        $scope.chefrunlist = responseFormatter.findDataForEditValueString($scope.chefComponentSelectorList);
-                    }
+                if($scope.templateSelected.templatescookbooks !== '' && $scope.templateSelected.templatetypename === "SoftwareStack"){
+                    $scope.chefComponentSelectorList = $scope.templateSelected.templatescookbooks;
+                    $scope.chefrunlist = responseFormatter.findDataForEditValueString($scope.chefComponentSelectorList);
                 } 
                 $scope.dockerDetails = [];
                 //items gives the details of the selected blueprint.
