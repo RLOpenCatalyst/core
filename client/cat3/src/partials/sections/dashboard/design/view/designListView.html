@@ -11,8 +11,7 @@
             <!-- <button type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ng-click="isOpenSidebar = !isOpenSidebar">
                 <i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;Filter
             </button> -->
-            <button type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" >&nbsp;<i class="fa fa-refresh fa-2 white" aria-hidden="true"></i>&nbsp;</button>
-            <button type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ng-if="bpList.selectedCards.length > 0 && bpList.viewTypeList === false" ng-click="bpList.deleteBp(bpList.selectedCards)" ><i class="fa fa-trash-o fa-2 white" aria-hidden="true"></i>&nbsp;Delete</button>
+            <button type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ng-click="refreshCurrentPageBp()">&nbsp;<i class="fa fa-refresh fa-2 white" aria-hidden="true"></i>&nbsp;</button>
             <button type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ng-if="bpList.selectedCards.length > 0 && bpList.viewTypeList === false" ng-click="bpList.copyBp(bpList.selectedCards)" ><i class="fa fa-clone fa-2 white" aria-hidden="true"></i>&nbsp;Copy</button>
     </div>
 </div>
@@ -61,6 +60,7 @@
                         <!-- <button class="btn btn-xs cat-btn-update bpvicon " title="Edit" ng-click="bpList.editBlueprint($event,blueprint._id);"><i class="fa fa-pencil fa-2 white"></i></button> -->
                         <button class="btn btn-xs cat-btn-update bpvicon" title="Launch" ng-click="bpList.launchInstance($event,blueprint);"><i class="fa fa-location-arrow fa-2 white"></i></button>
                         <button class="btn btn-xs cat-btn-update bpvicon" title="Info" ng-click="bpList.blueprintInfo($event,blueprint,null)"><i class="fa fa-info fa-2 white"></i></button>
+                        <button class="btn btn-xs cat-btn-update bpvicon" title="Delete" ng-click="bpList.deleteBp($event,blueprint,null)" ><i class="fa fa-trash-o fa-2 white" aria-hidden="true"></i></button>
                     </ul>
 
                 </div>
