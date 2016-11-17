@@ -7,19 +7,18 @@
             scope: {
                 msgConfig:'=',
             },
-            link: function (scope,element) {
+            link: function (scope) {
                 $timeout(function(){
                     if(scope.msgConfig.role){
-                    $('[data-toggle="tooltip"]').tooltip({
-                        title:scope.msgConfig.text,
-                        placement: scope.msgConfig.positions,
-                        html:true
-                    });
-               }
+                        $('[data-toggle="tooltip"]').tooltip({
+                            title:scope.msgConfig.text,
+                            placement: scope.msgConfig.positions,
+                            html:true
+                        });
+                    }
                 },100);
                 scope.msgConfig = scope.msgConfig;
             }
         };
-    }]);
-    
+    }]); 
 })(angular);

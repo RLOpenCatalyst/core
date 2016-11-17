@@ -33,7 +33,7 @@
                             axisLabel: 'Date',
                             showMaxMin: false,
                             tickFormat: function (d) {
-                                return d3.time.format('%d/%m %H:%M')(new Date(d))
+                                return d3.time.format('%d/%m %H:%M')(new Date(d));
                             }
                         },
                         yAxis: {
@@ -93,7 +93,7 @@
                                     {name: 'maximum', field: 'maximum'},
                                     {name: 'minimum', field: 'minimum'},
                                     {name: 'average', field: 'average'},
-                                ]
+                                ];
                                 angular.forEach(result[usage.splitUp].dataPoints, function (value) {
                                     usage.costGridOptions.data.push({
                                         name:$rootScope.filterNewEnt.platformId[resId],
@@ -119,19 +119,19 @@
                     analyticsServices.applyFilter(filterApp,period);
                     if($state.current.name === "dashboard.analytics.usage") {
                         usage.splitUp='CPUUtilization';
-                       usage.trendsChart($rootScope.filterNewEnt);
+                        usage.trendsChart($rootScope.filterNewEnt);
                     }
                 };
                 usage.splitChange=function() {
                     usage.getData($rootScope.filterNewEnt);
                 };
                 usage.init =function(){
-                        $rootScope.organNewEnt.instanceType='Unassigned';
-                        $rootScope.organNewEnt.provider='0';
+                    $rootScope.organNewEnt.instanceType='Unassigned';
+                    $rootScope.organNewEnt.provider='0';
                     $rootScope.$emit('INI_usage', 'Unassigned');
-                        $timeout(function(){$rootScope.applyFilter(true,'month')},500);
-                        var treeNames = ['Analytics','Usage'];
-                        $rootScope.$emit('treeNameUpdate', treeNames);
+                    $timeout(function(){$rootScope.applyFilter(true,'month')},500);
+                    var treeNames = ['Analytics','Usage'];
+                    $rootScope.$emit('treeNameUpdate', treeNames);
 
                 };
             usage.init();

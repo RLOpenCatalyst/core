@@ -4,10 +4,10 @@
         .controller('scheduleCtrl', ['$scope', '$modalInstance', 'items','$filter','genericServices','toastr',function($scope, $modalInstance, items,$filter,genericServices,toastr) {
             var sch=this;
             sch.instanceIds=items;
-            $scope.openCalendarStart = function(e, picker) {
+            $scope.openCalendarStart = function() {
                 $scope.openedStart = true;
             };
-            $scope.openCalendarEnd = function(e, picker) {
+            $scope.openCalendarEnd = function() {
                 $scope.openedEnd = true;
             };
             $scope.validDateRange=false;
@@ -37,7 +37,7 @@
                 var params={
                     url:'/instances/schedule',
                     data:sch
-                }
+                };
                 genericServices.promisePut(params).then(function(){
                     toastr.success('successfully created');
                     $modalInstance.dismiss('cancel');

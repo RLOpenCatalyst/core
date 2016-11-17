@@ -15,7 +15,7 @@
 					$modalInstance.close({bp:items,stackName:$scope.stackName,domainName:$scope.domainName,tagServer:$scope.tagSerSelected,launchEnv:$scope.envSeleted});
 				}
 			};
-			var bPLP=this;
+			//var bPLP=this;
 			$scope.taggingServerList=[];
 			$scope.envOptions=[];
 			workzoneServices.getTaggingServer().then(function (topSer) {
