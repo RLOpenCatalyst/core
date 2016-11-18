@@ -65,8 +65,14 @@
 				$scope.tab.setTab(tabName);
 			};
 		}
-	]).controller('cpScheduleCtrl', ['$scope','genericServices', function ($scope, genericServices) {
+	]).controller('cpScheduleCtrl', ['$scope','genericServices','toastr','$timeout', function ($scope, genericServices,toastr,$timeout) {
 		var cpInstance = $scope.$parent.cpInstance;
+		$scope.schedule={
+			instanceIds:[cpInstance._id],
+			schedulerStartOn:moment(new Date()).format('DD/MM/YYYY'),
+			schedulerEndOn:moment(new Date()).format('DD/MM/YYYY'),
+			interval:[{ind:0,"days":[],"action":"start"}]
+		};
 		var params={
 			url:'/instances/'+cpInstance._id
 			//url:'src/partials/sections/dashboard/workzone/data/oneIns.json'
@@ -74,19 +80,34 @@
 		genericServices.promiseGet(params).then(function (result) {
 			$scope.schedule={
 				isScheduled:result.isScheduled,
-				schedulerStartOn:moment(result.schedulerStartOn).format('DD/MM/YYYY HH:mm'),
-				schedulerEndOn:moment(result.schedulerEndOn).format('DD/MM/YYYY HH:mm'),
-				instanceStartScheduler:{
-					repeats:result.instanceStartScheduler.repeats,
-					repeatEvery:result.instanceStartScheduler.repeatEvery.toString()
-				},
-				instanceStopScheduler:{
-					repeats:result.instanceStopScheduler.repeats,
-					repeatEvery:result.instanceStopScheduler.repeatEvery.toString()
-				}
+				schedulerStartOn:moment(result.schedulerStartOn).format('DD/MM/YYYY'),
+				schedulerEndOn:moment(result.schedulerEndOn).format('DD/MM/YYYY'),
+				interval:result.interval
 			};
 		});
+		$scope.addNewTime = function () {
+			$scope.schedule.interval.push({ind: $scope.schedule.length,"days":[],"action":"start"});
+			$timeout(function(){$('input.time').trigger('click');},100);
+		};
+		$scope.selectDays=function (d,i) {
+			if($scope.schedule.interval[i].days.indexOf(d) === -1){
+				$scope.schedule.interval[i].days.push(d);
+			} else {
+				$scope.schedule.interval[i].days.splice($scope.schedule.interval[i].days.indexOf(d),1);
+			}
+
+		};
+		$scope.removeTime = function (ind) {
+			$scope.schedule.interval.splice(ind,1);
+		};
 		$scope.saveOk=function () {
+			var params={
+				url:'/instances/schedule',
+				data:$scope.schedule
+			};
+			genericServices.promisePut(params).then(function(){
+				toastr.success('successfully created');
+			});
 
 		};
 	}]);
