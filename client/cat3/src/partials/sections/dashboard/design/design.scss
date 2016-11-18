@@ -1,0 +1,421 @@
+#well{
+    min-height: 35px;
+    padding: 9px;
+    margin: 11px 0 0 0;
+    background-color: #FDFDFD;
+    border-bottom: 1px solid #e3e3e3;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-radius: none !important;
+    -webkit-box-shadow: none !important;
+    box-shadow: none !important;
+    span{
+        margin-left: 13px;
+    }
+}
+
+// create card
+.productdiv4 {
+    width: 156px;
+    float: left;
+    padding-top: 7px;
+    margin-left: 10px;
+    padding-left:10px;
+}
+.productdiv1 {
+    position: relative;
+    border-width: 1px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+.cardimage {
+    background-repeat: no-repeat;
+    height: 163px;
+    margin-left: 15px;
+    li{
+        &.card-title{
+            font-weight: bold;
+        }
+        &.btns-group{
+            text-align: center; position: absolute; left: 0; right: 0; bottom: 10px; padding-top:10px; border-top: 1px solid #ccc;
+        }
+    }
+
+}
+.moreInfoabsolute {
+    position: absolute;
+    margin-left: -28px;
+}
+.moreInfo {
+    background-position: -15px -12px;
+    width: 27px;
+    height: 27px;
+}
+.blue-hr {
+    margin-top: 20px;
+    margin-bottom: 6px;
+    border: 0;
+    border-top: 1px solid #eee;
+}
+.bpvicon {
+    border-radius: 11px !important;
+    height: 25px;
+    width: 25px;
+    padding: 0px 5px;
+    margin: 0 5px;
+}
+#create-bp {
+    height: 455px;
+    overflow-y: auto;
+}
+
+.blueprintTemplate {
+    background-color: #ffffff;
+    border: 1px solid #dddddd;
+    border-radius: 4px;
+    height: 152px;
+    padding: 4px;
+    width: 152px;
+    cursor: pointer;
+    margin: 15px 15px 0 0;
+}
+
+.blueprintTemplateSelected {
+    border: 2px solid #40baf1;
+    border-radius: 4px;
+}
+
+label {
+    color: #444;
+    font-weight: 400;
+    font-size: 13px;
+}
+
+.form-control {
+    font-size: 13px;
+    height:36px;
+}
+
+.securityGroupComponent {
+    height: 140px;
+    overflow-y: scroll;
+    border:1px solid gray;
+    padding: 0px;
+    width:100%;
+}
+
+.cardLogo {
+    height: 52px;
+    padding-top: 11px;
+    margin-top: 20px;
+    margin-left: 8px;
+}
+
+.scroll-bluePrints {
+    max-height: 400px;
+    overflow: auto;
+}
+
+.selected{
+    border: 2px solid #40BAF1 !important;
+}
+
+.fa-question-circle {
+    font-size: 18px;
+}
+
+.accordionClear {
+    clear:both;
+}
+
+.applicationUrl-text {
+    margin-top: 20px;
+}
+
+.appCreateBtn {
+    margin-bottom: 10px; 
+}
+
+.blueprintFooter {
+    position: fixed;
+    bottom: 0px;
+    margin-left: 452px;
+}
+.search {
+    width: 100% !important;
+    position: relative;
+    font-size: 18px;
+    padding-top: 0px;
+}
+.search .search-input, .search .hint {
+    padding-left: 24px;
+    padding-right: 16px;
+    border-radius: 23px;
+    height: 30px !important;
+    outline: none !important;
+    font-size: 11px;
+}
+.bp-select{
+    font-size: 11px !important;
+    height: 28px !important;
+    display: inline !important;
+    width: auto !important;
+}
+.bp-panel-body{
+    max-height: 200px;
+    min-height: 200px;
+    overflow-y: auto;
+}
+.activeLi{
+    background: #E2E2E2 !important;
+}
+.bpListComp :hover{
+    cursor:move !important;
+}
+.badge :hover{
+    cursor: pointer !important;
+}
+.bp-list-grid {
+    height: 67vh;
+}
+
+#wizardContainer {
+    .wizardbtn-circle {
+        width: 49px;
+        height: 49px;
+        text-align: center;
+        padding: 5px 0;
+        font-size: 20px;
+        line-height: 2.00;
+        border-radius: 30px;
+        margin: 0 25px;
+    }
+
+    .wizardbtn-text {
+        font-size: 12px;
+        vertical-align: middle;
+        line-height: 3;
+    }
+
+    .wizardActiveBtn {
+        background-color: #286090;
+        color: #fff !important;
+        box-shadow: 0 0 5px #286090;
+    }
+
+    .process-btn {
+        background-color: #d2cbcb;
+        /*#7d7676*/
+        color: #fff;
+        box-shadow: 0 0 5px #888888;
+
+    }
+    .disable {
+        cursor: not-allowed !important;
+        pointer-events: none;
+    }
+
+    #introWizard ul li {
+        text-decoration: none;
+        list-style: none;
+    }
+
+    .li-margin {
+        margin: 0 20px;
+        width: 30px;
+    }
+
+    .btn-cls {
+        width: 61%;
+        background: transparent url("/cat3/images/global/dot.jpg") no-repeat scroll -27px 25px;
+        height: 45px;
+        background-size: 100%;
+        margin: auto;
+    }
+
+    .btn-1 {
+        float: left;
+        text-align: center;
+        padding: 3px 15px;
+    }
+
+    .wizardLabelName {
+        padding-top: 10px;
+        color: #7d7676;
+    }
+
+    .wizardFormControls {
+        display: inline;
+        height: 32px;
+        padding: 6px 12px;
+        font-size: 13px;
+        line-height: 1.428571429;
+        color: #555;
+        vertical-align: middle;
+        background-color: #fff;
+        background-image: none;
+        border: 1px solid #ccc;
+        transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+        height: 29px;
+    }
+    .finshed {
+        background-color: #5cb85c !important;
+        color: #fff !important;
+    }
+    .select {
+        background: #286090 !important;
+        color: #fff !important;
+        cursor: not-allowed !important;
+        pointer-events: none;
+    }
+}
+
+
+.nav-tabs li {
+    cursor: pointer;
+    .active a, .nav-tabs li.active a:hover {
+        border-bottom-width: 0px;
+        border-top-width: 3px;
+        border-color: #40BAF1;
+        background: #fcfcfc;
+    }
+    .active > a:first-child {
+        color: #337ab7;
+    }
+}
+
+
+
+#crumbs{
+    margin: auto;
+    width: 100%;
+}
+.stp{
+    font-size: 25px;
+}
+#crumbs ul {
+    list-style: none; display: block;
+
+}
+#crumbs ul li {
+    background: rgb(242, 242, 242); margin: 0px 20px; display: inline-block;
+    margin-bottom: 5px;
+}
+#crumbs ul li div {
+    margin: 0px 10px 0px 0px;    text-align: left; color: rgb(0, 0, 0); font-size: 12px; text-decoration: none; float: left; display: block; position: relative;
+}
+#crumbs ul li div br {
+    color: rgb(255, 255, 255);
+}
+#crumbs ul li div  {
+    padding: 0px 0 0 7px;
+    font-size: 14px;
+    font-weight: 600;
+    width: 102%;
+}
+#crumbs ul li div::after {
+    top: 0px;
+    right: -34px;
+    border-top-color: transparent;
+    border-bottom-color: transparent;
+    border-left-color: rgb(242, 242, 242);
+    border-top-width: 22px;
+    border-bottom-width: 20px;
+    border-left-width: 24px;
+    border-top-style: solid;
+    border-bottom-style: solid;
+    border-left-style: solid;
+    position: absolute;
+    z-index: 1;
+    content: "";
+}
+#crumbs ul .active div::after{
+    border-top-width: 18px !important;
+    border-bottom-width: 32px !important;
+}
+#crumbs ul li div::before {
+    left: 0px; top: 0px; position: absolute; content: "";
+}
+#crumbs ul li:hover {
+    background: rgb(0, 158, 224); color: rgb(255, 255, 255);
+}
+#crumbs ul li div:hover::after {
+    border-left-color: rgb(0, 158, 224);
+}
+
+
+#crumbs ul li.finished {
+    background: #5cb85c;
+}
+#crumbs ul li.finished {
+    color: rgb(255, 255, 255);
+}
+#crumbs ul li.finished div {
+    color: rgb(255, 255, 255);
+}
+#crumbs ul li.finished div::after {
+    border-left-color: #5cb85c;
+}
+#crumbs ul li.finished:hover {
+    background: #40BAF1;
+}
+#crumbs ul li.finished:hover div::after {
+    border-left-color: #40BAF1;
+}
+ul.simple-list > li.finished::before {
+    color: rgb(255, 255, 255);
+}
+
+
+
+#crumbs ul li.selected {
+    background: #40BAF1;
+}
+#crumbs ul li.selected {
+    color: rgb(255, 255, 255);
+}
+#crumbs ul li.selected div {
+    color: rgb(255, 255, 255);
+}
+#crumbs ul li.selected div::after {
+    border-left-color: #40BAF1;
+}
+
+ul.simple-list > li:hover::before {
+    color: rgb(255, 255, 255);
+}
+ul.simple-list > li.selected::before {
+    color: rgb(255, 255, 255);
+}
+ul.simple-list {
+    padding: 0px; list-style-type: none; counter-reset: li-counter;
+}
+ul.simple-list > li {
+    margin-bottom: 20px; position: relative; min-height: 3em;
+}
+ul.simple-list > li:hover::before {
+    color: rgb(255, 255, 255);
+}
+ul.simple-list > li::after {
+    height: 0px; clear: both; display: block; visibility: hidden; content: "";
+}
+#crumbs ul.simple-list > li:hover div {
+    color: rgb(255, 255, 255);
+}
+#crumbs ul.simple-list > li:hover div::after {
+
+}
+.disabled{
+    cursor:not-allowed !important;
+    box-shadow: none;
+    opacity: .65;
+    pointer-events: none;
+}
+.Cardtextoverflow{
+    font-size: 12px;
+    overflow: hidden;
+    padding-left: 0px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

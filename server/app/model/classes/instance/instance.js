@@ -1,12 +1,12 @@
 /*
  Copyright [2016] [Relevance Lab]
-
+ 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
-
+ 
  http://www.apache.org/licenses/LICENSE-2.0
-
+ 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,6 +23,11 @@ var uniqueValidator = require('mongoose-unique-validator');
 var logger = require('_pr/logger')(module);
 var textSearch = require('mongoose-text-search');
 var apiUtils = require('_pr/lib/utils/apiUtil.js');
+var async = require('async');
+var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js');
+var AzureProvider = require('_pr/model/classes/masters/cloudprovider/azureCloudProvider.js');
+var VmwareProvider = require('_pr/model/classes/masters/cloudprovider/vmwareCloudProvider.js');
+var OpenStackProvider = require('_pr/model/classes/masters/cloudprovider/openstackCloudProvider.js');
 
 var Schema = mongoose.Schema;
 
@@ -329,8 +334,8 @@ var InstanceSchema = new Schema({
     },
     subnetId: {
         type: String,
-            required: false,
-            trim: true
+        required: false,
+        trim: true
     },
     vpcId: {
         type: String,
@@ -353,7 +358,66 @@ var InstanceSchema = new Schema({
         required: false,
         default: false
     },
-    appInfo: [Schema.Types.Mixed]
+    appInfo: [Schema.Types.Mixed],
+    tagServer: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    instanceStartScheduler: {
+        cronPattern: {
+            type: String,
+            required: false,
+            trim: true
+        },
+        repeats: {
+            type: String,
+            required: false,
+            trim: true
+        },
+        repeatEvery: {
+            type: Number,
+            required: false,
+            trim: true
+        }
+    },
+    instanceStopScheduler: {
+        cronPattern: {
+            type: String,
+            required: false,
+            trim: true
+        },
+        repeats: {
+            type: String,
+            required: false,
+            trim: true
+        },
+        repeatEvery: {
+            type: Number,
+            required: false,
+            trim: true
+        }
+    },
+    schedulerStartOn: {
+        type: Number,
+        required: false,
+        trim: true
+    },
+    schedulerEndOn: {
+        type: Number,
+        required: false,
+        trim: true
+    },
+    cronJobId: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    isScheduled: {
+        type: Boolean,
+        required: false,
+        default: false
+    }
 });
 
 InstanceSchema.plugin(uniqueValidator);
@@ -497,7 +561,13 @@ var InstancesDao = function() {
                     err.status = 500;
                     return callback(err);
                 } else {
-                    databaseCall.queryObj['$or'] = [{ "instanceState": "running" }, { "instanceState": "stopped" }, { "instanceState": "pending" }];
+                    databaseCall.queryObj['$or'] = [{
+                        "instanceState": "running"
+                    }, {
+                        "instanceState": "stopped"
+                    }, {
+                        "instanceState": "pending"
+                    }];
                     Instances.paginate(databaseCall.queryObj, databaseCall.options, function(err, instances) {
                         if (err) {
                             logger.error(err);
@@ -587,47 +657,40 @@ var InstancesDao = function() {
                     return callback(null, instances);
                 } else {
 
-                    // @TODO Workaround to avoid circular dependency to be addressed
-                    var tasks = require('_pr/model/classes/tasks/tasks.js');
-                    var instanceList = instances.docs;
-                    var count = 0;
-                    for (var i = 0; i < instanceList.length; i++) {
-                        (function(instance) {
-                            if (instance.taskIds.length > 0) {
-                                tasks.getTaskByIds(instance.taskIds, function(err, tasks) {
-                                    if (err) {
-                                        logger.error(err);
-                                        return;
-                                    } else if (tasks.length === 0) {
-                                        return;
-                                    } else {
-                                        count++;
-                                        var taskObj = {};
-                                        var taskList = [];
-                                        for (var j = 0; j < tasks.length; j++) {
-                                            taskObj['id'] = tasks[j]._id;
-                                            taskObj['taskName'] = tasks[j].name;
-                                            taskObj['taskType'] = tasks[j].taskType;
-                                            taskObj['taskConfig'] = tasks[j].taskConfig;
-                                            taskList.push(taskObj);
-                                            taskObj = {};
-                                        };
+                    var instanceList = [];
+                    async.forEach(instances.docs, function(instance, next0) {
+                        instance = instance.toObject();
+                        async.waterfall([
+                            function(next) {
+                                if (instance.taskIds.length > 0) {
+                                    getTasks(instance.taskIds, function(taskList) {
                                         instance['tasks'] = taskList;
-                                        if (instanceList.length === count) {
-                                            instances.docs = instanceList;
-                                            return callback(null, instances);
+                                        next(null);
+                                    });
+                                } else {
+                                    next(null);
+                                }
+                            },
+                            function(next) {
+                                if (instance.providerId && instance.providerType) {
+                                    getProviderDetail(instance.providerId, instance.providerType, function(err, providerData) {
+                                        if (providerData) {
+                                            instance['providerName'] = providerData.providerName;
                                         }
-                                    }
-                                })
-                            } else {
-                                count++;
-                                if (instanceList.length === count) {
-                                    instances.docs = instanceList;
-                                    return callback(null, instances);
+                                        next(null, instance);
+                                    });
+                                } else {
+                                    next(null, instance);
                                 }
                             }
-                        })(instanceList[i]);
-                    }
+                        ], function(err, instance) {
+                            instanceList.push(instance);
+                            next0();
+                        });
+                    }, function(err) {
+                        instances.docs = instanceList;
+                        return callback(null, instances);
+                    });
                 }
             });
         } else {
@@ -729,7 +792,7 @@ var InstancesDao = function() {
         });
     };
 
-    this.checkInstancesDependencyByFieldName = function(fieldName,id, callback) {
+    this.checkInstancesDependencyByFieldName = function(fieldName, id, callback) {
         logger.debug("Enter checkInstancesDependencyByFieldName (%s,)", id);
         var queryObj = {
             $or: [{
@@ -739,7 +802,7 @@ var InstancesDao = function() {
             }, {
                 serviceIds: id
             }],
-            isDeleted:false
+            isDeleted: false
         }
         Instances.find(queryObj, function(err, data) {
             if (err) {
@@ -1545,7 +1608,7 @@ var InstancesDao = function() {
     };
 
 
-    this.insertDockerActionLog = function(instanceId, user,action,actionId, timestampStarted, callback) {
+    this.insertDockerActionLog = function(instanceId, user, action, actionId, timestampStarted, callback) {
         logger.debug("Enter insertDockerActionLog ", instanceId, user, timestampStarted);
         var log = {
             type: actionId,
@@ -1715,8 +1778,8 @@ var InstancesDao = function() {
         return log;
     };
 
-    this.insertInstanceStatusActionLog = function(instanceId,user,instanceState, timestampStarted, callback) {
-        logger.debug("Enter insertInstanceStatusActionLog ", instanceId,user,instanceState, timestampStarted);
+    this.insertInstanceStatusActionLog = function(instanceId, user, instanceState, timestampStarted, callback) {
+        logger.debug("Enter insertInstanceStatusActionLog ", instanceId, user, instanceState, timestampStarted);
         var log = {
             completed: true,
             success: true,
@@ -1726,21 +1789,21 @@ var InstancesDao = function() {
                 'instance-State': instanceState
             }
         };
-        if(instanceState === 'terminated'){
+        if (instanceState === 'terminated') {
             log.type = ACTION_LOG_TYPES.TERMINATED.type;
             log.name = ACTION_LOG_TYPES.TERMINATED.name
-        }else if(instanceState === 'deleted'){
+        } else if (instanceState === 'deleted') {
             log.type = ACTION_LOG_TYPES.DELETE.type;
             log.name = ACTION_LOG_TYPES.DELETE.name
-        }else if(instanceState === 'stopped'){
+        } else if (instanceState === 'stopped') {
             log.type = ACTION_LOG_TYPES.STOP.type;
             log.name = ACTION_LOG_TYPES.STOP.name
-        }else if(instanceState === 'shutting-down'){
+        } else if (instanceState === 'shutting-down') {
             log.type = ACTION_LOG_TYPES.SHUTDOWN.type;
             log.name = ACTION_LOG_TYPES.SHUTDOWN.name
-        }else{
+        } else {
             log.type = ACTION_LOG_TYPES.START.type;
-            log.name = ACTION_LOG_TYPES.START.name  
+            log.name = ACTION_LOG_TYPES.START.name
         }
         var logId = insertActionLog(instanceId, log, callback);
         log._id = logId;
@@ -2135,16 +2198,16 @@ var InstancesDao = function() {
 
     this.updateInstanceStatus = function(instanceId, instance, callback) {
         var updateObj = {};
-        if(instance.status && instance.status === 'shutting-down'){
+        if (instance.status && instance.status === 'shutting-down') {
             updateObj['instanceState'] = instance.status;
             updateObj['isDeleted'] = true;
-        }else if(instance.state === 'terminated' || instance.state === 'shutting-down'){
+        } else if (instance.state === 'terminated' || instance.state === 'shutting-down') {
             updateObj['instanceState'] = instance.state;
             updateObj['isDeleted'] = true;
-        }else{
+        } else {
             updateObj['instanceState'] = instance.state;
             updateObj['isDeleted'] = false;
-            updateObj['subnetId']= instance.subnetId;
+            updateObj['subnetId'] = instance.subnetId;
             updateObj['instanceIP'] = instance.ip;
             updateObj['vpcId'] = instance.vpcId;
             updateObj['hostName'] = instance.hostName;
@@ -2186,7 +2249,10 @@ var InstancesDao = function() {
     };
 
     this.getAllTerminatedInstances = function(orgId, callback) {
-        Instances.find({ "orgId": orgId, "instanceState": "terminated" }, function(err, data) {
+        Instances.find({
+            "orgId": orgId,
+            "instanceState": "terminated"
+        }, function(err, data) {
             if (err) {
                 return callback(err, null);
             } else {
@@ -2285,12 +2351,13 @@ var InstancesDao = function() {
             });
         }
     };
-    this.updatedRoute53HostedZoneParam = function(instanceId,route53HostedZoneParams,callback){
+
+    this.updatedRoute53HostedZoneParam = function(instanceId, route53HostedZoneParams, callback) {
         Instances.update({
             "_id": ObjectId(instanceId)
         }, {
             $set: {
-                route53HostedParams:route53HostedZoneParams
+                route53HostedParams: route53HostedZoneParams
             }
         }, function(err, data) {
             if (err) {
@@ -2301,6 +2368,193 @@ var InstancesDao = function() {
             callback(null, data);
         });
     };
+
+    this.updateInstanceScheduler = function(instanceId, callback) {
+        Instances.update({
+            "_id": new ObjectId(instanceId),
+        }, {
+            $set: {
+                isScheduled: false
+            }
+        }, {
+            upsert: false
+        }, function(err, data) {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            callback(null, data);
+        });
+    };
+    this.updateInstanceSchedulerCronJobId = function(instanceId, cronJobId, callback) {
+        Instances.update({
+            "_id": new ObjectId(instanceId),
+        }, {
+            $set: {
+                cronJobId: cronJobId
+            }
+        }, {
+            upsert: false
+        }, function(err, data) {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            callback(null, data);
+        });
+    };
+    this.getScheduledInstances = function(callback) {
+        Instances.find({
+            isScheduled: true,
+            isDeleted: false
+        }, function(err, instances) {
+            if (err) {
+                logger.error(err);
+                return callback(err, null);
+            }
+            callback(null, instances);
+        })
+    }
+
+    this.updateScheduler = function(instanceIds, instanceScheduler, callback) {
+        var instanceIdList = [];
+        if (instanceIds.length > 0) {
+            for (var i = 0; i < instanceIds.length; i++) {
+                instanceIdList.push(ObjectId(instanceIds[i]));
+            }
+            if (instanceIdList.length === instanceIds.length) {
+                Instances.update({
+                    "_id": {
+                        $in: instanceIdList
+                    }
+                }, {
+                    $set: {
+                        instanceStartScheduler: instanceScheduler.instanceStartScheduler,
+                        instanceStopScheduler: instanceScheduler.instanceStopScheduler,
+                        schedulerStartOn: instanceScheduler.schedulerStartOn,
+                        schedulerEndOn: instanceScheduler.schedulerEndOn,
+                        isScheduled: instanceScheduler.isScheduled
+                    },
+                }, { multi: true }, function(err, data) {
+                    if (err) {
+                        logger.error("Failed to update managed Instance status data", err);
+                        callback(err, null);
+                        return;
+                    }
+                    callback(null, data);
+                });
+            }
+        } else {
+            logger.error("There is no instance Id attached for updating scheduler");
+            callback({
+                errMsg: "There is no instance Id attached for updating scheduler",
+                errCode: 400
+            }, null);
+            return;
+        }
+    };
+
+    this.aggregate = function(aggregationParams, callback) {
+        Instances.aggregate(aggregationParams, callback);
+    };
+
+    this.getInstancesByTagServer = function(tagServer, callback) {
+        Instances.find({
+            "tagServer": tagServer
+        }, function(err, data) {
+            if (err) {
+                return callback(err, null);
+            } else {
+                callback(null, data);
+            }
+        });
+    };
 };
 
 module.exports = new InstancesDao();
+
+function getTasks(taskIds, callback) {
+    // @TODO Workaround to avoid circular dependency to be addressed
+    var tasks = require('_pr/model/classes/tasks/tasks.js');
+    var taskList = [];
+    tasks.getTaskByIds(taskIds, function(err, tasks) {
+        if (tasks.length > 0) {
+            var taskObj = {};
+            for (var j = 0; j < tasks.length; j++) {
+                taskObj['id'] = tasks[j]._id;
+                taskObj['taskName'] = tasks[j].name;
+                taskObj['taskType'] = tasks[j].taskType;
+                taskObj['taskConfig'] = tasks[j].taskConfig;
+                taskList.push(taskObj);
+                taskObj = {};
+            };
+        }
+        callback(taskList);
+    });
+}
+
+function getProviderDetail(providerId, providerType, callback) {
+    if (providerType === 'azure') {
+        AzureProvider.getAzureCloudProviderById(providerId, function(err, providerData) {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            if (providerData !== 0) {
+                var jsonData = JSON.parse(providerData);
+                callback(null, jsonData);
+                return;
+            } else {
+                callback(null, null);
+                return;
+            }
+        });
+
+    } else if (providerType === 'openstack') {
+
+        OpenStackProvider.getopenstackProviderById(providerId, function(err, providerData) {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            if (providerData !== null) {
+                callback(null, providerData);
+                return;
+            } else {
+                callback(null, null);
+                return;
+            }
+        });
+
+    } else if (providerType === 'vmware') {
+
+        VmwareProvider.getvmwareProviderById(providerId, function(err, providerData) {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            if (providerData !== null) {
+                callback(null, providerData);
+                return;
+            } else {
+                callback(null, null);
+                return;
+            }
+        })
+
+    } else {
+        AWSProvider.getAWSProviderById(providerId, function(err, providerData) {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            if (providerData !== null) {
+                callback(null, providerData);
+                return;
+            } else {
+                callback(null, null);
+                return;
+            }
+        });
+    }
+}

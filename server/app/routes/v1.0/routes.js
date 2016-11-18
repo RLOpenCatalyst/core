@@ -74,6 +74,7 @@ var scripts = require('./routes_scripts');
 var fileUpload = require('./routes_fileUpload');
 var zabbix = require('./routes_zabbix');
 var settingWizard = require('./routes_setting_wizard');
+var configData = require('./routes_config_data');
 /*
  * @TODO
  * Change app to router in internal routes files
@@ -182,6 +183,8 @@ module.exports.setRoutes = function(app) {
 
     zabbix.setRoutes(app, sessionVerificationFunc);
     settingWizard.setRoutes(app, sessionVerificationFunc);
+
+    configData.setRoutes(app, sessionVerificationFunc);
 
 
     app.get('/', function(req, res) {
