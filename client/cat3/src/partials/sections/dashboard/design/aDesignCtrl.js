@@ -98,7 +98,7 @@
 					$rootScope.organNewEnt.buss = orgs[0].businessGroups[0];
 					$rootScope.organNewEnt.proj = orgs[0].businessGroups[0].projects[0];
 					$state.go('dashboard.design.list',{providerName:providers[0].name,templateObj:template[0]});
-
+					$rootScope.$emit('BP_BLUEPRINTS_REFRESH_CURRENT');
 				});
 			});
 
@@ -112,9 +112,16 @@
                 organObjectId.org =$rootScope.organNewEnt.org.rowid;
                 organObjectId.buss=$rootScope.organNewEnt.buss.rowid;
                 organObjectId.proj=$rootScope.organNewEnt.proj.rowId;
-                var params = {
-                    url: '/organizations/'+organObjectId.org+'/businessgroups/'+organObjectId.buss+'/projects/'+organObjectId.proj+'/blueprintList?pagination='+pagination+'&templateType='+tempType+'&providerType='+angular.lowercase($state.params.providerName)
-                };
+                var params;
+                if(tempType === 'docker'){
+                    params = {
+                        url: '/organizations/'+organObjectId.org+'/businessgroups/'+organObjectId.buss+'/projects/'+organObjectId.proj+'/blueprintList?pagination='+pagination+'&templateType='+tempType+'&providerType='
+                    };    
+                }else {
+                    params = {
+                        url: '/organizations/'+organObjectId.org+'/businessgroups/'+organObjectId.buss+'/projects/'+organObjectId.proj+'/blueprintList?pagination='+pagination+'&templateType='+tempType+'&providerType='+angular.lowercase($state.params.providerName)
+                    };
+                }
                 $rootScope.$emit('BP_BLUEPRINTS_REFRESH_CURRENT');
                 return genericServices.promiseGet(params);
             }
