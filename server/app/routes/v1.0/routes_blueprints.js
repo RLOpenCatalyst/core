@@ -462,7 +462,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 										endedOn:new Date().getTime(),
 										actionStatus:'failed',
 										status:'failed'
-									},
+									}
 									auditTrailService.updateAuditTrail('BOTs',auditTrailId,resultBlueprintExecution,function(err,auditTrail){
 										if (err) {
 											logger.error("Failed to create or update bot Log: ", err);
