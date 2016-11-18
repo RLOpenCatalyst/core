@@ -68,6 +68,7 @@
 		}])
 	.controller('designCtrl',['$scope','$rootScope','$state','genericServices', function ($scope,$rootScope,$state,genericServices) {
 		var design= this;
+		$scope.isTreeOpen = false;
 		$rootScope.state = $state;
 		design.providersList= function () {
 			var params = {
