@@ -49,18 +49,20 @@
                         <li>
                             <img ng-src="./images/img.jpg" class="cardLogo" alt="blueprints" >
                         </li>
-                        <li title="{{blueprint.name}}" class="Cardtextoverflow"><u><b>{{blueprint.name}}</b></u></li>
+                        <li title="{{blueprint.name}}" class="Cardtextoverflow card-title">{{blueprint.name}}</li>
                         
                         <!--<li class="margin-top5">Version:&nbsp;-->
                             <!--<select class="blueprintVer">-->
                                 <!--<option >1</option>-->
                             <!--</select>-->
                         <!--</li>-->
-                        <hr class="blue-hr"/>
+                        
                         <!-- <button class="btn btn-xs cat-btn-update bpvicon " title="Edit" ng-click="bpList.editBlueprint($event,blueprint._id);"><i class="fa fa-pencil fa-2 white"></i></button> -->
+                        <li class='btns-group'>
                         <button class="btn btn-xs cat-btn-update bpvicon" title="Launch" ng-click="bpList.launchInstance($event,blueprint);"><i class="fa fa-location-arrow fa-2 white"></i></button>
                         <button class="btn btn-xs cat-btn-update bpvicon" title="Info" ng-click="bpList.blueprintInfo($event,blueprint,null)"><i class="fa fa-info fa-2 white"></i></button>
                         <button class="btn btn-xs cat-btn-update bpvicon" title="Delete" ng-click="bpList.deleteBp($event,blueprint,null)" ><i class="fa fa-trash-o fa-2 white" aria-hidden="true"></i></button>
+                        </li>
                     </ul>
 
                 </div>
