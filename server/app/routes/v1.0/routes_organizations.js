@@ -52,7 +52,6 @@ var taskService = require('_pr/services/taskService');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var compositeBlueprintModel = require('_pr/model/composite-blueprints/composite-blueprints.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
-var auditTrailService = require('_pr/services/auditTrailService');
 
 module.exports.setRoutes = function(app, sessionVerification) {
     /*

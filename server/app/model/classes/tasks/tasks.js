@@ -170,7 +170,7 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
             user:userName,
             startedOn:new Date().getTime(),
             status:'running',
-            action:'BOTs Execution',
+            action:'BOTs Task Execution',
             actionStatus:'running'
         }
     }
@@ -341,6 +341,7 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
             taskHistory.status = self.lastTaskStatus;
             var resultTaskExecution = {
                 "actionStatus":self.lastTaskStatus,
+                "status":self.lastTaskStatus,
                 "endedOn":self.timestampEnded,
                 "actionLogId":taskHistory.nodeIdsWithActionLog[0].actionLogId,
                 "auditTrailConfig.nodeIdsWithActionLog":taskHistory.nodeIdsWithActionLog

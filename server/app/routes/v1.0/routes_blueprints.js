@@ -17,40 +17,13 @@ limitations under the License.
 
 // This file act as a Controller which contains blueprint related all end points.
 var Blueprints = require('_pr/model/blueprint');
-
-var instancesDao = require('_pr/model/classes/instance/instance');
-var EC2 = require('_pr/lib/ec2.js');
-var Chef = require('_pr/lib/chef.js');
-var logsDao = require('_pr/model/dao/logsdao.js');
-var Docker = require('_pr/model/docker.js');
-var configmgmtDao = require('_pr/model/d4dmasters/configmgmt');
 var usersDao = require('_pr/model/users.js');
-var appConfig = require('_pr/config');
-var Cryptography = require('_pr/lib/utils/cryptography');
-var fileIo = require('_pr/lib/utils/fileio');
 var uuid = require('node-uuid');
 var logger = require('_pr/logger')(module);
-var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js');
-var VMImage = require('_pr/model/classes/masters/vmImage.js');
-var currentDirectory = __dirname;
-var AWSKeyPair = require('_pr/model/classes/masters/cloudprovider/keyPair.js');
 var credentialcryptography = require('_pr/lib/credentialcryptography');
-var CloudFormation = require('_pr/model/cloud-formation');
-var AWSCloudFormation = require('_pr/lib/awsCloudFormation.js');
-var errorResponses = require('./error_responses');
-var Openstack = require('_pr/lib/openstack');
-var openstackProvider = require('_pr/model/classes/masters/cloudprovider/openstackCloudProvider.js');
-var Hppubliccloud = require('_pr/lib/hppubliccloud.js');
-var hppubliccloudProvider = require('_pr/model/classes/masters/cloudprovider/hppublicCloudProvider.js');
-var AzureCloud = require('_pr/lib/azure.js');
-var azureProvider = require('_pr/model/classes/masters/cloudprovider/azureCloudProvider.js');
-var VmwareCloud = require('_pr/lib/vmware.js');
-var vmwareProvider = require('_pr/model/classes/masters/cloudprovider/vmwareCloudProvider.js');
-var AwsAutoScaleInstance = require('_pr/model/aws-auto-scale-instance');
-var ARM = require('_pr/lib/azure-arm.js');
 var fs = require('fs');
-var AzureARM = require('_pr/model/azure-arm');
 var blueprintService = require('_pr/services/blueprintService.js');
+var auditTrailService = require('_pr/services/auditTrailService');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	app.all('/blueprints/*', sessionVerificationFunc);
@@ -415,7 +388,37 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 							});
 							return;
 						}
-
+						var botAuditDetails = null;
+						if(blueprint.serviceDeliveryCheck === true){
+							var botAuditDetails={
+								auditId:blueprint._id,
+								auditType:'BOTs',
+								auditCategory:'Blueprint',
+								masterDetails:{
+									orgName: blueprint.orgName,
+									orgId: blueprint.orgId,
+									bgName: blueprint.bgName,
+									bgId: blueprint.bgId,
+									projectName: blueprint.projectName,
+									projectId: blueprint.projectId,
+									envName: blueprint.envName,
+									envId: req.query.envId
+								},
+								auditTrailConfig:{
+									name:blueprint.name,
+									type:blueprint.botType,
+									description:blueprint.shortDesc,
+									category:blueprint.botCategory,
+									executionType:blueprint.blueprintType,
+									nodeIdsWithActionLog:[]
+								},
+								user:userName,
+								startedOn:new Date().getTime(),
+								status:'running',
+								action:'BOTs Blueprint Execution',
+								actionStatus:'running'
+							}
+						}
 						var stackName = null;
 						var domainName = null;
 						if (blueprint.blueprintType === 'aws_cf' || blueprint.blueprintType === 'azure_arm') {
@@ -436,6 +439,15 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 								return;
 							}
 						}
+						var auditTrailId = null;
+						if(blueprint.serviceDeliveryCheck === true) {
+							auditTrailService.saveAndUpdateAuditTrail(botAuditDetails, function (err, auditTrail) {
+								if (err) {
+									logger.error("Failed to create or update bot Log: ", err);
+								}
+								auditTrailId = auditTrail._id;
+							});
+						};
 						blueprint.launch({
 							envId: req.query.envId,
 							ver: req.query.version,
@@ -445,13 +457,42 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                             tagServer: req.query.tagServer
 						}, function(err, launchData) {
 							if (err) {
+								if(blueprint.serviceDeliveryCheck === true){
+									var resultBlueprintExecution = {
+										endedOn:new Date().getTime(),
+										actionStatus:'failed',
+										status:'failed'
+									},
+									auditTrailService.updateAuditTrail('BOTs',auditTrailId,resultBlueprintExecution,function(err,auditTrail){
+										if (err) {
+											logger.error("Failed to create or update bot Log: ", err);
+										}
+									});
+								}
 								res.status(500).send({
 									message: "Server Behaved Unexpectedly"
 								});
 								return;
 							}
+							var resultBlueprintExecution = {
+								"endedOn":new Date().getTime(),
+								"actionStatus":launchData.actionStatus,
+								"status":launchData.actionStatus,
+								"actionLogId":launchData.actionLogId,
+								"auditTrailConfig.nodeIdsWithActionLog":[{
+									"actionLogId" : launchData.actionLogId,
+									"nodeId" : launchData.instanceId
+								}],
+								"nodeIds":[launchData.instanceId]
+							}
+							if(blueprint.serviceDeliveryCheck === true){
+								auditTrailService.updateAuditTrail('BOTs',auditTrailId,resultBlueprintExecution,function(err,auditTrail){
+									if (err) {
+										logger.error("Failed to create or update bot Log: ", err);
+									}
+								});
+							}
 							res.status(200).send(launchData)
-
 						});
 					});
 				}

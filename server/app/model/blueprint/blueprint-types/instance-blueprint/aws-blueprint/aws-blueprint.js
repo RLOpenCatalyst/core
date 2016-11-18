@@ -281,15 +281,19 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                             //Returning handle when all instances are created
                             newinstanceIDs.push(instance.id);
                             logger.debug('Lengths ---- ' + newinstanceIDs.length + '  ' + instancesLength);
-                            if (newinstanceIDs.length >= instancesLength) {
-                                callback(null, {
-                                    "id": newinstanceIDs,
-                                    "message": "instance launch success"
-                                });
-                            }
                             var timestampStarted = new Date().getTime();
                             var actionLog = instancesDao.insertBootstrapActionLog(instance.id, instance.runlist, launchParams.sessionUser, timestampStarted);
                             var logsReferenceIds = [instance.id, actionLog._id];
+                            if (newinstanceIDs.length >= instancesLength) {
+                                callback(null, {
+                                    "id": newinstanceIDs,
+                                    "message": "instance launch success",
+                                    "instanceId":data._id,
+                                    "actionLogId":actionLog._id,
+                                    "endedOn":new Date().getTime(),
+                                    "actionStatus":"success"
+                                });
+                            }
                             var instanceLog = {
                                 actionId: actionLog._id,
                                 instanceId: instance.id,
