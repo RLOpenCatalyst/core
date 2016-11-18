@@ -364,14 +364,6 @@ var InstanceSchema = new Schema({
             required: false,
             trim: true
         },
-        cronHours: {
-            type: Number,
-            required: false
-        },
-        cronMinutes: {
-            type: Number,
-            required: false
-        },
         cronDays: {
             type: [String],
             required: false
@@ -387,14 +379,6 @@ var InstanceSchema = new Schema({
             type: String,
             required: false,
             trim: true
-        },
-        cronHours: {
-            type: Number,
-            required: false
-        },
-        cronMinutes: {
-            type: Number,
-            required: false
         },
         cronDays: {
             type: [String],

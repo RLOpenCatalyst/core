@@ -20,6 +20,7 @@ var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
 var TaskHistory = require('_pr/model/classes/tasks/taskHistory');
 var instancesDao = require('_pr/model/classes/instance/instance');
+var auditTrailService = require('_pr/services/auditTrailService');
 
 const errorType = 'taskService';
 
@@ -89,6 +90,7 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
             return callback(error, null);
         }
         if (task) {
+
             if (task.taskType.CHEF_TASK) {
                 paramOptions = paramOptions.attributes;
             } else if (task.taskType.SCRIPT_TASK) {

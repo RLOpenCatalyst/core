@@ -20,7 +20,6 @@ var instancesModel = require('_pr/model/classes/instance/instance');
 var containerModel = require('_pr/model/container');
 var logger = require('_pr/logger')(module);
 var EC2 = require('_pr/lib/ec2.js');
-var catalystSync = null;
 var Cryptography = require('../lib/utils/cryptography');
 var tagsModel = require('_pr/model/tags/tags.js');
 var resourceCost = require('_pr/model/resource-costs-deprecated/resource-costs-deprecated.js');
@@ -46,6 +45,7 @@ var utils = require('_pr/model/classes/utils/utils.js');
 var AppData = require('_pr/model/app-deploy/app-data');
 var instancesDao = require('_pr/model/classes/instance/instance');
 var providerService = require('_pr/services/providerService.js');
+var schedulerService = require('_pr/services/schedulerService.js');
 var crontab = require('node-crontab');
 
 
@@ -1472,14 +1472,31 @@ function updateScheduler(instanceScheduler, callback) {
         },
         function(schedulerDetails,next){
             instancesDao.updateScheduler(instanceScheduler.instanceIds, schedulerDetails,next);
+        },
+        function(updateSchedulerDetails,next){
+            instancesDao.getInstances(instanceScheduler.instanceIds,next);
         }
     ],function(err,results){
         if(err){
             return callback(err, null);
         }else{
             callback(null, {"message": "Scheduler Updated."});
-           /* catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
-            catalystSync.executeScheduledInstances();*/
+            var resultList =[];
+            for (var i = 0; i < results.length; i++) {
+                (function(instance) {
+                    resultList.push(function(callback){schedulerService.executeSchedulerForInstances(instance,callback);});
+                    if(resultList.length === results.length){
+                        async.parallel(resultList,function(err,results){
+                            if(err){
+                                logger.error(err);
+                                return;
+                            }
+                            logger.debug("Instance Scheduler Results>>"+results);
+                            return;
+                        })
+                    }
+                })(results[i]);
+            }
             return;
         }
     });
@@ -1497,16 +1514,17 @@ function generateCronPattern(cronInterval,startDate,endDate,callback){
                     var timeSplit = interval.time.split(":");
                     var hours = parseInt(timeSplit[0]);
                     var minutes = parseInt(timeSplit[1]);
-                    var sortedDays = interval.days.sort(function(a, b){return b-a});
+                    var sortedDays = interval.days.sort(function(a, b){return a-b});
                     var strDays = '';
                     for(var j = 0; j < sortedDays.length; j++){
-                        strDays = strDays+','+sortedDays[j];
+                        if(strDays !== '')
+                            strDays = strDays+','+sortedDays[j];
+                        else
+                            strDays = sortedDays[j];
                     }
                     startIntervalList.push({
                         cronTime:interval.time,
                         cronDays:sortedDays,
-                        cronHours:interval.hours,
-                        cronMinutes:interval.minutes,
                         cronPattern:minutes +' '+ hours +' '+ '* * '+ strDays
                     });
                     if(count === cronInterval.length){
@@ -1525,16 +1543,17 @@ function generateCronPattern(cronInterval,startDate,endDate,callback){
                     var timeSplit = interval.time.split(":");
                     var hours = parseInt(timeSplit[0]);
                     var minutes = parseInt(timeSplit[1]);
-                    var sortedDays = interval.days.sort(function(a, b){return b-a});
+                    var sortedDays = interval.days.sort(function(a, b){return a-b});
                     var strDays = '';
                     for(var j = 0; j < sortedDays.length; j++){
-                        strDays = strDays+','+sortedDays[j];
+                        if(strDays !== '')
+                            strDays = strDays+','+sortedDays[j];
+                        else
+                            strDays = sortedDays[j];
                     }
                     stopIntervalList.push({
                         cronTime:interval.time,
                         cronDays:sortedDays,
-                        cronHours:interval.hours,
-                        cronMinutes:interval.minutes,
                         cronPattern:minutes +' '+ hours +' '+ '* * '+ strDays
                     });
                     if(count === cronInterval.length){
