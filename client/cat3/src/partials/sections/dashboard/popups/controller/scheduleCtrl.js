@@ -31,8 +31,8 @@
             $scope.removeTime = function (ind) {
                 sch.interval.splice(ind,1);
             };
-            sch.schedulerStartOn=new Date();
-            sch.schedulerEndOn=new Date();
+            sch.schedulerStartOn=moment(new Date()).format('DD/MM/YYYY');
+            sch.schedulerEndOn=moment(new Date()).format('DD/MM/YYYY');
             sch.cancel = function() {
                 $modalInstance.dismiss('cancel');
             };
