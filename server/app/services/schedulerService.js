@@ -104,7 +104,13 @@ schedulerService.startStopInstance= function startStopInstance(instanceId,catUse
         },
         function(instanceDetails,next){
             var currentDate = new Date();
-            if (instanceDetails[0].isScheduled && instanceDetails[0].isScheduled === true && currentDate >= instanceDetails[0].schedulerEndOn) {
+            if(instanceDetails[0].instanceState === 'terminated'){
+                callback({
+                    errCode:201,
+                    errMsg:"Instance is already in "+instanceDetails[0].instanceState+" state. So no need to do any action."
+                })
+                return;
+            }else if (instanceDetails[0].isScheduled && instanceDetails[0].isScheduled === true && currentDate >= instanceDetails[0].schedulerEndOn) {
                 instancesDao.updateInstanceScheduler(instanceDetails[0]._id,function(err, updatedData) {
                     if (err) {
                         logger.error("Failed to update Instance Scheduler: ", err);
@@ -153,6 +159,13 @@ function startStopManagedInstance(instance,catUser,action,callback){
     }else{
         logger.debug("Action is not matched for corresponding operation. "+action);
         callback(null,null);
+    }
+    if(instanceState !== '' && instanceState === instance.instanceState){
+        callback({
+            errCode:201,
+            errMsg:"Instance is already in "+instanceState+" state. So no need to do same action again"
+        })
+        return;
     }
     var instanceLog = {
         actionId: "",
@@ -622,8 +635,6 @@ function checkSuccessInstanceAction(logReferenceIds,instanceState,instanceLog,ac
 }
 
 function createCronJob(cronPattern,instanceId,catUser,action,callback){
-    console.log(cronPattern);
-    console.log(action);
     var schedulerService = require('_pr/services/schedulerService');
     var cronJobId = cronTab.scheduleJob(cronPattern, function () {
         schedulerService.startStopInstance(instanceId, catUser, action, function (err, data) {

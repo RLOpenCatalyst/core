@@ -113,20 +113,80 @@ auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,acti
     }
 }
 
-auditTrailService.updateAuditTrail = function updateAuditTrail(auditId,actionId,auditObj,callback) {
-    var queryObj = {
-        auditId:auditId,
-        actionId:actionId
-    };
-    auditTrail.updateAuditTrail(queryObj,auditObj,function(err,data){
-        if(err){
-            logger.error(err);
-            callback(err,null);
+auditTrailService.saveAndUpdateAuditTrail = function saveAndUpdateAuditTrail(auditTrailDetails,callback){
+    if(auditTrailDetails.auditType === 'BOTs'){
+        botAuditTrail.createNew(auditTrailDetails,function(err,data){
+            if(err){
+                logger.error(err);
+                callback(err,null);
+                return;
+            }
+            callback(null,data);
             return;
-        }
-        callback(null,data);
-        return;
-    })
+        })
+    }else if(auditTrailDetails.auditType === 'Instances'){
+        instanceAuditTrail.createNew(auditTrailDetails,function(err,data){
+            if(err){
+                logger.error(err);
+                callback(err,null);
+                return;
+            }
+            callback(null,data);
+            return;
+        })
+    }else if(auditTrailDetails.auditType === 'Containers'){
+        containerAuditTrail.createNew(auditTrailDetails,function(err,data){
+            if(err){
+                logger.error(err);
+                callback(err,null);
+                return;
+            }
+            callback(null,data);
+            return;
+        })
+    }else{
+        callback({
+            message: "Invalid Audit Trail Type. "
+        }, null);
+    }
+}
+
+auditTrailService.updateAuditTrail = function updateAuditTrail(auditType,auditId,auditObj,callback) {
+    if(auditType === 'BOTs'){
+        botAuditTrail.updateBotAuditTrail(auditId,auditObj,function(err,data){
+            if(err){
+                logger.error(err);
+                callback(err,null);
+                return;
+            }
+            callback(null,data);
+            return;
+        })
+    }else if(auditType === 'Instances'){
+        instanceAuditTrail.updateInstanceAuditTrail(auditId,auditObj,function(err,data){
+            if(err){
+                logger.error(err);
+                callback(err,null);
+                return;
+            }
+            callback(null,data);
+            return;
+        })
+    }else if(auditType === 'Containers'){
+        containerAuditTrail.updateContainerAuditTrail(auditId,auditObj,function(err,data){
+            if(err){
+                logger.error(err);
+                callback(err,null);
+                return;
+            }
+            callback(null,data);
+            return;
+        })
+    }else{
+        callback({
+            message: "Invalid Audit Trail Type. "
+        }, null);
+    }
 }
 
 auditTrailService.getAuditTrailList = function getAuditTrailList(auditTrailQuery,callback) {

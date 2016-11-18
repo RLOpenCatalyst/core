@@ -18,10 +18,16 @@ var logger = require('_pr/logger')(module);
 var mongoose = require('mongoose');
 var BaseAuditTrail = require('./base-audit-trail.js');
 var AuditTrail = require('./audit-trail.js');
+var Schema = mongoose.Schema;
+var ObjectId = require('mongoose').Types.ObjectId;
 
 var BotAuditTrailSchema = new BaseAuditTrail({
     auditTrailConfig: {
-        id: {
+        nodeIds: {
+            type: [String],
+            trim:true
+        },
+        executionType:{
             type: String,
             trim:true
         },
@@ -41,20 +47,32 @@ var BotAuditTrailSchema = new BaseAuditTrail({
         category:{
             type: String,
             trim:true
-        }
+        },
+        nodeIdsWithActionLog:[Schema.Types.Mixed]
     }
 });
 
-BotAuditTrailSchema.statics.createNew = function(botAuditTrail,callback){
-    var BotAuditTrail = new BotAuditTrail(botAuditTrail);
-    BotAuditTrail.save(function(err, data) {
+BotAuditTrailSchema.statics.createNew = function(auditTrail,callback){
+    var botAuditTrail = new BotAuditTrail(auditTrail);
+    botAuditTrail.save(function(err, data) {
         if (err) {
             logger.error("createNew Failed", err, data);
             return;
         }
         callback(null,data);
     });
+}
+BotAuditTrailSchema.statics.updateBotAuditTrail = function(auditId,auditTrailObj,callback){
+    BotAuditTrail.update({_id:new ObjectId(auditId)},{$set:auditTrailObj},{upsert:false}, function(err, updateAuditTrail) {
+        if (err) {
+            logger.error(err);
+            var error = new Error('Internal server error');
+            error.status = 500;
+            return callback(error);
+        }
+        return callback(null, updateAuditTrail);
+    });
 };
 
 var BotAuditTrail = AuditTrail.discriminator('botAuditTrail', BotAuditTrailSchema);
-BotAuditTrail
+module.exports = BotAuditTrail;

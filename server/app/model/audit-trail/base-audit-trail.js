@@ -21,15 +21,12 @@ var Schema = mongoose.Schema;
 var AuditTrailSchema = function AuditTrail() {
     Schema.apply(this, arguments);
     this.add({
-        actionId: {
+        actionLogId: {
             type: String,
-            unique: true,
-            trim:true,
-            required:true
+            trim:true
         },
         auditId: {
             type: String,
-            unique: true,
             trim:true,
             required:true
         },
@@ -119,12 +116,7 @@ var AuditTrailSchema = function AuditTrail() {
             type: String,
             trim:true,
             required:false
-        },
-        logs: [{
-            err: Boolean,
-            log: String,
-            timestamp: Number
-        }]
+        }
     });
 };
 util.inherits(AuditTrailSchema, Schema);

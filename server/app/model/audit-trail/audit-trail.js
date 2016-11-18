@@ -35,8 +35,8 @@ AuditTrailSchema.statics.getAuditTrailList = function(auditTrailQuery,callback){
     });
 };
 
-AuditTrailSchema.statics.updateAuditTrail = function(queryObj,auditObj,callback){
-    AuditTrail.update(queryObj,{$set:auditObj},{upsert:false}, function(err, updateAuditTrail) {
+AuditTrailSchema.statics.updateAuditTrail = function(auditId,auditObj,callback){
+    AuditTrail.update({_id:new ObjectId(auditId)},{$set:auditObj},{upsert:false}, function(err, updateAuditTrail) {
         if (err) {
             logger.error(err);
             var error = new Error('Internal server error');
