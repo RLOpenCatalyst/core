@@ -396,8 +396,8 @@ var InstanceSchema = new Schema({
         trim: true
     },
     interval:[Schema.Types.Mixed],
-    cronJobId: {
-        type: String,
+    cronJobIds: {
+        type: [String],
         required: false,
         trim: true
     },
@@ -2283,21 +2283,36 @@ var InstancesDao = function () {
             callback(null, data);
         });
     };
-    this.updateInstanceSchedulerCronJobId = function (instanceId, cronJobId, callback) {
-        Instances.update({
-            "_id": new ObjectId(instanceId),
-        }, {
-            $set: {
-                cronJobId: cronJobId
-            }
-        }, {
-            upsert: false
-        }, function (err, data) {
+    this.updateCronJobIdByInstanceId = function (instanceId, cronJobId, callback) {
+        Instances.find({
+            "_id": new ObjectId(instanceId)
+        }, function (err, instances) {
             if (err) {
-                callback(err, null);
-                return;
+                logger.error(err);
+                return callback(err, null);
             }
-            callback(null, data);
+            var cronJobIds =[];
+            if(instances[0].cronJobIds){
+                cronJobIds = instances[0].cronJobIds;
+                cronJobIds.push(cronJobId);
+            }else{
+                cronJobIds.push(cronJobId);
+            }
+            Instances.update({
+                "_id": new ObjectId(instanceId),
+            }, {
+                $set: {
+                    cronJobIds: cronJobIds
+                }
+            }, {
+                upsert: false
+            }, function (err, data) {
+                if (err) {
+                    callback(err, null);
+                    return;
+                }
+                callback(null, data);
+            });
         });
     };
     this.getScheduledInstances = function (callback) {
