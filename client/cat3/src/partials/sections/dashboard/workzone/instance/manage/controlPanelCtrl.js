@@ -73,6 +73,7 @@
 			schedulerEndOn:moment(new Date()).format('DD/MM/YYYY'),
 			interval:[{ind:0,"days":[],"action":"start"}]
 		};
+		$timeout(function(){$('input.time').trigger('click');},100);
 		var params={
 			url:'/instances/'+cpInstance._id
 			//url:'src/partials/sections/dashboard/workzone/data/oneIns.json'
