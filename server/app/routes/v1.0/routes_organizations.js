@@ -1562,7 +1562,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         log: "Bootstrapping instance",
                                                         timestamp: timestampStarded
                                                     });
-
                                                     var instanceLog = {
                                                         actionId: actionLog._id,
                                                         instanceId: instance.id,

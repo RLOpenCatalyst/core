@@ -352,40 +352,39 @@ var InstanceSchema = new Schema({
         required: false,
         trim: true
     },
-    instanceStartScheduler: {
+    instanceStartScheduler: [{
+
         cronPattern: {
             type: String,
             required: false,
             trim: true
         },
-        repeats: {
+        cronTime: {
             type: String,
             required: false,
             trim: true
         },
-        repeatEvery: {
-            type: Number,
-            required: false,
-            trim: true
+        cronDays: {
+            type: [String],
+            required: false
         }
-    },
-    instanceStopScheduler: {
+    }],
+    instanceStopScheduler: [{
         cronPattern: {
             type: String,
             required: false,
             trim: true
         },
-        repeats: {
+        cronTime: {
             type: String,
             required: false,
             trim: true
         },
-        repeatEvery: {
-            type: Number,
-            required: false,
-            trim: true
+        cronDays: {
+            type: [String],
+            required: false
         }
-    },
+    }],
     schedulerStartOn: {
         type: Number,
         required: false,

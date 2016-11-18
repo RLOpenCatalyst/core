@@ -22,7 +22,7 @@ catalystSync.executeScheduledInstances = function executeScheduledInstances() {
                                 logger.error(err);
                                 return;
                             }
-                            logger.debug("Instance Scheduler Results>>"+results);
+                            logger.debug("Instance Scheduler Completed");
                             return;
                         })
                     }

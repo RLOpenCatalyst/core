@@ -41,86 +41,76 @@ var GCP = require('_pr/lib/gcp.js');
 
 schedulerService.executeSchedulerForInstances = function executeSchedulerForInstances(instance,callback) {
     logger.debug("Instance Scheduler is started for Instance. "+instance.platformId);
-    async.waterfall([
-        function(next) {
-            if (instance.cronJobId && instance.cronJobId !== null) {
-                cronTab.cancelJob(instance.cronJobId);
-                next(null, instance.cronJobId);
-            } else {
-                next(null, instance.cronJobId);
+    logger.debug("Instance current state is  "+instance.instanceState);
+    var catUser = 'superadmin';
+    if(instance.catUser){
+        catUser = instance.catUser;
+    }
+    async.parallel({
+        instanceStart : function(callback){
+            var resultList = [];
+            for (var i = 0; i < instance.instanceStartScheduler.length; i++) {
+                (function(interval){
+                    resultList.push(function(callback){createCronJob(interval.cronPattern,instance._id,catUser,'Start',callback)});
+                })(instance.instanceStartScheduler[i])
+            }
+            if(resultList.length === instance.instanceStartScheduler.length) {
+                async.parallel(resultList, function (err, results) {
+                    if (err) {
+                        logger.error(err);
+                        callback(err, null);
+                        return;
+                    }
+                    callback(null, results);
+                    return;
+                })
             }
         },
-        function(jobId,next){
-            var catUser = 'superadmin';
-            if(instance.catUser){
-                catUser = instance.catUser;
+        instanceStop : function(callback){
+            var resultList = [];
+            for (var j = 0; j < instance.instanceStopScheduler.length; j++) {
+                (function(interval){
+                    resultList.push(function(callback){createCronJob(interval.cronPattern,instance._id,catUser,'Stop',callback)});
+                })(instance.instanceStopScheduler[j]);
             }
-            if(instance.instanceState === 'running'){
-                var stopJobId = cronTab.scheduleJob(instance.instanceStopScheduler.cronPattern, function() {
-                    instancesDao.updateInstanceSchedulerCronJobId(instance._id,stopJobId,function(err,data){
-                        if(err){
-                            logger.error(err);
-                        }
-                        logger.debug(data);
-                    });
-                    var schedulerService = require('_pr/services/schedulerService');
-                    schedulerService.startStopInstance(instance._id,catUser,'Stop',function(err,data){
-                        if(err){
-                            cronTab.cancelJob(stopJobId);
-                            next(err);
-                        }
-                        cronTab.cancelJob(stopJobId);
-                        next(null,stopJobId);
-                    });
-                });
-            }else if(instance.instanceState === 'stopped'){
-                var startJobId = cronTab.scheduleJob(instance.instanceStartScheduler.cronPattern, function() {
-                    instancesDao.updateInstanceSchedulerCronJobId(instance._id,startJobId,function(err,data){
-                        if(err){
-                            logger.error(err);
-                        }
-                        logger.debug(data);
-                    });
-                    var schedulerService = require('_pr/services/schedulerService');
-                    schedulerService.startStopInstance(instance._id,catUser,'Start',function(err,data){
-                        if(err){
-                            cronTab.cancelJob(startJobId);
-                            next(err);
-                        }
-                        cronTab.cancelJob(startJobId);
-                        next(null,startJobId);
-                    });
-                });
-            }else{
-                logger.debug("Instance current state is not match as per scheduler "+instance.instanceState);
-                next(null,null);
+            if(resultList.length === instance.instanceStopScheduler.length){
+                async.parallel(resultList, function (err, results) {
+                    if (err) {
+                        logger.error(err);
+                        callback(err, null);
+                        return;
+                    }
+                    callback(null, results);
+                    return;
+                })
             }
-        },
-    ],function(err,results){
+        }
+    },function(err,results){
         if(err){
             logger.error(err);
-            catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
-            catalystSync.executeScheduledInstances();
             callback(err,null);
             return;
-        }else{
-            logger.debug("Instance Scheduler Finished for Instance. "+instance.platformId);
-            catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
-            catalystSync.executeScheduledInstances();
-            callback(null,results);
-            return;
         }
+        callback(null,results);
+        return;
     })
 }
 
 schedulerService.startStopInstance= function startStopInstance(instanceId,catUser,action,callback){
+    logger.debug(action+ " is Starting");
     async.waterfall([
         function(next){
             instancesDao.getInstanceById(instanceId, next);
         },
         function(instanceDetails,next){
             var currentDate = new Date();
-            if (instanceDetails[0].isScheduled && instanceDetails[0].isScheduled === true && currentDate >= instanceDetails[0].schedulerEndOn) {
+            if(instanceDetails[0].instanceState === 'terminated'){
+                callback({
+                    errCode:201,
+                    errMsg:"Instance is already in "+instanceDetails[0].instanceState+" state. So no need to do any action."
+                })
+                return;
+            }else if (instanceDetails[0].isScheduled && instanceDetails[0].isScheduled === true && currentDate >= instanceDetails[0].schedulerEndOn) {
                 instancesDao.updateInstanceScheduler(instanceDetails[0]._id,function(err, updatedData) {
                     if (err) {
                         logger.error("Failed to update Instance Scheduler: ", err);
@@ -146,10 +136,10 @@ schedulerService.startStopInstance= function startStopInstance(instanceId,catUse
             callback(err,null);
             return;
         }
+        logger.debug(action+ " is Completed");
         callback(null,results);
         return;
     })
-
 }
 
 function startStopManagedInstance(instance,catUser,action,callback){
@@ -169,6 +159,13 @@ function startStopManagedInstance(instance,catUser,action,callback){
     }else{
         logger.debug("Action is not matched for corresponding operation. "+action);
         callback(null,null);
+    }
+    if(instanceState !== '' && instanceState === instance.instanceState){
+        callback({
+            errCode:201,
+            errMsg:"Instance is already in "+instanceState+" state. So no need to do same action again"
+        })
+        return;
     }
     var instanceLog = {
         actionId: "",
@@ -584,7 +581,7 @@ function checkFailedInstanceAction(logReferenceIds,instanceLog,actionFailedLog,c
     });
     instancesDao.updateActionLog(logReferenceIds[0], logReferenceIds[1], false, timestampEnded);
     instanceLog.endedOn = new Date().getTime();
-    instanceLog.actionId = logReferenceIds[i];
+    instanceLog.actionId = logReferenceIds[1];
     instanceLog.actionStatus = "failed";
     instanceLog.logs = {
         err: true,
@@ -636,3 +633,17 @@ function checkSuccessInstanceAction(logReferenceIds,instanceState,instanceLog,ac
         callback(null,logData);
     });
 }
+
+function createCronJob(cronPattern,instanceId,catUser,action,callback){
+    var schedulerService = require('_pr/services/schedulerService');
+    var cronJobId = cronTab.scheduleJob(cronPattern, function () {
+        schedulerService.startStopInstance(instanceId, catUser, action, function (err, data) {
+            if (err) {
+                callback(err, null);
+            }
+            callback(null, cronJobId);
+        });
+    });
+}
+
+
