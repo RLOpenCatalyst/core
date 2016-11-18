@@ -10,6 +10,9 @@
         .controller('instanceCtrl', ['chefSelectorComponent', '$scope', '$rootScope', '$modal', '$q', 'workzoneServices', 'arrayUtil', 'instancePermission',
             'instanceActions', 'instanceOperations', 'workzoneEnvironment', '$timeout', 'workzoneUIUtils', 'uiGridOptionsService', 'confirmbox','genericServices',
             function(chefSelectorComponent, $scope, $rootScope, $modal, $q, workzoneServices, arrayUtil, instancePerms, instanceActions, instanceOperations, workzoneEnvironment, $timeout, workzoneUIUtils, uiGridOptionsService, confirmbox,genericServices) {
+                $scope.openCalendarStart = function() {
+                    $scope.openedStart = true;
+                };
                 var helper = {
                     attachListOfTaskWithInstance: function(completeData) {
                         var instanceList = completeData.instances;
@@ -73,6 +76,7 @@
                         }
                     }
                 };
+
                 $scope.selectedInstanceId=[];
                 $scope.instancePageLevelLoader = true;
                 $scope.instStartStopFlag = false;
@@ -154,7 +158,8 @@
                         }, {
                             name: 'Provider Name',
                             displayName: 'Provider Name',
-                            field: 'providerId',
+                            cellTemplate: '<span ng-show="row.entity.providerName">{{row.entity.providerName}}</span>' +
+                                '<span ng-hide="row.entity.providerName">NA</span>',
                             cellTooltip: true
                         }, {
                             name: 'Ip Address',
@@ -558,7 +563,12 @@
                             }
                         }
                     });
-                }
+                    modalInstance.result.then(function() {
+                        
+                    }, function() {
+                        
+                    });
+                };
                 $scope.rdpFileLink = function(instanceObj) {
                     var fileLink = '/instances/rdp/' + instanceObj.instanceIP + '/3389';
                     return fileLink;

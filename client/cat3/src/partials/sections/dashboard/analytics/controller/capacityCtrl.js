@@ -38,6 +38,11 @@
                             y: function (d) {
                                 return d.value;
                             },
+                            pie: {
+                                valueFormat: function (d) {
+                                    return d3.round(d);
+                                }
+                            },
                             showLabels: false,
                             labelType: "value",
                             labelThreshold: 0.01,
@@ -76,15 +81,14 @@
                                 staggerLabels:false
                             },
                             yAxis: {
-                                axisLabel: 'Cost in $',
+                                axisLabel: 'Count',
                                 tickFormat: function (d) {
-                                    return d3.format(',.2f')(d);
+                                    return d3.round(d);
                                 }
                             }
                         }
                     },
                     data: []
-
                 };
 
                 capaCtr.capaGridOptions = {
@@ -97,7 +101,6 @@
                         $scope.gridApi = gridApi;
                     }
                 };
-
             };
             capaCtr.getCapacityData=function(fltObj){
                 var param = {
@@ -112,7 +115,7 @@
                         entityId=fltObj.org.id;
                     }
                     //param.url='http://d4d.rlcatalyst.com/analytics/capacity?parentEntityId=46d1da9a-d927-41dc-8e9e-7e926d927537&entityId=46d1da9a-d927-41dc-8e9e-7e926d927537&toTimeStamp=Mon%20Nov%2014%202016%2010:41:29%20GMT+0530%20(IST)&period=month';
-                   param.url='analytics/capacity?parentEntityId='+fltObj.org.id+'&entityId='+entityId+'&toTimeStamp='+new Date()+'&period=month';
+                   param.url='/analytics/capacity?parentEntityId='+fltObj.org.id+'&entityId='+entityId+'&toTimeStamp='+new Date()+'&period=month';
                 }
 
                 genSevs.promiseGet(param).then(function (result) {
@@ -212,13 +215,13 @@
                             showMaxMin: false,
                             axisLabel: 'Date',
                             tickFormat: function (d) {
-                                return d3.time.format('%x')(new Date(d))
+                                return d3.time.format('%x')(new Date(d));
                             }
                         },
                         yAxis: {
-                            axisLabel: 'capacity in $',
+                            axisLabel: 'Count',
                             tickFormat: function (d) {
-                                return d3.format(',.2f')(d);
+                                return d3.round(d);
                             }
                         },
                         zoom: {

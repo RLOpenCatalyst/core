@@ -40,7 +40,7 @@
             </li>
             <!--design starts here-->
             <li class="left-projects-links hidden" id="designStyle" data-target="#blueprints"  navigation="blueprints">
-              <a href="#ajax/Aws-Production.html" id="designNew" onclick="setleftnavigation(this,'Design');" class="navigationTab">
+              <a href="#" id="designNew" onclick="setleftnavigation(this,'Design');" class="navigationTab">
               <i class="fa fa-puzzle-piece"></i>&nbsp;DESIGN
               </a>
             </li>
@@ -806,8 +806,7 @@ function locationClick(){
 
 function setleftnavigation(toplink, breadcrumbHeader) {
     var TabID = $(toplink).attr('id');
-if (TabID === "bots") {
-        
+    if (TabID === "bots") {
         if(isAngularIntegration){
           var checkUrl = window.location.href;
           if(checkUrl.indexOf('ajax/Dev.html') !==-1){
@@ -822,8 +821,7 @@ if (TabID === "bots") {
         $('#trackShow').hide();
 
     }
-	else if (TabID === "analytics") {
-        
+  	else if (TabID === "analytics") {   
         if(isAngularIntegration){
           var checkUrl = window.location.href;
           if(checkUrl.indexOf('ajax/Dev.html') !==-1){
@@ -836,9 +834,22 @@ if (TabID === "bots") {
         $('#Settings_nav').hide();
         $('#Workspace1').show();
         $('#trackShow').hide();
-
     }
-   else if (TabID === "workZoneNew") {
+    else if (TabID === "designNew") {   
+        if(isAngularIntegration){
+          var checkUrl = window.location.href;
+          if(checkUrl.indexOf('ajax/Dev.html') !==-1){
+            console.log('here');
+          }else{
+             window.location.href = "../../cat3/#/dashboard/design/AWS/list";  
+            return false;
+          }
+        }
+        $('#Settings_nav').hide();
+        $('#Workspace1').show();
+        $('#trackShow').hide();
+    }
+    else if (TabID === "workZoneNew") {
         
         if(isAngularIntegration){
           var checkUrl = window.location.href;
@@ -854,13 +865,13 @@ if (TabID === "bots") {
         $('#Workspace1').show();
         $('#trackShow').hide();
 
-    } else if (TabID === "designNew") {
+    } /*else if (TabID === "designNew") {
         $('#selectOrgName').trigger('click');
         $('#Workspace1').hide();
         $('#Settings_nav').hide();
         $('#trackShow').hide();
 
-    } else if (TabID === "settingsNew") {
+    }*/ else if (TabID === "settingsNew") {
         $('#tree').empty()
         $('#trackTree').empty();
         loadSettingsTree();
