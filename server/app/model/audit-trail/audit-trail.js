@@ -35,15 +35,28 @@ AuditTrailSchema.statics.getAuditTrailList = function(auditTrailQuery,callback){
     });
 };
 
-AuditTrailSchema.statics.updateAuditTrail = function(auditId,auditObj,callback){
-    AuditTrail.update({_id:new ObjectId(auditId)},{$set:auditObj},{upsert:false}, function(err, updateAuditTrail) {
+AuditTrailSchema.statics.getAuditTrailByStatus = function(auditType,actionStatus,callback){
+    AuditTrail.find({auditType:auditType,actionStatus:actionStatus}, function(err, auditTrailList) {
         if (err) {
             logger.error(err);
             var error = new Error('Internal server error');
             error.status = 500;
             return callback(error);
         }
-        return callback(null, updateAuditTrail);
+        return callback(null, auditTrailList);
+    });
+};
+
+
+AuditTrailSchema.statics.getAuditTrailByType = function(auditType,callback){
+    AuditTrail.find({auditType:auditType}, function(err, auditTrailList) {
+        if (err) {
+            logger.error(err);
+            var error = new Error('Internal server error');
+            error.status = 500;
+            return callback(error);
+        }
+        return callback(null, auditTrailList);
     });
 };
 
