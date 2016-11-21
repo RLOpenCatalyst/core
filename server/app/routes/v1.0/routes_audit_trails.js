@@ -46,6 +46,18 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             return res.status(200).send(auditTrailActionLogs);
         })
     });
+
+    app.get('/audit-trail/bot-summary', function(req,res){
+        auditTrailService.getBOTsSummary(function(err,botSummary){
+            if(err){
+                logger.error(err);
+                return res.status(500).send(err);
+            }
+            return res.status(200).send(botSummary);
+        })
+    });
+
+
     app.get('/audit-trail/instance-action', getInstanceActionList);
 
     function getInstanceActionList(req, res, next) {
@@ -229,3 +241,4 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 
 };
+
