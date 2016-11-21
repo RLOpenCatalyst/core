@@ -150,7 +150,7 @@
                               </label>
                               <select ng-model="bpCreate.newEnt.keyPair" name="keypairId" class="instanceType chooseInstance width-100 form-control" required>
                                  <option value="">Select KeyPair </option>
-                                 <option value="{{bpCreate.keyPairListing}}">{{bpCreate.keyPairListing}}</option>
+                                 <option ng-repeat="keyPairListing in bpCreate.keyPairListing" value="{{keyPairListing._id}}">{{keyPairListing.keyPairName}}</option>
                               </select>
                            </div>
                            <div class="col-lg-4 col-md-4 margintop15" ng-if="providerType === 'AWS'  || providerType === 'AZURE'">

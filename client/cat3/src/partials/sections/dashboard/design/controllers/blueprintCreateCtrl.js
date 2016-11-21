@@ -37,7 +37,7 @@
             blueprintCreation.providerListing = [];
             blueprintCreation.imageListing = [];
             blueprintCreation.regionListing = ''; 
-            blueprintCreation.keyPairListing = '';
+            blueprintCreation.keyPairListing = [];
             blueprintCreation.vpcListing = [];
             blueprintCreation.subnetListing = [];
             blueprintCreation.securityGroupListing = [];
@@ -157,7 +157,7 @@
                 blueprintCreation.imageListing = [];
                 blueprintCreation.instanceType = [];
                 blueprintCreation.regionListing = null;
-                blueprintCreation.keyPairListing = '';
+                blueprintCreation.keyPairListing = [];
                 blueprintCreation.regionListingAzure = [];
                 blueprintCreation.newEnt.vpcId = null
                 blueprintCreation.vpcListing = [];
@@ -202,7 +202,7 @@
                     bpCreateSer.getAWSProviderWithId(blueprintCreation.newEnt.providers).then(function(data){
                         if(blueprintCreation.newEnt.providers){
                             blueprintCreation.regionListing = data.providerRegion;
-                            blueprintCreation.keyPairListing = data.keyPairs[0].keyPairName;
+                            blueprintCreation.keyPairListing = data.keyPairs;
                             $scope.isRegionKeyPairLoading = false;
                         }
                     });    
