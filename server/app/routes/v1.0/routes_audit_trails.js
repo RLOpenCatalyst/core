@@ -38,7 +38,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
     app.get('/audit-trail/:actionId/logs', function(req,res){
-        auditTrailService.getAuditTrailActionLogs(req.query.actionId,req.query.timestamp,function(err,auditTrailActionLogs){
+        auditTrailService.getAuditTrailActionLogs(req.params.actionId,req.query.timestamp,function(err,auditTrailActionLogs){
             if(err){
                 logger.error(err);
                 return res.status(500).send(err);
@@ -46,8 +46,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             return res.status(200).send(auditTrailActionLogs);
         })
     });
-
-
     app.get('/audit-trail/instance-action', getInstanceActionList);
 
     function getInstanceActionList(req, res, next) {
