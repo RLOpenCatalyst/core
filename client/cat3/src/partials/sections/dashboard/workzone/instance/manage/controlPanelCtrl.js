@@ -80,6 +80,7 @@
 		}
 		genericServices.promiseGet(params).then(function (result) {
 			$scope.schedule={
+				instanceIds:[cpInstance._id],
 				isScheduled:result.isScheduled,
 				schedulerStartOn:moment(result.schedulerStartOn).format('MM/DD/YYYY'),
 				schedulerEndOn:moment(result.schedulerEndOn).format('MM/DD/YYYY'),

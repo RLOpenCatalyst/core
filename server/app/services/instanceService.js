@@ -1485,6 +1485,9 @@ function updateScheduler(instanceScheduler, callback) {
             var resultList =[];
             for (var i = 0; i < results.length; i++) {
                 (function(instance) {
+                    if(instance.cronJobIds && instance.cronJobIds.length > 0){
+                        crontab.cancelJobIds(instance.cronJobIds);
+                    }
                     resultList.push(function(callback){schedulerService.executeSchedulerForInstances(instance,callback);});
                     if(resultList.length === results.length){
                         async.parallel(resultList,function(err,results){
