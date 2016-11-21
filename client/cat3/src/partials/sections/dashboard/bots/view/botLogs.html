@@ -8,13 +8,18 @@
 
 	<div class="modal-body">
 		<div class="logsArea">
-			<!-- <loading size="large" name="isInstanceLogsLoading" align="center" type="block"></loading> -->
-			<div><!-- ng-show="!isInstanceLogsLoading" -->
-			   	<div class="rowSpacing col-lg-12 col-sm-12 {{log.err ? 'logErrorMsg':'logMsg'}}" ng-repeat="log in logListInitial">
-				    <span class="timeStamp"> {{log.timestamp | timestampToLocaleTime}} </span>
-				    <span class="logInfo"> {{log.log}} </span>
-			   	</div>
-			   	<div class="rowSpacing col-lg-12 col-sm-12 {{log.err ? 'logErrorMsg':'logMsg'}}" ng-repeat="log in logListDelta">
+			<loading size="large" name="isBotLogsLoading" align="center" type="block"></loading>
+			<div ng-show="!isBotLogsLoading">
+				<div id="selectInstanceFromDropdown">
+                    <label class="col-md-3 col-sm-3 col-xs-4 text-padding control-label margintop8">Select Instance<sup class="red">*</sup>
+                    </label>
+                    <span class="col-md-4 col-sm-4 col-xs-8 no-padding">
+    					<select class="form-control" ng-model="selectedInstance" ng-change="instanceChange()" ng-init="selectedInstance = nodeIds[0]">
+    						<option selected="selected" ng-repeat="nodeId in nodeIds" value="{{nodeId}}">{{nodeId}}</option>
+    					</select>
+    				</span>
+                </div>
+			   	<div class="rowSpacing col-lg-12 col-sm-12 {{log.err ? 'logErrorMsg':'logMsg'}}" ng-repeat="log in botLogs">
 				    <span class="timeStamp"> {{log.timestamp | timestampToLocaleTime}} </span>
 				    <span class="logInfo"> {{log.log}} </span>
 			   	</div>
