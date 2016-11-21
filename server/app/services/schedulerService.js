@@ -637,6 +637,11 @@ function checkSuccessInstanceAction(logReferenceIds,instanceState,instanceLog,ac
 function createCronJob(cronPattern,instanceId,catUser,action,callback){
     var schedulerService = require('_pr/services/schedulerService');
     var cronJobId = cronTab.scheduleJob(cronPattern, function () {
+        instancesDao.updateCronJobIdByInstanceId(instanceId,cronJobId,function(err,data){
+            if(err){
+                logger.error("Error in updating cron job Ids. "+err);
+            }
+        })
         schedulerService.startStopInstance(instanceId, catUser, action, function (err, data) {
             if (err) {
                 callback(err, null);
