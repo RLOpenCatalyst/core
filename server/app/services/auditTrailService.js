@@ -117,6 +117,7 @@ auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,acti
 
 auditTrailService.saveAndUpdateAuditTrail = function saveAndUpdateAuditTrail(auditTrailDetails,callback){
     if(auditTrailDetails.auditType === 'BOTs'){
+        console.log(JSON.stringify(auditTrailDetails));
         botAuditTrail.createNew(auditTrailDetails,function(err,data){
             if(err){
                 logger.error(err);
@@ -282,7 +283,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
                         })(botAuditTrail[i]);
                     }
                     if(count === botAuditTrail.length){
-                        callback(null,totalTimeInSeconds);
+                        callback(null,(totalTimeInSeconds/60));
                     }
                 } else{
                     callback(null,botAuditTrail.length);
