@@ -143,29 +143,31 @@ schedulerService.startStopInstance= function startStopInstance(instanceId,catUse
 }
 
 function startStopManagedInstance(instance,catUser,action,callback){
-    var actionStartLog = '',actionCompleteLog='',actionFailedLog='',vmWareAction='',instanceState='';
-    if(action === 'Start'){
-        actionStartLog = 'Instance Starting';
-        actionCompleteLog = 'Instance Started';
-        actionFailedLog='Unable to start instance';
-        vmWareAction='poweron';
-        instanceState='running';
-    }else if(action === 'Stop'){
-        actionStartLog = 'Instance Stopping';
-        actionCompleteLog = 'Instance Stopped';
-        actionFailedLog='Unable to stop instance';
-        vmWareAction='poweroff';
-        instanceState='stopped';
-    }else{
-        logger.debug("Action is not matched for corresponding operation. "+action);
-        callback(null,null);
-    }
+    var actionStartLog = '',actionCompleteLog='',actionFailedLog='',vmWareAction='',instanceState='',actionLog = null;
+    var timestampStarted = new Date().getTime();
     if(instanceState !== '' && instanceState === instance.instanceState){
         callback({
             errCode:201,
             errMsg:"Instance is already in "+instanceState+" state. So no need to do same action again"
         })
         return;
+    }else if(action === 'Start'){
+        actionStartLog = 'Instance Starting';
+        actionCompleteLog = 'Instance Started';
+        actionFailedLog='Unable to start instance';
+        vmWareAction='poweron';
+        instanceState='running';
+        actionLog = instancesDao.insertStartActionLog(instance._id, catUser, timestampStarted);
+    }else if(action === 'Stop'){
+        actionStartLog = 'Instance Stopping';
+        actionCompleteLog = 'Instance Stopped';
+        actionFailedLog='Unable to stop instance';
+        vmWareAction='poweroff';
+        instanceState='stopped';
+        actionLog = instancesDao.insertStopActionLog(instance._id, catUser, timestampStarted);
+    }else{
+        logger.debug("Action is not matched for corresponding operation. "+action);
+        callback(null,null);
     }
     var instanceLog = {
         actionId: "",
@@ -189,10 +191,8 @@ function startStopManagedInstance(instance,catUser,action,callback){
         action: action,
         logs: []
     };
-    var timestampStarted = new Date().getTime();
-    var actionLog = instancesDao.insertStopActionLog(instance._id, catUser, timestampStarted);
     var logReferenceIds = [instance._id];
-    if (actionLog) {
+    if (actionLog !== null) {
         logReferenceIds.push(actionLog._id);
     }
     logsDao.insertLog({

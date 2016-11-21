@@ -90,7 +90,7 @@ $imagePath : "../../../../../../cat3/images";
 #section-name {
     font-size: 14px;
     font-weight: bold;
-    padding: 10px 0;
+    padding: 0;
 
     .menu-icon {
         float: left;
@@ -115,7 +115,6 @@ $imagePath : "../../../../../../cat3/images";
     #breadcrumb-nav {
         ul {
             margin: 0px;
-            padding: 10px 0;
             li {
                 list-style: none;
                 display: inline;
@@ -649,7 +648,7 @@ option.script {
     background: #fcfcfc;
     border-bottom-width: 1px;
     @include theme-border-color;
-    min-height: 40px !important;
+    height: 40px;
     padding: 5px 15px;
     position:relative;
     z-index:3;

@@ -69,8 +69,8 @@
 		var cpInstance = $scope.$parent.cpInstance;
 		$scope.schedule={
 			instanceIds:[cpInstance._id],
-			schedulerStartOn:moment(new Date()).format('DD/MM/YYYY'),
-			schedulerEndOn:moment(new Date()).format('DD/MM/YYYY'),
+			schedulerStartOn:moment(new Date()).format('MM/DD/YYYY'),
+			schedulerEndOn:moment(new Date()).format('MM/DD/YYYY'),
 			interval:[{ind:0,"days":[],"action":"start"}]
 		};
 		$timeout(function(){$('input.time').trigger('click');},100);
@@ -81,8 +81,8 @@
 		genericServices.promiseGet(params).then(function (result) {
 			$scope.schedule={
 				isScheduled:result.isScheduled,
-				schedulerStartOn:moment(result.schedulerStartOn).format('DD/MM/YYYY'),
-				schedulerEndOn:moment(result.schedulerEndOn).format('DD/MM/YYYY'),
+				schedulerStartOn:moment(result.schedulerStartOn).format('MM/DD/YYYY'),
+				schedulerEndOn:moment(result.schedulerEndOn).format('MM/DD/YYYY'),
 				interval:result.interval
 			};
 		});

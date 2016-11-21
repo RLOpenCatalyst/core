@@ -1471,6 +1471,7 @@ function updateScheduler(instanceScheduler, callback) {
             generateCronPattern(instanceScheduler.interval,instanceScheduler.schedulerStartOn,instanceScheduler.schedulerEndOn,next);
         },
         function(schedulerDetails,next){
+            schedulerDetails.interval = instanceScheduler.interval;
             instancesDao.updateScheduler(instanceScheduler.instanceIds, schedulerDetails,next);
         },
         function(updateSchedulerDetails,next){

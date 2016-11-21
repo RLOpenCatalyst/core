@@ -395,6 +395,7 @@ var InstanceSchema = new Schema({
         required: false,
         trim: true
     },
+    interval:[Schema.Types.Mixed],
     cronJobId: {
         type: String,
         required: false,
@@ -2329,7 +2330,8 @@ var InstancesDao = function () {
                         instanceStopScheduler: instanceScheduler.instanceStopScheduler,
                         schedulerStartOn: instanceScheduler.schedulerStartOn,
                         schedulerEndOn: instanceScheduler.schedulerEndOn,
-                        isScheduled: instanceScheduler.isScheduled
+                        isScheduled: instanceScheduler.isScheduled,
+                        interval:instanceScheduler.interval
                     },
                 }, {multi: true}, function (err, data) {
                     if (err) {
