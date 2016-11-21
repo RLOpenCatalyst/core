@@ -2,10 +2,6 @@
 <form name="scheduleForm" novalidate ng-controller="cpScheduleCtrl">
     <fieldset class="repo-job-details-wrapper">
         <legend class="repo-job-details-wrapper-inner"><i class="fa fa-calendar"></i> Manage Schedule</legend>
-        <div class="col-lg-12 col-md-12 " ng-show="schedule.isScheduled">
-            <label class="pull-right"><input type="checkbox" ng-model="editSch" ng-value="true"> Are you want to edit it again ?
-            </label>
-        </div>
 <div class="col-lg-6 col-md-6 margintop15">
     <label>Starts on: <span class="red">*</span>
     </label>
@@ -72,14 +68,14 @@
 <script>
     $(document).ready(function () {
         $('#date-end').bootstrapMaterialDatePicker({
-            format: 'DD/MM/YYYY ',
+            format: 'MM/DD/YYYY',
             weekStart: 1,
             time: false,
             switchOnClick : true,
             nowButton : true,
         });
         $('#date-start').bootstrapMaterialDatePicker({
-            format: 'DD/MM/YYYY',
+            format: 'MM/DD/YYYY',
             weekStart: 1,
             time: false,
             switchOnClick : true,
