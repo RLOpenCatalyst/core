@@ -18,6 +18,7 @@
                 var getResult = bpServ.createList();
                 if(getResult){
                     getResult.then(function (result){
+                        console.log(result);
                         pbList.blueprintList.card=result.blueprints;
                         pbList.pager=result.metaData;
                         pbList.blueprintList.list.data=result.blueprints;
@@ -25,7 +26,66 @@
                         pbList.blueprintList.list.paginationPageSize= 10;
                         pbList.blueprintList.list.enableGridMenu = true;
                         pbList.blueprintList.list.enableSorting= false;
-                        pbList.blueprintList.list.columnDefs = [
+                        var bpcolumnDefs = [];
+                        angular.forEach(pbList.blueprintList.list.data, function(val){
+                            if(val.templateType === 'docker'){
+                                var dockerOptions = [
+                                    { name:'Name',minWidth:150,field:'name'},
+                                    { name:'Docker Path',minWidth:150,field:'blueprintConfig.dockerCompose[0].dockercontainerpaths'},
+                                    { name:'Docker Path Title',minWidth:150,field:'blueprintConfig.dockerCompose[0].dockercontainerpathstitle'},
+                                    { name:'Docker RepoTag',minWidth:150,field:'blueprintConfig.dockerCompose[0].dockerrepotags'}, 
+                                    { name:'Action',minWidth:150,cellTemplate:'<span class="badge cat-btn-update" title="Clone" ng-click="grid.appScope.copyBp(row.entity._id)"><i class="fa fa-clone fa-2 white" aria-hidden="true"></i></span> ' +
+                                    '&nbsp; <span class="badge cat-btn-update" title="Info" ng-click="grid.appScope.blueprintInfo($event,row.entity,null);"><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>' +
+                                    '&nbsp; <span class="badge cat-btn-update" title="Launch"  ng-click="grid.appScope.launchInstance($event,row.entity);"><i class="fa fa-location-arrow fa-2 white" aria-hidden="true"></i></span>' +
+                                    '&nbsp; <span class="badge cat-btn-update" title="Delete"  ng-click="grid.appScope.deleteBp($event,row.entity,null);"><i class="fa fa-trash-o fa-2 white" aria-hidden="true"></i></span>'}
+                                ];
+                                bpcolumnDefs = dockerOptions;
+                            } else if(val.templateType === 'chef' || val.templateType === 'ami'){
+                                var bpOptions = [
+                                    { name:'Name',minWidth:150,field:'name' },
+                                    { name:'InstanceOs',minWidth:150,field:'blueprintConfig.cloudProviderData.instanceOS'},
+                                    { name:'vpcId',minWidth:150,field:'blueprintConfig.cloudProviderData.vpcId'},
+                                    { name:'Region',minWidth:150,field:'blueprintConfig.cloudProviderData.region',visible: false},
+                                    { name:'Template Type',minWidth:150,cellTemplate:'<div>{{grid.appScope.getTemplate(row.entity.templateType)}}</div>'},
+                                    { name:'Instance Type',minWidth:150,field:'blueprintConfig.cloudProviderData.instanceType'},
+                                    { name:'Keypair',minWidth:150,field:'blueprintConfig.cloudProviderData.keyPairId',visible: false},
+                                    { name:'Subnet',minWidth:150,field:'blueprintConfig.cloudProviderData.subnetId',visible: false},
+                                    { name:'Security Group',width:150,field:'blueprintConfig.cloudProviderData.securityGroupIds[0]'},
+                                    { name:'Action',minWidth:150,cellTemplate:'<span class="badge cat-btn-update" title="Clone" ng-click="grid.appScope.copyBp(row.entity._id)"><i class="fa fa-clone fa-2 white" aria-hidden="true"></i></span> ' +
+                                    '&nbsp; <span class="badge cat-btn-update" title="Info" ng-click="grid.appScope.blueprintInfo($event,row.entity,null);"><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>' +
+                                    '&nbsp; <span class="badge cat-btn-update" title="Launch"  ng-click="grid.appScope.launchInstance($event,row.entity);"><i class="fa fa-location-arrow fa-2 white" aria-hidden="true"></i></span>' +
+                                    '&nbsp; <span class="badge cat-btn-update" title="Delete"  ng-click="grid.appScope.deleteBp($event,row.entity,null);"><i class="fa fa-trash-o fa-2 white" aria-hidden="true"></i></span>'}
+                                ];
+                                bpcolumnDefs = bpOptions;
+                            } else if(val.templateType === 'cft') {
+                                var cftOptions = [
+                                    { name:'Name',minWidth:150,field:'name' },
+                                    { name:'Cloud Provider',minWidth:150,field:'blueprintConfig.cloudProviderType'},
+                                    { name:'Region',minWidth:150,field:'blueprintConfig.region'},
+                                    { name:'Template Type',minWidth:150,cellTemplate:'<div>{{grid.appScope.getTemplate(row.entity.templateType)}}</div>'},
+                                    { name:'Action',minWidth:150,cellTemplate:'<span class="badge cat-btn-update" title="Clone" ng-click="grid.appScope.copyBp(row.entity._id)"><i class="fa fa-clone fa-2 white" aria-hidden="true"></i></span> ' +
+                                    '&nbsp; <span class="badge cat-btn-update" title="Info" ng-click="grid.appScope.blueprintInfo($event,row.entity,null);"><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>' +
+                                    '&nbsp; <span class="badge cat-btn-update" title="Launch"  ng-click="grid.appScope.launchInstance($event,row.entity);"><i class="fa fa-location-arrow fa-2 white" aria-hidden="true"></i></span>' +
+                                    '&nbsp; <span class="badge cat-btn-update" title="Delete"  ng-click="grid.appScope.deleteBp($event,row.entity,null);"><i class="fa fa-trash-o fa-2 white" aria-hidden="true"></i></span>'}
+                                ];
+                                bpcolumnDefs = cftOptions;
+                            } else if(val.templateType === 'arm') {
+                                var cftOptions = [
+                                    { name:'Name',minWidth:150,field:'name' },
+                                    { name:'Infra Manager Type',minWidth:150,field:'blueprintConfig.infraMangerType'},
+                                    { name:'Resource Group',minWidth:150,field:'blueprintConfig.resourceGroup'},
+                                    { name:'Template Type',minWidth:150,cellTemplate:'<div>{{grid.appScope.getTemplate(row.entity.templateType)}}</div>'},
+                                    { name:'Action',minWidth:150,cellTemplate:'<span class="badge cat-btn-update" title="Clone" ng-click="grid.appScope.copyBp(row.entity._id)"><i class="fa fa-clone fa-2 white" aria-hidden="true"></i></span> ' +
+                                    '&nbsp; <span class="badge cat-btn-update" title="Info" ng-click="grid.appScope.blueprintInfo($event,row.entity,null);"><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>' +
+                                    '&nbsp; <span class="badge cat-btn-update" title="Launch"  ng-click="grid.appScope.launchInstance($event,row.entity);"><i class="fa fa-location-arrow fa-2 white" aria-hidden="true"></i></span>' +
+                                    '&nbsp; <span class="badge cat-btn-update" title="Delete"  ng-click="grid.appScope.deleteBp($event,row.entity,null);"><i class="fa fa-trash-o fa-2 white" aria-hidden="true"></i></span>'}
+                                ];
+                                bpcolumnDefs = cftOptions;
+                            }
+                            
+                        });
+                        pbList.blueprintList.list.columnDefs = bpcolumnDefs;
+                        /*pbList.blueprintList.list.columnDefs = [
                             { name:'Name',minWidth:150,field:'name' },
                             { name:'InstanceOs',minWidth:150,field:'blueprintConfig.cloudProviderData.instanceOS'},
                             { name:'vpcId',minWidth:150,field:'blueprintConfig.cloudProviderData.vpcId'},
@@ -39,7 +99,7 @@
                             '&nbsp; <span class="badge cat-btn-update" title="Info" ng-click="grid.appScope.blueprintInfo($event,row.entity,null);"><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>' +
                             '&nbsp; <span class="badge cat-btn-update" title="Launch"  ng-click="grid.appScope.launchInstance($event,row.entity);"><i class="fa fa-location-arrow fa-2 white" aria-hidden="true"></i></span>' +
                             '&nbsp; <span class="badge cat-btn-update" title="Delete"  ng-click="grid.appScope.deleteBp($event,row.entity,null);"><i class="fa fa-trash-o fa-2 white" aria-hidden="true"></i></span>'}
-                        ];
+                        ];*/
                     });
                 }
             };
