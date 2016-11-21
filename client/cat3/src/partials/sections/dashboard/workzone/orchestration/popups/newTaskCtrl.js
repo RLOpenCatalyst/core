@@ -13,7 +13,6 @@
 			$scope.role={
 				name : ''
 			};
-			console.log(items);
 			$scope.isNewTaskPageLoading = true;
 			$scope.isScriptInstanceLoading = true;
 			$scope.chefrunlist = [];
@@ -443,11 +442,11 @@
 			$scope.scriptTypeSelelct = '';
 			$scope.chefBluePrintList = [];
 			$scope.puppetInstanceList = [];
-			$scope.cookbookAttributes = [];
 			$scope.editRunListAttributes = false;
 
 			$rootScope.$on('WZ_ORCHESTRATION_REFRESH_CURRENT', function(event,reqParams) {
                 $scope.chefrunlist = reqParams.list;
+                $scope.cookbookAttributes = reqParams.cbAttributes;
             });
 			var compositeSelector;
 			workzoneServices.getEnvironmentTaskList().then(function (response) {

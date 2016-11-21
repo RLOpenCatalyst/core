@@ -18,7 +18,6 @@
                 var getResult = bpServ.createList();
                 if(getResult){
                     getResult.then(function (result){
-                        console.log(result);
                         pbList.blueprintList.card=result.blueprints;
                         pbList.pager=result.metaData;
                         pbList.blueprintList.list.data=result.blueprints;

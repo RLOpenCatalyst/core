@@ -294,7 +294,7 @@
                     cookbookRunlistAttr: function(){
                         return {
                             chefrunlist: chefRunlist,
-                            attributes: chefAttribute                            
+                            cookbookAttributes: chefAttribute                            
                         };
                     }
                 }
