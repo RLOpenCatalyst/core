@@ -318,7 +318,15 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                 //res.send(200);
                                 callback(null, {
                                     "id": [instance.id],
-                                    "message": "instance launch success"
+                                    "message": "instance launch success",
+                                    "instanceId":data._id,
+                                    "actionLogId":actionLog._id,
+                                    "endedOn":new Date().getTime(),
+                                    "actionStatus":"success",
+                                    "orgName":launchParams.orgName,
+                                    "bgName":launchParams.bgName,
+                                    "projectName":launchParams.projectName,
+                                    "envName":launchParams.envName
                                 });
                                 logger.debug('Should have sent the response.');
                                 vmwareCloud.waitforserverready(appConfig.vmware.serviceHost, createserverdata["vm_name"], anImage.userName, anImage.instancePassword, function(err, publicip, vmdata) {

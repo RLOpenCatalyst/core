@@ -117,7 +117,6 @@ auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,acti
 
 auditTrailService.saveAndUpdateAuditTrail = function saveAndUpdateAuditTrail(auditTrailDetails,callback){
     if(auditTrailDetails.auditType === 'BOTs'){
-        console.log(JSON.stringify(auditTrailDetails));
         botAuditTrail.createNew(auditTrailDetails,function(err,data){
             if(err){
                 logger.error(err);

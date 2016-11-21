@@ -291,7 +291,11 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                     "instanceId":data._id,
                                     "actionLogId":actionLog._id,
                                     "endedOn":new Date().getTime(),
-                                    "actionStatus":"success"
+                                    "actionStatus":"success",
+                                    "orgName":launchParams.orgName,
+                                    "bgName":launchParams.bgName,
+                                    "projectName":launchParams.projectName,
+                                    "envName":launchParams.envName
                                 });
                             }
                             var instanceLog = {

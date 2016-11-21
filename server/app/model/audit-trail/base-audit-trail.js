@@ -34,42 +34,42 @@ var AuditTrailSchema = function AuditTrail() {
             orgName: {
                 type: String,
                 trim:true,
-                required:true
+                required:false
             },
             orgId: {
                 type: String,
                 trim:true,
-                required:true
+                required:false
             },
             bgName: {
                 type: String,
                 trim:true,
-                required:true
+                required:false
             },
             bgId: {
                 type: String,
                 trim:true,
-                required:true
+                required:false
             },
             projectName: {
                 type: String,
                 trim:true,
-                required:true
+                required:false
             },
             projectId: {
                 type: String,
                 trim:true,
-                required:true
+                required:false
             },
             envName: {
                 type: String,
                 trim:true,
-                required:true
+                required:false
             },
             envId: {
                 type: String,
                 trim:true,
-                required:true
+                required:false
             }
         },
         auditType: {

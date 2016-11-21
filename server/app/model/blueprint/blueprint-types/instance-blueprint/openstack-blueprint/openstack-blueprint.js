@@ -327,7 +327,15 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
 
                 callback(null, {
                     "id": [instance.id],
-                    "message": "instance launch success"
+                    "message": "instance launch success",
+                    "instanceId":data._id,
+                    "actionLogId":actionLog._id,
+                    "endedOn":new Date().getTime(),
+                    "actionStatus":"success",
+                    "orgName":launchParams.orgName,
+                    "bgName":launchParams.bgName,
+                    "projectName":launchParams.projectName,
+                    "envName":launchParams.envName
                 });
                 logger.debug('Should have sent the response & Entering wait state for instance ready:', JSON.stringify(instanceData));
                 var cryptoConfig = appConfig.cryptoSettings;

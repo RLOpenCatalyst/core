@@ -395,13 +395,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 								auditType:'BOTs',
 								auditCategory:'Blueprint',
 								masterDetails:{
-									orgName: blueprint.orgName,
 									orgId: blueprint.orgId,
-									bgName: blueprint.bgName,
 									bgId: blueprint.bgId,
-									projectName: blueprint.projectName,
 									projectId: blueprint.projectId,
-									envName: blueprint.envName,
 									envId: req.query.envId
 								},
 								auditTrailConfig:{
@@ -412,7 +408,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 									executionType:blueprint.blueprintType,
 									nodeIdsWithActionLog:[]
 								},
-								user:userName,
+								user:req.session.user.cn,
 								startedOn:new Date().getTime(),
 								status:'running',
 								action:'BOTs Blueprint Execution',
@@ -483,7 +479,11 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 									"actionLogId" : launchData.actionLogId,
 									"nodeId" : launchData.instanceId
 								}],
-								"nodeIds":[launchData.instanceId]
+								"nodeIds":[launchData.instanceId],
+								"masterDetails.orgName":launchData.orgName,
+								"masterDetails.bgName":launchData.bgName,
+								"masterDetails.projectName":launchData.projectName,
+								"masterDetails.envName":launchData.envName
 							}
 							if(blueprint.serviceDeliveryCheck === true){
 								auditTrailService.updateAuditTrail('BOTs',auditTrailId,resultBlueprintExecution,function(err,auditTrail){

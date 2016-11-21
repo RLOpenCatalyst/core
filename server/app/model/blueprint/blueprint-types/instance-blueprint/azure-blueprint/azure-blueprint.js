@@ -384,7 +384,15 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                             if (azureinstid.length >= parseInt(self.instanceCount)) {
                                                 callback(null, {
                                                     "id": azureinstid,
-                                                    "message": "instance launch success"
+                                                    "message": "instance launch success",
+                                                    "instanceId":data._id,
+                                                    "actionLogId":actionLog._id,
+                                                    "endedOn":new Date().getTime(),
+                                                    "actionStatus":"success",
+                                                    "orgName":launchParams.orgName,
+                                                    "bgName":launchParams.bgName,
+                                                    "projectName":launchParams.projectName,
+                                                    "envName":launchParams.envName
                                                 });
                                                 logger.debug('Should have sent the response.');
                                             }

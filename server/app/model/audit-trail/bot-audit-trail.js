@@ -52,7 +52,6 @@ var BotAuditTrailSchema = new BaseAuditTrail({
 });
 
 BotAuditTrailSchema.statics.createNew = function(auditTrail,callback){
-    console.log(JSON.stringify(auditTrail));
     var botAuditTrail = new BotAuditTrail(auditTrail);
     botAuditTrail.save(function(err, data) {
         if (err) {
