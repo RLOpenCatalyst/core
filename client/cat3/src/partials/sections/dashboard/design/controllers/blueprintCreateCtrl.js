@@ -548,6 +548,7 @@
 
             $rootScope.$on('WZ_ORCHESTRATION_REFRESH_CURRENT', function(event,reqParams) {
                 $scope.chefrunlist = reqParams.list;
+                $scope.cookbookAttributes = reqParams.cbAttributes;
             });
             //modal to show the Docker Parameters Popup                                             
             //on initial load.
