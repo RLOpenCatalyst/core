@@ -91,7 +91,7 @@
         };
 
         genericServices.moreInfo= function(blueprintObj,bpType){
-            if(bpType === 'compBlueInfo'){
+            if(bpType === 'composite'){
                 $modal.open({
                     animation: true,
                     templateUrl: 'src/partials/sections/dashboard/workzone/blueprint/popups/compositeBlueprintInfo.html',
@@ -100,7 +100,7 @@
                     keyboard: false,
                     resolve: {
                         items: function() {
-                            return blueprintObj ;
+                            return blueprintObj;
                         }
                     }
                 });

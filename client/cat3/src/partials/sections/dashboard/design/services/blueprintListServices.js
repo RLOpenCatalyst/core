@@ -13,7 +13,7 @@
                     organObjectId.buss=$rootScope.organNewEnt.buss.rowid;
                     organObjectId.proj=$rootScope.organNewEnt.proj.rowId;
                     var params;
-                    if(tempType === 'docker' || tempType === 'arm'){
+                    if(tempType === 'docker' || tempType === 'arm' || tempType === 'composite'){
                         params = {
                             url: '/organizations/'+organObjectId.org+'/businessgroups/'+organObjectId.buss+'/projects/'+organObjectId.proj+'/blueprintList?pagination='+pagination+'&templateType='+tempType+'&providerType='
                         };    

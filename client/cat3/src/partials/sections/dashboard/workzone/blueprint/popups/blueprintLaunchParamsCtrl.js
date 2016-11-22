@@ -23,13 +23,13 @@
 			});
 			genericServices.getTreeNew().then(function (envData) {
 				angular.forEach(envData,function(val){
-					if(val.rowid === items.orgId){
+					if(val.rowid === items.orgId || val.rowid === items.organizationId){
 						$scope.orgSeleted=val.name;
 						angular.forEach(val.businessGroups,function(busval){
-							if(busval.rowid === items.bgId){
+							if(busval.rowid === items.bgId || busval.rowid === items.businessGroupId){
 								$scope.busSeleted=busval.name;
 								angular.forEach(busval.projects,function(projval){
-									if(projval.rowId === items.projectId){
+									if(projval.rowId === items.projectId || projval.rowId === items.projectId){
 										$scope.projSeleted=projval.name;
 										$scope.envOptions=projval.environments;
 										if(workzoneEnvironment.getEnvParams() && workzoneEnvironment.getEnvParams().env){
