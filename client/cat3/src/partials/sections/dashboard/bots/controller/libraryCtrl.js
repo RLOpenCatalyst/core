@@ -37,7 +37,7 @@
             ],
             data:[]
         };
-        var gridBottomSpace = 115;
+        var gridBottomSpace = 210;
         $scope.gridHeight = workzoneUIUtils.makeTabScrollable('botLibraryPage') - gridBottomSpace;
         $scope.launchInstance = function(launch){
             if(launch.launcType === 'task'){
