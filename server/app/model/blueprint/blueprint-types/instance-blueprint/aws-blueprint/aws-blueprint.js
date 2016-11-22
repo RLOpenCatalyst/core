@@ -288,8 +288,8 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                 callback(null, {
                                     "id": newinstanceIDs,
                                     "message": "instance launch success",
-                                    "instanceId":data._id,
-                                    "actionLogId":actionLog._id,
+                                    "instanceId":logsReferenceIds[0],
+                                    "actionLogId":logsReferenceIds[1],
                                     "endedOn":new Date().getTime(),
                                     "actionStatus":"success",
                                     "orgName":launchParams.orgName,

@@ -86,53 +86,67 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
                     executionType:task.taskType,
                     nodeIdsWithActionLog:[]
                 };
-                auditTrailService.insertAuditTrail(task,auditTrailObj,actionObj,function(err,data){
-                    if(err){
+                auditTrailService.insertAuditTrail(task,auditTrailObj,actionObj,function(err,data) {
+                    if (err) {
                         logger.error(err);
                     }
-                    auditTrailId=data._id;
+                    auditTrailId = data._id;
+                    task.execute(user, hostProtocol, choiceParam, appData, blueprintIds, task.envId, auditTrailId, function (err, taskRes, historyData) {
+                        if (err) {
+                            if (auditTrailId !== null) {
+                                var resultTaskExecution = {
+                                    "actionStatus": 'failed',
+                                    "status": "failed",
+                                    "endedOn": new Date().getTime(),
+                                    "actionLogId": historyData.nodeIdsWithActionLog[0].actionLogId,
+                                    "auditTrailConfig.nodeIdsWithActionLog": historyData.nodeIdsWithActionLog
+                                };
+                                auditTrailService.updateAuditTrail('BOTs', auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                    if (err) {
+                                        logger.error("Failed to create or update bot Log: ", err);
+                                    }
+                                });
+                            }
+                            var error = new Error('Failed to execute task.');
+                            error.status = 500;
+                            return callback(error, null);
+                        }
+                        if (historyData) {
+                            taskRes.historyId = historyData.id;
+                        }
+                        callback(null, taskRes);
+                        return;
+                    });
+                });
+            }else{
+                task.execute(user, hostProtocol, choiceParam, appData, blueprintIds, task.envId,auditTrailId,function(err, taskRes, historyData) {
+                    if (err) {
+                        if(auditTrailId !== null) {
+                            var resultTaskExecution = {
+                                "actionStatus": 'failed',
+                                "status": "failed",
+                                "endedOn": new Date().getTime(),
+                                "actionLogId": historyData.nodeIdsWithActionLog[0].actionLogId,
+                                "auditTrailConfig.nodeIdsWithActionLog": historyData.nodeIdsWithActionLog
+                            };
+                            auditTrailService.updateAuditTrail('BOTs', auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                if (err) {
+                                    logger.error("Failed to create or update bot Log: ", err);
+                                }
+                            });
+                        }
+                        var error = new Error('Failed to execute task.');
+                        error.status = 500;
+                        return callback(error, null);
+                    }
+                    if (historyData) {
+                        taskRes.historyId = historyData.id;
+                    }
+                    callback(null, taskRes);
+                    return;
                 });
             }
-            task.execute(user, hostProtocol, choiceParam, appData, blueprintIds, task.envId, function(err, taskRes, historyData) {
-                if (err) {
-                    if(auditTrailId !== null) {
-                        var resultTaskExecution = {
-                            "actionStatus": historyData.lastTaskStatus,
-                            "status": historyData.lastTaskStatus,
-                            "endedOn": historyData.timestampEnded,
-                            "actionLogId": historyData.nodeIdsWithActionLog[0].actionLogId,
-                            "auditTrailConfig.nodeIdsWithActionLog": historyData.nodeIdsWithActionLog
-                        };
-                        auditTrailService.updateAuditTrail('BOTs', auditTrailId, resultTaskExecution, function (err, auditTrail) {
-                            if (err) {
-                                logger.error("Failed to create or update bot Log: ", err);
-                            }
-                        });
-                    }
-                    var error = new Error('Failed to execute task.');
-                    error.status = 500;
-                    return callback(error, null);
-                }
-                if (historyData) {
-                    taskRes.historyId = historyData.id;
-                    if(auditTrailId !== null) {
-                        var resultTaskExecution = {
-                            "actionStatus": historyData.lastTaskStatus,
-                            "status": historyData.lastTaskStatus,
-                            "endedOn": historyData.timestampEnded,
-                            "actionLogId": historyData.nodeIdsWithActionLog[0].actionLogId,
-                            "auditTrailConfig.nodeIdsWithActionLog": historyData.nodeIdsWithActionLog
-                        };
-                        auditTrailService.updateAuditTrail('BOTs', auditTrailId, resultTaskExecution, function (err, auditTrail) {
-                            if (err) {
-                                logger.error("Failed to create or update bot Log: ", err);
-                            }
-                        });
-                    }
-                }
-                callback(null, taskRes);
-                return;
-            });
+
         } else {
             var error1 = new Error('Task Not Found.');
             error1.status = 404;

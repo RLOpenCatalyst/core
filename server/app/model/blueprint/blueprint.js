@@ -349,6 +349,7 @@ BlueprintSchema.methods.launch = function(opts, callback) {
                             }, function(err, launchData) {
                                 if(err){
                                     err['errObj'] = {
+                                        endedOn:new Date().getTime(),
                                         orgName:project[0].orgname,
                                         bgName:project[0].productgroupname,
                                         projectName:project[0].projectname,
@@ -383,6 +384,7 @@ BlueprintSchema.methods.launch = function(opts, callback) {
                         }, function(err, launchData) {
                             if(err){
                                 err['errObj'] = {
+                                    endedOn:new Date().getTime(),
                                     orgName:project[0].orgname,
                                     bgName:project[0].productgroupname,
                                     projectName:project[0].projectname,

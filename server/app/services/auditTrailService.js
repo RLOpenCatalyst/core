@@ -42,7 +42,7 @@ auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,audi
             projectId: auditDetails.projectId,
             projectName: auditDetails.projectName,
             envId: auditDetails.envId,
-            envName: auditDetails.environmentName
+            envName: auditDetails.envName?auditDetails.envName:auditDetails.environmentName
         },
         status: actionObj.status,
         actionStatus: actionObj.actionStatus,
@@ -258,7 +258,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
                         })(botAuditTrail[i]);
                     }
                     if(count === botAuditTrail.length){
-                        callback(null,(totalTimeInSeconds/60));
+                        callback(null,Math.round(totalTimeInSeconds/60));
                     }
                 } else{
                     callback(null,botAuditTrail.length);

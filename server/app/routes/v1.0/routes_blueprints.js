@@ -444,7 +444,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 							if (err) {
 								if(auditTrailId !== null){
 									var resultBlueprintExecution = {
-										"endedOn":new Date().getTime(),
+										"endedOn":err.errObj.endedOn,
 										"actionStatus":'failed',
 										"status":'failed',
 										"masterDetails.orgName":err.errObj.orgName,
@@ -464,7 +464,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 								return;
 							}
 							var resultBlueprintExecution = {
-								"endedOn":new Date().getTime(),
+								"endedOn":launchData.endedOn,
 								"actionStatus":launchData.actionStatus,
 								"status":launchData.actionStatus,
 								"actionLogId":launchData.actionLogId,
@@ -472,7 +472,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 									"actionLogId" : launchData.actionLogId,
 									"nodeId" : launchData.instanceId
 								}],
-								"nodeIds":[launchData.instanceId],
+								"auditTrailConfig.nodeIds":[launchData.instanceId],
 								"masterDetails.orgName":launchData.orgName,
 								"masterDetails.bgName":launchData.bgName,
 								"masterDetails.projectName":launchData.projectName,
