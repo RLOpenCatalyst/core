@@ -25,7 +25,7 @@
 				url: "capacity/",
 				templateUrl: "src/partials/sections/dashboard/analytics/view/capacity.html",
 				controller: "capacityCtrl as capaCtr",
-				params:{filterView:{cost:true,viewBy:true,splitUpType:true,org:true}},
+				params:{filterView:{period:true,cost:true,viewBy:true,splitUpType:true,org:true}},
 				resolve: {
 					auth: ["$q", function ($q) {
 						var deferred = $q.defer();
@@ -57,30 +57,30 @@
 						return deferred.promise;
 					}]
 				}
-			})
+			});
 		}])
 	.controller('analyticsCtrl',['$scope', '$rootScope','$state','genericServices','analyticsServices', 'workzoneServices', 'toastr', function ($scope, $rootScope, $state, genericServices,analyticsServices, workzoneServices, toastr) {
 		var analytic = this;
-		var splitUp=null;
+		//var splitUp=null;
 		analytic.tabShowChat=true;
 		analytic.tabShowReport=false;
 		$rootScope.isOpenSidebar = false;
 		$rootScope.dashboardChild = 'analytics';
 		$rootScope.stateItems = $state.params;
 		analyticsServices.initFilter();
-		var treeNames = ['Analytics'];
+		//var treeNames = ['Analytics'];
 		//$rootScope.$emit('treeNameUpdate', treeNames);
 		$rootScope.$emit('HEADER_NAV_CHANGE', 'ANALYTICS');
 		$scope.selectedResources = [];
 		analytic.viewByFilter='orgView';
-		$scope.$watch(function() { return analytic.viewByFilter}, function(newVal, oldVal) {
+		$scope.$watch(function() { return analytic.viewByFilter}, function(newVal) {
 			if(newVal === 'ProviderView'){
 				$rootScope.viewType='ProviderView';
 				if($state.params && $state.params.filterView){
 					analytic.ViewproviFilter=true;
 				}
 			} else {
-				$rootScope.organNewEnt.provider=''
+				$rootScope.organNewEnt.provider='';
 				$rootScope.viewType='orgView';
 				if($state.params && $state.params.filterView){
 					analytic.ViewproviFilter=false;
@@ -91,15 +91,15 @@
 		$scope.$on('CHANGE_splitUp', function (event, data) {
 			analytic.splitUp=data;
 		});
-		$scope.$watch(function() { return analytic.splitUp}, function(newVal, oldVal) {
+		$scope.$watch(function() { return analytic.splitUp}, function(newVal) {
 			$scope.$broadcast('CHANGE_VIEW',newVal);
 		}, true);
-		analytic.applyCount=0
+		analytic.applyCount=0;
 
 		//get organisation
 		genericServices.getTreeNew().then(function (orgs) {
 			$rootScope.organObject = orgs;
-			$scope.getProviders(orgs[0].rowid)
+			$scope.getProviders(orgs[0].rowid);
 		});
 		if (!$rootScope.stateParams.view) {
 			$state.go('dashboard.analytics.cost');
@@ -218,6 +218,7 @@
 				
     		} else {
     			if($scope.selectedResources.length === 10){
+    				console.log($scope.selectedResources.length);
     				///toastr.error('Maximum 5 resources allowed.');
     			}else{
 					$rootScope.filterNewEnt.platformId[resourceId]=platformId;

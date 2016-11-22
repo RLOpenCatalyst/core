@@ -40,7 +40,21 @@
                 });
             return deferred.promise;
         };
-
+        genericServices.promisePut = function (paramsObject) {
+            if(!paramsObject.inlineLoader){ $rootScope.onBodyLoading=true;}
+            var deferred = $q.defer();
+            $http.put(paramsObject.url,paramsObject.data)
+                .success(function(data) {
+                    $rootScope.onBodyLoading=false;
+                    deferred.resolve(data);
+                })
+                .error(function(data, status) {
+                    $rootScope.onBodyLoading=false;
+                    deferred.reject();
+                    toastr.error(data.message, status);
+                });
+            return deferred.promise;
+        };
         genericServices.promiseDelete= function (paramsObject) {
             $rootScope.onBodyLoading=true;
             var deferred = $q.defer();
@@ -214,7 +228,7 @@
                     $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
                 });
             }
-        }
+        };
 
         genericServices.lunchBlueprint=function(blueprintObj) {
             $modal.open({
@@ -261,13 +275,36 @@
                         }
                     })
                     .result.then(function(selectedItem) {
-                    $scope.selected = selectedItem;
+                    //$scope.selected = selectedItem;
                     }, function() {
 
                     });
                 }
             }, function() {
 
+            });
+        };
+        genericServices.editRunlist = function(chefRunlist, chefAttribute) {
+            $modal.open({
+                templateUrl: 'src/partials/sections/dashboard/popups/view/orchestrationUpdateChefRunlist.html',
+                controller: 'orchestrationUpdateChefRunlistCtrl',
+                backdrop: 'static',
+                keyboard: false,
+                resolve : {
+                    cookbookRunlistAttr: function(){
+                        return {
+                            chefrunlist: chefRunlist,
+                            cookbookAttributes: chefAttribute                            
+                        };
+                    }
+                }
+            }).result.then(function (selectedCookBooks) {
+                $rootScope.editRunListAttributes = false;
+                $rootScope.chefrunlist = selectedCookBooks.list;
+                $rootScope.cookbookAttributes = selectedCookBooks.cbAttributes;
+                $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT',selectedCookBooks);
+            }, function () {
+                console.log('Dismiss time is ' + new Date());
             });
         };
         genericServices.scheduleTime=function (ids) {
@@ -282,9 +319,9 @@
                         return ids;
                     }
                 }
-            })
+            });
         };
-        genericServices.instanceStart=function (ids) {
+        genericServices.instanceStart=function () {
 
         };
         genericServices.instanceStop=function () {

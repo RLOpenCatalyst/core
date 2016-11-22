@@ -26,7 +26,6 @@ const errorType = 'taskService';
 var taskService = module.exports = {};
 
 taskService.getChefTasksByOrgBgProjectAndEnvId = function getChefTasksByOrgBgProjectAndEnvId(jsonData, callback) {
-    //jsonData["taskType"] = { $in: ["chef", "composite"] };
     jsonData["taskType"] = "chef";
     taskDao.getChefTasksByOrgBgProjectAndEnvId(jsonData, function(err, chefTasks) {
         if (err) {
@@ -39,40 +38,6 @@ taskService.getChefTasksByOrgBgProjectAndEnvId = function getChefTasksByOrgBgPro
             callback(null, []);
             return;
         } else {
-            /*var chefTaskList = [];
-            var count = 0;
-            var compositeObj = {};
-            for (var i = 0; i < chefTasks.length; i++) {
-                (function(aTask) {
-                    if (aTask.taskType === 'chef') {
-                        count++;
-                        chefTaskList.push(aTask);
-                    } else {
-                        taskDao.getDistinctTaskTypeByIds(aTask.taskConfig.assignTasks,function(err,distinctTaskType){
-                            if(err){
-                               logger.debug("Failed to fetch  Distinct Tasks");
-                               callback(err,null);
-                               return;
-                            }
-                            count++;
-                            if (distinctTaskType.length === 0)
-                                logger.debug("There is no composite Tasks Configured");
-                            if (distinctTaskType.length === 1 && distinctTaskType[0] === 'chef')
-                                chefTaskList.push(aTask);
-                            else
-                                logger.debug("There is composite Tasks Configured with chef and others also");
-                            if (chefTasks.length === count) {
-                                callback(null, chefTaskList);
-                                return;
-                            }
-                        });
-                    }
-                    if (chefTasks.length === count) {
-                        callback(null, chefTaskList);
-                        return;
-                    }
-                })(chefTasks[i]);
-            }*/
             callback(null, chefTasks);
         }
     });
@@ -89,6 +54,7 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
             return callback(error, null);
         }
         if (task) {
+
             if (task.taskType.CHEF_TASK) {
                 paramOptions = paramOptions.attributes;
             } else if (task.taskType.SCRIPT_TASK) {
@@ -99,7 +65,6 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
             if (task.blueprintIds && task.blueprintIds.length) {
                 blueprintIds = task.blueprintIds;
             }
-            console.log(paramOptions);
             task.botParams = paramOptions;
             task.botTagServer = botTagServer;
             task.execute(user, hostProtocol, choiceParam, appData, blueprintIds, task.envId, function(err, taskRes, historyData) {

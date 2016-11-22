@@ -31,7 +31,10 @@
 				templates: {
 					actionhistory: {
 						"url": "src/partials/sections/dashboard/workzone/instance/manage/templates/cpActionHistory.html"
-					}, 
+					},
+					Schedule: {
+						"url": "src/partials/sections/dashboard/workzone/instance/manage/templates/cpSchedule.html"
+					},
 					information: {
 						"url": "src/partials/sections/dashboard/workzone/instance/manage/templates/cpInfo.html"
 					}, 
@@ -55,11 +58,59 @@
 			}
 			//The cpInstance from this scope is used in the controllers of child tabs.
 			$scope.cpInstance = instance;
+			console.log(instance);
 			$scope.instInfo = $scope.cpInstance;
 			//To activate the selected tab
 			$scope.activateTab = function (tabName) {
 				$scope.tab.setTab(tabName);
 			};
 		}
-	]);
+	]).controller('cpScheduleCtrl', ['$scope','genericServices','toastr','$timeout', function ($scope, genericServices,toastr,$timeout) {
+		var cpInstance = $scope.$parent.cpInstance;
+		$scope.schedule={
+			instanceIds:[cpInstance._id],
+			schedulerStartOn:moment(new Date()).format('MM/DD/YYYY'),
+			schedulerEndOn:moment(new Date()).format('MM/DD/YYYY'),
+			interval:[{ind:0,"days":[],"action":"start"}]
+		};
+		$timeout(function(){$('input.time').trigger('click');},100);
+		var params={
+			url:'/instances/'+cpInstance._id
+			//url:'src/partials/sections/dashboard/workzone/data/oneIns.json'
+		}
+		genericServices.promiseGet(params).then(function (result) {
+			$scope.schedule={
+				instanceIds:[cpInstance._id],
+				isScheduled:result.isScheduled,
+				schedulerStartOn:moment(result.schedulerStartOn).format('MM/DD/YYYY'),
+				schedulerEndOn:moment(result.schedulerEndOn).format('MM/DD/YYYY'),
+				interval:result.interval
+			};
+		});
+		$scope.addNewTime = function () {
+			$scope.schedule.interval.push({ind: $scope.schedule.length,"days":[],"action":"start"});
+			$timeout(function(){$('input.time').trigger('click');},100);
+		};
+		$scope.selectDays=function (d,i) {
+			if($scope.schedule.interval[i].days.indexOf(d) === -1){
+				$scope.schedule.interval[i].days.push(d);
+			} else {
+				$scope.schedule.interval[i].days.splice($scope.schedule.interval[i].days.indexOf(d),1);
+			}
+
+		};
+		$scope.removeTime = function (ind) {
+			$scope.schedule.interval.splice(ind,1);
+		};
+		$scope.saveOk=function () {
+			var params={
+				url:'/instances/schedule',
+				data:$scope.schedule
+			};
+			genericServices.promisePut(params).then(function(){
+				toastr.success('successfully created');
+			});
+
+		};
+	}]);
 })(angular);

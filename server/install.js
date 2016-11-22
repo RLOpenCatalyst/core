@@ -105,6 +105,7 @@ function getDefaultsConfig() {
                 "trackedInstances": "providerType",
                 "resources":"createdOn",
                 "instanceLogs":"createdOn",
+                "auditTrails":"startedOn",
                 "taskLogs":"timestampStarted",
                 "unassignedInstances":"state",
                 "unassignedInstances":"state",
