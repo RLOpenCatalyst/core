@@ -1,33 +1,60 @@
 <div id="botLibraryPage">
 	<div class="container summary-container">
 		<div class="panel-group text-center">
-			<div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
-				<div class="panel panel-primary">
-				 	<div class="panel-heading">Total Number of BOTs in the system</div>
-				 	<div class="panel-body">Panel Content</div>
-				</div>
-			</div>
-			<div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
-				<div class="panel panel-success">
-				  <div class="panel-heading">Number of BOTs Runs which are success</div>
-				  <div class="panel-body">Panel Content</div>
-				</div>
-			</div>
-			<div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
-				<div class="panel panel-info">
-				  <div class="panel-heading">Total Time saved</div>
-				  <div class="panel-body">Panel Content</div>
-				</div>
-			</div>
-			<div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
-				<div class="panel panel-danger">
-				  <div class="panel-heading">Number of BOTs Runs  which are failed</div>
-				  <div class="panel-body">Panel Content</div>
-				</div>
-			</div>
+			<div class="col-md-4ths infrastructureClass" data-text="Total Number of Providers">
+                <div class="small-box bg-aqua">
+                    <div class="inner">
+                        <h3 id="totalProviders">{{botSummary.totalNoOfBots}}</h3>
+                        <p>Total <br>Number of BOTs</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa fa-th" style="color: rgba(0, 0, 0, 0.15)"></i>
+                    </div>
+                    <span class="small-box-footer managedUnmanagedCSS">
+                    </span>
+                </div>
+            </div>
+            <div class="col-md-4ths infrastructureClass" data-text="Total Number of Providers">
+                <div class="small-box bg-aqua">
+                    <div class="inner">
+                        <h3 id="totalProviders">{{botSummary.totalNoOfSuccessBots}}</h3>
+                        <p>Total <br>Number of BOTs running</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa fa-laptop" style="color: rgba(0, 0, 0, 0.15)"></i>
+                    </div>
+                    <span class="small-box-footer managedUnmanagedCSS">
+                    </span>
+                </div>
+            </div>
+            <div class="col-md-4ths infrastructureClass" data-text="Total Number of Providers">
+                <div class="small-box bg-aqua">
+                    <div class="inner">
+                        <h3 id="totalProviders">{{botSummary.totalSavedTimeForBots}} mins</h3>
+                        <p>Total <br>Time saved</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa fa-cube" style="color: rgba(0, 0, 0, 0.15)"></i>
+                    </div>
+                    <span class="small-box-footer managedUnmanagedCSS">
+                    </span>
+                </div>
+            </div>
+            <div class="col-md-4ths infrastructureClass" data-text="Total Number of Providers">
+                <div class="small-box bg-aqua">
+                    <div class="inner">
+                        <h3 id="totalProviders">{{botSummary.totalNoOfFailedBots}}</h3>
+                        <p>Total <br>Number of failed runs</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa fa-external-link" style="color: rgba(0, 0, 0, 0.15)"></i>
+                    </div>
+                    <span class="small-box-footer managedUnmanagedCSS">
+                    </span>
+                </div>
+            </div>
 		</div>
 	</div>
-
 	<div id="grid" ng-if="libr.gridOptions.data.length > 0" ui-grid="libr.gridOptions" ui-grid-pagination class="grid" style="height: {{gridHeight}}px"></div>
 	<div class="alert alert-info text-center" ng-if="!libr.gridOptions.data.length > 0">
 	    No data Available
@@ -46,5 +73,94 @@
 
 	.panel-heading {
 		font-weight: bold;
+	}
+
+	.col-md-4ths {
+	    width: 25%;
+	    float: left;
+	}
+
+	.col-md-4ths {
+	    position: relative;
+	    min-height: 1px;
+	    padding-right: 10px;
+	    padding-left: 10px;
+	    color: #fff;
+	}
+
+	.small-box {
+	    border-radius: 2px;
+	    position: relative;
+	    display: block;
+	    /* margin-bottom: 2px; */
+	    margin-bottom: 15px;
+	    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+	}
+
+	.bg-aqua {
+	    background-color: #00c0ef !important;
+	}
+
+	.small-box .icon {
+	    -webkit-transition: all 0.3s linear;
+	    -o-transition: all 0.3s linear;
+	    transition: all 0.3s linear;
+	    position: absolute;
+	    /* top: -10px; */
+	    top: 10px;
+	    right: 10px;
+	    z-index: 0;
+	    font-size: 90px;
+	    color: rgba(0, 0, 0, 0.15);
+	}
+
+	.small-box h3 {
+	    font-size: 38px;
+	    font-weight: bold;
+	    margin: 0 0 10px 0;
+	    white-space: nowrap;
+	    padding: 0;
+	    text-align: left;
+	}
+
+
+	.small-box p {
+	    font-size: 13px;
+	    text-align: left;
+	}
+
+	.small-box > .inner {
+	    padding: 10px;
+	}
+
+	.small-box > .small-box-footer {
+	    position: relative;
+	    text-align: center;
+	    padding: 3px 0;
+	    color: #fff;
+	    color: rgba(255, 255, 255, 0.8);
+	    display: block;
+	    z-index: 10;
+	    background: rgba(0, 0, 0, 0.1);
+	    text-decoration: none;
+	    cursor: pointer;
+	    height: 27px;
+	}
+
+	.small-box .icon {
+	    -webkit-transition: all 0.3s linear;
+	    -o-transition: all 0.3s linear;
+	    transition: all 0.3s linear;
+	    position: absolute;
+	    /* top: -10px; */
+	    top: 10px;
+	    right: 10px;
+	    z-index: 0;
+	    font-size: 90px;
+	    color: rgba(0, 0, 0, 0.15);
+	}
+
+	.small-box .icon {
+	    color: rgba(0, 0, 0, 0.15) !important;
 	}
 </style>

@@ -220,7 +220,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
                         })(botAuditTrail[i]);
                     }
                     if(count === botAuditTrail.length){
-                        callback(null,Math.round(totalTimeInSeconds/60));
+                        callback(null,(totalTimeInSeconds/60).toFixed(2));
                     }
                 } else{
                     callback(null,botAuditTrail.length);

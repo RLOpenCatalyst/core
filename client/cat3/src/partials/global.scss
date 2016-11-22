@@ -128,7 +128,7 @@ $imagePath : "../../../../../../cat3/images";
     background: transparent;
     position: fixed;
     width: 254px;
-    z-index: 10;
+    z-index: 99999;
     height: 100% !important;
     transition: all .4s ease 0s;
     left: -254px;
@@ -1371,6 +1371,8 @@ label {
         height: 24px;
         width: 24px;
         font-weight: 600;
+        padding: 1px 5px;
+
     }
     .activeDay {
         background: #0B5475 !important;

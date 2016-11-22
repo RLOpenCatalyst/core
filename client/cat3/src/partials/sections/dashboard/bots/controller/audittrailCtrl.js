@@ -7,7 +7,7 @@
 
 (function (angular) {
     "use strict";
-    angular.module('library.bots')
+    angular.module('library.bots',[])
     .controller('audittrailCtrl',['$scope', '$rootScope', '$http', '$state', 'genericServices', 'confirmbox', 'workzoneServices', 'toastr', 'workzoneUIUtils', '$modal', 
     function ($scope, $rootScope, $http, $state, genSevs, confirmbox, workzoneServices, toastr, workzoneUIUtils, $modal) {
         var audit=this;
@@ -51,7 +51,8 @@
                             actionId: hist.actionLogId,
                             name: hist.auditTrailConfig.name,
                             nodeIdsWithActionLog: hist.auditTrailConfig.nodeIdsWithActionLog,
-                            nodeIds: hist.auditTrailConfig.nodeIds
+                            nodeIds: hist.auditTrailConfig.nodeIds,
+                            taskType: hist.auditTrailConfig.executionType
                         };
                     }
                 }
