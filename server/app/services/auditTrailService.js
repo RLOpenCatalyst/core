@@ -91,44 +91,6 @@ auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,audi
     }
 }
 
-auditTrailService.saveAndUpdateAuditTrail = function saveAndUpdateAuditTrail(auditTrailDetails,callback){
-    if(auditTrailDetails.auditType === 'BOTs'){
-        botAuditTrail.createNew(auditTrailDetails,function(err,data){
-            if(err){
-                logger.error(err);
-                callback(err,null);
-                return;
-            }
-            callback(null,data);
-            return;
-        })
-    }else if(auditTrailDetails.auditType === 'Instances'){
-        instanceAuditTrail.createNew(auditTrailDetails,function(err,data){
-            if(err){
-                logger.error(err);
-                callback(err,null);
-                return;
-            }
-            callback(null,data);
-            return;
-        })
-    }else if(auditTrailDetails.auditType === 'Containers'){
-        containerAuditTrail.createNew(auditTrailDetails,function(err,data){
-            if(err){
-                logger.error(err);
-                callback(err,null);
-                return;
-            }
-            callback(null,data);
-            return;
-        })
-    }else{
-        callback({
-            message: "Invalid Audit Trail Type. "
-        }, null);
-    }
-}
-
 auditTrailService.updateAuditTrail = function updateAuditTrail(auditType,auditId,auditObj,callback) {
     if(auditType === 'BOTs'){
         botAuditTrail.updateBotAuditTrail(auditId,auditObj,function(err,data){
