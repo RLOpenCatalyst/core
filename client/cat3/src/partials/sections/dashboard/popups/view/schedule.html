@@ -52,7 +52,7 @@
                         </select>
 
                     </td>
-                    <td><i class="fa fa-times" aria-hidden="true" ng-show="sch.interval.indexOf(newTime) !== 0" ng-click="removeTime(sch.interval.indexOf(newTime))"></i></td>
+                    <td><i class="fa fa-times" aria-hidden="true"  ng-click="removeTime(sch.interval.indexOf(newTime))"></i></td>
                 </tr>
                 </tbody>
             </table>
@@ -71,7 +71,7 @@
             <button type="button" class="btn cat-btn-close" ng-click="sch.cancel()">
                 <i class="fa fa-times black"></i> Cancel
             </button>
-            <button type="button" class="btn cat-btn-update" ng-disabled="scheduleForm.$invalid || validDateRange"
+            <button type="button" class="btn cat-btn-update" ng-disabled="scheduleForm.$invalid || validDateRange "
                     ng-click="sch.ok()">
                 <i class="fa fa-check white"></i> Save
             </button>
