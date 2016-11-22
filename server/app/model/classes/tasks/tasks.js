@@ -298,13 +298,22 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
         if (taskHistory) {
             taskHistory.timestampEnded = self.timestampEnded;
             taskHistory.status = self.lastTaskStatus;
-            var resultTaskExecution = {
-                "actionStatus":self.lastTaskStatus,
-                "status":self.lastTaskStatus,
-                "endedOn":self.timestampEnded,
-                "actionLogId":taskHistory.nodeIdsWithActionLog[0].actionLogId,
-                "auditTrailConfig.nodeIdsWithActionLog":taskHistory.nodeIdsWithActionLog
-            };
+            var resultTaskExecution = null;
+            if(taskHistoryData.taskType === TASK_TYPE.JENKINS_TASK){
+                 resultTaskExecution = {
+                    "actionStatus":self.lastTaskStatus,
+                    "status":self.lastTaskStatus,
+                    "endedOn":self.timestampEnded
+                };
+            }else{
+                 resultTaskExecution = {
+                    "actionStatus":self.lastTaskStatus,
+                    "status":self.lastTaskStatus,
+                    "endedOn":self.timestampEnded,
+                    "actionLogId":taskHistory.nodeIdsWithActionLog[0].actionLogId,
+                    "auditTrailConfig.nodeIdsWithActionLog":taskHistory.nodeIdsWithActionLog
+                };
+            }
             if (resultData) {
                 if (resultData.instancesResults && resultData.instancesResults.length) {
                     taskHistory.executionResults = resultData.instancesResults;
@@ -314,7 +323,7 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                 }
 
             }
-            if(auditTrailId !== null){
+            if(auditTrailId !== null && resultTaskExecution !== null){
                 auditTrailService.updateAuditTrail('BOTs',auditTrailId,resultTaskExecution,function(err,auditTrail){
                     if (err) {
                         logger.error("Failed to create or update bot Log: ", err);
