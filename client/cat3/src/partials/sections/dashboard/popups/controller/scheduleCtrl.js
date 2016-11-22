@@ -4,7 +4,7 @@
         .controller('scheduleCtrl', ['$scope', '$modalInstance', 'items','$filter','genericServices','toastr','$timeout',function($scope, $modalInstance, items,$filter,genericServices,toastr,$timeout) {
             var sch=this;
             sch.instanceIds=items;
-            sch.interval=[{ind:0,"days":[],"action":"start"}];
+            sch.interval=[{ind:0,"days":[],"action":"start","daySelect":''}];
             $timeout(function(){$('input.time').trigger('click');},100);
             $scope.validDateRange=false;
             $scope.dateChange= function () {
@@ -17,7 +17,7 @@
                 }
             };
             $scope.addNewTime = function () {
-                sch.interval.push({ind: sch.interval.length,"days":[],"action":"start"});
+                sch.interval.push({ind: sch.interval.length,"days":[],"action":"start","daySelect":''});
                 $timeout(function(){$('input.time').trigger('click');},100);
             };
             $scope.selectDays=function (d,i) {
@@ -26,7 +26,11 @@
                 } else {
                     sch.interval[i].days.splice(sch.interval[i].days.indexOf(d),1);
                 }
-
+                if(sch.interval[i].days.length >0){
+                    sch.interval[i].daySelect=1
+                } else{
+                    sch.interval[i].daySelect='';
+                }
             };
             $scope.removeTime = function (ind) {
                 sch.interval.splice(ind,1);
