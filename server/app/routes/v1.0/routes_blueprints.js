@@ -388,31 +388,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 							});
 							return;
 						}
-						var auditTrailId = null;
-						if(blueprint.serviceDeliveryCheck === true){
-							var actionObj={
-								auditType:'BOTs',
-								auditCategory:'Blueprint',
-								status:'running',
-								action:'BOTs Blueprint Execution',
-								actionStatus:'running',
-								catUser:req.session.user.cn
-							};
-							var auditTrailObj = {
-								name:blueprint.name,
-								type:blueprint.botType,
-								description:blueprint.shortDesc,
-								category:blueprint.botCategory,
-								executionType:blueprint.blueprintType,
-								nodeIdsWithActionLog:[]
-							};
-							auditTrailService.insertAuditTrail(blueprint,auditTrailObj,actionObj,function(err,data){
-								if(err){
-									logger.error(err);
-								}
-								auditTrailId=data._id;
-							});
-						}
 						var stackName = null;
 						var domainName = null;
 						if (blueprint.blueprintType === 'aws_cf' || blueprint.blueprintType === 'azure_arm') {
@@ -433,60 +408,65 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 								return;
 							}
 						}
-						blueprint.launch({
-							envId: req.query.envId,
-							ver: req.query.version,
-							stackName: stackName,
-							domainName:domainName,
-							sessionUser: req.session.user.cn,
-                            tagServer: req.query.tagServer
-						}, function(err, launchData) {
-							if (err) {
-								if(auditTrailId !== null){
-									var resultBlueprintExecution = {
-										"endedOn":err.errObj.endedOn,
-										"actionStatus":'failed',
-										"status":'failed',
-										"masterDetails.orgName":err.errObj.orgName,
-										"masterDetails.bgName":err.errObj.bgName,
-										"masterDetails.projectName":err.errObj.projectName,
-										"masterDetails.envName":err.errObj.envName
-									}
-									auditTrailService.updateAuditTrail('BOTs',auditTrailId,resultBlueprintExecution,function(err,auditTrail){
-										if (err) {
-											logger.error("Failed to create or update bot Log: ", err);
-										}
-									});
+						if(blueprint.serviceDeliveryCheck === true){
+							var actionObj={
+								auditType:'BOTs',
+								auditCategory:'Blueprint',
+								status:'running',
+								action:'BOTs Blueprint Execution',
+								actionStatus:'running',
+								catUser:req.session.user.cn
+							};
+							var auditTrailObj = {
+								name:blueprint.name,
+								type:blueprint.botType,
+								description:blueprint.shortDesc,
+								category:blueprint.botCategory,
+								executionType:blueprint.blueprintType,
+								nodeIdsWithActionLog:[]
+							};
+							blueprint.envId= req.query.envId;
+							auditTrailService.insertAuditTrail(blueprint,auditTrailObj,actionObj,function(err,data){
+								if(err){
+									logger.error(err);
 								}
-								res.status(500).send({
-									message: "Server Behaved Unexpectedly"
-								});
-								return;
-							}
-							var resultBlueprintExecution = {
-								"endedOn":launchData.endedOn,
-								"actionStatus":launchData.actionStatus,
-								"status":launchData.actionStatus,
-								"actionLogId":launchData.actionLogId,
-								"auditTrailConfig.nodeIdsWithActionLog":[{
-									"actionLogId" : launchData.actionLogId,
-									"nodeId" : launchData.instanceId
-								}],
-								"auditTrailConfig.nodeIds":[launchData.instanceId],
-								"masterDetails.orgName":launchData.orgName,
-								"masterDetails.bgName":launchData.bgName,
-								"masterDetails.projectName":launchData.projectName,
-								"masterDetails.envName":launchData.envName
-							}
-							if(auditTrailId !== null){
-								auditTrailService.updateAuditTrail('BOTs',auditTrailId,resultBlueprintExecution,function(err,auditTrail){
+								blueprint.launch({
+									envId: req.query.envId,
+									ver: req.query.version,
+									stackName: stackName,
+									domainName: domainName,
+									sessionUser: req.session.user.cn,
+									tagServer: req.query.tagServer,
+									auditTrailId: data._id
+								}, function (err, launchData) {
 									if (err) {
-										logger.error("Failed to create or update bot Log: ", err);
+										res.status(500).send({
+											message: "Server Behaved Unexpectedly"
+										});
+										return;
 									}
+									res.status(200).send(launchData)
 								});
-							}
-							res.status(200).send(launchData)
-						});
+							});
+						}else{
+							blueprint.launch({
+								envId: req.query.envId,
+								ver: req.query.version,
+								stackName: stackName,
+								domainName: domainName,
+								sessionUser: req.session.user.cn,
+								tagServer: req.query.tagServer,
+								auditTrailId: null
+							}, function (err, launchData) {
+								if (err) {
+									res.status(500).send({
+										message: "Server Behaved Unexpectedly"
+									});
+									return;
+								}
+								res.status(200).send(launchData)
+							});
+						}
 					});
 				}
 			} else {

@@ -37,6 +37,7 @@ var VmwareCloud = require('_pr/lib/vmware.js');
 var vmwareProvider = require('_pr/model/classes/masters/cloudprovider/vmwareCloudProvider.js');
 var fs = require('fs');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
+var auditTrailService = require('_pr/services/auditTrailService');
 
 
 var Schema = mongoose.Schema;
@@ -275,7 +276,25 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                     log: "Waiting for instance ok state",
                                     timestamp: timestampStarted
                                 });
-
+                                if(launchParams.auditTrailId !== null){
+                                    var resultTaskExecution={
+                                        "actionLogId":logsReferenceIds[1],
+                                        "auditTrailConfig.nodeIdsWithActionLog":[{
+                                            "actionLogId" : logsReferenceIds[1],
+                                            "nodeId" : logsReferenceIds[0]
+                                        }],
+                                        "auditTrailConfig.nodeIds":[logsReferenceIds[0]],
+                                        "masterDetails.orgName":launchParams.orgName,
+                                        "masterDetails.bgName":launchParams.bgName,
+                                        "masterDetails.projectName":launchParams.projectName,
+                                        "masterDetails.envName":launchParams.envName
+                                    }
+                                    auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
+                                        if (err) {
+                                            logger.error("Failed to create or update bot Log: ", err);
+                                        }
+                                    });
+                                }
                                 var instanceLog = {
                                     actionId: actionLog._id,
                                     instanceId: instance.id,
@@ -318,15 +337,7 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                 //res.send(200);
                                 callback(null, {
                                     "id": [instance.id],
-                                    "message": "instance launch success",
-                                    "instanceId":data._id,
-                                    "actionLogId":actionLog._id,
-                                    "endedOn":new Date().getTime(),
-                                    "actionStatus":"success",
-                                    "orgName":launchParams.orgName,
-                                    "bgName":launchParams.bgName,
-                                    "projectName":launchParams.projectName,
-                                    "envName":launchParams.envName
+                                    "message": "instance launch success"
                                 });
                                 logger.debug('Should have sent the response.');
                                 vmwareCloud.waitforserverready(appConfig.vmware.serviceHost, createserverdata["vm_name"], anImage.userName, anImage.instancePassword, function(err, publicip, vmdata) {
@@ -354,6 +365,18 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                             log: "Instance not responding. Bootstrap failed",
                                             timestamp: new Date().getTime()
                                         };
+                                        if(launchParams.auditTrailId !== null){
+                                            var resultTaskExecution={
+                                                actionStatus : "failed",
+                                                status:"failed",
+                                                endedOn : new Date().getTime()
+                                            }
+                                            auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
+                                                if (err) {
+                                                    logger.error("Failed to create or update bot Log: ", err);
+                                                }
+                                            });
+                                        }
                                         instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
                                             if (err) {
                                                 logger.error("Failed to create or update instanceLog: ", err);
@@ -446,6 +469,18 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                             log: 'Bootstrap failed',
                                                             timestamp: timestampEnded
                                                         });
+                                                        if(launchParams.auditTrailId !== null){
+                                                            var resultTaskExecution={
+                                                                actionStatus : "failed",
+                                                                status:"failed",
+                                                                endedOn : new Date().getTime()
+                                                            }
+                                                            auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
+                                                                if (err) {
+                                                                    logger.error("Failed to create or update bot Log: ", err);
+                                                                }
+                                                            });
+                                                        }
                                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                                         instanceLog.endedOn = new Date().getTime();
                                                         instanceLog.actionStatus = "failed";
@@ -540,6 +575,18 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                             log: "Instance Bootstraped Successfully.",
                                                             timestamp: new Date().getTime()
                                                         };
+                                                        if(launchParams.auditTrailId !== null){
+                                                            var resultTaskExecution={
+                                                                actionStatus : "success",
+                                                                status:"success",
+                                                                endedOn : new Date().getTime()
+                                                            }
+                                                            auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
+                                                                if (err) {
+                                                                    logger.error("Failed to create or update bot Log: ", err);
+                                                                }
+                                                            });
+                                                        }
                                                         instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
                                                             if (err) {
                                                                 logger.error("Failed to create or update instanceLog: ", err);
@@ -563,6 +610,18 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                             log: 'Bootstrap failed',
                                                             timestamp: timestampEnded
                                                         });
+                                                        if(launchParams.auditTrailId !== null){
+                                                            var resultTaskExecution={
+                                                                actionStatus : "failed",
+                                                                status:"failed",
+                                                                endedOn : new Date().getTime()
+                                                            }
+                                                            auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
+                                                                if (err) {
+                                                                    logger.error("Failed to create or update bot Log: ", err);
+                                                                }
+                                                            });
+                                                        }
                                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                                         instanceLog.endedOn = new Date().getTime();
                                                         instanceLog.actionStatus = "failed";

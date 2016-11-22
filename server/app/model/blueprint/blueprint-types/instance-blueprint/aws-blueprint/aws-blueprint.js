@@ -37,6 +37,7 @@ var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var Schema = mongoose.Schema;
 var resourceService = require('_pr/services/resourceService');
+var auditTrailService = require('_pr/services/auditTrailService');
 
 var AWSInstanceBlueprintSchema = new Schema({
     keyPairId: {
@@ -284,18 +285,30 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                             var timestampStarted = new Date().getTime();
                             var actionLog = instancesDao.insertBootstrapActionLog(instance.id, instance.runlist, launchParams.sessionUser, timestampStarted);
                             var logsReferenceIds = [instance.id, actionLog._id];
+
+                            if(launchParams.auditTrailId !== null){
+                                var resultTaskExecution={
+                                    "actionLogId":logsReferenceIds[1],
+                                    "auditTrailConfig.nodeIdsWithActionLog":[{
+                                        "actionLogId" : logsReferenceIds[1],
+                                        "nodeId" : logsReferenceIds[0]
+                                    }],
+                                    "auditTrailConfig.nodeIds":[logsReferenceIds[0]],
+                                    "masterDetails.orgName":launchParams.orgName,
+                                    "masterDetails.bgName":launchParams.bgName,
+                                    "masterDetails.projectName":launchParams.projectName,
+                                    "masterDetails.envName":launchParams.envName
+                                }
+                                auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
+                                    if (err) {
+                                        logger.error("Failed to create or update bot Log: ", err);
+                                    }
+                                });
+                            }
                             if (newinstanceIDs.length >= instancesLength) {
                                 callback(null, {
                                     "id": newinstanceIDs,
-                                    "message": "instance launch success",
-                                    "instanceId":logsReferenceIds[0],
-                                    "actionLogId":logsReferenceIds[1],
-                                    "endedOn":new Date().getTime(),
-                                    "actionStatus":"success",
-                                    "orgName":launchParams.orgName,
-                                    "bgName":launchParams.bgName,
-                                    "projectName":launchParams.projectName,
-                                    "envName":launchParams.envName
+                                    "message": "instance launch success"
                                 });
                             }
                             var instanceLog = {
@@ -354,7 +367,18 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                             logger.error("Failed to create or update instanceLog: ", err);
                                         }
                                     });
-
+                                    if(launchParams.auditTrailId !== null){
+                                        var resultTaskExecution={
+                                            actionStatus : "failed",
+                                            status:"failed",
+                                            endedOn : new Date().getTime()
+                                        }
+                                        auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
+                                            if (err) {
+                                                logger.error("Failed to create or update bot Log: ", err);
+                                            }
+                                        });
+                                    }
                                     logsDao.insertLog({
                                         referenceId: logsReferenceIds,
                                         err: true,
@@ -415,6 +439,19 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                             }
                                         });
 
+                                        if(launchParams.auditTrailId !== null){
+                                            var resultTaskExecution={
+                                                actionStatus : "failed",
+                                                status:"failed",
+                                                endedOn : new Date().getTime()
+                                            }
+                                            auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
+                                                if (err) {
+                                                    logger.error("Failed to create or update bot Log: ", err);
+                                                }
+                                            });
+                                        }
+
                                         logsDao.insertLog({
                                             referenceId: logsReferenceIds,
                                             err: true,
@@ -455,6 +492,19 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                 }
                                             });
 
+                                            if(launchParams.auditTrailId !== null){
+                                                var resultTaskExecution={
+                                                    actionStatus : "failed",
+                                                    status:"failed",
+                                                    endedOn : new Date().getTime()
+                                                }
+                                                auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
+                                                    if (err) {
+                                                        logger.error("Failed to create or update bot Log: ", err);
+                                                    }
+                                                });
+                                            }
+
                                             var timestampEnded = new Date().getTime();
                                             logsDao.insertLog({
                                                 referenceId: logsReferenceIds,
@@ -476,8 +526,6 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                         } else if (launchParams.blueprintData.docker.image) {
                                             repoData['repoName'] = launchParams.blueprintData.docker.image;
                                         }
-
-
                                         launchParams.blueprintData.getCookBookAttributes(instance, repoData, function(err, jsonAttributes) {
                                             logger.debug("jsonAttributes::::: ", JSON.stringify(jsonAttributes));
                                             var runlist = instance.runlist;
@@ -498,8 +546,6 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                 jsonAttributes: jsonAttributes,
                                                 instancePassword: decryptedCredentials.password
                                             };
-
-
                                             launchParams.infraManager.bootstrapInstance(bootstrapInstanceParams, function(err, code) {
 
                                                 if (decryptedCredentials.pemFileLocation) {
@@ -511,8 +557,6 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                         }
                                                     });
                                                 }
-
-
                                                 logger.error('process stopped ==> ', err, code);
                                                 if (err) {
                                                     instanceLog.endedOn = new Date().getTime();
@@ -527,6 +571,18 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                             logger.error("Failed to create or update instanceLog: ", err);
                                                         }
                                                     });
+                                                    if(launchParams.auditTrailId !== null){
+                                                        var resultTaskExecution={
+                                                            actionStatus : "failed",
+                                                            status:"failed",
+                                                            endedOn : new Date().getTime()
+                                                        }
+                                                        auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
+                                                            if (err) {
+                                                                logger.error("Failed to create or update bot Log: ", err);
+                                                            }
+                                                        });
+                                                    }
                                                     logger.error("knife launch err ==>", err);
                                                     instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function(err, updateData) {
 
@@ -557,6 +613,18 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                             log: "Instance Bootstrapped successfully",
                                                             timestamp: new Date().getTime()
                                                         };
+                                                        if(launchParams.auditTrailId !== null){
+                                                            var resultTaskExecution={
+                                                                actionStatus : "success",
+                                                                status:"success",
+                                                                endedOn : new Date().getTime()
+                                                            }
+                                                            auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
+                                                                if (err) {
+                                                                    logger.error("Failed to create or update bot Log: ", err);
+                                                                }
+                                                            });
+                                                        }
                                                         instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
                                                             if (err) {
                                                                 logger.error("Failed to create or update instanceLog: ", err);
@@ -652,6 +720,18 @@ AWSInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                                 logger.error("Failed to create or update instanceLog: ", err);
                                                             }
                                                         });
+                                                        if(launchParams.auditTrailId !== null){
+                                                            var resultTaskExecution={
+                                                                actionStatus : "failed",
+                                                                status:"failed",
+                                                                endedOn : new Date().getTime()
+                                                            }
+                                                            auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
+                                                                if (err) {
+                                                                    logger.error("Failed to create or update bot Log: ", err);
+                                                                }
+                                                            });
+                                                        }
                                                         var timestampEnded = new Date().getTime();
                                                         logsDao.insertLog({
                                                             referenceId: logsReferenceIds,

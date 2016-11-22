@@ -305,9 +305,6 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                 "actionLogId":taskHistory.nodeIdsWithActionLog[0].actionLogId,
                 "auditTrailConfig.nodeIdsWithActionLog":taskHistory.nodeIdsWithActionLog
             };
-            console.log(">>>>>>>>>>>>>>"+JSON.stringify(resultTaskExecution));
-            console.log(">>>>>>>>>>>>>>"+auditTrailId);
-            console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
             if (resultData) {
                 if (resultData.instancesResults && resultData.instancesResults.length) {
                     taskHistory.executionResults = resultData.instancesResults;

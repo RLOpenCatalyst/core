@@ -346,6 +346,7 @@ BlueprintSchema.methods.launch = function(opts, callback) {
                                 users: self.users,
                                 blueprintData: self,
                                 tagServer: opts.tagServer,
+                                auditTrailId:opts.auditTrailId
                             }, function(err, launchData) {
                                 if(err){
                                     err['errObj'] = {
@@ -381,6 +382,7 @@ BlueprintSchema.methods.launch = function(opts, callback) {
                             users: self.users,
                             blueprintData: self,
                             tagServer: opts.tagServer,
+                            auditTrailId:opts.auditTrailId
                         }, function(err, launchData) {
                             if(err){
                                 err['errObj'] = {
