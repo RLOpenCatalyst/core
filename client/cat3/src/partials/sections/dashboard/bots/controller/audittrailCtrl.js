@@ -7,7 +7,7 @@
 
 (function (angular) {
     "use strict";
-    angular.module('library.bots',[])
+    angular.module('dashboard.bots')
     .controller('audittrailCtrl',['$scope', '$rootScope', '$http', '$state', 'genericServices', 'confirmbox', 'workzoneServices', 'toastr', 'workzoneUIUtils', '$modal', 
     function ($scope, $rootScope, $http, $state, genSevs, confirmbox, workzoneServices, toastr, workzoneUIUtils, $modal) {
         var audit=this;
