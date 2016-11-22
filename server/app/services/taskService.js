@@ -20,6 +20,7 @@ var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
 var TaskHistory = require('_pr/model/classes/tasks/taskHistory');
 var instancesDao = require('_pr/model/classes/instance/instance');
+var auditTrailService = require('_pr/services/auditTrailService');
 
 const errorType = 'taskService';
 
@@ -54,7 +55,6 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
             return callback(error, null);
         }
         if (task) {
-
             if (task.taskType.CHEF_TASK) {
                 paramOptions = paramOptions.attributes;
             } else if (task.taskType.SCRIPT_TASK) {
@@ -67,14 +67,68 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
             }
             task.botParams = paramOptions;
             task.botTagServer = botTagServer;
+            var auditTrailId = null;
+            if(task.serviceDeliveryCheck === true){
+                var actionObj={
+                    auditType:'BOTs',
+                    auditCategory:'Task',
+                    status:'running',
+                    action:'BOTs Task Execution',
+                    actionStatus:'running',
+                    catUser:user
+                };
+                var auditTrailObj = {
+                    nodeIds:task.taskConfig.nodeIds,
+                    name:task.name,
+                    type:task.botType,
+                    description:task.shortDesc,
+                    category:task.botCategory,
+                    executionType:task.taskType,
+                    nodeIdsWithActionLog:[]
+                };
+                auditTrailService.insertAuditTrail(task,auditTrailObj,actionObj,function(err,data){
+                    if(err){
+                        logger.error(err);
+                    }
+                    auditTrailId=data._id;
+                });
+            }
             task.execute(user, hostProtocol, choiceParam, appData, blueprintIds, task.envId, function(err, taskRes, historyData) {
                 if (err) {
+                    if(auditTrailId !== null) {
+                        var resultTaskExecution = {
+                            "actionStatus": historyData.lastTaskStatus,
+                            "status": historyData.lastTaskStatus,
+                            "endedOn": historyData.timestampEnded,
+                            "actionLogId": historyData.nodeIdsWithActionLog[0].actionLogId,
+                            "auditTrailConfig.nodeIdsWithActionLog": historyData.nodeIdsWithActionLog
+                        };
+                        auditTrailService.updateAuditTrail('BOTs', auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                            if (err) {
+                                logger.error("Failed to create or update bot Log: ", err);
+                            }
+                        });
+                    }
                     var error = new Error('Failed to execute task.');
                     error.status = 500;
                     return callback(error, null);
                 }
                 if (historyData) {
                     taskRes.historyId = historyData.id;
+                    if(auditTrailId !== null) {
+                        var resultTaskExecution = {
+                            "actionStatus": historyData.lastTaskStatus,
+                            "status": historyData.lastTaskStatus,
+                            "endedOn": historyData.timestampEnded,
+                            "actionLogId": historyData.nodeIdsWithActionLog[0].actionLogId,
+                            "auditTrailConfig.nodeIdsWithActionLog": historyData.nodeIdsWithActionLog
+                        };
+                        auditTrailService.updateAuditTrail('BOTs', auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                            if (err) {
+                                logger.error("Failed to create or update bot Log: ", err);
+                            }
+                        });
+                    }
                 }
                 callback(null, taskRes);
                 return;

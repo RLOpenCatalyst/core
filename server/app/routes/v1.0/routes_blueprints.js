@@ -388,32 +388,30 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 							});
 							return;
 						}
-						var botAuditDetails = null;
+						var auditTrailId = null;
 						if(blueprint.serviceDeliveryCheck === true){
-							var botAuditDetails={
-								auditId:blueprint._id,
+							var actionObj={
 								auditType:'BOTs',
 								auditCategory:'Blueprint',
-								masterDetails:{
-									orgId: blueprint.orgId,
-									bgId: blueprint.bgId,
-									projectId: blueprint.projectId,
-									envId: req.query.envId
-								},
-								auditTrailConfig:{
-									name:blueprint.name,
-									type:blueprint.botType,
-									description:blueprint.shortDesc,
-									category:blueprint.botCategory,
-									executionType:blueprint.blueprintType,
-									nodeIdsWithActionLog:[]
-								},
-								user:req.session.user.cn,
-								startedOn:new Date().getTime(),
 								status:'running',
 								action:'BOTs Blueprint Execution',
-								actionStatus:'running'
-							}
+								actionStatus:'running',
+								catUser:req.session.user.cn
+							};
+							var auditTrailObj = {
+								name:blueprint.name,
+								type:blueprint.botType,
+								description:blueprint.shortDesc,
+								category:blueprint.botCategory,
+								executionType:blueprint.blueprintType,
+								nodeIdsWithActionLog:[]
+							};
+							auditTrailService.insertAuditTrail(blueprint,auditTrailObj,actionObj,function(err,data){
+								if(err){
+									logger.error(err);
+								}
+								auditTrailId=data._id;
+							});
 						}
 						var stackName = null;
 						var domainName = null;
@@ -435,15 +433,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 								return;
 							}
 						}
-						var auditTrailId = null;
-						if(blueprint.serviceDeliveryCheck === true) {
-							auditTrailService.saveAndUpdateAuditTrail(botAuditDetails, function (err, auditTrail) {
-								if (err) {
-									logger.error("Failed to create or update bot Log: ", err);
-								}
-								auditTrailId = auditTrail._id;
-							});
-						};
 						blueprint.launch({
 							envId: req.query.envId,
 							ver: req.query.version,
@@ -453,7 +442,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                             tagServer: req.query.tagServer
 						}, function(err, launchData) {
 							if (err) {
-								if(blueprint.serviceDeliveryCheck === true){
+								if(auditTrailId !== null){
 									var resultBlueprintExecution = {
 										"endedOn":new Date().getTime(),
 										"actionStatus":'failed',
@@ -489,7 +478,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 								"masterDetails.projectName":launchData.projectName,
 								"masterDetails.envName":launchData.envName
 							}
-							if(blueprint.serviceDeliveryCheck === true){
+							if(auditTrailId !== null){
 								auditTrailService.updateAuditTrail('BOTs',auditTrailId,resultBlueprintExecution,function(err,auditTrail){
 									if (err) {
 										logger.error("Failed to create or update bot Log: ", err);

@@ -30,9 +30,8 @@ var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var logsDao = require('_pr/model/dao/logsdao.js');
 
 
-auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,actionLog,actionObj,callback) {
+auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,auditTrailConfig,actionObj,callback) {
     var auditTrailObj = {
-        actionId: actionLog._id,
         auditId: auditDetails._id,
         auditType: actionObj.auditType,
         masterDetails:{
@@ -50,21 +49,10 @@ auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,acti
         user: actionObj.catUser,
         startedOn: new Date().getTime(),
         providerType: auditDetails.providerType,
-        action: actionObj.action,
-        logs: [{
-            err: false,
-            log: actionObj.log,
-            timestamp: new Date().getTime()
-        }]
+        action: actionObj.action
     };
     if(actionObj.auditType === 'BOTs'){
-        auditTrailObj.auditTrailConfig = {
-            platformId: auditDetails.platformId,
-            blueprintName: auditDetails.blueprintData.blueprintName,
-            platform: "unknown",
-            os:auditDetails.hardware.os,
-            size:""
-        };
+        auditTrailObj.auditTrailConfig = auditTrailConfig;
         botAuditTrail.createNew(auditTrailObj,function(err,data){
             if(err){
                 logger.error(err);
@@ -75,13 +63,7 @@ auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,acti
             return;
         })
     }else if(actionObj.auditType === 'Instances'){
-        auditTrailObj.auditTrailConfig = {
-            platformId: auditDetails.platformId,
-            blueprintName: auditDetails.blueprintData.blueprintName,
-            platform: "unknown",
-            os:auditDetails.hardware.os,
-            size:""
-        };
+        auditTrailObj.auditTrailConfig = auditTrailConfig;
         instanceAuditTrail.createNew(auditTrailObj,function(err,data){
             if(err){
                 logger.error(err);
@@ -92,13 +74,7 @@ auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,acti
             return;
         })
     }else if(actionObj.auditType === 'Containers'){
-        auditTrailObj.auditTrailConfig = {
-            platformId: auditDetails.platformId,
-            blueprintName: auditDetails.blueprintData.blueprintName,
-            platform: "unknown",
-            os:auditDetails.hardware.os,
-            size:""
-        };
+        auditTrailObj.auditTrailConfig = auditTrailConfig;
         containerAuditTrail.createNew(auditTrailObj,function(err,data){
             if(err){
                 logger.error(err);
