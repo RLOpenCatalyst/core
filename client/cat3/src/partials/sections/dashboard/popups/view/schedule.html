@@ -37,6 +37,7 @@
                 <tr ng-repeat="newTime in sch.interval">
                     <td><input required type="text" ng-model="newTime.time" class="form-control time"></td>
                     <td>
+                        <input type="hidden" ng-model="newTime.daySelect" required>
                         <button type="button" class="btn btn-info btn-xs cat-btn-update btnDay" ng-class="{'activeDay':newTime.days.indexOf(0) !== -1}" ng-click="selectDays(0,sch.interval.indexOf(newTime))" >S</button>
                         <button type="button" class="btn btn-info btn-xs cat-btn-update btnDay" ng-class="{'activeDay':newTime.days.indexOf(1) !== -1}" ng-click="selectDays(1,sch.interval.indexOf(newTime))"  >M</button>
                         <button type="button" class="btn btn-info btn-xs cat-btn-update btnDay" ng-class="{'activeDay':newTime.days.indexOf(2) !== -1}" ng-click="selectDays(2,sch.interval.indexOf(newTime))">T</button>
@@ -52,7 +53,7 @@
                         </select>
 
                     </td>
-                    <td><i class="fa fa-times" aria-hidden="true" ng-show="sch.interval.indexOf(newTime) !== 0" ng-click="removeTime(sch.interval.indexOf(newTime))"></i></td>
+                    <td><i class="fa fa-times" aria-hidden="true"  ng-click="removeTime(sch.interval.indexOf(newTime))"></i></td>
                 </tr>
                 </tbody>
             </table>
@@ -71,7 +72,7 @@
             <button type="button" class="btn cat-btn-close" ng-click="sch.cancel()">
                 <i class="fa fa-times black"></i> Cancel
             </button>
-            <button type="button" class="btn cat-btn-update" ng-disabled="scheduleForm.$invalid || validDateRange"
+            <button type="button" class="btn cat-btn-update" ng-disabled="scheduleForm.$invalid || validDateRange "
                     ng-click="sch.ok()">
                 <i class="fa fa-check white"></i> Save
             </button>

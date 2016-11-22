@@ -580,7 +580,7 @@
                               <input ng-if="value.type !=='securestring' && !value.allowedValues" type="text" name="resource" ng-model="bpCreate.newEnt.armModelResources[key].value" class="form-control" required ng-change="bpCreate.hideVMEvals();"/>
                               <input type="password" ng-if="value.type ==='securestring'" name="resource" ng-model="bpCreate.newEnt.armModelResources[key].value" class="form-control" required ng-change="bpCreate.hideVMEvals();"/>
                               <select ng-if="value.allowedValues" ng-model="bpCreate.newEnt.armModelResources[key].value" name="resource" ng-disabled="isVmModel" class="width-100 form-control" required ng-change="bpCreate.checkForResource();">
-                                 <option value="">Select OS Version</option>
+                                 <option value="">Select Value</option>
                                  <option ng-repeat="values in value.allowedValues" value="{{values}}">{{values}}</option>
                               </select>
                            </div>

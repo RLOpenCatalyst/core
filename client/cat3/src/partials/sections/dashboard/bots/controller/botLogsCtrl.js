@@ -7,7 +7,7 @@
 
 (function (angular) {
     "use strict";
-    angular.module('library.bots')
+    angular.module('library.bots',[])
     .controller('botLogsCtrl',['$scope', '$rootScope', '$http', 'genericServices', 'workzoneServices', 'toastr', '$modalInstance', 'items', '$timeout', function ($scope, $rootScope, $http, genSevs, workzoneServices, toastr, $modalInstance, items, $timeout) {
         $scope.actionId = items.actionId;
         $scope.botName = items.name;
