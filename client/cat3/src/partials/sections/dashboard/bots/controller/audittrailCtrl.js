@@ -51,7 +51,8 @@
                             actionId: hist.actionLogId,
                             name: hist.auditTrailConfig.name,
                             nodeIdsWithActionLog: hist.auditTrailConfig.nodeIdsWithActionLog,
-                            nodeIds: hist.auditTrailConfig.nodeIds
+                            nodeIds: hist.auditTrailConfig.nodeIds,
+                            taskType: hist.auditTrailConfig.executionType
                         };
                     }
                 }

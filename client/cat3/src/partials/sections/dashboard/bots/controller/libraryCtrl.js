@@ -8,7 +8,7 @@
 (function (angular) {
     "use strict";
     angular.module('library.bots', ['library.params'])
-    .controller('libraryCtrl',['$scope', '$rootScope', '$state', 'genericServices', 'confirmbox', 'workzoneServices', 'toastr', 'workzoneUIUtils', function ($scope, $rootScope, $state, genSevs, confirmbox, workzoneServices, toastr, workzoneUIUtils) {
+    .controller('libraryCtrl',['$scope', '$rootScope', '$http', '$state', 'genericServices', 'confirmbox', 'workzoneServices', 'toastr', 'workzoneUIUtils', function ($scope, $rootScope, $http, $state, genSevs, confirmbox, workzoneServices, toastr, workzoneUIUtils) {
         var treeNames = ['Bots','Library'];
         $rootScope.$emit('treeNameUpdate', treeNames);
         var lib=this;
@@ -37,7 +37,7 @@
             ],
             data:[]
         };
-        var gridBottomSpace = 90;
+        var gridBottomSpace = 210;
         $scope.gridHeight = workzoneUIUtils.makeTabScrollable('botLibraryPage') - gridBottomSpace;
         $scope.launchInstance = function(launch){
             if(launch.launcType === 'task'){
@@ -90,6 +90,15 @@
         $rootScope.$on('BOTS_LIBRARY_REFRESH', function() {
             lib.init();
         });
+        lib.summary = function() {
+            $scope.botSummary=[];
+            var url = '/audit-trail/bot-summary';
+            $http.get(url).then(function (response) {
+                $scope.botSummary = response.data;
+                console.log($scope.botSummary);
+            });
+        }
+        lib.summary();
         lib.init =function(){
             lib.gridOptions.data=[];
             var param={
