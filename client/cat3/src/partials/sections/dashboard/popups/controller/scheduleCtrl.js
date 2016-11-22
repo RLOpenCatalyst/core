@@ -7,7 +7,6 @@
             sch.interval=[{ind:0,"days":[],"action":"start"}];
             $timeout(function(){$('input.time').trigger('click');},100);
             $scope.validDateRange=false;
-            $scope.daysLength=0;
             $scope.dateChange= function () {
                 var startDate =  Date.parse(sch.schedulerStartOn);
                 var endDate =  Date.parse(sch.schedulerEndOn);
@@ -24,10 +23,8 @@
             $scope.selectDays=function (d,i) {
                 if(sch.interval[i].days.indexOf(d) === -1){
                     sch.interval[i].days.push(d);
-                    $scope.daysLength = $scope.daysLength+1;
                 } else {
                     sch.interval[i].days.splice(sch.interval[i].days.indexOf(d),1);
-                    $scope.daysLength= $scope.daysLength-1;
                 }
 
             };
