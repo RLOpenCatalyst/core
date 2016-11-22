@@ -36,6 +36,7 @@ var openstackProvider = require('_pr/model/classes/masters/cloudprovider/opensta
 var Hppubliccloud = require('_pr/lib/hppubliccloud.js');
 var hppubliccloudProvider = require('_pr/model/classes/masters/cloudprovider/hppublicCloudProvider.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
+var auditTrailService = require('_pr/services/auditTrailService');
 
 var fs = require('fs');
 
@@ -284,7 +285,25 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                     log: "Waiting for instance ok state",
                     timestamp: timestampStarted
                 });
-
+                if(launchParams.auditTrailId !== null){
+                    var resultTaskExecution={
+                        "actionLogId":logsReferenceIds[1],
+                        "auditTrailConfig.nodeIdsWithActionLog":[{
+                            "actionLogId" : logsReferenceIds[1],
+                            "nodeId" : logsReferenceIds[0]
+                        }],
+                        "auditTrailConfig.nodeIds":[logsReferenceIds[0]],
+                        "masterDetails.orgName":launchParams.orgName,
+                        "masterDetails.bgName":launchParams.bgName,
+                        "masterDetails.projectName":launchParams.projectName,
+                        "masterDetails.envName":launchParams.envName
+                    }
+                    auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
+                        if (err) {
+                            logger.error("Failed to create or update bot Log: ", err);
+                        }
+                    });
+                }
                 var instanceLog = {
                     actionId: actionLog._id,
                     instanceId: instance.id,
@@ -461,6 +480,18 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                                             log: "Bootstrap failed",
                                             timestamp: new Date().getTime()
                                         };
+                                        if(launchParams.auditTrailId !== null){
+                                            var resultTaskExecution={
+                                                actionStatus : "failed",
+                                                status:"failed",
+                                                endedOn : new Date().getTime()
+                                            }
+                                            auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
+                                                if (err) {
+                                                    logger.error("Failed to create or update bot Log: ", err);
+                                                }
+                                            });
+                                        }
                                         instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
                                             if (err) {
                                                 logger.error("Failed to create or update instanceLog: ", err);
@@ -485,6 +516,18 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                                             log: "Instance Bootstraped successfully",
                                             timestamp: timestampEnded
                                         });
+                                        if(launchParams.auditTrailId !== null){
+                                            var resultTaskExecution={
+                                                actionStatus : "success",
+                                                status:"success",
+                                                endedOn : new Date().getTime()
+                                            }
+                                            auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
+                                                if (err) {
+                                                    logger.error("Failed to create or update bot Log: ", err);
+                                                }
+                                            });
+                                        }
                                         instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
                                         instanceLog.endedOn = new Date().getTime();
                                         instanceLog.actionStatus = "success";
@@ -548,6 +591,18 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                                             log: "Bootstrap Failed",
                                             timestamp: timestampEnded
                                         });
+                                        if(launchParams.auditTrailId !== null){
+                                            var resultTaskExecution={
+                                                actionStatus : "failed",
+                                                status:"failed",
+                                                endedOn : new Date().getTime()
+                                            }
+                                            auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
+                                                if (err) {
+                                                    logger.error("Failed to create or update bot Log: ", err);
+                                                }
+                                            });
+                                        }
                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                         instanceLog.endedOn = new Date().getTime();
                                         instanceLog.actionStatus = "failed";

@@ -37,7 +37,6 @@ var BotAuditTrailSchema = new BaseAuditTrail({
         },
         type: {
             type: String,
-            unique: true,
             trim:true
         },
         description:{
