@@ -455,9 +455,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 							if (err) {
 								if(blueprint.serviceDeliveryCheck === true){
 									var resultBlueprintExecution = {
-										endedOn:new Date().getTime(),
-										actionStatus:'failed',
-										status:'failed'
+										"endedOn":new Date().getTime(),
+										"actionStatus":'failed',
+										"status":'failed',
+										"masterDetails.orgName":err.errObj.orgName,
+										"masterDetails.bgName":err.errObj.bgName,
+										"masterDetails.projectName":err.errObj.projectName,
+										"masterDetails.envName":err.errObj.envName
 									}
 									auditTrailService.updateAuditTrail('BOTs',auditTrailId,resultBlueprintExecution,function(err,auditTrail){
 										if (err) {

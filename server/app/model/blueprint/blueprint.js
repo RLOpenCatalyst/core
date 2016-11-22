@@ -347,7 +347,17 @@ BlueprintSchema.methods.launch = function(opts, callback) {
                                 blueprintData: self,
                                 tagServer: opts.tagServer,
                             }, function(err, launchData) {
-                                callback(err, launchData);
+                                if(err){
+                                    err['errObj'] = {
+                                        orgName:project[0].orgname,
+                                        bgName:project[0].productgroupname,
+                                        projectName:project[0].projectname,
+                                        envName:envName
+                                    };
+                                    callback(err,null);
+                                    return;
+                                }
+                                callback(null, launchData);
                             });
                         });
                     } else {
@@ -371,7 +381,17 @@ BlueprintSchema.methods.launch = function(opts, callback) {
                             blueprintData: self,
                             tagServer: opts.tagServer,
                         }, function(err, launchData) {
-                            callback(err, launchData);
+                            if(err){
+                                err['errObj'] = {
+                                    orgName:project[0].orgname,
+                                    bgName:project[0].productgroupname,
+                                    projectName:project[0].projectname,
+                                    envName:envName
+                                };
+                                callback(err,null);
+                                return;
+                            }
+                            callback(null, launchData);
                         });
                     }
                 });
