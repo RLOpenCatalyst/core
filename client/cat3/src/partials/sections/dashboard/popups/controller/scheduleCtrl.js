@@ -36,6 +36,19 @@
             sch.cancel = function() {
                 $modalInstance.dismiss('cancel');
             };
+            if(sch.instanceIds.length === 1){
+                var params={
+                    url:'/instances/'+sch.instanceIds[0]
+                    //url:'src/partials/sections/dashboard/workzone/data/oneIns.json'
+                }
+                genericServices.promiseGet(params).then(function (result) {
+                    sch.isScheduled=result.isScheduled;
+                    sch.schedulerStartOn=moment(result.schedulerStartOn).format('MM/DD/YYYY');
+                    sch.schedulerEndOn=moment(result.schedulerEndOn).format('MM/DD/YYYY');
+                    sch.interval=result.interval;
+
+                });
+            }
             sch.ok=function(){
                 var params={
                     url:'/instances/schedule',
