@@ -129,7 +129,7 @@ $imagePath : "../../../../../../cat3/images";
     background: transparent;
     position: fixed;
     width: 254px;
-    z-index: 10;
+    z-index: 99999;
     height: 100% !important;
     transition: all .4s ease 0s;
     left: -254px;
