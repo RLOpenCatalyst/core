@@ -30,9 +30,8 @@ var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var logsDao = require('_pr/model/dao/logsdao.js');
 
 
-auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,actionLog,actionObj,callback) {
+auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,auditTrailConfig,actionObj,callback) {
     var auditTrailObj = {
-        actionId: actionLog._id,
         auditId: auditDetails._id,
         auditType: actionObj.auditType,
         masterDetails:{
@@ -43,28 +42,17 @@ auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,acti
             projectId: auditDetails.projectId,
             projectName: auditDetails.projectName,
             envId: auditDetails.envId,
-            envName: auditDetails.environmentName
+            envName: auditDetails.envName?auditDetails.envName:auditDetails.environmentName
         },
         status: actionObj.status,
         actionStatus: actionObj.actionStatus,
         user: actionObj.catUser,
         startedOn: new Date().getTime(),
         providerType: auditDetails.providerType,
-        action: actionObj.action,
-        logs: [{
-            err: false,
-            log: actionObj.log,
-            timestamp: new Date().getTime()
-        }]
+        action: actionObj.action
     };
     if(actionObj.auditType === 'BOTs'){
-        auditTrailObj.auditTrailConfig = {
-            platformId: auditDetails.platformId,
-            blueprintName: auditDetails.blueprintData.blueprintName,
-            platform: "unknown",
-            os:auditDetails.hardware.os,
-            size:""
-        };
+        auditTrailObj.auditTrailConfig = auditTrailConfig;
         botAuditTrail.createNew(auditTrailObj,function(err,data){
             if(err){
                 logger.error(err);
@@ -75,13 +63,7 @@ auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,acti
             return;
         })
     }else if(actionObj.auditType === 'Instances'){
-        auditTrailObj.auditTrailConfig = {
-            platformId: auditDetails.platformId,
-            blueprintName: auditDetails.blueprintData.blueprintName,
-            platform: "unknown",
-            os:auditDetails.hardware.os,
-            size:""
-        };
+        auditTrailObj.auditTrailConfig = auditTrailConfig;
         instanceAuditTrail.createNew(auditTrailObj,function(err,data){
             if(err){
                 logger.error(err);
@@ -92,52 +74,8 @@ auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,acti
             return;
         })
     }else if(actionObj.auditType === 'Containers'){
-        auditTrailObj.auditTrailConfig = {
-            platformId: auditDetails.platformId,
-            blueprintName: auditDetails.blueprintData.blueprintName,
-            platform: "unknown",
-            os:auditDetails.hardware.os,
-            size:""
-        };
+        auditTrailObj.auditTrailConfig = auditTrailConfig;
         containerAuditTrail.createNew(auditTrailObj,function(err,data){
-            if(err){
-                logger.error(err);
-                callback(err,null);
-                return;
-            }
-            callback(null,data);
-            return;
-        })
-    }else{
-        callback({
-            message: "Invalid Audit Trail Type. "
-        }, null);
-    }
-}
-
-auditTrailService.saveAndUpdateAuditTrail = function saveAndUpdateAuditTrail(auditTrailDetails,callback){
-    if(auditTrailDetails.auditType === 'BOTs'){
-        botAuditTrail.createNew(auditTrailDetails,function(err,data){
-            if(err){
-                logger.error(err);
-                callback(err,null);
-                return;
-            }
-            callback(null,data);
-            return;
-        })
-    }else if(auditTrailDetails.auditType === 'Instances'){
-        instanceAuditTrail.createNew(auditTrailDetails,function(err,data){
-            if(err){
-                logger.error(err);
-                callback(err,null);
-                return;
-            }
-            callback(null,data);
-            return;
-        })
-    }else if(auditTrailDetails.auditType === 'Containers'){
-        containerAuditTrail.createNew(auditTrailDetails,function(err,data){
             if(err){
                 logger.error(err);
                 callback(err,null);
@@ -282,7 +220,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
                         })(botAuditTrail[i]);
                     }
                     if(count === botAuditTrail.length){
-                        callback(null,totalTimeInSeconds);
+                        callback(null,(totalTimeInSeconds/60).toFixed(2));
                     }
                 } else{
                     callback(null,botAuditTrail.length);

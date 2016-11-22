@@ -71,7 +71,7 @@
 			instanceIds:[cpInstance._id],
 			schedulerStartOn:moment(new Date()).format('MM/DD/YYYY'),
 			schedulerEndOn:moment(new Date()).format('MM/DD/YYYY'),
-			interval:[{ind:0,"days":[],"action":"start"}]
+			interval:[{ind:0,"days":[],"action":"start","daySelect":''}]
 		};
 		$timeout(function(){$('input.time').trigger('click');},100);
 		var params={
@@ -88,7 +88,7 @@
 			};
 		});
 		$scope.addNewTime = function () {
-			$scope.schedule.interval.push({ind: $scope.schedule.length,"days":[],"action":"start"});
+			$scope.schedule.interval.push({ind: $scope.schedule.length,"days":[],"action":"start","daySelect":''});
 			$timeout(function(){$('input.time').trigger('click');},100);
 		};
 		$scope.selectDays=function (d,i) {
@@ -97,7 +97,11 @@
 			} else {
 				$scope.schedule.interval[i].days.splice($scope.schedule.interval[i].days.indexOf(d),1);
 			}
-
+			if($scope.schedule.interval[i].days.length >0){
+				$scope.schedule.interval[i].daySelect=1
+			} else{
+				$scope.schedule.interval[i].daySelect='';
+			}
 		};
 		$scope.removeTime = function (ind) {
 			$scope.schedule.interval.splice(ind,1);

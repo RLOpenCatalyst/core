@@ -7,7 +7,7 @@
 
 (function (angular) {
     "use strict";
-    angular.module('library.bots')
+    angular.module('dashboard.bots')
     .controller('audittrailCtrl',['$scope', '$rootScope', '$http', '$state', 'genericServices', 'confirmbox', 'workzoneServices', 'toastr', 'workzoneUIUtils', '$modal', 
     function ($scope, $rootScope, $http, $state, genSevs, confirmbox, workzoneServices, toastr, workzoneUIUtils, $modal) {
         var audit=this;
@@ -23,8 +23,8 @@
                     cellTemplate:'<span title="{{row.entity.startedOn  | timestampToLocaleTime}}">{{row.entity.startedOn  | timestampToLocaleTime}}</span>', cellTooltip: true},
                 { name: 'End Time',field:'endedOn',
                     cellTemplate:'<span title="{{row.entity.endedOn  | timestampToLocaleTime}}">{{row.entity.endedOn  | timestampToLocaleTime}}</span>', cellTooltip: true},
-                { name: 'BOT Type',field:'auditTrailConfig.type'},
-                { name: 'BOT Name',field:'auditTrailConfig.name'},
+                { name: 'BOT Type',displayName: 'BOT Type',field:'auditTrailConfig.type'},
+                { name: 'BOT Name',displayName: 'BOT Name',field:'auditTrailConfig.name'},
                 { name: 'Status',field:'status'},
                 { name: 'Org',field:'masterDetails.orgName'},
                 { name: 'BU',field:'masterDetails.bgName'},
@@ -51,7 +51,8 @@
                             actionId: hist.actionLogId,
                             name: hist.auditTrailConfig.name,
                             nodeIdsWithActionLog: hist.auditTrailConfig.nodeIdsWithActionLog,
-                            nodeIds: hist.auditTrailConfig.nodeIds
+                            nodeIds: hist.auditTrailConfig.nodeIds,
+                            taskType: hist.auditTrailConfig.executionType
                         };
                     }
                 }

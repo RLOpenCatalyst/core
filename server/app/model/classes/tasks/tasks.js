@@ -138,42 +138,10 @@ taskSchema.plugin(mongoosePaginate);
 
 
 // Executes a task
-taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, blueprintIds, envId, callback, onComplete) {
+taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, blueprintIds, envId,auditTrailId, callback, onComplete) {
     logger.debug('Executing');
     var task;
     var self = this;
-    var botAuditDetails = null;
-    if(self.serviceDeliveryCheck === true){
-        var botAuditDetails={
-            auditId:self.id,
-            auditType:'BOTs',
-            auditCategory:'Task',
-            masterDetails:{
-                orgName: self.orgName,
-                orgId: self.orgId,
-                bgName: self.bgName,
-                bgId: self.bgId,
-                projectName: self.projectName,
-                projectId: self.projectId,
-                envName: self.envName,
-                envId: self.envId
-            },
-            auditTrailConfig:{
-                nodeIds:this.taskConfig.nodeIds,
-                name:self.name,
-                type:self.botType,
-                description:self.shortDesc,
-                category:self.botCategory,
-                executionType:self.taskType,
-                nodeIdsWithActionLog:[]
-            },
-            user:userName,
-            startedOn:new Date().getTime(),
-            status:'running',
-            action:'BOTs Task Execution',
-            actionStatus:'running'
-        }
-    }
     var taskHistoryData = {
         taskId: self.id,
         taskType: self.taskType,
@@ -230,15 +198,6 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
     task.envId = this.envId;
     task.botParams = self.botParams;
     task.botTagServer = self.botTagServer;
-    var auditTrailId = null;
-    if(self.serviceDeliveryCheck === true) {
-        auditTrailService.saveAndUpdateAuditTrail(botAuditDetails, function (err, auditTrail) {
-            if (err) {
-                logger.error("Failed to create or update bot Log: ", err);
-            }
-            auditTrailId = auditTrail._id;
-        });
-    };
     task.execute(userName, baseUrl, choiceParam, appData, blueprintIds, envId, function(err, taskExecuteData, taskHistoryEntry) {
       if (err) {
             callback(err, null);
@@ -346,7 +305,6 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                 "actionLogId":taskHistory.nodeIdsWithActionLog[0].actionLogId,
                 "auditTrailConfig.nodeIdsWithActionLog":taskHistory.nodeIdsWithActionLog
             };
-            logger.debug("resultData: ", JSON.stringify(resultData));
             if (resultData) {
                 if (resultData.instancesResults && resultData.instancesResults.length) {
                     taskHistory.executionResults = resultData.instancesResults;
@@ -356,7 +314,7 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                 }
 
             }
-            if(self.serviceDeliveryCheck === true){
+            if(auditTrailId !== null){
                 auditTrailService.updateAuditTrail('BOTs',auditTrailId,resultTaskExecution,function(err,auditTrail){
                     if (err) {
                         logger.error("Failed to create or update bot Log: ", err);

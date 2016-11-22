@@ -7,8 +7,8 @@
 
 (function (angular) {
     "use strict";
-    angular.module('library.bots', ['library.params'])
-    .controller('libraryCtrl',['$scope', '$rootScope', '$state', 'genericServices', 'confirmbox', 'workzoneServices', 'toastr', 'workzoneUIUtils', function ($scope, $rootScope, $state, genSevs, confirmbox, workzoneServices, toastr, workzoneUIUtils) {
+    angular.module('dashboard.bots')
+    .controller('libraryCtrl',['$scope', '$rootScope', '$http', '$state', 'genericServices', 'confirmbox', 'workzoneServices', 'toastr', 'workzoneUIUtils', function ($scope, $rootScope, $http, $state, genSevs, confirmbox, workzoneServices, toastr, workzoneUIUtils) {
         var treeNames = ['Bots','Library'];
         $rootScope.$emit('treeNameUpdate', treeNames);
         var lib=this;
@@ -24,20 +24,20 @@
                     '<img src="images/orchestration/jenkins.png" ng-show="row.entity.taskType==\'jenkins\'" alt="row.entity.taskType" title="Jenkins" class="task-type-img" />'+
                     '<img src="images/orchestration/script.jpg" ng-show="row.entity.taskType==\'script\'" alt="row.entity.taskType" title="Script" class="task-type-img" />'+
                     '<img src="images/devops-roles/devopsRole1.png" ng-show="row.entity.blueprintType" alt="row.entity.botType" title="Blueprint" class="task-type-img" />',cellTooltip: true},
-                { name: 'BOT Type',field:'botType'},
-                { name: 'BOT Name',field:'name'},
+                { name: 'BOT Type',displayName: 'BOT Type',field:'botType'},
+                { name: 'BOT Name',displayName: 'BOT Name',field:'name'},
                 { name: 'Category',field:'botCategory'},
                 { name: 'description',field:'shortDesc'},
-                { name: 'BOT History',cellTemplate:'<span ng-show="row.entity.blueprintType">NA</span>'+
+                { name: 'BOT History',displayName: 'BOT History',cellTemplate:'<span ng-show="row.entity.blueprintType">NA</span>'+
                         '<span class="btn cat-btn-update control-panel-button" title="History" ng-show="row.entity.taskType" ng-click="grid.appScope.botLogs(row.entity);"><i class="fa fa-header white"></i></span>'},
-                { name: 'BOT Action',cellTemplate:'<span class="btn cat-btn-update control-panel-button" title="Execute" ng-click="grid.appScope.launchInstance(row.entity);"><i class="fa fa-play white"></i></span>' +
+                { name: 'BOT Action',displayName: 'BOT Action',cellTemplate:'<span class="btn cat-btn-update control-panel-button" title="Execute" ng-click="grid.appScope.launchInstance(row.entity);"><i class="fa fa-play white"></i></span>' +
                     '<span class="btn btn-danger control-panel-button" title="Delete Task" ng-show="row.entity.taskType" ng-click="grid.appScope.deleteBotTask(row.entity);"><i class="fa fa-trash-o white"></i></span>' + 
                     '<span class="btn btn-danger control-panel-button" title="Delete Blueprint" ng-show="row.entity.blueprintType" ng-click="grid.appScope.deleteBotBP(row.entity);"><i class="fa fa-trash-o white"></i></span>'
                 }
             ],
             data:[]
         };
-        var gridBottomSpace = 90;
+        var gridBottomSpace = 210;
         $scope.gridHeight = workzoneUIUtils.makeTabScrollable('botLibraryPage') - gridBottomSpace;
         $scope.launchInstance = function(launch){
             if(launch.launcType === 'task'){
@@ -90,6 +90,15 @@
         $rootScope.$on('BOTS_LIBRARY_REFRESH', function() {
             lib.init();
         });
+        lib.summary = function() {
+            $scope.botSummary=[];
+            var url = '/audit-trail/bot-summary';
+            $http.get(url).then(function (response) {
+                $scope.botSummary = response.data;
+                console.log($scope.botSummary);
+            });
+        }
+        lib.summary();
         lib.init =function(){
             lib.gridOptions.data=[];
             var param={

@@ -7,7 +7,7 @@
 
 (function (angular) {
 	"use strict";
-	angular.module('dashboard.bots', ['library.bots', 'chefDataFormatter']).config(['$stateProvider', '$urlRouterProvider', '$httpProvider', 'modulePermissionProvider', function($stateProvider, $urlRouterProvider, $httpProvider, modulePermissionProvider) {
+	angular.module('dashboard.bots', ['library.bots','library.params']).config(['$stateProvider', '$urlRouterProvider', '$httpProvider', 'modulePermissionProvider', function($stateProvider, $urlRouterProvider, $httpProvider, modulePermissionProvider) {
 		var modulePerms = modulePermissionProvider.$get();
 		$stateProvider.state('dashboard.bots.library', {
 			url: "/library",

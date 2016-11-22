@@ -16,14 +16,13 @@ var ContainerAuditTrailSchema = new BaseAuditTrail({
         },
         name: {
             type: String,
-            unique: true,
             trim:true
         },
-        Image:{
+        image:{
             type: String,
             trim:true
         },
-        ImageId:{
+        imageId:{
             type: String,
             trim:true
         },
