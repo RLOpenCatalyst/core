@@ -301,17 +301,20 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
             var resultTaskExecution = null;
             if(taskHistoryData.taskType === TASK_TYPE.JENKINS_TASK){
                  resultTaskExecution = {
-                    "actionStatus":self.lastTaskStatus,
-                    "status":self.lastTaskStatus,
-                    "endedOn":self.timestampEnded
+                     "actionStatus":self.lastTaskStatus,
+                     "status":self.lastTaskStatus,
+                     "endedOn":self.timestampEnded,
+                     "actionLogId":taskHistory.jenkinsServerId,
+                     "auditTrailConfig.jenkinsBuildNumber":taskHistory.buildNumber,
+                     "auditTrailConfig.jenkinsJobName":taskHistory.jobName
                 };
             }else{
                  resultTaskExecution = {
-                    "actionStatus":self.lastTaskStatus,
-                    "status":self.lastTaskStatus,
-                    "endedOn":self.timestampEnded,
-                    "actionLogId":taskHistory.nodeIdsWithActionLog[0].actionLogId,
-                    "auditTrailConfig.nodeIdsWithActionLog":taskHistory.nodeIdsWithActionLog
+                     "actionStatus":self.lastTaskStatus,
+                     "status":self.lastTaskStatus,
+                     "endedOn":self.timestampEnded,
+                     "actionLogId":taskHistory.nodeIdsWithActionLog[0].actionLogId,
+                     "auditTrailConfig.nodeIdsWithActionLog":taskHistory.nodeIdsWithActionLog
                 };
             }
             if (resultData) {
