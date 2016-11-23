@@ -17,40 +17,13 @@ limitations under the License.
 
 // This file act as a Controller which contains blueprint related all end points.
 var Blueprints = require('_pr/model/blueprint');
-
-var instancesDao = require('_pr/model/classes/instance/instance');
-var EC2 = require('_pr/lib/ec2.js');
-var Chef = require('_pr/lib/chef.js');
-var logsDao = require('_pr/model/dao/logsdao.js');
-var Docker = require('_pr/model/docker.js');
-var configmgmtDao = require('_pr/model/d4dmasters/configmgmt');
 var usersDao = require('_pr/model/users.js');
-var appConfig = require('_pr/config');
-var Cryptography = require('_pr/lib/utils/cryptography');
-var fileIo = require('_pr/lib/utils/fileio');
 var uuid = require('node-uuid');
 var logger = require('_pr/logger')(module);
-var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js');
-var VMImage = require('_pr/model/classes/masters/vmImage.js');
-var currentDirectory = __dirname;
-var AWSKeyPair = require('_pr/model/classes/masters/cloudprovider/keyPair.js');
 var credentialcryptography = require('_pr/lib/credentialcryptography');
-var CloudFormation = require('_pr/model/cloud-formation');
-var AWSCloudFormation = require('_pr/lib/awsCloudFormation.js');
-var errorResponses = require('./error_responses');
-var Openstack = require('_pr/lib/openstack');
-var openstackProvider = require('_pr/model/classes/masters/cloudprovider/openstackCloudProvider.js');
-var Hppubliccloud = require('_pr/lib/hppubliccloud.js');
-var hppubliccloudProvider = require('_pr/model/classes/masters/cloudprovider/hppublicCloudProvider.js');
-var AzureCloud = require('_pr/lib/azure.js');
-var azureProvider = require('_pr/model/classes/masters/cloudprovider/azureCloudProvider.js');
-var VmwareCloud = require('_pr/lib/vmware.js');
-var vmwareProvider = require('_pr/model/classes/masters/cloudprovider/vmwareCloudProvider.js');
-var AwsAutoScaleInstance = require('_pr/model/aws-auto-scale-instance');
-var ARM = require('_pr/lib/azure-arm.js');
 var fs = require('fs');
-var AzureARM = require('_pr/model/azure-arm');
 var blueprintService = require('_pr/services/blueprintService.js');
+var auditTrailService = require('_pr/services/auditTrailService');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	app.all('/blueprints/*', sessionVerificationFunc);
@@ -415,7 +388,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 							});
 							return;
 						}
-
 						var stackName = null;
 						var domainName = null;
 						if (blueprint.blueprintType === 'aws_cf' || blueprint.blueprintType === 'azure_arm') {
@@ -436,23 +408,65 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 								return;
 							}
 						}
-						blueprint.launch({
-							envId: req.query.envId,
-							ver: req.query.version,
-							stackName: stackName,
-							domainName:domainName,
-							sessionUser: req.session.user.cn,
-                            tagServer: req.query.tagServer
-						}, function(err, launchData) {
-							if (err) {
-								res.status(500).send({
-									message: "Server Behaved Unexpectedly"
+						if(blueprint.serviceDeliveryCheck === true){
+							var actionObj={
+								auditType:'BOTs',
+								auditCategory:'Blueprint',
+								status:'running',
+								action:'BOTs Blueprint Execution',
+								actionStatus:'running',
+								catUser:req.session.user.cn
+							};
+							var auditTrailObj = {
+								name:blueprint.name,
+								type:blueprint.botType,
+								description:blueprint.shortDesc,
+								category:blueprint.botCategory,
+								executionType:blueprint.blueprintType,
+								nodeIdsWithActionLog:[]
+							};
+							blueprint.envId= req.query.envId;
+							auditTrailService.insertAuditTrail(blueprint,auditTrailObj,actionObj,function(err,data){
+								if(err){
+									logger.error(err);
+								}
+								blueprint.launch({
+									envId: req.query.envId,
+									ver: req.query.version,
+									stackName: stackName,
+									domainName: domainName,
+									sessionUser: req.session.user.cn,
+									tagServer: req.query.tagServer,
+									auditTrailId: data._id
+								}, function (err, launchData) {
+									if (err) {
+										res.status(500).send({
+											message: "Server Behaved Unexpectedly"
+										});
+										return;
+									}
+									res.status(200).send(launchData)
 								});
-								return;
-							}
-							res.status(200).send(launchData)
-
-						});
+							});
+						}else{
+							blueprint.launch({
+								envId: req.query.envId,
+								ver: req.query.version,
+								stackName: stackName,
+								domainName: domainName,
+								sessionUser: req.session.user.cn,
+								tagServer: req.query.tagServer,
+								auditTrailId: null
+							}, function (err, launchData) {
+								if (err) {
+									res.status(500).send({
+										message: "Server Behaved Unexpectedly"
+									});
+									return;
+								}
+								res.status(200).send(launchData)
+							});
+						}
 					});
 				}
 			} else {

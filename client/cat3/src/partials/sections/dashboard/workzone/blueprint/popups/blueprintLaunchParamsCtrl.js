@@ -8,14 +8,14 @@
 (function(angular){
 	"use strict";
 	angular.module('workzone.blueprint')
-		.controller('blueprintLaunchParamsCtrl', ['$scope', '$modalInstance', 'items','workzoneServices','genericServices','workzoneEnvironment', function($scope, $modalInstance, items,workzoneServices,genericServices,workzoneEnvironment) {
+		.controller('blueprintLaunchParamsCtrl', ['$scope', '$modalInstance', 'toastr',  'items','workzoneServices','genericServices','workzoneEnvironment', function($scope, $modalInstance, toastr, items,workzoneServices,genericServices,workzoneEnvironment) {
 			console.log(items);
 			var launchHelper = {
 				launch : function(){
 					$modalInstance.close({bp:items,stackName:$scope.stackName,domainName:$scope.domainName,tagServer:$scope.tagSerSelected,launchEnv:$scope.envSeleted});
 				}
 			};
-			var bPLP=this;
+			//var bPLP=this;
 			$scope.taggingServerList=[];
 			$scope.envOptions=[];
 			workzoneServices.getTaggingServer().then(function (topSer) {
@@ -23,13 +23,23 @@
 			});
 			genericServices.getTreeNew().then(function (envData) {
 				angular.forEach(envData,function(val){
-					if(val.rowid === items.orgId){
+					var orgID,bgID,projID;
+					if(items.organizationId === undefined) {
+						orgID = (items.orgId)?items.orgId:items.organization.id;
+			        	bgID = (items.bgId)?items.bgId:items.businessGroup.id;
+			        	projID = (items.projectId)?items.projectId:items.project.id;
+					} else {
+						orgID = items.organizationId;
+						bgID = items.businessGroupId;
+						projID = items.projectId;
+					}
+					if(val.rowid === orgID){
 						$scope.orgSeleted=val.name;
 						angular.forEach(val.businessGroups,function(busval){
-							if(busval.rowid === items.bgId){
+							if(busval.rowid === bgID){
 								$scope.busSeleted=busval.name;
 								angular.forEach(busval.projects,function(projval){
-									if(projval.rowId === items.projectId){
+									if(projval.rowId === projID){
 										$scope.projSeleted=projval.name;
 										$scope.envOptions=projval.environments;
 										if(workzoneEnvironment.getEnvParams() && workzoneEnvironment.getEnvParams().env){
@@ -53,14 +63,27 @@
 				$modalInstance.dismiss('cancel');
 			};
 			$scope.launchBP = function() {
-				if(items.blueprintType === "aws_cf") {
-					$scope.showCFTInputs = true;
-				}else if(items.blueprintType === "azure_arm") {
-					$scope.showARMInputs = true;
-				}else if(items.domainNameCheck === true || items.domainNameCheck === "true") {
-					$scope.showBlueprintInputs = true;
-				}else {
-					launchHelper.launch();
+				if(items.orgId === undefined){
+					var compBlue={
+						"blueprintId": (items.id)?items.id:items._id,
+						"environmentId": $scope.envSeleted
+					};
+					workzoneServices.launchCompsiteBlueprint(compBlue).success(function() {
+                        toastr.success('Successfully launched composite blueprint');
+                        return false;
+					}).error(function(data) {
+                        toastr.error(data.message, 'Error');
+					});
+				} else {
+					if(items.blueprintType === "aws_cf") {
+						$scope.showCFTInputs = true;
+					}else if(items.blueprintType === "azure_arm") {
+						$scope.showARMInputs = true;
+					}else if(items.domainNameCheck === true || items.domainNameCheck === "true") {
+						$scope.showBlueprintInputs = true;
+					}else {
+						launchHelper.launch();
+					}
 				}
 			};
 			$scope.cftSubmitHandler = function(){

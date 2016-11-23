@@ -13,7 +13,6 @@
 			$scope.role={
 				name : ''
 			};
-			console.log(items);
 			$scope.isNewTaskPageLoading = true;
 			$scope.isScriptInstanceLoading = true;
 			$scope.chefrunlist = [];
@@ -38,22 +37,22 @@
 				}
 			};
 			$scope.optionToggled = function(){
-				$scope.isAllSelected = $scope.chefInstanceList.every(function(itm){ return  itm._isNodeSelected; })
+				$scope.isAllSelected = $scope.chefInstanceList.every(function(itm){ return  itm._isNodeSelected; });
 			};
 			$scope.toggleAllScriptInstance = function() {
 				var toggleStatusInstance = $scope.isAllInstanceScriptSelected;
 				angular.forEach($scope.chefInstanceList, function(itm){ itm._isNodeSelected = toggleStatusInstance; });
 			};
 			$scope.optionInstanceToggled = function(){
-				$scope.isAllInstanceScriptSelected = $scope.chefInstanceList.every(function(itm){ return  itm._isNodeSelected; })
+				$scope.isAllInstanceScriptSelected = $scope.chefInstanceList.every(function(itm){ return  itm._isNodeSelected; });
 			};
 			$scope.toggleAllScripts = function() {
 				var toggleStatusScript = $scope.isAllScriptSelected;
 				angular.forEach($scope.scriptTaskList, function(itm){ itm._isScriptSelected = toggleStatusScript;});
 			};
 			$scope.optionScriptToggled = function() {
-				$scope.isAllScriptSelected = $scope.scriptTaskList.every(function(itm){ return  itm._isScriptSelected; })
-			}
+				$scope.isAllScriptSelected = $scope.scriptTaskList.every(function(itm){ return  itm._isScriptSelected; });
+			};
 			//default values for new task
 			angular.extend($scope, {
 				taskTypes: {
@@ -120,7 +119,7 @@
 					});
 				},
 				changeNodeScriptList: function() {
-					if($scope.scriptTypeSelelct !=""){
+					if($scope.scriptTypeSelelct !==""){
 						workzoneServices.getScriptList($scope.scriptTypeSelelct).then(function (response) {
 							var data;
 							if (response.data) {
@@ -132,7 +131,7 @@
 							if ($scope.isEditMode && items.taskType === "script") {
 								var isScriptChecked = [];
 								for(var i =0;i<items.taskConfig.scriptDetails.length;i++){
-									isScriptChecked.push(items.taskConfig.scriptDetails[i].scriptId)
+									isScriptChecked.push(items.taskConfig.scriptDetails[i].scriptId);
 									$scope.scriptTaskList = responseFormatter.identifyAvailableScript(data, isScriptChecked);
 									$scope.scriptParamsObj[items.taskConfig.scriptDetails[i].scriptId] = items.taskConfig.scriptDetails[i].scriptParameters;
 									$scope.isNewTaskPageLoading = false;
@@ -242,7 +241,7 @@
 				},
 				ok: function () {
 					//these values are common across all task types
-					var taskJSON={}
+					var taskJSON={};
 					if($scope.checkBotType){
 						taskJSON = {
 							taskType: $scope.taskType,
@@ -387,7 +386,7 @@
 
 						for (var k = 0; k < $scope.scriptTaskList.length; k++) {
 							if ($scope.scriptTaskList[k]._isScriptSelected) {
-								var scriptId = $scope.scriptTaskList[k]._id
+								var scriptId = $scope.scriptTaskList[k]._id;
 								var obj = {
 									scriptId: scriptId,
 									scriptParameters:[]
@@ -443,11 +442,11 @@
 			$scope.scriptTypeSelelct = '';
 			$scope.chefBluePrintList = [];
 			$scope.puppetInstanceList = [];
-			$scope.cookbookAttributes = [];
 			$scope.editRunListAttributes = false;
 
 			$rootScope.$on('WZ_ORCHESTRATION_REFRESH_CURRENT', function(event,reqParams) {
                 $scope.chefrunlist = reqParams.list;
+                $scope.cookbookAttributes = reqParams.cbAttributes;
             });
 			var compositeSelector;
 			workzoneServices.getEnvironmentTaskList().then(function (response) {
@@ -507,8 +506,9 @@
 						$scope.chefBluePrintList = responseFormatter.identifyAvailableBlueprint(responseFormatter.getBlueprintList(blueprints), items.blueprintIds);
 						$scope.chefComponentSelectorList = responseFormatter.findDataForEditValue(items.taskConfig.runlist);
 						$scope.cookbookAttributes = responseFormatter.formatSavedCookbookAttributes(items.taskConfig.attributes);
+						console.log($scope.chefComponentSelectorList);
 						$scope.chefrunlist = responseFormatter.chefRunlistFormatter($scope.chefComponentSelectorList);
-
+						console.log($scope.chefrunlist);
 						$scope.chefRoleList = roles;
 
 						if (items.blueprintIds.length){

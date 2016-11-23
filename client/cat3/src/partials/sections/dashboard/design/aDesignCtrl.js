@@ -68,6 +68,7 @@
 		}])
 	.controller('designCtrl',['$scope','$rootScope','$state','genericServices', function ($scope,$rootScope,$state,genericServices) {
 		var design= this;
+		$scope.isTreeOpen = false;
 		$rootScope.state = $state;
 		design.providersList= function () {
 			var params = {
@@ -98,11 +99,34 @@
 					$rootScope.organNewEnt.buss = orgs[0].businessGroups[0];
 					$rootScope.organNewEnt.proj = orgs[0].businessGroups[0].projects[0];
 					$state.go('dashboard.design.list',{providerName:providers[0].name,templateObj:template[0]});
-
+					$rootScope.$emit('BP_BLUEPRINTS_REFRESH_CURRENT');
 				});
 			});
 
 		};
+		$scope.applyFilter = function(bpType) {
+			var organObjectId=[];
+            ///organObjectId.envOptions=$rootScope.organObject[$rootScope.organNewEnt.org].environments;
+            if($rootScope.organObject){
+                var tempType=(bpType) ? bpType :$state.params.templateObj.templatetype;
+                var pagination =(bpType) ? true :false;
+                organObjectId.org =$rootScope.organNewEnt.org.rowid;
+                organObjectId.buss=$rootScope.organNewEnt.buss.rowid;
+                organObjectId.proj=$rootScope.organNewEnt.proj.rowId;
+                var params;
+                if(tempType === 'docker' || tempType === 'arm' || tempType === 'composite'){
+                    params = {
+                        url: '/organizations/'+organObjectId.org+'/businessgroups/'+organObjectId.buss+'/projects/'+organObjectId.proj+'/blueprintList?pagination='+pagination+'&templateType='+tempType+'&providerType='
+                    };    
+                }else {
+                    params = {
+                        url: '/organizations/'+organObjectId.org+'/businessgroups/'+organObjectId.buss+'/projects/'+organObjectId.proj+'/blueprintList?pagination='+pagination+'&templateType='+tempType+'&providerType='+angular.lowercase($state.params.providerName)
+                    };
+                }
+                $rootScope.$emit('BP_BLUEPRINTS_REFRESH_CURRENT');
+                return genericServices.promiseGet(params);
+            }
+		}
 		design.providersList();
 		return design;
 	}]);

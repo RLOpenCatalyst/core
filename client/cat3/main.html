@@ -69,7 +69,7 @@
 				</div>
 				<div id="breadcrumb-nav" class="col-lg-10 col-md-10 col-sm-10 col-xs-10">
 					<ul>
-						<li ng-cloak ng-repeat="item in breadcrumbData">{{item}} {{$last ? "" : " > "}}</li>
+						<li ng-cloak ng-repeat="item in breadcrumbData">{{item}} {{$last ? "" : " &raquo; "}}</li>
 					</ul>
 				</div>
 			</div>
@@ -109,9 +109,11 @@
 		<script src="src/partials/sections/dashboard/analytics/controller/capacityCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/analytics/controller/usageCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/bots/botsCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/bots/controller/audittrailCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/bots/controller/botLogsCtrl.js"></script>
+        <script src="src/partials/sections/dashboard/bots/controller/libraryCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/bots/controller/editParamsCtrl.js"></script>
-		<script src="src/partials/sections/dashboard/bots/controller/libraryCtrl.js"></script>
-	<script src="src/partials/sections/dashboard/design/aDesignCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/design/aDesignCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/design/controllers/addDockerTemplateCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/design/controllers/appUrlCreateCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/design/controllers/blueprintCreateCtrl.js"></script>

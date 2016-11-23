@@ -28,8 +28,8 @@ var PuppetTask = require('./taskTypePuppet');
 var ScriptTask = require('./taskTypeScript');
 var mongoosePaginate = require('mongoose-paginate');
 var ApiUtils = require('_pr/lib/utils/apiUtil.js');
-var instancesDao = require('_pr/model/classes/instance/instance');
 var Schema = mongoose.Schema;
+var auditTrailService = require('_pr/services/auditTrailService');
 
 
 var TASK_TYPE = {
@@ -138,7 +138,7 @@ taskSchema.plugin(mongoosePaginate);
 
 
 // Executes a task
-taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, blueprintIds, envId, callback, onComplete) {
+taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, blueprintIds, envId,auditTrailId, callback, onComplete) {
     logger.debug('Executing');
     var task;
     var self = this;
@@ -212,8 +212,6 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
             }
             taskHistoryData = taskHistoryEntry;
         }
-
-        logger.debug("Task last run timestamp updated", JSON.stringify(taskExecuteData));
         self.lastRunTimestamp = timestamp;
         self.lastTaskStatus = TASK_STATUS.RUNNING;
         self.save(function(err, data) {
@@ -240,7 +238,6 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                 taskHistoryData.nodeIdsWithActionLog.push(obj);
             }
         }
-
         taskHistoryData.status = TASK_STATUS.RUNNING;
         taskHistoryData.timestampStarted = timestamp;
         if (taskExecuteData.buildNumber) {
@@ -301,7 +298,25 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
         if (taskHistory) {
             taskHistory.timestampEnded = self.timestampEnded;
             taskHistory.status = self.lastTaskStatus;
-            logger.debug("resultData: ", JSON.stringify(resultData));
+            var resultTaskExecution = null;
+            if(taskHistoryData.taskType === TASK_TYPE.JENKINS_TASK){
+                 resultTaskExecution = {
+                     "actionStatus":self.lastTaskStatus,
+                     "status":self.lastTaskStatus,
+                     "endedOn":self.timestampEnded,
+                     "actionLogId":taskHistory.jenkinsServerId,
+                     "auditTrailConfig.jenkinsBuildNumber":taskHistory.buildNumber,
+                     "auditTrailConfig.jenkinsJobName":taskHistory.jobName
+                };
+            }else{
+                 resultTaskExecution = {
+                     "actionStatus":self.lastTaskStatus,
+                     "status":self.lastTaskStatus,
+                     "endedOn":self.timestampEnded,
+                     "actionLogId":taskHistory.nodeIdsWithActionLog[0].actionLogId,
+                     "auditTrailConfig.nodeIdsWithActionLog":taskHistory.nodeIdsWithActionLog
+                };
+            }
             if (resultData) {
                 if (resultData.instancesResults && resultData.instancesResults.length) {
                     taskHistory.executionResults = resultData.instancesResults;
@@ -310,6 +325,13 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                     taskHistory.blueprintExecutionResults = resultData.blueprintResults;
                 }
 
+            }
+            if(auditTrailId !== null && resultTaskExecution !== null){
+                auditTrailService.updateAuditTrail('BOTs',auditTrailId,resultTaskExecution,function(err,auditTrail){
+                    if (err) {
+                        logger.error("Failed to create or update bot Log: ", err);
+                    }
+                });
             }
             taskHistory.save();
         }

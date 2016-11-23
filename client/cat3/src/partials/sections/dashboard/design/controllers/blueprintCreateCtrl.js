@@ -37,7 +37,7 @@
             blueprintCreation.providerListing = [];
             blueprintCreation.imageListing = [];
             blueprintCreation.regionListing = ''; 
-            blueprintCreation.keyPairListing = '';
+            blueprintCreation.keyPairListing = [];
             blueprintCreation.vpcListing = [];
             blueprintCreation.subnetListing = [];
             blueprintCreation.securityGroupListing = [];
@@ -72,11 +72,11 @@
                 templateDetail.selected = true;
                 $scope.nextEnabled = true;
                 $scope.templateSelected = templateDetail;
-                if($scope.templateSelected.templatescookbooks !== ''){
-                    if($scope.templateSelected.templatetypename === "SoftwareStack"){
-                        $scope.chefComponentSelectorList = $scope.templateSelected.templatescookbooks;
-                        $scope.chefrunlist = responseFormatter.findDataForEditValueString($scope.chefComponentSelectorList);
-                    }
+                if($scope.templateSelected.templatescookbooks !== '' && $scope.templateSelected.templatetypename === "SoftwareStack"){
+                    var chefComponentSelector = $scope.templateSelected.templatescookbooks;
+                    var chefRunlist = chefComponentSelector.split(',');
+                    $scope.chefComponentSelectorList = responseFormatter.findDataForEditValue(chefRunlist);
+                    $scope.chefrunlist = responseFormatter.chefRunlistFormatter($scope.chefComponentSelectorList);
                 } 
                 $scope.dockerDetails = [];
                 //items gives the details of the selected blueprint.
@@ -159,7 +159,7 @@
                 blueprintCreation.imageListing = [];
                 blueprintCreation.instanceType = [];
                 blueprintCreation.regionListing = null;
-                blueprintCreation.keyPairListing = '';
+                blueprintCreation.keyPairListing = [];
                 blueprintCreation.regionListingAzure = [];
                 blueprintCreation.newEnt.vpcId = null
                 blueprintCreation.vpcListing = [];
@@ -204,7 +204,7 @@
                     bpCreateSer.getAWSProviderWithId(blueprintCreation.newEnt.providers).then(function(data){
                         if(blueprintCreation.newEnt.providers){
                             blueprintCreation.regionListing = data.providerRegion;
-                            blueprintCreation.keyPairListing = data.keyPairs[0].keyPairName;
+                            blueprintCreation.keyPairListing = data.keyPairs;
                             $scope.isRegionKeyPairLoading = false;
                         }
                     });    
@@ -550,6 +550,7 @@
 
             $rootScope.$on('WZ_ORCHESTRATION_REFRESH_CURRENT', function(event,reqParams) {
                 $scope.chefrunlist = reqParams.list;
+                $scope.cookbookAttributes = reqParams.cbAttributes;
             });
             //modal to show the Docker Parameters Popup                                             
             //on initial load.

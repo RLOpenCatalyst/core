@@ -150,7 +150,7 @@
                               </label>
                               <select ng-model="bpCreate.newEnt.keyPair" name="keypairId" class="instanceType chooseInstance width-100 form-control" required>
                                  <option value="">Select KeyPair </option>
-                                 <option value="{{bpCreate.keyPairListing}}">{{bpCreate.keyPairListing}}</option>
+                                 <option ng-repeat="keyPairListing in bpCreate.keyPairListing" value="{{keyPairListing._id}}">{{keyPairListing.keyPairName}}</option>
                               </select>
                            </div>
                            <div class="col-lg-4 col-md-4 margintop15" ng-if="providerType === 'AWS'  || providerType === 'AZURE'">
@@ -249,7 +249,7 @@
                            </div>
 
                            <div class="col-lg-12 col-md-12 margintop15">
-                              <label class="btn btn-primary git stat">
+                              <label class="git stat">
                                  <input type="checkbox" autocomplete="off" ng-model="bpCreate.newEnt.serviceDelivery_isChecked" ng-change="bpCreate.botTypes();"> Add to Service Delivery
                               </label>
                            </div>
@@ -360,13 +360,13 @@
                               Application Deployment
                            </accordion-heading>
                            <div class="col-lg-12 col-md-12 margintop15">
-                              <label class="btn btn-primary git stat">
+                              <label class="git stat">
                                  <input type="checkbox" autocomplete="off" ng-model="bpCreate.newEnt.appDeployCheck_isChecked" ng-change="bpCreate.showRepoServers();"> Deploy app during Bootstrap
                               </label>
                            </div>
 
                            <div class="col-lg-4 col-md-4 margintop15" ng-show="showRepoServerName">
-                              <label for="">Repository Server:<span class="redSpan">*</span>
+                              <label for="">Repository Server:<span class="red">*</span>
                               </label>
                               <select ng-model="bpCreate.newEnt.nexusDockerServer" name="" class=" width-100 form-control" ng-change="bpCreate.getRepository();">
                                  <option value="">Select Server</option>
@@ -580,7 +580,7 @@
                               <input ng-if="value.type !=='securestring' && !value.allowedValues" type="text" name="resource" ng-model="bpCreate.newEnt.armModelResources[key].value" class="form-control" required ng-change="bpCreate.hideVMEvals();"/>
                               <input type="password" ng-if="value.type ==='securestring'" name="resource" ng-model="bpCreate.newEnt.armModelResources[key].value" class="form-control" required ng-change="bpCreate.hideVMEvals();"/>
                               <select ng-if="value.allowedValues" ng-model="bpCreate.newEnt.armModelResources[key].value" name="resource" ng-disabled="isVmModel" class="width-100 form-control" required ng-change="bpCreate.checkForResource();">
-                                 <option value="">Select OS Version</option>
+                                 <option value="">Select Value</option>
                                  <option ng-repeat="values in value.allowedValues" value="{{values}}">{{values}}</option>
                               </select>
                            </div>
