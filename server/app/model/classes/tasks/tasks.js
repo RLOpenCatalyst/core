@@ -598,7 +598,7 @@ taskSchema.statics.getScriptTypeTask = function(callback){
     });
 };
 
-taskSchema.statics.getTasksServiceDeliveryCheck = function(serviceDeliveryCheck, callback) {
+taskSchema.statics.getAllServiceDeliveryTask = function(serviceDeliveryCheck, callback) {
     this.find({serviceDeliveryCheck:serviceDeliveryCheck}, function(err, tasks) {
         if (err) {
             callback(err, null);
