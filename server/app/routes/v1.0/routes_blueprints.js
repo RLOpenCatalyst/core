@@ -30,7 +30,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 	app.get('/blueprints', function(req, res) {
 		var queryObj = {
-			serviceDeliveryCheck : req.query.serviceDeliveryCheck,
+			serviceDeliveryCheck : req.query.serviceDeliveryCheck === "true" ? true:false,
 			actionStatus:req.query.actionStatus
 		}
 		blueprintService.getAllServiceDeliveryBlueprint(queryObj, function(err,data){

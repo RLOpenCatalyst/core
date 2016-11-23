@@ -360,63 +360,6 @@ taskSchema.methods.getPuppetTaskNodes = function() {
         return [];
     }
 };
-
-/*taskSchema.methods.getHistory = function(callback) {
-    TaskHistory.getHistoryByTaskId(this.id, function(err, tHistories) {
-        if (err) {
-            callback(err, null);
-            return;
-        }
-        var checker;
-        var uniqueResults = [];
-        if (tHistories && tHistories.length) {
-            for (var i = 0; i < tHistories.length; ++i) {
-                if (!checker || comparer(checker, tHistories[i]) != 0) {
-                    checker = tHistories[i];
-                    uniqueResults.push(checker);
-                }
-            }
-
-            if (uniqueResults.length) {
-                var hCount = 0;
-                for (var i = 0; i < uniqueResults.length; i++) {
-                    (function(i) {
-                        if (uniqueResults[i].nodeIds && uniqueResults[i].nodeIds.length) {
-                            instancesDao.getInstancesByIDs(uniqueResults[i].nodeIds, function(err, data) {
-                                hCount++;
-                                if (err) {
-                                    return;
-                                }
-
-                                if (data && data.length) {
-                                    var pId = [];
-                                    for (var j = 0; j < data.length; j++) {
-                                        pId.push(data[j].platformId);
-                                    }
-                                    uniqueResults[i] = JSON.parse(JSON.stringify(uniqueResults[i]));
-                                    uniqueResults[i]['platformId'] = pId;
-                                }
-
-                                if (uniqueResults.length == hCount) {
-                                    return callback(null, uniqueResults);
-                                }
-                            });
-                        } else {
-                            hCount++;
-                            if (uniqueResults.length == hCount) {
-                                return callback(null, uniqueResults);
-                            }
-                        }
-                    })(i);
-                }
-            }
-
-        } else {
-            return callback(null, tHistories);
-        }
-    });
-};*/
-
 taskSchema.methods.getHistory = function(callback) {
     TaskHistory.getHistoryByTaskId(this.id, function(err, tHistories) {
         if (err) {

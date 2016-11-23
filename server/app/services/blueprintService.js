@@ -72,7 +72,7 @@ blueprintService.getAllBlueprints = function getAllBlueprints(orgIds, callback) 
 };
 
 blueprintService.getAllServiceDeliveryBlueprint = function getAllServiceDeliveryBlueprint(queryObj, callback) {
-    if(queryObj.serviceDeliveryCheck === true && queryObj.actionStatus !== null) {
+    if(queryObj.serviceDeliveryCheck === true && queryObj.actionStatus && queryObj.actionStatus !== null) {
         var query = {
             auditType: 'BOTs',
             actionStatus: queryObj.actionStatus,
@@ -101,8 +101,12 @@ blueprintService.getAllServiceDeliveryBlueprint = function getAllServiceDelivery
                     next(null, auditTrailList);
                 }
             },
-            function (blueprintList, next) {
-                Blueprints.getByIds(blueprintList, next);
+            function (blueprintIdList, next) {
+                if(blueprintIdList.length > 0) {
+                    Blueprints.getByIds(blueprintIdList, next);
+                }else{
+                    next(null, blueprintIdList);
+                }
             }
         ], function (err, results) {
             if (err) {

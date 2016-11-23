@@ -22,6 +22,7 @@ var TaskHistory = require('_pr/model/classes/tasks/taskHistory');
 var instancesDao = require('_pr/model/classes/instance/instance');
 var auditTrailService = require('_pr/services/auditTrailService');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
+var async = require('async');
 
 const errorType = 'taskService';
 
@@ -46,7 +47,7 @@ taskService.getChefTasksByOrgBgProjectAndEnvId = function getChefTasksByOrgBgPro
 };
 
 taskService.getAllServiceDeliveryTask = function getAllServiceDeliveryTask(queryObj, callback) {
-    if(queryObj.serviceDeliveryCheck === true && queryObj.actionStatus !== null) {
+    if(queryObj.serviceDeliveryCheck === true && queryObj.actionStatus && queryObj.actionStatus !== null) {
         var query = {
             auditType: 'BOTs',
             actionStatus: queryObj.actionStatus,
@@ -76,7 +77,11 @@ taskService.getAllServiceDeliveryTask = function getAllServiceDeliveryTask(query
                 }
             },
             function (taskIdList, next) {
-                taskDao.getTaskByIds(taskIdList, next);
+                if(taskIdList.length > 0) {
+                    taskDao.getTaskByIds(taskIdList, next);
+                }else{
+                    next(null, taskIdList);
+                }
             }
         ], function (err, results) {
             if (err) {

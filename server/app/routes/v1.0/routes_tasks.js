@@ -500,7 +500,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 });
         }else{
             var queryObj = {
-                serviceDeliveryCheck : req.query.serviceDeliveryCheck,
+                serviceDeliveryCheck : req.query.serviceDeliveryCheck === "true" ? true:false,
                 actionStatus:req.query.actionStatus
             }
             taskService.getAllServiceDeliveryTask(queryObj, function(err,data){
