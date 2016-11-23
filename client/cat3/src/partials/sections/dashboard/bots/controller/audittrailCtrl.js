@@ -7,7 +7,7 @@
 
 (function (angular) {
     "use strict";
-    angular.module('library.bots',[])
+    angular.module('dashboard.bots')
     .controller('audittrailCtrl',['$scope', '$rootScope', '$http', '$state', 'genericServices', 'confirmbox', 'workzoneServices', 'toastr', 'workzoneUIUtils', '$modal', 
     function ($scope, $rootScope, $http, $state, genSevs, confirmbox, workzoneServices, toastr, workzoneUIUtils, $modal) {
         var audit=this;
@@ -23,9 +23,13 @@
                     cellTemplate:'<span title="{{row.entity.startedOn  | timestampToLocaleTime}}">{{row.entity.startedOn  | timestampToLocaleTime}}</span>', cellTooltip: true},
                 { name: 'End Time',field:'endedOn',
                     cellTemplate:'<span title="{{row.entity.endedOn  | timestampToLocaleTime}}">{{row.entity.endedOn  | timestampToLocaleTime}}</span>', cellTooltip: true},
-                { name: 'BOT Type',field:'auditTrailConfig.type'},
-                { name: 'BOT Name',field:'auditTrailConfig.name'},
-                { name: 'Status',field:'status'},
+                { name: 'BOT Type',displayName: 'BOT Type',field:'auditTrailConfig.type'},
+                { name: 'BOT Name',displayName: 'BOT Name',field:'auditTrailConfig.name'},
+                { name: 'Status',field:'status',
+                  cellTemplate:'<img class="bot-status-icon" src="images/instance-states/aws-started.png" ng-show="row.entity.status === \'success\'" title="{{row.entity.status}}">' +
+                  '<img class="bot-status-icon" src="images/instance-states/aws-stopped.png" ng-show="row.entity.status === \'failed\'" title="{{row.entity.status}}">' + 
+                  '<img class="bot-status-icon" src="images/instance-states/aws-inactive.png" ng-show="row.entity.status === \'running\'" title="{{row.entity.status}}">',
+                  cellTooltip: true},
                 { name: 'Org',field:'masterDetails.orgName'},
                 { name: 'BU',field:'masterDetails.bgName'},
                 { name: 'Project',field:'masterDetails.projectName'},
@@ -48,10 +52,7 @@
                 resolve: {
                     items: function() {
                         return {
-                            actionId: hist.actionLogId,
-                            name: hist.auditTrailConfig.name,
-                            nodeIdsWithActionLog: hist.auditTrailConfig.nodeIdsWithActionLog,
-                            nodeIds: hist.auditTrailConfig.nodeIds
+                            hist
                         };
                     }
                 }

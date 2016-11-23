@@ -17,7 +17,6 @@ var InstanceAuditTrailSchema = new BaseAuditTrail({
         },
         platform: {
             type: String,
-            unique: true,
             trim: true
         },
         os: {
