@@ -10,7 +10,7 @@
 		<div class="logsArea">
 			<loading size="large" name="isBotLogsLoading" align="center" type="block"></loading>
 			<div ng-show="!isBotLogsLoading">
-				<div ng-show="(taskType !== 'jenkins')">
+				<div ng-show="taskType !== 'jenkins'">
 					<div id="selectInstanceFromDropdown">
 	                    <label class="col-md-3 col-sm-3 col-xs-4 text-padding control-label margintop8">Select Instance<sup class="red">*</sup>
 	                    </label>
@@ -24,12 +24,11 @@
 					    <span class="logInfo"> {{log.log}} </span>
 				   	</div>
 				</div>
-			</div>
-			<div ng-show="taskType === 'jenkins'">
-			   	<div class="rowSpacing col-lg-12 col-sm-12 {{log.err ? 'logErrorMsg':'logMsg'}}" ng-repeat="log in botLogs">
-				    <span class="timeStamp"> {{log.timestamp | timestampToLocaleTime}} </span>
-				    <span class="logInfo"> {{log.log}} </span>
-			   	</div>
+				<div ng-show="taskType === 'jenkins'">
+				   	<div class="rowSpacing col-lg-12 col-sm-12">
+					    <p ng-bind-html="jenkinsLogs"></p>
+				   	</div>
+				</div>
 			</div>
 		</div>
 	</div>
