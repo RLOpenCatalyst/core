@@ -1,7 +1,7 @@
 <div id='blueprintPage'>
     <div class="modal-header">
         <span class="close" ng-click="cancel()">×</span>
-        <h4 class="modal-title"> Blueprint Information - {{compBlue.items.name}}</h4>
+        <h4 class="modal-title"> Blueprint Information - {{compBlue.bluePrintDetails.name}}</h4>
     </div>
     <div class="modal-body scroll-bluePrints">
         <fieldset>
@@ -9,19 +9,19 @@
             <tr>
                 <td class="td-padding">Organisation Name:</td>
                 <td>
-                    <input disabled="disabled" class="form-control" ng-model="compBlue.items.organization.name">
+                    <input disabled="disabled" class="form-control" ng-model="compBlue.bluePrintDetails.organization.name">
                 </td>
             </tr>
             <tr>
                 <td class="td-padding">Business Group:</td>
                 <td>
-                    <input disabled="disabled" class="form-control" ng-model="compBlue.items.businessGroup.name">
+                    <input disabled="disabled" class="form-control" ng-model="compBlue.bluePrintDetails.businessGroup.name">
                 </td>
             </tr>
             <tr>
                 <td class="td-padding">Project Name:</td>
                 <td>
-                    <input disabled="disabled" class="form-control" ng-model="compBlue.items.project.name">
+                    <input disabled="disabled" class="form-control" ng-model="compBlue.bluePrintDetails.project.name">
                 </td>
             </tr>
             </table>

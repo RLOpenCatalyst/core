@@ -14,7 +14,7 @@
                 bluePrintDetails:[]
             };
             compBlueInfo.getInfo=function () {
-                workzoneServices.getCompsiteBlueprintInfo(compBlueInfo.items.id).success(function(compBlue){
+                workzoneServices.getCompsiteBlueprintInfo(compBlueInfo.items._id || compBlueInfo.items.id).success(function(compBlue){
                     compBlueInfo.bluePrintDetails=compBlue;
                 });
             };
