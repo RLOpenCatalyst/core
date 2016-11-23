@@ -346,8 +346,20 @@ BlueprintSchema.methods.launch = function(opts, callback) {
                                 users: self.users,
                                 blueprintData: self,
                                 tagServer: opts.tagServer,
+                                auditTrailId:opts.auditTrailId
                             }, function(err, launchData) {
-                                callback(err, launchData);
+                                if(err){
+                                    err['errObj'] = {
+                                        endedOn:new Date().getTime(),
+                                        orgName:project[0].orgname,
+                                        bgName:project[0].productgroupname,
+                                        projectName:project[0].projectname,
+                                        envName:envName
+                                    };
+                                    callback(err,null);
+                                    return;
+                                }
+                                callback(null, launchData);
                             });
                         });
                     } else {
@@ -370,8 +382,20 @@ BlueprintSchema.methods.launch = function(opts, callback) {
                             users: self.users,
                             blueprintData: self,
                             tagServer: opts.tagServer,
+                            auditTrailId:opts.auditTrailId
                         }, function(err, launchData) {
-                            callback(err, launchData);
+                            if(err){
+                                err['errObj'] = {
+                                    endedOn:new Date().getTime(),
+                                    orgName:project[0].orgname,
+                                    bgName:project[0].productgroupname,
+                                    projectName:project[0].projectname,
+                                    envName:envName
+                                };
+                                callback(err,null);
+                                return;
+                            }
+                            callback(null, launchData);
                         });
                     }
                 });

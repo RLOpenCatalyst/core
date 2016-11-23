@@ -17,7 +17,7 @@
         });
         $scope.chefAttributesFlag = false;
         $scope.scriptParamsFlag = false;
-        if(items.taskConfig.attributes && items.taskConfig.attributes.length) {
+        if(items.taskConfig.runlist && items.taskConfig.runlist.length) {
             $scope.chefAttributesFlag = true;
         }
         if(items.taskType === 'script') {
@@ -50,13 +50,17 @@
                         }
                         /*Scope apply done to force refresh screen after receiving the AJAX response*/
                         $scope.$apply(function () {
-                            if ($scope.chefattributes.length > 0) {
-                                $scope.chefattributes = angular.copy($scope.chefattributes, data);
-                                $scope.isChefattributesLoading = false;
-                            } else {
-                                $scope.chefattributes = data;
-                                $scope.isChefattributesLoading = false;
+                            if ($scope.chefattributes) {
+                                for (var j = 0; j < data.length; j++) {
+                                    for (var attrItem in data[j].attributes) {
+                                        if ($scope.chefattributes[attrItem]) {
+                                            data[j].attributes[attrItem].default = $scope.chefattributes[attrItem];
+                                        }
+                                    }
+                                }
                             }
+                            $scope.chefattributes = data;
+                            $scope.isChefattributesLoading = false;
                         });
                     });
                 }
@@ -69,10 +73,8 @@
         var taskData={};
         var cookbookAttributes = [];
         var scriptParams = [];
-        var choiceParam = {}, key;
-        var tagServer = "";
+        var choiceParam = {};
         $scope.jenparams = {};
-        $scope.tagSerSelected;
         $scope.add = function() {
             $scope.parameters.push('');
         };
@@ -84,7 +86,7 @@
             }else{
                 toastr.error('Cannot delete the row');
             }
-        }
+        };
 
         $scope.executeBot=function(){
             if (items.taskConfig.taskType === 'script') {
@@ -111,10 +113,10 @@
             if (items.taskConfig.taskType === 'jenkins') {
                 choiceParam = $scope.jenparams;
             }
-            $scope.executeTask(taskData);
+            $scope.executeTask();
         };
 
-        $scope.executeTask = function(taskData){
+        $scope.executeTask = function(){
             var reqBody = {};
             if (items.taskConfig.taskType === 'jenkins') {
                 reqBody.choiceParam = choiceParam;

@@ -15,9 +15,14 @@
 			<tbody>
 				<tr>
 					<td class="td-padding">Template Type:</td>
-					<td>
-						<input disabled="disabled" class="form-control" ng-model="blueprintInfo.templateType">
-					</td>
+					<td ng-switch on="blueprintInfo.templateType">
+						<input disabled="disabled" class="form-control" value="SoftwareStack" ng-switch-when="chef">
+                        <input disabled="disabled" class="form-control" value="OSImage" ng-switch-when="ami">
+                        <input disabled="disabled" class="form-control" value="CloudFormation" ng-switch-when="cft">
+                        <input disabled="disabled" class="form-control" value="Docker" ng-switch-when="docker">
+                        <input disabled="disabled" class="form-control" value="ArmTemplate"ng-switch-when="arm">
+                        <input disabled="disabled" class="form-control" value="NA" ng-switch-default>
+            		</td>
 				</tr>
 				<tr>
 					<td class="td-padding">Organisation Name:</td>

@@ -129,8 +129,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 							return;
 						}
 						if (orgs.length > 0) {
-							if (keyPair) {
-								var dommyProvider = {
+							if (keyPair.length > 0) {
+								var results = [];
+								var dummyProvider = {
 									_id: aProvider._id,
 									id: 9,
 									providerName: aProvider.providerName,
@@ -143,7 +144,32 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 									keyPairs: keyPair,
 									isDefault: aProvider.isDefault
 								};
-								res.send(dommyProvider);
+								for(var i = 0; i < keyPair.length; i++){
+									var regionList = appConfig.aws.regions;
+									results.push(keyPair[i]);
+									for(var j = 0;j < regionList.length; j++){
+										if(regionList[j].region === keyPair[i].region){
+											dummyProvider.providerRegion = regionList[j];
+										}
+									}
+								}
+								if(keyPair.length === results.length){
+									res.send(dummyProvider);
+								}
+							}else{
+								var dummyProvider = {
+									_id: aProvider._id,
+									id: 9,
+									providerName: aProvider.providerName,
+									providerType: aProvider.providerType,
+									s3BucketName: aProvider.s3BucketName,
+									orgId: aProvider.orgId,
+									plannedCost:aProvider.plannedCost,
+									orgName: orgs[0].orgname,
+									__v: aProvider.__v,
+									isDefault: aProvider.isDefault
+								};
+								res.send(dummyProvider);
 							}
 						}
 					});

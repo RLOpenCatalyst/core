@@ -21,7 +21,7 @@
 				}else{
 					toastr.error('Cannot delete the row');
 				}
-			}
+			};
 			$scope.cancel = function() {
 				$modalInstance.dismiss('cancel');
 			};
