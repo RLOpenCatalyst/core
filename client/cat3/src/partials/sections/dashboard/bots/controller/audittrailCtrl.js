@@ -51,9 +51,7 @@
                 keyboard: false,
                 resolve: {
                     items: function() {
-                        return {
-                            hist
-                        };
+                        return hist
                     }
                 }
             });
