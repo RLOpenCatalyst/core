@@ -9,14 +9,15 @@
     "use strict";
     angular.module('library.bots',[])
     .controller('botLogsCtrl',['$scope', '$rootScope', '$http', 'genericServices', 'workzoneServices', 'toastr', '$modalInstance', 'items', '$timeout', function ($scope, $rootScope, $http, genSevs, workzoneServices, toastr, $modalInstance, items, $timeout) {
-        $scope.actionId = items.actionId;
-        $scope.botName = items.name;
-        $scope.nodeIds = items.nodeIds;
-        $scope.taskType = items.taskType;
-        $scope.nodeIdsWithActionLog = items.nodeIdsWithActionLog;
-       
-        //$scope.selectedInstance = items.nodeIds[0];
+        $scope.botName = items.auditTrailConfig.name;
+        $scope.nodeIds = items.auditTrailConfig.nodeIds;
+        $scope.taskType = items.auditTrailConfig.executionType;
+        $scope.nodeIdsWithActionLog = items.auditTrailConfig.nodeIdsWithActionLog;
         $scope.isBotLogsLoading = true;
+        if($scope.taskType === 'jenkins') {
+            $scope.jenkinsActionLogId = items.actionLogId;
+            $scope.jenkinsBuildNumber = items.auditTrailConfig.jenkinsBuildNumber;
+        }
         var helper = {
             scrollBottom : function () {
                 $timeout(function () {
@@ -26,6 +27,9 @@
             },
             stopPolling: function () {
                 $timeout.cancel();
+            },
+            formatLogs: function(str) {
+                return str.replace(/\r?\n/g, "<br />");
             }
         };
         $scope.instanceChange =function(){
@@ -37,35 +41,40 @@
             });
         };
      
-            var nodeIds = $scope.nodeIds;
-            var requestObj = {
-                "instanceIds": nodeIds
-            };
-            var bluePrintJob = false;
-            workzoneServices.postRetrieveDetailsForInstanceNames(requestObj).then(function (response) {
-                var _jobInstances = response.data;
-                //if blueprint job, use blueprintExecutionResults
-                for (var k = 0; k < $scope.nodeIdsWithActionLog.length; k++) {
-                        for (var l = 0; l < _jobInstances.length; l++) {
-                            if ($scope.nodeIdsWithActionLog[k].nodeId === _jobInstances[l]._id) {
-                                $scope.nodeIdsWithActionLog[k].uiNodeName = _jobInstances[l].name;
-                                console.log($scope.nodeIdsWithActionLog[k].uiNodeName);
-                            }
-                        }
+        var nodeIds = $scope.nodeIds;
+        var requestObj = {
+            "instanceIds": nodeIds
+        };
+        var bluePrintJob = false;
+        workzoneServices.postRetrieveDetailsForInstanceNames(requestObj).then(function (response) {
+            var _jobInstances = response.data;
+            for (var k = 0; k < $scope.nodeIdsWithActionLog.length; k++) {
+                for (var l = 0; l < _jobInstances.length; l++) {
+                    if ($scope.nodeIdsWithActionLog[k].nodeId === _jobInstances[l]._id) {
+                        $scope.nodeIdsWithActionLog[k].uiNodeName = _jobInstances[l].name;
+                        console.log($scope.nodeIdsWithActionLog[k].uiNodeName);
                     }
-                 $scope.selectedInstance = $scope.nodeIdsWithActionLog[0];
-                $scope.instanceChange();    
-               /*chefLogData.chefHistoryItem = historyItem; //saved as we need timestamps from the historyItem
-                chefLogData.nodeIdsWithActionLog = nodeIdWithActionLogs; //this can now be used to show instance dropdown
-                if (chefLogData.nodeIdsWithActionLog[0]) {
-                    $scope.isInstanceListLoading = false;
-                    selectFirstInstance(chefLogData.nodeIdsWithActionLog[0]);
-                }*/
-            },
-            function (error) {
-                $scope.isBotLogsLoading = false;
-                console.log(error);
+                }
+            }
+            $scope.selectedInstance = $scope.nodeIdsWithActionLog[0];
+            $scope.instanceChange();    
+        },
+        function (error) {
+            $scope.isBotLogsLoading = false;
+            console.log(error);
+        });
+        if($scope.taskType === 'jenkins') {
+            var url = '/jenkins/' + $scope.jenkinsActionLogId + '/jobs/testmail/builds/' + $scope.jenkinsBuildNumber + '/output';
+            $http.get(url).then(function (result) {
+                if (result.data) {
+                    $scope.jenkinsLogs = helper.formatLogs(result.data.output);
+                    $scope.isBotLogsLoading = false;
+                } else {
+                    $scope.jenkinsLogs = helper.formatLogs(result.output);
+                    $scope.isBotLogsLoading = false;
+                }
             });
+        }
 
         $scope.cancel = function() {
             $modalInstance.dismiss('cancel');

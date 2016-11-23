@@ -25,7 +25,11 @@
                     cellTemplate:'<span title="{{row.entity.endedOn  | timestampToLocaleTime}}">{{row.entity.endedOn  | timestampToLocaleTime}}</span>', cellTooltip: true},
                 { name: 'BOT Type',displayName: 'BOT Type',field:'auditTrailConfig.type'},
                 { name: 'BOT Name',displayName: 'BOT Name',field:'auditTrailConfig.name'},
-                { name: 'Status',field:'status'},
+                { name: 'Status',field:'status',
+                  cellTemplate:'<img class="bot-status-icon" src="images/instance-states/aws-started.png" ng-show="row.entity.status === \'success\'" title="{{row.entity.status}}">' +
+                  '<img class="bot-status-icon" src="images/instance-states/aws-stopped.png" ng-show="row.entity.status === \'failed\'" title="{{row.entity.status}}">' + 
+                  '<img class="bot-status-icon" src="images/instance-states/aws-inactive.png" ng-show="row.entity.status === \'running\'" title="{{row.entity.status}}">',
+                  cellTooltip: true},
                 { name: 'Org',field:'masterDetails.orgName'},
                 { name: 'BU',field:'masterDetails.bgName'},
                 { name: 'Project',field:'masterDetails.projectName'},
@@ -47,13 +51,7 @@
                 keyboard: false,
                 resolve: {
                     items: function() {
-                        return {
-                            actionId: hist.actionLogId,
-                            name: hist.auditTrailConfig.name,
-                            nodeIdsWithActionLog: hist.auditTrailConfig.nodeIdsWithActionLog,
-                            nodeIds: hist.auditTrailConfig.nodeIds,
-                            taskType: hist.auditTrailConfig.executionType
-                        };
+                        return hist
                     }
                 }
             });
