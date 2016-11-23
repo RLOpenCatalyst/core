@@ -10,16 +10,13 @@
 		<div class="logsArea">
 			<loading size="large" name="isBotLogsLoading" align="center" type="block"></loading>
 			<div ng-show="!isBotLogsLoading">
-				<div ng-show="(taskType === 'chef' || taskType === 'script')">
+				<div ng-show="(taskType !== 'jenkins')">
 					<div id="selectInstanceFromDropdown">
 	                    <label class="col-md-3 col-sm-3 col-xs-4 text-padding control-label margintop8">Select Instance<sup class="red">*</sup>
 	                    </label>
 	                    <span class="col-md-4 col-sm-4 col-xs-8 no-padding">
 		                    	<select class="form-control" ng-model="selectedInstance" ng-change="instanceChange()" ng-options="chefInstance as chefInstance.uiNodeName for chefInstance in nodeIdsWithActionLog">
 	    					</select>
-	    					<!-- <select class="form-control" ng-model="selectedInstance" ng-change="instanceChange()" ng-init="selectedInstance = nodeIds[0]">
-	    						<option selected="selected" ng-repeat="nodeId in nodeIds" value="{{nodeId}}">{{nodeId}}</option>
-	    					</select> -->
 	    				</span>
 	                </div>
 				   	<div class="rowSpacing col-lg-12 col-sm-12 {{log.err ? 'logErrorMsg':'logMsg'}}" ng-repeat="log in botLogs">
@@ -43,9 +40,3 @@
 		</button>
 	</div>
 </div>
-
-<style>
-.margintop8 {
-	margin-top: 8px;
-}
-</style>

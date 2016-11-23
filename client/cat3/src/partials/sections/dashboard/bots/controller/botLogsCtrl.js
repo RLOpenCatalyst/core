@@ -9,13 +9,11 @@
     "use strict";
     angular.module('library.bots',[])
     .controller('botLogsCtrl',['$scope', '$rootScope', '$http', 'genericServices', 'workzoneServices', 'toastr', '$modalInstance', 'items', '$timeout', function ($scope, $rootScope, $http, genSevs, workzoneServices, toastr, $modalInstance, items, $timeout) {
-        $scope.actionId = items.actionId;
-        $scope.botName = items.name;
-        $scope.nodeIds = items.nodeIds;
-        $scope.taskType = items.taskType;
-        $scope.nodeIdsWithActionLog = items.nodeIdsWithActionLog;
-       
-        //$scope.selectedInstance = items.nodeIds[0];
+        $scope.actionId = items.hist.actionLogId;
+        $scope.botName = items.hist.name;
+        $scope.nodeIds = items.hist.auditTrailConfig.nodeIds;
+        $scope.taskType = items.hist.auditTrailConfig.executionType;
+        $scope.nodeIdsWithActionLog = items.hist.auditTrailConfig.nodeIdsWithActionLog;
         $scope.isBotLogsLoading = true;
         var helper = {
             scrollBottom : function () {
