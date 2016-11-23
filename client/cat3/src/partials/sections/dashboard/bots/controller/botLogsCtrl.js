@@ -9,15 +9,14 @@
     "use strict";
     angular.module('library.bots',[])
     .controller('botLogsCtrl',['$scope', '$rootScope', '$http', 'genericServices', 'workzoneServices', 'toastr', '$modalInstance', 'items', '$timeout', function ($scope, $rootScope, $http, genSevs, workzoneServices, toastr, $modalInstance, items, $timeout) {
-        $scope.actionId = items.hist.actionLogId;
-        $scope.botName = items.hist.auditTrailConfig.name;
-        $scope.nodeIds = items.hist.auditTrailConfig.nodeIds;
-        $scope.taskType = items.hist.auditTrailConfig.executionType;
-        $scope.nodeIdsWithActionLog = items.hist.auditTrailConfig.nodeIdsWithActionLog;
+        $scope.botName = items.auditTrailConfig.name;
+        $scope.nodeIds = items.auditTrailConfig.nodeIds;
+        $scope.taskType = items.auditTrailConfig.executionType;
+        $scope.nodeIdsWithActionLog = items.auditTrailConfig.nodeIdsWithActionLog;
         $scope.isBotLogsLoading = true;
         if($scope.taskType === 'jenkins') {
-            $scope.jenkinsActionLogId = items.hist.actionLogId;
-            $scope.jenkinsBuildNumber = items.hist.auditTrailConfig.jenkinsBuildNumber;
+            $scope.jenkinsActionLogId = items.actionLogId;
+            $scope.jenkinsBuildNumber = items.auditTrailConfig.jenkinsBuildNumber;
         }
         var helper = {
             scrollBottom : function () {
