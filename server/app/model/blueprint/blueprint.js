@@ -165,8 +165,10 @@ var BlueprintSchema = new Schema({
     serviceDeliveryCheck: {
         type: Boolean,
         default:false
+    },
+    botCategory: {
+        type: String
     }
-
 });
 
 BlueprintSchema.plugin(mongoosePaginate);
@@ -343,9 +345,21 @@ BlueprintSchema.methods.launch = function(opts, callback) {
                                 sessionUser: opts.sessionUser,
                                 users: self.users,
                                 blueprintData: self,
-                                tagServer: opts.tagServer
+                                tagServer: opts.tagServer,
+                                auditTrailId:opts.auditTrailId
                             }, function(err, launchData) {
-                                callback(err, launchData);
+                                if(err){
+                                    err['errObj'] = {
+                                        endedOn:new Date().getTime(),
+                                        orgName:project[0].orgname,
+                                        bgName:project[0].productgroupname,
+                                        projectName:project[0].projectname,
+                                        envName:envName
+                                    };
+                                    callback(err,null);
+                                    return;
+                                }
+                                callback(null, launchData);
                             });
                         });
                     } else {
@@ -367,9 +381,21 @@ BlueprintSchema.methods.launch = function(opts, callback) {
                             sessionUser: opts.sessionUser,
                             users: self.users,
                             blueprintData: self,
-                            tagServer: opts.tagServer
+                            tagServer: opts.tagServer,
+                            auditTrailId:opts.auditTrailId
                         }, function(err, launchData) {
-                            callback(err, launchData);
+                            if(err){
+                                err['errObj'] = {
+                                    endedOn:new Date().getTime(),
+                                    orgName:project[0].orgname,
+                                    bgName:project[0].productgroupname,
+                                    projectName:project[0].projectname,
+                                    envName:envName
+                                };
+                                callback(err,null);
+                                return;
+                            }
+                            callback(null, launchData);
                         });
                     }
                 });
@@ -449,7 +475,8 @@ BlueprintSchema.statics.createNew = function(blueprintData, callback) {
             domainNameCheck: blueprintData.domainNameCheck,
             shortDesc:blueprintData.shortDesc,
             botType:blueprintData.botType,
-            serviceDeliveryCheck:blueprintData.serviceDeliveryCheck
+            serviceDeliveryCheck:blueprintData.serviceDeliveryCheck,
+            botCategory:blueprintData.botCategory
         };
         var blueprint = new Blueprints(blueprintObj);
         logger.debug(blueprint);
@@ -982,7 +1009,7 @@ BlueprintSchema.statics.getBlueprintsByOrgBgProject = function(jsonData, callbac
 };
 
 
-BlueprintSchema.statics.getBlueprintsServiceDeliveryCheck = function(serviceDeliveryCheck, callback) {
+BlueprintSchema.statics.getAllServiceDeliveryBlueprint = function(serviceDeliveryCheck, callback) {
     this.find({serviceDeliveryCheck:serviceDeliveryCheck}, function(err, blueprints) {
         if (err) {
             callback(err, null);

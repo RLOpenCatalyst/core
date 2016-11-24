@@ -19,6 +19,7 @@ var fs = require('fs')
 var crontab = require('node-crontab');
 var logger = require('_pr/logger')(module);
 var costAggregation = require('_pr/cronjobs/aws-cost-aggregation');
+var capacityAggregation = require('_pr/cronjobs/aws-capacity-aggregation');
 var usageAggregation = require('_pr/cronjobs/aws-usage-aggregation');
 var providerSync = require('_pr/cronjobs/provider-sync');
 var providerTagsAggregation = require('_pr/cronjobs/provider-tags-aggregation');
@@ -28,9 +29,13 @@ var chefSync = require('_pr/cronjobs/chef-sync');
 
 module.exports.start = function start() {
 
-	 logger.info('Cost aggregation started with interval ==> '+ costAggregation.getInterval());
+	logger.info('Cost aggregation started with interval ==> '+ costAggregation.getInterval());
 	var costAggregationJobId
 		= crontab.scheduleJob(costAggregation.getInterval(), costAggregation.execute);
+
+	logger.info('Capacity aggregation started with interval ==> '+ capacityAggregation.getInterval());
+	var capacityAggregationJobId
+		= crontab.scheduleJob(capacityAggregation.getInterval(), capacityAggregation.execute);
 
 	logger.info('Usage aggregation started with interval ==> '+ usageAggregation.getInterval());
 	var usageAggregationJobId

@@ -20,13 +20,15 @@ var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
 var TaskHistory = require('_pr/model/classes/tasks/taskHistory');
 var instancesDao = require('_pr/model/classes/instance/instance');
+var auditTrailService = require('_pr/services/auditTrailService');
+var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
+var async = require('async');
 
 const errorType = 'taskService';
 
 var taskService = module.exports = {};
 
 taskService.getChefTasksByOrgBgProjectAndEnvId = function getChefTasksByOrgBgProjectAndEnvId(jsonData, callback) {
-    //jsonData["taskType"] = { $in: ["chef", "composite"] };
     jsonData["taskType"] = "chef";
     taskDao.getChefTasksByOrgBgProjectAndEnvId(jsonData, function(err, chefTasks) {
         if (err) {
@@ -39,46 +41,75 @@ taskService.getChefTasksByOrgBgProjectAndEnvId = function getChefTasksByOrgBgPro
             callback(null, []);
             return;
         } else {
-            /*var chefTaskList = [];
-            var count = 0;
-            var compositeObj = {};
-            for (var i = 0; i < chefTasks.length; i++) {
-                (function(aTask) {
-                    if (aTask.taskType === 'chef') {
-                        count++;
-                        chefTaskList.push(aTask);
-                    } else {
-                        taskDao.getDistinctTaskTypeByIds(aTask.taskConfig.assignTasks,function(err,distinctTaskType){
-                            if(err){
-                               logger.debug("Failed to fetch  Distinct Tasks");
-                               callback(err,null);
-                               return;
-                            }
-                            count++;
-                            if (distinctTaskType.length === 0)
-                                logger.debug("There is no composite Tasks Configured");
-                            if (distinctTaskType.length === 1 && distinctTaskType[0] === 'chef')
-                                chefTaskList.push(aTask);
-                            else
-                                logger.debug("There is composite Tasks Configured with chef and others also");
-                            if (chefTasks.length === count) {
-                                callback(null, chefTaskList);
-                                return;
-                            }
-                        });
-                    }
-                    if (chefTasks.length === count) {
-                        callback(null, chefTaskList);
-                        return;
-                    }
-                })(chefTasks[i]);
-            }*/
             callback(null, chefTasks);
         }
     });
 };
 
-taskService.executeTask = function executeTask(taskId, user, hostProtocol, choiceParam, appData, paramOptions, callback) {
+taskService.getAllServiceDeliveryTask = function getAllServiceDeliveryTask(queryObj, callback) {
+    if(queryObj.serviceDeliveryCheck === true && queryObj.actionStatus && queryObj.actionStatus !== null) {
+        var query = {
+            auditType: 'BOTs',
+            actionStatus: queryObj.actionStatus,
+            auditCategory: 'Task'
+        };
+        var taskIds = [];
+        async.waterfall([
+            function (next) {
+                auditTrail.getAuditTrails(query, next);
+            },
+            function (auditTrailList, next) {
+                var results = [];
+                if (auditTrailList.length > 0) {
+                    for (var i = 0; i < auditTrailList.length; i++) {
+                        if (taskIds.indexOf(auditTrailList[i].auditId) > -1) {
+                            results.push(auditTrailList[i].auditId);
+                            taskIds.push(auditTrailList[i].auditId);
+                        } else {
+                            results.push(auditTrailList[i].auditId);
+                        }
+                    }
+                    if (results.length === auditTrailList.length) {
+                        next(null, taskIds);
+                    }
+                } else {
+                    next(null, auditTrailList);
+                }
+            },
+            function (taskIdList, next) {
+                if(taskIdList.length > 0) {
+                    taskDao.getTaskByIds(taskIdList, next);
+                }else{
+                    next(null, taskIdList);
+                }
+            }
+        ], function (err, results) {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            callback(null, results);
+            return;
+        })
+    }else if(queryObj.serviceDeliveryCheck === true){
+        taskDao.getAllServiceDeliveryTask(queryObj.serviceDeliveryCheck, function(err, tasks) {
+            if (err) {
+                callback({
+                    code: 500,
+                    errMessage: "Task fetch failed."
+                },null);
+                return;
+            }
+            callback(null, tasks);
+            return;
+        });
+    }else{
+        callback(null, []);
+        return;
+    }
+};
+
+taskService.executeTask = function executeTask(taskId, user, hostProtocol, choiceParam, appData, paramOptions, botTagServer, callback) {
     if (appData) {
         appData['taskId'] = taskId;
     }
@@ -89,12 +120,9 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
             return callback(error, null);
         }
         if (task) {
-
-            if(task.taskType.CHEF_TASK){
+            if (task.taskType.CHEF_TASK) {
                 paramOptions = paramOptions.attributes;
-            }else if(task.taskType.JENKINS_TASK){
-                paramOptions = paramOptions.parameterized;
-            }else if(task.taskType.SCRIPT_TASK) {
+            } else if (task.taskType.SCRIPT_TASK) {
                 paramOptions = paramOptions.scriptDetails;
             }
 
@@ -102,18 +130,88 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
             if (task.blueprintIds && task.blueprintIds.length) {
                 blueprintIds = task.blueprintIds;
             }
-            task.execute(user, hostProtocol, choiceParam, appData, blueprintIds, task.envId, paramOptions, function(err, taskRes, historyData) {
-                if (err) {
-                    var error = new Error('Failed to execute task.');
-                    error.status = 500;
-                    return callback(error, null);
-                }
-                if (historyData) {
-                    taskRes.historyId = historyData.id;
-                }
-                callback(null, taskRes);
-                return;
-            });
+            task.botParams = paramOptions;
+            task.botTagServer = botTagServer;
+            var auditTrailId = null;
+            if(task.serviceDeliveryCheck === true){
+                var actionObj={
+                    auditType:'BOTs',
+                    auditCategory:'Task',
+                    status:'running',
+                    action:'BOTs Task Execution',
+                    actionStatus:'running',
+                    catUser:user
+                };
+                var auditTrailObj = {
+                    nodeIds:task.taskConfig.nodeIds,
+                    name:task.name,
+                    type:task.botType,
+                    description:task.shortDesc,
+                    category:task.botCategory,
+                    executionType:task.taskType,
+                    nodeIdsWithActionLog:[]
+                };
+                auditTrailService.insertAuditTrail(task,auditTrailObj,actionObj,function(err,data) {
+                    if (err) {
+                        logger.error(err);
+                    }
+                    auditTrailId = data._id;
+                    task.execute(user, hostProtocol, choiceParam, appData, blueprintIds, task.envId, auditTrailId, function (err, taskRes, historyData) {
+                        if (err) {
+                            if (auditTrailId !== null) {
+                                var resultTaskExecution = {
+                                    "actionStatus": 'failed',
+                                    "status": "failed",
+                                    "endedOn": new Date().getTime(),
+                                    "actionLogId": historyData.nodeIdsWithActionLog[0].actionLogId,
+                                    "auditTrailConfig.nodeIdsWithActionLog": historyData.nodeIdsWithActionLog
+                                };
+                                auditTrailService.updateAuditTrail('BOTs', auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                    if (err) {
+                                        logger.error("Failed to create or update bot Log: ", err);
+                                    }
+                                });
+                            }
+                            var error = new Error('Failed to execute task.');
+                            error.status = 500;
+                            return callback(error, null);
+                        }
+                        if (historyData) {
+                            taskRes.historyId = historyData.id;
+                        }
+                        callback(null, taskRes);
+                        return;
+                    });
+                });
+            }else{
+                task.execute(user, hostProtocol, choiceParam, appData, blueprintIds, task.envId,auditTrailId,function(err, taskRes, historyData) {
+                    if (err) {
+                        if(auditTrailId !== null) {
+                            var resultTaskExecution = {
+                                "actionStatus": 'failed',
+                                "status": "failed",
+                                "endedOn": new Date().getTime(),
+                                "actionLogId": historyData.nodeIdsWithActionLog[0].actionLogId,
+                                "auditTrailConfig.nodeIdsWithActionLog": historyData.nodeIdsWithActionLog
+                            };
+                            auditTrailService.updateAuditTrail('BOTs', auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                if (err) {
+                                    logger.error("Failed to create or update bot Log: ", err);
+                                }
+                            });
+                        }
+                        var error = new Error('Failed to execute task.');
+                        error.status = 500;
+                        return callback(error, null);
+                    }
+                    if (historyData) {
+                        taskRes.historyId = historyData.id;
+                    }
+                    callback(null, taskRes);
+                    return;
+                });
+            }
+
         } else {
             var error1 = new Error('Task Not Found.');
             error1.status = 404;
@@ -175,7 +273,7 @@ taskService.getTaskActionList = function getTaskActionList(jsonData, callback) {
                                         "status": histories.docs[i].status,
                                         "instanceId": histories.docs[i].nodeIdsWithActionLog[p1].nodeId
                                     };
-                                    var instanceName ="";
+                                    var instanceName = "";
                                     if (instance && instance.length) {
                                         obj['instanceName'] = instance[0].name;
                                     }

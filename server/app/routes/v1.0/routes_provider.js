@@ -13,11 +13,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-
-
 // This file act as a Controller which contains provider related all end points.
 /* TODO AWS EC2 client creation code replication to be reduced */
-
 var logger = require('_pr/logger')(module);
 var EC2 = require('_pr/lib/ec2.js');
 var cost = require('_pr/lib/dashboard.js');
@@ -76,6 +73,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                     keyPairs: keyPair,
                                     isDefault: providers[i].isDefault
                                 };
+
                                 var cryptoConfig = appConfig.cryptoSettings;
                                 var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
 
@@ -91,7 +89,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                 }
                                 getMonitorDetail(providers[i], function (data) {
                                     dommyProvider.monitor = data.monitor;
-                                     providerList.push(dommyProvider);
+                                    providerList.push(dommyProvider);
                                     logger.debug("count: ", count);
                                     if (providers.length === providers.length) {
                                         res.send(providerList);
@@ -132,10 +130,11 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                             return;
                         }
                         if (orgs.length > 0) {
-                            if (keyPair) {
-                                getMonitorDetail(aProvider, function (data) {
-                                    aProvider = data;
-                                    var dommyProvider = {
+                            getMonitorDetail(aProvider, function (data) {
+                                aProvider = data;
+                                if (keyPair.length > 0) {
+                                    var results = [];
+                                    var dummyProvider = {
                                         _id: aProvider._id,
                                         id: 9,
                                         providerName: aProvider.providerName,
@@ -149,9 +148,36 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                         monitor: aProvider.monitor,
                                         isDefault: aProvider.isDefault
                                     };
-                                    res.send(dommyProvider);
-                                });
-                            }
+                                    for (var i = 0; i < keyPair.length; i++) {
+                                        var regionList = appConfig.aws.regions;
+                                        results.push(keyPair[i]);
+                                        for (var j = 0; j < regionList.length; j++) {
+                                            if (regionList[j].region === keyPair[i].region) {
+                                                dummyProvider.providerRegion = regionList[j];
+                                            }
+                                        }
+                                    }
+                                    if (keyPair.length === results.length) {
+                                        res.send(dummyProvider);
+                                    }
+                                } else {
+                                    var dummyProvider = {
+                                        _id: aProvider._id,
+                                        id: 9,
+                                        providerName: aProvider.providerName,
+                                        providerType: aProvider.providerType,
+                                        s3BucketName: aProvider.s3BucketName,
+                                        orgId: aProvider.orgId,
+                                        plannedCost: aProvider.plannedCost,
+                                        orgName: orgs[0].orgname,
+                                        __v: aProvider.__v,
+                                        monitor: aProvider.monitor,
+                                        isDefault: aProvider.isDefault
+                                    };
+                                    res.send(dummyProvider);
+                                }
+                            });
+
                         }
                     });
                 });
@@ -2902,7 +2928,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                     keys.push(aProvider.accessKey);
                     keys.push(aProvider.secretKey);
                     cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding,
-                        cryptoConfig.encryptionEncoding, function (err, decryptedKeys) {
+                        cryptoConfig.encryptionEncoding,
+                        function (err, decryptedKeys) {
                             if (err) {
                                 logger.error("Failed to decrypt accessKey or secretKey: ", err);
                                 res.status(500).send("Failed to decrypt accessKey or secretKey");
@@ -2971,7 +2998,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                     keys.push(aProvider.accessKey);
                     keys.push(aProvider.secretKey);
                     cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding,
-                        cryptoConfig.encryptionEncoding, function (err, decryptedKeys) {
+                        cryptoConfig.encryptionEncoding,
+                        function (err, decryptedKeys) {
                             if (err) {
                                 logger.error("Failed to decrypt accessKey or secretKey: ", err);
                                 res.status(500).send("Failed to decrypt accessKey or secretKey");
@@ -3033,7 +3061,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                     keys.push(aProvider.accessKey);
                     keys.push(aProvider.secretKey);
                     cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding,
-                        cryptoConfig.encryptionEncoding, function (err, decryptedKeys) {
+                        cryptoConfig.encryptionEncoding,
+                        function (err, decryptedKeys) {
                             if (err) {
                                 logger.error("Failed to decrypt accessKey or secretKey: ", err);
                                 res.status(500).send("Failed to decrypt accessKey or secretKey");
@@ -3097,7 +3126,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                     keys.push(aProvider.accessKey);
                     keys.push(aProvider.secretKey);
                     cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding,
-                        cryptoConfig.encryptionEncoding, function (err, decryptedKeys) {
+                        cryptoConfig.encryptionEncoding,
+                        function (err, decryptedKeys) {
                             if (err) {
                                 logger.error("Failed to decrypt accessKey or secretKey: ", err);
                                 res.status(500).send("Failed to decrypt accessKey or secretKey");
@@ -3160,7 +3190,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                     keys.push(aProvider.accessKey);
                     keys.push(aProvider.secretKey);
                     cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding,
-                        cryptoConfig.encryptionEncoding, function (err, decryptedKeys) {
+                        cryptoConfig.encryptionEncoding,
+                        function (err, decryptedKeys) {
                             if (err) {
                                 logger.error("Failed to decrypt accessKey or secretKey: ", err);
                                 res.status(500).send("Failed to decrypt accessKey or secretKey");
@@ -3524,7 +3555,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                     keys.push(aProvider.accessKey);
                     keys.push(aProvider.secretKey);
                     cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding,
-                        cryptoConfig.encryptionEncoding, function (err, decryptedKeys) {
+                        cryptoConfig.encryptionEncoding,
+                        function (err, decryptedKeys) {
                             if (err) {
                                 logger.error("Failed to decrypt accessKey or secretKey: ", err);
                                 res.status(500).send("Failed to decrypt accessKey or secretKey");
@@ -3594,7 +3626,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                     keys.push(aProvider.accessKey);
                     keys.push(aProvider.secretKey);
                     cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding,
-                        cryptoConfig.encryptionEncoding, function (err, decryptedKeys) {
+                        cryptoConfig.encryptionEncoding,
+                        function (err, decryptedKeys) {
                             if (err) {
                                 logger.error("Failed to decrypt accessKey or secretKey: ", err);
                                 res.status(500).send("Failed to decrypt accessKey or secretKey");
@@ -3682,6 +3715,7 @@ function trackSettingWizard(orgId, callback) {
         return;
     }
 }
+
 function getMonitorDetail(data, callback) {
     data = data.toObject();
     if (data.monitorId) {

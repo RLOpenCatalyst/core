@@ -18,11 +18,16 @@ var logger = require('_pr/logger')(module);
 var resourceMetricsModel = require('_pr/model/resource-metrics');
 var resourceCostsModel =  require('_pr/model/resource-costs')
 var entityCostsModel =  require('_pr/model/entity-costs')
+var entityCapacityModel = require('_pr/model/entity-capacity')
 const dateUtil = require('_pr/lib/utils/dateUtil')
 var appConfig = require('_pr/config');
 var async = require('async')
 var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js')
 var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js')
+var instancesModel = require('_pr/model/classes/instance/instance')
+var assignedInstancesModel = require('_pr/model/unmanaged-instance')
+var unassignedInstancesModel = require('_pr/model/unassigned-instances')
+var resourcesModel = require('_pr/model/resources/resources')
 
 var analyticsService = module.exports = {}
 
@@ -492,13 +497,17 @@ analyticsService.getEntityDetails = function getEntityDetails(entityType, entity
 			break
 		// NOTE: Works only for AWS regions as of now
 		case 'region':
-			callback(null, {'name': appConfig.aws.regionMappings[entityId].name})
+			if(entityId in appConfig.aws.regionMappings) {
+				callback(null, {'name': appConfig.aws.regionMappings[entityId].name})
+			} else {
+				callback(null, {'name': 'Global'})
+			}
 			break
 	}
 }
 
 /*analyticsService.getTrendUsage = function getTrendUsage(resourceId, interval, startTime, endTime, callback) {*/
-function getTrendUsage(resourceId, interval, startTime, endTime, callback) {
+analyticsService.getTrendUsage = function getTrendUsage(resourceId, interval, startTime, endTime, callback) {
 	resourceMetricsModel.getByParams(resourceId, interval, startTime, endTime, function(err, datapoints){
 		if(err) {
 			callback(err, null);
@@ -546,4 +555,343 @@ function formatData(datapoints){
 	return metric;
 }
 
-analyticsService.getTrendUsage = getTrendUsage;
+// Only current capacity is aggregated
+// @TODO Remove hard coding
+// @TODO Refactor and reduce function size by redefining resource abstraction
+analyticsService.aggregateEntityCapacity
+	= function aggregateEntityCapacity(parentEntity, parentEntityId, endTime, callback) {
+
+	var catalystEntityHierarchy = appConfig.catalystEntityHierarchy
+	var platformServices = Object.keys(appConfig.aws.services).map(function (key) {
+		return appConfig.aws.services[key]
+	})
+
+	var offset = (new Date()).getTimezoneOffset() * 60000
+	// All start dates defaulted to beginning of month
+	startTime = dateUtil.getStartOfAMonthInUTC(endTime)
+	interval = 2592000
+
+	var instanceParamsMapping = {
+		'organizationId': 'orgId',
+		'businessGroupId': 'bgId',
+		'projectId': 'projectId',
+		'environmentId': 'envId',
+		'providerId': 'providerId'
+	}
+
+	var query, resourceQuery
+	if (parentEntity == 'organization') {
+		var query = {'orgId': parentEntityId}
+		var resourceQuery = {'masterDetails.orgId': parentEntityId}
+	}
+
+	async.forEach(catalystEntityHierarchy[parentEntity].children, function (childEntity, next1) {
+			var countParams = {
+				$group: {
+					_id: "$" + instanceParamsMapping[catalystEntityHierarchy[childEntity].key],
+					count: {$sum: 1}
+				}
+			}
+
+			var resourceCountParams
+			if (childEntity == 'provider') {
+				resourceCountParams = {
+					$group: {
+						_id: "$providerDetails."
+						+ instanceParamsMapping[catalystEntityHierarchy[childEntity].key],
+						count: {$sum: 1}
+					}
+				}
+			} else {
+				resourceCountParams = {
+					$group: {
+						_id: "$masterDetails."
+						+ instanceParamsMapping[catalystEntityHierarchy[childEntity].key],
+						count: {$sum: 1}
+					}
+				}
+			}
+
+			async.parallel({
+				'managed': function (next0) {
+					instancesModel.aggregate([
+						{$match: query},
+						countParams], next0)
+				},
+				'assigned': function (next0) {
+					if (childEntity == 'environment') {
+						assignedInstancesModel.aggregate([
+							{$match: query},
+							{
+								$group: {
+									_id: "$" + catalystEntityHierarchy[childEntity].key,
+									count: {$sum: 1}
+								}
+							}], next0)
+					} else {
+						assignedInstancesModel.aggregate([
+							{$match: query},
+							countParams], next0)
+					}
+				},
+				'unassigned': function (next0) {
+					unassignedInstancesModel.aggregate([
+						{$match: query},
+						countParams], next0)
+				},
+				'S3': function (next0) {
+					var s3Query = resourceQuery
+					s3Query.resourceType = 's3'
+
+					resourcesModel.aggregate([
+						{$match: s3Query},
+						resourceCountParams], next0)
+				},
+				'RDS': function (next0) {
+					var rdsQuery = resourceQuery
+					rdsQuery.resourceType = 'rds'
+
+					resourcesModel.aggregate([
+						{$match: rdsQuery},
+						resourceCountParams], next0)
+				}
+			}, function (err, instanceCounts) {
+				if (err) {
+					next1(err)
+				} else {
+					var entityCapacities = {}
+
+					for (var key in instanceCounts) {
+						for (var i = 0; i < instanceCounts[key].length; i++) {
+							var entityId = (instanceCounts[key][i]._id == null)
+								? 'Unassigned' : instanceCounts[key][i]._id
+							var count = (instanceCounts[key][i].count == null) ? 0 : instanceCounts[key][i].count
+
+							if (!(entityId in entityCapacities)) {
+								entityCapacities[entityId] = {
+									entity: {
+										id: entityId,
+										type: childEntity
+									},
+									parentEntity: {
+										id: parentEntityId,
+										type: parentEntity
+									},
+									capacity: {
+										'totalCapacity': 0,
+										'AWS': {
+											'totalCapacity': 0,
+											'services': {
+												'EC2': 0,
+												'RDS': 0,
+												'S3': 0
+											}
+										}
+									},
+									startTime: Date.parse(startTime),
+									endTime: Date.parse(endTime),
+									period: 'month',
+									interval: interval
+								}
+							}
+
+							entityCapacities[entityId].capacity.totalCapacity += count
+							entityCapacities[entityId].capacity.AWS.totalCapacity += count
+							if(['managed', 'unassigned', 'assigned'].indexOf(key) > -1) {
+								entityCapacities[entityId].capacity.AWS.services['EC2'] += count
+							} else {
+								entityCapacities[entityId].capacity.AWS.services[key] += count
+							}
+						}
+					}
+
+					if(Object.keys(entityCapacities).length > 0)
+						analyticsService.updateEntityCapacity(entityCapacities, next1)
+					else
+						next1()
+
+				}
+			})
+		},
+		function (err) {
+			if (err) {
+				callback(err)
+			} else {
+				callback()
+			}
+		});
+}
+
+analyticsService.updateEntityCapacity = function updateEntityCapacity(entityCapacities, callback) {
+	async.forEach(entityCapacities,
+		function(entityCapacity, next) {
+			entityCapacityModel.upsertEntityCapacity(entityCapacity, next)
+		},
+		function(err) {
+			if(err)
+				return callback(err)
+
+			return callback()
+		}
+	)
+}
+
+// @TODO To be reviewed and improved
+analyticsService.validateAndParseCapacityQuery
+	= function validateAndParseCapacityQuery(requestQuery, callback) {
+
+	if ((!('parentEntityId' in requestQuery)) || (!('entityId' in requestQuery))
+		|| (!('toTimeStamp' in requestQuery)) || (!('period' in requestQuery))) {
+		var err = new Error('Invalid request')
+		err.errors = [{messages: 'Mandatory fields missing'}]
+		err.status = 400
+		callback(err)
+	}
+
+	var startTime
+	switch (requestQuery.period) {
+		case 'month':
+			// startTime = dateUtil.getStartOfADayInUTC(requestQuery.toTimeStamp)
+			// All start dates defaulted to beginning of month
+			startTime = dateUtil.getStartOfAMonthInUTC(requestQuery.toTimeStamp)
+			break
+		default:
+			var err = new Error('Invalid request')
+			err.errors = [{messages: 'Period is invalid'}]
+			err.status = 400
+			return callback(err)
+			break
+	}
+
+	//@TODO Query object format to be changed
+	var capacityQuery = {
+		totalCapacityQuery: [
+			{'parentEntity.id': requestQuery.parentEntityId},
+			{'entity.id': requestQuery.entityId},
+			{'startTime': Date.parse(startTime)},
+			{'period': requestQuery.period}
+		],
+		splitUpCapacityQuery: [
+			{'parentEntity.id': requestQuery.entityId},
+			{'startTime': Date.parse(startTime)},
+			{'period': requestQuery.period}
+		]
+	}
+
+	return callback(null, capacityQuery)
+}
+
+analyticsService.getEntityCapacity = function getEntityCapacity(capacityQuery, callback) {
+	async.parallel({
+		totalCapacity: function(next) {
+			entityCapacityModel.getEntityCapacity(capacityQuery.totalCapacityQuery, next)
+		},
+		splitUpCapacities: function(next) {
+			entityCapacityModel.getEntityCapacity(capacityQuery.splitUpCapacityQuery, next)
+		}
+	}, function(err, entityCapacity) {
+		if(err) {
+			logger.error(err)
+			var err = new Error('Internal Server Error')
+			err.status = 500
+			return callback(err)
+		} else if(entityCapacity.totalCapacity == null) {
+			var err = new Error('Data not available')
+			err.status = 400
+			return callback(err)
+		} else {
+			return callback(null, entityCapacity)
+		}
+	})
+}
+
+// @TODO Try to opitmize
+analyticsService.formatEntityCapacity = function formatEntityCapacity(entityCapacities, callback) {
+	async.waterfall([
+		function(next) {
+			var formattedCapacity = {
+				period: entityCapacities.totalCapacity[0].period,
+				fromTime: entityCapacities.totalCapacity[0].startTime,
+				toTime: entityCapacities.totalCapacity[0].endTime,
+				entity: {
+					type: entityCapacities.totalCapacity[0].entity.type,
+					id: entityCapacities.totalCapacity[0].entity.id
+				},
+				capacity: entityCapacities.totalCapacity[0].capacity,
+				splitUpCapacities: {}
+			}
+
+			if (formattedCapacity.entity.id != 'Unassigned') {
+				analyticsService.getEntityDetails(formattedCapacity.entity.type,
+					formattedCapacity.entity.id,
+					function (err, entityDetails) {
+						if (err) {
+							next(err)
+						} else {
+							formattedCapacity.entity.name = entityDetails.name
+							next(null, formattedCapacity)
+						}
+					}
+				)
+			} else {
+				formattedCapacity.entity.name = formattedCapacity.entity.id
+				next(null, formattedCapacity)
+			}
+		},
+		function(formattedCapacity, next) {
+			async.forEach(entityCapacities.splitUpCapacities,
+				function(capacityEntry, next0) {
+					if (capacityEntry.entity.type == entityCapacities.totalCapacity[0].entity.type) {
+						return next0()
+					}
+
+					if (!(capacityEntry.entity.type in formattedCapacity.splitUpCapacities)) {
+						formattedCapacity.splitUpCapacities[capacityEntry.entity.type] = []
+					}
+
+					var splitUpCapacity = {
+						id: capacityEntry.entity.id,
+						// name: costEntry.entity.name,
+						capacity: capacityEntry.capacity
+					}
+
+					if (capacityEntry.entity.id != 'Unassigned') {
+						analyticsService.getEntityDetails(capacityEntry.entity.type, capacityEntry.entity.id,
+							function (err, entityDetails) {
+								if (err) {
+									next0(err)
+								} else {
+									splitUpCapacity.name = entityDetails.name
+									formattedCapacity.splitUpCapacities[capacityEntry
+										.entity.type].push(splitUpCapacity)
+									next0()
+								}
+							}
+						)
+					} else {
+						splitUpCapacity.name = capacityEntry.entity.id
+						formattedCapacity.splitUpCapacities[capacityEntry
+							.entity.type].push(splitUpCapacity)
+						next0()
+					}
+				},
+				function(err) {
+					if(err) {
+						return next(err)
+					} else {
+						return next(null, formattedCapacity)
+					}
+				}
+			)
+		}
+	], function(err, formattedCapacity) {
+		if(err) {
+			logger.error(err)
+			var err = new Error('Internal Server Error')
+			err.status = 500
+			callback(err)
+		} else {
+			return callback(null, formattedCapacity)
+		}
+	})
+}

@@ -234,7 +234,7 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                 return;
                             }
                             callback(null, {
-                                stackId: cloudFormation._id
+                                stackId: cloudFormation._id,
                             });
 
                             awsCF.waitForStackCompleteStatus(stackData.StackId, function(err, completeStack) {

@@ -698,7 +698,8 @@ var d4dMastersDesignTemplateTypes = new mongoose.Schema({
         type: String,
         required: true,
         trim: true
-    }
+    },
+    providerType:[String]
 }, {
     collection: 'd4dmastersnew'
 });
@@ -719,6 +720,10 @@ var d4dMastersTemplatesList = new mongoose.Schema({
         trim: true
     },
     templatesicon_filename: {
+        type: String,
+        trim: true
+    },
+    templatesicon_filePath: {
         type: String,
         trim: true
     },

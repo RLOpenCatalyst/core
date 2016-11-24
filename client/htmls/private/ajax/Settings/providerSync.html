@@ -871,7 +871,7 @@
             "destroy":true,
             "ajax": '/resources?filterBy=providerId:'+ urlproviderId +'+resourceType:RDS+category:assigned',
             "columns": [
-                {"data": "resourceDetails.dbName",  "orderable" : true},
+                {"data": "resourceDetails.dbInstanceIdentifier",  "orderable" : true},
                 {"data": "resourceDetails.dbEngine","orderable" : true  },
                 {"data": "resourceDetails.dbInstanceStatus","orderable" : true  },
                 {"data": "masterDetails.orgName","orderable" : true,
@@ -1825,7 +1825,7 @@
                     $( row ).attr({"resourceId" : data._id,"resourceType":data.resourceType,"bgTagsMapName" : envProjectMappingObject.bgName, "projectTagsMapName" : envProjectMappingObject.project, "envTagsMapName" : envProjectMappingObject.environment})
                 },
                 "columns": [
-                    {"data": "resourceDetails.dbName",  "orderable" : true},
+                    {"data": "resourceDetails.dbInstanceIdentifier",  "orderable" : true},
                     {"data": "resourceDetails.dbEngine","orderable" : true  },
                     {"data": "resourceDetails.region","orderable" : false  },
                     {"data": "" ,"orderable" : false,
@@ -1860,7 +1860,7 @@
                     },
                     {"data": "","orderable" : false,
                         "render":function(data,type,full,meta){
-                            if(full.resourceDetails.dbName){
+                            if(full.resourceDetails.dbInstanceIdentifier){
                                 return '<input class="nodeCheckBox" type="checkbox" val=""/>';
                             }else{
                                 return '';
