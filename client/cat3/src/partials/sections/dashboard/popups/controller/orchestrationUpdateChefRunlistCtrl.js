@@ -49,7 +49,6 @@
                		}
 	            	genericServices.promiseGet(params).then(function (result) {
 	               		$scope.getTemplates = result;
-	               		console.log($scope.getCookBooks);
 	               		//$scope.getSoftwareTemplatesForOrg();
 	               		var c = $scope.getCookBooks;
 						//promise contains template list
@@ -57,7 +56,7 @@
 						//promise contains selected runlist for edit.
 						var s = cookbookRunlistAttr.chefrunlist;
 						//promise contains edited cookbook attributes list
-						var a = cookbookRunlistAttr.attributes;
+						var a = cookbookRunlistAttr.cookbookAttributes;
 						var e = $scope.editRunListAttributes;
 						$scope.allPromiseMethod(c,t,s,a,e);
 	                });
@@ -68,7 +67,6 @@
 			$scope.allPromiseMethod = function(c,t,s,a,e) {
 				var allPromise = $q.all([c, t, s, a, e]);
 				$q.all([c, t, s, a, e]).then(function (allPromise) {
-					console.log(allPromise);
 					$scope.chefServerID = allPromise[0].serverId;
 					var list = responseFormatter.formatDataForChefClientRun(allPromise[0]);
 					var template = responseFormatter.formatTemplateDataForChefClient(allPromise[1]);
@@ -159,15 +157,12 @@
 										//checking condition if the attribute length is > 0 and has been edited.
 										if ($scope.allCBAttributes.length > 0) {
 											$scope.allCBAttributes = angular.copy($scope.allCBAttributes, data);
-											console.log($scope.allCBAttributes);
 										} else {
 											$scope.allCBAttributes = data;
-											console.log($scope.allCBAttributes);
 										}
 										$scope.editRunListAttributes = false;
 									} else {
 										$scope.allCBAttributes = $scope.allCBAttributes.concat(data);
-										console.log($scope.allCBAttributes);
 									}
 									if (updatedList.length > 1) {
 										var tmp = [];
@@ -180,7 +175,6 @@
 											}
 										}
 										$scope.allCBAttributes = tmp;
-										console.log($scope.allCBAttributes);
 									}
 								});
 							});

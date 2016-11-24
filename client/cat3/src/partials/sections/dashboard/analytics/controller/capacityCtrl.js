@@ -89,7 +89,6 @@
                         }
                     },
                     data: []
-
                 };
 
                 capaCtr.capaGridOptions = {
@@ -102,7 +101,6 @@
                         $scope.gridApi = gridApi;
                     }
                 };
-
             };
             capaCtr.getCapacityData=function(fltObj){
                 var param = {
@@ -217,7 +215,7 @@
                             showMaxMin: false,
                             axisLabel: 'Date',
                             tickFormat: function (d) {
-                                return d3.time.format('%x')(new Date(d))
+                                return d3.time.format('%x')(new Date(d));
                             }
                         },
                         yAxis: {

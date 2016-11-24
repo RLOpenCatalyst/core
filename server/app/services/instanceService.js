@@ -20,7 +20,6 @@ var instancesModel = require('_pr/model/classes/instance/instance');
 var containerModel = require('_pr/model/container');
 var logger = require('_pr/logger')(module);
 var EC2 = require('_pr/lib/ec2.js');
-var catalystSync = null;
 var Cryptography = require('../lib/utils/cryptography');
 var tagsModel = require('_pr/model/tags/tags.js');
 var resourceCost = require('_pr/model/resource-costs-deprecated/resource-costs-deprecated.js');
@@ -46,6 +45,7 @@ var utils = require('_pr/model/classes/utils/utils.js');
 var AppData = require('_pr/model/app-deploy/app-data');
 var instancesDao = require('_pr/model/classes/instance/instance');
 var providerService = require('_pr/services/providerService.js');
+var schedulerService = require('_pr/services/schedulerService.js');
 var crontab = require('node-crontab');
 
 
@@ -1468,84 +1468,114 @@ function createOrUpdateInstanceLogs(instance, instanceState, action, user, times
 function updateScheduler(instanceScheduler, callback) {
     async.waterfall([
         function(next){
-            var scheduler= {
-                instanceStartScheduler:createCronJobPattern(instanceScheduler.instanceStartScheduler,instanceScheduler.schedulerStartOn),
-                instanceStopScheduler:createCronJobPattern(instanceScheduler.instanceStopScheduler,instanceScheduler.schedulerStartOn),
-                schedulerStartOn: Date.parse(instanceScheduler.schedulerStartOn),
-                schedulerEndOn: Date.parse(instanceScheduler.schedulerEndOn),
-                isScheduled:true
-            };
-            next(null,scheduler);
+            generateCronPattern(instanceScheduler.interval,instanceScheduler.schedulerStartOn,instanceScheduler.schedulerEndOn,next);
         },
         function(schedulerDetails,next){
+            schedulerDetails.interval = instanceScheduler.interval;
             instancesDao.updateScheduler(instanceScheduler.instanceIds, schedulerDetails,next);
+        },
+        function(updateSchedulerDetails,next){
+            instancesDao.getInstances(instanceScheduler.instanceIds,next);
         }
     ],function(err,results){
         if(err){
             return callback(err, null);
         }else{
             callback(null, {"message": "Scheduler Updated."});
-            catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
-            catalystSync.executeScheduledInstances();
+            var resultList =[];
+            for (var i = 0; i < results.length; i++) {
+                (function(instance) {
+                    if(instance.cronJobIds && instance.cronJobIds.length > 0){
+                        crontab.cancelJobIds(instance.cronJobIds);
+                    }
+                    resultList.push(function(callback){schedulerService.executeSchedulerForInstances(instance,callback);});
+                    if(resultList.length === results.length){
+                        async.parallel(resultList,function(err,results){
+                            if(err){
+                                logger.error(err);
+                                return;
+                            }
+                            logger.debug("Instance Scheduler Results>>"+results);
+                            return;
+                        })
+                    }
+                })(results[i]);
+            }
             return;
         }
     });
 }
 
-function createCronJobPattern(instanceScheduler,startOn){
-    instanceScheduler.repeatEvery = parseInt(instanceScheduler.repeatEvery);
-    if(instanceScheduler.repeats ==='Minutes'){
-        instanceScheduler.pattern = '*/'+instanceScheduler.repeatEvery+' * * * *';
-    }else if(instanceScheduler.repeats ==='Hourly'){
-        instanceScheduler.pattern = '0 */'+instanceScheduler.repeatEvery+' * * *';
-    }else if(instanceScheduler.repeats ==='Daily'){
-        var startOn = Date.parse(startOn);
-        var startHours= startOn.getHours();
-        var startMinutes= startOn.getMinutes();
-        instanceScheduler.pattern = startMinutes+' '+startHours+' */'+instanceScheduler.repeatEvery+' * *';
-    }else if(instanceScheduler.repeats ==='Weekly') {
-        var startOn = Date.parse(startOn);
-        var startDay= startOn.getDay();
-        var startHours= startOn.getHours();
-        var startMinutes= startOn.getMinutes();
-        if(instanceScheduler.repeatEvery === 2) {
-            instanceScheduler.pattern = startMinutes+' '+startHours+' 8-14 * ' + startDay;
-        }else if(instanceScheduler.repeatEvery === 3) {
-            instanceScheduler.pattern = startMinutes+' '+startHours+' 15-21 * ' + startDay;
-        }else if(instanceScheduler.repeatEvery === 4) {
-            instanceScheduler.pattern = startMinutes+' '+startHours+' 22-28 * ' + startDay;
-        }else{
-            instanceScheduler.pattern = startMinutes+' '+startHours+' * * ' + startDay;
+function generateCronPattern(cronInterval,startDate,endDate,callback){
+    var startIntervalList =[],stopIntervalList=[],count = 0;
+    if(cronInterval.length === 0){
+        return cronInterval;
+    }else{
+        for(var i = 0; i < cronInterval.length; i++){
+            (function(interval){
+                if(interval.action==='start'){
+                    count++;
+                    var timeSplit = interval.time.split(":");
+                    var hours = parseInt(timeSplit[0]);
+                    var minutes = parseInt(timeSplit[1]);
+                    var sortedDays = interval.days.sort(function(a, b){return a-b});
+                    var strDays = '';
+                    for(var j = 0; j < sortedDays.length; j++){
+                        if(strDays !== '')
+                            strDays = strDays+','+sortedDays[j];
+                        else
+                            strDays = sortedDays[j];
+                    }
+                    startIntervalList.push({
+                        cronTime:interval.time,
+                        cronDays:sortedDays,
+                        cronPattern:minutes +' '+ hours +' '+ '* * '+ strDays
+                    });
+                    if(count === cronInterval.length){
+                        var scheduler= {
+                            instanceStartScheduler: startIntervalList,
+                            instanceStopScheduler: stopIntervalList,
+                            schedulerStartOn: Date.parse(startDate),
+                            schedulerEndOn: Date.parse(endDate),
+                            isScheduled: true
+                        }
+                        callback(null,scheduler);
+                        return;
+                    }
+                }else{
+                    count++;
+                    var timeSplit = interval.time.split(":");
+                    var hours = parseInt(timeSplit[0]);
+                    var minutes = parseInt(timeSplit[1]);
+                    var sortedDays = interval.days.sort(function(a, b){return a-b});
+                    var strDays = '';
+                    for(var j = 0; j < sortedDays.length; j++){
+                        if(strDays !== '')
+                            strDays = strDays+','+sortedDays[j];
+                        else
+                            strDays = sortedDays[j];
+                    }
+                    stopIntervalList.push({
+                        cronTime:interval.time,
+                        cronDays:sortedDays,
+                        cronPattern:minutes +' '+ hours +' '+ '* * '+ strDays
+                    });
+                    if(count === cronInterval.length){
+                        var scheduler= {
+                            instanceStartScheduler: startIntervalList,
+                            instanceStopScheduler: stopIntervalList,
+                            schedulerStartOn: Date.parse(startDate),
+                            schedulerEndOn: Date.parse(endDate),
+                            isScheduled: true
+                        }
+                        callback(null,scheduler);
+                        return;
+                    }
+                }
+            })(cronInterval[i]);
         }
     }
-    if(instanceScheduler.repeats ==='Monthly') {
-        var startOn = Date.parse(startOn);
-        var startDate= startOn.getDate();
-        var startMonth= startOn.getMonth();
-        var startDay= startOn.getDay();
-        var startHours= startOn.getHours();
-        var startMinutes= startOn.getMinutes();
-        if(instanceScheduler.repeatEvery === 1) {
-            instanceScheduler.pattern = startMinutes+' '+startHours+' '+startDate+' * *';
-        }else{
-            instanceScheduler.pattern = startMinutes+' '+startHours+' '+startDate+' */'+instanceScheduler.repeatEvery+' *';
-        }
-    }
-    if(instanceScheduler.repeats ==='Yearly') {
-        var startOn = Date.parse(startOn);
-        var startDate= startOn.getDate();
-        var startYear= startOn.getFullYear();
-        var startMonth= startOn.getMonth();
-        var startHours= startOn.getHours();
-        var startMinutes= startOn.getMinutes();
-        instanceScheduler.pattern ='0 '+startMinutes+' '+startHours+' '+startDate+' '+startMonth+' ? '+startYear/instanceScheduler.repeatEvery;
-    }
-    var scheduler = {
-        "repeats": instanceScheduler.repeats,
-        "repeatEvery": instanceScheduler.repeatEvery,
-        "cronPattern":instanceScheduler.pattern
-    }
-    return scheduler;
 }
+
 
 

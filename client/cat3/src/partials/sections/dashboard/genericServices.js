@@ -91,7 +91,7 @@
         };
 
         genericServices.moreInfo= function(blueprintObj,bpType){
-            if(bpType === 'compBlueInfo'){
+            if(bpType === 'composite'){
                 $modal.open({
                     animation: true,
                     templateUrl: 'src/partials/sections/dashboard/workzone/blueprint/popups/compositeBlueprintInfo.html',
@@ -100,7 +100,7 @@
                     keyboard: false,
                     resolve: {
                         items: function() {
-                            return blueprintObj ;
+                            return blueprintObj;
                         }
                     }
                 });
@@ -163,11 +163,11 @@
                 headerText: 'Delete  Blueprint',
                 bodyText: 'Are you sure you want to delete this  blueprint?'
             };
-            if(bpType === 'compositeBlueprint'){
+            if(bpType === 'composite'){
                 confirmbox.showModal({}, modalOptions).then(function() {
-                    workSvs.deleteCompsiteBlueprint(blueprintObj).success(function() {
-                        angular.element('#'+blueprintObj).hide();
+                    workSvs.deleteCompsiteBlueprint(blueprintObj._id).success(function() {
                         toastr.success('Successfully deleted');
+                        $rootScope.$emit('BP_BLUEPRINTS_REFRESH_CURRENT');
                     }).error(function(data) {
                         toastr.error(data.message, 'Error');
                     });
@@ -177,6 +177,7 @@
                     workSvs.deleteBlueprint(blueprintObj._id).success(function() {
                         angular.element('#'+blueprintObj._id).hide();
                         toastr.success('Successfully deleted');
+                        $rootScope.$emit('BP_BLUEPRINTS_REFRESH_CURRENT');
                     }).error(function(data) {
                         toastr.error(data.message, 'Error');
                     });
@@ -228,7 +229,7 @@
                     $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
                 });
             }
-        }
+        };
 
         genericServices.lunchBlueprint=function(blueprintObj) {
             $modal.open({
@@ -275,7 +276,7 @@
                         }
                     })
                     .result.then(function(selectedItem) {
-                    $scope.selected = selectedItem;
+                    //$scope.selected = selectedItem;
                     }, function() {
 
                     });
@@ -294,7 +295,7 @@
                     cookbookRunlistAttr: function(){
                         return {
                             chefrunlist: chefRunlist,
-                            attributes: chefAttribute                            
+                            cookbookAttributes: chefAttribute                            
                         };
                     }
                 }
@@ -319,9 +320,9 @@
                         return ids;
                     }
                 }
-            })
+            });
         };
-        genericServices.instanceStart=function (ids) {
+        genericServices.instanceStart=function () {
 
         };
         genericServices.instanceStop=function () {

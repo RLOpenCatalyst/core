@@ -1,13 +1,14 @@
 (function (angular) {
     "use strict";
     angular.module('dashboard.design')
-        .controller('createCompositeCtrl',['$scope','$rootScope','$state','toastr','blueprintService','genericServices', function ($scope,$rootScope,$state,toastr,bpServ,gencSers) {
+        .controller('createCompositeCtrl',['$scope','$rootScope','$state','toastr','blueprintService','genericServices','responseFormatter', function ($scope,$rootScope,$state,toastr,bpServ,gencSers,responseFormatter) {
             var createCBP = this;
             createCBP.ExBlueprintList=[];
             createCBP.SelectedBPList=[];
             createCBP.selectBlueprintId='';
             createCBP.selectedBPDetails='';
             createCBP.compositeBPType='chef';
+            $scope.chefrunlist,$scope.cookbookAttributes = [];
             createCBP.onSubmit =false;
             createCBP.newEnt={
                 bpName:''
@@ -36,18 +37,33 @@
                 createCBP.SelectedBPList.splice(indexArr,1);
 
             };
-            createCBP.selectBpInfo  =function ($event,bpDetails){
+            createCBP.selectBpInfo  =function ($event,bpDetails,bpType){
                 $event.stopPropagation();
-                gencSers.moreInfo(bpDetails,null);
+                gencSers.moreInfo(bpDetails,bpType);
             };
             createCBP.editSelectBpInfo  =function ($event,bpDetails){
                 createCBP.selectBlueprintId=bpDetails._id;
                 createCBP.selectedBPDetails=bpDetails;
+                $scope.cookbookAttributes = [];
+                if(createCBP.selectedBPDetails.blueprintConfig.infraManagerData.versionsList[0].runlist) {
+                    $scope.chefComponentSelectorList = responseFormatter.findDataForEditValue(createCBP.selectedBPDetails.blueprintConfig.infraManagerData.versionsList[0].runlist);
+                    if(createCBP.selectedBPDetails.blueprintConfig.infraManagerData.versionsList[0].attributes){
+                        $scope.cookbookAttributes = responseFormatter.formatSavedCookbookAttributes(createCBP.selectedBPDetails.blueprintConfig.infraManagerData.versionsList[0].attributes);
+                    }
+                    $scope.chefrunlist = responseFormatter.chefRunlistFormatter($scope.chefComponentSelectorList);
+                }
             };
+            $scope.updateCookbook = function() {
+                gencSers.editRunlist($scope.chefrunlist,$scope.cookbookAttributes);
+            };
+            $rootScope.$on('WZ_ORCHESTRATION_REFRESH_CURRENT', function(event,reqParams) {
+                $scope.chefrunlist = reqParams.list;
+                $scope.cookbookAttributes = reqParams.cbAttributes;
+            });
             createCBP.ord  =function (){
                 console.log(createCBP.selectedBpOrder);
             };
-            $rootScope.compositeSave =function (vali) {
+            $scope.compositeSave =function () {
                 createCBP.onSubmit =true;
                 if(!createCBP.newEnt.bpName  || !createCBP.SelectedBPList.length > 0){
                     return true;
@@ -55,8 +71,16 @@
                 if($rootScope.organObject){
                     createCBP.newEnt.org =$rootScope.organNewEnt.org.rowid;
                     createCBP.newEnt.buss=$rootScope.organNewEnt.buss.rowid;
-                    createCBP.newEnt.proj=$rootScope.organNewEnt.proj.rowid;
-                }
+                    createCBP.newEnt.proj=$rootScope.organNewEnt.proj.rowId;
+                };
+                $scope.blueprintList = [];
+                angular.forEach(createCBP.SelectedBPList, function(val){
+                    var blueprintObj={
+                        id: val._id,
+                        attributes: val.blueprintConfig.infraManagerData.versionsList[0].attributes
+                    };
+                    $scope.blueprintList.push(blueprintObj);
+                });
                 var params = {
                     url: '/composite-blueprints/',
                     data:{
@@ -64,13 +88,12 @@
                         "organizationId":createCBP.newEnt.org,
                         "businessGroupId": createCBP.newEnt.buss,
                         "projectId":createCBP.newEnt.proj,
-                        "blueprints": createCBP.SelectedBPList,
-                        "cloudProviderType": 'aws'
+                        "blueprints": $scope.blueprintList
                     }
                 };
                 gencSers.promisePost(params).then(function () {
                     toastr.success('Successfully Created.');
-                    $state.go('dashboard.designSubView',{subItem:$state.params.subItem,view:'list'});
+                    $state.go('dashboard.design.list',{providerName:$state.params.providerName,templateObj:$state.params.templateObj});
                 });
             };
             createCBP.createList();

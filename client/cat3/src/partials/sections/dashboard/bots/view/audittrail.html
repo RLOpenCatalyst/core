@@ -1,0 +1,8 @@
+<link rel='stylesheet' href='catalyst/partials/sections/dashboard/bots/bots.css'>
+
+<div id="botAuditTrailPage">
+	<div id="grid1" ng-if="audit.gridOptions.data.length > 0" ui-grid="audit.gridOptions" ui-grid-pagination class="grid" style="height: {{gridHeight}}px"></div>
+	<div class="alert alert-info text-center" ng-if="!audit.gridOptions.data.length > 0">
+	    No data Available
+	</div>
+</div>

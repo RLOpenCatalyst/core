@@ -1,115 +1,102 @@
-
+<div id='sch'>
 <form name="scheduleForm" novalidate ng-controller="cpScheduleCtrl">
     <fieldset class="repo-job-details-wrapper">
         <legend class="repo-job-details-wrapper-inner"><i class="fa fa-calendar"></i> Manage Schedule</legend>
-        <div class="col-lg-12 col-md-12 " ng-show="schedule.isScheduled">
-            <label class="pull-right"><input type="checkbox" ng-model="editSch" ng-value="true"> Are you want to edit it again ?
-            </label>
-        </div>
 <div class="col-lg-6 col-md-6 margintop15">
     <label>Starts on: <span class="red">*</span>
     </label>
-    <input id="date-start"  ng-change="dateChange()" required  type="text"  ng-model="schedule.schedulerStartOn" class="form-control" ng-disabled="!editSch && schedule.isScheduled"  >
+    <input id="date-start"  ng-change="dateChange()" required  type="text"  ng-model="schedule.schedulerStartOn" class="form-control-date" ng-disabled="!editSch && schedule.isScheduled"  >
 </div>
 <div class="col-lg-6 col-md-6 margintop15">
     <label>Ends on: <span class="red">*</span>
     </label>
     <input type="hidden" id="schedulerEndOn" value="{{schedule.schedulerEndOn}}">
-    <input ng-change="dateChange()" type="text"  id="date-end" ng-model="schedule.schedulerEndOn" class="form-control" required ng-disabled="!editSch && schedule.isScheduled"  >
+    <input ng-change="dateChange()" type="text"  id="date-end" ng-model="schedule.schedulerEndOn" class="form-control-date" required ng-disabled="!editSch && schedule.isScheduled"  >
     <span class="error red" ng-show="validDateRange">Start Date should be less than End date !</span>
 </div>
 <div class="clearfix margintop15"></div>
 <div class="clearfix margintop15"></div>
-<fieldset class="repo-job-details-wrapper">
-    <legend class="repo-job-details-wrapper-inner"><i class="fa fa-hourglass-start" ></i> Start Interval </legend>
-    <div class="col-lg-6 col-md-6 margintop15">
-        <label>Repeats: <span class="red">*</span>
-        </label>
-        <select class="form-control" ng-model="schedule.instanceStartScheduler.repeats"  required ng-disabled="!editSch && schedule.isScheduled" >
-            <option value="Minutes" title="Minute">Minutes</option>
-            <option value="Hour" title="Hour">Hourly</option>
-            <option value="Day" title="Day">Daily</option>
-            <option value="Week" title="Week">Weekly</option>
-            <option value="Month" title="Month">Monthly</option>
-            <option value="Year" title="Year">Yearly</option>
-        </select>
-    </div>
-    <div class="col-lg-6 col-md-6 margintop15">
-        <label>Repeat every: <span class="red">*</span>
-        </label>
-        <select class="form-control" ng-model="schedule.instanceStartScheduler.repeatEvery"  required ng-disabled="!editSch && schedule.isScheduled" >
-            <option value="1">1</option>
-            <option value="2" >2</option>
-            <option value="3" >3</option>
-            <option value="4" >4</option>
-            <option value="5" >5</option>
-            <option value="6" >6</option>
-            <option value="7" >7</option>
-            <option value="8" >8</option>
-            <option value="9" >9</option>
-            <option value="10" >10</option>
-        </select>
-    </div>
+        <fieldset class="repo-job-details-wrapper">
+            <legend class="repo-job-details-wrapper-inner"><i class="fa fa-hourglass-start" ></i> Interval </legend>
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th style="width:100px;">Time</th>
+                    <th>Days</th>
+                    <th>Action</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="newTime in schedule.interval">
+                    <td><input required type="text" ng-model="newTime.time" class="form-control time"></td>
+                    <td>
+                        <input type="hidden" ng-model="newTime.daySelect" required>
+                        <button type="button" class="btn btn-info btn-xs cat-btn-update btnDay" ng-class="{'activeDay':newTime.days.indexOf(0) !== -1}" ng-click="selectDays(0,schedule.interval.indexOf(newTime))" >S</button>
+                        <button type="button" class="btn btn-info btn-xs cat-btn-update btnDay" ng-class="{'activeDay':newTime.days.indexOf(1) !== -1}" ng-click="selectDays(1,schedule.interval.indexOf(newTime))"  >M</button>
+                        <button type="button" class="btn btn-info btn-xs cat-btn-update btnDay" ng-class="{'activeDay':newTime.days.indexOf(2) !== -1}" ng-click="selectDays(2,schedule.interval.indexOf(newTime))">T</button>
+                        <button type="button" class="btn btn-info btn-xs cat-btn-update btnDay" ng-class="{'activeDay':newTime.days.indexOf(3) !== -1}" ng-click="selectDays(3,schedule.interval.indexOf(newTime))" >W</button>
+                        <button type="button" class="btn btn-info btn-xs cat-btn-update btnDay" ng-class="{'activeDay':newTime.days.indexOf(4) !== -1}" ng-click="selectDays(4,schedule.interval.indexOf(newTime))" >T</button>
+                        <button type="button" class="btn btn-info btn-xs cat-btn-update btnDay" ng-class="{'activeDay':newTime.days.indexOf(5) !== -1}" ng-click="selectDays(5,schedule.interval.indexOf(newTime))" >F</button>
+                        <button type="button" class="btn btn-info btn-xs cat-btn-update btnDay" ng-class="{'activeDay':newTime.days.indexOf(6) !== -1}" ng-click="selectDays(6,schedule.interval.indexOf(newTime))" >S</button>
+                    </td>
+                    <td>
+                        <select class="form-control stt" ng-model="newTime.action">
+                            <option value="start">Start</option>
+                            <option value="stop">Stop</option>
+                        </select>
 
-</fieldset>
-<div class="clearfix margintop15"></div>
-<div class="clearfix margintop15"></div>
-<fieldset class="repo-job-details-wrapper">
-    <legend class="repo-job-details-wrapper-inner"><i class="fa fa-hourglass-start" ></i> Stop Interval </legend>
-    <div class="col-lg-6 col-md-6 margintop15">
-        <label>Repeats: <span class="red">*</span>
-        </label>
-        <select class="form-control" ng-model="schedule.instanceStopScheduler.repeats"  required ng-disabled="!editSch && schedule.isScheduled" >
-            <option value="Minutes" title="Minute">Minutes</option>
-            <option value="Hour" title="Hour">Hourly</option>
-            <option value="Day" title="Day">Daily</option>
-            <option value="Week" title="Week">Weekly</option>
-            <option value="Month" title="Month">Monthly</option>
-            <option value="Year" title="Year">Yearly</option>
-        </select>
-    </div>
-    <div class="col-lg-6 col-md-6 margintop15">
-        <label>Repeat every: <span class="red">*</span>
-        </label>
-        <select class="form-control" ng-model="schedule.instanceStopScheduler.repeatEvery" required ng-disabled="!editSch && schedule.isScheduled" >
-            <option value="1">1</option>
-            <option value="2" >2</option>
-            <option value="3" >3</option>
-            <option value="4" >4</option>
-            <option value="5" >5</option>
-            <option value="6" >6</option>
-            <option value="7" >7</option>
-            <option value="8" >8</option>
-            <option value="9" >9</option>
-            <option value="10" >10</option>
-        </select>
-    </div>
+                    </td>
+                    <td><i class="fa fa-times" aria-hidden="true"  ng-click="removeTime(schedule.interval.indexOf(newTime))"></i></td>
+                </tr>
+                </tbody>
+            </table>
+            <div class="pull-right">
+                <button type="button" ng-click="addNewTime()" title="Import By Ip" class="btn btn-xs cat-btn-update" >
+                    <i class="fa fa-plus white"></i>
+                    Add
+                </button>
+            </div>
+        </fieldset>
 
-</fieldset>
 <div class="clearfix margintop15"></div>
-    <button type="button" class="btn cat-btn-update pull-right" ng-disabled="scheduleForm.$invalid || !editSch && schedule.isScheduled" ng-click="saveOk()">
+    <button type="button" class="btn cat-btn-update pull-right" ng-disabled="scheduleForm.$invalid" ng-click="saveOk()">
         <i class="fa fa-check white"></i> Save
     </button>
         </fieldset>
 </form>
-
+</div>
 <script>
-    $(document).ready(function()
-    {
+    $(document).ready(function () {
         $('#date-end').bootstrapMaterialDatePicker({
-            format: 'DD/MM/YYYY HH:mm',
+            format: 'MM/DD/YYYY',
+            weekStart: 1,
+            time: false,
+            switchOnClick : true,
             nowButton : true,
-            switchOnClick : true
         });
         $('#date-start').bootstrapMaterialDatePicker({
-            format: 'DD/MM/YYYY HH:mm',
-            nowButton : true,
+            format: 'MM/DD/YYYY',
+            weekStart: 1,
+            time: false,
             switchOnClick : true,
+            nowButton : true,
         }).on('change', function(e, date)
         {
             $('#date-end').bootstrapMaterialDatePicker('setMinDate', date);
         });
         $.material.init();
+        $(document).on('click', 'input.time', function(){
+            var $this = $(this);
+            setTimeout(function () {
+                $this.bootstrapMaterialDatePicker({
+                    format: 'HH:mm',
+                    date: false,
+                    switchOnClick : true,
+                });
+            },100);
+
+        });
     });
 
 </script>

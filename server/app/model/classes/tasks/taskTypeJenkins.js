@@ -315,10 +315,6 @@ jenkinsTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nex
                                     });
                                 }
                                 pollBuildStarted();
-
-
-
-
                             });
                         }
                     } else {
