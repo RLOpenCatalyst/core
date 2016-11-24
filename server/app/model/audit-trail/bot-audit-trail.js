@@ -47,6 +47,13 @@ var BotAuditTrailSchema = new BaseAuditTrail({
             type: String,
             trim:true
         },
+        jenkinsBuildNumber:{
+            type: Number
+        },
+        jenkinsJobName:{
+            type: String,
+            trim:true
+        },
         nodeIdsWithActionLog:[Schema.Types.Mixed]
     }
 });

@@ -298,13 +298,25 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
         if (taskHistory) {
             taskHistory.timestampEnded = self.timestampEnded;
             taskHistory.status = self.lastTaskStatus;
-            var resultTaskExecution = {
-                "actionStatus":self.lastTaskStatus,
-                "status":self.lastTaskStatus,
-                "endedOn":self.timestampEnded,
-                "actionLogId":taskHistory.nodeIdsWithActionLog[0].actionLogId,
-                "auditTrailConfig.nodeIdsWithActionLog":taskHistory.nodeIdsWithActionLog
-            };
+            var resultTaskExecution = null;
+            if(taskHistoryData.taskType === TASK_TYPE.JENKINS_TASK){
+                 resultTaskExecution = {
+                     "actionStatus":self.lastTaskStatus,
+                     "status":self.lastTaskStatus,
+                     "endedOn":self.timestampEnded,
+                     "actionLogId":taskHistory.jenkinsServerId,
+                     "auditTrailConfig.jenkinsBuildNumber":taskHistory.buildNumber,
+                     "auditTrailConfig.jenkinsJobName":taskHistory.jobName
+                };
+            }else{
+                 resultTaskExecution = {
+                     "actionStatus":self.lastTaskStatus,
+                     "status":self.lastTaskStatus,
+                     "endedOn":self.timestampEnded,
+                     "actionLogId":taskHistory.nodeIdsWithActionLog[0].actionLogId,
+                     "auditTrailConfig.nodeIdsWithActionLog":taskHistory.nodeIdsWithActionLog
+                };
+            }
             if (resultData) {
                 if (resultData.instancesResults && resultData.instancesResults.length) {
                     taskHistory.executionResults = resultData.instancesResults;
@@ -314,7 +326,7 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                 }
 
             }
-            if(auditTrailId !== null){
+            if(auditTrailId !== null && resultTaskExecution !== null){
                 auditTrailService.updateAuditTrail('BOTs',auditTrailId,resultTaskExecution,function(err,auditTrail){
                     if (err) {
                         logger.error("Failed to create or update bot Log: ", err);
@@ -348,63 +360,6 @@ taskSchema.methods.getPuppetTaskNodes = function() {
         return [];
     }
 };
-
-/*taskSchema.methods.getHistory = function(callback) {
-    TaskHistory.getHistoryByTaskId(this.id, function(err, tHistories) {
-        if (err) {
-            callback(err, null);
-            return;
-        }
-        var checker;
-        var uniqueResults = [];
-        if (tHistories && tHistories.length) {
-            for (var i = 0; i < tHistories.length; ++i) {
-                if (!checker || comparer(checker, tHistories[i]) != 0) {
-                    checker = tHistories[i];
-                    uniqueResults.push(checker);
-                }
-            }
-
-            if (uniqueResults.length) {
-                var hCount = 0;
-                for (var i = 0; i < uniqueResults.length; i++) {
-                    (function(i) {
-                        if (uniqueResults[i].nodeIds && uniqueResults[i].nodeIds.length) {
-                            instancesDao.getInstancesByIDs(uniqueResults[i].nodeIds, function(err, data) {
-                                hCount++;
-                                if (err) {
-                                    return;
-                                }
-
-                                if (data && data.length) {
-                                    var pId = [];
-                                    for (var j = 0; j < data.length; j++) {
-                                        pId.push(data[j].platformId);
-                                    }
-                                    uniqueResults[i] = JSON.parse(JSON.stringify(uniqueResults[i]));
-                                    uniqueResults[i]['platformId'] = pId;
-                                }
-
-                                if (uniqueResults.length == hCount) {
-                                    return callback(null, uniqueResults);
-                                }
-                            });
-                        } else {
-                            hCount++;
-                            if (uniqueResults.length == hCount) {
-                                return callback(null, uniqueResults);
-                            }
-                        }
-                    })(i);
-                }
-            }
-
-        } else {
-            return callback(null, tHistories);
-        }
-    });
-};*/
-
 taskSchema.methods.getHistory = function(callback) {
     TaskHistory.getHistoryByTaskId(this.id, function(err, tHistories) {
         if (err) {
@@ -586,7 +541,7 @@ taskSchema.statics.getScriptTypeTask = function(callback){
     });
 };
 
-taskSchema.statics.getTasksServiceDeliveryCheck = function(serviceDeliveryCheck, callback) {
+taskSchema.statics.getAllServiceDeliveryTask = function(serviceDeliveryCheck, callback) {
     this.find({serviceDeliveryCheck:serviceDeliveryCheck}, function(err, tasks) {
         if (err) {
             callback(err, null);

@@ -294,35 +294,6 @@
 					}
 					return temp;
 				},
-				//method to get the runlist array and then assign the className to each value.
-				findDataForEditValueString: function (list) {
-					var runlist = list;
-					
-					runlist = runlist.split(',');
-					var temp = [];
-					if (runlist) {
-						/*jslint forin: true */
-						for (var i = 0; i < runlist.length; i++) {
-							var className;
-							if (runlist[i].indexOf('recipe') === 0) {
-								className = "cookbook";
-							} else if (runlist[i].indexOf('role') === 0) {
-								className = "role";
-							} else {
-								className = "template";
-							}
-							var item = runlist[i];
-							temp.push({
-								value: item,
-								className: className,
-								data: {}
-							});
-						}
-					}else {
-						
-					}
-					return temp;
-				},
 				//formatting the name and removing the default name style coming from server.
 				chefRunlistFormatter: function (list) {
 					var runlist = list;
