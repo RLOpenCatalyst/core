@@ -45,6 +45,7 @@ auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,audi
             envName: auditDetails.envName?auditDetails.envName:auditDetails.environmentName
         },
         status: actionObj.status,
+        auditCategory:actionObj.auditCategory,
         actionStatus: actionObj.actionStatus,
         user: actionObj.catUser,
         startedOn: new Date().getTime(),
@@ -197,7 +198,11 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
 
         },
         totalNoOfSuccessBots: function(callback){
-            auditTrail.getAuditTrailByStatus('BOTs','success',function(err,data){
+            var query={
+                auditType:'BOTs',
+                actionStatus:'success'
+            };
+            auditTrail.getAuditTrails(query,function(err,data){
                 if(err){
                     callback(err,null);
                 }
@@ -206,7 +211,11 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
 
         },
         totalNoOfRunningBots: function(callback){
-            auditTrail.getAuditTrailByStatus('BOTs','running',function(err,data){
+            var query={
+                auditType:'BOTs',
+                actionStatus:'running'
+            };
+            auditTrail.getAuditTrails(query,function(err,data){
                 if(err){
                     callback(err,null);
                 }
@@ -215,7 +224,10 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
 
         },
         totalSavedTimeForBots: function(callback){
-            auditTrail.getAuditTrailByType('BOTs',function(err,botAuditTrail){
+            var query={
+                auditType:'BOTs'
+            };
+            auditTrail.getAuditTrails(query,function(err,botAuditTrail){
                 if(err){
                     callback(err,null);
                 } else if(botAuditTrail.length > 0){
@@ -238,7 +250,11 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
             });
         },
         totalNoOfFailedBots: function(callback){
-            auditTrail.getAuditTrailByStatus('BOTs','failed',function(err,data){
+            var query={
+                auditType:'BOTs',
+                actionStatus:'failed'
+            };
+            auditTrail.getAuditTrails(query,function(err,data){
                 if(err){
                     callback(err,null);
                 }
