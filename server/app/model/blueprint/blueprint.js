@@ -1009,7 +1009,7 @@ BlueprintSchema.statics.getBlueprintsByOrgBgProject = function(jsonData, callbac
 };
 
 
-BlueprintSchema.statics.getBlueprintsServiceDeliveryCheck = function(serviceDeliveryCheck, callback) {
+BlueprintSchema.statics.getAllServiceDeliveryBlueprint = function(serviceDeliveryCheck, callback) {
     this.find({serviceDeliveryCheck:serviceDeliveryCheck}, function(err, blueprints) {
         if (err) {
             callback(err, null);
