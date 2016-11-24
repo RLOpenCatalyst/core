@@ -35,7 +35,7 @@
                                     { name:'Action',minWidth:150,cellTemplate:'<span class="btn btn-xs cat-btn-update bpvicon" title="Clone" ng-click="grid.appScope.copyBp(row.entity._id)"><i class="fa fa-clone fa-2 white" aria-hidden="true"></i></span> ' +
                                     '&nbsp; <span class="btn btn-xs cat-btn-update bpvicon" title="Info" ng-click="grid.appScope.blueprintInfo($event,row.entity,null);"><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>' +
                                     '&nbsp; <span class="btn btn-xs cat-btn-update bpvicon" title="Launch"  ng-click="grid.appScope.launchInstance($event,row.entity);"><i class="fa fa-location-arrow fa-2 white" aria-hidden="true"></i></span>' +
-                                    '&nbsp; <span class="btn btn-xs cat-btn-update bpvicon" title="Delete"  ng-click="grid.appScope.deleteBp($event,row.entity,null);"><i class="fa fa-trash-o fa-2 white" aria-hidden="true"></i></span>'}
+                                    '&nbsp; <span class="btn btn-xs btn-danger bpvicon" title="Delete"  ng-click="grid.appScope.deleteBp($event,row.entity,null);"><i class="fa fa-trash-o fa-2 white" aria-hidden="true"></i></span>'}
                                 ];
                                 bpcolumnDefs = dockerOptions;
                             } else if(val.templateType === 'chef' || val.templateType === 'ami'){
@@ -51,7 +51,7 @@
                                     { name:'Action',minWidth:200,cellTemplate:'<span class="btn btn-xs cat-btn-update bpvicon" title="Clone" ng-click="grid.appScope.copyBp(row.entity._id)"><i class="fa fa-clone fa-2 white" aria-hidden="true"></i></span> ' +
                                     '&nbsp; <span class="btn btn-xs cat-btn-update bpvicon" title="Info" ng-click="grid.appScope.blueprintInfo($event,row.entity,null);"><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>' +
                                     '&nbsp; <span class="btn btn-xs cat-btn-update bpvicon" title="Launch"  ng-click="grid.appScope.launchInstance($event,row.entity);"><i class="fa fa-location-arrow fa-2 white" aria-hidden="true"></i></span>' +
-                                    '&nbsp; <span class="btn btn-xs cat-btn-update bpvicon" title="Delete"  ng-click="grid.appScope.deleteBp($event,row.entity,null);"><i class="fa fa-trash-o fa-2 white" aria-hidden="true"></i></span>'}
+                                    '&nbsp; <span class="btn btn-xs btn-danger bpvicon" title="Delete"  ng-click="grid.appScope.deleteBp($event,row.entity,null);"><i class="fa fa-trash-o fa-2 white" aria-hidden="true"></i></span>'}
                                 ];
                                 bpcolumnDefs = bpOptions;
                             } else if(val.templateType === 'cft') {
@@ -63,7 +63,7 @@
                                     { name:'Action',minWidth:150,cellTemplate:'<span class="btn btn-xs cat-btn-update bpvicon" title="Clone" ng-click="grid.appScope.copyBp(row.entity._id)"><i class="fa fa-clone fa-2 white" aria-hidden="true"></i></span> ' +
                                     '&nbsp; <span class="btn btn-xs cat-btn-update bpvicon" title="Info" ng-click="grid.appScope.blueprintInfo($event,row.entity,null);"><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>' +
                                     '&nbsp; <span class="btn btn-xs cat-btn-update bpvicon" title="Launch"  ng-click="grid.appScope.launchInstance($event,row.entity);"><i class="fa fa-location-arrow fa-2 white" aria-hidden="true"></i></span>' +
-                                    '&nbsp; <span class="btn btn-xs cat-btn-update bpvicon" title="Delete"  ng-click="grid.appScope.deleteBp($event,row.entity,null);"><i class="fa fa-trash-o fa-2 white" aria-hidden="true"></i></span>'}
+                                    '&nbsp; <span class="btn btn-xs btn-danger bpvicon" title="Delete"  ng-click="grid.appScope.deleteBp($event,row.entity,null);"><i class="fa fa-trash-o fa-2 white" aria-hidden="true"></i></span>'}
                                 ];
                                 bpcolumnDefs = cftOptions;
                             } else if(val.templateType === 'arm') {
@@ -75,7 +75,7 @@
                                     { name:'Action',minWidth:150,cellTemplate:'<span class="btn btn-xs cat-btn-update bpvicon" title="Clone" ng-click="grid.appScope.copyBp(row.entity._id)"><i class="fa fa-clone fa-2 white" aria-hidden="true"></i></span> ' +
                                     '&nbsp; <span class="btn btn-xs cat-btn-update bpvicon" title="Info" ng-click="grid.appScope.blueprintInfo($event,row.entity,null);"><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>' +
                                     '&nbsp; <span class="btn btn-xs cat-btn-update bpvicon" title="Launch"  ng-click="grid.appScope.launchInstance($event,row.entity);"><i class="fa fa-location-arrow fa-2 white" aria-hidden="true"></i></span>' +
-                                    '&nbsp; <span class="btn btn-xs cat-btn-update bpvicon" title="Delete"  ng-click="grid.appScope.deleteBp($event,row.entity,null);"><i class="fa fa-trash-o fa-2 white" aria-hidden="true"></i></span>'}
+                                    '&nbsp; <span class="btn btn-xs btn-danger bpvicon" title="Delete"  ng-click="grid.appScope.deleteBp($event,row.entity,null);"><i class="fa fa-trash-o fa-2 white" aria-hidden="true"></i></span>'}
                                 ];
                                 bpcolumnDefs = cftOptions;
                             }
