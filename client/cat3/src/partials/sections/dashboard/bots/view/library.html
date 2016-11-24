@@ -1,58 +1,57 @@
 <link rel='stylesheet' href='catalyst/partials/sections/dashboard/bots/bots.css'>
 
 <div id="botLibraryPage">
+	<div class="page-name">
+		BOTs Library&nbsp;
+		<button type="button" title="Refresh" class="btn btn-xs btn-primary pull-right refresh-btn" ng-click="RefreshBotsLibrary();">
+			<i class="fa fa-refresh" style="color: #fff"></i>
+		</button>
+    </div>
+    <div class="borderTop"></div>
 	<div class="container summary-container">
 		<div class="panel-group text-center">
-			<div class="col-md-4ths infrastructureClass" data-text="Total Number of Providers">
-				<div class="small-box bg-aqua">
-					<div class="inner">
-						<h3 id="totalProviders">{{botSummary.totalNoOfBots}}</h3>
-						<p>Total <br>Number of BOTs</p>
+			<div class="col-md-3 col-sm-6 col-xs-12">
+				<div class="info-box">
+					<span class="info-box-icon bg-aqua">
+						<i class="fa fa-th" style="color: #fff"></i>
+					</span>
+					<div class="info-box-content">
+					  <span class="info-box-text">Total Number of BOTs</span>
+					  <span class="info-box-number">{{botSummary.totalNoOfBots}}</span>
 					</div>
-					<div class="icon">
-						<i class="fa fa-th" style="color: rgba(0, 0, 0, 0.15)"></i>
-					</div>
-                    <span class="small-box-footer managedUnmanagedCSS">
-                    </span>
 				</div>
 			</div>
-			<div class="col-md-4ths infrastructureClass" data-text="Total Number of Providers">
-				<div class="small-box bg-aqua">
-					<div class="inner">
-						<h3 id="totalProviders">{{botSummary.totalNoOfRunningBots}}</h3>
-						<p>Total <br>Number of BOTs running</p>
+			<div class="col-md-3 col-sm-6 col-xs-12">
+				<div class="info-box" ng-click="showBotsRunning()">
+					<span class="info-box-icon bg-green">
+						<i class="fa fa-laptop" style="color: #fff"></i>
+					</span>
+					<div class="info-box-content">
+					  <span class="info-box-text">Number of BOTs running</span>
+					  <span class="info-box-number">{{botSummary.totalNoOfRunningBots}}</span>
 					</div>
-					<div class="icon">
-						<i class="fa fa-laptop" style="color: rgba(0, 0, 0, 0.15)"></i>
-					</div>
-                    <span class="small-box-footer managedUnmanagedCSS">
-                    </span>
 				</div>
 			</div>
-			<div class="col-md-4ths infrastructureClass" data-text="Total Number of Providers">
-				<div class="small-box bg-aqua">
-					<div class="inner">
-						<h3 id="totalProviders">{{botSummary.totalSavedTimeForBots}} mins</h3>
-						<p>Total <br>Time saved</p>
+			<div class="col-md-3 col-sm-6 col-xs-12">
+				<div class="info-box">
+					<span class="info-box-icon bg-yellow">
+						<i class="fa fa-cube" style="color: #fff"></i>
+					</span>
+					<div class="info-box-content">
+					  <span class="info-box-text">Total Time saved</span>
+					  <span class="info-box-number">{{botSummary.totalSavedTimeForBots}} mins</span>
 					</div>
-					<div class="icon">
-						<i class="fa fa-cube" style="color: rgba(0, 0, 0, 0.15)"></i>
-					</div>
-                    <span class="small-box-footer managedUnmanagedCSS">
-                    </span>
 				</div>
 			</div>
-			<div class="col-md-4ths infrastructureClass" data-text="Total Number of Providers">
-				<div class="small-box bg-aqua">
-					<div class="inner">
-						<h3 id="totalProviders">{{botSummary.totalNoOfFailedBots}}</h3>
-						<p>Total <br>Number of failed runs</p>
+			<div class="col-md-3 col-sm-6 col-xs-12">
+				<div class="info-box" ng-click="showFailedBots()">
+					<span class="info-box-icon bg-red">
+						<i class="fa fa-external-link" style="color: #fff"></i>
+					</span>
+					<div class="info-box-content">
+					  <span class="info-box-text">Number of failed runs</span>
+					  <span class="info-box-number">{{botSummary.totalNoOfFailedBots}}</span>
 					</div>
-					<div class="icon">
-						<i class="fa fa-external-link" style="color: rgba(0, 0, 0, 0.15)"></i>
-					</div>
-                    <span class="small-box-footer managedUnmanagedCSS">
-                    </span>
 				</div>
 			</div>
 		</div>

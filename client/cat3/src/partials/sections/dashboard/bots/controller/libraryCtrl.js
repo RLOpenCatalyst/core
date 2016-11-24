@@ -8,7 +8,7 @@
 (function (angular) {
     "use strict";
     angular.module('dashboard.bots')
-    .controller('libraryCtrl',['$scope', '$rootScope', '$http', '$state', 'genericServices', 'confirmbox', 'workzoneServices', 'toastr', 'workzoneUIUtils', function ($scope, $rootScope, $http, $state, genSevs, confirmbox, workzoneServices, toastr, workzoneUIUtils) {
+    .controller('libraryCtrl',['$scope', '$rootScope', '$state', 'genericServices', 'confirmbox', 'toastr', 'workzoneUIUtils', function ($scope, $rootScope, $state, genSevs, confirmbox, toastr, workzoneUIUtils) {
         var treeNames = ['Bots','Library'];
         $rootScope.$emit('treeNameUpdate', treeNames);
         var lib=this;
@@ -37,7 +37,7 @@
             ],
             data:[]
         };
-        var gridBottomSpace = 210;
+        var gridBottomSpace = 190;
         $scope.gridHeight = workzoneUIUtils.makeTabScrollable('botLibraryPage') - gridBottomSpace;
         $scope.launchInstance = function(launch){
             if(launch.launcType === 'task'){
@@ -49,7 +49,7 @@
         $scope.botLogs = function(bot){
             genSevs.botHistory(bot);
         };
-        $scope.deleteBotTask = function(bot) {
+        $scope.deleteBotTask = function(task) {
             var modalOptions = {
                 closeButtonText: 'Cancel',
                 actionButtonText: 'Delete',
@@ -58,7 +58,10 @@
                 bodyText: 'Are you sure you want to delete this bot?'
             };
             confirmbox.showModal({}, modalOptions).then(function() {
-                workzoneServices.deleteBotTask(bot._id).then(function(response) {
+                var param={
+                    url:'/tasks/serviceDelivery/' + task._id
+                };
+                genSevs.promiseDelete(param).then(function (response) {
                     if (response) {
                         toastr.success('Successfully deleted');
                         lib.init();
@@ -68,7 +71,7 @@
                 });
             });
         };
-        $scope.deleteBotBP = function(bot) {
+        $scope.deleteBotBP = function(blueprint) {
             var modalOptions = {
                 closeButtonText: 'Cancel',
                 actionButtonText: 'Delete',
@@ -77,7 +80,10 @@
                 bodyText: 'Are you sure you want to delete this bot?'
             };
             confirmbox.showModal({}, modalOptions).then(function() {
-                workzoneServices.deleteBotBP(bot._id).then(function(response) {
+                var param={
+                    url:'/blueprints/serviceDelivery/' + blueprint._id
+                };
+                genSevs.promiseDelete(param).then(function (response) {
                     if (response) {
                         toastr.success('Successfully deleted');
                         lib.init();
@@ -90,20 +96,37 @@
         $rootScope.$on('BOTS_LIBRARY_REFRESH', function() {
             lib.init();
         });
-        lib.summary = function() {
+        $scope.RefreshBotsLibrary = function() {
+            lib.init();
+        };
+        /*$scope.showBotsRunning = function() {
             $scope.botSummary=[];
             var url = '/audit-trail/bot-summary';
             $http.get(url).then(function (response) {
                 $scope.botSummary = response.data;
-                console.log($scope.botSummary);
             });
         }
+        $scope.showFailedBots = function() {
+            $scope.botSummary=[];
+            var url = '/audit-trail/bot-summary';
+            $http.get(url).then(function (response) {
+                $scope.botSummary = response.data;
+            });
+        }*/
+        lib.summary = function() {
+            $scope.botSummary=[];
+            var param={
+                url:'/audit-trail/bot-summary'
+            };
+            genSevs.promiseGet(param).then(function (response) {
+                $scope.botSummary = response;
+            });
+        };
         lib.summary();
         lib.init =function(){
             lib.gridOptions.data=[];
             var param={
                 url:'/blueprints/serviceDelivery/?serviceDeliveryCheck=true'
-                //url:'src/partials/sections/dashboard/bots/data/bp.json'
             };
             genSevs.promiseGet(param).then(function (result) {
                 angular.forEach(result,function (val) {
@@ -113,7 +136,6 @@
             });
             var param2={
                url:'/tasks/serviceDelivery/?serviceDeliveryCheck=true'
-               // url:'src/partials/sections/dashboard/bots/data/t.json'
             };
             genSevs.promiseGet(param2).then(function (resultTask) {
                 angular.forEach(resultTask,function (val) {

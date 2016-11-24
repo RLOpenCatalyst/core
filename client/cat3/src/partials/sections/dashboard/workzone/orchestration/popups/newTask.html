@@ -320,7 +320,7 @@
 															</thead>
 															<tbody id="jobListSave">
 															<tr ng-repeat="jobLink in jobResultURL">
-																<td>{{jobLink}}</td>
+																<td title="{{jobLink}}"><div class="jenkins-job-links">{{jobLink}}</div></td>
 																<td><button type="button" ng-click="removeJobLink(jobLink);"><i class="fa fa-trash-o"></i></button></td>
 																</td>
 															</tr>
