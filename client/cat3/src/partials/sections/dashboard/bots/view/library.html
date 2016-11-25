@@ -11,7 +11,7 @@
 	<div class="container summary-container">
 		<div class="panel-group text-center">
 			<div class="col-md-3 col-sm-6 col-xs-12">
-				<div class="info-box">
+				<div class="info-box cursor" ng-click="RefreshBotsLibrary()" ng-class="{'selected':totalBotsSelected === true}">
 					<span class="info-box-icon bg-aqua">
 						<i class="fa fa-th" style="color: #ecf0f5"></i>
 					</span>
@@ -22,7 +22,7 @@
 				</div>
 			</div>
 			<div class="col-md-3 col-sm-6 col-xs-12">
-				<div class="info-box" ng-click="showBotsRunning()">
+				<div class="info-box cursor" ng-click="showBotsRunning()" ng-class="{'selected':runningBotsselected === true}">
 					<span class="info-box-icon bg-green">
 						<i class="fa fa-laptop" style="color: #ecf0f5"></i>
 					</span>
@@ -44,7 +44,7 @@
 				</div>
 			</div>
 			<div class="col-md-3 col-sm-6 col-xs-12">
-				<div class="info-box" ng-click="showFailedBots()">
+				<div class="info-box cursor" ng-click="showFailedBots()" ng-class="{'selected':failedBotsselected === true}">
 					<span class="info-box-icon bg-red">
 						<i class="fa fa-external-link" style="color: #ecf0f5"></i>
 					</span>

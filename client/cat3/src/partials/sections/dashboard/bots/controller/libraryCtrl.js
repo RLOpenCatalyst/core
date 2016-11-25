@@ -12,6 +12,7 @@
         var treeNames = ['Bots','Library'];
         $rootScope.$emit('treeNameUpdate', treeNames);
         var lib=this;
+        $scope.totalBotsSelected = true;
         lib.gridOptions={
             gridOption:{
                 paginationPageSizes: [10, 25, 50, 75],
@@ -99,9 +100,15 @@
             lib.init();
         });
         $scope.RefreshBotsLibrary = function() {
+            $scope.totalBotsSelected = true;
+            $scope.runningBotsselected = false;
+            $scope.failedBotsselected = false;
             lib.init();
         };
         $scope.showBotsRunning = function() {
+            $scope.runningBotsselected = true;
+            $scope.totalBotsSelected = false;
+            $scope.failedBotsselected = false;
             lib.gridOptions.data=[];
             var param={
                 url:'/tasks?serviceDeliveryCheck=true&actionStatus=running'
@@ -114,6 +121,9 @@
             lib.summary();
         };
         $scope.showFailedBots = function() {
+            $scope.failedBotsselected = true;
+            $scope.runningBotsselected = false;
+            $scope.totalBotsSelected = false;
             lib.gridOptions.data=[];
             var param={
                 url:'/tasks?serviceDeliveryCheck=true&actionStatus=failed'

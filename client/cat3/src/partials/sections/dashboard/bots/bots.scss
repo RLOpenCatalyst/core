@@ -43,27 +43,19 @@
     width: 100%;
   }
 
+  .selected {
+    border: 2px solid #000;
+    height: 94px !important;
+    margin-top: 13px !important;
+  }
+
   .info-box {
     display: block;
     min-height: 90px;
     background: #ecf0f5;
     width: 100%;
     box-shadow: 0 1px 1px rgba(0,0,0,0.1);
-    border-radius: 2px;
     margin: 15px 0;
-  }
-
-  .ion {
-    display: inline-block;
-    font-family: "Ionicons";
-    speak: none;
-    font-style: normal;
-    font-weight: normal;
-    font-variant: normal;
-    text-transform: none;
-    text-rendering: auto;
-    line-height: 1;
-    -webkit-font-smoothing: antialiased;
   }
 
   .info-box-content {
@@ -90,10 +82,6 @@
   }
 
   .info-box-icon {
-    border-top-left-radius: 2px;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-    border-bottom-left-radius: 2px;
     display: block;
     float: left;
     height: 90px;
