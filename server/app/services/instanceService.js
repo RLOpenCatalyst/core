@@ -1509,7 +1509,15 @@ function updateScheduler(instanceScheduler, callback) {
 function generateCronPattern(cronInterval,startDate,endDate,callback){
     var startIntervalList =[],stopIntervalList=[],count = 0;
     if(cronInterval.length === 0){
-        return cronInterval;
+        var scheduler= {
+            instanceStartScheduler: startIntervalList,
+            instanceStopScheduler: stopIntervalList,
+            schedulerStartOn: Date.parse(startDate),
+            schedulerEndOn: Date.parse(endDate),
+            isScheduled: false
+        }
+        callback(null,scheduler);
+        return;
     }else{
         for(var i = 0; i < cronInterval.length; i++){
             (function(interval){

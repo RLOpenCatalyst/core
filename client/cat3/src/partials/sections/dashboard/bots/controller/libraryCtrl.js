@@ -102,7 +102,7 @@
         lib.init =function(){
             lib.gridOptions.data=[];
             var param={
-                url:'/blueprints/serviceDelivery/?serviceDeliveryCheck=true'
+                url:'/blueprints?serviceDeliveryCheck=true'
                 //url:'src/partials/sections/dashboard/bots/data/bp.json'
             };
             genSevs.promiseGet(param).then(function (result) {
@@ -112,7 +112,7 @@
                 });
             });
             var param2={
-               url:'/tasks/serviceDelivery/?serviceDeliveryCheck=true'
+               url:'/tasks?serviceDeliveryCheck=true'
                // url:'src/partials/sections/dashboard/bots/data/t.json'
             };
             genSevs.promiseGet(param2).then(function (resultTask) {
