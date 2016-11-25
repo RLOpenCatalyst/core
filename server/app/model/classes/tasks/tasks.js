@@ -194,28 +194,28 @@ var taskSchema = new Schema({
             required: false,
             trim: true
         },
-        cronRepeat: {
+        cronFrequency: {
             type: Number,
             required: false,
             trim: true
         },
         cronTime:{
-            type: String,
+            type: [String],
             required: false,
             trim: true
         },
         cronDays:{
-            type: String,
+            type: [String],
             required: false,
             trim: true
         },
         cronMonth:{
-            type: String,
+            type: [String],
             required: false,
             trim: true
         },
         cronYear:{
-            type: String,
+            type: [String],
             required: false,
             trim: true
         }
