@@ -710,6 +710,7 @@
                         providerId:blueprintCreation.newEnt.providers,
                         region:blueprintCreation.newEnt.region,
                         templateType:$state.params.templateObj.templatetype,
+                        domainNameCheck:blueprintCreation.newEnt.domainCheck,
                         name:blueprintCreation.newEnt.blueprintName
                     };
                     if($scope.bpTypeName === 'OSImage'){
@@ -720,7 +721,6 @@
 
                     if($scope.bpTypeName === 'OSImage' || $scope.bpTypeName === 'SoftwareStack') {
                         if($scope.providerType === 'AWS'){
-                            blueprintCreateJSON.domainNameCheck = blueprintCreation.newEnt.domainCheck
                             blueprintCreateJSON.blueprintType = 'instance_launch';
                             blueprintCreateJSON.instanceCount = blueprintCreation.newEnt.instanceCount;    
                         } else if($scope.providerType === 'AZURE'){

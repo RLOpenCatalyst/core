@@ -5,18 +5,18 @@
     </div>
     <div class="col-lg-4 col-md-4 pull-right" >
         <button ng-show="state.params.templateObj.templatetypename !== 'Composite'" type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ng-click="bpList.viewTypeList = !bpList.viewTypeList">
-           <sapn ng-if="bpList.viewTypeList === false ">&nbsp;<i class="fa fa-list fa-2 white" aria-hidden="true"></i>&nbsp;</sapn>
-            <sapn ng-if="bpList.viewTypeList === true">&nbsp;<i class="fa fa-th-large white" aria-hidden="true"></i>&nbsp;</sapn>
+           <sapn title="Table View" ng-if="bpList.viewTypeList === false ">&nbsp;<i class="fa fa-list fa-2 white" aria-hidden="true"></i>&nbsp;</sapn>
+            <sapn title="Card View" ng-if="bpList.viewTypeList === true">&nbsp;<i class="fa fa-th-large white" aria-hidden="true"></i>&nbsp;</sapn>
         </button>
-        <button type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ng-click="refreshCurrentPageBp()">&nbsp;<i class="fa fa-refresh fa-2 white" aria-hidden="true"></i>&nbsp;</button>
-        <button type="button" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ng-if="bpList.selectedCards.length > 0 && bpList.viewTypeList === false" ng-click="bpList.copyBp(bpList.selectedCards)" ><i class="fa fa-clone fa-2 white" aria-hidden="true"></i>&nbsp;Copy</button>
+        <button type="button" title="Refresh" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ng-click="refreshCurrentPageBp()">&nbsp;<i class="fa fa-refresh fa-2 white" aria-hidden="true"></i>&nbsp;</button>
+        <button type="button" title="Copy" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ng-if="bpList.selectedCards.length > 0 && bpList.viewTypeList === false" ng-click="bpList.copyBp(bpList.selectedCards)" ><i class="fa fa-clone fa-2 white" aria-hidden="true"></i>&nbsp;Copy</button>
     </div>
 </div>
 <div class="col-lg-12">
     <br>
     <div ng-if="bpList.pager.totalRecords <= 0" class="alert alert-info text-center"> No Data Found!</div>
-    <div ng-show="state.params.templateObj.templatetypename === 'Composite'">
-        <div ng-repeat="blueprint in bpList.blueprintList.card" ng-init="bpList[blueprint._id]= false " style="width: 160px; margin: auto; padding: 0px;position: relative; float: left;">
+    <div class="listPageView" ng-show="state.params.templateObj.templatetypename === 'Composite'">
+        <div class="bpCardDetails" ng-repeat="blueprint in bpList.blueprintList.card" ng-init="bpList[blueprint._id]= false ">
             <div class="anm" style="background: #FFF; position: absolute; z-index: 1;width: 100%; bottom: 0px;margin: 0 8px;"></div>
             <div class="productdiv4" id="{{blueprint._id}}" >
             <div class="productdiv1 cardimage" ng-class="{'selected' :bpList[blueprint._id] === true }" >
@@ -28,7 +28,7 @@
                     <hr class="blue-hr"/>
                     <button class="btn btn-xs cat-btn-update bpvicon" title="Launch" ng-click="bpList.launchInstance($event,blueprint);"><i class="fa fa-location-arrow fa-2 white"></i></button>
                     <button class="btn btn-xs cat-btn-update bpvicon" title="Info" ng-click="bpList.blueprintInfo($event,blueprint,'composite')"><i class="fa fa-info fa-2 white"></i></button>
-                    <button class="btn btn-xs cat-btn-update bpvicon" title="Delete" ng-click="bpList.deleteBp($event,blueprint,'composite')" ><i class="fa fa-trash-o fa-2 white" aria-hidden="true"></i></button>
+                    <button class="btn btn-xs btn-danger bpvicon" title="Delete" ng-click="bpList.deleteBp($event,blueprint,'composite')" ><i class="fa fa-trash-o fa-2 white" aria-hidden="true"></i></button>
                 </ul>
 
             </div>
@@ -37,8 +37,8 @@
     </div>
 
     <div ng-show="state.params.templateObj.templatetypename !== 'Composite'">
-        <div ng-show="bpList.pager.totalRecords > 0 && bpList.viewTypeList === false">
-            <div ng-repeat="blueprint in bpList.blueprintList.card" ng-init="bpList[blueprint._id]= false " style="width: 160px; margin: auto; padding: 0px;position: relative; float: left;">
+        <div class="listPageView" ng-show="bpList.pager.totalRecords > 0 && bpList.viewTypeList === false">
+            <div class="bpCardDetails" ng-repeat="blueprint in bpList.blueprintList.card" ng-init="bpList[blueprint._id]= false ">
             <div class="anm" style="background: #FFF; position: absolute; z-index: 1;width: 100%; bottom: 0px;margin: 0 8px;"></div>
             <div class="productdiv4" id="{{blueprint._id}}" >
                 <div class="productdiv1 cardimage" ng-class="{'selected' :bpList[blueprint._id] === true }" >
@@ -50,7 +50,7 @@
                         <li class='btns-group'>
                         <button class="btn btn-xs cat-btn-update bpvicon" title="Launch" ng-click="bpList.launchInstance($event,blueprint);"><i class="fa fa-location-arrow fa-2 white"></i></button>
                         <button class="btn btn-xs cat-btn-update bpvicon" title="Info" ng-click="bpList.blueprintInfo($event,blueprint,null)"><i class="fa fa-info fa-2 white"></i></button>
-                        <button class="btn btn-xs cat-btn-update bpvicon" title="Delete" ng-click="bpList.deleteBp($event,blueprint,null)" ><i class="fa fa-trash-o fa-2 white" aria-hidden="true"></i></button>
+                        <button class="btn btn-xs btn-danger bpvicon" title="Delete" ng-click="bpList.deleteBp($event,blueprint,null)" ><i class="fa fa-trash-o fa-2 white" aria-hidden="true"></i></button>
                         </li>
                     </ul>
 

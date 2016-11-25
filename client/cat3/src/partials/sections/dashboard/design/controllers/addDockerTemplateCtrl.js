@@ -14,7 +14,7 @@
                     var dockerTemplates = $scope.dockerTemplateList;
                     for(var j=0;j<dockerTemplates.length;j++){
                         if(dockerTemplates[j]._id === $scope.dockerTemplateForTag){
-                            $scope.dockerTemplateName = dockerTemplates[j].dockercontainerpaths.replace(/\//g, "$$$");
+                            $scope.dockerTemplateName = dockerTemplates[j].dockercontainerpaths;
                             $scope.dockerTemplateTypeName = dockerTemplates[j].templatename;
                             $scope.dockerLaunchParameters = ' --name ' + dockerTemplates[j].templatename;
                             if(dockerTemplates[j].dockerreponame !== ''){
