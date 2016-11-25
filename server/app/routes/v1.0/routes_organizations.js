@@ -1531,6 +1531,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     instanceState: nodeAlive,
                                                     bootStrapStatus: 'waiting',
                                                     tagServer: req.params.tagServer,
+                                                    monitorId: req.params.monitorId,
                                                     runlist: [],
                                                     appUrls: appUrls,
                                                     users: [req.session.user.cn], //need to change this
@@ -1660,6 +1661,32 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                 environment: envName,
                                                                 instanceOS: instance.hardware.os
                                                             };
+                                                            if (infraManagerDetails.monitor && infraManagerDetails.monitor.parameters.transportProtocol === 'rabbitmq') {
+                                                                            var sensuCookBook = 'recipe[sensu-client]';
+                                                                            var runlist = [];
+                                                                            var jsonAttributes = {};
+
+                                                                            var cryptoConfig = appConfig.cryptoSettings;
+                                                                            var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+                                                                            var decryptedPassword = cryptography.decryptText(infraManagerDetails.monitor.parameters.transportProtocolParameters.password, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+
+                                                                            var sensuAttributes = {
+                                                                                'rabbitmq_host': infraManagerDetails.monitor.parameters.transportProtocolParameters.host,
+                                                                                'rabbitmq_port': infraManagerDetails.monitor.parameters.transportProtocolParameters.port,
+                                                                                'rabbitmq_username': infraManagerDetails.monitor.parameters.transportProtocolParameters.user,
+                                                                                'rabbitmq_password': decryptedPassword,
+                                                                                'rabbitmq_vhostname': infraManagerDetails.monitor.parameters.transportProtocolParameters.vhost,
+                                                                                'instance-id': instance.platformId
+                                                                            };
+
+                                                                            logger.debug("sensuAttributes-------->", JSON.stringify(sensuAttributes));
+                                                                            runlist.push(sensuCookBook);
+                                                                            jsonAttributes['sensu-client'] = sensuAttributes;
+
+                                                                            bootstarpOption['runlist'] = runlist;
+                                                                            bootstarpOption['jsonAttributes'] = jsonAttributes;
+
+                                                                        }
                                                             deleteOptions = {
                                                                 privateKey: decryptedCredentials.pemFileLocation,
                                                                 username: decryptedCredentials.username,
