@@ -130,7 +130,97 @@ var taskSchema = new Schema({
         type: String,
         required: true,
         trim: true
-    }
+    },
+    isTaskScheduled:{
+        type: Boolean,
+        required: false,
+        default:false
+    },
+    startTaskScheduler:{
+        startOn: {
+            type: Number,
+            required: false,
+            trim: true
+        },
+        endOn: {
+            type: Number,
+            required: false,
+            trim: true
+        },
+        cronPatten: {
+            type: String,
+            required: false,
+            trim: true
+        },
+        cronRepeat: {
+            type: Number,
+            required: false,
+            trim: true
+        },
+        cronTime:{
+            type: String,
+            required: false,
+            trim: true
+        },
+        cronDays:{
+            type: String,
+            required: false,
+            trim: true
+        },
+        cronMonth:{
+            type: String,
+            required: false,
+            trim: true
+        },
+        cronYear:{
+            type: String,
+            required: false,
+            trim: true
+        }
+    },
+    stopTaskScheduler:{
+        startOn: {
+            type: Number,
+            required: false,
+            trim: true
+        },
+        endOn: {
+            type: Number,
+            required: false,
+            trim: true
+        },
+        cronPatten: {
+            type: String,
+            required: false,
+            trim: true
+        },
+        cronRepeat: {
+            type: Number,
+            required: false,
+            trim: true
+        },
+        cronTime:{
+            type: String,
+            required: false,
+            trim: true
+        },
+        cronDays:{
+            type: String,
+            required: false,
+            trim: true
+        },
+        cronMonth:{
+            type: String,
+            required: false,
+            trim: true
+        },
+        cronYear:{
+            type: String,
+            required: false,
+            trim: true
+        }
+    },
+    cronJobIds:[String]
 });
 taskSchema.plugin(mongoosePaginate);
 
