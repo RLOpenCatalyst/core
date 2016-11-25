@@ -51,7 +51,9 @@ logger.debug('Starting Catalyst');
 logger.debug('Logger Initialized');
 var LDAPUser = require('_pr/model/ldap-user/ldap-user.js');
 var taskSync = require('_pr/cronjobs/task-sync');
-/*LDAPUser.getLdapUser(function(err, ldapData) {
+var catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
+/*
+LDAPUser.getLdapUser(function(err, ldapData) {
     if (err) {
         logger.error("Failed to get ldap-user: ", err);
         return;
@@ -228,9 +230,8 @@ io.sockets.on('connection', function(socket) {
 
 var cronTabManager = require('_pr/cronjobs');
 cronTabManager.start();
-
 taskSync.executeScheduledTasks();
-
+catalystSync.executeScheduledInstances();
 server.listen(app.get('port'), function() {
     logger.debug('Express server listening on port ' + app.get('port'));
 });

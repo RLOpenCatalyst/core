@@ -78,7 +78,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
     app.all('/organizations/*', sessionVerification);
 
-
     app.get('/organizations/getTreeNew', function(req, res) {
         var loggedInUser = req.session.user.cn;
         masterUtil.getLoggedInUser(loggedInUser, function(err, anUser) {
@@ -798,7 +797,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
     });
 
-
     app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/blueprints', function(req, res) {
         logger.debug("Enter get() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s/blueprints", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
         //getting the list of projects and confirming if user has permission on project
@@ -840,7 +838,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
         var blueprintId = req.body.blueprintData.blueprintId;
         var shortDesc = req.body.blueprintData.shortDesc;
         var botType = req.body.blueprintData.botType;
-        if (req.body.blueprintData.domainNameCheck === 'true') {
+        var botCategory = req.body.blueprintData.botCategory;
+        var serviceDeliveryCheck = req.body.blueprintData.serviceDeliveryCheck;
+        if(req.body.blueprintData.domainNameCheck === 'true'){
             domainNameCheck = true;
         }
         // a temp fix for invalid appurl data. will be removed in next iteration
@@ -886,9 +886,11 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 blueprintType: blueprintType,
                 nexus: nexus,
                 docker: docker,
-                shortDesc: shortDesc,
-                botType: botType,
-                domainNameCheck: domainNameCheck
+                shortDesc:shortDesc,
+                botType:botType,
+                botCategory:botCategory,
+                serviceDeliveryCheck:serviceDeliveryCheck,
+                domainNameCheck:domainNameCheck
             };
             //adding bluerpintID if present (edit mode)
             if (blueprintId)
@@ -1912,6 +1914,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     instanceIP: req.body.fqdn,
                                                     instanceState: nodeAlive,
                                                     bootStrapStatus: 'waiting',
+                                                    tagServer: req.params.tagServer,
                                                     runlist: [],
                                                     appUrls: appUrls,
                                                     users: [req.session.user.cn], //need to change this

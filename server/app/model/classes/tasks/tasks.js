@@ -89,8 +89,15 @@ var taskSchema = new Schema({
     botType: {
         type: String
     },
+    botCategory: {
+        type: String
+    },
     description: {
         type: String
+    },
+    serviceDeliveryCheck: {
+        type: Boolean,
+        default:false
     },
     jobResultURLPattern: {
         type: [String]
@@ -196,12 +203,13 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
 
         taskHistoryData.nodeIds = this.taskConfig.nodeIds;
         taskHistoryData.runlist = this.taskConfig.runlist;
-        taskHistoryData.attributes = this.taskConfig.attributes;
-
+        //taskHistoryData.attributes = this.taskConfig.attributes;
+        taskHistoryData.attributes = (!self.botParams.cookbookAttributes) ? this.taskConfig.attributes : self.botParams.cookbookAttributes;
     } else if (this.taskType === TASK_TYPE.JENKINS_TASK) {
         task = new JenkinsTask(this.taskConfig);
         taskHistoryData.jenkinsServerId = this.taskConfig.jenkinsServerId;
         taskHistoryData.jobName = this.taskConfig.jobName;
+        //taskHistoryData.parameterized = (!paramOptions) ? this.taskConfig.parameterized : paramOptions;
     } else if (this.taskType === TASK_TYPE.PUPPET_TASK) {
         task = new PuppetTask(this.taskConfig);
         taskHistoryData.nodeIds = this.taskConfig.nodeIds;
@@ -220,7 +228,9 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
     } else if (this.taskType === TASK_TYPE.SCRIPT_TASK) {
         task = new ScriptTask(this.taskConfig);
         taskHistoryData.nodeIds = this.taskConfig.nodeIds;
-        taskHistoryData.scriptDetails = this.taskConfig.scriptDetails;
+        var scriptDetails = JSON.parse(JSON.stringify(this.taskConfig.scriptDetails));
+        scriptDetails.scriptParameters = (!self.botParams.scriptParams) ? scriptDetails.scriptParameters : self.botParams.scriptParams;
+        taskHistoryData.scriptDetails = scriptDetails;
     } else {
         callback({
             message: "Invalid Task Type"
@@ -231,8 +241,10 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
     var taskHistory = null;
     task.orgId = this.orgId;
     task.envId = this.envId;
+    task.botParams = self.botParams;
+    task.botTagServer = self.botTagServer;
     task.execute(userName, baseUrl, choiceParam, appData, blueprintIds, envId, function(err, taskExecuteData, taskHistoryEntry) {
-        if (err) {
+      if (err) {
             callback(err, null);
             return;
         }
@@ -343,7 +355,6 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                 taskHistory.save();
             }
         }
-
         callback(null, taskExecuteData, taskHistory);
     }, function(err, status, resultData) {
         self.timestampEnded = new Date().getTime();
@@ -650,6 +661,32 @@ taskSchema.statics.getScriptTypeTask = function(callback) {
     });
 };
 
+taskSchema.statics.getTasksServiceDeliveryCheck = function(serviceDeliveryCheck, callback) {
+    this.find({serviceDeliveryCheck:serviceDeliveryCheck}, function(err, tasks) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, tasks);
+        return;
+    });
+};
+
+taskSchema.statics.removeServiceDeliveryTask = function(taskId, callback) {
+    this.update({ "_id": new ObjectId(taskId)}, {serviceDeliveryCheck:false}, function (err, data) {
+        if (err) {
+            logger.error(err);
+            callback(err, null);
+            return;
+        }
+        if (data.length) {
+            callback(null, data[0]);
+        } else {
+            callback(null, null);
+        }
+    });
+};
+
 taskSchema.statics.getTaskById = function(taskId, callback) {
     this.find({
         "_id": new ObjectId(taskId)
@@ -784,6 +821,8 @@ taskSchema.statics.updateTaskById = function(taskId, taskData, callback) {
             taskType: taskData.taskType,
             shortDesc: taskData.shortDesc,
             botType: taskData.botType,
+            botCategory:taskData.botCategory,
+            serviceDeliveryCheck:taskData.serviceDeliveryCheck,
             description: taskData.description,
             jobResultURLPattern: taskData.jobResultURL,
             blueprintIds: taskData.blueprintIds,
@@ -999,30 +1038,28 @@ function filterScriptTaskData(data,callback){
     var taskList = [];
     for(var i = 0; i < data.length; i++){
         (function(task){
-            if(task.taskType === 'script'){
-                if(task.taskConfig.scriptDetails.length > 0){
-                    for(var j = 0;j < task.taskConfig.scriptDetails.length;j++) {
-                        (function (scriptTask) {
-                            if(scriptTask.scriptParameters.length > 0){
-                                var count = 0;
-                                for(var k = 0; k < scriptTask.scriptParameters.length;k++){
-                                    (function(params){
-                                        count++;
-                                        scriptTask.scriptParameters[k] = '';
-                                        if(count === scriptTask.scriptParameters.length){
-                                            taskList.push(task)
-                                        }
-                                    })(scriptTask.scriptParameters[k]);
-                                }
-                            }else{
-                                taskList.push(task)
+            if ((task.taskType === 'script')
+                && ('scriptDetails' in task.taskConfig)
+                && (task.taskConfig.scriptDetails.length > 0)) {
+                for (var j = 0; j < task.taskConfig.scriptDetails.length; j++) {
+                    (function (scriptTask) {
+                        if (scriptTask.scriptParameters.length > 0) {
+                            var count = 0;
+                            for (var k = 0; k < scriptTask.scriptParameters.length; k++) {
+                                (function (params) {
+                                    count++;
+                                    scriptTask.scriptParameters[k] = '';
+                                    if (count === scriptTask.scriptParameters.length) {
+                                        taskList.push(task)
+                                    }
+                                })(scriptTask.scriptParameters[k]);
                             }
-                        })(task.taskConfig.scriptDetails[j]);
-                    }
-                }else{
-                    taskList.push(task)
+                        } else {
+                            taskList.push(task)
+                        }
+                    })(task.taskConfig.scriptDetails[j]);
                 }
-            }else{
+            } else {
                 taskList.push(task);
             }
         })(data[i]);

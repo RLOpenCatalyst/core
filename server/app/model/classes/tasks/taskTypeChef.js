@@ -187,9 +187,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
             }
 
         });
-
         return;
-
     } else {
         runTask(self, userName, baseUrl, choiceParam, appData, blueprintIds, envId, onExecute, onComplete);
     }
@@ -1392,14 +1390,22 @@ function runTask(self, userName, baseUrl, choiceParam, appData, blueprintIds, en
         //merging attributes Objects
         var attributeObj = {};
         var objectArray = [];
-        if (self.attributes)
-            for (var i = 0; i < self.attributes.length; i++) {
-                objectArray.push(self.attributes[i].jsonObj);
+        var attr = self.attributes;
+        if (self.botParams && self.botParams.cookbookAttributes) {
+            attr = self.botParams.cookbookAttributes;
+            for (var i = 0; i < attr.length; i++) {
+                objectArray.push(attr[i].jsonObj);
             }
+        } else {
+            if (self.attributes)
+                for (var i = 0; i < self.attributes.length; i++) {
+                    objectArray.push(self.attributes[i].jsonObj);
+                }
+        }
 
-        var instanceIds = self.nodeIds;
+        var instanceIds = this.nodeIds;
 
-        function getInstances(role, instanceIds, callback) {
+        function getInstances(role, instanceIds, tagServer, callback) {
             if (role) {
                 configmgmtDao.getChefServerDetailsByOrgname(self.orgId, function(err, chefDetails) {
                     if (err) {
@@ -1465,6 +1471,19 @@ function runTask(self, userName, baseUrl, choiceParam, appData, blueprintIds, en
                     });
                 });
 
+            } else if (tagServer) {
+                logger.debug('in tagServer', tagServer);
+                instancesDao.getInstancesByTagServer(tagServer, function(err, instances) {
+                    if (err) {
+                        logger.error(err);
+                        if (typeof onExecute === 'function') {
+                            onExecute(err, null);
+                        }
+                        return;
+                    }
+                    callback(null, instances);
+                });
+
             } else {
 
                 if (!(instanceIds && instanceIds.length)) {
@@ -1488,8 +1507,8 @@ function runTask(self, userName, baseUrl, choiceParam, appData, blueprintIds, en
             }
 
         }
-        //logger.debug('role ==>', self.role);
-        getInstances(this.role, instanceIds, function(err, instances) {
+        getInstances(self.role, instanceIds, self.botTagServer, function(err, instances) {
+            logger.debug("instance length ==>", instances.length);
             if (err) {
                 logger.error(err);
                 if (typeof onExecute === 'function') {

@@ -17,7 +17,7 @@
                 workzoneServices.getCompsiteBlueprintInfo(compBlueInfo.items.id).success(function(compBlue){
                     compBlueInfo.bluePrintDetails=compBlue;
                 });
-            }
+            };
             $scope.cancel = function() {
                 $modalInstance.dismiss('cancel');
             };

@@ -38,6 +38,37 @@ var fileIo = require('_pr/lib/utils/fileio');
 module.exports.setRoutes = function(app, sessionVerification) {
     app.all('/tasks/*', sessionVerification);
 
+    app.get('/tasks/serviceDelivery', function(req, res) {
+        var serviceDeliveryCheck = false;
+        if (req.query.serviceDeliveryCheck &&
+            (req.query.serviceDeliveryCheck === 'true' || req.query.serviceDeliveryCheck === true)) {
+            serviceDeliveryCheck = true;
+        }
+        Tasks.getTasksServiceDeliveryCheck(serviceDeliveryCheck, function(err, tasks) {
+            if (err) {
+                res.status(500).send({
+                    code: 500,
+                    errMessage: "Task fetch failed."
+                });
+                return;
+            }
+            res.status(200).send(tasks);
+        });
+    });
+
+    app.delete('/tasks/serviceDelivery/:taskId', function(req, res) {
+        Tasks.removeServiceDeliveryTask(req.params.taskId, function(err, data) {
+            if (err) {
+                logger.error("Failed to delete service delivery Task", err);
+                res.send(500, errorResponses.db.error);
+                return;
+            }
+            res.send(200, {
+                message: "deleted"
+            });
+        });
+    });
+
     app.get('/tasks/history/list/all', function(req, res) {
         TaskHistory.listHistory(function(err, tHistories) {
             if (err) {
@@ -100,6 +131,15 @@ module.exports.setRoutes = function(app, sessionVerification) {
         var hostProtocol = req.protocol + '://' + req.get('host');
         var choiceParam = req.body.choiceParam;
         var appData = req.body.appData;
+        var scriptParams = req.body.scriptParams;
+        var cookbookAttributes = req.body.cookbookAttributes;
+        var botTagServer = req.body.tagServer;
+
+
+        logger.debug('reqbody ======>', JSON.stringify(req.body));
+
+
+
         /*Tasks.getTaskById(req.params.taskId, function(err, task) {
 
             if (err) {
@@ -125,7 +165,28 @@ module.exports.setRoutes = function(app, sessionVerification) {
             });
         });
         */
-        taskService.executeTask(taskId, user, hostProtocol, choiceParam, appData, function(err, historyData) {
+
+        var paramOptions = {
+            cookbookAttributes: cookbookAttributes,
+            scriptParams: scriptParams
+        };
+
+        // encrypting script bot params if any
+        if (paramOptions.scriptParams && paramOptions.scriptParams.length) {
+            var cryptoConfig = appConfig.cryptoSettings;
+            var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+            var encryptedParams = [];
+            for (var i = 0; i < paramOptions.scriptParams.length; i++) {
+                var encryptedText = cryptography.encryptText(paramOptions.scriptParams[i], cryptoConfig.encryptionEncoding,
+                    cryptoConfig.decryptionEncoding);
+                encryptedParams.push(encryptedText);
+            }
+            paramOptions.scriptParams = encryptedParams;
+        }
+
+
+
+        taskService.executeTask(taskId, user, hostProtocol, choiceParam, appData, paramOptions, botTagServer, function(err, historyData) {
             if (err === 404) {
                 res.status(404).send("Task not found.");
                 return;
@@ -586,6 +647,8 @@ module.exports.setRoutes = function(app, sessionVerification) {
         });
 
     });
+
+
 };
 
 function encryptedParam(paramDetails, existingParams, callback) {
