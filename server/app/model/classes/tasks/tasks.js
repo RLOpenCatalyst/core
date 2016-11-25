@@ -136,7 +136,7 @@ var taskSchema = new Schema({
         required: false,
         default:false
     },
-    startTaskScheduler:{
+    taskScheduler:{
         startOn: {
             type: Number,
             required: false,
@@ -152,45 +152,8 @@ var taskSchema = new Schema({
             required: false,
             trim: true
         },
-        cronRepeat: {
+        cronRepeatEvery: {
             type: Number,
-            required: false,
-            trim: true
-        },
-        cronTime:{
-            type: String,
-            required: false,
-            trim: true
-        },
-        cronDays:{
-            type: String,
-            required: false,
-            trim: true
-        },
-        cronMonth:{
-            type: String,
-            required: false,
-            trim: true
-        },
-        cronYear:{
-            type: String,
-            required: false,
-            trim: true
-        }
-    },
-    stopTaskScheduler:{
-        startOn: {
-            type: Number,
-            required: false,
-            trim: true
-        },
-        endOn: {
-            type: Number,
-            required: false,
-            trim: true
-        },
-        cronPatten: {
-            type: String,
             required: false,
             trim: true
         },
@@ -200,22 +163,22 @@ var taskSchema = new Schema({
             trim: true
         },
         cronTime:{
-            type: [String],
+            type: String,
             required: false,
             trim: true
         },
         cronDays:{
-            type: [String],
+            type: String,
             required: false,
             trim: true
         },
         cronMonth:{
-            type: [String],
+            type: String,
             required: false,
             trim: true
         },
         cronYear:{
-            type: [String],
+            type: String,
             required: false,
             trim: true
         }

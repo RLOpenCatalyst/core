@@ -974,6 +974,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
             taskData.orgName = project[0].orgname;
             taskData.bgName = project[0].productgroupname;
             taskData.projectName = project[0].projectname;
+            if(req.body.taskScheduler  && req.body.taskScheduler !== null) {
+                taskData.taskScheduler = apiUtil.createCronJobPattern(req.body.taskScheduler);
+            }
             configmgmtDao.getEnvNameFromEnvId(req.params.envId, function(err, envName) {
                 if (err) {
                     res.status(500).send("Failed to fetch ENV: ", err);

@@ -515,6 +515,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
     app.post('/tasks/:taskId/update', function(req, res) {
         var taskData = req.body.taskData;
+        if(taskData.taskScheduler  && taskData.taskScheduler !== null) {
+            taskData.taskScheduler = apiUtil.createCronJobPattern(taskData.taskScheduler);
+        }
         if (taskData.taskType === 'script') {
             Tasks.getTaskById(req.params.taskId, function(err, scriptTask) {
                 if (err) {
