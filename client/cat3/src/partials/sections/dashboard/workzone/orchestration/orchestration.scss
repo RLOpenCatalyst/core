@@ -208,6 +208,13 @@ $imagePath : "../../../../../../images";
 		padding: 12px 0;
 	}
 
+	.jenkins-job-links {
+		max-width: 225px;
+	    text-overflow: ellipsis;
+	    overflow: hidden;
+	    height: 18px;
+	}
+
 	.chef-details-top {
 		width: 100%;
 		min-height: 184px;
