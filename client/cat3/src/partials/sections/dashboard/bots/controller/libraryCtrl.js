@@ -30,6 +30,8 @@
                 { name: 'description',field:'shortDesc'},
                 { name: 'BOT History',displayName: 'BOT History',cellTemplate:'<span ng-show="row.entity.blueprintType">NA</span>'+
                         '<span class="btn cat-btn-update control-panel-button" title="History" ng-show="row.entity.taskType" ng-click="grid.appScope.botLogs(row.entity);"><i class="fa fa-header white"></i></span>'},
+                        { name: 'BOT Info',displayName: 'BOT Info',cellTemplate:'<span ng-show="row.entity.blueprintType">NA</span>'+
+                        '<span class="btn cat-btn-update control-panel-button" title="History" ng-show="row.entity.taskType" ng-click="grid.appScope.botLogs(row.entity);"><i class="fa fa-info white"></i></span>'},
                 { name: 'BOT Action',displayName: 'BOT Action',cellTemplate:'<span class="btn cat-btn-update control-panel-button" title="Execute" ng-click="grid.appScope.launchInstance(row.entity);"><i class="fa fa-play white"></i></span>' +
                     '<span class="btn btn-danger control-panel-button" title="Delete Task" ng-show="row.entity.taskType" ng-click="grid.appScope.deleteBotTask(row.entity);"><i class="fa fa-trash-o white"></i></span>' + 
                     '<span class="btn btn-danger control-panel-button" title="Delete Blueprint" ng-show="row.entity.blueprintType" ng-click="grid.appScope.deleteBotBP(row.entity);"><i class="fa fa-trash-o white"></i></span>'
@@ -99,20 +101,30 @@
         $scope.RefreshBotsLibrary = function() {
             lib.init();
         };
-        /*$scope.showBotsRunning = function() {
-            $scope.botSummary=[];
-            var url = '/audit-trail/bot-summary';
-            $http.get(url).then(function (response) {
-                $scope.botSummary = response.data;
+        $scope.showBotsRunning = function() {
+            lib.gridOptions.data=[];
+            var param={
+                url:'/tasks?serviceDeliveryCheck=true&actionStatus=running'
+            };
+            genSevs.promiseGet(param).then(function (result) {
+                angular.forEach(result,function (val) {
+                    lib.gridOptions.data.push(val);
+                });
             });
-        }
+            lib.summary();
+        };
         $scope.showFailedBots = function() {
-            $scope.botSummary=[];
-            var url = '/audit-trail/bot-summary';
-            $http.get(url).then(function (response) {
-                $scope.botSummary = response.data;
+            lib.gridOptions.data=[];
+            var param={
+                url:'/tasks?serviceDeliveryCheck=true&actionStatus=failed'
+            };
+            genSevs.promiseGet(param).then(function (result) {
+                angular.forEach(result,function (val) {
+                    lib.gridOptions.data.push(val);
+                });
             });
-        }*/
+            lib.summary();
+        };
         lib.summary = function() {
             $scope.botSummary=[];
             var param={
@@ -126,7 +138,7 @@
         lib.init =function(){
             lib.gridOptions.data=[];
             var param={
-                url:'/blueprints/serviceDelivery/?serviceDeliveryCheck=true'
+                url:'/blueprints?serviceDeliveryCheck=true'
             };
             genSevs.promiseGet(param).then(function (result) {
                 angular.forEach(result,function (val) {
@@ -135,7 +147,7 @@
                 });
             });
             var param2={
-               url:'/tasks/serviceDelivery/?serviceDeliveryCheck=true'
+               url:'/tasks?serviceDeliveryCheck=true'
             };
             genSevs.promiseGet(param2).then(function (resultTask) {
                 angular.forEach(resultTask,function (val) {
