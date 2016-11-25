@@ -180,10 +180,10 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
             tasks = require('_pr/model/classes/tasks/tasks.js');
             async.parallel({
                 botsTask:function(callback){
-                    tasks.getTasksServiceDeliveryCheck('true',callback);
+                    tasks.getAllServiceDeliveryTask('true',callback);
                 },
                 botsBlueprint:function(callback){
-                    blueprints.getBlueprintsServiceDeliveryCheck('true',callback);
+                    blueprints.getAllServiceDeliveryBlueprint('true',callback);
                 }
             },function(err,results){
                 if(err){
