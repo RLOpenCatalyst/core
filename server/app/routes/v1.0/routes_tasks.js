@@ -27,6 +27,7 @@ var taskService = require('_pr/services/taskService.js')
 var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
+var schedulerService = require('_pr/services/schedulerService');
 
 
 
@@ -517,6 +518,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
         var taskData = req.body.taskData;
         if(taskData.taskScheduler  && taskData.taskScheduler !== null) {
             taskData.taskScheduler = apiUtil.createCronJobPattern(taskData.taskScheduler);
+            taskData.isTaskScheduled = true;
         }
         if (taskData.taskType === 'script') {
             Tasks.getTaskById(req.params.taskId, function(err, scriptTask) {
@@ -539,6 +541,13 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                 return;
                             }
                             if (updateCount) {
+                                if(taskData.isTaskScheduled === true){
+                                    schedulerService.executeSchedulerForTasks(task,function(err,data){
+                                        if(err){
+                                            logger.error("Error in executing task scheduler");
+                                        }
+                                    })
+                                };
                                 res.send({
                                     updateCount: updateCount
                                 });
@@ -557,6 +566,13 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     return;
                 }
                 if (updateCount) {
+                    if(taskData.isTaskScheduled === true){
+                        schedulerService.executeSchedulerForTasks(task,function(err,data){
+                            if(err){
+                                logger.error("Error in executing task scheduler");
+                            }
+                        })
+                    };
                     res.send({
                         updateCount: updateCount
                     });

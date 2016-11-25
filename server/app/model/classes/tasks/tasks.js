@@ -137,12 +137,12 @@ var taskSchema = new Schema({
         default:false
     },
     taskScheduler:{
-        startOn: {
+        cronStartOn: {
             type: Number,
             required: false,
             trim: true
         },
-        endOn: {
+        cronEndOn: {
             type: Number,
             required: false,
             trim: true
@@ -183,7 +183,11 @@ var taskSchema = new Schema({
             trim: true
         }
     },
-    cronJobIds:[String]
+    cronJobId:{
+        type: String,
+        required: false,
+        trim: true
+    }
 });
 taskSchema.plugin(mongoosePaginate);
 
@@ -906,6 +910,52 @@ taskSchema.statics.updateTaskConfig = function updateTaskConfig(taskId, taskConf
         logger.debug('Updated task:' + updateCount);
         return callback(null, updateCount);
 
+    });
+};
+taskSchema.statics.getScheduledTasks = function getScheduledTasks(callback) {
+    Tasks.find({
+        isTaskScheduled: true
+    }, function (err, tasks) {
+        if (err) {
+            logger.error(err);
+            return callback(err, null);
+        }
+        return callback(null, tasks);
+    })
+}
+
+taskSchema.statics.updateCronJobIdByTaskId = function updateCronJobIdByTaskId(taskId, cronJobId, callback) {
+    Tasks.update({
+        "_id": new ObjectId(taskId),
+    }, {
+        $set: {
+            cronJobId: cronJobId
+        }
+    }, {
+        upsert: false
+    }, function (err, data) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, data);
+    });
+};
+taskSchema.statics.updateTaskScheduler = function updateTaskScheduler(taskId, callback) {
+    Tasks.update({
+        "_id": new ObjectId(taskId),
+    }, {
+        $set: {
+            isTaskScheduled: false
+        }
+    }, {
+        upsert: false
+    }, function (err, data) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, data);
     });
 };
 
