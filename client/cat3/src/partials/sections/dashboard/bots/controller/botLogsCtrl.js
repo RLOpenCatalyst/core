@@ -8,7 +8,7 @@
 (function (angular) {
     "use strict";
     angular.module('library.bots',[])
-    .controller('botLogsCtrl',['$scope', '$rootScope', '$http', 'genericServices', 'workzoneServices', 'toastr', '$modalInstance', 'items', '$timeout', function ($scope, $rootScope, $http, genSevs, workzoneServices, toastr, $modalInstance, items, $timeout) {
+    .controller('botLogsCtrl',['$scope', '$rootScope', 'genericServices', 'workzoneServices', 'toastr', '$modalInstance', 'items', '$timeout', function ($scope, $rootScope, genSevs, workzoneServices, toastr, $modalInstance, items, $timeout) {
         $scope.botName = items.auditTrailConfig.name;
         $scope.nodeIds = items.auditTrailConfig.nodeIds;
         $scope.taskType = items.auditTrailConfig.executionType;
@@ -34,9 +34,11 @@
         };
         $scope.instanceChange =function(){
             $scope.botLogs=[];
-            var url = '/audit-trail/' + $scope.selectedInstance.actionLogId + '/logs';
-            $http.get(url).then(function (result) {
-                $scope.botLogs = result.data;
+            var param={
+                url:'/audit-trail/' + $scope.selectedInstance.actionLogId + '/logs'
+            };
+            genSevs.promiseGet(param).then(function (response) {
+                $scope.botLogs = response;
                 $scope.isBotLogsLoading = false;
             });
         };
@@ -52,7 +54,6 @@
                 for (var l = 0; l < _jobInstances.length; l++) {
                     if ($scope.nodeIdsWithActionLog[k].nodeId === _jobInstances[l]._id) {
                         $scope.nodeIdsWithActionLog[k].uiNodeName = _jobInstances[l].name;
-                        console.log($scope.nodeIdsWithActionLog[k].uiNodeName);
                     }
                 }
             }
@@ -64,13 +65,15 @@
             console.log(error);
         });
         if($scope.taskType === 'jenkins') {
-            var url = '/jenkins/' + $scope.jenkinsActionLogId + '/jobs/testmail/builds/' + $scope.jenkinsBuildNumber + '/output';
-            $http.get(url).then(function (result) {
-                if (result.data) {
-                    $scope.jenkinsLogs = helper.formatLogs(result.data.output);
+            var param={
+                url:'/jenkins/' + $scope.jenkinsActionLogId + '/jobs/testmail/builds/' + $scope.jenkinsBuildNumber + '/output'
+            };
+            genSevs.promiseGet(param).then(function (response) {
+                if (response.data) {
+                    $scope.jenkinsLogs = helper.formatLogs(response.data.output);
                     $scope.isBotLogsLoading = false;
                 } else {
-                    $scope.jenkinsLogs = helper.formatLogs(result.output);
+                    $scope.jenkinsLogs = helper.formatLogs(response.output);
                     $scope.isBotLogsLoading = false;
                 }
             });

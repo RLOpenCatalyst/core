@@ -86,6 +86,7 @@
                     };
                     genericServices.promisePost(params).then(function () {
                         toastr.success('Successfully copied.');
+                        $rootScope.$emit('BP_BLUEPRINTS_REFRESH_CURRENT');
                     });
                 });
             };

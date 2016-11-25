@@ -10,6 +10,7 @@
             createCBP.compositeBPType='chef';
             $scope.chefrunlist,$scope.cookbookAttributes = [];
             createCBP.onSubmit =false;
+            $scope.compositeEnabled = true;
             createCBP.newEnt={
                 bpName:''
             };
@@ -65,6 +66,7 @@
             };
             $scope.compositeSave =function () {
                 createCBP.onSubmit =true;
+                $scope.compositeEnabled = false;
                 if(!createCBP.newEnt.bpName  || !createCBP.SelectedBPList.length > 0){
                     return true;
                 }
@@ -94,6 +96,7 @@
                 gencSers.promisePost(params).then(function () {
                     toastr.success('Successfully Created.');
                     $state.go('dashboard.design.list',{providerName:$state.params.providerName,templateObj:$state.params.templateObj});
+                    $scope.compositeEnabled = true;
                 });
             };
             createCBP.createList();
