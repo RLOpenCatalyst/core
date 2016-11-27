@@ -244,6 +244,14 @@
                                                                 <option value="">Select Organization</option>
                                                             </select>
                                                         </div>
+                                                        <div class="hidden col-lg-6 col-md-6 margintop20 foraws monitoringCheck">
+                                                            <input type="checkbox" name="updateMonitoringInfo" style="vertical-align: middle;" id="updateMonitoringInfo"/>
+                                                            <label for="">Enable Monitoring:</label>
+                                                            <select id="monitorId" unique="true" name="monitorId" disabled class="chooseOrganization width-100" style="vertical-align: central" cdata="catalyst" skiprowid="yes">
+                                                                <option value="">Select Monitor</option>
+                                                            </select>
+                                                        </div>
+                                                        <input type="hidden" id="hiddenMonitorValue"/>
                                                     </div>
                                                 </div>
                                                 <!-- end widget div -->
@@ -279,7 +287,42 @@
 <!--Popup for selecting a cloud provider before proceeding-->
 <script type="text/javascript" src="js/jquery.form.js"></script>
 <script>
+    
+    $('select#orgId').change(function(e){
+        var orgValueSelect = $(this).val();
+        if(orgValueSelect !== ''){
+            $('#monitorId').attr('disabled','disabled');
+            $('input[name="updateMonitoringInfo"]').removeAttr('checked');
+            getMonitorValues();
+        } else {
+            $('.monitoringCheck').addClass('hidden');
+        }
+    });
 
+    function getMonitorValues(){
+        $('.monitoringCheck').removeClass('hidden');
+        $.get('../monitors',function(data){
+            var orgValue = $('select#orgId').val();
+            var str = ' <option value="">Select Monitor</option>';
+            for(var i=0;i<data.length;i++){
+                if(orgValue === data[i].organization.id){
+                    str = str + '<option value="'+data[i]._id+'">'+data[i].name+'</option>';
+                }
+            }
+            $('#monitorId').html(str);
+        });
+    }
+
+    $('input[name="updateMonitoringInfo"]').change(function(e){
+        if(this.checked){
+            $('#monitorId').removeAttr('disabled').attr('cat-validation','required');
+        }  else {
+            $('#hiddenMonitorValue').val('');  
+            $('#monitorId').val('').attr('selected', true).change();
+            $('#monitorId').removeAttr('cat-validation').attr('disabled','disabled');;
+        }
+    });
+    
     var UtilityMethods = {
         initTooltip: function() {
             var $tool = $("[rel=tooltip]");
@@ -478,7 +521,6 @@
                     str = str + '<option value="' + val[i].KeyName + '">' + val[i].KeyName + '</option>';
                 }
                 $region.parents('.addNewRegion').find('select.keyvalue').html(str).val('').select2().each(function() {
-                    console.log($(this).attr('answer'));
                     $(this).attr('answer') ? $(this).val($(this).attr('answer')).select2() : "";
                 });
                 $('#btnsubmit').removeAttr('disabled');
@@ -630,7 +672,27 @@
             $('.aws-secret-info').hide();
             $('.secretInfo').removeAttr('cat-validation');
         }
-
+        if(data.monitor !== null){
+            $('.monitoringCheck').removeClass('hidden');
+            $('input[name="updateMonitoringInfo"]').attr('checked', true);
+            $('#monitorId').removeClass('hidden');
+            $.get('../monitors',function(monitorData){
+                var orgValue = $('select#orgId').val();
+                var str = '';
+                for(var i=0;i<monitorData.length;i++){
+                    if(orgValue === monitorData[i].organization.id){
+                        str = '<option value="'+monitorData[i]._id+'">'+monitorData[i].name+'</option>';
+                        $('#monitorId').append(str).removeAttr('disabled');
+                        $("#monitorId").val(data.monitor.id).attr('selected', true).change();
+                    }
+                }
+            });
+            var monitorHiddenValue = $('#monitorId').val();
+            $('#hiddenMonitorValue').val(monitorHiddenValue);
+        } else {
+            $('#hiddenMonitorValue').val('');
+            getMonitorValues();
+        }
         var parentList = $('.addNewRegion');
         $('select.region').on('change', checkForKeyPair);
         for (var i = 0; i < data.keyPairs.length; i++) {
@@ -716,7 +778,13 @@
             beforeSubmit: function(arr, $form, options) {
                 if (location.toString().indexOf('?new') === -1) {
                     var orgValue = $('#orgId').val();
-                    arr.push({name:'orgId',value:orgValue,type:'select-one',required:false})
+                    arr.push({name:'orgId',value:orgValue,type:'select-one',required:false});
+                    var monitorValue = $('#hiddenMonitorValue').val();
+                    if(!monitorValue) {
+                        arr =  arr.concat({name:'monitorId',value:monitorValue,type:'select-one',required:false});
+                    } else {
+                        arr.push({name:'monitorId',value:monitorValue,type:'select-one',required:false});
+                    }
                 }
                 if (location.toString().indexOf('?new') === -1 && $('#providertype').val() == 'AZURE') {
                     var azureSubscriptionId = $('#azureSubscriptionId').val();
@@ -743,7 +811,6 @@
                         return false;
                 } else {
                     if (isFormValid()) {
-                        console.log(arr);
                         appendLoader();
                         return true;
                     } else {

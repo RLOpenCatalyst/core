@@ -21,6 +21,7 @@ const errorType = 'schedulerService';
 var schedulerService = module.exports = {};
 var cronTab = require('node-crontab');
 var instancesDao = require('_pr/model/classes/instance/instance');
+var taskDao = require('_pr/model/classes/tasks/tasks.js');
 var async = require('async');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var logsDao = require('_pr/model/dao/logsdao.js');
@@ -36,8 +37,10 @@ var azureProvider = require('_pr/model/classes/masters/cloudprovider/azureCloudP
 var azureCloud = require('_pr/lib/azure');
 var fs = require('fs');
 var providerService = require('_pr/services/providerService.js');
+var taskService = require('_pr/services/taskService.js');
 var gcpProviderModel = require('_pr/model/v2.0/providers/gcp-providers');
 var GCP = require('_pr/lib/gcp.js');
+var crontab = require('node-crontab');
 
 schedulerService.executeSchedulerForInstances = function executeSchedulerForInstances(instance,callback) {
     logger.debug("Instance Scheduler is started for Instance. "+instance.platformId);
@@ -96,6 +99,47 @@ schedulerService.executeSchedulerForInstances = function executeSchedulerForInst
     })
 }
 
+schedulerService.executeSchedulerForTasks = function executeSchedulerForTasks(task,callback) {
+    logger.debug("Task Scheduler is started for Task. "+task.name);
+    var currentDate = new Date();
+    if(currentDate >= task.taskScheduler.cronEndOn){
+        crontab.cancelJob(task.cronJobId);
+        taskDao.updateTaskScheduler(task._id,function(err, updatedData) {
+            if (err) {
+                logger.error("Failed to update Task Scheduler: ", err);
+                callback(err,null);
+                return;
+            }
+            logger.debug("Scheduler is ended on for Task. "+task.name);
+            callback(null,updatedData);
+            return;
+        });
+    }else{
+        var schedulerService = require('_pr/services/schedulerService');
+        var cronJobId = cronTab.scheduleJob(task.taskScheduler.cronPattern, function () {
+            taskDao.updateCronJobIdByTaskId(task._id,cronJobId,function(err,data){
+                if(err){
+                    logger.error("Error in updating cron job Ids. "+err);
+                }
+            })
+            taskService.executeTask(task._id, "superadmin", "", "", "","","",function(err, historyData) {
+                if (err === 404) {
+                    logger.error("Task not found.", err);
+                    callback(err,null);
+                    return;
+                } else if (err) {
+                    logger.error("Failed to execute task.", err);
+                    callback(err,null);
+                    return;
+                }
+                logger.debug("Task Execution Success: ", task.name);
+                callback(null,historyData);
+                return;
+            });
+        });
+    }
+}
+
 schedulerService.startStopInstance= function startStopInstance(instanceId,catUser,action,callback){
     logger.debug(action+ " is Starting");
     async.waterfall([
@@ -140,6 +184,23 @@ schedulerService.startStopInstance= function startStopInstance(instanceId,catUse
         callback(null,results);
         return;
     })
+}
+
+function createCronJob(cronPattern,instanceId,catUser,action,callback){
+    var schedulerService = require('_pr/services/schedulerService');
+    var cronJobId = cronTab.scheduleJob(cronPattern, function () {
+        instancesDao.updateCronJobIdByInstanceId(instanceId,cronJobId,function(err,data){
+            if(err){
+                logger.error("Error in updating cron job Ids. "+err);
+            }
+        })
+        schedulerService.startStopInstance(instanceId, catUser, action, function (err, data) {
+            if (err) {
+                callback(err, null);
+            }
+            callback(null, cronJobId);
+        });
+    });
 }
 
 function startStopManagedInstance(instance,catUser,action,callback){
@@ -634,21 +695,5 @@ function checkSuccessInstanceAction(logReferenceIds,instanceState,instanceLog,ac
     });
 }
 
-function createCronJob(cronPattern,instanceId,catUser,action,callback){
-    var schedulerService = require('_pr/services/schedulerService');
-    var cronJobId = cronTab.scheduleJob(cronPattern, function () {
-        instancesDao.updateCronJobIdByInstanceId(instanceId,cronJobId,function(err,data){
-            if(err){
-                logger.error("Error in updating cron job Ids. "+err);
-            }
-        })
-        schedulerService.startStopInstance(instanceId, catUser, action, function (err, data) {
-            if (err) {
-                callback(err, null);
-            }
-            callback(null, cronJobId);
-        });
-    });
-}
 
 

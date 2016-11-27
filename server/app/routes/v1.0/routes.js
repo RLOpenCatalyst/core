@@ -74,6 +74,7 @@ var scripts = require('./routes_scripts');
 var fileUpload = require('./routes_fileUpload');
 var settingWizard = require('./routes_setting_wizard');
 var configData = require('./routes_config_data');
+var monitors = require('./routes_monitors');
 /*
  * @TODO
  * Change app to router in internal routes files
@@ -181,6 +182,8 @@ module.exports.setRoutes = function(app) {
     fileUpload.setRoutes(app, sessionVerificationFunc);
 
     settingWizard.setRoutes(app, sessionVerificationFunc);
+    
+    monitors.setRoutes(app, sessionVerificationFunc);
 
     configData.setRoutes(app, sessionVerificationFunc);
 
