@@ -20,6 +20,10 @@
 			$scope.scriptParamShow = false;
 			$scope.scriptSelectAll = false;
 			$scope.scriptParamsObj = {};
+			$scope.chefJenkScriptTaskObj = {};
+			$scope.cronDetails = {};
+			$scope.type = 'new';
+			$scope.showAddTask = false;
 			$scope.isSudo = false;
 			$scope.botCategoryList = [];
 			workzoneServices.getBotCategoryList().then(function (catList) {
@@ -231,6 +235,135 @@
 						$scope.scriptParamsObj[scriptObj._id] = [];
 					}
 				},
+				selectTaskCheckbox: function(){
+					$scope.showAddTask = true;
+					$scope.isEventAvailable = false;
+				},
+				addTaskEvent : function() {
+					$modal.open({
+						templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/addChefJobEvent.html',
+						controller: 'addChefJobEventCtrl',
+						backdrop: 'static',
+						keyboard: false,
+						resolve: {
+							items: function () {
+								return {
+									chefJenkScriptTaskObj:$scope.chefJenkScriptTaskObj,
+									type:$scope.type
+								}
+							}
+						}
+					}).result.then(function (chefEventDetails) {
+						$scope.isEventAvailable = true;
+						$scope.chefJenkScriptTaskObj = chefEventDetails;
+						console.log($scope.chefJenkScriptTaskObj);
+						var startTimeMinute,startTimeHour,dayOfWeek,selectedDayOfTheMonth,selectedMonth;
+						startTimeMinute = $scope.chefJenkScriptTaskObj.startTimeMinute;
+						startTimeHour = $scope.chefJenkScriptTaskObj.startTime;
+						dayOfWeek = $scope.chefJenkScriptTaskObj.dayOfWeek;
+						selectedDayOfTheMonth = $scope.chefJenkScriptTaskObj.selectedDayOfTheMonth;
+						selectedMonth = $scope.chefJenkScriptTaskObj.monthOfYear;
+						$scope.type = 'edit';
+						$scope._isEventSelected = true;
+						if($scope.chefJenkScriptTaskObj.repeats ==='Daily'){
+							if(startTimeMinute !=='0' && startTimeHour === undefined || startTimeHour === ''){
+								$scope.cronPattern = "*/"+startTimeMinute+" * * * *";
+							} else if(startTimeMinute !=='0' && startTimeHour === '0'){
+								$scope.cronPattern = ""+startTimeMinute+" 0 * * *";
+							} else if(startTimeMinute ==='0' && startTimeHour === undefined || startTimeHour === ''){
+								$scope.cronPattern = "0 * * * *";
+							} else if(startTimeMinute ==='0' && startTimeHour !== '0'){
+								$scope.cronPattern = "0 "+startTimeHour+" * * *";
+							} else if(startTimeMinute !=='0' && startTimeHour !== '0'){
+								$scope.cronPattern = ""+startTimeMinute+" "+startTimeHour+" * * *";
+							} else if(startTimeMinute === undefined && startTimeHour !== '0' || startTimeHour === '0'){
+								$scope.cronPattern = "* "+startTimeHour+" * * *";
+							} else {
+								$scope.cronPattern = "* * * * *";
+							}
+						}
+						if($scope.chefJenkScriptTaskObj.repeats ==='Hourly'){
+							if(startTimeMinute !=='0' && startTimeHour === undefined || startTimeHour === ''){
+								$scope.cronPattern = "*/"+startTimeMinute+" * * * *";
+							} else if(startTimeMinute !=='0' && startTimeHour === '0'){
+								$scope.cronPattern = ""+startTimeMinute+" 0 * * *";
+							} else if(startTimeMinute ==='0' && startTimeHour === undefined || startTimeHour === ''){
+								$scope.cronPattern = "0 * * * *";
+							} else if(startTimeMinute ==='0' && startTimeHour !== '0'){
+								$scope.cronPattern = "0 */"+startTimeHour+" * * *";
+							} else if(startTimeMinute !=='0' && startTimeHour !== '0'){
+								$scope.cronPattern = ""+startTimeMinute+" */"+startTimeHour+" * * *";
+							} else if(startTimeMinute === undefined && startTimeHour !== '0' || startTimeHour === '0'){
+								$scope.cronPattern = "* "+startTimeHour+" * * *";
+							} else {
+								$scope.cronPattern = "* * * * *";
+							}
+						}
+						if($scope.chefJenkScriptTaskObj.repeats ==='Weekly') {
+							if(startTimeMinute !=='0' && startTimeHour === undefined || startTimeHour === ''){
+								$scope.cronPattern = "*/"+startTimeMinute+" * * * "+dayOfWeek+"";
+							} else if(startTimeMinute !=='0' && startTimeHour !== '0') {
+								$scope.cronPattern = ""+startTimeMinute+" "+startTimeHour+" * * "+dayOfWeek+"";
+							} else if(startTimeMinute !=='0' && startTimeHour === '0'){
+								$scope.cronPattern = "* 0 * * "+dayOfWeek+"";
+							} else if(startTimeMinute ==='0' && startTimeHour === undefined || startTimeHour === ''){
+								$scope.cronPattern = "0 * * * "+dayOfWeek+"";
+							} else if(startTimeMinute ==='0' && startTimeHour !== '0'){
+								$scope.cronPattern = "0 "+startTimeHour+" * * "+dayOfWeek+"";
+							} else if(startTimeMinute === undefined && startTimeHour !== '0' || startTimeHour === '0'){
+								$scope.cronPattern = "* "+startTimeHour+" * * "+dayOfWeek+"";
+							} else {
+								$scope.cronPattern = "* * * * "+dayOfWeek+"";
+							}
+						}
+						if($scope.chefJenkScriptTaskObj.repeats ==='Monthly') {
+							if(startTimeMinute !=='0' && startTimeHour === undefined || startTimeHour === ''){
+								$scope.cronPattern = "*/"+startTimeMinute+" * "+selectedDayOfTheMonth+" * *";
+							} else if(startTimeMinute !=='0' && startTimeHour !== '0') {
+								$scope.cronPattern = ""+startTimeMinute+" "+startTimeHour+" "+selectedDayOfTheMonth+" * *";
+							} else if(startTimeMinute !=='0' && startTimeHour === '0') {
+								$scope.cronPattern = ""+startTimeMinute+" 0 "+selectedDayOfTheMonth+" * *";
+							} else if(startTimeMinute ==='0' && startTimeHour === undefined || startTimeHour === '') {
+								$scope.cronPattern = "0 * "+selectedDayOfTheMonth+" * *";
+							} else if(startTimeMinute ==='0' && startTimeHour !== '0') {
+								$scope.cronPattern = "0 "+startTimeHour+" "+selectedDayOfTheMonth+" * *";
+							} else if(startTimeMinute === undefined && startTimeHour !== '0' || startTimeHour === '0') {
+								$scope.cronPattern = "* "+startTimeHour+" "+selectedDayOfTheMonth+" * *";
+							} else {
+								$scope.cronPattern = "* * "+selectedDayOfTheMonth+" * *";
+							}
+						}
+						if($scope.chefJenkScriptTaskObj.repeats ==='Yearly') {
+							if(startTimeMinute !=='0' && startTimeHour === undefined || startTimeHour === ''){
+								$scope.cronPattern = "*/"+startTimeMinute+" * "+selectedDayOfTheMonth+" "+selectedMonth+" *";
+							} else if(startTimeMinute !=='0' && startTimeHour !== '0') {
+								$scope.cronPattern = ""+startTimeMinute+" "+startTimeHour+" "+selectedDayOfTheMonth+" "+selectedMonth+" *";
+							} else if(startTimeMinute !=='0' && startTimeHour === '0') {
+								$scope.cronPattern = ""+startTimeMinute+" 0 "+selectedDayOfTheMonth+" "+selectedMonth+" *";
+							} else if(startTimeMinute ==='0' && startTimeHour === undefined || startTimeHour === '') {
+								$scope.cronPattern = "0 * "+selectedDayOfTheMonth+" "+selectedMonth+" *";
+							} else if(startTimeMinute ==='0' && startTimeHour !== '0') {
+								$scope.cronPattern = "0 "+startTimeHour+" "+selectedDayOfTheMonth+" "+selectedMonth+" *";
+							} else if(startTimeMinute === undefined && startTimeHour !== '0' || startTimeHour === '0') {
+								$scope.cronPattern = "* "+startTimeHour+" "+selectedDayOfTheMonth+" "+selectedMonth+" *";
+							} else {
+								$scope.cronPattern = "* * "+selectedDayOfTheMonth+" "+selectedMonth+" *";
+							}	
+						}
+
+						$scope.cronDetails = {
+							repeats: $scope.chefJenkScriptTaskObj.repeats,
+							selectedDayOfTheMonth: $scope.chefJenkScriptTaskObj.selectedDayOfTheMonth,
+							dayOfWeek: $scope.chefJenkScriptTaskObj.dayOfWeek,
+							monthOfYear: $scope.chefJenkScriptTaskObj.monthOfYear,
+							startTime: $scope.chefJenkScriptTaskObj.startTime,
+							startTimeMinute: $scope.chefJenkScriptTaskObj.startTimeMinute,
+							pattern: $scope.cronPattern
+						}
+					}, function () {
+						console.log('Dismiss time is ' + new Date());
+					});
+				},
 				clearRoleSelection : function(){
 					$scope.role.name = '';
 				},
@@ -286,11 +419,6 @@
 						taskJSON.nodeIds = [];
 						taskJSON.blueprintIds = [];
 						taskJSON.role = $scope.role.name;
-						for (var ci = 0; ci < $scope.chefInstanceList.length; ci++) {
-							if ($scope.chefInstanceList[ci]._isNodeSelected) {
-								taskJSON.nodeIds.push($scope.chefInstanceList[ci]._id);
-							}
-						}
 						for(var bi = 0; bi < $scope.chefBluePrintList.length; bi++){
 							if ($scope.chefBluePrintList[bi]._isBlueprintSelected) {
 								taskJSON.blueprintIds.push($scope.chefBluePrintList[bi]._id);
@@ -367,11 +495,6 @@
 						taskJSON.nodeIds = [];
 						taskJSON.scriptDetails = [];
 						taskJSON.isSudo = $scope.isSudo;
-						for (var si = 0; si < $scope.chefInstanceList.length; si++) {
-							if ($scope.chefInstanceList[si]._isNodeSelected) {
-								taskJSON.nodeIds.push($scope.chefInstanceList[si]._id);
-							}
-						}
 						taskJSON.scriptTypeName = $scope.scriptTypeSelelct;
 						if (!taskJSON.scriptTypeName.length) {
 							$scope.inputValidationMsg='Please select one Script Type';
@@ -403,6 +526,21 @@
 							return false;
 						}
 					}
+					if($scope.taskType === "chef" || $scope.taskType === "script") {
+						taskJSON.executionOrder = $scope.isExecution.flag;
+						taskJSON.isScheduled = $scope._isEventSelected;
+						taskJSON.cron = $scope.cronPattern;
+						taskJSON.cronDetails = $scope.cronDetails;
+						var selectedList = instanceSelector.getSelectorList();
+						if (selectedList && selectedList.length) {
+							for (var i = 0; i < selectedList.length; i++) {
+								taskJSON.nodeIds.push(selectedList[i].data);
+							}
+						} else {
+							$scope.inputValidationMsg='Please select atleast one node';
+							return false;
+						}
+					}
 					//checking whether its a update or a new task creation
 					if ($scope.isEditMode) {
 						$scope.updateTask(taskJSON);
@@ -429,6 +567,9 @@
 			$scope.isParameterized = {
 				flag: false
 			};
+			$scope.isExecution = {
+				flag: 'PARALLEL'
+			};
 			/*in backend at the time of edit of task the jobResultUrlPattern
 			 was going as null. So there was in issue with the links disappearing.*/
 			$scope.jobResultURLPattern = [];
@@ -448,7 +589,7 @@
                 $scope.chefrunlist = reqParams.list;
                 $scope.cookbookAttributes = reqParams.cbAttributes;
             });
-			var compositeSelector;
+			var compositeSelector,instanceSelector;
 			workzoneServices.getEnvironmentTaskList().then(function (response) {
 				var data, selectorList = [],
 					optionList = [];
@@ -485,6 +626,47 @@
 			$scope.isTargetTypesLoading = true;
 			$scope.isScriptNodesLoading = true;
 			var allInstances = workzoneServices.getCurrentEnvInstances();
+			$scope.allInstances=function(){
+				allInstances.then(function (response) {
+					var data, selectorList = [],
+						optionList = [];
+					if (response.data) {
+						data = response.data;
+					} else {
+						data = response;
+					}
+
+					if (items.taskType && items.taskType === "chef" || items.taskType && items.taskType === "script") {
+						for (var j = 0; j < items.taskConfig.nodeIds.length; j++) {
+							for (var i = 0; i < data.length; i++) {
+								if (items.taskConfig.nodeIds[j] === data[i]._id) {
+									selectorList.push(data[i]);
+								}
+							}
+						}
+					} else {
+						selectorList = [];
+					}
+					optionList = data;
+					var factory = chefSelectorComponent.getComponent;
+					instanceSelector = new factory({
+						scopeElement: '.component_for_instances',
+						optionList: responseFormatter.formatInstanceList(optionList),
+						selectorList: responseFormatter.formatInstanceList(selectorList),
+						isSortList: true,
+						isSearchBoxEnable: false,
+						isOverrideHtmlTemplate: true,
+						isExcludeDataFromOption: true
+					});
+					$scope.isNewTaskPageLoading = false;
+				});
+			}
+			 $scope.$watch('taskType', function() {
+        		if($scope.taskType === 'chef' || $scope.taskType === 'script'){
+					$scope.allInstances();
+        		}
+    		});
+
 			var allBlueprints = workzoneServices.getBlueprints();
 			var allRunlist = workzoneServices.getCookBookListForOrg();
 			$q.all([allInstances,allBlueprints,allRunlist]).then(function(promiseObjs) {
@@ -506,9 +688,7 @@
 						$scope.chefBluePrintList = responseFormatter.identifyAvailableBlueprint(responseFormatter.getBlueprintList(blueprints), items.blueprintIds);
 						$scope.chefComponentSelectorList = responseFormatter.findDataForEditValue(items.taskConfig.runlist);
 						$scope.cookbookAttributes = responseFormatter.formatSavedCookbookAttributes(items.taskConfig.attributes);
-						console.log($scope.chefComponentSelectorList);
 						$scope.chefrunlist = responseFormatter.chefRunlistFormatter($scope.chefComponentSelectorList);
-						console.log($scope.chefrunlist);
 						$scope.chefRoleList = roles;
 
 						if (items.blueprintIds.length){
@@ -600,6 +780,19 @@
 					$scope.scriptTypeSelelct = items.taskConfig.scriptTypeName;
 					$scope.isNewTaskPageLoading = false;
 					$scope.changeNodeScriptList();
+				}
+				if(items.taskType === "chef" || items.taskType === "script") {
+					$scope.isExecution.flag = items.taskConfig.executionOrder;
+				}
+				if(items.taskType === "chef" || items.taskType === "jenkins" || items.taskType === "script") {
+					if(items.cron){
+						$scope._isEventSelected = items.isScheduled;
+						$scope.showAddTask = true;
+						$scope.isEventAvailable = true;
+						$scope.cronPattern = items.cron;
+						$scope.chefJenkScriptTaskObj = items.cronDetails;
+						$scope.type = 'edit';
+					}
 				}
 			}
 		}
