@@ -532,19 +532,7 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                         launchParams.blueprintData.getCookBookAttributes(instance, repoData, function (err, jsonAttributes) {
 
                                             AWSProvider.getAWSProviderById(instance.providerId, function (err, aProvider) {
-                                                if (aProvider && aProvider.monitorId) {
-
-                                                    monitorsModel.getById(aProvider.monitorId, function (err, monitor) {
-                                                        if (monitor) {
-                                                            fnBootstrapInstance(monitor);
-                                                        } else {
-                                                            fnBootstrapInstance(null);
-                                                        }
-
-                                                    });
-                                                } else {
-                                                    fnBootstrapInstance(null);
-                                                }
+                                                fnBootstrapInstance(aProvider.monitor);
 
                                             });
                                             function fnBootstrapInstance(monitor) {

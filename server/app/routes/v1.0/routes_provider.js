@@ -3717,29 +3717,48 @@ function trackSettingWizard(orgId, callback) {
 }
 
 function getMonitorDetail(data, callback) {
-    data = data.toObject();
-    if (data.monitorId) {
-        var monitorId = data.monitorId;
-        delete data.monitorId;
-        monitorsModel.getById(monitorId, function (err, monitor) {
-            if (err || !monitor) {
-                data.monitor = null;
-            } else {
-                data.monitor = {};
-                data.monitor['id'] = monitor._id;
-                data.monitor['name'] = monitor.name;
-                data.monitor['type'] = monitor.type;
-                if (monitor.type === 'sensu') {
-                    data.monitor['parameters'] = {};
-                    data.monitor['parameters']['url'] = monitor['parameters']['url'];
-                    data.monitor['parameters']['transportProtocol'] = monitor['parameters']['transportProtocol'];
-                }
-            }
-            callback(data);
-        });
-    } else {
-        delete data['monitorId'];
-        data.monitor = null;
+    if (data.monitor) {
+        var monitor = {};
+        monitor['id'] = data.monitor._id;
+        monitor['name'] = data.monitor.name;
+        monitor['type'] = data.monitor.type;
+        if (data.monitor.type === 'sensu') {
+            monitor['parameters'] = {};
+            monitor['parameters']['url'] = data.monitor['parameters']['url'];
+            monitor['parameters']['transportProtocol'] = data.monitor['parameters']['transportProtocol'];
+        }
+        data.monitor = monitor;
         callback(data);
+        return;
+    } else if (data.monitorId) {
+        var data = data.toObject();
+        var monitorId = data['monitorId'];
+        delete data['monitorId'];
+        if (monitorId) {
+            monitorsModel.getById(monitorId, function (err, monitor) {
+                if (err || !monitor) {
+                    data.monitor = null;
+                } else {
+                    data.monitor = {};
+                    data.monitor['id'] = monitor._id;
+                    data.monitor['name'] = monitor.name;
+                    data.monitor['type'] = monitor.type;
+                    if (monitor.type === 'sensu') {
+                        data.monitor['parameters'] = {};
+                        data.monitor['parameters']['url'] = monitor['parameters']['url'];
+                        data.monitor['parameters']['transportProtocol'] = monitor['parameters']['transportProtocol'];
+                    }
+                }
+                callback(data);
+                return;
+            });
+        } else {
+            data.monitor = null;
+            callback(data);
+            return;
+        }
+    } else {
+        callback(data);
+        return;
     }
 }

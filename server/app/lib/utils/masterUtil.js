@@ -25,6 +25,7 @@ var permissionsetDao = require('../../model/dao/permissionsetsdao');
 var d4dModel = require('../../model/d4dmasters/d4dmastersmodel.js');
 var configmgmtDao = require('../../model/d4dmasters/configmgmt.js');
 var appConfig = require('_pr/config');
+var Cryptography = require('../utils/cryptography');
 var chefSettings = appConfig.chef;
 var AppDeploy = require('_pr/model/app-deploy/app-deploy');
 var async = require('async');

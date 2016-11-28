@@ -230,6 +230,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                 });
                 return;
             }
+            logger.debug("provider--------------->", JSON.stringify(provider));
 
             configmgmtDao.getEnvNameFromEnvId(req.body.envId, function (err, envName) {
                 if (err) {
@@ -567,27 +568,28 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                                                         };
 
 
-                                                                        if (infraManagerDetails.monitor && infraManagerDetails.monitor.parameters.transportProtocol === 'rabbitmq') {
+                                                                        if (provider.monitor && provider.monitor.parameters.transportProtocol === 'rabbitmq') {
                                                                             var sensuCookBook = 'recipe[sensu-client]';
                                                                             var runlist = [];
                                                                             var jsonAttributes = {};
 
                                                                             var cryptoConfig = appConfig.cryptoSettings;
                                                                             var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-                                                                            var decryptedPassword = cryptography.decryptText(infraManagerDetails.monitor.parameters.transportProtocolParameters.password, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                                                                            var decryptedPassword = cryptography.decryptText(provider.monitor.parameters.transportProtocolParameters.password, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
 
                                                                             var sensuAttributes = {
-                                                                                'rabbitmq_host': infraManagerDetails.monitor.parameters.transportProtocolParameters.host,
-                                                                                'rabbitmq_port': infraManagerDetails.monitor.parameters.transportProtocolParameters.port,
-                                                                                'rabbitmq_username': infraManagerDetails.monitor.parameters.transportProtocolParameters.user,
+                                                                                'rabbitmq_host': provider.monitor.parameters.transportProtocolParameters.host,
+                                                                                'rabbitmq_port': provider.monitor.parameters.transportProtocolParameters.port,
+                                                                                'rabbitmq_username': provider.monitor.parameters.transportProtocolParameters.user,
                                                                                 'rabbitmq_password': decryptedPassword,
-                                                                                'rabbitmq_vhostname': infraManagerDetails.monitor.parameters.transportProtocolParameters.vhost,
+                                                                                'rabbitmq_vhostname': provider.monitor.parameters.transportProtocolParameters.vhost,
                                                                                 'instance-id': instance.platformId
                                                                             };
 
                                                                             logger.debug("sensuAttributes-------->", JSON.stringify(sensuAttributes));
                                                                             runlist.push(sensuCookBook);
-                                                                            jsonAttributes['sensu-client'] = MasterUtils.getSensuCookbookAttributes(infraManagerDetails.monitor,instance.platformId);;
+                                                                            jsonAttributes['sensu-client'] = MasterUtils.getSensuCookbookAttributes(provider.monitor, instance.platformId);
+                                                                            ;
 
                                                                             bootstarpOption['runlist'] = runlist;
                                                                             bootstarpOption['jsonAttributes'] = jsonAttributes;
