@@ -87,7 +87,7 @@ blueprintService.getAllServiceDeliveryBlueprint = function getAllServiceDelivery
                 var results = [];
                 if (auditTrailList.length > 0) {
                     for (var i = 0; i < auditTrailList.length; i++) {
-                        if (taskIds.indexOf(auditTrailList[i].auditId) > -1) {
+                        if (blueprintIds.indexOf(auditTrailList[i].auditId) < 0) {
                             results.push(auditTrailList[i].auditId);
                             blueprintIds.push(auditTrailList[i].auditId);
                         } else {

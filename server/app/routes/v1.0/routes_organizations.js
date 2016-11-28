@@ -49,6 +49,7 @@ var Docker = require('_pr/model/docker.js');
 var orgValidator = require('_pr/validators/organizationValidator');
 var validate = require('express-validation');
 var taskService = require('_pr/services/taskService');
+var schedulerService = require('_pr/services/schedulerService');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var compositeBlueprintModel = require('_pr/model/composite-blueprints/composite-blueprints.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
@@ -974,6 +975,10 @@ module.exports.setRoutes = function(app, sessionVerification) {
             taskData.orgName = project[0].orgname;
             taskData.bgName = project[0].productgroupname;
             taskData.projectName = project[0].projectname;
+            if(req.body.taskScheduler  && req.body.taskScheduler !== null) {
+                taskData.taskScheduler = apiUtil.createCronJobPattern(req.body.taskScheduler);
+                taskData.isTaskScheduled = true;
+            }
             configmgmtDao.getEnvNameFromEnvId(req.params.envId, function(err, envName) {
                 if (err) {
                     res.status(500).send("Failed to fetch ENV: ", err);
@@ -994,6 +999,13 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                     res.status(500).send("Failed to create task: ", err);
                                     return;
                                 }
+                                if(task.isTaskScheduled === true){
+                                    schedulerService.executeSchedulerForTasks(task,function(err,data){
+                                        if(err){
+                                            logger.error("Error in executing task scheduler");
+                                        }
+                                    })
+                                };
                                 res.send(task);
                                 logger.debug("Exit post() for /organizations/%s/businessGroups/%s/projects/%s/environments/%s/tasks", req.params.orgId, req.params.bgId, req.params.projectId, req.params.environments);
                             });
@@ -1006,6 +1018,13 @@ module.exports.setRoutes = function(app, sessionVerification) {
                             res.status(500).send("Failed to create task: ", err);
                             return;
                         }
+                        if(task.isTaskScheduled === true){
+                            schedulerService.executeSchedulerForTasks(task,function(err,data){
+                                if(err){
+                                    logger.error("Error in executing task scheduler");
+                                }
+                            })
+                        };
                         res.send(task);
                         logger.debug("Exit post() for /organizations/%s/businessGroups/%s/projects/%s/environments/%s/tasks", req.params.orgId, req.params.bgId, req.params.projectId, req.params.environments);
                     });

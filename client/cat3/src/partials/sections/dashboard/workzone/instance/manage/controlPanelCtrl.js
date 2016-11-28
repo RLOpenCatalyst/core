@@ -77,7 +77,7 @@
 		var params={
 			url:'/instances/'+cpInstance._id
 			//url:'src/partials/sections/dashboard/workzone/data/oneIns.json'
-		}
+		};
 		genericServices.promiseGet(params).then(function (result) {
 			$scope.schedule={
 				instanceIds:[cpInstance._id],
@@ -98,7 +98,7 @@
 				$scope.schedule.interval[i].days.splice($scope.schedule.interval[i].days.indexOf(d),1);
 			}
 			if($scope.schedule.interval[i].days.length >0){
-				$scope.schedule.interval[i].daySelect=1
+				$scope.schedule.interval[i].daySelect=1;
 			} else{
 				$scope.schedule.interval[i].daySelect='';
 			}
