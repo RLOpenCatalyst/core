@@ -4,7 +4,7 @@
 		.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', 'modulePermissionProvider', function($stateProvider, $urlRouterProvider, $httpProvider, modulePermissionProvider) {
 			var modulePerms = modulePermissionProvider.$get();
 			$stateProvider.state('dashboard.analytics.cost', {
-				url: "cost/",
+				url: "analytics/cost/",
 				templateUrl: "src/partials/sections/dashboard/analytics/view/cost.html",
 				controller: "costCtrl as cost",
 				params:{filterView:{cost:true,viewBy:true,splitUpType:true,org:true}},
@@ -22,7 +22,7 @@
 					}]
 				}
 			}).state('dashboard.analytics.capacity', {
-				url: "capacity/",
+				url: "analytics/capacity/",
 				templateUrl: "src/partials/sections/dashboard/analytics/view/capacity.html",
 				controller: "capacityCtrl as capaCtr",
 				params:{filterView:{period:true,cost:true,viewBy:true,splitUpType:true,org:true}},
@@ -40,10 +40,46 @@
 					}]
 				}
 			}).state('dashboard.analytics.usage', {
-				url: "usage/",
+				url: "analytics/usage/",
 				templateUrl: "src/partials/sections/dashboard/analytics/view/usage.html",
 				controller: "usageCtrl as usage",
 				params:{filterView:{usage:true,org:true,provi:true,instanceType:true,resources:true}},
+				resolve: {
+					auth: ["$q", function ($q) {
+						var deferred = $q.defer();
+						// instead, go to a different page
+						if (modulePerms.analyticsBool()) {
+							// everything is fine, proceed
+							deferred.resolve();
+						} else {
+							deferred.reject({redirectTo: 'dashboard'});
+						}
+						return deferred.promise;
+					}]
+				}
+			}).state('dashboard.analytics.tagMapping', {
+				url: "discovery/tagMapping/",
+				templateUrl: "src/partials/sections/dashboard/analytics/view/discoveryTagMapping.html",
+				controller: "discoveryTagMappingCtrl as disTgMap",
+				params:{filterView:{period:true,org:true,provi:true},dashboardHide:true,reportHide:true,otherTab:'Tag mapping',otherTabView:true},
+				resolve: {
+					auth: ["$q", function ($q) {
+						var deferred = $q.defer();
+						// instead, go to a different page
+						if (modulePerms.analyticsBool()) {
+							// everything is fine, proceed
+							deferred.resolve();
+						} else {
+							deferred.reject({redirectTo: 'dashboard'});
+						}
+						return deferred.promise;
+					}]
+				}
+			}).state('dashboard.analytics.resources', {
+				url: "discovery/resources/",
+				templateUrl: "src/partials/sections/dashboard/analytics/view/discoveryResources.html",
+				controller: "discoveryResourcesCtrl as disResrc",
+				params:{filterView:{period:true,org:true,provi:true},dashboardHide:true,otherTab:'Resources',otherTabView:true,reportHide:true},
 				resolve: {
 					auth: ["$q", function ($q) {
 						var deferred = $q.defer();
@@ -61,6 +97,7 @@
 		}])
 	.controller('analyticsCtrl',['$scope', '$rootScope','$state','genericServices','analyticsServices', 'workzoneServices', 'toastr', function ($scope, $rootScope, $state, genericServices,analyticsServices, workzoneServices, toastr) {
 		var analytic = this;
+		$scope.isTreeOpen = false;
 		//var splitUp=null;
 		analytic.tabShowChat=true;
 		analytic.tabShowReport=false;
