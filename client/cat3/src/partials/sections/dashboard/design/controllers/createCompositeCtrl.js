@@ -74,7 +74,7 @@
                     createCBP.newEnt.org =$rootScope.organNewEnt.org.rowid;
                     createCBP.newEnt.buss=$rootScope.organNewEnt.buss.rowid;
                     createCBP.newEnt.proj=$rootScope.organNewEnt.proj.rowId;
-                };
+                }
                 $scope.blueprintList = [];
                 angular.forEach(createCBP.SelectedBPList, function(val){
                     var blueprintObj={

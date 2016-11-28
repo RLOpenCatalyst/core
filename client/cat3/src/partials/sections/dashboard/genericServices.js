@@ -275,8 +275,8 @@
                             }
                         }
                     })
-                    .result.then(function(selectedItem) {
-                    //$scope.selected = selectedItem;
+                    .result.then(function() {
+                    
                     }, function() {
 
                     });
