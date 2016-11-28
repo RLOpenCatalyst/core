@@ -31,8 +31,6 @@
                 { name: 'description',field:'shortDesc'},
                 { name: 'BOT History',displayName: 'BOT History',cellTemplate:'<span ng-show="row.entity.blueprintType">NA</span>'+
                     '<span class="btn cat-btn-update control-panel-button" title="History" ng-show="row.entity.taskType" ng-click="grid.appScope.botLogs(row.entity);"><i class="fa fa-header white"></i></span>'},
-                { name: 'BOT Info',displayName: 'BOT Info',cellTemplate:'<span ng-show="row.entity.blueprintType">NA</span>'+
-                    '<span class="btn cat-btn-update control-panel-button" title="History" ng-show="row.entity.taskType" ng-click="grid.appScope.botLogs(row.entity);"><i class="fa fa-info white"></i></span>'},
                 { name: 'BOT Action',displayName: 'BOT Action',cellTemplate:'<span class="btn cat-btn-update control-panel-button" title="Execute" ng-click="grid.appScope.launchInstance(row.entity);"><i class="fa fa-play white"></i></span>' +
                     '<span class="btn btn-danger control-panel-button" title="Delete Task" ng-show="row.entity.taskType" ng-click="grid.appScope.deleteBotTask(row.entity);"><i class="fa fa-trash-o white"></i></span>' + 
                     '<span class="btn btn-danger control-panel-button" title="Delete Blueprint" ng-show="row.entity.blueprintType" ng-click="grid.appScope.deleteBotBP(row.entity);"><i class="fa fa-trash-o white"></i></span>'
