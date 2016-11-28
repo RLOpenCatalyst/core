@@ -189,7 +189,7 @@ var EC2 = function(awsSettings) {
 		checkInstanceStatus(state, 1);
 	}
 
-	this.stopInstance = function(instanceIds, callback, onStateChangedCompleteCallback) {
+	this.stopInstance = function(instanceIds, callback) {
 		ec.stopInstances({
 			InstanceIds: instanceIds
 		}, function(err, data) {
@@ -199,16 +199,20 @@ var EC2 = function(awsSettings) {
 				callback(err, null)
 				return;
 			}
-			logger.debug("number of instances stopped " + data.StoppingInstances.length);
-			callback(null, data.StoppingInstances);
+			/*logger.debug("number of instances stopped " + data.StoppingInstances.length);
+			callback(null, data.StoppingInstances);*/
 			pollInstanceState(instanceIds[0], instanceStateList.STOPPED, function(err, state) {
-				onStateChangedCompleteCallback(err, state);
+				if (err) {
+					callback(err, null)
+					return;
+				}
+				callback(null,state);
 			});
 
 		});
 	}
 
-	this.startInstance = function(instanceIds, callback, onStateChangedCompleteCallback) {
+	this.startInstance = function(instanceIds, callback) {
 		ec.startInstances({
 			InstanceIds: instanceIds
 		}, function(err, data) {
@@ -218,10 +222,14 @@ var EC2 = function(awsSettings) {
 				callback(err, null)
 				return;
 			}
-			logger.debug("number of instances stopped " + data.StartingInstances.length);
-			callback(null, data.StartingInstances);
+			/*logger.debug("number of instances stopped " + data.StartingInstances.length);
+			callback(null, data.StartingInstances);*/
 			pollInstanceState(instanceIds[0], instanceStateList.RUNNING, function(err, state) {
-				onStateChangedCompleteCallback(err, state);
+				if (err) {
+					callback(err, null)
+					return;
+				}
+				callback(null,state);
 			});
 
 		});

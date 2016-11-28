@@ -13,12 +13,16 @@
 			var osList = items[1].data;
 			var configList = items[2].data;
 			var reqBody = {};
-			$scope.tagServer = 'Monitoring';
+			//$scope.tagSerSelected = 'Monitoring';
 			if (!configAvailable.length) {
 				$scope.cancel();
 				toastr.error('Chef Or Puppet is not Available');
 				return false;
 			}
+			$scope.taggingServerList=[];
+	        workzoneServices.getTaggingServer().then(function (topSer) {
+	            $scope.taggingServerList=topSer.data;
+	        });
 			$scope.tagServerChecking = function() {
 				if($scope.tagServerCheck){
 					$scope.tagServerStatus = true;
@@ -57,9 +61,7 @@
 					reqBody.os = $scope.os;
 					reqBody.configManagmentId = $scope.selectedConfig;
 					if($scope.tagServerCheck) {
-						reqBody.tagServer = $scope.tagServer;
-					} else {
-						reqBody.tagServer = '';
+						reqBody.tagServer = $scope.tagSerSelected;
 					}
 					reqBody.credentials = {
 						username: $scope.username

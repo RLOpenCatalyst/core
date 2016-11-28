@@ -84,7 +84,6 @@
                         }
                     },
                     data: []
-
                 };
 
                 costObj.costGridOptions = {
@@ -97,7 +96,6 @@
                         $scope.gridApi = gridApi;
                     }
                 };
-
            };
             costObj.getCostData=function(fltObj){
                 var param = {
@@ -162,7 +160,7 @@
                             costObj.costGridOptions.columnDefs.push({
                                 name: keyChild,
                                 field: 'cost.AWS.serviceCosts.' + keyChild
-                            })
+                            });
                             angular.forEach(result.splitUpCosts[viewType], function (valBar) {
                                 var chVal = '';
                                 if (valBar.cost.AWS.serviceCosts[keyChild]) {
@@ -212,7 +210,7 @@
                             showMaxMin: false,
                             axisLabel: 'Date',
                             tickFormat: function (d) {
-                                return d3.time.format('%x')(new Date(d))
+                                return d3.time.format('%x')(new Date(d));
                             }
                         },
                         yAxis: {
@@ -245,7 +243,7 @@
                         entityId=fltObj.org.id;
                     }
                     //http://192.168.152.139:3001
-                   param.url='/analytics/cost/trend?parentEntityId='+fltObj.org.id+'&entityId='+fltObj.org.id+'&toTimeStamp='+new Date()+'&period='+fltObj.period+'&interval=86400'
+                   param.url='/analytics/cost/trend?parentEntityId='+fltObj.org.id+'&entityId='+fltObj.org.id+'&toTimeStamp='+new Date()+'&period='+fltObj.period+'&interval=86400';
                 }
 
                 genSevs.promiseGet(param).then(function (result) {

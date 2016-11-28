@@ -505,58 +505,58 @@ function getRDSDBInstanceMetrics(provider, dbInstances, startTime, endTime, peri
             cw = new CW(amazonConfig);
             async.parallel({
                     CPUUtilization: function (callback) {
-                        cw.getUsageMetrics('CPUUtilization','Percent','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
+                        cw.getUsageMetrics('CPUUtilization','Percent','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbInstanceIdentifier}],startTime, endTime, period, callback);
                     },
                     BinLogDiskUsage: function (callback) {
-                        cw.getUsageMetrics('BinLogDiskUsage','Bytes','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
+                        cw.getUsageMetrics('BinLogDiskUsage','Bytes','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbInstanceIdentifier}],startTime, endTime, period, callback);
                     },
                     CPUCreditUsage: function (callback) {
-                        cw.getUsageMetrics('CPUCreditUsage','Count','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
+                        cw.getUsageMetrics('CPUCreditUsage','Count','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbInstanceIdentifier}],startTime, endTime, period, callback);
                     },
                     CPUCreditBalance: function (callback) {
-                        cw.getUsageMetrics('CPUCreditBalance','Count','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
+                        cw.getUsageMetrics('CPUCreditBalance','Count','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbInstanceIdentifier}],startTime, endTime, period, callback);
                     },
                     DatabaseConnections: function (callback) {
-                        cw.getUsageMetrics('DatabaseConnections','Count','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
+                        cw.getUsageMetrics('DatabaseConnections','Count','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbInstanceIdentifier}],startTime, endTime, period, callback);
                     },
                     DiskQueueDepth: function (callback) {
-                        cw.getUsageMetrics('DiskQueueDepth','Count','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
+                        cw.getUsageMetrics('DiskQueueDepth','Count','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbInstanceIdentifier}],startTime, endTime, period, callback);
                     },
                     FreeableMemory: function (callback) {
-                        cw.getUsageMetrics('FreeableMemory','Bytes','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
+                        cw.getUsageMetrics('FreeableMemory','Bytes','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbInstanceIdentifier}],startTime, endTime, period, callback);
                     },
                     FreeStorageSpace: function (callback) {
-                        cw.getUsageMetrics('FreeStorageSpace','Bytes','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
+                        cw.getUsageMetrics('FreeStorageSpace','Bytes','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbInstanceIdentifier}],startTime, endTime, period, callback);
                     },
                     ReplicaLag: function (callback) {
-                        cw.getUsageMetrics('ReplicaLag','Seconds','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
+                        cw.getUsageMetrics('ReplicaLag','Seconds','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbInstanceIdentifier}],startTime, endTime, period, callback);
                     },
                     SwapUsage: function (callback) {
-                        cw.getUsageMetrics('SwapUsage','Bytes','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
+                        cw.getUsageMetrics('SwapUsage','Bytes','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbInstanceIdentifier}],startTime, endTime, period, callback);
                     },
                     ReadIOPS: function (callback) {
-                        cw.getUsageMetrics('ReadIOPS','Count/Second','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
+                        cw.getUsageMetrics('ReadIOPS','Count/Second','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbInstanceIdentifier}],startTime, endTime, period, callback);
                     },
                     WriteIOPS: function (callback) {
-                        cw.getUsageMetrics('WriteIOPS','Count/Second','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
+                        cw.getUsageMetrics('WriteIOPS','Count/Second','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbInstanceIdentifier}],startTime, endTime, period, callback);
                     },
                     ReadLatency: function (callback) {
-                        cw.getUsageMetrics('ReadLatency','Seconds','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
+                        cw.getUsageMetrics('ReadLatency','Seconds','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbInstanceIdentifier}],startTime, endTime, period, callback);
                     },
                     WriteLatency: function (callback) {
-                        cw.getUsageMetrics('WriteLatency','Seconds','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
+                        cw.getUsageMetrics('WriteLatency','Seconds','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbInstanceIdentifier}],startTime, endTime, period, callback);
                     },
                     ReadThroughput: function (callback) {
-                        cw.getUsageMetrics('ReadThroughput','Bytes/Second','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
+                        cw.getUsageMetrics('ReadThroughput','Bytes/Second','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbInstanceIdentifier}],startTime, endTime, period, callback);
                     },
                     WriteThroughput: function (callback) {
-                        cw.getUsageMetrics('WriteThroughput','Bytes/Second','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
+                        cw.getUsageMetrics('WriteThroughput','Bytes/Second','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbInstanceIdentifier}],startTime, endTime, period, callback);
                     },
                     NetworkReceiveThroughput: function (callback) {
-                        cw.getUsageMetrics('NetworkReceiveThroughput','Bytes/Second','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
+                        cw.getUsageMetrics('NetworkReceiveThroughput','Bytes/Second','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbInstanceIdentifier}],startTime, endTime, period, callback);
                     },
                     NetworkTransmitThroughput: function (callback) {
-                        cw.getUsageMetrics('NetworkTransmitThroughput','Bytes/Second','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbName}],startTime, endTime, period, callback);
+                        cw.getUsageMetrics('NetworkTransmitThroughput','Bytes/Second','AWS/RDS',[{Name:'DBInstanceIdentifier',Value:rds.resourceDetails.dbInstanceIdentifier}],startTime, endTime, period, callback);
                     }
                 },
                 function (err, results) {
@@ -582,7 +582,7 @@ function getRDSDBInstanceMetrics(provider, dbInstances, startTime, endTime, peri
                             orgId: provider.orgId[0],
                             resourceId: rds._id,
                             platform: 'AWS',
-                            platformId: rds.resourceDetails.dbName,
+                            platformId: rds.resourceDetails.dbInstanceIdentifier,
                             resourceType: 'RDS',
                             startTime: dbStartTime,
                             endTime: dbEndTime,
@@ -654,8 +654,6 @@ function getBucketsInfo(provider,orgName,callback) {
                                         callback(err, null);
                                     } else {
                                         bucketObj.tags = bucketTag;
-                                        bucketObj.projectTag = bucketTag['Owner'];
-                                        bucketObj.environmentTag = bucketTag['Environment'];
                                         results.push(bucketObj);
                                         bucketObj={};
                                         if (results.length === data.Buckets.length) {
@@ -761,10 +759,12 @@ function getRDSInstancesInfo(provider,orgName,callback) {
         if(err){
             logger.error(err);
             callback(err,null);
+            return;
         }else{
             var results=[];
             if(dbInstances.length === 0){
                 callback(null,results);
+                return;
             }else{
                 var sysDate=new Date();
                 for(var i = 0; i < dbInstances.length; i++){
@@ -782,6 +782,7 @@ function getRDSInstancesInfo(provider,orgName,callback) {
                             category:"unassigned",
                             isDeleted:false,
                             resourceDetails: {
+                                dbInstanceIdentifier: dbInstance.DBInstanceIdentifier,
                                 dbName: dbInstance.DBName,
                                 dbInstanceClass: dbInstance.DBInstanceClass,
                                 dbEngine: dbInstance.Engine,
@@ -807,26 +808,22 @@ function getRDSInstancesInfo(provider,orgName,callback) {
                                 storageType: dbInstance.StorageType,
                                 storageEncrypted: dbInstance.StorageEncrypted,
                                 dbiResourceId: dbInstance.DbiResourceId,
-                                accountNumber: 549974527830,
+                                accountNumber: appConfig.aws.s3AccountNumber,
                                 caCertificateIdentifier: dbInstance.CACertificateIdentifier
                             }
                         };
                         var params ={
-                            ResourceName:'arn:aws:rds:us-west-1:'+appConfig.aws.s3AccountNumber+':db:'+dbInstance.DBName
+                            ResourceName:'arn:aws:rds:us-west-1:'+appConfig.aws.s3AccountNumber+':db:'+dbInstance.DBInstanceIdentifier
                         };
                         rds.getRDSDBInstanceTag(params,function(err,rdsTags){
                             if(err){
                                 logger.error(err);
-                                callback(err,null);
-                            }else{
-                                rdsDbInstanceObj.tags = rdsTags;
-                                rdsDbInstanceObj.projectTag = rdsTags['Owner'];
-                                rdsDbInstanceObj.environmentTag = rdsTags['Environment'];
-                                results.push(rdsDbInstanceObj);
-                                rdsDbInstanceObj={};
-                                if(dbInstances.length === results.length){
-                                    callback(null,results);
-                                }
+                            }
+                            rdsDbInstanceObj.tags = rdsTags;
+                            results.push(rdsDbInstanceObj);
+                            rdsDbInstanceObj={};
+                            if(dbInstances.length === results.length){
+                                callback(null,results);
                             }
                         })
 
@@ -981,7 +978,7 @@ function bulkUpdateAWSResourcesTags(provider, resources, callback) {
             for (var i = 0; i < resources.length; i++) {
                 (function (j) {
                     logger.debug('Updating tags for resource ', resources[j]._id);
-                    rds.addRDSDBInstanceTag(resources[j].resourceDetails.dbName, resources[j].tags,
+                    rds.addRDSDBInstanceTag(resources[j].resourceDetails.dbInstanceIdentifier, resources[j].tags,
                         function (err, data) {
                             if (err) {
                                 logger.error(err);

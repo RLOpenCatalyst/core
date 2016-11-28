@@ -1,5 +1,65 @@
-<br />
-<div id="grid1" ng-if="libr.gridOptions.data.length > 0" ui-grid="libr.gridOptions" ui-grid-pagination class="grid"></div>
-<div class="alert alert-info text-center" ng-if="!libr.gridOptions.data.length > 0">
-    No data Available
+<link rel='stylesheet' href='catalyst/partials/sections/dashboard/bots/bots.css'>
+
+<div id="botLibraryPage">
+	<div class="container summary-container">
+		<div class="panel-group text-center">
+			<div class="col-md-4ths infrastructureClass" data-text="Total Number of Providers">
+				<div class="small-box bg-aqua">
+					<div class="inner">
+						<h3 id="totalProviders">{{botSummary.totalNoOfBots}}</h3>
+						<p>Total <br>Number of BOTs</p>
+					</div>
+					<div class="icon">
+						<i class="fa fa-th" style="color: rgba(0, 0, 0, 0.15)"></i>
+					</div>
+                    <span class="small-box-footer managedUnmanagedCSS">
+                    </span>
+				</div>
+			</div>
+			<div class="col-md-4ths infrastructureClass" data-text="Total Number of Providers">
+				<div class="small-box bg-aqua">
+					<div class="inner">
+						<h3 id="totalProviders">{{botSummary.totalNoOfRunningBots}}</h3>
+						<p>Total <br>Number of BOTs running</p>
+					</div>
+					<div class="icon">
+						<i class="fa fa-laptop" style="color: rgba(0, 0, 0, 0.15)"></i>
+					</div>
+                    <span class="small-box-footer managedUnmanagedCSS">
+                    </span>
+				</div>
+			</div>
+			<div class="col-md-4ths infrastructureClass" data-text="Total Number of Providers">
+				<div class="small-box bg-aqua">
+					<div class="inner">
+						<h3 id="totalProviders">{{botSummary.totalSavedTimeForBots}} mins</h3>
+						<p>Total <br>Time saved</p>
+					</div>
+					<div class="icon">
+						<i class="fa fa-cube" style="color: rgba(0, 0, 0, 0.15)"></i>
+					</div>
+                    <span class="small-box-footer managedUnmanagedCSS">
+                    </span>
+				</div>
+			</div>
+			<div class="col-md-4ths infrastructureClass" data-text="Total Number of Providers">
+				<div class="small-box bg-aqua">
+					<div class="inner">
+						<h3 id="totalProviders">{{botSummary.totalNoOfFailedBots}}</h3>
+						<p>Total <br>Number of failed runs</p>
+					</div>
+					<div class="icon">
+						<i class="fa fa-external-link" style="color: rgba(0, 0, 0, 0.15)"></i>
+					</div>
+                    <span class="small-box-footer managedUnmanagedCSS">
+                    </span>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div id="grid" ng-if="libr.gridOptions.data.length > 0" ui-grid="libr.gridOptions" ui-grid-pagination class="grid" style="height: {{gridHeight}}px"></div>
+	<div class="alert alert-info text-center" ng-if="!libr.gridOptions.data.length > 0">
+		No data Available
+	</div>
 </div>

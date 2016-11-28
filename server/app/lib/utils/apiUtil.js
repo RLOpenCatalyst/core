@@ -32,6 +32,61 @@ var ApiUtil = function() {
         }
         return errObj;
     }
+    this.createCronJobPattern= function(scheduler,startOn){
+        scheduler.repeatEvery = parseInt(scheduler.repeatEvery);
+        if(scheduler.repeats ==='Minutes'){
+            scheduler.pattern = '*/'+scheduler.repeatEvery+' * * * *';
+        }else if(scheduler.repeats ==='Hourly'){
+            scheduler.pattern = '0 */'+scheduler.repeatEvery+' * * *';
+        }else if(scheduler.repeats ==='Daily'){
+            var startOn = Date.parse(startOn);
+            var startHours= startOn.getHours();
+            var startMinutes= startOn.getMinutes();
+            scheduler.pattern = startMinutes+' '+startHours+' */'+scheduler.repeatEvery+' * *';
+        }else if(scheduler.repeats ==='Weekly') {
+            var startOn = Date.parse(startOn);
+            var startDay= startOn.getDay();
+            var startHours= startOn.getHours();
+            var startMinutes= startOn.getMinutes();
+            if(scheduler.repeatEvery === 2) {
+                scheduler.pattern = startMinutes+' '+startHours+' 8-14 * ' + startDay;
+            }else if(scheduler.repeatEvery === 3) {
+                scheduler.pattern = startMinutes+' '+startHours+' 15-21 * ' + startDay;
+            }else if(scheduler.repeatEvery === 4) {
+                scheduler.pattern = startMinutes+' '+startHours+' 22-28 * ' + startDay;
+            }else{
+                scheduler.pattern = startMinutes+' '+startHours+' * * ' + startDay;
+            }
+        }
+        if(scheduler.repeats ==='Monthly') {
+            var startOn = Date.parse(startOn);
+            var startDate= startOn.getDate();
+            var startMonth= startOn.getMonth();
+            var startDay= startOn.getDay();
+            var startHours= startOn.getHours();
+            var startMinutes= startOn.getMinutes();
+            if(scheduler.repeatEvery === 1) {
+                scheduler.pattern = startMinutes+' '+startHours+' '+startDate+' * *';
+            }else{
+                scheduler.pattern = startMinutes+' '+startHours+' '+startDate+' */'+scheduler.repeatEvery+' *';
+            }
+        }
+        if(scheduler.repeats ==='Yearly') {
+            var startOn = Date.parse(startOn);
+            var startDate= startOn.getDate();
+            var startYear= startOn.getFullYear();
+            var startMonth= startOn.getMonth();
+            var startHours= startOn.getHours();
+            var startMinutes= startOn.getMinutes();
+            scheduler.pattern ='0 '+startMinutes+' '+startHours+' '+startDate+' '+startMonth+' ? '+startYear/scheduler.repeatEvery;
+        }
+        var cronScheduler = {
+            "repeats": scheduler.repeats,
+            "repeatEvery": scheduler.repeatEvery,
+            "cronPattern":scheduler.pattern
+        }
+        return cronScheduler;
+    }
     this.paginationResponse=function(data,req, callback) {
         var response={};
         var sortField=req.mirrorSort;

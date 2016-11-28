@@ -28,7 +28,7 @@
 				break;
 			}
 			
-			workzoneServices.blueprintInfo(items.selectedVersionBpId).then(function(response) {
+			workzoneServices.blueprintInfo(items._id).then(function(response) {
 				$scope.blueprintInfo = response.data;
 			},
 			function(error) {

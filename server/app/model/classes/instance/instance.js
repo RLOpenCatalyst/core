@@ -23,6 +23,11 @@ var uniqueValidator = require('mongoose-unique-validator');
 var logger = require('_pr/logger')(module);
 var textSearch = require('mongoose-text-search');
 var apiUtils = require('_pr/lib/utils/apiUtil.js');
+var async = require('async');
+var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js');
+var AzureProvider = require('_pr/model/classes/masters/cloudprovider/azureCloudProvider.js');
+var VmwareProvider = require('_pr/model/classes/masters/cloudprovider/vmwareCloudProvider.js');
+var OpenStackProvider = require('_pr/model/classes/masters/cloudprovider/openstackCloudProvider.js');
 
 var Schema = mongoose.Schema;
 
@@ -346,6 +351,60 @@ var InstanceSchema = new Schema({
         type: String,
         required: false,
         trim: true
+    },
+    instanceStartScheduler: [{
+
+        cronPattern: {
+            type: String,
+            required: false,
+            trim: true
+        },
+        cronTime: {
+            type: String,
+            required: false,
+            trim: true
+        },
+        cronDays: {
+            type: [String],
+            required: false
+        }
+    }],
+    instanceStopScheduler: [{
+        cronPattern: {
+            type: String,
+            required: false,
+            trim: true
+        },
+        cronTime: {
+            type: String,
+            required: false,
+            trim: true
+        },
+        cronDays: {
+            type: [String],
+            required: false
+        }
+    }],
+    schedulerStartOn: {
+        type: Number,
+        required: false,
+        trim: true
+    },
+    schedulerEndOn: {
+        type: Number,
+        required: false,
+        trim: true
+    },
+    interval:[Schema.Types.Mixed],
+    cronJobIds: {
+        type: [String],
+        required: false,
+        trim: true
+    },
+    isScheduled: {
+        type: Boolean,
+        required: false,
+        default: false
     }
 });
 
@@ -490,7 +549,13 @@ var InstancesDao = function () {
                     err.status = 500;
                     return callback(err);
                 } else {
-                    databaseCall.queryObj['$or'] = [{"instanceState": "running"}, {"instanceState": "stopped"}, {"instanceState": "pending"}];
+                    databaseCall.queryObj['$or'] = [{
+                            "instanceState": "running"
+                        }, {
+                            "instanceState": "stopped"
+                        }, {
+                            "instanceState": "pending"
+                        }];
                     Instances.paginate(databaseCall.queryObj, databaseCall.options, function (err, instances) {
                         if (err) {
                             logger.error(err);
@@ -580,52 +645,40 @@ var InstancesDao = function () {
                     return callback(null, instances);
                 } else {
 
-                    // @TODO Workaround to avoid circular dependency to be addressed
-                    var tasks = require('_pr/model/classes/tasks/tasks.js');
-                    var instanceList = instances.docs;
-                    var count = 0;
-                    for (var i = 0; i < instanceList.length; i++) {
-                        (function (instance) {
-                            if (instance.taskIds.length > 0) {
-                                tasks.getTaskByIds(instance.taskIds, function (err, tasks) {
-                                    if (err) {
-                                        logger.error(err);
-                                        return;
-                                    } else if (tasks.length === 0) {
-                                        return;
-                                    } else {
-
-                                        var taskObj = {};
-                                        var taskList = [];
-                                        for (var j = 0; j < tasks.length; j++) {
-                                            taskObj['id'] = tasks[j]._id;
-                                            taskObj['taskName'] = tasks[j].name;
-                                            taskObj['taskType'] = tasks[j].taskType;
-                                            taskObj['taskConfig'] = tasks[j].taskConfig;
-                                            taskList.push(taskObj);
-                                            taskObj = {};
-                                        }
-                                        ;
+                    var instanceList = [];
+                    async.forEach(instances.docs, function (instance, next0) {
+                        instance = instance.toObject();
+                        async.waterfall([
+                            function (next) {
+                                if (instance.taskIds.length > 0) {
+                                    getTasks(instance.taskIds, function (taskList) {
                                         instance['tasks'] = taskList;
-                                        count++;
-                                            if (instanceList.length === count) {
-                                                instances.docs = instanceList;
-                                                return callback(null, instances);
-                                            }
-                                      
-
-                                    }
-                                })
-                            } else {
-                                count++;
-                                    if (instanceList.length === count) {
-                                        instances.docs = instanceList;
-                                        return callback(null, instances);
-                                    }
-
+                                        next(null);
+                                    });
+                                } else {
+                                    next(null);
+                                }
+                            },
+                            function (next) {
+                                if (instance.providerId && instance.providerType) {
+                                    getProviderDetail(instance.providerId, instance.providerType, function (err, providerData) {
+                                        if (providerData) {
+                                            instance['providerName'] = providerData.providerName;
+                                        }
+                                        next(null, instance);
+                                    });
+                                } else {
+                                    next(null, instance);
+                                }
                             }
-                        })(instanceList[i]);
-                    }
+                        ], function (err, instance) {
+                            instanceList.push(instance);
+                            next0();
+                        });
+                    }, function (err) {
+                        instances.docs = instanceList;
+                        return callback(null, instances);
+                    });
                 }
             });
         } else {
@@ -2184,7 +2237,10 @@ var InstancesDao = function () {
     };
 
     this.getAllTerminatedInstances = function (orgId, callback) {
-        Instances.find({"orgId": orgId, "instanceState": "terminated"}, function (err, data) {
+        Instances.find({
+            "orgId": orgId,
+            "instanceState": "terminated"
+        }, function (err, data) {
             if (err) {
                 return callback(err, null);
             } else {
@@ -2209,6 +2265,210 @@ var InstancesDao = function () {
             callback(null, data);
         });
     };
+
+    this.updateInstanceScheduler = function (instanceId, callback) {
+        Instances.update({
+            "_id": new ObjectId(instanceId),
+        }, {
+            $set: {
+                isScheduled: false
+            }
+        }, {
+            upsert: false
+        }, function (err, data) {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            callback(null, data);
+        });
+    };
+    this.updateCronJobIdByInstanceId = function (instanceId, cronJobId, callback) {
+        Instances.find({
+            "_id": new ObjectId(instanceId)
+        }, function (err, instances) {
+            if (err) {
+                logger.error(err);
+                return callback(err, null);
+            }
+            var cronJobIds =[];
+            if(instances[0].cronJobIds){
+                cronJobIds = instances[0].cronJobIds;
+                cronJobIds.push(cronJobId);
+            }else{
+                cronJobIds.push(cronJobId);
+            }
+            Instances.update({
+                "_id": new ObjectId(instanceId),
+            }, {
+                $set: {
+                    cronJobIds: cronJobIds
+                }
+            }, {
+                upsert: false
+            }, function (err, data) {
+                if (err) {
+                    callback(err, null);
+                    return;
+                }
+                callback(null, data);
+            });
+        });
+    };
+    this.getScheduledInstances = function (callback) {
+        Instances.find({
+            isScheduled: true,
+            isDeleted: false
+        }, function (err, instances) {
+            if (err) {
+                logger.error(err);
+                return callback(err, null);
+            }
+            callback(null, instances);
+        })
+    }
+
+    this.updateScheduler = function (instanceIds, instanceScheduler, callback) {
+        var instanceIdList = [];
+        if (instanceIds.length > 0) {
+            for (var i = 0; i < instanceIds.length; i++) {
+                instanceIdList.push(ObjectId(instanceIds[i]));
+            }
+            if (instanceIdList.length === instanceIds.length) {
+                Instances.update({
+                    "_id": {
+                        $in: instanceIdList
+                    }
+                }, {
+                    $set: {
+                        instanceStartScheduler: instanceScheduler.instanceStartScheduler,
+                        instanceStopScheduler: instanceScheduler.instanceStopScheduler,
+                        schedulerStartOn: instanceScheduler.schedulerStartOn,
+                        schedulerEndOn: instanceScheduler.schedulerEndOn,
+                        isScheduled: instanceScheduler.isScheduled,
+                        interval:instanceScheduler.interval
+                    },
+                }, {multi: true}, function (err, data) {
+                    if (err) {
+                        logger.error("Failed to update managed Instance status data", err);
+                        callback(err, null);
+                        return;
+                    }
+                    callback(null, data);
+                });
+            }
+        } else {
+            logger.error("There is no instance Id attached for updating scheduler");
+            callback({
+                errMsg: "There is no instance Id attached for updating scheduler",
+                errCode: 400
+            }, null);
+            return;
+        }
+    };
+
+    this.aggregate = function (aggregationParams, callback) {
+        Instances.aggregate(aggregationParams, callback);
+    };
+
+    this.getInstancesByTagServer = function (tagServer, callback) {
+        Instances.find({
+            "tagServer": tagServer
+        }, function (err, data) {
+            if (err) {
+                return callback(err, null);
+            } else {
+                callback(null, data);
+            }
+        });
+    };
 };
 
 module.exports = new InstancesDao();
+
+function getTasks(taskIds, callback) {
+    // @TODO Workaround to avoid circular dependency to be addressed
+    var tasks = require('_pr/model/classes/tasks/tasks.js');
+    var taskList = [];
+    tasks.getTaskByIds(taskIds, function (err, tasks) {
+        if (tasks.length > 0) {
+            var taskObj = {};
+            for (var j = 0; j < tasks.length; j++) {
+                taskObj['id'] = tasks[j]._id;
+                taskObj['taskName'] = tasks[j].name;
+                taskObj['taskType'] = tasks[j].taskType;
+                taskObj['taskConfig'] = tasks[j].taskConfig;
+                taskList.push(taskObj);
+                taskObj = {};
+            }
+            ;
+        }
+        callback(taskList);
+    });
+}
+
+function getProviderDetail(providerId, providerType, callback) {
+    if (providerType === 'azure') {
+        AzureProvider.getAzureCloudProviderById(providerId, function (err, providerData) {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            if (providerData !== 0) {
+                var jsonData = JSON.parse(providerData);
+                callback(null, jsonData);
+                return;
+            } else {
+                callback(null, null);
+                return;
+            }
+        });
+
+    } else if (providerType === 'openstack') {
+
+        OpenStackProvider.getopenstackProviderById(providerId, function (err, providerData) {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            if (providerData !== null) {
+                callback(null, providerData);
+                return;
+            } else {
+                callback(null, null);
+                return;
+            }
+        });
+
+    } else if (providerType === 'vmware') {
+
+        VmwareProvider.getvmwareProviderById(providerId, function (err, providerData) {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            if (providerData !== null) {
+                callback(null, providerData);
+                return;
+            } else {
+                callback(null, null);
+                return;
+            }
+        })
+
+    } else {
+        AWSProvider.getAWSProviderById(providerId, function (err, providerData) {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            if (providerData !== null) {
+                callback(null, providerData);
+                return;
+            } else {
+                callback(null, null);
+                return;
+            }
+        });
+    }
+}

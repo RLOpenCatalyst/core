@@ -44,10 +44,7 @@ TrackSchema.statics.getTracks = function(callback) {
             logger.debug("Got error while fetching Track: ", err);
             callback(err, null);
         }
-        if (tracks) {
-            logger.debug("Got Tracks: ", JSON.stringify(tracks));
-            callback(null, tracks);
-        }
+        callback(null, tracks);
     });
 };
 
