@@ -70,7 +70,6 @@
         $scope.jenkinsparams = items.taskConfig.parameterized;
         $scope.scriptparams = items.taskConfig.scriptDetails;
         $scope.parameters=[''];
-        var taskData={};
         var cookbookAttributes = [];
         var scriptParams = [];
         var choiceParam = {};

@@ -47,7 +47,6 @@
         var requestObj = {
             "instanceIds": nodeIds
         };
-        var bluePrintJob = false;
         workzoneServices.postRetrieveDetailsForInstanceNames(requestObj).then(function (response) {
             var _jobInstances = response.data;
             for (var k = 0; k < $scope.nodeIdsWithActionLog.length; k++) {
@@ -81,6 +80,6 @@
 
         $scope.cancel = function() {
             $modalInstance.dismiss('cancel');
-        }
+        };
     }]);
 })(angular);

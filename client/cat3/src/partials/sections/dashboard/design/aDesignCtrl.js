@@ -56,7 +56,7 @@
 						return deferred.promise;
 					}]
 				}
-			})
+			});
 		}]).filter('inArray',['$filter', function($filter){
 			return function(list, arrayFilter, element){
 				if(arrayFilter){
@@ -126,7 +126,7 @@
                 $rootScope.$emit('BP_BLUEPRINTS_REFRESH_CURRENT');
                 return genericServices.promiseGet(params);
             }
-		}
+		};
 		design.providersList();
 		return design;
 	}]);

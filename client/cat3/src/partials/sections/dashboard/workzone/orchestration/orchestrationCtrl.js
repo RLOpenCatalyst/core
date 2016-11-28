@@ -275,7 +275,8 @@
 						controller: 'newTaskCtrl',
 						backdrop: 'static',
 						keyboard: false,
-						size: 'lg',
+						size:'lg',
+						windowClass: 'my-modal-popup',
 						resolve: {
 							items: function() {
 								return type;

@@ -165,7 +165,7 @@
                             capaCtr.capaGridOptions.columnDefs.push({
                                 name: keyChild,
                                 field: 'capacity.AWS.services.' + keyChild
-                            })
+                            });
                             angular.forEach(result.splitUpCapacities[viewType], function (valBar) {
                                 var chVal = '';
                                 if (valBar.capacity.AWS.services[keyChild]) {
