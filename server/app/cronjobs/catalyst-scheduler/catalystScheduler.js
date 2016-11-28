@@ -43,12 +43,51 @@ catalystSync.executeScheduledTasks = function executeScheduledTasks() {
             return;
         }
         if (tasks && tasks.length) {
-            var resultList =[];
+            var resultList =[],parallelTaskList=[],serialTaskList=[];
             for (var i = 0; i < tasks.length; i++) {
                 (function(task) {
-                    resultList.push(function(callback){schedulerService.executeSchedulerForTasks(task,callback);});
+                    if(task.executionOrder === 'PARALLEL'){
+                        resultList.push(function(callback){schedulerService.executeSchedulerForTasks(task,callback);});
+                        parallelTaskList.push(function(callback){schedulerService.executeSchedulerForTasks(task,callback);});
+                    }else{
+                        resultList.push(function(callback){schedulerService.executeSchedulerForTasks(task,callback);});
+                        if(serialTaskList.length ===0) {
+                            serialTaskList.push(function (next) {
+                                schedulerService.executeSchedulerForTasks(task, next);
+                            });
+                        }else{
+                            serialTaskList.push(function (execution,next) {
+                                schedulerService.executeSchedulerForTasks(task, next);
+                            });
+                        }
+                    }
                     if(resultList.length === tasks.length){
-                        async.parallel(resultList,function(err,results){
+                        async.parallel({
+                            parallelTask: function(callback){
+                                console.log("Parallel");
+                                async.parallel(parallelTaskList,function(err,data){
+                                    if(err){
+                                        callback(err,null);
+                                        return;
+                                    }
+                                    logger.debug("Parallel Task Scheduler Completed");
+                                    callback(null,data);
+                                    return;
+                                })
+                            },
+                            serialTask: function(callback){
+                                console.log("Serial");
+                                async.waterfall(serialTaskList,function(err,data){
+                                    if(err){
+                                        callback(err,null);
+                                        return;
+                                    }
+                                    logger.debug("Serial Task Scheduler Completed");
+                                    callback(null,data);
+                                    return;
+                                })
+                            }
+                        },function(err,results){
                             if(err){
                                 logger.error(err);
                                 return;

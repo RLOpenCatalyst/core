@@ -542,11 +542,16 @@ module.exports.setRoutes = function(app, sessionVerification) {
                             }
                             if (updateCount) {
                                 if(taskData.isTaskScheduled === true){
-                                    schedulerService.executeSchedulerForTasks(task,function(err,data){
-                                        if(err){
-                                            logger.error("Error in executing task scheduler");
+                                    Tasks.getTaskById(req.params.taskId, function(err, scriptTask) {
+                                        if (err) {
+                                            logger.error(err);
                                         }
-                                    })
+                                        schedulerService.executeSchedulerForTasks(scriptTask, function (err, data) {
+                                            if (err) {
+                                                logger.error("Error in executing task scheduler");
+                                            }
+                                        })
+                                    });
                                 };
                                 res.send({
                                     updateCount: updateCount
@@ -567,11 +572,16 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 }
                 if (updateCount) {
                     if(taskData.isTaskScheduled === true){
-                        schedulerService.executeSchedulerForTasks(task,function(err,data){
-                            if(err){
-                                logger.error("Error in executing task scheduler");
+                        Tasks.getTaskById(req.params.taskId, function(err, scriptTask) {
+                            if (err) {
+                                logger.error(err);
                             }
-                        })
+                            schedulerService.executeSchedulerForTasks(scriptTask, function (err, data) {
+                                if (err) {
+                                    logger.error("Error in executing task scheduler");
+                                }
+                            })
+                        });
                     };
                     res.send({
                         updateCount: updateCount

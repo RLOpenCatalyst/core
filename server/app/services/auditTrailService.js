@@ -235,7 +235,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
                     for(var i = 0; i < botAuditTrail.length; i++){
                         (function(auditTrail){
                             count++;
-                            if(auditTrail.endedOn && auditTrail.endedOn !== null) {
+                            if(auditTrail.endedOn && auditTrail.endedOn !== null && auditTrail.actionStatus !== 'failed') {
                                 var executionTime = getExecutionTime(auditTrail.endedOn, auditTrail.startedOn);
                                 totalTimeInSeconds = totalTimeInSeconds + (600 - executionTime);
                             }

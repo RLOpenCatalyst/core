@@ -975,8 +975,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
             taskData.orgName = project[0].orgname;
             taskData.bgName = project[0].productgroupname;
             taskData.projectName = project[0].projectname;
-            if(req.body.taskScheduler  && req.body.taskScheduler !== null) {
-                taskData.taskScheduler = apiUtil.createCronJobPattern(req.body.taskScheduler);
+            console.log(JSON.stringify(taskData));
+            if(taskData.taskScheduler  && taskData.taskScheduler !== null) {
+                taskData.taskScheduler = apiUtil.createCronJobPattern(taskData.taskScheduler);
                 taskData.isTaskScheduled = true;
             }
             configmgmtDao.getEnvNameFromEnvId(req.params.envId, function(err, envName) {

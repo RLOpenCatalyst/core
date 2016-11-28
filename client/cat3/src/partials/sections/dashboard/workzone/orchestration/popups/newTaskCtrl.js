@@ -268,10 +268,10 @@
 						$scope.repeatPattern = 'Repeat Every -' +  $scope.chefJenkScriptTaskObj.repeats;   
 						$scope.cronDetails = {
 							cronStartOn : $scope.chefJenkScriptTaskObj.cronStart,
-							cronStartEnd : $scope.chefJenkScriptTaskObj.cronEnd,
+							cronEndOn : $scope.chefJenkScriptTaskObj.cronEnd,
 							cronRepeatEvery : $scope.chefJenkScriptTaskObj.repeatBy,
 							cronFrequency: $scope.chefJenkScriptTaskObj.repeats,
-							cronTime: startTimeHour + ':' + startTimeMinute,
+							cronTime: typeof startTimeHour !=='undefined'? startTimeHour : new Date().getHours() + ':' + typeof startTimeMinute !=='undefined'? startTimeMinute:new Date().getMinutes(),
 							cronDays: $scope.chefJenkScriptTaskObj.dayOfWeek,
 							cronMonth: $scope.chefJenkScriptTaskObj.monthOfYear
 						}
