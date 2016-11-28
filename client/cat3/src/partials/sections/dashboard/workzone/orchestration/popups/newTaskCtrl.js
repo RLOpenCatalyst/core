@@ -256,7 +256,6 @@
 					}).result.then(function (chefEventDetails) {
 						$scope.isEventAvailable = true;
 						$scope.chefJenkScriptTaskObj = chefEventDetails;
-						console.log($scope.chefJenkScriptTaskObj);
 						var startTimeMinute,startTimeHour,dayOfWeek,selectedDayOfTheMonth,selectedMonth;
 						startTimeMinute = $scope.chefJenkScriptTaskObj.startTimeMinute;
 						startTimeHour = $scope.chefJenkScriptTaskObj.startTime;
@@ -265,100 +264,16 @@
 						selectedMonth = $scope.chefJenkScriptTaskObj.monthOfYear;
 						$scope.type = 'edit';
 						$scope._isEventSelected = true;
-						if($scope.chefJenkScriptTaskObj.repeats ==='Daily'){
-							if(startTimeMinute !=='0' && startTimeHour === undefined || startTimeHour === ''){
-								$scope.cronPattern = "*/"+startTimeMinute+" * * * *";
-							} else if(startTimeMinute !=='0' && startTimeHour === '0'){
-								$scope.cronPattern = ""+startTimeMinute+" 0 * * *";
-							} else if(startTimeMinute ==='0' && startTimeHour === undefined || startTimeHour === ''){
-								$scope.cronPattern = "0 * * * *";
-							} else if(startTimeMinute ==='0' && startTimeHour !== '0'){
-								$scope.cronPattern = "0 "+startTimeHour+" * * *";
-							} else if(startTimeMinute !=='0' && startTimeHour !== '0'){
-								$scope.cronPattern = ""+startTimeMinute+" "+startTimeHour+" * * *";
-							} else if(startTimeMinute === undefined && startTimeHour !== '0' || startTimeHour === '0'){
-								$scope.cronPattern = "* "+startTimeHour+" * * *";
-							} else {
-								$scope.cronPattern = "* * * * *";
-							}
-						}
-						if($scope.chefJenkScriptTaskObj.repeats ==='Hourly'){
-							if(startTimeMinute !=='0' && startTimeHour === undefined || startTimeHour === ''){
-								$scope.cronPattern = "*/"+startTimeMinute+" * * * *";
-							} else if(startTimeMinute !=='0' && startTimeHour === '0'){
-								$scope.cronPattern = ""+startTimeMinute+" 0 * * *";
-							} else if(startTimeMinute ==='0' && startTimeHour === undefined || startTimeHour === ''){
-								$scope.cronPattern = "0 * * * *";
-							} else if(startTimeMinute ==='0' && startTimeHour !== '0'){
-								$scope.cronPattern = "0 */"+startTimeHour+" * * *";
-							} else if(startTimeMinute !=='0' && startTimeHour !== '0'){
-								$scope.cronPattern = ""+startTimeMinute+" */"+startTimeHour+" * * *";
-							} else if(startTimeMinute === undefined && startTimeHour !== '0' || startTimeHour === '0'){
-								$scope.cronPattern = "* "+startTimeHour+" * * *";
-							} else {
-								$scope.cronPattern = "* * * * *";
-							}
-						}
-						if($scope.chefJenkScriptTaskObj.repeats ==='Weekly') {
-							if(startTimeMinute !=='0' && startTimeHour === undefined || startTimeHour === ''){
-								$scope.cronPattern = "*/"+startTimeMinute+" * * * "+dayOfWeek+"";
-							} else if(startTimeMinute !=='0' && startTimeHour !== '0') {
-								$scope.cronPattern = ""+startTimeMinute+" "+startTimeHour+" * * "+dayOfWeek+"";
-							} else if(startTimeMinute !=='0' && startTimeHour === '0'){
-								$scope.cronPattern = "* 0 * * "+dayOfWeek+"";
-							} else if(startTimeMinute ==='0' && startTimeHour === undefined || startTimeHour === ''){
-								$scope.cronPattern = "0 * * * "+dayOfWeek+"";
-							} else if(startTimeMinute ==='0' && startTimeHour !== '0'){
-								$scope.cronPattern = "0 "+startTimeHour+" * * "+dayOfWeek+"";
-							} else if(startTimeMinute === undefined && startTimeHour !== '0' || startTimeHour === '0'){
-								$scope.cronPattern = "* "+startTimeHour+" * * "+dayOfWeek+"";
-							} else {
-								$scope.cronPattern = "* * * * "+dayOfWeek+"";
-							}
-						}
-						if($scope.chefJenkScriptTaskObj.repeats ==='Monthly') {
-							if(startTimeMinute !=='0' && startTimeHour === undefined || startTimeHour === ''){
-								$scope.cronPattern = "*/"+startTimeMinute+" * "+selectedDayOfTheMonth+" * *";
-							} else if(startTimeMinute !=='0' && startTimeHour !== '0') {
-								$scope.cronPattern = ""+startTimeMinute+" "+startTimeHour+" "+selectedDayOfTheMonth+" * *";
-							} else if(startTimeMinute !=='0' && startTimeHour === '0') {
-								$scope.cronPattern = ""+startTimeMinute+" 0 "+selectedDayOfTheMonth+" * *";
-							} else if(startTimeMinute ==='0' && startTimeHour === undefined || startTimeHour === '') {
-								$scope.cronPattern = "0 * "+selectedDayOfTheMonth+" * *";
-							} else if(startTimeMinute ==='0' && startTimeHour !== '0') {
-								$scope.cronPattern = "0 "+startTimeHour+" "+selectedDayOfTheMonth+" * *";
-							} else if(startTimeMinute === undefined && startTimeHour !== '0' || startTimeHour === '0') {
-								$scope.cronPattern = "* "+startTimeHour+" "+selectedDayOfTheMonth+" * *";
-							} else {
-								$scope.cronPattern = "* * "+selectedDayOfTheMonth+" * *";
-							}
-						}
-						if($scope.chefJenkScriptTaskObj.repeats ==='Yearly') {
-							if(startTimeMinute !=='0' && startTimeHour === undefined || startTimeHour === ''){
-								$scope.cronPattern = "*/"+startTimeMinute+" * "+selectedDayOfTheMonth+" "+selectedMonth+" *";
-							} else if(startTimeMinute !=='0' && startTimeHour !== '0') {
-								$scope.cronPattern = ""+startTimeMinute+" "+startTimeHour+" "+selectedDayOfTheMonth+" "+selectedMonth+" *";
-							} else if(startTimeMinute !=='0' && startTimeHour === '0') {
-								$scope.cronPattern = ""+startTimeMinute+" 0 "+selectedDayOfTheMonth+" "+selectedMonth+" *";
-							} else if(startTimeMinute ==='0' && startTimeHour === undefined || startTimeHour === '') {
-								$scope.cronPattern = "0 * "+selectedDayOfTheMonth+" "+selectedMonth+" *";
-							} else if(startTimeMinute ==='0' && startTimeHour !== '0') {
-								$scope.cronPattern = "0 "+startTimeHour+" "+selectedDayOfTheMonth+" "+selectedMonth+" *";
-							} else if(startTimeMinute === undefined && startTimeHour !== '0' || startTimeHour === '0') {
-								$scope.cronPattern = "* "+startTimeHour+" "+selectedDayOfTheMonth+" "+selectedMonth+" *";
-							} else {
-								$scope.cronPattern = "* * "+selectedDayOfTheMonth+" "+selectedMonth+" *";
-							}	
-						}
-
+						
+						$scope.repeatPattern = 'Repeat Every -' +  $scope.chefJenkScriptTaskObj.repeats;   
 						$scope.cronDetails = {
-							repeats: $scope.chefJenkScriptTaskObj.repeats,
-							selectedDayOfTheMonth: $scope.chefJenkScriptTaskObj.selectedDayOfTheMonth,
-							dayOfWeek: $scope.chefJenkScriptTaskObj.dayOfWeek,
-							monthOfYear: $scope.chefJenkScriptTaskObj.monthOfYear,
-							startTime: $scope.chefJenkScriptTaskObj.startTime,
-							startTimeMinute: $scope.chefJenkScriptTaskObj.startTimeMinute,
-							pattern: $scope.cronPattern
+							cronStartOn : $scope.chefJenkScriptTaskObj.cronStart,
+							cronStartEnd : $scope.chefJenkScriptTaskObj.cronEnd,
+							cronRepeatEvery : $scope.chefJenkScriptTaskObj.repeatBy,
+							cronFrequency: $scope.chefJenkScriptTaskObj.repeats,
+							cronTime: startTimeHour + ':' + startTimeMinute,
+							cronDays: $scope.chefJenkScriptTaskObj.dayOfWeek,
+							cronMonth: $scope.chefJenkScriptTaskObj.monthOfYear
 						}
 					}, function () {
 						console.log('Dismiss time is ' + new Date());
@@ -424,19 +339,19 @@
 								taskJSON.blueprintIds.push($scope.chefBluePrintList[bi]._id);
 							}
 						}
-						if (!taskJSON.nodeIds.length && !taskJSON.blueprintIds.length && !taskJSON.role ) {
+						if (!taskJSON.nodeIds && !taskJSON.blueprintIds.length && !taskJSON.role ) {
 							$scope.inputValidationMsg='Please select a node or blueprint or role';
 							$scope.taskSaving = false;
 							return false;
 						}
-						if (taskJSON.nodeIds.length && taskJSON.blueprintIds.length) {
-							$scope.inputValidationMsg='Please choose either nodes or blueprints or role, not all';
+						if (taskJSON.blueprintIds.length) {
+							$scope.inputValidationMsg='Please choose either blueprints or role, not all';
 							$scope.taskSaving = false;
 							return false;
 						}
 
-						if (taskJSON.nodeIds.length && taskJSON.role) {
-							$scope.inputValidationMsg='Please choose either nodes or blueprints or role, not all';
+						if (taskJSON.role) {
+							$scope.inputValidationMsg='Please choose blueprints or role, not all';
 							$scope.taskSaving = false;
 							return false;
 						}
@@ -528,9 +443,9 @@
 					}
 					if($scope.taskType === "chef" || $scope.taskType === "script") {
 						taskJSON.executionOrder = $scope.isExecution.flag;
-						taskJSON.isScheduled = $scope._isEventSelected;
-						taskJSON.cron = $scope.cronPattern;
-						taskJSON.cronDetails = $scope.cronDetails;
+						taskJSON.isTaskScheduled = $scope._isEventSelected;
+						//taskJSON.taskScheduler = $scope.cronPattern;
+						taskJSON.taskScheduler = $scope.cronDetails;
 						var selectedList = instanceSelector.getSelectorList();
 						if (selectedList && selectedList.length) {
 							for (var i = 0; i < selectedList.length; i++) {
@@ -789,8 +704,7 @@
 						$scope._isEventSelected = items.isScheduled;
 						$scope.showAddTask = true;
 						$scope.isEventAvailable = true;
-						$scope.cronPattern = items.cron;
-						$scope.chefJenkScriptTaskObj = items.cronDetails;
+						$scope.chefJenkScriptTaskObj = items.taskScheduler;
 						$scope.type = 'edit';
 					}
 				}

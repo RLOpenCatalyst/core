@@ -287,7 +287,7 @@
 											<input type="checkbox" ng-checked="_isEventSelected" ng-model="_isEventSelected" ng-change="selectTaskCheckbox()" class="checkbox-list"/>&nbsp;Schedule a Task&nbsp;
 										</label>
 										<i class="fa fa-plus-circle cursor" ng-show="showAddTask" title="Add Task" ng-click="addTaskEvent('new')"></i>
-										<input type="text" ng-show="isEventAvailable" class="form-control" disabled ng-model="cronPattern"/>
+										<input type="text" ng-show="isEventAvailable" class="form-control" disabled ng-model="repeatPattern"/>
 									</span>
 									<span class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
 										<i class="fa fa-question-circle" title="This is a cron job interval pattern. Based on the pattern formed the cron job will get executed."></i>

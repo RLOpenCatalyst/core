@@ -9,18 +9,35 @@
 	"use strict";
 	angular.module('workzone.orchestration')
 		.controller('addChefJobEventCtrl',['$scope', '$modalInstance', 'items' ,'toastr',function($scope, $modalInstance , items , toastr){
+			console.log(items);
 			if(items.type !== 'new'){
-				$scope.repeatsType = items.chefTaskObj.repeats;
-				$scope.timeEventMinute = items.chefTaskObj.startTimeMinute;
-				$scope.timeEventType = items.chefTaskObj.startTime;
-				$scope.weekOfTheDay = items.chefTaskObj.dayOfWeek;
-				$scope.currentDate = items.chefTaskObj.startDate;
-				$scope.selectedDayOfTheMonth = items.chefTaskObj.selectedDayOfTheMonth;
-				$scope.selectedMonth = items.chefTaskObj.monthOfYear;
+				$scope.schedulerStartOn = items.chefJenkScriptTaskObj.cronStart;
+				$scope.schedulerEndOn = items.chefJenkScriptTaskObj.cronEnd;
+				$scope.repeatBy = items.chefJenkScriptTaskObj.repeatBy;
+				$scope.repeatsType = items.chefJenkScriptTaskObj.repeats;
+				$scope.timeEventType = items.chefJenkScriptTaskObj.startTime;
+				$scope.timeEventMinute = items.chefJenkScriptTaskObj.startTimeMinute;
+				$scope.weekOfTheDay = items.chefJenkScriptTaskObj.dayOfWeek;
+				$scope.currentDate = items.chefJenkScriptTaskObj.startDate;
+				$scope.selectedDayOfTheMonth = items.chefJenkScriptTaskObj.selectedDayOfTheMonth;
+				$scope.selectedMonth = items.chefJenkScriptTaskObj.monthOfYear;
 			} else {
-				$scope.repeatsType = 'Hourly';//default selection.
+				$scope.repeatsType = 'Minutes';//default selection.
+				$scope.schedulerStartOn=moment(new Date()).format('MM/DD/YYYY');
+            	$scope.schedulerEndOn=moment(new Date()).format('MM/DD/YYYY');
 			}
-			$scope.repeatEveryCount = function(max, step) {
+
+			$scope.dateChange= function () {
+                var startDate =  Date.parse($scope.schedulerStartOn);
+                var endDate =  Date.parse($scope.schedulerEndOn);
+                if(startDate > endDate){
+                    $scope.validDateRange=true;
+                } else {
+                    $scope.validDateRange=false;
+                }
+            };
+
+			$scope.repeatCount = function(max, step) {
                 step = step || 1;
                 var input = [];
                 for (var i = 1; i <= max; i += step) {
@@ -28,7 +45,7 @@
                 }
                 return input;
             };
-            $scope.timeCount = function(max, step) {
+            /*$scope.timeCount = function(max, step) {
                 step = step || 1;
                 var input = [];
                 for (var i = 0; i <= max; i += step) {
@@ -51,9 +68,9 @@
                     input.push(i);
                 }
                 return input;
-            };
-            $scope.currentDate = new Date();
-            $scope.currentEndDate = new Date();
+            };*/
+            /*$scope.currentDate = new Date();
+            $scope.currentEndDate = new Date();*/
             $scope.isDaySelected = {
             	flag:true
             }
@@ -69,10 +86,12 @@
 			$scope.ok=function(){
 				$scope.eventParams = {
 					repeats: $scope.repeatsType,
+					repeatBy: $scope.repeatBy,
+					cronStart: $scope.schedulerStartOn,
+					cronEnd: $scope.schedulerEndOn,
 					startTime: $scope.timeEventType,
 					startTimeMinute: $scope.timeEventMinute,
 					dayOfWeek: $scope.weekOfTheDay,
-					startDate: $scope.currentDate,
 					selectedDayOfTheMonth: $scope.selectedDayOfTheMonth,
 					monthOfYear: $scope.selectedMonth
 				};
