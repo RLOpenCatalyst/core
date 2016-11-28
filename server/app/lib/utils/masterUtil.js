@@ -1794,15 +1794,15 @@ var MasterUtil = function () {
                         if (chefmgmt[0].monitorId) {
                             monitorsModel.getById(chefmgmt[0].monitorId, function (err, monitor) {
                                 if (err || !monitor) {
-                                     chefmgmt[0].monitor = null;
+                                    chefmgmt[0].monitor = null;
                                 } else {
-                                     chefmgmt[0].monitor = monitor;
+                                    chefmgmt[0].monitor = monitor;
                                 }
                                 callback(null, chefmgmt[0]);
                             });
-                        }else{
+                        } else {
                             callback(null, chefmgmt[0]);
-                        }                        
+                        }
                     } else {
                         callback(null, null);
                     }
@@ -2235,6 +2235,24 @@ var MasterUtil = function () {
             }
             return callback(null, templates);
         });
+    };
+
+    //return cookbook attributes object for sensu-client
+    this.getSensuCookbookAttributes = function (monitorDetails, instanceId) {
+        var cryptoConfig = appConfig.cryptoSettings;
+        var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+        var decryptedPassword = cryptography.decryptText(monitorDetails.parameters.transportProtocolParameters.password, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+
+        var sensuAttributes = {
+            'rabbitmq_host': monitorDetails.parameters.transportProtocolParameters.host,
+            'rabbitmq_port': monitorDetails.parameters.transportProtocolParameters.port,
+            'rabbitmq_username': monitorDetails.parameters.transportProtocolParameters.user,
+            'rabbitmq_password': decryptedPassword,
+            'rabbitmq_vhostname': monitorDetails.parameters.transportProtocolParameters.vhost,
+            'instance-id': instanceId
+        };
+        logger.debug("sensuAttributes-------->", JSON.stringify(sensuAttributes));
+        return sensuAttributes;
     };
 }
 

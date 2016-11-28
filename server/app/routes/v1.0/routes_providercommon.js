@@ -587,7 +587,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
 
                                                                             logger.debug("sensuAttributes-------->", JSON.stringify(sensuAttributes));
                                                                             runlist.push(sensuCookBook);
-                                                                            jsonAttributes['sensu-client'] = sensuAttributes;
+                                                                            jsonAttributes['sensu-client'] = MasterUtils.getSensuCookbookAttributes(infraManagerDetails.monitor,instance.platformId);;
 
                                                                             bootstarpOption['runlist'] = runlist;
                                                                             bootstarpOption['jsonAttributes'] = jsonAttributes;

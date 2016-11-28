@@ -556,22 +556,7 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                 var sensuCookBook = 'recipe[sensu-client]';
                                                 if (runlist.indexOf(sensuCookBook) === -1 && monitor && monitor.parameters.transportProtocol === 'rabbitmq') {
                                                     runlist.unshift(sensuCookBook);
-
-                                                    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-                                                    var decryptedPassword = cryptography.decryptText(monitor.parameters.transportProtocolParameters.password, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-
-                                                    var sensuAttributes = {
-                                                        'rabbitmq_host': monitor.parameters.transportProtocolParameters.host,
-                                                        'rabbitmq_port': monitor.parameters.transportProtocolParameters.port,
-                                                        'rabbitmq_username': monitor.parameters.transportProtocolParameters.user,
-                                                        'rabbitmq_password': decryptedPassword,
-                                                        'rabbitmq_vhostname': monitor.parameters.transportProtocolParameters.vhost,
-                                                        'instance-id': instance.platformId
-                                                    };
-
-                                                    logger.debug("sensuAttributes-------->", JSON.stringify(sensuAttributes));
-                                                    jsonAttributes['sensu-client'] = sensuAttributes;
-
+                                                    jsonAttributes['sensu-client'] = masterUtil.getSensuCookbookAttributes(monitor,instance.platformId);
                                                 }
 
                                                 //logger.debug("runlist: ", JSON.stringify(runlist));
