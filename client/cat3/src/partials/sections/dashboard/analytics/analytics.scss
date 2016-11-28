@@ -309,3 +309,16 @@
 .marginbottom10{
   margin-bottom: 10px !important;
 }
+#tagMappting{
+  .saveBtn{
+    position: fixed;
+    bottom: 10px;
+    left: 40%;
+  }
+  .form-control{
+    height: 29px;
+    padding: 2px 10px;
+    font-size: 12px;
+    line-height: 1;
+  }
+}
