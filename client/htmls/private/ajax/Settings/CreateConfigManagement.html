@@ -155,8 +155,8 @@
        var folderpath = '/' + $('#loginname').val() + "/.chef/";
        $('#folderpath').val(folderpath);
    }
-
-   $('select#orgname').change(function(e){
+   $('select[name="monitorId"]').val("null");
+   /*$('select#orgname').change(function(e){
         var orgValueSelect = $(this).val();
         if(orgValueSelect !== ''){
             $('#monitorId').attr('disabled','disabled');
@@ -165,9 +165,9 @@
         } else {
             $('.monitoringCheck').addClass('hidden');
         }
-    });
+    });*/
 
-    function getMonitorValues(){
+    /*function getMonitorValues(){
         $('.monitoringCheck').removeClass('hidden');
         $.get('../monitors',function(data){
             var orgValue = $('select#orgname option:selected').attr('rowid');
@@ -179,16 +179,16 @@
             }
             $('#monitorId').html(str);
         });
-    }
+    }*/
 
-    $('input[name="updateMonitoringInfo"]').change(function(e){
+    /*$('input[name="updateMonitoringInfo"]').change(function(e){
         if(this.checked){
             $('#monitorId').removeAttr('disabled').attr('cat-validation','required');
         }  else {  
             $('#monitorId').val('').attr('selected', true).change();
             $('#monitorId').removeAttr('cat-validation').attr('disabled','disabled');;
         }
-    });
+    });*/
    
    function isUserTypeSuperAdmin(){
     $.get('/d4dMasters/loggedInUser',function(data){
@@ -236,8 +236,8 @@
 <script>
    $(document).ready(function () {
     var isEditActivateLocation = location.href.toString().split('?')[1]==="new"?false:true;
-    var rowid = url.substr(url.indexOf("?") + 1);
-    if(isEditActivateLocation){
+   // var rowid = url.substr(url.indexOf("?") + 1);
+    /*if(isEditActivateLocation){
       $.get('/d4dMasters/readmasterjsonrecord/10'+ '/' + rowid,function(data){
           if(data.monitor !== null){
             $('.monitoringCheck').removeClass('hidden');
@@ -258,7 +258,7 @@
             getMonitorValues();
           }
       });
-    }
+    }*/
       $("#configname").focus();
        $('#myForm22').submit(function() {
 
