@@ -48,11 +48,6 @@
                                                 </select>
                                                 <span data-val-controltovalidate="domainname" id="MainContent_Req_domainname" data-val="true" data-val-evaluationfunction="RequiredFieldValidatorEvaluateIsValid" data-val-initialvalue="" style="visibility:hidden;">Required</span>
                                              </div>
-                                          
-                                          <hr/>
-                                            <!-- <div class="col-lg-6 col-md-6 display:none" >
-                                                <input name="ctl00$MainContent$orgname" value="chef" id="configType" class="form-control" type="text"  cdata="catalyst" hidden>
-                                             </div> -->
                                              <input type="hidden" name="ctl00$MainContent$orgname" value="chef" id="configType" class="form-control"  cdata="catalyst">
                                           
                                              <div class="col-lg-6 col-md-6" id="frmconfigmanagement" style="margin-top:20px">
@@ -105,7 +100,13 @@
                                                    </label>
                                                 </div>
                                              </div>
-                                          
+                                             <div class="hidden col-lg-6 col-md-6 margintop20  monitoringCheck">
+                                              <input type="checkbox" name="updateMonitoringInfo" style="vertical-align: middle;" id="updateMonitoringInfo"/>
+                                              <label for="">Enable Monitoring:</label>
+                                              <select id="monitorId" name="monitorId" disabled class="chooseOrganization width-100" style="vertical-align: central" cdata="catalyst" skiprowid="yes">
+                                                  <option value="">Select Monitor</option>
+                                              </select>
+                                            </div>
                                           
                                     </div>
                                     <!-- end widget content -->
@@ -152,9 +153,42 @@
    }
    function setfolderpath(){
        var folderpath = '/' + $('#loginname').val() + "/.chef/";
-    //   alert(folderpath);
        $('#folderpath').val(folderpath);
    }
+
+   $('select#orgname').change(function(e){
+        var orgValueSelect = $(this).val();
+        if(orgValueSelect !== ''){
+            $('#monitorId').attr('disabled','disabled');
+            $('input[name="updateMonitoringInfo"]').removeAttr('checked');
+            getMonitorValues();
+        } else {
+            $('.monitoringCheck').addClass('hidden');
+        }
+    });
+
+    function getMonitorValues(){
+        $('.monitoringCheck').removeClass('hidden');
+        $.get('../monitors',function(data){
+            var orgValue = $('select#orgname option:selected').attr('rowid');
+            var str = ' <option value="">Select Monitor</option>';
+            for(var i=0;i<data.length;i++){
+                if(orgValue === data[i].organization.id){
+                    str = str + '<option value="'+data[i]._id+'">'+data[i].name+'</option>';
+                }
+            }
+            $('#monitorId').html(str);
+        });
+    }
+
+    $('input[name="updateMonitoringInfo"]').change(function(e){
+        if(this.checked){
+            $('#monitorId').removeAttr('disabled').attr('cat-validation','required');
+        }  else {  
+            $('#monitorId').val('').attr('selected', true).change();
+            $('#monitorId').removeAttr('cat-validation').attr('disabled','disabled');;
+        }
+    });
    
    function isUserTypeSuperAdmin(){
     $.get('/d4dMasters/loggedInUser',function(data){
@@ -201,26 +235,39 @@
 </script>
 <script>
    $(document).ready(function () {
+    var isEditActivateLocation = location.href.toString().split('?')[1]==="new"?false:true;
+    var rowid = url.substr(url.indexOf("?") + 1);
+    if(isEditActivateLocation){
+      $.get('/d4dMasters/readmasterjsonrecord/10'+ '/' + rowid,function(data){
+          if(data.monitor !== null){
+            $('.monitoringCheck').removeClass('hidden');
+            $("input[name='updateMonitoringInfo']").attr('checked', true);
+            $('#monitorId').removeClass('hidden');
+            $.get('../monitors',function(monitorData){
+                var orgValue = $('select#orgname option:selected').attr('rowid');
+                var str = '';
+                for(var i=0;i<monitorData.length;i++){
+                    if(orgValue === monitorData[i].organization.id){
+                        str = '<option value="'+monitorData[i]._id+'">'+monitorData[i].name+'</option>';
+                        $('#monitorId').append(str).removeAttr('disabled');
+                        $("#monitorId").val(data.monitor.id).attr('selected', true).change();
+                    }
+                }
+            });
+          } else {
+            getMonitorValues();
+          }
+      });
+    }
       $("#configname").focus();
        $('#myForm22').submit(function() {
 
-           // $(this).validate();
-   
-           // if($(this).valid){
-           //      /*alert('valid form submitted'); // for demo*/
-           //     
-           // }else{
-           //      alert('invalid valid form submitted'); // for demo
-           // }
-         //  alert('in 1');
-         var isEditActivate= location.href.toString().split('?')[1]==="new"?false:true;
-       //  var operationType='';
 
-if(isEditActivate){
-  $('#userpemfile').removeAttr('cat-validation');
-  $('#validatorpemfile').removeAttr('cat-validation');
-  $('#kniferbfile').removeAttr('cat-validation');
-}          
+  if(isEditActivateLocation){
+    $('#userpemfile').removeAttr('cat-validation');
+    $('#validatorpemfile').removeAttr('cat-validation');
+    $('#kniferbfile').removeAttr('cat-validation');
+  }          
  if(validateForm()) {setfolderpath(); saveform('10');};
            return false; // for demo
        });

@@ -19,7 +19,7 @@
 			$scope.allCBAttributes = [];
 			$scope.editRunListAttributes = [];
 			
-			$scope.getCookBookListForOrg = function(getCookBooks) {
+			$scope.getCookBookListForOrg = function() {
 				var p = workzoneEnvironment.getEnvParams();
 				genericServices.getTreeNew().then(function (orgs) {
 					$scope.organObject=orgs;
@@ -33,7 +33,7 @@
 				} else {
 					param = {
 						url: '/organizations/' + $scope.organObject[0].orgid + '/chefRunlist'
-					}
+					};
 				}
             	genericServices.promiseGet(param).then(function (result) {
                		$scope.getCookBooks = result;
@@ -41,11 +41,11 @@
                		if(p){
                			params = {
                				url: '/d4dMasters/org/' + p.org + '/templateType/SoftwareStack/templates'
-               			}
+               			};
                		}else {
                			params = {
                				url: '/d4dMasters/org/' + $scope.organObject[0].orgid + '/templateType/SoftwareStack/templates'
-               			}
+               			};
                		}
 	            	genericServices.promiseGet(params).then(function (result) {
 	               		$scope.getTemplates = result;
@@ -78,11 +78,11 @@
 					$scope.isOrchestrationUpdateChefRunLoading = false;
 					$scope.init();
 				});
-			}
+			};
 			$scope.getCookBookListForOrg();
 			function registerUpdateEvent(obj) {
 				obj.addListUpdateListener('updateList', $scope.updateAttributeList);
-			};
+			}
 
 			$scope.init = function () {
 				$timeout(function () {
