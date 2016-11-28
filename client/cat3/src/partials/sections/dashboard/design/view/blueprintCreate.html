@@ -32,7 +32,8 @@
                   <div class="col-sm-2 col-lg-2 col-md-2 blueprintTemplate blueprintTemplateSelected" ng-show="templateSelected.templatetypename !== 'Docker'">
                      <ul class="list-unstyled system-prop" style="text-align:center;">
                         <li ng-if="templateSelected.templatetypename === 'SoftwareStack' || templateSelected.templatetypename === 'CloudFormation' || templateSelected.templatetypename === 'ARMTemplate'">
-                           <img style="height:40px;width:auto;" alt="templateLogo" ng-src="{{logo}}">
+                           <img style="height:40px;width:auto;" ng-if="templateSelected.templatesicon_filePath" alt="templateLogo" ng-src="{{filePath}}">
+                           <img style="height:40px;width:auto;" ng-if="!templateSelected.templatesicon_filePath" ng-src="{{logo}}">
                         </li>
                         <li ng-if="templateSelected.osType">
                            <img style="height:40px;width:auto;" alt="OSImage" ng-src="{{osImageLogo}}">

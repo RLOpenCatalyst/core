@@ -8,8 +8,10 @@
 (function (angular) {
     "use strict";
     angular.module('dashboard.bots')
-    .controller('audittrailCtrl',['$scope', '$rootScope', '$http', '$state', 'genericServices', 'confirmbox', 'workzoneServices', 'toastr', 'workzoneUIUtils', '$modal', 
-    function ($scope, $rootScope, $http, $state, genSevs, confirmbox, workzoneServices, toastr, workzoneUIUtils, $modal) {
+    .controller('audittrailCtrl',['$scope', '$rootScope', '$state', 'genericServices', 'confirmbox', 'workzoneServices', 'toastr', 'workzoneUIUtils', '$modal', 
+    function ($scope, $rootScope, $state, genSevs, confirmbox, workzoneServices, toastr, workzoneUIUtils, $modal) {
+        var treeNames = ['Bots','Audit Trail'];
+        $rootScope.$emit('treeNameUpdate', treeNames);
         var audit=this;
         audit.gridOptions={
             gridOption:{
@@ -24,6 +26,10 @@
                 { name: 'End Time',field:'endedOn',
                     cellTemplate:'<span title="{{row.entity.endedOn  | timestampToLocaleTime}}">{{row.entity.endedOn  | timestampToLocaleTime}}</span>', cellTooltip: true},
                 { name: 'BOT Type',displayName: 'BOT Type',field:'auditTrailConfig.type'},
+                { name:'Task Type',field:'auditTrailConfig.executionType' ,cellTemplate:'<img src="images/orchestration/chef.png" ng-show="row.entity.auditTrailConfig.executionType==\'chef\'" alt="row.entity.taskType" title="Chef" class="task-type-img" />'+
+                    '<img src="images/orchestration/jenkins.png" ng-show="row.entity.auditTrailConfig.executionType==\'jenkins\'" alt="row.entity.taskType" title="Jenkins" class="task-type-img" />'+
+                    '<img src="images/orchestration/script.jpg" ng-show="row.entity.auditTrailConfig.executionType==\'script\'" alt="row.entity.auditTrailConfig.executionType" title="Script" class="task-type-img" />'+
+                    '<img src="images/devops-roles/devopsRole1.png" ng-show="row.entity.action==\'BOTs Blueprint Execution\'" alt="row.entity.botType" title="Blueprint" class="task-type-img" />',cellTooltip: true},
                 { name: 'BOT Name',displayName: 'BOT Name',field:'auditTrailConfig.name'},
                 { name: 'Status',field:'status',
                   cellTemplate:'<img class="bot-status-icon" src="images/instance-states/aws-started.png" ng-show="row.entity.status === \'success\'" title="{{row.entity.status}}">' +
@@ -51,7 +57,7 @@
                 keyboard: false,
                 resolve: {
                     items: function() {
-                        return hist
+                        return hist;
                     }
                 }
             });
@@ -64,10 +70,12 @@
 
         audit.init =function(){
             audit.gridOptions.data=[];
-            var url = '/audit-trail?filterBy=auditType:BOTs';
-            $http.get(url).then(function (data) {
-                angular.forEach(data,function () {
-                    audit.gridOptions.data=data.data.auditTrails;
+            var param={
+                url:'/audit-trail?filterBy=auditType:BOTs'
+            };
+            genSevs.promiseGet(param).then(function (response) {
+                angular.forEach(response,function () {
+                    audit.gridOptions.data=response.auditTrails;
                 });
             });
         };

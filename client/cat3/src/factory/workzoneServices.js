@@ -542,20 +542,6 @@
 				getBotCategoryList:function () {
 					var url ='/config-data/category-type';
 					return $http.get(fullUrl(url),Auth.getHeaderObject());
-				},
-				deleteBotTask: function (taskId) {
-					return $http({
-						method: "delete",
-						url: fullUrl('/tasks/serviceDelivery/' + taskId),
-						async: false
-					});
-				},
-				deleteBotBP: function (blueprintId) {
-					return $http({
-						method: "delete",
-						url: fullUrl('/blueprints/serviceDelivery/' + blueprintId),
-						async: false
-					});
 				}
 			};
 			return serviceInterface;

@@ -1,12 +1,12 @@
 /*
  Copyright [2016] [Relevance Lab]
-
+ 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
-
+ 
  http://www.apache.org/licenses/LICENSE-2.0
-
+ 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -38,14 +38,15 @@ var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var SSHExec = require('_pr/lib/utils/sshexec');
+var MasterUtils = require('_pr/lib/utils/masterUtil.js');
 
 
-module.exports.setRoutes = function(app, verificationFunc) {
+module.exports.setRoutes = function (app, verificationFunc) {
 
     app.all('/chef/*', verificationFunc);
 
-    app.get('/chef/servers/:serverId/nodes', function(req, res) {
-        configmgmtDao.getChefServerDetails(req.params.serverId, function(err, chefDetails) {
+    app.get('/chef/servers/:serverId/nodes', function (req, res) {
+        configmgmtDao.getChefServerDetails(req.params.serverId, function (err, chefDetails) {
             if (err) {
                 logger.debug(err);
                 res.status(500).send(errorResponses.db.error);
@@ -62,12 +63,12 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 chefValidationPemFile: chefDetails.validatorpemfile,
                 hostedChefUrl: chefDetails.url,
             });
-            chef.getNodesList(function(err, nodeList) {
+            chef.getNodesList(function (err, nodeList) {
                 if (err) {
                     res.status(500).send(errorResponses.chef.connectionError);
                     return;
                 } else {
-                    instancesDao.getInstancesFilterByChefServerIdAndNodeNames(req.params.serverId, nodeList, function(err, instances) {
+                    instancesDao.getInstancesFilterByChefServerIdAndNodeNames(req.params.serverId, nodeList, function (err, instances) {
                         if (err) {
                             res.status(500).send(errorResponses.chef.connectionError);
                             return;
@@ -75,7 +76,8 @@ module.exports.setRoutes = function(app, verificationFunc) {
                         if (instances && instances.length) {
                             for (var i = 0; i < instances.length; i++) {
                                 var index = nodeList.indexOf(instances[i].chef.chefNodeName);
-                                if (index !== -1) {}
+                                if (index !== -1) {
+                                }
                             }
                             res.send(nodeList);
                         } else {
@@ -90,17 +92,17 @@ module.exports.setRoutes = function(app, verificationFunc) {
     });
 
 
-    app.get('/chef/justtesting/:mastername/:fieldname/:comparedfieldname/:comparedfieldvalue', function(req, res) {
+    app.get('/chef/justtesting/:mastername/:fieldname/:comparedfieldname/:comparedfieldvalue', function (req, res) {
         logger.debug('test', req.params.mastername, ' ' + req.params.fieldname, ' ' + req.params.comparedfieldname);
-        configmgmtDao.getListFilteredNew(req.params.mastername, req.params.fieldname, req.params.comparedfieldname, req.params.comparedfieldvalue, function(err, outd) {
+        configmgmtDao.getListFilteredNew(req.params.mastername, req.params.fieldname, req.params.comparedfieldname, req.params.comparedfieldvalue, function (err, outd) {
             if (!err)
                 res.send(outd);
             else
                 res.send(err);
         });
     });
-    app.get('/chef/servers/:serverId/environments', function(req, res) {
-        configmgmtDao.getChefServerDetails(req.params.serverId, function(err, chefDetails) {
+    app.get('/chef/servers/:serverId/environments', function (req, res) {
+        configmgmtDao.getChefServerDetails(req.params.serverId, function (err, chefDetails) {
             if (err) {
                 logger.debug(err);
                 res.status(500).send(errorResponses.db.error);
@@ -117,7 +119,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 chefValidationPemFile: chefDetails.validatorpemfile,
                 hostedChefUrl: chefDetails.url,
             });
-            chef.getEnvironmentsList(function(err, environmentsList) {
+            chef.getEnvironmentsList(function (err, environmentsList) {
                 if (err) {
                     res.status(500).send(errorResponses.chef.connectionError);
                     return;
@@ -129,8 +131,8 @@ module.exports.setRoutes = function(app, verificationFunc) {
         });
     });
 
-    app.get('/chef/servers/:serverId/nodes/:nodeName', function(req, res) {
-        configmgmtDao.getChefServerDetails(req.params.serverId, function(err, chefDetails) {
+    app.get('/chef/servers/:serverId/nodes/:nodeName', function (req, res) {
+        configmgmtDao.getChefServerDetails(req.params.serverId, function (err, chefDetails) {
             if (err) {
                 logger.debug(err);
                 res.send(500);
@@ -148,7 +150,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 chefValidationPemFile: chefDetails.validatorpemfile,
                 hostedChefUrl: chefDetails.url,
             });
-            chef.getNode(req.params.nodeName, function(err, nodeData) {
+            chef.getNode(req.params.nodeName, function (err, nodeData) {
                 if (err) {
                     logger.debug(err)
                     res.send(500);
@@ -162,7 +164,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
     });
 
 
-    app.post('/chef/servers/:serverId/sync/nodes', function(req, res) {
+    app.post('/chef/servers/:serverId/sync/nodes', function (req, res) {
         var taskStatusObj = null;
         var chef = null;
         var reqBody = req.body;
@@ -179,7 +181,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
             res.send(400);
             return;
         }
-        var insertNodeInMongo = function(node, callback) {
+        var insertNodeInMongo = function (node, chefDetail, callback) {
             var platformId = '';
             if (!node.automatic) {
                 node.automatic = {};
@@ -236,7 +238,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 if (reqBody.credentials && reqBody.credentials.pemFileData) {
                     credentials = reqBody.credentials;
                     credentials.pemFileLocation = appConfig.tempDir + uuid.v4();
-                    fileIo.writeFile(credentials.pemFileLocation, reqBody.credentials.pemFileData, null, function(err) {
+                    fileIo.writeFile(credentials.pemFileLocation, reqBody.credentials.pemFileData, null, function (err) {
                         if (err) {
                             logger.debug('unable to create pem file ', err);
                             callback(err, null);
@@ -248,7 +250,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 } else {
                     if (!reqBody.credentials) {
                         var tempPemFileLocation = appConfig.tempDir + uuid.v4();
-                        fileIo.copyFile(appConfig.aws.pemFileLocation + appConfig.aws.pemFile, tempPemFileLocation, function() {
+                        fileIo.copyFile(appConfig.aws.pemFileLocation + appConfig.aws.pemFile, tempPemFileLocation, function () {
                             if (err) {
                                 logger.debug('unable to copy pem file ', err);
                                 callback(err, null);
@@ -265,7 +267,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                     }
                 }
             }
-            getCredentialsFromReq(function(err, credentials) {
+            getCredentialsFromReq(function (err, credentials) {
                 if (err) {
                     logger.debug("unable to get credetials from request ", err);
                     callback(err, null);
@@ -283,20 +285,22 @@ module.exports.setRoutes = function(app, verificationFunc) {
                                 message: "Failed to get env name from env id"
                             }, null);
                             return;
-                        };
+                        }
+                        ;
                         if (!envName) {
                             callback({
                                 "message": "Unable to find environment name from environment id"
                             });
                             return;
-                        };
-                        var nodeDetails = {
-                            nodeIp : nodeIp,
-                            nodeOs:hardwareData.os,
-                            nodeName:node.name,
-                            nodeEnv:envName
                         }
-                        checkNodeCredentials(credentials,nodeDetails,function(err,credentialStatus) {
+                        ;
+                        var nodeDetails = {
+                            nodeIp: nodeIp,
+                            nodeOs: hardwareData.os,
+                            nodeName: node.name,
+                            nodeEnv: envName
+                        }
+                        checkNodeCredentials(credentials, nodeDetails, function (err, credentialStatus) {
                             if (err) {
                                 logger.debug("Invalid Credentials  ", err);
                                 callback(err, null);
@@ -340,6 +344,34 @@ module.exports.setRoutes = function(app, verificationFunc) {
                                     }
                                     instance.id = data._id;
                                     instance._id = data._id;
+                                    
+                                    //install sensu client if monitoring server configured
+                                    if (chefDetail.monitor && chefDetail.monitor.parameters.transportProtocol === 'rabbitmq') {
+                                        var sensuCookBook = 'recipe[sensu-client]';
+                                        var runlist = [];
+                                        var jsonAttributes = {};
+                                        runlist.push(sensuCookBook);
+                                        jsonAttributes['sensu-client'] = MasterUtils.getSensuCookbookAttributes(chefDetail.monitor,instance.platformId);
+                                        
+                                        runOptions = {
+                                            privateKey: credentials.pemFileLocation,
+                                            username: credentials.username,
+                                            host: instance.instanceIP,
+                                            instanceOS: instance.hardware.os,
+                                            port: 22,
+                                            runlist: runlist,
+                                            overrideRunlist: false,
+                                            jsonAttributes: JSON.stringify(jsonAttributes)
+                                        };
+                                        chef.runClient(runOptions, function (err, retCode) {
+                                            logger.debug("knife ret code", retCode);
+                                        });
+
+                                    }
+
+
+
+
                                     var timestampStarted = new Date().getTime();
                                     var actionLog = instancesDao.insertBootstrapActionLogForChef(instance.id, [], req.session.user.cn, timestampStarted);
                                     var logsReferenceIds = [instance.id, actionLog._id];
@@ -371,12 +403,13 @@ module.exports.setRoutes = function(app, verificationFunc) {
                                         providerType: "",
                                         action: "Imported From ChefServer",
                                         logs: [{
-                                            err: false,
-                                            log: "Node Imported",
-                                            timestamp: new Date().getTime()
-                                        }]
+                                                err: false,
+                                                log: "Node Imported",
+                                                timestamp: new Date().getTime()
+                                            }]
                                     };
-                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+
+                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
                                         if (err) {
                                             logger.error("Failed to create or update instanceLog: ", err);
                                         }
@@ -418,9 +451,10 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 logger.debug('setting task status');
                 taskstatus.updateTaskStatus(status);
             }
-        };
+        }
+        ;
         function importNodes(nodeList, chefDetail) {
-            taskStatusModule.getTaskStatus(null, function(err, obj) {
+            taskStatusModule.getTaskStatus(null, function (err, obj) {
                 if (err) {
                     res.send(500);
                     return;
@@ -428,24 +462,24 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 taskstatus = obj;
                 for (var i = 0; i < nodeList.length; i++) {
 
-                    (function(nodeName) {
-                        chef.getNode(nodeName, function(err, node) {
+                    (function (nodeName) {
+                        chef.getNode(nodeName, function (err, node) {
                             if (err) {
                                 logger.debug(err);
                                 updateTaskStatusNode(nodeName, "Unable to import node " + nodeName, true, count);
                                 return;
                             } else {
                                 var envObj = {
-                                    projectname:reqBody.projectName,
-                                    projectname_rowid:projectId,
-                                    orgname:reqBody.orgName,
-                                    orgname_rowid:orgId,
-                                    configname:chefDetail.configname,
-                                    configname_rowid:chefDetail.rowid,
-                                    environmentname:node.chef_environment,
-                                    id:'3'
+                                    projectname: reqBody.projectName,
+                                    projectname_rowid: projectId,
+                                    orgname: reqBody.orgName,
+                                    orgname_rowid: orgId,
+                                    configname: chefDetail.configname,
+                                    configname_rowid: chefDetail.rowid,
+                                    environmentname: node.chef_environment,
+                                    id: '3'
                                 };
-                                environmentsDao.createEnv(envObj, function(err, data) {
+                                environmentsDao.createEnv(envObj, function (err, data) {
                                     if (err) {
                                         logger.debug(err, 'occured in creating environment in mongo');
                                         updateTaskStatusNode(node.name, "Unable to import node : " + node.name, true, count);
@@ -463,14 +497,14 @@ module.exports.setRoutes = function(app, verificationFunc) {
                                         nodeIp = node.automatic.cloud.public_ipv4;
                                     }
 
-                                    instancesDao.getInstanceByOrgAndNodeNameOrIP(orgId, node.name, nodeIp, function(err, instances) {
+                                    instancesDao.getInstanceByOrgAndNodeNameOrIP(orgId, node.name, nodeIp, function (err, instances) {
                                         if (err) {
                                             logger.debug('Unable to fetch instance', err);
                                             updateTaskStatusNode(node.name, "Unable to import node : " + node.name, true, count);
                                             return;
                                         }
                                         if (instances.length) {
-                                            configmgmtDao.getOrgBgProjEnvNameFromIds(instances[0].orgId, instances[0].bgId, instances[0].projectId, instances[0].envId, function(err, names) {
+                                            configmgmtDao.getOrgBgProjEnvNameFromIds(instances[0].orgId, instances[0].bgId, instances[0].projectId, instances[0].envId, function (err, names) {
                                                 if (err) {
                                                     updateTaskStatusNode(node.name, "Unable to import node : " + node.name, true, count);
                                                     return;
@@ -485,18 +519,18 @@ module.exports.setRoutes = function(app, verificationFunc) {
                                             openport = 5985;
                                         }
                                         logger.debug('checking port for node with ip : ' + nodeIp);
-                                        waitForPort(nodeIp, openport, function(err) {
+                                        waitForPort(nodeIp, openport, function (err) {
                                             if (err) {
                                                 logger.debug(err);
                                                 updateTaskStatusNode(node.name, "Unable to ssh/winrm into node " + node.name + ". Cannot import this node.", true, count);
                                                 return;
                                             }
-                                            insertNodeInMongo(node, function(err, nodeData) {
+                                            insertNodeInMongo(node, chefDetail, function (err, nodeData) {
                                                 if (err) {
-                                                    if(err.message){
+                                                    if (err.message) {
                                                         updateTaskStatusNode(nodeName, "The username or password/pemfile you entered is incorrect.", true, count);
                                                         return;
-                                                    }else {
+                                                    } else {
                                                         updateTaskStatusNode(nodeName, "Unknown error occured while importing " + node.name + ". Cannot import this node.", true, count);
                                                         return;
                                                     }
@@ -520,7 +554,10 @@ module.exports.setRoutes = function(app, verificationFunc) {
             });
 
         }
-        configmgmtDao.getChefServerDetails(req.params.serverId, function(err, chefDetails) {
+        MasterUtils.getCongifMgmtsById(req.params.serverId, function (err, chefDetails) {
+            logger.debug("chefDetails---------->>>" + JSON.stringify(chefDetails));
+            logger.debug("reqBody.selectedNodes---------->>>" + JSON.stringify(reqBody.selectedNodes));
+
             if (err) {
                 res.send(500);
                 return;
@@ -534,16 +571,21 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 chefUserName: chefDetails.loginname,
                 chefUserPemFile: chefDetails.userpemfile,
                 chefValidationPemFile: chefDetails.validatorpemfile,
-                hostedChefUrl: chefDetails.url,
+                hostedChefUrl: chefDetails.url
             });
             if (reqBody.selectedNodes.length) {
+//                res.sendStatus(400);
+
                 importNodes(reqBody.selectedNodes, chefDetails);
+
             } else {
                 res.send(400);
                 return;
             }
+
         });
-        function checkNodeCredentials(credentials,nodeDetail,callback) {
+
+        function checkNodeCredentials(credentials, nodeDetail, callback) {
             if (nodeDetail.nodeOs !== 'windows') {
                 var sshOptions = {
                     username: credentials.username,
@@ -578,8 +620,8 @@ module.exports.setRoutes = function(app, verificationFunc) {
         }
     });
 
-    app.post('/chef/environments/create/:serverId', function(req, res) {
-        configmgmtDao.getChefServerDetails(req.params.serverId, function(err, chefDetails) {
+    app.post('/chef/environments/create/:serverId', function (req, res) {
+        configmgmtDao.getChefServerDetails(req.params.serverId, function (err, chefDetails) {
             if (err) {
                 res.send(500);
                 return;
@@ -595,7 +637,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 chefValidationPemFile: chefDetails.validatorpemfile,
                 hostedChefUrl: chefDetails.url,
             });
-            chef.createEnvironment(req.body.envName, function(err, envName) {
+            chef.createEnvironment(req.body.envName, function (err, envName) {
                 if (err) {
                     res.status(500).send("Error to create Env on chef.");
                     return;
@@ -612,8 +654,8 @@ module.exports.setRoutes = function(app, verificationFunc) {
         });
     });
 
-    app.get('/chef/servers/:serverId/cookbooks', function(req, res) {
-        configmgmtDao.getChefServerDetails(req.params.serverId, function(err, chefDetails) {
+    app.get('/chef/servers/:serverId/cookbooks', function (req, res) {
+        configmgmtDao.getChefServerDetails(req.params.serverId, function (err, chefDetails) {
             if (err) {
                 res.send(500);
                 return;
@@ -630,7 +672,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 hostedChefUrl: chefDetails.url,
             });
 
-            chef.getCookbooksList(function(err, cookbooks) {
+            chef.getCookbooksList(function (err, cookbooks) {
                 logger.debug(err);
                 if (err) {
                     res.send(500);
@@ -646,8 +688,8 @@ module.exports.setRoutes = function(app, verificationFunc) {
 
     });
 
-    app.get('/chef/servers/:serverId/cookbooks/:cookbookName', function(req, res) {
-        configmgmtDao.getChefServerDetails(req.params.serverId, function(err, chefDetails) {
+    app.get('/chef/servers/:serverId/cookbooks/:cookbookName', function (req, res) {
+        configmgmtDao.getChefServerDetails(req.params.serverId, function (err, chefDetails) {
             if (err) {
                 res.send(500);
                 return;
@@ -663,7 +705,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 chefValidationPemFile: chefDetails.validatorpemfile,
                 hostedChefUrl: chefDetails.url,
             });
-            chef.getCookbook(req.params.cookbookName, function(err, cookbooks) {
+            chef.getCookbook(req.params.cookbookName, function (err, cookbooks) {
                 logger.debug(err);
                 if (err) {
                     res.send(500);
@@ -676,9 +718,9 @@ module.exports.setRoutes = function(app, verificationFunc) {
         });
     });
 
-    app.get('/chef/servers/:serverId/cookbooks/:cookbookName/download', function(req, res) {
+    app.get('/chef/servers/:serverId/cookbooks/:cookbookName/download', function (req, res) {
 
-        configmgmtDao.getChefServerDetails(req.params.serverId, function(err, chefDetails) {
+        configmgmtDao.getChefServerDetails(req.params.serverId, function (err, chefDetails) {
             if (err) {
                 res.send(500);
                 return;
@@ -695,7 +737,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 hostedChefUrl: chefDetails.url,
             });
 
-            chef.downloadCookbook(req.params.cookbookName, function(err, cookbooks) {
+            chef.downloadCookbook(req.params.cookbookName, function (err, cookbooks) {
                 logger.debug(err);
                 if (err) {
                     res.send(500);
@@ -711,7 +753,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
 
     });
 
-    app.post('/chef/servers/:serverId/attributes', function(req, res) {
+    app.post('/chef/servers/:serverId/attributes', function (req, res) {
 
         if (!((req.body.cookbooks && req.body.cookbooks.length) || (req.body.roles && req.body.roles.length))) {
             res.status(400).send({
@@ -720,7 +762,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
             return;
         }
 
-        configmgmtDao.getChefServerDetails(req.params.serverId, function(err, chefDetails) {
+        configmgmtDao.getChefServerDetails(req.params.serverId, function (err, chefDetails) {
             if (err) {
                 res.send(500);
                 return;
@@ -737,7 +779,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 hostedChefUrl: chefDetails.url,
             });
             if (req.body.cookbooks && req.body.cookbooks.length) {
-                chef.getCookbookAttributes(req.body.cookbooks, function(err, attributesList) {
+                chef.getCookbookAttributes(req.body.cookbooks, function (err, attributesList) {
                     if (err) {
                         res.send(500);
                         return;
@@ -758,9 +800,9 @@ module.exports.setRoutes = function(app, verificationFunc) {
 
     });
 
-    app.get('/chef/servers/:serverId/receipeforcookbooks/:cookbookName', function(req, res) {
+    app.get('/chef/servers/:serverId/receipeforcookbooks/:cookbookName', function (req, res) {
 
-        configmgmtDao.getChefServerDetails(req.params.serverId, function(err, chefDetails) {
+        configmgmtDao.getChefServerDetails(req.params.serverId, function (err, chefDetails) {
             if (err) {
                 res.send(500);
                 return;
@@ -777,7 +819,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 hostedChefUrl: chefDetails.url,
             });
 
-            chef.getReceipesForCookbook(req.params.cookbookName, function(err, cookbooks) {
+            chef.getReceipesForCookbook(req.params.cookbookName, function (err, cookbooks) {
                 logger.debug(err);
                 if (err) {
                     res.send(500);
@@ -794,9 +836,9 @@ module.exports.setRoutes = function(app, verificationFunc) {
     });
 
 
-    app.get('/chef/servers/:serverId', function(req, res) {
+    app.get('/chef/servers/:serverId', function (req, res) {
         logger.debug(req.params.serverId);
-        configmgmtDao.getChefServerDetails(req.params.serverId, function(err, chefDetails) {
+        configmgmtDao.getChefServerDetails(req.params.serverId, function (err, chefDetails) {
             if (err) {
                 res.send(500);
                 return;
@@ -819,8 +861,8 @@ module.exports.setRoutes = function(app, verificationFunc) {
     });
 
 
-    app.post('/chef/servers/:serverId/nodes/:nodeName/updateEnv', function(req, res) {
-        configmgmtDao.getChefServerDetails(req.params.serverId, function(err, chefDetails) {
+    app.post('/chef/servers/:serverId/nodes/:nodeName/updateEnv', function (req, res) {
+        configmgmtDao.getChefServerDetails(req.params.serverId, function (err, chefDetails) {
             if (err) {
                 logger.debug(err);
                 res.status(500).send(errorResponses.chef.corruptChefData);
@@ -837,21 +879,21 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 chefValidationPemFile: chefDetails.validatorpemfile,
                 hostedChefUrl: chefDetails.url,
             });
-            chef.updateNodeEnvironment(req.params.nodeName, req.body.envName, function(err, success) {
+            chef.updateNodeEnvironment(req.params.nodeName, req.body.envName, function (err, success) {
                 if (err) {
                     res.send(500);
                     return;
-                }else if (success) {
-                        chefDao.updateChefNodeEnv(req.params.nodeName,req.body.envName,function(err,data){
-                            if(err){
-                                res.send(500);
-                                return;
-                            }else{
-                                res.send(200);
-                                return;
-                            }
-                        })
-                }else {
+                } else if (success) {
+                    chefDao.updateChefNodeEnv(req.params.nodeName, req.body.envName, function (err, data) {
+                        if (err) {
+                            res.send(500);
+                            return;
+                        } else {
+                            res.send(200);
+                            return;
+                        }
+                    })
+                } else {
                     res.send(500);
                     return;
                 }
@@ -859,9 +901,9 @@ module.exports.setRoutes = function(app, verificationFunc) {
         });
     });
 
-    app.get('/chef/servers/:serverId/cookbooks/:cookbookName/metadata', function(req, res) {
+    app.get('/chef/servers/:serverId/cookbooks/:cookbookName/metadata', function (req, res) {
 
-        configmgmtDao.getChefServerDetails(req.params.serverId, function(err, chefDetails) {
+        configmgmtDao.getChefServerDetails(req.params.serverId, function (err, chefDetails) {
             if (err) {
                 res.send(500);
                 return;
@@ -877,7 +919,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 chefValidationPemFile: chefDetails.validatorpemfile,
                 hostedChefUrl: chefDetails.url,
             });
-            chef.getCookbook(req.params.cookbookName, function(err, cookbooks) {
+            chef.getCookbook(req.params.cookbookName, function (err, cookbooks) {
                 logger.debug(err);
                 if (err) {
                     res.send(500);
@@ -895,13 +937,13 @@ module.exports.setRoutes = function(app, verificationFunc) {
 
 
     // Create new Data Bag.
-    app.post("/chef/servers/:serverId/databag/create", function(req, res) {
+    app.post("/chef/servers/:serverId/databag/create", function (req, res) {
         logger.debug("Enter /chef/../databag/create");
         var loggedInUser = req.session.user;
-        masterUtil.hasPermission("databag", "create", loggedInUser, function(err, isPermitted) {
+        masterUtil.hasPermission("databag", "create", loggedInUser, function (err, isPermitted) {
             logger.debug("Got permission to create DataBag: ", isPermitted);
             if (isPermitted) {
-                configmgmtDao.getChefServerDetails(req.params.serverId, function(err, chefDetails) {
+                configmgmtDao.getChefServerDetails(req.params.serverId, function (err, chefDetails) {
                     if (err) {
                         res.send(500);
                         return;
@@ -917,7 +959,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                         chefValidationPemFile: chefDetails.validatorpemfile,
                         hostedChefUrl: chefDetails.url,
                     });
-                    chef.createDataBag(req.body.name, function(err, dataBag) {
+                    chef.createDataBag(req.body.name, function (err, dataBag) {
                         if (err) {
                             logger.debug("Exit /chef/../databag/create");
                             res.status(500).send("Failed to create Data Bag on Chef.");
@@ -946,9 +988,9 @@ module.exports.setRoutes = function(app, verificationFunc) {
     });
 
     // List all Data Bags.
-    app.get("/chef/servers/:serverId/databag/list", function(req, res) {
+    app.get("/chef/servers/:serverId/databag/list", function (req, res) {
         logger.debug("Enter /chef/../databag/list");
-        configmgmtDao.getChefServerDetails(req.params.serverId, function(err, chefDetails) {
+        configmgmtDao.getChefServerDetails(req.params.serverId, function (err, chefDetails) {
             if (err) {
                 res.send(500);
                 return;
@@ -964,7 +1006,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 chefValidationPemFile: chefDetails.validatorpemfile,
                 hostedChefUrl: chefDetails.url,
             });
-            chef.getDataBags(function(err, dataBags) {
+            chef.getDataBags(function (err, dataBags) {
                 if (err) {
                     logger.debug("Exit /chef/../databag/list");
                     res.status(500).send("Failed to get Data Bag from Chef.");
@@ -978,13 +1020,13 @@ module.exports.setRoutes = function(app, verificationFunc) {
     });
 
     // Delete a particular Data Bag.
-    app.delete("/chef/servers/:serverId/databag/:dataBagName/delete", function(req, res) {
+    app.delete("/chef/servers/:serverId/databag/:dataBagName/delete", function (req, res) {
         logger.debug("Enter /chef/../databag/../delete");
         var loggedInUser = req.session.user;
-        masterUtil.hasPermission("databag", "delete", loggedInUser, function(err, isPermitted) {
+        masterUtil.hasPermission("databag", "delete", loggedInUser, function (err, isPermitted) {
             if (isPermitted) {
                 logger.debug("Got permission to remove DataBag: ", isPermitted);
-                configmgmtDao.getChefServerDetails(req.params.serverId, function(err, chefDetails) {
+                configmgmtDao.getChefServerDetails(req.params.serverId, function (err, chefDetails) {
                     if (err) {
                         res.send(500);
                         return;
@@ -1000,7 +1042,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                         chefValidationPemFile: chefDetails.validatorpemfile,
                         hostedChefUrl: chefDetails.url,
                     });
-                    chef.deleteDataBag(req.params.dataBagName, function(err, statusCode) {
+                    chef.deleteDataBag(req.params.dataBagName, function (err, statusCode) {
                         if (err) {
                             logger.debug("Exit /chef/../databag/../delete");
                             res.status(500).send("Failed to delete Data Bag on Chef.");
@@ -1026,13 +1068,13 @@ module.exports.setRoutes = function(app, verificationFunc) {
 
 
     // Create new Data Bag Item.
-    app.post("/chef/servers/:serverId/databag/:dataBagName/item/create", function(req, res) {
+    app.post("/chef/servers/:serverId/databag/:dataBagName/item/create", function (req, res) {
         logger.debug("Enter /chef/../databag/../item/create");
         var loggedInUser = req.session.user;
-        masterUtil.hasPermission("databag", "create", loggedInUser, function(err, isPermitted) {
+        masterUtil.hasPermission("databag", "create", loggedInUser, function (err, isPermitted) {
             if (isPermitted) {
                 logger.debug("Got permission to create DataBagItem: ", isPermitted);
-                configmgmtDao.getChefServerDetails(req.params.serverId, function(err, chefDetails) {
+                configmgmtDao.getChefServerDetails(req.params.serverId, function (err, chefDetails) {
                     if (err) {
                         res.status(500).send("Error to get chef detail.");
                         return;
@@ -1070,7 +1112,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                         res.status(500).send("Invalid Json for Data Bag item.");
                         return;
                     }
-                    chef.createDataBagItem(req, dataBagItem, function(err, dataBagItem) {
+                    chef.createDataBagItem(req, dataBagItem, function (err, dataBagItem) {
                         if (err) {
                             logger.debug("Exit /chef/../databag/../item/create");
                             res.status(500).send("Failed to create Data Bag Item on Chef.");
@@ -1102,9 +1144,9 @@ module.exports.setRoutes = function(app, verificationFunc) {
 
 
     // List all Data Bag Items for a Data Bag.
-    app.get("/chef/servers/:serverId/databag/:dataBagName/item/list", function(req, res) {
+    app.get("/chef/servers/:serverId/databag/:dataBagName/item/list", function (req, res) {
         logger.debug("Enter /chef/../databag/item/list");
-        configmgmtDao.getChefServerDetails(req.params.serverId, function(err, chefDetails) {
+        configmgmtDao.getChefServerDetails(req.params.serverId, function (err, chefDetails) {
             if (err) {
                 res.send(500);
                 return;
@@ -1120,7 +1162,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 chefValidationPemFile: chefDetails.validatorpemfile,
                 hostedChefUrl: chefDetails.url,
             });
-            chef.getDataBagItems(req.params.dataBagName, function(err, dataBagItems) {
+            chef.getDataBagItems(req.params.dataBagName, function (err, dataBagItems) {
                 if (err) {
                     logger.debug("Exit /chef/../databag/item/list");
                     res.status(500).send("Failed to get Data Bag from Chef.");
@@ -1143,13 +1185,13 @@ module.exports.setRoutes = function(app, verificationFunc) {
 
 
     // Update a Data Bag Item.
-    app.post("/chef/servers/:serverId/databag/:dataBagName/item/:itemId/update", function(req, res) {
+    app.post("/chef/servers/:serverId/databag/:dataBagName/item/:itemId/update", function (req, res) {
         logger.debug("Enter /chef/../databag/../item/update");
         var loggedInUser = req.session.user;
-        masterUtil.hasPermission("databag", "modify", loggedInUser, function(err, isPermitted) {
+        masterUtil.hasPermission("databag", "modify", loggedInUser, function (err, isPermitted) {
             if (isPermitted) {
                 logger.debug("Got permission to update DataBagItem: ", isPermitted);
-                configmgmtDao.getChefServerDetails(req.params.serverId, function(err, chefDetails) {
+                configmgmtDao.getChefServerDetails(req.params.serverId, function (err, chefDetails) {
                     if (err) {
                         res.send(500);
                         return;
@@ -1182,7 +1224,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                         res.status(500).send("Invalid Json for Data Bag item.");
                         return;
                     }
-                    chef.updateDataBagItem(req, dataBagItem, function(err, dataBagItem) {
+                    chef.updateDataBagItem(req, dataBagItem, function (err, dataBagItem) {
                         if (err) {
                             logger.debug("Exit /chef/../databag/../item/update");
                             res.status(500).send("Failed to update Data Bag Item on Chef.");
@@ -1208,13 +1250,13 @@ module.exports.setRoutes = function(app, verificationFunc) {
     });
 
     // Delete a Data Bag Item from a Data Bag.
-    app.delete("/chef/servers/:serverId/databag/:dataBagName/item/:itemName/delete", function(req, res) {
+    app.delete("/chef/servers/:serverId/databag/:dataBagName/item/:itemName/delete", function (req, res) {
         logger.debug("Enter /chef/../databag/../item/delete");
         var loggedInUser = req.session.user;
-        masterUtil.hasPermission("databag", "delete", loggedInUser, function(err, isPermitted) {
+        masterUtil.hasPermission("databag", "delete", loggedInUser, function (err, isPermitted) {
             if (isPermitted) {
                 logger.debug("Got permission to remove DataBagItem: ", isPermitted);
-                configmgmtDao.getChefServerDetails(req.params.serverId, function(err, chefDetails) {
+                configmgmtDao.getChefServerDetails(req.params.serverId, function (err, chefDetails) {
                     if (err) {
                         res.send(500);
                         return;
@@ -1230,7 +1272,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                         chefValidationPemFile: chefDetails.validatorpemfile,
                         hostedChefUrl: chefDetails.url,
                     });
-                    chef.deleteDataBagItem(req.params.dataBagName, req.params.itemName, function(err, dataBagItem) {
+                    chef.deleteDataBagItem(req.params.dataBagName, req.params.itemName, function (err, dataBagItem) {
                         if (err) {
                             logger.debug("Exit /chef/../databag/../item/delete");
                             res.status(500).send("Failed to delete Data Bag Item on Chef.");
@@ -1251,9 +1293,9 @@ module.exports.setRoutes = function(app, verificationFunc) {
     });
 
     // Find a Data Bag Item by Id from a Data Bag.
-    app.get("/chef/servers/:serverId/databag/:dataBagName/item/:itemId/find", function(req, res) {
+    app.get("/chef/servers/:serverId/databag/:dataBagName/item/:itemId/find", function (req, res) {
         logger.debug("Enter /chef/../databag/../item/find");
-        configmgmtDao.getChefServerDetails(req.params.serverId, function(err, chefDetails) {
+        configmgmtDao.getChefServerDetails(req.params.serverId, function (err, chefDetails) {
             if (err) {
                 res.send(500);
                 return;
@@ -1269,7 +1311,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 chefValidationPemFile: chefDetails.validatorpemfile,
                 hostedChefUrl: chefDetails.url,
             });
-            chef.getDataBagItemById(req.params.dataBagName, req.params.itemId, function(err, dataBagItem) {
+            chef.getDataBagItemById(req.params.dataBagName, req.params.itemId, function (err, dataBagItem) {
                 if (err) {
                     logger.debug("Exit /chef/../databag/../item/find");
                     res.status(500).send("Failed to find Data Bag Item on Chef.");
@@ -1283,9 +1325,9 @@ module.exports.setRoutes = function(app, verificationFunc) {
     });
 
     // Delete env from chef.
-    app.delete("/chef/servers/:serverId/environments/:envName", function(req, res) {
+    app.delete("/chef/servers/:serverId/environments/:envName", function (req, res) {
         logger.debug("Enter /chef/../environments");
-        configmgmtDao.getChefServerDetails(req.params.serverId, function(err, chefDetails) {
+        configmgmtDao.getChefServerDetails(req.params.serverId, function (err, chefDetails) {
             if (err) {
                 res.send(500);
                 return;
@@ -1301,7 +1343,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 chefValidationPemFile: chefDetails.validatorpemfile,
                 hostedChefUrl: chefDetails.url,
             });
-            chef.deleteEnvironment(req.params.envName, function(err, env) {
+            chef.deleteEnvironment(req.params.envName, function (err, env) {
                 if (err) {
                     logger.debug("Exit /chef/../environments ", err);
                     res.status(500).send("Failed to delete environments on Chef.");
@@ -1314,9 +1356,9 @@ module.exports.setRoutes = function(app, verificationFunc) {
         });
     });
 
-    app.delete("/chef/servers/:serverId/environments/:envName", function(req, res) {
+    app.delete("/chef/servers/:serverId/environments/:envName", function (req, res) {
         logger.debug("Enter /chef/../environments");
-        configmgmtDao.getChefServerDetails(req.params.serverId, function(err, chefDetails) {
+        configmgmtDao.getChefServerDetails(req.params.serverId, function (err, chefDetails) {
             if (err) {
                 res.send(500);
                 return;
@@ -1332,7 +1374,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 chefValidationPemFile: chefDetails.validatorpemfile,
                 hostedChefUrl: chefDetails.url,
             });
-            chef.deleteEnvironment(req.params.envName, function(err, env) {
+            chef.deleteEnvironment(req.params.envName, function (err, env) {
                 if (err) {
                     logger.debug("Exit /chef/../environments ", err);
                     res.status(500).send("Failed to delete environments on Chef.");
@@ -1345,9 +1387,9 @@ module.exports.setRoutes = function(app, verificationFunc) {
         });
     });
 
-    app.get("/chef/servers/:serverId/search/:index", function(req, res) {
+    app.get("/chef/servers/:serverId/search/:index", function (req, res) {
         logger.debug("Enter /chef/../environments");
-        configmgmtDao.getChefServerDetails(req.params.serverId, function(err, chefDetails) {
+        configmgmtDao.getChefServerDetails(req.params.serverId, function (err, chefDetails) {
             if (err) {
                 res.send(500);
                 return;
@@ -1363,7 +1405,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 chefValidationPemFile: chefDetails.validatorpemfile,
                 hostedChefUrl: chefDetails.url,
             });
-            chef.search(req.params.index, req.query.searchQuery, function(err, env) {
+            chef.search(req.params.index, req.query.searchQuery, function (err, env) {
                 if (err) {
                     res.status(500).send("Failed to to seacrh on chef.");
                     return;
@@ -1375,7 +1417,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
         });
     });
 
-    app.get("/chef/nodeList", function(req, res) {
+    app.get("/chef/nodeList", function (req, res) {
         var reqObj = {};
         async.waterfall(
             [
@@ -1387,7 +1429,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                     apiUtil.paginationRequest(reqData, 'chefNodes', next);
                 },
                 function (paginationReq, next) {
-                    paginationReq['searchColumns'] = ['chefNodeIp', 'chefNodeName',"chefNodePlatform"];
+                    paginationReq['searchColumns'] = ['chefNodeIp', 'chefNodeName', "chefNodePlatform"];
                     apiUtil.databaseUtil(paginationReq, next);
                 },
                 function (queryObj, next) {
@@ -1396,13 +1438,12 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 function (nodes, next) {
                     apiUtil.changeResponseForJqueryPagination(nodes, reqObj, next);
                 },
-
             ], function (err, results) {
-                if (err){
-                    res.send(err);
-                }else{
-                    res.send(results);
-                }
-            });
+            if (err) {
+                res.send(err);
+            } else {
+                res.send(results);
+            }
+        });
     });
 };

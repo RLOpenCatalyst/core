@@ -32,58 +32,64 @@ var ApiUtil = function() {
         }
         return errObj;
     }
-    this.createCronJobPattern= function(scheduler,startOn){
-        scheduler.repeatEvery = parseInt(scheduler.repeatEvery);
-        if(scheduler.repeats ==='Minutes'){
-            scheduler.pattern = '*/'+scheduler.repeatEvery+' * * * *';
-        }else if(scheduler.repeats ==='Hourly'){
-            scheduler.pattern = '0 */'+scheduler.repeatEvery+' * * *';
-        }else if(scheduler.repeats ==='Daily'){
-            var startOn = Date.parse(startOn);
+    this.createCronJobPattern= function(scheduler){
+        scheduler.cronRepeatEvery = parseInt(scheduler.cronRepeatEvery);
+        if(scheduler.cronFrequency ==='Minutes'){
+            scheduler.pattern = '*/'+scheduler.cronRepeatEvery+' * * * *';
+        }else if(scheduler.cronFrequency ==='Hourly'){
+            scheduler.pattern = '0 */'+scheduler.cronRepeatEvery+' * * *';
+        }else if(scheduler.cronFrequency ==='Daily'){
+            var startOn = Date.parse(scheduler.cronStartOn);
             var startHours= startOn.getHours();
             var startMinutes= startOn.getMinutes();
-            scheduler.pattern = startMinutes+' '+startHours+' */'+scheduler.repeatEvery+' * *';
-        }else if(scheduler.repeats ==='Weekly') {
-            var startOn = Date.parse(startOn);
+            scheduler.pattern = startMinutes+' '+startHours+' */'+scheduler.cronRepeatEvery+' * *';
+        }else if(scheduler.cronFrequency ==='Weekly') {
+            var startOn = Date.parse(scheduler.cronStartOn);
             var startDay= startOn.getDay();
             var startHours= startOn.getHours();
             var startMinutes= startOn.getMinutes();
-            if(scheduler.repeatEvery === 2) {
+            if(scheduler.cronRepeatEvery === 2) {
                 scheduler.pattern = startMinutes+' '+startHours+' 8-14 * ' + startDay;
-            }else if(scheduler.repeatEvery === 3) {
+            }else if(scheduler.cronRepeatEvery === 3) {
                 scheduler.pattern = startMinutes+' '+startHours+' 15-21 * ' + startDay;
-            }else if(scheduler.repeatEvery === 4) {
+            }else if(scheduler.cronRepeatEvery === 4) {
                 scheduler.pattern = startMinutes+' '+startHours+' 22-28 * ' + startDay;
             }else{
                 scheduler.pattern = startMinutes+' '+startHours+' * * ' + startDay;
             }
         }
-        if(scheduler.repeats ==='Monthly') {
-            var startOn = Date.parse(startOn);
+        if(scheduler.cronFrequency ==='Monthly') {
+            var startOn = Date.parse(scheduler.cronStartOn);
             var startDate= startOn.getDate();
             var startMonth= startOn.getMonth();
             var startDay= startOn.getDay();
             var startHours= startOn.getHours();
             var startMinutes= startOn.getMinutes();
-            if(scheduler.repeatEvery === 1) {
+            if(scheduler.cronRepeatEvery === 1) {
                 scheduler.pattern = startMinutes+' '+startHours+' '+startDate+' * *';
             }else{
-                scheduler.pattern = startMinutes+' '+startHours+' '+startDate+' */'+scheduler.repeatEvery+' *';
+                scheduler.pattern = startMinutes+' '+startHours+' '+startDate+' */'+scheduler.cronRepeatEvery+' *';
             }
         }
-        if(scheduler.repeats ==='Yearly') {
-            var startOn = Date.parse(startOn);
+        if(scheduler.cronFrequency ==='Yearly') {
+            var startOn = Date.parse(scheduler.cronStartOn);
             var startDate= startOn.getDate();
             var startYear= startOn.getFullYear();
             var startMonth= startOn.getMonth();
             var startHours= startOn.getHours();
             var startMinutes= startOn.getMinutes();
-            scheduler.pattern ='0 '+startMinutes+' '+startHours+' '+startDate+' '+startMonth+' ? '+startYear/scheduler.repeatEvery;
+            scheduler.pattern ='0 '+startMinutes+' '+startHours+' '+startDate+' '+startMonth+' ? '+startYear/scheduler.cronRepeatEvery;
         }
         var cronScheduler = {
-            "repeats": scheduler.repeats,
-            "repeatEvery": scheduler.repeatEvery,
-            "cronPattern":scheduler.pattern
+            "cronFrequency": scheduler.cronFrequency,
+            "cronRepeatEvery": scheduler.cronRepeatEvery,
+            "cronPattern":scheduler.pattern,
+            "cronStartOn":Date.parse(scheduler.cronStartOn),
+            "cronEndOn":Date.parse(scheduler.cronEndOn),
+            "cronTime":scheduler.cronTime,
+            "cronDays":scheduler.cronDays,
+            "cronMonths":scheduler.cronMonths,
+            "cronYears":scheduler.cronYears
         }
         return cronScheduler;
     }
