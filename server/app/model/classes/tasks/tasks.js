@@ -138,12 +138,12 @@ var taskSchema = new Schema({
     },
     taskScheduler:{
         cronStartOn: {
-            type: Number,
+            type: String,
             required: false,
             trim: true
         },
         cronEndOn: {
-            type: Number,
+            type: String,
             required: false,
             trim: true
         },
@@ -158,7 +158,7 @@ var taskSchema = new Schema({
             trim: true
         },
         cronFrequency: {
-            type: Number,
+            type: String,
             required: false,
             trim: true
         },
