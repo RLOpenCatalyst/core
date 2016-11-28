@@ -45,7 +45,7 @@
             ],
             data:[]
         };
-        var gridBottomSpace = 5;
+        var gridBottomSpace = 40;
         $scope.gridHeight = workzoneUIUtils.makeTabScrollable('botAuditTrailPage') - gridBottomSpace;
         
         $scope.botAuditTrailLogs=function(hist) {
@@ -66,6 +66,10 @@
             }, function() {
                 console.log('Modal Dismissed at ' + new Date());
             });
+        };
+
+        $scope.RefreshBotsAuditTrail = function() {
+            audit.init();
         };
 
         audit.init =function(){
