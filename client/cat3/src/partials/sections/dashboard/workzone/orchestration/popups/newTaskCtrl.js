@@ -404,6 +404,9 @@
 						//first time execute will get result from jobResultURLPattern.
 						taskJSON.jobResultURLPattern = taskJSON.jobResultURL;
 						taskJSON.parameterized = $scope.jenkinsParamsList;
+						taskJSON.isTaskScheduled = $scope._isEventSelected;
+						//taskJSON.taskScheduler = $scope.cronPattern;
+						taskJSON.taskScheduler = $scope.cronDetails;
 					}
 					//if task type is script
 					if ($scope.taskType === "script") {
