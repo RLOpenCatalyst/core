@@ -28,6 +28,7 @@ var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var schedulerService = require('_pr/services/schedulerService');
+var catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
 
 
 
@@ -542,11 +543,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                             }
                             if (updateCount) {
                                 if(taskData.isTaskScheduled === true){
-                                    schedulerService.executeSchedulerForTasks(task,function(err,data){
-                                        if(err){
-                                            logger.error("Error in executing task scheduler");
-                                        }
-                                    })
+                                    catalystSync.executeScheduledTasks();
                                 };
                                 res.send({
                                     updateCount: updateCount
@@ -567,11 +564,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 }
                 if (updateCount) {
                     if(taskData.isTaskScheduled === true){
-                        schedulerService.executeSchedulerForTasks(task,function(err,data){
-                            if(err){
-                                logger.error("Error in executing task scheduler");
-                            }
-                        })
+                        catalystSync.executeScheduledTasks();
                     };
                     res.send({
                         updateCount: updateCount
