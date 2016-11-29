@@ -1000,7 +1000,11 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                     return;
                                 }
                                 if(task.isTaskScheduled === true){
-                                    catalystSync.executeScheduledTasks();
+                                    if(task.executionOrder === 'PARALLEL'){
+                                        catalystSync.executeParallelScheduledTasks();
+                                    }else{
+                                        catalystSync.executeSerialScheduledTasks();
+                                    }
                                 };
                                 res.send(task);
                                 logger.debug("Exit post() for /organizations/%s/businessGroups/%s/projects/%s/environments/%s/tasks", req.params.orgId, req.params.bgId, req.params.projectId, req.params.environments);
@@ -1015,7 +1019,12 @@ module.exports.setRoutes = function(app, sessionVerification) {
                             return;
                         }
                         if(task.isTaskScheduled === true){
-                            catalystSync.executeScheduledTasks();
+                            if(task.executionOrder === 'PARALLEL'){
+                                catalystSync.executeParallelScheduledTasks();
+                            }else{
+                                catalystSync.executeSerialScheduledTasks();
+                            }
+
                         };
                         res.send(task);
                         logger.debug("Exit post() for /organizations/%s/businessGroups/%s/projects/%s/environments/%s/tasks", req.params.orgId, req.params.bgId, req.params.projectId, req.params.environments);

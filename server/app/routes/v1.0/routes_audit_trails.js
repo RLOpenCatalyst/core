@@ -109,7 +109,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             [
 
                 function(next) {
-                    apiUtil.paginationRequest(req[0].query, 'taskLogs', next);
+                    apiUtil.paginationRequest(req.query, 'taskLogs', next);
                 },
                 function(paginationReq, next) {
                     reqData = paginationReq;
