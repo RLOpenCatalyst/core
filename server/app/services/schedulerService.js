@@ -30,7 +30,6 @@ var EC2 = require('_pr/lib/ec2.js');
 var AWSKeyPair = require('_pr/model/classes/masters/cloudprovider/keyPair.js');
 var appConfig = require('_pr/config');
 var Cryptography = require('../lib/utils/cryptography');
-var catalystSync = null;
 var vmWareProvider = require('_pr/model/classes/masters/cloudprovider/vmwareCloudProvider.js');
 var vmWare = require('_pr/lib/vmware');
 var azureProvider = require('_pr/model/classes/masters/cloudprovider/azureCloudProvider.js');
@@ -133,7 +132,7 @@ schedulerService.executeSchedulerForTasks = function executeSchedulerForTasks(ta
                     return;
                 }
                 logger.debug("Task Execution Success: ", task.name);
-                callback(null,historyData);
+                callback(null,cronJobId);
                 return;
             });
         });

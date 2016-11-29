@@ -40,6 +40,19 @@ var fileIo = require('_pr/lib/utils/fileio');
 module.exports.setRoutes = function(app, sessionVerification) {
     app.all('/tasks/*', sessionVerification);
 
+    app.delete('/tasks/serviceDelivery/:taskId', function(req, res) {
+        Tasks.removeServiceDeliveryTask(req.params.taskId, function(err, data) {
+            if (err) {
+                logger.error("Failed to delete service delivery Task", err);
+                res.send(500, errorResponses.db.error);
+                return;
+            }
+            res.send(200, {
+                message: "deleted"
+            });
+        });
+    });
+
     app.get('/tasks/history/list/all', function(req, res) {
         TaskHistory.listHistory(function(err, tHistories) {
             if (err) {
@@ -93,19 +106,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 res.send(404);
                 return;
             }
-        });
-    });
-
-    app.delete('/tasks/serviceDelivery/:taskId', function(req, res) {
-        Tasks.removeServiceDeliveryTask(req.params.taskId, function(err, data) {
-            if (err) {
-                logger.error("Failed to delete service delivery Task", err);
-                res.send(500, errorResponses.db.error);
-                return;
-            }
-            res.send(200, {
-                message: "deleted"
-            });
         });
     });
 
@@ -543,7 +543,11 @@ module.exports.setRoutes = function(app, sessionVerification) {
                             }
                             if (updateCount) {
                                 if(taskData.isTaskScheduled === true){
-                                    catalystSync.executeScheduledTasks();
+                                    if(task.executionOrder === 'PARALLEL'){
+                                        catalystSync.executeParallelScheduledTasks();
+                                    }else{
+                                        catalystSync.executeSerialScheduledTasks();
+                                    }
                                 };
                                 res.send({
                                     updateCount: updateCount
@@ -564,7 +568,11 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 }
                 if (updateCount) {
                     if(taskData.isTaskScheduled === true){
-                        catalystSync.executeScheduledTasks();
+                        if(task.executionOrder === 'PARALLEL'){
+                            catalystSync.executeParallelScheduledTasks();
+                        }else{
+                            catalystSync.executeSerialScheduledTasks();
+                        }
                     };
                     res.send({
                         updateCount: updateCount
