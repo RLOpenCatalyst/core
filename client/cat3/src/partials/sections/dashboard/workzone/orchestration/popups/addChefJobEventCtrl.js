@@ -11,10 +11,24 @@
 		.controller('addChefJobEventCtrl',['$scope', '$modalInstance', 'items' ,'toastr',function($scope, $modalInstance , items , toastr){
 			console.log(items);
 			if(items.type !== 'new'){
-				$scope.schedulerStartOn = items.chefJenkScriptTaskObj.cronStart;
-				$scope.schedulerEndOn = items.chefJenkScriptTaskObj.cronEnd;
-				$scope.repeatBy = items.chefJenkScriptTaskObj.repeatBy;
-				$scope.repeatsType = items.chefJenkScriptTaskObj.repeats;
+				if(items.chefJenkScriptTaskObj.cronStartOn && items.chefJenkScriptTaskObj.cronEndOn) {
+					var newStartOn = parseInt(items.chefJenkScriptTaskObj.cronStartOn);
+					var newDate = new Date(newStartOn).toLocaleDateString();
+					var datearray = newDate.split("/");
+					var newdate = datearray[1] + '/' + datearray[0] + '/' + datearray[2];
+					$scope.schedulerStartOn = newdate;
+					var newEndOn = parseInt(items.chefJenkScriptTaskObj.cronEndOn);
+					var newEndData = new Date(newEndOn).toLocaleDateString();	
+					var datearrayNew = newEndData.split("/");
+					var newdateEnd = datearrayNew[1] + '/' + datearrayNew[0] + '/' + datearrayNew[2];
+					$scope.schedulerEndOn = newdateEnd;
+				} else {
+					$scope.schedulerStartOn = items.chefJenkScriptTaskObj.cronStart;
+					$scope.schedulerEndOn = items.chefJenkScriptTaskObj.cronEnd;	
+				}
+				
+				$scope.repeatBy = items.chefJenkScriptTaskObj.repeatBy || items.chefJenkScriptTaskObj.cronRepeatEvery.toString();
+				$scope.repeatsType = items.chefJenkScriptTaskObj.repeats || items.chefJenkScriptTaskObj.cronFrequency;
 				$scope.timeEventType = items.chefJenkScriptTaskObj.startTime;
 				$scope.timeEventMinute = items.chefJenkScriptTaskObj.startTimeMinute;
 				$scope.weekOfTheDay = items.chefJenkScriptTaskObj.dayOfWeek;
@@ -27,14 +41,18 @@
             	$scope.schedulerEndOn=moment(new Date()).format('MM/DD/YYYY');
 			}
 
+			
 			$scope.dateChange= function () {
-                var startDate =  Date.parse($scope.schedulerStartOn);
-                var endDate =  Date.parse($scope.schedulerEndOn);
+				var startDate =  Date.parse($scope.schedulerStartOn);
+	            var endDate =  Date.parse($scope.schedulerEndOn);
                 if(startDate > endDate){
                     $scope.validDateRange=true;
                 } else {
                     $scope.validDateRange=false;
                 }
+                if(startDate = endDate){
+                	$scope.validDateRange=true;
+            	}
             };
 
 			$scope.repeatCount = function(max, step) {

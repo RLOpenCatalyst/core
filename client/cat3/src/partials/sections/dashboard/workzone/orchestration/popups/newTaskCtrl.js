@@ -416,12 +416,7 @@
 							$scope.taskSaving = false;
 							return false;
 						}
-						if (!taskJSON.nodeIds.length) {
-							$scope.inputValidationMsg='Please select a node';
-							$scope.taskSaving = false;
-							return false;
-						}
-
+						
 						for (var k = 0; k < $scope.scriptTaskList.length; k++) {
 							if ($scope.scriptTaskList[k]._isScriptSelected) {
 								var scriptId = $scope.scriptTaskList[k]._id;
@@ -700,13 +695,13 @@
 					$scope.isExecution.flag = items.taskConfig.executionOrder;
 				}
 				if(items.taskType === "chef" || items.taskType === "jenkins" || items.taskType === "script") {
-					if(items.cron){
-						$scope._isEventSelected = items.isScheduled;
+					//if(items.taskScheduler){
+						$scope._isEventSelected = items.isTaskScheduled;
 						$scope.showAddTask = true;
 						$scope.isEventAvailable = true;
 						$scope.chefJenkScriptTaskObj = items.taskScheduler;
 						$scope.type = 'edit';
-					}
+					//}
 				}
 			}
 		}
