@@ -20,6 +20,12 @@
   height: 50px;
 }
 
+#botAuditTrailPage {
+  .ui-grid-column-menu-button {
+    display: none;
+  }
+}
+
 #botLibraryPage, #botAuditTrailPage {
   .page-name {
       font-size: 18px;
