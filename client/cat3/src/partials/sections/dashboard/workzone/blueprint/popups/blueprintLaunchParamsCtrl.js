@@ -70,7 +70,7 @@
 					};
 					workzoneServices.launchCompsiteBlueprint(compBlue).success(function() {
                         toastr.success('Successfully launched composite blueprint');
-                        return false;
+                        $modalInstance.close(compBlue);
 					}).error(function(data) {
                         toastr.error(data.message, 'Error');
 					});

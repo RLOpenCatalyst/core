@@ -27,7 +27,7 @@
                     sch.interval[i].days.splice(sch.interval[i].days.indexOf(d),1);
                 }
                 if(sch.interval[i].days.length >0){
-                    sch.interval[i].daySelect=1
+                    sch.interval[i].daySelect=1;
                 } else{
                     sch.interval[i].daySelect='';
                 }
@@ -44,7 +44,7 @@
                 var params={
                     url:'/instances/'+sch.instanceIds[0]
                     //url:'src/partials/sections/dashboard/workzone/data/oneIns.json'
-                }
+                };
                 genericServices.promiseGet(params).then(function (result) {
                     sch.isScheduled=result.isScheduled;
                     sch.schedulerStartOn=moment(result.schedulerStartOn).format('MM/DD/YYYY');

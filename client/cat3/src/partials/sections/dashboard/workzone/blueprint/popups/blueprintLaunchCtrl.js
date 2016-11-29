@@ -136,8 +136,6 @@
 					$scope.launchResponse = {error:message};
 					$scope.launchMessage = messageHelper.launchMessage();
 				});
-			} else {
-				
 			}
 		}
 	]);

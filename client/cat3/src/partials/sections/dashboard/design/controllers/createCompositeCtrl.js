@@ -10,6 +10,7 @@
             createCBP.compositeBPType='chef';
             $scope.chefrunlist,$scope.cookbookAttributes = [];
             createCBP.onSubmit =false;
+            $scope.compositeEnabled = true;
             createCBP.newEnt={
                 bpName:''
             };
@@ -65,6 +66,7 @@
             };
             $scope.compositeSave =function () {
                 createCBP.onSubmit =true;
+                $scope.compositeEnabled = false;
                 if(!createCBP.newEnt.bpName  || !createCBP.SelectedBPList.length > 0){
                     return true;
                 }
@@ -72,7 +74,7 @@
                     createCBP.newEnt.org =$rootScope.organNewEnt.org.rowid;
                     createCBP.newEnt.buss=$rootScope.organNewEnt.buss.rowid;
                     createCBP.newEnt.proj=$rootScope.organNewEnt.proj.rowId;
-                };
+                }
                 $scope.blueprintList = [];
                 angular.forEach(createCBP.SelectedBPList, function(val){
                     var blueprintObj={
@@ -94,6 +96,7 @@
                 gencSers.promisePost(params).then(function () {
                     toastr.success('Successfully Created.');
                     $state.go('dashboard.design.list',{providerName:$state.params.providerName,templateObj:$state.params.templateObj});
+                    $scope.compositeEnabled = true;
                 });
             };
             createCBP.createList();

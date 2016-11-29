@@ -217,6 +217,8 @@ io.sockets.on('connection', function(socket) {
 var cronTabManager = require('_pr/cronjobs');
 cronTabManager.start();
 catalystSync.executeScheduledInstances();
+catalystSync.executeSerialScheduledTasks();
+catalystSync.executeParallelScheduledTasks();
 server.listen(app.get('port'), function() {
     logger.debug('Express server listening on port ' + app.get('port'));
 });

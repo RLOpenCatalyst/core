@@ -13,10 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-
-
 // This file act as a Controller which contains Settings related all end points.
-
 var d4dModel = require('_pr/model/d4dmasters/d4dmastersmodel.js');
 var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
 var usersDao = require('_pr/model/users.js');
@@ -46,6 +43,7 @@ var async = require('async');
 var appDeployPipelineService = require('_pr/services/appDeployPipelineService');
 var settingsService = require('_pr/services/settingsService');
 var settingWizard = require('_pr/model/setting-wizard');
+var monitorsModel = require('_pr/model/monitors/monitors.js');
 
 
 module.exports.setRoutes = function(app, sessionVerification) {
@@ -644,7 +642,14 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                     d4dMasterJson[flds[0]] = names; //configmgmtDao.convertRowIDToValue(jobj[k1],rowidlist);
                                 }
                             }
-                            res.end(JSON.stringify(d4dMasterJson));
+                            if (req.params.id === '10') {
+                                getMonitorDetail(d4dMasterJson, function(data) {
+                                    d4dMasterJson = data;
+                                    res.end(JSON.stringify(d4dMasterJson));
+                                });
+                            } else {
+                                res.end(JSON.stringify(d4dMasterJson));
+                            }
                             logger.debug("sent response %s", JSON.stringify(d4dMasterJson));
                             logger.debug("Exit get() for /d4dMasters/readmasterjsonrecord/%s/%s", req.params.id, req.params.rowid);
                         } else {
@@ -751,8 +756,17 @@ module.exports.setRoutes = function(app, sessionVerification) {
                             if (err) {
                                 res.status(500).send('Not able to fetch ConfigManagement.');
                             }
-                            res.send(configMgmtList);
-                            return;
+                            var response = [];
+                            for (var i = 0; i < configMgmtList.length; i++) {
+                                getMonitorDetail(configMgmtList[i], function(data) {
+                                    response.push(data);
+                                    if (response.length === configMgmtList.length) {
+                                        res.send(response);
+                                        return;
+                                    }
+                                });
+                            }
+
                         });
 
                     } else if (req.params.id === '18') {
@@ -906,8 +920,16 @@ module.exports.setRoutes = function(app, sessionVerification) {
                             if (err) {
                                 res.status(500).send('Not able to fetch ConfigManagement.');
                             }
-                            res.send(configMgmtList);
-                            return;
+                            var response = [];
+                            for (var i = 0; i < configMgmtList.length; i++) {
+                                getMonitorDetail(configMgmtList[i], function(data) {
+                                    response.push(data);
+                                    if (response.length === configMgmtList.length) {
+                                        res.send(response);
+                                        return;
+                                    }
+                                });
+                            }
                         });
 
                     } else if (req.params.id === '18') {
@@ -4024,4 +4046,26 @@ module.exports.setRoutes = function(app, sessionVerification) {
             }
         });
     });
+};
+
+function getMonitorDetail(data, callback) {
+    data = data.toObject();
+    if (data.monitorId) {
+        var monitorId = data.monitorId;
+        delete data['monitorId'];
+        monitorsModel.getById(monitorId, function(err, monitor) {
+            if (err || !monitor) {
+                data.monitor = null;
+            } else {
+                data.monitor = {};
+                data.monitor['id'] = monitor._id;
+                data.monitor['name'] = monitor.name;
+            }
+            callback(data);
+        });
+    } else {
+        delete data['monitorId'];
+        data.monitor = null;
+        callback(data);
+    }
 }
