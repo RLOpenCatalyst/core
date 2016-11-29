@@ -496,8 +496,10 @@
 			$scope.editRunListAttributes = false;
 
 			$rootScope.$on('WZ_ORCHESTRATION_REFRESH_CURRENT', function(event,reqParams) {
-                $scope.chefrunlist = reqParams.list;
-                $scope.cookbookAttributes = reqParams.cbAttributes;
+				if(reqParams) {
+					$scope.chefrunlist = reqParams.list;
+					$scope.cookbookAttributes = reqParams.cbAttributes;
+				}
             });
 			var compositeSelector,instanceSelector;
 			workzoneServices.getEnvironmentTaskList().then(function (response) {
@@ -692,7 +694,7 @@
 					$scope.changeNodeScriptList();
 				}
 				if(items.taskType === "chef" || items.taskType === "script") {
-					$scope.isExecution.flag = items.taskConfig.executionOrder;
+					$scope.isExecution.flag = items.executionOrder;
 				}
 				if(items.taskType === "chef" || items.taskType === "jenkins" || items.taskType === "script") {
 					//if(items.taskScheduler){
