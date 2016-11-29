@@ -517,7 +517,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
     app.post('/tasks/:taskId/update', function(req, res) {
         var taskData = req.body.taskData;
-        if(taskData.taskScheduler  && taskData.taskScheduler !== null) {
+        if(taskData.taskScheduler  && taskData.taskScheduler !== null && Object.keys(taskData.taskScheduler).length !== 0) {
             taskData.taskScheduler = apiUtil.createCronJobPattern(taskData.taskScheduler);
             taskData.isTaskScheduled = true;
         }
@@ -543,7 +543,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                             }
                             if (updateCount) {
                                 if(taskData.isTaskScheduled === true){
-                                    if(task.executionOrder === 'PARALLEL'){
+                                    if(taskData.executionOrder === 'PARALLEL'){
                                         catalystSync.executeParallelScheduledTasks();
                                     }else{
                                         catalystSync.executeSerialScheduledTasks();
@@ -568,7 +568,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 }
                 if (updateCount) {
                     if(taskData.isTaskScheduled === true){
-                        if(task.executionOrder === 'PARALLEL'){
+                        if(taskData.executionOrder === 'PARALLEL'){
                             catalystSync.executeParallelScheduledTasks();
                         }else{
                             catalystSync.executeSerialScheduledTasks();
