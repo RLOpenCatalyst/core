@@ -233,7 +233,7 @@
 												<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 text-center paddingtopbottom10 assigned-tasks">
 													<span>Assigned Instances</span>
 												</div>
-											
+
 												<div class="component_for_instances">
 													<!-- Here HTML snippet will be append through chef component-->
 												</div>
@@ -287,10 +287,10 @@
 											<input type="checkbox" ng-checked="_isEventSelected" ng-model="_isEventSelected" ng-change="selectTaskCheckbox()" class="checkbox-list"/>&nbsp;Schedule a Task&nbsp;
 										</label>
 										<i class="fa fa-plus-circle cursor" ng-show="showAddTask" title="Add Task" ng-click="addTaskEvent('new')"></i>
-										<input type="text" ng-show="isEventAvailable" class="form-control" disabled ng-model="repeatPattern"/>
+										<!-- <input type="text" ng-show="isEventAvailable" class="form-control" disabled ng-model="repeatPattern"/> -->
 									</span>
 									<span class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
-										<i class="fa fa-question-circle" title="This is a cron job interval pattern. Based on the pattern formed the cron job will get executed."></i>
+										<i class="fa fa-question-circle" title="This is used to schedule a task over a course of time."></i>
 									</span>
 								</div>
 							</div>
@@ -371,6 +371,16 @@
 									</tbody>
 								</table>
 							</div>
+							<span class="col-lg-5 col-md-5 col-sm-5 col-xs-10 margintop7">
+								<label>
+									<input type="checkbox" ng-checked="_isEventSelected" ng-model="_isEventSelected" ng-change="selectTaskCheckbox()" class="checkbox-list"/>&nbsp;Schedule a Task&nbsp;
+								</label>
+								<i class="fa fa-plus-circle cursor" ng-show="showAddTask" title="Add Task" ng-click="addTaskEvent('new')"></i>
+								<!-- <input type="text" ng-show="isEventAvailable" class="form-control" disabled ng-model="cronPattern"/> -->
+							</span>
+							<span class="col-lg-1 col-md-1 col-sm-1 col-xs-1 margintop7">
+								<i class="fa fa-question-circle" title="This is used to schedule a task over a course of time."></i>
+							</span>
 							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 								<div class="jenkins-job-parameter-text">
 									<label class="lable-align">This Job is parameterized</label>
@@ -472,7 +482,7 @@
 							</header>
 							<div class="jobDetailsContent">
 								<div class="chef-details-top">
-									<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 script-task">
+									<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 script-task">
 										<loading name="isScriptNodesLoading" size="medium" type="block" align="left"></loading>
 										<div class="row margin0" ng-show="!isScriptNodesLoading">
 											<div class="radio-instances col-lg-6 no-padding">
@@ -486,13 +496,35 @@
 
 										<div class="select-nodeInstance">
 											<!-- <loading name="isScriptInstanceLoading" size="large" type="block" align="center"></loading> -->
-											<ul ng-show="targetType==='instance'">
+											<!-- <ul ng-show="targetType==='instance'">
 												<li ng-repeat="instance in chefInstanceList" ng-show="instance.instanceState=='running' || instance.instanceState=='unknown' || instance.instanceState=='pending'">
 													<label class="checkbox check-list">
 														<input type="checkbox" ng-change="optionInstanceToggled()" ng-checked="instance._isNodeSelected" ng-model="instance._isNodeSelected" class="checkbox-list">{{instance.name}}
 													</label>
 												</li>
-											</ul>
+											</ul> -->
+											<div class="section-headings" ng-show="targetType==='instance'">
+												<div class="col-lg-5 col-md-5 col-sm-6 col-xs-12 text-center paddingtopbottom10">
+													<span>Instance List</span>
+												</div>
+												<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 text-center paddingtopbottom10 assigned-tasks">
+													<span>Assigned Instances</span>
+												</div>
+
+												<div class="component_for_instances">
+													<!-- Here HTML snippet will be append through chef component-->
+												</div>
+											</div>
+											<span class="col-lg-5 col-md-5 col-sm-5 col-xs-10 margintop7">
+												<label>
+													<input type="checkbox" ng-checked="_isEventSelected" ng-model="_isEventSelected" ng-change="selectTaskCheckbox()" class="checkbox-list"/>&nbsp;Schedule a Task&nbsp;
+												</label>
+												<i class="fa fa-plus-circle cursor" ng-show="showAddTask" title="Add Task" ng-click="addTaskEvent('new')"></i>
+												<!-- <input type="text" ng-show="isEventAvailable" class="form-control" disabled ng-model="cronPattern"/> -->
+											</span>
+											<span class="col-lg-1 col-md-1 col-sm-1 col-xs-1 margintop7">
+												<i class="fa fa-question-circle" title="This is used to schedule a task over a course of time."></i>
+											</span>
 										</div>
 									</div>
 									<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
