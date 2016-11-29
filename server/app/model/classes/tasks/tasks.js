@@ -136,6 +136,11 @@ var taskSchema = new Schema({
         required: false,
         default:false
     },
+    executionOrder:{
+        type: String,
+        required: false,
+        trim: true
+    },
     taskScheduler:{
         cronStartOn: {
             type: String,
@@ -147,7 +152,7 @@ var taskSchema = new Schema({
             required: false,
             trim: true
         },
-        cronPatten: {
+        cronPattern: {
             type: String,
             required: false,
             trim: true
