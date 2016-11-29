@@ -114,7 +114,6 @@ schedulerService.executeSchedulerForTasks = function executeSchedulerForTasks(ta
             return;
         });
     }else{
-        var schedulerService = require('_pr/services/schedulerService');
         var cronJobId = cronTab.scheduleJob(task.taskScheduler.cronPattern, function () {
             taskDao.updateCronJobIdByTaskId(task._id,cronJobId,function(err,data){
                 if(err){
@@ -124,15 +123,12 @@ schedulerService.executeSchedulerForTasks = function executeSchedulerForTasks(ta
             taskService.executeTask(task._id, "superadmin", "", "", "","","",function(err, historyData) {
                 if (err === 404) {
                     logger.error("Task not found.", err);
-                    callback(err,null);
                     return;
                 } else if (err) {
                     logger.error("Failed to execute task.", err);
-                    callback(err,null);
                     return;
                 }
                 logger.debug("Task Execution Success: ", task.name);
-                callback(null,cronJobId);
                 return;
             });
         });

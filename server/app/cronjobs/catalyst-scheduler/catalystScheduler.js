@@ -52,7 +52,7 @@ catalystSync.executeParallelScheduledTasks = function executeParallelScheduledTa
                     if(task.cronJobId && task.cronJobId !== null){
                         cronTab.cancelJob(task.cronJobId);
                     }
-                    if(task.executionOrder === 'PARALLEL'){
+                    if(task.executionOrder === 'PARALLEL' || task.taskType === 'jenkins'){
                         resultList.push(function(callback){schedulerService.executeSchedulerForTasks(task,callback);});
                         parallelTaskList.push(function(callback){schedulerService.executeSchedulerForTasks(task,callback);});
                     }else{
