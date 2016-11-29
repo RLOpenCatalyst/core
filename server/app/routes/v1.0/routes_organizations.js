@@ -976,7 +976,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
             taskData.orgName = project[0].orgname;
             taskData.bgName = project[0].productgroupname;
             taskData.projectName = project[0].projectname;
-            if(taskData.taskScheduler  && taskData.taskScheduler !== null) {
+            if(taskData.taskScheduler  && taskData.taskScheduler !== null && Object.keys(taskData.taskScheduler).length !== 0) {
                 taskData.taskScheduler = apiUtil.createCronJobPattern(taskData.taskScheduler);
                 taskData.isTaskScheduled = true;
             }
@@ -1015,7 +1015,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 }else {
                     Task.createNew(taskData, function (err, task) {
                         if (err) {
-                            logger.err(err);
+                            logger.error(err);
                             res.status(500).send("Failed to create task: ", err);
                             return;
                         }

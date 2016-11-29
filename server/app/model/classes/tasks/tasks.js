@@ -748,7 +748,10 @@ taskSchema.statics.updateTaskById = function(taskId, taskData, callback) {
             serviceDeliveryCheck:taskData.serviceDeliveryCheck,
             description: taskData.description,
             jobResultURLPattern: taskData.jobResultURL,
-            blueprintIds: taskData.blueprintIds
+            blueprintIds: taskData.blueprintIds,
+            executionOrder:taskData.executionOrder,
+            taskScheduler:taskData.taskScheduler,
+            isTaskScheduled:taskData.isTaskScheduled
         }
     }, {
         upsert: false
