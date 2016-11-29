@@ -4,7 +4,6 @@ var taskDao = require('_pr/model/classes/tasks/tasks.js');
 var schedulerService = require('_pr/services/schedulerService');
 var async = require('async');
 var cronTab = require('node-crontab');
-
 var catalystSync = module.exports = {};
 
 catalystSync.executeScheduledInstances = function executeScheduledInstances() {
@@ -40,14 +39,14 @@ catalystSync.executeScheduledInstances = function executeScheduledInstances() {
     });
 }
 
-catalystSync.executeScheduledTasks = function executeScheduledTasks() {
+catalystSync.executeParallelScheduledTasks = function executeParallelScheduledTasks() {
     taskDao.getScheduledTasks(function(err, tasks) {
         if (err) {
             logger.error("Failed to fetch tasks: ", err);
             return;
         }
         if (tasks && tasks.length) {
-            var resultList =[],parallelTaskList=[],serialTaskList=[];
+            var resultList =[],parallelTaskList=[];
             for (var i = 0; i < tasks.length; i++) {
                 (function(task) {
                     if(task.cronJobId && task.cronJobId !== null){
@@ -58,53 +57,77 @@ catalystSync.executeScheduledTasks = function executeScheduledTasks() {
                         parallelTaskList.push(function(callback){schedulerService.executeSchedulerForTasks(task,callback);});
                     }else{
                         resultList.push(function(callback){schedulerService.executeSchedulerForTasks(task,callback);});
-                        if(serialTaskList.length ===0) {
-                            serialTaskList.push(function (next) {
-                                schedulerService.executeSchedulerForTasks(task, next);
-                            });
-                        }else{
-                            serialTaskList.push(function (execution,next) {
-                                schedulerService.executeSchedulerForTasks(task, next);
-                            });
-                        }
                     }
                     if(resultList.length === tasks.length){
-                        async.parallel({
-                            parallelTask: function(callback){
-                                async.parallel(parallelTaskList,function(err,data){
-                                    if(err){
-                                        callback(err,null);
-                                        return;
-                                    }
-                                    logger.debug("Parallel Task Scheduler Completed");
-                                    callback(null,data);
-                                    return;
-                                })
-                            },
-                            serialTask: function(callback){
-                                async.waterfall(serialTaskList,function(err,data){
-                                    if(err){
-                                        callback(err,null);
-                                        return;
-                                    }
-                                    logger.debug("Serial Task Scheduler Completed");
-                                    callback(null,data);
-                                    return;
-                                })
-                            }
-                        },function(err,results){
+                        async.parallel(parallelTaskList,function(err,results){
                             if(err){
                                 logger.error(err);
                                 return;
                             }
-                            logger.debug("Task Scheduler Completed");
+                            logger.debug("Task Scheduler Completed for Parallel");
                             return;
                         })
                     }
                 })(tasks[i]);
             }
         }else{
-            logger.debug("There is no scheduled Task right now.");
+            logger.debug("There is no Parallel scheduled Task right now.");
+            return;
+        }
+    });
+}
+
+catalystSync.executeSerialScheduledTasks = function executeSerialScheduledTasks() {
+    taskDao.getScheduledTasks(function(err, tasks) {
+        if (err) {
+            logger.error("Failed to fetch tasks: ", err);
+            return;
+        }
+        if (tasks && tasks.length) {
+            var resultList =[],serialTaskList=[];
+            for (var i = 0; i < tasks.length; i++) {
+                (function(task) {
+                    if(task.cronJobId && task.cronJobId !== null){
+                        cronTab.cancelJob(task.cronJobId);
+                    }
+                    if(task.executionOrder === 'SERIAL'){
+                        resultList.push(function(callback){schedulerService.executeSchedulerForTasks(task,callback);});
+                        if(serialTaskList.length ===0) {
+                            serialTaskList.push(function (next) {
+                                schedulerService.executeSchedulerForTasks(task, next);
+                            });
+                        }else{
+                            serialTaskList.push(function (cronJobId,next) {
+                                cronTab.cancelJob(cronJobId);
+                                schedulerService.executeSchedulerForTasks(task, next);
+                            });
+                        }
+                        resultList.push(function(callback){schedulerService.executeSchedulerForTasks(task,callback);});
+                    }else{
+                        resultList.push(function(callback){schedulerService.executeSchedulerForTasks(task,callback);});
+                    }
+                    if(resultList.length === tasks.length){
+                        if(serialTaskList.length > 0) {
+                            async.waterfall(serialTaskList, function (err, data) {
+                                if (err) {
+                                    logger.error(err);
+                                    return;
+                                }
+                                cronTab.cancelJob(data);
+                                logger.debug("Serial Task Scheduler Completed");
+                                var catalystScheduler = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
+                                catalystScheduler.executeSerialScheduledTasks();
+                                return;
+                            })
+                        }else{
+                            logger.debug("There is no Serial scheduled Task right now.");
+                            return;
+                        }
+                    }
+                })(tasks[i]);
+            }
+        }else{
+            logger.debug("There is no Serial scheduled Task right now.");
             return;
         }
     });
