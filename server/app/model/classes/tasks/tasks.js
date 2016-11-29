@@ -130,6 +130,68 @@ var taskSchema = new Schema({
         type: String,
         required: true,
         trim: true
+    },
+    isTaskScheduled:{
+        type: Boolean,
+        required: false,
+        default:false
+    },
+    executionOrder:{
+        type: String,
+        required: false,
+        trim: true
+    },
+    taskScheduler:{
+        cronStartOn: {
+            type: String,
+            required: false,
+            trim: true
+        },
+        cronEndOn: {
+            type: String,
+            required: false,
+            trim: true
+        },
+        cronPattern: {
+            type: String,
+            required: false,
+            trim: true
+        },
+        cronRepeatEvery: {
+            type: Number,
+            required: false,
+            trim: true
+        },
+        cronFrequency: {
+            type: String,
+            required: false,
+            trim: true
+        },
+        cronTime:{
+            type: String,
+            required: false,
+            trim: true
+        },
+        cronDays:{
+            type: String,
+            required: false,
+            trim: true
+        },
+        cronMonth:{
+            type: String,
+            required: false,
+            trim: true
+        },
+        cronYear:{
+            type: String,
+            required: false,
+            trim: true
+        }
+    },
+    cronJobId:{
+        type: String,
+        required: false,
+        trim: true
     }
 });
 taskSchema.plugin(mongoosePaginate);
@@ -360,63 +422,6 @@ taskSchema.methods.getPuppetTaskNodes = function() {
         return [];
     }
 };
-
-/*taskSchema.methods.getHistory = function(callback) {
-    TaskHistory.getHistoryByTaskId(this.id, function(err, tHistories) {
-        if (err) {
-            callback(err, null);
-            return;
-        }
-        var checker;
-        var uniqueResults = [];
-        if (tHistories && tHistories.length) {
-            for (var i = 0; i < tHistories.length; ++i) {
-                if (!checker || comparer(checker, tHistories[i]) != 0) {
-                    checker = tHistories[i];
-                    uniqueResults.push(checker);
-                }
-            }
-
-            if (uniqueResults.length) {
-                var hCount = 0;
-                for (var i = 0; i < uniqueResults.length; i++) {
-                    (function(i) {
-                        if (uniqueResults[i].nodeIds && uniqueResults[i].nodeIds.length) {
-                            instancesDao.getInstancesByIDs(uniqueResults[i].nodeIds, function(err, data) {
-                                hCount++;
-                                if (err) {
-                                    return;
-                                }
-
-                                if (data && data.length) {
-                                    var pId = [];
-                                    for (var j = 0; j < data.length; j++) {
-                                        pId.push(data[j].platformId);
-                                    }
-                                    uniqueResults[i] = JSON.parse(JSON.stringify(uniqueResults[i]));
-                                    uniqueResults[i]['platformId'] = pId;
-                                }
-
-                                if (uniqueResults.length == hCount) {
-                                    return callback(null, uniqueResults);
-                                }
-                            });
-                        } else {
-                            hCount++;
-                            if (uniqueResults.length == hCount) {
-                                return callback(null, uniqueResults);
-                            }
-                        }
-                    })(i);
-                }
-            }
-
-        } else {
-            return callback(null, tHistories);
-        }
-    });
-};*/
-
 taskSchema.methods.getHistory = function(callback) {
     TaskHistory.getHistoryByTaskId(this.id, function(err, tHistories) {
         if (err) {
@@ -598,7 +603,7 @@ taskSchema.statics.getScriptTypeTask = function(callback){
     });
 };
 
-taskSchema.statics.getTasksServiceDeliveryCheck = function(serviceDeliveryCheck, callback) {
+taskSchema.statics.getAllServiceDeliveryTask = function(serviceDeliveryCheck, callback) {
     this.find({serviceDeliveryCheck:serviceDeliveryCheck}, function(err, tasks) {
         if (err) {
             callback(err, null);
@@ -910,6 +915,52 @@ taskSchema.statics.updateTaskConfig = function updateTaskConfig(taskId, taskConf
         logger.debug('Updated task:' + updateCount);
         return callback(null, updateCount);
 
+    });
+};
+taskSchema.statics.getScheduledTasks = function getScheduledTasks(callback) {
+    Tasks.find({
+        isTaskScheduled: true
+    }, function (err, tasks) {
+        if (err) {
+            logger.error(err);
+            return callback(err, null);
+        }
+        return callback(null, tasks);
+    })
+}
+
+taskSchema.statics.updateCronJobIdByTaskId = function updateCronJobIdByTaskId(taskId, cronJobId, callback) {
+    Tasks.update({
+        "_id": new ObjectId(taskId),
+    }, {
+        $set: {
+            cronJobId: cronJobId
+        }
+    }, {
+        upsert: false
+    }, function (err, data) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, data);
+    });
+};
+taskSchema.statics.updateTaskScheduler = function updateTaskScheduler(taskId, callback) {
+    Tasks.update({
+        "_id": new ObjectId(taskId),
+    }, {
+        $set: {
+            isTaskScheduled: false
+        }
+    }, {
+        upsert: false
+    }, function (err, data) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, data);
     });
 };
 

@@ -76,6 +76,12 @@ var awsProviderSchema = new Schema({
 		type: Number,
 		required:false,
 		default:0.0
+	},
+	monitorId: {
+		type: String,
+		required:false,
+		trim: true,
+		default: null
 	}
 });
 awsProviderSchema.path('plannedCost').get(function(num) {
@@ -214,6 +220,7 @@ awsProviderSchema.statics.updateAWSProviderById = function(providerId, providerD
 			accessKey: providerData.accessKey,
 			secretKey: providerData.secretKey,
 			s3BucketName: providerData.s3BucketName,
+			monitorId:providerData.monitorId,
 			plannedCost:providerData.plannedCost
 		}
 	}, {

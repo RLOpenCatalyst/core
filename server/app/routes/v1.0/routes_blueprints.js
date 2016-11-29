@@ -28,25 +28,19 @@ var auditTrailService = require('_pr/services/auditTrailService');
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	app.all('/blueprints/*', sessionVerificationFunc);
 
-	app.get('/blueprints/serviceDelivery', function(req, res) {
-		var serviceDeliveryCheck = false;
-		if(req.query.serviceDeliveryCheck &&
-			(req.query.serviceDeliveryCheck === 'true' || req.query.serviceDeliveryCheck === true)) {
-			serviceDeliveryCheck = true;
+	app.get('/blueprints', function(req, res) {
+		var queryObj = {
+			serviceDeliveryCheck : req.query.serviceDeliveryCheck === "true" ? true:false,
+			actionStatus:req.query.actionStatus
 		}
-
-		Blueprints.getBlueprintsServiceDeliveryCheck(serviceDeliveryCheck, function(err, blueprints) {
+		blueprintService.getAllServiceDeliveryBlueprint(queryObj, function(err,data){
 			if (err) {
-				res.status(500).send({
-					code: 500,
-					errMessage: "Blueprints fetch failed."
-				});
-				return;
+				return res.status(500).send(err);
+			} else {
+				return res.status(200).send(data);
 			}
-			res.status(200).send(blueprints);
-		});
+		})
 	});
-
 	app.delete('/blueprints/serviceDelivery/:blueprintId', function(req, res) {
 		Blueprints.removeServiceDeliveryBlueprints(req.params.blueprintId, function(err, data) {
 			if (err) {

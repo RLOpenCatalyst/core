@@ -21,6 +21,8 @@ var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
 var TaskHistory = require('_pr/model/classes/tasks/taskHistory');
 var instancesDao = require('_pr/model/classes/instance/instance');
 var auditTrailService = require('_pr/services/auditTrailService');
+var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
+var async = require('async');
 
 const errorType = 'taskService';
 
@@ -42,6 +44,69 @@ taskService.getChefTasksByOrgBgProjectAndEnvId = function getChefTasksByOrgBgPro
             callback(null, chefTasks);
         }
     });
+};
+
+taskService.getAllServiceDeliveryTask = function getAllServiceDeliveryTask(queryObj, callback) {
+    if(queryObj.serviceDeliveryCheck === true && queryObj.actionStatus && queryObj.actionStatus !== null) {
+        var query = {
+            auditType: 'BOTs',
+            actionStatus: queryObj.actionStatus,
+            auditCategory: 'Task'
+        };
+        var taskIds = [];
+        async.waterfall([
+            function (next) {
+                auditTrail.getAuditTrails(query, next);
+            },
+            function (auditTrailList, next) {
+                var results = [];
+                if (auditTrailList.length > 0) {
+                    for (var i = 0; i < auditTrailList.length; i++) {
+                        if (taskIds.indexOf(auditTrailList[i].auditId) < 0) {
+                            results.push(auditTrailList[i].auditId);
+                            taskIds.push(auditTrailList[i].auditId);
+                        } else {
+                            results.push(auditTrailList[i].auditId);
+                        }
+                    }
+                    if (results.length === auditTrailList.length) {
+                        next(null, taskIds);
+                    }
+                } else {
+                    next(null, auditTrailList);
+                }
+            },
+            function (taskIdList, next) {
+                if(taskIdList.length > 0) {
+                    taskDao.getTaskByIds(taskIdList, next);
+                }else{
+                    next(null, taskIdList);
+                }
+            }
+        ], function (err, results) {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            callback(null, results);
+            return;
+        })
+    }else if(queryObj.serviceDeliveryCheck === true){
+        taskDao.getAllServiceDeliveryTask(queryObj.serviceDeliveryCheck, function(err, tasks) {
+            if (err) {
+                callback({
+                    code: 500,
+                    errMessage: "Task fetch failed."
+                },null);
+                return;
+            }
+            callback(null, tasks);
+            return;
+        });
+    }else{
+        callback(null, []);
+        return;
+    }
 };
 
 taskService.executeTask = function executeTask(taskId, user, hostProtocol, choiceParam, appData, paramOptions, botTagServer, callback) {

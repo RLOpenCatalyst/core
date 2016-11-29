@@ -1,23 +1,20 @@
 /*
  Copyright [2016] [Relevance Lab]
-
+ 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
-
+ 
  http://www.apache.org/licenses/LICENSE-2.0
-
+ 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-
-
 // This file act as a Controller which contains provider related all end points.
 /* TODO AWS EC2 client creation code replication to be reduced */
-
 var logger = require('_pr/logger')(module);
 var EC2 = require('_pr/lib/ec2.js');
 var cost = require('_pr/lib/dashboard.js');
@@ -34,17 +31,16 @@ var blueprints = require('_pr/model/dao/blueprints');
 var instances = require('_pr/model/classes/instance/instance');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var usersDao = require('_pr/model/users.js');
+var monitorsModel = require('_pr/model/monitors/monitors.js');
 var configmgmtDao = require('_pr/model/d4dmasters/configmgmt.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var rc = require('node-rest-client').Client;
 var appConfig = require('_pr/config');
-var instanceService=require('_pr/services/instanceService');
+var instanceService = require('_pr/services/instanceService');
 var settingWizard = require('_pr/model/setting-wizard');
 var settingsService = require('_pr/services/settingsService');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
-
-
 	// Return AWS Provider respect to id.
 	app.get('/aws/providers/list', function(req, res) {
 
@@ -89,13 +85,15 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 									dommyProvider.secretKey = cryptography.decryptText(providers[i].secretKey,
 										cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
 								}
-
-								providerList.push(dommyProvider);
-								logger.debug("count: ", count);
-								if (count === providers.length) {
-									res.send(providerList);
-									return;
-								}
+								getMonitorDetail(providers[i], function (data) {
+									dommyProvider.monitor = data.monitor;
+									providerList.push(dommyProvider);
+									logger.debug("count: ", count);
+									if (providers.length === providers.length) {
+										res.send(providerList);
+										return;
+									}
+								});
 							}
 
 						});
@@ -129,48 +127,51 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 							return;
 						}
 						if (orgs.length > 0) {
-							if (keyPair.length > 0) {
-								var results = [];
-								var dummyProvider = {
-									_id: aProvider._id,
-									id: 9,
-									providerName: aProvider.providerName,
-									providerType: aProvider.providerType,
-									s3BucketName: aProvider.s3BucketName,
-									orgId: aProvider.orgId,
-									plannedCost:aProvider.plannedCost,
-									orgName: orgs[0].orgname,
-									__v: aProvider.__v,
-									keyPairs: keyPair,
-									isDefault: aProvider.isDefault
-								};
-								for(var i = 0; i < keyPair.length; i++){
-									var regionList = appConfig.aws.regions;
-									results.push(keyPair[i]);
-									for(var j = 0;j < regionList.length; j++){
-										if(regionList[j].region === keyPair[i].region){
-											dummyProvider.providerRegion = regionList[j];
+							getMonitorDetail(aProvider, function (data) {
+								aProvider = data;
+								if (keyPair.length > 0) {
+									var results = [];
+									var dummyProvider = {
+										_id: aProvider._id,
+										id: 9,
+										providerName: aProvider.providerName,
+										providerType: aProvider.providerType,
+										s3BucketName: aProvider.s3BucketName,
+										orgId: aProvider.orgId,
+										plannedCost: aProvider.plannedCost,
+										orgName: orgs[0].orgname,
+										__v: aProvider.__v,
+										keyPairs: keyPair,
+										isDefault: aProvider.isDefault
+									};
+									for (var i = 0; i < keyPair.length; i++) {
+										var regionList = appConfig.aws.regions;
+										results.push(keyPair[i]);
+										for (var j = 0; j < regionList.length; j++) {
+											if (regionList[j].region === keyPair[i].region) {
+												dummyProvider.providerRegion = regionList[j];
+											}
 										}
 									}
-								}
-								if(keyPair.length === results.length){
+									if (keyPair.length === results.length) {
+										res.send(dummyProvider);
+									}
+								} else {
+									var dummyProvider = {
+										_id: aProvider._id,
+										id: 9,
+										providerName: aProvider.providerName,
+										providerType: aProvider.providerType,
+										s3BucketName: aProvider.s3BucketName,
+										orgId: aProvider.orgId,
+										plannedCost: aProvider.plannedCost,
+										orgName: orgs[0].orgname,
+										__v: aProvider.__v,
+										isDefault: aProvider.isDefault
+									};
 									res.send(dummyProvider);
 								}
-							}else{
-								var dummyProvider = {
-									_id: aProvider._id,
-									id: 9,
-									providerName: aProvider.providerName,
-									providerType: aProvider.providerType,
-									s3BucketName: aProvider.s3BucketName,
-									orgId: aProvider.orgId,
-									plannedCost:aProvider.plannedCost,
-									orgName: orgs[0].orgname,
-									__v: aProvider.__v,
-									isDefault: aProvider.isDefault
-								};
-								res.send(dummyProvider);
-							}
+							});
 						}
 					});
 				});
@@ -3522,6 +3523,97 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		});
 	});
 
+	// Return list of all available AWS Providers.
+	app.get('/aws/providers', function (req, res) {
+		logger.debug("Enter get() for /providers");
+		var loggedInUser = req.session.user.cn;
+		masterUtil.getLoggedInUser(loggedInUser, function (err, anUser) {
+			if (err) {
+				res.status(500).send("Failed to fetch User.");
+				return;
+			}
+			if (!anUser) {
+				res.status(500).send("Invalid User.");
+				return;
+			}
+			if (anUser.orgname_rowid[0] === "") {
+				masterUtil.getAllActiveOrg(function (err, orgList) {
+					if (err) {
+						res.status(500).send('Not able to fetch Orgs.');
+						return;
+					}
+					if (orgList) {
+						AWSProvider.getAWSProvidersForOrg(orgList, function (err, providers) {
+							if (err) {
+								logger.error(err);
+								res.status(500).send(errorResponses.db.error);
+								return;
+							}
+							var providersList = [];
+							if (providers && providers.length > 0) {
+								for (var i = 0; i < providers.length; i++) {
+									getMonitorDetail(providers[i], function (data) {
+										providersList.push(data);
+										if (providers.length === providersList.length) {
+											res.send(providersList);
+											return;
+										}
+									});
+								}
+							} else {
+								res.send(200, []);
+								return;
+							}
+						});
+					} else {
+						res.send(200, []);
+						return;
+					}
+				});
+			} else {
+				masterUtil.getOrgs(loggedInUser, function (err, orgList) {
+					if (err) {
+						res.status(500).send('Not able to fetch Orgs.');
+						return;
+					}
+					if (orgList) {
+						AWSProvider.getAWSProvidersForOrg(orgList, function (err, providers) {
+							if (err) {
+								logger.error(err);
+								res.status(500).send(errorResponses.db.error);
+								return;
+							}
+							var providersList = [];
+							if (providers === null) {
+								res.send(providersList);
+								return;
+							}
+							if (providers.length > 0) {
+								for (var i = 0; i < providers.length; i++) {
+									getMonitorDetail(providers[i], function (data) {
+										providers[i] = data;
+										providersList.push(providers[i]);
+										if (providers.length === providersList.length) {
+											res.send(providersList);
+											return;
+										}
+									});
+								}
+							} else {
+								res.send(providersList);
+								return;
+							}
+						});
+					} else {
+						res.send(200, []);
+						return;
+					}
+				});
+			}
+		});
+	});
+
+
 
 	// List out all aws nodes.
 	app.post('/aws/providers/node/list', function(req, res) {
@@ -3711,32 +3803,60 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	});
 }
 
-function trackSettingWizard(orgId,callback) {
-	if (orgId.length > 0) {
-		settingWizard.getSettingWizardByOrgId(orgId, function (err, settingWizards) {
-			if (err) {
-				logger.error('Hit getting setting wizard error', err);
-				callback(err, null);
-				return;
-			}
-			if(settingWizards.currentStep.name === 'Provider Configuration') {
-				settingWizards.currentStep.nestedSteps[0].isCompleted = true;
-				settingWizard.updateSettingWizard(settingWizards, function (err, data) {
-					if (err) {
-						logger.error('Hit updating setting wizard error', err);
-						callback(err, null);
-						return;
-					}
-					callback(null, data);
-					return;
-				});
-			}else{
-				callback(null, null);
-				return;
-			}
-		})
-	} else {
-		callback(null, null);
-		return;
-	}
+function trackSettingWizard(orgId, callback) {
+    if (orgId.length > 0) {
+        settingWizard.getSettingWizardByOrgId(orgId, function (err, settingWizards) {
+            if (err) {
+                logger.error('Hit getting setting wizard error', err);
+                callback(err, null);
+                return;
+            }
+            if (settingWizards.currentStep.name === 'Provider Configuration') {
+                settingWizards.currentStep.nestedSteps[0].isCompleted = true;
+                settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                    if (err) {
+                        logger.error('Hit updating setting wizard error', err);
+                        callback(err, null);
+                        return;
+                    }
+                    callback(null, data);
+                    return;
+                });
+            } else {
+                callback(null, null);
+                return;
+            }
+        })
+    } else {
+        callback(null, null);
+        return;
+    }
+}
+
+function getMonitorDetail(data, callback) {
+    data = data.toObject();
+    if (data.monitorId) {
+        var monitorId = data.monitorId;
+        delete data.monitorId;
+        monitorsModel.getById(monitorId, function (err, monitor) {
+            if (err || !monitor) {
+                data.monitor = null;
+            } else {
+                data.monitor = {};
+                data.monitor['id'] = monitor._id;
+                data.monitor['name'] = monitor.name;
+                data.monitor['type'] = monitor.type;
+                if (monitor.type === 'sensu') {
+                    data.monitor['parameters'] = {};
+                    data.monitor['parameters']['url'] = monitor['parameters']['url'];
+                    data.monitor['parameters']['transportProtocol'] = monitor['parameters']['transportProtocol'];
+                }
+            }
+            callback(data);
+        });
+    } else {
+        delete data['monitorId'];
+        data.monitor = null;
+        callback(data);
+    }
 }

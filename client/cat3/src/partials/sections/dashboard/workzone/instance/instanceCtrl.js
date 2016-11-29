@@ -258,7 +258,6 @@
                                 so that it gets replaced with instanceIP*/
                                 helper.setHostToIp(result.data.instances);
                                 $scope.tabData = $scope.instanceList;
-                                console.log($scope.instanceList);
                                 if ($scope.totalCards > $scope.paginationParams.pageSize) {
                                     $scope.cardsAvailable = true;
                                 } else {

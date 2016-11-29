@@ -27,6 +27,8 @@ var taskService = require('_pr/services/taskService.js')
 var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
+var schedulerService = require('_pr/services/schedulerService');
+var catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
 
 
 
@@ -37,24 +39,6 @@ var fileIo = require('_pr/lib/utils/fileio');
 
 module.exports.setRoutes = function(app, sessionVerification) {
     app.all('/tasks/*', sessionVerification);
-
-    app.get('/tasks/serviceDelivery', function(req, res) {
-        var serviceDeliveryCheck = false;
-        if (req.query.serviceDeliveryCheck &&
-            (req.query.serviceDeliveryCheck === 'true' || req.query.serviceDeliveryCheck === true)) {
-            serviceDeliveryCheck = true;
-        }
-        Tasks.getTasksServiceDeliveryCheck(serviceDeliveryCheck, function(err, tasks) {
-            if (err) {
-                res.status(500).send({
-                    code: 500,
-                    errMessage: "Task fetch failed."
-                });
-                return;
-            }
-            res.status(200).send(tasks);
-        });
-    });
 
     app.delete('/tasks/serviceDelivery/:taskId', function(req, res) {
         Tasks.removeServiceDeliveryTask(req.params.taskId, function(err, data) {
@@ -70,7 +54,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
     });
 
     app.get('/tasks/history/list/all', function(req, res) {
-        logger.debug("------------------ ", JSON.stringify(TaskHistory));
         TaskHistory.listHistory(function(err, tHistories) {
             if (err) {
                 res.status(500).send(errorResponses.db.error);
@@ -126,7 +109,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
         });
     });
 
+
     app.post('/tasks/:taskId/run', function(req, res) {
+
         var taskId = req.params.taskId;
         var user = req.session.user.cn;
         var hostProtocol = req.protocol + '://' + req.get('host');
@@ -136,43 +121,11 @@ module.exports.setRoutes = function(app, sessionVerification) {
         var cookbookAttributes = req.body.cookbookAttributes;
         var botTagServer = req.body.tagServer;
 
-
-        logger.debug('reqbody ======>', JSON.stringify(req.body));
-
-
-
-        /*Tasks.getTaskById(req.params.taskId, function(err, task) {
-
-            if (err) {
-                logger.error(err);
-                res.status(500).send(errorResponses.db.error);
-                return;
-            }
-            var blueprintIds = [];
-            if (task.blueprintIds && task.blueprintIds.length) {
-                blueprintIds = task.blueprintIds
-            }
-            task.execute(req.session.user.cn, req.protocol + '://' + req.get('host'), choiceParam, nexusData, blueprintIds, task.envId, function(err, taskRes, historyData) {
-                if (err) {
-                    logger.error(err);
-                    res.status(500).send(err);
-                    return;
-                }
-                if (historyData) {
-                    taskRes.historyId = historyData.id;
-                }
-                logger.debug("taskRes::::: ", JSON.stringify(taskRes));
-                res.send(taskRes);
-            });
-        });
-        */
-
         var paramOptions = {
             cookbookAttributes: cookbookAttributes,
             scriptParams: scriptParams
         };
 
-        // encrypting script bot params if any
         if (paramOptions.scriptParams && paramOptions.scriptParams.length) {
             var cryptoConfig = appConfig.cryptoSettings;
             var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
@@ -185,8 +138,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
             paramOptions.scriptParams = encryptedParams;
         }
 
-
-        
         taskService.executeTask(taskId, user, hostProtocol, choiceParam, appData, paramOptions, botTagServer, function(err, historyData) {
             if (err === 404) {
                 res.status(404).send("Task not found.");
@@ -524,31 +475,52 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
     function getTaskList(req, res, next) {
         var reqData = {};
-        async.waterfall(
-            [
-
-                function(next) {
-                    apiUtil.paginationRequest(req.query, 'tasks', next);
-                },
-                function(paginationReq, next) {
-                    reqData = paginationReq;
-                    Tasks.listTasks(paginationReq, next);
-                },
-                function(tasks, next) {
-                    apiUtil.paginationResponse(tasks, reqData, next);
+        if(req.query.page) {
+            async.waterfall(
+                [
+                    function (next) {
+                        apiUtil.paginationRequest(req.query, 'tasks', next);
+                    },
+                    function (paginationReq, next) {
+                        paginationReq['searchColumns'] = ['name', 'orgName', 'bgName', 'projectName', 'envName'];
+                        reqData = paginationReq;
+                        apiUtil.databaseUtil(paginationReq, next);
+                    },
+                    function (queryObj, next) {
+                        Tasks.listTasks(queryObj, next);
+                    },
+                    function (tasks, next) {
+                        apiUtil.paginationResponse(tasks, reqData, next);
+                    }
+                ],
+                function (err, results) {
+                    if (err) {
+                        return res.status(500).send(err);
+                    } else {
+                        return res.status(200).send(results);
+                    }
+                });
+        }else{
+            var queryObj = {
+                serviceDeliveryCheck : req.query.serviceDeliveryCheck === "true" ? true:false,
+                actionStatus:req.query.actionStatus
+            }
+            taskService.getAllServiceDeliveryTask(queryObj, function(err,data){
+                if (err) {
+                    return res.status(500).send(err);
+                } else {
+                    return res.status(200).send(data);
                 }
-
-            ],
-            function(err, results) {
-                if (err)
-                    next(err);
-                else
-                    return res.status(200).send(results);
-            });
+            })
+        }
     }
 
     app.post('/tasks/:taskId/update', function(req, res) {
         var taskData = req.body.taskData;
+        if(taskData.taskScheduler  && taskData.taskScheduler !== null) {
+            taskData.taskScheduler = apiUtil.createCronJobPattern(taskData.taskScheduler);
+            taskData.isTaskScheduled = true;
+        }
         if (taskData.taskType === 'script') {
             Tasks.getTaskById(req.params.taskId, function(err, scriptTask) {
                 if (err) {
@@ -570,6 +542,13 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                 return;
                             }
                             if (updateCount) {
+                                if(taskData.isTaskScheduled === true){
+                                    if(task.executionOrder === 'PARALLEL'){
+                                        catalystSync.executeParallelScheduledTasks();
+                                    }else{
+                                        catalystSync.executeSerialScheduledTasks();
+                                    }
+                                };
                                 res.send({
                                     updateCount: updateCount
                                 });
@@ -588,6 +567,13 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     return;
                 }
                 if (updateCount) {
+                    if(taskData.isTaskScheduled === true){
+                        if(task.executionOrder === 'PARALLEL'){
+                            catalystSync.executeParallelScheduledTasks();
+                        }else{
+                            catalystSync.executeSerialScheduledTasks();
+                        }
+                    };
                     res.send({
                         updateCount: updateCount
                     });

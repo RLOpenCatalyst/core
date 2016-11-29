@@ -37,8 +37,8 @@
                         <span class="red" ng-if=" createCBP.ExBlueprintList.length === 0 && createCBP.SelectedBPList.length === 0">No Data Found!</span>
                         <ul class="list-group" ui-sortable>
                            <li class="list-group-item" ng-repeat="bp in createCBP.ExBlueprintList | filter :searchText">
-                              <span class="badge cat-btn-update" ng-click="createCBP.addBP(createCBP.ExBlueprintList.indexOf(bp))" ><i class="fa fa-arrow-right white fa-2" aria-hidden="true"></i></span>
-                              <span class="badge cat-btn-update" ng-click="createCBP.selectBpInfo($event,bp)" ><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>
+                              <span class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="createCBP.addBP(createCBP.ExBlueprintList.indexOf(bp))" ><i class="fa fa-arrow-right white fa-2" aria-hidden="true"></i></span>
+                              <span class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="createCBP.selectBpInfo($event,bp)" ><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>
                               <img src="./images/rsz_layers.png" alt="{{bp.name}}"> &nbsp;{{bp.name}}
                            </li>
                         </ul>
@@ -59,10 +59,10 @@
                               dnd-moved="createCBP.SelectedBPList.splice($index, 1)"
                               dnd-effect-allowed="move"
                               dnd-selected="models.selected = selectedp"  ng-class=" {'activeLi':createCBP.selectBlueprintId === selectedp._id}">
-                              <span class="badge cat-btn-update" ng-click="createCBP.editSelectBpInfo($event,selectedp)" ><i class="fa fa-pencil-square-o fa-2 white" aria-hidden="true"></i></span>
-                              <span class="badge cat-btn-update" ng-click="createCBP.selectBpInfo($event,selectedp)" ><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>
-                              <span class="badge cat-btn-update" ng-click="createCBP.deSelect($event,createCBP.SelectedBPList.indexOf(selectedp))" ><i class="fa fa-arrow-left fa-2 white" aria-hidden="true"></i></span>
-                              <span class="badge pull-left" >{{(+createCBP.SelectedBPList.indexOf(selectedp)) +1}}</span><img src="./images/rsz_layers.png"  alt="{{selectedp.name}}"> &nbsp;{{selectedp.name}}
+                              <span class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="createCBP.editSelectBpInfo($event,selectedp)" ><i class="fa fa-pencil-square-o fa-2 white" aria-hidden="true"></i></span>
+                              <span class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="createCBP.selectBpInfo($event,selectedp)" ><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>
+                              <span class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="createCBP.deSelect($event,createCBP.SelectedBPList.indexOf(selectedp))" ><i class="fa fa-arrow-left fa-2 white" aria-hidden="true"></i></span>
+                              <span class="badge pull-left" >{{(+createCBP.SelectedBPList.indexOf(selectedp)) +1}}</span><img class="layersClassComposite" src="./images/rsz_layers.png"  alt="{{selectedp.name}}"> &nbsp;{{selectedp.name}}
                            </li>
                         </ul>
                      </div>
@@ -106,7 +106,7 @@
                                  <tr class="runlistRow" ng-repeat="val in chefrunlist">
                                     <td>{{val.value}}</td>
                                     <td>
-                                       <span title="Edit Attributes" class="badge cat-btn-update" ng-click="updateCookbook()"><i class="fa fa-pencil-square-o fa-2 white" aria-hidden="true"></i></span>
+                                       <span title="Edit Attributes" class="btn btn-xs cat-btn-update bpvicon" ng-click="updateCookbook()"><i class="fa fa-pencil-square-o fa-2 white" aria-hidden="true"></i></span>
                                     </td>
                                  </tr>
                               </tbody>
@@ -123,5 +123,5 @@
 </form>
 <div class="pager">
    <button class="btn  cat-btn-update" ng-click="previous(stpLen)" ng-disabled="!previousEnabled">Previous</button>
-   <button class="btn  cat-btn-update" ng-disabled="compositeBlueprintCreation.$invalid" ng-click="compositeSave()">Save</button>
+   <button class="btn  cat-btn-update" ng-disabled="compositeBlueprintCreation.$invalid" ng-click="compositeEnabled && compositeSave()">Save</button>
 </div>

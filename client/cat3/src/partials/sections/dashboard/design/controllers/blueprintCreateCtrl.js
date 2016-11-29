@@ -113,7 +113,7 @@
                 blueprintCreation.getImages();
             } else {
                 blueprintCreation.templateListing();
-            };
+            }
 
             blueprintCreation.getOperatingSytems = function(){
                 $scope.isOSLoading = true;
@@ -155,13 +155,13 @@
             blueprintCreation.changeImageOS = function(){
                 blueprintCreation.newEnt.providers = null;
                 blueprintCreation.providerListing = [];
-                blueprintCreation.newEnt.images = null
+                blueprintCreation.newEnt.images = null;
                 blueprintCreation.imageListing = [];
                 blueprintCreation.instanceType = [];
                 blueprintCreation.regionListing = null;
                 blueprintCreation.keyPairListing = [];
                 blueprintCreation.regionListingAzure = [];
-                blueprintCreation.newEnt.vpcId = null
+                blueprintCreation.newEnt.vpcId = null;
                 blueprintCreation.vpcListing = [];
                 blueprintCreation.subnetListing = [];
                 blueprintCreation.newEnt.subnetId = null;
@@ -273,7 +273,7 @@
                             }
                         }
                     }
-                };
+                }
             };
 
             blueprintCreation.postSubnets = function() {
@@ -389,14 +389,14 @@
                     bpCreateSer.getRepoList(bpCreate.serverRepos[bpCreate.newEnt.nexusDockerServer].rowid).then(function (repositoryResult) {
                         $scope.isLoadingNexus = false;
                         blueprintCreation.repositoryOptions = repositoryResult.data[0].repositories.docker;
-                        if(blueprintCreation.repositoryOptions.length == 0){
+                        if(blueprintCreation.repositoryOptions.length === 0){
                             blueprintCreation.errorMsg= {
                                 text: "Repository is not defined",
                                 type: "warning",
                                 repository:true,
                                 role:"tooltip",
                                 positions:"bottom"
-                            }
+                            };
                         }
                     });
                 }
@@ -460,9 +460,9 @@
 
             blueprintCreation.getRepositoryDetails = function() {
                 if(bpCreate.newEnt.nexusDockerRepo.configType === 'nexus') {
-
+                    console.log('nexus');
                 }
-            }
+            };
 
             blueprintCreation.selectServer = function() {
                 if(blueprintCreation.newEnt.nexusDockerRepo) {
@@ -483,8 +483,8 @@
             blueprintCreation.getRegionLists = function() {
                 bpCreateSer.getRegionLists().then(function(data){
                     blueprintCreation.getRegionLists = data;
-                })
-            } 
+                });
+            }; 
 
             blueprintCreation.getTemplateParameters = function() {
                 $scope.cftTemplate = $scope.templateSelected;
@@ -508,13 +508,13 @@
 
             blueprintCreation.hideVMEvals = function() {
                 $scope.isVMEvalsVisible = false;
-            }
+            };
 
             blueprintCreation.checkForResource = function() {
                 if(blueprintCreation.newEnt.armModelResources !==null){
                     $scope.isVMEvalsVisible = true;
                 } 
-            }
+            };
             
             blueprintCreation.getResourceGroups = function() {
                 $scope.isResourceGroupLoading = true;
@@ -546,7 +546,7 @@
 
             $scope.updateCookbook = function() {
                 genericServices.editRunlist($scope.chefrunlist,$scope.cookbookAttributes);
-            }
+            };
 
             $rootScope.$on('WZ_ORCHESTRATION_REFRESH_CURRENT', function(event,reqParams) {
                 $scope.chefrunlist = reqParams.list;
@@ -710,6 +710,7 @@
                         providerId:blueprintCreation.newEnt.providers,
                         region:blueprintCreation.newEnt.region,
                         templateType:$state.params.templateObj.templatetype,
+                        domainNameCheck:blueprintCreation.newEnt.domainCheck,
                         name:blueprintCreation.newEnt.blueprintName
                     };
                     if($scope.bpTypeName === 'OSImage'){
@@ -720,7 +721,6 @@
 
                     if($scope.bpTypeName === 'OSImage' || $scope.bpTypeName === 'SoftwareStack') {
                         if($scope.providerType === 'AWS'){
-                            blueprintCreateJSON.domainNameCheck = blueprintCreation.newEnt.domainCheck
                             blueprintCreateJSON.blueprintType = 'instance_launch';
                             blueprintCreateJSON.instanceCount = blueprintCreation.newEnt.instanceCount;    
                         } else if($scope.providerType === 'AZURE'){
@@ -764,7 +764,7 @@
                                 "repoName": blueprintCreation.repositoryOptions[blueprintCreation.newEnt.repositoryInd].name,
                                 "artifactId": blueprintCreation.newEnt.artifact,
                                 "groupId": blueprintCreation.newEnt.groupId
-                            }
+                            };
                             blueprintCreateJSON.nexus = nexus;
                         }else{
                             var docker = {
@@ -792,7 +792,7 @@
                             var parameterObj = {
                                 ParameterKey: key,
                                 ParameterValue: value.Default
-                            }
+                            };
                             cftParameters.push(parameterObj);
                             blueprintCreateJSON.cftStackParameters = cftParameters;
                         });
@@ -817,7 +817,7 @@
                                 ParameterKey: key,
                                 ParameterValue: value.value
                                 //type: value.type
-                            }
+                            };
                             cftParameters.push(parameterObj);
                             blueprintCreateJSON.cftStackParameters = cftParameters;
                         });
@@ -830,7 +830,7 @@
                                 username: blueprintCreation.getAzureVMDetails[i].username,
                                 password: blueprintCreation.getAzureVMDetails[i].password
                                 //runlist:[]
-                            }
+                            };
                             blueprintCreateJSON.cftInstances = instanceObj;
                             
                         }

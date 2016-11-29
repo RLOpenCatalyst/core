@@ -52,6 +52,7 @@ var taskService = require('_pr/services/taskService');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var compositeBlueprintModel = require('_pr/model/composite-blueprints/composite-blueprints.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
+var catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
 
 module.exports.setRoutes = function(app, sessionVerification) {
     /*
@@ -975,6 +976,10 @@ module.exports.setRoutes = function(app, sessionVerification) {
             taskData.orgName = project[0].orgname;
             taskData.bgName = project[0].productgroupname;
             taskData.projectName = project[0].projectname;
+            if(taskData.taskScheduler  && taskData.taskScheduler !== null) {
+                taskData.taskScheduler = apiUtil.createCronJobPattern(taskData.taskScheduler);
+                taskData.isTaskScheduled = true;
+            }
             configmgmtDao.getEnvNameFromEnvId(req.params.envId, function(err, envName) {
                 if (err) {
                     res.status(500).send("Failed to fetch ENV: ", err);
@@ -995,6 +1000,13 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                     res.status(500).send("Failed to create task: ", err);
                                     return;
                                 }
+                                if(task.isTaskScheduled === true){
+                                    if(task.executionOrder === 'PARALLEL'){
+                                        catalystSync.executeParallelScheduledTasks();
+                                    }else{
+                                        catalystSync.executeSerialScheduledTasks();
+                                    }
+                                };
                                 res.send(task);
                                 logger.debug("Exit post() for /organizations/%s/businessGroups/%s/projects/%s/environments/%s/tasks", req.params.orgId, req.params.bgId, req.params.projectId, req.params.environments);
                             });
@@ -1007,6 +1019,14 @@ module.exports.setRoutes = function(app, sessionVerification) {
                             res.status(500).send("Failed to create task: ", err);
                             return;
                         }
+                        if(task.isTaskScheduled === true){
+                            if(task.executionOrder === 'PARALLEL'){
+                                catalystSync.executeParallelScheduledTasks();
+                            }else{
+                                catalystSync.executeSerialScheduledTasks();
+                            }
+
+                        };
                         res.send(task);
                         logger.debug("Exit post() for /organizations/%s/businessGroups/%s/projects/%s/environments/%s/tasks", req.params.orgId, req.params.bgId, req.params.projectId, req.params.environments);
                     });
@@ -1513,6 +1533,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     instanceState: nodeAlive,
                                                     bootStrapStatus: 'waiting',
                                                     tagServer: req.params.tagServer,
+                                                    monitorId: req.params.monitorId,
                                                     runlist: [],
                                                     appUrls: appUrls,
                                                     users: [req.session.user.cn], //need to change this
@@ -1642,6 +1663,32 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                 environment: envName,
                                                                 instanceOS: instance.hardware.os
                                                             };
+                                                            if (infraManagerDetails.monitor && infraManagerDetails.monitor.parameters.transportProtocol === 'rabbitmq') {
+                                                                            var sensuCookBook = 'recipe[sensu-client]';
+                                                                            var runlist = [];
+                                                                            var jsonAttributes = {};
+
+                                                                            var cryptoConfig = appConfig.cryptoSettings;
+                                                                            var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+                                                                            var decryptedPassword = cryptography.decryptText(infraManagerDetails.monitor.parameters.transportProtocolParameters.password, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+
+                                                                            var sensuAttributes = {
+                                                                                'rabbitmq_host': infraManagerDetails.monitor.parameters.transportProtocolParameters.host,
+                                                                                'rabbitmq_port': infraManagerDetails.monitor.parameters.transportProtocolParameters.port,
+                                                                                'rabbitmq_username': infraManagerDetails.monitor.parameters.transportProtocolParameters.user,
+                                                                                'rabbitmq_password': decryptedPassword,
+                                                                                'rabbitmq_vhostname': infraManagerDetails.monitor.parameters.transportProtocolParameters.vhost,
+                                                                                'instance-id': instance.platformId
+                                                                            };
+
+                                                                            logger.debug("sensuAttributes-------->", JSON.stringify(sensuAttributes));
+                                                                            runlist.push(sensuCookBook);
+                                                                            jsonAttributes['sensu-client'] = sensuAttributes;
+
+                                                                            bootstarpOption['runlist'] = runlist;
+                                                                            bootstarpOption['jsonAttributes'] = jsonAttributes;
+
+                                                                        }
                                                             deleteOptions = {
                                                                 privateKey: decryptedCredentials.pemFileLocation,
                                                                 username: decryptedCredentials.username,
