@@ -50,9 +50,7 @@
                 } else {
                     $scope.validDateRange=false;
                 }
-                if(startDate = endDate){
-                	$scope.validDateRange=true;
-            	}
+          
             };
 
 			$scope.repeatCount = function(max, step) {
