@@ -71,6 +71,24 @@ blueprintService.getAllBlueprints = function getAllBlueprints(orgIds, callback) 
     });
 };
 
+blueprintService.deleteServiceDeliveryBlueprint = function deleteServiceDeliveryBlueprint(blueprintId, callback) {
+    async.waterfall([
+        function (next) {
+            Blueprints.removeServiceDeliveryBlueprints(blueprintId, next);
+        },
+        function (deleteTaskCheck, next) {
+            auditTrail.removeAuditTrails({auditId:blueprintId},next);
+        }
+    ],function (err, results) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, results);
+        return;
+    });
+};
+
 blueprintService.getAllServiceDeliveryBlueprint = function getAllServiceDeliveryBlueprint(queryObj, callback) {
     if(queryObj.serviceDeliveryCheck === true && queryObj.actionStatus && queryObj.actionStatus !== null) {
         var query = {

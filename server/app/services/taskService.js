@@ -109,6 +109,24 @@ taskService.getAllServiceDeliveryTask = function getAllServiceDeliveryTask(query
     }
 };
 
+taskService.deleteServiceDeliveryTask = function deleteServiceDeliveryTask(taskId, callback) {
+    async.waterfall([
+        function (next) {
+            taskDao.removeServiceDeliveryTask(taskId, next);
+        },
+        function (deleteTaskCheck, next) {
+            auditTrail.removeAuditTrails({auditId:taskId},next);
+        }
+    ],function (err, results) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, results);
+        return;
+    });
+};
+
 taskService.executeTask = function executeTask(taskId, user, hostProtocol, choiceParam, appData, paramOptions, botTagServer, callback) {
     if (appData) {
         appData['taskId'] = taskId;
