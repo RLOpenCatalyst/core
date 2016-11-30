@@ -101,6 +101,17 @@
 						</div>
 					</div>
 					<div class="col-lg-12 col-md-12 no-padding">
+						<div class="col-lg-6 col-md-6 control-margin">
+							<label for="">Monitoring:</label>
+	                        	<select name="monitorId" ng-model="monitorId" class="form-control width-100">
+	                        		<option value="null">None</option>
+	                        		<option ng-repeat="monitor in monitorList" value="{{monitor._id}}">
+										{{monitor.name}}
+									</option>
+	                        </select>
+	                    </div>
+					</div>
+					<div class="col-lg-12 col-md-12 no-padding">
 						<div class="applicationURLContainer" id="appSeries12">
 							<div class="col-lg-6 col-md-6 control-margin">
 								<label for="appName">Application Name</label>
@@ -137,7 +148,7 @@
 						<label class="control-label">Tag Server: </label>
 			            <input type="checkbox" ng-model="tagServerCheck" class="checkbox-list" ng-click="tagServerChecking()" />
 		            </div>
-					<div class="col-lg-6 col-md-6" ng-show="tagServerStatus">
+		            <div class="col-lg-6 col-md-6" ng-show="tagServerStatus">
 						<label for="instanceFQDN">Select server
 							<span class="control-label red">&nbsp;*</span>
 						</label>

@@ -13,6 +13,7 @@
 			var osList = items[1].data;
 			var configList = items[2].data;
 			var reqBody = {};
+			$scope.monitorList = [];
 			//$scope.tagSerSelected = 'Monitoring';
 			if (!configAvailable.length) {
 				$scope.cancel();
@@ -22,6 +23,15 @@
 			$scope.taggingServerList=[];
 	        workzoneServices.getTaggingServer().then(function (topSer) {
 	            $scope.taggingServerList=topSer.data;
+	        });
+	        $scope.monitorId = 'null';
+	        workzoneServices.getMonitorList().then(function (response) {
+	        	var p = workzoneEnvironment.getEnvParams();
+	        	for(var i=0;i<response.data.length;i++){
+	        		if(p.org === response.data[i].organization.id) {
+	        			$scope.monitorList.push(response.data[i]);
+	        		}
+	        	}
 	        });
 			$scope.tagServerChecking = function() {
 				if($scope.tagServerCheck){
@@ -60,6 +70,7 @@
 					reqBody.fqdn = $scope.ipAddress;
 					reqBody.os = $scope.os;
 					reqBody.configManagmentId = $scope.selectedConfig;
+					reqBody.monitorId = $scope.monitorId;
 					if($scope.tagServerCheck) {
 						reqBody.tagServer = $scope.tagSerSelected;
 					}

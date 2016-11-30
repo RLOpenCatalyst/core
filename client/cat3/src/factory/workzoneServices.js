@@ -542,6 +542,10 @@
 				getBotCategoryList:function () {
 					var url ='/config-data/category-type';
 					return $http.get(fullUrl(url),Auth.getHeaderObject());
+				},
+				getMonitorList:function () {
+					var url = '/monitors';
+					return $http.get(fullUrl(url),Auth.getHeaderObject());
 				}
 			};
 			return serviceInterface;

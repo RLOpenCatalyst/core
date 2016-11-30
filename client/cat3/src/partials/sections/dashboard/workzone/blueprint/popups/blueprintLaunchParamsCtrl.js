@@ -10,6 +10,10 @@
 	angular.module('workzone.blueprint')
 		.controller('blueprintLaunchParamsCtrl', ['$scope', '$modalInstance', 'toastr',  'items','workzoneServices','genericServices','workzoneEnvironment', function($scope, $modalInstance, toastr, items,workzoneServices,genericServices,workzoneEnvironment) {
 			console.log(items);
+			$scope.showMonitor = true;
+			if(items.blueprintType === 'azure_arm' || items.blueprintType === 'azure_launch') {
+				$scope.showMonitor = false;
+			}
 			var launchHelper = {
 				launch : function(){
 					$modalInstance.close({bp:items,stackName:$scope.stackName,domainName:$scope.domainName,tagServer:$scope.tagSerSelected,launchEnv:$scope.envSeleted});
@@ -18,8 +22,19 @@
 			//var bPLP=this;
 			$scope.taggingServerList=[];
 			$scope.envOptions=[];
+			$scope.monitorList = [];
 			workzoneServices.getTaggingServer().then(function (topSer) {
 				$scope.taggingServerList=topSer.data;
+			});
+			$scope.monitorId = 'null';
+			workzoneServices.getMonitorList().then(function (response) {
+				$scope.getMonitorList = function(orgId) {
+		        	for(var i=0;i<response.data.length;i++){
+		        		if(orgId === response.data[i].organization.id) {
+		        			$scope.monitorList.push(response.data[i]);
+		        		}
+		        	}
+				}
 			});
 			genericServices.getTreeNew().then(function (envData) {
 				angular.forEach(envData,function(val){
@@ -28,10 +43,12 @@
 						orgID = (items.orgId)?items.orgId:items.organization.id;
 			        	bgID = (items.bgId)?items.bgId:items.businessGroup.id;
 			        	projID = (items.projectId)?items.projectId:items.project.id;
+			        	$scope.getMonitorList(orgID);
 					} else {
 						orgID = items.organizationId;
 						bgID = items.businessGroupId;
 						projID = items.projectId;
+						$scope.getMonitorList(orgID);
 					}
 					if(val.rowid === orgID){
 						$scope.orgSeleted=val.name;

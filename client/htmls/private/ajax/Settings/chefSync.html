@@ -147,7 +147,7 @@
 </div>
 <div class="alert alert-warning dataBagFailure hidden">
     <img style="width:50px;height:40px" src="img/warning.png" alt="warning"/>
-    <span style="margin-left:40px;">The ChefServer credentials are incorrect.</span>
+    <span style="margin-left:40px;">Unable to Connect to Chef Server.</span>
 </div>
 
 <!--import instance modal-->
@@ -160,12 +160,12 @@
                     <h4 class="modal-title">Import Nodes</h4>
                 </div>
                 <div class="modal-body modalbody-height">
-                    <div class="col-lg-6 marginSpaceTop">
+                    <div class="col-lg-6">
                         <label for="exampleInputEmail1">Organization</label>
                         <select id="chefImportOrgSelect"  class="width-100 aaa" disabled>
                         </select>
                     </div>
-                    <div class="col-lg-6 marginSpaceTop">
+                    <div class="col-lg-6">
                         <label for="exampleInputEmail1">Business Groups<span class="control-label redSpan">&nbsp;*</span></label>
                         <div class="input-groups">
                             <select id="chefImportBgSelect"  class="width-100 form-control" cdata="catalyst" cat-validation="required" autofocus>
@@ -216,6 +216,7 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="col-lg-6 hidden" style="margin-top:15px;">
                         <label class="">Assign Users<span class="control-label redSpan">&nbsp;*</span></label>
 
@@ -232,15 +233,19 @@
                     <div class="col-lg-6 hidden" style="margin-top:15px;">
                         <label class="">Assign Users<span class="control-label redSpan">&nbsp;*</span></label>
                     </div>
-                    <div>
-                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    
+                    <div class="col-lg-6 col-md-6 margintop15">
+                        <label for="">Monitoring:</label>
+                        <select id="monitorId" unique="true" name="monitorId" class="form-control width-100" style="vertical-align: central" cdata="catalyst" skiprowid="yes">
+                        </select>
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 margintop15">
                         <label class="control-label">Tag imported server : </label>
                         <input type="checkbox" id="tagServerCheck" class="checkbox-list"/> 
                     </div>
                       <div class="col-md-6 col-sm-6 col-xs-6 sevice-delivery-section">
                         <label class="control-label">Select Server
                             <span class="control-label redSpan">&nbsp;*</span></label>
-                        </label>
                         <br />
                         <span class="col-md-12 col-sm-12 col-xs-12 no-padding">
                           <select name="tagServer" class="form-control" id="tagServer">
@@ -250,7 +255,6 @@
                           </select>
                         </span>
                       </div>
-                    </div>
                 </div>
                 <div class="modal-footer">
                     <div class="marginForButtons">
@@ -301,6 +305,21 @@
                 urlParams.chefId = sub;
             }
         })();
+
+        
+        function getMonitorValues(){
+            $.get('../monitors',function(data){
+                var orgValue = $('select#chefImportOrgSelect').val();
+                var str = ' <option value="null">None</option>';
+                for(var i=0;i<data.length;i++){
+                    if(orgValue === data[i].organization.id){
+                        str = str + '<option value="'+data[i]._id+'">'+data[i].name+'</option>';
+                    }
+                }
+                $('#monitorId').html(str);
+            });
+        }
+        
         $('.nodesContainer').append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />');
         $.get('../chef/servers/' + urlParams.chefId + '/environments', function(envList) {
             $('.nodesContainer img').remove();
@@ -434,6 +453,7 @@
                     bootbox.alert('Please Choose corresponding checkbox for nodes impoert');
                     return;
                 }
+                getMonitorValues();
                 $('#chefImportNodesModal').modal('show');
                 $('#myForm12').trigger("reset");
                 $('#pemFileDropdown2').change();
@@ -520,6 +540,7 @@
             reqBody.projectId = $projectList.val();
             reqBody.orgName = $orgListInput.find('option:selected').text();
             reqBody.bgName = $bgList.find('option:selected').text();
+            reqBody.monitorId = $('select#monitorId').find('option:selected').val();
             if ($('#tagServerCheck').prop("checked")) {
                 reqBody.tagServer = $('#tagServer').val();
             } else {
@@ -580,6 +601,7 @@
             function makeRequest() {
                 $('#saveSpinner').removeClass('hidden');
                 $('.importNodesBtn').attr('disabled', 'disabled');
+                console.log(reqBody);
                 $.post('../chef/servers/' + urlParams.chefId + '/sync/nodes', reqBody, function (data) {
                     var $chefResultModalContainer = $('#chefImportNodesResultModal');
                     var $modalBody = $chefResultModalContainer.find('.modal-body');
