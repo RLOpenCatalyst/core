@@ -23,7 +23,6 @@ var extend = require('mongoose-schema-extend');
 var ObjectId = require('mongoose').Types.ObjectId;
 var schemaValidator = require('../../../dao/schema-validator');
 var uniqueValidator = require('mongoose-unique-validator');
-var monitorsModel = require('_pr/model/monitors/monitors.js');
 
 var Schema = mongoose.Schema;
 
@@ -77,12 +76,6 @@ var awsProviderSchema = new Schema({
         type: Number,
         required: false,
         default: 0.0
-    },
-    monitorId: {
-        type: String,
-        required: false,
-        trim: true,
-        default: null
     }
 });
 awsProviderSchema.path('plannedCost').get(function (num) {
@@ -175,25 +168,8 @@ awsProviderSchema.statics.getAWSProviderById = function (providerId, callback) {
         }
         if (aProvider.length) {
             logger.debug("Exit getAWSProviderById with provider present");
-            var providerDetails = aProvider[0].toObject();
-            var monitorId = providerDetails['monitorId'];
-            delete providerDetails['monitorId'];
-            if (providerDetails && monitorId) {
-                monitorsModel.getById(monitorId, function (err, monitor) {
-                    if (err || !monitor) {
-                        providerDetails.monitor = null;
-                    } else {
-                        providerDetails.monitor = monitor;
-                    }
-                    callback(null, providerDetails);
-                    return;
-                });
-            } else {
-                providerDetails.monitor = null;
-                callback(null, providerDetails);
-                return;
-            }
-
+            callback(null, aProvider[0]);
+            return;
         } else {
             logger.debug("Exit getAWSProviderById with no provider present");
             callback(null, null);
@@ -238,7 +214,6 @@ awsProviderSchema.statics.updateAWSProviderById = function (providerId, provider
             accessKey: providerData.accessKey,
             secretKey: providerData.secretKey,
             s3BucketName: providerData.s3BucketName,
-            monitorId: providerData.monitorId,
             plannedCost: providerData.plannedCost
         }
     }, {

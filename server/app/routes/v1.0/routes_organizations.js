@@ -53,6 +53,7 @@ var schedulerService = require('_pr/services/schedulerService');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var compositeBlueprintModel = require('_pr/model/composite-blueprints/composite-blueprints.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
+var monitorsModel = require('_pr/model/monitors/monitors.js');
 
 module.exports.setRoutes = function(app, sessionVerification) {
     /*
@@ -1509,6 +1510,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                 if (!req.body.appUrls) {
                                                     req.body.appUrls = [];
                                                 }
+                                                monitorsModel.getById(req.body.monitorId, function (err, monitor) {
 
 
                                                 var appUrls = req.body.appUrls;
@@ -1531,9 +1533,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     instanceState: nodeAlive,
                                                     bootStrapStatus: 'waiting',
                                                     tagServer: req.params.tagServer,
-                                                    monitorId: req.params.monitorId,
                                                     runlist: [],
                                                     appUrls: appUrls,
+                                                    monitor: monitor,
                                                     users: [req.session.user.cn], //need to change this
                                                     catUser: req.session.user.cn,
                                                     hardware: {
@@ -1661,13 +1663,13 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                 environment: envName,
                                                                 instanceOS: instance.hardware.os
                                                             };
-                                                            if (infraManagerDetails.monitor && infraManagerDetails.monitor.parameters.transportProtocol === 'rabbitmq') {
+                                                            if (instance.monitor && instance.monitor.parameters.transportProtocol === 'rabbitmq') {
                                                                             var sensuCookBook = 'recipe[sensu-client]';
                                                                             var runlist = [];
                                                                             var jsonAttributes = {};                                                                            
 
                                                                             runlist.push(sensuCookBook);
-                                                                            jsonAttributes['sensu-client'] = masterUtil.getSensuCookbookAttributes(infraManagerDetails.monitor,instance.platformId);
+                                                                            jsonAttributes['sensu-client'] = masterUtil.getSensuCookbookAttributes(instance.monitor,instance.id);
 
                                                                             bootstarpOption['runlist'] = runlist;
                                                                             bootstarpOption['jsonAttributes'] = jsonAttributes;
@@ -2025,6 +2027,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     res.send(instance);
                                                     logger.debug("Exit post() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s/addInstance", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
                                                 });
+                                            });
                                             });
                                         } else {
                                             res.status(400).send({
