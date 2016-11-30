@@ -20,6 +20,10 @@
 			$scope.scriptParamShow = false;
 			$scope.scriptSelectAll = false;
 			$scope.scriptParamsObj = {};
+			$scope.chefJenkScriptTaskObj = {};
+			$scope.cronDetails = {};
+			$scope.type = 'new';
+			$scope.showAddTask = false;
 			$scope.isSudo = false;
 			$scope.botCategoryList = [];
 			workzoneServices.getBotCategoryList().then(function (catList) {
@@ -231,6 +235,50 @@
 						$scope.scriptParamsObj[scriptObj._id] = [];
 					}
 				},
+				selectTaskCheckbox: function(){
+					$scope.showAddTask = true;
+					$scope.isEventAvailable = false;
+				},
+				addTaskEvent : function() {
+					$modal.open({
+						templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/addChefJobEvent.html',
+						controller: 'addChefJobEventCtrl',
+						backdrop: 'static',
+						keyboard: false,
+						resolve: {
+							items: function () {
+								return {
+									chefJenkScriptTaskObj:$scope.chefJenkScriptTaskObj,
+									type:$scope.type
+								}
+							}
+						}
+					}).result.then(function (chefEventDetails) {
+						$scope.isEventAvailable = true;
+						$scope.chefJenkScriptTaskObj = chefEventDetails;
+						var startTimeMinute,startTimeHour,dayOfWeek,selectedDayOfTheMonth,selectedMonth;
+						startTimeMinute = $scope.chefJenkScriptTaskObj.startTimeMinute;
+						startTimeHour = $scope.chefJenkScriptTaskObj.startTime;
+						dayOfWeek = $scope.chefJenkScriptTaskObj.dayOfWeek;
+						selectedDayOfTheMonth = $scope.chefJenkScriptTaskObj.selectedDayOfTheMonth;
+						selectedMonth = $scope.chefJenkScriptTaskObj.monthOfYear;
+						$scope.type = 'edit';
+						$scope._isEventSelected = true;
+						
+						$scope.repeatPattern = 'Repeat Every -' +  $scope.chefJenkScriptTaskObj.repeats;   
+						$scope.cronDetails = {
+							cronStartOn : $scope.chefJenkScriptTaskObj.cronStart,
+							cronEndOn : $scope.chefJenkScriptTaskObj.cronEnd,
+							cronRepeatEvery : $scope.chefJenkScriptTaskObj.repeatBy,
+							cronFrequency: $scope.chefJenkScriptTaskObj.repeats,
+							cronTime: typeof startTimeHour !=='undefined'? startTimeHour : new Date().getHours() + ':' + typeof startTimeMinute !=='undefined'? startTimeMinute:new Date().getMinutes(),
+							cronDays: $scope.chefJenkScriptTaskObj.dayOfWeek,
+							cronMonth: $scope.chefJenkScriptTaskObj.monthOfYear
+						}
+					}, function () {
+						console.log('Dismiss time is ' + new Date());
+					});
+				},
 				clearRoleSelection : function(){
 					$scope.role.name = '';
 				},
@@ -286,29 +334,24 @@
 						taskJSON.nodeIds = [];
 						taskJSON.blueprintIds = [];
 						taskJSON.role = $scope.role.name;
-						for (var ci = 0; ci < $scope.chefInstanceList.length; ci++) {
-							if ($scope.chefInstanceList[ci]._isNodeSelected) {
-								taskJSON.nodeIds.push($scope.chefInstanceList[ci]._id);
-							}
-						}
 						for(var bi = 0; bi < $scope.chefBluePrintList.length; bi++){
 							if ($scope.chefBluePrintList[bi]._isBlueprintSelected) {
 								taskJSON.blueprintIds.push($scope.chefBluePrintList[bi]._id);
 							}
 						}
-						if (!taskJSON.nodeIds.length && !taskJSON.blueprintIds.length && !taskJSON.role ) {
+						if (!taskJSON.nodeIds && !taskJSON.blueprintIds.length && !taskJSON.role ) {
 							$scope.inputValidationMsg='Please select a node or blueprint or role';
 							$scope.taskSaving = false;
 							return false;
 						}
-						if (taskJSON.nodeIds.length && taskJSON.blueprintIds.length) {
-							$scope.inputValidationMsg='Please choose either nodes or blueprints or role, not all';
+						if (taskJSON.blueprintIds.length) {
+							$scope.inputValidationMsg='Please choose either blueprints or role, not all';
 							$scope.taskSaving = false;
 							return false;
 						}
 
-						if (taskJSON.nodeIds.length && taskJSON.role) {
-							$scope.inputValidationMsg='Please choose either nodes or blueprints or role, not all';
+						if (taskJSON.role) {
+							$scope.inputValidationMsg='Please choose blueprints or role, not all';
 							$scope.taskSaving = false;
 							return false;
 						}
@@ -361,29 +404,22 @@
 						//first time execute will get result from jobResultURLPattern.
 						taskJSON.jobResultURLPattern = taskJSON.jobResultURL;
 						taskJSON.parameterized = $scope.jenkinsParamsList;
+						taskJSON.isTaskScheduled = $scope._isEventSelected;
+						//taskJSON.taskScheduler = $scope.cronPattern;
+						taskJSON.taskScheduler = $scope.cronDetails;
 					}
 					//if task type is script
 					if ($scope.taskType === "script") {
 						taskJSON.nodeIds = [];
 						taskJSON.scriptDetails = [];
 						taskJSON.isSudo = $scope.isSudo;
-						for (var si = 0; si < $scope.chefInstanceList.length; si++) {
-							if ($scope.chefInstanceList[si]._isNodeSelected) {
-								taskJSON.nodeIds.push($scope.chefInstanceList[si]._id);
-							}
-						}
 						taskJSON.scriptTypeName = $scope.scriptTypeSelelct;
 						if (!taskJSON.scriptTypeName.length) {
 							$scope.inputValidationMsg='Please select one Script Type';
 							$scope.taskSaving = false;
 							return false;
 						}
-						if (!taskJSON.nodeIds.length) {
-							$scope.inputValidationMsg='Please select a node';
-							$scope.taskSaving = false;
-							return false;
-						}
-
+						
 						for (var k = 0; k < $scope.scriptTaskList.length; k++) {
 							if ($scope.scriptTaskList[k]._isScriptSelected) {
 								var scriptId = $scope.scriptTaskList[k]._id;
@@ -400,6 +436,21 @@
 						if (!taskJSON.scriptDetails.length) {
 							$scope.inputValidationMsg = 'Please select a script';
 							$scope.taskSaving = false;
+							return false;
+						}
+					}
+					if($scope.taskType === "chef" || $scope.taskType === "script") {
+						taskJSON.executionOrder = $scope.isExecution.flag;
+						taskJSON.isTaskScheduled = $scope._isEventSelected;
+						//taskJSON.taskScheduler = $scope.cronPattern;
+						taskJSON.taskScheduler = $scope.cronDetails;
+						var selectedList = instanceSelector.getSelectorList();
+						if (selectedList && selectedList.length) {
+							for (var i = 0; i < selectedList.length; i++) {
+								taskJSON.nodeIds.push(selectedList[i].data);
+							}
+						} else {
+							$scope.inputValidationMsg='Please select atleast one node';
 							return false;
 						}
 					}
@@ -429,6 +480,9 @@
 			$scope.isParameterized = {
 				flag: false
 			};
+			$scope.isExecution = {
+				flag: 'PARALLEL'
+			};
 			/*in backend at the time of edit of task the jobResultUrlPattern
 			 was going as null. So there was in issue with the links disappearing.*/
 			$scope.jobResultURLPattern = [];
@@ -445,10 +499,12 @@
 			$scope.editRunListAttributes = false;
 
 			$rootScope.$on('WZ_ORCHESTRATION_REFRESH_CURRENT', function(event,reqParams) {
-                $scope.chefrunlist = reqParams.list;
-                $scope.cookbookAttributes = reqParams.cbAttributes;
+				if(reqParams) {
+					$scope.chefrunlist = reqParams.list;
+					$scope.cookbookAttributes = reqParams.cbAttributes;
+				}
             });
-			var compositeSelector;
+			var compositeSelector,instanceSelector;
 			workzoneServices.getEnvironmentTaskList().then(function (response) {
 				var data, selectorList = [],
 					optionList = [];
@@ -485,6 +541,47 @@
 			$scope.isTargetTypesLoading = true;
 			$scope.isScriptNodesLoading = true;
 			var allInstances = workzoneServices.getCurrentEnvInstances();
+			$scope.allInstances=function(){
+				allInstances.then(function (response) {
+					var data, selectorList = [],
+						optionList = [];
+					if (response.data) {
+						data = response.data;
+					} else {
+						data = response;
+					}
+
+					if (items.taskType && items.taskType === "chef" || items.taskType && items.taskType === "script") {
+						for (var j = 0; j < items.taskConfig.nodeIds.length; j++) {
+							for (var i = 0; i < data.length; i++) {
+								if (items.taskConfig.nodeIds[j] === data[i]._id) {
+									selectorList.push(data[i]);
+								}
+							}
+						}
+					} else {
+						selectorList = [];
+					}
+					optionList = data;
+					var factory = chefSelectorComponent.getComponent;
+					instanceSelector = new factory({
+						scopeElement: '.component_for_instances',
+						optionList: responseFormatter.formatInstanceList(optionList),
+						selectorList: responseFormatter.formatInstanceList(selectorList),
+						isSortList: true,
+						isSearchBoxEnable: false,
+						isOverrideHtmlTemplate: true,
+						isExcludeDataFromOption: true
+					});
+					$scope.isNewTaskPageLoading = false;
+				});
+			}
+			 $scope.$watch('taskType', function() {
+        		if($scope.taskType === 'chef' || $scope.taskType === 'script'){
+					$scope.allInstances();
+        		}
+    		});
+
 			var allBlueprints = workzoneServices.getBlueprints();
 			var allRunlist = workzoneServices.getCookBookListForOrg();
 			$q.all([allInstances,allBlueprints,allRunlist]).then(function(promiseObjs) {
@@ -506,9 +603,7 @@
 						$scope.chefBluePrintList = responseFormatter.identifyAvailableBlueprint(responseFormatter.getBlueprintList(blueprints), items.blueprintIds);
 						$scope.chefComponentSelectorList = responseFormatter.findDataForEditValue(items.taskConfig.runlist);
 						$scope.cookbookAttributes = responseFormatter.formatSavedCookbookAttributes(items.taskConfig.attributes);
-						console.log($scope.chefComponentSelectorList);
 						$scope.chefrunlist = responseFormatter.chefRunlistFormatter($scope.chefComponentSelectorList);
-						console.log($scope.chefrunlist);
 						$scope.chefRoleList = roles;
 
 						if (items.blueprintIds.length){
@@ -600,6 +695,18 @@
 					$scope.scriptTypeSelelct = items.taskConfig.scriptTypeName;
 					$scope.isNewTaskPageLoading = false;
 					$scope.changeNodeScriptList();
+				}
+				if(items.taskType === "chef" || items.taskType === "script") {
+					$scope.isExecution.flag = items.executionOrder;
+				}
+				if(items.taskType === "chef" || items.taskType === "jenkins" || items.taskType === "script") {
+					//if(items.taskScheduler){
+						$scope._isEventSelected = items.isTaskScheduled;
+						$scope.showAddTask = true;
+						$scope.isEventAvailable = true;
+						$scope.chefJenkScriptTaskObj = items.taskScheduler;
+						$scope.type = 'edit';
+					//}
 				}
 			}
 		}

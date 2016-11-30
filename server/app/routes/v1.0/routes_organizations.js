@@ -49,10 +49,11 @@ var Docker = require('_pr/model/docker.js');
 var orgValidator = require('_pr/validators/organizationValidator');
 var validate = require('express-validation');
 var taskService = require('_pr/services/taskService');
-var schedulerService = require('_pr/services/schedulerService');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var compositeBlueprintModel = require('_pr/model/composite-blueprints/composite-blueprints.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
+var monitorsModel = require('_pr/model/monitors/monitors.js');
+var catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
 
 module.exports.setRoutes = function(app, sessionVerification) {
     /*
@@ -975,8 +976,8 @@ module.exports.setRoutes = function(app, sessionVerification) {
             taskData.orgName = project[0].orgname;
             taskData.bgName = project[0].productgroupname;
             taskData.projectName = project[0].projectname;
-            if(req.body.taskScheduler  && req.body.taskScheduler !== null) {
-                taskData.taskScheduler = apiUtil.createCronJobPattern(req.body.taskScheduler);
+            if(taskData.taskScheduler  && taskData.taskScheduler !== null && Object.keys(taskData.taskScheduler).length !== 0) {
+                taskData.taskScheduler = apiUtil.createCronJobPattern(taskData.taskScheduler);
                 taskData.isTaskScheduled = true;
             }
             configmgmtDao.getEnvNameFromEnvId(req.params.envId, function(err, envName) {
@@ -1000,11 +1001,11 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                     return;
                                 }
                                 if(task.isTaskScheduled === true){
-                                    schedulerService.executeSchedulerForTasks(task,function(err,data){
-                                        if(err){
-                                            logger.error("Error in executing task scheduler");
-                                        }
-                                    })
+                                    if(task.executionOrder === 'PARALLEL'){
+                                        catalystSync.executeParallelScheduledTasks();
+                                    }else{
+                                        catalystSync.executeSerialScheduledTasks();
+                                    }
                                 };
                                 res.send(task);
                                 logger.debug("Exit post() for /organizations/%s/businessGroups/%s/projects/%s/environments/%s/tasks", req.params.orgId, req.params.bgId, req.params.projectId, req.params.environments);
@@ -1014,16 +1015,17 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 }else {
                     Task.createNew(taskData, function (err, task) {
                         if (err) {
-                            logger.err(err);
+                            logger.error(err);
                             res.status(500).send("Failed to create task: ", err);
                             return;
                         }
                         if(task.isTaskScheduled === true){
-                            schedulerService.executeSchedulerForTasks(task,function(err,data){
-                                if(err){
-                                    logger.error("Error in executing task scheduler");
-                                }
-                            })
+                            if(task.executionOrder === 'PARALLEL'){
+                                catalystSync.executeParallelScheduledTasks();
+                            }else{
+                                catalystSync.executeSerialScheduledTasks();
+                            }
+
                         };
                         res.send(task);
                         logger.debug("Exit post() for /organizations/%s/businessGroups/%s/projects/%s/environments/%s/tasks", req.params.orgId, req.params.bgId, req.params.projectId, req.params.environments);
@@ -1509,6 +1511,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                 if (!req.body.appUrls) {
                                                     req.body.appUrls = [];
                                                 }
+                                                monitorsModel.getById(req.body.monitorId, function (err, monitor) {
 
 
                                                 var appUrls = req.body.appUrls;
@@ -1531,9 +1534,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     instanceState: nodeAlive,
                                                     bootStrapStatus: 'waiting',
                                                     tagServer: req.params.tagServer,
-                                                    monitorId: req.params.monitorId,
                                                     runlist: [],
                                                     appUrls: appUrls,
+                                                    monitor: monitor,
                                                     users: [req.session.user.cn], //need to change this
                                                     catUser: req.session.user.cn,
                                                     hardware: {
@@ -1661,13 +1664,13 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                 environment: envName,
                                                                 instanceOS: instance.hardware.os
                                                             };
-                                                            if (infraManagerDetails.monitor && infraManagerDetails.monitor.parameters.transportProtocol === 'rabbitmq') {
+                                                            if (instance.monitor && instance.monitor.parameters.transportProtocol === 'rabbitmq') {
                                                                             var sensuCookBook = 'recipe[sensu-client]';
                                                                             var runlist = [];
                                                                             var jsonAttributes = {};                                                                            
 
                                                                             runlist.push(sensuCookBook);
-                                                                            jsonAttributes['sensu-client'] = masterUtil.getSensuCookbookAttributes(infraManagerDetails.monitor,instance.platformId);
+                                                                            jsonAttributes['sensu-client'] = masterUtil.getSensuCookbookAttributes(instance.monitor,instance.id);
 
                                                                             bootstarpOption['runlist'] = runlist;
                                                                             bootstarpOption['jsonAttributes'] = jsonAttributes;
@@ -2025,6 +2028,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     res.send(instance);
                                                     logger.debug("Exit post() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s/addInstance", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
                                                 });
+                                            });
                                             });
                                         } else {
                                             res.status(400).send({

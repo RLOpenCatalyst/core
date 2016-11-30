@@ -39,6 +39,7 @@ var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var SSHExec = require('_pr/lib/utils/sshexec');
 var MasterUtils = require('_pr/lib/utils/masterUtil.js');
+var monitorsModel = require('_pr/model/monitors/monitors.js');
 
 
 module.exports.setRoutes = function (app, verificationFunc) {
@@ -306,6 +307,7 @@ module.exports.setRoutes = function (app, verificationFunc) {
                                 callback(err, null);
                                 return;
                             } else if (credentialStatus) {
+                                monitorsModel.getById(reqBody.monitorId, function (err, monitor) {
                                 var instance = {
                                     name: node.name,
                                     orgId: orgId,
@@ -324,6 +326,7 @@ module.exports.setRoutes = function (app, verificationFunc) {
                                     bootStrapStatus: 'success',
                                     hardware: hardwareData,
                                     tagServer: reqBody.tagServer,
+                                    monitor: monitor,
                                     credentials: encryptedCredentials,
                                     users: users,
                                     chef: {
@@ -335,7 +338,7 @@ module.exports.setRoutes = function (app, verificationFunc) {
                                         templateId: "chef_import",
                                         iconPath: "../private/img/templateicons/chef_import.png"
                                     }
-                                }
+                                };
                                 instancesDao.createInstance(instance, function (err, data) {
                                     if (err) {
                                         logger.debug(err, 'occured in inserting node in mongo');
@@ -346,12 +349,12 @@ module.exports.setRoutes = function (app, verificationFunc) {
                                     instance._id = data._id;
                                     
                                     //install sensu client if monitoring server configured
-                                    if (chefDetail.monitor && chefDetail.monitor.parameters.transportProtocol === 'rabbitmq') {
+                                    if (instance.monitor && instance.monitor.parameters.transportProtocol === 'rabbitmq') {
                                         var sensuCookBook = 'recipe[sensu-client]';
                                         var runlist = [];
                                         var jsonAttributes = {};
                                         runlist.push(sensuCookBook);
-                                        jsonAttributes['sensu-client'] = MasterUtils.getSensuCookbookAttributes(chefDetail.monitor,instance.platformId);
+                                        jsonAttributes['sensu-client'] = MasterUtils.getSensuCookbookAttributes(instance.monitor,instance.id);
                                         
                                         runOptions = {
                                             privateKey: credentials.pemFileLocation,
@@ -429,6 +432,7 @@ module.exports.setRoutes = function (app, verificationFunc) {
                                     });
                                     callback(null, data);
                                 });
+                            });
                             } else {
                                 callback({message: "Invalid Credentials"}, null);
                             }
@@ -555,9 +559,7 @@ module.exports.setRoutes = function (app, verificationFunc) {
 
         }
         MasterUtils.getCongifMgmtsById(req.params.serverId, function (err, chefDetails) {
-            logger.debug("chefDetails---------->>>" + JSON.stringify(chefDetails));
-            logger.debug("reqBody.selectedNodes---------->>>" + JSON.stringify(reqBody.selectedNodes));
-
+            
             if (err) {
                 res.send(500);
                 return;

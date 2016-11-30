@@ -28,6 +28,7 @@ var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var schedulerService = require('_pr/services/schedulerService');
+var catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
 
 
 
@@ -38,6 +39,19 @@ var fileIo = require('_pr/lib/utils/fileio');
 
 module.exports.setRoutes = function(app, sessionVerification) {
     app.all('/tasks/*', sessionVerification);
+
+    app.delete('/tasks/serviceDelivery/:taskId', function(req, res) {
+        Tasks.removeServiceDeliveryTask(req.params.taskId, function(err, data) {
+            if (err) {
+                logger.error("Failed to delete service delivery Task", err);
+                res.send(500, errorResponses.db.error);
+                return;
+            }
+            res.send(200, {
+                message: "deleted"
+            });
+        });
+    });
 
     app.get('/tasks/history/list/all', function(req, res) {
         TaskHistory.listHistory(function(err, tHistories) {
@@ -92,19 +106,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 res.send(404);
                 return;
             }
-        });
-    });
-
-    app.delete('/tasks/serviceDelivery/:taskId', function(req, res) {
-        Tasks.removeServiceDeliveryTask(req.params.taskId, function(err, data) {
-            if (err) {
-                logger.error("Failed to delete service delivery Task", err);
-                res.send(500, errorResponses.db.error);
-                return;
-            }
-            res.send(200, {
-                message: "deleted"
-            });
         });
     });
 
@@ -516,7 +517,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
     app.post('/tasks/:taskId/update', function(req, res) {
         var taskData = req.body.taskData;
-        if(taskData.taskScheduler  && taskData.taskScheduler !== null) {
+        if(taskData.taskScheduler  && taskData.taskScheduler !== null && Object.keys(taskData.taskScheduler).length !== 0) {
             taskData.taskScheduler = apiUtil.createCronJobPattern(taskData.taskScheduler);
             taskData.isTaskScheduled = true;
         }
@@ -542,11 +543,11 @@ module.exports.setRoutes = function(app, sessionVerification) {
                             }
                             if (updateCount) {
                                 if(taskData.isTaskScheduled === true){
-                                    schedulerService.executeSchedulerForTasks(task,function(err,data){
-                                        if(err){
-                                            logger.error("Error in executing task scheduler");
-                                        }
-                                    })
+                                    if(taskData.executionOrder === 'PARALLEL'){
+                                        catalystSync.executeParallelScheduledTasks();
+                                    }else{
+                                        catalystSync.executeSerialScheduledTasks();
+                                    }
                                 };
                                 res.send({
                                     updateCount: updateCount
@@ -567,11 +568,11 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 }
                 if (updateCount) {
                     if(taskData.isTaskScheduled === true){
-                        schedulerService.executeSchedulerForTasks(task,function(err,data){
-                            if(err){
-                                logger.error("Error in executing task scheduler");
-                            }
-                        })
+                        if(taskData.executionOrder === 'PARALLEL'){
+                            catalystSync.executeParallelScheduledTasks();
+                        }else{
+                            catalystSync.executeSerialScheduledTasks();
+                        }
                     };
                     res.send({
                         updateCount: updateCount

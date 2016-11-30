@@ -29,7 +29,6 @@ var Cryptography = require('../utils/cryptography');
 var chefSettings = appConfig.chef;
 var AppDeploy = require('_pr/model/app-deploy/app-deploy');
 var async = require('async');
-var monitorsModel = require('_pr/model/monitors/monitors.js');
 
 var MasterUtil = function () {
     // Return All Orgs specific to User
@@ -1792,18 +1791,7 @@ var MasterUtil = function () {
                         chefmgmt[0].chefRepoLocation = chefSettings.chefReposLocation + chefmgmt[0].orgname_rowid[0] + '/' + chefmgmt[0].loginname + '/';
                         chefmgmt[0].userpemfile = chefSettings.chefReposLocation + chefmgmt[0].orgname_rowid[0] + '/' + chefmgmt[0].folderpath + chefmgmt[0].userpemfile_filename;
                         chefmgmt[0].validatorpemfile = chefSettings.chefReposLocation + chefmgmt[0].orgname_rowid[0] + '/' + chefmgmt[0].folderpath + chefmgmt[0].validatorpemfile_filename;
-                        if (chefmgmt[0].monitorId) {
-                            monitorsModel.getById(chefmgmt[0].monitorId, function (err, monitor) {
-                                if (err || !monitor) {
-                                    chefmgmt[0].monitor = null;
-                                } else {
-                                    chefmgmt[0].monitor = monitor;
-                                }
-                                callback(null, chefmgmt[0]);
-                            });
-                        } else {
-                            callback(null, chefmgmt[0]);
-                        }
+                        callback(null, chefmgmt[0]);
                     } else {
                         callback(null, null);
                     }
