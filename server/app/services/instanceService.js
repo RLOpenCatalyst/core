@@ -46,7 +46,7 @@ var AppData = require('_pr/model/app-deploy/app-data');
 var instancesDao = require('_pr/model/classes/instance/instance');
 var providerService = require('_pr/services/providerService.js');
 var schedulerService = require('_pr/services/schedulerService.js');
-var crontab = require('node-crontab');
+var catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
 
 
 var instanceService = module.exports = {};
@@ -1473,34 +1473,13 @@ function updateScheduler(instanceScheduler, callback) {
         function(schedulerDetails,next){
             schedulerDetails.interval = instanceScheduler.interval;
             instancesDao.updateScheduler(instanceScheduler.instanceIds, schedulerDetails,next);
-        },
-        function(updateSchedulerDetails,next){
-            instancesDao.getInstances(instanceScheduler.instanceIds,next);
         }
     ],function(err,results){
         if(err){
             return callback(err, null);
         }else{
             callback(null, {"message": "Scheduler Updated."});
-            var resultList =[];
-            for (var i = 0; i < results.length; i++) {
-                (function(instance) {
-                    if(instance.cronJobIds && instance.cronJobIds.length > 0){
-                        crontab.cancelJobIds(instance.cronJobIds);
-                    }
-                    resultList.push(function(callback){schedulerService.executeSchedulerForInstances(instance,callback);});
-                    if(resultList.length === results.length){
-                        async.parallel(resultList,function(err,results){
-                            if(err){
-                                logger.error(err);
-                                return;
-                            }
-                            logger.debug("Instance Scheduler Results>>"+results);
-                            return;
-                        })
-                    }
-                })(results[i]);
-            }
+            catalystSync.executeScheduledInstances();
             return;
         }
     });

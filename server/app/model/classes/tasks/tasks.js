@@ -136,18 +136,23 @@ var taskSchema = new Schema({
         required: false,
         default:false
     },
+    executionOrder:{
+        type: String,
+        required: false,
+        trim: true
+    },
     taskScheduler:{
         cronStartOn: {
-            type: Number,
+            type: String,
             required: false,
             trim: true
         },
         cronEndOn: {
-            type: Number,
+            type: String,
             required: false,
             trim: true
         },
-        cronPatten: {
+        cronPattern: {
             type: String,
             required: false,
             trim: true
@@ -158,7 +163,7 @@ var taskSchema = new Schema({
             trim: true
         },
         cronFrequency: {
-            type: Number,
+            type: String,
             required: false,
             trim: true
         },
@@ -743,7 +748,10 @@ taskSchema.statics.updateTaskById = function(taskId, taskData, callback) {
             serviceDeliveryCheck:taskData.serviceDeliveryCheck,
             description: taskData.description,
             jobResultURLPattern: taskData.jobResultURL,
-            blueprintIds: taskData.blueprintIds
+            blueprintIds: taskData.blueprintIds,
+            executionOrder:taskData.executionOrder,
+            taskScheduler:taskData.taskScheduler,
+            isTaskScheduled:taskData.isTaskScheduled
         }
     }, {
         upsert: false

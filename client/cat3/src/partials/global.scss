@@ -724,6 +724,10 @@ accordion .panel-heading {
     margin-top: 15px;
 }
 
+.margintop10 {
+    margin-top: 10px;
+}
+
 .marginleft15 {
     margin-left: 15px;
 }
@@ -1365,20 +1369,22 @@ label {
         line-height: 34;
         font-size: 13px !important;
     }
-    .btnDay{
-        border-radius: 15px;
-        margin: 0 3px;
-        height: 24px;
-        width: 24px;
-        font-weight: 600;
-        padding: 1px 5px;
-
-    }
-    .activeDay {
-        background: #0B5475 !important;
-    }
 
 }
+
+.btnDay{
+    border-radius: 15px;
+    margin: 0 3px;
+    height: 24px;
+    width: 24px;
+    font-weight: 600;
+    padding: 1px 5px;
+
+}
+.activeDay {
+    background: #0B5475 !important;
+}
+
 .form-control-date{
     display: block;
     width: 100%;
