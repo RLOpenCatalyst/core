@@ -405,6 +405,11 @@ var InstanceSchema = new Schema({
         type: Boolean,
         required: false,
         default: false
+    },
+    monitor: {
+        type: Schema.Types.Mixed,
+        required: false,
+        default: null
     }
 });
 
