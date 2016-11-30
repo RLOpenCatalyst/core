@@ -98,8 +98,8 @@ schedulerService.executeSchedulerForInstances = function executeSchedulerForInst
     })
 }
 
-schedulerService.executeSchedulerForTasks = function executeSchedulerForTasks(task,callback) {
-    logger.debug("Task Scheduler is started for Task. "+task.name);
+schedulerService.executeParallelScheduledTasks = function executeParallelScheduledTasks(task,callback) {
+    logger.debug("Task Scheduler is started for Parallel Task. "+task.name);
     var currentDate = new Date();
     if(currentDate >= task.taskScheduler.cronEndOn){
         crontab.cancelJob(task.cronJobId);
@@ -129,6 +129,46 @@ schedulerService.executeSchedulerForTasks = function executeSchedulerForTasks(ta
                     return;
                 }
                 logger.debug("Task Execution Success: ", task.name);
+                return;
+            });
+        });
+    }
+}
+
+schedulerService.executeSerialScheduledTasks = function executeSerialScheduledTasks(task,callback) {
+    logger.debug("Task Scheduler is started for Serial Task. "+task.name);
+    var currentDate = new Date();
+    if(currentDate >= task.taskScheduler.cronEndOn){
+        crontab.cancelJob(task.cronJobId);
+        taskDao.updateTaskScheduler(task._id,function(err, updatedData) {
+            if (err) {
+                logger.error("Failed to update Task Scheduler: ", err);
+                callback(err,null);
+                return;
+            }
+            logger.debug("Scheduler is ended on for Task. "+task.name);
+            callback(null,updatedData);
+            return;
+        });
+    }else{
+        var cronJobId = cronTab.scheduleJob(task.taskScheduler.cronPattern, function () {
+            taskDao.updateCronJobIdByTaskId(task._id,cronJobId,function(err,data){
+                if(err){
+                    logger.error("Error in updating cron job Ids. "+err);
+                }
+            })
+            taskService.executeTask(task._id, "superadmin", "", "", "","","",function(err, historyData) {
+                if (err === 404) {
+                    logger.error("Task not found.", err);
+                    callback(err,null);
+                    return;
+                } else if (err) {
+                    logger.error("Failed to execute task.", err);
+                    callback(err,null);
+                    return;
+                }
+                logger.debug("Task Execution Success: ", task.name);
+                callback(null,cronJobId);
                 return;
             });
         });

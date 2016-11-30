@@ -40,33 +40,33 @@ catalystSync.executeScheduledInstances = function executeScheduledInstances() {
 }
 
 catalystSync.executeParallelScheduledTasks = function executeParallelScheduledTasks() {
-    taskDao.getScheduledTasks(function(err, tasks) {
+    taskDao.getScheduledTasks('PARALLEL',function(err, tasks) {
         if (err) {
             logger.error("Failed to fetch tasks: ", err);
             return;
         }
         if (tasks && tasks.length) {
-            var resultList =[],parallelTaskList=[];
+            var parallelTaskList=[];
             for (var i = 0; i < tasks.length; i++) {
                 (function(task) {
                     if(task.cronJobId && task.cronJobId !== null){
                         cronTab.cancelJob(task.cronJobId);
                     }
-                    if(task.executionOrder === 'PARALLEL' || task.taskType === 'jenkins'){
-                        resultList.push(function(callback){schedulerService.executeSchedulerForTasks(task,callback);});
-                        parallelTaskList.push(function(callback){schedulerService.executeSchedulerForTasks(task,callback);});
-                    }else{
-                        resultList.push(function(callback){schedulerService.executeSchedulerForTasks(task,callback);});
-                    }
-                    if(resultList.length === tasks.length){
-                        async.parallel(parallelTaskList,function(err,results){
-                            if(err){
-                                logger.error(err);
+                    parallelTaskList.push(function(callback){schedulerService.executeParallelScheduledTasks(task,callback);});
+                    if(parallelTaskList.length === tasks.length){
+                        if(parallelTaskList.length > 0) {
+                            async.parallel(parallelTaskList, function (err, results) {
+                                if (err) {
+                                    logger.error(err);
+                                    return;
+                                }
+                                logger.debug("Task Scheduler Completed for Parallel");
                                 return;
-                            }
-                            logger.debug("Task Scheduler Completed for Parallel");
+                            })
+                        }else{
+                            logger.debug("There is no Parallel scheduled Task right now.");
                             return;
-                        })
+                        }
                     }
                 })(tasks[i]);
             }
@@ -78,36 +78,31 @@ catalystSync.executeParallelScheduledTasks = function executeParallelScheduledTa
 }
 
 catalystSync.executeSerialScheduledTasks = function executeSerialScheduledTasks() {
-    taskDao.getScheduledTasks(function(err, tasks) {
+    taskDao.getScheduledTasks('SERIAL',function(err, tasks) {
         if (err) {
             logger.error("Failed to fetch tasks: ", err);
             return;
         }
         if (tasks && tasks.length) {
-            var resultList =[],serialTaskList=[];
+            var serialTaskList=[];
             for (var i = 0; i < tasks.length; i++) {
                 (function(task) {
                     if(task.cronJobId && task.cronJobId !== null){
                         cronTab.cancelJob(task.cronJobId);
                     }
-                    if(task.executionOrder === 'SERIAL'){
-                        resultList.push(function(callback){schedulerService.executeSchedulerForTasks(task,callback);});
-                        if(serialTaskList.length ===0) {
-                            serialTaskList.push(function (next) {
-                                schedulerService.executeSchedulerForTasks(task, next);
-                            });
-                        }else{
-                            serialTaskList.push(function (cronJobId,next) {
-                                cronTab.cancelJob(cronJobId);
-                                schedulerService.executeSchedulerForTasks(task, next);
-                            });
-                        }
-                        resultList.push(function(callback){schedulerService.executeSchedulerForTasks(task,callback);});
+                    if(serialTaskList.length ===0) {
+                        serialTaskList.push(function (next) {schedulerService.executeSerialScheduledTasks(task, next);
+                        });
                     }else{
-                        resultList.push(function(callback){schedulerService.executeSchedulerForTasks(task,callback);});
+                        serialTaskList.push(function (cronJobId,next) {
+                            cronTab.cancelJob(cronJobId);
+                            schedulerService.executeSerialScheduledTasks(task, next);
+                        });
                     }
-                    if(resultList.length === tasks.length){
+                    if(serialTaskList.length === tasks.length){
                         if(serialTaskList.length > 0) {
+                            console.log(serialTaskList.length);
+                            console.log(serialTaskList);
                             async.waterfall(serialTaskList, function (err, data) {
                                 if (err) {
                                     logger.error(err);

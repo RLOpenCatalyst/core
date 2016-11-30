@@ -560,6 +560,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 })
             });
         } else {
+            if(taskData.taskType === 'jenkins'){
+                taskData.executionOrder= 'PARALLEL';
+            }
             Tasks.updateTaskById(req.params.taskId, taskData, function(err, updateCount) {
                 if (err) {
                     logger.error(err);

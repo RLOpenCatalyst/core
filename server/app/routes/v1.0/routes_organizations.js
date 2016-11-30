@@ -979,6 +979,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 taskData.taskScheduler = apiUtil.createCronJobPattern(taskData.taskScheduler);
                 taskData.isTaskScheduled = true;
             }
+            if(taskData.taskType === 'jenkins'){
+                taskData.executionOrder= 'PARALLEL';
+            }
             configmgmtDao.getEnvNameFromEnvId(req.params.envId, function(err, envName) {
                 if (err) {
                     res.status(500).send("Failed to fetch ENV: ", err);
