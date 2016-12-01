@@ -537,7 +537,7 @@
             reqBody.projectId = $projectList.val();
             reqBody.orgName = $orgListInput.find('option:selected').text();
             reqBody.bgName = $bgList.find('option:selected').text();
-            reqBody.monitorId = $('select#monitorId').find('option:selected').val();
+            reqBody.monitorId = $('select#monitorId').val();
             if ($('#tagServerCheck').prop("checked")) {
                 reqBody.tagServer = $('#tagServer').val();
             } else {
