@@ -82,7 +82,7 @@
 					}
 				}
 				var selectedVersionBpId = bpItem.bp.selectedVersionBpId;
-				var monitorId = bpItem.bp.monitorId;
+				var monitorId = bpItem.monitorId;
 				if(bpItem && bpItem.bp && bpItem.bp.selectedVersionBpId){
 					selectedVersionBpId = bpItem.bp.selectedVersionBpId;
 				} else {

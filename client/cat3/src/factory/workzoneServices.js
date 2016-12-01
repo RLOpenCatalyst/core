@@ -101,7 +101,7 @@
 				},
 				launchBlueprint: function (blueprintID, version, envId, stackName,domainName, tagServer, monitorId) {
 					var url = '/blueprints/' + blueprintID + '/launch?version=' + version +
-							'&envId=' + envId + '&stackName=' + stackName + '&domainName=' + domainName + '&tagServer=' + tagServer + '$monitorId=' + monitorId;
+							'&envId=' + envId + '&stackName=' + stackName + '&domainName=' + domainName + '&tagServer=' + tagServer + '&monitorId=' + monitorId;
 					return $http.get(fullUrl(url), Auth.getHeaderObject());
 				},
 				getBlueprintById: function(blueprintId) {

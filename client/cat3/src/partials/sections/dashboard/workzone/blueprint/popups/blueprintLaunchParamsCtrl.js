@@ -16,7 +16,7 @@
 			}
 			var launchHelper = {
 				launch : function(){
-					$modalInstance.close({bp:items,stackName:$scope.stackName,domainName:$scope.domainName,tagServer:$scope.tagSerSelected,launchEnv:$scope.envSeleted});
+					$modalInstance.close({bp:items,stackName:$scope.stackName,domainName:$scope.domainName,tagServer:$scope.tagSerSelected,launchEnv:$scope.envSeleted,monitorId:$scope.monitorId});
 				}
 			};
 			//var bPLP=this;
@@ -75,7 +75,7 @@
 			});
 			$scope.stackName='';
 			$scope.domainName='';
-			$scope.tagSerSelected = "";
+			$scope.tagSerSelected = '';
 			$scope.cancel = function() {
 				$modalInstance.dismiss('cancel');
 			};
