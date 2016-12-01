@@ -41,7 +41,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
     app.all('/tasks/*', sessionVerification);
 
     app.delete('/tasks/serviceDelivery/:taskId', function(req, res) {
-        Tasks.removeServiceDeliveryTask(req.params.taskId, function(err, data) {
+        taskService.deleteServiceDeliveryTask(req.params.taskId, function(err, data) {
             if (err) {
                 logger.error("Failed to delete service delivery Task", err);
                 res.send(500, errorResponses.db.error);
@@ -560,6 +560,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 })
             });
         } else {
+            if(taskData.taskType === 'jenkins'){
+                taskData.executionOrder= 'PARALLEL';
+            }
             Tasks.updateTaskById(req.params.taskId, taskData, function(err, updateCount) {
                 if (err) {
                     logger.error(err);

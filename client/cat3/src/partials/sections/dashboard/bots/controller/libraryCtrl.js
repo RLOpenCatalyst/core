@@ -65,7 +65,16 @@
                 genSevs.promiseDelete(param).then(function (response) {
                     if (response) {
                         toastr.success('Successfully deleted');
-                        lib.init();
+                        if($scope.totalBotsSelected) {
+                            lib.init();
+                        } else if($scope.runningBotsselected) {
+                            $scope.showBotsRunning();
+                        } else if($scope.failedBotsselected) {
+                            $scope.showFailedBots();
+                        } else {
+                            lib.init();
+                        }
+                        lib.summary();
                     }
                 }, function(data) {
                     toastr.error('error:: ' + data.toString());
@@ -87,7 +96,16 @@
                 genSevs.promiseDelete(param).then(function (response) {
                     if (response) {
                         toastr.success('Successfully deleted');
-                        lib.init();
+                        if($scope.totalBotsSelected) {
+                            lib.init();
+                        } else if($scope.runningBotsselected) {
+                            $scope.showBotsRunning();
+                        } else if($scope.failedBotsselected) {
+                            $scope.showFailedBots();
+                        } else {
+                            lib.init();
+                        }
+                        lib.summary();
                     }
                 }, function(data) {
                     toastr.error('error:: ' + data.toString());
