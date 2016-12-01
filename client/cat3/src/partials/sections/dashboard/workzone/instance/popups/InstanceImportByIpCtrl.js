@@ -25,13 +25,9 @@
 	            $scope.taggingServerList=topSer.data;
 	        });
 	        $scope.monitorId = 'null';
-	        workzoneServices.getMonitorList().then(function (response) {
-	        	var p = workzoneEnvironment.getEnvParams();
-	        	for(var i=0;i<response.data.length;i++){
-	        		if(p.org === response.data[i].organization.id) {
-	        			$scope.monitorList.push(response.data[i]);
-	        		}
-	        	}
+	        var p = workzoneEnvironment.getEnvParams();
+	        workzoneServices.getMonitorList(p.org).then(function (response) {
+	        	$scope.monitorList = response.data;
 	        });
 			$scope.tagServerChecking = function() {
 				if($scope.tagServerCheck){

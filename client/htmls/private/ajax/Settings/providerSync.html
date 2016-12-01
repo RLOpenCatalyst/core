@@ -719,13 +719,11 @@
         }
 
         function getMonitorValues(){
-            $.get('../monitors',function(data){
-                var orgValue = $('select#providerSyncOrgSelect').val();
+            var orgValue = $('select#providerSyncOrgSelect').val();
+            $.get('../monitors?filterBy=orgId:' + orgValue,function(data){
                 var str = ' <option value="null">None</option>';
                 for(var i=0;i<data.length;i++){
-                    if(orgValue === data[i].organization.id){
-                        str = str + '<option value="'+data[i]._id+'">'+data[i].name+'</option>';
-                    }
+                    str = str + '<option value="'+data[i]._id+'">'+data[i].name+'</option>';
                 }
                 $('#monitorId').html(str);
             });

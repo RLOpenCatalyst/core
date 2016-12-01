@@ -27,15 +27,11 @@
 				$scope.taggingServerList=topSer.data;
 			});
 			$scope.monitorId = 'null';
-			workzoneServices.getMonitorList().then(function (response) {
-				$scope.getMonitorList = function(orgId) {
-		        	for(var i=0;i<response.data.length;i++){
-		        		if(orgId === response.data[i].organization.id) {
-		        			$scope.monitorList.push(response.data[i]);
-		        		}
-		        	}
-				}
-			});
+			$scope.getMonitorList = function(orgId) {
+				workzoneServices.getMonitorList(orgId).then(function (response) {		
+			        $scope.monitorList = response.data;
+				});
+			}
 			genericServices.getTreeNew().then(function (envData) {
 				angular.forEach(envData,function(val){
 					var orgID,bgID,projID;

@@ -306,20 +306,17 @@
             }
         })();
 
-        
         function getMonitorValues(){
-            $.get('../monitors',function(data){
-                var orgValue = $('select#chefImportOrgSelect').val();
+            var orgValue = $('select#chefImportOrgSelect').val();
+            $.get('../monitors?filterBy=orgId:' + orgValue,function(data){
                 var str = ' <option value="null">None</option>';
                 for(var i=0;i<data.length;i++){
-                    if(orgValue === data[i].organization.id){
-                        str = str + '<option value="'+data[i]._id+'">'+data[i].name+'</option>';
-                    }
+                    str = str + '<option value="'+data[i]._id+'">'+data[i].name+'</option>';
                 }
                 $('#monitorId').html(str);
             });
         }
-        
+                
         $('.nodesContainer').append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />');
         $.get('../chef/servers/' + urlParams.chefId + '/environments', function(envList) {
             $('.nodesContainer img').remove();

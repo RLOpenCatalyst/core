@@ -543,8 +543,8 @@
 					var url ='/config-data/category-type';
 					return $http.get(fullUrl(url),Auth.getHeaderObject());
 				},
-				getMonitorList:function () {
-					var url = '/monitors';
+				getMonitorList:function (orgId) {
+					var url = '/monitors?filterBy=orgId:'+orgId;
 					return $http.get(fullUrl(url),Auth.getHeaderObject());
 				}
 			};
