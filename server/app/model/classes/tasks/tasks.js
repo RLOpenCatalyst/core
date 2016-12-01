@@ -920,9 +920,10 @@ taskSchema.statics.updateTaskConfig = function updateTaskConfig(taskId, taskConf
 
     });
 };
-taskSchema.statics.getScheduledTasks = function getScheduledTasks(callback) {
+taskSchema.statics.getScheduledTasks = function getScheduledTasks(executionOrder,callback) {
     Tasks.find({
-        isTaskScheduled: true
+        isTaskScheduled: true,
+        executionOrder:executionOrder
     }, function (err, tasks) {
         if (err) {
             logger.error(err);
