@@ -70,6 +70,11 @@ var ResourceCostsSchema = new Schema({
         required: false,
         trim: true
     },
+    billIntervalId: {
+        type: String,
+        required: true,
+        trim: true
+    },
     billLineItemId: {
         type: Number,
         required: true,
@@ -132,37 +137,55 @@ var ResourceCostsSchema = new Schema({
 })
 
 ResourceCostsSchema.index({'platformDetails.serviceId' : 1})
-ResourceCostsSchema.index({'organizationId': 1, 'providerId': 1, 'billLineItemId': 1,
-    'startTime': 1, 'interval': 1}, {'unique': true})
+ResourceCostsSchema.index({'organizationId': 1, 'providerId': 1, 'startTime': 1,
+    'billIntervalId': 1, 'billLineItemId': 1,  'interval': 1}, {'unique': true})
 
-ResourceCostsSchema.statics.saveResourceCost = function saveResourceCost(resourceCostData, callback) {
+ResourceCostsSchema.statics.save = function save(resourceCostData, callback) {
     var resourceCosts = new ResourceCosts(resourceCostData)
-    resourceCosts.save(function(err, data) {
+    resourceCosts.save(function(err, result) {
         if (err) {
             callback(err)
         } else {
-            callback(null)
+            callback(null, result)
         }
     })
 }
 
-ResourceCostsSchema.statics.upsertResourceCost = function upsertResourceCost(resourceCostData, callback) {
+ResourceCostsSchema.statics.remove
+    = function remove(organizationId, providerId, billIntervalId, callback) {
+    var query = {
+        organizationId: organizationId,
+        providerId: providerId,
+        billIntervalId: billIntervalId
+    }
+
+    this.find(query).remove(function(err, result) {
+        if (err) {
+            callback(err)
+        } else {
+            callback(null, result)
+        }
+    })
+}
+
+ResourceCostsSchema.statics.upsert = function upsert(resourceCostData, callback) {
     var query = {
         organizationId: resourceCostData.organizationId,
         providerId: resourceCostData.providerId,
-        billLineItemId: resourceCostData.billLineItemId,
         startTime: resourceCostData.startTime,
+        billIntervalId: resourceCostData.billIntervalId,
+        billLineItemId: resourceCostData.billLineItemId,
         interval: resourceCostData.interval
     }
 
-    this.findOneAndUpdate(query, resourceCostData, {upsert:true},
+    this.findOneAndUpdate(query, resourceCostData, {upsert: true},
         function(err, result){
             if (err) {
                 callback(null)
             } else {
                 callback(null, result)
             }
-        });
+        })
 }
 
 var ResourceCosts = mongoose.model('ResourceCosts', ResourceCostsSchema)
