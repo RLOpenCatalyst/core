@@ -16,7 +16,7 @@
             	$scope.schedulerEndOn=moment(new Date()).format('MM/DD/YYYY');	
 			};
 			if(items.type !== 'new'){
-				if(items.chefJenkScriptTaskObj !=null){
+				if(items.chefJenkScriptTaskObj){
 					if(items.chefJenkScriptTaskObj.cronStartOn && items.chefJenkScriptTaskObj.cronEndOn) {
 						var newStartOn = parseInt(items.chefJenkScriptTaskObj.cronStartOn);
 						var newDate = new Date(newStartOn).toLocaleDateString();
