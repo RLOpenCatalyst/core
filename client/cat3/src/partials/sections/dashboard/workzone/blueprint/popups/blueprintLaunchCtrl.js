@@ -82,6 +82,7 @@
 					}
 				}
 				var selectedVersionBpId = bpItem.bp.selectedVersionBpId;
+				var monitorId = bpItem.bp.monitorId;
 				if(bpItem && bpItem.bp && bpItem.bp.selectedVersionBpId){
 					selectedVersionBpId = bpItem.bp.selectedVersionBpId;
 				} else {
@@ -94,7 +95,7 @@
 				if(bpItem.launchEnv){
 					lEnv=bpItem.launchEnv;
 				}
-				workzoneServices.launchBlueprint(selectedVersionBpId, versionOptional, lEnv, bpItem.stackName,bpItem.domainName,bpItem.tagServer).then(function(bpLaunchResponse) {
+				workzoneServices.launchBlueprint(selectedVersionBpId, versionOptional, lEnv, bpItem.stackName,bpItem.domainName,bpItem.tagServer,monitorId).then(function(bpLaunchResponse) {
 					$scope.isBPLogsLoading = false;
 					var launchingInstance;
 					if(bpLaunchResponse.data.id && bpLaunchResponse.data.id.length>0){
