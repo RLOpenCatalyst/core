@@ -64,10 +64,14 @@
                <span ng-show="newSchedule.timeEventHour.$touched && newSchedule.timeEventHour.$invalid" class="inputValidationMsg">required
                </span>
                </label>
-               <select name="timeEventHour" class="form-control-date" ng-model="timeEventType">
+              <!-- <select name="timeEventHour" class="form-control-date" ng-model="timeEventType">
                   <option value="" selected="selected">Choose Start Hour</option>
                   <option ng-repeat="timeNumber in repeatCount(23)" value="{{timeNumber}}" title="Time Starts {{timeNumber}} {{repeatsType}}">{{timeNumber}}</option>
-               </select>
+               </select>-->
+                <select name="timeEventHour" class="form-control-date" ng-model="timeEventHour" required>
+                    <option value="" selected="selected">Choose the Hour</option>
+                    <option ng-repeat="timeEventHour in repeatHourCount(23)" value="{{timeEventHour}}" title="Repeat Every {{timeEventHour}}">{{timeEventHour}}</option>
+                </select>
             </div>
             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 margintop10" ng-show="checkFrequencyCheck">
                <label>Time(Mins):
@@ -75,10 +79,14 @@
                <span ng-show="newSchedule.timeEventMinute.$touched && newSchedule.timeEventMinute.$invalid" class="inputValidationMsg">required
                </span>
                </label>
-               <select name="timeEventMinute" class="form-control-date" ng-model="timeEventMinute">
+              <!-- <select name="timeEventMinute" class="form-control-date" ng-model="timeEventMinute">
                   <option value="" selected="selected">Choose Start Minute</option>
                   <option ng-repeat="timeNumberMinutes in repeatCount(59)" value="{{timeNumberMinutes}}" title="Time Starts {{timeNumberMinutes}} {{repeatsType}}">{{timeNumberMinutes}}</option>
-               </select>
+               </select>-->
+                <select name="timeEventMinute" class="form-control-date" ng-model="timeEventMinute" required>
+                    <option value="" selected="selected">Choose the Minute</option>
+                    <option ng-repeat="timeEventMinute in repeatHourCount(59)" value="{{timeEventMinute}}" title="Repeat Every {{timeEventMinute}}">{{timeEventMinute}}</option>
+                </select>
             </div>
             <!--repeat on weekly -->
             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 margintop10" ng-show="repeatsType==='Weekly'">

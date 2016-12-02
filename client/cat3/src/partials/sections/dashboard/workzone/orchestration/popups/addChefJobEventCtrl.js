@@ -10,13 +10,14 @@
 	angular.module('workzone.orchestration')
 		.controller('addChefJobEventCtrl',['$scope', '$modalInstance', 'items' ,'toastr',function($scope, $modalInstance , items , toastr){
 			console.log(items);
+			$scope.checkFrequencyCheck=false;
 			$scope.defaultSelection = function() {
 				$scope.repeatsType = 'Minutes';//default selection.
 				$scope.schedulerStartOn=moment(new Date()).format('MM/DD/YYYY');
             	$scope.schedulerEndOn=moment(new Date()).format('MM/DD/YYYY');	
 			};
-			if(items.type !== 'new'){
-				if(items.chefJenkScriptTaskObj) {
+			if(items.type !== 'new') {
+				if (items.chefJenkScriptTaskObj) {
 					if (items.chefJenkScriptTaskObj.cronStartOn && items.chefJenkScriptTaskObj.cronEndOn) {
 						var newStartOn = parseInt(items.chefJenkScriptTaskObj.cronStartOn);
 						var newDate = new Date(newStartOn).toLocaleDateString();
@@ -32,19 +33,21 @@
 						$scope.schedulerStartOn = items.chefJenkScriptTaskObj.cronStart;
 						$scope.schedulerEndOn = items.chefJenkScriptTaskObj.cronEnd;
 					}
-				}
-				$scope.repeatBy = items.chefJenkScriptTaskObj.repeatBy || items.chefJenkScriptTaskObj.cronRepeatEvery.toString();
-				$scope.repeatsType = items.chefJenkScriptTaskObj.repeats || items.chefJenkScriptTaskObj.cronFrequency;
-				$scope.timeEventType = items.chefJenkScriptTaskObj.cronHour;
-				$scope.timeEventMinute = items.chefJenkScriptTaskObj.cronMinute;
-				$scope.weekOfTheDay = items.chefJenkScriptTaskObj.cronWeekDay;
-				$scope.currentDate = items.chefJenkScriptTaskObj.cronDate;
-				$scope.selectedDayOfTheMonth = items.chefJenkScriptTaskObj.cronMonth;
-				$scope.selectedMonth = items.chefJenkScriptTaskObj.cronYear;
-				if($scope.repeatsType === 'Minutes' || $scope.repeatsType === 'Hourly'){
-					$scope.checkFrequencyCheck = false;
-				}else{
-					$scope.checkFrequencyCheck = true;
+					$scope.repeatBy = items.chefJenkScriptTaskObj.repeatBy || items.chefJenkScriptTaskObj.cronRepeatEvery.toString();
+					$scope.repeatsType = items.chefJenkScriptTaskObj.repeats || items.chefJenkScriptTaskObj.cronFrequency;
+					$scope.timeEventHour = items.chefJenkScriptTaskObj.cronHour;
+					$scope.timeEventMinute = items.chefJenkScriptTaskObj.cronMinute;
+					$scope.weekOfTheDay = items.chefJenkScriptTaskObj.cronWeekDay;
+					$scope.currentDate = items.chefJenkScriptTaskObj.cronDate;
+					$scope.selectedDayOfTheMonth = items.chefJenkScriptTaskObj.cronMonth;
+					$scope.selectedMonth = items.chefJenkScriptTaskObj.cronYear;
+					if ($scope.repeatsType === 'Minutes' || $scope.repeatsType === 'Hourly') {
+						$scope.checkFrequencyCheck = false;
+					} else {
+						$scope.checkFrequencyCheck = true;
+					}
+				} else {
+					$scope.defaultSelection();
 				}
 			} else {
 				$scope.defaultSelection();
@@ -77,6 +80,14 @@
                 }
                 return input;
             };
+			$scope.repeatHourCount = function(max, step) {
+				step = step || 1;
+				var input = [];
+				for (var i = 0; i <= max; i += step) {
+					input.push(i);
+				}
+				return input;
+			};
             $scope.isDaySelected = {
             	flag:true
             }
@@ -93,7 +104,7 @@
 					repeatBy: $scope.repeatBy,
 					cronStart: $scope.schedulerStartOn,
 					cronEnd: $scope.schedulerEndOn,
-					startTime: $scope.timeEventType,
+					startTime: $scope.timeEventHour,
 					startTimeMinute: $scope.timeEventMinute,
 					dayOfWeek: $scope.weekOfTheDay,
 					selectedDayOfTheMonth: $scope.selectedDayOfTheMonth,
