@@ -1487,12 +1487,22 @@ function updateScheduler(instanceScheduler, callback) {
 
 function generateCronPattern(cronInterval,startDate,endDate,callback){
     var startIntervalList =[],stopIntervalList=[],count = 0;
+    var startOn = null,endOn = null;
+    if(startDate === endDate){
+        startOn = new Date();
+        endOn = new Date()
+        endOn.setHours(23);
+        endOn.setMinutes(59);
+    }else{
+        startOn = startDate;
+        endOn = endDate;
+    }
     if(cronInterval.length === 0){
         var scheduler= {
             instanceStartScheduler: startIntervalList,
             instanceStopScheduler: stopIntervalList,
-            schedulerStartOn: Date.parse(startDate),
-            schedulerEndOn: Date.parse(endDate),
+            schedulerStartOn: Date.parse(startOn),
+            schedulerEndOn: Date.parse(endOn),
             isScheduled: false
         }
         callback(null,scheduler);
@@ -1522,8 +1532,8 @@ function generateCronPattern(cronInterval,startDate,endDate,callback){
                         var scheduler= {
                             instanceStartScheduler: startIntervalList,
                             instanceStopScheduler: stopIntervalList,
-                            schedulerStartOn: Date.parse(startDate),
-                            schedulerEndOn: Date.parse(endDate),
+                            schedulerStartOn: Date.parse(startOn),
+                            schedulerEndOn: Date.parse(endOn),
                             isScheduled: true
                         }
                         callback(null,scheduler);
@@ -1551,8 +1561,8 @@ function generateCronPattern(cronInterval,startDate,endDate,callback){
                         var scheduler= {
                             instanceStartScheduler: startIntervalList,
                             instanceStopScheduler: stopIntervalList,
-                            schedulerStartOn: Date.parse(startDate),
-                            schedulerEndOn: Date.parse(endDate),
+                            schedulerStartOn: Date.parse(startOn),
+                            schedulerEndOn: Date.parse(endOn),
                             isScheduled: true
                         }
                         callback(null,scheduler);

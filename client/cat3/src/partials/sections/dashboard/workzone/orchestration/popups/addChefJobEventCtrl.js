@@ -10,6 +10,7 @@
 	angular.module('workzone.orchestration')
 		.controller('addChefJobEventCtrl',['$scope', '$modalInstance', 'items' ,'toastr',function($scope, $modalInstance , items , toastr){
 			console.log(items);
+			$scope.checkFrequencyCheck=false;
 			if(items.type !== 'new'){
 				if(items.chefJenkScriptTaskObj.cronStartOn && items.chefJenkScriptTaskObj.cronEndOn) {
 					var newStartOn = parseInt(items.chefJenkScriptTaskObj.cronStartOn);
@@ -29,12 +30,17 @@
 				
 				$scope.repeatBy = items.chefJenkScriptTaskObj.repeatBy || items.chefJenkScriptTaskObj.cronRepeatEvery.toString();
 				$scope.repeatsType = items.chefJenkScriptTaskObj.repeats || items.chefJenkScriptTaskObj.cronFrequency;
-				$scope.timeEventType = items.chefJenkScriptTaskObj.startTime;
-				$scope.timeEventMinute = items.chefJenkScriptTaskObj.startTimeMinute;
-				$scope.weekOfTheDay = items.chefJenkScriptTaskObj.dayOfWeek;
-				$scope.currentDate = items.chefJenkScriptTaskObj.startDate;
-				$scope.selectedDayOfTheMonth = items.chefJenkScriptTaskObj.selectedDayOfTheMonth;
-				$scope.selectedMonth = items.chefJenkScriptTaskObj.monthOfYear;
+				$scope.timeEventType = items.chefJenkScriptTaskObj.cronHour;
+				$scope.timeEventMinute = items.chefJenkScriptTaskObj.cronMinute;
+				$scope.weekOfTheDay = items.chefJenkScriptTaskObj.cronWeekDay;
+				$scope.currentDate = items.chefJenkScriptTaskObj.cronDate;
+				$scope.selectedDayOfTheMonth = items.chefJenkScriptTaskObj.cronMonth;
+				$scope.selectedMonth = items.chefJenkScriptTaskObj.cronYear;
+				if($scope.repeatsType === 'Minutes' || $scope.repeatsType === 'Hourly'){
+					$scope.checkFrequencyCheck = false;
+				}else{
+					$scope.checkFrequencyCheck = true;
+				}
 			} else {
 				$scope.repeatsType = 'Minutes';//default selection.
 				$scope.schedulerStartOn=moment(new Date()).format('MM/DD/YYYY');
@@ -52,6 +58,14 @@
                 }
           
             };
+
+			$scope.checkFrequency = function(){
+				if($scope.repeatsType === 'Minutes' || $scope.repeatsType === 'Hourly'){
+					$scope.checkFrequencyCheck = false;
+				}else{
+					$scope.checkFrequencyCheck = true;
+				}
+			};
 
 			$scope.repeatCount = function(max, step) {
                 step = step || 1;

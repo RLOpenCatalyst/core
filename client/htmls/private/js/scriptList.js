@@ -7,6 +7,8 @@ function setfilename(val){
 //calling the global track functionality when track params are available..
 $(document).ready(function(e) {
     getScriptList();
+    $('#divParam').hide();
+    $('#checkScriptParam').hide();
 });
 
 //when the user clicks on the new button the setting the value to 'new' for the hidden field to know that user is creating the new item..
@@ -22,6 +24,18 @@ $('.addScriptItem').click(function(e) {
     $('.modal-header').find('.modal-title').html('Create New Script Item');
     $('#scriptEditHiddenInput').val('new');
     getOrganizationList();
+});
+
+$("input[name='isParametrized']:radio").change(function(){
+    if($(this).val() === 'Yes') {
+        $('#noOfParams').addClass("required");
+        $('#divParam').show();
+        $('#checkScriptParam').show();
+    } else {
+        $('#noOfParams').removeClass("required");
+        $('#divParam').hide();
+        $('#checkScriptParam').hide();
+    }
 });
 //to list down the organization for creating the script item.
 function getOrganizationList() {
@@ -46,7 +60,7 @@ var validator = $('#scriptForm').validate({
     ignore: [],
     rules: {
         scriptFile: {
-            extension: "sh"
+            extension: "sh|py"
         },
         scriptName: {
             maxlength: 15
@@ -54,7 +68,7 @@ var validator = $('#scriptForm').validate({
     },
     messages: {
         scriptFile: {
-            extension: "Only .sh files can be uploaded"
+            extension: "Only .sh and .py files can be uploaded"
         },
         scriptName: {
             maxlength: "Limited to 15 chars"
@@ -224,6 +238,11 @@ $('#scriptForm').submit(function(e) {
     var $form = $('#scriptForm');
     var scriptData = {};
     var $this = $(this);
+    var isParametrized = false, noOfParams=0;
+    if($("input[name='isParametrized']:checked").val() === 'Yes'){
+        isParametrized =true;
+        noOfParams=parseInt($('#noOfParams').find(":selected").val());
+    }
     var name = $this.find('#scriptName').val().trim();
     var description = $this.find('#scriptDescription').val().trim();
     var type = $form.find('#scriptType').val();
@@ -263,7 +282,9 @@ $('#scriptForm').submit(function(e) {
                         "type": type,
                         "description": description,
                         "orgDetails": orgDetails,
-                        "fileId": data.fileId
+                        "fileId": data.fileId,
+                        "isParametrized":isParametrized,
+                        "noOfParams":noOfParams
                     };
                 } else {
                     url = '../scripts/update/scriptData';
@@ -274,7 +295,9 @@ $('#scriptForm').submit(function(e) {
                         "type": type,
                         "description": description,
                         "orgDetails": orgDetails,
-                        "fileId": data.fileId
+                        "fileId": data.fileId,
+                        "isParametrized":isParametrized,
+                        "noOfParams":noOfParams
                     };    
                 }
                 formSave(methodName,url,reqBody);      
