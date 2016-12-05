@@ -151,6 +151,17 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
             task.botParams = paramOptions;
             task.botTagServer = botTagServer;
             var auditTrailId = null;
+            var taskExecutionCount = 0;
+            if(task.executionCount){
+                taskExecutionCount = task.taskExecutionCount + 1
+            }else{
+                taskExecutionCount = 1;
+            }
+            taskDao.updateTaskExecutionCount(task._id,taskExecutionCount,function(err,data){
+                if(err){
+                    logger.error("Error while updating Task Execution Count");
+                }
+            });
             if(task.serviceDeliveryCheck === true){
                 var actionObj={
                     auditType:'BOTs',

@@ -384,6 +384,17 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 						}
 						var stackName = null;
 						var domainName = null;
+						var blueprintLaunchCount = 0;
+						if(blueprint.executionCount) {
+							blueprintLaunchCount = blueprint.executionCount + 1;
+						}else{
+							blueprintLaunchCount = 1;
+						}
+						Blueprints.updateBlueprintExecutionCount(blueprint._id,blueprintLaunchCount,function(err,data){
+							if(err){
+								logger.error("Error while updating Blueprint Execution Count");
+							}
+						});
 						if (blueprint.blueprintType === 'aws_cf' || blueprint.blueprintType === 'azure_arm') {
 							stackName = req.query.stackName;
 							if (!stackName) {
