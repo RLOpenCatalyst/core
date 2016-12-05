@@ -435,6 +435,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
         var category = 'blueprints';
         var permissionto = 'create';
         var domainNameCheck = false;
+        var manualExecutionTime = 10;
         var orgId = req.params.orgId;
         var bgId = req.params.bgId;
         var projectId = req.params.projectId;
@@ -453,6 +454,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
         var botType = req.body.blueprintData.botType;
         var botCategory = req.body.blueprintData.botCategory;
         var serviceDeliveryCheck = req.body.blueprintData.serviceDeliveryCheck;
+        if(req.body.blueprintData.manualExecutionTime && req.body.blueprintData.manualExecutionTime !== null){
+            manualExecutionTime = req.body.blueprintData.manualExecutionTime;
+        }
         if(req.body.blueprintData.domainNameCheck === 'true'){
             domainNameCheck = true;
         }
@@ -503,7 +507,8 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 botType:botType,
                 botCategory:botCategory,
                 serviceDeliveryCheck:serviceDeliveryCheck,
-                domainNameCheck:domainNameCheck
+                domainNameCheck:domainNameCheck,
+                manualExecutionTime:manualExecutionTime
             };
             //adding bluerpintID if present (edit mode)
             if (blueprintId)
@@ -983,6 +988,11 @@ module.exports.setRoutes = function(app, sessionVerification) {
             if(taskData.taskType === 'jenkins'){
                 taskData.executionOrder= 'PARALLEL';
             }
+            if(taskData.manualExecutionTime && taskData.manualExecutionTime !== null){
+                taskData.manualExecutionTime = parseInt(taskData.manualExecutionTime);
+            }else{
+                taskData.manualExecutionTime = 10;
+            }
             configmgmtDao.getEnvNameFromEnvId(req.params.envId, function(err, envName) {
                 if (err) {
                     res.status(500).send("Failed to fetch ENV: ", err);
@@ -1044,19 +1054,22 @@ module.exports.setRoutes = function(app, sessionVerification) {
         var count = 0;
         var encryptedList = [];
         for(var i = 0; i < paramDetails.length; i++){
-            (function(param){
-                if(param.scriptParameters.length > 0){
+            (function(paramDetail){
+                if(paramDetail.scriptParameters.length > 0){
                     count++;
-                    for(var j = 0; j < param.scriptParameters.length; j++){
+                    for(var j = 0; j < paramDetail.scriptParameters.length; j++){
                         (function(scriptParameter){
-                            var encryptedText = cryptography.encryptText(scriptParameter, cryptoConfig.encryptionEncoding,
+                            var encryptedText = cryptography.encryptText(scriptParameter.paramVal, cryptoConfig.encryptionEncoding,
                                 cryptoConfig.decryptionEncoding);
-                            encryptedList.push(encryptedText);
-                            if(encryptedList.length === param.scriptParameters.length){
-                                param.scriptParameters = encryptedList;
+                            encryptedList.push({
+                                paramVal:encryptedText,
+                                paramDesc:scriptParameter.paramDesc
+                            });
+                            if(encryptedList.length === paramDetail.scriptParameters.length){
+                                paramDetail.scriptParameters = encryptedList;
                                 encryptedList = [];
                             }
-                        })(param.scriptParameters[j]);
+                        })(paramDetail.scriptParameters[j]);
                     }
                 }else{
                     count++;

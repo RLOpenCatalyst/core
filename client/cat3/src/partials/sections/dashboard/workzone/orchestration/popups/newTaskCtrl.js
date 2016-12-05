@@ -152,7 +152,12 @@
 						templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/addScriptParams.html',
 						controller: 'addScriptParamsCtrl',
 						backdrop: 'static',
-						keyboard: false
+						keyboard: false,
+						resolve: {
+							items: function () {
+								return scriptObject;
+							}
+						}
 					}).result.then(function (addScriptParams) {
 						$scope.scriptParamsObj[scriptObject._id] = $scope.scriptParamsObj[scriptObject._id].concat(addScriptParams);
 					}, function () {
@@ -271,9 +276,12 @@
 							cronEndOn : $scope.chefJenkScriptTaskObj.cronEnd,
 							cronRepeatEvery : $scope.chefJenkScriptTaskObj.repeatBy,
 							cronFrequency: $scope.chefJenkScriptTaskObj.repeats,
-							cronTime: typeof startTimeHour !=='undefined'? startTimeHour : new Date().getHours() + ':' + typeof startTimeMinute !=='undefined'? startTimeMinute:new Date().getMinutes(),
-							cronDays: $scope.chefJenkScriptTaskObj.dayOfWeek,
-							cronMonth: $scope.chefJenkScriptTaskObj.monthOfYear
+							cronMinute:startTimeMinute,
+							cronHour: startTimeHour,
+							cronWeekDay:dayOfWeek,
+							cronDate: selectedDayOfTheMonth,
+							cronMonth: selectedMonth,
+							cronYear: $scope.chefJenkScriptTaskObj.monthOfYear
 						}
 					}, function () {
 						console.log('Dismiss time is ' + new Date());

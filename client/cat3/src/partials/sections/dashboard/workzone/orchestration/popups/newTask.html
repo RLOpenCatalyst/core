@@ -153,6 +153,7 @@
 										<select class="form-control" name="scriptType" ng-model="$parent.scriptTypeSelelct" ng-change="changeNodeScriptList();" required>
 											<option value="">Select</option>
 											<option value="Bash">Bash</option>
+											<option value="Python">Python</option>
 										</select>
 									</span>
 								</div>
@@ -533,15 +534,15 @@
 												<label for="scripts" class="lable-align">Script List</label>
 											</div>
 											<label ng-show="scriptSelectAll" class="checkbox check-list checkboxStyling">
-												Select All : &nbsp;<input type="checkbox" class="checkbox-list checkboxall-right" ng-click="toggleAllScripts()" ng-model="$parent.isAllScriptSelected" title="Select All ">
+												Select All : &nbsp;<input type="checkbox" ng-checked="false" class="checkbox-list checkboxall-right" ng-click="toggleAllScripts()" ng-model="$parent.isAllScriptSelected" title="Select All ">
 											</label>
 										</div>
 										<div class="select-nodes">
 											<ul>
 												<li ng-repeat="script in scriptTaskList">
 													<label class="checkbox check-list">
-														<input type="checkbox" ng-change="optionScriptToggled()" ng-checked="script._isScriptSelected" ng-model="script._isScriptSelected" ng-click="addRemoveScriptTable(script)" class="checkbox-list"/>{{script.name}}
-														<a class="pull-right cursorPointer" ng-show="script._isScriptSelected" type="button" id="add" ng-click="showScriptParams(script)" title="Show Params">&nbsp;Params</a>
+														<input type="checkbox" ng-change="optionScriptToggled()" ng-checked="script.isParametrized" ng-model="script._isScriptSelected" ng-click="addRemoveScriptTable(script)" class="checkbox-list"/>{{script.name}}
+														<a class="pull-right cursorPointer" ng-show="script.isParametrized" type="button" id="add" ng-click="showScriptParams(script)" title="Show Params">&nbsp;Params</a>
 													</label>
 												</li>
 											</ul>
@@ -561,13 +562,15 @@
 												<thead>
 												<tr class="rowCustomStyle" role="row">
 													<td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Parameter">Parameter</td>
+													<td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Description">Description</td>
 													<td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Action">Action</td>
 												</tr>
 												</thead>
 												<tbody>
 												<tr ng-repeat="param in scriptParamsObj[selectedScript._id] track by $index">
-													<td ng-if="param !== ''">{{param}}</td>
-													<td ng-if="param === ''">.....</td>
+													<td ng-if="param.paramVal !== ''">{{param.paramVal}}</td>
+													<td ng-if="param.paramVal === ''">.....</td>
+													<td>{{param.paramDesc}}</td>
 													<td>
 														<button title="Delete" type="button" ng-click="removeScriptParams(selectedScript._id,param);"><i class=" fa fa-trash-o"></i></button>
 													</td>

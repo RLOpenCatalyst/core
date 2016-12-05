@@ -1,12 +1,12 @@
 /*
  Copyright [2016] [Relevance Lab]
-
+ 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
-
+ 
  http://www.apache.org/licenses/LICENSE-2.0
-
+ 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -67,10 +67,13 @@ instanceService.removeInstanceById = removeInstanceById;
 instanceService.removeInstancesByProviderId = removeInstancesByProviderId;
 instanceService.instanceSyncWithAWS = instanceSyncWithAWS;
 instanceService.updateScheduler = updateScheduler;
+instanceService.parseInstanceMonitorQuery = parseInstanceMonitorQuery;
+instanceService.getInstanceActionLogs = getInstanceActionLogs;
+instanceService.parseActionLogsQuery = parseActionLogsQuery;
 
 function checkIfUnassignedInstanceExists(providerId, instanceId, callback) {
     unassignedInstancesModel.getById(instanceId,
-        function(err, instance) {
+        function (err, instance) {
             if (err) {
                 var err = new Error('Internal server error');
                 err.status = 500;
@@ -95,7 +98,7 @@ function validateListInstancesQuery(orgs, filterQuery, callback) {
     var queryObjectAndCondition = filterQuery.queryObj['$and'][0];
 
     if (('orgName' in queryObjectAndCondition) && ('$in' in queryObjectAndCondition)) {
-        var validOrgs = queryObjectAndCondition['orgName']['$in'].filter(function(orgName) {
+        var validOrgs = queryObjectAndCondition['orgName']['$in'].filter(function (orgName) {
             return (orgName in orgs);
         });
 
@@ -104,7 +107,7 @@ function validateListInstancesQuery(orgs, filterQuery, callback) {
             err.status = 403;
             return callback(err);
         } else {
-            orgIds = validOrgs.reduce(function(a, b) {
+            orgIds = validOrgs.reduce(function (a, b) {
                 return a.concat(orgs[b].rowid);
             }, orgIds);
         }
@@ -117,7 +120,7 @@ function validateListInstancesQuery(orgs, filterQuery, callback) {
             return callback(err);
         }
     } else {
-        orgIds = Object.keys(orgs).reduce(function(a, b) {
+        orgIds = Object.keys(orgs).reduce(function (a, b) {
             return a.concat(orgs[b].rowid);
         }, orgIds);
     }
@@ -127,10 +130,10 @@ function validateListInstancesQuery(orgs, filterQuery, callback) {
 
     if (orgIds.length > 0) {
         if (queryObjectAndCondition.providerId) {
-            filterQuery.queryObj['$and'][0].orgId = { '$in': orgIds }
+            filterQuery.queryObj['$and'][0].orgId = {'$in': orgIds}
         } else {
-            filterQuery.queryObj['$and'][0].providerId = { '$ne': null };
-            filterQuery.queryObj['$and'][0].orgId = { '$in': orgIds };
+            filterQuery.queryObj['$and'][0].providerId = {'$ne': null};
+            filterQuery.queryObj['$and'][0].orgId = {'$in': orgIds};
         }
     }
 
@@ -138,7 +141,7 @@ function validateListInstancesQuery(orgs, filterQuery, callback) {
 }
 
 function getUnassignedInstancesByProvider(jsonData, callback) {
-    unassignedInstancesModel.getByProviderId(jsonData, function(err, assignedInstances) {
+    unassignedInstancesModel.getByProviderId(jsonData, function (err, assignedInstances) {
         if (err) {
             var err = new Error('Internal server error');
             err.status = 500;
@@ -160,10 +163,10 @@ function bulkUpdateInstanceProviderTags(provider, instances, callback) {
     } else {
         var unassignedInstances = [];
         for (var i = 0; i < instances.length; i++) {
-            (function(j) {
+            (function (j) {
                 // @TODO replace with single query
                 // @TODO Improve error handling
-                unassignedInstancesModel.getById(instances[j].id, function(err, unassignedInstance) {
+                unassignedInstancesModel.getById(instances[j].id, function (err, unassignedInstance) {
                     if (err) {
                         var err = new Error('Internal server error');
                         err.status = 500;
@@ -225,14 +228,14 @@ function bulkUpdateAWSInstanceTags(provider, instances, callback) {
     }
 
     for (var i = 0; i < instances.length; i++) {
-        (function(j) {
+        (function (j) {
             awsSettings.region = instances[j].providerData.region;
             var ec2 = new EC2(awsSettings);
             logger.debug('Updating tags for instance ', instances[j]._id);
 
             // @TODO Improve error handling
             ec2.createTags(instances[j].platformId, instances[j].tags,
-                function(err, data) {
+                function (err, data) {
                     if (err) {
                         logger.error(err);
                         if (err.code === 'AccessDenied') {
@@ -256,7 +259,7 @@ function bulkUpdateUnassignedInstanceTags(instances, callback) {
     var catalystEntityTypes = appConfig.catalystEntityTypes;
 
     for (var i = 0; i < instances.length; i++) {
-        (function(j) {
+        (function (j) {
             var params = {
                 '_id': instances[j]._id
             }
@@ -264,7 +267,7 @@ function bulkUpdateUnassignedInstanceTags(instances, callback) {
                 'tags': instances[j].tags
             }
             unassignedInstancesModel.updateInstance(params, fields,
-                function(err, instanceUpdated) {
+                function (err, instanceUpdated) {
                     if (err) {
                         logger.error(err);
                         var err = new Error('Internal server error');
@@ -283,7 +286,7 @@ function updateUnassignedInstanceProviderTags(provider, instanceId, tags, callba
     var providerTypes = appConfig.providerTypes;
 
     unassignedInstancesModel.getById(instanceId,
-        function(err, instance) {
+        function (err, instance) {
             if (err) {
                 logger.error(err);
                 var err = new Error('Internal server error');
@@ -341,7 +344,7 @@ function updateAWSInstanceTag(provider, instance, tags, callback) {
 
 
     ec2.createTags(instance.platformId, tags,
-        function(err, data) {
+        function (err, data) {
             if (err) {
                 logger.error(err);
                 if (err.code === 'AccessDenied') {
@@ -366,7 +369,7 @@ function updateUnassignedInstanceTags(instance, tags, tagMappingsList, callback)
     var catalystEntityTypes = appConfig.catalystEntityTypes;
 
     var tagMappings = {};
-    tagMappingsList.forEach(function(tagMapping) {
+    tagMappingsList.forEach(function (tagMapping) {
         tagMappings[tagMapping.name] = tagMapping;
     });
 
@@ -398,7 +401,7 @@ function updateUnassignedInstanceTags(instance, tags, tagMappingsList, callback)
     };
 
     unassignedInstancesModel.updateInstance(params, fields,
-        function(err, instanceUpdated) {
+        function (err, instanceUpdated) {
             if (err) {
                 logger.error(err);
                 var err = new Error('Internal server error');
@@ -413,18 +416,18 @@ function updateUnassignedInstanceTags(instance, tags, tagMappingsList, callback)
 
 function getTrackedInstancesForProvider(provider, next) {
     async.parallel({
-            managed: function(callback) {
-                instancesModel.getInstanceByProviderId(provider._id, callback);
-            },
-            unmanaged: function(callback) {
-                //@TODO Duplicate function of  getByProviderId, to be cleaned up
-                unManagedInstancesModel.getInstanceByProviderId(provider._id, callback);
-            },
-            unassigned: function(callback) {
-                unassignedInstancesModel.getUnAssignedInstancesByProviderId(provider._id, callback);
-            }
+        managed: function (callback) {
+            instancesModel.getInstanceByProviderId(provider._id, callback);
         },
-        function(err, results) {
+        unmanaged: function (callback) {
+            //@TODO Duplicate function of  getByProviderId, to be cleaned up
+            unManagedInstancesModel.getInstanceByProviderId(provider._id, callback);
+        },
+        unassigned: function (callback) {
+            unassignedInstancesModel.getUnAssignedInstancesByProviderId(provider._id, callback);
+        }
+    },
+        function (err, results) {
             if (err) {
                 var err = new Error('Internal server error');
                 err.status = 500;
@@ -438,25 +441,25 @@ function getTrackedInstancesForProvider(provider, next) {
 
 function getTrackedInstances(query, category, next) {
     async.parallel([
-            function(callback) {
-                if (category === 'managed') {
-                    instancesModel.getAll(query, callback);
-                } else if (category === 'assigned') {
-                    unManagedInstancesModel.getAll(query, callback);
-                } else if (category === 'unassigned') {
-                    unassignedInstancesModel.getAll(query, callback);
-                } else {
-                    callback(null, [{ docs: [], total: 0 }]);
-                }
+        function (callback) {
+            if (category === 'managed') {
+                instancesModel.getAll(query, callback);
+            } else if (category === 'assigned') {
+                unManagedInstancesModel.getAll(query, callback);
+            } else if (category === 'unassigned') {
+                unassignedInstancesModel.getAll(query, callback);
+            } else {
+                callback(null, [{docs: [], total: 0}]);
             }
-        ],
-        function(err, results) {
+        }
+    ],
+        function (err, results) {
             if (err) {
                 var err = new Error('Internal server error');
                 err.status = 500;
                 next(err)
             } else {
-                var instances = results.reduce(function(a, b) {
+                var instances = results.reduce(function (a, b) {
                     return a.concat(b);
                 }, []);
 
@@ -491,7 +494,7 @@ function createUnassignedInstancesList(instances, callback) {
     var instancesListObject = {};
     var instancesList = [];
 
-    instances.forEach(function(instance) {
+    instances.forEach(function (instance) {
         // @TODO Copy object, reduce code
         var tempInstance = {};
         var provider = {
@@ -520,7 +523,7 @@ function createTrackedInstancesResponse(instances, callback) {
     var instancesListObject = {};
     var instancesList = [];
 
-    instancesListObject.trackedInstances = instances.map(function(instance) {
+    instancesListObject.trackedInstances = instances.map(function (instance) {
         var instanceObj = {};
         instanceObj.id = instance._id;
         instanceObj.category = ('chefNodeName' in instance) ? 'managed' : 'unmanaged';
@@ -579,7 +582,7 @@ instanceService.createInstance = function createInstance(instanceObj, callback) 
     }
     var buffer = new Buffer(instanceObj.provider.providerDetails.sshPrivateKey, 'base64');
     var toAscii = buffer.toString('ascii');
-    fs.writeFile(tempLocation, toAscii, function(err) {
+    fs.writeFile(tempLocation, toAscii, function (err) {
         if (err) {
             var error = new Error("Unable to create pem file.");
             error.status = 500;
@@ -590,8 +593,8 @@ instanceService.createInstance = function createInstance(instanceObj, callback) 
             username: blueprint.vmImage.userName,
             pemFileLocation: tempLocation,
             password: blueprint.vmImage.password
-        }, function(err, encryptedCredential) {
-            fs.unlink(tempLocation, function() {
+        }, function (err, encryptedCredential) {
+            fs.unlink(tempLocation, function () {
                 logger.debug('temp file deleted');
             })
             if (err) {
@@ -647,7 +650,7 @@ instanceService.createInstance = function createInstance(instanceObj, callback) 
                     break;
                     defaut: break;
             }
-            instancesModel.createInstance(instances, function(err, instanceData) {
+            instancesModel.createInstance(instances, function (err, instanceData) {
                 if (err) {
                     logger.debug("Failed to createInstance.", err);
                     var error = new Error("Failed to createInstance.");
@@ -663,8 +666,8 @@ instanceService.createInstance = function createInstance(instanceObj, callback) 
 
 instanceService.bootstrapInstance = function bootstrapInstance(bootstrapData, callback) {
     var blueprintObj = bootstrapData.blueprint;
-    credentialCryptography.decryptCredential(bootstrapData.credentials, function(err, decryptedCredential) {
-        configmgmtDao.getEnvNameFromEnvId(bootstrapData.envId, function(err, envName) {
+    credentialCryptography.decryptCredential(bootstrapData.credentials, function (err, decryptedCredential) {
+        configmgmtDao.getEnvNameFromEnvId(bootstrapData.envId, function (err, envName) {
             if (err) {
                 callback({
                     message: "Failed to get env name from env id"
@@ -678,7 +681,7 @@ instanceService.bootstrapInstance = function bootstrapInstance(bootstrapData, ca
                 return;
             }
 
-            getCookBookAttributes(bootstrapData, function(err, jsonAttributes) {
+            getCookBookAttributes(bootstrapData, function (err, jsonAttributes) {
                 logger.debug("jsonAttributes::::: ", JSON.stringify(jsonAttributes));
                 var runlist = bootstrapData.runlist;
                 //logger.debug("launchParams.blueprintData.extraRunlist: ", JSON.stringify(launchParams.blueprintData.extraRunlist));
@@ -696,7 +699,7 @@ instanceService.bootstrapInstance = function bootstrapInstance(bootstrapData, ca
                     jsonAttributes: jsonAttributes,
                     instancePassword: decryptedCredential.password
                 };
-                configmgmtDao.getChefServerDetails(bootstrapData.chef.serverId, function(err, chefDetails) {
+                configmgmtDao.getChefServerDetails(bootstrapData.chef.serverId, function (err, chefDetails) {
                     if (err) {
                         var error = new Error("Failed to getChefServerDetails");
                         error.status = 500;
@@ -715,7 +718,7 @@ instanceService.bootstrapInstance = function bootstrapInstance(bootstrapData, ca
                         hostedChefUrl: chefDetails.url
                     });
 
-                    chef.getEnvironment(envName, function(err, env) {
+                    chef.getEnvironment(envName, function (err, env) {
                         if (err) {
                             var error = new Error("Failed chef.getEnvironment");
                             error.status = 500;
@@ -723,7 +726,7 @@ instanceService.bootstrapInstance = function bootstrapInstance(bootstrapData, ca
                         }
 
                         if (!env) {
-                            chef.createEnvironment(envName, function(err) {
+                            chef.createEnvironment(envName, function (err) {
                                 if (err) {
                                     logger.error("Failed chef.createEnvironment", err);
                                     var error = new Error("Failed to create environment in chef server.");
@@ -740,7 +743,7 @@ instanceService.bootstrapInstance = function bootstrapInstance(bootstrapData, ca
                             var timestampStarted = new Date().getTime();
                             var actionLog = instancesModel.insertBootstrapActionLog(bootstrapData.id, bootstrapData.runlist, "admin", timestampStarted);
                             var logsReferenceIds = [bootstrapData.id, actionLog._id];
-                            chef.bootstrapInstance(bootstrapInstanceParams, function(err, code) {
+                            chef.bootstrapInstance(bootstrapInstanceParams, function (err, code) {
                                 if (bootstrapInstanceParams.pemFilePath) {
                                     //fs.unlink(bootstrapInstanceParams.pemFilePath);
                                 }
@@ -748,7 +751,7 @@ instanceService.bootstrapInstance = function bootstrapInstance(bootstrapData, ca
                                 logger.error('process stopped ==> ', err, code);
                                 if (err) {
                                     logger.error("knife launch err ==>", err);
-                                    instancesModel.updateInstanceBootstrapStatus(bootstrapData.id, 'failed', function(err, updateData) {});
+                                    instancesModel.updateInstanceBootstrapStatus(bootstrapData.id, 'failed', function (err, updateData) {});
                                     var timestampEnded = new Date().getTime();
                                     logsDao.insertLog({
                                         referenceId: logsReferenceIds,
@@ -760,7 +763,7 @@ instanceService.bootstrapInstance = function bootstrapInstance(bootstrapData, ca
                                     return callback(err);
                                 } else {
                                     if (code == 0) {
-                                        instancesModel.updateInstanceBootstrapStatus(bootstrapData.id, 'success', function(err, updateData) {
+                                        instancesModel.updateInstanceBootstrapStatus(bootstrapData.id, 'success', function (err, updateData) {
                                             if (err) {
                                                 logger.error("Unable to set instance bootstarp status. code 0", err);
                                             } else {
@@ -777,7 +780,7 @@ instanceService.bootstrapInstance = function bootstrapInstance(bootstrapData, ca
                                         instancesModel.updateActionLog(bootstrapData.id, actionLog._id, true, timestampEnded);
 
 
-                                        chef.getNode(bootstrapData.chefNodeName, function(err, nodeData) {
+                                        chef.getNode(bootstrapData.chefNodeName, function (err, nodeData) {
                                             if (err) {
                                                 logger.error("Failed chef.getNode", err);
                                                 var error = new Error("Failed to get Node from chef server.");
@@ -797,7 +800,7 @@ instanceService.bootstrapInstance = function bootstrapInstance(bootstrapData, ca
                                                 hardwareData.memory.free = nodeData.automatic.memory.free;
                                             }
                                             hardwareData.os = bootstrapData.hardware.os;
-                                            instancesModel.setHardwareDetails(bootstrapData.id, hardwareData, function(err, updateData) {
+                                            instancesModel.setHardwareDetails(bootstrapData.id, hardwareData, function (err, updateData) {
                                                 if (err) {
                                                     logger.error("Unable to set instance hardware details  code (setHardwareDetails)", err);
                                                 } else {
@@ -806,7 +809,7 @@ instanceService.bootstrapInstance = function bootstrapInstance(bootstrapData, ca
                                             });
                                             //Checking docker status and updating
                                             var docker = new Docker();
-                                            docker.checkDockerStatus(bootstrapData.id, function(err, retCode) {
+                                            docker.checkDockerStatus(bootstrapData.id, function (err, retCode) {
                                                 if (err) {
                                                     logger.error("Failed docker.checkDockerStatus", err);
                                                     var error = new Error("Failed to check Status from Docker.");
@@ -816,7 +819,7 @@ instanceService.bootstrapInstance = function bootstrapInstance(bootstrapData, ca
                                                 }
                                                 logger.debug('Docker Check Returned:' + retCode);
                                                 if (retCode == '0') {
-                                                    instancesModel.updateInstanceDockerStatus(bootstrapData.id, "success", '', function(data) {
+                                                    instancesModel.updateInstanceDockerStatus(bootstrapData.id, "success", '', function (data) {
                                                         logger.debug('Instance Docker Status set to Success');
                                                     });
                                                 }
@@ -828,7 +831,7 @@ instanceService.bootstrapInstance = function bootstrapInstance(bootstrapData, ca
                                         });
 
                                     } else {
-                                        instancesModel.updateInstanceBootstrapStatus(bootstrapData.id, 'failed', function(err, updateData) {
+                                        instancesModel.updateInstanceBootstrapStatus(bootstrapData.id, 'failed', function (err, updateData) {
                                             if (err) {
                                                 logger.error("Unable to set instance bootstarp status code != 0", err);
                                             } else {
@@ -850,7 +853,7 @@ instanceService.bootstrapInstance = function bootstrapInstance(bootstrapData, ca
                                     }
                                 }
 
-                            }, function(stdOutData) {
+                            }, function (stdOutData) {
 
                                 logsDao.insertLog({
                                     referenceId: logsReferenceIds,
@@ -859,7 +862,7 @@ instanceService.bootstrapInstance = function bootstrapInstance(bootstrapData, ca
                                     timestamp: new Date().getTime()
                                 });
 
-                            }, function(stdErrData) {
+                            }, function (stdErrData) {
 
                                 //retrying 4 times before giving up.
                                 logsDao.insertLog({
@@ -886,7 +889,7 @@ function getCookBookAttributes(instance, callback) {
     var attr = [];
     if (instance.runlist && instance.runlist.length) {
         for (var j = 0; j < instance.runlist.length; j++) {
-            (function(j) {
+            (function (j) {
                 // Attributes which are configures in blueprint.
                 attr = instance.runlist[j].attributes;
                 if (attr && attr.length) {
@@ -917,7 +920,7 @@ function getCookBookAttributes(instance, callback) {
                 }
             });
 
-            nexus.getNexusArtifactVersions(blueprint.applications[0].repoId, repoName, groupId, artifactId, function(err, data) {
+            nexus.getNexusArtifactVersions(blueprint.applications[0].repoId, repoName, groupId, artifactId, function (err, data) {
                 if (err) {
                     logger.debug("Failed to fetch Repository from Mongo: ", err);
                     objectArray.push({
@@ -939,7 +942,7 @@ function getCookBookAttributes(instance, callback) {
                     var latestVersion = versions[latestVersionIndex - 1];
                     //logger.debug("Got latest catalyst version from nexus: ", latestVersion);
 
-                    nexus.getNexusArtifact(blueprint.applications[0].repoId, repoName, groupId, function(err, artifacts) {
+                    nexus.getNexusArtifact(blueprint.applications[0].repoId, repoName, groupId, function (err, artifacts) {
                         if (err) {
                             logger.debug("Failed to get artifacts.");
                             objectArray.push({
@@ -1010,7 +1013,7 @@ function getCookBookAttributes(instance, callback) {
                         // Update app-data for promote
                         var nodeIp = [];
                         nodeIp.push(instance.instanceIP);
-                        configmgmtDao.getEnvNameFromEnvId(instance.envId, function(err, envName) {
+                        configmgmtDao.getEnvNameFromEnvId(instance.envId, function (err, envName) {
                             if (err) {
                                 callback({
                                     message: "Failed to get env name from env id"
@@ -1033,7 +1036,7 @@ function getCookBookAttributes(instance, callback) {
                                     "nodeIps": nodeIp
                                 }
                             };
-                            AppData.createNewOrUpdate(appData, function(err, data) {
+                            AppData.createNewOrUpdate(appData, function (err, data) {
                                 if (err) {
                                     logger.debug("Failed to create or update app-data: ", err);
                                 }
@@ -1131,7 +1134,7 @@ function getCookBookAttributes(instance, callback) {
             // Update app-data for promote
             var nodeIp = [];
             nodeIp.push(instance.instanceIP);
-            configmgmtDao.getEnvNameFromEnvId(instance.envId, function(err, envName) {
+            configmgmtDao.getEnvNameFromEnvId(instance.envId, function (err, envName) {
                 if (err) {
                     callback({
                         message: "Failed to get env name from env id"
@@ -1164,7 +1167,7 @@ function getCookBookAttributes(instance, callback) {
                     "version": blueprint.applications[0].repoDetails.imageTag,
                     "docker": actualDocker
                 };
-                AppData.createNewOrUpdate(appData, function(err, data) {
+                AppData.createNewOrUpdate(appData, function (err, data) {
                     if (err) {
                         logger.debug("Failed to create or update app-data: ", err);
                     }
@@ -1182,11 +1185,12 @@ function getCookBookAttributes(instance, callback) {
         callback(null, attributeObj);
         return;
     }
-};
+}
+;
 
 instanceService.getInstanceActionList = function getInstanceActionList(callback) {
 
-    instancesDao.listInstances(function(err, list) {
+    instancesDao.listInstances(function (err, list) {
         if (err) {
             logger.debug("Error while fetching instance actionLog: ", err);
             return callback(err, null);
@@ -1195,7 +1199,7 @@ instanceService.getInstanceActionList = function getInstanceActionList(callback)
         if (list && list.length) {
             var actionLogs = [];
             for (var i = 0; i < list.length; i++) {
-                (function(i) {
+                (function (i) {
                     if (list[i].instanceState != "terminated" && list[i].actionLogs && list[i].actionLogs.length) {
                         for (var j = 0; j < list[i].actionLogs.length; j++) {
                             if (list[i].actionLogs[j].name != "Orchestration") {
@@ -1232,14 +1236,14 @@ instanceService.getInstanceActionList = function getInstanceActionList(callback)
 };
 
 instanceService.getInstanceAction = function getInstanceAction(actionId, callback) {
-    instancesDao.getActionLogsById(actionId, function(err, action) {
+    instancesDao.getActionLogsById(actionId, function (err, action) {
         if (err) {
             logger.error("Failed to fetch Instance Action: ", err);
             return callback(err, null);
         }
         if (action && action.length) {
             var instanceAction = JSON.parse(JSON.stringify(action[0].actionLogs[0]));
-            logsDao.getLogsByReferenceId(actionId, null, function(err, data) {
+            logsDao.getLogsByReferenceId(actionId, null, function (err, data) {
                 if (err) {
                     logger.error("Failed to fetch Logs: ", err);
                     callback(500, null);
@@ -1258,13 +1262,13 @@ instanceService.getInstanceAction = function getInstanceAction(actionId, callbac
 };
 
 function removeInstanceById(instanceId, callback) {
-    containerModel.deleteContainerByInstanceId(instanceId, function(err, container) {
+    containerModel.deleteContainerByInstanceId(instanceId, function (err, container) {
         if (err) {
             logger.error("Container deletion Failed >> ", err);
             callback(err, null);
             return;
         } else {
-            instancesModel.removeInstanceById(instanceId, function(err, data) {
+            instancesModel.removeInstanceById(instanceId, function (err, data) {
                 if (err) {
                     logger.error("Instance deletion Failed >> ", err);
                     callback(err, null);
@@ -1274,32 +1278,33 @@ function removeInstanceById(instanceId, callback) {
             });
         }
     });
-};
+}
+;
 
 function removeInstancesByProviderId(providerId, callback) {
     async.parallel({
-        managedInstance: function(callback) {
+        managedInstance: function (callback) {
             instancesModel.removeInstancesByProviderId(providerId, callback);
         },
-        assignedInstance: function(callback) {
+        assignedInstance: function (callback) {
             unManagedInstancesModel.removeInstancesByProviderId(providerId, callback);
         },
-        unassignedInstance: function(callback) {
+        unassignedInstance: function (callback) {
             unassignedInstancesModel.removeInstancesByProviderId(providerId, callback);
         },
-        resources: function(callback) {
+        resources: function (callback) {
             resources.removeResourcesByProviderId(providerId, callback);
         },
-        resourcesCost: function(callback) {
+        resourcesCost: function (callback) {
             resourceCost.removeResourceCostByProviderId(providerId, callback);
         },
-        resourcesUsage: function(callback) {
+        resourcesUsage: function (callback) {
             resourceUsage.removeResourceUsageByProviderId(providerId, callback);
         },
-        resourcesTags: function(callback) {
+        resourcesTags: function (callback) {
             tagsModel.removeTagsByProviderId(providerId, callback);
         }
-    }, function(err, results) {
+    }, function (err, results) {
         if (err) {
             callback(err, null);
         } else {
@@ -1310,10 +1315,10 @@ function removeInstancesByProviderId(providerId, callback) {
 
 function instanceSyncWithAWS(instanceId, instanceData, providerDetails, callback) {
     async.waterfall([
-        function(next) {
+        function (next) {
             instancesModel.getInstanceById(instanceId, next);
         },
-        function(instances, next) {
+        function (instances, next) {
             var instance = instances[0];
             var routeHostedZoneParamList = [];
             if (instance.instanceState !== instanceData.state && instance.bootStrapStatus === 'success') {
@@ -1331,9 +1336,10 @@ function instanceSyncWithAWS(instanceId, instanceData, providerDetails, callback
                     action = 'Shutting-Down';
                 } else {
                     action = 'Start';
-                };
+                }
+                ;
                 if (instanceData.state === 'terminated' && instance.instanceState === 'shutting-down') {
-                    instanceLogModel.getLogsByInstanceIdStatus(instance._id, instance.instanceState, function(err, data) {
+                    instanceLogModel.getLogsByInstanceIdStatus(instance._id, instance.instanceState, function (err, data) {
                         if (err) {
                             logger.error("Failed to get Instance Logs: ", err);
                             next(err, null);
@@ -1349,7 +1355,7 @@ function instanceSyncWithAWS(instanceId, instanceData, providerDetails, callback
                             log: "Instance " + instanceData.state,
                             timestamp: timestampStarted
                         });
-                        instanceLogModel.createOrUpdate(data.actionId, instance._id, data, function(err, logData) {
+                        instanceLogModel.createOrUpdate(data.actionId, instance._id, data, function (err, logData) {
                             if (err) {
                                 logger.error("Failed to create or update instanceLog: ", err);
                                 next(err, null);
@@ -1364,12 +1370,12 @@ function instanceSyncWithAWS(instanceId, instanceData, providerDetails, callback
                 next(null, routeHostedZoneParamList);
             }
         },
-        function(paramList, next) {
+        function (paramList, next) {
             async.parallel({
-                instanceDataSync: function(callback) {
+                instanceDataSync: function (callback) {
                     instancesModel.updateInstanceStatus(instanceId, instanceData, callback);
                 },
-                route53Sync: function(callback) {
+                route53Sync: function (callback) {
                     if (paramList.length > 0) {
                         var cryptoConfig = appConfig.cryptoSettings;
                         var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
@@ -1385,9 +1391,9 @@ function instanceSyncWithAWS(instanceId, instanceData, providerDetails, callback
                         var route53 = new Route53(route53Config);
                         var count = 0;
                         for (var i = 0; i < paramList.length; i++) {
-                            (function(params) {
+                            (function (params) {
                                 params.ChangeBatch.Changes[0].Action = 'DELETE';
-                                route53.changeResourceRecordSets(params, function(err, data) {
+                                route53.changeResourceRecordSets(params, function (err, data) {
                                     count++;
                                     if (err) {
                                         callback(err, null);
@@ -1403,7 +1409,7 @@ function instanceSyncWithAWS(instanceId, instanceData, providerDetails, callback
                         callback(null, paramList);
                     }
                 }
-            }, function(err, results) {
+            }, function (err, results) {
                 if (err) {
                     next(err);
                 } else {
@@ -1412,7 +1418,7 @@ function instanceSyncWithAWS(instanceId, instanceData, providerDetails, callback
             })
 
         }
-    ], function(err, results) {
+    ], function (err, results) {
         if (err) {
             callback(err, null);
         } else {
@@ -1456,7 +1462,7 @@ function createOrUpdateInstanceLogs(instance, instanceState, action, user, times
         action: action,
         logs: []
     };
-    instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+    instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function (err, logData) {
         if (err) {
             logger.error("Failed to create or update instanceLog: ", err);
             next(err, null);
@@ -1467,17 +1473,17 @@ function createOrUpdateInstanceLogs(instance, instanceState, action, user, times
 
 function updateScheduler(instanceScheduler, callback) {
     async.waterfall([
-        function(next){
-            generateCronPattern(instanceScheduler.interval,instanceScheduler.schedulerStartOn,instanceScheduler.schedulerEndOn,next);
+        function (next) {
+            generateCronPattern(instanceScheduler.interval, instanceScheduler.schedulerStartOn, instanceScheduler.schedulerEndOn, next);
         },
-        function(schedulerDetails,next){
+        function (schedulerDetails, next) {
             schedulerDetails.interval = instanceScheduler.interval;
-            instancesDao.updateScheduler(instanceScheduler.instanceIds, schedulerDetails,next);
+            instancesDao.updateScheduler(instanceScheduler.instanceIds, schedulerDetails, next);
         }
-    ],function(err,results){
-        if(err){
+    ], function (err, results) {
+        if (err) {
             return callback(err, null);
-        }else{
+        } else {
             callback(null, {"message": "Scheduler Updated."});
             catalystSync.executeScheduledInstances();
             return;
@@ -1487,75 +1493,89 @@ function updateScheduler(instanceScheduler, callback) {
 
 function generateCronPattern(cronInterval,startDate,endDate,callback){
     var startIntervalList =[],stopIntervalList=[],count = 0;
+    var startOn = null,endOn = null;
+    if(startDate === endDate){
+        startOn = new Date();
+        endOn = new Date()
+        endOn.setHours(23);
+        endOn.setMinutes(59);
+    }else{
+        startOn = startDate;
+        endOn = endDate;
+    }
     if(cronInterval.length === 0){
         var scheduler= {
             instanceStartScheduler: startIntervalList,
             instanceStopScheduler: stopIntervalList,
-            schedulerStartOn: Date.parse(startDate),
-            schedulerEndOn: Date.parse(endDate),
+            schedulerStartOn: Date.parse(startOn),
+            schedulerEndOn: Date.parse(endOn),
             isScheduled: false
         }
-        callback(null,scheduler);
+        callback(null, scheduler);
         return;
-    }else{
-        for(var i = 0; i < cronInterval.length; i++){
-            (function(interval){
-                if(interval.action==='start'){
+    } else {
+        for (var i = 0; i < cronInterval.length; i++) {
+            (function (interval) {
+                if (interval.action === 'start') {
                     count++;
                     var timeSplit = interval.time.split(":");
                     var hours = parseInt(timeSplit[0]);
                     var minutes = parseInt(timeSplit[1]);
-                    var sortedDays = interval.days.sort(function(a, b){return a-b});
+                    var sortedDays = interval.days.sort(function (a, b) {
+                        return a - b
+                    });
                     var strDays = '';
-                    for(var j = 0; j < sortedDays.length; j++){
-                        if(strDays !== '')
-                            strDays = strDays+','+sortedDays[j];
+                    for (var j = 0; j < sortedDays.length; j++) {
+                        if (strDays !== '')
+                            strDays = strDays + ',' + sortedDays[j];
                         else
                             strDays = sortedDays[j];
                     }
                     startIntervalList.push({
-                        cronTime:interval.time,
-                        cronDays:sortedDays,
-                        cronPattern:minutes +' '+ hours +' '+ '* * '+ strDays
+                        cronTime: interval.time,
+                        cronDays: sortedDays,
+                        cronPattern: minutes + ' ' + hours + ' ' + '* * ' + strDays
                     });
-                    if(count === cronInterval.length){
-                        var scheduler= {
+                    if (count === cronInterval.length) {
+                        var scheduler = {
                             instanceStartScheduler: startIntervalList,
                             instanceStopScheduler: stopIntervalList,
-                            schedulerStartOn: Date.parse(startDate),
-                            schedulerEndOn: Date.parse(endDate),
+                            schedulerStartOn: Date.parse(startOn),
+                            schedulerEndOn: Date.parse(endOn),
                             isScheduled: true
                         }
-                        callback(null,scheduler);
+                        callback(null, scheduler);
                         return;
                     }
-                }else{
+                } else {
                     count++;
                     var timeSplit = interval.time.split(":");
                     var hours = parseInt(timeSplit[0]);
                     var minutes = parseInt(timeSplit[1]);
-                    var sortedDays = interval.days.sort(function(a, b){return a-b});
+                    var sortedDays = interval.days.sort(function (a, b) {
+                        return a - b
+                    });
                     var strDays = '';
-                    for(var j = 0; j < sortedDays.length; j++){
-                        if(strDays !== '')
-                            strDays = strDays+','+sortedDays[j];
+                    for (var j = 0; j < sortedDays.length; j++) {
+                        if (strDays !== '')
+                            strDays = strDays + ',' + sortedDays[j];
                         else
                             strDays = sortedDays[j];
                     }
                     stopIntervalList.push({
-                        cronTime:interval.time,
-                        cronDays:sortedDays,
-                        cronPattern:minutes +' '+ hours +' '+ '* * '+ strDays
+                        cronTime: interval.time,
+                        cronDays: sortedDays,
+                        cronPattern: minutes + ' ' + hours + ' ' + '* * ' + strDays
                     });
-                    if(count === cronInterval.length){
-                        var scheduler= {
+                    if (count === cronInterval.length) {
+                        var scheduler = {
                             instanceStartScheduler: startIntervalList,
                             instanceStopScheduler: stopIntervalList,
-                            schedulerStartOn: Date.parse(startDate),
-                            schedulerEndOn: Date.parse(endDate),
+                            schedulerStartOn: Date.parse(startOn),
+                            schedulerEndOn: Date.parse(endOn),
                             isScheduled: true
                         }
-                        callback(null,scheduler);
+                        callback(null, scheduler);
                         return;
                     }
                 }

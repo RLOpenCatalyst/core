@@ -8,11 +8,14 @@
 (function(angular){
 	"use strict";
 	angular.module('workzone.orchestration')
-		.controller('addScriptParamsCtrl',['$scope', '$modalInstance', 'toastr',function($scope, $modalInstance, toastr){
+		.controller('addScriptParamsCtrl',['$scope', '$modalInstance','items', 'toastr',function($scope, $modalInstance,$items, toastr){
 			//default selection type
-			$scope.params=[''];
+			$scope.params=[];
+			for(var i =0; i < $items.noOfParams; i++){
+				$scope.params.push({});
+			}
 			$scope.add = function() {
-			  $scope.params.push('');
+			  $scope.params.push({});
 			};
 			$scope.removeScriptInputParams = function(paramInput) {
 				if($scope.params.length > 1){
@@ -28,7 +31,7 @@
 			$scope.ok=function(){
 				var checkParam = false;
 				for(var i =0; i<$scope.params.length; i++){
-					if($scope.params[i] === '' || $scope.params[i] === null){
+					if(Object.keys($scope.params[i]).length === 0){
 						checkParam = false;
 						toastr.error('Please enter parameters');
 						return false;

@@ -77,6 +77,7 @@ input[type="file"] {
                 <select id="scriptType" name="scriptType" class="required form-control width-100" style="vertical-align:central">
                   <option value="">Choose Type</option>
                   <option value="Bash">Bash</option>
+                  <option value="Python">Python</option>
                 </select>
               </div>
             </div>
@@ -84,7 +85,7 @@ input[type="file"] {
               <label for="">Script Description:</label>
               <input type="text" name="scriptDescription" class="scriptDescription form-control" id="scriptDescription">
             </div>
-            <div class="col-lg-12 col-md-12 col-xs-12 margintop15">
+            <div class="col-lg-6 col-md-6 col-xs-6 margintop15">
               <label for="scriptFile">Script File:<span class="control-label redSpan">&nbsp;*</span></label>
               <div class="input-groups">
                 <input type="file" name="scriptFile" id="scriptFile" class="required form-control form-controls" onchange="setfilename(this.value);"/>
@@ -93,6 +94,40 @@ input[type="file"] {
                     <label title="Please choose a script file" class="choose-file cursor" for="scriptFile">Choose File</label>
                 </span>
                 <div id="fileNameDisplay" class="file-name"></div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-xs-6 margintop15">
+              <label for="">Is Script Parametrized?:</label>
+              <div class="input-groups">
+                <div class="radio">
+                  <label><input type="radio" value="No" checked="true" name="isParametrized" >No</label>
+                </div>
+                <div class="radio">
+                  <label><input type="radio"  value="Yes" name="isParametrized">Yes</label>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-xs-6" id="divParam">
+            </div>
+            <div class="col-lg-6 col-md-6 col-xs-6" id="checkScriptParam">
+              <div class="col-lg-1 col-md-1 col-xs-1"></div>
+              <div class="col-lg-11 col-md-11 col-xs-11">
+              <label for="">No Of Parameters:<span class="control-label redSpan">&nbsp;*</span></label>
+              <div class="input-groups">
+                <select id="noOfParams" name="noOfParams" class="form-control width-100" style="vertical-align:central">
+                  <option value="">Choose Number</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                  <option value="6">6</option>
+                  <option value="7">7</option>
+                  <option value="8">8</option>
+                  <option value="9">9</option>
+                  <option value="10">10</option>
+                </select>
+              </div>
+              </div>
             </div>
             <input type="hidden" id="scriptHiddenInputId">
             <input type="hidden" id="fileHiddenInputId">
