@@ -298,6 +298,7 @@
 							botType:$scope.botType,
 							botCategory: $scope.botCategory,
 						    shortDesc:$scope.shortDesc,
+						    manualExecutionTime:$scope.manualExecutionTime,
 							serviceDeliveryCheck:$scope.checkBotType
 						};
 						$scope.taskSaving = true;
@@ -469,6 +470,7 @@
 			});
 			$scope.name = "";
 			$scope.shortDesc = "";
+			$scope.manualExecutionTime = "";
 			$scope.taskType = "chef";//default Task type selection;
 			$scope.botType = "Task";//default Bot type selection;
 			$scope.botCategory = 'Active Directory';
@@ -681,6 +683,7 @@
                     $scope.botType = items.botType;
                     $scope.botCategory = items.botCategory;
                     $scope.shortDesc = items.shortDesc;
+                    $scope.manualExecutionTime = items.manualExecutionTime;
 				}
 				//properties specific to jenkins
 				if (items.taskType === "jenkins") {

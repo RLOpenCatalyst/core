@@ -66,9 +66,6 @@
 										<option ng-show="!createChefJob" value="Check">Check</option>
 										<option ng-show="!createChefJob" value="Run">Run</option>
 										<option ng-show="!createChefJob" value="UI">UI</option>
-										<option ng-show="!createChefJob" value="Learning">Learning</option>
-										<option ng-show="!createChefJob" value="Composite">Composite</option>
-										<option ng-show="!createChefJob" value="Built with other">Built with other</option>
 									</select>
 								</span>
 							</div>
@@ -85,7 +82,7 @@
 									</select>
 								</span>
 							</div>
-							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" ng-show="checkBotStatus">
+							<div class="col-lg-16 col-md-6 col-sm-12 col-xs-12 margintop10" ng-show="checkBotStatus">
 								<label class="control-label">Short Description
 									<span class="control-label red">&nbsp;*</span>
 									<span ng-show="newTaskForm.shortDesc.$touched && newTaskForm.shortDesc.$invalid" class="inputValidationMsg">required
@@ -94,6 +91,22 @@
 								<br />
 								<span class="col-md-12 col-sm-12 col-xs-12 no-padding">
 								   <input type="text" name="shortDesc" class="form-control" ng-required="checkBotStatus"  autofocus ng-model="shortDesc" maxlength="50" />
+								</span>
+							</div>
+							<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 margintop10" ng-show="checkBotStatus">
+								<label class="control-label">Standard Time
+									<span class="control-label red">&nbsp;*</span>
+									<span ng-show="newTaskForm.manualExecutionTime.$touched && newTaskForm.manualExecutionTime.$invalid" class="inputValidationMsg">required
+									</span>
+								</label>
+								<br />
+								<span class="col-md-12 col-sm-12 col-xs-12 no-padding">
+									<span class="col-md-6 col-sm-6 col-xs-12 no-padding">
+										<input type="text" name="manualExecutionTime" class="form-control" ng-required="checkBotStatus" autofocus ng-model="manualExecutionTime" maxlength="10" />
+									</span>
+									<span class="col-md-6 col-sm-6 col-xs-12 margintop8">
+										<span>minutes</span>
+									</span>
 								</span>
 							</div>
 							<div class="col-md-6 col-sm-6 col-xs-6 margintop15" ng-if="taskType==='jenkins'">
