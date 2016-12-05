@@ -752,6 +752,7 @@
                         blueprintCreateJSON.botType = blueprintCreation.newEnt.botTypeValue;
                         blueprintCreateJSON.shortDesc = blueprintCreation.newEnt.botDescription;
                         blueprintCreateJSON.botCategory = blueprintCreation.newEnt.botCategoryValue;
+                        blueprintCreateJSON.manualExecutionTime = blueprintCreation.newEnt.manualExecutionTime;
                         blueprintCreateJSON.serviceDeliveryCheck = true;
                     }
                     if(blueprintCreation.newEnt.appDeployCheck_isChecked){
