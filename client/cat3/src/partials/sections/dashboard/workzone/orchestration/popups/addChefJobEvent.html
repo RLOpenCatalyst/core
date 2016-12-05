@@ -68,7 +68,7 @@
                   <option value="" selected="selected">Choose Start Hour</option>
                   <option ng-repeat="timeNumber in repeatCount(23)" value="{{timeNumber}}" title="Time Starts {{timeNumber}} {{repeatsType}}">{{timeNumber}}</option>
                </select>-->
-                <select name="timeEventHour" class="form-control-date" ng-model="timeEventHour" required>
+                <select name="timeEventHour" class="form-control-date" ng-model="timeEventHour">
                     <option value="" selected="selected">Choose the Hour</option>
                     <option ng-repeat="timeEventHour in repeatHourCount(23)" value="{{timeEventHour}}" title="Repeat Every {{timeEventHour}}">{{timeEventHour}}</option>
                 </select>
@@ -83,7 +83,7 @@
                   <option value="" selected="selected">Choose Start Minute</option>
                   <option ng-repeat="timeNumberMinutes in repeatCount(59)" value="{{timeNumberMinutes}}" title="Time Starts {{timeNumberMinutes}} {{repeatsType}}">{{timeNumberMinutes}}</option>
                </select>-->
-                <select name="timeEventMinute" class="form-control-date" ng-model="timeEventMinute" required>
+                <select name="timeEventMinute" class="form-control-date" ng-model="timeEventMinute">
                     <option value="" selected="selected">Choose the Minute</option>
                     <option ng-repeat="timeEventMinute in repeatHourCount(59)" value="{{timeEventMinute}}" title="Repeat Every {{timeEventMinute}}">{{timeEventMinute}}</option>
                 </select>

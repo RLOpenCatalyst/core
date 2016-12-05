@@ -205,8 +205,7 @@ var taskSchema = new Schema({
     },
     manualExecutionTime:{
         type: Number,
-        required: false,
-        default:10
+        required: false
     }
 });
 taskSchema.plugin(mongoosePaginate);
@@ -227,9 +226,9 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
         orgName: self.orgName,
         bgName: self.bgName,
         projectName: self.projectName,
-        envName: self.envName
+        envName: self.envName,
+        manualExecutionTime:self.manualExecutionTime
     };
-
     if (this.taskType === TASK_TYPE.CHEF_TASK) {
         task = new ChefTask(this.taskConfig);
 

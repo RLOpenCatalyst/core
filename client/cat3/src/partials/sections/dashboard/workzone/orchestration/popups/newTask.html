@@ -547,7 +547,7 @@
 												<label for="scripts" class="lable-align">Script List</label>
 											</div>
 											<label ng-show="scriptSelectAll" class="checkbox check-list checkboxStyling">
-												Select All : &nbsp;<input type="checkbox" class="checkbox-list checkboxall-right" ng-click="toggleAllScripts()" ng-model="$parent.isAllScriptSelected" title="Select All ">
+												Select All : &nbsp;<input type="checkbox" ng-checked="false" class="checkbox-list checkboxall-right" ng-click="toggleAllScripts()" ng-model="$parent.isAllScriptSelected" title="Select All ">
 											</label>
 										</div>
 										<div class="select-nodes">

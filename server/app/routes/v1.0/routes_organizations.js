@@ -987,6 +987,11 @@ module.exports.setRoutes = function(app, sessionVerification) {
             if(taskData.taskType === 'jenkins'){
                 taskData.executionOrder= 'PARALLEL';
             }
+            if(taskData.manualExecutionTime && taskData.manualExecutionTime !== null){
+                taskData.manualExecutionTime = parseInt(taskData.manualExecutionTime);
+            }else{
+                taskData.manualExecutionTime = 10;
+            }
             configmgmtDao.getEnvNameFromEnvId(req.params.envId, function(err, envName) {
                 if (err) {
                     res.status(500).send("Failed to fetch ENV: ", err);
