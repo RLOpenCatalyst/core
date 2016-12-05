@@ -101,8 +101,6 @@ catalystSync.executeSerialScheduledTasks = function executeSerialScheduledTasks(
                     }
                     if(serialTaskList.length === tasks.length){
                         if(serialTaskList.length > 0) {
-                            console.log(serialTaskList.length);
-                            console.log(serialTaskList);
                             async.waterfall(serialTaskList, function (err, data) {
                                 if (err) {
                                     logger.error(err);

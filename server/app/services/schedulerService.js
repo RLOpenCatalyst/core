@@ -183,14 +183,13 @@ schedulerService.startStopInstance= function startStopInstance(instanceId,catUse
         },
         function(instanceDetails,next){
             var currentDate = new Date();
-            var dateToString = currentDate.toDateString();
             if(instanceDetails[0].instanceState === 'terminated'){
                 callback({
                     errCode:201,
                     errMsg:"Instance is already in "+instanceDetails[0].instanceState+" state. So no need to do any action."
                 })
                 return;
-            }else if (instanceDetails[0].isScheduled && instanceDetails[0].isScheduled === true && Date.parse(dateToString) > instanceDetails[0].schedulerEndOn) {
+            }else if (instanceDetails[0].isScheduled && instanceDetails[0].isScheduled === true && currentDate > instanceDetails[0].schedulerEndOn) {
                 instancesDao.updateInstanceScheduler(instanceDetails[0]._id,function(err, updatedData) {
                     if (err) {
                         logger.error("Failed to update Instance Scheduler: ", err);

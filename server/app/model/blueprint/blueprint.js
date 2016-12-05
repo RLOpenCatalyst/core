@@ -168,6 +168,16 @@ var BlueprintSchema = new Schema({
     },
     botCategory: {
         type: String
+    },
+    executionCount:{
+        type: Number,
+        required: false,
+        default:0
+    },
+    manualExecutionTime:{
+        type: Number,
+        required: false,
+        default:10
     }
 });
 
@@ -1458,6 +1468,23 @@ BlueprintSchema.statics.checkBPDependencyByFieldName = function(fieldName,id, ca
         fieldName: id
     }
     Blueprints.find(queryObj, function(err, data) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, data);
+    });
+};
+BlueprintSchema.statics.updateBlueprintExecutionCount = function updateBlueprintExecutionCount(blueprintId,count,callback) {
+    Blueprints.update({
+        "_id": new ObjectId(blueprintId),
+    }, {
+        $set: {
+            executeCount: count
+        }
+    }, {
+        upsert: false
+    }, function (err, data) {
         if (err) {
             callback(err, null);
             return;

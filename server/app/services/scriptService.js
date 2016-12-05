@@ -98,14 +98,16 @@ scriptService.getScriptById=function getScriptById(scriptId,callback){
                         next(err,null);
                     }else{
                         var scriptObj= {
-                           scriptId: scripts[0]._id,
-                           name: scripts[0].name,
-                           type: scripts[0].type,
-                           description: scripts[0].description,
-                           orgDetails: scripts[0].orgDetails,
-                           fileId: scripts[0].fileId,
-                           fileName: file.fileName,
-                           file: file.fileData
+                            scriptId: scripts[0]._id,
+                            name: scripts[0].name,
+                            type: scripts[0].type,
+                            description: scripts[0].description,
+                            orgDetails: scripts[0].orgDetails,
+                            isParametrized: scripts[0].isParametrized,
+                            noOfParams: scripts[0].noOfParams,
+                            fileId: scripts[0].fileId,
+                            fileName: file.fileName,
+                            file: file.fileData
                         };
                         next(null,scriptObj);
                     }
@@ -208,13 +210,15 @@ function addFileDetailsForScripts(scripts,callback){
                       return callback(err,null);
                   }else{
                      scriptObj = {
-                          scriptId:script._id,
-                          name:script.name,
-                          type:script.type,
-                          description:script.description,
-                          orgDetails:script.orgDetails,
-                          fileId:script.fileId,
-                          fileName:file.filename
+                         scriptId:script._id,
+                         name:script.name,
+                         type:script.type,
+                         description:script.description,
+                         orgDetails:script.orgDetails,
+                         isParametrized: script.isParametrized,
+                         noOfParams: script.noOfParams,
+                         fileId:script.fileId,
+                         fileName:file.filename
                       }
                       scriptList.push(scriptObj);
                       scriptObj={};
