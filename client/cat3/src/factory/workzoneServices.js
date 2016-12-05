@@ -546,7 +546,7 @@
 				getMonitorList:function (orgId) {
 					var url = '/monitors';
 					if(orgId){
-						url += '&filterBy=orgId:' + orgId;
+						url += '?filterBy=orgId:' + orgId;
 					}
 					return $http.get(fullUrl(url),Auth.getHeaderObject());
 				}
