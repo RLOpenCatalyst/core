@@ -98,7 +98,10 @@ function getScriptList() {
         "serverSide": true,
         "destroy":true,
         "createdRow": function( row, data ) {
-            $( row ).attr({"scriptId" : data.scriptId,"scriptName":data.name,"scriptType":data.type, "scriptDesc" : data.description, "orgId" : data.orgDetails.id ,"orgName" : data.orgDetails.name,"scriptFileName" : data.fileName,"scriptFileId" : data.fileId});
+            $( row ).attr({"scriptId" : data.scriptId,"scriptName":data.name,"scriptType":data.type,
+                "scriptDesc" : data.description, "orgId" : data.orgDetails.id ,"orgName" : data.orgDetails.name,
+                "scriptFileName" : data.fileName,"scriptFileId" : data.fileId,
+                "isParametrized" : data.isParametrized,"noOfParams":data.noOfParams});
         },
         "ajax": '/scripts',
         "columns": [
@@ -157,6 +160,18 @@ $('#scriptListTable tbody').on( 'click', 'button.editRowScriptItem', function(){
     $editModal.find('#scriptHiddenInputId').val($this.parents('tr').attr('scriptId'));
     $editModal.find('#fileHiddenInputId').val($this.parents('tr').attr('scriptFileId'));
     $editModal.find('#fileNameDisplay').append($this.parents('tr').attr('scriptFileName'));
+    if($this.parents('tr').attr('isParametrized') === true ||  $this.parents('tr').attr('isParametrized') === 'true'){
+        $('input:radio[name="isParametrized"][value="Yes"]').prop('checked', true);
+        $('#noOfParams').addClass("required");
+        $('#divParam').show();
+        $('#checkScriptParam').show();
+        $editModal.find('#noOfParams').val($this.parents('tr').attr('noOfParams'));
+    }else{
+        $('input:radio[name="isParametrized"][value="No"]').prop('checked', true);
+        $('#noOfParams').removeClass("required");
+        $('#divParam').hide();
+        $('#checkScriptParam').hide();
+    }
     $editModal.find('#scriptFileNameHidden').empty().append($this.parents('tr').attr('scriptFileName'));
     return false;
 });
