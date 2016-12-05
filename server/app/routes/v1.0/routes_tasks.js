@@ -521,6 +521,11 @@ module.exports.setRoutes = function(app, sessionVerification) {
             taskData.taskScheduler = apiUtil.createCronJobPattern(taskData.taskScheduler);
             taskData.isTaskScheduled = true;
         }
+        if(taskData.manualExecutionTime && taskData.manualExecutionTime !== null){
+            taskData.manualExecutionTime = parseInt(taskData.manualExecutionTime);
+        }else{
+            taskData.manualExecutionTime = 10;
+        }
         if (taskData.taskType === 'script') {
             Tasks.getTaskById(req.params.taskId, function(err, scriptTask) {
                 if (err) {
@@ -634,25 +639,28 @@ function encryptedParam(paramDetails, existingParams, callback) {
     var count = 0;
     var encryptedList = [];
     for (var i = 0; i < paramDetails.length; i++) {
-        (function(param) {
-            if (param.scriptParameters.length > 0) {
+        (function(paramDetail) {
+            if (paramDetail.scriptParameters.length > 0) {
                 count++;
-                for (var j = 0; j < param.scriptParameters.length; j++) {
+                for (var j = 0; j < paramDetail.scriptParameters.length; j++) {
                     (function(scriptParameter) {
                         if (scriptParameter === '') {
                             encryptedList.push(existingParams[i].scriptParameters[j]);
-                        } else if (scriptParameter === existingParams[i].scriptParameters[j]) {
+                        } else if (scriptParameter.paramVal === existingParams[i].scriptParameters[j].paramVal) {
                             encryptedList.push(scriptParameter);
                         } else {
-                            var encryptedText = cryptography.encryptText(scriptParameter, cryptoConfig.encryptionEncoding,
+                            var encryptedText = cryptography.encryptText(scriptParameter.paramVal, cryptoConfig.encryptionEncoding,
                                 cryptoConfig.decryptionEncoding);
-                            encryptedList.push(encryptedText);
+                            encryptedList.push({
+                                paramVal:encryptedText,
+                                paramVal:scriptParameter.paramVal
+                            });
                         }
-                        if (encryptedList.length === param.scriptParameters.length) {
-                            param.scriptParameters = encryptedList;
+                        if (encryptedList.length === paramDetail.scriptParameters.length) {
+                            paramDetail.scriptParameters = encryptedList;
                             encryptedList = [];
                         }
-                    })(param.scriptParameters[j]);
+                    })(paramDetail.scriptParameters[j]);
                 }
             } else {
                 count++;
