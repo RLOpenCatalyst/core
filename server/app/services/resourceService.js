@@ -92,7 +92,7 @@ function updateAWSResourceCostsFromCSV(provider, resources, downlaodedCSVPath, u
     var lineNumber = 0
 
     var date = new Date()
-    var billIntervalId = date.getFullYear() + '-' + date.getMonth()
+    var billIntervalId = date.getFullYear() + '-' + (date.getMonth() + 1)
 
     async.waterfall([
         function(next) {

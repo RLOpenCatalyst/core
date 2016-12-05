@@ -24,7 +24,7 @@ var Schema = mongoose.Schema
 // @TODO Date field types to be revised
 var ResourceCostsSchema = new Schema({
     cost: {
-        type: SchemaTypes.Double,
+        type: Number,
         required: true
     },
     currency: {
