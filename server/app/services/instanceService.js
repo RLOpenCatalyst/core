@@ -1491,20 +1491,72 @@ function updateScheduler(instanceScheduler, callback) {
     });
 }
 
-function generateCronPattern(cronInterval,startDate,endDate,callback){
-    var startIntervalList =[],stopIntervalList=[],count = 0;
-    var startOn = null,endOn = null;
-    if(startDate === endDate){
+function parseInstanceMonitorQuery(paginationReq, callback) {
+    if (paginationReq.filterBy && paginationReq.filterBy.monitor) {
+        if (paginationReq.filterBy.monitor === "true") {
+            paginationReq.filterBy.monitor = {$ne: null};
+        } else {
+            paginationReq.filterBy.monitor = null;
+        }
+    }
+    return callback(null, paginationReq);
+}
+
+function getInstanceActionLogs(instanceId, filterByQuery, callback) {
+    logger.debug("filterByQuery------>>>>", JSON.stringify(filterByQuery));
+    instancesDao.getAllActionLogs(instanceId, filterByQuery, function (err, actionLogs) {
+        if (err) {
+            callback(err);
+            return;
+        }
+
+        if (actionLogs && actionLogs.length) {
+            logger.debug("Enter get() for /instances/%s/actionLogs", instanceId);
+            callback(null, actionLogs);
+        } else {
+            logger.debug("Exit get() for /instances/%s/actionLogs", instanceId);
+            callback(null, []);
+        }
+
+    });
+}
+
+function parseActionLogsQuery(requestQuery, callback) {
+    logger.debug("requestQuery------>>>>", JSON.stringify(requestQuery));
+    var query = {};
+    if (requestQuery.fromTime || requestQuery.toTime) {
+        query = {
+            "actionLogs": {
+                "$elemMatch": {
+                    "timeStarted": {
+                    }
+                }
+            }
+        };
+        if (requestQuery.fromTime) {
+            query.actionLogs.$elemMatch.timeStarted['$gte'] = Date.parse(requestQuery.fromTime);
+        }
+        if (requestQuery.toTime) {
+            query.actionLogs.$elemMatch.timeStarted['$lte'] = Date.parse(requestQuery.toTime);
+        }
+    }
+    return callback(null, query);
+}
+
+function generateCronPattern(cronInterval, startDate, endDate, callback) {
+    var startIntervalList = [], stopIntervalList = [], count = 0;
+    var startOn = null, endOn = null;
+    if (startDate === endDate) {
         startOn = new Date();
         endOn = new Date()
         endOn.setHours(23);
         endOn.setMinutes(59);
-    }else{
+    } else {
         startOn = startDate;
         endOn = endDate;
     }
-    if(cronInterval.length === 0){
-        var scheduler= {
+    if (cronInterval.length === 0) {
+        var scheduler = {
             instanceStartScheduler: startIntervalList,
             instanceStopScheduler: stopIntervalList,
             schedulerStartOn: Date.parse(startOn),
@@ -1583,6 +1635,3 @@ function generateCronPattern(cronInterval,startDate,endDate,callback){
         }
     }
 }
-
-
-
