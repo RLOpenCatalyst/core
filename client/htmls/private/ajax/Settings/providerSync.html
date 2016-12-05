@@ -1588,6 +1588,7 @@
                     bootbox.alert('Please Choose instances first');
                     return;
                 }
+                getMonitorValues();
                 $('#providerSyncModal').modal('show');
                 $('#myForm12').trigger("reset");
                 $envList.empty();
