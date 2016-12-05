@@ -35,12 +35,12 @@
 					}
 					$scope.repeatBy = items.chefJenkScriptTaskObj.repeatBy || items.chefJenkScriptTaskObj.cronRepeatEvery.toString();
 					$scope.repeatsType = items.chefJenkScriptTaskObj.repeats || items.chefJenkScriptTaskObj.cronFrequency;
-					$scope.timeEventHour = items.chefJenkScriptTaskObj.cronHour;
-					$scope.timeEventMinute = items.chefJenkScriptTaskObj.cronMinute;
-					$scope.weekOfTheDay = items.chefJenkScriptTaskObj.cronWeekDay;
-					$scope.currentDate = items.chefJenkScriptTaskObj.cronDate;
-					$scope.selectedDayOfTheMonth = items.chefJenkScriptTaskObj.cronMonth;
-					$scope.selectedMonth = items.chefJenkScriptTaskObj.cronYear;
+					$scope.timeEventHour = items.chefJenkScriptTaskObj.timeEventHour || items.chefJenkScriptTaskObj.cronHour !==null? items.chefJenkScriptTaskObj.cronHour.toString() : '';
+					$scope.timeEventMinute = items.chefJenkScriptTaskObj.timeEventMinute || items.chefJenkScriptTaskObj.cronMinute !==null ? items.chefJenkScriptTaskObj.cronMinute.toString() : '';
+					$scope.weekOfTheDay = items.chefJenkScriptTaskObj.weekOfTheDay || items.chefJenkScriptTaskObj.cronWeekDay !==null ?items.chefJenkScriptTaskObj.cronWeekDay.toString(): '';
+					$scope.currentDate = items.chefJenkScriptTaskObj.currentDate || items.chefJenkScriptTaskObj.cronDate !==null ?items.chefJenkScriptTaskObj.cronDate.toString() : '';
+					$scope.selectedDayOfTheMonth = items.chefJenkScriptTaskObj.selectedDayOfTheMonth || items.chefJenkScriptTaskObj.cronMonth !==null ?items.chefJenkScriptTaskObj.cronMonth.toString() : '';
+					$scope.selectedMonth =  items.chefJenkScriptTaskObj.selectedMonth || items.chefJenkScriptTaskObj.cronYear !==null ? items.chefJenkScriptTaskObj.cronYear.toString() : '';
 					if ($scope.repeatsType === 'Minutes' || $scope.repeatsType === 'Hourly') {
 						$scope.checkFrequencyCheck = false;
 					} else {
