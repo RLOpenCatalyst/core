@@ -42,9 +42,18 @@ var scriptTaskSchema = taskTypeSchema.extend({
     scriptDetails: [{
         scriptId: {
             type: String,
-            requred: true
+            required: true
         },
-        scriptParameters: [String]
+        scriptParameters: [{
+            paramVal:{
+                type: String,
+                required: false
+            },
+            paramDesc:{
+                type: String,
+                required: false
+            }
+        }]
     }]
 });
 
@@ -62,7 +71,7 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
     function getInstances(instanceIds, tagServer, callback) {
         if (tagServer) {
             logger.debug('in tagServer', tagServer);
-            instancesDao.getInstancesByTagServer(tagServer, function(err, instances) {
+            instancesDao.getInstancesByTagServer(tagServer, function (err, instances) {
                 if (err) {
                     logger.error(err);
                     if (typeof onExecute === 'function') {
@@ -83,7 +92,7 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                 }
                 return;
             }
-            instancesDao.getInstances(instanceIds, function(err, instances) {
+            instancesDao.getInstances(instanceIds, function (err, instances) {
                 if (err) {
                     logger.error(err);
                     if (typeof onExecute === 'function') {
@@ -97,13 +106,13 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
     }
 
 
-    getInstances(instanceIds, self.botTagServer, function(err, instances) {
+    getInstances(instanceIds, self.botTagServer, function (err, instances) {
         if (err) {
             logger.error(err);
             return;
         }
         for (var i = 0; i < instances.length; i++) {
-            (function(instance) {
+            (function (instance) {
                 var timestampStarted = new Date().getTime();
                 var actionLog = instancesDao.insertOrchestrationActionLog(instance._id, null, userName, timestampStarted);
                 instance.tempActionLogId = actionLog._id;
@@ -146,7 +155,7 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                         log: "Instance IP is not defined. Chef Client run failed",
                         timestamp: new Date().getTime()
                     };
-                    instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
+                    instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function (err, logData) {
                         if (err) {
                             logger.error("Failed to create or update instanceLog: ", err);
                         }
@@ -157,7 +166,7 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                     }, 1, instance._id, null, actionLog._id);
                     return;
                 }
-                credentialCryptography.decryptCredential(instance.credentials, function(err, decryptedCredentials) {
+                credentialCryptography.decryptCredential(instance.credentials, function (err, decryptedCredentials) {
                     var sshOptions = {
                         username: decryptedCredentials.username,
                         host: instance.instanceIP,
@@ -169,8 +178,8 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                         sshOptions.password = decryptedCredentials.password;
                     }
                     for (var j = 0; j < scriptDetails.length; j++) {
-                        (function(script) {
-                            scriptService.getScriptById(script.scriptId, function(err, scripts) {
+                        (function (script) {
+                            scriptService.getScriptById(script.scriptId, function (err, scripts) {
                                 if (err) {
                                     logger.error(err);
                                     return;
@@ -183,7 +192,13 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                                         if (self.botParams && self.botParams.scriptParams) {
                                             params = self.botParams.scriptParams;
                                         }
-                                        executeBashScript(scripts, sshOptions, logsReferenceIds, params, instanceLog);
+                                        executeScriptOnNode(scripts, sshOptions, logsReferenceIds, params, instanceLog,'bash');
+                                    } else if (scripts.type === 'Python') {
+                                        var params = script.scriptParameters;
+                                        if (self.botParams && self.botParams.scriptParams) {
+                                            params = self.botParams.scriptParams;
+                                        }
+                                        executeScriptOnNode(scripts, sshOptions, logsReferenceIds, params, instanceLog,'python');
                                     } else {
                                         return;
                                     }
@@ -235,19 +250,19 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
         }
     }
 
-    function executeBashScript(script, sshOptions, logsReferenceIds, scriptParameters, instanceLog) {
+    function executeScriptOnNode(script, sshOptions, logsReferenceIds, scriptParameters, instanceLog,scriptType) {
         var fileName = uuid.v4() + '_' + script.fileName
         var desPath = appConfig.scriptDir + fileName;
         var sshExec = new SSHExec(sshOptions);
         var cryptoConfig = appConfig.cryptoSettings;
         var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-        fileIo.writeFile(desPath, script.file, false, function(err) {
+        fileIo.writeFile(desPath, script.file, false, function (err) {
             if (err) {
                 logger.error("Unable to write file");
                 return;
             } else {
                 var scp = new SCP(sshOptions);
-                scp.upload(desPath, '/tmp', function(err) {
+                scp.upload(desPath, '/tmp', function (err) {
                     if (err) {
                         var timestampEnded = new Date().getTime();
                         logsDao.insertLog({
@@ -264,7 +279,7 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                             log: "Unable to upload script file " + script.name,
                             timestamp: new Date().getTime()
                         };
-                        instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function(err, logData) {
+                        instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
                             if (err) {
                                 logger.error("Failed to create or update instanceLog: ", err);
                             }
@@ -273,17 +288,17 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                         return;
                     }
                     if (sudoFlag === true) {
-                        var cmdLine = 'sudo bash /tmp/' + fileName;
+                        var cmdLine = 'sudo '+scriptType+' /tmp/' + fileName;
                     } else {
-                        var cmdLine = 'bash /tmp/' + fileName;
+                        var cmdLine = scriptType +' /tmp/' + fileName;
                     }
-                    if (scriptParameters.length > 0) {
+                    if (script.isParameterized === true) {
                         for (var j = 0; j < scriptParameters.length; j++) {
-                            var decryptedText = cryptography.decryptText(scriptParameters[j], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                            var decryptedText = cryptography.decryptText(scriptParameters[j].paramVal, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
                             cmdLine = cmdLine + ' "' + decryptedText + '"';
                         }
                     }
-                    sshExec.exec(cmdLine, function(err, retCode) {
+                    sshExec.exec(cmdLine, function (err, retCode) {
                         if (err) {
                             var timestampEnded = new Date().getTime();
                             logsDao.insertLog({
@@ -300,7 +315,7 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                                 log: 'Unable to run script ' + script.name,
                                 timestamp: new Date().getTime()
                             };
-                            instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function(err, logData) {
+                            instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
                                 if (err) {
                                     logger.error("Failed to create or update instanceLog: ", err);
                                 }
@@ -325,7 +340,7 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                                 log: 'Task execution success for script ' + script.name,
                                 timestamp: new Date().getTime()
                             };
-                            instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function(err, logData) {
+                            instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
                                 if (err) {
                                     logger.error("Failed to create or update instanceLog: ", err);
                                 }
@@ -349,7 +364,7 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                                     log: 'Host Unreachable',
                                     timestamp: new Date().getTime()
                                 };
-                                instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function(err, logData) {
+                                instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
                                     if (err) {
                                         logger.error("Failed to create or update instanceLog: ", err);
                                     }
@@ -370,7 +385,7 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                                     log: 'Invalid credentials',
                                     timestamp: new Date().getTime()
                                 };
-                                instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function(err, logData) {
+                                instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
                                     if (err) {
                                         logger.error("Failed to create or update instanceLog: ", err);
                                     }
@@ -391,7 +406,7 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                                     log: 'Unknown error occured. ret code = ' + retCode,
                                     timestamp: new Date().getTime()
                                 };
-                                instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function(err, logData) {
+                                instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
                                     if (err) {
                                         logger.error("Failed to create or update instanceLog: ", err);
                                     }
@@ -414,7 +429,7 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                                 log: 'Error in running script ' + script.name,
                                 timestamp: new Date().getTime()
                             };
-                            instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function(err, logData) {
+                            instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
                                 if (err) {
                                     logger.error("Failed to create or update instanceLog: ", err);
                                 }
@@ -422,7 +437,7 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                             removeScriptFile(desPath);
                             return;
                         }
-                    }, function(stdOut) {
+                    }, function (stdOut) {
                         logsDao.insertLog({
                             referenceId: logsReferenceIds,
                             err: false,
@@ -434,12 +449,12 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                             log: stdOut.toString('ascii'),
                             timestamp: new Date().getTime()
                         };
-                        instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function(err, logData) {
+                        instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
                             if (err) {
                                 logger.error("Failed to create or update instanceLog: ", err);
                             }
                         });
-                    }, function(stdErr) {
+                    }, function (stdErr) {
                         logsDao.insertLog({
                             referenceId: logsReferenceIds,
                             err: true,
@@ -451,17 +466,19 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                             log: stdErr.toString('ascii'),
                             timestamp: new Date().getTime()
                         };
-                        instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function(err, logData) {
+                        instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
                             if (err) {
                                 logger.error("Failed to create or update instanceLog: ", err);
                             }
                         });
                     });
                 })
-            };
+            }
+            ;
         });
     };
-};
+}
+
 
 function removeScriptFile(filePath) {
     fileIo.removeFile(filePath, function(err, result) {

@@ -257,14 +257,10 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                     apiUtil.paginationRequest(req.query, 'instances', next);
                 },
                 function (paginationReq, next) {
+                    instanceService.parseInstanceMonitorQuery(paginationReq, next);
+                },
+                function (paginationReq, next) {
                     reqData = paginationReq;
-                    if (paginationReq.filterBy && paginationReq.filterBy.monitor) {
-                        if (paginationReq.filterBy.monitor === "true") {
-                            paginationReq.filterBy.monitor = {$ne: null};
-                        } else {
-                            paginationReq.filterBy.monitor = null;
-                        }
-                    }
                     instancesDao.getInstanceList(paginationReq, next);
                 },
                 function (instances, next) {
@@ -2674,21 +2670,21 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
 
     app.get('/instances/:instanceId/actionLogs', function (req, res) {
         logger.debug("Enter get() for /instances/%s/actionLogs", req.params.instanceId);
-        instancesDao.getAllActionLogs(req.params.instanceId, function (err, actionLogs) {
+        async.waterfall([
+            function (next) {
+                instanceService.parseActionLogsQuery(req.query, next)
+            },
+            function (filterByQuery, next) {
+                instanceService.getInstanceActionLogs(req.params.instanceId, filterByQuery, next);
+            }
+        ], function (err, actionLogs) {
             if (err) {
                 logger.error("Failed to fetch ActionLogs: ", err);
                 res.send(500);
                 return;
-            }
-
-            if (actionLogs && actionLogs.length) {
-                logger.debug("Enter get() for /instances/%s/actionLogs", req.params.instanceId);
-                res.send(actionLogs);
             } else {
-                logger.debug("Exit get() for /instances/%s/actionLogs", req.params.instanceId);
-                res.send([]);
+                res.status(200).send(actionLogs)
             }
-
         });
 
     });

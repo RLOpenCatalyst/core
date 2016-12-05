@@ -56,7 +56,11 @@ var taskHistorySchema = new Schema({
     bgName: String,
     projectName: String,
     envName: String,
-    taskName: String
+    taskName: String,
+    manualExecutionTime: {
+        type: Number,
+        required: false
+    }
 });
 
 taskHistorySchema.plugin(mongoosePaginate);
