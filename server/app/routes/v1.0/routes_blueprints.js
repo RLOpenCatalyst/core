@@ -428,6 +428,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 								description:blueprint.shortDesc,
 								category:blueprint.botCategory,
 								executionType:blueprint.blueprintType,
+								manualExecutionTime:blueprint.manualExecutionTime,
 								nodeIdsWithActionLog:[]
 							};
 							blueprint.envId= req.query.envId;

@@ -7,8 +7,6 @@ function setfilename(val){
 //calling the global track functionality when track params are available..
 $(document).ready(function(e) {
     getScriptList();
-    $('#divParam').hide();
-    $('#checkScriptParam').hide();
 });
 
 //when the user clicks on the new button the setting the value to 'new' for the hidden field to know that user is creating the new item..
@@ -23,6 +21,8 @@ $('.addScriptItem').click(function(e) {
     $('#fileHiddenInputId').val('');
     $('.modal-header').find('.modal-title').html('Create New Script Item');
     $('#scriptEditHiddenInput').val('new');
+    $('#divParam').hide();
+    $('#checkScriptParam').hide();
     getOrganizationList();
 });
 
