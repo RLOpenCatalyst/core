@@ -1515,11 +1515,11 @@ var InstancesDao = function () {
         return actionLog._id;
     }
 
-    this.getAllActionLogs = function (instanceId, callback) {
+    this.getAllActionLogs = function (instanceId,filterByQuery, callback) {
         logger.debug("Enter getAllActionLogs (%s)", instanceId);
         Instances.find({
             "_id": new ObjectId(instanceId)
-        }, function (err, data) {
+        },filterByQuery, function (err, data) {
             if (err) {
                 logger.error("Failed getAllActionLogs (%s)", instanceId, err);
                 callback(err, null);
