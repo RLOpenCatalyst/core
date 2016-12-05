@@ -22,7 +22,7 @@
 				{ name:'Start Time',field:'timestampStarted',cellTemplate:'<span title="{{row.entity.timestampStarted  | timestampToLocaleTime}}">{{row.entity.timestampStarted  | timestampToLocaleTime}}</span>', sort:{ direction: 'desc'}, cellTooltip: true},
 				{ name:'End Time',field:'timestampEnded',cellTemplate:'<span title="{{row.entity.timestampEnded  | timestampToLocaleTime}}">{{row.entity.timestampEnded  | timestampToLocaleTime}}</span>', cellTooltip: true},
 				{ name:'Execution Time',cellTemplate:'<span>{{grid.appScope.getExecutionTime(row.entity.timestampEnded,row.entity.timestampStarted)}} mins</span>'},
-				{ name:'Manual Time',field: 'manualExecutionTime', cellTooltip: true},
+				{ name:'Manual Time',cellTemplate: '<span>{{row.entity.manualExecutionTime}} mins</span>', cellTooltip: true},
 				{ name:'Saved Time',cellTemplate:'<span ng-if="row.entity.status == \'success\'">{{grid.appScope.getSavedTime(row.entity.timestampEnded,row.entity.timestampStarted)}} mins</span>' +
 					'<span ng-if="row.entity.status !== \'success\'" title="NA">NA</span>', cellTooltip: true},
 				{ name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status}}">{{row.entity.status}}</div>', cellTooltip: true},
@@ -85,7 +85,7 @@
 				{ name:'Start Time',field:'timestampStarted',cellTemplate:'<span title="{{row.entity.timestampStarted  | timestampToLocaleTime}}">{{row.entity.timestampStarted  | timestampToLocaleTime}}</span>',cellTooltip: true},
 				{ name:'End Time',field:'timestampEnded',cellTemplate:'<span title="{{row.entity.timestampEnded  | timestampToLocaleTime}}">{{row.entity.timestampEnded  | timestampToLocaleTime}}</span>',cellTooltip: true},
 				{ name:'Execution Time',cellTemplate:'<span>{{grid.appScope.getExecutionTime(row.entity.timestampEnded,row.entity.timestampStarted)}} mins</span>'},
-				{ name:'Manual Time',cellTemplate:'<span title="10 mins">10 mins</span>', cellTooltip: true},
+				{ name:'Manual Time',cellTemplate: '<span>{{row.entity.manualExecutionTime}} mins</span>', cellTooltip: true},
 				{ name:'Saved Time',cellTemplate:'<span ng-if="row.entity.status === \'success\'">{{grid.appScope.getSavedTime(row.entity.timestampEnded,row.entity.timestampStarted)}} mins</span>' +
 					'<span ng-if="row.entity.status !== \'success\'" title="NA">NA</span>', cellTooltip: true}
 				];
@@ -212,7 +212,7 @@
 				{ name:'Start Time',field:'timestampStarted',cellTemplate:'<span title="{{row.entity.timestampStarted  | timestampToLocaleTime}}">{{row.entity.timestampStarted  | timestampToLocaleTime}}</span>', sort:{ direction: 'desc'}, cellTooltip: true},
 				{ name:'End Time',field:'timestampEnded',cellTemplate:'<span title="{{row.entity.timestampEnded  | timestampToLocaleTime}}">{{row.entity.timestampEnded  | timestampToLocaleTime}}</span>', cellTooltip: true},
 				{ name:'Execution Time',cellTemplate:'<span>{{grid.appScope.getExecutionTime(row.entity.timestampEnded,row.entity.timestampStarted)}} mins</span>'},
-				{ name:'Manual Time',cellTemplate:'<span title="10 mins">10 mins</span>', cellTooltip: true},
+				{ name:'Manual Time',cellTemplate: '<span>{{row.entity.manualExecutionTime}} mins</span>', cellTooltip: true},
 				{ name:'Saved Time',cellTemplate:'<span ng-if="row.entity.status === \'success\'">{{grid.appScope.getSavedTime(row.entity.timestampEnded,row.entity.timestampStarted)}} mins</span>' +
 					'<span ng-if="row.entity.status !== \'success\'" title="NA">NA</span>', cellTooltip: true},
 				{ name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status}}">{{row.entity.status}}</div>', cellTooltip: true},
