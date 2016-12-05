@@ -7,12 +7,14 @@ var cronTab = require('node-crontab');
 var catalystSync = module.exports = {};
 
 catalystSync.executeScheduledInstances = function executeScheduledInstances() {
+    logger.debug("Instance Scheduler is started. ");
     instancesDao.getScheduledInstances(function(err, instances) {
         if (err) {
             logger.error("Failed to fetch Instance: ", err);
             return;
         }
         if (instances && instances.length) {
+            logger.debug("Schedule Instance length>>"+instances.length);
             var resultList =[];
             for (var i = 0; i < instances.length; i++) {
                 (function(instance) {
@@ -21,6 +23,7 @@ catalystSync.executeScheduledInstances = function executeScheduledInstances() {
                     }
                     resultList.push(function(callback){schedulerService.executeSchedulerForInstances(instance,callback);});
                     if(resultList.length === instances.length){
+                        logger.debug("Schedule Instance length for Scheduler Start>>"+resultList.length);
                         async.parallel(resultList,function(err,results){
                             if(err){
                                 logger.error(err);
