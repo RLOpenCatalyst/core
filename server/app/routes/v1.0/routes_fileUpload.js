@@ -38,7 +38,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 }
                 res.send({fileId:fileData});
             })
-        } else {
+        } else if(req.query.fileId !== '' && req.query.fileId !== null) {
+            res.send({fileId:req.query.fileId});
+        } else{
             res.send({message: "Bad Request"});
         }
     });

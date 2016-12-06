@@ -153,7 +153,7 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
             var auditTrailId = null;
             var taskExecutionCount = 0;
             if(task.executionCount){
-                taskExecutionCount = task.taskExecutionCount + 1
+                taskExecutionCount = task.executionCount + 1
             }else{
                 taskExecutionCount = 1;
             }
@@ -178,6 +178,7 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
                     description:task.shortDesc,
                     category:task.botCategory,
                     executionType:task.taskType,
+                    manualExecutionTime:task.manualExecutionTime,
                     nodeIdsWithActionLog:[]
                 };
                 auditTrailService.insertAuditTrail(task,auditTrailObj,actionObj,function(err,data) {
