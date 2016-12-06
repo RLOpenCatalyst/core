@@ -9,7 +9,7 @@
     "use strict";
     angular.module('dashboard.bots')
     .controller('libraryCtrl',['$scope', '$rootScope', '$state', 'genericServices', 'confirmbox', 'toastr', 'workzoneUIUtils', '$modal', function ($scope, $rootScope, $state, genSevs, confirmbox, toastr, workzoneUIUtils, $modal) {
-        var treeNames = ['Bots','Library'];
+        var treeNames = ['BOTs','Library'];
         $rootScope.$emit('treeNameUpdate', treeNames);
         var lib=this;
         $scope.totalBotsSelected = true;
@@ -25,10 +25,10 @@
                     '<img src="images/orchestration/jenkins.png" ng-show="row.entity.taskType==\'jenkins\'" alt="row.entity.taskType" title="Jenkins" class="task-type-img" />'+
                     '<img src="images/orchestration/script.jpg" ng-show="row.entity.taskType==\'script\'" alt="row.entity.taskType" title="Script" class="task-type-img" />'+
                     '<img src="images/devops-roles/devopsRole1.png" ng-show="row.entity.blueprintType" alt="row.entity.botType" title="Blueprint" class="task-type-img" />',cellTooltip: true},
-                { name: 'BOT Type',displayName: 'BOT Type',field:'botType'},
-                { name: 'BOT Name',displayName: 'BOT Name',field:'name'},
-                { name: 'Category',field:'botCategory'},
-                { name: 'description',field:'shortDesc'},
+                { name: 'BOT Type',displayName: 'BOT Type',field:'botType',cellTooltip: true},
+                { name: 'BOT Name',displayName: 'BOT Name',field:'name',cellTooltip: true},
+                { name: 'Category',field:'botCategory',cellTooltip: true},
+                { name: 'description',field:'shortDesc',cellTooltip: true},
                 { name: 'Total Runs',field:'executionCount'},
                 { name: 'BOT History',displayName: 'BOT History',cellTemplate:'<span ng-show="row.entity.blueprintType">NA</span>'+
                     '<span class="btn cat-btn-update control-panel-button" title="History" ng-show="row.entity.taskType" ng-click="grid.appScope.botLogs(row.entity);"><i class="fa fa-header white"></i></span>'},
