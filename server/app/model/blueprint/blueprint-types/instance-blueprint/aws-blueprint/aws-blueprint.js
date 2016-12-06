@@ -94,10 +94,6 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
     var self = this;
     var domainName = launchParams.domainName;
     logger.debug("launchParams------------->", JSON.stringify(launchParams));
-    callback({
-        message: "db-error"
-    });
-    return;
     VMImage.getImageById(self.imageId, function (err, anImage) {
         if (err) {
             logger.error(err);

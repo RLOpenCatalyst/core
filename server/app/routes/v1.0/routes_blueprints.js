@@ -23,15 +23,15 @@ var fs = require('fs');
 var blueprintService = require('_pr/services/blueprintService.js');
 var auditTrailService = require('_pr/services/auditTrailService');
 
-module.exports.setRoutes = function(app, sessionVerificationFunc) {
+module.exports.setRoutes = function (app, sessionVerificationFunc) {
     app.all('/blueprints/*', sessionVerificationFunc);
 
-    app.get('/blueprints', function(req, res) {
+    app.get('/blueprints', function (req, res) {
         var queryObj = {
             serviceDeliveryCheck: req.query.serviceDeliveryCheck === "true" ? true : false,
             actionStatus: req.query.actionStatus
         }
-        blueprintService.getAllServiceDeliveryBlueprint(queryObj, function(err, data) {
+        blueprintService.getAllServiceDeliveryBlueprint(queryObj, function (err, data) {
             if (err) {
                 return res.status(500).send(err);
             } else {
@@ -39,8 +39,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             }
         })
     });
-    app.delete('/blueprints/serviceDelivery/:blueprintId', function(req, res) {
-        blueprintService.deleteServiceDeliveryBlueprint(req.params.blueprintId, function(err, data) {
+    app.delete('/blueprints/serviceDelivery/:blueprintId', function (req, res) {
+        blueprintService.deleteServiceDeliveryBlueprint(req.params.blueprintId, function (err, data) {
             if (err) {
                 logger.error("Failed to delete ", err);
                 res.send(500, errorResponses.db.error);
@@ -54,7 +54,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 
     // This post() Not in use
-    app.post('/blueprints', function(req, res) {
+    app.post('/blueprints', function (req, res) {
         logger.debug("Enter post() for /blueprints");
         //validating if user has permission to save a blueprint
         logger.debug('Verifying User permission set');
@@ -62,7 +62,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         var category = 'blueprints';
         var permissionto = 'create';
         var blueprintType = req.body.blueprintData.blueprintType;
-        usersDao.haspermission(user.cn, category, permissionto, null, req.session.user.permissionset, function(err, data) {
+        usersDao.haspermission(user.cn, category, permissionto, null, req.session.user.permissionset, function (err, data) {
             if (!err) {
                 logger.debug('Returned from haspermission : ' + data + ' : ' + (data == false));
                 if (data == false) {
@@ -154,7 +154,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 return;
             }
 
-            Blueprints.createNew(blueprintData, function(err, data) {
+            Blueprints.createNew(blueprintData, function (err, data) {
                 if (err) {
                     logger.error('error occured while saving blueorint', err);
                     res.send(500, {
@@ -167,9 +167,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             logger.debug("Exit post() for /blueprints");
         });
     });
-    app.get('/blueprints/:blueprintId', function(req, res) {
+    app.get('/blueprints/:blueprintId', function (req, res) {
 
-        blueprintService.getById(req.params.blueprintId, function(err, blueprint) {
+        blueprintService.getById(req.params.blueprintId, function (err, blueprint) {
             if (err == 404) {
                 res.status(404).send({
                     message: "Blueprint not found."
@@ -186,8 +186,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         });
 
     });
-    app.get('/blueprints/:blueprintId/blueprintInfo', function(req, res) {
-        Blueprints.getBlueprintInfoById(req.params.blueprintId, function(err, blueprintInfo) {
+    app.get('/blueprints/:blueprintId/blueprintInfo', function (req, res) {
+        Blueprints.getBlueprintInfoById(req.params.blueprintId, function (err, blueprintInfo) {
             if (err) {
                 res.status(500).send({
                     code: 500,
@@ -199,7 +199,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         });
 
     });
-    app.post('/blueprints/:blueprintId/update', function(req, res) {
+    app.post('/blueprints/:blueprintId/update', function (req, res) {
         logger.debug("Enter /blueprints/%s/update", req.params.blueprintId);
 
         if (req.session.user.rolename === 'Consumer') {
@@ -215,13 +215,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         //blueprintUpdateData.runlist.splice(0, 0, 'recipe[ohai]');
 
 
-        Blueprints.getById(req.params.blueprintId, function(err, blueprint) {
+        Blueprints.getById(req.params.blueprintId, function (err, blueprint) {
             if (err) {
                 logger.error("Failed to get blueprint versions ", err);
                 res.send(500, errorResponses.db.error);
                 return;
             }
-            blueprint.update(blueprintUpdateData, function(err, updatedBlueprint) {
+            blueprint.update(blueprintUpdateData, function (err, updatedBlueprint) {
                 if (err) {
                     logger.error("Failed to update blueprint ", err);
                     res.send(500, errorResponses.db.error);
@@ -242,10 +242,10 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     }); // end app.post('/blueprints/:blueprintId/update' )
 
-    app.get('/blueprints/:blueprintId/versions/:version', function(req, res) {
+    app.get('/blueprints/:blueprintId/versions/:version', function (req, res) {
         logger.debug("Enter /blueprints/%s/versions/%s", req.params.blueprintId, req.params.version);
 
-        Blueprints.getById(req.params.blueprintId, function(err, blueprint) {
+        Blueprints.getById(req.params.blueprintId, function (err, blueprint) {
             if (err) {
                 logger.error("Failed to get blueprint versions ", err);
                 res.send(500, errorResponses.db.error);
@@ -261,10 +261,10 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     });
 
-    app.get('/blueprints/:blueprintId', function(req, res) {
+    app.get('/blueprints/:blueprintId', function (req, res) {
         logger.debug("Enter /blueprints/%s/versions/%s", req.params.blueprintId, req.params.version);
 
-        Blueprints.getById(req.params.blueprintId, function(err, blueprint) {
+        Blueprints.getById(req.params.blueprintId, function (err, blueprint) {
             if (err) {
                 logger.error("Failed to get blueprint versions ", err);
                 res.send(500, errorResponses.db.error);
@@ -278,9 +278,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     });
 
-    app.delete('/blueprints/:blueprintId', function(req, res) {
+    app.delete('/blueprints/:blueprintId', function (req, res) {
         logger.debug("Enter /blueprints/delete/%s", req.params.blueprintId);
-        Blueprints.removeById(req.params.blueprintId, function(err, data) {
+        Blueprints.removeById(req.params.blueprintId, function (err, data) {
             if (err) {
                 logger.error("Failed to delete blueprint ", err);
                 res.send(500, errorResponses.db.error);
@@ -292,11 +292,11 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         });
     });
 
-    app.delete('/blueprints', function(req, res) {
+    app.delete('/blueprints', function (req, res) {
         var blueprintIds = req.body.blueprints;
         logger.debug("Enter /blueprints/delete/%s", req.body.blueprints);
         if (blueprintIds.length > 0)
-            Blueprints.removeByIds(blueprintIds, function(err, data) {
+            Blueprints.removeByIds(blueprintIds, function (err, data) {
                 if (err) {
                     logger.error("Failed to delete blueprint ", err);
                     res.send(500, errorResponses.db.error);
@@ -308,7 +308,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             });
     });
 
-    app.post('/blueprints/copy', function(req, res) {
+    app.post('/blueprints/copy', function (req, res) {
         var orgid = req.body.orgid;
         var buid = req.body.buid;
         var projid = req.body.projid;
@@ -318,7 +318,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             res.send(500, 'Would require a ORG, BU and Project to copy');
             return;
         } else {
-            Blueprints.copyByIds(bluepirntIds, orgid, buid, projid, function(err, data) {
+            Blueprints.copyByIds(bluepirntIds, orgid, buid, projid, function (err, data) {
                 res.status('200').send(data);
                 return;
             });
@@ -327,9 +327,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
     //for testing
-    app.get('/blueprints/azure/tryssh/:ip', function(req, res) {
+    app.get('/blueprints/azure/tryssh/:ip', function (req, res) {
         var azureCloud = new AzureCloud();
-        azureCloud.trysshoninstance('Windows', req.params["ip"], 'testing', 'testing', function(err, data) {
+        azureCloud.trysshoninstance('Windows', req.params["ip"], 'testing', 'testing', function (err, data) {
             logger.debug('Output:', data);
             if (!err) {
                 logger.debug('about to send response');
@@ -346,7 +346,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
 
-    app.get('/blueprints/:blueprintId/launch', function(req, res) {
+    app.get('/blueprints/:blueprintId/launch', function (req, res) {
         logger.debug("Enter /blueprints/%s/launch -- ", req.params.blueprintId);
         //verifying if the user has permission
         logger.debug('Verifying User permission set for execute.');
@@ -359,7 +359,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         var user = req.session.user;
         var category = 'blueprints';
         var permissionto = 'execute';
-        usersDao.haspermission(user.cn, category, permissionto, null, req.session.user.permissionset, function(err, data) {
+        usersDao.haspermission(user.cn, category, permissionto, null, req.session.user.permissionset, function (err, data) {
             if (!err) {
                 logger.debug('Returned from haspermission :  launch ' + data + ' , Condition State : ' + (data == false));
                 if (data == false) {
@@ -368,7 +368,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     return;
                 } else {
 
-                    Blueprints.getById(req.params.blueprintId, function(err, blueprint) {
+                    Blueprints.getById(req.params.blueprintId, function (err, blueprint) {
                         if (err) {
                             logger.error('Failed to getBlueprint. Error = ', err);
                             res.send(500, errorResponses.db.error);
@@ -382,6 +382,17 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                         }
                         var stackName = null;
                         var domainName = null;
+                        var blueprintLaunchCount = 0;
+                        if (blueprint.executionCount) {
+                            blueprintLaunchCount = blueprint.executionCount + 1;
+                        } else {
+                            blueprintLaunchCount = 1;
+                        }
+                        Blueprints.updateBlueprintExecutionCount(blueprint._id, blueprintLaunchCount, function (err, data) {
+                            if (err) {
+                                logger.error("Error while updating Blueprint Execution Count");
+                            }
+                        });
                         if (blueprint.blueprintType === 'aws_cf' || blueprint.blueprintType === 'azure_arm') {
                             stackName = req.query.stackName;
                             if (!stackName) {
@@ -400,20 +411,20 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                 return;
                             }
                         }
-                        var monitorId = null;		
-                        if(req.query.monitorId){		
-                            monitorId = req.query.monitorId;		
-                        }		
-                        		
-                        var launchParams = {		
-                            envId: req.query.envId,		
-                            ver: req.query.version,		
-                            stackName: stackName,		
-                            domainName: domainName,		
-                            sessionUser: req.session.user.cn,		
-                            tagServer: req.query.tagServer,		
-                            monitorId: monitorId,		
-                            auditTrailId: null		
+                        var monitorId = null;
+                        if (req.query.monitorId) {
+                            monitorId = req.query.monitorId;
+                        }
+
+                        var launchParams = {
+                            envId: req.query.envId,
+                            ver: req.query.version,
+                            stackName: stackName,
+                            domainName: domainName,
+                            sessionUser: req.session.user.cn,
+                            tagServer: req.query.tagServer,
+                            monitorId: monitorId,
+                            auditTrailId: null
                         };
                         if (blueprint.serviceDeliveryCheck === true) {
                             var actionObj = {
@@ -433,12 +444,12 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                 nodeIdsWithActionLog: []
                             };
                             blueprint.envId = req.query.envId;
-                            auditTrailService.insertAuditTrail(blueprint, auditTrailObj, actionObj, function(err, data) {
+                            auditTrailService.insertAuditTrail(blueprint, auditTrailObj, actionObj, function (err, data) {
                                 if (err) {
                                     logger.error(err);
                                 }
                                 launchParams.auditTrailId = data._id;
-                                blueprint.launch(launchParams, function(err, launchData) {
+                                blueprint.launch(launchParams, function (err, launchData) {
                                     if (err) {
                                         res.status(500).send({
                                             message: "Server Behaved Unexpectedly"
@@ -449,7 +460,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                 });
                             });
                         } else {
-                            blueprint.launch(launchParams, function(err, launchData) {
+                            blueprint.launch(launchParams, function (err, launchData) {
                                 if (err) {
                                     res.status(500).send({
                                         message: "Server Behaved Unexpectedly"
@@ -550,7 +561,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
      **/
 
 
-    app.get('/blueprints/organization/:orgId/businessgroup/:bgId/project/:projectId', function(req, res) {
+    app.get('/blueprints/organization/:orgId/businessgroup/:bgId/project/:projectId', function (req, res) {
         var orgId = req.params.orgId;
         var bgId = req.params.bgId;
         var projectId = req.params.projectId;
@@ -565,7 +576,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         jsonData['bgId'] = bgId;
         jsonData['projectId'] = projectId;
 
-        Blueprints.getBlueprintsByOrgBgProject(jsonData, function(err, blueprints) {
+        Blueprints.getBlueprintsByOrgBgProject(jsonData, function (err, blueprints) {
             if (err) {
                 res.status(500).send({
                     code: 500,
