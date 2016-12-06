@@ -1071,3 +1071,10 @@ $imagePath: "../../../../../../images";
         color: #40baf1;
     }
 }
+#tableView .ui-grid-row > div .ui-grid-cell {
+    float: left !important;
+    vertical-align: middle;
+    height: 55px !important;
+    padding: 6px !important;
+    overflow: hidden;
+}

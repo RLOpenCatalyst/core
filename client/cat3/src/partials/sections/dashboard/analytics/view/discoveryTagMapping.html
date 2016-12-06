@@ -1,122 +1,126 @@
-<form name="mapTag"><div id="tagMappting">
-<div class="col-lg-4 col-md-4 col-sm-12 margintop15">
-<fieldset class="repo-job-details-wrapper">
-    <legend class="repo-job-details-wrapper-inner"> <i class="fa fa-users" ></i> Business Group : </legend>
-    <div class="col-lg-12 col-md-12 margintop15">
-        <label for="">Tag Name:<span class="red">*</span>
-        </label>
-        <div class="input-groups">
-            <loading size="small" name="isLoadingTag" type="inline"></loading>
-            <input list="tagBuList" type=""  class="form-control" ng-model="newEnt.bus.tagName" required />
-            <datalist id="tagBuList" >
-                <<option ng-repeat="opti in disTgMap.tagOption" value="{{opti.name}}">{{opti.name}}</option>
-            </datalist>
-        </div>
-    </div>
-    <div class="col-lg-12 col-md-12 margintop15">
-        <table class="table table-striped table-bordered">
-            <thead>
-            <tr>
-                <th class="tbName">Business Group</th>
-                <th class="tbValue">Tag Value</th>
-            </tr>
-            </thead>
-            <tbody >
-            <tr  ng-repeat="buss in organObject[organNewEnt.org].businessGroups">
-                <td class="tbName">{{buss.name}}</td>
-                <td class="tbValue">
-                    <input list="tagBu-{{buss.name}}" type=""  class="form-control" required ng-model="newEnt.bus.tagvalue[buss.rowid]" />
-                    <datalist id="tagBu-{{buss.name}}" >
-                        <option ng-repeat="opti in disTgMap.tagOption" value="{{opti.name}}">{{opti.name}}</option>
-                    </datalist>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
+<form name="mapTag" ><div id="tagMappting">
+    <accordion>
+            <accordion-group ng-init="accGroupStatus = {opened: true}" is-open="accGroupStatus.opened">
+                <accordion-heading>
+                    <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
+                     Business Group
+                </accordion-heading>
+                <div class="col-lg-8 col-md-8 col-sm-12 ">
+                        <div class="col-lg-6 col-md-6 ">
+                            <label for="">Tag Name:<span class="red">*</span>
+                            </label>
+                            <div class="input-groups">
+                                <loading size="small" name="isLoadingTag" type="inline"></loading>
+                                <input list="tagBuList" type=""  class="form-control" ng-model="newEnt.bus.tagName" required />
+                                <datalist id="tagBuList" >
+                                    <option ng-repeat="opti in disTgMap.tagOption" value="{{opti.name}}">{{opti.name}}</option>
+                                </datalist>
+                            </div>
+                        </div>
+                    <div class="clearfix margintop15"></div>
+                    <div class="clearfix margintop15"></div>
+                    <fieldset class="repo-job-details-wrapper">
+                        <legend class="repo-job-details-wrapper-inner">All Business Groups :</legend>
+                            <div class="col-lg-6 col-sm-12 col-md-6 margintop15" ng-repeat="buss in organObject[organNewEnt.org].businessGroups">
+                                <label for="">{{buss.name}} :
+                                </label>
+                                <div class="input-groups">
+                                    <loading size="small" name="isLoadingTag" type="inline"></loading>
+                                    <multiple-autocomplete ng-model="newEnt.bus.tagvalue[buss.rowid]"
+                                                           object-property="name"
+                                                           suggestions-arr="disTgMap.tagOption">
+                                    </multiple-autocomplete>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+            </accordion-group>
 
-    </fieldset></div>
 
 
-<div class="col-lg-4 col-md-4 col-sm-12 margintop15">
-    <fieldset class="repo-job-details-wrapper">
-        <legend class="repo-job-details-wrapper-inner"> <i class="fa fa-list-alt" ></i> Project : </legend>
-        <div class="col-lg-12 col-md-12 margintop15">
-            <label for="">Tag Name:<span class="red">*</span>
-            </label>
-            <div class="input-groups">
-                <loading size="small" name="isLoadingTag" type="inline"></loading>
-                <input list="tagProjList" type="" ng-model="newEnt.proj.tagName"  class="form-control" required />
-                <datalist id="tagProjList" >
-                    <option ng-repeat="opti in disTgMap.tagOption" value="{{opti.name}}">{{opti.name}}</option>
-                </datalist>
-            </div>
-        </div>
-        <div class="col-lg-12 col-md-12 margintop15">
+        <accordion-group ng-init="accGroupStatus1 = {opened: false}" is-open="accGroupStatus1.opened">
+            <accordion-heading>
+                <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus1.opened,'fa-plus-circle':!accGroupStatus1.opened }"></i>
+                Project
+            </accordion-heading>
 
-            <table class="table table-striped table-bordered">
-                <thead>
-                <tr>
-                    <th class="tbName">Business Group</th>
-                    <th class="tbValue">Tag Value</th>
-                </tr>
-                </thead>
-                <tbody ng-repeat="buss in organObject[organNewEnt.org].businessGroups">
-                <tr ng-repeat="project in buss.projects" >
-                    <td class="tbName">{{project.name}}</td>
-                    <td class="tbValue">
-                        <input list="tagBu-{{project.name}}" type=""  class="form-control" ng-model="newEnt.proj.tagValue[project.rowId]" required />
-                        <datalist id="tagBu-{{project.name}}" >
+            <div class="col-lg-8 col-md-8 col-sm-12 ">
+                <div class="col-lg-12 col-md-12 ">
+                    <label for="">Tag Name:<span class="red">*</span>
+                    </label>
+                    <div class="input-groups">
+                        <loading size="small" name="isLoadingTag" type="inline"></loading>
+                        <input list="tagProjList" type="" ng-model="newEnt.proj.tagName"  class="form-control with250" required />
+                        <datalist id="tagProjList" >
                             <option ng-repeat="opti in disTgMap.tagOption" value="{{opti.name}}">{{opti.name}}</option>
                         </datalist>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
+                    </div>
+                </div>
 
-    </fieldset></div>
-
-<div class="col-lg-4 col-md-4 col-sm-12 margintop15">
-    <fieldset class="repo-job-details-wrapper">
-        <legend class="repo-job-details-wrapper-inner"> <i class="fa fa-leaf" ></i> Environment :</legend>
-        <div class="col-lg-12 col-md-12 margintop15">
-            <label for="">Tag Name:<span class="red">*</span>
-            </label>
-            <div class="input-groups">
-                <loading size="small" name="isLoadingTag" type="inline"></loading>
-                <input list="tagEnvist" type="" ng-model="newEnt.Env.tagName"   class="form-control" required />
-                <datalist id="tagEnvist" >
-                    <<option ng-repeat="opti in disTgMap.tagOption" value="{{opti.name}}">{{opti.name}}</option>
-                </datalist>
+                <div class="clearfix margintop15"></div>
+                <div class="clearfix margintop15"></div>
+                <fieldset class="repo-job-details-wrapper">
+                    <legend class="repo-job-details-wrapper-inner">All Projects :</legend>
+                    <div ng-repeat="buss in organObject[organNewEnt.org].businessGroups">
+                        <div class="col-lg-6 col-sm-12 col-md-6 margintop15"  ng-repeat="project in buss.projects" >
+                            <label for="">{{project.name}} :
+                            </label>
+                            <div class="input-groups">
+                                <loading size="small" name="isLoadingTag" type="inline"></loading>
+                                <multiple-autocomplete ng-model="newEnt.proj.tagValue[project.rowId]"
+                                                       object-property="name"
+                                                       suggestions-arr="disTgMap.tagOption">
+                                </multiple-autocomplete>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
             </div>
-        </div>
-        <div class="col-lg-12 col-md-12 margintop15">
+        </accordion-group>
 
-            <table class="table table-striped table-bordered">
-                <thead>
-                <tr>
-                    <th class="tbName">Business Group</th>
-                    <th class="tbValue">Tag Value</th>
-                </tr>
-                </thead>
-                <tbody >
-                <tr  ng-repeat="envr in organObject[organNewEnt.org].environments">
-                    <td class="tbName">{{envr.name}}</td>
-                    <td class="tbValue">
-                        <input list="tagBu-{{envr.name}}" type="" ng-model="newEnt.Env.tagValue[envr.rowid]"  class="form-control" required />
-                        <datalist id="tagBu-{{envr.name}}" >
-                            <option ng-repeat="opti in disTgMap.tagOption" value="{{opti.name}}">{{opti.name}}</option>
-                        </datalist>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
+            <accordion-group ng-init="accGroupStatus2 = {opened: false}" is-open="accGroupStatus2.opened">
+                <accordion-heading>
+                    <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus2.opened,'fa-plus-circle':!accGroupStatus2.opened }"></i>
+                    Environment
+                </accordion-heading>
+                <div class="col-lg-8 col-md-8 col-sm-12 ">
+                    <div class="col-lg-12 col-md-12 ">
+                        <label for="">Tag Name:<span class="red">*</span>
+                        </label>
+                        <div class="input-groups">
+                            <loading size="small" name="isLoadingTag" type="inline"></loading>
+                            <input list="tagEnvist" type="" ng-model="newEnt.Env.tagName"   class="form-control with250" required />
+                            <datalist id="tagEnvist" >
+                                <<option ng-repeat="opti in disTgMap.tagOption" value="{{opti.name}}">{{opti.name}}</option>
+                            </datalist>
+                        </div>
+                    </div>
+                    <div class="clearfix margintop15"></div>
+                    <div class="clearfix margintop15"></div>
+                    <fieldset class="repo-job-details-wrapper">
+                        <legend class="repo-job-details-wrapper-inner">All Environments :</legend>
+                        <div class="col-lg-6 col-sm-12 col-md-6 margintop15" ng-repeat="envr in organObject[organNewEnt.org].environments">
+                            <label for="">{{envr.name}} :
+                            </label>
+                            <div class="input-groups">
+                                <loading size="small" name="isLoadingTag" type="inline"></loading>
+                                <multiple-autocomplete ng-model="newEnt.Env.tagValue[envr.rowid]"
+                                                       object-property="name"
+                                                       suggestions-arr="disTgMap.tagOption">
+                                </multiple-autocomplete>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </accordion-group>
+    </accordion>
 
-    </fieldset></div>
-<div class="col-lg-12 col-md-12 margintop15" style="background: rgba(0, 0, 0, 0.02)">
-    <div class="saveBtn">
+
+
+<div class="clearfix"></div>
+
+<div class="col-lg-12 col-md-12 col-sm-12  saveBtn" >
+    <div class="btnFoot">
         <button type="button" class="btn cat-btn-update" ng-disabled="mapTag.$invalid" ng-click="disTgMap.save()"  >
             <i class="fa fa-check white"></i> Save
         </button>

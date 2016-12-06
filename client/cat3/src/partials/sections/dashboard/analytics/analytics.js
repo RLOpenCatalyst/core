@@ -1,6 +1,6 @@
 (function (angular) {
 	"use strict";
-	angular.module('dashboard.analytics', ['apis.analytics','nvd3'])
+	angular.module('dashboard.analytics', ['apis.analytics','nvd3','multipleSelect','ui.grid.edit'])
 		.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', 'modulePermissionProvider', function($stateProvider, $urlRouterProvider, $httpProvider, modulePermissionProvider) {
 			var modulePerms = modulePermissionProvider.$get();
 			$stateProvider.state('dashboard.analytics.cost', {
@@ -79,7 +79,7 @@
 				url: "discovery/resources/",
 				templateUrl: "src/partials/sections/dashboard/analytics/view/discoveryResources.html",
 				controller: "discoveryResourcesCtrl as disResrc",
-				params:{filterView:{period:true,org:true,provi:true},dashboardHide:true,otherTab:'Resources',otherTabView:true,reportHide:true},
+				params:{filterView:{period:true,org:true,provi:true,instanceType:true},dashboardHide:true,otherTab:'Resources',otherTabView:true,reportHide:true},
 				resolve: {
 					auth: ["$q", function ($q) {
 						var deferred = $q.defer();
@@ -207,7 +207,7 @@
         $scope.getResourse = function(instType) {
 			$rootScope.filterNewEnt.resources=[];
 			$scope.selectedResources=[];
-        	if(instType === 'Managed') {
+        	if(instType === 'managedInstances') {
 	        	workzoneServices.getManagedInstances($scope.filter.providerId).then(function(response) {
 					if(response.data && response.data.managedInstances &&  response.data.managedInstances.length >0){
 						$scope.resourceList = response.data.managedInstances;
@@ -218,7 +218,7 @@
 	                toastr.error(error);
 	            });
 	        }
-	        if(instType === 'Assigned') {
+	        if(instType === 'unmanagedInstances') {
 	            workzoneServices.getAssignedInstances($scope.filter.providerId).then(function(response) {
 					if(response.data && response.data.unmanagedInstances.length >0){
 						$scope.resourceList = response.data.unmanagedInstances;
@@ -230,7 +230,7 @@
 	                toastr.error(error);
 	            });
 	        }
-	        if(instType === 'Unassigned') {
+	        if(instType === 'unassigned-instances') {
 	            workzoneServices.getUnassignedInstances($scope.filter.providerId).then(function(response) {
 					if(response.data && response.data.data && response.data.data.length >0){
 						$scope.resourceList = response.data.data;
