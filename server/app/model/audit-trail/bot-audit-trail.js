@@ -54,6 +54,10 @@ var BotAuditTrailSchema = new BaseAuditTrail({
             type: String,
             trim:true
         },
+        manualExecutionTime:{
+            type: Number,
+            required: false
+        },
         nodeIdsWithActionLog:[Schema.Types.Mixed]
     }
 });

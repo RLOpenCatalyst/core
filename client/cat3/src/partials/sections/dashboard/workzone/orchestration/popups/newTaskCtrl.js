@@ -152,7 +152,12 @@
 						templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/addScriptParams.html',
 						controller: 'addScriptParamsCtrl',
 						backdrop: 'static',
-						keyboard: false
+						keyboard: false,
+						resolve: {
+							items: function () {
+								return scriptObject;
+							}
+						}
 					}).result.then(function (addScriptParams) {
 						$scope.scriptParamsObj[scriptObject._id] = $scope.scriptParamsObj[scriptObject._id].concat(addScriptParams);
 					}, function () {
@@ -271,9 +276,12 @@
 							cronEndOn : $scope.chefJenkScriptTaskObj.cronEnd,
 							cronRepeatEvery : $scope.chefJenkScriptTaskObj.repeatBy,
 							cronFrequency: $scope.chefJenkScriptTaskObj.repeats,
-							cronTime: typeof startTimeHour !=='undefined'? startTimeHour : new Date().getHours() + ':' + typeof startTimeMinute !=='undefined'? startTimeMinute:new Date().getMinutes(),
-							cronDays: $scope.chefJenkScriptTaskObj.dayOfWeek,
-							cronMonth: $scope.chefJenkScriptTaskObj.monthOfYear
+							cronMinute:startTimeMinute,
+							cronHour: startTimeHour,
+							cronWeekDay:dayOfWeek,
+							cronDate: selectedDayOfTheMonth,
+							cronMonth: selectedMonth,
+							cronYear: $scope.chefJenkScriptTaskObj.monthOfYear
 						}
 					}, function () {
 						console.log('Dismiss time is ' + new Date());
@@ -298,6 +306,7 @@
 							botType:$scope.botType,
 							botCategory: $scope.botCategory,
 						    shortDesc:$scope.shortDesc,
+						    manualExecutionTime:$scope.manualExecutionTime,
 							serviceDeliveryCheck:$scope.checkBotType
 						};
 						$scope.taskSaving = true;
@@ -469,6 +478,7 @@
 			});
 			$scope.name = "";
 			$scope.shortDesc = "";
+			$scope.manualExecutionTime = "";
 			$scope.taskType = "chef";//default Task type selection;
 			$scope.botType = "Task";//default Bot type selection;
 			$scope.botCategory = 'Active Directory';
@@ -681,6 +691,7 @@
                     $scope.botType = items.botType;
                     $scope.botCategory = items.botCategory;
                     $scope.shortDesc = items.shortDesc;
+                    $scope.manualExecutionTime = items.manualExecutionTime;
 				}
 				//properties specific to jenkins
 				if (items.taskType === "jenkins") {

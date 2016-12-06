@@ -8,7 +8,7 @@
 (function (angular) {
     "use strict";
     angular.module('dashboard.bots')
-    .controller('libraryCtrl',['$scope', '$rootScope', '$state', 'genericServices', 'confirmbox', 'toastr', 'workzoneUIUtils', function ($scope, $rootScope, $state, genSevs, confirmbox, toastr, workzoneUIUtils) {
+    .controller('libraryCtrl',['$scope', '$rootScope', '$state', 'genericServices', 'confirmbox', 'toastr', 'workzoneUIUtils', '$modal', function ($scope, $rootScope, $state, genSevs, confirmbox, toastr, workzoneUIUtils, $modal) {
         var treeNames = ['Bots','Library'];
         $rootScope.$emit('treeNameUpdate', treeNames);
         var lib=this;
@@ -29,8 +29,11 @@
                 { name: 'BOT Name',displayName: 'BOT Name',field:'name'},
                 { name: 'Category',field:'botCategory'},
                 { name: 'description',field:'shortDesc'},
+                { name: 'Total Runs',field:'executionCount'},
                 { name: 'BOT History',displayName: 'BOT History',cellTemplate:'<span ng-show="row.entity.blueprintType">NA</span>'+
                     '<span class="btn cat-btn-update control-panel-button" title="History" ng-show="row.entity.taskType" ng-click="grid.appScope.botLogs(row.entity);"><i class="fa fa-header white"></i></span>'},
+                { name: 'BOT Info',displayName: 'BOT Info',cellTemplate:
+                    '<span class="btn cat-btn-update control-panel-button" title="Info" ng-click="grid.appScope.botInfo(row.entity);"><i class="fa fa-info white"></i></span>'},
                 { name: 'BOT Action',displayName: 'BOT Action',cellTemplate:'<span class="btn cat-btn-update control-panel-button" title="Execute" ng-click="grid.appScope.launchInstance(row.entity);"><i class="fa fa-play white"></i></span>' +
                     '<span class="btn btn-danger control-panel-button" title="Delete Task" ng-show="row.entity.taskType" ng-click="grid.appScope.deleteBotTask(row.entity);"><i class="fa fa-trash-o white"></i></span>' + 
                     '<span class="btn btn-danger control-panel-button" title="Delete Blueprint" ng-show="row.entity.blueprintType" ng-click="grid.appScope.deleteBotBP(row.entity);"><i class="fa fa-trash-o white"></i></span>'
@@ -50,6 +53,25 @@
         $scope.botLogs = function(bot){
             genSevs.botHistory(bot);
         };
+        $scope.botInfo=function(bot) {
+            var modalInstance = $modal.open({
+                animation: true,
+                templateUrl: 'src/partials/sections/dashboard/bots/view/botInfo.html',
+                controller: 'botInfoCtrl',
+                backdrop : 'static',
+                keyboard: false,
+                resolve: {
+                    items: function() {
+                        return bot;
+                    }
+                }
+            });
+            modalInstance.result.then(function(selectedItem) {
+                $scope.selected = selectedItem;
+            }, function() {
+                console.log('Modal Dismissed at ' + new Date());
+            });
+        };
         $scope.deleteBotTask = function(task) {
             var modalOptions = {
                 closeButtonText: 'Cancel',
@@ -65,7 +87,16 @@
                 genSevs.promiseDelete(param).then(function (response) {
                     if (response) {
                         toastr.success('Successfully deleted');
-                        lib.init();
+                        if($scope.totalBotsSelected) {
+                            lib.init();
+                        } else if($scope.runningBotsselected) {
+                            $scope.showBotsRunning();
+                        } else if($scope.failedBotsselected) {
+                            $scope.showFailedBots();
+                        } else {
+                            lib.init();
+                        }
+                        lib.summary();
                     }
                 }, function(data) {
                     toastr.error('error:: ' + data.toString());
@@ -87,7 +118,16 @@
                 genSevs.promiseDelete(param).then(function (response) {
                     if (response) {
                         toastr.success('Successfully deleted');
-                        lib.init();
+                        if($scope.totalBotsSelected) {
+                            lib.init();
+                        } else if($scope.runningBotsselected) {
+                            $scope.showBotsRunning();
+                        } else if($scope.failedBotsselected) {
+                            $scope.showFailedBots();
+                        } else {
+                            lib.init();
+                        }
+                        lib.summary();
                     }
                 }, function(data) {
                     toastr.error('error:: ' + data.toString());
@@ -142,6 +182,7 @@
             };
             genSevs.promiseGet(param).then(function (response) {
                 $scope.botSummary = response;
+                $scope.totalSavedTimeForBots = parseInt($scope.botSummary.totalSavedTimeForBots);
             });
         };
         lib.summary();
@@ -167,5 +208,12 @@
             });
         };
         lib.init();
+    }]).controller('botInfoCtrl',['$scope', 'items', '$modalInstance', function ($scope, items, $modalInstance) {
+        $scope.botInfo = items;
+        console.log(items);
+
+        $scope.cancel= function() {
+            $modalInstance.dismiss('cancel');
+        };
     }]);
 })(angular);

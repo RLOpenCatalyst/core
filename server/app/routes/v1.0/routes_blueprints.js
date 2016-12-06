@@ -42,7 +42,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		})
 	});
 	app.delete('/blueprints/serviceDelivery/:blueprintId', function(req, res) {
-		Blueprints.removeServiceDeliveryBlueprints(req.params.blueprintId, function(err, data) {
+		blueprintService.deleteServiceDeliveryBlueprint(req.params.blueprintId, function(err, data) {
 			if (err) {
 				logger.error("Failed to delete ", err);
 				res.send(500, errorResponses.db.error);
@@ -384,6 +384,17 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 						}
 						var stackName = null;
 						var domainName = null;
+						var blueprintLaunchCount = 0;
+						if(blueprint.executionCount) {
+							blueprintLaunchCount = blueprint.executionCount + 1;
+						}else{
+							blueprintLaunchCount = 1;
+						}
+						Blueprints.updateBlueprintExecutionCount(blueprint._id,blueprintLaunchCount,function(err,data){
+							if(err){
+								logger.error("Error while updating Blueprint Execution Count");
+							}
+						});
 						if (blueprint.blueprintType === 'aws_cf' || blueprint.blueprintType === 'azure_arm') {
 							stackName = req.query.stackName;
 							if (!stackName) {
@@ -417,6 +428,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 								description:blueprint.shortDesc,
 								category:blueprint.botCategory,
 								executionType:blueprint.blueprintType,
+								manualExecutionTime:blueprint.manualExecutionTime,
 								nodeIdsWithActionLog:[]
 							};
 							blueprint.envId= req.query.envId;
