@@ -3,20 +3,6 @@
 $imagePath : "../../../../../../images";
 
 @media (min-width : 0px) and (max-width : 320px) {
-	#orchestrationUpdateChefRunlistPage {
-		font-size: 12px;
-
-		.searchCookbooksRolesLabel {
-			font-size: 10px;
-		}
-
-		.attribute-table-wrapper {
-			max-width: 226px;
-    		overflow-x: auto;
-    		width: 222px;
-		}
-	}
-
 	#newTaskPage {
 		#container {
 			.selectCookbooksandRecipesdivRight {
@@ -44,24 +30,6 @@ $imagePath : "../../../../../../images";
 }
 
 @media (min-width : 321px) and (max-width : 480px) {
-	#orchestrationUpdateChefRunlistPage {
-		font-size: 12px;
-
-		.radio-all {
-			width: 20%;
-			float: left;
-		}
-
-		.radio-deploy, .chef-factory {
-			width: 35%;
-			float: left;
-		}
-
-		.chef-factory {
-			margin: 3px 0 0 5%;
-		}
-	}
-
 	#newTaskPage {
 		#container {
 			.selectCookbooksandRecipesdivRight {
@@ -83,21 +51,6 @@ $imagePath : "../../../../../../images";
 	
 }
 
-@media (min-width : 481px) {
-	#orchestrationUpdateChefRunlistPage {
-		font-size: 12px;
-
-		.radio-all, .radio-deploy, .chef-factory {
-			width: 30%;
-			float: left;
-		}
-
-		.chef-factory {
-			margin: 3px 0 0 10%;
-		}
-	}
-}
-
 @media (min-width : 0px) and (max-width : 990px) {
 	#newTaskPage {
 		.left-padding {
@@ -111,6 +64,12 @@ $imagePath : "../../../../../../images";
 		.left-padding {
 			padding-left: 15px;
 			padding-right: 0px;
+		}
+	}
+
+	.my-modal-popup {
+		.modal-lg {
+			width:1056px;
 		}
 	}
 }
@@ -234,7 +193,17 @@ $imagePath : "../../../../../../images";
 	.select-nodes {
 		border: 1px solid #dddddd;
 		list-style: none outside none;
-		height: 235px;
+		height: 150px;
+		overflow-y: auto;
+		margin-top: 5px;
+		margin-bottom: 10px;
+		padding: 5px;
+	}
+
+	.select-nodeInstance {
+		border: 1px solid #dddddd;
+		list-style: none outside none;
+		height: 350px;
 		overflow-y: auto;
 		margin-top: 5px;
 		margin-bottom: 10px;
@@ -253,6 +222,13 @@ $imagePath : "../../../../../../images";
 
 	.jobDetailsContent {
 		padding: 12px 0;
+	}
+
+	.jenkins-job-links {
+		max-width: 225px;
+	    text-overflow: ellipsis;
+	    overflow: hidden;
+	    height: 18px;
 	}
 
 	.chef-details-top {
@@ -414,23 +390,17 @@ $imagePath : "../../../../../../images";
 	.table>tbody>tr>td {
 		border-top: 0px;
 	}
+
+	.fa-question-circle {
+		position: absolute;
+	    left: 100px;
+	    top: 102px;
+	    font-size: 18px;
+	}
 }
 
 #orchestrationHistoryPage {
 	font-size: 12px;
-
-	.success, .SUCCESS, .failure, .failed {
-		color: #fff;
-		padding: 8px;
-	}
-
-	.success, .SUCCESS {
-		background: $color-green;
-	}
-
-	.failure, .failed {
-		background: $color-red;
-	}
 
 	.fa-info-circle {
 		font-size: 23px;
@@ -500,4 +470,8 @@ a.marginleft23 {
 	float: right;
 	margin-right: 14px !important;
 	margin-top: 2px !important;
+}
+
+.margintop7 {
+	margin-top: 7px;
 }

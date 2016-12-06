@@ -229,6 +229,28 @@
                         </select>
 
                     </div>
+                    <div class="col-lg-6 hidden" style="margin-top:15px;">
+                        <label class="">Assign Users<span class="control-label redSpan">&nbsp;*</span></label>
+                    </div>
+                    <div>
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <label class="control-label">Tag imported server : </label>
+                        <input type="checkbox" id="tagServerCheck" class="checkbox-list"/> 
+                    </div>
+                      <div class="col-md-6 col-sm-6 col-xs-6 sevice-delivery-section">
+                        <label class="control-label">Select Server
+                            <span class="control-label redSpan">&nbsp;*</span></label>
+                        </label>
+                        <br />
+                        <span class="col-md-12 col-sm-12 col-xs-12 no-padding">
+                          <select name="tagServer" class="form-control" id="tagServer">
+                            <option selected="selected" value="Monitoring">Monitoring Server</option>
+                            <option value="LDAP">LDAP Server</option>
+                            <option value="AD">AD Server</option>
+                          </select>
+                        </span>
+                      </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <div class="marginForButtons">
@@ -498,6 +520,11 @@
             reqBody.projectId = $projectList.val();
             reqBody.orgName = $orgListInput.find('option:selected').text();
             reqBody.bgName = $bgList.find('option:selected').text();
+            if ($('#tagServerCheck').prop("checked")) {
+                reqBody.tagServer = $('#tagServer').val();
+            } else {
+                reqBody.tagServer = '';
+            }
             reqBody.projectName = $projectList.find('option:selected').text();
             if (!((reqBody.bgId && reqBody.bgId.length) && (reqBody.projectId && reqBody.projectId.length) && reqBody.projectId !== 'choose' && reqBody.bgId !== 'choose')) {
                 alert('Please Select a Business Group & Project');
@@ -611,4 +638,23 @@
             }
         });
     });
+    $(document).ready(function() {
+        $('#tagServerCheck').click(function() {
+            if ($('#tagServerCheck').prop("checked")) {
+                $('.sevice-delivery-section').addClass('showservice');
+            } else {
+                $('.sevice-delivery-section').removeClass('showservice');
+            }
+        });
+    });
 </script>
+
+<style>
+    .sevice-delivery-section {
+        display: none;
+    }
+
+    .showservice {
+        display: block;
+    }
+</style>

@@ -16,12 +16,16 @@
 		<link rel='stylesheet' type='text/css' href='catalyst/partials/sections/login/login.css'>
 		<link rel="stylesheet" href="src/partials/globals/toaster/angular-toastr.css" />
 		<link rel="stylesheet" href="lib/nvd3/nv.d3.css" />
+		<link rel="stylesheet" href="customlib/dateTime/css/bootstrap-material-datetimepicker.css" />
 		<!-- Library scripts -->
 		<script src="lib/jquery/jquery.min.js"></script>
 		<script src="lib/angular/angular.min.js"></script>
 		<script src="lib/angular-ui-router/angular-ui-router.min.js"></script>
 		<script src="lib/angular-ui-grid/ui-grid.min.js"></script>
 		<script src="lib/angular-touch/angular-touch.min.js"></script>
+		<script src="customlib/dateTime/js/material.min.js"></script>
+		<script src="customlib/dateTime/js/moment-with-locales.min.js"></script>
+		<script src="customlib/dateTime/js/bootstrap-material-datetimepicker.js"></script>
 		<script src="customlib/ui-bootstrap-custom-0.13.4.min.js"></script>
 		<script src="customlib/ui-bootstrap-custom-tpls-0.13.4.js"></script>
 		<script src="lib/angular-strap/angular-strap.min.js"></script>
@@ -31,6 +35,7 @@
 		<script src="lib/lodash/lodash/lodash.min.js"></script>
 		<script src="lib/ng-file-upload/ng-file-upload.min.js"></script>
 		<script src="src/partials/globals/toaster/angular-toastr.tpls.js"></script>
+		<script src="src/partials/globals/drag-and-drop/angular-drag-and-drop-lists.min.js"></script>
 		<!-- Application configuration -->
 		<script src="uiConfig.js"></script>
 		<script src="lib/d3/d3.js"></script>
@@ -62,9 +67,9 @@
 			            </span>
 					</div>
 				</div>
-				<div id="breadcrumb-nav" class="col-lg-10 col-md-10 col-sm-10 col-xs-10">
+				<div id="breadcrumb-nav" class="col-lg-10 col-md-10 col-sm-10 col-xs-10 no-padding">
 					<ul>
-						<li ng-cloak ng-repeat="item in breadcrumbData">{{item}} {{$last ? "" : " > "}}</li>
+						<li ng-cloak ng-repeat="item in breadcrumbData">{{item}} {{$last ? "" : " &raquo; "}}</li>
 					</ul>
 				</div>
 			</div>
@@ -97,13 +102,30 @@
 		<script src="src/partials/globals/ui-gridOptions/uiGridOptionsServices.js"></script>
 		<script src="src/partials/sections/dashboard/dashboardCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/genericServices.js"></script>
+		<script src="src/partials/sections/dashboard/popups/controller/scheduleCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/analytics/analytics.js"></script>
 		<script src="src/partials/sections/dashboard/analytics/analyticsServices.js"></script>
 		<script src="src/partials/sections/dashboard/analytics/controller/costCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/analytics/controller/capacityCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/analytics/controller/usageCtrl.js"></script>
-		<script src="src/partials/sections/dashboard/design/designCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/bots/botsCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/bots/controller/audittrailCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/bots/controller/botLogsCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/bots/controller/botInfoCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/bots/controller/botScheduleCtrl.js"></script>
+        <script src="src/partials/sections/dashboard/bots/controller/libraryCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/bots/controller/editParamsCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/design/aDesignCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/design/controllers/addDockerTemplateCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/design/controllers/appUrlCreateCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/design/controllers/blueprintCreateCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/design/controllers/createCompositeCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/design/controllers/blueprintListCtrl.js"></script>
+
+		<script src="src/partials/sections/dashboard/design/services/blueprintCreateServices.js"></script>
+		<script src="src/partials/sections/dashboard/design/services/blueprintListServices.js"></script>
 		<script src="src/partials/sections/dashboard/help/helpCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/popups/controller/orchestrationUpdateChefRunlistCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/setting/organization/organizationCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/setting/organization/organizationListCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/setting/organization/organizationNewCtrl.js"></script>
@@ -155,6 +177,7 @@
 		<script src="src/partials/sections/dashboard/workzone/instance/popups/updateChefRunlistConfirmationCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/workzone/instance/popups/viewRunListCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/workzone/orchestration/orchestrationCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/workzone/orchestration/popups/addChefJobEventCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/workzone/orchestration/popups/addJenkinsParamsCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/workzone/orchestration/popups/addJobLinksCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/workzone/orchestration/popups/addScriptParamsCtrl.js"></script>
@@ -166,7 +189,6 @@
 		<script src="src/partials/sections/dashboard/workzone/orchestration/popups/newTaskCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationHistoryCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationLogCtrl.js"></script>
-		<script src="src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationUpdateChefRunlistCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/workzone/orchestration/popups/runParamConfigCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/workzone/orchestration/popups/viewNodesCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/workzone/workzoneCtrl.js"></script>

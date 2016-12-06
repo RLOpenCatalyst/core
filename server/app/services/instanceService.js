@@ -18,9 +18,7 @@ var unassignedInstancesModel = require('_pr/model/unassigned-instances');
 var unManagedInstancesModel = require('_pr/model/unmanaged-instance');
 var instancesModel = require('_pr/model/classes/instance/instance');
 var containerModel = require('_pr/model/container');
-var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider');
 var logger = require('_pr/logger')(module);
-var appConfig = require('_pr/config');
 var EC2 = require('_pr/lib/ec2.js');
 var Cryptography = require('../lib/utils/cryptography');
 var tagsModel = require('_pr/model/tags/tags.js');
@@ -46,6 +44,9 @@ var nexus = require('_pr/lib/nexus.js');
 var utils = require('_pr/model/classes/utils/utils.js');
 var AppData = require('_pr/model/app-deploy/app-data');
 var instancesDao = require('_pr/model/classes/instance/instance');
+var providerService = require('_pr/services/providerService.js');
+var schedulerService = require('_pr/services/schedulerService.js');
+var catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
 
 
 var instanceService = module.exports = {};
@@ -65,6 +66,7 @@ instanceService.validateListInstancesQuery = validateListInstancesQuery;
 instanceService.removeInstanceById = removeInstanceById;
 instanceService.removeInstancesByProviderId = removeInstancesByProviderId;
 instanceService.instanceSyncWithAWS = instanceSyncWithAWS;
+instanceService.updateScheduler = updateScheduler;
 
 function checkIfUnassignedInstanceExists(providerId, instanceId, callback) {
     unassignedInstancesModel.getById(instanceId,
@@ -125,10 +127,10 @@ function validateListInstancesQuery(orgs, filterQuery, callback) {
 
     if (orgIds.length > 0) {
         if (queryObjectAndCondition.providerId) {
-            filterQuery.queryObj['$and'][0].orgId = {'$in': orgIds}
+            filterQuery.queryObj['$and'][0].orgId = { '$in': orgIds }
         } else {
-            filterQuery.queryObj['$and'][0].providerId ={ '$ne': null };
-            filterQuery.queryObj['$and'][0].orgId = {'$in': orgIds};
+            filterQuery.queryObj['$and'][0].providerId = { '$ne': null };
+            filterQuery.queryObj['$and'][0].orgId = { '$in': orgIds };
         }
     }
 
@@ -439,12 +441,12 @@ function getTrackedInstances(query, category, next) {
             function(callback) {
                 if (category === 'managed') {
                     instancesModel.getAll(query, callback);
-                }else if (category === 'assigned') {
+                } else if (category === 'assigned') {
                     unManagedInstancesModel.getAll(query, callback);
-                }else if(category === 'unassigned'){
-                    unassignedInstancesModel.getAll(query,callback);
-                }else{
-                    callback(null, [{docs:[],total:0}]);
+                } else if (category === 'unassigned') {
+                    unassignedInstancesModel.getAll(query, callback);
+                } else {
+                    callback(null, [{ docs: [], total: 0 }]);
                 }
             }
         ],
@@ -1240,7 +1242,7 @@ instanceService.getInstanceAction = function getInstanceAction(actionId, callbac
             logsDao.getLogsByReferenceId(actionId, null, function(err, data) {
                 if (err) {
                     logger.error("Failed to fetch Logs: ", err);
-                    res.send(500);
+                    callback(500, null);
                     return;
                 }
                 instanceAction['logs'] = data;
@@ -1306,33 +1308,33 @@ function removeInstancesByProviderId(providerId, callback) {
     })
 }
 
-function instanceSyncWithAWS(instanceId,instanceData,providerDetails,callback){
+function instanceSyncWithAWS(instanceId, instanceData, providerDetails, callback) {
     async.waterfall([
-        function(next){
-            instancesModel.getInstanceById(instanceId,next);
+        function(next) {
+            instancesModel.getInstanceById(instanceId, next);
         },
-        function(instances,next){
+        function(instances, next) {
             var instance = instances[0];
             var routeHostedZoneParamList = [];
-            if(instance.instanceState !== instanceData.state && instance.bootStrapStatus ==='success') {
+            if (instance.instanceState !== instanceData.state && instance.bootStrapStatus === 'success') {
                 var timestampStarted = new Date().getTime();
                 var user = instance.catUser ? instance.catUser : 'superadmin';
-                var action ='';
-                if(instanceData.state === 'stopped' || instanceData.state === 'stopping'){
+                var action = '';
+                if (instanceData.state === 'stopped' || instanceData.state === 'stopping') {
                     action = 'Stop';
-                }else if(instanceData.state === 'terminated'){
-                    action ='Terminated';
-                    if(instance.route53HostedParams){
+                } else if (instanceData.state === 'terminated') {
+                    action = 'Terminated';
+                    if (instance.route53HostedParams) {
                         routeHostedZoneParamList = instance.route53HostedParams;
                     }
-                }else if(instanceData.state === 'shutting-down'){
-                    action ='Shutting-Down';
-                }else{
-                    action ='Start';
+                } else if (instanceData.state === 'shutting-down') {
+                    action = 'Shutting-Down';
+                } else {
+                    action = 'Start';
                 };
-                if(instanceData.state === 'terminated' && instance.instanceState === 'shutting-down'){
-                    instanceLogModel.getLogsByInstanceIdStatus(instance._id,instance.instanceState,function(err,data){
-                        if(err){
+                if (instanceData.state === 'terminated' && instance.instanceState === 'shutting-down') {
+                    instanceLogModel.getLogsByInstanceIdStatus(instance._id, instance.instanceState, function(err, data) {
+                        if (err) {
                             logger.error("Failed to get Instance Logs: ", err);
                             next(err, null);
                         }
@@ -1342,12 +1344,12 @@ function instanceSyncWithAWS(instanceId,instanceData,providerDetails,callback){
                         data.actionStatus = "success";
                         data.endedOn = new Date().getTime();
                         logsDao.insertLog({
-                            referenceId: [data.actionId,data.instanceId],
+                            referenceId: [data.actionId, data.instanceId],
                             err: false,
                             log: "Instance " + instanceData.state,
                             timestamp: timestampStarted
                         });
-                        instanceLogModel.createOrUpdate(data.actionId, instance._id, data, function (err, logData) {
+                        instanceLogModel.createOrUpdate(data.actionId, instance._id, data, function(err, logData) {
                             if (err) {
                                 logger.error("Failed to create or update instanceLog: ", err);
                                 next(err, null);
@@ -1355,62 +1357,62 @@ function instanceSyncWithAWS(instanceId,instanceData,providerDetails,callback){
                             next(null, routeHostedZoneParamList);
                         });
                     })
-                }else {
-                    createOrUpdateInstanceLogs(instance,instanceData.state,action,user,timestampStarted,routeHostedZoneParamList,next);
+                } else {
+                    createOrUpdateInstanceLogs(instance, instanceData.state, action, user, timestampStarted, routeHostedZoneParamList, next);
                 }
-            }else{
-                next(null,routeHostedZoneParamList);
+            } else {
+                next(null, routeHostedZoneParamList);
             }
         },
-       function(paramList,next) {
-           async.parallel({
-               instanceDataSync: function(callback){
-                   instancesModel.updateInstanceStatus(instanceId,instanceData,callback);
-               },
-               route53Sync: function(callback){
-                   if(paramList.length > 0){
-                       var cryptoConfig = appConfig.cryptoSettings;
-                       var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-                       var decryptedAccessKey = cryptography.decryptText(providerDetails.accessKey,
-                           cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-                       var decryptedSecretKey = cryptography.decryptText(providerDetails.secretKey,
-                           cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-                       var route53Config = {
-                           access_key: decryptedAccessKey,
-                           secret_key: decryptedSecretKey,
-                           region:'us-west-1'
-                       };
-                       var route53 = new Route53(route53Config);
-                       var count = 0;
-                       for(var i = 0; i < paramList.length;i++){
-                           (function(params){
-                               params.ChangeBatch.Changes[0].Action = 'DELETE';
-                               route53.changeResourceRecordSets(params,function(err,data){
-                                   count++;
-                                   if(err){
-                                       callback(err,null);
-                                   }
-                                   if(count === paramList.length){
-                                       callback(null,paramList);
-                                   }
-                               });
-                           })(paramList[i]);
+        function(paramList, next) {
+            async.parallel({
+                instanceDataSync: function(callback) {
+                    instancesModel.updateInstanceStatus(instanceId, instanceData, callback);
+                },
+                route53Sync: function(callback) {
+                    if (paramList.length > 0) {
+                        var cryptoConfig = appConfig.cryptoSettings;
+                        var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+                        var decryptedAccessKey = cryptography.decryptText(providerDetails.accessKey,
+                            cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                        var decryptedSecretKey = cryptography.decryptText(providerDetails.secretKey,
+                            cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                        var route53Config = {
+                            access_key: decryptedAccessKey,
+                            secret_key: decryptedSecretKey,
+                            region: 'us-west-1'
+                        };
+                        var route53 = new Route53(route53Config);
+                        var count = 0;
+                        for (var i = 0; i < paramList.length; i++) {
+                            (function(params) {
+                                params.ChangeBatch.Changes[0].Action = 'DELETE';
+                                route53.changeResourceRecordSets(params, function(err, data) {
+                                    count++;
+                                    if (err) {
+                                        callback(err, null);
+                                    }
+                                    if (count === paramList.length) {
+                                        callback(null, paramList);
+                                    }
+                                });
+                            })(paramList[i]);
 
-                       }
-                   }else{
-                       callback(null,paramList);
-                   }
-               }
-           },function(err,results){
-               if(err){
-                   next(err);
-               }else{
-                   next(null,results);
-               }
-           })
+                        }
+                    } else {
+                        callback(null, paramList);
+                    }
+                }
+            }, function(err, results) {
+                if (err) {
+                    next(err);
+                } else {
+                    next(null, results);
+                }
+            })
 
-       }
-    ], function(err,results){
+        }
+    ], function(err, results) {
         if (err) {
             callback(err, null);
         } else {
@@ -1419,7 +1421,7 @@ function instanceSyncWithAWS(instanceId,instanceData,providerDetails,callback){
     })
 }
 
-function createOrUpdateInstanceLogs(instance,instanceState,action,user,timestampStarted,routeHostedZoneParamList,next){
+function createOrUpdateInstanceLogs(instance, instanceState, action, user, timestampStarted, routeHostedZoneParamList, next) {
     var actionLog = instancesModel.insertInstanceStatusActionLog(instance._id, user, instanceState, timestampStarted);
     var actionStatus = 'success';
     var logReferenceIds = [instance._id, actionLog._id];
@@ -1429,7 +1431,7 @@ function createOrUpdateInstanceLogs(instance,instanceState,action,user,timestamp
         log: "Instance " + instanceState,
         timestamp: timestampStarted
     });
-    if(instanceState === 'shutting-down'){
+    if (instanceState === 'shutting-down') {
         actionStatus = 'pending';
     }
     var instanceLog = {
@@ -1454,7 +1456,7 @@ function createOrUpdateInstanceLogs(instance,instanceState,action,user,timestamp
         action: action,
         logs: []
     };
-    instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function (err, logData) {
+    instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
         if (err) {
             logger.error("Failed to create or update instanceLog: ", err);
             next(err, null);
@@ -1462,3 +1464,115 @@ function createOrUpdateInstanceLogs(instance,instanceState,action,user,timestamp
         next(null, routeHostedZoneParamList);
     });
 }
+
+function updateScheduler(instanceScheduler, callback) {
+    async.waterfall([
+        function(next){
+            generateCronPattern(instanceScheduler.interval,instanceScheduler.schedulerStartOn,instanceScheduler.schedulerEndOn,next);
+        },
+        function(schedulerDetails,next){
+            schedulerDetails.interval = instanceScheduler.interval;
+            instancesDao.updateScheduler(instanceScheduler.instanceIds, schedulerDetails,next);
+        }
+    ],function(err,results){
+        if(err){
+            return callback(err, null);
+        }else{
+            callback(null, {"message": "Scheduler Updated."});
+            catalystSync.executeScheduledInstances();
+            return;
+        }
+    });
+}
+
+function generateCronPattern(cronInterval,startDate,endDate,callback){
+    var startIntervalList =[],stopIntervalList=[],count = 0;
+    var startOn = null,endOn = null;
+    if(startDate === endDate){
+        startOn = new Date();
+        endOn = new Date()
+        endOn.setHours(23);
+        endOn.setMinutes(59);
+    }else{
+        startOn = startDate;
+        endOn = endDate;
+    }
+    if(cronInterval.length === 0){
+        var scheduler= {
+            instanceStartScheduler: startIntervalList,
+            instanceStopScheduler: stopIntervalList,
+            schedulerStartOn: Date.parse(startOn),
+            schedulerEndOn: Date.parse(endOn),
+            isScheduled: false
+        }
+        callback(null,scheduler);
+        return;
+    }else{
+        for(var i = 0; i < cronInterval.length; i++){
+            (function(interval){
+                if(interval.action==='start'){
+                    count++;
+                    var timeSplit = interval.time.split(":");
+                    var hours = parseInt(timeSplit[0]);
+                    var minutes = parseInt(timeSplit[1]);
+                    var sortedDays = interval.days.sort(function(a, b){return a-b});
+                    var strDays = '';
+                    for(var j = 0; j < sortedDays.length; j++){
+                        if(strDays !== '')
+                            strDays = strDays+','+sortedDays[j];
+                        else
+                            strDays = sortedDays[j];
+                    }
+                    startIntervalList.push({
+                        cronTime:interval.time,
+                        cronDays:sortedDays,
+                        cronPattern:minutes +' '+ hours +' '+ '* * '+ strDays
+                    });
+                    if(count === cronInterval.length){
+                        var scheduler= {
+                            instanceStartScheduler: startIntervalList,
+                            instanceStopScheduler: stopIntervalList,
+                            schedulerStartOn: Date.parse(startOn),
+                            schedulerEndOn: Date.parse(endOn),
+                            isScheduled: true
+                        }
+                        callback(null,scheduler);
+                        return;
+                    }
+                }else{
+                    count++;
+                    var timeSplit = interval.time.split(":");
+                    var hours = parseInt(timeSplit[0]);
+                    var minutes = parseInt(timeSplit[1]);
+                    var sortedDays = interval.days.sort(function(a, b){return a-b});
+                    var strDays = '';
+                    for(var j = 0; j < sortedDays.length; j++){
+                        if(strDays !== '')
+                            strDays = strDays+','+sortedDays[j];
+                        else
+                            strDays = sortedDays[j];
+                    }
+                    stopIntervalList.push({
+                        cronTime:interval.time,
+                        cronDays:sortedDays,
+                        cronPattern:minutes +' '+ hours +' '+ '* * '+ strDays
+                    });
+                    if(count === cronInterval.length){
+                        var scheduler= {
+                            instanceStartScheduler: startIntervalList,
+                            instanceStopScheduler: stopIntervalList,
+                            schedulerStartOn: Date.parse(startOn),
+                            schedulerEndOn: Date.parse(endOn),
+                            isScheduled: true
+                        }
+                        callback(null,scheduler);
+                        return;
+                    }
+                }
+            })(cronInterval[i]);
+        }
+    }
+}
+
+
+

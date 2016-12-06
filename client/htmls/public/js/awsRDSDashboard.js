@@ -153,7 +153,7 @@ $(document).ready(function() {
         "destroy":true,
         "ajax": '/resources?filterBy=providerId:'+ providerId +'+resourceType:RDS+category:assigned',
         "columns": [
-            {"data": "resourceDetails.dbName",  "orderable" : true},
+            {"data": "resourceDetails.dbInstanceIdentifier",  "orderable" : true},
             {"data": "masterDetails.orgName","orderable" : false,
                 "render": function (data) {
                     if(data !== null){
@@ -210,7 +210,7 @@ $(document).ready(function() {
             "destroy":true,
             "ajax": '/resources?filterBy=resourceType:RDS+category:assigned',
             "columns": [
-                {"data": "resourceDetails.dbName",  "orderable" : true},
+                {"data": "resourceDetails.dbInstanceIdentifier",  "orderable" : true},
                 {"data": "masterDetails.orgName","orderable" : false,
                     "render": function (data) {
                         if(data !== null){
@@ -281,7 +281,7 @@ $(document).ready(function() {
             $( row ).attr({"resourceId" : data._id,"resourceType":data.resourceType})
         },
         "columns": [
-            {"data": "resourceDetails.dbName",  "orderable" : true},
+            {"data": "resourceDetails.dbInstanceIdentifier",  "orderable" : true},
             {"data": "resourceDetails.dbEngine","orderable" : true  },
             {"data": "resourceDetails.dbInstanceStatus","orderable" : true  },
             {"data": "resourceDetails.region","orderable" : false  },
@@ -305,7 +305,7 @@ $(document).ready(function() {
                 $( row ).attr({"resourceId" : data._id,"resourceType":data.resourceType})
             },
             "columns": [
-                {"data": "resourceDetails.dbName",  "orderable" : true},
+                {"data": "resourceDetails.dbInstanceIdentifier",  "orderable" : true},
                 {"data": "resourceDetails.dbEngine","orderable" : true  },
                 {"data": "resourceDetails.dbInstanceStatus","orderable" : true  },
                 {"data": "resourceDetails.region","orderable" : false  },

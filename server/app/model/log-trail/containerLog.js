@@ -17,7 +17,6 @@ limitations under the License.
 
 var mongoose = require('mongoose');
 var mongoosePaginate = require('mongoose-paginate');
-var ObjectId = require('mongoose').Types.ObjectId;
 var logger = require('_pr/logger')(module);
 
 var Schema = mongoose.Schema;

@@ -27,6 +27,8 @@ var taskService = require('_pr/services/taskService.js')
 var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
+var schedulerService = require('_pr/services/schedulerService');
+var catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
 
 
 
@@ -38,8 +40,20 @@ var fileIo = require('_pr/lib/utils/fileio');
 module.exports.setRoutes = function(app, sessionVerification) {
     app.all('/tasks/*', sessionVerification);
 
+    app.delete('/tasks/serviceDelivery/:taskId', function(req, res) {
+        taskService.deleteServiceDeliveryTask(req.params.taskId, function(err, data) {
+            if (err) {
+                logger.error("Failed to delete service delivery Task", err);
+                res.send(500, errorResponses.db.error);
+                return;
+            }
+            res.send(200, {
+                message: "deleted"
+            });
+        });
+    });
+
     app.get('/tasks/history/list/all', function(req, res) {
-        logger.debug("------------------ ",JSON.stringify(TaskHistory));
         TaskHistory.listHistory(function(err, tHistories) {
             if (err) {
                 res.status(500).send(errorResponses.db.error);
@@ -95,38 +109,36 @@ module.exports.setRoutes = function(app, sessionVerification) {
         });
     });
 
+
     app.post('/tasks/:taskId/run', function(req, res) {
+
         var taskId = req.params.taskId;
         var user = req.session.user.cn;
         var hostProtocol = req.protocol + '://' + req.get('host');
         var choiceParam = req.body.choiceParam;
         var appData = req.body.appData;
-        /*Tasks.getTaskById(req.params.taskId, function(err, task) {
+        var scriptParams = req.body.scriptParams;
+        var cookbookAttributes = req.body.cookbookAttributes;
+        var botTagServer = req.body.tagServer;
 
-            if (err) {
-                logger.error(err);
-                res.status(500).send(errorResponses.db.error);
-                return;
+        var paramOptions = {
+            cookbookAttributes: cookbookAttributes,
+            scriptParams: scriptParams
+        };
+
+        if (paramOptions.scriptParams && paramOptions.scriptParams.length) {
+            var cryptoConfig = appConfig.cryptoSettings;
+            var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+            var encryptedParams = [];
+            for (var i = 0; i < paramOptions.scriptParams.length; i++) {
+                var encryptedText = cryptography.encryptText(paramOptions.scriptParams[i], cryptoConfig.encryptionEncoding,
+                    cryptoConfig.decryptionEncoding);
+                encryptedParams.push(encryptedText);
             }
-            var blueprintIds = [];
-            if (task.blueprintIds && task.blueprintIds.length) {
-                blueprintIds = task.blueprintIds
-            }
-            task.execute(req.session.user.cn, req.protocol + '://' + req.get('host'), choiceParam, nexusData, blueprintIds, task.envId, function(err, taskRes, historyData) {
-                if (err) {
-                    logger.error(err);
-                    res.status(500).send(err);
-                    return;
-                }
-                if (historyData) {
-                    taskRes.historyId = historyData.id;
-                }
-                logger.debug("taskRes::::: ", JSON.stringify(taskRes));
-                res.send(taskRes);
-            });
-        });
-        */
-        taskService.executeTask(taskId, user, hostProtocol, choiceParam, appData, function(err, historyData) {
+            paramOptions.scriptParams = encryptedParams;
+        }
+
+        taskService.executeTask(taskId, user, hostProtocol, choiceParam, appData, paramOptions, botTagServer, function(err, historyData) {
             if (err === 404) {
                 res.status(404).send("Task not found.");
                 return;
@@ -167,9 +179,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
                             return;
                         }
                         if (deleteCount) {
-                            TaskHistory.removeByTaskId(req.params.taskId,function(err,removed){
-                                if(err){
-                                    logger.error("Failed to remove history: ",err);
+                            TaskHistory.removeByTaskId(req.params.taskId, function(err, removed) {
+                                if (err) {
+                                    logger.error("Failed to remove history: ", err);
                                 }
                             });
                             res.send({
@@ -463,52 +475,85 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
     function getTaskList(req, res, next) {
         var reqData = {};
-        async.waterfall(
-            [
-
-                function(next) {
-                    apiUtil.paginationRequest(req.query, 'tasks', next);
-                },
-                function(paginationReq, next) {
-                    reqData = paginationReq;
-                    Tasks.listTasks(paginationReq, next);
-                },
-                function(tasks, next) {
-                    apiUtil.paginationResponse(tasks, reqData, next);
+        if(req.query.page) {
+            async.waterfall(
+                [
+                    function (next) {
+                        apiUtil.paginationRequest(req.query, 'tasks', next);
+                    },
+                    function (paginationReq, next) {
+                        paginationReq['searchColumns'] = ['name', 'orgName', 'bgName', 'projectName', 'envName'];
+                        reqData = paginationReq;
+                        apiUtil.databaseUtil(paginationReq, next);
+                    },
+                    function (queryObj, next) {
+                        Tasks.listTasks(queryObj, next);
+                    },
+                    function (tasks, next) {
+                        apiUtil.paginationResponse(tasks, reqData, next);
+                    }
+                ],
+                function (err, results) {
+                    if (err) {
+                        return res.status(500).send(err);
+                    } else {
+                        return res.status(200).send(results);
+                    }
+                });
+        }else{
+            var queryObj = {
+                serviceDeliveryCheck : req.query.serviceDeliveryCheck === "true" ? true:false,
+                actionStatus:req.query.actionStatus
+            }
+            taskService.getAllServiceDeliveryTask(queryObj, function(err,data){
+                if (err) {
+                    return res.status(500).send(err);
+                } else {
+                    return res.status(200).send(data);
                 }
-
-            ],
-            function(err, results) {
-                if (err)
-                    next(err);
-                else
-                    return res.status(200).send(results);
-            });
+            })
+        }
     }
 
     app.post('/tasks/:taskId/update', function(req, res) {
         var taskData = req.body.taskData;
-        if(taskData.taskType === 'script'){
+        if(taskData.taskScheduler  && taskData.taskScheduler !== null && Object.keys(taskData.taskScheduler).length !== 0) {
+            taskData.taskScheduler = apiUtil.createCronJobPattern(taskData.taskScheduler);
+            taskData.isTaskScheduled = true;
+        }
+        if(taskData.manualExecutionTime && taskData.manualExecutionTime !== null){
+            taskData.manualExecutionTime = parseInt(taskData.manualExecutionTime);
+        }else{
+            taskData.manualExecutionTime = 10;
+        }
+        if (taskData.taskType === 'script') {
             Tasks.getTaskById(req.params.taskId, function(err, scriptTask) {
                 if (err) {
                     logger.error(err);
                     res.status(500).send(errorResponses.db.error);
                     return;
                 }
-                encryptedParam(taskData.scriptDetails,scriptTask.taskConfig.scriptDetails, function (err, encryptedParam) {
+                encryptedParam(taskData.scriptDetails, scriptTask.taskConfig.scriptDetails, function(err, encryptedParam) {
                     if (err) {
                         logger.error(err);
                         res.status(500).send("Failed to encrypted script parameters: ", err);
                         return;
                     } else {
                         taskData.scriptDetails = encryptedParam;
-                        Tasks.updateTaskById(req.params.taskId, taskData, function (err, updateCount) {
+                        Tasks.updateTaskById(req.params.taskId, taskData, function(err, updateCount) {
                             if (err) {
                                 logger.error(err);
                                 res.status(500).send(errorResponses.db.error);
                                 return;
                             }
                             if (updateCount) {
+                                if(taskData.isTaskScheduled === true){
+                                    if(taskData.executionOrder === 'PARALLEL'){
+                                        catalystSync.executeParallelScheduledTasks();
+                                    }else{
+                                        catalystSync.executeSerialScheduledTasks();
+                                    }
+                                };
                                 res.send({
                                     updateCount: updateCount
                                 });
@@ -519,14 +564,24 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     }
                 })
             });
-        }else {
-            Tasks.updateTaskById(req.params.taskId, taskData, function (err, updateCount) {
+        } else {
+            if(taskData.taskType === 'jenkins'){
+                taskData.executionOrder= 'PARALLEL';
+            }
+            Tasks.updateTaskById(req.params.taskId, taskData, function(err, updateCount) {
                 if (err) {
                     logger.error(err);
                     res.status(500).send(errorResponses.db.error);
                     return;
                 }
                 if (updateCount) {
+                    if(taskData.isTaskScheduled === true){
+                        if(taskData.executionOrder === 'PARALLEL'){
+                            catalystSync.executeParallelScheduledTasks();
+                        }else{
+                            catalystSync.executeSerialScheduledTasks();
+                        }
+                    };
                     res.send({
                         updateCount: updateCount
                     });
@@ -574,39 +629,44 @@ module.exports.setRoutes = function(app, sessionVerification) {
         });
 
     });
+
+
 };
 
-function encryptedParam(paramDetails,existingParams,callback){
+function encryptedParam(paramDetails, existingParams, callback) {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var count = 0;
     var encryptedList = [];
-    for(var i = 0; i < paramDetails.length; i++){
-        (function(param){
-            if(param.scriptParameters.length > 0){
+    for (var i = 0; i < paramDetails.length; i++) {
+        (function(paramDetail) {
+            if (paramDetail.scriptParameters.length > 0) {
                 count++;
-                for(var j = 0; j < param.scriptParameters.length; j++){
-                    (function(scriptParameter){
-                        if(scriptParameter === ''){
+                for (var j = 0; j < paramDetail.scriptParameters.length; j++) {
+                    (function(scriptParameter) {
+                        if (scriptParameter === '') {
                             encryptedList.push(existingParams[i].scriptParameters[j]);
-                        }else if(scriptParameter === existingParams[i].scriptParameters[j]){
+                        } else if (scriptParameter.paramVal === existingParams[i].scriptParameters[j].paramVal) {
                             encryptedList.push(scriptParameter);
-                        }else {
-                            var encryptedText = cryptography.encryptText(scriptParameter, cryptoConfig.encryptionEncoding,
+                        } else {
+                            var encryptedText = cryptography.encryptText(scriptParameter.paramVal, cryptoConfig.encryptionEncoding,
                                 cryptoConfig.decryptionEncoding);
-                            encryptedList.push(encryptedText);
+                            encryptedList.push({
+                                paramVal:encryptedText,
+                                paramVal:scriptParameter.paramVal
+                            });
                         }
-                        if(encryptedList.length === param.scriptParameters.length){
-                            param.scriptParameters = encryptedList;
+                        if (encryptedList.length === paramDetail.scriptParameters.length) {
+                            paramDetail.scriptParameters = encryptedList;
                             encryptedList = [];
                         }
-                    })(param.scriptParameters[j]);
+                    })(paramDetail.scriptParameters[j]);
                 }
-            }else{
+            } else {
                 count++;
             }
-            if(count === paramDetails.length){
-                callback(null,paramDetails);
+            if (count === paramDetails.length) {
+                callback(null, paramDetails);
                 return;
             }
         })(paramDetails[i]);

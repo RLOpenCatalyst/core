@@ -161,8 +161,24 @@ var BlueprintSchema = new Schema({
     },
     botType: {
         type: String
+    },
+    serviceDeliveryCheck: {
+        type: Boolean,
+        default:false
+    },
+    botCategory: {
+        type: String
+    },
+    executionCount:{
+        type: Number,
+        required: false,
+        default:0
+    },
+    manualExecutionTime:{
+        type: Number,
+        required: false,
+        default:10
     }
-
 });
 
 BlueprintSchema.plugin(mongoosePaginate);
@@ -339,8 +355,21 @@ BlueprintSchema.methods.launch = function(opts, callback) {
                                 sessionUser: opts.sessionUser,
                                 users: self.users,
                                 blueprintData: self,
+                                tagServer: opts.tagServer,
+                                auditTrailId:opts.auditTrailId
                             }, function(err, launchData) {
-                                callback(err, launchData);
+                                if(err){
+                                    err['errObj'] = {
+                                        endedOn:new Date().getTime(),
+                                        orgName:project[0].orgname,
+                                        bgName:project[0].productgroupname,
+                                        projectName:project[0].projectname,
+                                        envName:envName
+                                    };
+                                    callback(err,null);
+                                    return;
+                                }
+                                callback(null, launchData);
                             });
                         });
                     } else {
@@ -362,8 +391,21 @@ BlueprintSchema.methods.launch = function(opts, callback) {
                             sessionUser: opts.sessionUser,
                             users: self.users,
                             blueprintData: self,
+                            tagServer: opts.tagServer,
+                            auditTrailId:opts.auditTrailId
                         }, function(err, launchData) {
-                            callback(err, launchData);
+                            if(err){
+                                err['errObj'] = {
+                                    endedOn:new Date().getTime(),
+                                    orgName:project[0].orgname,
+                                    bgName:project[0].productgroupname,
+                                    projectName:project[0].projectname,
+                                    envName:envName
+                                };
+                                callback(err,null);
+                                return;
+                            }
+                            callback(null, launchData);
                         });
                     }
                 });
@@ -442,7 +484,9 @@ BlueprintSchema.statics.createNew = function(blueprintData, callback) {
             parentId: blueprintData.id,
             domainNameCheck: blueprintData.domainNameCheck,
             shortDesc:blueprintData.shortDesc,
-            botType:blueprintData.botType
+            botType:blueprintData.botType,
+            serviceDeliveryCheck:blueprintData.serviceDeliveryCheck,
+            botCategory:blueprintData.botCategory
         };
         var blueprint = new Blueprints(blueprintObj);
         logger.debug(blueprint);
@@ -974,6 +1018,33 @@ BlueprintSchema.statics.getBlueprintsByOrgBgProject = function(jsonData, callbac
 
 };
 
+
+BlueprintSchema.statics.getAllServiceDeliveryBlueprint = function(serviceDeliveryCheck, callback) {
+    this.find({serviceDeliveryCheck:serviceDeliveryCheck}, function(err, blueprints) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, blueprints);
+        return;
+    });
+};
+
+BlueprintSchema.statics.removeServiceDeliveryBlueprints = function(blueprintId, callback) {
+    this.update({ "_id": new ObjectId(blueprintId)}, {serviceDeliveryCheck: false}, function (err, data) {
+        if (err) {
+            logger.error(err);
+            callback(err, null);
+            return;
+        }
+        if (data.length) {
+            callback(null, data[0]);
+        } else {
+            callback(null, null);
+        }
+    });
+};
+
 BlueprintSchema.statics.getBlueprintsByOrgBgProjectProvider = function(jsonData, callback) {
     var queryObj = {
         orgId: jsonData.orgId,
@@ -1397,6 +1468,23 @@ BlueprintSchema.statics.checkBPDependencyByFieldName = function(fieldName,id, ca
         fieldName: id
     }
     Blueprints.find(queryObj, function(err, data) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, data);
+    });
+};
+BlueprintSchema.statics.updateBlueprintExecutionCount = function updateBlueprintExecutionCount(blueprintId,count,callback) {
+    Blueprints.update({
+        "_id": new ObjectId(blueprintId),
+    }, {
+        $set: {
+            executeCount: count
+        }
+    }, {
+        upsert: false
+    }, function (err, data) {
         if (err) {
             callback(err, null);
             return;

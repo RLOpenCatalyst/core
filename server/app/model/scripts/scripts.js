@@ -55,6 +55,16 @@ var ScriptSchema = new Schema({
         type:String,
         required:true,
         trim:true
+    },
+    isParametrized:{
+        type:Boolean,
+        required:false,
+        default:false
+    },
+    noOfParams:{
+        type:Number,
+        required:false,
+        default:0
     }
 });
 ScriptSchema.plugin(mongoosePaginate);
@@ -88,7 +98,9 @@ ScriptSchema.statics.updateScript = function(scriptData, callback) {
         $set: {
             "name": scriptData.name,
             "description": scriptData.description,
-            "fileId": scriptData.fileId
+            "fileId": scriptData.fileId,
+            "isParametrized":scriptData.isParametrized,
+            "noOfParams":scriptData.noOfParams
         },
     },{
         upsert: false

@@ -30,6 +30,7 @@ var networkProfileService = require('_pr/services/networkProfileService.js');
 var vmImageDao = require('_pr/model/classes/masters/vmImage.js');
 var Blueprints = require('_pr/model/blueprint');
 var AWSKeyPair = require('_pr/model/classes/masters/cloudprovider/keyPair.js');
+var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
 
 
 
@@ -68,6 +69,87 @@ blueprintService.getAllBlueprints = function getAllBlueprints(orgIds, callback) 
             callback(null, blueprints);
         }
     });
+};
+
+blueprintService.deleteServiceDeliveryBlueprint = function deleteServiceDeliveryBlueprint(blueprintId, callback) {
+    async.waterfall([
+        function (next) {
+            Blueprints.removeServiceDeliveryBlueprints(blueprintId, next);
+        },
+        function (deleteTaskCheck, next) {
+            auditTrail.removeAuditTrails({auditId:blueprintId},next);
+        }
+    ],function (err, results) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, results);
+        return;
+    });
+};
+
+blueprintService.getAllServiceDeliveryBlueprint = function getAllServiceDeliveryBlueprint(queryObj, callback) {
+    if(queryObj.serviceDeliveryCheck === true && queryObj.actionStatus && queryObj.actionStatus !== null) {
+        var query = {
+            auditType: 'BOTs',
+            actionStatus: queryObj.actionStatus,
+            auditCategory: 'Blueprint'
+        };
+        var blueprintIds = [];
+        async.waterfall([
+            function (next) {
+                auditTrail.getAuditTrails(query, next);
+            },
+            function (auditTrailList, next) {
+                var results = [];
+                if (auditTrailList.length > 0) {
+                    for (var i = 0; i < auditTrailList.length; i++) {
+                        if (blueprintIds.indexOf(auditTrailList[i].auditId) < 0) {
+                            results.push(auditTrailList[i].auditId);
+                            blueprintIds.push(auditTrailList[i].auditId);
+                        } else {
+                            results.push(auditTrailList[i].auditId);
+                        }
+                    }
+                    if (results.length === auditTrailList.length) {
+                        next(null, blueprintIds);
+                    }
+                } else {
+                    next(null, auditTrailList);
+                }
+            },
+            function (blueprintIdList, next) {
+                if(blueprintIdList.length > 0) {
+                    Blueprints.getByIds(blueprintIdList, next);
+                }else{
+                    next(null, blueprintIdList);
+                }
+            }
+        ], function (err, results) {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            callback(null, results);
+            return;
+        })
+    }else if(queryObj.serviceDeliveryCheck === true){
+        Blueprints.getAllServiceDeliveryBlueprint(queryObj.serviceDeliveryCheck, function(err, blueprints) {
+            if (err) {
+                callback({
+                    code: 500,
+                    errMessage: "Blueprint fetch failed."
+                },null);
+                return;
+            }
+            callback(null, blueprints);
+            return;
+        });
+    }else{
+        callback(null, []);
+        return;
+    }
 };
 
 blueprintService.checkBlueprintAccess = function checkBlueprintAccess(orgs, blueprintId, callback) {

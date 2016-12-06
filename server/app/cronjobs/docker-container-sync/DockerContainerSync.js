@@ -270,8 +270,6 @@ function saveAndUpdateContainers(containers,containerIds,instanceId,instance,nex
                                             log: logs,
                                             timestamp: timestampStarted
                                         });
-
-
                                         var containerLogs ={
                                             actionId: actionLog._id,
                                             containerId: container.Id,

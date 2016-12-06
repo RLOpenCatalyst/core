@@ -1,12 +1,12 @@
 /*
  Copyright [2016] [Relevance Lab]
-
+ 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
-
+ 
  http://www.apache.org/licenses/LICENSE-2.0
-
+ 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,12 +24,12 @@ var logger = require('_pr/logger')(module);
 var extend = require('mongoose-validator').extend;
 var Schema = mongoose.Schema;
 
-extend('is_ValidName', function(val) {
+extend('is_ValidName', function (val) {
     var pattern = /^[a-zA-Z0-9-_]+$/;
     return pattern.test(val);
 }, 'Name can contain alphabets, numbers,dash, underscore');
 
-extend('isValidDesc', function(val) {
+extend('isValidDesc', function (val) {
     var pattern = /^[a-zA-Z0-9-_.,\s]+$/;
     return pattern.test(val);
 }, 'Name can contain alphabets, numbers,dash, underscore');
@@ -105,8 +105,8 @@ var d4dMastersOrg = new mongoose.Schema({
     },
     plannedCost: {
         type: Number,
-        required:false,
-        default:0.0
+        required: false,
+        default: 0.0
     },
     active: {
         type: Boolean,
@@ -379,9 +379,9 @@ var d4dMastersProjects = new mongoose.Schema({
         default: true
     },
     appdeploy: [{
-        applicationname: String,
-        appdescription: String
-    }],
+            applicationname: String,
+            appdescription: String
+        }],
     repositories: {
         nexus: [String],
         docker: [String]
@@ -472,6 +472,12 @@ var d4dMastersConfigManagement = new mongoose.Schema({
         type: String,
         required: true,
         trim: true
+    },
+    monitorId: {
+        type: String,
+        required: false,
+        trim: true,
+        default: null
     }
 }, {
     collection: 'd4dmastersnew'
@@ -534,7 +540,7 @@ var d4dMastersDockerConfig = new mongoose.Schema({
         required: false,
         trim: true
     },
-    repositories:Schema.Types.Mixed,
+    repositories: Schema.Types.Mixed,
     folderpath: {
         type: String,
         trim: true
@@ -692,7 +698,8 @@ var d4dMastersDesignTemplateTypes = new mongoose.Schema({
         type: String,
         required: true,
         trim: true
-    }
+    },
+    providerType:[String]
 }, {
     collection: 'd4dmastersnew'
 });
@@ -713,6 +720,10 @@ var d4dMastersTemplatesList = new mongoose.Schema({
         trim: true
     },
     templatesicon_filename: {
+        type: String,
+        trim: true
+    },
+    templatesicon_filePath: {
         type: String,
         trim: true
     },
@@ -1276,7 +1287,7 @@ var d4dMastersNexusServer = new mongoose.Schema({
         required: false,
         trim: true
     },
-    repositories:Schema.Types.Mixed,
+    repositories: Schema.Types.Mixed,
     orgrowid: {
         type: String,
         trim: true
