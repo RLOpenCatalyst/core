@@ -41,7 +41,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         })
     });
 
-    app.delete('/bots/:botId/bots-history',function(req,res){
+    app.get('/bots/:botId/bots-history',function(req,res){
         botsService.getBotsHistory(req.params.botId, function(err,data){
             if (err) {
                 return res.status(500).send(err);

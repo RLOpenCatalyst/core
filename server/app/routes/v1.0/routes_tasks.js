@@ -30,6 +30,7 @@ var Cryptography = require('_pr/lib/utils/cryptography');
 var schedulerService = require('_pr/services/schedulerService');
 var catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
 var botsService = require('_pr/services/botsService.js');
+var auditTrailService = require('_pr/services/auditTrailService.js');
 var cronTab = require('node-crontab');
 
 var appConfig = require('_pr/config');
@@ -187,6 +188,11 @@ module.exports.setRoutes = function(app, sessionVerification) {
                             botsService.removeBotsById(req.params.taskId,function(err,botsData){
                                 if(err){
                                     logger.error("Failed to delete Bots ", err);
+                                }
+                            });
+                            auditTrailService.removeAuditTrailById(req.params.taskId,function(err,auditTrailData){
+                                if(err){
+                                    logger.error("Failed to delete Audit Trail ", err);
                                 }
                             });
                             res.send({
@@ -570,7 +576,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                         if (err) {
                                             logger.error(err);
                                         } else {
-                                            botsService.createNew(task, 'Task', task.taskType, function (err, data) {
+                                            botsService.createOrUpdateBots(task, 'Task', task.taskType, function (err, data) {
                                                 if (err) {
                                                     logger.error("Error in creating bots entry." + err);
                                                 }
@@ -621,7 +627,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                             logger.debug("There is no cron job associated with Task ");
                         }
                         if (task.serviceDeliveryCheck === true) {
-                            botsService.createNew(task, 'Task', task.taskType, function (err, data) {
+                            botsService.createOrUpdateBots(task, 'Task', task.taskType, function (err, data) {
                                 if (err) {
                                     logger.error("Error in creating bots entry." + err);
                                 }

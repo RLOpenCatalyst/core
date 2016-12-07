@@ -116,6 +116,10 @@ var AuditTrailSchema = function AuditTrail() {
             type: String,
             trim:true,
             required:false
+        },
+        isDeleted: {
+            type: Boolean,
+            default:false
         }
     });
 };

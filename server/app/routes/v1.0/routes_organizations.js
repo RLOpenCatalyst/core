@@ -1042,7 +1042,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                 };
                                 if(task.serviceDeliveryCheck === true){
                                     botsService.createOrUpdateBots(task,'Task',task.taskType,function(err,data){
-                                        logger.error("Error in creating bots entry."+err);
+                                        if(err) {
+                                            logger.error("Error in creating bots entry." + err);
+                                        }
                                     });
                                 }
                                 res.send(task);
@@ -1067,7 +1069,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
                         };
                         if(task.serviceDeliveryCheck === true){
                             botsService.createOrUpdateBots(task,'Task',task.taskType,function(err,data){
-                                logger.error("Error in creating bots entry."+err);
+                                if(err) {
+                                    logger.error("Error in creating bots entry." + err);
+                                }
                             });
                         }
                         res.send(task);

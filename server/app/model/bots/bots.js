@@ -231,7 +231,7 @@ BotsSchema.statics.getBotsById = function(botId,callback){
 };
 
 BotsSchema.statics.getAllBots = function(callback){
-    Bots.find({}, function(err, bots) {
+    Bots.find({isDeleted:false}, function(err, bots) {
         if (err) {
             logger.error(err);
             var error = new Error('Internal server error');

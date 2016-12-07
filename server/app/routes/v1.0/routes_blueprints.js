@@ -312,6 +312,11 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					logger.error("Failed to delete Bots ", err);
 				}
 			});
+			auditTrailService.removeAuditTrailById(req.params.taskId,function(err,auditTrailData){
+				if(err){
+					logger.error("Failed to delete Audit Trail ", err);
+				}
+			});
 			res.send(200, {
 				message: "deleted"
 			});

@@ -278,6 +278,36 @@ auditTrailService.getBotsAuditTrailHistory = function getBotsAuditTrailHistory(b
     });
 }
 
+auditTrailService.softRemoveAuditTrailById = function softRemoveAuditTrailById(auditId,callback){
+    auditTrail.softRemoveAuditTrails(auditId,function(err,data){
+        if(err){
+            return callback(err,null);
+        }else {
+            return callback(null, data);
+        }
+    });
+}
+
+auditTrailService.updateSoftRemoveAuditTrailById = function updateSoftRemoveAuditTrailById(auditId,callback){
+    auditTrail.updateSoftRemoveAuditTrails(auditId,function(err,data){
+        if(err){
+            return callback(err,null);
+        }else {
+            return callback(null, data);
+        }
+    });
+}
+
+auditTrailService.removeAuditTrailById = function removeAuditTrailById(auditId,callback){
+    auditTrail.removeAuditTrails({auditId:auditId},function(err,data){
+        if(err){
+            return callback(err,null);
+        }else {
+            return callback(null, data);
+        }
+    });
+}
+
 
 function getExecutionTime(endTime,startTime){
     var executionTimeInMS = endTime-startTime;

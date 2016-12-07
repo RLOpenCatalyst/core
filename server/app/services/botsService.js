@@ -72,6 +72,11 @@ botsService.createOrUpdateBots = function createOrUpdateBots(botsDetail,linkedCa
                     callback(err,null);
                     return;
                 }
+                auditTrailService.updateSoftRemoveAuditTrailById(botsObj.botId,function(err,data){
+                    if(err){
+                        logger.error("Error in updating soft audit Trails");
+                    }
+                })
                 callback(null,updateBotsData);
                 return;
             });
