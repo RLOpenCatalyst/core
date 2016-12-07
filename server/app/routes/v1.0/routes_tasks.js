@@ -30,11 +30,11 @@ var Cryptography = require('_pr/lib/utils/cryptography');
 var schedulerService = require('_pr/services/schedulerService');
 var catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
 var botsService = require('_pr/services/botsService.js');
-
+var cronTab = require('node-crontab');
 
 var appConfig = require('_pr/config');
 var uuid = require('node-uuid');
-var fileIo = require('_pr/lib/utils/fileio');
+
 
 
 module.exports.setRoutes = function(app, sessionVerification) {
@@ -560,7 +560,11 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                     }else{
                                         catalystSync.executeSerialScheduledTasks();
                                     }
-                                };
+                                }else if(scriptTask.cronJobId && scriptTask.cronJobId !== null){
+                                    cronTab.cancelJob(scriptTask.cronJobId);
+                                }else{
+                                    logger.debug("There is no cron job associated with Task ");
+                                }
                                 if(taskData.serviceDeliveryCheck === true) {
                                     Tasks.getTaskById(req.params.taskId, function (err, task) {
                                         if (err) {
@@ -601,26 +605,29 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     return;
                 }
                 if (updateCount) {
-                    if(taskData.isTaskScheduled === true){
-                        if(taskData.executionOrder === 'PARALLEL'){
-                            catalystSync.executeParallelScheduledTasks();
-                        }else{
-                            catalystSync.executeSerialScheduledTasks();
+                    Tasks.getTaskById(req.params.taskId, function (err, task) {
+                        if (err) {
+                            logger.error(err);
                         }
-                    };
-                    if(taskData.serviceDeliveryCheck === true) {
-                        Tasks.getTaskById(req.params.taskId, function (err, task) {
-                            if (err) {
-                                logger.error(err);
+                        if (task.isTaskScheduled === true) {
+                            if (taskData.executionOrder === 'PARALLEL') {
+                                catalystSync.executeParallelScheduledTasks();
                             } else {
-                                botsService.createNew(task, 'Task', task.taskType, function (err, data) {
-                                    if (err) {
-                                        logger.error("Error in creating bots entry." + err);
-                                    }
-                                });
+                                catalystSync.executeSerialScheduledTasks();
                             }
-                        });
-                    }
+                        }else if(task.cronJobId && task.cronJobId !== null){
+                            cronTab.cancelJob(task.cronJobId);
+                        }else{
+                            logger.debug("There is no cron job associated with Task ");
+                        }
+                        if (task.serviceDeliveryCheck === true) {
+                            botsService.createNew(task, 'Task', task.taskType, function (err, data) {
+                                if (err) {
+                                    logger.error("Error in creating bots entry." + err);
+                                }
+                            });
+                        }
+                    })
                     res.send({
                         updateCount: updateCount
                     });
