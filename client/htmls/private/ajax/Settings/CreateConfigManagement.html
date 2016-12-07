@@ -100,14 +100,6 @@
                                                    </label>
                                                 </div>
                                              </div>
-                                             <div class="hidden col-lg-6 col-md-6 margintop20  monitoringCheck">
-                                              <input type="checkbox" name="updateMonitoringInfo" style="vertical-align: middle;" id="updateMonitoringInfo"/>
-                                              <label for="">Enable Monitoring:</label>
-                                              <select id="monitorId" name="monitorId" disabled class="chooseOrganization width-100" style="vertical-align: central" cdata="catalyst" skiprowid="yes">
-                                                  <option value="">Select Monitor</option>
-                                              </select>
-                                            </div>
-                                          
                                     </div>
                                     <!-- end widget content -->
                                  </div>
@@ -155,40 +147,6 @@
        var folderpath = '/' + $('#loginname').val() + "/.chef/";
        $('#folderpath').val(folderpath);
    }
-
-   $('select#orgname').change(function(e){
-        var orgValueSelect = $(this).val();
-        if(orgValueSelect !== ''){
-            $('#monitorId').attr('disabled','disabled');
-            $('input[name="updateMonitoringInfo"]').removeAttr('checked');
-            getMonitorValues();
-        } else {
-            $('.monitoringCheck').addClass('hidden');
-        }
-    });
-
-    function getMonitorValues(){
-        $('.monitoringCheck').removeClass('hidden');
-        $.get('../monitors',function(data){
-            var orgValue = $('select#orgname option:selected').attr('rowid');
-            var str = ' <option value="">Select Monitor</option>';
-            for(var i=0;i<data.length;i++){
-                if(orgValue === data[i].organization.id){
-                    str = str + '<option value="'+data[i]._id+'">'+data[i].name+'</option>';
-                }
-            }
-            $('#monitorId').html(str);
-        });
-    }
-
-    $('input[name="updateMonitoringInfo"]').change(function(e){
-        if(this.checked){
-            $('#monitorId').removeAttr('disabled').attr('cat-validation','required');
-        }  else {  
-            $('#monitorId').val('').attr('selected', true).change();
-            $('#monitorId').removeAttr('cat-validation').attr('disabled','disabled');;
-        }
-    });
    
    function isUserTypeSuperAdmin(){
     $.get('/d4dMasters/loggedInUser',function(data){
@@ -236,29 +194,7 @@
 <script>
    $(document).ready(function () {
     var isEditActivateLocation = location.href.toString().split('?')[1]==="new"?false:true;
-    var rowid = url.substr(url.indexOf("?") + 1);
-    if(isEditActivateLocation){
-      $.get('/d4dMasters/readmasterjsonrecord/10'+ '/' + rowid,function(data){
-          if(data.monitor !== null){
-            $('.monitoringCheck').removeClass('hidden');
-            $("input[name='updateMonitoringInfo']").attr('checked', true);
-            $('#monitorId').removeClass('hidden');
-            $.get('../monitors',function(monitorData){
-                var orgValue = $('select#orgname option:selected').attr('rowid');
-                var str = '';
-                for(var i=0;i<monitorData.length;i++){
-                    if(orgValue === monitorData[i].organization.id){
-                        str = '<option value="'+monitorData[i]._id+'">'+monitorData[i].name+'</option>';
-                        $('#monitorId').append(str).removeAttr('disabled');
-                        $("#monitorId").val(data.monitor.id).attr('selected', true).change();
-                    }
-                }
-            });
-          } else {
-            getMonitorValues();
-          }
-      });
-    }
+   
       $("#configname").focus();
        $('#myForm22').submit(function() {
 
