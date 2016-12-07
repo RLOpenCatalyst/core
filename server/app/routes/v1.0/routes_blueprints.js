@@ -13,6 +13,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+
+
 // This file act as a Controller which contains blueprint related all end points.
 var Blueprints = require('_pr/model/blueprint');
 var usersDao = require('_pr/model/users.js');
@@ -441,6 +443,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                 description: blueprint.shortDesc,
                                 category: blueprint.botCategory,
                                 executionType: blueprint.blueprintType,
+                                manualExecutionTime: blueprint.manualExecutionTime,
                                 nodeIdsWithActionLog: []
                             };
                             blueprint.envId = req.query.envId;

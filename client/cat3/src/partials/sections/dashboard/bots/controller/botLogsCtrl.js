@@ -41,6 +41,7 @@
             };
             genSevs.promiseGet(param).then(function (response) {
                 $scope.botLogs = response;
+                helper.scrollBottom();
                 $scope.isBotLogsLoading = false;
             });
         };
@@ -73,9 +74,11 @@
             genSevs.promiseGet(param).then(function (response) {
                 if (response) {
                     $scope.jenkinsLogs = helper.formatLogs(response.output);
+                    helper.scrollBottom();
                     $scope.isBotLogsLoading = false;
                 } else {
                     $scope.jenkinsLogs = helper.formatLogs(response.data.output);
+                    helper.scrollBottom();
                     $scope.isBotLogsLoading = false;
                 }
             });

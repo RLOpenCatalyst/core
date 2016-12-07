@@ -728,6 +728,10 @@ accordion .panel-heading {
     margin-top: 10px;
 }
 
+.margintop8 {
+    margin-top: 8px;
+}
+
 .marginleft15 {
     margin-left: 15px;
 }
@@ -738,6 +742,13 @@ accordion .panel-heading {
 
 .marginleft5 {
     margin-left: 5px;
+}
+
+#blueprintInfoPage, #botInfoPage {
+    .td-padding {
+        padding-left: 18px;
+        padding-top:16px;
+    }
 }
 
 /* global styles for logs display across workzone ends here*/

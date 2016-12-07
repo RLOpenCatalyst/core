@@ -18,10 +18,16 @@ catalystSync.executeScheduledInstances = function executeScheduledInstances() {
             var resultList =[];
             for (var i = 0; i < instances.length; i++) {
                 (function(instance) {
-                    if(instance.cronJobIds && instance.cronJobIds !== null){
-                        cronTab.cancelJobIds(instance.cronJobIds);
+                    if(instance.cronJobIds && instance.cronJobIds.length > 0){
+                        var cronJobCheck = cancelOldCronJobs(instance.cronJobIds)
+                        if(cronJobCheck){
+                            resultList.push(function(callback){schedulerService.executeSchedulerForInstances(instance,callback);});
+                        }
+                    }else {
+                        resultList.push(function (callback) {
+                            schedulerService.executeSchedulerForInstances(instance, callback);
+                        });
                     }
-                    resultList.push(function(callback){schedulerService.executeSchedulerForInstances(instance,callback);});
                     if(resultList.length === instances.length){
                         logger.debug("Schedule Instance length for Scheduler Start>>"+resultList.length);
                         async.parallel(resultList,function(err,results){
@@ -127,4 +133,21 @@ catalystSync.executeSerialScheduledTasks = function executeSerialScheduledTasks(
             return;
         }
     });
+}
+
+function cancelOldCronJobs(ids){
+    if(ids.length > 0){
+        var count = 0;
+        for(var i = 0; i < ids.length; i++){
+            (function(id){
+                count++;
+                cronTab.cancelJob(id);
+            })(ids[i]);
+        }
+        if(count === ids.length){
+            return true;
+        }
+    }else{
+        return true;
+    }
 }
