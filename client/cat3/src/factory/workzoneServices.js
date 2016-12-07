@@ -532,7 +532,7 @@
 					return $http.get(fullUrl(url),Auth.getHeaderObject());
 				},
 				getBotTypeList:function () {
-					var url ='/config-data/bot-type';
+					var url ='/config-data/bots-type';
 					return $http.get(fullUrl(url),Auth.getHeaderObject());
 				},
 				getTaggingServer:function () {

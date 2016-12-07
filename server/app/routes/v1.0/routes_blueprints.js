@@ -24,6 +24,8 @@ var credentialcryptography = require('_pr/lib/credentialcryptography');
 var fs = require('fs');
 var blueprintService = require('_pr/services/blueprintService.js');
 var auditTrailService = require('_pr/services/auditTrailService');
+var bots = require('_pr/model/bots/bots.js');
+var botsService = require('_pr/services/botsService.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	app.all('/blueprints/*', sessionVerificationFunc);
@@ -229,6 +231,24 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					res.send(500, errorResponses.db.error);
 					return;
 				}
+				if(blueprintUpdateData.serviceDeliveryCheck === true){
+					Blueprints.getById(req.params.blueprintId, function(err, blueprintData) {
+						if (err) {
+							logger.error("Failed to get blueprint ", err);
+							return;
+						} else {
+							botsService.createNew(blueprintData, 'Blueprint', blueprintUpdateData.blueprintType, 'edit', function (err, data) {
+								logger.error("Error in creating bots entry." + err);
+							});
+						}
+					});
+				}else{
+					botsService.removeSoftBotsById(req.params.blueprintId, function (err, data) {
+						if (err) {
+							logger.error("Error in updating bots entry." + err);
+						}
+					});
+				}
 				var latestVersionData = updatedBlueprint.getLatestVersion();
 				if (latestVersionData) {
 					res.send({
@@ -237,7 +257,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				} else {
 					res.send(200);
 				}
-
 
 			});
 		});
@@ -288,6 +307,11 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				res.send(500, errorResponses.db.error);
 				return;
 			}
+			bots.removeBotsById(req.params.blueprintId,function(err,botsData){
+				if(err){
+					logger.error("Failed to delete Bots ", err);
+				}
+			});
 			res.send(200, {
 				message: "deleted"
 			});
@@ -432,6 +456,20 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 								nodeIdsWithActionLog:[]
 							};
 							blueprint.envId= req.query.envId;
+							bots.getBotsById(blueprint._id,function(err,botData){
+								if(err){
+									logger.error(err);
+								}else if(botData.length > 0){
+									var botExecutionCount = botData[0].executionCount + 1;
+									bots.updateBotsExecutionCount(blueprint._id,botExecutionCount,function(err,data){
+										if(err){
+											logger.error("Error while updating Bot Execution Count");
+										}
+									});
+								}else{
+									logger.debug("There is no Bots Data present in DB");
+								}
+							});
 							auditTrailService.insertAuditTrail(blueprint,auditTrailObj,actionObj,function(err,data){
 								if(err){
 									logger.error(err);

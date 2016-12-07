@@ -78,7 +78,7 @@
                 actionButtonText: 'Delete',
                 actionButtonStyle: 'cat-btn-delete',
                 headerText: 'Delete Bot',
-                bodyText: 'Are you sure you want to delete this bot?'
+                bodyText: 'Are you sure you want to delete this bots?'
             };
             confirmbox.showModal({}, modalOptions).then(function() {
                 var param={
@@ -109,7 +109,7 @@
                 actionButtonText: 'Delete',
                 actionButtonStyle: 'cat-btn-delete',
                 headerText: 'Delete Bot',
-                bodyText: 'Are you sure you want to delete this bot?'
+                bodyText: 'Are you sure you want to delete this bots?'
             };
             confirmbox.showModal({}, modalOptions).then(function() {
                 var param={
@@ -178,7 +178,7 @@
         lib.summary = function() {
             $scope.botSummary=[];
             var param={
-                url:'/audit-trail/bot-summary'
+                url:'/audit-trail/bots-summary'
             };
             genSevs.promiseGet(param).then(function (response) {
                 $scope.botSummary = response;

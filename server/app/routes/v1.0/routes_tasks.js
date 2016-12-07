@@ -29,7 +29,7 @@ var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var schedulerService = require('_pr/services/schedulerService');
 var catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
-
+var botsService = require('_pr/services/botsService.js');
 
 
 var appConfig = require('_pr/config');
@@ -182,6 +182,11 @@ module.exports.setRoutes = function(app, sessionVerification) {
                             TaskHistory.removeByTaskId(req.params.taskId, function(err, removed) {
                                 if (err) {
                                     logger.error("Failed to remove history: ", err);
+                                }
+                            });
+                            botsService.removeBotsById(req.params.taskId,function(err,botsData){
+                                if(err){
+                                    logger.error("Failed to delete Bots ", err);
                                 }
                             });
                             res.send({
@@ -520,6 +525,8 @@ module.exports.setRoutes = function(app, sessionVerification) {
         if(taskData.taskScheduler  && taskData.taskScheduler !== null && Object.keys(taskData.taskScheduler).length !== 0) {
             taskData.taskScheduler = apiUtil.createCronJobPattern(taskData.taskScheduler);
             taskData.isTaskScheduled = true;
+        }else{
+            taskData.isTaskScheduled = false;
         }
         if(taskData.manualExecutionTime && taskData.manualExecutionTime !== null){
             taskData.manualExecutionTime = parseInt(taskData.manualExecutionTime);
@@ -554,6 +561,25 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                         catalystSync.executeSerialScheduledTasks();
                                     }
                                 };
+                                if(taskData.serviceDeliveryCheck === true) {
+                                    Tasks.getTaskById(req.params.taskId, function (err, task) {
+                                        if (err) {
+                                            logger.error(err);
+                                        } else {
+                                            botsService.createNew(task, 'Task', task.taskType, function (err, data) {
+                                                if (err) {
+                                                    logger.error("Error in creating bots entry." + err);
+                                                }
+                                            });
+                                        }
+                                    });
+                                }else{
+                                    botsService.removeSoftBotsById(req.params.taskId, function (err, data) {
+                                        if (err) {
+                                            logger.error("Error in updating bots entry." + err);
+                                        }
+                                    });
+                                }
                                 res.send({
                                     updateCount: updateCount
                                 });
@@ -582,6 +608,19 @@ module.exports.setRoutes = function(app, sessionVerification) {
                             catalystSync.executeSerialScheduledTasks();
                         }
                     };
+                    if(taskData.serviceDeliveryCheck === true) {
+                        Tasks.getTaskById(req.params.taskId, function (err, task) {
+                            if (err) {
+                                logger.error(err);
+                            } else {
+                                botsService.createNew(task, 'Task', task.taskType, function (err, data) {
+                                    if (err) {
+                                        logger.error("Error in creating bots entry." + err);
+                                    }
+                                });
+                            }
+                        });
+                    }
                     res.send({
                         updateCount: updateCount
                     });
