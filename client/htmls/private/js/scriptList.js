@@ -7,6 +7,8 @@ function setfilename(val){
 //calling the global track functionality when track params are available..
 $(document).ready(function(e) {
     getScriptList();
+    $('#divParam').hide();
+    $('#checkScriptParam').hide();
 });
 
 //when the user clicks on the new button the setting the value to 'new' for the hidden field to know that user is creating the new item..
@@ -22,6 +24,18 @@ $('.addScriptItem').click(function(e) {
     $('.modal-header').find('.modal-title').html('Create New Script Item');
     $('#scriptEditHiddenInput').val('new');
     getOrganizationList();
+});
+
+$("input[name='isParametrized']:radio").change(function(){
+    if($(this).val() === 'Yes') {
+        $('#noOfParams').addClass("required");
+        $('#divParam').show();
+        $('#checkScriptParam').show();
+    } else {
+        $('#noOfParams').removeClass("required");
+        $('#divParam').hide();
+        $('#checkScriptParam').hide();
+    }
 });
 //to list down the organization for creating the script item.
 function getOrganizationList() {
@@ -46,7 +60,7 @@ var validator = $('#scriptForm').validate({
     ignore: [],
     rules: {
         scriptFile: {
-            extension: "sh"
+            extension: "sh|py"
         },
         scriptName: {
             maxlength: 15
@@ -54,7 +68,7 @@ var validator = $('#scriptForm').validate({
     },
     messages: {
         scriptFile: {
-            extension: "Only .sh files can be uploaded"
+            extension: "Only .sh and .py files can be uploaded"
         },
         scriptName: {
             maxlength: "Limited to 15 chars"
@@ -84,7 +98,10 @@ function getScriptList() {
         "serverSide": true,
         "destroy":true,
         "createdRow": function( row, data ) {
-            $( row ).attr({"scriptId" : data.scriptId,"scriptName":data.name,"scriptType":data.type, "scriptDesc" : data.description, "orgId" : data.orgDetails.id ,"orgName" : data.orgDetails.name,"scriptFileName" : data.fileName,"scriptFileId" : data.fileId});
+            $( row ).attr({"scriptId" : data.scriptId,"scriptName":data.name,"scriptType":data.type,
+                "scriptDesc" : data.description, "orgId" : data.orgDetails.id ,"orgName" : data.orgDetails.name,
+                "scriptFileName" : data.fileName,"scriptFileId" : data.fileId,
+                "isParametrized" : data.isParametrized,"noOfParams":data.noOfParams});
         },
         "ajax": '/scripts',
         "columns": [
@@ -143,6 +160,18 @@ $('#scriptListTable tbody').on( 'click', 'button.editRowScriptItem', function(){
     $editModal.find('#scriptHiddenInputId').val($this.parents('tr').attr('scriptId'));
     $editModal.find('#fileHiddenInputId').val($this.parents('tr').attr('scriptFileId'));
     $editModal.find('#fileNameDisplay').append($this.parents('tr').attr('scriptFileName'));
+    if($this.parents('tr').attr('isParametrized') === true ||  $this.parents('tr').attr('isParametrized') === 'true'){
+        $('input:radio[name="isParametrized"][value="Yes"]').prop('checked', true);
+        $('#noOfParams').addClass("required");
+        $('#divParam').show();
+        $('#checkScriptParam').show();
+        $editModal.find('#noOfParams').val($this.parents('tr').attr('noOfParams'));
+    }else{
+        $('input:radio[name="isParametrized"][value="No"]').prop('checked', true);
+        $('#noOfParams').removeClass("required");
+        $('#divParam').hide();
+        $('#checkScriptParam').hide();
+    }
     $editModal.find('#scriptFileNameHidden').empty().append($this.parents('tr').attr('scriptFileName'));
     return false;
 });
@@ -224,6 +253,11 @@ $('#scriptForm').submit(function(e) {
     var $form = $('#scriptForm');
     var scriptData = {};
     var $this = $(this);
+    var isParametrized = false, noOfParams=0;
+    if($("input[name='isParametrized']:checked").val() === 'Yes'){
+        isParametrized =true;
+        noOfParams=parseInt($('#noOfParams').find(":selected").val());
+    }
     var name = $this.find('#scriptName').val().trim();
     var description = $this.find('#scriptDescription').val().trim();
     var type = $form.find('#scriptType').val();
@@ -263,7 +297,9 @@ $('#scriptForm').submit(function(e) {
                         "type": type,
                         "description": description,
                         "orgDetails": orgDetails,
-                        "fileId": data.fileId
+                        "fileId": data.fileId,
+                        "isParametrized":isParametrized,
+                        "noOfParams":noOfParams
                     };
                 } else {
                     url = '../scripts/update/scriptData';
@@ -274,7 +310,9 @@ $('#scriptForm').submit(function(e) {
                         "type": type,
                         "description": description,
                         "orgDetails": orgDetails,
-                        "fileId": data.fileId
+                        "fileId": data.fileId,
+                        "isParametrized":isParametrized,
+                        "noOfParams":noOfParams
                     };    
                 }
                 formSave(methodName,url,reqBody);      

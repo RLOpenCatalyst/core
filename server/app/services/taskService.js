@@ -109,6 +109,24 @@ taskService.getAllServiceDeliveryTask = function getAllServiceDeliveryTask(query
     }
 };
 
+taskService.deleteServiceDeliveryTask = function deleteServiceDeliveryTask(taskId, callback) {
+    async.waterfall([
+        function (next) {
+            taskDao.removeServiceDeliveryTask(taskId, next);
+        },
+        function (deleteTaskCheck, next) {
+            auditTrail.removeAuditTrails({auditId:taskId},next);
+        }
+    ],function (err, results) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, results);
+        return;
+    });
+};
+
 taskService.executeTask = function executeTask(taskId, user, hostProtocol, choiceParam, appData, paramOptions, botTagServer, callback) {
     if (appData) {
         appData['taskId'] = taskId;
@@ -133,6 +151,17 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
             task.botParams = paramOptions;
             task.botTagServer = botTagServer;
             var auditTrailId = null;
+            var taskExecutionCount = 0;
+            if(task.executionCount){
+                taskExecutionCount = task.taskExecutionCount + 1
+            }else{
+                taskExecutionCount = 1;
+            }
+            taskDao.updateTaskExecutionCount(task._id,taskExecutionCount,function(err,data){
+                if(err){
+                    logger.error("Error while updating Task Execution Count");
+                }
+            });
             if(task.serviceDeliveryCheck === true){
                 var actionObj={
                     auditType:'BOTs',

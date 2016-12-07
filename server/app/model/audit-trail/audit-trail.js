@@ -47,6 +47,17 @@ AuditTrailSchema.statics.getAuditTrails = function(queryObj,callback){
     });
 };
 
+AuditTrailSchema.statics.removeAuditTrails = function(queryObj,callback){
+    AuditTrail.remove(queryObj, function(err, deleteAuditTrail) {
+        if (err) {
+            logger.error(err);
+            var error = new Error('Internal server error');
+            error.status = 500;
+            return callback(error);
+        }
+        return callback(null, deleteAuditTrail);
+    });
+};
 
 var AuditTrail = mongoose.model('auditTrails', AuditTrailSchema);
 module.exports = AuditTrail;
