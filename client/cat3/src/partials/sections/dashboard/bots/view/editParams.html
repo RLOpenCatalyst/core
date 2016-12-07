@@ -88,7 +88,7 @@
 								</tr>
 							</thead>
 							<tbody>
-								<tr ng-repeat="param in scriptparams.scriptParameters">
+								<tr ng-repeat="param in scriptparams[0].scriptParameters">
 									{{param}}
 									<td class="booleanParam"><label class="control-label" for="choiceName">Parameter {{$index+1}}:<span class="red">*</span></label></td>
 									<td><input id="value" type="text" class="form-control" name="value" ng-model="parameters[$index]"></td>

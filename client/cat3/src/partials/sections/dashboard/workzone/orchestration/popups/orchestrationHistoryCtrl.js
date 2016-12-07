@@ -53,7 +53,7 @@
 				getExecutionTime: function(endTime, startTime) {
                     $scope.executionTimeinMS = endTime-startTime;
                     $scope.executionTime = $scope.executionTimeinMS/(60000);
-                    return $scope.executionTime;
+                    return +(Math.round($scope.executionTime + "e+1")  + "e-1");
                 },
                 getSavedTime: function(endTime, startTime) {
                 	var executionTime = $scope.getExecutionTime(endTime, startTime);
