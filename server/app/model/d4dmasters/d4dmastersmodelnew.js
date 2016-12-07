@@ -472,12 +472,6 @@ var d4dMastersConfigManagement = new mongoose.Schema({
         type: String,
         required: true,
         trim: true
-    },
-    monitorId: {
-        type: String,
-        required: false,
-        trim: true,
-        default: null
     }
 }, {
     collection: 'd4dmastersnew'
