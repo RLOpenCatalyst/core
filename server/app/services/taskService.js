@@ -153,7 +153,7 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
             var auditTrailId = null;
             var taskExecutionCount = 0;
             if(task.executionCount){
-                taskExecutionCount = task.taskExecutionCount + 1
+                taskExecutionCount = task.executionCount + 1
             }else{
                 taskExecutionCount = 1;
             }
@@ -178,6 +178,7 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
                     description:task.shortDesc,
                     category:task.botCategory,
                     executionType:task.taskType,
+                    manualExecutionTime:task.manualExecutionTime,
                     nodeIdsWithActionLog:[]
                 };
                 auditTrailService.insertAuditTrail(task,auditTrailObj,actionObj,function(err,data) {
@@ -188,13 +189,25 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
                     task.execute(user, hostProtocol, choiceParam, appData, blueprintIds, task.envId, auditTrailId, function (err, taskRes, historyData) {
                         if (err) {
                             if (auditTrailId !== null) {
-                                var resultTaskExecution = {
-                                    "actionStatus": 'failed',
-                                    "status": "failed",
-                                    "endedOn": new Date().getTime(),
-                                    "actionLogId": historyData.nodeIdsWithActionLog[0].actionLogId,
-                                    "auditTrailConfig.nodeIdsWithActionLog": historyData.nodeIdsWithActionLog
-                                };
+                                var resultTaskExecution = null;
+                                if(task.taskType === 'jenkins'){
+                                    resultTaskExecution = {
+                                        "actionStatus":'failed',
+                                        "status":'failed',
+                                        "endedOn":new Date().getTime(),
+                                        "actionLogId":historyData.jenkinsServerId,
+                                        "auditTrailConfig.jenkinsBuildNumber":historyData.buildNumber,
+                                        "auditTrailConfig.jenkinsJobName":historyData.jobName
+                                    };
+                                }else{
+                                    resultTaskExecution = {
+                                        "actionStatus": 'failed',
+                                        "status": "failed",
+                                        "endedOn": new Date().getTime(),
+                                        "actionLogId": historyData.nodeIdsWithActionLog[0].actionLogId,
+                                        "auditTrailConfig.nodeIdsWithActionLog": historyData.nodeIdsWithActionLog
+                                    };
+                                }
                                 auditTrailService.updateAuditTrail('BOTs', auditTrailId, resultTaskExecution, function (err, auditTrail) {
                                     if (err) {
                                         logger.error("Failed to create or update bot Log: ", err);
@@ -216,13 +229,25 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
                 task.execute(user, hostProtocol, choiceParam, appData, blueprintIds, task.envId,auditTrailId,function(err, taskRes, historyData) {
                     if (err) {
                         if(auditTrailId !== null) {
-                            var resultTaskExecution = {
-                                "actionStatus": 'failed',
-                                "status": "failed",
-                                "endedOn": new Date().getTime(),
-                                "actionLogId": historyData.nodeIdsWithActionLog[0].actionLogId,
-                                "auditTrailConfig.nodeIdsWithActionLog": historyData.nodeIdsWithActionLog
-                            };
+                            var resultTaskExecution = null;
+                            if(task.taskType === 'jenkins'){
+                                resultTaskExecution = {
+                                    "actionStatus":'failed',
+                                    "status":'failed',
+                                    "endedOn":new Date().getTime(),
+                                    "actionLogId":historyData.jenkinsServerId,
+                                    "auditTrailConfig.jenkinsBuildNumber":historyData.buildNumber,
+                                    "auditTrailConfig.jenkinsJobName":historyData.jobName
+                                };
+                            }else{
+                                resultTaskExecution = {
+                                    "actionStatus": 'failed',
+                                    "status": "failed",
+                                    "endedOn": new Date().getTime(),
+                                    "actionLogId": historyData.nodeIdsWithActionLog[0].actionLogId,
+                                    "auditTrailConfig.nodeIdsWithActionLog": historyData.nodeIdsWithActionLog
+                                };
+                            }
                             auditTrailService.updateAuditTrail('BOTs', auditTrailId, resultTaskExecution, function (err, auditTrail) {
                                 if (err) {
                                     logger.error("Failed to create or update bot Log: ", err);

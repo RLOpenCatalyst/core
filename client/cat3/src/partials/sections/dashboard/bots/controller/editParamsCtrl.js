@@ -9,6 +9,7 @@
     "use strict";
     angular.module('library.params', [])
     .controller('editParamsCtrl',['$scope', '$rootScope', 'genericServices', 'workzoneServices', 'toastr', '$modalInstance', 'items', 'responseFormatter', function ($scope, $rootScope, genSevs, workzoneServices, toastr, $modalInstance, items, responseFormatter) {
+        $scope.botName = items.name;
         $scope.taskType = items.taskType;
         $scope.taggingServerList=[];
         $scope.envOptions=[];
