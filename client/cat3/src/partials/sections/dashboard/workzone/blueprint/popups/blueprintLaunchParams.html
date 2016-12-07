@@ -49,6 +49,16 @@
 						</select>
 					</div>
 
+					<div ng-show="showMonitor" class="col-lg-6 col-md-6 projectRepo margintop15">
+						<label for="">Monitoring:</label>
+                        	<select name="monitorId" ng-model="monitorId" class="form-control width-100">
+                        		<option value="null">None</option>
+                        		<option ng-repeat="monitor in monitorList" value="{{monitor._id}}">
+									{{monitor.name}}
+								</option>
+                        </select>
+					</div>
+
 				</div>
 				<div ng-show="showCFTInputs || showARMInputs" class="CFTInputs-block">
 					<span class="acknowledge-text">(Only numbers,letters allowed. No spaces and underscores)</span>

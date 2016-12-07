@@ -44,12 +44,12 @@ var MonitorsSchema = new Schema({
     }
 });
 
-var hiddenFields = { 'isDeleted': 0 };
+var hiddenFields = {'isDeleted': 0};
 
 MonitorsSchema.statics.createNew = function createNew(data, callback) {
     var self = this;
     var monitors = new self(data);
-    monitors.save(function(err, data) {
+    monitors.save(function (err, data) {
         if (err) {
             logger.error(err);
             if (typeof callback === 'function') {
@@ -63,19 +63,19 @@ MonitorsSchema.statics.createNew = function createNew(data, callback) {
     });
 };
 
-MonitorsSchema.statics.getMonitors = function(params, callback) {
+MonitorsSchema.statics.getMonitors = function (params, callback) {
     params.isDeleted = false;
 
     this.aggregate([{
-        $match: params
-    }, {
-        $lookup: {
-            from: "d4dmastersnew",
-            localField: "orgId",
-            foreignField: "rowid",
-            as: "organization"
-        }
-    }], function(err, monitors) {
+            $match: params
+        }, {
+            $lookup: {
+                from: "d4dmastersnew",
+                localField: "orgId",
+                foreignField: "rowid",
+                as: "organization"
+            }
+        }], function (err, monitors) {
         if (err) {
             callback(err, null);
             return;
@@ -89,34 +89,40 @@ MonitorsSchema.statics.getMonitors = function(params, callback) {
 
 };
 
-MonitorsSchema.statics.getById = function(monitorId, callback) {
-    this.find({ '_id': monitorId, 'isDeleted': false },
-        hiddenFields,
-        function(err, monitors) {
-            if (err) {
-                logger.error(err);
-                return callback(err, null);
-            } else if (monitors.length === 0) {
-                callback(null, null);
-                return;
-            } else {
-                return callback(null, monitors[0]);
+MonitorsSchema.statics.getById = function (monitorId, callback) {
+    logger.debug('monitorId-------->',monitorId);
+    if (monitorId) {
+        this.find({'_id': monitorId, 'isDeleted': false},
+            hiddenFields,
+            function (err, monitors) {
+                if (err) {
+                    logger.error(err);
+                    return callback(err, null);
+                } else if (monitors.length === 0) {
+                    callback(null, null);
+                    return;
+                } else {
+                    return callback(null, monitors[0]);
+                }
             }
-        }
-    );
+        );
+    } else {
+        callback(null, null);
+        return;
+    }
 };
 
-MonitorsSchema.statics.getMonitor = function(monitorId, callback) {
+MonitorsSchema.statics.getMonitor = function (monitorId, callback) {
     this.aggregate([{
-        $match: { '_id': ObjectId(monitorId), 'isDeleted': false }
-    }, {
-        $lookup: {
-            from: "d4dmastersnew",
-            localField: "orgId",
-            foreignField: "rowid",
-            as: "organization"
-        }
-    }], function(err, monitors) {
+            $match: {'_id': ObjectId(monitorId), 'isDeleted': false}
+        }, {
+            $lookup: {
+                from: "d4dmastersnew",
+                localField: "orgId",
+                foreignField: "rowid",
+                as: "organization"
+            }
+        }], function (err, monitors) {
         if (err) {
             callback(err, null);
             return;
@@ -129,9 +135,9 @@ MonitorsSchema.statics.getMonitor = function(monitorId, callback) {
     });
 };
 
-MonitorsSchema.statics.updateMonitors = function(monitorId, fields, callback) {
-    this.update({ '_id': monitorId }, { $set: fields },
-        function(err, result) {
+MonitorsSchema.statics.updateMonitors = function (monitorId, fields, callback) {
+    this.update({'_id': monitorId}, {$set: fields},
+        function (err, result) {
             if (err) {
                 logger.error(err);
                 if (typeof callback === 'function') {
@@ -146,9 +152,9 @@ MonitorsSchema.statics.updateMonitors = function(monitorId, fields, callback) {
     );
 };
 
-MonitorsSchema.statics.deleteMonitors = function(monitorId, callback) {
-    this.update({ '_id': monitorId }, { $set: { isDeleted: true } },
-        function(err, monitors) {
+MonitorsSchema.statics.deleteMonitors = function (monitorId, callback) {
+    this.update({'_id': monitorId}, {$set: {isDeleted: true}},
+        function (err, monitors) {
             if (err) {
                 logger.error(err);
                 return callback(err, null);
