@@ -1237,12 +1237,34 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *          "project": {
      *              "tagName": "application"
      *              "catalystEntityType": "project",
-     *              "catalystEntityMapping": {}
+     *              "catalystEntityMapping": {
+     *                  "<catalystEntityId>": {
+     *                      "catalystEntityId": "<MongoID>",
+     *                      "catalystEntityName": "project 1",
+     *                      "tagValues": ["proj1"]
+     *                  },
+     *                  "<catalystEntityId>": {
+     *                      "catalystEntityId": "<MongoID>",
+     *                      "catalystEntityName": "project 2",
+     *                      "tagValues": ["proj2"]
+     *                  }
+     *              }
      *          },
      *          "environment": {
      *              "tagName": "env",
      *              "catalystEntityType": "environment",
-     *              "catalystEntityMapping": {}
+     *              "catalystEntityMapping": {
+     *                  "<catalystEntityId>": {
+     *                      "catalystEntityId": "<MongoID>",
+     *                      "catalystEntityName": "Environment 1",
+     *                      "tagValues": ["env1"]
+     *                  },
+     *                  "<catalystEntityId>": {
+     *                      "catalystEntityId": "<MongoID>",
+     *                      "catalystEntityName": "Environment 2",
+     *                      "tagValues": ["env2"]
+     *                  }
+     *              }
      *          }
      *       }
      *
@@ -1262,13 +1284,35 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *              "name": "application",
      *              "values": ["proj1", "proj2"],
      *              "catalystEntityType": "project",
-     *              "catalystEntityMapping": {}
+     *              "catalystEntityMapping": {
+     *                  "<catalystEntityId>": {
+     *                      "catalystEntityId": "<MongoID>",
+     *                      "catalystEntityName": "project 1",
+     *                      "tagValues": ["proj1"]
+     *                  },
+     *                  "<catalystEntityId>": {
+     *                      "catalystEntityId": "<MongoID>",
+     *                      "catalystEntityName": "project 2",
+     *                      "tagValues": ["proj2"]
+     *                  }
+     *              }
      *          },
      *          "environment": {
      *              "name": "environment",
      *              "values": ["prod", "dev"],
      *              "catalystEntityType": "environment",
-     *              "catalystEntityMapping": {}
+     *              "catalystEntityMapping": {
+     *                  "<catalystEntityId>": {
+     *                      "catalystEntityId": "<MongoID>",
+     *                      "catalystEntityName": "Environment 1",
+     *                      "tagValues": ["env1"]
+     *                  },
+     *                  "<catalystEntityId>": {
+     *                      "catalystEntityId": "<MongoID>",
+     *                      "catalystEntityName": "Environment 2",
+     *                      "tagValues": ["env2"]
+     *                  }
+     *              }
      *          }
      *
      *      }
@@ -1293,13 +1337,12 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *              "<catalystEntityId>": {
      *                  "catalystEntityId": "<MongoID>",
      *                  "catalystEntityName": "project 1",
-     *                  "tagValue": "proj1"
+     *                  "tagValues": ["proj1"]
      *              },
      *              "<catalystEntityId>": {
      *                  "catalystEntityId": "<MongoID>",
      *                  "catalystEntityName": "project 2",
-     *                  "tagValue": "proj2"
-     *
+     *                  "tagValues": ["proj2"]
      *              }
      *          }
      *      }
@@ -1322,12 +1365,12 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *              "<catalystEntityId>": {
      *                  "catalystEntityId": "<MongoID>",
      *                  "catalystEntityName": "project 1",
-     *                  "tagValue": "proj1"
+     *                  "tagValues": ["proj2", "Proj2"]
      *              },
      *              "<catalystEntityId>": {
      *                  "catalystEntityId": "<MongoID>",
      *                  "catalystEntityName": "project 2",
-     *                  "tagValue": "proj2"
+     *                  "tagValues": ["proj2", "Proj2"]
      *
      *              }
      *          }
@@ -1564,9 +1607,6 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                     return res.status(200).send(results);
             });
     }
-    ;
-
-
 
     function getTag(req, res, callback) {
         async.waterfall(

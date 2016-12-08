@@ -400,7 +400,7 @@ providerService.addMultipleTagMappings = function addMultipleTagMappings(provide
                 function(next2) {
                     var deleteParams = {
                         'providerId': providerId,
-                        'catalystEntityType': tagMapping.catalystEntityType
+                        'catalystEntityType': catalystEntityType
                     };
                     var deleteFields = {
                         'catalystEntityType': null,
@@ -461,15 +461,16 @@ providerService.updateTagMapping = function updateTagMapping(tagDetails, catalys
                 next(err);
             }
 
-            if((tagMapping.catalystEntityMapping[catalystEntityId].tagValue)
+            // Tag value validation to be added
+            /*if((tagMapping.catalystEntityMapping[catalystEntityId].tagValue)
                 && (tagDetails.values.indexOf(tagMapping.catalystEntityMapping[catalystEntityId].tagValue) < 0)) {
                 var err = new Error('Tag value not found');
                 err.status = 404;
                 next(err);
-            }
+            }*/
 
             catalystEntityMappings[catalystEntityId] = {
-                'tagValue': tagMapping.catalystEntityMapping[catalystEntityId].tagValue,
+                'tagValues': tagMapping.catalystEntityMapping[catalystEntityId].tagValues,
                 'catalystEntityId': tagMapping.catalystEntityMapping[catalystEntityId].catalystEntityId,
                 'catalystEntityName': tagMapping.catalystEntityMapping[catalystEntityId].catalystEntityName
             }
