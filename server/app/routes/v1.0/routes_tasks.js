@@ -521,6 +521,11 @@ module.exports.setRoutes = function(app, sessionVerification) {
             taskData.taskScheduler = apiUtil.createCronJobPattern(taskData.taskScheduler);
             taskData.isTaskScheduled = true;
         }
+        if(taskData.manualExecutionTime && taskData.manualExecutionTime !== null){
+            taskData.manualExecutionTime = parseInt(taskData.manualExecutionTime);
+        }else{
+            taskData.manualExecutionTime = 10;
+        }
         if (taskData.taskType === 'script') {
             Tasks.getTaskById(req.params.taskId, function(err, scriptTask) {
                 if (err) {

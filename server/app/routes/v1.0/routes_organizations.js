@@ -52,6 +52,7 @@ var taskService = require('_pr/services/taskService');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var compositeBlueprintModel = require('_pr/model/composite-blueprints/composite-blueprints.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
+var monitorsModel = require('_pr/model/monitors/monitors.js');
 var catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
 
 module.exports.setRoutes = function(app, sessionVerification) {
@@ -987,6 +988,11 @@ module.exports.setRoutes = function(app, sessionVerification) {
             if(taskData.taskType === 'jenkins'){
                 taskData.executionOrder= 'PARALLEL';
             }
+            if(taskData.manualExecutionTime && taskData.manualExecutionTime !== null){
+                taskData.manualExecutionTime = parseInt(taskData.manualExecutionTime);
+            }else{
+                taskData.manualExecutionTime = 10;
+            }
             configmgmtDao.getEnvNameFromEnvId(req.params.envId, function(err, envName) {
                 if (err) {
                     res.status(500).send("Failed to fetch ENV: ", err);
@@ -1521,6 +1527,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                 if (!req.body.appUrls) {
                                                     req.body.appUrls = [];
                                                 }
+                                                monitorsModel.getById(req.body.monitorId, function (err, monitor) {
 
 
                                                 var appUrls = req.body.appUrls;
@@ -1543,9 +1550,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     instanceState: nodeAlive,
                                                     bootStrapStatus: 'waiting',
                                                     tagServer: req.params.tagServer,
-                                                    monitorId: req.params.monitorId,
                                                     runlist: [],
                                                     appUrls: appUrls,
+                                                    monitor: monitor,
                                                     users: [req.session.user.cn], //need to change this
                                                     catUser: req.session.user.cn,
                                                     hardware: {
@@ -1673,27 +1680,13 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                 environment: envName,
                                                                 instanceOS: instance.hardware.os
                                                             };
-                                                            if (infraManagerDetails.monitor && infraManagerDetails.monitor.parameters.transportProtocol === 'rabbitmq') {
+                                                            if (instance.monitor && instance.monitor.parameters.transportProtocol === 'rabbitmq') {
                                                                             var sensuCookBook = 'recipe[sensu-client]';
                                                                             var runlist = [];
-                                                                            var jsonAttributes = {};
+                                                                            var jsonAttributes = {};                                                                            
 
-                                                                            var cryptoConfig = appConfig.cryptoSettings;
-                                                                            var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-                                                                            var decryptedPassword = cryptography.decryptText(infraManagerDetails.monitor.parameters.transportProtocolParameters.password, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-
-                                                                            var sensuAttributes = {
-                                                                                'rabbitmq_host': infraManagerDetails.monitor.parameters.transportProtocolParameters.host,
-                                                                                'rabbitmq_port': infraManagerDetails.monitor.parameters.transportProtocolParameters.port,
-                                                                                'rabbitmq_username': infraManagerDetails.monitor.parameters.transportProtocolParameters.user,
-                                                                                'rabbitmq_password': decryptedPassword,
-                                                                                'rabbitmq_vhostname': infraManagerDetails.monitor.parameters.transportProtocolParameters.vhost,
-                                                                                'instance-id': instance.platformId
-                                                                            };
-
-                                                                            logger.debug("sensuAttributes-------->", JSON.stringify(sensuAttributes));
                                                                             runlist.push(sensuCookBook);
-                                                                            jsonAttributes['sensu-client'] = sensuAttributes;
+                                                                            jsonAttributes['sensu-client'] = masterUtil.getSensuCookbookAttributes(instance.monitor,instance.id);
 
                                                                             bootstarpOption['runlist'] = runlist;
                                                                             bootstarpOption['jsonAttributes'] = jsonAttributes;
@@ -2051,6 +2044,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     res.send(instance);
                                                     logger.debug("Exit post() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s/addInstance", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
                                                 });
+                                            });
                                             });
                                         } else {
                                             res.status(400).send({

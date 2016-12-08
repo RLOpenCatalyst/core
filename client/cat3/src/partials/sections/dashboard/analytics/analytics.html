@@ -68,9 +68,9 @@
 					<label for="">Type of Instance</label>
 					<select class="form-control select2 select2-hidden-accessible" ng-model="organNewEnt.instanceType"  ng-change="getResourse(organNewEnt.instanceType)">
 						<option value=''>Select</option>
-						<option value='Managed'>Managed</option>
-						<option value='Assigned'>Assigned</option>
-						<option value='Unassigned'>Unassigned</option>
+						<option value='managedInstances'>Managed</option>
+						<option value='unmanagedInstances'>Assigned</option>
+						<option value='unassigned-instances'>Unassigned</option>
 					</select>
 				</div>
 				<div class="col-lg-12 col-md-12 form-group" ng-show="stateItems.filterView.resources">

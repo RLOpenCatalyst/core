@@ -53,6 +53,32 @@
 				<ul class="tree-ul">
 					<li>
 						<div class="liContents">
+							<span class="cursor" ng-click="isTreeOpen = !isTreeOpen"><i class="fa fa-cc-discover white"></i> Discovery </span>
+							<div ng-class="{'show-providers':isTreeOpen === true}" data-ng-hide="node.collapsed" data-tree-id="relevancelab" data-analytics-tree-model="node.nodes" data-node-id="rowid" data-node-label="text" data-node-children="nodes">
+								<ul class="tree-ul">
+									<li  ui-sref="dashboard.analytics.tagMapping" class="pointer-cursor" ui-sref-active='activeSection'  >
+										<div class="liContents">
+											<div class="liContents-wrapper">
+												<i class="icon fa fa-tags label-spacing"></i>
+												<span>Tag Mapping</span>
+
+											</div>
+										</div>
+									</li>
+									<li  ui-sref="dashboard.analytics.resources" class="pointer-cursor" ui-sref-active='activeSection' >
+										<div class="liContents">
+											<div class="liContents-wrapper">
+												<i class="icon fa fa-soundcloud label-spacing"></i>
+												<span>Resources</span>
+											</div>
+										</div>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</li>
+					<li>
+						<div class="liContents">
 							<span class="cursor" ng-click="isTreeOpen = !isTreeOpen"><i class="fa fa-area-chart white"></i> ANALYTICS </span>
 							<div ng-class="{'show-providers':isTreeOpen === true}" data-ng-hide="node.collapsed" data-tree-id="relevancelab" data-analytics-tree-model="node.nodes" data-node-id="rowid" data-node-label="text" data-node-children="nodes">
 								<ul class="tree-ul">
@@ -87,32 +113,7 @@
 							</div>
 						</div>
 					</li>
-					<li>
-						<div class="liContents">
-							<span class="cursor" ng-click="isTreeOpen = !isTreeOpen"><i class="fa fa-cc-discover white"></i> Discovery </span>
-							<div ng-class="{'show-providers':isTreeOpen === true}" data-ng-hide="node.collapsed" data-tree-id="relevancelab" data-analytics-tree-model="node.nodes" data-node-id="rowid" data-node-label="text" data-node-children="nodes">
-								<ul class="tree-ul">
-									<li  ui-sref="dashboard.analytics.tagMapping" class="pointer-cursor" ui-sref-active='activeSection'  >
-										<div class="liContents">
-											<div class="liContents-wrapper">
-												<i class="icon fa fa-tags label-spacing"></i>
-												<span>Tag Mapping</span>
 
-											</div>
-										</div>
-									</li>
-									<li  ui-sref="dashboard.analytics.resources" class="pointer-cursor" ui-sref-active='activeSection' >
-										<div class="liContents">
-											<div class="liContents-wrapper">
-												<i class="icon fa fa-soundcloud label-spacing"></i>
-												<span>Resources</span>
-											</div>
-										</div>
-									</li>
-								</ul>
-							</div>
-						</div>
-					</li>
 				</ul>
 			</div>
 		</div>

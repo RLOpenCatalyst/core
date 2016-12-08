@@ -4,6 +4,7 @@
         .controller('discoveryTagMappingCtrl', ['$scope', '$rootScope', '$state','analyticsServices', 'genericServices','$timeout', function ($scope,$rootScope,$state,analyticsServices,genSevs,$timeout){
             var disTgMap=this;
             $rootScope.stateItems = $state.params;
+            $rootScope.organNewEnt.instanceType=false;
             $rootScope.organNewEnt.provider='0';
             analyticsServices.applyFilter(true,null);
             var treeNames = ['Cloud Management','Discovery','Tag Mapping'];

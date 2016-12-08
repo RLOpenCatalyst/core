@@ -209,6 +209,13 @@
 
 
 #analyticsPage {
+  .ui-grid-row > div .ui-grid-cell {
+    float: left !important;
+    vertical-align: middle;
+    height: 40px !important;
+    padding: 0px !important;
+    overflow: hidden;
+  }
   .filter-btn {
     margin: 9px 10px 0 0;
   }
@@ -312,8 +319,16 @@
 #tagMappting{
   .saveBtn{
     position: fixed;
-    bottom: 10px;
-    left: 40%;
+    bottom: 0px;
+    display: block;
+    padding: 13px 14px 15px;
+    border-top: 1px solid rgba(0, 0, 0, .1);
+    background: rgba(249, 249, 249, .9);
+    z-index: 999;
+  }
+  .btnFoot{
+    float: right;
+    width: 51%;
   }
   .form-control{
     height: 29px;
@@ -321,4 +336,29 @@
     font-size: 12px;
     line-height: 1;
   }
+  .with250{
+    width: 250px !important;
+  }
+}
+.form-item-container {
+  .list-inline {
+    input {
+      width: 96px;
+      height: 20px;
+      border: 1px solid #ccc;
+      border-radius: 0px !important;
+    }
+    li span {
+      border: 1px solid #23a9e1;
+      border-radius: 0px !important;
+      padding: 2px 4px;
+      font-size: 12px;
+    }
+  }
+
+}
+.autocomplete-list {
+  width: calc(37% + 3px) !important;
+  left: 40% !important;
+  z-index: 100;
 }

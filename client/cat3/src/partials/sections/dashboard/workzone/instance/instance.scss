@@ -883,7 +883,7 @@ $imagePath: "../../../../../../images";
         margin: -13px 0 0 10px;
     }
     .cp-container {
-        height: 400px;
+        height: 500px;
         overflow-y: auto;
         width: 85%;
     }
@@ -941,7 +941,7 @@ $imagePath: "../../../../../../images";
     .app-url-section {
         border: 1px solid #ccc;
         min-height: 160px;
-        max-height: 400px;
+        max-height: 500px;
         overflow-y: auto;
     }
     .app-url-header {
@@ -990,7 +990,7 @@ $imagePath: "../../../../../../images";
 }
 #cpLogsPage {
     .logsArea {
-        height: 400px;
+        height: 500px;
         border-left: 1px solid #ddd;
     }
 }
@@ -999,12 +999,12 @@ $imagePath: "../../../../../../images";
         margin: 0 0 10px 0;
     }
     .ui-grid {
-        height: 352px;
+        height: 452px;
     }
 }
 #cpActionHistoryPage {
     .ui-grid {
-        height: 396px;
+        height: 496px;
     }
 }
 #stopInstancePage {
@@ -1070,4 +1070,11 @@ $imagePath: "../../../../../../images";
     i {
         color: #40baf1;
     }
+}
+#tableView .ui-grid-row > div .ui-grid-cell {
+    float: left !important;
+    vertical-align: middle;
+    height: 55px !important;
+    padding: 6px !important;
+    overflow: hidden;
 }
