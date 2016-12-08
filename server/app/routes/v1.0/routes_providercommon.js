@@ -1522,7 +1522,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
     app.patch('/providers/:providerId/unassigned-instances',
         validate(instanceValidator.get), bulkUpdateUnassignedInstances);
 
-    function getTagsList(req, res, next) {
+    function getTagsList(req, res, callback) {
         async.waterfall(
             [
 
@@ -1534,7 +1534,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             ],
             function (err, results) {
                 if (err) {
-                    next(err);
+                    callback(err);
                 } else {
                     return res.status(200).send(results);
                 }
@@ -1542,7 +1542,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
         );
     }
 
-    function getUnassignedInstancesList(req, res, next) {
+    function getUnassignedInstancesList(req, res, callback) {
         var reqData = {};
         async.waterfall(
             [
@@ -1568,7 +1568,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             ],
             function (err, results) {
                 if (err)
-                    next(err);
+                    callback(err);
                 else
                     return res.status(200).send(results);
             });
@@ -1577,7 +1577,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
 
 
 
-    function getTag(req, res, next) {
+    function getTag(req, res, callback) {
         async.waterfall(
             [
 
@@ -1591,7 +1591,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             ],
             function (err, results) {
                 if (err) {
-                    next(err);
+                    callback(err);
                 } else {
                     return res.status(200).send(results);
                 }
@@ -1602,7 +1602,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
     // @TODO to be implemented
     function createTags(req, res, next) {}
 
-    function updateTag(req, res, next) {
+    function updateTag(req, res, callback) {
         async.waterfall(
             [
 
@@ -1620,7 +1620,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             ],
             function (err, results) {
                 if (err) {
-                    next(err);
+                    callback(err);
                 } else {
                     return res.status(200).send(results);
                 }
@@ -1628,7 +1628,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
         );
     }
 
-    function deleteTag(req, res, next) {
+    function deleteTag(req, res, callback) {
         async.waterfall(
             [
 
@@ -1641,7 +1641,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             ],
             function (err, results) {
                 if (err) {
-                    next(err);
+                    callback(err);
                 } else {
                     return res.status(200).send(results);
                 }
@@ -1649,7 +1649,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
         );
     }
 
-    function getTagMappingsList(req, res, next) {
+    function getTagMappingsList(req, res, callback) {
         async.waterfall(
             [
 
@@ -1661,7 +1661,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             ],
             function (err, results) {
                 if (err) {
-                    next(err);
+                    callback(err);
                 } else {
                     return res.status(200).send(results);
                 }
@@ -1669,7 +1669,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
         );
     }
 
-    function getTagMapping(req, res, next) {
+    function getTagMapping(req, res, callback) {
         async.waterfall(
             [
 
@@ -1684,7 +1684,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             ],
             function (err, results) {
                 if (err) {
-                    next(err);
+                    callback(err);
                 } else {
                     return res.status(200).send(results);
                 }
@@ -1715,7 +1715,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
 
     }
 
-    function updateTagMapping(req, res, next) {
+    function updateTagMapping(req, res, callback) {
         async.waterfall(
             [
                 function (next) {
@@ -1728,14 +1728,14 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                 function (tag, next) {
                     providerService.updateTagMapping(tag, req.body, next);
                 },
-                function (tag, next) {
+                /*function (tag, next) {
                     providerService.getTagByNameAndProvider(req.params.providerId, tag.name, next);
-                },
+                },*/
                 providerService.createTagMappingObject
             ],
             function (err, results) {
                 if (err) {
-                    next(err);
+                    callback(err);
                 } else {
                     return res.status(200).send(results);
                 }
@@ -1743,7 +1743,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
         );
     }
 
-    function deleteTagMapping(req, res, next) {
+    function deleteTagMapping(req, res, callback) {
         async.waterfall(
             [
 
@@ -1756,7 +1756,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             ],
             function (err, results) {
                 if (err) {
-                    next(err);
+                    callback(err);
                 } else {
                     return res.status(200).send(results);
                 }
@@ -1764,7 +1764,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
         );
     }
 
-    function getCatalystEntityMapping(req, res, next) {
+    function getCatalystEntityMapping(req, res, callback) {
         async.waterfall(
             [
 
@@ -1781,7 +1781,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             ],
             function (err, results) {
                 if (err) {
-                    next(err);
+                    callback(err);
                 } else {
                     return res.status(200).send(results);
                 }
@@ -1789,7 +1789,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
         );
     }
 
-    function updateUnassignedInstanceTags(req, res, next) {
+    function updateUnassignedInstanceTags(req, res, callback) {
         async.waterfall(
             [
                 function (next) {
@@ -1816,7 +1816,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             ],
             function (err, results) {
                 if (err) {
-                    next(err);
+                    callback(err);
                 } else {
                     return res.status(200).send(results);
                 }
@@ -1824,7 +1824,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
         );
     }
 
-    function bulkUpdateUnassignedInstances(req, res, next) {
+    function bulkUpdateUnassignedInstances(req, res, callback) {
         async.waterfall(
             [
                 function (next) {
@@ -1845,7 +1845,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             ],
             function (err, results) {
                 if (err) {
-                    next(err);
+                    callback(err);
                 } else {
                     return res.status(200).send(results);
                 }
