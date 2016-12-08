@@ -31,7 +31,6 @@ var blueprints = require('_pr/model/dao/blueprints');
 var instances = require('_pr/model/classes/instance/instance');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var usersDao = require('_pr/model/users.js');
-var monitorsModel = require('_pr/model/monitors/monitors.js');
 var configmgmtDao = require('_pr/model/d4dmasters/configmgmt.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var rc = require('node-rest-client').Client;
@@ -87,16 +86,12 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                     dommyProvider.secretKey = cryptography.decryptText(providers[i].secretKey,
                                         cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
                                 }
-                                getMonitorDetail(providers[i], function (data) {
-                                    dommyProvider.monitor = data.monitor;
-                                    providerList.push(dommyProvider);
-                                    logger.debug("count: ", count);
-                                    if (providers.length === providers.length) {
-                                        res.send(providerList);
-                                        return;
-                                    }
-                                });
-
+                                providerList.push(dommyProvider);
+                                logger.debug("count: ", count);
+                                if (providers.length === providerList.length) {
+                                    res.send(providerList);
+                                    return;
+                                }
                             }
 
                         });
@@ -130,53 +125,48 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                             return;
                         }
                         if (orgs.length > 0) {
-                            getMonitorDetail(aProvider, function (data) {
-                                aProvider = data;
-                                if (keyPair.length > 0) {
-                                    var results = [];
-                                    var dummyProvider = {
-                                        _id: aProvider._id,
-                                        id: 9,
-                                        providerName: aProvider.providerName,
-                                        providerType: aProvider.providerType,
-                                        s3BucketName: aProvider.s3BucketName,
-                                        orgId: aProvider.orgId,
-                                        plannedCost: aProvider.plannedCost,
-                                        orgName: orgs[0].orgname,
-                                        __v: aProvider.__v,
-                                        keyPairs: keyPair,
-                                        monitor: aProvider.monitor,
-                                        isDefault: aProvider.isDefault
-                                    };
-                                    for (var i = 0; i < keyPair.length; i++) {
-                                        var regionList = appConfig.aws.regions;
-                                        results.push(keyPair[i]);
-                                        for (var j = 0; j < regionList.length; j++) {
-                                            if (regionList[j].region === keyPair[i].region) {
-                                                dummyProvider.providerRegion = regionList[j];
-                                            }
+                            if (keyPair.length > 0) {
+                                var results = [];
+                                var dummyProvider = {
+                                    _id: aProvider._id,
+                                    id: 9,
+                                    providerName: aProvider.providerName,
+                                    providerType: aProvider.providerType,
+                                    s3BucketName: aProvider.s3BucketName,
+                                    orgId: aProvider.orgId,
+                                    plannedCost: aProvider.plannedCost,
+                                    orgName: orgs[0].orgname,
+                                    __v: aProvider.__v,
+                                    keyPairs: keyPair,
+                                    isDefault: aProvider.isDefault
+                                };
+                                for (var i = 0; i < keyPair.length; i++) {
+                                    var regionList = appConfig.aws.regions;
+                                    results.push(keyPair[i]);
+                                    for (var j = 0; j < regionList.length; j++) {
+                                        if (regionList[j].region === keyPair[i].region) {
+                                            dummyProvider.providerRegion = regionList[j];
                                         }
                                     }
-                                    if (keyPair.length === results.length) {
-                                        res.send(dummyProvider);
-                                    }
-                                } else {
-                                    var dummyProvider = {
-                                        _id: aProvider._id,
-                                        id: 9,
-                                        providerName: aProvider.providerName,
-                                        providerType: aProvider.providerType,
-                                        s3BucketName: aProvider.s3BucketName,
-                                        orgId: aProvider.orgId,
-                                        plannedCost: aProvider.plannedCost,
-                                        orgName: orgs[0].orgname,
-                                        __v: aProvider.__v,
-                                        monitor: aProvider.monitor,
-                                        isDefault: aProvider.isDefault
-                                    };
+                                }
+                                if (keyPair.length === results.length) {
                                     res.send(dummyProvider);
                                 }
-                            });
+                            } else {
+                                var dummyProvider = {
+                                    _id: aProvider._id,
+                                    id: 9,
+                                    providerName: aProvider.providerName,
+                                    providerType: aProvider.providerType,
+                                    s3BucketName: aProvider.s3BucketName,
+                                    orgId: aProvider.orgId,
+                                    plannedCost: aProvider.plannedCost,
+                                    orgName: orgs[0].orgname,
+                                    __v: aProvider.__v,
+                                    isDefault: aProvider.isDefault
+                                };
+                                res.send(dummyProvider);
+                            }
 
                         }
                     });
@@ -2282,7 +2272,6 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
         var orgId = req.body.orgId;
         var s3BucketName = req.body.s3BucketName;
         var plannedCost = req.body.plannedCost;
-        var monitorId = req.body.monitorId;
         if (plannedCost === null || plannedCost === '') {
             plannedCost = 0.0;
         }
@@ -2338,8 +2327,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                     orgId: orgId,
                     isDefault: isDefault,
                     s3BucketName: s3BucketName,
-                    plannedCost: plannedCost,
-                    monitorId: monitorId
+                    plannedCost: plannedCost
                 };
                 var ec2;
                 if (isDefault == true) {
@@ -2431,7 +2419,6 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                                                             orgId: orgs[0].rowid,
                                                                             orgName: orgs[0].orgname,
                                                                             plannedCost: provider.plannedCost,
-                                                                            monitorId: provider.monitorId,
                                                                             __v: provider.__v,
                                                                             keyPairs: keyPair
                                                                         };
@@ -2482,30 +2469,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                             }
                             var providersList = [];
                             if (providers && providers.length > 0) {
-                                for (var i = 0; i < providers.length; i++) {
-                                    getMonitorDetail(providers[i], function (data) {
-                                        providersList.push(data);
-                                        if (providers.length === providersList.length) {
-                                            res.send(providersList);
-                                            return;
-                                        }
-                                    });
-
-
-                                    /*var keys = [];
-                                     keys.push(providers[i].accessKey);
-                                     keys.push(providers[i].secretKey);
-                                     cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding,
-                                     cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
-                                     if (err) {
-                                     res.status(500).send("Failed to decrypt accessKey or secretKey");
-                                     return;
-                                     }
-                                     providers[i].accessKey = decryptedKeys[0];
-                                     providers[i].secretKey = decryptedKeys[1];
-                                     
-                                     });*/
-                                }
+                                res.send(providers);
+                                return;
                             } else {
                                 res.send(200, []);
                                 return;
@@ -2535,34 +2500,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                 return;
                             }
                             if (providers.length > 0) {
-                                for (var i = 0; i < providers.length; i++) {
-                                    getMonitorDetail(providers[i], function (data) {
-                                        providers[i] = data;
-                                        providersList.push(providers[i]);
-                                        if (providers.length === providersList.length) {
-                                            res.send(providersList);
-                                            return;
-                                        }
-                                    });
-
-                                    /*var keys = [];
-                                     keys.push(providers[i].accessKey);
-                                     keys.push(providers[i].secretKey);
-                                     cryptography.decryptMultipleText(keys, cryptoConfig.decryptionEncoding,
-                                     cryptoConfig.encryptionEncoding, function(err, decryptedKeys) {
-                                     if (err) {
-                                     res.sned(500, "Failed to decrypt accessKey or secretKey");
-                                     return;
-                                     }
-                                     //providers[i].accessKey = decryptedKeys[0];
-                                     //providers[i].secretKey = decryptedKeys[1];
-                                     providersList.push(providers[i]);
-                                     if (providers.length === providersList.length) {
-                                     res.send(providersList);
-                                     return;
-                                     }
-                                     });*/
-                                }
+                                res.send(providers);
+                                return;
                             } else {
                                 res.send(providersList);
                                 return;
@@ -2594,7 +2533,6 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
         var orgId = req.body.orgId;
         var s3BucketName = req.body.s3BucketName;
         var plannedCost = req.body.plannedCost;
-        var monitorId = req.body.monitorId;
         if (plannedCost === null || plannedCost === '') {
             plannedCost = 0.0;
         }
@@ -2629,8 +2567,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                     providerName: providerName,
                     orgId: orgId,
                     s3BucketName: s3BucketName,
-                    plannedCost: plannedCost,
-                    monitorId: monitorId
+                    plannedCost: plannedCost
                 };
                 updateInDb(providerData);
             });
@@ -2700,7 +2637,6 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                 s3BucketName: s3BucketName,
                                 providerName: providerName,
                                 plannedCost: plannedCost,
-                                monitorId: monitorId,
                                 orgId: orgId
                             };
 
@@ -3713,33 +3649,5 @@ function trackSettingWizard(orgId, callback) {
     } else {
         callback(null, null);
         return;
-    }
-}
-
-function getMonitorDetail(data, callback) {
-    data = data.toObject();
-    if (data.monitorId) {
-        var monitorId = data.monitorId;
-        delete data.monitorId;
-        monitorsModel.getById(monitorId, function (err, monitor) {
-            if (err || !monitor) {
-                data.monitor = null;
-            } else {
-                data.monitor = {};
-                data.monitor['id'] = monitor._id;
-                data.monitor['name'] = monitor.name;
-                data.monitor['type'] = monitor.type;
-                if (monitor.type === 'sensu') {
-                    data.monitor['parameters'] = {};
-                    data.monitor['parameters']['url'] = monitor['parameters']['url'];
-                    data.monitor['parameters']['transportProtocol'] = monitor['parameters']['transportProtocol'];
-                }
-            }
-            callback(data);
-        });
-    } else {
-        delete data['monitorId'];
-        data.monitor = null;
-        callback(data);
     }
 }

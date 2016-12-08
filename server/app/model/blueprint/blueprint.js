@@ -1,12 +1,12 @@
 /*
  Copyright [2016] [Relevance Lab]
-
+ 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
-
+ 
  http://www.apache.org/licenses/LICENSE-2.0
-
+ 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -49,6 +49,7 @@ var AzureProvider = require('_pr/model/classes/masters/cloudprovider/azureCloudP
 var VmwareProvider = require('_pr/model/classes/masters/cloudprovider/vmwareCloudProvider.js');
 var OpenStackProvider = require('_pr/model/classes/masters/cloudprovider/openstackCloudProvider.js');
 
+var monitorsModel = require('_pr/model/monitors/monitors.js');
 
 var uuid = require('node-uuid');
 var AppData = require('_pr/model/app-deploy/app-data');
@@ -101,20 +102,20 @@ var BlueprintSchema = new Schema({
         trim: true
     },
     appUrls: [{
-        name: String,
-        url: String
-    }],
+            name: String,
+            url: String
+        }],
     templateId: {
         type: String,
         required: true,
         trim: true
     },
     users: [{
-        type: String,
-        //required: true,
-        trim: true,
-        validate: schemaValidator.catalystUsernameValidator
-    }],
+            type: String,
+            //required: true,
+            trim: true,
+            validate: schemaValidator.catalystUsernameValidator
+        }],
     templateType: {
         type: String,
         required: true,
@@ -151,10 +152,10 @@ var BlueprintSchema = new Schema({
         type: String,
         required: false
     },
-    domainNameCheck:{
-        type:Boolean,
-        required:false,
-        default:false
+    domainNameCheck: {
+        type: Boolean,
+        required: false,
+        default: false
     },
     shortDesc: {
         type: String
@@ -164,10 +165,20 @@ var BlueprintSchema = new Schema({
     },
     serviceDeliveryCheck: {
         type: Boolean,
-        default:false
+        default: false
     },
     botCategory: {
         type: String
+    },
+    executionCount:{
+        type: Number,
+        required: false,
+        default:0
+    },
+    manualExecutionTime:{
+        type: Number,
+        required: false,
+        default:10
     }
 });
 
@@ -198,10 +209,10 @@ function getBlueprintConfigType(blueprint) {
 }
 
 // instance methods
-BlueprintSchema.methods.update = function(updateData, callback) {
+BlueprintSchema.methods.update = function (updateData, callback) {
     var blueprintConfigType = getBlueprintConfigType(this);
     if (!blueprintConfigType) {
-        process.nextTick(function() {
+        process.nextTick(function () {
             callback({
                 message: "Invalid Blueprint Type"
             }, null);
@@ -209,7 +220,7 @@ BlueprintSchema.methods.update = function(updateData, callback) {
     }
     blueprintConfigType.update(updateData);
     this.blueprintConfig = blueprintConfigType;
-    this.save(function(err, updatedBlueprint) {
+    this.save(function (err, updatedBlueprint) {
         if (err) {
             callback(err, null);
             return;
@@ -218,7 +229,7 @@ BlueprintSchema.methods.update = function(updateData, callback) {
     });
 };
 
-BlueprintSchema.methods.getVersionData = function(ver) {
+BlueprintSchema.methods.getVersionData = function (ver) {
     var blueprintConfigType = getBlueprintConfigType(this);
     if (!blueprintConfigType) {
         return null;
@@ -227,7 +238,7 @@ BlueprintSchema.methods.getVersionData = function(ver) {
     return blueprintConfigType.getVersionData(ver);
 };
 
-BlueprintSchema.methods.getLatestVersion = function() {
+BlueprintSchema.methods.getLatestVersion = function () {
     var blueprintConfigType = getBlueprintConfigType(this);
     if (!blueprintConfigType) {
         return null;
@@ -236,7 +247,7 @@ BlueprintSchema.methods.getLatestVersion = function() {
     return blueprintConfigType.getLatestVersion();
 };
 
-BlueprintSchema.methods.getInfraManagerData = function() {
+BlueprintSchema.methods.getInfraManagerData = function () {
     var blueprintConfigType = getBlueprintConfigType(this);
     if (!blueprintConfigType) {
         return null;
@@ -245,7 +256,7 @@ BlueprintSchema.methods.getInfraManagerData = function() {
     return blueprintConfigType.getInfraManagerData();
 }
 
-BlueprintSchema.methods.getCloudProviderData = function() {
+BlueprintSchema.methods.getCloudProviderData = function () {
     var blueprintConfigType = getBlueprintConfigType(this);
     if (!blueprintConfigType) {
         return null;
@@ -254,50 +265,55 @@ BlueprintSchema.methods.getCloudProviderData = function() {
     return blueprintConfigType.getCloudProviderData();
 }
 
-BlueprintSchema.methods.launch = function(opts, callback) {
+BlueprintSchema.methods.launch = function (opts, callback) {
     var infraManager = this.getInfraManagerData();
     var self = this;
-    masterUtil.getParticularProject(self.projectId, function(err, project) {
+    masterUtil.getParticularProject(self.projectId, function (err, project) {
         if (err) {
             callback({
                 message: "Failed to get project via project id"
             }, null);
             return;
-        };
+        }
+        ;
         if (project.length === 0) {
             callback({
                 "message": "Unable to find Project Information from project id"
             });
             return;
         }
-        configmgmtDao.getEnvNameFromEnvId(opts.envId, function(err, envName) {
+        configmgmtDao.getEnvNameFromEnvId(opts.envId, function (err, envName) {
             if (err) {
                 callback({
                     message: "Failed to get env name from env id"
                 }, null);
                 return;
-            };
+            }
+            ;
             if (!envName) {
                 callback({
                     "message": "Unable to find environment name from environment id"
                 });
                 return;
-            };
-            configmgmtDao.getChefServerDetails(infraManager.infraManagerId, function(err, chefDetails) {
+            }
+            ;
+            configmgmtDao.getChefServerDetails(infraManager.infraManagerId, function (err, chefDetails) {
                 if (err) {
                     logger.error("Failed to getChefServerDetails", err);
                     callback({
                         message: "Failed to getChefServerDetails"
                     }, null);
                     return;
-                };
+                }
+                ;
                 if (!chefDetails) {
                     logger.error("No CHef Server Detailed available.", err);
                     callback({
                         message: "No Chef Server Detailed available"
                     }, null);
                     return;
-                };
+                }
+                ;
                 var chef = new Chef({
                     userChefRepoLocation: chefDetails.chefRepoLocation,
                     chefUserName: chefDetails.loginname,
@@ -314,62 +330,20 @@ BlueprintSchema.methods.launch = function(opts, callback) {
                 if (appConfig.appUrls && appConfig.appUrls.length) {
                     appUrls = appUrls.concat(appConfig.appUrls);
                 }
-                chef.getEnvironment(envName, function(err, env) {
+                chef.getEnvironment(envName, function (err, env) {
                     if (err) {
                         logger.error("Failed chef.getEnvironment", err);
                         callback(err, null);
                         return;
                     }
-                    if (!env) {
-                        chef.createEnvironment(envName, function(err) {
-                            if (err) {
-                                logger.error("Failed chef.createEnvironment", err);
-                                callback(err, null);
-                                return;
-                            }
-                            blueprintConfigType.launch({
-                                infraManager: chef,
-                                ver: opts.ver,
-                                envName: envName,
-                                envId: opts.envId,
-                                stackName: opts.stackName,
-                                domainName:opts.domainName,
-                                blueprintName: self.name,
-                                orgId: self.orgId,
-                                orgName: project[0].orgname,
-                                bgId: self.bgId,
-                                bgName: project[0].productgroupname,
-                                projectId: self.projectId,
-                                projectName: project[0].projectname,
-                                appUrls: appUrls,
-                                sessionUser: opts.sessionUser,
-                                users: self.users,
-                                blueprintData: self,
-                                tagServer: opts.tagServer,
-                                auditTrailId:opts.auditTrailId
-                            }, function(err, launchData) {
-                                if(err){
-                                    err['errObj'] = {
-                                        endedOn:new Date().getTime(),
-                                        orgName:project[0].orgname,
-                                        bgName:project[0].productgroupname,
-                                        projectName:project[0].projectname,
-                                        envName:envName
-                                    };
-                                    callback(err,null);
-                                    return;
-                                }
-                                callback(null, launchData);
-                            });
-                        });
-                    } else {
-                        blueprintConfigType.launch({
+                    monitorsModel.getById(opts.monitorId, function (err, monitor) {
+                        var launchParams = {
                             infraManager: chef,
                             ver: opts.ver,
                             envName: envName,
                             envId: opts.envId,
                             stackName: opts.stackName,
-                            domainName:opts.domainName,
+                            domainName: opts.domainName,
                             blueprintName: self.name,
                             orgId: self.orgId,
                             orgName: project[0].orgname,
@@ -382,22 +356,49 @@ BlueprintSchema.methods.launch = function(opts, callback) {
                             users: self.users,
                             blueprintData: self,
                             tagServer: opts.tagServer,
-                            auditTrailId:opts.auditTrailId
-                        }, function(err, launchData) {
-                            if(err){
-                                err['errObj'] = {
-                                    endedOn:new Date().getTime(),
-                                    orgName:project[0].orgname,
-                                    bgName:project[0].productgroupname,
-                                    projectName:project[0].projectname,
-                                    envName:envName
-                                };
-                                callback(err,null);
-                                return;
-                            }
-                            callback(null, launchData);
-                        });
-                    }
+                            monitor: monitor,
+                            auditTrailId: opts.auditTrailId
+                        };
+                        if (!env) {
+                            chef.createEnvironment(envName, function (err) {
+                                if (err) {
+                                    logger.error("Failed chef.createEnvironment", err);
+                                    callback(err, null);
+                                    return;
+                                }
+                                blueprintConfigType.launch(launchParams, function (err, launchData) {
+                                    if (err) {
+                                        err['errObj'] = {
+                                            endedOn: new Date().getTime(),
+                                            orgName: project[0].orgname,
+                                            bgName: project[0].productgroupname,
+                                            projectName: project[0].projectname,
+                                            envName: envName
+                                        };
+                                        callback(err, null);
+                                        return;
+                                    }
+                                    callback(null, launchData);
+                                });
+                            });
+                        } else {
+                            blueprintConfigType.launch(launchParams, function (err, launchData) {
+                                if (err) {
+                                    err['errObj'] = {
+                                        endedOn: new Date().getTime(),
+                                        orgName: project[0].orgname,
+                                        bgName: project[0].productgroupname,
+                                        projectName: project[0].projectname,
+                                        envName: envName
+                                    };
+                                    callback(err, null);
+                                    return;
+                                }
+                                callback(null, launchData);
+                            });
+                        }
+                    });
+
                 });
             });
         });
@@ -405,7 +406,7 @@ BlueprintSchema.methods.launch = function(opts, callback) {
 };
 
 // static methods
-BlueprintSchema.statics.createNew = function(blueprintData, callback) {
+BlueprintSchema.statics.createNew = function (blueprintData, callback) {
     logger.debug('blueprintData.cloudFormationData ==>', blueprintData.cloudFormationData);
 
     var blueprintConfig, blueprintType;
@@ -440,7 +441,7 @@ BlueprintSchema.statics.createNew = function(blueprintData, callback) {
         blueprintConfig = VmwareBlueprint.createNew(blueprintData.instanceData);
 
     } else {
-        process.nextTick(function() {
+        process.nextTick(function () {
             callback({
                 message: "Invalid Blueprint Type sdds"
             }, null);
@@ -450,7 +451,7 @@ BlueprintSchema.statics.createNew = function(blueprintData, callback) {
     logger.debug('blueprint type ', blueprintData);
     //Set the version if blueprint id is null
     logger.debug('blueprint id ..... ', blueprintData.id);
-    this.getCountByParentId(blueprintData.id, function(err, count) {
+    this.getCountByParentId(blueprintData.id, function (err, count) {
         if (count <= 0) {
             count = 1;
         } else {
@@ -473,15 +474,15 @@ BlueprintSchema.statics.createNew = function(blueprintData, callback) {
             version: count,
             parentId: blueprintData.id,
             domainNameCheck: blueprintData.domainNameCheck,
-            shortDesc:blueprintData.shortDesc,
-            botType:blueprintData.botType,
-            serviceDeliveryCheck:blueprintData.serviceDeliveryCheck,
-            botCategory:blueprintData.botCategory
+            shortDesc: blueprintData.shortDesc,
+            botType: blueprintData.botType,
+            serviceDeliveryCheck: blueprintData.serviceDeliveryCheck,
+            botCategory: blueprintData.botCategory
         };
         var blueprint = new Blueprints(blueprintObj);
         logger.debug(blueprint);
         logger.debug('saving');
-        blueprint.save(function(err, blueprint) {
+        blueprint.save(function (err, blueprint) {
             if (err) {
                 logger.error(err);
                 callback(err, null);
@@ -495,20 +496,20 @@ BlueprintSchema.statics.createNew = function(blueprintData, callback) {
 };
 
 
-BlueprintSchema.statics.getBlueprintInfoById = function(id, callback) {
+BlueprintSchema.statics.getBlueprintInfoById = function (id, callback) {
     logger.debug('finding blueprintInfo by id ===>' + id);
     this.aggregate([{
-        $match: {
-            _id: ObjectId(id)
-        }
-    }, {
-        $lookup: {
-            from: "d4dmastersnew",
-            localField: "projectId",
-            foreignField: "rowid",
-            as: "masterData"
-        }
-    }], function(err, blueprint) {
+            $match: {
+                _id: ObjectId(id)
+            }
+        }, {
+            $lookup: {
+                from: "d4dmastersnew",
+                localField: "projectId",
+                foreignField: "rowid",
+                as: "masterData"
+            }
+        }], function (err, blueprint) {
         if (err) {
             callback(err, null);
             return;
@@ -531,19 +532,19 @@ BlueprintSchema.statics.getBlueprintInfoById = function(id, callback) {
                 appUrls: blueprint[0].appUrls
             };
             if (bluePrintInfo.templateType === 'chef' || bluePrintInfo.templateType === 'ami') {
-                VMImage.getImageNameById(blueprint[0].blueprintConfig.cloudProviderData.imageId, function(err, imageName) {
+                VMImage.getImageNameById(blueprint[0].blueprintConfig.cloudProviderData.imageId, function (err, imageName) {
                     if (err) {
                         callback(err, null);
                         return;
                     }
                     bluePrintInfo['imageName'] = imageName;
                     if (blueprint[0].blueprintConfig.cloudProviderData.cloudProviderType === 'azure') {
-                        AzureProvider.getAzureCloudProviderById(blueprint[0].blueprintConfig.cloudProviderData.cloudProviderId, function(err, providerData) {
+                        AzureProvider.getAzureCloudProviderById(blueprint[0].blueprintConfig.cloudProviderData.cloudProviderId, function (err, providerData) {
                             if (err) {
                                 callback(err, null);
                                 return;
                             }
-                            if(providerData !== 0) {
+                            if (providerData !== 0) {
                                 var jsonData = JSON.parse(providerData);
                                 bluePrintInfo['providerType'] = jsonData.providerType;
                                 bluePrintInfo['providerName'] = jsonData.providerName;
@@ -555,7 +556,7 @@ BlueprintSchema.statics.getBlueprintInfoById = function(id, callback) {
                                 }
                                 callback(null, bluePrintInfo);
                                 return;
-                            }else{
+                            } else {
                                 bluePrintInfo['blueprintConfig'] = blueprint[0].blueprintConfig;
                                 callback(null, bluePrintInfo);
                                 return;
@@ -564,12 +565,12 @@ BlueprintSchema.statics.getBlueprintInfoById = function(id, callback) {
 
                     } else if (blueprint[0].blueprintConfig.cloudProviderData.cloudProviderType === 'openstack') {
 
-                        OpenStackProvider.getopenstackProviderById(blueprint[0].blueprintConfig.cloudProviderId, function(err, providerData) {
+                        OpenStackProvider.getopenstackProviderById(blueprint[0].blueprintConfig.cloudProviderId, function (err, providerData) {
                             if (err) {
                                 callback(err, null);
                                 return;
                             }
-                            if(providerData !== null) {
+                            if (providerData !== null) {
                                 bluePrintInfo['providerType'] = providerData.providerType;
                                 bluePrintInfo['providerName'] = providerData.providerName;
                                 bluePrintInfo['blueprintConfig'] = {
@@ -586,7 +587,7 @@ BlueprintSchema.statics.getBlueprintInfoById = function(id, callback) {
                                 }
                                 callback(null, bluePrintInfo);
                                 return;
-                            }else{
+                            } else {
                                 bluePrintInfo['blueprintConfig'] = blueprint[0].blueprintConfig;
                                 callback(null, bluePrintInfo);
                                 return;
@@ -595,12 +596,12 @@ BlueprintSchema.statics.getBlueprintInfoById = function(id, callback) {
 
                     } else if (blueprint[0].blueprintConfig.cloudProviderData.cloudProviderType === 'vmware') {
 
-                        VmwareProvider.getvmwareProviderById(blueprint[0].blueprintConfig.cloudProviderId, function(err, providerData) {
+                        VmwareProvider.getvmwareProviderById(blueprint[0].blueprintConfig.cloudProviderId, function (err, providerData) {
                             if (err) {
                                 callback(err, null);
                                 return;
                             }
-                            if(providerData !== null) {
+                            if (providerData !== null) {
                                 bluePrintInfo['providerType'] = providerData.providerType;
                                 bluePrintInfo['providerName'] = providerData.providerName;
                                 bluePrintInfo['region'] = blueprint[0].blueprintConfig.cloudProviderData.region;
@@ -615,7 +616,7 @@ BlueprintSchema.statics.getBlueprintInfoById = function(id, callback) {
                                 }
                                 callback(null, bluePrintInfo);
                                 return;
-                            }else{
+                            } else {
                                 bluePrintInfo['blueprintConfig'] = blueprint[0].blueprintConfig;
                                 callback(null, bluePrintInfo);
                                 return;
@@ -623,27 +624,27 @@ BlueprintSchema.statics.getBlueprintInfoById = function(id, callback) {
                         })
 
                     } else {
-                        AWSKeyPair.getAWSKeyPairById(blueprint[0].blueprintConfig.cloudProviderData.keyPairId, function(err, keyPairData) {
+                        AWSKeyPair.getAWSKeyPairById(blueprint[0].blueprintConfig.cloudProviderData.keyPairId, function (err, keyPairData) {
                             if (err) {
                                 callback(err, null);
                                 return;
                             }
-                            if(keyPairData !== null) {
+                            if (keyPairData !== null) {
                                 bluePrintInfo['keyPairName'] = keyPairData.keyPairName;
                                 bluePrintInfo['region'] = keyPairData.region;
                             }
-                            AWSProvider.getAWSProviderById(blueprint[0].blueprintConfig.cloudProviderId, function(err, providerData) {
+                            AWSProvider.getAWSProviderById(blueprint[0].blueprintConfig.cloudProviderId, function (err, providerData) {
                                 if (err) {
                                     callback(err, null);
                                     return;
                                 }
-                                if(providerData !== null) {
+                                if (providerData !== null) {
                                     bluePrintInfo['providerType'] = providerData.providerType;
                                     bluePrintInfo['providerName'] = providerData.providerName;
                                     bluePrintInfo['blueprintConfig'] = blueprint[0].blueprintConfig;
                                     callback(null, bluePrintInfo);
                                     return;
-                                }else{
+                                } else {
                                     bluePrintInfo['blueprintConfig'] = blueprint[0].blueprintConfig;
                                     callback(null, bluePrintInfo);
                                     return;
@@ -656,23 +657,23 @@ BlueprintSchema.statics.getBlueprintInfoById = function(id, callback) {
                 })
 
             } else if (bluePrintInfo.templateType === 'docker') {
-                bluePrintInfo['blueprintConfig'] = { dockerCompose: blueprint[0].blueprintConfig.dockerCompose };
+                bluePrintInfo['blueprintConfig'] = {dockerCompose: blueprint[0].blueprintConfig.dockerCompose};
                 callback(null, bluePrintInfo);
                 return;
             } else if (bluePrintInfo.templateType === 'cft') {
                 if (blueprint[0].blueprintType === 'aws_cf') {
-                    AWSProvider.getAWSProviderById(blueprint[0].blueprintConfig.cloudProviderId, function(err, providerData) {
+                    AWSProvider.getAWSProviderById(blueprint[0].blueprintConfig.cloudProviderId, function (err, providerData) {
                         if (err) {
                             callback(err, null);
                             return;
                         }
-                        if(providerData !== null) {
+                        if (providerData !== null) {
                             bluePrintInfo['providerType'] = providerData.providerType;
                             bluePrintInfo['providerName'] = providerData.providerName;
                             bluePrintInfo['blueprintConfig'] = blueprint[0].blueprintConfig;
                             callback(null, bluePrintInfo);
                             return;
-                        }else{
+                        } else {
                             bluePrintInfo['blueprintConfig'] = blueprint[0].blueprintConfig;
                             callback(null, bluePrintInfo);
                             return;
@@ -684,12 +685,12 @@ BlueprintSchema.statics.getBlueprintInfoById = function(id, callback) {
                     return;
                 }
             } else if (bluePrintInfo.templateType === 'arm') {
-                AzureProvider.getAzureCloudProviderById(blueprint[0].blueprintConfig.cloudProviderId, function(err, providerData) {
+                AzureProvider.getAzureCloudProviderById(blueprint[0].blueprintConfig.cloudProviderId, function (err, providerData) {
                     if (err) {
                         callback(err, null);
                         return;
                     }
-                    if(providerData !== null) {
+                    if (providerData !== null) {
                         var jsonData = JSON.parse(providerData);
                         bluePrintInfo['providerType'] = jsonData.providerType;
                         bluePrintInfo['providerName'] = jsonData.providerName;
@@ -698,7 +699,7 @@ BlueprintSchema.statics.getBlueprintInfoById = function(id, callback) {
                         bluePrintInfo['blueprintConfig'] = blueprint[0].blueprintConfig;
                         callback(null, bluePrintInfo);
                         return;
-                    }else{
+                    } else {
                         bluePrintInfo['blueprintConfig'] = blueprint[0].blueprintConfig;
                         callback(null, bluePrintInfo);
                         return;
@@ -714,9 +715,9 @@ BlueprintSchema.statics.getBlueprintInfoById = function(id, callback) {
 };
 
 
-BlueprintSchema.statics.getById = function(id, callback) {
+BlueprintSchema.statics.getById = function (id, callback) {
     logger.debug('finding blueprint by id ===>' + id);
-    this.findById(id, function(err, blueprint) {
+    this.findById(id, function (err, blueprint) {
         if (err) {
             callback(err, null);
             return;
@@ -725,16 +726,16 @@ BlueprintSchema.statics.getById = function(id, callback) {
     });
 };
 
-BlueprintSchema.statics.getCountByParentId = function(parentid, callback) {
+BlueprintSchema.statics.getCountByParentId = function (parentid, callback) {
     if (parentid) {
         logger.debug('finding blueprint by parentid or id ===>' + parentid);
         this.find({
             $or: [{
-                parentId: parentid
-            }, {
-                _id: ObjectId(parentid)
-            }]
-        }, function(err, blueprint) {
+                    parentId: parentid
+                }, {
+                    _id: ObjectId(parentid)
+                }]
+        }, function (err, blueprint) {
             if (err) {
                 callback(err, 0);
                 return;
@@ -749,14 +750,14 @@ BlueprintSchema.statics.getCountByParentId = function(parentid, callback) {
     }
 };
 
-BlueprintSchema.statics.getByIds = function(ids, callback) {
+BlueprintSchema.statics.getByIds = function (ids, callback) {
     logger.debug('finding blueprint by id ===>' + ids);
     if (ids && ids.length) {
         this.find({
             "_id": {
                 $in: ids
             }
-        }, function(err, blueprints) {
+        }, function (err, blueprints) {
             if (err) {
                 callback(err, null);
                 return;
@@ -766,14 +767,14 @@ BlueprintSchema.statics.getByIds = function(ids, callback) {
     }
 };
 
-BlueprintSchema.statics.removeById = function(id, callback) {
+BlueprintSchema.statics.removeById = function (id, callback) {
     this.remove({
         $or: [{
-            "_id": ObjectId(id)
-        }, {
-            "parentId": id
-        }]
-    }, function(err, data) {
+                "_id": ObjectId(id)
+            }, {
+                "parentId": id
+            }]
+    }, function (err, data) {
         if (err) {
             callback(err, null);
             return;
@@ -783,22 +784,22 @@ BlueprintSchema.statics.removeById = function(id, callback) {
 
 };
 
-BlueprintSchema.statics.removeByIds = function(ids, callback) {
+BlueprintSchema.statics.removeByIds = function (ids, callback) {
 
     var objids = [];
-    ids.forEach(function(v) {
+    ids.forEach(function (v) {
 
         objids.push(ObjectId(v));
     });
     this.remove({
         $or: [{
-            "_id": {
-                $in: objids
-            }
-        }, {
-            "parentId": ids
-        }]
-    }, function(err, data) {
+                "_id": {
+                    $in: objids
+                }
+            }, {
+                "parentId": ids
+            }]
+    }, function (err, data) {
         if (err) {
             callback(err, null);
             return;
@@ -809,11 +810,11 @@ BlueprintSchema.statics.removeByIds = function(ids, callback) {
 };
 
 
-BlueprintSchema.statics.copyByIds = function(ids, orgid, bgid, projid, callback) {
+BlueprintSchema.statics.copyByIds = function (ids, orgid, bgid, projid, callback) {
 
     var copiedBlueprints = [];
     var objids = [];
-    ids.forEach(function(v) {
+    ids.forEach(function (v) {
         objids.push(ObjectId(v));
     });
     var self = this;
@@ -822,13 +823,13 @@ BlueprintSchema.statics.copyByIds = function(ids, orgid, bgid, projid, callback)
 
     self.find({
         $and: [{
-            "orgId": orgid
-        }, {
-            "bgId": bgid
-        }, {
-            "projectId": projid
-        }]
-    }, function(err, dupbp) {
+                "orgId": orgid
+            }, {
+                "bgId": bgid
+            }, {
+                "projectId": projid
+            }]
+    }, function (err, dupbp) {
         if (err) {
             logger.debug("Error in find", err);
             return callback({
@@ -838,11 +839,11 @@ BlueprintSchema.statics.copyByIds = function(ids, orgid, bgid, projid, callback)
         //$or:[{"_id": {$in:objids}},{"parentId":{$in:ids}}]
         self.find({
             $or: [{
-                "_id": {
-                    $in: objids
-                }
-            }]
-        }, function(err, data) {
+                    "_id": {
+                        $in: objids
+                    }
+                }]
+        }, function (err, data) {
 
             logger.debug('Found:', data.length);
             var count = 0;
@@ -880,12 +881,12 @@ BlueprintSchema.statics.copyByIds = function(ids, orgid, bgid, projid, callback)
                         data[bpi]["name"] = data[bpi]["name"] + '_copy_' + uuid.v4().split('-')[0];
                         logger.debug('Found a duplicate. Renaming', data[bpi]["name"]);
                         logger.debug(JSON.stringify([{
-                            "orgId": orgid
-                        }, {
-                            "bgId": bgid
-                        }, {
-                            "projectId": projid
-                        }]));
+                                "orgId": orgid
+                            }, {
+                                "bgId": bgid
+                            }, {
+                                "projectId": projid
+                            }]));
                     }
                 }
 
@@ -904,7 +905,7 @@ BlueprintSchema.statics.copyByIds = function(ids, orgid, bgid, projid, callback)
                 }
 
                 logger.debug('firing');
-                blueprint.save(function(err, docs) {
+                blueprint.save(function (err, docs) {
                     logger.debug(' docs ==> ', JSON.stringify(docs));
                     count++;
                     if (err) {
@@ -933,7 +934,7 @@ BlueprintSchema.statics.copyByIds = function(ids, orgid, bgid, projid, callback)
 
 
 
-var findBlueprintVersionObject = function(blueprints, parentId) {
+var findBlueprintVersionObject = function (blueprints, parentId) {
     var versions = [];
     logger.debug('Entering getBlueprintVersionObject', parentId);
     for (var bpi = 0; bpi < blueprints.length; bpi++) {
@@ -961,7 +962,7 @@ var findBlueprintVersionObject = function(blueprints, parentId) {
     return (blueprints);
 }
 
-var consolidateVersionOnBlueprint = function(blueprints) {
+var consolidateVersionOnBlueprint = function (blueprints) {
     logger.debug('About to scan: ', blueprints.length);
     //logger.debug(blueprints);
     for (var bpi = 0; bpi < blueprints.length; bpi++) {
@@ -984,7 +985,7 @@ var consolidateVersionOnBlueprint = function(blueprints) {
 }
 
 
-BlueprintSchema.statics.getBlueprintsByOrgBgProject = function(jsonData, callback) {
+BlueprintSchema.statics.getBlueprintsByOrgBgProject = function (jsonData, callback) {
 
     var queryObj = {
         orgId: jsonData.orgId,
@@ -995,7 +996,7 @@ BlueprintSchema.statics.getBlueprintsByOrgBgProject = function(jsonData, callbac
         queryObj.templateType = jsonData.blueprintType;
     }
 
-    this.find(queryObj, function(err, blueprints) {
+    this.find(queryObj, function (err, blueprints) {
         if (err) {
             callback(err, null);
             return;
@@ -1009,8 +1010,8 @@ BlueprintSchema.statics.getBlueprintsByOrgBgProject = function(jsonData, callbac
 };
 
 
-BlueprintSchema.statics.getAllServiceDeliveryBlueprint = function(serviceDeliveryCheck, callback) {
-    this.find({serviceDeliveryCheck:serviceDeliveryCheck}, function(err, blueprints) {
+BlueprintSchema.statics.getAllServiceDeliveryBlueprint = function (serviceDeliveryCheck, callback) {
+    this.find({serviceDeliveryCheck: serviceDeliveryCheck}, function (err, blueprints) {
         if (err) {
             callback(err, null);
             return;
@@ -1020,8 +1021,8 @@ BlueprintSchema.statics.getAllServiceDeliveryBlueprint = function(serviceDeliver
     });
 };
 
-BlueprintSchema.statics.removeServiceDeliveryBlueprints = function(blueprintId, callback) {
-    this.update({ "_id": new ObjectId(blueprintId)}, {serviceDeliveryCheck: false}, function (err, data) {
+BlueprintSchema.statics.removeServiceDeliveryBlueprints = function (blueprintId, callback) {
+    this.update({"_id": new ObjectId(blueprintId)}, {serviceDeliveryCheck: false}, function (err, data) {
         if (err) {
             logger.error(err);
             callback(err, null);
@@ -1035,7 +1036,7 @@ BlueprintSchema.statics.removeServiceDeliveryBlueprints = function(blueprintId, 
     });
 };
 
-BlueprintSchema.statics.getBlueprintsByOrgBgProjectProvider = function(jsonData, callback) {
+BlueprintSchema.statics.getBlueprintsByOrgBgProjectProvider = function (jsonData, callback) {
     var queryObj = {
         orgId: jsonData.orgId,
         bgId: jsonData.bgId,
@@ -1044,36 +1045,36 @@ BlueprintSchema.statics.getBlueprintsByOrgBgProjectProvider = function(jsonData,
     if (jsonData.blueprintType) {
         queryObj.blueprintType = jsonData.blueprintType;
     }
-    this.find(queryObj, function(err, blueprints) {
+    this.find(queryObj, function (err, blueprints) {
         if (err) {
             callback(err, null);
             return;
         }
-        if(blueprints.length > 0) {
+        if (blueprints.length > 0) {
             var count = 0;
             var bluePrintList = [];
-            for(var  i = 0; i < blueprints.length; i++){
-                (function(blueprint){
-                    if(blueprint.blueprintConfig.cloudProviderType === jsonData.providerType || blueprint.templateType === 'docker'){
+            for (var i = 0; i < blueprints.length; i++) {
+                (function (blueprint) {
+                    if (blueprint.blueprintConfig.cloudProviderType === jsonData.providerType || blueprint.templateType === 'docker') {
                         bluePrintList.push(blueprint);
                         count++;
-                    }else{
+                    } else {
                         count++;
                     }
                 })(blueprints[i]);
             }
-            if(count === blueprints.length) {
+            if (count === blueprints.length) {
                 var blueprints1 = consolidateVersionOnBlueprint(bluePrintList);
                 callback(null, blueprints1);
             }
-        }else{
+        } else {
             callback(null, blueprints);
         }
 
     });
 };
 
-BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, callback) {
+BlueprintSchema.methods.getCookBookAttributes = function (instance, repoData, callback) {
     var blueprint = this;
     //merging attributes Objects
     var attributeObj = {};
@@ -1091,7 +1092,7 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
     // While passing extra attribute to chef cookbook "rlcatalyst" is used as attribute.
     //var temp = new Date().getTime();
     if (blueprint.nexus.url) {
-        masterUtil.updateProject(repoData.projectId, repoData.repoName, function(err, data) {
+        masterUtil.updateProject(repoData.projectId, repoData.repoName, function (err, data) {
             if (err) {
                 logger.debug("Failed to updateProject: ", err);
             }
@@ -1115,7 +1116,7 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
             }
         });
 
-        nexus.getNexusArtifactVersions(blueprint.nexus.repoId, repoName, groupId, artifactId, function(err, data) {
+        nexus.getNexusArtifactVersions(blueprint.nexus.repoId, repoName, groupId, artifactId, function (err, data) {
             if (err) {
                 logger.debug("Failed to fetch Repository from Mongo: ", err);
                 objectArray.push({
@@ -1137,7 +1138,7 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
                 var latestVersion = versions[latestVersionIndex - 1];
                 //logger.debug("Got latest catalyst version from nexus: ", latestVersion);
 
-                nexus.getNexusArtifact(blueprint.nexus.repoId, repoName, groupId, function(err, artifacts) {
+                nexus.getNexusArtifact(blueprint.nexus.repoId, repoName, groupId, function (err, artifacts) {
                     if (err) {
                         logger.debug("Failed to get artifacts.");
                         objectArray.push({
@@ -1208,7 +1209,7 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
                     // Update app-data for promote
                     var nodeIds = [];
                     nodeIds.push(instance.id);
-                    configmgmtDao.getEnvNameFromEnvId(instance.envId, function(err, envName) {
+                    configmgmtDao.getEnvNameFromEnvId(instance.envId, function (err, envName) {
                         if (err) {
                             callback({
                                 message: "Failed to get env name from env id"
@@ -1236,7 +1237,7 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
                                 "taskId": ""
                             }
                         };
-                        AppData.createNewOrUpdate(appData, function(err, data) {
+                        AppData.createNewOrUpdate(appData, function (err, data) {
                             if (err) {
                                 logger.debug("Failed to create or update app-data: ", err);
                             }
@@ -1341,7 +1342,7 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
         // Update app-data for promote
         var nodeIds = [];
         nodeIds.push(instance.id);
-        configmgmtDao.getEnvNameFromEnvId(instance.envId, function(err, envName) {
+        configmgmtDao.getEnvNameFromEnvId(instance.envId, function (err, envName) {
             if (err) {
                 callback({
                     message: "Failed to get env name from env id"
@@ -1380,7 +1381,7 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
                 "version": blueprint.docker.imageTag,
                 "docker": docker
             };
-            AppData.createNewOrUpdate(appData, function(err, data) {
+            AppData.createNewOrUpdate(appData, function (err, data) {
                 if (err) {
                     logger.debug("Failed to create or update app-data: ", err);
                 }
@@ -1402,11 +1403,11 @@ BlueprintSchema.methods.getCookBookAttributes = function(instance, repoData, cal
     }
 };
 
-BlueprintSchema.statics.getBlueprintsByProviderId = function(providerId, callback) {
+BlueprintSchema.statics.getBlueprintsByProviderId = function (providerId, callback) {
     logger.debug("Enter getBlueprintsByProviderId");
     this.find({
         "blueprintConfig.cloudProviderId": providerId
-    }, function(err, blueprints) {
+    }, function (err, blueprints) {
         if (err) {
             logger.error(err);
             logger.debug("Exit getBlueprintsByProviderId with error");
@@ -1422,9 +1423,9 @@ BlueprintSchema.statics.getBlueprintsByProviderId = function(providerId, callbac
 
     });
 };
-BlueprintSchema.statics.getBlueprintByOrgBgProjectProviderType = function(query, callback) {
+BlueprintSchema.statics.getBlueprintByOrgBgProjectProviderType = function (query, callback) {
     console.log(JSON.stringify(query));
-    Blueprints.paginate(query.queryObj, query.options, function(err, blueprints) {
+    Blueprints.paginate(query.queryObj, query.options, function (err, blueprints) {
         if (err) {
             logger.error("Failed to getBlueprintByOrgBgProjectProviderType", err);
             callback(err, null);
@@ -1434,17 +1435,17 @@ BlueprintSchema.statics.getBlueprintByOrgBgProjectProviderType = function(query,
     });
 };
 
-BlueprintSchema.statics.getBlueprintsByProjectIdOrEnvId = function(id, callback) {
+BlueprintSchema.statics.getBlueprintsByProjectIdOrEnvId = function (id, callback) {
     var queryObj = {
         $or: [{
-            projectId: id
-        }, {
-            chefServerId: id
-        },{
-            envId: id
-        }]
+                projectId: id
+            }, {
+                chefServerId: id
+            }, {
+                envId: id
+            }]
     }
-    Blueprints.find(queryObj, function(err, data) {
+    Blueprints.find(queryObj, function (err, data) {
         if (err) {
             callback(err, null);
             return;
@@ -1453,11 +1454,28 @@ BlueprintSchema.statics.getBlueprintsByProjectIdOrEnvId = function(id, callback)
     });
 };
 
-BlueprintSchema.statics.checkBPDependencyByFieldName = function(fieldName,id, callback) {
+BlueprintSchema.statics.checkBPDependencyByFieldName = function (fieldName, id, callback) {
     var queryObj = {
         fieldName: id
     }
-    Blueprints.find(queryObj, function(err, data) {
+    Blueprints.find(queryObj, function (err, data) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, data);
+    });
+};
+BlueprintSchema.statics.updateBlueprintExecutionCount = function updateBlueprintExecutionCount(blueprintId,count,callback) {
+    Blueprints.update({
+        "_id": new ObjectId(blueprintId),
+    }, {
+        $set: {
+            executeCount: count
+        }
+    }, {
+        upsert: false
+    }, function (err, data) {
         if (err) {
             callback(err, null);
             return;

@@ -49,10 +49,11 @@ var Docker = require('_pr/model/docker.js');
 var orgValidator = require('_pr/validators/organizationValidator');
 var validate = require('express-validation');
 var taskService = require('_pr/services/taskService');
-var schedulerService = require('_pr/services/schedulerService');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var compositeBlueprintModel = require('_pr/model/composite-blueprints/composite-blueprints.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
+var monitorsModel = require('_pr/model/monitors/monitors.js');
+var catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
 
 module.exports.setRoutes = function(app, sessionVerification) {
     /*
@@ -434,6 +435,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
         var category = 'blueprints';
         var permissionto = 'create';
         var domainNameCheck = false;
+        var manualExecutionTime = 10;
         var orgId = req.params.orgId;
         var bgId = req.params.bgId;
         var projectId = req.params.projectId;
@@ -452,6 +454,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
         var botType = req.body.blueprintData.botType;
         var botCategory = req.body.blueprintData.botCategory;
         var serviceDeliveryCheck = req.body.blueprintData.serviceDeliveryCheck;
+        if(req.body.blueprintData.manualExecutionTime && req.body.blueprintData.manualExecutionTime !== null){
+            manualExecutionTime = req.body.blueprintData.manualExecutionTime;
+        }
         if(req.body.blueprintData.domainNameCheck === 'true'){
             domainNameCheck = true;
         }
@@ -502,7 +507,8 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 botType:botType,
                 botCategory:botCategory,
                 serviceDeliveryCheck:serviceDeliveryCheck,
-                domainNameCheck:domainNameCheck
+                domainNameCheck:domainNameCheck,
+                manualExecutionTime:manualExecutionTime
             };
             //adding bluerpintID if present (edit mode)
             if (blueprintId)
@@ -975,9 +981,17 @@ module.exports.setRoutes = function(app, sessionVerification) {
             taskData.orgName = project[0].orgname;
             taskData.bgName = project[0].productgroupname;
             taskData.projectName = project[0].projectname;
-            if(req.body.taskScheduler  && req.body.taskScheduler !== null) {
-                taskData.taskScheduler = apiUtil.createCronJobPattern(req.body.taskScheduler);
+            if(taskData.taskScheduler  && taskData.taskScheduler !== null && Object.keys(taskData.taskScheduler).length !== 0) {
+                taskData.taskScheduler = apiUtil.createCronJobPattern(taskData.taskScheduler);
                 taskData.isTaskScheduled = true;
+            }
+            if(taskData.taskType === 'jenkins'){
+                taskData.executionOrder= 'PARALLEL';
+            }
+            if(taskData.manualExecutionTime && taskData.manualExecutionTime !== null){
+                taskData.manualExecutionTime = parseInt(taskData.manualExecutionTime);
+            }else{
+                taskData.manualExecutionTime = 10;
             }
             configmgmtDao.getEnvNameFromEnvId(req.params.envId, function(err, envName) {
                 if (err) {
@@ -1000,11 +1014,11 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                     return;
                                 }
                                 if(task.isTaskScheduled === true){
-                                    schedulerService.executeSchedulerForTasks(task,function(err,data){
-                                        if(err){
-                                            logger.error("Error in executing task scheduler");
-                                        }
-                                    })
+                                    if(task.executionOrder === 'PARALLEL'){
+                                        catalystSync.executeParallelScheduledTasks();
+                                    }else{
+                                        catalystSync.executeSerialScheduledTasks();
+                                    }
                                 };
                                 res.send(task);
                                 logger.debug("Exit post() for /organizations/%s/businessGroups/%s/projects/%s/environments/%s/tasks", req.params.orgId, req.params.bgId, req.params.projectId, req.params.environments);
@@ -1014,16 +1028,17 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 }else {
                     Task.createNew(taskData, function (err, task) {
                         if (err) {
-                            logger.err(err);
+                            logger.error(err);
                             res.status(500).send("Failed to create task: ", err);
                             return;
                         }
                         if(task.isTaskScheduled === true){
-                            schedulerService.executeSchedulerForTasks(task,function(err,data){
-                                if(err){
-                                    logger.error("Error in executing task scheduler");
-                                }
-                            })
+                            if(task.executionOrder === 'PARALLEL'){
+                                catalystSync.executeParallelScheduledTasks();
+                            }else{
+                                catalystSync.executeSerialScheduledTasks();
+                            }
+
                         };
                         res.send(task);
                         logger.debug("Exit post() for /organizations/%s/businessGroups/%s/projects/%s/environments/%s/tasks", req.params.orgId, req.params.bgId, req.params.projectId, req.params.environments);
@@ -1039,19 +1054,22 @@ module.exports.setRoutes = function(app, sessionVerification) {
         var count = 0;
         var encryptedList = [];
         for(var i = 0; i < paramDetails.length; i++){
-            (function(param){
-                if(param.scriptParameters.length > 0){
+            (function(paramDetail){
+                if(paramDetail.scriptParameters.length > 0){
                     count++;
-                    for(var j = 0; j < param.scriptParameters.length; j++){
+                    for(var j = 0; j < paramDetail.scriptParameters.length; j++){
                         (function(scriptParameter){
-                            var encryptedText = cryptography.encryptText(scriptParameter, cryptoConfig.encryptionEncoding,
+                            var encryptedText = cryptography.encryptText(scriptParameter.paramVal, cryptoConfig.encryptionEncoding,
                                 cryptoConfig.decryptionEncoding);
-                            encryptedList.push(encryptedText);
-                            if(encryptedList.length === param.scriptParameters.length){
-                                param.scriptParameters = encryptedList;
+                            encryptedList.push({
+                                paramVal:encryptedText,
+                                paramDesc:scriptParameter.paramDesc
+                            });
+                            if(encryptedList.length === paramDetail.scriptParameters.length){
+                                paramDetail.scriptParameters = encryptedList;
                                 encryptedList = [];
                             }
-                        })(param.scriptParameters[j]);
+                        })(paramDetail.scriptParameters[j]);
                     }
                 }else{
                     count++;
@@ -1509,6 +1527,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                 if (!req.body.appUrls) {
                                                     req.body.appUrls = [];
                                                 }
+                                                monitorsModel.getById(req.body.monitorId, function (err, monitor) {
 
 
                                                 var appUrls = req.body.appUrls;
@@ -1531,9 +1550,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     instanceState: nodeAlive,
                                                     bootStrapStatus: 'waiting',
                                                     tagServer: req.params.tagServer,
-                                                    monitorId: req.params.monitorId,
                                                     runlist: [],
                                                     appUrls: appUrls,
+                                                    monitor: monitor,
                                                     users: [req.session.user.cn], //need to change this
                                                     catUser: req.session.user.cn,
                                                     hardware: {
@@ -1661,27 +1680,13 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                 environment: envName,
                                                                 instanceOS: instance.hardware.os
                                                             };
-                                                            if (infraManagerDetails.monitor && infraManagerDetails.monitor.parameters.transportProtocol === 'rabbitmq') {
+                                                            if (instance.monitor && instance.monitor.parameters.transportProtocol === 'rabbitmq') {
                                                                             var sensuCookBook = 'recipe[sensu-client]';
                                                                             var runlist = [];
-                                                                            var jsonAttributes = {};
+                                                                            var jsonAttributes = {};                                                                            
 
-                                                                            var cryptoConfig = appConfig.cryptoSettings;
-                                                                            var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-                                                                            var decryptedPassword = cryptography.decryptText(infraManagerDetails.monitor.parameters.transportProtocolParameters.password, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-
-                                                                            var sensuAttributes = {
-                                                                                'rabbitmq_host': infraManagerDetails.monitor.parameters.transportProtocolParameters.host,
-                                                                                'rabbitmq_port': infraManagerDetails.monitor.parameters.transportProtocolParameters.port,
-                                                                                'rabbitmq_username': infraManagerDetails.monitor.parameters.transportProtocolParameters.user,
-                                                                                'rabbitmq_password': decryptedPassword,
-                                                                                'rabbitmq_vhostname': infraManagerDetails.monitor.parameters.transportProtocolParameters.vhost,
-                                                                                'instance-id': instance.platformId
-                                                                            };
-
-                                                                            logger.debug("sensuAttributes-------->", JSON.stringify(sensuAttributes));
                                                                             runlist.push(sensuCookBook);
-                                                                            jsonAttributes['sensu-client'] = sensuAttributes;
+                                                                            jsonAttributes['sensu-client'] = masterUtil.getSensuCookbookAttributes(instance.monitor,instance.id);
 
                                                                             bootstarpOption['runlist'] = runlist;
                                                                             bootstarpOption['jsonAttributes'] = jsonAttributes;
@@ -2039,6 +2044,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     res.send(instance);
                                                     logger.debug("Exit post() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s/addInstance", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
                                                 });
+                                            });
                                             });
                                         } else {
                                             res.status(400).send({

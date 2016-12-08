@@ -724,6 +724,14 @@ accordion .panel-heading {
     margin-top: 15px;
 }
 
+.margintop10 {
+    margin-top: 10px;
+}
+
+.margintop8 {
+    margin-top: 8px;
+}
+
 .marginleft15 {
     margin-left: 15px;
 }
@@ -734,6 +742,13 @@ accordion .panel-heading {
 
 .marginleft5 {
     margin-left: 5px;
+}
+
+#blueprintInfoPage, #botInfoPage {
+    .td-padding {
+        padding-left: 18px;
+        padding-top:16px;
+    }
 }
 
 /* global styles for logs display across workzone ends here*/
@@ -1365,20 +1380,22 @@ label {
         line-height: 34;
         font-size: 13px !important;
     }
-    .btnDay{
-        border-radius: 15px;
-        margin: 0 3px;
-        height: 24px;
-        width: 24px;
-        font-weight: 600;
-        padding: 1px 5px;
-
-    }
-    .activeDay {
-        background: #0B5475 !important;
-    }
 
 }
+
+.btnDay{
+    border-radius: 15px;
+    margin: 0 3px;
+    height: 24px;
+    width: 24px;
+    font-weight: 600;
+    padding: 1px 5px;
+
+}
+.activeDay {
+    background: #0B5475 !important;
+}
+
 .form-control-date{
     display: block;
     width: 100%;

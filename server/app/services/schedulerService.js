@@ -30,7 +30,6 @@ var EC2 = require('_pr/lib/ec2.js');
 var AWSKeyPair = require('_pr/model/classes/masters/cloudprovider/keyPair.js');
 var appConfig = require('_pr/config');
 var Cryptography = require('../lib/utils/cryptography');
-var catalystSync = null;
 var vmWareProvider = require('_pr/model/classes/masters/cloudprovider/vmwareCloudProvider.js');
 var vmWare = require('_pr/lib/vmware');
 var azureProvider = require('_pr/model/classes/masters/cloudprovider/azureCloudProvider.js');
@@ -99,8 +98,8 @@ schedulerService.executeSchedulerForInstances = function executeSchedulerForInst
     })
 }
 
-schedulerService.executeSchedulerForTasks = function executeSchedulerForTasks(task,callback) {
-    logger.debug("Task Scheduler is started for Task. "+task.name);
+schedulerService.executeParallelScheduledTasks = function executeParallelScheduledTasks(task,callback) {
+    logger.debug("Task Scheduler is started for Parallel Task. "+task.name);
     var currentDate = new Date();
     if(currentDate >= task.taskScheduler.cronEndOn){
         crontab.cancelJob(task.cronJobId);
@@ -115,7 +114,43 @@ schedulerService.executeSchedulerForTasks = function executeSchedulerForTasks(ta
             return;
         });
     }else{
-        var schedulerService = require('_pr/services/schedulerService');
+        var cronJobId = cronTab.scheduleJob(task.taskScheduler.cronPattern, function () {
+            taskDao.updateCronJobIdByTaskId(task._id,cronJobId,function(err,data){
+                if(err){
+                    logger.error("Error in updating cron job Ids. "+err);
+                }
+            })
+            taskService.executeTask(task._id, "superadmin", "", "", "","","",function(err, historyData) {
+                if (err === 404) {
+                    logger.error("Task not found.", err);
+                    return;
+                } else if (err) {
+                    logger.error("Failed to execute task.", err);
+                    return;
+                }
+                logger.debug("Task Execution Success: ", task.name);
+                return;
+            });
+        });
+    }
+}
+
+schedulerService.executeSerialScheduledTasks = function executeSerialScheduledTasks(task,callback) {
+    logger.debug("Task Scheduler is started for Serial Task. "+task.name);
+    var currentDate = new Date();
+    if(currentDate >= task.taskScheduler.cronEndOn){
+        crontab.cancelJob(task.cronJobId);
+        taskDao.updateTaskScheduler(task._id,function(err, updatedData) {
+            if (err) {
+                logger.error("Failed to update Task Scheduler: ", err);
+                callback(err,null);
+                return;
+            }
+            logger.debug("Scheduler is ended on for Task. "+task.name);
+            callback(null,updatedData);
+            return;
+        });
+    }else{
         var cronJobId = cronTab.scheduleJob(task.taskScheduler.cronPattern, function () {
             taskDao.updateCronJobIdByTaskId(task._id,cronJobId,function(err,data){
                 if(err){
@@ -133,7 +168,7 @@ schedulerService.executeSchedulerForTasks = function executeSchedulerForTasks(ta
                     return;
                 }
                 logger.debug("Task Execution Success: ", task.name);
-                callback(null,historyData);
+                callback(null,cronJobId);
                 return;
             });
         });
@@ -154,7 +189,7 @@ schedulerService.startStopInstance= function startStopInstance(instanceId,catUse
                     errMsg:"Instance is already in "+instanceDetails[0].instanceState+" state. So no need to do any action."
                 })
                 return;
-            }else if (instanceDetails[0].isScheduled && instanceDetails[0].isScheduled === true && currentDate >= instanceDetails[0].schedulerEndOn) {
+            }else if (instanceDetails[0].isScheduled && instanceDetails[0].isScheduled === true && currentDate > instanceDetails[0].schedulerEndOn) {
                 instancesDao.updateInstanceScheduler(instanceDetails[0]._id,function(err, updatedData) {
                     if (err) {
                         logger.error("Failed to update Instance Scheduler: ", err);

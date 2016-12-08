@@ -33,12 +33,15 @@
             }
         };
         $scope.instanceChange =function(){
+            $scope.isBotLogsLoading = true;
             $scope.botLogs=[];
             var param={
+                inlineLoader: true,
                 url:'/audit-trail/' + $scope.selectedInstance.actionLogId + '/logs'
             };
             genSevs.promiseGet(param).then(function (response) {
                 $scope.botLogs = response;
+                helper.scrollBottom();
                 $scope.isBotLogsLoading = false;
             });
         };
@@ -65,14 +68,17 @@
         });
         if($scope.taskType === 'jenkins') {
             var param={
+                inlineLoader: true,
                 url:'/jenkins/' + $scope.jenkinsActionLogId + '/jobs/testmail/builds/' + $scope.jenkinsBuildNumber + '/output'
             };
             genSevs.promiseGet(param).then(function (response) {
-                if (response.data) {
-                    $scope.jenkinsLogs = helper.formatLogs(response.data.output);
+                if (response) {
+                    $scope.jenkinsLogs = helper.formatLogs(response.output);
+                    helper.scrollBottom();
                     $scope.isBotLogsLoading = false;
                 } else {
-                    $scope.jenkinsLogs = helper.formatLogs(response.output);
+                    $scope.jenkinsLogs = helper.formatLogs(response.data.output);
+                    helper.scrollBottom();
                     $scope.isBotLogsLoading = false;
                 }
             });

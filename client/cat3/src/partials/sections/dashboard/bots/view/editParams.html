@@ -1,7 +1,9 @@
+<link rel='stylesheet' href='catalyst/partials/sections/dashboard/bots/bots.css'>
+
 <div id="editParamsPage">
 	<div class="modal-header">
 		<span class="close" ng-click="cancel()">×</span>
-		<h4 class="modal-title"> <i class="fa fa-share-square-o"></i>&nbsp;&nbsp;Execute Bot</h4>
+		<h4 class="modal-title"> <i class="fa fa-share-square-o"></i>&nbsp;&nbsp;Execute Bot - {{botName}}</h4>
 	</div>
 
 	<div class="modal-body">
@@ -50,6 +52,7 @@
 					<thead>
 						<tr>
 							<th class="header-name">Name</th>
+							<th class="header-name">Description</th>
 							<th class="header-name">Value</th>
 						</tr>
 					</thead>
@@ -57,6 +60,9 @@
 						<tr ng-repeat="params in jenkinsparams">
 			                <td>
 			                	<span style="vertical-align: -webkit-baseline-middle;">{{params.name}}</span>
+			                </td>
+			                <td>
+			                	<span style="vertical-align: -webkit-baseline-middle;">{{params.description}}</span>
 			                </td>
 			                <td ng-init="jenparams[params.name]=params.defaultValue[0]">
 			                	<input ng-if="params.parameterName !== 'Choice'" type="text" ng-model="jenparams[params.name]" class="form-control" ng-value="params.defaultValue[0]">
@@ -104,25 +110,3 @@
 		</button>
 	</div>
 </div>
-
-<style>
-	.header-name {
-		text-align: center;
-	}
-
-	.marginleft23 {
-		margin-left: 23px;
-	}
-
-	.paddingbottom10 {
-		padding-bottom: 10px;
-	}
-
-	.margintop8 {
-		margin-top: 8px;
-	}
-
-	.cookbook-edit-text {
-		background: #fff;
-	}
-</style>

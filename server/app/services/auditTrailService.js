@@ -235,9 +235,10 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
                     for(var i = 0; i < botAuditTrail.length; i++){
                         (function(auditTrail){
                             count++;
-                            if(auditTrail.endedOn && auditTrail.endedOn !== null) {
+                            if(auditTrail.endedOn && auditTrail.endedOn !== null && auditTrail.actionStatus !== 'failed'
+                                && auditTrail.auditTrailConfig.manualExecutionTime && auditTrail.auditTrailConfig.manualExecutionTime !== null) {
                                 var executionTime = getExecutionTime(auditTrail.endedOn, auditTrail.startedOn);
-                                totalTimeInSeconds = totalTimeInSeconds + (600 - executionTime);
+                                totalTimeInSeconds = totalTimeInSeconds + ((auditTrail.auditTrailConfig.manualExecutionTime*60) - executionTime);
                             }
                         })(botAuditTrail[i]);
                     }

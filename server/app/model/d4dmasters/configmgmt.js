@@ -254,7 +254,7 @@ function Configmgmt() {
     };
 
     this.getChefServerDetails = function(rowid, callback) {
-        var that = this;
+        var $this = this;
         this.getDBModelFromID("10", function(err, dbtype) {
             if (err) {
                 logger.debug("Hit and error getChefServerDetails.getDBModelFromID:" + err);
@@ -262,7 +262,7 @@ function Configmgmt() {
             }
             if (dbtype) {
                 logger.debug("Master Type: " + dbtype + ' rowid : ' + rowid);
-                that.getRowids(function(err, rowidlist) {
+                $this.getRowids(function(err, rowidlist) {
                     eval('d4dModelNew.' + dbtype).findOne({
                         rowid: rowid
                     }, function(err, d4dMasterJson) {
@@ -288,7 +288,7 @@ function Configmgmt() {
                                 if (keys[i].indexOf("login") >= 0)
                                     loginname = outJson[k] + "/";
                                 if (keys[i].indexOf("orgname_rowid") >= 0) {
-                                    liveorgname = that.convertRowIDToValue(outJson[k], rowidlist);
+                                    liveorgname = $this.convertRowIDToValue(outJson[k], rowidlist);
                                     orgname = outJson[k] + "/";
                                 }
                             }
@@ -312,7 +312,9 @@ function Configmgmt() {
                                     }
                                 }
                             }
-                            callback(null, JSON.parse('{' + configmgmt + '}'));
+                            configmgmt = JSON.parse('{' + configmgmt + '}');
+                            logger.debug("configmgmt---------->>>" + JSON.stringify(configmgmt));
+                            callback(null, configmgmt);
                             return;
                         } else {
                             callback(err, null);
@@ -325,7 +327,7 @@ function Configmgmt() {
     };
 
     this.getPuppetServerDetails = function(rowid, callback) {
-        var that = this;
+        var $this = this;
         this.getDBModelFromID("25", function(err, dbtype) {
             if (err) {
                 logger.debug("Hit and error getChefServerDetails.getDBModelFromID:" + err);
@@ -333,7 +335,7 @@ function Configmgmt() {
             }
             if (dbtype) {
                 logger.debug("Master Type: " + dbtype + ' rowid : ' + rowid);
-                that.getRowids(function(err, rowidlist) {
+                $this.getRowids(function(err, rowidlist) {
                     eval('d4dModelNew.' + dbtype).findOne({
                         rowid: rowid
                     }, function(err, d4dMasterJson) {
@@ -359,7 +361,7 @@ function Configmgmt() {
                                 if (keys[i].indexOf("login") >= 0)
                                     loginname = outJson[k] + "/";
                                 if (keys[i].indexOf("orgname_rowid") >= 0) {
-                                    liveorgname = that.convertRowIDToValue(outJson[k], rowidlist);
+                                    liveorgname = $this.convertRowIDToValue(outJson[k], rowidlist);
                                     orgname = outJson[k] + "/";
                                 }
                             }

@@ -28,6 +28,7 @@ var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var schedulerService = require('_pr/services/schedulerService');
+var catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
 
 
 
@@ -38,6 +39,19 @@ var fileIo = require('_pr/lib/utils/fileio');
 
 module.exports.setRoutes = function(app, sessionVerification) {
     app.all('/tasks/*', sessionVerification);
+
+    app.delete('/tasks/serviceDelivery/:taskId', function(req, res) {
+        taskService.deleteServiceDeliveryTask(req.params.taskId, function(err, data) {
+            if (err) {
+                logger.error("Failed to delete service delivery Task", err);
+                res.send(500, errorResponses.db.error);
+                return;
+            }
+            res.send(200, {
+                message: "deleted"
+            });
+        });
+    });
 
     app.get('/tasks/history/list/all', function(req, res) {
         TaskHistory.listHistory(function(err, tHistories) {
@@ -92,19 +106,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 res.send(404);
                 return;
             }
-        });
-    });
-
-    app.delete('/tasks/serviceDelivery/:taskId', function(req, res) {
-        Tasks.removeServiceDeliveryTask(req.params.taskId, function(err, data) {
-            if (err) {
-                logger.error("Failed to delete service delivery Task", err);
-                res.send(500, errorResponses.db.error);
-                return;
-            }
-            res.send(200, {
-                message: "deleted"
-            });
         });
     });
 
@@ -516,9 +517,14 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
     app.post('/tasks/:taskId/update', function(req, res) {
         var taskData = req.body.taskData;
-        if(taskData.taskScheduler  && taskData.taskScheduler !== null) {
+        if(taskData.taskScheduler  && taskData.taskScheduler !== null && Object.keys(taskData.taskScheduler).length !== 0) {
             taskData.taskScheduler = apiUtil.createCronJobPattern(taskData.taskScheduler);
             taskData.isTaskScheduled = true;
+        }
+        if(taskData.manualExecutionTime && taskData.manualExecutionTime !== null){
+            taskData.manualExecutionTime = parseInt(taskData.manualExecutionTime);
+        }else{
+            taskData.manualExecutionTime = 10;
         }
         if (taskData.taskType === 'script') {
             Tasks.getTaskById(req.params.taskId, function(err, scriptTask) {
@@ -542,11 +548,11 @@ module.exports.setRoutes = function(app, sessionVerification) {
                             }
                             if (updateCount) {
                                 if(taskData.isTaskScheduled === true){
-                                    schedulerService.executeSchedulerForTasks(task,function(err,data){
-                                        if(err){
-                                            logger.error("Error in executing task scheduler");
-                                        }
-                                    })
+                                    if(taskData.executionOrder === 'PARALLEL'){
+                                        catalystSync.executeParallelScheduledTasks();
+                                    }else{
+                                        catalystSync.executeSerialScheduledTasks();
+                                    }
                                 };
                                 res.send({
                                     updateCount: updateCount
@@ -559,6 +565,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 })
             });
         } else {
+            if(taskData.taskType === 'jenkins'){
+                taskData.executionOrder= 'PARALLEL';
+            }
             Tasks.updateTaskById(req.params.taskId, taskData, function(err, updateCount) {
                 if (err) {
                     logger.error(err);
@@ -567,11 +576,11 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 }
                 if (updateCount) {
                     if(taskData.isTaskScheduled === true){
-                        schedulerService.executeSchedulerForTasks(task,function(err,data){
-                            if(err){
-                                logger.error("Error in executing task scheduler");
-                            }
-                        })
+                        if(taskData.executionOrder === 'PARALLEL'){
+                            catalystSync.executeParallelScheduledTasks();
+                        }else{
+                            catalystSync.executeSerialScheduledTasks();
+                        }
                     };
                     res.send({
                         updateCount: updateCount
@@ -630,25 +639,28 @@ function encryptedParam(paramDetails, existingParams, callback) {
     var count = 0;
     var encryptedList = [];
     for (var i = 0; i < paramDetails.length; i++) {
-        (function(param) {
-            if (param.scriptParameters.length > 0) {
+        (function(paramDetail) {
+            if (paramDetail.scriptParameters.length > 0) {
                 count++;
-                for (var j = 0; j < param.scriptParameters.length; j++) {
+                for (var j = 0; j < paramDetail.scriptParameters.length; j++) {
                     (function(scriptParameter) {
                         if (scriptParameter === '') {
                             encryptedList.push(existingParams[i].scriptParameters[j]);
-                        } else if (scriptParameter === existingParams[i].scriptParameters[j]) {
+                        } else if (scriptParameter.paramVal === existingParams[i].scriptParameters[j].paramVal) {
                             encryptedList.push(scriptParameter);
                         } else {
-                            var encryptedText = cryptography.encryptText(scriptParameter, cryptoConfig.encryptionEncoding,
+                            var encryptedText = cryptography.encryptText(scriptParameter.paramVal, cryptoConfig.encryptionEncoding,
                                 cryptoConfig.decryptionEncoding);
-                            encryptedList.push(encryptedText);
+                            encryptedList.push({
+                                paramVal:encryptedText,
+                                paramVal:scriptParameter.paramVal
+                            });
                         }
-                        if (encryptedList.length === param.scriptParameters.length) {
-                            param.scriptParameters = encryptedList;
+                        if (encryptedList.length === paramDetail.scriptParameters.length) {
+                            paramDetail.scriptParameters = encryptedList;
                             encryptedList = [];
                         }
-                    })(param.scriptParameters[j]);
+                    })(paramDetail.scriptParameters[j]);
                 }
             } else {
                 count++;

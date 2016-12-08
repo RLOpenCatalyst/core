@@ -48,8 +48,6 @@
 		});
 	}])
 	.controller('botsCtrl',['$scope', '$rootScope', '$state', function ($scope, $rootScope, $state) {
-		/*var treeNames = ['Bots'];
-		$rootScope.$emit('treeNameUpdate', treeNames);*/
 		$state.go('dashboard.bots.library');
 		$rootScope.stateItems = $state.params;
 	}]);

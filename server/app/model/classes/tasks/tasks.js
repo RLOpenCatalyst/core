@@ -136,41 +136,52 @@ var taskSchema = new Schema({
         required: false,
         default:false
     },
+    executionOrder:{
+        type: String,
+        required: false,
+        trim: true
+    },
     taskScheduler:{
         cronStartOn: {
-            type: Number,
+            type: String,
             required: false,
             trim: true
         },
         cronEndOn: {
-            type: Number,
+            type: String,
             required: false,
             trim: true
         },
-        cronPatten: {
+        cronPattern: {
             type: String,
             required: false,
             trim: true
         },
         cronRepeatEvery: {
             type: Number,
+            required: false
+        },
+        cronFrequency: {
+            type: String,
             required: false,
             trim: true
         },
-        cronFrequency: {
+        cronMinute:{
             type: Number,
             required: false,
             trim: true
         },
-        cronTime:{
-            type: String,
-            required: false,
-            trim: true
+        cronHour:{
+            type: Number,
+            required: false
         },
-        cronDays:{
-            type: String,
-            required: false,
-            trim: true
+        cronWeekDay:{
+            type: Number,
+            required: false
+        },
+        cronDate:{
+            type: Number,
+            required: false
         },
         cronMonth:{
             type: String,
@@ -178,15 +189,23 @@ var taskSchema = new Schema({
             trim: true
         },
         cronYear:{
-            type: String,
-            required: false,
-            trim: true
+            type: Number,
+            required: false
         }
     },
     cronJobId:{
         type: String,
         required: false,
         trim: true
+    },
+    executionCount:{
+        type: Number,
+        required: false,
+        default:0
+    },
+    manualExecutionTime:{
+        type: Number,
+        required: false
     }
 });
 taskSchema.plugin(mongoosePaginate);
@@ -207,9 +226,9 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
         orgName: self.orgName,
         bgName: self.bgName,
         projectName: self.projectName,
-        envName: self.envName
+        envName: self.envName,
+        manualExecutionTime:self.manualExecutionTime
     };
-
     if (this.taskType === TASK_TYPE.CHEF_TASK) {
         task = new ChefTask(this.taskConfig);
 
@@ -743,7 +762,11 @@ taskSchema.statics.updateTaskById = function(taskId, taskData, callback) {
             serviceDeliveryCheck:taskData.serviceDeliveryCheck,
             description: taskData.description,
             jobResultURLPattern: taskData.jobResultURL,
-            blueprintIds: taskData.blueprintIds
+            blueprintIds: taskData.blueprintIds,
+            executionOrder:taskData.executionOrder,
+            taskScheduler:taskData.taskScheduler,
+            isTaskScheduled:taskData.isTaskScheduled,
+            manualExecutionTime:taskData.manualExecutionTime
         }
     }, {
         upsert: false
@@ -912,9 +935,10 @@ taskSchema.statics.updateTaskConfig = function updateTaskConfig(taskId, taskConf
 
     });
 };
-taskSchema.statics.getScheduledTasks = function getScheduledTasks(callback) {
+taskSchema.statics.getScheduledTasks = function getScheduledTasks(executionOrder,callback) {
     Tasks.find({
-        isTaskScheduled: true
+        isTaskScheduled: true,
+        executionOrder:executionOrder
     }, function (err, tasks) {
         if (err) {
             logger.error(err);
@@ -947,6 +971,23 @@ taskSchema.statics.updateTaskScheduler = function updateTaskScheduler(taskId, ca
     }, {
         $set: {
             isTaskScheduled: false
+        }
+    }, {
+        upsert: false
+    }, function (err, data) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, data);
+    });
+};
+taskSchema.statics.updateTaskExecutionCount = function updateTaskExecutionCount(taskId,count,callback) {
+    Tasks.update({
+        "_id": new ObjectId(taskId),
+    }, {
+        $set: {
+            executionCount: count
         }
     }, {
         upsert: false
