@@ -19,8 +19,7 @@ var instanceAuditTrail = require('_pr/model/audit-trail/instance-audit-trail.js'
 var botAuditTrail = require('_pr/model/audit-trail/bot-audit-trail.js');
 var containerAuditTrail = require('_pr/model/audit-trail/container-audit-trail.js');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
-var blueprints = null;
-var tasks = null;
+var bots = require('_pr/model/bots/bots.js');;
 
 const errorType = 'auditTrailService';
 
@@ -176,26 +175,13 @@ auditTrailService.getAuditTrailActionLogs = function getAuditTrailActionLogs(act
 auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
     async.parallel({
         totalNoOfBots: function(callback){
-            blueprints = require('_pr/model/blueprint');
-            tasks = require('_pr/model/classes/tasks/tasks.js');
-            async.parallel({
-                botsTask:function(callback){
-                    tasks.getAllServiceDeliveryTask('true',callback);
-                },
-                botsBlueprint:function(callback){
-                    blueprints.getAllServiceDeliveryBlueprint('true',callback);
-                }
-            },function(err,results){
+            bots.getAllBots(function(err,botsList){
                 if(err){
-                    logger.error(err);
                     callback(err,null);
-                    return;
+                }else {
+                    callback(null, botsList.length);
                 }
-                var totalNoOfBots = results.botsTask.length + results.botsBlueprint.length;
-                callback(null,totalNoOfBots);
-                return;
-            })
-
+            });
         },
         totalNoOfSuccessBots: function(callback){
             var query={
@@ -205,8 +191,9 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
             auditTrail.getAuditTrails(query,function(err,data){
                 if(err){
                     callback(err,null);
+                }else {
+                    callback(null, data.length);
                 }
-                callback(null,data.length);
             });
 
         },
@@ -218,8 +205,9 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
             auditTrail.getAuditTrails(query,function(err,data){
                 if(err){
                     callback(err,null);
+                }else {
+                    callback(null, data.length);
                 }
-                callback(null,data.length);
             });
 
         },
@@ -258,8 +246,9 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
             auditTrail.getAuditTrails(query,function(err,data){
                 if(err){
                     callback(err,null);
+                }else {
+                    callback(null, data.length);
                 }
-                callback(null,data.length);
             });
         }
 
@@ -273,6 +262,50 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
         return;
 
     })
+}
+
+auditTrailService.getBotsAuditTrailHistory = function getBotsAuditTrailHistory(botId,callback){
+    var query={
+        auditType:'BOTs',
+        auditId:botId
+    };
+    auditTrail.getAuditTrails(query,function(err,data){
+        if(err){
+            callback(err,null);
+        }else {
+            callback(null, data);
+        }
+    });
+}
+
+auditTrailService.softRemoveAuditTrailById = function softRemoveAuditTrailById(auditId,callback){
+    auditTrail.softRemoveAuditTrails(auditId,function(err,data){
+        if(err){
+            return callback(err,null);
+        }else {
+            return callback(null, data);
+        }
+    });
+}
+
+auditTrailService.updateSoftRemoveAuditTrailById = function updateSoftRemoveAuditTrailById(auditId,callback){
+    auditTrail.updateSoftRemoveAuditTrails(auditId,function(err,data){
+        if(err){
+            return callback(err,null);
+        }else {
+            return callback(null, data);
+        }
+    });
+}
+
+auditTrailService.removeAuditTrailById = function removeAuditTrailById(auditId,callback){
+    auditTrail.removeAuditTrails({auditId:auditId},function(err,data){
+        if(err){
+            return callback(err,null);
+        }else {
+            return callback(null, data);
+        }
+    });
 }
 
 

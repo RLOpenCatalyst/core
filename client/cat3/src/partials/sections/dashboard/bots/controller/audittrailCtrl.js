@@ -32,9 +32,9 @@
                     '<img src="images/devops-roles/devopsRole1.png" ng-show="row.entity.action==\'BOTs Blueprint Execution\'" alt="row.entity.botType" title="Blueprint" class="task-type-img" />',cellTooltip: true},
                 { name: 'BOT Name',displayName: 'BOT Name',field:'auditTrailConfig.name'},
                 { name: 'Status',field:'status',
-                  cellTemplate:'<img class="bot-status-icon" src="images/instance-states/aws-started.png" ng-show="row.entity.status === \'success\'" title="{{row.entity.status}}">' +
-                  '<img class="bot-status-icon" src="images/instance-states/aws-stopped.png" ng-show="row.entity.status === \'failed\'" title="{{row.entity.status}}">' + 
-                  '<img class="bot-status-icon" src="images/instance-states/aws-inactive.png" ng-show="row.entity.status === \'running\'" title="{{row.entity.status}}">',
+                  cellTemplate:'<img class="bots-status-icon" src="images/instance-states/aws-started.png" ng-show="row.entity.status === \'success\'" title="{{row.entity.status}}">' +
+                  '<img class="bots-status-icon" src="images/instance-states/aws-stopped.png" ng-show="row.entity.status === \'failed\'" title="{{row.entity.status}}">' + 
+                  '<img class="bots-status-icon" src="images/instance-states/aws-inactive.png" ng-show="row.entity.status === \'running\'" title="{{row.entity.status}}">',
                   cellTooltip: true},
                 { name: 'Org',field:'masterDetails.orgName'},
                 { name: 'BU',field:'masterDetails.bgName'},
