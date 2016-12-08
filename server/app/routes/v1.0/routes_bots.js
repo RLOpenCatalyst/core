@@ -51,6 +51,16 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         })
     });
 
+    app.get('/bots/:botId/execute',function(req,res){
+        botsService.executeBots(req.params.botId, function(err,data){
+            if (err) {
+                return res.status(500).send(err);
+            } else {
+                return res.status(200).send(data);
+            }
+        })
+    });
+
     app.put('/bots/:botId/scheduler',function(req,res){
         botsService.updateBotsScheduler(req.params.botId,req.body, function(err,data){
             if (err) {

@@ -37,9 +37,11 @@ var azureCloud = require('_pr/lib/azure');
 var fs = require('fs');
 var providerService = require('_pr/services/providerService.js');
 var taskService = require('_pr/services/taskService.js');
+var botsService = require('_pr/services/botsService.js');
 var gcpProviderModel = require('_pr/model/v2.0/providers/gcp-providers');
 var GCP = require('_pr/lib/gcp.js');
 var crontab = require('node-crontab');
+var botsDao = require('_pr/model/bots/bots.js');
 
 schedulerService.executeSchedulerForInstances = function executeSchedulerForInstances(instance,callback) {
     logger.debug("Instance Scheduler is started for Instance. "+instance.platformId);
@@ -129,6 +131,40 @@ schedulerService.executeParallelScheduledTasks = function executeParallelSchedul
                     return;
                 }
                 logger.debug("Task Execution Success: ", task.name);
+                return;
+            });
+        });
+    }
+}
+
+schedulerService.executeScheduledBots = function executeScheduledBots(bots,callback) {
+    logger.debug("Bots Scheduler is started for - "+bots.botName);
+    var currentDate = new Date();
+    if(currentDate >= bots.botScheduler.cronEndOn){
+        crontab.cancelJob(bots.cronJobId);
+        botsDao.updateBotScheduler(bots._id,function(err, updatedData) {
+            if (err) {
+                logger.error("Failed to update Bots Scheduler: ", err);
+                callback(err,null);
+                return;
+            }
+            logger.debug("Scheduler is ended on for Bots. "+bots.botName);
+            callback(null,updatedData);
+            return;
+        });
+    }else{
+        var cronJobId = cronTab.scheduleJob(bots.botScheduler.cronPattern, function () {
+            botsDao.updateCronJobIdByBotId(bots._id,cronJobId,function(err,data){
+                if(err){
+                    logger.error("Error in updating cron job Ids. "+err);
+                }
+            })
+            botsService.executeBots(bots._id,function(err, historyData) {
+                if (err) {
+                    logger.error("Failed to execute Bots.", err);
+                    return;
+                }
+                logger.debug("Bots Execution Success for - ", bots.botName);
                 return;
             });
         });

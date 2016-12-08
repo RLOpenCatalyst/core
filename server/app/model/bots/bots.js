@@ -289,5 +289,53 @@ BotsSchema.statics.updateBotsExecutionCount = function updateBotsExecutionCount(
     });
 };
 
+BotsSchema.statics.getScheduledBots = function getScheduledBots(callback) {
+    Bots.find({
+        isBotScheduled: true
+    }, function (err, bots) {
+        if (err) {
+            logger.error(err);
+            return callback(err, null);
+        }
+        return callback(null, bots);
+    })
+}
+
+BotsSchema.statics.updateCronJobIdByBotId = function updateCronJobIdByBotId(botId, cronJobId, callback) {
+    Bots.update({
+        "_id": new ObjectId(botId),
+    }, {
+        $set: {
+            cronJobId: cronJobId
+        }
+    }, {
+        upsert: false
+    }, function (err, data) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, data);
+    });
+};
+
+BotsSchema.statics.updateBotsScheduler = function updateBotsScheduler(botId, callback) {
+    Bots.update({
+        "_id": new ObjectId(botId),
+    }, {
+        $set: {
+            isBotBScheduled: false
+        }
+    }, {
+        upsert: false
+    }, function (err, data) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, data);
+    });
+};
+
 var Bots = mongoose.model('bots', BotsSchema);
 module.exports = Bots;

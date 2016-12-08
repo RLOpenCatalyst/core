@@ -191,5 +191,46 @@ botsService.getBotsHistory = function getBotsHistory(botId,callback){
     });
 }
 
+botsService.executeBots = function executeBots(botId,callback){
+    async.waterfall([
+        function(next){
+            bots.getBotsById(botId,next);
+        },
+        function(bots,next){
+            if(bots.length > 0){
+                async.parallel({
+                    bots:function(callback){
+                        if(bots[0].botLinkedCategory === 'Task'){
+                            taskService.deleteServiceDeliveryTask(botId, callback);
+                        }else{
+                            blueprintService.deleteServiceDeliveryBlueprint(botId,callback)
+                        }
+                    },
+                    services: function(callback){
+                        bots.removeSoftBotsById(botId,callback);
+                    }
+                },function(err,results){
+                    if(err){
+                        next(err,null);
+                    }else{
+                        next(null,results);
+                    }
+                })
+            }else{
+                next({errCode:400, errMsg:"Bots is not exist in DB"})
+            }
+        }
+    ],function(err,results){
+        if(err){
+            logger.error(err);
+            callback(err,null);
+            return;
+        }else{
+            callback(null,results);
+            return;
+        }
+    });
+}
+
 
 
