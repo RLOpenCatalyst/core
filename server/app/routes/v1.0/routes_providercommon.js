@@ -1238,21 +1238,18 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      * @apiParam {Number} providerId                                                Provider ID
      * @apiParam {Object[]} tagMappings                                             Tag mappings
      * @apiParam {String} tagMappings.tagName                                       Tag name
-     * @apiParam {String[]} tagMappings.tagValues                                   Tag values
      * @apiSuccess {Object[]} tagMappings.catalystEntityType                        Catalyst entity type
      * @apiSuccess {String} tagNameMapping.catalystEntityMapping.catalystEntityId   Catalyst entity id
      * @apiSuccess {String} tagNameMapping.catalystEntityMapping.tagValue           Tag value
      * @apiParamExample {json} Request-Example:
      *      {
      *          "project": {
-     *              "tagName": "application",
-     *              "tagValues": [],
+     *              "tagName": "application"
      *              "catalystEntityType": "project",
      *              "catalystEntityMapping": {}
      *          },
      *          "environment": {
      *              "tagName": "env",
-     *              "tagValues": [],
      *              "catalystEntityType": "environment",
      *              "catalystEntityMapping": {}
      *          }
@@ -1695,7 +1692,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
         );
     }
 
-    function addTagMappings(req, res, next) {
+    function addTagMappings(req, res, callback) {
         async.waterfall(
             [
 
@@ -1709,7 +1706,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             ],
             function (err, results) {
                 if (err) {
-                    next(err);
+                    callback(err);
                 } else {
                     return res.status(201).send(results);
                 }
