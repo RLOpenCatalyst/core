@@ -21,6 +21,7 @@ var providersModel = require('_pr/model/v2.0/providers/providers');
 var gcpProviderModel = require('_pr/model/v2.0/providers/gcp-providers');
 var appConfig = require('_pr/config');
 var Cryptography = require('_pr/lib/utils/cryptography');
+var async = require('async');
 
 const errorType = 'provider';
 
@@ -307,7 +308,8 @@ providerService.getTagMappingsByProviderId
 providerService.getTagByCatalystEntityTypeAndProvider
     = function getTagByCatalystEntityTypeAndProvider(providerId, catalystEntityType, callback) {
     // @TODO entity types to be moved to config
-    if((catalystEntityType != 'project') && (catalystEntityType != 'environment') &&  (catalystEntityType != 'bgName')) {
+    if((catalystEntityType != 'project') && (catalystEntityType != 'environment')
+        &&  (catalystEntityType != 'businessGroup')) {
         var err = new Error('Malformed Request');
         err.status = 400;
         return callback(err);
@@ -371,78 +373,71 @@ providerService.updateTag = function updateTag(provider, tagDetails, callback) {
 // @TODO Update conflict based on tag names should be handled
 // @TODO Nested callbacks to be handled
 providerService.addMultipleTagMappings = function addMultipleTagMappings(providerId, tagMappings, callback) {
-    if(tagMappings.length < 1) {
-        return callback(null, []);
+    if(tagMappings == null) {
+        return callback(null, {});
     }
-    logger.debug(tagMappings.length);
-    var tagNames = [];
 
-    for(var i = 0; i < tagMappings.length; i++) {
-        (function(tagMapping) {
+    var tagsList = [];
+    async.forEach(Object.keys(tagMappings),
+        function(catalystEntityType, next1) {
+            var tagMapping = tagMappings[catalystEntityType];
             if (!('tagName' in tagMapping) || !('catalystEntityType' in tagMapping)) {
                 var err = new Error('Malformed Request');
                 err.status = 400;
-                return callback(err);
+                next1(err);
             }
 
             // @TODO entity types to be moved to config
             if ((tagMapping.catalystEntityType != 'project')
-                && (tagMapping.catalystEntityType != 'environment') && (tagMapping.catalystEntityType != 'bgName')) {
+                && (tagMapping.catalystEntityType != 'environment')
+                && (tagMapping.catalystEntityType != 'businessGroup')) {
                 var err = new Error('Malformed Request');
                 err.status = 400;
-                return callback(err);
+                next1(err);
             }
 
-            var deleteParams = {
-                'providerId': providerId,
-                'catalystEntityType': tagMapping.catalystEntityType
-            };
-            var deleteFields = {
-                'catalystEntityType': null,
-                'catalystEntityMapping': []
-            };
-            tagsModel.updateTag(deleteParams, deleteFields, function (err, tag) {
-
-                if (err) {
-                    var err = new Error('Internal server error');
-                    err.status = 500;
-                    return callback(err);
-                } else {
-
-                    tagNames.push(tagMapping.tagName);
-                    var params = {
+            async.waterfall([
+                function(next2) {
+                    var deleteParams = {
                         'providerId': providerId,
-                        'name': tagMapping.tagName
-                    };
-                    var fields = {
                         'catalystEntityType': tagMapping.catalystEntityType
                     };
-                    tagsModel.updateTag(params, fields, function (err, tag) {
-                        if (err) {
-                            var err = new Error('Internal server error');
-                            err.status = 500;
-                            return callback(err);
-                        } else if (!tag) {
-                            var err = new Error('Tag not found');
-                            err.status = 404;
-                            return callback(err);
-                        }
-                    });
-
+                    var deleteFields = {
+                        'catalystEntityType': null,
+                        'catalystEntityMapping': {}
+                    };
+                    tagsModel.updateTag(deleteParams, deleteFields, next2)
+                },
+                function(tagDeleted, next2) {
+                    providerService.getTagByNameAndProvider(providerId,
+                        tagMapping.tagName, next2);
+                },
+                function(tagDetails, next2) {
+                    providerService.updateTagMapping(tagDetails, catalystEntityType,
+                        tagMapping, next2);
                 }
-
-            });
-        })(tagMappings[i]);
-    }
-
-    if(tagNames.length > 0) {
-        return tagsModel.getTagsByProviderIdAndNames(providerId, tagNames, callback);
-    } else {
-        return callback(null, []);
-    }
+            ], function(err, tagDetails) {
+                if(err) {
+                    var err = new Error('Internal server error');
+                    err.status = 500;
+                    next1(err);
+                } else {
+                    tagsList.push(tagDetails);
+                    next1(null);
+                }
+            })
+        },
+        function(err) {
+            if(err) {
+                callback(err);
+            } else {
+                callback(null, tagsList);
+            }
+        }
+    );
 };
 
-providerService.updateTagMapping = function updateTagMapping(tagDetails, tagMapping, callback) {
+providerService.updateTagMapping = function updateTagMapping(tagDetails, catalystEntityType, tagMapping, callback) {
     if(!('tagName' in tagMapping) && !('catalystEntityMapping' in tagMapping)) {
         var err = new Error('Malformed Request');
         err.status = 400;
@@ -454,51 +449,62 @@ providerService.updateTagMapping = function updateTagMapping(tagDetails, tagMapp
         return callback(err);
     }
 
-    var catalystEntityMappingList = [];
-    for(var i = 0; i < tagMapping.catalystEntityMapping.length; i++) {
-        if(!('tagValue' in tagMapping.catalystEntityMapping[i])
-            || !('catalystEntityId' in tagMapping.catalystEntityMapping[i])
-            || !('catalystEntityName' in tagMapping.catalystEntityMapping[i])) {
-            var err = new Error('Malformed Request');
-            err.status = 400;
-            return callback(err);
-        }
+    tagDetails.toObject();
+    var catalystEntityMappings = {};
+    async.forEach(Object.keys(tagMapping.catalystEntityMapping),
+        function(catalystEntityId, next) {
+            if(!('tagValue' in tagMapping.catalystEntityMapping[catalystEntityId])
+                || !('catalystEntityId' in tagMapping.catalystEntityMapping[catalystEntityId])
+                || !('catalystEntityName' in tagMapping.catalystEntityMapping[catalystEntityId])) {
+                var err = new Error('Malformed Request');
+                err.status = 400;
+                next(err);
+            }
 
-        if((tagMapping.catalystEntityMapping[i].tagValue)
-            && (tagDetails.values.indexOf(tagMapping.catalystEntityMapping[i].tagValue) < 0)) {
-            var err = new Error('Tag value not found');
-            err.status = 404;
-            return callback(err);
-        }
+            if((tagMapping.catalystEntityMapping[catalystEntityId].tagValue)
+                && (tagDetails.values.indexOf(tagMapping.catalystEntityMapping[catalystEntityId].tagValue) < 0)) {
+                var err = new Error('Tag value not found');
+                err.status = 404;
+                next(err);
+            }
 
-        catalystEntityMappingList.push({
-            'tagValue': tagMapping.catalystEntityMapping[i].tagValue,
-            'catalystEntityId': tagMapping.catalystEntityMapping[i].catalystEntityId,
-            'catalystEntityName': tagMapping.catalystEntityMapping[i].catalystEntityName
-        });
-    }
+            catalystEntityMappings[catalystEntityId] = {
+                'tagValue': tagMapping.catalystEntityMapping[catalystEntityId].tagValue,
+                'catalystEntityId': tagMapping.catalystEntityMapping[catalystEntityId].catalystEntityId,
+                'catalystEntityName': tagMapping.catalystEntityMapping[catalystEntityId].catalystEntityName
+            }
 
-    var params = {
-        'providerId': tagDetails.providerId,
-        'name': tagDetails.name
-    };
-    var fields = {
-        'catalystEntityMapping': catalystEntityMappingList
-    };
-    tagsModel.updateTag(params, fields, function(err, tag) {
-        if(err) {
-            var err = new Error('Internal server error');
-            err.status = 500;
-            return callback(err);
-        } else if(!tag) {
-            var err = new Error('Tag not found');
-            err.status = 404;
-            return callback(err);
-        }else {
-            tagDetails.catalystEntityMapping = catalystEntityMappingList;
-            return callback(null, tagDetails);
+            next(null);
+        },
+        function(err) {
+            if(err) {
+                return callback(err);
+            } else {
+                var params = {
+                    'providerId': tagDetails.providerId,
+                    'name': tagDetails.name
+                };
+                var fields = {
+                    'catalystEntityType': catalystEntityType,
+                    'catalystEntityMapping': catalystEntityMappings
+                };
+                tagsModel.updateTag(params, fields, function(err, tag) {
+                    if(err) {
+                        var err = new Error('Internal server error');
+                        err.status = 500;
+                        return callback(err);
+                    } else if(!tag) {
+                        var err = new Error('Tag not found');
+                        err.status = 404;
+                        return callback(err);
+                    }else {
+                        tagDetails.catalystEntityMapping = catalystEntityMappings;
+                        return callback(null, tagDetails);
+                    }
+                });
+            }
         }
-    });
+    );
 };
 
 providerService.updateCatalystEntityMapping
@@ -606,7 +612,8 @@ providerService.createTagsList = function createTagsList(tags, callback) {
     tags.forEach(function(tag) {
         tagsList.push({
             'name': tag.name,
-            'description': tag.description?tag.description:null
+            'description': tag.description?tag.description:null,
+            'values': tag.values?tag.values:[]
         });
     });
     tagsListObject.tags = tagsList;
@@ -624,7 +631,6 @@ providerService.createTagObject = function createTagObject(tag, callback) {
 };
 
 providerService.createTagMappingList = function createTagMappingList(tags, callback) {
-    var tagMappingsListObject = {};
     var tagMappingsList = {};
     tags.forEach(function(tag) {
         if(tag.catalystEntityType) {
@@ -634,16 +640,16 @@ providerService.createTagMappingList = function createTagMappingList(tags, callb
                                 return a.toLowerCase().localeCompare(b.toLowerCase());
                             }) : [],
                 'catalystEntityType': tag.catalystEntityType ? tag.catalystEntityType : null,
-                'catalystEntityMapping': tag.catalystEntityMapping ? tag.catalystEntityMapping : []
+                'catalystEntityMapping': tag.catalystEntityMapping ? tag.catalystEntityMapping : {}
             };
-            for (var i = 0; i < tagMapping.catalystEntityMapping.length; i++) {
+
+            /*for (var i = 0; i < tagMapping.catalystEntityMapping.length; i++) {
                 delete tagMapping.catalystEntityMapping[i]._id;
-            }
+            }*/
+
             tagMappingsList[tagMapping.catalystEntityType] = tagMapping;
         }
     });
-
-    tagMappingsListObject.tagMappings = tagMappingsList;
 
     return callback(null, tagMappingsList);
 };
@@ -655,11 +661,12 @@ providerService.createTagMappingObject = function createTagMappingObject(tag, ca
                             return a.toLowerCase().localeCompare(b.toLowerCase());
                         }) : [],
             'catalystEntityType': tag.catalystEntityType?tag.catalystEntityType : null,
-            'catalystEntityMapping': tag.catalystEntityMapping?tag.catalystEntityMapping : []
+            'catalystEntityMapping': tag.catalystEntityMapping?tag.catalystEntityMapping : {}
     };
-    for (var i = 0; i < tagMappingObject.catalystEntityMapping.length; i++) {
+
+    /*for (var i = 0; i < tagMappingObject.catalystEntityMapping.length; i++) {
         delete tagMappingObject.catalystEntityMapping[i]._id;
-    }
+    }*/
 
     return callback(null, tagMappingObject);
 };
