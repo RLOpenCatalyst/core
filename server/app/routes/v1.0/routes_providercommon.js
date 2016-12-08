@@ -1004,6 +1004,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      * @apiSuccess {Object[]} tags              List of tags
      * @apiSuccess {String} tags.name           Tag name
      * @apiSuccess {String} tags.description    Tag description
+     * @apiSuccess {String[]} tags.values       Tag values
      * @apiSuccess {Number} count               Number of tags in the result set
      * @apiSuccess {pageSize} pageSize          Page size
      * @apiSuccess {pageIndex} pageIndex        Page index
@@ -1015,11 +1016,13 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *          "tags": [
      *              {
      *                  "name": "env",
-     *                  "description": "Deployment environment"
+     *                  "description": "Deployment environment",
+     *                  "values": ["value1", "value2"]
      *              },
      *              {
      *                  "name": "application",
-     *                  "description": "Project name"
+     *                  "description": "Project name",
+     *                  "values": ["value1", "value2"]
      *              }
      *          ],
      *          "count": 2,
@@ -1043,12 +1046,14 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      * @apiSuccess {Object} tag                 Tag details
      * @apiSuccess {String} tag.name            Tag name
      * @apiSuccess {String} tag.description     Tag description
+     * @apiSuccess {String[]} tag.values        Tag values
      *
      * @apiSuccessExample {json} Success-Response:
      *      HTTP/1.1 200 OK
      *      {
      *          "name": "environment",
-     *          "description": "Deployment environment"
+     *          "description": "Deployment environment",
+     *          "values": ["value1", "value2"]
      *      }
      *
      */
@@ -1067,7 +1072,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      * @apiParamExample {json} Request-Example:
      *      {
      *          "name": "environment",
-     *          "description": "Tag description"
+     *          "description": "Tag description",
+     *          "values": ["value1", "value2"]
      *      }
      *
      * @apiSuccess {Object} tag                 Tag details
@@ -1078,7 +1084,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *      HTTP/1.1 200 OK
      *      {
      *          "name": "environment",
-     *          "description": "Deployment environment"
+     *          "description": "Deployment environment",
+     *          "values": ["value1", "value2"]
      *      }
      */
     // app.post('/providers/:providerId/tags', validate(tagsValidator.create), createTags);
@@ -1105,7 +1112,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *      HTTP/1.1 200 OK
      *      {
      *          "name": "environment",
-     *          "description": "Deployment environment"
+     *          "description": "Deployment environment",
+     *          "values": ["value1", "value2"]
      *      }
      */
     app.put('/providers/:providerId/tags/:tagName', validate(tagsValidator.update), updateTag);
@@ -1139,41 +1147,36 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      * @apiSuccessExample {json} Success-Response:
      *      HTTP/1.1 200 OK
      *      {
-     *          "tagMappings": [
-     *                  {
-     *                      "tagName":  "application",
-     *                      "tagValues": ["proj1", "proj2"],
-     *                      "catalystEntityType": "project",
-     *                      "catalystEntityMapping": [
-     *                          {
-     *                              "catalystEntityId": "<MongoID>",
-     *                              "tagValue": "proj1"
-     *                          },
-     *                          {
-     *                              "catalystEntityId": "<MongoID>",
-     *                              "tagValue": "proj2"
-     *                          }
-     *                      ]
+     *          "project": {
+     *              "tagName":  "application",
+     *              "tagValues": ["proj1", "proj2"],
+     *              "catalystEntityType": "project",
+     *              "catalystEntityMapping": {
+     *                  "<catalystEntityId>": {
+     *                      "catalystEntityId": "<MongoID>",
+     *                      "tagValue": "proj1"
      *                  },
-     *                  {
-     *                      "tagName":  "environment",
-     *                      "tagValues": ["prod", "dev"],
-     *                      "catalystEntityType": "environment"
-     *                      "catalystEntityMapping": [
-     *                          {
-     *                              "catalystEntityId": "<MongoID>",
-     *                              "tagValue": "dev"
-     *                          },
-     *                          {
-     *                              "catalystEntityId": "<MongoID>",
-     *                              "tagValue": "prod"
-     *                          }
-     *                      ]
+     *                  "<catalystEntityId>": {
+     *                      "catalystEntityId": "<MongoID>",
+     *                      "tagValue": "proj2"
      *                  }
-     *           ],
-     *          "count": 2,
-     *          "pageSize": 10,
-     *          "pageIndex": 1
+     *              }
+     *           },
+     *          "environment": {
+     *              "tagName":  "environment",
+     *              "tagValues": ["prod", "dev"],
+     *              "catalystEntityType": "environment"
+     *              "catalystEntityMapping": {
+     *                  "<catalystEntityId>": {
+     *                      "catalystEntityId": "<MongoID>",
+     *                      "tagValue": "dev"
+     *                  },
+     *                  "<catalystEntityId>": {
+     *                      "catalystEntityId": "<MongoID>",
+     *                      "tagValue": "prod"
+     *                  }
+     *              }
+     *          }
      *      }
      */
     // @TODO Response should match doc
@@ -1201,18 +1204,18 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *      HTTP/1.1 200 OK
      *      {
      *          "name": "application",
-     *          "values": ["proj1", "proj2"]
+     *          "values": ["proj1", "proj2"],
      *          "catalystEntityType": "project",
-     *          "catalystEntityMapping": [
-     *              {
+     *          "catalystEntityMapping": {
+     *              "<catalystEntityId>": {
      *                  "catalystEntityId": "<MongoID>",
      *                  "tagValue": "proj1"
      *              },
-     *              {
+     *              "<catalystEntityId>": {
      *                  "catalystEntityId": "<MongoID>",
      *                  "tagValue": "proj2"
      *              }
-     *          ]
+     *          }
      *      }
      */
     app.get('/providers/:providerId/tag-mappings/:catalystEntityType', validate(tagsValidator.tagsMapping),
@@ -1231,20 +1234,20 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      * @apiSuccess {String} tagNameMapping.catalystEntityMapping.catalystEntityId   Catalyst entity id
      * @apiSuccess {String} tagNameMapping.catalystEntityMapping.tagValue           Tag value
      * @apiParamExample {json} Request-Example:
-     *      [
-     *          {
+     *      {
+     *          "project": {
      *              "tagName": "application",
      *              "tagValues": [],
      *              "catalystEntityType": "project",
-     *              "catalystEntityMapping": []
+     *              "catalystEntityMapping": {}
      *          },
-     *          {
+     *          "environment": {
      *              "tagName": "env",
      *              "tagValues": [],
      *              "catalystEntityType": "environment",
-     *              "catalystEntityMapping": []
+     *              "catalystEntityMapping": {}
      *          }
-     *       ]
+     *       }
      *
      * @apiSuccess {Object[]} tags                                              Tags
      * @apiSuccess {String} tagMappings                                         Tag mappings
@@ -1258,20 +1261,19 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      * @apiSuccessExample {json} Success-Response:
      *      HTTP/1.1 201 OK
      *      {
-     *          "tagMappings": [
-     *                  {
-     *                      "name": "application",
-     *                      "values": ["proj1", "proj2"],
-     *                      "catalystEntityType": "project",
-     *                      "catalystEntityMapping": []
-     *                  },
-     *                  {
-     *                      "name": "environment",
-     *                      "values": ["prod", "dev"],
-     *                      "catalystEntityType": "environment"
-     *                      "catalystEntityMapping": []
-     *                  }
-     *           ]
+     *          "project": {
+     *              "name": "application",
+     *              "values": ["proj1", "proj2"],
+     *              "catalystEntityType": "project",
+     *              "catalystEntityMapping": {}
+     *          },
+     *          "environment": {
+     *              "name": "environment",
+     *              "values": ["prod", "dev"],
+     *              "catalystEntityType": "environment",
+     *              "catalystEntityMapping": {}
+     *          }
+     *
      *      }
      */
     app.post('/providers/:providerId/tag-mappings', validate(tagsValidator.list), addTagMappings);
@@ -1290,19 +1292,19 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      * @apiSuccess {String} tagMapping.catalystEntityMapping.tagValue           Tag value
      * @apiParamExample {json} Request-Example:
      *      {
-     *          "catalystEntityMapping": [
-     *              {
+     *          "catalystEntityMapping": {
+     *              "<catalystEntityId>": {
      *                  "catalystEntityId": "<MongoID>",
      *                  "catalystEntityName": "project 1",
      *                  "tagValue": "proj1"
      *              },
-     *              {
+     *              "<catalystEntityId>": {
      *                  "catalystEntityId": "<MongoID>",
      *                  "catalystEntityName": "project 2",
      *                  "tagValue": "proj2"
      *
      *              }
-     *          ]
+     *          }
      *      }
      *
      * @apiSuccess {Object} tagMapping                                          Tag mapping
@@ -1319,19 +1321,19 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *          "tagName":  "application",
      *          "tagValues": ["proj1", "proj2"],
      *          "catalystEntityType": "project",
-     *          "catalystEntityMapping": [
-     *              {
+     *          "catalystEntityMapping": {
+     *              "<catalystEntityId>": {
      *                  "catalystEntityId": "<MongoID>",
      *                  "catalystEntityName": "project 1",
      *                  "tagValue": "proj1"
      *              },
-     *              {
+     *              "<catalystEntityId>": {
      *                  "catalystEntityId": "<MongoID>",
      *                  "catalystEntityName": "project 2",
      *                  "tagValue": "proj2"
      *
      *              }
-     *          ]
+     *          }
      *      }
      */
     app.patch('/providers/:providerId/tag-mappings/:catalystEntityType', validate(tagsValidator.tagsMapping),

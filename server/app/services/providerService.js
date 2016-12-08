@@ -617,14 +617,15 @@ providerService.createTagsList = function createTagsList(tags, callback) {
 providerService.createTagObject = function createTagObject(tag, callback) {
     var tagObject = {
         'name': tag.name,
-        'description': tag.description?tag.description:null
+        'description': tag.description?tag.description:null,
+        'values': tag.values?tag.values:[]
     };
     return callback(null, tagObject);
 };
 
 providerService.createTagMappingList = function createTagMappingList(tags, callback) {
     var tagMappingsListObject = {};
-    var tagMappingsList = [];
+    var tagMappingsList = {};
     tags.forEach(function(tag) {
         if(tag.catalystEntityType) {
             var tagMapping = {
@@ -638,7 +639,7 @@ providerService.createTagMappingList = function createTagMappingList(tags, callb
             for (var i = 0; i < tagMapping.catalystEntityMapping.length; i++) {
                 delete tagMapping.catalystEntityMapping[i]._id;
             }
-            tagMappingsList.push(tagMapping);
+            tagMappingsList[tagMapping.catalystEntityType] = tagMapping;
         }
     });
 
