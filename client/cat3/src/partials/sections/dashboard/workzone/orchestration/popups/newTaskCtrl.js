@@ -241,8 +241,12 @@
 					}
 				},
 				selectTaskCheckbox: function(){
-					$scope.showAddTask = true;
 					$scope.isEventAvailable = false;
+					if($scope._isEventSelected.flag) {
+						$scope.showAddTask = true;
+					} else {
+						$scope.showAddTask = false;
+					}
 				},
 				addTaskEvent : function() {
 					$modal.open({
@@ -268,7 +272,7 @@
 						selectedDayOfTheMonth = $scope.chefJenkScriptTaskObj.selectedDayOfTheMonth;
 						selectedMonth = $scope.chefJenkScriptTaskObj.monthOfYear;
 						$scope.type = 'edit';
-						$scope._isEventSelected = true;
+						//$scope._isEventSelected = true;
 						
 						$scope.repeatPattern = 'Repeat Every -' +  $scope.chefJenkScriptTaskObj.repeats;   
 						$scope.cronDetails = {
@@ -492,6 +496,9 @@
 			};
 			$scope.isExecution = {
 				flag: 'PARALLEL'
+			};
+			$scope._isEventSelected = {
+				flag: false
 			};
 			/*in backend at the time of edit of task the jobResultUrlPattern
 			 was going as null. So there was in issue with the links disappearing.*/

@@ -298,7 +298,7 @@
 									</div>
 									<span class="col-lg-5 col-md-5 col-sm-5 col-xs-10">
 										<label>
-											<input type="checkbox" ng-checked="_isEventSelected" ng-model="_isEventSelected" ng-change="selectTaskCheckbox()" class="checkbox-list"/>&nbsp;Schedule a Task&nbsp;
+											<input type="checkbox" ng-checked="_isEventSelected.flag" ng-model="_isEventSelected.flag" ng-change="selectTaskCheckbox()" class="checkbox-list"/>&nbsp;Schedule a Task&nbsp;
 										</label>
 										<i class="fa fa-plus-circle cursor" ng-show="showAddTask" title="Add Task" ng-click="addTaskEvent('new')"></i>
 										<!-- <input type="text" ng-show="isEventAvailable" class="form-control" disabled ng-model="repeatPattern"/> -->
@@ -387,7 +387,7 @@
 							</div>
 							<span class="col-lg-5 col-md-5 col-sm-5 col-xs-10 margintop7">
 								<label>
-									<input type="checkbox" ng-checked="_isEventSelected" ng-model="_isEventSelected" ng-change="selectTaskCheckbox()" class="checkbox-list"/>&nbsp;Schedule a Task&nbsp;
+									<input type="checkbox" ng-checked="_isEventSelected.flag" ng-model="_isEventSelected.flag" ng-change="selectTaskCheckbox()" class="checkbox-list"/>&nbsp;Schedule a Task&nbsp;
 								</label>
 								<i class="fa fa-plus-circle cursor" ng-show="showAddTask" title="Add Task" ng-click="addTaskEvent('new')"></i>
 								<!-- <input type="text" ng-show="isEventAvailable" class="form-control" disabled ng-model="cronPattern"/> -->
@@ -531,7 +531,7 @@
 											</div>
 											<span class="col-lg-5 col-md-5 col-sm-5 col-xs-10 margintop7">
 												<label>
-													<input type="checkbox" ng-checked="_isEventSelected" ng-model="_isEventSelected" ng-change="selectTaskCheckbox()" class="checkbox-list"/>&nbsp;Schedule a Task&nbsp;
+													<input type="checkbox" ng-checked="_isEventSelected.flag" ng-model="_isEventSelected.flag" ng-change="selectTaskCheckbox()" class="checkbox-list"/>&nbsp;Schedule a Task&nbsp;
 												</label>
 												<i class="fa fa-plus-circle cursor" ng-show="showAddTask" title="Add Task" ng-click="addTaskEvent('new')"></i>
 												<!-- <input type="text" ng-show="isEventAvailable" class="form-control" disabled ng-model="cronPattern"/> -->
