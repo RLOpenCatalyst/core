@@ -11,10 +11,15 @@
                             </label>
                             <div class="input-groups">
                                 <loading size="small" name="isLoadingTag" type="inline"></loading>
-                                <input list="tagBuList" type=""  class="form-control" ng-model="newEnt.bus.tagName" required />
-                                <datalist id="tagBuList" >
+                                <select  class="form-control with250"  ng-model="newEnt.businessGroup.tagName" ng-change="disTgMap.getTagValues('busTag',newEnt.businessGroup.tagName,'businessGroup');" required>
+                                    <option value="">Select</option>
                                     <option ng-repeat="opti in disTgMap.tagOption" value="{{opti.name}}">{{opti.name}}</option>
-                                </datalist>
+                                </select>
+
+                                <!--<input list="tagBuList" type=""  class="form-control" ng-model="newEnt.businessGroup.tagName" ng-change="disTgMap.getTagValues('busTag',newEnt.businessGroup.tagName,'businessGroup');" required />-->
+                                <!--<datalist id="tagBuList" >-->
+                                    <!--<option ng-repeat="opti in disTgMap.tagOption" value="{{opti.name}}">{{opti.name}}</option>-->
+                                <!--</datalist>-->
                             </div>
                         </div>
                     <div class="clearfix margintop15"></div>
@@ -22,13 +27,13 @@
                     <fieldset class="repo-job-details-wrapper">
                         <legend class="repo-job-details-wrapper-inner">All Business Groups :</legend>
                             <div class="col-lg-6 col-sm-12 col-md-6 margintop15" ng-repeat="buss in organObject[organNewEnt.org].businessGroups">
+
                                 <label for="">{{buss.name}} :
                                 </label>
-                                <div class="input-groups">
+                                <div class="input-groups" ng-init="newEnt.businessGroup.catalystEntityMapping[buss.rowid].catalystEntityName =buss.name ; newEnt.businessGroup.catalystEntityMapping[buss.rowid].catalystEntityId =buss.rowid ">
                                     <loading size="small" name="isLoadingTag" type="inline"></loading>
-                                    <multiple-autocomplete ng-model="newEnt.bus.tagvalue[buss.rowid]"
-                                                           object-property="name"
-                                                           suggestions-arr="disTgMap.tagOption">
+                                    <multiple-autocomplete ng-model="newEnt.businessGroup.catalystEntityMapping[buss.rowid].tagValue"
+                                                           suggestions-arr="disTgMap.busTag">
                                     </multiple-autocomplete>
                                 </div>
                             </div>
@@ -50,10 +55,15 @@
                     </label>
                     <div class="input-groups">
                         <loading size="small" name="isLoadingTag" type="inline"></loading>
-                        <input list="tagProjList" type="" ng-model="newEnt.proj.tagName"  class="form-control with250" required />
-                        <datalist id="tagProjList" >
+                        <select  ng-model="newEnt.project.tagName"  class="form-control with250" ng-change="disTgMap.getTagValues('projTag',newEnt.project.tagName,'project');"  required>
+                            <option value="">Select</option>
                             <option ng-repeat="opti in disTgMap.tagOption" value="{{opti.name}}">{{opti.name}}</option>
-                        </datalist>
+                        </select>
+
+                        <!--<input list="tagProjList" type="" ng-model="newEnt.project.tagName"  class="form-control with250" ng-change="disTgMap.getTagValues('projTag',newEnt.project.tagName,'project');"  required />-->
+                        <!--<datalist id="tagProjList" >-->
+                            <!--<option ng-repeat="opti in disTgMap.tagOption" value="{{opti.name}}">{{opti.name}}</option>-->
+                        <!--</datalist>-->
                     </div>
                 </div>
 
@@ -61,15 +71,15 @@
                 <div class="clearfix margintop15"></div>
                 <fieldset class="repo-job-details-wrapper">
                     <legend class="repo-job-details-wrapper-inner">All Projects :</legend>
+                    <loading size="small" name="isLoadingTagValue" type="inline"></loading>
                     <div ng-repeat="buss in organObject[organNewEnt.org].businessGroups">
                         <div class="col-lg-6 col-sm-12 col-md-6 margintop15"  ng-repeat="project in buss.projects" >
                             <label for="">{{project.name}} :
                             </label>
-                            <div class="input-groups">
+                            <div class="input-groups" ng-init="newEnt.project.catalystEntityMapping[project.rowId].catalystEntityName =project.name ; newEnt.project.catalystEntityMapping[project.rowId].catalystEntityId =project.rowId ">
                                 <loading size="small" name="isLoadingTag" type="inline"></loading>
-                                <multiple-autocomplete ng-model="newEnt.proj.tagValue[project.rowId]"
-                                                       object-property="name"
-                                                       suggestions-arr="disTgMap.tagOption">
+                                <multiple-autocomplete ng-model="newEnt.project.catalystEntityMapping[project.rowId].tagValue"
+                                                       suggestions-arr="disTgMap.projTag">
                                 </multiple-autocomplete>
                             </div>
                         </div>
@@ -89,10 +99,15 @@
                         </label>
                         <div class="input-groups">
                             <loading size="small" name="isLoadingTag" type="inline"></loading>
-                            <input list="tagEnvist" type="" ng-model="newEnt.Env.tagName"   class="form-control with250" required />
-                            <datalist id="tagEnvist" >
-                                <<option ng-repeat="opti in disTgMap.tagOption" value="{{opti.name}}">{{opti.name}}</option>
-                            </datalist>
+                            <select  ng-model="newEnt.environment.tagName" ng-change="disTgMap.getTagValues('EnvTag',newEnt.environment.tagName,'environment');"  class="form-control with250" required>
+                                <option value="">Select</option>
+                                <option ng-repeat="opti in disTgMap.tagOption" value="{{opti.name}}">{{opti.name}}</option>
+                            </select>
+
+                            <!--<input list="tagEnvist" type="" ng-model="newEnt.environment.tagName" ng-change="disTgMap.getTagValues('EnvTag',newEnt.environment.tagName,'environment');"  class="form-control with250" required />-->
+                            <!--<datalist id="tagEnvist" >-->
+                                <!--<option ng-repeat="opti in disTgMap.tagOption" value="{{opti.name}}">{{opti.name}}</option>-->
+                            <!--</datalist>-->
                         </div>
                     </div>
                     <div class="clearfix margintop15"></div>
@@ -102,11 +117,10 @@
                         <div class="col-lg-6 col-sm-12 col-md-6 margintop15" ng-repeat="envr in organObject[organNewEnt.org].environments">
                             <label for="">{{envr.name}} :
                             </label>
-                            <div class="input-groups">
+                            <div class="input-groups" ng-init="newEnt.environment.catalystEntityMapping[envr.rowid].catalystEntityName =envr.name ; newEnt.environment.catalystEntityMapping[envr.rowid].catalystEntityId =envr.rowid ">
                                 <loading size="small" name="isLoadingTag" type="inline"></loading>
-                                <multiple-autocomplete ng-model="newEnt.Env.tagValue[envr.rowid]"
-                                                       object-property="name"
-                                                       suggestions-arr="disTgMap.tagOption">
+                                <multiple-autocomplete ng-model="newEnt.environment.catalystEntityMapping[envr.rowid].tagValue"
+                                                       suggestions-arr="disTgMap.EnvTag">
                                 </multiple-autocomplete>
                             </div>
                         </div>

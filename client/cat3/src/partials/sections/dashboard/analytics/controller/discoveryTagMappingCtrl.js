@@ -27,8 +27,32 @@
                     });
                 }
             };
+            disTgMap.getTagValues= function (type,tagName,valueType) {
+                if(tagName) {
+                    var param = {
+                        inlineLoader: true,
+                        url: '/providers/' + fltrObj.provider.id + '/tags/' + tagName
+                    };
+                    genSevs.promiseGet(param).then(function (tagResult) {
+                        $scope.isLoadingTagValue = false;
+                        for (var key in $scope.newEnt[valueType].catalystEntityMapping) {
+                            $scope.newEnt[valueType].catalystEntityMapping[key].tagValue = [];
+                        }
+                        ;
+                        disTgMap[type] = tagResult.values;
+                    });
+                }
+            };
             disTgMap.save =function(){
                 console.log($scope.newEnt);
+                var param = {
+                    inlineLoader: true,
+                    url: '/providers/' + fltrObj.provider.id + '/tags-mappings',
+                    data:$scope.newEnt
+                };
+                genSevs.promisePost(param).then(function (tagResult) {
+                  console.log(tagResult);
+                });
             };
             $rootScope.applyFilter =function(filterApp,period){
                 analyticsServices.applyFilter(true,null);
