@@ -101,6 +101,9 @@ angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', '$http', '$l
 		$rootScope.analyticsBool = _permSet.analyticsBool;
 		$rootScope.serviceBool = _permSet.serviceBool;
 	});
+	$scope.$watch(function() {
+		$rootScope.moduleSelection = $state.params;
+	});
 	$rootScope.$emit('SET_HEADER', $rootScope.appDetails);
 	$scope.showLogoutConfirmationSection = false;
 	$scope.logoutConfirmation = function () {
