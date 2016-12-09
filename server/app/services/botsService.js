@@ -23,6 +23,8 @@ var taskService =  require('_pr/services/taskService.js');
 var auditTrailService =  require('_pr/services/auditTrailService.js');
 var blueprintService =  require('_pr/services/blueprintService.js');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
+var catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
+var cronTab = require('node-crontab');
 
 const errorType = 'botsService';
 
@@ -95,9 +97,25 @@ botsService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,call
             logger.error(err);
             callback(err,null);
             return;
+        }else {
+            bots.getBotsById(botId, function (err, botsData) {
+                if (err) {
+                    logger.error(err);
+                } else if(botData.length > 0){
+                    if (botsData[0].isBotScheduled === true) {
+                        catalystSync.executeScheduledBots();
+                    } else if (botsData[0].cronJobId && botsData[0].cronJobId !== null) {
+                        cronTab.cancelJob(botsData[0].cronJobId);
+                    } else {
+                        logger.debug("There is no cron job associated with Bot ");
+                    }
+                } else{
+                    logger.debug("There is no Bots ");
+                }
+            });
+            callback(null, data);
+            return;
         }
-        callback(null,data);
-        return;
     });
 }
 
