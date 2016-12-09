@@ -9,7 +9,7 @@
     "use strict";
     angular.module('dashboard.bots')
     .controller('libraryCtrl',['$scope', '$rootScope', '$state', 'genericServices', 'confirmbox', 'toastr', 'workzoneUIUtils', '$modal', function ($scope, $rootScope, $state, genSevs, confirmbox, toastr, workzoneUIUtils, $modal) {
-        var treeNames = ['Bots','Library'];
+        var treeNames = ['BOTs','Library'];
         $rootScope.$emit('treeNameUpdate', treeNames);
         var lib=this;
         $scope.totalBotsSelected = true;
@@ -25,16 +25,18 @@
                     '<img src="images/orchestration/jenkins.png" ng-show="row.entity.taskType==\'jenkins\'" alt="row.entity.taskType" title="Jenkins" class="task-type-img" />'+
                     '<img src="images/orchestration/script.jpg" ng-show="row.entity.taskType==\'script\'" alt="row.entity.taskType" title="Script" class="task-type-img" />'+
                     '<img src="images/devops-roles/devopsRole1.png" ng-show="row.entity.blueprintType" alt="row.entity.botType" title="Blueprint" class="task-type-img" />',cellTooltip: true},
-                { name: 'BOT Type',displayName: 'BOT Type',field:'botType'},
-                { name: 'BOT Name',displayName: 'BOT Name',field:'name'},
-                { name: 'Category',field:'botCategory'},
-                { name: 'description',field:'shortDesc'},
+                { name: 'BOT Type',displayName: 'BOT Type',field:'botType',cellTooltip: true},
+                { name: 'BOT Name',displayName: 'BOT Name',field:'name',cellTooltip: true},
+                { name: 'Category',field:'botCategory',cellTooltip: true},
+                { name: 'description',field:'shortDesc',cellTooltip: true},
                 { name: 'Total Runs',field:'executionCount'},
                 { name: 'BOT History',displayName: 'BOT History',cellTemplate:'<span ng-show="row.entity.blueprintType">NA</span>'+
                     '<span class="btn cat-btn-update control-panel-button" title="History" ng-show="row.entity.taskType" ng-click="grid.appScope.botLogs(row.entity);"><i class="fa fa-header white"></i></span>'},
                 { name: 'BOT Info',displayName: 'BOT Info',cellTemplate:
                     '<span class="btn cat-btn-update control-panel-button" title="Info" ng-click="grid.appScope.botInfo(row.entity);"><i class="fa fa-info white"></i></span>'},
-                { name: 'BOT Action',displayName: 'BOT Action',cellTemplate:'<span class="btn cat-btn-update control-panel-button" title="Execute" ng-click="grid.appScope.launchInstance(row.entity);"><i class="fa fa-play white"></i></span>' +
+                { name: 'BOT Action',displayName: 'BOT Action',cellTemplate:
+                    '<span class="btn cat-btn-update control-panel-button" title="Schedule" ng-click="grid.appScope.botSchedule(row.entity);"><i class="fa fa-calendar white"></i></span>' +
+                    '<span class="btn cat-btn-update control-panel-button" title="Execute" ng-click="grid.appScope.launchInstance(row.entity);"><i class="fa fa-play white"></i></span>' +
                     '<span class="btn btn-danger control-panel-button" title="Delete Task" ng-show="row.entity.taskType" ng-click="grid.appScope.deleteBotTask(row.entity);"><i class="fa fa-trash-o white"></i></span>' + 
                     '<span class="btn btn-danger control-panel-button" title="Delete Blueprint" ng-show="row.entity.blueprintType" ng-click="grid.appScope.deleteBotBP(row.entity);"><i class="fa fa-trash-o white"></i></span>'
                 }
@@ -70,6 +72,46 @@
                 $scope.selected = selectedItem;
             }, function() {
                 console.log('Modal Dismissed at ' + new Date());
+            });
+        };
+        $scope.botSchedule = function() {
+            $modal.open({
+                templateUrl: 'src/partials/sections/dashboard/bots/view/botSchedule.html',
+                controller: 'botScheduleCtrl',
+                backdrop: 'static',
+                keyboard: false,
+                resolve: {
+                    items: function () {
+                        return {
+                            chefJenkScriptTaskObj:$scope.chefJenkScriptTaskObj,
+                            type:$scope.type
+                        }
+                    }
+                }
+            }).result.then(function (chefEventDetails) {
+                $scope.isEventAvailable = true;
+                $scope.chefJenkScriptTaskObj = chefEventDetails;
+                var startTimeMinute,startTimeHour,dayOfWeek,selectedDayOfTheMonth,selectedMonth;
+                startTimeMinute = $scope.chefJenkScriptTaskObj.startTimeMinute;
+                startTimeHour = $scope.chefJenkScriptTaskObj.startTime;
+                dayOfWeek = $scope.chefJenkScriptTaskObj.dayOfWeek;
+                selectedDayOfTheMonth = $scope.chefJenkScriptTaskObj.selectedDayOfTheMonth;
+                selectedMonth = $scope.chefJenkScriptTaskObj.monthOfYear;
+                $scope.type = 'edit';
+                $scope._isEventSelected = true;
+                
+                $scope.repeatPattern = 'Repeat Every -' +  $scope.chefJenkScriptTaskObj.repeats;   
+                $scope.cronDetails = {
+                    cronStartOn : $scope.chefJenkScriptTaskObj.cronStart,
+                    cronEndOn : $scope.chefJenkScriptTaskObj.cronEnd,
+                    cronRepeatEvery : $scope.chefJenkScriptTaskObj.repeatBy,
+                    cronFrequency: $scope.chefJenkScriptTaskObj.repeats,
+                    cronTime: typeof startTimeHour !=='undefined'? startTimeHour : new Date().getHours() + ':' + typeof startTimeMinute !=='undefined'? startTimeMinute:new Date().getMinutes(),
+                    cronDays: $scope.chefJenkScriptTaskObj.dayOfWeek,
+                    cronMonth: $scope.chefJenkScriptTaskObj.monthOfYear
+                }
+            }, function () {
+                console.log('Dismiss time is ' + new Date());
             });
         };
         $scope.deleteBotTask = function(task) {
@@ -213,6 +255,93 @@
         console.log(items);
 
         $scope.cancel= function() {
+            $modalInstance.dismiss('cancel');
+        };
+    }]).controller('botScheduleCtrl',['$scope', '$rootScope', 'genericServices', 'workzoneServices', 'toastr', '$modalInstance', 'items', '$timeout', function ($scope, $rootScope, genSevs, workzoneServices, toastr, $modalInstance, items, $timeout) {
+        console.log(items);
+        $scope.defaultSelection = function() {
+            $scope.repeatsType = 'Minutes';//default selection.
+            $scope.schedulerStartOn=moment(new Date()).format('MM/DD/YYYY');
+            $scope.schedulerEndOn=moment(new Date()).format('MM/DD/YYYY');
+        };
+        if(items.type !== 'new'){
+            if(items.chefJenkScriptTaskObj !==undefined){
+                if(items.chefJenkScriptTaskObj.cronStartOn && items.chefJenkScriptTaskObj.cronEndOn) {
+                    var newStartOn = parseInt(items.chefJenkScriptTaskObj.cronStartOn);
+                    var newDate = new Date(newStartOn).toLocaleDateString();
+                    var datearray = newDate.split("/");
+                    var newdate = datearray[1] + '/' + datearray[0] + '/' + datearray[2];
+                    $scope.schedulerStartOn = newdate;
+                    var newEndOn = parseInt(items.chefJenkScriptTaskObj.cronEndOn);
+                    var newEndData = new Date(newEndOn).toLocaleDateString();   
+                    var datearrayNew = newEndData.split("/");
+                    var newdateEnd = datearrayNew[1] + '/' + datearrayNew[0] + '/' + datearrayNew[2];
+                    $scope.schedulerEndOn = newdateEnd;
+                } else {
+                    $scope.schedulerStartOn = items.chefJenkScriptTaskObj.cronStart;
+                    $scope.schedulerEndOn = items.chefJenkScriptTaskObj.cronEnd;    
+                }
+            
+                $scope.repeatBy = items.chefJenkScriptTaskObj.repeatBy || items.chefJenkScriptTaskObj.cronRepeatEvery.toString();
+                $scope.repeatsType = items.chefJenkScriptTaskObj.repeats || items.chefJenkScriptTaskObj.cronFrequency;
+                $scope.timeEventType = items.chefJenkScriptTaskObj.startTime;
+                $scope.timeEventMinute = items.chefJenkScriptTaskObj.startTimeMinute;
+                $scope.weekOfTheDay = items.chefJenkScriptTaskObj.dayOfWeek;
+                $scope.currentDate = items.chefJenkScriptTaskObj.startDate;
+                $scope.selectedDayOfTheMonth = items.chefJenkScriptTaskObj.selectedDayOfTheMonth;
+                $scope.selectedMonth = items.chefJenkScriptTaskObj.monthOfYear;
+            } else {
+                $scope.defaultSelection();
+            }
+        } else {
+            $scope.defaultSelection();
+        }
+
+        $scope.dateChange= function () {
+            var startDate =  Date.parse($scope.schedulerStartOn);
+            var endDate =  Date.parse($scope.schedulerEndOn);
+            if(startDate > endDate){
+                $scope.validDateRange=true;
+            } else {
+                $scope.validDateRange=false;
+            }
+      
+        };
+
+        $scope.repeatCount = function(max, step) {
+            step = step || 1;
+            var input = [];
+            for (var i = 1; i <= max; i += step) {
+                input.push(i);
+            }
+            return input;
+        };
+        $scope.isDaySelected = {
+            flag:true
+        }
+        
+        $scope.daysOfWeek = [ 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' ];
+
+        $scope.monthOfYear = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ];
+        $scope.cancel = function() {
+            $modalInstance.dismiss('cancel');
+        };
+        $scope.ok=function(){
+            $scope.eventParams = {
+                repeats: $scope.repeatsType,
+                repeatBy: $scope.repeatBy,
+                cronStart: $scope.schedulerStartOn,
+                cronEnd: $scope.schedulerEndOn,
+                startTime: $scope.timeEventType,
+                startTimeMinute: $scope.timeEventMinute,
+                dayOfWeek: $scope.weekOfTheDay,
+                selectedDayOfTheMonth: $scope.selectedDayOfTheMonth,
+                monthOfYear: $scope.selectedMonth
+            };
+            $modalInstance.close($scope.eventParams);
+        };
+
+        $scope.cancel = function() {
             $modalInstance.dismiss('cancel');
         };
     }]);
