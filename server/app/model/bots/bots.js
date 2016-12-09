@@ -45,6 +45,8 @@ var BotsSchema = new Schema ({
         trim: true,
         required: true
     },
+    botsConfig:Schema.Types.Mixed,
+    runTimeParams:Schema.Types.Mixed,
     masterDetails: {
         orgName: {
             type: String,
@@ -277,6 +279,54 @@ BotsSchema.statics.updateBotsExecutionCount = function updateBotsExecutionCount(
     }, {
         $set: {
             executionCount: count
+        }
+    }, {
+        upsert: false
+    }, function (err, data) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, data);
+    });
+};
+
+BotsSchema.statics.getScheduledBots = function getScheduledBots(callback) {
+    Bots.find({
+        isBotScheduled: true
+    }, function (err, bots) {
+        if (err) {
+            logger.error(err);
+            return callback(err, null);
+        }
+        return callback(null, bots);
+    })
+}
+
+BotsSchema.statics.updateCronJobIdByBotId = function updateCronJobIdByBotId(botId, cronJobId, callback) {
+    Bots.update({
+        "_id": new ObjectId(botId),
+    }, {
+        $set: {
+            cronJobId: cronJobId
+        }
+    }, {
+        upsert: false
+    }, function (err, data) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, data);
+    });
+};
+
+BotsSchema.statics.updateBotsScheduler = function updateBotsScheduler(botId, callback) {
+    Bots.update({
+        "_id": new ObjectId(botId),
+    }, {
+        $set: {
+            isBotBScheduled: false
         }
     }, {
         upsert: false

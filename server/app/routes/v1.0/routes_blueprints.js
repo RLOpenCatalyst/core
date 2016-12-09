@@ -378,159 +378,35 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 	app.get('/blueprints/:blueprintId/launch', function(req, res) {
 		logger.debug("Enter /blueprints/%s/launch -- ", req.params.blueprintId);
-		//verifying if the user has permission
-		logger.debug('Verifying User permission set for execute.');
 		if (!req.query.envId) {
 			res.send(400, {
 				"message": "Invalid Environment Id"
 			});
 			return;
 		}
-		var user = req.session.user;
-		var category = 'blueprints';
-		var permissionto = 'execute';
-		usersDao.haspermission(user.cn, category, permissionto, null, req.session.user.permissionset, function(err, data) {
-			if (!err) {
-				logger.debug('Returned from haspermission :  launch ' + data + ' , Condition State : ' + (data == false));
-				if (data == false) {
-					logger.debug('No permission to ' + permissionto + ' on ' + category);
-					res.send(401);
-					return;
-				} else {
-
-					Blueprints.getById(req.params.blueprintId, function(err, blueprint) {
-						if (err) {
-							logger.error('Failed to getBlueprint. Error = ', err);
-							res.send(500, errorResponses.db.error);
-							return;
-						}
-						if (!blueprint) {
-							res.send(404, {
-								message: "Blueprint Does Not Exist"
-							});
-							return;
-						}
-						var stackName = null;
-						var domainName = null;
-						var blueprintLaunchCount = 0;
-						if(blueprint.executionCount) {
-							blueprintLaunchCount = blueprint.executionCount + 1;
-						}else{
-							blueprintLaunchCount = 1;
-						}
-						Blueprints.updateBlueprintExecutionCount(blueprint._id,blueprintLaunchCount,function(err,data){
-							if(err){
-								logger.error("Error while updating Blueprint Execution Count");
-							}
-						});
-						if (blueprint.blueprintType === 'aws_cf' || blueprint.blueprintType === 'azure_arm') {
-							stackName = req.query.stackName;
-							if (!stackName) {
-								res.send(400, {
-									message: "Invalid stack name"
-								});
-								return;
-							}
-						}
-						if(blueprint.domainNameCheck === true) {
-							domainName = req.query.domainName;
-							if (!domainName) {
-								res.send(400, {
-									message: "Invalid domainName"
-								});
-								return;
-							}
-						}
-						var monitorId = null;
-						if (req.query.monitorId) {
-							monitorId = req.query.monitorId;
-						}
-						if(blueprint.serviceDeliveryCheck === true){
-							var actionObj={
-								auditType:'BOTs',
-								auditCategory:'Blueprint',
-								status:'running',
-								action:'BOTs Blueprint Execution',
-								actionStatus:'running',
-								catUser:req.session.user.cn
-							};
-							var auditTrailObj = {
-								name:blueprint.name,
-								type:blueprint.botType,
-								description:blueprint.shortDesc,
-								category:blueprint.botCategory,
-								executionType:blueprint.blueprintType,
-								manualExecutionTime:blueprint.manualExecutionTime,
-								nodeIdsWithActionLog:[]
-							};
-							blueprint.envId= req.query.envId;
-							bots.getBotsById(blueprint._id,function(err,botData){
-								if(err){
-									logger.error(err);
-								}else if(botData.length > 0){
-									var botExecutionCount = botData[0].executionCount + 1;
-									bots.updateBotsExecutionCount(blueprint._id,botExecutionCount,function(err,data){
-										if(err){
-											logger.error("Error while updating Bot Execution Count");
-										}
-									});
-								}else{
-									logger.debug("There is no Bots Data present in DB");
-								}
-							});
-							auditTrailService.insertAuditTrail(blueprint,auditTrailObj,actionObj,function(err,data){
-								if(err){
-									logger.error(err);
-								}
-								blueprint.launch({
-									envId: req.query.envId,
-									ver: req.query.version,
-									stackName: stackName,
-									domainName: domainName,
-									sessionUser: req.session.user.cn,
-									tagServer: req.query.tagServer,
-									monitorId: monitorId,
-									auditTrailId: data._id
-								}, function (err, launchData) {
-									if (err) {
-										res.status(500).send({
-											message: "Server Behaved Unexpectedly"
-										});
-										return;
-									}
-									res.status(200).send(launchData)
-								});
-							});
-						}else{
-							blueprint.launch({
-								envId: req.query.envId,
-								ver: req.query.version,
-								stackName: stackName,
-								domainName: domainName,
-								sessionUser: req.session.user.cn,
-								tagServer: req.query.tagServer,
-								monitorId: monitorId,
-								auditTrailId: null
-							}, function (err, launchData) {
-								if (err) {
-									res.status(500).send({
-										message: "Server Behaved Unexpectedly"
-									});
-									return;
-								}
-								res.status(200).send(launchData)
-							});
-						}
-					});
-				}
-			} else {
-				logger.error("Hit and error in haspermission:", err);
-				res.send(500);
+		var reqBody = {
+			userName:req.session.user.cn,
+			category:"blueprints",
+			permissionTo:"execute",
+			permissionSet:req.session.user.permissionset,
+			envId:req.query.envId,
+			monitorId:req.query.monitorId,
+			domainName:req.query.domainName,
+			stackName:req.query.stackName,
+			version:req.query.version,
+			tagServer:req.query.tagServer
+		}
+		blueprintService.launch(req.params.blueprintId,reqBody,function(err,data){
+			if (err) {
+				res.status(500).send({
+					message: "Server Behaved Unexpectedly"
+				});
+				return;
+			}else{
+				res.status(200).send(data);
 				return;
 			}
-			return;
-
-		}); // end haspermission
+		});
 	});
     app.get('/blueprints/organization/:orgId/businessgroup/:bgId/project/:projectId', function (req, res) {
         var orgId = req.params.orgId;

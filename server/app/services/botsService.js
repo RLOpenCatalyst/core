@@ -22,6 +22,9 @@ var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var taskService =  require('_pr/services/taskService.js');
 var auditTrailService =  require('_pr/services/auditTrailService.js');
 var blueprintService =  require('_pr/services/blueprintService.js');
+var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
+var catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
+var cronTab = require('node-crontab');
 
 const errorType = 'botsService';
 
@@ -45,6 +48,7 @@ botsService.createOrUpdateBots = function createOrUpdateBots(botsDetail,linkedCa
             envId: botsDetail.envId ? botsDetail.envId : null,
             envName: botsDetail.envName?botsDetail.envName: null
         },
+        botConfig:botsDetail.taskConfig ? botsDetail.taskConfig : null,
         botLinkedCategory: linkedCategory,
         botLinkedSubCategory:linkedSubCategory,
         manualExecutionTime:botsDetail.manualExecutionTime,
@@ -93,13 +97,29 @@ botsService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,call
             logger.error(err);
             callback(err,null);
             return;
+        }else {
+            bots.getBotsById(botId, function (err, botsData) {
+                if (err) {
+                    logger.error(err);
+                } else if(botData.length > 0){
+                    if (botsData[0].isBotScheduled === true) {
+                        catalystSync.executeScheduledBots();
+                    } else if (botsData[0].cronJobId && botsData[0].cronJobId !== null) {
+                        cronTab.cancelJob(botsData[0].cronJobId);
+                    } else {
+                        logger.debug("There is no cron job associated with Bot ");
+                    }
+                } else{
+                    logger.debug("There is no Bots ");
+                }
+            });
+            callback(null, data);
+            return;
         }
-        callback(null,data);
-        return;
     });
 }
 
-botsService.getBotsList = function getBotsList(botsQuery,callback) {
+botsService.getBotsList = function getBotsList(botsQuery,actionStatus,callback) {
     var reqData = {};
     async.waterfall([
         function(next) {
@@ -111,7 +131,38 @@ botsService.getBotsList = function getBotsList(botsQuery,callback) {
             apiUtil.databaseUtil(paginationReq, next);
         },
         function(queryObj, next) {
-            bots.getBotsList(queryObj, next);
+            if(actionStatus !== null){
+                var query = {
+                    auditType: 'BOTs',
+                    actionStatus: actionStatus,
+                    auditCategory: 'Task'
+                };
+                var botsIds = [];
+                auditTrail.getAuditTrails(query, function(err,botsAudits){
+                    if(err){
+                        next(err,null);
+                    }else if (botsAudits.length > 0) {
+                        var results = [];
+                        for (var i = 0; i < botsAudits.length; i++) {
+                            if (botsIds.indexOf(botsAudits[i].auditId) < 0) {
+                                botsIds.push(botsAudits[i].auditId);
+                                results.push(botsAudits[i].auditId);
+                            } else {
+                                results.push(botsAudits[i].auditId);
+                            }
+                        }
+                        if (results.length === botsAudits.length) {
+                            queryObj.queryObj.botId = {$in:botsIds};
+                            bots.getBotsList(queryObj, next);
+                        }
+                    } else {
+                        queryObj.queryObj.botId = null;
+                        bots.getBotsList(queryObj, next);
+                    }
+                });
+            }else{
+                bots.getBotsList(queryObj, next);
+            }
         },
         function(auditTrailList, next) {
             apiUtil.paginationResponse(auditTrailList, reqData, next);
@@ -153,7 +204,7 @@ botsService.removeSoftBotsById = function removeSoftBotsById(botId,callback){
                     }
                 })
             }else{
-                next({errCode:400, errMsg:"Bots is not exist in DB"})
+                next({errCode:400, errMsg:"Bots is not exist in DB"},null)
             }
         }
     ],function(err,results){
@@ -188,6 +239,34 @@ botsService.getBotsHistory = function getBotsHistory(botId,callback){
         }
         callback(null,data);
         return;
+    });
+}
+
+botsService.executeBots = function executeBots(botId,reqBody,callback){
+    async.waterfall([
+        function(next){
+            bots.getBotsById(botId,next);
+        },
+        function(bots,next){
+            if(bots.length > 0){
+                if(bots[0].botLinkedCategory === 'Task'){
+                    taskService.executeTask(botId,reqBody.userName,reqBody.hostProtocol,reqBody.choiceParam,reqBody.appData,reqBody.paramOptions,reqBody.tagServer, callback);
+                }else{
+                    blueprintService.launch(botId,reqBody,callback)
+                }
+            }else{
+                next({errCode:400, errMsg:"Bots is not exist in DB"},null)
+            }
+        }
+    ],function(err,results){
+        if(err){
+            logger.error(err);
+            callback(err,null);
+            return;
+        }else{
+            callback(null,results);
+            return;
+        }
     });
 }
 
