@@ -23,7 +23,11 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all('/bots/*', sessionVerificationFunc);
 
     app.get('/bots',function(req,res){
-        botsService.getBotsList(req.query, function(err,data){
+        var actionStatus = null;
+        if(req.query.actionStatus && req.query.actionStatus !== null){
+            actionStatus = req.query.actionStatus;
+        }
+        botsService.getBotsList(req.query,actionStatus, function(err,data){
             if (err) {
                 return res.status(500).send(err);
             } else {

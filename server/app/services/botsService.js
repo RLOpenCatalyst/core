@@ -22,6 +22,7 @@ var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var taskService =  require('_pr/services/taskService.js');
 var auditTrailService =  require('_pr/services/auditTrailService.js');
 var blueprintService =  require('_pr/services/blueprintService.js');
+var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
 
 const errorType = 'botsService';
 
@@ -100,7 +101,7 @@ botsService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,call
     });
 }
 
-botsService.getBotsList = function getBotsList(botsQuery,callback) {
+botsService.getBotsList = function getBotsList(botsQuery,actionStatus,callback) {
     var reqData = {};
     async.waterfall([
         function(next) {
@@ -112,7 +113,38 @@ botsService.getBotsList = function getBotsList(botsQuery,callback) {
             apiUtil.databaseUtil(paginationReq, next);
         },
         function(queryObj, next) {
-            bots.getBotsList(queryObj, next);
+            if(actionStatus !== null){
+                var query = {
+                    auditType: 'BOTs',
+                    actionStatus: actionStatus,
+                    auditCategory: 'Task'
+                };
+                var botsIds = [];
+                auditTrail.getAuditTrails(query, function(err,botsAudits){
+                    if(err){
+                        next(err,null);
+                    }else if (botsAudits.length > 0) {
+                        var results = [];
+                        for (var i = 0; i < botsAudits.length; i++) {
+                            if (botsIds.indexOf(botsAudits[i].auditId) < 0) {
+                                botsIds.push(botsAudits[i].auditId);
+                                results.push(botsAudits[i].auditId);
+                            } else {
+                                results.push(botsAudits[i].auditId);
+                            }
+                        }
+                        if (results.length === botsAudits.length) {
+                            queryObj.queryObj.botId = {$in:botsIds};
+                            bots.getBotsList(queryObj, next);
+                        }
+                    } else {
+                        queryObj.queryObj.botId = null;
+                        bots.getBotsList(queryObj, next);
+                    }
+                });
+            }else{
+                bots.getBotsList(queryObj, next);
+            }
         },
         function(auditTrailList, next) {
             apiUtil.paginationResponse(auditTrailList, reqData, next);
