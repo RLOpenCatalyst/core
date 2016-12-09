@@ -79,9 +79,15 @@ passport.serializeUser(function(user, done) {
 passport.deserializeUser(function(user, done) {
     done(null, user);
 });
-
+/*
 var dboptions = {
     host: appConfig.db.host,
+    port: appConfig.db.port,
+    dbName: appConfig.db.dbName
+};
+*/
+var dboptions = {
+    host: process.env.DB_HOST || appConfig.db.host,
     port: appConfig.db.port,
     dbName: appConfig.db.dbName
 };
