@@ -95,7 +95,7 @@ function aggregateAWSResourceCosts() {
                     next(null, orgs, providers)
                 }
             })
-        },
+        }/*,
         function(orgs, providers, next) {
             async.parallel([
                 function(next1) {
@@ -112,7 +112,7 @@ function aggregateAWSResourceCosts() {
                     next()
                 }
             })
-        }
+        }*/
     ], function(err) {
         if (err) {
             logger.error(err)

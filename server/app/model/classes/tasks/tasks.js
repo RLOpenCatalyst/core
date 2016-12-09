@@ -28,8 +28,8 @@ var PuppetTask = require('./taskTypePuppet');
 var ScriptTask = require('./taskTypeScript');
 var mongoosePaginate = require('mongoose-paginate');
 var ApiUtils = require('_pr/lib/utils/apiUtil.js');
-var instancesDao = require('_pr/model/classes/instance/instance');
 var Schema = mongoose.Schema;
+var auditTrailService = require('_pr/services/auditTrailService');
 
 
 var TASK_TYPE = {
@@ -88,8 +88,15 @@ var taskSchema = new Schema({
     botType: {
         type: String
     },
+    botCategory: {
+        type: String
+    },
     description: {
         type: String
+    },
+    serviceDeliveryCheck: {
+        type: Boolean,
+        default:false
     },
     jobResultURLPattern: {
         type: [String]
@@ -123,6 +130,82 @@ var taskSchema = new Schema({
         type: String,
         required: true,
         trim: true
+    },
+    isTaskScheduled:{
+        type: Boolean,
+        required: false,
+        default:false
+    },
+    executionOrder:{
+        type: String,
+        required: false,
+        trim: true
+    },
+    taskScheduler:{
+        cronStartOn: {
+            type: String,
+            required: false,
+            trim: true
+        },
+        cronEndOn: {
+            type: String,
+            required: false,
+            trim: true
+        },
+        cronPattern: {
+            type: String,
+            required: false,
+            trim: true
+        },
+        cronRepeatEvery: {
+            type: Number,
+            required: false
+        },
+        cronFrequency: {
+            type: String,
+            required: false,
+            trim: true
+        },
+        cronMinute:{
+            type: Number,
+            required: false,
+            trim: true
+        },
+        cronHour:{
+            type: Number,
+            required: false
+        },
+        cronWeekDay:{
+            type: Number,
+            required: false
+        },
+        cronDate:{
+            type: Number,
+            required: false
+        },
+        cronMonth:{
+            type: String,
+            required: false,
+            trim: true
+        },
+        cronYear:{
+            type: Number,
+            required: false
+        }
+    },
+    cronJobId:{
+        type: String,
+        required: false,
+        trim: true
+    },
+    executionCount:{
+        type: Number,
+        required: false,
+        default:0
+    },
+    manualExecutionTime:{
+        type: Number,
+        required: false
     }
 });
 taskSchema.plugin(mongoosePaginate);
@@ -131,7 +214,7 @@ taskSchema.plugin(mongoosePaginate);
 
 
 // Executes a task
-taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, blueprintIds, envId, callback, onComplete) {
+taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, blueprintIds, envId,auditTrailId, callback, onComplete) {
     logger.debug('Executing');
     var task;
     var self = this;
@@ -143,20 +226,21 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
         orgName: self.orgName,
         bgName: self.bgName,
         projectName: self.projectName,
-        envName: self.envName
+        envName: self.envName,
+        manualExecutionTime:self.manualExecutionTime
     };
-
     if (this.taskType === TASK_TYPE.CHEF_TASK) {
         task = new ChefTask(this.taskConfig);
 
         taskHistoryData.nodeIds = this.taskConfig.nodeIds;
         taskHistoryData.runlist = this.taskConfig.runlist;
-        taskHistoryData.attributes = this.taskConfig.attributes;
-
+        //taskHistoryData.attributes = this.taskConfig.attributes;
+        taskHistoryData.attributes = (!self.botParams.cookbookAttributes) ? this.taskConfig.attributes : self.botParams.cookbookAttributes;
     } else if (this.taskType === TASK_TYPE.JENKINS_TASK) {
         task = new JenkinsTask(this.taskConfig);
         taskHistoryData.jenkinsServerId = this.taskConfig.jenkinsServerId;
         taskHistoryData.jobName = this.taskConfig.jobName;
+        //taskHistoryData.parameterized = (!paramOptions) ? this.taskConfig.parameterized : paramOptions;
     } else if (this.taskType === TASK_TYPE.PUPPET_TASK) {
         task = new PuppetTask(this.taskConfig);
         taskHistoryData.nodeIds = this.taskConfig.nodeIds;
@@ -175,7 +259,9 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
     } else if (this.taskType === TASK_TYPE.SCRIPT_TASK) {
         task = new ScriptTask(this.taskConfig);
         taskHistoryData.nodeIds = this.taskConfig.nodeIds;
-        taskHistoryData.scriptDetails = this.taskConfig.scriptDetails;
+        var scriptDetails = JSON.parse(JSON.stringify(this.taskConfig.scriptDetails));
+        scriptDetails.scriptParameters = (!self.botParams.scriptParams) ? scriptDetails.scriptParameters : self.botParams.scriptParams;
+        taskHistoryData.scriptDetails = scriptDetails;
     } else {
         callback({
             message: "Invalid Task Type"
@@ -186,8 +272,10 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
     var taskHistory = null;
     task.orgId = this.orgId;
     task.envId = this.envId;
+    task.botParams = self.botParams;
+    task.botTagServer = self.botTagServer;
     task.execute(userName, baseUrl, choiceParam, appData, blueprintIds, envId, function(err, taskExecuteData, taskHistoryEntry) {
-        if (err) {
+      if (err) {
             callback(err, null);
             return;
         }
@@ -200,8 +288,6 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
             }
             taskHistoryData = taskHistoryEntry;
         }
-
-        logger.debug("Task last run timestamp updated", JSON.stringify(taskExecuteData));
         self.lastRunTimestamp = timestamp;
         self.lastTaskStatus = TASK_STATUS.RUNNING;
         self.save(function(err, data) {
@@ -228,7 +314,6 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                 taskHistoryData.nodeIdsWithActionLog.push(obj);
             }
         }
-
         taskHistoryData.status = TASK_STATUS.RUNNING;
         taskHistoryData.timestampStarted = timestamp;
         if (taskExecuteData.buildNumber) {
@@ -275,7 +360,6 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
             taskHistory = new TaskHistory(taskHistoryData);
             taskHistory.save();
         }
-
         callback(null, taskExecuteData, taskHistory);
     }, function(err, status, resultData) {
         self.timestampEnded = new Date().getTime();
@@ -290,7 +374,25 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
         if (taskHistory) {
             taskHistory.timestampEnded = self.timestampEnded;
             taskHistory.status = self.lastTaskStatus;
-            logger.debug("resultData: ", JSON.stringify(resultData));
+            var resultTaskExecution = null;
+            if(taskHistoryData.taskType === TASK_TYPE.JENKINS_TASK){
+                 resultTaskExecution = {
+                     "actionStatus":self.lastTaskStatus,
+                     "status":self.lastTaskStatus,
+                     "endedOn":self.timestampEnded,
+                     "actionLogId":taskHistory.jenkinsServerId,
+                     "auditTrailConfig.jenkinsBuildNumber":taskHistory.buildNumber,
+                     "auditTrailConfig.jenkinsJobName":taskHistory.jobName
+                };
+            }else{
+                 resultTaskExecution = {
+                     "actionStatus":self.lastTaskStatus,
+                     "status":self.lastTaskStatus,
+                     "endedOn":self.timestampEnded,
+                     "actionLogId":taskHistory.nodeIdsWithActionLog[0].actionLogId,
+                     "auditTrailConfig.nodeIdsWithActionLog":taskHistory.nodeIdsWithActionLog
+                };
+            }
             if (resultData) {
                 if (resultData.instancesResults && resultData.instancesResults.length) {
                     taskHistory.executionResults = resultData.instancesResults;
@@ -299,6 +401,13 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                     taskHistory.blueprintExecutionResults = resultData.blueprintResults;
                 }
 
+            }
+            if(auditTrailId !== null && resultTaskExecution !== null){
+                auditTrailService.updateAuditTrail('BOTs',auditTrailId,resultTaskExecution,function(err,auditTrail){
+                    if (err) {
+                        logger.error("Failed to create or update bot Log: ", err);
+                    }
+                });
             }
             taskHistory.save();
         }
@@ -327,63 +436,6 @@ taskSchema.methods.getPuppetTaskNodes = function() {
         return [];
     }
 };
-
-/*taskSchema.methods.getHistory = function(callback) {
-    TaskHistory.getHistoryByTaskId(this.id, function(err, tHistories) {
-        if (err) {
-            callback(err, null);
-            return;
-        }
-        var checker;
-        var uniqueResults = [];
-        if (tHistories && tHistories.length) {
-            for (var i = 0; i < tHistories.length; ++i) {
-                if (!checker || comparer(checker, tHistories[i]) != 0) {
-                    checker = tHistories[i];
-                    uniqueResults.push(checker);
-                }
-            }
-
-            if (uniqueResults.length) {
-                var hCount = 0;
-                for (var i = 0; i < uniqueResults.length; i++) {
-                    (function(i) {
-                        if (uniqueResults[i].nodeIds && uniqueResults[i].nodeIds.length) {
-                            instancesDao.getInstancesByIDs(uniqueResults[i].nodeIds, function(err, data) {
-                                hCount++;
-                                if (err) {
-                                    return;
-                                }
-
-                                if (data && data.length) {
-                                    var pId = [];
-                                    for (var j = 0; j < data.length; j++) {
-                                        pId.push(data[j].platformId);
-                                    }
-                                    uniqueResults[i] = JSON.parse(JSON.stringify(uniqueResults[i]));
-                                    uniqueResults[i]['platformId'] = pId;
-                                }
-
-                                if (uniqueResults.length == hCount) {
-                                    return callback(null, uniqueResults);
-                                }
-                            });
-                        } else {
-                            hCount++;
-                            if (uniqueResults.length == hCount) {
-                                return callback(null, uniqueResults);
-                            }
-                        }
-                    })(i);
-                }
-            }
-
-        } else {
-            return callback(null, tHistories);
-        }
-    });
-};*/
-
 taskSchema.methods.getHistory = function(callback) {
     TaskHistory.getHistoryByTaskId(this.id, function(err, tHistories) {
         if (err) {
@@ -565,6 +617,32 @@ taskSchema.statics.getScriptTypeTask = function(callback){
     });
 };
 
+taskSchema.statics.getAllServiceDeliveryTask = function(serviceDeliveryCheck, callback) {
+    this.find({serviceDeliveryCheck:serviceDeliveryCheck}, function(err, tasks) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, tasks);
+        return;
+    });
+};
+
+taskSchema.statics.removeServiceDeliveryTask = function(taskId, callback) {
+    this.update({ "_id": new ObjectId(taskId)}, {serviceDeliveryCheck:false}, function (err, data) {
+        if (err) {
+            logger.error(err);
+            callback(err, null);
+            return;
+        }
+        if (data.length) {
+            callback(null, data[0]);
+        } else {
+            callback(null, null);
+        }
+    });
+};
+
 taskSchema.statics.getTaskById = function(taskId, callback) {
     this.find({
         "_id": new ObjectId(taskId)
@@ -680,9 +758,15 @@ taskSchema.statics.updateTaskById = function(taskId, taskData, callback) {
             taskType: taskData.taskType,
             shortDesc: taskData.shortDesc,
             botType: taskData.botType,
+            botCategory:taskData.botCategory,
+            serviceDeliveryCheck:taskData.serviceDeliveryCheck,
             description: taskData.description,
             jobResultURLPattern: taskData.jobResultURL,
-            blueprintIds: taskData.blueprintIds
+            blueprintIds: taskData.blueprintIds,
+            executionOrder:taskData.executionOrder,
+            taskScheduler:taskData.taskScheduler,
+            isTaskScheduled:taskData.isTaskScheduled,
+            manualExecutionTime:taskData.manualExecutionTime
         }
     }, {
         upsert: false
@@ -851,35 +935,97 @@ taskSchema.statics.updateTaskConfig = function updateTaskConfig(taskId, taskConf
 
     });
 };
+taskSchema.statics.getScheduledTasks = function getScheduledTasks(executionOrder,callback) {
+    Tasks.find({
+        isTaskScheduled: true,
+        executionOrder:executionOrder
+    }, function (err, tasks) {
+        if (err) {
+            logger.error(err);
+            return callback(err, null);
+        }
+        return callback(null, tasks);
+    })
+}
+
+taskSchema.statics.updateCronJobIdByTaskId = function updateCronJobIdByTaskId(taskId, cronJobId, callback) {
+    Tasks.update({
+        "_id": new ObjectId(taskId),
+    }, {
+        $set: {
+            cronJobId: cronJobId
+        }
+    }, {
+        upsert: false
+    }, function (err, data) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, data);
+    });
+};
+taskSchema.statics.updateTaskScheduler = function updateTaskScheduler(taskId, callback) {
+    Tasks.update({
+        "_id": new ObjectId(taskId),
+    }, {
+        $set: {
+            isTaskScheduled: false
+        }
+    }, {
+        upsert: false
+    }, function (err, data) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, data);
+    });
+};
+taskSchema.statics.updateTaskExecutionCount = function updateTaskExecutionCount(taskId,count,callback) {
+    Tasks.update({
+        "_id": new ObjectId(taskId),
+    }, {
+        $set: {
+            executionCount: count
+        }
+    }, {
+        upsert: false
+    }, function (err, data) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, data);
+    });
+};
 
 function filterScriptTaskData(data,callback){
     var taskList = [];
     for(var i = 0; i < data.length; i++){
         (function(task){
-            if(task.taskType === 'script'){
-                if(task.taskConfig.scriptDetails.length > 0){
-                    for(var j = 0;j < task.taskConfig.scriptDetails.length;j++) {
-                        (function (scriptTask) {
-                            if(scriptTask.scriptParameters.length > 0){
-                                var count = 0;
-                                for(var k = 0; k < scriptTask.scriptParameters.length;k++){
-                                    (function(params){
-                                        count++;
-                                        scriptTask.scriptParameters[k] = '';
-                                        if(count === scriptTask.scriptParameters.length){
-                                            taskList.push(task)
-                                        }
-                                    })(scriptTask.scriptParameters[k]);
-                                }
-                            }else{
-                                taskList.push(task)
+            if ((task.taskType === 'script')
+                && ('scriptDetails' in task.taskConfig)
+                && (task.taskConfig.scriptDetails.length > 0)) {
+                for (var j = 0; j < task.taskConfig.scriptDetails.length; j++) {
+                    (function (scriptTask) {
+                        if (scriptTask.scriptParameters.length > 0) {
+                            var count = 0;
+                            for (var k = 0; k < scriptTask.scriptParameters.length; k++) {
+                                (function (params) {
+                                    count++;
+                                    scriptTask.scriptParameters[k] = '';
+                                    if (count === scriptTask.scriptParameters.length) {
+                                        taskList.push(task)
+                                    }
+                                })(scriptTask.scriptParameters[k]);
                             }
-                        })(task.taskConfig.scriptDetails[j]);
-                    }
-                }else{
-                    taskList.push(task)
+                        } else {
+                            taskList.push(task)
+                        }
+                    })(task.taskConfig.scriptDetails[j]);
                 }
-            }else{
+            } else {
                 taskList.push(task);
             }
         })(data[i]);

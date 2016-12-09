@@ -13,10 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-
-
 // This file act as a Controller which contains Settings related all end points.
-
 var d4dModel = require('_pr/model/d4dmasters/d4dmastersmodel.js');
 var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
 var usersDao = require('_pr/model/users.js');
@@ -46,6 +43,7 @@ var async = require('async');
 var appDeployPipelineService = require('_pr/services/appDeployPipelineService');
 var settingsService = require('_pr/services/settingsService');
 var settingWizard = require('_pr/model/setting-wizard');
+var monitorsModel = require('_pr/model/monitors/monitors.js');
 
 
 module.exports.setRoutes = function(app, sessionVerification) {
@@ -196,7 +194,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 logger.debug('dockerurl:' + dockerUrl);
                 client.registerMethod("jsonMethod", dockerUrl, "GET");
                 var reqSubmit = client.methods.jsonMethod(function(data, response) {
-                    console.log("response: ", data);
                     res.send(JSON.stringify(data));
                     return;
                 });
@@ -650,7 +647,14 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                     d4dMasterJson[flds[0]] = names; //configmgmtDao.convertRowIDToValue(jobj[k1],rowidlist);
                                 }
                             }
-                            res.end(JSON.stringify(d4dMasterJson));
+                            if (req.params.id === '10') {
+                                getMonitorDetail(d4dMasterJson, function(data) {
+                                    d4dMasterJson = data;
+                                    res.end(JSON.stringify(d4dMasterJson));
+                                });
+                            } else {
+                                res.end(JSON.stringify(d4dMasterJson));
+                            }
                             logger.debug("sent response %s", JSON.stringify(d4dMasterJson));
                             logger.debug("Exit get() for /d4dMasters/readmasterjsonrecord/%s/%s", req.params.id, req.params.rowid);
                         } else {
@@ -757,8 +761,17 @@ module.exports.setRoutes = function(app, sessionVerification) {
                             if (err) {
                                 res.status(500).send('Not able to fetch ConfigManagement.');
                             }
-                            res.send(configMgmtList);
-                            return;
+                            var response = [];
+                            for (var i = 0; i < configMgmtList.length; i++) {
+                                getMonitorDetail(configMgmtList[i], function(data) {
+                                    response.push(data);
+                                    if (response.length === configMgmtList.length) {
+                                        res.send(response);
+                                        return;
+                                    }
+                                });
+                            }
+
                         });
 
                     } else if (req.params.id === '18') {
@@ -912,8 +925,16 @@ module.exports.setRoutes = function(app, sessionVerification) {
                             if (err) {
                                 res.status(500).send('Not able to fetch ConfigManagement.');
                             }
-                            res.send(configMgmtList);
-                            return;
+                            var response = [];
+                            for (var i = 0; i < configMgmtList.length; i++) {
+                                getMonitorDetail(configMgmtList[i], function(data) {
+                                    response.push(data);
+                                    if (response.length === configMgmtList.length) {
+                                        res.send(response);
+                                        return;
+                                    }
+                                });
+                            }
                         });
 
                     } else if (req.params.id === '18') {
@@ -2374,9 +2395,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
     app.post('/d4dMasters/savemasterjsonrownew/:id/:fileinputs/:orgname', function(req, res) {
         logger.debug("Enter post() for /d4dMasters/savemasterjsonrownew/%s/%s/%s", req.params.id, req.params.fileinputs, req.params.orgname);
-        console.log("***********************");
-        console.log(JSON.stringify(req.body));
-        console.log("***********************");
         var bodyJson = JSON.parse(JSON.stringify(req.body));
         //pushing the rowid field
         var editMode = false; //to identify if in edit mode.
@@ -2427,6 +2445,9 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     }
                     if (req.params.id === "18") {
                         bodyJson["configType"] = "docker";
+                    }
+                    if (req.params.id === "17" && bodyJson.templatesicon_filename) {
+                        bodyJson["templatesicon_filePath"] = bodyJson["rowid"]+'__templatesicon__'+bodyJson["templatesicon_filename"];
                     }
                     logger.debug("Full bodyJson:::: ", JSON.stringify(bodyJson));
                     if (req.params.id === "25") {
@@ -2536,31 +2557,38 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                             var templatetypename;
                                                             var designtemplateicon_filename;
                                                             var templatetype;
+                                                            var providerType;
                                                             if(x1 === 0) {
                                                                 templatetypename = "Docker";
                                                                 designtemplateicon_filename = "Docker.png";
                                                                 templatetype = "docker";
+                                                                providerType=['aws','azure','openstack','vmware'];
                                                             } else if (x1 === 1) {
                                                                 templatetypename = "OSImage";
                                                                 designtemplateicon_filename = "Desktop Provisining.png";
                                                                 templatetype = "ami";
+                                                                providerType=['aws','azure','openstack','vmware'];
                                                             } else if (x1 === 2) {
                                                                 templatetypename = "SoftwareStack";
                                                                 designtemplateicon_filename = "Appfactory.png";
                                                                 templatetype = "chef";
+                                                                providerType=['aws','azure','openstack','vmware'];
                                                             } else if (x1 === 3) {
                                                                 templatetypename = "CloudFormation";
                                                                 designtemplateicon_filename = "CloudFormation.png";
                                                                 templatetype = "cft";
+                                                                providerType=['aws'];
 
                                                             } else if (x1 === 4) {
                                                                 templatetypename = "ARMTemplate";
                                                                 designtemplateicon_filename = "CloudFormation.png";
                                                                 templatetype = "arm";
+                                                                providerType=['azure'];
                                                             } else {
                                                                 templatetypename = "Composite";
                                                                 designtemplateicon_filename = "composite.png";
                                                                 templatetype = "composite";
+                                                                providerType=['aws'];
                                                             }
 
                                                             var templateTypeData = {
@@ -2569,7 +2597,8 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                 "orgname_rowid": bodyJson["rowid"],
                                                                 "rowid": uuid.v4(),
                                                                 "id": "16",
-                                                                "templatetype": templatetype
+                                                                "templatetype": templatetype,
+                                                                "providerType":providerType
 
                                                             };
 
@@ -2726,7 +2755,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                     res.send(500);
                                                                     return;
                                                                 }
-                                                                if (settingWizards.currentStep.name === 'User Configuration') {
+                                                                if (settingWizards.currentStep && settingWizards.currentStep.name === 'User Configuration') {
                                                                     var settingWizardSteps = appConfig.settingWizardSteps;
                                                                     settingWizards.currentStep.nestedSteps[1].isCompleted = true;
                                                                     settingWizards.currentStep.isCompleted = true;
@@ -2766,7 +2795,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     return;
                                                 }
                                                 var settingWizardSteps = appConfig.settingWizardSteps;
-                                                if(settingWizards.currentStep.name === 'Org Configuration') {
+                                                if(settingWizards.currentStep && settingWizards.currentStep.name === 'Org Configuration') {
                                                     settingWizards.currentStep.nestedSteps[2].isCompleted = true;
                                                     settingWizards.currentStep.isCompleted = true;
                                                     settingWizards.previousStep = settingWizards.currentStep;
@@ -2803,7 +2832,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     res.send(500);
                                                     return;
                                                 }
-                                                if(settingWizards.currentStep.name === 'Devops Roles') {
+                                                if(settingWizards.currentStep && settingWizards.currentStep.name === 'Devops Roles') {
                                                     settingWizards.currentStep.nestedSteps[0].isCompleted = true;
                                                     settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                                                         if (err) {
@@ -2837,7 +2866,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     res.send(500);
                                                     return;
                                                 }
-                                                if(settingWizards.currentStep.name === 'Devops Roles') {
+                                                if(settingWizards.currentStep && settingWizards.currentStep.name === 'Devops Roles') {
                                                     settingWizards.currentStep.nestedSteps[1].isCompleted = true;
                                                     settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                                                         if (err) {
@@ -2874,7 +2903,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         res.send(500);
                                                         return;
                                                     }
-                                                    if(settingWizards.currentStep.name === 'User Configuration') {
+                                                    if(settingWizards.currentStep && settingWizards.currentStep.name === 'User Configuration') {
                                                         settingWizards.currentStep.nestedSteps[0].isCompleted = true;
                                                         settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                                                             if (err) {
@@ -2893,7 +2922,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         res.send(500);
                                                         return;
                                                     }
-                                                    if(settingWizards.currentStep.name === 'Org Configuration') {
+                                                    if(settingWizards.currentStep && settingWizards.currentStep.name === 'Org Configuration') {
                                                         settingWizards.currentStep.nestedSteps[1].isCompleted = true;
                                                         settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                                                             if (err) {
@@ -2912,7 +2941,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         res.send(500);
                                                         return;
                                                     }
-                                                    if(settingWizards.currentStep.name === 'Config Management') {
+                                                    if(settingWizards.currentStep && settingWizards.currentStep.name === 'Config Management') {
                                                         settingWizards.currentStep.nestedSteps[0].isCompleted = true;
                                                         settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                                                             if (err) {
@@ -2931,7 +2960,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         res.send(500);
                                                         return;
                                                     }
-                                                    if(settingWizards.currentStep.name === 'Gallery Setup') {
+                                                    if(settingWizards.currentStep && settingWizards.currentStep.name === 'Gallery Setup') {
                                                         settingWizards.currentStep.nestedSteps[1].isCompleted = true;
                                                         settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                                                             if (err) {
@@ -2951,7 +2980,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         return;
                                                     }
                                                     var settingWizardSteps = appConfig.settingWizardSteps;
-                                                    if(settingWizards.currentStep.name === 'Devops Roles') {
+                                                    if(settingWizards.currentStep && settingWizards.currentStep.name === 'Devops Roles') {
                                                         settingWizards.currentStep.nestedSteps[2].isCompleted = true;
                                                         settingWizards.currentStep.isCompleted = true;
                                                         settingWizards.previousStep = settingWizards.currentStep;
@@ -2974,7 +3003,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         res.send(500);
                                                         return;
                                                     }
-                                                    if(settingWizards.currentStep.name === 'Gallery Setup') {
+                                                    if(settingWizards.currentStep && settingWizards.currentStep.name === 'Gallery Setup') {
                                                         settingWizards.currentStep.nestedSteps[0].isCompleted = true;
                                                         settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                                                             if (err) {
@@ -2993,7 +3022,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         res.send(500);
                                                         return;
                                                     }
-                                                    if(settingWizards.currentStep.name === 'Config Management') {
+                                                    if(settingWizards.currentStep && settingWizards.currentStep.name === 'Config Management') {
                                                         var settingWizardSteps = appConfig.settingWizardSteps;
                                                         settingWizards.currentStep.nestedSteps[1].isCompleted = true;
                                                         settingWizards.currentStep.isCompleted = true;
@@ -4019,5 +4048,26 @@ module.exports.setRoutes = function(app, sessionVerification) {
             }
         });
     });
+};
 
+function getMonitorDetail(data, callback) {
+    data = data.toObject();
+    if (data.monitorId) {
+        var monitorId = data.monitorId;
+        delete data['monitorId'];
+        monitorsModel.getById(monitorId, function(err, monitor) {
+            if (err || !monitor) {
+                data.monitor = null;
+            } else {
+                data.monitor = {};
+                data.monitor['id'] = monitor._id;
+                data.monitor['name'] = monitor.name;
+            }
+            callback(data);
+        });
+    } else {
+        delete data['monitorId'];
+        data.monitor = null;
+        callback(data);
+    }
 }
