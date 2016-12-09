@@ -159,7 +159,7 @@ schedulerService.executeScheduledBots = function executeScheduledBots(bots,callb
                     logger.error("Error in updating cron job Ids. "+err);
                 }
             })
-            botsService.executeBots(bots._id,function(err, historyData) {
+            botsService.executeBots(bots._id,bots.botsConfig,function(err, historyData) {
                 if (err) {
                     logger.error("Failed to execute Bots.", err);
                     return;

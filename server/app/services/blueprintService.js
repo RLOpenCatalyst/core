@@ -163,6 +163,11 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                                     logger.error("Error while updating Bot Execution Count");
                                 }
                             });
+                            bots.updateBotsDetail(blueprint._id,{runTimeParams:reqBody},function(err,data){
+                                if(err){
+                                    logger.error("Error while updating Bots Configuration");
+                                }
+                            });
                         }else{
                             logger.debug("There is no Bots Data present in DB");
                         }

@@ -45,6 +45,7 @@ botsService.createOrUpdateBots = function createOrUpdateBots(botsDetail,linkedCa
             envId: botsDetail.envId ? botsDetail.envId : null,
             envName: botsDetail.envName?botsDetail.envName: null
         },
+        botConfig:botsDetail.taskConfig ? botsDetail.taskConfig : null,
         botLinkedCategory: linkedCategory,
         botLinkedSubCategory:linkedSubCategory,
         manualExecutionTime:botsDetail.manualExecutionTime,
@@ -153,7 +154,7 @@ botsService.removeSoftBotsById = function removeSoftBotsById(botId,callback){
                     }
                 })
             }else{
-                next({errCode:400, errMsg:"Bots is not exist in DB"})
+                next({errCode:400, errMsg:"Bots is not exist in DB"},null)
             }
         }
     ],function(err,results){
@@ -191,33 +192,20 @@ botsService.getBotsHistory = function getBotsHistory(botId,callback){
     });
 }
 
-botsService.executeBots = function executeBots(botId,callback){
+botsService.executeBots = function executeBots(botId,reqBody,callback){
     async.waterfall([
         function(next){
             bots.getBotsById(botId,next);
         },
         function(bots,next){
             if(bots.length > 0){
-                async.parallel({
-                    bots:function(callback){
-                        if(bots[0].botLinkedCategory === 'Task'){
-                            taskService.deleteServiceDeliveryTask(botId, callback);
-                        }else{
-                            blueprintService.deleteServiceDeliveryBlueprint(botId,callback)
-                        }
-                    },
-                    services: function(callback){
-                        bots.removeSoftBotsById(botId,callback);
-                    }
-                },function(err,results){
-                    if(err){
-                        next(err,null);
-                    }else{
-                        next(null,results);
-                    }
-                })
+                if(bots[0].botLinkedCategory === 'Task'){
+                    taskService.executeTask(botId,reqBody.userName,reqBody.hostProtocol,reqBody.choiceParam,reqBody.appData,reqBody.paramOptions,reqBody.tagServer, callback);
+                }else{
+                    blueprintService.launch(botId,reqBody,callback)
+                }
             }else{
-                next({errCode:400, errMsg:"Bots is not exist in DB"})
+                next({errCode:400, errMsg:"Bots is not exist in DB"},null)
             }
         }
     ],function(err,results){

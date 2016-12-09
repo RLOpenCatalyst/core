@@ -112,7 +112,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
 
     app.post('/tasks/:taskId/run', function(req, res) {
-
         var taskId = req.params.taskId;
         var user = req.session.user.cn;
         var hostProtocol = req.protocol + '://' + req.get('host');

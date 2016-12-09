@@ -45,6 +45,8 @@ var BotsSchema = new Schema ({
         trim: true,
         required: true
     },
+    botsConfig:Schema.Types.Mixed,
+    runTimeParams:Schema.Types.Mixed,
     masterDetails: {
         orgName: {
             type: String,
