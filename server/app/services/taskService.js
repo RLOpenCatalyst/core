@@ -144,7 +144,6 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
             } else if (task.taskType.SCRIPT_TASK) {
                 paramOptions = paramOptions.scriptDetails;
             }
-
             var blueprintIds = [];
             if (task.blueprintIds && task.blueprintIds.length) {
                 blueprintIds = task.blueprintIds;
@@ -191,9 +190,22 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
                             if(err){
                                 logger.error("Error while updating Bot Execution Count");
                             }
-                        }); 
+                        });
+                        var reqBody = {
+                            userName: user,
+                            hostProtocol: hostProtocol,
+                            choiceParam: choiceParam,
+                            appData: appData,
+                            tagServer: botTagServer,
+                            paramOptions:paramOptions
+                        }
+                        bots.updateBotsDetail(task._id,{runTimeParams:reqBody},function(err,data){
+                            if(err){
+                                logger.error("Error while updating Bots Configuration");
+                            }
+                        });
                     }else{
-                        logger.debug("There is not BOTs data present in DB");
+                        logger.debug("There is no BOTs data present in DB");
                     }
                 });
                 auditTrailService.insertAuditTrail(task,auditTrailObj,actionObj,function(err,data) {
