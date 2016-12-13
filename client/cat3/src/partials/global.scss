@@ -773,6 +773,8 @@ accordion .panel-heading {
     .ui-grid-cell {
         text-overflow: ellipsis;
         overflow: initial;
+        border-right: none !important;
+        border-bottom: 1px solid rgba(180, 180, 180, 0.23);
     }
 
     ul.ng-scope {
@@ -1265,6 +1267,12 @@ accordion .panel-heading {
     margin-left: 6px !important;
 }
 // ui grid style
+.ui-grid-row:nth-child(odd) .ui-grid-cell{
+    background-color: rgba(255, 255, 255, 0.43) !important;
+}
+.ui-grid-row:last-child .ui-grid-cell{
+    border-bottom-width: 1px !important;
+}
 .ui-grid-header-cell-row{
     background: #636363 !important;
     color: #FBFBFB !important;
@@ -1413,4 +1421,29 @@ label {
     -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
     -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
     transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+}
+
+div::-webkit-scrollbar-track
+{
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    background-color: #F5F5F5;
+}
+
+div::-webkit-scrollbar
+{
+    width: 10px;
+    background-color: #F5F5F5;
+}
+
+div::-webkit-scrollbar-thumb
+{
+    background-color: #40BAF1;
+    background-image: -webkit-linear-gradient(45deg,
+            rgba(255, 255, 255, .2) 25%,
+            transparent 25%,
+            transparent 50%,
+            rgba(255, 255, 255, .2) 50%,
+            rgba(255, 255, 255, .2) 75%,
+            transparent 75%,
+            transparent)
 }
