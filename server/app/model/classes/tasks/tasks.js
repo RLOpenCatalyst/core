@@ -235,7 +235,12 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
         taskHistoryData.nodeIds = this.taskConfig.nodeIds;
         taskHistoryData.runlist = this.taskConfig.runlist;
         //taskHistoryData.attributes = this.taskConfig.attributes;
-        taskHistoryData.attributes = (!self.botParams.cookbookAttributes) ? this.taskConfig.attributes : self.botParams.cookbookAttributes;
+        if(self.botParams && self.botParams.cookbookAttributes){
+            taskHistoryData.attributes = self.botParams.cookbookAttributes;
+        }else{
+            taskHistoryData.attributes = this.taskConfig.attributes;
+        }
+        
     } else if (this.taskType === TASK_TYPE.JENKINS_TASK) {
         task = new JenkinsTask(this.taskConfig);
         taskHistoryData.jenkinsServerId = this.taskConfig.jenkinsServerId;
