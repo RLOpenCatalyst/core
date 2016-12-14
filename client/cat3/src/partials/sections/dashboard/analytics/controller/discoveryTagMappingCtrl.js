@@ -36,7 +36,7 @@
                     genSevs.promiseGet(param).then(function (tagResult) {
                         $scope.isLoadingTagValue = false;
                         for (var key in $scope.newEnt[valueType].catalystEntityMapping) {
-                            $scope.newEnt[valueType].catalystEntityMapping[key].tagValue = [];
+                            $scope.newEnt[valueType].catalystEntityMapping[key].tagValues = [];
                         }
                         ;
                         disTgMap[type] = tagResult.values;
