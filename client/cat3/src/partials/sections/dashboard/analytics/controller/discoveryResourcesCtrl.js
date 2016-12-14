@@ -3,6 +3,7 @@
     angular.module('dashboard.analytics')
         .controller('discoveryResourcesCtrl', ['$scope', '$rootScope', '$state','analyticsServices', 'genericServices','$timeout', function ($scope,$rootScope,$state,analyticsServices,genSevs,$timeout){
             var disResrc=this;
+            $scope.tagValue=[{'id':'a','value':'a'},{'id':'b','value':'b'}]
             disResrc.gridOptionInstances = {
                 columnDefs : [
                 { name: 'InstanceId',field:'platformId' },
@@ -10,7 +11,8 @@
                 { name: 'privateIpAddress', displayName: 'IP Address'},
                 { name: 'state', displayName: 'Status'},
                 { name: 'Region', displayName: 'Region',field:'providerData.region_name',cellTooltip: true},
-                { name: 'Bg Tag Value',width:300,field:'bg', enableCellEdit: true,editableCellTemplate:'<select ng-class="\'colt\' + col.index" ng-input="COL_FIELD" ng-model="COL_FIELD" ><option value="a">a</option><option value="b">b</option> </select>'},
+                { name: 'Bg Tag Value',width:300, enableCellEdit: true,editableCellTemplate: 'ui-grid/dropdownEditor',
+                    editDropdownOptionsArray: $scope.tagValue},
                 { name: 'Project Tag Value', enableCellEdit: true},
                 { name: 'Env. Tag Value', enableCellEdit: true}
             ]
