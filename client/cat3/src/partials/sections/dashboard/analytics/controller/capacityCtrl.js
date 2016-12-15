@@ -295,7 +295,7 @@
                 $timeout(function () {
                     $rootScope.applyFilter(true,'month');
                     capaCtr.trendsChart($rootScope.filterNewEnt);
-                    var treeNames = ['Analytics','capacity'];
+                    var treeNames = ['Cloud Management','Analytics','capacity'];
                     $rootScope.$emit('treeNameUpdate', treeNames);
                 },500);
             };

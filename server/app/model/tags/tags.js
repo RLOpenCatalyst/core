@@ -46,27 +46,11 @@ var TagSchema = new Schema({
     },
     catalystEntityType: {
         type: String,
-        enum: ['project', 'environment','bgName'],
+        enum: ['project', 'environment', 'businessGroup'],
         trim: true,
         required: false
     },
-    catalystEntityMapping: [{
-        catalystEntityId: {
-            type: String,
-            trim: true,
-            required: false
-        },
-        catalystEntityName: {
-            type: String,
-            trim: true,
-            required: false
-        },
-        tagValue: {
-            type: String,
-            trim: true,
-            required: false
-        }
-    }],
+    catalystEntityMapping: Schema.Types.Mixed,
     isDeleted: {
         type: Boolean,
         required: true,

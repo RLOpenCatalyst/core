@@ -290,7 +290,7 @@
                 $timeout(function () {
                     $rootScope.applyFilter(true,'month');
                     costObj.trendsChart($rootScope.filterNewEnt);
-                    var treeNames = ['Analytics','Cost'];
+                    var treeNames = ['Cloud Management','Analytics','Cost'];
                     $rootScope.$emit('treeNameUpdate', treeNames);
                 },500);
             };
