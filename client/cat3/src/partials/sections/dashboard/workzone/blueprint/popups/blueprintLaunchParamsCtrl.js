@@ -34,16 +34,17 @@
 			}
 			genericServices.getTreeNew().then(function (envData) {
 				angular.forEach(envData,function(val){
+					console.log(val);
 					var orgID,bgID,projID;
 					if(items.organizationId === undefined) {
-						orgID = (items.orgId)?items.orgId:items.organization.id;
-			        	bgID = (items.bgId)?items.bgId:items.businessGroup.id;
-			        	projID = (items.projectId)?items.projectId:items.project.id;
+						orgID = (items.masterDetails.orgId)?items.masterDetails.orgId:items.organization.id;
+			        	bgID = (items.masterDetails.bgId)?items.masterDetails.bgId:items.businessGroup.id;
+			        	projID = (items.masterDetails.projectId)?items.masterDetails.projectId:items.project.id;
 			        	$scope.getMonitorList(orgID);
 					} else {
-						orgID = items.organizationId;
-						bgID = items.businessGroupId;
-						projID = items.projectId;
+						orgID = items.organizationId || items.masterDetails.orgId;
+						bgID = items.businessGroupId || items.masterDetails.bgId;
+						projID = items.projectId || items.masterDetails.projectId;
 						$scope.getMonitorList(orgID);
 					}
 					if(val.rowid === orgID){
@@ -65,9 +66,7 @@
 							}
 						});
 					}
-
 				});
-
 			});
 			$scope.stackName='';
 			$scope.domainName='';
@@ -76,7 +75,7 @@
 				$modalInstance.dismiss('cancel');
 			};
 			$scope.launchBP = function() {
-				if(items.orgId === undefined){
+				if((items.orgId === undefined) && (items.masterDetails && items.masterDetails.orgId === undefined)){
 					var compBlue={
 						"blueprintId": (items.id)?items.id:items._id,
 						"environmentId": $scope.envSeleted
@@ -88,9 +87,9 @@
                         toastr.error(data.message, 'Error');
 					});
 				} else {
-					if(items.blueprintType === "aws_cf") {
+					if(items.blueprintType === "aws_cf" || items.botLinkedSubCategory === "aws_cf") {
 						$scope.showCFTInputs = true;
-					}else if(items.blueprintType === "azure_arm") {
+					}else if(items.blueprintType === "azure_arm" || items.botLinkedSubCategory === "azure_arm") {
 						$scope.showARMInputs = true;
 					}else if(items.domainNameCheck === true || items.domainNameCheck === "true") {
 						$scope.showBlueprintInputs = true;

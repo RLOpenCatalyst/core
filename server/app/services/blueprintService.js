@@ -81,7 +81,7 @@ blueprintService.deleteServiceDeliveryBlueprint = function deleteServiceDelivery
             Blueprints.removeServiceDeliveryBlueprints(blueprintId, next);
         },
         function (deleteTaskCheck, next) {
-            auditTrail.softRemoveAuditTrails({auditId:blueprintId},next);
+            auditTrail.softRemoveAuditTrails(blueprintId,next);
         }
     ],function (err, results) {
         if (err) {

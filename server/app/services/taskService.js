@@ -116,7 +116,7 @@ taskService.deleteServiceDeliveryTask = function deleteServiceDeliveryTask(taskI
             taskDao.removeServiceDeliveryTask(taskId, next);
         },
         function (deleteTaskCheck, next) {
-            auditTrail.softRemoveAuditTrails({auditId:taskId},next);
+            auditTrail.softRemoveAuditTrails(taskId,next);
         }
     ],function (err, results) {
         if (err) {

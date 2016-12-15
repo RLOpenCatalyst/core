@@ -58,6 +58,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
     app.post('/bots/:botId/execute',function(req,res){
+        console.log("durgesh");
+        console.log(req.body);
         var reqBody = null;
         if(req.body.category && req.body.category ==='Blueprints') {
             if (!req.body.envId) {
