@@ -381,19 +381,17 @@ providerService.addMultipleTagMappings = function addMultipleTagMappings(provide
     async.forEach(Object.keys(tagMappings),
         function(catalystEntityType, next1) {
             var tagMapping = tagMappings[catalystEntityType];
-            if (!('tagName' in tagMapping) || !('catalystEntityType' in tagMapping)) {
-                var err = new Error('Malformed Request');
+
+            if (['project', 'environment', 'businessGroup'].indexOf(catalystEntityType ) < 0) {
+                var err = new Error('Invalid Request');
                 err.status = 400;
-                next1(err);
+                return next1(err);
             }
 
-            // @TODO entity types to be moved to config
-            if ((tagMapping.catalystEntityType != 'project')
-                && (tagMapping.catalystEntityType != 'environment')
-                && (tagMapping.catalystEntityType != 'businessGroup')) {
+            if (!('tagName' in tagMapping)) {
                 var err = new Error('Malformed Request');
                 err.status = 400;
-                next1(err);
+                return next1(err);
             }
 
             async.waterfall([
@@ -420,18 +418,18 @@ providerService.addMultipleTagMappings = function addMultipleTagMappings(provide
                 if(err) {
                     var err = new Error('Internal server error');
                     err.status = 500;
-                    next1(err);
+                    return next1(err);
                 } else {
                     tagsList.push(tagDetails);
-                    next1(null);
+                    return next1();
                 }
             })
         },
         function(err) {
             if(err) {
-                callback(err);
+                return callback(err);
             } else {
-                callback(null, tagsList);
+                return callback(null, tagsList);
             }
         }
     );
@@ -443,6 +441,7 @@ providerService.updateTagMapping = function updateTagMapping(tagDetails, catalys
         err.status = 400;
         return callback(err);
     }
+
     if(!('values' in tagDetails)) {
         var err = new Error('Invalid Request');
         err.status = 400;
@@ -453,12 +452,12 @@ providerService.updateTagMapping = function updateTagMapping(tagDetails, catalys
     var catalystEntityMappings = {};
     async.forEach(Object.keys(tagMapping.catalystEntityMapping),
         function(catalystEntityId, next) {
-            if(!('tagValue' in tagMapping.catalystEntityMapping[catalystEntityId])
+            if(!('tagValues' in tagMapping.catalystEntityMapping[catalystEntityId])
                 || !('catalystEntityId' in tagMapping.catalystEntityMapping[catalystEntityId])
                 || !('catalystEntityName' in tagMapping.catalystEntityMapping[catalystEntityId])) {
                 var err = new Error('Malformed Request');
                 err.status = 400;
-                next(err);
+                return next(err);
             }
 
             // Tag value validation to be added
@@ -475,7 +474,7 @@ providerService.updateTagMapping = function updateTagMapping(tagDetails, catalys
                 'catalystEntityName': tagMapping.catalystEntityMapping[catalystEntityId].catalystEntityName
             }
 
-            next(null);
+            return next();
         },
         function(err) {
             if(err) {
@@ -499,6 +498,7 @@ providerService.updateTagMapping = function updateTagMapping(tagDetails, catalys
                         err.status = 404;
                         return callback(err);
                     }else {
+                        tagDetails.catalystEntityType = catalystEntityType;
                         tagDetails.catalystEntityMapping = catalystEntityMappings;
                         return callback(null, tagDetails);
                     }
@@ -632,27 +632,21 @@ providerService.createTagObject = function createTagObject(tag, callback) {
 };
 
 providerService.createTagMappingList = function createTagMappingList(tags, callback) {
-    var tagMappingsList = {};
-    tags.forEach(function(tag) {
-        if(tag.catalystEntityType) {
-            var tagMapping = {
+    var tagMappingsList = tags.reduce(function(result, tag) {
+        if(('catalystEntityType' in tag) && (tag.catalystEntityType != null)) {
+            result[tag.catalystEntityType] = {
                 'tagName': tag.name,
                 'tagValues': tag.values ? tag.values.sort(function (a, b) {
-                                return a.toLowerCase().localeCompare(b.toLowerCase());
-                            }) : [],
+                    return a.toLowerCase().localeCompare(b.toLowerCase());
+                }) : [],
                 'catalystEntityType': tag.catalystEntityType ? tag.catalystEntityType : null,
                 'catalystEntityMapping': tag.catalystEntityMapping ? tag.catalystEntityMapping : {}
             };
-
-            /*for (var i = 0; i < tagMapping.catalystEntityMapping.length; i++) {
-                delete tagMapping.catalystEntityMapping[i]._id;
-            }*/
-
-            tagMappingsList[tagMapping.catalystEntityType] = tagMapping;
         }
-    });
+        return result;
+    }, {});
 
-    return callback(null, tagMappingsList);
+    callback(null, tagMappingsList);
 };
 
 providerService.createTagMappingObject = function createTagMappingObject(tag, callback) {
