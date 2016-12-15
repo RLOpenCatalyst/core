@@ -2,21 +2,9 @@
 	<div class="modal-header">
 		<h4 class="modal-title">
 			<span class="close" ng-click="cancel()">×</span>
-			<span ng-show="botHistory.botLinkedSubCategory=='chef'">
+			<span>
 				<i class="fa fa-history"></i>&nbsp;
-				Chef History For - {{botHistory.botName}}
-			</span>
-			<span ng-show="botHistory.botLinkedSubCategory=='jenkins'">
-				<i class="fa fa-history"></i>&nbsp;
-				Jenkins Job History For - {{botHistory.botName}}
-			</span>
-			<span ng-show="botHistory.botLinkedSubCategory=='script'">
-				<i class="fa fa-history"></i>&nbsp;
-				Script History For - {{botHistory.botName}} 
-			</span>
-			<span ng-show="botHistory.botLinkedCategory=='Blueprint'">
-				<i class="fa fa-history"></i>&nbsp;
-				Script History For - {{botHistory.botName}} 
+				Bot History For - {{botHistory.botName}}
 			</span>
 		</h4>
 	</div>
@@ -26,6 +14,7 @@
 			<!--This table will get use when bot job type will be chef -->
 			<loading size="large" name="ischefTaskHistoryPageLoading" type="block" align="center"></loading>
 			<div ng-show="!ischefTaskHistoryPageLoading">
+				{{taskHistoryChefData.length}}
 				<div id="grid1" ng-if="taskHistoryChefData.length >0 && task.botLinkedSubCategory=='chef'" ui-grid="taskHistoryChefGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid"></div>
 			</div>
 			<!--This table will get use when bot job type will be jenkins -->
@@ -41,7 +30,7 @@
 			<!--This table will get use when bot type will be blueprint -->
 			<loading size="large" name="isBlueprintBotHistoryPageLoading" type="block" align="center"></loading>
 			<div ng-show="!isBlueprintBotHistoryPageLoading">
-				<div id="grid4" ng-if="taskHistoryScriptData.length >0 && task.botLinkedSubCategory=='script'" ui-grid="taskHistoryScriptGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid"></div>
+				<div id="grid4" ng-if="taskHistoryBlueprintData.length >0 && task.botLinkedCategory=='Blueprint'" ui-grid="botHistoryBlueprintGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid"></div>
 			</div>
 			<div class="alert alert-info text-center" ng-show="!ischefTaskHistoryPageLoading && !isjenkinsTaskHistoryPageLoading && !isscriptTaskHistoryPageLoading && !isBlueprintBotHistoryPageLoading" ng-if="taskHistoryChefData.length == 0 && taskHistoryJenkinsData.length == 0 && taskHistoryScriptData == 0 && botHistoryBlueprintData == 0" align="center">No Data Found</div>
 		</section>

@@ -186,7 +186,7 @@ botsService.removeSoftBotsById = function removeSoftBotsById(botId,callback){
         function(botDetails,next){
             if(botDetails.length > 0){
                 async.parallel({
-                    bots:function(callback){
+                    bot:function(callback){
                         if(botDetails[0].botLinkedCategory === 'Task'){
                             taskService.deleteServiceDeliveryTask(botId, callback);
                         }else{

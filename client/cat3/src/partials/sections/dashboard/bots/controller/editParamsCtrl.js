@@ -8,7 +8,8 @@
 (function (angular) {
     "use strict";
     angular.module('library.params', [])
-    .controller('editParamsCtrl',['$scope', '$rootScope', 'genericServices', 'workzoneServices', 'toastr', '$modalInstance', 'items', 'responseFormatter', function ($scope, $rootScope, genSevs, workzoneServices, toastr, $modalInstance, items, responseFormatter) {
+        .controller('editParamsCtrl',['$scope', '$rootScope', 'genericServices', 'workzoneServices', 'toastr', '$modalInstance', 'items', 'responseFormatter', '$modal', function ($scope, $rootScope, genSevs, workzoneServices, toastr, $modalInstance, items, responseFormatter, $modal) {
+
         console.log(items);
         $scope.botName = items.botName;
         $scope.taskType = items.botLinkedSubCategory;
@@ -77,6 +78,28 @@
         var scriptParams = [];
         var choiceParam = {};
         $scope.jenparams = {};
+
+        var helper = {
+            botLogModal: function(id,historyId,taskType) {
+                $modal.open({
+                    animation: true,
+                    templateUrl: 'src/partials/sections/dashboard/bots/view/botExecutionLogs.html',
+                    controller: 'botExecutionLogsCtrl as botExecLogCtrl',
+                    backdrop: 'static',
+                    keyboard: false,
+                    resolve: {
+                        items: function() {
+                            return {
+                                taskId: id,
+                                historyId: historyId,
+                                taskType: taskType
+                            };
+                        }
+                    }
+                });
+            }
+        };
+
         $scope.add = function() {
             $scope.parameters.push('');
         };
@@ -91,7 +114,7 @@
         };
 
         $scope.executeBot=function(){
-            if (items.botConfig.botLinkedSubCategory === 'script') {
+            if (items.botConfig && items.botConfig.botLinkedSubCategory === 'script') {
                 var checkParam = false;
                 if ($scope.scriptParamsFlag) {
                     for(var i =0; i<$scope.parameters.length; i++){
@@ -108,37 +131,39 @@
                     scriptParams = $scope.parameters;
                 } 
             }
-            if (items.botConfig.botLinkedSubCategory === 'chef') {
+            if (items.botConfig && items.botConfig.botLinkedSubCategory === 'chef') {
                 cookbookAttributes = responseFormatter.formatSelectedCookbookAttributes($scope.chefattributes);
-                
             }
-            if (items.botConfig.botLinkedSubCategory === 'jenkins') {
+            if (items.botConfig && items.botConfig.botLinkedSubCategory === 'jenkins') {
                 choiceParam = $scope.jenparams;
             }
-            $scope.executeTask();
+            $scope.executeBot();
         };
 
-        $scope.executeTask = function(){
+        $scope.executeBot = function(){
             var reqBody = {};
-            if (items.botConfig.botLinkedSubCategory === 'jenkins') {
+            if (items.botConfig && items.botConfig.botLinkedSubCategory === 'jenkins') {
                 reqBody.choiceParam = choiceParam;
-            } else if (items.botConfig.botLinkedSubCategory === 'chef'){
+            } else if (items.botConfig && items.botConfig.botLinkedSubCategory === 'chef'){
                 reqBody.tagServer = $scope.tagSerSelected;
                 if ($scope.chefAttributesFlag) {
                     reqBody.cookbookAttributes = cookbookAttributes;
                 }
-            } else  if (items.botConfig.botLinkedSubCategory === 'script') {
+            } else  if (items.botConfig && items.botConfig.botLinkedSubCategory === 'script') {
                 reqBody.tagServer = $scope.tagSerSelected;
                 if ($scope.scriptParamsFlag) {
                     reqBody.scriptParams = scriptParams;
                 }
             }
             var param={
-                url:'/bots/' + items.botId + '/execute'
+                url:'/bots/' + items.botId + '/execute',
+                data: reqBody
             };
-            genSevs.promisePost({url:param,data:reqBody}).then(function (response) {
+            genSevs.promisePost(param).then(function (response) {
+                console.log(response);
                 $modalInstance.close(response.data);
                 $rootScope.$emit('BOTS_LIBRARY_REFRESH');
+                helper.botLogModal(items._id, response.historyId, response.taskType);
             },
             function (error) {
                 error = error.responseText || error;
@@ -168,5 +193,14 @@
         $scope.cancel= function() {
             $modalInstance.dismiss('cancel');
         };
-    }]);
+    }])/*.controller('botExecutionLogsCtrl',['$scope', 'items', '$modalInstance', function ($scope, items, $modalInstance) {
+        $scope.botExecutionLogs = items;
+        console.log(items);
+
+
+
+        $scope.cancel= function() {
+            $modalInstance.dismiss('cancel');
+        };
+    }])*/;
 })(angular);
