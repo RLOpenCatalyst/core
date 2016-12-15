@@ -237,6 +237,7 @@ function tagMappingForInstances(instances,provider,next){
                                     function(k){return bgTag.catalystEntityMapping[k]});
                                 for (var y = 0; y < entityMappingArray.length; y++) {
                                     if (entityMappingArray[y].tagValue !== '' && instance.tags[bgTag.name] !== ''
+                                        && 'tagValues' in entityMappingArray[y]
                                         && instance.tags[bgTag.name] in entityMappingArray[y].tagValues) {
                                         catalystBgId = entityMappingArray[y].catalystEntityId;
                                         catalystBgName = entityMappingArray[y].catalystEntityName;
@@ -249,8 +250,9 @@ function tagMappingForInstances(instances,provider,next){
                                     = Object.keys(projectTag.catalystEntityMapping).map(
                                     function(k){return projectTag.catalystEntityMapping[k]});
                                 for (var y = 0; y < entityMappingArray.length; y++) {
-                                    if (entityMappingArray[y].tagValue !== '' && instance.tags[projectTag.name] !== '' &&
-                                        instance.tags[projectTag.name] in entityMappingArray[y].tagValues) {
+                                    if (entityMappingArray[y].tagValue !== '' && instance.tags[projectTag.name] !== ''
+                                        && 'tagValues' in entityMappingArray[y]
+                                        && instance.tags[projectTag.name] in entityMappingArray[y].tagValues) {
                                         catalystProjectId = entityMappingArray[y].catalystEntityId;
                                         catalystProjectName = entityMappingArray[y].catalystEntityName;
                                         break;
@@ -262,8 +264,9 @@ function tagMappingForInstances(instances,provider,next){
                                     = Object.keys(environmentTag.catalystEntityMapping).map(
                                     function(k){return environmentTag.catalystEntityMapping[k]});
                                 for (var y = 0; y < entityMappingArray.length; y++) {
-                                    if (entityMappingArray[y].tagValue !== '' && instance.tags[environmentTag.name] !== '' &&
-                                        instance.tags[environmentTag.name] in entityMappingArray[y].tagValue) {
+                                    if (entityMappingArray[y].tagValue !== '' && instance.tags[environmentTag.name] !== ''
+                                        && 'tagValues' in entityMappingArray[y]
+                                        && instance.tags[environmentTag.name] in entityMappingArray[y].tagValues) {
                                         catalystEnvironmentId = entityMappingArray[y].catalystEntityId;
                                         catalystEnvironmentName = entityMappingArray[y].catalystEntityName;
                                         break;

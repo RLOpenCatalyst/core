@@ -659,9 +659,5 @@ providerService.createTagMappingObject = function createTagMappingObject(tag, ca
             'catalystEntityMapping': tag.catalystEntityMapping?tag.catalystEntityMapping : {}
     };
 
-    /*for (var i = 0; i < tagMappingObject.catalystEntityMapping.length; i++) {
-        delete tagMappingObject.catalystEntityMapping[i]._id;
-    }*/
-
     return callback(null, tagMappingObject);
 };
