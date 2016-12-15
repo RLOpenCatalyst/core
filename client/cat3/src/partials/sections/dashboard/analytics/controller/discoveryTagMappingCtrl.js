@@ -15,7 +15,7 @@
             disTgMap.getAllTags =function () {
                 $scope.newEnt={};
                 if(fltrObj && fltrObj.provider && fltrObj.provider.id) {
-                    $scope.newEnt.providerId = fltrObj.provider.id;
+                    //$scope.newEnt.providerId = fltrObj.provider.id;
                     $scope.isLoadingTag = true;
                     var param = {
                         inlineLoader: true,
