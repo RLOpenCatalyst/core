@@ -776,6 +776,10 @@ accordion .panel-heading {
         border-right: none !important;
         border-bottom: 1px solid rgba(180, 180, 180, 0.23);
     }
+    .ui-grid-header-cell{
+        font-size: 12px;
+        font-weight: 500;
+    }
 
     ul.ng-scope {
         padding: 0px;
@@ -801,6 +805,7 @@ accordion .panel-heading {
         height: auto;
         padding:6px;
         overflow: hidden;
+        font-size: 12px;
     }
 
     .ui-grid-cell-contents {
