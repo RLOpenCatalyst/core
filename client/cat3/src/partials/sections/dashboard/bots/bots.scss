@@ -143,3 +143,72 @@
     background-color: #dd4b39 !important;
   }
 }
+
+#botLibraryPage{
+  .circle-tile {
+    margin-bottom: 15px;
+    text-align: center;
+  }
+
+  .circle-tile-heading {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    margin: 10px auto -40px;
+    border: 3px solid rgba(255,255,255,0.3);
+    border-radius: 100%;
+    color: #fff;
+    padding-top: 16px;
+    transition: all ease-in-out .3s;
+  }
+
+  .circle-tile-number {
+    padding: 5px 0 15px;
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .circle-tile-content {
+    padding-top: 50px;
+  }
+
+  .circle-tile-description {
+    text-transform: uppercase;
+  }
+
+  .text-faded {
+    color: rgba(255,255,255,0.7);
+    font-weight: bold;
+  }
+
+  .dark-blue {
+    background-color: #00c0ef;
+  }
+
+  .green {
+    background-color: #00a65a;
+  }
+
+  .orange {
+    background-color: #f39c12;
+  }
+
+  .red {
+    background-color: #e74c3c;
+  }
+
+  #botLibraryPage .selected-blue {
+    border: none !important;
+  }
+
+  .ui-grid-cell{
+    border-right:none !important;
+  }
+
+  /*global css*/
+  .ui-grid .ui-grid-row {
+
+    border-bottom: 1px solid #ccc;
+  }
+}
