@@ -183,11 +183,11 @@ botsService.removeSoftBotsById = function removeSoftBotsById(botId,callback){
         function(next){
             bots.getBotsById(botId,next);
         },
-        function(bots,next){
-            if(bots.length > 0){
+        function(botDetails,next){
+            if(botDetails.length > 0){
                 async.parallel({
-                    bots:function(callback){
-                        if(bots[0].botLinkedCategory === 'Task'){
+                    bot:function(callback){
+                        if(botDetails[0].botLinkedCategory === 'Task'){
                             taskService.deleteServiceDeliveryTask(botId, callback);
                         }else{
                             blueprintService.deleteServiceDeliveryBlueprint(botId,callback)
