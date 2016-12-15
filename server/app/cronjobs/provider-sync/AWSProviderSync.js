@@ -19,6 +19,7 @@ AWSProviderSync.execute = awsProviderSync;
 
 module.exports = AWSProviderSync;
 
+// @TODO Simplify methods
 function awsProviderSync() {
     MasterUtils.getAllActiveOrg(function(err, orgs) {
         if(err) {
@@ -190,6 +191,8 @@ function saveEC2Data(ec2Info,provider, callback){
         })(ec2Info[i]);
     };
 };
+
+//@TODO To be re-factored
 function tagMappingForInstances(instances,provider,next){
     tagsModel.getTagsByProviderId(provider._id, function (err, tagDetails) {
         if (err) {
@@ -203,9 +206,11 @@ function tagMappingForInstances(instances,provider,next){
             for (var i = 0; i < tagDetails.length; i++) {
                 if (('catalystEntityType' in tagDetails[i]) && tagDetails[i].catalystEntityType == 'project') {
                     projectTag = tagDetails[i];
-                }else if (('catalystEntityType' in tagDetails[i]) && tagDetails[i].catalystEntityType == 'environment') {
+                }else if (('catalystEntityType' in tagDetails[i])
+                    && tagDetails[i].catalystEntityType == 'environment') {
                     environmentTag = tagDetails[i];
-                }else if (('catalystEntityType' in tagDetails[i]) && tagDetails[i].catalystEntityType == 'bgName') {
+                }else if (('catalystEntityType' in tagDetails[i])
+                    && tagDetails[i].catalystEntityType == 'businessGroup') {
                     bgTag = tagDetails[i];
                 }
             }
@@ -227,31 +232,43 @@ function tagMappingForInstances(instances,provider,next){
                     if(instance.tags) {
                         if ((bgTag !== null || projectTag !== null || environmentTag !== null) && (instance.isDeleted === false)){
                             if(bgTag !== null && bgTag.name in instance.tags) {
-                                for (var y = 0; y < bgTag.catalystEntityMapping.length; y++) {
-                                    if (bgTag.catalystEntityMapping[y].tagValue !== '' && instance.tags[bgTag.name] !== ''
-                                        && bgTag.catalystEntityMapping[y].tagValue === instance.tags[bgTag.name]) {
-                                        catalystBgId = bgTag.catalystEntityMapping[y].catalystEntityId;
-                                        catalystBgName = bgTag.catalystEntityMapping[y].catalystEntityName;
+                                var entityMappingArray
+                                    = Object.keys(bgTag.catalystEntityMapping).map(
+                                    function(k){return bgTag.catalystEntityMapping[k]});
+                                for (var y = 0; y < entityMappingArray.length; y++) {
+                                    if (entityMappingArray[y].tagValue !== '' && instance.tags[bgTag.name] !== ''
+                                        && 'tagValues' in entityMappingArray[y]
+                                        && instance.tags[bgTag.name] in entityMappingArray[y].tagValues) {
+                                        catalystBgId = entityMappingArray[y].catalystEntityId;
+                                        catalystBgName = entityMappingArray[y].catalystEntityName;
                                         break;
                                     }
                                 }
                             }
                             if(projectTag !== null && projectTag.name in instance.tags) {
-                                for (var y = 0; y < projectTag.catalystEntityMapping.length; y++) {
-                                    if (projectTag.catalystEntityMapping[y].tagValue !== '' && instance.tags[projectTag.name] !== '' &&
-                                        projectTag.catalystEntityMapping[y].tagValue === instance.tags[projectTag.name]) {
-                                        catalystProjectId = projectTag.catalystEntityMapping[y].catalystEntityId;
-                                        catalystProjectName = projectTag.catalystEntityMapping[y].catalystEntityName;
+                                var entityMappingArray
+                                    = Object.keys(projectTag.catalystEntityMapping).map(
+                                    function(k){return projectTag.catalystEntityMapping[k]});
+                                for (var y = 0; y < entityMappingArray.length; y++) {
+                                    if (entityMappingArray[y].tagValue !== '' && instance.tags[projectTag.name] !== ''
+                                        && 'tagValues' in entityMappingArray[y]
+                                        && instance.tags[projectTag.name] in entityMappingArray[y].tagValues) {
+                                        catalystProjectId = entityMappingArray[y].catalystEntityId;
+                                        catalystProjectName = entityMappingArray[y].catalystEntityName;
                                         break;
                                     }
                                 }
                             }
                             if(environmentTag !== null && environmentTag.name in instance.tags) {
-                                for (var y = 0; y < environmentTag.catalystEntityMapping.length; y++) {
-                                    if (environmentTag.catalystEntityMapping[y].tagValue !== '' && instance.tags[environmentTag.name] !== '' &&
-                                        environmentTag.catalystEntityMapping[y].tagValue === instance.tags[environmentTag.name]) {
-                                        catalystEnvironmentId = environmentTag.catalystEntityMapping[y].catalystEntityId;
-                                        catalystEnvironmentName = environmentTag.catalystEntityMapping[y].catalystEntityName;
+                                var entityMappingArray
+                                    = Object.keys(environmentTag.catalystEntityMapping).map(
+                                    function(k){return environmentTag.catalystEntityMapping[k]});
+                                for (var y = 0; y < entityMappingArray.length; y++) {
+                                    if (entityMappingArray[y].tagValue !== '' && instance.tags[environmentTag.name] !== ''
+                                        && 'tagValues' in entityMappingArray[y]
+                                        && instance.tags[environmentTag.name] in entityMappingArray[y].tagValues) {
+                                        catalystEnvironmentId = entityMappingArray[y].catalystEntityId;
+                                        catalystEnvironmentName = entityMappingArray[y].catalystEntityName;
                                         break;
                                     }
                                 }

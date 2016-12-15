@@ -1004,6 +1004,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      * @apiSuccess {Object[]} tags              List of tags
      * @apiSuccess {String} tags.name           Tag name
      * @apiSuccess {String} tags.description    Tag description
+     * @apiSuccess {String[]} tags.values       Tag values
      * @apiSuccess {Number} count               Number of tags in the result set
      * @apiSuccess {pageSize} pageSize          Page size
      * @apiSuccess {pageIndex} pageIndex        Page index
@@ -1015,11 +1016,13 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *          "tags": [
      *              {
      *                  "name": "env",
-     *                  "description": "Deployment environment"
+     *                  "description": "Deployment environment",
+     *                  "values": ["value1", "value2"]
      *              },
      *              {
      *                  "name": "application",
-     *                  "description": "Project name"
+     *                  "description": "Project name",
+     *                  "values": ["value1", "value2"]
      *              }
      *          ],
      *          "count": 2,
@@ -1043,12 +1046,14 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      * @apiSuccess {Object} tag                 Tag details
      * @apiSuccess {String} tag.name            Tag name
      * @apiSuccess {String} tag.description     Tag description
+     * @apiSuccess {String[]} tag.values        Tag values
      *
      * @apiSuccessExample {json} Success-Response:
      *      HTTP/1.1 200 OK
      *      {
      *          "name": "environment",
-     *          "description": "Deployment environment"
+     *          "description": "Deployment environment",
+     *          "values": ["value1", "value2"]
      *      }
      *
      */
@@ -1067,7 +1072,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      * @apiParamExample {json} Request-Example:
      *      {
      *          "name": "environment",
-     *          "description": "Tag description"
+     *          "description": "Tag description",
+     *          "values": ["value1", "value2"]
      *      }
      *
      * @apiSuccess {Object} tag                 Tag details
@@ -1078,7 +1084,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *      HTTP/1.1 200 OK
      *      {
      *          "name": "environment",
-     *          "description": "Deployment environment"
+     *          "description": "Deployment environment",
+     *          "values": ["value1", "value2"]
      *      }
      */
     // app.post('/providers/:providerId/tags', validate(tagsValidator.create), createTags);
@@ -1105,7 +1112,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *      HTTP/1.1 200 OK
      *      {
      *          "name": "environment",
-     *          "description": "Deployment environment"
+     *          "description": "Deployment environment",
+     *          "values": ["value1", "value2"]
      *      }
      */
     app.put('/providers/:providerId/tags/:tagName', validate(tagsValidator.update), updateTag);
@@ -1139,41 +1147,36 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      * @apiSuccessExample {json} Success-Response:
      *      HTTP/1.1 200 OK
      *      {
-     *          "tagMappings": [
-     *                  {
-     *                      "tagName":  "application",
-     *                      "tagValues": ["proj1", "proj2"],
-     *                      "catalystEntityType": "project",
-     *                      "catalystEntityMapping": [
-     *                          {
-     *                              "catalystEntityId": "<MongoID>",
-     *                              "tagValue": "proj1"
-     *                          },
-     *                          {
-     *                              "catalystEntityId": "<MongoID>",
-     *                              "tagValue": "proj2"
-     *                          }
-     *                      ]
+     *          "project": {
+     *              "tagName":  "application",
+     *              "tagValues": ["proj1", "proj2"],
+     *              "catalystEntityType": "project",
+     *              "catalystEntityMapping": {
+     *                  "<catalystEntityId>": {
+     *                      "catalystEntityId": "<MongoID>",
+     *                      "tagValue": "proj1"
      *                  },
-     *                  {
-     *                      "tagName":  "environment",
-     *                      "tagValues": ["prod", "dev"],
-     *                      "catalystEntityType": "environment"
-     *                      "catalystEntityMapping": [
-     *                          {
-     *                              "catalystEntityId": "<MongoID>",
-     *                              "tagValue": "dev"
-     *                          },
-     *                          {
-     *                              "catalystEntityId": "<MongoID>",
-     *                              "tagValue": "prod"
-     *                          }
-     *                      ]
+     *                  "<catalystEntityId>": {
+     *                      "catalystEntityId": "<MongoID>",
+     *                      "tagValue": "proj2"
      *                  }
-     *           ],
-     *          "count": 2,
-     *          "pageSize": 10,
-     *          "pageIndex": 1
+     *              }
+     *           },
+     *          "environment": {
+     *              "tagName":  "environment",
+     *              "tagValues": ["prod", "dev"],
+     *              "catalystEntityType": "environment"
+     *              "catalystEntityMapping": {
+     *                  "<catalystEntityId>": {
+     *                      "catalystEntityId": "<MongoID>",
+     *                      "tagValue": "dev"
+     *                  },
+     *                  "<catalystEntityId>": {
+     *                      "catalystEntityId": "<MongoID>",
+     *                      "tagValue": "prod"
+     *                  }
+     *              }
+     *          }
      *      }
      */
     // @TODO Response should match doc
@@ -1201,18 +1204,18 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *      HTTP/1.1 200 OK
      *      {
      *          "name": "application",
-     *          "values": ["proj1", "proj2"]
+     *          "values": ["proj1", "proj2"],
      *          "catalystEntityType": "project",
-     *          "catalystEntityMapping": [
-     *              {
+     *          "catalystEntityMapping": {
+     *              "<catalystEntityId>": {
      *                  "catalystEntityId": "<MongoID>",
      *                  "tagValue": "proj1"
      *              },
-     *              {
+     *              "<catalystEntityId>": {
      *                  "catalystEntityId": "<MongoID>",
      *                  "tagValue": "proj2"
      *              }
-     *          ]
+     *          }
      *      }
      */
     app.get('/providers/:providerId/tag-mappings/:catalystEntityType', validate(tagsValidator.tagsMapping),
@@ -1226,25 +1229,44 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      * @apiParam {Number} providerId                                                Provider ID
      * @apiParam {Object[]} tagMappings                                             Tag mappings
      * @apiParam {String} tagMappings.tagName                                       Tag name
-     * @apiParam {String[]} tagMappings.tagValues                                   Tag values
      * @apiSuccess {Object[]} tagMappings.catalystEntityType                        Catalyst entity type
      * @apiSuccess {String} tagNameMapping.catalystEntityMapping.catalystEntityId   Catalyst entity id
      * @apiSuccess {String} tagNameMapping.catalystEntityMapping.tagValue           Tag value
      * @apiParamExample {json} Request-Example:
-     *      [
-     *          {
-     *              "tagName": "application",
-     *              "tagValues": [],
+     *      {
+     *          "project": {
+     *              "tagName": "application"
      *              "catalystEntityType": "project",
-     *              "catalystEntityMapping": []
+     *              "catalystEntityMapping": {
+     *                  "<catalystEntityId>": {
+     *                      "catalystEntityId": "<MongoID>",
+     *                      "catalystEntityName": "project 1",
+     *                      "tagValues": ["proj1"]
+     *                  },
+     *                  "<catalystEntityId>": {
+     *                      "catalystEntityId": "<MongoID>",
+     *                      "catalystEntityName": "project 2",
+     *                      "tagValues": ["proj2"]
+     *                  }
+     *              }
      *          },
-     *          {
+     *          "environment": {
      *              "tagName": "env",
-     *              "tagValues": [],
      *              "catalystEntityType": "environment",
-     *              "catalystEntityMapping": []
+     *              "catalystEntityMapping": {
+     *                  "<catalystEntityId>": {
+     *                      "catalystEntityId": "<MongoID>",
+     *                      "catalystEntityName": "Environment 1",
+     *                      "tagValues": ["env1"]
+     *                  },
+     *                  "<catalystEntityId>": {
+     *                      "catalystEntityId": "<MongoID>",
+     *                      "catalystEntityName": "Environment 2",
+     *                      "tagValues": ["env2"]
+     *                  }
+     *              }
      *          }
-     *       ]
+     *       }
      *
      * @apiSuccess {Object[]} tags                                              Tags
      * @apiSuccess {String} tagMappings                                         Tag mappings
@@ -1258,20 +1280,41 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      * @apiSuccessExample {json} Success-Response:
      *      HTTP/1.1 201 OK
      *      {
-     *          "tagMappings": [
-     *                  {
-     *                      "name": "application",
-     *                      "values": ["proj1", "proj2"],
-     *                      "catalystEntityType": "project",
-     *                      "catalystEntityMapping": []
+     *          "project": {
+     *              "name": "application",
+     *              "values": ["proj1", "proj2"],
+     *              "catalystEntityType": "project",
+     *              "catalystEntityMapping": {
+     *                  "<catalystEntityId>": {
+     *                      "catalystEntityId": "<MongoID>",
+     *                      "catalystEntityName": "project 1",
+     *                      "tagValues": ["proj1"]
      *                  },
-     *                  {
-     *                      "name": "environment",
-     *                      "values": ["prod", "dev"],
-     *                      "catalystEntityType": "environment"
-     *                      "catalystEntityMapping": []
+     *                  "<catalystEntityId>": {
+     *                      "catalystEntityId": "<MongoID>",
+     *                      "catalystEntityName": "project 2",
+     *                      "tagValues": ["proj2"]
      *                  }
-     *           ]
+     *              }
+     *          },
+     *          "environment": {
+     *              "name": "environment",
+     *              "values": ["prod", "dev"],
+     *              "catalystEntityType": "environment",
+     *              "catalystEntityMapping": {
+     *                  "<catalystEntityId>": {
+     *                      "catalystEntityId": "<MongoID>",
+     *                      "catalystEntityName": "Environment 1",
+     *                      "tagValues": ["env1"]
+     *                  },
+     *                  "<catalystEntityId>": {
+     *                      "catalystEntityId": "<MongoID>",
+     *                      "catalystEntityName": "Environment 2",
+     *                      "tagValues": ["env2"]
+     *                  }
+     *              }
+     *          }
+     *
      *      }
      */
     app.post('/providers/:providerId/tag-mappings', validate(tagsValidator.list), addTagMappings);
@@ -1290,19 +1333,18 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      * @apiSuccess {String} tagMapping.catalystEntityMapping.tagValue           Tag value
      * @apiParamExample {json} Request-Example:
      *      {
-     *          "catalystEntityMapping": [
-     *              {
+     *          "catalystEntityMapping": {
+     *              "<catalystEntityId>": {
      *                  "catalystEntityId": "<MongoID>",
      *                  "catalystEntityName": "project 1",
-     *                  "tagValue": "proj1"
+     *                  "tagValues": ["proj1"]
      *              },
-     *              {
+     *              "<catalystEntityId>": {
      *                  "catalystEntityId": "<MongoID>",
      *                  "catalystEntityName": "project 2",
-     *                  "tagValue": "proj2"
-     *
+     *                  "tagValues": ["proj2"]
      *              }
-     *          ]
+     *          }
      *      }
      *
      * @apiSuccess {Object} tagMapping                                          Tag mapping
@@ -1319,19 +1361,19 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *          "tagName":  "application",
      *          "tagValues": ["proj1", "proj2"],
      *          "catalystEntityType": "project",
-     *          "catalystEntityMapping": [
-     *              {
+     *          "catalystEntityMapping": {
+     *              "<catalystEntityId>": {
      *                  "catalystEntityId": "<MongoID>",
      *                  "catalystEntityName": "project 1",
-     *                  "tagValue": "proj1"
+     *                  "tagValues": ["proj2", "Proj2"]
      *              },
-     *              {
+     *              "<catalystEntityId>": {
      *                  "catalystEntityId": "<MongoID>",
      *                  "catalystEntityName": "project 2",
-     *                  "tagValue": "proj2"
+     *                  "tagValues": ["proj2", "Proj2"]
      *
      *              }
-     *          ]
+     *          }
      *      }
      */
     app.patch('/providers/:providerId/tag-mappings/:catalystEntityType', validate(tagsValidator.tagsMapping),
@@ -1514,7 +1556,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
     app.patch('/providers/:providerId/unassigned-instances',
         validate(instanceValidator.get), bulkUpdateUnassignedInstances);
 
-    function getTagsList(req, res, next) {
+    function getTagsList(req, res, callback) {
         async.waterfall(
             [
 
@@ -1526,7 +1568,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             ],
             function (err, results) {
                 if (err) {
-                    next(err);
+                    callback(err);
                 } else {
                     return res.status(200).send(results);
                 }
@@ -1534,7 +1576,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
         );
     }
 
-    function getUnassignedInstancesList(req, res, next) {
+    function getUnassignedInstancesList(req, res, callback) {
         var reqData = {};
         async.waterfall(
             [
@@ -1560,16 +1602,13 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             ],
             function (err, results) {
                 if (err)
-                    next(err);
+                    callback(err);
                 else
                     return res.status(200).send(results);
             });
     }
-    ;
 
-
-
-    function getTag(req, res, next) {
+    function getTag(req, res, callback) {
         async.waterfall(
             [
 
@@ -1583,7 +1622,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             ],
             function (err, results) {
                 if (err) {
-                    next(err);
+                    callback(err);
                 } else {
                     return res.status(200).send(results);
                 }
@@ -1594,7 +1633,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
     // @TODO to be implemented
     function createTags(req, res, next) {}
 
-    function updateTag(req, res, next) {
+    function updateTag(req, res, callback) {
         async.waterfall(
             [
 
@@ -1612,7 +1651,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             ],
             function (err, results) {
                 if (err) {
-                    next(err);
+                    callback(err);
                 } else {
                     return res.status(200).send(results);
                 }
@@ -1620,7 +1659,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
         );
     }
 
-    function deleteTag(req, res, next) {
+    function deleteTag(req, res, callback) {
         async.waterfall(
             [
 
@@ -1633,7 +1672,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             ],
             function (err, results) {
                 if (err) {
-                    next(err);
+                    callback(err);
                 } else {
                     return res.status(200).send(results);
                 }
@@ -1641,7 +1680,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
         );
     }
 
-    function getTagMappingsList(req, res, next) {
+    function getTagMappingsList(req, res, callback) {
         async.waterfall(
             [
 
@@ -1653,7 +1692,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             ],
             function (err, results) {
                 if (err) {
-                    next(err);
+                    callback(err);
                 } else {
                     return res.status(200).send(results);
                 }
@@ -1661,7 +1700,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
         );
     }
 
-    function getTagMapping(req, res, next) {
+    function getTagMapping(req, res, callback) {
         async.waterfall(
             [
 
@@ -1676,7 +1715,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             ],
             function (err, results) {
                 if (err) {
-                    next(err);
+                    callback(err);
                 } else {
                     return res.status(200).send(results);
                 }
@@ -1684,7 +1723,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
         );
     }
 
-    function addTagMappings(req, res, next) {
+    function addTagMappings(req, res, callback) {
         async.waterfall(
             [
 
@@ -1698,7 +1737,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             ],
             function (err, results) {
                 if (err) {
-                    next(err);
+                    callback(err);
                 } else {
                     return res.status(201).send(results);
                 }
@@ -1707,7 +1746,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
 
     }
 
-    function updateTagMapping(req, res, next) {
+    function updateTagMapping(req, res, callback) {
         async.waterfall(
             [
                 function (next) {
@@ -1720,14 +1759,14 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                 function (tag, next) {
                     providerService.updateTagMapping(tag, req.body, next);
                 },
-                function (tag, next) {
+                /*function (tag, next) {
                     providerService.getTagByNameAndProvider(req.params.providerId, tag.name, next);
-                },
+                },*/
                 providerService.createTagMappingObject
             ],
             function (err, results) {
                 if (err) {
-                    next(err);
+                    callback(err);
                 } else {
                     return res.status(200).send(results);
                 }
@@ -1735,7 +1774,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
         );
     }
 
-    function deleteTagMapping(req, res, next) {
+    function deleteTagMapping(req, res, callback) {
         async.waterfall(
             [
 
@@ -1748,7 +1787,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             ],
             function (err, results) {
                 if (err) {
-                    next(err);
+                    callback(err);
                 } else {
                     return res.status(200).send(results);
                 }
@@ -1756,7 +1795,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
         );
     }
 
-    function getCatalystEntityMapping(req, res, next) {
+    function getCatalystEntityMapping(req, res, callback) {
         async.waterfall(
             [
 
@@ -1773,7 +1812,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             ],
             function (err, results) {
                 if (err) {
-                    next(err);
+                    callback(err);
                 } else {
                     return res.status(200).send(results);
                 }
@@ -1781,7 +1820,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
         );
     }
 
-    function updateUnassignedInstanceTags(req, res, next) {
+    function updateUnassignedInstanceTags(req, res, callback) {
         async.waterfall(
             [
                 function (next) {
@@ -1808,7 +1847,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             ],
             function (err, results) {
                 if (err) {
-                    next(err);
+                    callback(err);
                 } else {
                     return res.status(200).send(results);
                 }
@@ -1816,7 +1855,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
         );
     }
 
-    function bulkUpdateUnassignedInstances(req, res, next) {
+    function bulkUpdateUnassignedInstances(req, res, callback) {
         async.waterfall(
             [
                 function (next) {
@@ -1837,7 +1876,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
             ],
             function (err, results) {
                 if (err) {
-                    next(err);
+                    callback(err);
                 } else {
                     return res.status(200).send(results);
                 }
