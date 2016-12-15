@@ -1559,6 +1559,7 @@ var saveblueprint = function(tempType) {
                         reqBody.botType = $('#botType').val();
                         reqBody.shortDesc = $('#shortDesc').val();
                         reqBody.serviceDeliveryCheck = true;
+                        reqBody.botCategory = $('#botCategory').val();
                     }
                     var imageIdentifier = $('#imageId').val();
                     var imageId = $('#imageId').find('option:selected').attr('_id');

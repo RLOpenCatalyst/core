@@ -1,0 +1,116 @@
+<div id='sch'>
+    <form name="scheduleForm" novalidate>
+        <div class="modal-header">
+            <span class="close" ng-click="sch.cancel()">×</span>
+            <h4 class="modal-title"><i class="fa fa-calendar"></i> Manage Schedule</h4>
+        </div>
+
+        <div class="modal-body">
+            <div class="col-lg-6 col-md-6 ">
+            <label>Starts on: <span class="red">*</span>
+            </label>
+            <input id="date-start"  ng-change="dateChange()" required  type="text"  ng-model="sch.schedulerStartOn" class="form-control-date"  >
+            </div>
+            <div class="col-lg-6 col-md-6 ">
+            <label>Ends on: <span class="red">*</span>
+            </label>
+            <input ng-change="dateChange()" type="text"  id="date-end" ng-model="sch.schedulerEndOn" class="form-control-date" required >
+            <span class="error red" ng-show="validDateRange">Start Date should be less than End date !</span>
+            </div>
+            <div class="clearfix margintop15"></div>
+            <div class="clearfix margintop15"></div>
+
+            <fieldset class="repo-job-details-wrapper">
+            <legend class="repo-job-details-wrapper-inner"><i class="fa fa-hourglass-start" ></i> Interval </legend>
+
+            <table class="table table-striped">
+                <thead>
+                <tr>
+
+                    <th style="width:100px;">Time</th>
+                    <th>Days</th>
+                    <th>Action</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="newTime in sch.interval">
+                    <td><input required type="text" ng-model="newTime.time" class="form-control time"></td>
+                    <td>
+                        <input type="hidden" ng-model="newTime.daySelect" required>
+                        <button type="button" class="btn btn-info btn-xs cat-btn-update btnDay" ng-class="{'activeDay':newTime.days.indexOf(0) !== -1}" ng-click="selectDays(0,sch.interval.indexOf(newTime))" >S</button>
+                        <button type="button" class="btn btn-info btn-xs cat-btn-update btnDay" ng-class="{'activeDay':newTime.days.indexOf(1) !== -1}" ng-click="selectDays(1,sch.interval.indexOf(newTime))"  >M</button>
+                        <button type="button" class="btn btn-info btn-xs cat-btn-update btnDay" ng-class="{'activeDay':newTime.days.indexOf(2) !== -1}" ng-click="selectDays(2,sch.interval.indexOf(newTime))">T</button>
+                        <button type="button" class="btn btn-info btn-xs cat-btn-update btnDay" ng-class="{'activeDay':newTime.days.indexOf(3) !== -1}" ng-click="selectDays(3,sch.interval.indexOf(newTime))" >W</button>
+                        <button type="button" class="btn btn-info btn-xs cat-btn-update btnDay" ng-class="{'activeDay':newTime.days.indexOf(4) !== -1}" ng-click="selectDays(4,sch.interval.indexOf(newTime))" >T</button>
+                        <button type="button" class="btn btn-info btn-xs cat-btn-update btnDay" ng-class="{'activeDay':newTime.days.indexOf(5) !== -1}" ng-click="selectDays(5,sch.interval.indexOf(newTime))" >F</button>
+                        <button type="button" class="btn btn-info btn-xs cat-btn-update btnDay" ng-class="{'activeDay':newTime.days.indexOf(6) !== -1}" ng-click="selectDays(6,sch.interval.indexOf(newTime))" >S</button>
+                    </td>
+                    <td>
+                        <select class="form-control stt" ng-model="newTime.action">
+                            <option value="start">Start</option>
+                            <option value="stop">Stop</option>
+                        </select>
+
+                    </td>
+                    <td><i class="fa fa-times" aria-hidden="true"  ng-click="removeTime(sch.interval.indexOf(newTime))"></i></td>
+                </tr>
+                </tbody>
+            </table>
+                <div class="pull-right">
+                    <button type="button" ng-click="addNewTime()" title="Import By Ip" class="btn btn-xs cat-btn-update" >
+                        <i class="fa fa-plus white"></i>
+                        Add
+                    </button>
+                </div>
+</fieldset>
+            <div class="clearfix"></div>
+
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn cat-btn-close" ng-click="sch.cancel()">
+                <i class="fa fa-times black"></i> Cancel
+            </button>
+            <button type="button" class="btn cat-btn-update" ng-disabled="scheduleForm.$invalid || validDateRange "
+                    ng-click="sch.ok()">
+                <i class="fa fa-check white"></i> Save
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#date-end').bootstrapMaterialDatePicker({
+            format: 'MM/DD/YYYY ',
+            weekStart: 1,
+            time: false,
+            switchOnClick : true,
+            nowButton : true,
+        });
+        $('#date-start').bootstrapMaterialDatePicker({
+            format: 'MM/DD/YYYY',
+            weekStart: 1,
+            time: false,
+            switchOnClick : true,
+            nowButton : true,
+        }).on('change', function(e, date)
+        {
+            $('#date-end').bootstrapMaterialDatePicker('setMinDate', date);
+        });
+        $.material.init();
+        $(document).on('click', 'input.time', function(){
+            var $this = $(this);
+            setTimeout(function () {
+                $this.bootstrapMaterialDatePicker({
+                    format: 'HH:mm',
+                    date: false,
+                    switchOnClick : true,
+                });
+            },100);
+
+        });
+    });
+
+</script>

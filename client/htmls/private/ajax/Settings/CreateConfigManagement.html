@@ -48,11 +48,6 @@
                                                 </select>
                                                 <span data-val-controltovalidate="domainname" id="MainContent_Req_domainname" data-val="true" data-val-evaluationfunction="RequiredFieldValidatorEvaluateIsValid" data-val-initialvalue="" style="visibility:hidden;">Required</span>
                                              </div>
-                                          
-                                          <hr/>
-                                            <!-- <div class="col-lg-6 col-md-6 display:none" >
-                                                <input name="ctl00$MainContent$orgname" value="chef" id="configType" class="form-control" type="text"  cdata="catalyst" hidden>
-                                             </div> -->
                                              <input type="hidden" name="ctl00$MainContent$orgname" value="chef" id="configType" class="form-control"  cdata="catalyst">
                                           
                                              <div class="col-lg-6 col-md-6" id="frmconfigmanagement" style="margin-top:20px">
@@ -105,8 +100,6 @@
                                                    </label>
                                                 </div>
                                              </div>
-                                          
-                                          
                                     </div>
                                     <!-- end widget content -->
                                  </div>
@@ -152,7 +145,6 @@
    }
    function setfolderpath(){
        var folderpath = '/' + $('#loginname').val() + "/.chef/";
-    //   alert(folderpath);
        $('#folderpath').val(folderpath);
    }
    
@@ -201,26 +193,17 @@
 </script>
 <script>
    $(document).ready(function () {
+    var isEditActivateLocation = location.href.toString().split('?')[1]==="new"?false:true;
+   
       $("#configname").focus();
        $('#myForm22').submit(function() {
 
-           // $(this).validate();
-   
-           // if($(this).valid){
-           //      /*alert('valid form submitted'); // for demo*/
-           //     
-           // }else{
-           //      alert('invalid valid form submitted'); // for demo
-           // }
-         //  alert('in 1');
-         var isEditActivate= location.href.toString().split('?')[1]==="new"?false:true;
-       //  var operationType='';
 
-if(isEditActivate){
-  $('#userpemfile').removeAttr('cat-validation');
-  $('#validatorpemfile').removeAttr('cat-validation');
-  $('#kniferbfile').removeAttr('cat-validation');
-}          
+  if(isEditActivateLocation){
+    $('#userpemfile').removeAttr('cat-validation');
+    $('#validatorpemfile').removeAttr('cat-validation');
+    $('#kniferbfile').removeAttr('cat-validation');
+  }          
  if(validateForm()) {setfolderpath(); saveform('10');};
            return false; // for demo
        });

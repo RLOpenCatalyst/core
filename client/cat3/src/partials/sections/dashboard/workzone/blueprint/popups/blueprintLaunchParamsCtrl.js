@@ -8,36 +8,94 @@
 (function(angular){
 	"use strict";
 	angular.module('workzone.blueprint')
-		.controller('blueprintLaunchParamsCtrl', ['$scope', '$modalInstance', 'items', function($scope, $modalInstance, items) {
+		.controller('blueprintLaunchParamsCtrl', ['$scope', '$modalInstance', 'toastr',  'items','workzoneServices','genericServices','workzoneEnvironment', function($scope, $modalInstance, toastr, items,workzoneServices,genericServices,workzoneEnvironment) {
 			console.log(items);
+			$scope.showMonitor = true;
+			if(items.blueprintType === 'azure_arm' || items.blueprintType === 'azure_launch') {
+				$scope.showMonitor = false;
+			}
 			var launchHelper = {
 				launch : function(){
-					$modalInstance.close({bp:items,stackName:$scope.stackName,domainName:$scope.domainName,tagServer:$scope.tagServer});
+					$modalInstance.close({bp:items,stackName:$scope.stackName,domainName:$scope.domainName,tagServer:$scope.tagSerSelected,launchEnv:$scope.envSeleted,monitorId:$scope.monitorId});
 				}
 			};
+			//var bPLP=this;
+			$scope.taggingServerList=[];
+			$scope.envOptions=[];
+			$scope.monitorList = [];
+			workzoneServices.getTaggingServer().then(function (topSer) {
+				$scope.taggingServerList=topSer.data;
+			});
+			$scope.monitorId = 'null';
+			$scope.getMonitorList = function(orgId) {
+				workzoneServices.getMonitorList(orgId).then(function (response) {		
+			        $scope.monitorList = response.data;
+				});
+			}
+			genericServices.getTreeNew().then(function (envData) {
+				angular.forEach(envData,function(val){
+					console.log(val);
+					var orgID,bgID,projID;
+					if(items.organizationId === undefined) {
+						orgID = (items.masterDetails.orgId)?items.masterDetails.orgId:items.organization.id;
+			        	bgID = (items.masterDetails.bgId)?items.masterDetails.bgId:items.businessGroup.id;
+			        	projID = (items.masterDetails.projectId)?items.masterDetails.projectId:items.project.id;
+			        	$scope.getMonitorList(orgID);
+					} else {
+						orgID = items.organizationId || items.masterDetails.orgId;
+						bgID = items.businessGroupId || items.masterDetails.bgId;
+						projID = items.projectId || items.masterDetails.projectId;
+						$scope.getMonitorList(orgID);
+					}
+					if(val.rowid === orgID){
+						$scope.orgSeleted=val.name;
+						angular.forEach(val.businessGroups,function(busval){
+							if(busval.rowid === bgID){
+								$scope.busSeleted=busval.name;
+								angular.forEach(busval.projects,function(projval){
+									if(projval.rowId === projID){
+										$scope.projSeleted=projval.name;
+										$scope.envOptions=projval.environments;
+										if(workzoneEnvironment.getEnvParams() && workzoneEnvironment.getEnvParams().env){
+											$scope.envSeleted=workzoneEnvironment.getEnvParams().env;
+										} else {
+											$scope.envSeleted=projval.environments[0].rowid;
+										}
+									}
+								});
+							}
+						});
+					}
+				});
+			});
 			$scope.stackName='';
 			$scope.domainName='';
-			$scope.tagServer = "Monitoring";
+			$scope.tagSerSelected = '';
 			$scope.cancel = function() {
 				$modalInstance.dismiss('cancel');
 			};
-			$scope.tagServerChecking = function() {
-				if($scope.tagServerCheck){
-					$scope.tagServerStatus = true;
-				}else{
-					$scope.tagServerStatus = false;
-					$scope.tagServer = '';
-				}
-			};
 			$scope.launchBP = function() {
-				if(items.blueprintType === "aws_cf") {
-					$scope.showCFTInputs = true;
-				}else if(items.blueprintType === "azure_arm") {
-					$scope.showARMInputs = true;
-				}else if(items.domainNameCheck === true || items.domainNameCheck === "true") {
-					$scope.showBlueprintInputs = true;
-				}else {
-					launchHelper.launch();
+				if((items.orgId === undefined) && (items.masterDetails && items.masterDetails.orgId === undefined)){
+					var compBlue={
+						"blueprintId": (items.id)?items.id:items._id,
+						"environmentId": $scope.envSeleted
+					};
+					workzoneServices.launchCompsiteBlueprint(compBlue).success(function() {
+                        toastr.success('Successfully launched composite blueprint');
+                        $modalInstance.close(compBlue);
+					}).error(function(data) {
+                        toastr.error(data.message, 'Error');
+					});
+				} else {
+					if(items.blueprintType === "aws_cf" || items.botLinkedSubCategory === "aws_cf") {
+						$scope.showCFTInputs = true;
+					}else if(items.blueprintType === "azure_arm" || items.botLinkedSubCategory === "azure_arm") {
+						$scope.showARMInputs = true;
+					}else if(items.domainNameCheck === true || items.domainNameCheck === "true") {
+						$scope.showBlueprintInputs = true;
+					}else {
+						launchHelper.launch();
+					}
 				}
 			};
 			$scope.cftSubmitHandler = function(){

@@ -36,6 +36,7 @@ var azureProvider = require('_pr/model/classes/masters/cloudprovider/azureCloudP
 var VMImage = require('_pr/model/classes/masters/vmImage.js');
 var fs = require('fs');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
+var auditTrailService = require('_pr/services/auditTrailService');
 
 var Schema = mongoose.Schema;
 
@@ -388,6 +389,25 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                 });
                                                 logger.debug('Should have sent the response.');
                                             }
+                                            if(launchParams.auditTrailId !== null){
+                                                var resultTaskExecution={
+                                                    "actionLogId":logsReferenceIds[1],
+                                                    "auditTrailConfig.nodeIdsWithActionLog":[{
+                                                        "actionLogId" : logsReferenceIds[1],
+                                                        "nodeId" : logsReferenceIds[0]
+                                                    }],
+                                                    "auditTrailConfig.nodeIds":[logsReferenceIds[0]],
+                                                    "masterDetails.orgName":launchParams.orgName,
+                                                    "masterDetails.bgName":launchParams.bgName,
+                                                    "masterDetails.projectName":launchParams.projectName,
+                                                    "masterDetails.envName":launchParams.envName
+                                                }
+                                                auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
+                                                    if (err) {
+                                                        logger.error("Failed to create or update bots Log: ", err);
+                                                    }
+                                                });
+                                            }
 
                                             azureCloud.waitforserverready(launchparamsazure.VMName, launchparamsazure.username, launchparamsazure.password, function(err, publicip) {
 
@@ -505,6 +525,18 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                                         logger.error("Failed to create or update instanceLog: ", err);
                                                                     }
                                                                 });
+                                                                if(launchParams.auditTrailId !== null){
+                                                                    var resultTaskExecution={
+                                                                        actionStatus : "failed",
+                                                                        status:"failed",
+                                                                        endedOn : new Date().getTime()
+                                                                    }
+                                                                    auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
+                                                                        if (err) {
+                                                                            logger.error("Failed to create or update bots Log: ", err);
+                                                                        }
+                                                                    });
+                                                                }
                                                                 return;
                                                             }
 
@@ -534,6 +566,18 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                                     log: "Instance Bootstraped successfully",
                                                                     timestamp: new Date().getTime()
                                                                 };
+                                                                if(launchParams.auditTrailId !== null){
+                                                                    var resultTaskExecution={
+                                                                        actionStatus : "success",
+                                                                        status:"success",
+                                                                        endedOn : new Date().getTime()
+                                                                    }
+                                                                    auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
+                                                                        if (err) {
+                                                                            logger.error("Failed to create or update bots Log: ", err);
+                                                                        }
+                                                                    });
+                                                                }
                                                                 instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
                                                                     if (err) {
                                                                         logger.error("Failed to create or update instanceLog: ", err);
@@ -598,6 +642,18 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                                     log: "Bootstrap Failed",
                                                                     timestamp: new Date().getTime()
                                                                 };
+                                                                if(launchParams.auditTrailId !== null){
+                                                                    var resultTaskExecution={
+                                                                        actionStatus : "failed",
+                                                                        status:"failed",
+                                                                        endedOn : new Date().getTime()
+                                                                    }
+                                                                    auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
+                                                                        if (err) {
+                                                                            logger.error("Failed to create or update bots Log: ", err);
+                                                                        }
+                                                                    });
+                                                                }
                                                                 instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
                                                                     if (err) {
                                                                         logger.error("Failed to create or update instanceLog: ", err);

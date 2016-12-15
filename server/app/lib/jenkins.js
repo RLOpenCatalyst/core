@@ -33,7 +33,6 @@ var Jenkins = function(options) {
 	}
 
 	jenkinsUrl += parsedUrl.host + parsedUrl.path;
-	logger.debug(jenkinsUrl);
 	var jenkins = jenkinsApi.init(jenkinsUrl);
 
 	this.getJobs = function(callback) {
@@ -102,7 +101,6 @@ var Jenkins = function(options) {
 	};
 
 	this.getLastBuildInfo = function(jobName, callback) {
-		logger.debug(jobName);
 		jenkins.last_build_info(jobName, function(err, data) {
 			if (err) {
 				logger.error(err, data);
@@ -160,14 +158,12 @@ var Jenkins = function(options) {
 
 	};
 	this.getDepthJobInfo = function(jobName, callback) {
-		logger.debug("parsedUrl: ", parsedUrl.href);
 		var options_auth = {
 			user: options.username,
 			password: options.password
 		};
 		client = new Client(options_auth);
 		var jenkinsUrl1 = parsedUrl.href + 'job/' + jobName + '/api/json?depth=1';
-		logger.debug('jenkinsUrl', jenkinsUrl1);
 		client.registerMethod("jsonMethod", jenkinsUrl1, "GET");
 		client.methods.jsonMethod(function(data, response) {
 			callback(null, data);

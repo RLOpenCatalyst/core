@@ -1,0 +1,350 @@
+#well{
+    min-height: 35px;
+    padding: 9px;
+    margin: 11px 0 0 0;
+    background-color: #FDFDFD;
+    border-bottom: 1px solid #e3e3e3;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-radius: none !important;
+    -webkit-box-shadow: none !important;
+    box-shadow: none !important;
+    span{
+        margin-left: 13px;
+    }
+}
+
+// create card
+.productdiv4 {
+    width: 156px;
+    float: left;
+    padding-top: 7px;
+    margin-left: 10px;
+    padding-left:10px;
+}
+.productdiv1 {
+    position: relative;
+    border-width: 1px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+.cardimage {
+    background-repeat: no-repeat;
+    height: 163px;
+    margin-left: 15px;
+    li{
+        &.card-title{
+            font-weight: bold;
+        }
+        &.btns-group{
+            text-align: center; position: absolute; left: 0; right: 0; bottom: 10px; padding-top:10px; border-top: 1px solid #ccc;
+        }
+    }
+
+}
+.moreInfoabsolute {
+    position: absolute;
+    margin-left: -28px;
+}
+.moreInfo {
+    background-position: -15px -12px;
+    width: 27px;
+    height: 27px;
+}
+.blue-hr {
+    margin-top: 20px;
+    margin-bottom: 6px;
+    border: 0;
+    border-top: 1px solid #eee;
+}
+.bpvicon {
+    border-radius: 11px !important;
+    width: 25px;
+    padding: 0px 5px;
+    margin: 0 5px;
+}
+#create-bp {
+    height: 498px;
+    overflow-y: auto;
+}
+
+.blueprintTemplate {
+    background-color: #ffffff;
+    border: 1px solid #dddddd;
+    border-radius: 4px;
+    height: 152px;
+    padding: 4px;
+    width: 152px;
+    cursor: pointer;
+    margin: 15px 15px 0 0;
+}
+
+.blueprintTemplateSelected {
+    border: 2px solid #40baf1;
+    border-radius: 4px;
+}
+
+label {
+    color: #444;
+    font-weight: 400;
+    font-size: 13px;
+}
+
+.form-control {
+    font-size: 13px;
+    height:36px;
+}
+
+.securityGroupComponent {
+    height: 140px;
+    overflow-y: scroll;
+    border:1px solid gray;
+    padding: 0px;
+    width:100%;
+}
+
+.cardLogo {
+    height: 52px;
+    padding-top: 11px;
+    margin-top: 20px;
+    margin-left: 8px;
+}
+
+.scroll-bluePrints {
+    max-height: 400px;
+    overflow: auto;
+}
+
+.selected{
+    border: 2px solid #40BAF1 !important;
+}
+
+.fa-question-circle {
+    font-size: 18px;
+}
+
+.accordionClear {
+    clear:both;
+}
+
+.applicationUrl-text {
+    margin-top: 20px;
+}
+
+.appCreateBtn {
+    margin-bottom: 10px; 
+}
+
+.blueprintFooter {
+    position: fixed;
+    bottom: 0px;
+    margin-left: 452px;
+}
+.search {
+    width: 100% !important;
+    position: relative;
+    font-size: 18px;
+    padding-top: 0px;
+}
+.search .search-input, .search .hint {
+    padding-left: 24px;
+    padding-right: 16px;
+    border-radius: 23px;
+    height: 30px !important;
+    outline: none !important;
+    font-size: 11px;
+}
+.bp-select{
+    font-size: 11px !important;
+    height: 28px !important;
+    display: inline !important;
+    width: auto !important;
+}
+.bp-panel-body{
+    max-height: 200px;
+    min-height: 200px;
+    overflow-y: auto;
+}
+.activeLi{
+    background: #E2E2E2 !important;
+}
+.badge :hover{
+    cursor: pointer !important;
+}
+.bp-list-grid {
+    height: 67vh;
+}
+
+#wizardContainer {
+    .wizardbtn-circle {
+        width: 49px;
+        height: 49px;
+        text-align: center;
+        padding: 5px 0;
+        font-size: 20px;
+        line-height: 2.00;
+        border-radius: 30px;
+        margin: 0 25px;
+    }
+
+    .wizardbtn-text {
+        font-size: 12px;
+        vertical-align: middle;
+        line-height: 3;
+    }
+
+    .wizardActiveBtn {
+        background-color: #286090;
+        color: #fff !important;
+        box-shadow: 0 0 5px #286090;
+    }
+
+    .process-btn {
+        background-color: #d2cbcb;
+        /*#7d7676*/
+        color: #fff;
+        box-shadow: 0 0 5px #888888;
+
+    }
+    .disable {
+        cursor: not-allowed !important;
+        pointer-events: none;
+    }
+
+    #introWizard ul li {
+        text-decoration: none;
+        list-style: none;
+    }
+
+    .li-margin {
+        margin: 0 20px;
+        width: 30px;
+    }
+
+    .btn-cls {
+        width: 61%;
+        background: transparent url("/cat3/images/global/dot.jpg") no-repeat scroll -27px 25px;
+        height: 45px;
+        background-size: 100%;
+        margin: auto;
+    }
+
+    .btn-1 {
+        float: left;
+        text-align: center;
+        padding: 3px 15px;
+    }
+
+    .wizardLabelName {
+        padding-top: 10px;
+        color: #7d7676;
+    }
+
+    .wizardFormControls {
+        display: inline;
+        height: 32px;
+        padding: 6px 12px;
+        font-size: 13px;
+        line-height: 1.428571429;
+        color: #555;
+        vertical-align: middle;
+        background-color: #fff;
+        background-image: none;
+        border: 1px solid #ccc;
+        transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+        height: 29px;
+    }
+    .finshed {
+        background-color: #5cb85c !important;
+        color: #fff !important;
+    }
+    .select {
+        background: #286090 !important;
+        color: #fff !important;
+        cursor: not-allowed !important;
+        pointer-events: none;
+    }
+}
+
+
+.nav-tabs li {
+    cursor: pointer;
+    .active a, .nav-tabs li.active a:hover {
+        border-bottom-width: 0px;
+        border-top-width: 3px;
+        border-color: #40BAF1;
+        background: #fcfcfc;
+    }
+    .active > a:first-child {
+        color: #337ab7;
+    }
+}
+
+.disabled{
+    cursor:not-allowed !important;
+    box-shadow: none;
+    opacity: .65;
+    pointer-events: none;
+}
+.Cardtextoverflow{
+    font-size: 12px;
+    overflow: hidden;
+    padding-left: 0px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.show-providers {
+    display: none;
+}
+
+fieldset#compBlueprint{
+    border: 1px groove #ddd;
+    padding: 0 1.4em 1.4em 1.4em;
+    margin: 2em 0 1.5em 0;
+    -webkit-box-shadow:  0px 0px 0px 0px #000;
+    box-shadow:  0px 0px 0px 0px #000;
+    height: 468px;
+    overflow-y: auto;
+}
+
+fieldset#compBlueprint legend {
+    font-size: 1.2em;
+    font-weight: bold;
+    text-align: left;
+    border:none;
+    width:170px;
+    color: #3a87ad;
+    margin: 0;
+}
+
+#compBlueprint legend {
+    display: block;
+    -webkit-padding-start: 2px;
+    -webkit-padding-end: 2px;
+    border: none;
+    width: auto !important;
+}
+
+.compositeFieldClass {
+    margin-left: 10px;
+    width: 98%;
+}
+
+.listPageView {
+    height: 450px;
+    overflow-y:auto;
+}
+
+.bpCardDetails {
+    width: 160px; 
+    padding: 0px;
+    position: relative; 
+    float: left;
+    margin-bottom: 5px;
+    margin-right: 8px;
+}
+
+.layersClassComposite {
+    margin-left: 10px;
+}

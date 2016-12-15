@@ -9,7 +9,7 @@
                     $rootScope.organNewEnt.org = '0';
                     $rootScope.filterNewEnt.period='month';
                     $rootScope.splitUpCosts=[];
-                    $rootScope.filterNewEnt.platformId=[]
+                    $rootScope.filterNewEnt.platformId=[];
                 },
                 applyFilter : function(filterApp,period){
                     if($rootScope.organObject) {
@@ -17,8 +17,9 @@
                             or = $rootScope.organNewEnt.org,
                             bu = $rootScope.organNewEnt.buss,
                             pr = $rootScope.organNewEnt.proj;
-                        if (period)
+                        if (period) {
                             $rootScope.filterNewEnt.period = period;
+                        }
 
                         if (or) {
                             $rootScope.filterNewEnt.org = {name: obj[or].name, id: obj[or].rowid, title: 'ORG'};
@@ -58,7 +59,7 @@
                                 $rootScope.filterNewEnt.provider = '';
                             }
                         } else {
-                            $rootScope.organNewEnt = {}
+                            $rootScope.organNewEnt = {};
                             if($state.current.name === "dashboard.analytics.usage"){
                                 $rootScope.organNewEnt.provider='0';
                                 $rootScope.organNewEnt.instanceType='Unassigned';

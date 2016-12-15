@@ -105,6 +105,7 @@ function getDefaultsConfig() {
                 "trackedInstances": "providerType",
                 "resources":"createdOn",
                 "instanceLogs":"createdOn",
+                "auditTrails":"startedOn",
                 "taskLogs":"timestampStarted",
                 "unassignedInstances":"state",
                 "unassignedInstances":"state",
@@ -113,7 +114,8 @@ function getDefaultsConfig() {
                 "chefNodes":"createdOn",
                 "blueprints":"name",
                 "compositeBlueprints":"name",
-                "containerLogs":"createdOn"
+                "containerLogs":"createdOn",
+                "bots":"createdOn"
             },
             skip_Records : 1,
             max_record_limit : 200,
@@ -129,7 +131,8 @@ function getDefaultsConfig() {
             }
         },
         taggingServerList: ['Sensu Server','LDAP Server','AD Server'],
-        botTypeList: ['Task','Check','Learning', 'Composite','Built with other'],
+        botTypeList: ['Task','Check','Learning', 'Composite','Built with other','Run','UI'],
+        categoryList: ['Active Directory', 'OpenDJ LDAP','Monitoring', 'Application Deployment', 'Service Management', 'Database Management', 'Upgrade', 'Installation'],
         aws: {
             pemFileLocation: __dirname + '/app/config/',
             s3BucketDownloadFileLocation: currentDirectory + '/catdata/catalyst/temp/',

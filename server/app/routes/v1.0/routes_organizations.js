@@ -52,6 +52,9 @@ var taskService = require('_pr/services/taskService');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var compositeBlueprintModel = require('_pr/model/composite-blueprints/composite-blueprints.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
+var monitorsModel = require('_pr/model/monitors/monitors.js');
+var catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
+var botsService = require('_pr/services/botsService.js');
 
 module.exports.setRoutes = function(app, sessionVerification) {
     /*
@@ -183,39 +186,40 @@ module.exports.setRoutes = function(app, sessionVerification) {
             },
             function(orgBgProjectTree,next){
                 if(orgBgProjectTree.length > 0) {
-                    d4dModelNew.d4dModelMastersEnvironments.find({
-                        id: '3',
-                        orgname_rowid: {
-                            $in: orgIds
-                        }
-                    }, function(err, envList) {
-                        if(err){
-                            next(err);
-                        }else if(envList.length > 0){
-                            var orgCount = 0;
-                            var envObjList = [];
-                            for (var i = 0; i < orgBgProjectTree.length; i++) {
-                                (function(orgTree){
-                                    orgCount++;
+                    var orgCount = 0;
+                    var envObjList = [];
+                    for (var i = 0; i < orgBgProjectTree.length; i++) {
+                        (function (orgTree) {
+                            orgCount++;
+                            d4dModelNew.d4dModelMastersEnvironments.find({
+                                id: '3',
+                                orgname_rowid: {
+                                    $in: [orgTree.rowid]
+                                }
+                            }, function (err, envList) {
+                                if (err) {
+                                    next(err);
+                                } else if (envList.length > 0) {
                                     for (var j = 0; j < envList.length; j++) {
-                                        if (orgTree.rowid === envList[j].orgname_rowid[0]) {
-                                            var envObj = {
-                                                name: envList[j].environmentname,
-                                                rowid: envList[j].rowid
-                                            }
-                                            orgTree.environments.push(envObj);
-                                            envObjList.push(envObj);
-                                            if(orgCount === orgBgProjectTree.length && envObjList.length === envList.length){
-                                                next(null,orgBgProjectTree);
-                                            }
+                                        var envObj = {
+                                            name: envList[j].environmentname,
+                                            rowid: envList[j].rowid
+                                        }
+                                        orgTree.environments.push(envObj);
+                                        envObjList.push(envObj);
+                                        if (orgCount === orgBgProjectTree.length && envObjList.length === envList.length) {
+                                            next(null, orgBgProjectTree);
                                         }
                                     }
-                                })(orgBgProjectTree[i]);
-                            }
-                        }else{
-                            next(null,orgBgProjectTree);
-                        }
-                    });
+                                }else{
+                                    orgTree.environments.push('');
+                                    if (orgCount === orgBgProjectTree.length) {
+                                        next(null, orgBgProjectTree);
+                                    }
+                                }
+                            });
+                        })(orgBgProjectTree[i]);
+                    }
                 }else{
                     next(null,orgBgProjectTree);
                 }
@@ -362,39 +366,40 @@ module.exports.setRoutes = function(app, sessionVerification) {
             },
             function(orgBgProjectTree,next){
                 if(orgBgProjectTree.length > 0) {
-                    d4dModelNew.d4dModelMastersEnvironments.find({
-                        id: '3',
-                        orgname_rowid: {
-                            $in: orgIds
-                        }
-                    }, function(err, envList) {
-                        if(err){
-                            next(err);
-                        }else if(envList.length > 0){
-                            var orgCount = 0;
-                            var envObjList = [];
-                            for (var i = 0; i < orgBgProjectTree.length; i++) {
-                                (function(orgTree){
-                                    orgCount++;
+                    var orgCount = 0;
+                    var envObjList = [];
+                    for (var i = 0; i < orgBgProjectTree.length; i++) {
+                        (function (orgTree) {
+                            orgCount++;
+                            d4dModelNew.d4dModelMastersEnvironments.find({
+                                id: '3',
+                                orgname_rowid: {
+                                    $in: [orgTree.rowid]
+                                }
+                            }, function (err, envList) {
+                                if (err) {
+                                    next(err);
+                                } else if (envList.length > 0) {
                                     for (var j = 0; j < envList.length; j++) {
-                                        if (orgTree.rowid === envList[j].orgname_rowid[0]) {
-                                            var envObj = {
-                                                name: envList[j].environmentname,
-                                                rowid: envList[j].rowid
-                                            }
-                                            orgTree.environments.push(envObj);
-                                            envObjList.push(envObj);
-                                            if(orgCount === orgBgProjectTree.length && envObjList.length === envList.length){
-                                                next(null,orgBgProjectTree);
-                                            }
+                                        var envObj = {
+                                            name: envList[j].environmentname,
+                                            rowid: envList[j].rowid
+                                        }
+                                        orgTree.environments.push(envObj);
+                                        envObjList.push(envObj);
+                                        if (orgCount === orgBgProjectTree.length && envObjList.length === envList.length) {
+                                            next(null, orgBgProjectTree);
                                         }
                                     }
-                                })(orgBgProjectTree[i]);
-                            }
-                        }else{
-                            next(null,orgBgProjectTree);
-                        }
-                    });
+                                }else{
+                                    orgTree.environments.push('');
+                                    if (orgCount === orgBgProjectTree.length) {
+                                        next(null, orgBgProjectTree);
+                                    }
+                                }
+                            })
+                        })(orgBgProjectTree[i]);
+                    }
                 }else{
                     next(null,orgBgProjectTree);
                 }
@@ -406,240 +411,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
             res.status(200).send(results);
         })
     });
-    
-    app.get('/organizations/getTree', function(req, res) {
-        logger.debug("Enter get() for /organizations/getTree");
-        d4dModelNew.d4dModelMastersOrg.find({
-            id: 1,
-
-        }, function(err, docorgs) {
-            var orgnames = docorgs.map(function(docorgs1) {
-                return docorgs1.orgname;
-            });
-
-            var orgTree = [];
-            var orgCount = 0;
-            orgnames.forEach(function(k, v) {
-                orgTree.push({
-                    name: k,
-                    businessGroups: [],
-                    environments: []
-                });
-            });
-            orgCount++;
-            d4dModelNew.d4dModelMastersProductGroup.find({
-                id: 2,
-                orgname: {
-                    $in: orgnames
-                }
-            }, function(err, docbgs) {
-                var counter = 0;
-                for (var k = 0; k < docbgs.length; k++) {
-                    for (var i = 0; i < orgTree.length; i++) {
-                        if (orgTree[i]['name'] == docbgs[k]['orgname']) {
-                            orgTree[i]['businessGroups'].push({
-                                name: docbgs[k]['productgroupname'],
-                                projects: []
-                            });
-                            d4dModelNew.d4dModelMastersProjects.find({
-                                id: 4,
-                                orgname: orgTree[i]['name'],
-                                productgroupname: docbgs[k]['productgroupname']
-                            }, function(err, docprojs) {
-                                var prjnames = docprojs.map(function(docprojs1) {
-                                    return docprojs1.projectname;
-                                });
-
-                                for (var _i = 0; _i < orgTree.length; _i++) {
-                                    logger.debug("Orgnames:%s", orgTree[_i]['name']);
-                                    for (var __i = 0; __i < orgTree[_i]['businessGroups'].length; __i++) {
-                                        logger.debug("businessGroups:%s%s and docprojs.length:%s", orgTree[_i]['businessGroups'], [__i]['name'], docprojs.length);
-                                        for (var _bg = 0; _bg < docprojs.length; _bg++) {
-
-                                            if (docprojs[_bg]['orgname'] == orgTree[_i]['name'] && docprojs[_bg]['productgroupname'] == orgTree[_i]['businessGroups'][__i]['name']) {
-                                                if (orgTree[_i]['businessGroups'][__i]['projects'].length <= 0) {
-                                                    for (var prjname in prjnames)
-                                                        orgTree[_i]['businessGroups'][__i]['projects'].push(prjnames[prjname]);
-                                                }
-
-                                                logger.debug("Env:%s", docprojs[_bg]['environmentname']);
-                                            }
-                                        }
-                                    }
-                                }
-                                logger.debug("OrgTree:%s", JSON.stringify(orgTree));
-                                if (counter >= docbgs.length - 1) {
-                                    d4dModelNew.d4dModelMastersEnvironments.find({
-                                        id: 3,
-                                        orgname: {
-                                            $in: orgnames
-                                        }
-                                    }, function(err, docenvs) {
-                                        for (var _i = 0; _i < orgTree.length; _i++) {
-                                            for (var _env = 0; _env < docenvs.length; _env++) {
-                                                if (orgTree[_i]['name'] == docenvs[_env]['orgname']) {
-                                                    orgTree[_i]['environments'].push(docenvs[_env]['environmentname']);
-                                                }
-                                            }
-                                            if (_i >= orgTree.length - 1) {
-                                                res.send(orgTree);
-                                                logger.debug("Exit get() for /organizations/getTree");
-                                                return;
-                                            }
-                                        }
-                                    });
-
-                                }
-                                counter++;
-                            });
-
-                        }
-
-                    }
-
-                }
-            });
-        });
-    });
-
-    app.get('/organizations/getTreeOld', function(req, res) {
-        logger.debug("Enter get() for /organizations/getTreeOld");
-        masterjsonDao.getMasterJson("1", function(err, orgsJson) {
-            if (err) {
-                res.send(500);
-                return;
-            }
-            var orgTree = [];
-
-            if (orgsJson.masterjson && orgsJson.masterjson.rows && orgsJson.masterjson.rows.row) {
-                for (var i = 0; i < orgsJson.masterjson.rows.row.length; i++) {
-                    for (var j = 0; j < orgsJson.masterjson.rows.row[i].field.length; j++) {
-                        if (orgsJson.masterjson.rows.row[i].field[j].name = "orgname") {
-                            orgTree.push({
-                                name: orgsJson.masterjson.rows.row[i].field[j].values.value,
-                                businessGroups: [],
-                                environments: []
-                            });
-                            break;
-                        }
-                    }
-                }
-
-                masterjsonDao.getMasterJson("2", function(err, buJson) {
-                    if (err) {
-                        res.send(500);
-                        return;
-                    }
-                    if (buJson.masterjson && buJson.masterjson.rows && buJson.masterjson.rows.row) {
-                        for (var i = 0; i < orgTree.length; i++) {
-                            for (var j = 0; j < buJson.masterjson.rows.row.length; j++) {
-                                var isFilterdRow = false;
-                                var orgname = '';
-                                for (var k = 0; k < buJson.masterjson.rows.row[j].field.length; k++) {
-                                    if (buJson.masterjson.rows.row[j].field[k].name == "orgname") {
-                                        if (orgTree[i].name == buJson.masterjson.rows.row[j].field[k].values.value) {
-                                            isFilterdRow = true;
-                                            break;
-                                        }
-                                    }
-                                }
-                                if (isFilterdRow) {
-                                    for (var k = 0; k < buJson.masterjson.rows.row[j].field.length; k++) {
-                                        if (buJson.masterjson.rows.row[j].field[k].name == "productgroupname") {
-                                            orgTree[i].businessGroups.push({
-                                                name: buJson.masterjson.rows.row[j].field[k].values.value,
-                                                projects: []
-                                            });
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        //getting projects
-                        masterjsonDao.getMasterJson("4", function(err, buJson) {
-                            if (err) {
-                                res.send(500);
-                                return;
-                            }
-                            if (buJson.masterjson && buJson.masterjson.rows && buJson.masterjson.rows.row) {
-                                for (var i = 0; i < orgTree.length; i++) {
-                                    if (orgTree[i].businessGroups.length) {
-                                        var businessGroups = orgTree[i].businessGroups;
-                                        for (var j = 0; j < businessGroups.length; j++) {
-                                            for (var k = 0; k < buJson.masterjson.rows.row.length; k++) {
-                                                var isFilterdRow = false;
-                                                for (var l = 0; l < buJson.masterjson.rows.row[k].field.length; l++) {
-                                                    if (buJson.masterjson.rows.row[k].field[l].name == "productgroupname") {
-                                                        if (businessGroups[j].name == buJson.masterjson.rows.row[k].field[l].values.value) {
-                                                            isFilterdRow = true;
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-                                                if (isFilterdRow) {
-                                                    for (var l = 0; l < buJson.masterjson.rows.row[k].field.length; l++) {
-                                                        if (buJson.masterjson.rows.row[k].field[l].name == "projectname") {
-                                                            businessGroups[j].projects.push(buJson.masterjson.rows.row[k].field[l].values.value);
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-                                            }
-
-                                        }
-                                    }
-
-                                }
-                                //getting environments
-                                masterjsonDao.getMasterJson("3", function(err, buJson) {
-                                    if (err) {
-                                        res.send(500);
-                                        return;
-                                    }
-                                    if (buJson.masterjson && buJson.masterjson.rows && buJson.masterjson.rows.row) {
-                                        for (var i = 0; i < orgTree.length; i++) {
-                                            for (var j = 0; j < buJson.masterjson.rows.row.length; j++) {
-                                                var isFilterdRow = false;
-                                                var orgname = '';
-                                                for (var k = 0; k < buJson.masterjson.rows.row[j].field.length; k++) {
-                                                    if (buJson.masterjson.rows.row[j].field[k].name == "orgname") {
-                                                        if (orgTree[i].name == buJson.masterjson.rows.row[j].field[k].values.value) {
-                                                            isFilterdRow = true;
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-                                                if (isFilterdRow) {
-                                                    for (var k = 0; k < buJson.masterjson.rows.row[j].field.length; k++) {
-                                                        if (buJson.masterjson.rows.row[j].field[k].name == "environmentname") {
-                                                            orgTree[i].environments.push(buJson.masterjson.rows.row[j].field[k].values.value);
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    res.send(orgTree);
-                                });
-
-                            }
-
-                        });
-                    }
-                });
-
-            } else {
-                res.send(orgTree);
-            }
-            logger.debug("Exit get() for /organizations/getTreeOld");
-        });
-
-    });
-
-
     app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/blueprints', function(req, res) {
         logger.debug("Enter get() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s/blueprints", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
         //getting the list of projects and confirming if user has permission on project
@@ -665,6 +436,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
         var category = 'blueprints';
         var permissionto = 'create';
         var domainNameCheck = false;
+        var manualExecutionTime = 10;
         var orgId = req.params.orgId;
         var bgId = req.params.bgId;
         var projectId = req.params.projectId;
@@ -681,7 +453,11 @@ module.exports.setRoutes = function(app, sessionVerification) {
         var blueprintId = req.body.blueprintData.blueprintId;
         var shortDesc = req.body.blueprintData.shortDesc;
         var botType = req.body.blueprintData.botType;
+        var botCategory = req.body.blueprintData.botCategory;
         var serviceDeliveryCheck = req.body.blueprintData.serviceDeliveryCheck;
+        if(req.body.blueprintData.manualExecutionTime && req.body.blueprintData.manualExecutionTime !== null){
+            manualExecutionTime = req.body.blueprintData.manualExecutionTime;
+        }
         if(req.body.blueprintData.domainNameCheck === 'true'){
             domainNameCheck = true;
         }
@@ -730,8 +506,10 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 docker: docker,
                 shortDesc:shortDesc,
                 botType:botType,
+                botCategory:botCategory,
                 serviceDeliveryCheck:serviceDeliveryCheck,
-                domainNameCheck:domainNameCheck
+                domainNameCheck:domainNameCheck,
+                manualExecutionTime:manualExecutionTime
             };
             //adding bluerpintID if present (edit mode)
             if (blueprintId)
@@ -889,7 +667,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
             //  });
             //  return;
             // }
-            Blueprints.createNew(blueprintData, function(err, data) {
+            Blueprints.createNew(blueprintData, function(err, bluePrintData) {
                 if (err) {
                     logger.error('error occured while saving blueorint', err);
                     res.status(500).send({
@@ -897,7 +675,26 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     });
                     return;
                 }
-
+                if(bluePrintData.serviceDeliveryCheck === true){
+                    masterUtil.getParticularProject(projectId, function(err, project) {
+                        if (err) {
+                            logger.error(err);
+                        } else if (project.length > 0) {
+                            bluePrintData.orgName = project[0].orgname;
+                            bluePrintData.bgName = project[0].productgroupname;
+                            bluePrintData.projectName = project[0].projectname;
+                            botsService.createOrUpdateBots(bluePrintData, 'Blueprint', blueprintType, function (err, botsData) {
+                                if(err) {
+                                    logger.error("Error in creating bots entry. " + err);
+                                }else{
+                                    logger.debug("Successfully added data for Bots.")
+                                }
+                            });
+                        } else {
+                            logger.debug("Unable to find Project Information from project id:");
+                        }
+                    });
+                }
                 res.send(data);
             });
 
@@ -1204,6 +1001,18 @@ module.exports.setRoutes = function(app, sessionVerification) {
             taskData.orgName = project[0].orgname;
             taskData.bgName = project[0].productgroupname;
             taskData.projectName = project[0].projectname;
+            if(taskData.taskScheduler  && taskData.taskScheduler !== null && Object.keys(taskData.taskScheduler).length !== 0) {
+                taskData.taskScheduler = apiUtil.createCronJobPattern(taskData.taskScheduler);
+                taskData.isTaskScheduled = true;
+            }
+            if(taskData.taskType === 'jenkins'){
+                taskData.executionOrder= 'PARALLEL';
+            }
+            if(taskData.manualExecutionTime && taskData.manualExecutionTime !== null){
+                taskData.manualExecutionTime = parseInt(taskData.manualExecutionTime);
+            }else{
+                taskData.manualExecutionTime = 10;
+            }
             configmgmtDao.getEnvNameFromEnvId(req.params.envId, function(err, envName) {
                 if (err) {
                     res.status(500).send("Failed to fetch ENV: ", err);
@@ -1224,6 +1033,20 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                     res.status(500).send("Failed to create task: ", err);
                                     return;
                                 }
+                                if(task.isTaskScheduled === true){
+                                    if(task.executionOrder === 'PARALLEL'){
+                                        catalystSync.executeParallelScheduledTasks();
+                                    }else{
+                                        catalystSync.executeSerialScheduledTasks();
+                                    }
+                                };
+                                if(task.serviceDeliveryCheck === true){
+                                    botsService.createOrUpdateBots(task,'Task',task.taskType,function(err,data){
+                                        if(err) {
+                                            logger.error("Error in creating bots entry." + err);
+                                        }
+                                    });
+                                }
                                 res.send(task);
                                 logger.debug("Exit post() for /organizations/%s/businessGroups/%s/projects/%s/environments/%s/tasks", req.params.orgId, req.params.bgId, req.params.projectId, req.params.environments);
                             });
@@ -1232,9 +1055,24 @@ module.exports.setRoutes = function(app, sessionVerification) {
                 }else {
                     Task.createNew(taskData, function (err, task) {
                         if (err) {
-                            logger.err(err);
+                            logger.error(err);
                             res.status(500).send("Failed to create task: ", err);
                             return;
+                        }
+                        if(task.isTaskScheduled === true){
+                            if(task.executionOrder === 'PARALLEL'){
+                                catalystSync.executeParallelScheduledTasks();
+                            }else{
+                                catalystSync.executeSerialScheduledTasks();
+                            }
+
+                        };
+                        if(task.serviceDeliveryCheck === true){
+                            botsService.createOrUpdateBots(task,'Task',task.taskType,function(err,data){
+                                if(err) {
+                                    logger.error("Error in creating bots entry." + err);
+                                }
+                            });
                         }
                         res.send(task);
                         logger.debug("Exit post() for /organizations/%s/businessGroups/%s/projects/%s/environments/%s/tasks", req.params.orgId, req.params.bgId, req.params.projectId, req.params.environments);
@@ -1250,19 +1088,22 @@ module.exports.setRoutes = function(app, sessionVerification) {
         var count = 0;
         var encryptedList = [];
         for(var i = 0; i < paramDetails.length; i++){
-            (function(param){
-                if(param.scriptParameters.length > 0){
+            (function(paramDetail){
+                if(paramDetail.scriptParameters.length > 0){
                     count++;
-                    for(var j = 0; j < param.scriptParameters.length; j++){
+                    for(var j = 0; j < paramDetail.scriptParameters.length; j++){
                         (function(scriptParameter){
-                            var encryptedText = cryptography.encryptText(scriptParameter, cryptoConfig.encryptionEncoding,
+                            var encryptedText = cryptography.encryptText(scriptParameter.paramVal, cryptoConfig.encryptionEncoding,
                                 cryptoConfig.decryptionEncoding);
-                            encryptedList.push(encryptedText);
-                            if(encryptedList.length === param.scriptParameters.length){
-                                param.scriptParameters = encryptedList;
+                            encryptedList.push({
+                                paramVal:encryptedText,
+                                paramDesc:scriptParameter.paramDesc
+                            });
+                            if(encryptedList.length === paramDetail.scriptParameters.length){
+                                paramDetail.scriptParameters = encryptedList;
                                 encryptedList = [];
                             }
-                        })(param.scriptParameters[j]);
+                        })(paramDetail.scriptParameters[j]);
                     }
                 }else{
                     count++;
@@ -1720,6 +1561,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                 if (!req.body.appUrls) {
                                                     req.body.appUrls = [];
                                                 }
+                                                monitorsModel.getById(req.body.monitorId, function (err, monitor) {
 
 
                                                 var appUrls = req.body.appUrls;
@@ -1741,9 +1583,10 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     instanceIP: req.body.fqdn,
                                                     instanceState: nodeAlive,
                                                     bootStrapStatus: 'waiting',
-                                                    tagServer: req.body.tagServer,
+                                                    tagServer: req.params.tagServer,
                                                     runlist: [],
                                                     appUrls: appUrls,
+                                                    monitor: monitor,
                                                     users: [req.session.user.cn], //need to change this
                                                     catUser: req.session.user.cn,
                                                     hardware: {
@@ -1792,7 +1635,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                         log: "Bootstrapping instance",
                                                         timestamp: timestampStarded
                                                     });
-
                                                     var instanceLog = {
                                                         actionId: actionLog._id,
                                                         instanceId: instance.id,
@@ -1872,6 +1714,18 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                                 environment: envName,
                                                                 instanceOS: instance.hardware.os
                                                             };
+                                                            if (instance.monitor && instance.monitor.parameters.transportProtocol === 'rabbitmq') {
+                                                                            var sensuCookBook = 'recipe[sensu-client]';
+                                                                            var runlist = [];
+                                                                            var jsonAttributes = {};                                                                            
+
+                                                                            runlist.push(sensuCookBook);
+                                                                            jsonAttributes['sensu-client'] = masterUtil.getSensuCookbookAttributes(instance.monitor,instance.id);
+
+                                                                            bootstarpOption['runlist'] = runlist;
+                                                                            bootstarpOption['jsonAttributes'] = jsonAttributes;
+
+                                                                        }
                                                             deleteOptions = {
                                                                 privateKey: decryptedCredentials.pemFileLocation,
                                                                 username: decryptedCredentials.username,
@@ -2224,6 +2078,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                                     res.send(instance);
                                                     logger.debug("Exit post() for /organizations/%s/businessgroups/%s/projects/%s/environments/%s/addInstance", req.params.orgId, req.params.bgId, req.params.projectId, req.params.envId);
                                                 });
+                                            });
                                             });
                                         } else {
                                             res.status(400).send({

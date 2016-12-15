@@ -36,6 +36,7 @@ function routeConfig($stateProvider, $urlRouterProvider, $httpProvider, modulePe
 		url: "/workzone",
 		templateUrl: "src/partials/sections/dashboard/workzone/workzone.html",
 		controller: "workzoneCtrl",
+		params:{filterView:{workzone:true}},
 		onEnter: function () {
 		},
 		onExit: function () {
@@ -56,7 +57,8 @@ function routeConfig($stateProvider, $urlRouterProvider, $httpProvider, modulePe
 	}).state('dashboard.design', {
 		url: "/design",
 		templateUrl: "src/partials/sections/dashboard/design/design.html",
-		controller: "designCtrl",
+		controller: "designCtrl as desCtrl",
+		params:{filterView:{design:true}},
 		resolve: {
 			auth: ["$q", function ($q) {
 				var deferred = $q.defer();
@@ -74,6 +76,7 @@ function routeConfig($stateProvider, $urlRouterProvider, $httpProvider, modulePe
 		url: "/analytics/",
 		templateUrl: "src/partials/sections/dashboard/analytics/analytics.html",
 		controller: "analyticsCtrl as analytic",
+		params:{filterView:{analytics:true}},
 		resolve: {
 			auth: ["$q", function ($q) {
 				var deferred = $q.defer();
@@ -92,6 +95,7 @@ function routeConfig($stateProvider, $urlRouterProvider, $httpProvider, modulePe
 		url: "/bots",
 		templateUrl: "src/partials/sections/dashboard/bots/bots.html",
 		controller: "botsCtrl as bts",
+		params:{filterView:{bots:true}},
 		resolve: {
 			auth: ["$q", function ($q) {
 				var deferred = $q.defer();

@@ -279,7 +279,7 @@
 <!--Popup for selecting a cloud provider before proceeding-->
 <script type="text/javascript" src="js/jquery.form.js"></script>
 <script>
-
+    
     var UtilityMethods = {
         initTooltip: function() {
             var $tool = $("[rel=tooltip]");
@@ -478,7 +478,6 @@
                     str = str + '<option value="' + val[i].KeyName + '">' + val[i].KeyName + '</option>';
                 }
                 $region.parents('.addNewRegion').find('select.keyvalue').html(str).val('').select2().each(function() {
-                    console.log($(this).attr('answer'));
                     $(this).attr('answer') ? $(this).val($(this).attr('answer')).select2() : "";
                 });
                 $('#btnsubmit').removeAttr('disabled');
@@ -630,7 +629,7 @@
             $('.aws-secret-info').hide();
             $('.secretInfo').removeAttr('cat-validation');
         }
-
+        
         var parentList = $('.addNewRegion');
         $('select.region').on('change', checkForKeyPair);
         for (var i = 0; i < data.keyPairs.length; i++) {
@@ -716,7 +715,7 @@
             beforeSubmit: function(arr, $form, options) {
                 if (location.toString().indexOf('?new') === -1) {
                     var orgValue = $('#orgId').val();
-                    arr.push({name:'orgId',value:orgValue,type:'select-one',required:false})
+                    arr.push({name:'orgId',value:orgValue,type:'select-one',required:false});
                 }
                 if (location.toString().indexOf('?new') === -1 && $('#providertype').val() == 'AZURE') {
                     var azureSubscriptionId = $('#azureSubscriptionId').val();
@@ -743,7 +742,6 @@
                         return false;
                 } else {
                     if (isFormValid()) {
-                        console.log(arr);
                         appendLoader();
                         return true;
                     } else {

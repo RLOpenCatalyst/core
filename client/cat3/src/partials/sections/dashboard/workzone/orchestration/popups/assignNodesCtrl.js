@@ -16,7 +16,7 @@
 			$scope.scriptTypeSelelct = items.taskConfig.scriptTypeName;
 			$scope.scriptCollection = [];
 			$scope.taskCollection = [];
-			if(items.taskConfig.taskType == 'composite') {
+			if(items.taskConfig.taskType === 'composite') {
 				workzoneServices.getEnvironmentTaskList().then(function (response) {
 					if (response.data) {
 						$scope.taskDetails = response.data;
@@ -30,7 +30,7 @@
 					}
 				});
 			}
-			if(items.taskConfig.taskType == 'script') {
+			if(items.taskConfig.taskType === 'script') {
 				workzoneServices.getScriptList($scope.scriptTypeSelelct).then(function (response) {
 					if (response.data) {
 						$scope.scriptDetails = response.data;

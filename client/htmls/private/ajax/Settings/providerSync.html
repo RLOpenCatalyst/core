@@ -524,14 +524,14 @@
                     <h4 class="modal-title">Import Instance</h4>
                 </div>
                 <div class="modal-body modalbody-height">
-                    <div class="col-lg-6 marginSpaceTop">
+                    <div class="col-lg-6">
                         <label for="exampleInputEmail1">Organization</label>
                         <div class="input-groups">
                             <select id="providerSyncOrgSelect"  class="width-100 form-control" disabled>
                             </select>
                         </div>
                     </div>
-                    <div class="col-lg-6 marginSpaceTop">
+                    <div class="col-lg-6">
                         <label for="exampleInputEmail1">Business Groups<span class="control-label redSpan">&nbsp;*</span></label>
                         <div class="input-groups">
                             <select id="providerSyncBgSelect"  class="width-100 form-control" cdata="catalyst" cat-validation="required" autofocus>
@@ -595,6 +595,11 @@
                                 </label>
                             </div>
                         </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 margintop15">
+                        <label for="">Monitoring:</label>
+                        <select id="monitorId" unique="true" name="monitorId" class="form-control width-100" style="vertical-align: central" cdata="catalyst" skiprowid="yes">
+                        </select>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -713,6 +718,16 @@
             return;
         }
 
+        function getMonitorValues(){
+            var orgValue = $('select#providerSyncOrgSelect').val();
+            $.get('../monitors?filterBy=orgId:' + orgValue,function(data){
+                var str = ' <option value="null">None</option>';
+                for(var i=0;i<data.length;i++){
+                    str = str + '<option value="'+data[i]._id+'">'+data[i].name+'</option>';
+                }
+                $('#monitorId').html(str);
+            });
+        }
 
         $('#assignedS3ListTable').DataTable( {
             "processing": true,
@@ -871,7 +886,7 @@
             "destroy":true,
             "ajax": '/resources?filterBy=providerId:'+ urlproviderId +'+resourceType:RDS+category:assigned',
             "columns": [
-                {"data": "resourceDetails.dbName",  "orderable" : true},
+                {"data": "resourceDetails.dbInstanceIdentifier",  "orderable" : true},
                 {"data": "resourceDetails.dbEngine","orderable" : true  },
                 {"data": "resourceDetails.dbInstanceStatus","orderable" : true  },
                 {"data": "masterDetails.orgName","orderable" : true,
@@ -1573,6 +1588,7 @@
                     bootbox.alert('Please Choose instances first');
                     return;
                 }
+                getMonitorValues();
                 $('#providerSyncModal').modal('show');
                 $('#myForm12').trigger("reset");
                 $envList.empty();
@@ -1825,7 +1841,7 @@
                     $( row ).attr({"resourceId" : data._id,"resourceType":data.resourceType,"bgTagsMapName" : envProjectMappingObject.bgName, "projectTagsMapName" : envProjectMappingObject.project, "envTagsMapName" : envProjectMappingObject.environment})
                 },
                 "columns": [
-                    {"data": "resourceDetails.dbName",  "orderable" : true},
+                    {"data": "resourceDetails.dbInstanceIdentifier",  "orderable" : true},
                     {"data": "resourceDetails.dbEngine","orderable" : true  },
                     {"data": "resourceDetails.region","orderable" : false  },
                     {"data": "" ,"orderable" : false,
@@ -1860,7 +1876,7 @@
                     },
                     {"data": "","orderable" : false,
                         "render":function(data,type,full,meta){
-                            if(full.resourceDetails.dbName){
+                            if(full.resourceDetails.dbInstanceIdentifier){
                                 return '<input class="nodeCheckBox" type="checkbox" val=""/>';
                             }else{
                                 return '';
@@ -2200,6 +2216,7 @@
             reqBody.bgName = $bgList.find('option:selected').text();
             reqBody.projectName = $projectList.find('option:selected').text();
             reqBody.environmentName = $envList.find('option:selected').text();
+            reqBody.monitorId = $('select#monitorId').val();
             //End By Durgesh
             reqBody.configManagmentId = $infraManagerList.val();
 

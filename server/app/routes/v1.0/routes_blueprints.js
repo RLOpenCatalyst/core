@@ -1,78 +1,61 @@
 /*
-Copyright [2016] [Relevance Lab]
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Copyright [2016] [Relevance Lab]
+ 
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+ 
+ http://www.apache.org/licenses/LICENSE-2.0
+ 
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 
 
 // This file act as a Controller which contains blueprint related all end points.
 var Blueprints = require('_pr/model/blueprint');
-
-var instancesDao = require('_pr/model/classes/instance/instance');
-var EC2 = require('_pr/lib/ec2.js');
-var Chef = require('_pr/lib/chef.js');
-var logsDao = require('_pr/model/dao/logsdao.js');
-var Docker = require('_pr/model/docker.js');
-var configmgmtDao = require('_pr/model/d4dmasters/configmgmt');
 var usersDao = require('_pr/model/users.js');
-var appConfig = require('_pr/config');
-var Cryptography = require('_pr/lib/utils/cryptography');
-var fileIo = require('_pr/lib/utils/fileio');
 var uuid = require('node-uuid');
 var logger = require('_pr/logger')(module);
-var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js');
-var VMImage = require('_pr/model/classes/masters/vmImage.js');
-var currentDirectory = __dirname;
-var AWSKeyPair = require('_pr/model/classes/masters/cloudprovider/keyPair.js');
 var credentialcryptography = require('_pr/lib/credentialcryptography');
-var CloudFormation = require('_pr/model/cloud-formation');
-var AWSCloudFormation = require('_pr/lib/awsCloudFormation.js');
-var errorResponses = require('./error_responses');
-var Openstack = require('_pr/lib/openstack');
-var openstackProvider = require('_pr/model/classes/masters/cloudprovider/openstackCloudProvider.js');
-var Hppubliccloud = require('_pr/lib/hppubliccloud.js');
-var hppubliccloudProvider = require('_pr/model/classes/masters/cloudprovider/hppublicCloudProvider.js');
-var AzureCloud = require('_pr/lib/azure.js');
-var azureProvider = require('_pr/model/classes/masters/cloudprovider/azureCloudProvider.js');
-var VmwareCloud = require('_pr/lib/vmware.js');
-var vmwareProvider = require('_pr/model/classes/masters/cloudprovider/vmwareCloudProvider.js');
-var AwsAutoScaleInstance = require('_pr/model/aws-auto-scale-instance');
-var ARM = require('_pr/lib/azure-arm.js');
 var fs = require('fs');
-var AzureARM = require('_pr/model/azure-arm');
 var blueprintService = require('_pr/services/blueprintService.js');
+var auditTrailService = require('_pr/services/auditTrailService');
+var bots = require('_pr/model/bots/bots.js');
+var botsService = require('_pr/services/botsService.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	app.all('/blueprints/*', sessionVerificationFunc);
 
-	app.get('/blueprints/serviceDelivery', function(req, res) {
-		var serviceDeliveryCheck = false;
-		if(req.query.serviceDeliveryCheck &&
-			(req.query.serviceDeliveryCheck === 'true' || req.query.serviceDeliveryCheck === true)) {
-			serviceDeliveryCheck = true;
+	app.get('/blueprints', function(req, res) {
+		var queryObj = {
+			serviceDeliveryCheck : req.query.serviceDeliveryCheck === "true" ? true:false,
+			actionStatus:req.query.actionStatus
 		}
-
-		Blueprints.getBlueprintsServiceDeliveryCheck(serviceDeliveryCheck, function(err, blueprints) {
+		blueprintService.getAllServiceDeliveryBlueprint(queryObj, function(err,data){
 			if (err) {
-				res.status(500).send({
-					code: 500,
-					errMessage: "Blueprints fetch failed."
-				});
+				return res.status(500).send(err);
+			} else {
+				return res.status(200).send(data);
+			}
+		})
+	});
+	app.delete('/blueprints/serviceDelivery/:blueprintId', function(req, res) {
+		blueprintService.deleteServiceDeliveryBlueprint(req.params.blueprintId, function(err, data) {
+			if (err) {
+				logger.error("Failed to delete ", err);
+				res.send(500, errorResponses.db.error);
 				return;
 			}
-			res.status(200).send(blueprints);
+			res.send(200, {
+				message: "deleted"
+			});
 		});
 	});
+
 
 	// This post() Not in use
 	app.post('/blueprints', function(req, res) {
@@ -248,6 +231,24 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 					res.send(500, errorResponses.db.error);
 					return;
 				}
+				if(blueprintUpdateData.serviceDeliveryCheck === true){
+					Blueprints.getById(req.params.blueprintId, function(err, blueprintData) {
+						if (err) {
+							logger.error("Failed to get blueprint ", err);
+							return;
+						} else {
+							botsService.createNew(blueprintData, 'Blueprint', blueprintUpdateData.blueprintType, 'edit', function (err, data) {
+								logger.error("Error in creating bots entry." + err);
+							});
+						}
+					});
+				}else{
+					botsService.removeSoftBotsById(req.params.blueprintId, function (err, data) {
+						if (err) {
+							logger.error("Error in updating bots entry." + err);
+						}
+					});
+				}
 				var latestVersionData = updatedBlueprint.getLatestVersion();
 				if (latestVersionData) {
 					res.send({
@@ -256,7 +257,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				} else {
 					res.send(200);
 				}
-
 
 			});
 		});
@@ -307,6 +307,16 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 				res.send(500, errorResponses.db.error);
 				return;
 			}
+			bots.removeBotsById(req.params.blueprintId,function(err,botsData){
+				if(err){
+					logger.error("Failed to delete Bots ", err);
+				}
+			});
+			auditTrailService.removeAuditTrailById(req.params.taskId,function(err,auditTrailData){
+				if(err){
+					logger.error("Failed to delete Audit Trail ", err);
+				}
+			});
 			res.send(200, {
 				message: "deleted"
 			});
@@ -366,183 +376,39 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		})
 	});
 
-
 	app.get('/blueprints/:blueprintId/launch', function(req, res) {
 		logger.debug("Enter /blueprints/%s/launch -- ", req.params.blueprintId);
-		//verifying if the user has permission
-		logger.debug('Verifying User permission set for execute.');
 		if (!req.query.envId) {
 			res.send(400, {
 				"message": "Invalid Environment Id"
 			});
 			return;
 		}
-		var user = req.session.user;
-		var category = 'blueprints';
-		var permissionto = 'execute';
-		usersDao.haspermission(user.cn, category, permissionto, null, req.session.user.permissionset, function(err, data) {
-			if (!err) {
-				logger.debug('Returned from haspermission :  launch ' + data + ' , Condition State : ' + (data == false));
-				if (data == false) {
-					logger.debug('No permission to ' + permissionto + ' on ' + category);
-					res.send(401);
-					return;
-				} else {
-
-					Blueprints.getById(req.params.blueprintId, function(err, blueprint) {
-						if (err) {
-							logger.error('Failed to getBlueprint. Error = ', err);
-							res.send(500, errorResponses.db.error);
-							return;
-						}
-						if (!blueprint) {
-							res.send(404, {
-								message: "Blueprint Does Not Exist"
-							});
-							return;
-						}
-
-						var stackName = null;
-						var domainName = null;
-						if (blueprint.blueprintType === 'aws_cf' || blueprint.blueprintType === 'azure_arm') {
-							stackName = req.query.stackName;
-							if (!stackName) {
-								res.send(400, {
-									message: "Invalid stack name"
-								});
-								return;
-							}
-						}
-						if(blueprint.domainNameCheck === true) {
-							domainName = req.query.domainName;
-							if (!domainName) {
-								res.send(400, {
-									message: "Invalid domainName"
-								});
-								return;
-							}
-						}
-						blueprint.launch({
-							envId: req.query.envId,
-							ver: req.query.version,
-							stackName: stackName,
-							domainName:domainName,
-							sessionUser: req.session.user.cn
-						}, function(err, launchData) {
-							if (err) {
-								res.status(500).send({
-									message: "Server Behaved Unexpectedly"
-								});
-								return;
-							}
-							res.status(200).send(launchData)
-
-						});
-					});
-				}
-			} else {
-				logger.error("Hit and error in haspermission:", err);
-				res.send(500);
+		var reqBody = {
+			userName:req.session.user.cn,
+			category:"blueprints",
+			permissionTo:"execute",
+			permissionSet:req.session.user.permissionset,
+			envId:req.query.envId,
+			monitorId:req.query.monitorId,
+			domainName:req.query.domainName,
+			stackName:req.query.stackName,
+			version:req.query.version,
+			tagServer:req.query.tagServer
+		}
+		blueprintService.launch(req.params.blueprintId,reqBody,function(err,data){
+			if (err) {
+				res.status(500).send({
+					message: "Server Behaved Unexpectedly"
+				});
+				return;
+			}else{
+				res.status(200).send(data);
 				return;
 			}
-			return;
-
-		}); // end haspermission
+		});
 	});
-    app.get('/blueprints/:blueprintId/blueprintInfo', function(req, res) {
-        Blueprints.getBlueprintInfoById(req.params.blueprintId, function(err, blueprintInfo) {
-            if (err) {
-                res.status(500).send({
-                    code: 500,
-                    errMessage: "Blueprint Info fetch failed"
-                });
-                return;
-            }
-            res.status(200).send(blueprintInfo);
-        });
-
-    });
-    //  List blueprints w.r.t. org,bg and project
-    /**
-     * @api {get} /blueprints/organization/:orgId/businessgroup/:bgId/project/:projectId Request List of Blueprints
-     * @apiName GetBlueprints
-     * @apiGroup Blueprints
-     *
-     * @apiParam {string} orgId Organization unique ID.
-     * @apiParam {string} bgId BusinessGroup unique ID.
-     * @apiParam {string} projectId Project unique ID.
-     *
-     *
-     * @apiSuccessExample Success-Response:
-     *     HTTP/1.1 200 OK
-     *     [
-     {
-        "_id": "56fca48a350326691735057b",
-        "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
-        "bgId": "7e3500f1-58f9-43e2-b9eb-347b2e4d129d",
-        "projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
-        "name": "Gobinda_WRL",
-        "templateId": "ubuntu_new",
-        "templateType": "ami",
-        "blueprintConfig": {
-            "_id": "56fca48a350326691735057a",
-            "infraManagerData": {
-                "versionsList": [
-                    {
-                        "runlist": [],
-                        "_id": "56fca48a3503266917350579",
-                        "ver": "0.1"
-                    }
-                ],
-                "_id": "56fca48a3503266917350578",
-                "latestVersion": "0.1"
-            },
-            "infraManagerId": "965cdb20-0b8e-413b-bda6-3877a503549a",
-            "infraMangerType": "chef",
-            "cloudProviderData": {
-                "securityGroupIds": [
-                    "sg-eeff688b"
-                ],
-                "_id": "56fca48a3503266917350577",
-                "instanceCount": "1",
-                "instanceOS": "linux",
-                "imageId": "56fb5a7f9ee332570c311b63",
-                "subnetId": "subnet-d7df258e",
-                "vpcId": "vpc-bd815ad8",
-                "instanceUsername": "root",
-                "instanceAmiid": "ami-06116566",
-                "instanceType": "t2.micro",
-                "keyPairId": "56fb59bd9ee332570c311b31"
-            },
-            "cloudProviderId": "56fb59bd9ee332570c311b30",
-            "cloudProviderType": "aws"
-        },
-        "blueprintType": "instance_launch",
-        "__v": 0,
-        "users": [
-            "superadmin"
-        ],
-        "appUrls": []
-    }
-     ]
-     *
-     * @apiError Either orgId or bgId or projectId missing.
-     * @apiError Blueprint fetch failed.
-     *
-     * @apiErrorExample Error-Response:
-     *     HTTP/1.1 400 Bad Request
-     *     {
-         *       "error": "Either orgId or bgId or projectId missing."
-         *     }
-     * @apiErrorExample Error-Response:
-     *     HTTP/1.1 500 Internal Server Error
-     *     {
-         *       "error": "Blueprint fetch failed."
-         *     }
-     **/
-
-
-    app.get('/blueprints/organization/:orgId/businessgroup/:bgId/project/:projectId', function(req, res) {
+    app.get('/blueprints/organization/:orgId/businessgroup/:bgId/project/:projectId', function (req, res) {
         var orgId = req.params.orgId;
         var bgId = req.params.bgId;
         var projectId = req.params.projectId;
@@ -557,7 +423,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         jsonData['bgId'] = bgId;
         jsonData['projectId'] = projectId;
 
-        Blueprints.getBlueprintsByOrgBgProject(jsonData, function(err, blueprints) {
+        Blueprints.getBlueprintsByOrgBgProject(jsonData, function (err, blueprints) {
             if (err) {
                 res.status(500).send({
                     code: 500,

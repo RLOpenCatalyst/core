@@ -1,12 +1,12 @@
 /*
  Copyright [2016] [Relevance Lab]
-
+ 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
-
+ 
  http://www.apache.org/licenses/LICENSE-2.0
-
+ 
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,17 +25,18 @@ var permissionsetDao = require('../../model/dao/permissionsetsdao');
 var d4dModel = require('../../model/d4dmasters/d4dmastersmodel.js');
 var configmgmtDao = require('../../model/d4dmasters/configmgmt.js');
 var appConfig = require('_pr/config');
+var Cryptography = require('../utils/cryptography');
 var chefSettings = appConfig.chef;
 var AppDeploy = require('_pr/model/app-deploy/app-deploy');
 var async = require('async');
 
-var MasterUtil = function() {
+var MasterUtil = function () {
     // Return All Orgs specific to User
-    this.getOrgs = function(loggedInUser, callback) {
+    this.getOrgs = function (loggedInUser, callback) {
         var orgList = [];
         d4dModelNew.d4dModelMastersUsers.find({
             loginname: loggedInUser
-        }, function(err, users) {
+        }, function (err, users) {
             if (err) {
                 logger.debug("Unable to fetch User.");
                 callback(err, null);
@@ -46,7 +47,7 @@ var MasterUtil = function() {
                 var usrCount = 0;
                 var errOccured = false;
                 for (var x = 0; x < users.length; x++) {
-                    (function(countUser) {
+                    (function (countUser) {
                         if (users[countUser].id === '7') {
                             usrCount++;
                             var orgIds = users[countUser].orgname_rowid;
@@ -55,7 +56,7 @@ var MasterUtil = function() {
                                 d4dModelNew.d4dModelMastersOrg.find({
                                     id: "1",
                                     active: true
-                                }, function(err, orgs) {
+                                }, function (err, orgs) {
                                     count++;
                                     if (err) {
                                         logger.debug("Unable to fetch Org.", err);
@@ -64,7 +65,7 @@ var MasterUtil = function() {
                                     }
                                     if (orgs) {
                                         for (var y = 0; y < orgs.length; y++) {
-                                            (function(countOrg) {
+                                            (function (countOrg) {
                                                 if (orgs[countOrg].id === '1') {
                                                     logger.debug("Able to get Org.", JSON.stringify(orgs[countOrg]));
                                                     orgList.push(orgs[countOrg]);
@@ -88,7 +89,7 @@ var MasterUtil = function() {
                                         $in: orgIds
                                     },
                                     active: true
-                                }, function(err, orgs) {
+                                }, function (err, orgs) {
                                     count++;
                                     if (err) {
                                         logger.debug("Unable to fetch Org.", err);
@@ -97,7 +98,7 @@ var MasterUtil = function() {
                                     }
                                     if (orgs) {
                                         for (var y = 0; y < orgs.length; y++) {
-                                            (function(countOrg) {
+                                            (function (countOrg) {
                                                 if (orgs[countOrg].id === '1') {
                                                     logger.debug("Able to get Org.", JSON.stringify(orgs[countOrg]));
                                                     orgList.push(orgs[countOrg]);
@@ -122,7 +123,7 @@ var MasterUtil = function() {
     }
 
     // Return all BusinessGroups specific to User
-    this.getBusinessGroups = function(orgList, callback) {
+    this.getBusinessGroups = function (orgList, callback) {
 
         var productGroupList = [];
         var rowIds = [];
@@ -134,14 +135,14 @@ var MasterUtil = function() {
             orgname_rowid: {
                 $in: rowIds
             }
-        }, function(err, bgs) {
+        }, function (err, bgs) {
             if (err) {
                 callback(err, null);
             }
             if (bgs) {
-                configmgmtDao.getRowids(function(err, rowidlist) {
+                configmgmtDao.getRowids(function (err, rowidlist) {
                     for (var i = 0; i < bgs.length; i++) {
-                        (function(bgCount) {
+                        (function (bgCount) {
                             if (bgs[bgCount].id === '2') {
                                 logger.debug("Returned BG: ", JSON.stringify(bgs[bgCount]));
                                 names = configmgmtDao.convertRowIDToValue(bgs[bgCount].orgname_rowid, rowidlist)
@@ -161,13 +162,13 @@ var MasterUtil = function() {
         });
     }
 
-    this.getBusinessGroupsByOrgId = function(orgId, callback) {
+    this.getBusinessGroupsByOrgId = function (orgId, callback) {
         d4dModelNew.d4dModelMastersProductGroup.find({
             orgname_rowid: orgId,
-            id:'2'
-        }, function(err, productGroupData) {
-            if(err) {
-                logger.debug("getBusinessGroupsByOrgId: "+err);
+            id: '2'
+        }, function (err, productGroupData) {
+            if (err) {
+                logger.debug("getBusinessGroupsByOrgId: " + err);
                 callback(err, null);
             }
             callback(null, productGroupData);
@@ -175,13 +176,13 @@ var MasterUtil = function() {
         });
     };
 
-    this.getProjectsBybgId = function(bgId, callback) {
+    this.getProjectsBybgId = function (bgId, callback) {
         d4dModelNew.d4dModelMastersProjects.find({
             productgroupname_rowid: bgId,
-            id:'4'
-        }, function(err, projectData) {
-            if(err) {
-                logger.debug("getProjectsBybgId: "+err);
+            id: '4'
+        }, function (err, projectData) {
+            if (err) {
+                logger.debug("getProjectsBybgId: " + err);
                 callback(err, null);
             }
             callback(null, projectData);
@@ -189,13 +190,13 @@ var MasterUtil = function() {
         });
     };
 
-    this.getEnvironmentsByprojectId = function(projectId, callback) {
+    this.getEnvironmentsByprojectId = function (projectId, callback) {
         d4dModelNew.d4dModelMastersEnvironments.find({
             projectname_rowid: {$regex: projectId},
-            id:'3'
-        }, function(err, environmentData) {
-            if(err) {
-                logger.debug("getEnvironmentsByprojectId: "+err);
+            id: '3'
+        }, function (err, environmentData) {
+            if (err) {
+                logger.debug("getEnvironmentsByprojectId: " + err);
                 callback(err, null);
             }
             callback(null, environmentData);
@@ -204,7 +205,7 @@ var MasterUtil = function() {
     };
 
     // Return all Environments specific to User
-    this.getEnvironments = function(orgList, callback) {
+    this.getEnvironments = function (orgList, callback) {
         var envList = [];
         var rowIds = [];
         for (var x = 0; x < orgList.length; x++) {
@@ -215,14 +216,14 @@ var MasterUtil = function() {
             orgname_rowid: {
                 $in: rowIds
             }
-        }, function(err, envs) {
+        }, function (err, envs) {
             if (err) {
                 callback(err, null);
             }
             if (envs) {
-                configmgmtDao.getRowids(function(err, rowidlist) {
+                configmgmtDao.getRowids(function (err, rowidlist) {
                     for (var i = 0; i < envs.length; i++) {
-                        (function(envCount) {
+                        (function (envCount) {
                             if (envs[envCount].id === '3') {
                                 names = configmgmtDao.convertRowIDToValue(envs[envCount].orgname_rowid, rowidlist)
                                 envs[envCount].orgname = names;
@@ -244,7 +245,7 @@ var MasterUtil = function() {
     }
 
     // Return all Projects specific to User
-    this.getProjects = function(orgList, callback) {
+    this.getProjects = function (orgList, callback) {
         var projectList = [];
         var rowIds = [];
         for (var x = 0; x < orgList.length; x++) {
@@ -255,15 +256,15 @@ var MasterUtil = function() {
             orgname_rowid: {
                 $in: rowIds
             }
-        }, function(err, projects) {
+        }, function (err, projects) {
             if (err) {
                 callback(err, null);
             }
             if (projects) {
-                configmgmtDao.getRowids(function(err, rowidlist) {
+                configmgmtDao.getRowids(function (err, rowidlist) {
                     var allEnvs = '';
                     for (var i = 0; i < projects.length; i++) {
-                        (function(projectCount) {
+                        (function (projectCount) {
                             if (projects[projectCount].id === '4') {
                                 names = configmgmtDao.convertRowIDToValue(projects[projectCount].orgname_rowid, rowidlist);
                                 bgnames = configmgmtDao.convertRowIDToValue(projects[projectCount].productgroupname_rowid, rowidlist);
@@ -283,13 +284,13 @@ var MasterUtil = function() {
             }
         });
     }
-    this.getBusinessGroupsByOrgId = function(orgId, callback) {
+    this.getBusinessGroupsByOrgId = function (orgId, callback) {
         d4dModelNew.d4dModelMastersProductGroup.find({
             orgname_rowid: orgId,
-            id:'2'
-        }, function(err, productGroupData) {
-            if(err) {
-                logger.debug("getBusinessGroupsByOrgId: "+err);
+            id: '2'
+        }, function (err, productGroupData) {
+            if (err) {
+                logger.debug("getBusinessGroupsByOrgId: " + err);
                 callback(err, null);
             }
             callback(null, productGroupData);
@@ -297,13 +298,13 @@ var MasterUtil = function() {
         });
     };
 
-    this.getProjectsBybgId = function(bgId, callback) {
+    this.getProjectsBybgId = function (bgId, callback) {
         d4dModelNew.d4dModelMastersProjects.find({
             productgroupname_rowid: bgId,
-            id:'4'
-        }, function(err, projectData) {
-            if(err) {
-                logger.debug("getProjectsBybgId: "+err);
+            id: '4'
+        }, function (err, projectData) {
+            if (err) {
+                logger.debug("getProjectsBybgId: " + err);
                 callback(err, null);
             }
             callback(null, projectData);
@@ -312,7 +313,7 @@ var MasterUtil = function() {
     };
 
     // Return all ConfigManagement specific to User
-    this.getCongifMgmts = function(orgList, callback) {
+    this.getCongifMgmts = function (orgList, callback) {
         var congifMgmtList = [];
         var rowIds = [];
         for (var x = 0; x < orgList.length; x++) {
@@ -323,9 +324,9 @@ var MasterUtil = function() {
             orgname_rowid: {
                 $in: rowIds
             }
-        }, function(err, configMgmt) {
+        }, function (err, configMgmt) {
             if (configMgmt) {
-                configmgmtDao.getRowids(function(err, rowidlist) {
+                configmgmtDao.getRowids(function (err, rowidlist) {
                     for (var i = 0; i < configMgmt.length; i++) {
                         if (configMgmt[i].id === '10') {
                             names = configmgmtDao.convertRowIDToValue(configMgmt[i].orgname_rowid, rowidlist)
@@ -343,7 +344,7 @@ var MasterUtil = function() {
         });
     }
     // Return all Dockers
-    this.getDockers = function(orgList, callback) {
+    this.getDockers = function (orgList, callback) {
         var dockerList = [];
         var rowIds = [];
         for (var x = 0; x < orgList.length; x++) {
@@ -354,9 +355,9 @@ var MasterUtil = function() {
             orgname_rowid: {
                 $in: rowIds
             }
-        }, function(err, dockers) {
+        }, function (err, dockers) {
             if (dockers) {
-                configmgmtDao.getRowids(function(err, rowidlist) {
+                configmgmtDao.getRowids(function (err, rowidlist) {
                     for (var i = 0; i < dockers.length; i++) {
                         if (dockers[i].id === '18') {
                             names = configmgmtDao.convertRowIDToValue(dockers[i].orgname_rowid, rowidlist)
@@ -376,7 +377,7 @@ var MasterUtil = function() {
     }
 
     // Return all Templates
-    this.getTemplates = function(orgList, callback) {
+    this.getTemplates = function (orgList, callback) {
         var templateList = [];
         var rowIds = [];
         for (var x = 0; x < orgList.length; x++) {
@@ -387,12 +388,12 @@ var MasterUtil = function() {
             orgname_rowid: {
                 $in: rowIds
             }
-        }, function(err, templates) {
+        }, function (err, templates) {
             if (err) {
                 callback(err, null);
             }
             if (templates) {
-                configmgmtDao.getRowids(function(err, rowidlist) {
+                configmgmtDao.getRowids(function (err, rowidlist) {
                     for (var i = 0; i < templates.length; i++) {
                         if (templates[i].id === '17') {
                             names = configmgmtDao.convertRowIDToValue(templates[i].orgname_rowid, rowidlist)
@@ -412,7 +413,7 @@ var MasterUtil = function() {
     }
 
     // Return all TemplateTypes
-    this.getTemplateTypes = function(orgList, callback) {
+    this.getTemplateTypes = function (orgList, callback) {
         logger.debug("getTemplateTypes called. ", JSON.stringify(orgList));
         var templateTypeList = [];
         var rowIds = [];
@@ -424,12 +425,12 @@ var MasterUtil = function() {
             orgname_rowid: {
                 $in: rowIds
             }
-        }, function(err, templateTypes) {
+        }, function (err, templateTypes) {
             if (err) {
                 callback(err, null);
             }
             if (templateTypes) {
-                configmgmtDao.getRowids(function(err, rowidlist) {
+                configmgmtDao.getRowids(function (err, rowidlist) {
                     for (var i = 0; i < templateTypes.length; i++) {
                         if (templateTypes[i].id === '16') {
                             names = configmgmtDao.convertRowIDToValue(templateTypes[i].orgname_rowid, rowidlist)
@@ -449,7 +450,7 @@ var MasterUtil = function() {
     }
 
     // Return all ServiceCommands
-    this.getServiceCommands = function(orgList, callback) {
+    this.getServiceCommands = function (orgList, callback) {
         var serviceCommandList = [];
         var rowIds = [];
         for (var x = 0; x < orgList.length; x++) {
@@ -460,9 +461,9 @@ var MasterUtil = function() {
             orgname_rowid: {
                 $in: rowIds
             }
-        }, function(err, serviceCommands) {
+        }, function (err, serviceCommands) {
             if (serviceCommands) {
-                configmgmtDao.getRowids(function(err, rowidlist) {
+                configmgmtDao.getRowids(function (err, rowidlist) {
                     for (var i = 0; i < serviceCommands.length; i++) {
                         if (serviceCommands[i].id === '19') {
                             names = configmgmtDao.convertRowIDToValue(serviceCommands[i].orgname_rowid, rowidlist)
@@ -482,7 +483,7 @@ var MasterUtil = function() {
     }
 
     // Return all Jenkins
-    this.getJenkins = function(orgList, callback) {
+    this.getJenkins = function (orgList, callback) {
         var jenkinList = [];
         var rowIds = [];
         for (var x = 0; x < orgList.length; x++) {
@@ -493,9 +494,9 @@ var MasterUtil = function() {
             orgname_rowid: {
                 $in: rowIds
             }
-        }, function(err, jenkins) {
+        }, function (err, jenkins) {
             if (jenkins) {
-                configmgmtDao.getRowids(function(err, rowidlist) {
+                configmgmtDao.getRowids(function (err, rowidlist) {
                     for (var i = 0; i < jenkins.length; i++) {
                         if (jenkins[i].id === '20') {
                             names = configmgmtDao.convertRowIDToValue(jenkins[i].orgname_rowid, rowidlist)
@@ -515,11 +516,11 @@ var MasterUtil = function() {
     }
 
     // Return All Orgs specific to User
-    this.getActiveOrgs = function(loggedInUser, callback) {
+    this.getActiveOrgs = function (loggedInUser, callback) {
         var orgList = [];
         d4dModelNew.d4dModelMastersUsers.find({
             loginname: loggedInUser
-        }, function(err, users) {
+        }, function (err, users) {
             if (err) {
                 logger.debug("Unable to fetch User.");
                 callback(err, null);
@@ -530,7 +531,7 @@ var MasterUtil = function() {
                 var usrCount = 0;
                 var errOccured = false;
                 for (var x = 0; x < users.length; x++) {
-                    (function(countUser) {
+                    (function (countUser) {
                         if (users[countUser].id === '7') {
                             usrCount++;
                             var orgIds = users[countUser].orgname_rowid;
@@ -539,7 +540,7 @@ var MasterUtil = function() {
                                 d4dModelNew.d4dModelMastersOrg.find({
                                     id: "1",
                                     active: true
-                                }, function(err, orgs) {
+                                }, function (err, orgs) {
                                     count++;
                                     if (err) {
                                         logger.debug("Unable to fetch Org.", err);
@@ -548,7 +549,7 @@ var MasterUtil = function() {
                                     }
                                     if (orgs) {
                                         for (var y = 0; y < orgs.length; y++) {
-                                            (function(countOrg) {
+                                            (function (countOrg) {
                                                 if (orgs[countOrg].id === '1') {
                                                     logger.debug("Able to get Org.", JSON.stringify(orgs[countOrg]));
                                                     orgList.push(orgs[countOrg]);
@@ -572,7 +573,7 @@ var MasterUtil = function() {
                                         $in: orgIds
                                     },
                                     active: true
-                                }, function(err, orgs) {
+                                }, function (err, orgs) {
                                     count++;
                                     if (err) {
                                         logger.debug("Unable to fetch Org.", err);
@@ -581,7 +582,7 @@ var MasterUtil = function() {
                                     }
                                     if (orgs) {
                                         for (var y = 0; y < orgs.length; y++) {
-                                            (function(countOrg) {
+                                            (function (countOrg) {
                                                 if (orgs[countOrg].id === '1') {
                                                     logger.debug("Able to get Org.", JSON.stringify(orgs[countOrg]));
                                                     orgList.push(orgs[countOrg]);
@@ -605,12 +606,12 @@ var MasterUtil = function() {
         });
     }
 
-    this.getAllActiveOrg = function(callback) {
+    this.getAllActiveOrg = function (callback) {
         var orgList = [];
         d4dModelNew.d4dModelMastersOrg.find({
             id: "1",
             active: true
-        }, function(err, orgs) {
+        }, function (err, orgs) {
             if (err) {
                 callback(err, null);
             }
@@ -627,16 +628,16 @@ var MasterUtil = function() {
         });
     }
 
-    this.getUserRoles = function(callback) {
+    this.getUserRoles = function (callback) {
         var userRoleList = [];
         d4dModelNew.d4dModelMastersUserroles.find({
             id: "6"
-        }, function(err, userRoles) {
+        }, function (err, userRoles) {
             if (err) {
                 callback(err, null);
             }
             if (userRoles) {
-                configmgmtDao.getRowids(function(err, rowidlist) {
+                configmgmtDao.getRowids(function (err, rowidlist) {
                     for (var j1 = 0; j1 < userRoles.length; j1++) {
                         if (userRoles[j1].id === '6') {
                             names = configmgmtDao.convertRowIDToValue(userRoles[j1].orgname_rowid, rowidlist)
@@ -655,13 +656,13 @@ var MasterUtil = function() {
     }
 
     // Return all Users whose are associated to loggedIn User
-    this.getUsers = function(loggedInUser, callback) {
+    this.getUsers = function (loggedInUser, callback) {
         var userList = [];
         d4dModelNew.d4dModelMastersUsers.find({
             loginname: loggedInUser
-        }, function(err, users) {
+        }, function (err, users) {
             if (users) {
-                configmgmtDao.getRowids(function(err, rowidlist) {
+                configmgmtDao.getRowids(function (err, rowidlist) {
                     for (var i = 0; i < users.length; i++) {
                         if (users[i].id === '7') {
                             names = configmgmtDao.convertRowIDToValue(users[i].orgname_rowid, rowidlist)
@@ -681,7 +682,7 @@ var MasterUtil = function() {
     }
 
     // Return all Users whose are associated to loggedIn User
-    this.getUsersForOrg = function(orgList, callback) {
+    this.getUsersForOrg = function (orgList, callback) {
         var userList = [];
         var rowIds = [];
         for (var x = 0; x < orgList.length; x++) {
@@ -693,9 +694,9 @@ var MasterUtil = function() {
                 $in: rowIds
             },
             "id": "7"
-        }, function(err, users) {
+        }, function (err, users) {
             if (users) {
-                configmgmtDao.getRowids(function(err, rowidlist) {
+                configmgmtDao.getRowids(function (err, rowidlist) {
                     for (var i = 0; i < users.length; i++) {
                         if (users[i].id === '7') {
                             names = configmgmtDao.convertRowIDToValue(users[i].orgname_rowid, rowidlist)
@@ -715,7 +716,7 @@ var MasterUtil = function() {
     }
 
     // Return all Users whose are associated to loggedIn User
-    this.getUsersForOrgOrAll = function(orgList, callback) {
+    this.getUsersForOrgOrAll = function (orgList, callback) {
         var userList = [];
         var rowIds = [];
         for (var x = 0; x < orgList.length; x++) {
@@ -724,15 +725,15 @@ var MasterUtil = function() {
         logger.debug("org rowids: ", rowIds);
         d4dModelNew.d4dModelMastersUsers.find({
             $or: [{
-                orgname_rowid: {
-                    $in: rowIds
-                }
-            }, {
-                orgname_rowid: [""]
-            }]
-        }, function(err, users) {
+                    orgname_rowid: {
+                        $in: rowIds
+                    }
+                }, {
+                    orgname_rowid: [""]
+                }]
+        }, function (err, users) {
             if (users) {
-                configmgmtDao.getRowids(function(err, rowidlist) {
+                configmgmtDao.getRowids(function (err, rowidlist) {
                     for (var i = 0; i < users.length; i++) {
                         if (users[i].id === '7') {
                             names = configmgmtDao.convertRowIDToValue(users[i].orgname_rowid, rowidlist)
@@ -752,7 +753,7 @@ var MasterUtil = function() {
     }
 
 
-    this.getTeams = function(orgList, callback) {
+    this.getTeams = function (orgList, callback) {
         var teamList = [];
         var rowIds = [];
         for (var x = 0; x < orgList.length; x++) {
@@ -763,13 +764,13 @@ var MasterUtil = function() {
             orgname_rowid: {
                 $in: rowIds
             }
-        }, function(err, teams) {
+        }, function (err, teams) {
             if (err) {
                 callback(err, null);
             }
             logger.debug("Able to fetch Team: ", JSON.stringify(teams));
             if (teams) {
-                configmgmtDao.getRowids(function(err, rowidlist) {
+                configmgmtDao.getRowids(function (err, rowidlist) {
                     for (var i = 0; i < teams.length; i++) {
                         if (teams[i].id === '21') {
                             names = configmgmtDao.convertRowIDToValue(teams[i].orgname_rowid, rowidlist)
@@ -794,12 +795,12 @@ var MasterUtil = function() {
         });
     }
 
-    this.getOrgById = function(orgId, callback) {
+    this.getOrgById = function (orgId, callback) {
         var orgList = [];
         logger.debug("Incomming orgid: ", orgId);
         d4dModelNew.d4dModelMastersOrg.find({
             _id: new ObjectId(orgId)
-        }, function(err, orgs) {
+        }, function (err, orgs) {
             if (orgs) {
                 for (var i = 0; i < orgs.length; i++) {
                     if (orgs[i].id === '1') {
@@ -813,12 +814,12 @@ var MasterUtil = function() {
         });
     }
 
-    this.getOrgByRowId = function(orgId, callback) {
+    this.getOrgByRowId = function (orgId, callback) {
         var orgList = [];
         d4dModelNew.d4dModelMastersOrg.find({
             rowid: orgId,
-            id:'1'
-        }, function(err, orgs) {
+            id: '1'
+        }, function (err, orgs) {
             if (orgs) {
                 for (var i = 0; i < orgs.length; i++) {
                     if (orgs[i].id === '1') {
@@ -833,14 +834,14 @@ var MasterUtil = function() {
     }
 
     // Now not in use
-    getOrgsByRowIds = function(orgIds, callback) {
+    getOrgsByRowIds = function (orgIds, callback) {
         var orgList = [];
         logger.debug("Incomming orgid: ", orgIds);
         d4dModelNew.d4dModelMastersOrg.find({
             rowid: {
                 $in: orgIds
             }
-        }, function(err, orgs) {
+        }, function (err, orgs) {
             if (orgs) {
                 for (var i = 0; i < orgs.length; i++) {
                     if (orgs[i].id === '1') {
@@ -855,11 +856,11 @@ var MasterUtil = function() {
     }
 
     // Return only loggedIn User.
-    this.getLoggedInUser = function(loggedInUser, callback) {
+    this.getLoggedInUser = function (loggedInUser, callback) {
         var anUser;
         d4dModelNew.d4dModelMastersUsers.find({
             loginname: loggedInUser
-        }, function(err, users) {
+        }, function (err, users) {
             if (users) {
                 for (var i = 0; i < users.length; i++) {
                     if (users[i].id === '7') {
@@ -875,7 +876,7 @@ var MasterUtil = function() {
     }
 
     // Return all settings for User.
-    this.getAllSettingsForUser = function(loggedInUser, callback) {
+    this.getAllSettingsForUser = function (loggedInUser, callback) {
         var returnObj = [];
         var catObj = {};
         d4dModelNew.d4dModelMastersUsers.find({
@@ -905,13 +906,13 @@ var MasterUtil = function() {
                                 callback(err, null);
                                 return;
                             } else if (teams.length > 0) {
-                                var orgIdList = [],bgIdList=[],projectIdList=[];
+                                var orgIdList = [], bgIdList = [], projectIdList = [];
                                 for (var j = 0; j < teams.length; j++) {
                                     (function (team) {
                                         if (catObj.teams.indexOf(team.rowid) === -1) {
                                             catObj.teams.push(team.rowid);
                                             async.waterfall([
-                                                function(next){
+                                                function (next) {
                                                     d4dModelNew.d4dModelMastersOrg.find({
                                                         rowid: {
                                                             $in: team.orgname_rowid
@@ -922,27 +923,27 @@ var MasterUtil = function() {
                                                         if (err) {
                                                             callback(err, null);
                                                             return;
-                                                        }else if (orgs.length > 0) {
+                                                        } else if (orgs.length > 0) {
                                                             var orgCount = 0;
                                                             for (var k = 0; k < orgs.length; k++) {
-                                                                (function(org){
+                                                                (function (org) {
                                                                     orgCount++;
-                                                                    if(orgIdList.indexOf(org.rowid) === -1){
+                                                                    if (orgIdList.indexOf(org.rowid) === -1) {
                                                                         orgIdList.push(org.rowid);
                                                                     }
                                                                 })(orgs[k]);
-                                                                if(orgCount === orgs.length){
-                                                                    next(null,orgIdList);
+                                                                if (orgCount === orgs.length) {
+                                                                    next(null, orgIdList);
                                                                     return;
                                                                 }
                                                             }
-                                                        }else {
+                                                        } else {
                                                             next(null, orgIdList);
                                                             return;
                                                         }
                                                     });
                                                 },
-                                                function(orgIds,next) {
+                                                function (orgIds, next) {
                                                     catObj.orgs = orgIds;
                                                     async.parallel({
                                                         bgIds: function (callback) {
@@ -954,21 +955,21 @@ var MasterUtil = function() {
                                                             }, function (err, bgs) {
                                                                 if (err) {
                                                                     callback(err, null);
-                                                                }else if (bgs.length > 0) {
+                                                                } else if (bgs.length > 0) {
                                                                     var bgCount = 0;
                                                                     for (var l = 0; l < bgs.length; l++) {
-                                                                        (function(bg){
+                                                                        (function (bg) {
                                                                             bgCount++;
-                                                                            if(bgIdList.indexOf(bg.rowid) === -1){
+                                                                            if (bgIdList.indexOf(bg.rowid) === -1) {
                                                                                 bgIdList.push(bg.rowid);
                                                                             }
                                                                         })(bgs[l]);
-                                                                        if(bgCount === bgs.length){
-                                                                            callback(null,bgIdList);
+                                                                        if (bgCount === bgs.length) {
+                                                                            callback(null, bgIdList);
                                                                             return;
                                                                         }
                                                                     }
-                                                                }else {
+                                                                } else {
                                                                     callback(null, bgIdList);
                                                                     return;
                                                                 }
@@ -983,36 +984,36 @@ var MasterUtil = function() {
                                                             }, function (err, projects) {
                                                                 if (err) {
                                                                     callback(err, null);
-                                                                }else if (projects.length > 0) {
+                                                                } else if (projects.length > 0) {
                                                                     var projectCount = 0;
                                                                     for (var m = 0; m < projects.length; m++) {
-                                                                        (function(project){
+                                                                        (function (project) {
                                                                             projectCount++;
-                                                                            if(projectIdList.indexOf(project.rowid) === -1){
+                                                                            if (projectIdList.indexOf(project.rowid) === -1) {
                                                                                 projectIdList.push(project.rowid);
                                                                             }
                                                                         })(projects[m]);
-                                                                        if(projectCount === projects.length){
-                                                                            callback(null,projectIdList);
+                                                                        if (projectCount === projects.length) {
+                                                                            callback(null, projectIdList);
                                                                             return;
                                                                         }
                                                                     }
-                                                                }else {
+                                                                } else {
                                                                     callback(null, projectIdList);
                                                                     return;
                                                                 }
                                                             });
                                                         }
 
-                                                    },function(err,results){
+                                                    }, function (err, results) {
                                                         if (err) {
                                                             next(err, null);
                                                         }
                                                         catObj.projects = results.projectIds;
                                                         catObj.bunits = results.bgIds;
-                                                        next(null,catObj);
+                                                        next(null, catObj);
                                                     })
-                                                }],function (err, results) {
+                                                }], function (err, results) {
                                                 if (err) {
                                                     callback(err, null);
                                                 }
@@ -1044,14 +1045,14 @@ var MasterUtil = function() {
     };
 
     // check valid user permission
-    this.checkPermission = function(username, callback) {
+    this.checkPermission = function (username, callback) {
         logger.debug("User for permission: ", JSON.stringify(username));
-        this.getLoggedInUser(username, function(err, anUser) {
+        this.getLoggedInUser(username, function (err, anUser) {
             if (err) {
                 callback(err, null);
             }
             if (anUser) {
-                permissionsetDao.getPermissionSet(anUser.userrolename, function(err, permissionSet) {
+                permissionsetDao.getPermissionSet(anUser.userrolename, function (err, permissionSet) {
                     if (err) {
                         callback(err, null);
                     }
@@ -1069,24 +1070,24 @@ var MasterUtil = function() {
     }
 
     // Now not in use
-    this.getJsonForNewTree = function(loggedInUser, callback) {
+    this.getJsonForNewTree = function (loggedInUser, callback) {
         var jsonTree = [];
         var businessGroups = [];
         var projects = [];
         var environments = [];
         var orgObj = {};
-        this.getLoggedInUser(loggedInUser, function(err, anUser) {
+        this.getLoggedInUser(loggedInUser, function (err, anUser) {
             if (err) {
                 callback(err, null);
             }
             if (anUser) {
-                this.getOrgsByRowIds(anUser.orgname_rowid, function(err, orgList) {
+                this.getOrgsByRowIds(anUser.orgname_rowid, function (err, orgList) {
                     if (err) {
                         callback(err, null);
                     }
                     if (orgList) {
                         for (var i = 0; i < orgList.length; i++) {
-                            (function(orgCount) {
+                            (function (orgCount) {
                                 if (orgList[orgCount].id === "1") {
                                     orgObj = {
                                         name: orgList[orgCount].name,
@@ -1097,24 +1098,24 @@ var MasterUtil = function() {
                                     };
                                     d4dModelNew.d4dModelMastersProductGroup.find({
                                         orgname_rowid: orgList[orgCount].rowid
-                                    }, function(err, bgs) {
+                                    }, function (err, bgs) {
                                         if (err) {
                                             callback(err, null);
                                         }
                                         if (bgs) {
                                             for (var x = 0; x < bgs.length; x++) {
-                                                (function(bgCount) {
+                                                (function (bgCount) {
                                                     if (bgs[bgCount].id === "2") {
                                                         businessGroups.push(bgs[bgCount]);
                                                         d4dModelNew.d4dModelMastersProjects.find({
                                                             productgroupname_rowid: bgs[bgCount].rowid
-                                                        }, function(err, project) {
+                                                        }, function (err, project) {
                                                             if (err) {
                                                                 callback(err, null);
                                                             }
                                                             if (project) {
                                                                 for (var p = 0; p < project.length; p++) {
-                                                                    (function(pCount) {
+                                                                    (function (pCount) {
                                                                         if (project[pCount].id === "4") {
                                                                             projects.push({
                                                                                 "name": bgs[bgCount].projectname,
@@ -1140,13 +1141,13 @@ var MasterUtil = function() {
                                     });
                                     d4dModelNew.d4dModelMastersEnvironments.find({
                                         orgname_rowid: orgList[orgCount].rowid
-                                    }, function(err, envs) {
+                                    }, function (err, envs) {
                                         if (err) {
                                             callback(err, null);
                                         }
                                         if (envs) {
                                             for (var e = 0; e < envs.length; e++) {
-                                                (function(envCount) {
+                                                (function (envCount) {
                                                     if (envs[envCount].id === "3") {
                                                         environments.push({
                                                             "name": envs[envCount].environmentname,
@@ -1175,18 +1176,18 @@ var MasterUtil = function() {
     }
 
     // check valid user permission
-    this.getProjectsForOrg = function(orgId, callback) {
+    this.getProjectsForOrg = function (orgId, callback) {
         var projectList = [];
         d4dModelNew.d4dModelMastersProjects.find({
             orgname_rowid: orgId
-        }, function(err, projects) {
+        }, function (err, projects) {
             if (err) {
                 callback(err, null);
             }
             if (projects) {
-                configmgmtDao.getRowids(function(err, rowidlist) {
+                configmgmtDao.getRowids(function (err, rowidlist) {
                     for (var i = 0; i < projects.length; i++) {
-                        (function(projectCount) {
+                        (function (projectCount) {
                             if (projects[projectCount].id === '4') {
                                 names = configmgmtDao.convertRowIDToValue(projects[projectCount].orgname_rowid, rowidlist);
                                 bgnames = configmgmtDao.convertRowIDToValue(projects[projectCount].productgroupname_rowid, rowidlist);
@@ -1216,17 +1217,17 @@ var MasterUtil = function() {
     }
 
     // Return all TemplateTypes
-    this.getTemplateTypesById = function(anId, callback) {
+    this.getTemplateTypesById = function (anId, callback) {
         logger.debug("getTemplateTypesById called. ", JSON.stringify(anId));
         var templateTypeList = [];
         d4dModelNew.d4dModelMastersDesignTemplateTypes.find({
             rowid: anId
-        }, function(err, templateTypes) {
+        }, function (err, templateTypes) {
             if (err) {
                 callback(err, null);
             }
             if (templateTypes) {
-                configmgmtDao.getRowids(function(err, rowidlist) {
+                configmgmtDao.getRowids(function (err, rowidlist) {
                     for (var i = 0; i < templateTypes.length; i++) {
                         if (templateTypes[i].id === '16') {
                             names = configmgmtDao.convertRowIDToValue(templateTypes[i].orgname_rowid, rowidlist);
@@ -1245,10 +1246,10 @@ var MasterUtil = function() {
         });
     }
 
-    this.updateAllSettings = function(orgId, orgName, callback) {
+    this.updateAllSettings = function (orgId, orgName, callback) {
         d4dModelNew.d4dModelMastersOrg.find({
             rowid: orgId
-        }, function(err, org) {
+        }, function (err, org) {
             if (err) {
                 callback(err, null);
                 return;
@@ -1260,7 +1261,7 @@ var MasterUtil = function() {
                 $set: {
                     orgname: orgName
                 }
-            }, function(err, aBody) {
+            }, function (err, aBody) {
                 if (err) {
                     logger.debug("Error to update Settings.");
                 }
@@ -1272,7 +1273,7 @@ var MasterUtil = function() {
                     $set: {
                         orgname: orgName
                     }
-                }, function(err, aBody) {
+                }, function (err, aBody) {
                     if (err) {
                         logger.debug("Error to update Settings.");
                     }
@@ -1284,7 +1285,7 @@ var MasterUtil = function() {
                         $set: {
                             orgname: orgName
                         }
-                    }, function(err, aBody) {
+                    }, function (err, aBody) {
                         if (err) {
                             logger.debug("Error to update Settings.");
                         }
@@ -1296,7 +1297,7 @@ var MasterUtil = function() {
                             $set: {
                                 orgname: orgName
                             }
-                        }, function(err, aBody) {
+                        }, function (err, aBody) {
                             if (err) {
                                 logger.debug("Error to update Settings.");
                             }
@@ -1307,7 +1308,7 @@ var MasterUtil = function() {
                                 $set: {
                                     orgname: orgName
                                 }
-                            }, function(err, aBody) {
+                            }, function (err, aBody) {
                                 if (err) {
                                     logger.debug("Error to update Settings.");
                                 }
@@ -1318,7 +1319,7 @@ var MasterUtil = function() {
                                     $set: {
                                         orgname: orgName
                                     }
-                                }, function(err, aBody) {
+                                }, function (err, aBody) {
                                     if (err) {
                                         logger.debug("Error to update Settings.");
                                     }
@@ -1329,7 +1330,7 @@ var MasterUtil = function() {
                                         $set: {
                                             orgname: orgName
                                         }
-                                    }, function(err, aBody) {
+                                    }, function (err, aBody) {
                                         if (err) {
                                             logger.debug("Error to update Settings.");
                                         }
@@ -1340,7 +1341,7 @@ var MasterUtil = function() {
                                             $set: {
                                                 orgname: orgName
                                             }
-                                        }, function(err, aBody) {
+                                        }, function (err, aBody) {
                                             if (err) {
                                                 logger.debug("Error to update Settings.");
                                             }
@@ -1351,7 +1352,7 @@ var MasterUtil = function() {
                                                 $set: {
                                                     orgname: orgName
                                                 }
-                                            }, function(err, aBody) {
+                                            }, function (err, aBody) {
                                                 if (err) {
                                                     logger.debug("Error to update Settings.");
                                                 }
@@ -1362,7 +1363,7 @@ var MasterUtil = function() {
                                                     $set: {
                                                         orgname: orgName
                                                     }
-                                                }, function(err, aBody) {
+                                                }, function (err, aBody) {
                                                     if (err) {
                                                         logger.debug("Error to update Settings.");
                                                     }
@@ -1373,14 +1374,14 @@ var MasterUtil = function() {
                                                         $set: {
                                                             orgname: orgName
                                                         }
-                                                    }, function(err, aBody) {
+                                                    }, function (err, aBody) {
                                                         if (err) {
                                                             logger.debug("Error to update Settings.");
                                                         }
                                                         d4dModelNew.d4dModelMastersTeams.find({
                                                             orgname_rowid: orgId,
                                                             id: '21'
-                                                        }, function(err, teams) {
+                                                        }, function (err, teams) {
                                                             if (err) {
                                                                 logger.debug("Error to get Settings.");
                                                             }
@@ -1394,7 +1395,7 @@ var MasterUtil = function() {
                                                                 $set: {
                                                                     orgname: orgName
                                                                 }
-                                                            }, function(err, aBody) {
+                                                            }, function (err, aBody) {
                                                                 if (err) {
                                                                     logger.debug("Error to update Settings.");
                                                                 }
@@ -1416,14 +1417,14 @@ var MasterUtil = function() {
         });
     }
 
-    this.updateTeam = function(orgId, callback) {
+    this.updateTeam = function (orgId, callback) {
         var teamName = '';
         var teamDescription = '';
-        configmgmtDao.getRowids(function(err, rowidlist) {
+        configmgmtDao.getRowids(function (err, rowidlist) {
             d4dModelNew.d4dModelMastersTeams.find({
                 orgname_rowid: orgId,
                 id: '21'
-            }, function(err, teams) {
+            }, function (err, teams) {
                 if (err) {
                     logger.debug("Error to get Settings.");
                 }
@@ -1452,7 +1453,7 @@ var MasterUtil = function() {
                                 teamname: teamName,
                                 descriptions: teamDescription
                             }
-                        }, function(err, aBody) {
+                        }, function (err, aBody) {
                             if (err) {
                                 logger.debug("Error to update Settings.");
                             }
@@ -1465,26 +1466,26 @@ var MasterUtil = function() {
         });
     };
 
-    this.getBusinessGroupsByOrgId = function(orgId, callback) {
+    this.getBusinessGroupsByOrgId = function (orgId, callback) {
         d4dModelNew.d4dModelMastersProductGroup.find({
             orgname_rowid: orgId,
-            id:'2'
-        }, function(err, productGroupData) {
-            if(err) {
-                logger.debug("getBusinessGroupsByOrgId: "+err);
+            id: '2'
+        }, function (err, productGroupData) {
+            if (err) {
+                logger.debug("getBusinessGroupsByOrgId: " + err);
                 callback(err, null);
             }
             callback(null, productGroupData);
 
         });
     };
-    this.getProjectsBybgId = function(bgId, callback) {
+    this.getProjectsBybgId = function (bgId, callback) {
         d4dModelNew.d4dModelMastersProjects.find({
             productgroupname_rowid: bgId,
-            id:'4'
-        }, function(err, projectData) {
-            if(err) {
-                logger.debug("getProjectsBybgId: "+err);
+            id: '4'
+        }, function (err, projectData) {
+            if (err) {
+                logger.debug("getProjectsBybgId: " + err);
                 callback(err, null);
             }
             callback(null, projectData);
@@ -1492,14 +1493,14 @@ var MasterUtil = function() {
         });
     };
 
-    this.getUsersForAllOrg = function(callback) {
+    this.getUsersForAllOrg = function (callback) {
         logger.debug("getUsersForAllOrg called. ");
         d4dModelNew.d4dModelMastersUsers.find({
             id: "7",
             orgname_rowid: {
                 $in: [""]
             }
-        }, function(err, users) {
+        }, function (err, users) {
             if (err) {
                 callback(err, null);
                 return;
@@ -1516,7 +1517,7 @@ var MasterUtil = function() {
         });
     }
 
-    var getPermissionForCategory = function(category, permissionto, permissionset) {
+    var getPermissionForCategory = function (category, permissionto, permissionset) {
         var perms = [];
         if (permissionset) {
             for (var i = 0; i < permissionset.length; i++) {
@@ -1542,14 +1543,14 @@ var MasterUtil = function() {
     };
 
     // Check wheather permission is there for user or not.
-    this.hasPermission = function(category, permissionto, sessionUser, callback) {
+    this.hasPermission = function (category, permissionto, sessionUser, callback) {
         var retVal = '';
         retVal = getPermissionForCategory(category, permissionto, sessionUser.permissionset);
         callback(null, retVal);
     };
 
     // Return all Puppet Servers specific to User
-    this.getPuppetServers = function(orgList, callback) {
+    this.getPuppetServers = function (orgList, callback) {
         var congifMgmtList = [];
         var rowIds = [];
         for (var x = 0; x < orgList.length; x++) {
@@ -1560,9 +1561,9 @@ var MasterUtil = function() {
             orgname_rowid: {
                 $in: rowIds
             }
-        }, function(err, configMgmt) {
+        }, function (err, configMgmt) {
             if (configMgmt) {
-                configmgmtDao.getRowids(function(err, rowidlist) {
+                configmgmtDao.getRowids(function (err, rowidlist) {
                     for (var i = 0; i < configMgmt.length; i++) {
                         if (configMgmt[i].id === '25') {
                             names = configmgmtDao.convertRowIDToValue(configMgmt[i].orgname_rowid, rowidlist)
@@ -1579,29 +1580,29 @@ var MasterUtil = function() {
             }
         });
     }
-    this.getServerDetails=function(jsonData,callBack){
-        var serverDetail=[];
+    this.getServerDetails = function (jsonData, callBack) {
+        var serverDetail = [];
         d4dModelNew.d4dModelMastersDockerConfig.find({
-            orgname_rowid:jsonData.orgId,
-            id:jsonData.dockerId
-        },function(err,dockerData){
-            if(err){
-                callBack(err,null);
+            orgname_rowid: jsonData.orgId,
+            id: jsonData.dockerId
+        }, function (err, dockerData) {
+            if (err) {
+                callBack(err, null);
                 return;
             }
-            serverDetail=dockerData;
+            serverDetail = dockerData;
             d4dModelNew.d4dModelMastersNexusServer.find({
-                orgname_rowid:jsonData.orgId,
-                id:jsonData.nexusId
-            },function(err,nexusData){
-                if(err){
-                    callBack(err,null);
+                orgname_rowid: jsonData.orgId,
+                id: jsonData.nexusId
+            }, function (err, nexusData) {
+                if (err) {
+                    callBack(err, null);
                     return;
                 }
-                for(var i = 0; i <nexusData.length; i++){
+                for (var i = 0; i < nexusData.length; i++) {
                     serverDetail.push(nexusData[i])
                 }
-                callBack(null,serverDetail);
+                callBack(null, serverDetail);
             })
         })
     }
@@ -1610,29 +1611,29 @@ var MasterUtil = function() {
 
 
 
-    this.getDockerServer=function(jsonData,callBack){
+    this.getDockerServer = function (jsonData, callBack) {
         d4dModelNew.d4dModelMastersDockerConfig.find({
-            orgname_rowid:jsonData.orgId,
-            id:jsonData.dockerId
-        },function(err,dockerData){
-            if(err){
-                callBack(err,null);
+            orgname_rowid: jsonData.orgId,
+            id: jsonData.dockerId
+        }, function (err, dockerData) {
+            if (err) {
+                callBack(err, null);
                 return;
             }
-            callBack(null,dockerData);
+            callBack(null, dockerData);
         })
     }
 
-    this.getNexusServer=function(jsonData,callBack){
+    this.getNexusServer = function (jsonData, callBack) {
         d4dModelNew.d4dModelMastersNexusServer.find({
-            orgname_rowid:jsonData.orgId,
-            id:jsonData.nexusId
-        },function(err,nexusData){
-            if(err){
-                callBack(err,null);
+            orgname_rowid: jsonData.orgId,
+            id: jsonData.nexusId
+        }, function (err, nexusData) {
+            if (err) {
+                callBack(err, null);
                 return;
             }
-            callBack(null,nexusData);
+            callBack(null, nexusData);
         })
     }
 
@@ -1640,7 +1641,7 @@ var MasterUtil = function() {
 
 
     // Return all Nexus Servers specific to User
-    this.getNexusServers = function(orgList, callback) {
+    this.getNexusServers = function (orgList, callback) {
         var congifMgmtList = [];
         var rowIds = [];
         for (var x = 0; x < orgList.length; x++) {
@@ -1651,9 +1652,9 @@ var MasterUtil = function() {
             orgname_rowid: {
                 $in: rowIds
             }
-        }, function(err, configMgmt) {
+        }, function (err, configMgmt) {
             if (configMgmt) {
-                configmgmtDao.getRowids(function(err, rowidlist) {
+                configmgmtDao.getRowids(function (err, rowidlist) {
                     for (var i = 0; i < configMgmt.length; i++) {
                         if (configMgmt[i].id === '26') {
                             names = configmgmtDao.convertRowIDToValue(configMgmt[i].orgname_rowid, rowidlist)
@@ -1672,7 +1673,7 @@ var MasterUtil = function() {
     }
 
     // Return all Puppet Servers specific to User
-    this.getAllCongifMgmts = function(orgList, callback) {
+    this.getAllCongifMgmts = function (orgList, callback) {
         var congifMgmtList = [];
         var rowIds = [];
         for (var x = 0; x < orgList.length; x++) {
@@ -1683,13 +1684,13 @@ var MasterUtil = function() {
             orgname_rowid: {
                 $in: rowIds
             }
-        }, function(err, configMgmt) {
+        }, function (err, configMgmt) {
             d4dModelNew.d4dModelMastersConfigManagement.find({
                 orgname_rowid: {
                     $in: rowIds
                 }
-            }, function(err, chefmgmt) {
-                configmgmtDao.getRowids(function(err, rowidlist) {
+            }, function (err, chefmgmt) {
+                configmgmtDao.getRowids(function (err, rowidlist) {
                     if (configMgmt) {
                         for (var i = 0; i < configMgmt.length; i++) {
                             if (configMgmt[i].id === '25') {
@@ -1715,16 +1716,16 @@ var MasterUtil = function() {
     }
 
     // Return all Puppet Servers specific to User
-    this.getAllCongifMgmtsForOrg = function(orgId, callback) {
+    this.getAllCongifMgmtsForOrg = function (orgId, callback) {
         logger.debug("Entered..", orgId);
         var congifMgmtList = [];
         d4dModelNew.d4dModelMastersPuppetServer.find({
             orgname_rowid: orgId
-        }, function(err, configMgmt) {
+        }, function (err, configMgmt) {
             d4dModelNew.d4dModelMastersConfigManagement.find({
                 orgname_rowid: orgId
-            }, function(err, chefmgmt) {
-                configmgmtDao.getRowids(function(err, rowidlist) {
+            }, function (err, chefmgmt) {
+                configmgmtDao.getRowids(function (err, rowidlist) {
                     if (configMgmt) {
                         for (var i = 0; i < configMgmt.length; i++) {
                             if (configMgmt[i].id === '25') {
@@ -1750,17 +1751,17 @@ var MasterUtil = function() {
     }
 
     // Return all Puppet Servers specific to User
-    this.getCongifMgmtsById = function(anId, callback) {
+    this.getCongifMgmtsById = function (anId, callback) {
         logger.debug("Entered..", anId);
         d4dModelNew.d4dModelMastersPuppetServer.find({
             rowid: anId,
             id: "25"
-        }, function(err, configMgmt) {
+        }, function (err, configMgmt) {
             if (err) {
                 callback(err, null);
                 return;
             }
-            configmgmtDao.getRowids(function(err, rowidlist) {
+            configmgmtDao.getRowids(function (err, rowidlist) {
                 if (err) {
                     callback(err, null);
                     return;
@@ -1777,20 +1778,19 @@ var MasterUtil = function() {
                 d4dModelNew.d4dModelMastersConfigManagement.find({
                     rowid: anId,
                     id: "10"
-                }, function(err, chefmgmt) {
+                }, function (err, chefmgmt) {
                     if (err) {
                         callback(err, null);
                         return;
                     }
                     if (chefmgmt.length) {
-
+                        chefmgmt[0] = chefmgmt[0].toObject();
                         names = configmgmtDao.convertRowIDToValue(chefmgmt[0].orgname_rowid, rowidlist);
                         chefmgmt[0].orgname = names;
 
                         chefmgmt[0].chefRepoLocation = chefSettings.chefReposLocation + chefmgmt[0].orgname_rowid[0] + '/' + chefmgmt[0].loginname + '/';
                         chefmgmt[0].userpemfile = chefSettings.chefReposLocation + chefmgmt[0].orgname_rowid[0] + '/' + chefmgmt[0].folderpath + chefmgmt[0].userpemfile_filename;
                         chefmgmt[0].validatorpemfile = chefSettings.chefReposLocation + chefmgmt[0].orgname_rowid[0] + '/' + chefmgmt[0].folderpath + chefmgmt[0].validatorpemfile_filename;
-
                         callback(null, chefmgmt[0]);
                     } else {
                         callback(null, null);
@@ -1801,12 +1801,12 @@ var MasterUtil = function() {
     }
 
     // Return Environment Name
-    this.getEnvironmentName = function(envId, callback) {
+    this.getEnvironmentName = function (envId, callback) {
         logger.debug("org rowids: ", envId);
         d4dModelNew.d4dModelMastersEnvironments.find({
             rowid: envId,
             "id": 3
-        }, function(err, envs) {
+        }, function (err, envs) {
             if (err) {
                 callback(err, null);
             }
@@ -1821,25 +1821,25 @@ var MasterUtil = function() {
         });
     };
 
-    this.getChefDetailsByOrgId = function(orgId, callback) {
+    this.getChefDetailsByOrgId = function (orgId, callback) {
         d4dModelNew.d4dModelMastersConfigManagement.find({
             orgname_rowid: orgId,
             "id": '10'
-        }, function(err, chefDetails) {
+        }, function (err, chefDetails) {
             if (err) {
                 callback(err, null);
-            }else {
+            } else {
                 callback(null, chefDetails);
             }
         });
     };
 
-    this.getEnvironmentByEnvId = function(envId, callback) {
+    this.getEnvironmentByEnvId = function (envId, callback) {
         logger.debug("org rowids: ", envId);
         d4dModelNew.d4dModelMastersEnvironments.find({
             rowid: envId,
             "id": 3
-        }, function(err, envs) {
+        }, function (err, envs) {
             if (err) {
                 callback(err, null);
             }
@@ -1849,11 +1849,11 @@ var MasterUtil = function() {
     }
 
     // Return Project Name
-    this.getProjectName = function(projectId, callback) {
+    this.getProjectName = function (projectId, callback) {
         logger.debug("Project rowids: ", projectId);
         d4dModelNew.d4dModelMastersProjects.find({
             rowid: projectId
-        }, function(err, projects) {
+        }, function (err, projects) {
             if (err) {
                 callback(err, null);
             }
@@ -1869,18 +1869,18 @@ var MasterUtil = function() {
     }
 
     // Get all appData informations.
-    this.getAppDataWithDeployList = function(envName, projectId, callback) {
+    this.getAppDataWithDeployList = function (envName, projectId, callback) {
         logger.debug("projectId: ", projectId);
-        AppDeploy.getAppDeployListByEnvId(projectId, envName, function(err, data) {
+        AppDeploy.getAppDeployListByEnvId(projectId, envName, function (err, data) {
             if (err) {
                 logger.debug("App deploy fetch error.", err);
             }
-            callback(null,data);
+            callback(null, data);
         });
     };
 
     // Get AppDeploy by name.
-    this.getAppDataByName = function(envName, appName, projectId, callback) {
+    this.getAppDataByName = function (envName, appName, projectId, callback) {
         d4dModelNew.d4dModelMastersProjects.find({
             appdeploy: {
                 $elemMatch: {
@@ -1888,7 +1888,7 @@ var MasterUtil = function() {
                 }
             },
             rowid: projectId
-        }, function(err, anAppData) {
+        }, function (err, anAppData) {
             if (err) {
                 logger.debug("Got error while fetching appData: ", err);
                 callback(err, null);
@@ -1896,7 +1896,7 @@ var MasterUtil = function() {
             if (anAppData.length) {
                 var appData = [];
 
-                AppDeploy.getAppDeployByNameAndEnvId(appName, envName, function(err, data) {
+                AppDeploy.getAppDeployByNameAndEnvId(appName, envName, function (err, data) {
                     if (err) {
                         logger.debug("App deploy fetch error.", err);
                     }
@@ -1932,20 +1932,20 @@ var MasterUtil = function() {
     };
 
     // Return particular Projects specific to User
-    this.getParticularProject = function(projectId, callback) {
+    this.getParticularProject = function (projectId, callback) {
         var projectList = [];
         d4dModelNew.d4dModelMastersProjects.find({
             id: "4",
             rowid: projectId
-        }, function(err, projects) {
+        }, function (err, projects) {
             if (err) {
                 callback(err, null);
             }
             if (projects) {
-                configmgmtDao.getRowids(function(err, rowidlist) {
+                configmgmtDao.getRowids(function (err, rowidlist) {
                     var allEnvs = '';
                     for (var i = 0; i < projects.length; i++) {
-                        (function(projectCount) {
+                        (function (projectCount) {
                             if (projects[projectCount].id === '4') {
                                 names = configmgmtDao.convertRowIDToValue(projects[projectCount].orgname_rowid, rowidlist);
                                 bgnames = configmgmtDao.convertRowIDToValue(projects[projectCount].productgroupname_rowid, rowidlist);
@@ -1966,18 +1966,18 @@ var MasterUtil = function() {
         });
     }
 
-    this.updateParticularProject = function(projectData, callback) {
+    this.updateParticularProject = function (projectData, callback) {
         d4dModelNew.d4dModelMastersProjects.update({
             id: "4",
             rowid: projectData.projectId
-        },{
+        }, {
             $set: {
-                environmentname:projectData.envNames,
-                environmentname_rowid:projectData.envIds
+                environmentname: projectData.envNames,
+                environmentname_rowid: projectData.envIds
             }
         }, {
             upsert: false
-        }, function(err, projects) {
+        }, function (err, projects) {
             if (err) {
                 callback(err, null);
             } else {
@@ -1989,11 +1989,11 @@ var MasterUtil = function() {
 
 
     // Return Docker
-    this.getDockerById = function(anId, callback) {
+    this.getDockerById = function (anId, callback) {
         d4dModelNew.d4dModelMastersDockerConfig.find({
             rowid: anId,
             id: "18"
-        }, function(err, dockers) {
+        }, function (err, dockers) {
             if (err) {
                 logger.debug("Error to get Docker: ", err);
                 callback(err, null);
@@ -2005,7 +2005,7 @@ var MasterUtil = function() {
     }
 
     // Return all Templates for Org and TemplateType
-    this.getTemplatesByOrgAndTemplateType = function(orgId, templateType, callback) {
+    this.getTemplatesByOrgAndTemplateType = function (orgId, templateType, callback) {
         var templateList = [];
         var rowIds = [];
         rowIds.push(orgId);
@@ -2014,12 +2014,12 @@ var MasterUtil = function() {
                 $in: rowIds
             },
             templatetypename: templateType
-        }, function(err, templates) {
+        }, function (err, templates) {
             if (err) {
                 callback(err, null);
             }
             if (templates) {
-                configmgmtDao.getRowids(function(err, rowidlist) {
+                configmgmtDao.getRowids(function (err, rowidlist) {
                     for (var i = 0; i < templates.length; i++) {
                         if (templates[i].id === '17') {
                             names = configmgmtDao.convertRowIDToValue(templates[i].orgname_rowid, rowidlist)
@@ -2046,13 +2046,13 @@ var MasterUtil = function() {
         d4dModelNew.d4dModelMastersProjects.find({
             rowid: projectId,
             id: '4'
-        }, function(err, project) {
+        }, function (err, project) {
             if (err) {
                 logger.error("Failed to get project. ", err);
                 return callback(err, null);
             }
             if (project.length) {
-                AppDeploy.getAppDeployByProjectId(projectId, function(err, appData) {
+                AppDeploy.getAppDeployByProjectId(projectId, function (err, appData) {
                     if (err) {
                         logger.debug("App deploy fetch error.", err);
                         return callback(err, null);
@@ -2072,11 +2072,11 @@ var MasterUtil = function() {
                         logger.debug("created array: ", JSON.stringify(filterArray));
                         var count = 0;
                         for (var k = 0; k < filterArray.length; k++) {
-                            (function(k) {
+                            (function (k) {
                                 var arrayValue = filterArray[k].split("@");
                                 logger.debug("name: ", arrayValue[0]);
                                 logger.debug("Version: ", arrayValue[1]);
-                                AppDeploy.getAppDeployByAppNameAndVersion(projectId,arrayValue[0], arrayValue[1], function(err, filteredData) {
+                                AppDeploy.getAppDeployByAppNameAndVersion(projectId, arrayValue[0], arrayValue[1], function (err, filteredData) {
                                     count++;
                                     if (err) {
                                         logger.error("Failed to get filteredData: ", err);
@@ -2141,13 +2141,13 @@ var MasterUtil = function() {
     };
 
     // update project with app name
-    this.updateProject = function(projectId, appName, callback) {
+    this.updateProject = function (projectId, appName, callback) {
         var appDescription = appName + " deployed.";
         var count = 0;
         d4dModelNew.d4dModelMastersProjects.find({
             rowid: projectId,
             id: '4'
-        }, function(err, project) {
+        }, function (err, project) {
             if (err) {
                 logger.debug("Failed to find Project", err);
                 return;
@@ -2173,7 +2173,7 @@ var MasterUtil = function() {
                             }
                         }, {
                             upsert: false
-                        }, function(err, data) {
+                        }, function (err, data) {
                             if (err) {
                                 logger.debug('Err while updating d4dModelMastersProjects' + err);
                                 callback(err, null);
@@ -2200,7 +2200,7 @@ var MasterUtil = function() {
                         }
                     }, {
                         upsert: false
-                    }, function(err, data) {
+                    }, function (err, data) {
                         if (err) {
                             logger.debug('Err while updating d4dModelMastersProjects' + err);
                             callback(err, null);
@@ -2215,15 +2215,33 @@ var MasterUtil = function() {
         });
     };
 
-    this.getTemplateById = function(templateId, callback) {
+    this.getTemplateById = function (templateId, callback) {
         d4dModelNew.d4dModelMastersTemplatesList.find({
             rowid: templateId
-        }, function(err, templates) {
-            if(err) {
+        }, function (err, templates) {
+            if (err) {
                 return callback(err);
             }
-            return callback(null,templates);
+            return callback(null, templates);
         });
+    };
+
+    //return cookbook attributes object for sensu-client
+    this.getSensuCookbookAttributes = function (monitorDetails, instanceId) {
+        var cryptoConfig = appConfig.cryptoSettings;
+        var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+        var decryptedPassword = cryptography.decryptText(monitorDetails.parameters.transportProtocolParameters.password, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+
+        var sensuAttributes = {
+            'rabbitmq_host': monitorDetails.parameters.transportProtocolParameters.host,
+            'rabbitmq_port': monitorDetails.parameters.transportProtocolParameters.port,
+            'rabbitmq_username': monitorDetails.parameters.transportProtocolParameters.user,
+            'rabbitmq_password': decryptedPassword,
+            'rabbitmq_vhostname': monitorDetails.parameters.transportProtocolParameters.vhost,
+            'instance-id': instanceId
+        };
+        logger.debug("sensuAttributes-------->", JSON.stringify(sensuAttributes));
+        return sensuAttributes;
     };
 }
 

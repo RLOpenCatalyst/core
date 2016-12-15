@@ -30,6 +30,7 @@
 			$scope.initGrids = function(){
 				$scope.orcheGridOptions=angular.extend(orchestrationUIGridDefaults.gridOption,{
 					data : 'tabData',
+					enableFiltering: true,
 					columnDefs : [
 						{ name:'Job Type', width:100,field:'taskType' ,cellTemplate:'<img src="images/orchestration/jenkins.png" ng-show="row.entity.taskType==\'jenkins\'" alt="row.entity.taskType" class="task-type-img" />'+
 						'<img src="images/orchestration/chef.png" ng-show="row.entity.taskType==\'chef\'" alt="row.entity.taskType" class="task-type-img" />'+
@@ -133,6 +134,7 @@
 						$timeout(function() {
 							$scope.orcheGridOptions.totalItems = result.data.metaData.totalRecords;
 							$scope.tabData = result.data.tasks;
+							console.log($scope.tabData);
 						}, 100);
 						$scope.isOrchestrationPageLoading = false;
 					}, function(error) {
@@ -275,7 +277,8 @@
 						controller: 'newTaskCtrl',
 						backdrop: 'static',
 						keyboard: false,
-						size: 'lg',
+						size:'lg',
+						windowClass: 'my-modal-popup',
 						resolve: {
 							items: function() {
 								return type;

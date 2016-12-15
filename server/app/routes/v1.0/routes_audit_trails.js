@@ -17,6 +17,7 @@ limitations under the License.
 var logsDao = require('_pr/model/dao/logsdao.js');
 var async = require('async');
 var instanceService = require('_pr/services/instanceService');
+var auditTrailService = require('_pr/services/auditTrailService');
 var logger = require('_pr/logger')(module);
 var taskService = require('_pr/services/taskService');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
@@ -25,6 +26,38 @@ var apiUtil = require('_pr/lib/utils/apiUtil.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all('/audit-trail/*', sessionVerificationFunc);
+
+    app.get('/audit-trail', function(req,res){
+        auditTrailService.getAuditTrailList(req.query,function(err,auditTrailList){
+            if(err){
+                logger.error(err);
+                return res.status(500).send(err);
+            }
+            return res.status(200).send(auditTrailList);
+        })
+    });
+
+    app.get('/audit-trail/:actionId/logs', function(req,res){
+        auditTrailService.getAuditTrailActionLogs(req.params.actionId,req.query.timestamp,function(err,auditTrailActionLogs){
+            if(err){
+                logger.error(err);
+                return res.status(500).send(err);
+            }
+            return res.status(200).send(auditTrailActionLogs);
+        })
+    });
+
+    app.get('/audit-trail/bots-summary', function(req,res){
+        auditTrailService.getBOTsSummary(function(err,botSummary){
+            if(err){
+                logger.error(err);
+                return res.status(500).send(err);
+            }
+            return res.status(200).send(botSummary);
+        })
+    });
+
+
     app.get('/audit-trail/instance-action', getInstanceActionList);
 
     function getInstanceActionList(req, res, next) {
@@ -76,7 +109,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             [
 
                 function(next) {
-                    apiUtil.paginationRequest(req[0].query, 'taskLogs', next);
+                    apiUtil.paginationRequest(req.query, 'taskLogs', next);
                 },
                 function(paginationReq, next) {
                     reqData = paginationReq;
@@ -208,3 +241,4 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 
 };
+
