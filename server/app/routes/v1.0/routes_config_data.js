@@ -29,7 +29,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
     });
 
     // Bot Type List
-    app.get('/config-data/bot-type', function(req, res) {
+    app.get('/config-data/bots-type', function(req, res) {
         var botTypeList = appConfig.botTypeList;
         res.send(botTypeList);
     });

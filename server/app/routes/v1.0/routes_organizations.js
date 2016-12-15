@@ -54,6 +54,7 @@ var compositeBlueprintModel = require('_pr/model/composite-blueprints/composite-
 var Cryptography = require('_pr/lib/utils/cryptography');
 var monitorsModel = require('_pr/model/monitors/monitors.js');
 var catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
+var botsService = require('_pr/services/botsService.js');
 
 module.exports.setRoutes = function(app, sessionVerification) {
     /*
@@ -666,7 +667,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
             //  });
             //  return;
             // }
-            Blueprints.createNew(blueprintData, function(err, data) {
+            Blueprints.createNew(blueprintData, function(err, bluePrintData) {
                 if (err) {
                     logger.error('error occured while saving blueorint', err);
                     res.status(500).send({
@@ -674,7 +675,26 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     });
                     return;
                 }
-
+                if(bluePrintData.serviceDeliveryCheck === true){
+                    masterUtil.getParticularProject(projectId, function(err, project) {
+                        if (err) {
+                            logger.error(err);
+                        } else if (project.length > 0) {
+                            bluePrintData.orgName = project[0].orgname;
+                            bluePrintData.bgName = project[0].productgroupname;
+                            bluePrintData.projectName = project[0].projectname;
+                            botsService.createOrUpdateBots(bluePrintData, 'Blueprint', blueprintType, function (err, botsData) {
+                                if(err) {
+                                    logger.error("Error in creating bots entry. " + err);
+                                }else{
+                                    logger.debug("Successfully added data for Bots.")
+                                }
+                            });
+                        } else {
+                            logger.debug("Unable to find Project Information from project id:");
+                        }
+                    });
+                }
                 res.send(data);
             });
 
@@ -1020,6 +1040,13 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                         catalystSync.executeSerialScheduledTasks();
                                     }
                                 };
+                                if(task.serviceDeliveryCheck === true){
+                                    botsService.createOrUpdateBots(task,'Task',task.taskType,function(err,data){
+                                        if(err) {
+                                            logger.error("Error in creating bots entry." + err);
+                                        }
+                                    });
+                                }
                                 res.send(task);
                                 logger.debug("Exit post() for /organizations/%s/businessGroups/%s/projects/%s/environments/%s/tasks", req.params.orgId, req.params.bgId, req.params.projectId, req.params.environments);
                             });
@@ -1040,6 +1067,13 @@ module.exports.setRoutes = function(app, sessionVerification) {
                             }
 
                         };
+                        if(task.serviceDeliveryCheck === true){
+                            botsService.createOrUpdateBots(task,'Task',task.taskType,function(err,data){
+                                if(err) {
+                                    logger.error("Error in creating bots entry." + err);
+                                }
+                            });
+                        }
                         res.send(task);
                         logger.debug("Exit post() for /organizations/%s/businessGroups/%s/projects/%s/environments/%s/tasks", req.params.orgId, req.params.bgId, req.params.projectId, req.params.environments);
                     });

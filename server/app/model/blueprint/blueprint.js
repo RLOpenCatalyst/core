@@ -474,10 +474,11 @@ BlueprintSchema.statics.createNew = function (blueprintData, callback) {
             version: count,
             parentId: blueprintData.id,
             domainNameCheck: blueprintData.domainNameCheck,
-            shortDesc: blueprintData.shortDesc,
-            botType: blueprintData.botType,
-            serviceDeliveryCheck: blueprintData.serviceDeliveryCheck,
-            botCategory: blueprintData.botCategory
+            shortDesc:blueprintData.shortDesc,
+            botType:blueprintData.botType,
+            serviceDeliveryCheck:blueprintData.serviceDeliveryCheck,
+            botCategory:blueprintData.botCategory,
+            manualExecutionTime:blueprintData.manualExecutionTime
         };
         var blueprint = new Blueprints(blueprintObj);
         logger.debug(blueprint);
@@ -1423,9 +1424,9 @@ BlueprintSchema.statics.getBlueprintsByProviderId = function (providerId, callba
 
     });
 };
-BlueprintSchema.statics.getBlueprintByOrgBgProjectProviderType = function (query, callback) {
-    console.log(JSON.stringify(query));
-    Blueprints.paginate(query.queryObj, query.options, function (err, blueprints) {
+
+BlueprintSchema.statics.getBlueprintByOrgBgProjectProviderType = function(query, callback) {
+    Blueprints.paginate(query.queryObj, query.options, function(err, blueprints) {
         if (err) {
             logger.error("Failed to getBlueprintByOrgBgProjectProviderType", err);
             callback(err, null);

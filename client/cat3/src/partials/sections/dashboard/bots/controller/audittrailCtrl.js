@@ -10,7 +10,7 @@
     angular.module('dashboard.bots')
     .controller('audittrailCtrl',['$scope', '$rootScope', '$state', 'genericServices', 'confirmbox', 'workzoneServices', 'toastr', 'workzoneUIUtils', '$modal', 
     function ($scope, $rootScope, $state, genSevs, confirmbox, workzoneServices, toastr, workzoneUIUtils, $modal) {
-        var treeNames = ['Bots','Audit Trail'];
+        var treeNames = ['BOTs','Audit Trail'];
         $rootScope.$emit('treeNameUpdate', treeNames);
         var audit=this;
         audit.gridOptions={
@@ -30,11 +30,11 @@
                     '<img src="images/orchestration/jenkins.png" ng-show="row.entity.auditTrailConfig.executionType==\'jenkins\'" alt="row.entity.taskType" title="Jenkins" class="task-type-img" />'+
                     '<img src="images/orchestration/script.jpg" ng-show="row.entity.auditTrailConfig.executionType==\'script\'" alt="row.entity.auditTrailConfig.executionType" title="Script" class="task-type-img" />'+
                     '<img src="images/devops-roles/devopsRole1.png" ng-show="row.entity.action==\'BOTs Blueprint Execution\'" alt="row.entity.botType" title="Blueprint" class="task-type-img" />',cellTooltip: true},
-                { name: 'BOT Name',displayName: 'BOT Name',field:'auditTrailConfig.name'},
+                { name: 'BOT Name',displayName: 'BOT Name',field:'auditTrailConfig.name',cellTooltip: true},
                 { name: 'Status',field:'status',
-                  cellTemplate:'<img class="bot-status-icon" src="images/instance-states/aws-started.png" ng-show="row.entity.status === \'success\'" title="{{row.entity.status}}">' +
-                  '<img class="bot-status-icon" src="images/instance-states/aws-stopped.png" ng-show="row.entity.status === \'failed\'" title="{{row.entity.status}}">' + 
-                  '<img class="bot-status-icon" src="images/instance-states/aws-inactive.png" ng-show="row.entity.status === \'running\'" title="{{row.entity.status}}">',
+                  cellTemplate:'<img class="bots-status-icon" src="images/instance-states/aws-started.png" ng-show="row.entity.status === \'success\'" title="{{row.entity.status}}">' +
+                  '<img class="bots-status-icon" src="images/instance-states/aws-stopped.png" ng-show="row.entity.status === \'failed\'" title="{{row.entity.status}}">' + 
+                  '<img class="bots-status-icon" src="images/instance-states/aws-inactive.png" ng-show="row.entity.status === \'running\'" title="{{row.entity.status}}">',
                   cellTooltip: true},
                 { name: 'Org',field:'masterDetails.orgName'},
                 { name: 'BU',field:'masterDetails.bgName'},

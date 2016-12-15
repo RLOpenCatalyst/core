@@ -300,7 +300,7 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                     }
                     auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
                         if (err) {
-                            logger.error("Failed to create or update bot Log: ", err);
+                            logger.error("Failed to create or update bots Log: ", err);
                         }
                     });
                 }
@@ -488,7 +488,7 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                                             }
                                             auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
                                                 if (err) {
-                                                    logger.error("Failed to create or update bot Log: ", err);
+                                                    logger.error("Failed to create or update bots Log: ", err);
                                                 }
                                             });
                                         }
@@ -524,7 +524,7 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                                             }
                                             auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
                                                 if (err) {
-                                                    logger.error("Failed to create or update bot Log: ", err);
+                                                    logger.error("Failed to create or update bots Log: ", err);
                                                 }
                                             });
                                         }
@@ -599,7 +599,7 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                                             }
                                             auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
                                                 if (err) {
-                                                    logger.error("Failed to create or update bot Log: ", err);
+                                                    logger.error("Failed to create or update bots Log: ", err);
                                                 }
                                             });
                                         }
