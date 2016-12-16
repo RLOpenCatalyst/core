@@ -176,6 +176,10 @@ var BotsSchema = new Schema ({
         type: Boolean,
         default: false
     },
+    version: {
+        type: Number,
+        default: 1
+    },
 });
 BotsSchema.plugin(mongoosePaginate);
 

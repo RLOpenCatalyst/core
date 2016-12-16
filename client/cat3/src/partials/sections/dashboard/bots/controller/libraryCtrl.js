@@ -240,7 +240,7 @@
             $scope.failedBotsselected = false;
             lib.gridOptions.data=[];
             var param={
-                url:'/bots?actionStatus=running?page=1&pageSize=10&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                url:'/bots?actionStatus=running&page=1&pageSize=10&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
             };
             genSevs.promiseGet(param).then(function (result) {
                 $timeout(function() {
@@ -256,7 +256,7 @@
             $scope.totalBotsSelected = false;
             lib.gridOptions.data=[];
             var param={
-                url:'/bots?actionStatus=failed?page=1&pageSize=10&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                url:'/bots?actionStatus=failed&page=1&pageSize=10&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
             };
             genSevs.promiseGet(param).then(function (result) {
                 $timeout(function() {
@@ -400,25 +400,10 @@
             angular.extend($scope, {
                 taskHistoryChefListView: function() {
                     $scope.taskHistoryChefData = [];
-                    /*var param={
+                    var param={
                         url:'/bots/:$scope.botId/bots-history'
-                    };*/
-                    workzoneServices.getHistory(items.botId).then(function(response) {
-                        console.log(response);
-                        $timeout(function() {
-                            if(response.data){
-                                $scope.taskHistoryChefData = response.data;
-                                $scope.ischefTaskHistoryPageLoading = false;
-                            }else if(response){
-                                $scope.taskHistoryChefData = response;
-                                $scope.ischefTaskHistoryPageLoading = false;
-                            }
-                        },100);
-                    }, function(){
-                        $scope.errorMessage = "No Chef History Records found";
-                        $scope.ischefTaskHistoryPageLoading = false;
-                    });
-                    genSevs.getHistory(items._id).then(function(response) {
+                    };
+                    genSevs.promiseGet(param).then(function(response) {
                         $timeout(function() {
                             if(response.data){
                                 $scope.taskHistoryChefData = response.data;
@@ -478,7 +463,7 @@
                 taskHistoryJenkinsListView: function() {
                     $scope.taskHistoryJenkinsData = [];
                     var param={
-                        url:'/bots/:$scope.botId/bots-history'
+                        url:'/bots/'+$scope.botId+'/bots-history'
                     };
                     workzoneServices.getHistory(items.botId).then(function(response) {
                         console.log(response);
@@ -531,24 +516,24 @@
             angular.extend($scope, {
                 taskHistoryScriptListView: function() {
                     $scope.taskHistoryScriptData = [];
-                    /*var param={
-                        url:'/bots/:$scope.botId/bots-history'
-                    };*/
-                    workzoneServices.getHistory(items.botId).then(function(response) {
-                        console.log(response);
+                    var param={
+                        url:'/bots/'+$scope.botId+'/bots-history'
+                    };
+                    genSevs.promiseGet(param).then(function(response) {
                         $timeout(function() {
                             if(response.data){
-                                $scope.taskHistoryScriptData = response.data;
-                                $scope.isscriptTaskHistoryPageLoading = false;
+                                $scope.taskHistoryChefData = response.data;
+                                $scope.ischefTaskHistoryPageLoading = false;
                             }else if(response){
-                                $scope.taskHistoryScriptData = response;
-                                $scope.isscriptTaskHistoryPageLoading = false;
+                                $scope.taskHistoryChefData = response;
+                                $scope.ischefTaskHistoryPageLoading = false;
                             }
                         },100);
                     }, function(){
-                        $scope.errorMessage = "No Script History Records found";
-                        $scope.isscriptTaskHistoryPageLoading = false;
+                        $scope.errorMessage = "No Chef History Records found";
+                        $scope.ischefTaskHistoryPageLoading = false;
                     });
+                 
                 },
             });
             $scope.initscript = function(){
@@ -585,23 +570,23 @@
             angular.extend($scope, {
                 botHistoryBlueprintListView: function() {
                     $scope.botHistoryBlueprintData = [];
-                    /*var param={
-                        url:'/bots/:$scope.botId/bots-history'
-                    };*/
-                    workzoneServices.getHistory(items.botId).then(function(response) {
-                        console.log(response);
+                    var param={
+                        url:'/bots/'+$scope.botId+'/bots-history'
+                    };
+
+                    genSevs.promiseGet(param).then(function(response) {
                         $timeout(function() {
                             if(response.data){
-                                $scope.botHistoryBlueprintData = response.data;
-                                $scope.isBlueprintBotHistoryPageLoading = false;
+                                $scope.taskHistoryChefData = response.data;
+                                $scope.ischefTaskHistoryPageLoading = false;
                             }else if(response){
-                                $scope.botHistoryBlueprintData = response;
-                                $scope.isBlueprintBotHistoryPageLoading = false;
+                                $scope.taskHistoryChefData = response;
+                                $scope.ischefTaskHistoryPageLoading = false;
                             }
                         },100);
                     }, function(){
-                        $scope.errorMessage = "No Script History Records found";
-                        $scope.isBlueprintBotHistoryPageLoading = false;
+                        $scope.errorMessage = "No Chef History Records found";
+                        $scope.ischefTaskHistoryPageLoading = false;
                     });
                 },
             });

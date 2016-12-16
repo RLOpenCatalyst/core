@@ -58,8 +58,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
     app.post('/bots/:botId/execute',function(req,res){
-        console.log("durgesh");
-        console.log(req.body);
         var reqBody = null;
         if(req.body.category && req.body.category ==='Blueprints') {
             if (!req.body.envId) {
@@ -111,6 +109,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 if (err) {
                     return res.status(500).send(err);
                 } else {
+                    data.botId=req.params.botId;
                     return res.status(200).send(data);
                 }
             })
@@ -126,5 +125,4 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             }
         })
     });
-
 };

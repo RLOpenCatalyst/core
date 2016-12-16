@@ -113,7 +113,7 @@
             }
         };
 
-        $scope.executeBot=function(){
+      /*  $scope.executeBot=function(){
             if (items.botConfig && items.botConfig.botLinkedSubCategory === 'script') {
                 var checkParam = false;
                 if ($scope.scriptParamsFlag) {
@@ -138,7 +138,7 @@
                 choiceParam = $scope.jenparams;
             }
             $scope.executeBot();
-        };
+        };*/
 
         $scope.executeBot = function(){
             var reqBody = {};
@@ -160,10 +160,12 @@
                 data: reqBody
             };
             genSevs.promisePost(param).then(function (response) {
-                console.log(response);
-                $modalInstance.close(response.data);
+               /* console.log(response);
+                //helper.orchestrationLogModal(task._id, response.data.historyId, task.taskType);
+                $modalInstance.close(response.data);*/
+                helper.botLogModal(items.botId, response.historyId, response.taskType);
                 $rootScope.$emit('BOTS_LIBRARY_REFRESH');
-                helper.botLogModal(items._id, response.historyId, response.taskType);
+
             },
             function (error) {
                 error = error.responseText || error;
