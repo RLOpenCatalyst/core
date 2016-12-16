@@ -30,7 +30,6 @@
 			$scope.initGrids = function(){
 				$scope.orcheGridOptions=angular.extend(orchestrationUIGridDefaults.gridOption,{
 					data : 'tabData',
-					enableFiltering: true,
 					columnDefs : [
 						{ name:'Job Type', width:100,field:'taskType' ,cellTemplate:'<img src="images/orchestration/jenkins.png" ng-show="row.entity.taskType==\'jenkins\'" alt="row.entity.taskType" class="task-type-img" />'+
 						'<img src="images/orchestration/chef.png" ng-show="row.entity.taskType==\'chef\'" alt="row.entity.taskType" class="task-type-img" />'+
