@@ -1,6 +1,6 @@
 <div id='orchestrationLogPage'>
     <div class="modal-header">
-        <span class="close" ng-click="botExecLogCtrl.cancelAll(botExecLogCtrl.taskLogType)">×</span>
+        <span class="close" ng-click="botHistLogsCtrl.cancelAll(botHistLogsCtrl.taskLogType)">×</span>
         <h4 class="modal-title">
             <i class="fa fa-eraser"></i>
             Execute Logs
@@ -9,7 +9,7 @@
 
     <div class="modal-body">
         <fieldset>
-            <div ng-switch="botExecLogCtrl.taskLogType">
+            <div ng-switch="botHistLogsCtrl.taskLogType">
                 <div ng-switch-when="jenkins">
                     <div ng-include="'src/partials/sections/dashboard/bots/view/jenkinsLog.html'" ></div>
                 </div>
@@ -24,7 +24,7 @@
     </div>
     
     <div class="modal-footer">
-        <button type="button" class="btn cat-btn-cancel" ng-click="botExecLogCtrl.cancelAll(botExecLogCtrl.taskLogType)">
+        <button type="button" class="btn cat-btn-cancel" ng-click="botHistLogsCtrl.cancelAll(botHistLogsCtrl.taskLogType)">
             <i class="fa fa-times black"></i> Close
         </button>
     </div>

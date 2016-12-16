@@ -113,7 +113,7 @@
         };
 
         $scope.executeBot=function(){
-            if (items.botConfig && items.botConfig.botLinkedSubCategory === 'script') {
+            if (items.botConfig && items.botConfig.taskType === 'script') {
                 var checkParam = false;
                 if ($scope.scriptParamsFlag) {
                     for(var i =0; i<$scope.parameters.length; i++){
@@ -130,11 +130,10 @@
                     scriptParams = $scope.parameters;
                 } 
             }
-            if (items.botConfig && items.botConfig.botLinkedSubCategory === 'chef') {
+            if (items.botConfig && items.botConfig.taskType === 'chef') {
                 cookbookAttributes = responseFormatter.formatSelectedCookbookAttributes($scope.chefattributes);
-                
             }
-            if (items.botConfig && items.botConfig.botLinkedSubCategory === 'jenkins') {
+            if (items.botConfig && items.botConfig.taskType === 'jenkins') {
                 choiceParam = $scope.jenparams;
             }
             $scope.executeBot();
@@ -142,14 +141,14 @@
 
         $scope.executeBot = function(){
             var reqBody = {};
-            if (items.botConfig && items.botConfig.botLinkedSubCategory === 'jenkins') {
+            if (items.botConfig && items.botConfig.taskType === 'jenkins') {
                 reqBody.choiceParam = choiceParam;
-            } else if (items.botConfig && items.botConfig.botLinkedSubCategory === 'chef'){
+            } else if (items.botConfig && items.botConfig.taskType === 'chef'){
                 reqBody.tagServer = $scope.tagSerSelected;
                 if ($scope.chefAttributesFlag) {
                     reqBody.cookbookAttributes = cookbookAttributes;
                 }
-            } else  if (items.botConfig && items.botConfig.botLinkedSubCategory === 'script') {
+            } else  if (items.botConfig && items.botConfig.taskType === 'script') {
                 reqBody.tagServer = $scope.tagSerSelected;
                 if ($scope.scriptParamsFlag) {
                     reqBody.scriptParams = scriptParams;
@@ -163,7 +162,7 @@
                 console.log(response);
                 $modalInstance.close(response.data);
                 $rootScope.$emit('BOTS_LIBRARY_REFRESH');
-                helper.botLogModal(items._id, response.historyId, response.taskType);
+                helper.botLogModal(items.botId, response.historyId, response.taskType);
             },
             function (error) {
                 error = error.responseText || error;
@@ -173,34 +172,10 @@
                     toastr.error(error);
                 }
             });
-            /*workzoneServices.runTask(items._id, reqBody).then(
-                function (response) {
-                    $modalInstance.close(response.data);
-                    $rootScope.$emit('BOTS_LIBRARY_REFRESH');
-                    $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
-                },
-                function (error) {
-                    error = error.responseText || error;
-                    if (error.message) {
-                        toastr.error(error.message);
-                    } else {
-                        toastr.error(error);
-                    }
-                }
-            );*/
         };
 
         $scope.cancel= function() {
             $modalInstance.dismiss('cancel');
         };
-    }])/*.controller('botExecutionLogsCtrl',['$scope', 'items', '$modalInstance', function ($scope, items, $modalInstance) {
-        $scope.botExecutionLogs = items;
-        console.log(items);
-
-
-
-        $scope.cancel= function() {
-            $modalInstance.dismiss('cancel');
-        };
-    }])*/;
+    }]);
 })(angular);
