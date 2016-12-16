@@ -111,6 +111,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 if (err) {
                     return res.status(500).send(err);
                 } else {
+                    data.botId=req.params.botId;
                     return res.status(200).send(data);
                 }
             })
