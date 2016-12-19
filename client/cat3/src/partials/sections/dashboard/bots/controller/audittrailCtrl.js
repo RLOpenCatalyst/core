@@ -21,9 +21,7 @@
         $scope.paginationParams.sortBy = 'startedOn';
         $scope.paginationParams.sortOrder = 'desc';
         $scope.initGrids = function(){
-            $scope.botAuditTrailGridOptions={
-                enableFiltering: false
-            };
+            $scope.botAuditTrailGridOptions={};
             $scope.botAuditTrailGridOptions.columnDefs = [
                 { name: 'Start Time',field:'startedOn',
                     cellTemplate:'<span title="{{row.entity.startedOn  | timestampToLocaleTime}}">{{row.entity.startedOn  | timestampToLocaleTime}}</span>', cellTooltip: true},
@@ -63,7 +61,25 @@
                     if (sortColumns[0] && sortColumns[0].field && sortColumns[0].sort && sortColumns[0].sort.direction) {
                         $scope.paginationParams.sortBy = sortColumns[0].field;
                         $scope.paginationParams.sortOrder = sortColumns[0].sort.direction;
-                        $scope.init();
+                        $scope.botAuditTrailGridView();
+                    }
+                });
+                //Pagination for page and pageSize
+                gridApi.pagination.on.paginationChanged($scope, function(newPage, pageSize) {
+                    $scope.paginationParams.page = newPage;
+                    $scope.paginationParams.pageSize = pageSize;
+                    $scope.botAuditTrailGridView();
+                });
+            },
+        });
+        /*angular.extend($scope.botAuditTrailGridOptions,botAuditTrailUIGridDefaults.gridOption, {
+            onRegisterApi :function(gridApi) {
+                $scope.gridApi = gridApi;
+                gridApi.core.on.sortChanged($scope, function(grid, sortColumns) {
+                    if (sortColumns[0] && sortColumns[0].field && sortColumns[0].sort && sortColumns[0].sort.direction) {
+                        $scope.paginationParams.sortBy = sortColumns[0].field;
+                        $scope.paginationParams.sortOrder = sortColumns[0].sort.direction;
+                        $scope.botAuditTrailGridView();
                     }
                 });
                 //Pagination for page and pageSize
@@ -71,10 +87,10 @@
                     console.log(newPage);
                     $scope.paginationParams.page = newPage;
                     $scope.paginationParams.pageSize = pageSize;
-                    $scope.init();
+                    $scope.botAuditTrailGridView();
                 });
             },
-        });
+        });*/
         /*$scope.setFirstPageView = function(){
             $scope.botAuditTrailGridOptions.paginationCurrentPage = $scope.paginationParams.page = 1;
         };
@@ -110,18 +126,18 @@
         };
 
         $scope.RefreshBotsAuditTrail = function() {
-            $scope.init();
+            $scope.botAuditTrailGridView();
         };
 
-        $scope.init =function(){
+        $scope.botAuditTrailGridView =function(){
             $scope.botAuditTrailGridOptions.data=[];
             var param={
                 url:'/audit-trail?filterBy=auditType:BOTs&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
             };
             genSevs.promiseGet(param).then(function (response) {
                 $timeout(function() {
-                    console.log(response);
                     $scope.botAuditTrailGridOptions.data=response.auditTrails;
+                    $scope.botAuditTrailGridOptions.totalItems = response.metaData.totalRecords;
                 }, 100);
                 $scope.isBotAuditTrailPageLoading = false;
             }, function(error) {
@@ -130,6 +146,6 @@
                 $scope.errorMessage = "No Records found";
             });
         };
-        $scope.init();
+        $scope.botAuditTrailGridView();
     }]);
 })(angular);

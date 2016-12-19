@@ -139,7 +139,7 @@
             });
         };
 
-        genericServices.botHistory=function(bot) {
+        /*genericServices.botHistory=function(bot) {
             $modal.open({
                 animation: true,
                 templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationHistory.html',
@@ -153,24 +153,7 @@
                     }
                 }
             });
-        };
-
-        genericServices.newTask=function(bot) {
-            $modal.open({
-                animation: true,
-                templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/newTask.html',
-                controller: 'newTaskCtrl',
-                backdrop: 'static',
-                keyboard: false,
-                size: 'lg',
-                windowClass: 'my-modal-popup',
-                resolve: {
-                    items: function() {
-                        return bot;
-                    }
-                }
-            });
-        };
+        };*/
 
         genericServices.removeBlueprint= function(blueprintObj, bpType) {
             var modalOptions = {
