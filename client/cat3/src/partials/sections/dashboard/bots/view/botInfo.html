@@ -67,17 +67,55 @@
 					</td>
 				</tr>
 			</tbody>
+			<tbody ng-show="botInfo.botLinkedSubCategory==='chef'">
+				<tr>
+					<td class="td-padding">Runlist</td>
+					<td>
+						<input class="form-control" disabled="disabled" ng-model="botInfo.botConfig.runlist[0]">
+					</td>
+				</tr>
+				<tr ng-show="botInfo.botConfig && botInfo.botConfig.attributes && botInfo.botConfig.attributes.length">
+					<td class="td-padding">Attributes</td>
+					<td>
+						<input class="form-control" disabled="disabled" ng-model="botInfo.botConfig.attributes[0].name">
+					</td>
+				</tr>
+			</tbody>
 			<tbody ng-show="botInfo.botLinkedSubCategory==='jenkins'">
 				<tr>
 					<td class="td-padding">Job Name</td>
 					<td>
-						<input class="form-control" disabled="disabled" ng-model="botInfo.taskConfig.jobName">
+						<input class="form-control" disabled="disabled" ng-model="botInfo.botConfig.jobName">
 					</td>
 				</tr>
 				<tr>
 					<td class="td-padding">Job URL</td>
 					<td>
-						<input disabled="disabled" class="form-control" ng-model="botInfo.taskConfig.jobURL">
+						<input disabled="disabled" class="form-control" ng-model="botInfo.botConfig.jobURL">
+					</td>
+				</tr>
+				<tr ng-show="botInfo.botConfig && botInfo.botConfig.parameterized && botInfo.botConfig.parameterized.length">
+					<td class="td-padding">Bot Parameter Type</td>
+					<td>
+						<input disabled="disabled" class="form-control" ng-model="botInfo.botConfig.parameterized[0].parameterName">
+					</td>
+				</tr>
+				<tr ng-show="botInfo.botConfig && botInfo.botConfig.parameterized && botInfo.botConfig.parameterized.length">
+					<td class="td-padding">Bot Parameter Name</td>
+					<td>
+						<input disabled="disabled" class="form-control" ng-model="botInfo.botConfig.parameterized[0].name">
+					</td>
+				</tr>
+				<tr ng-show="botInfo.botConfig && botInfo.botConfig.parameterized && botInfo.botConfig.parameterized.length">
+					<td class="td-padding">Bot Parameter Value</td>
+					<td>
+						<input disabled="disabled" class="form-control" ng-model="botInfo.botConfig.parameterized[0].defaultValue">
+					</td>
+				</tr>
+				<tr ng-show="botInfo.botConfig && botInfo.botConfig.parameterized && botInfo.botConfig.parameterized.length">
+					<td class="td-padding">Bot Parameter Description</td>
+					<td>
+						<input disabled="disabled" class="form-control" ng-model="botInfo.botConfig.parameterized[0].description">
 					</td>
 				</tr>
 			</tbody>
@@ -85,7 +123,13 @@
 				<tr>
 					<td class="td-padding">Script Type Name</td>
 					<td>
-						<input class="form-control" disabled="disabled" ng-model="botInfo.taskConfig.scriptTypeName">
+						<input class="form-control" disabled="disabled" ng-model="botInfo.botConfig.scriptTypeName">
+					</td>
+				</tr>
+				<tr ng-show="botInfo.botConfig.scriptDetails.length">
+					<td class="td-padding">Script Parameter Description</td>
+					<td>
+						<input class="form-control" disabled="disabled" ng-model="botInfo.botConfig.scriptDetails[0].paramDesc">
 					</td>
 				</tr>
 			</tbody>
