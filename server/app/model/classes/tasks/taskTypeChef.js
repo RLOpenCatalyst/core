@@ -269,7 +269,7 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                     });
                 });
 
-            } else if (tagServer) {
+            } else if (tagServer !== 'undefined' && tagServer !== null) {
                 logger.debug('in tagServer',tagServer);
                 instancesDao.getInstancesByTagServer(tagServer, function(err, instances) {
                     if (err) {

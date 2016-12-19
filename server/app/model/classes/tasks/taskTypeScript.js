@@ -67,9 +67,8 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
     var sudoFlag = this.isSudo;
     var scriptDetails = this.scriptDetails;
     var instanceResultList = [];
-
     function getInstances(instanceIds, tagServer, callback) {
-        if (tagServer) {
+        if (tagServer !== 'undefined' && tagServer !== null) {
             logger.debug('in tagServer', tagServer);
             instancesDao.getInstancesByTagServer(tagServer, function (err, instances) {
                 if (err) {
@@ -83,7 +82,6 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
             });
 
         } else {
-
             if (!(instanceIds && instanceIds.length)) {
                 if (typeof onExecute === 'function') {
                     onExecute({
@@ -104,8 +102,6 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
             });
         }
     }
-
-
     getInstances(instanceIds, self.botTagServer, function (err, instances) {
         if (err) {
             logger.error(err);

@@ -298,7 +298,8 @@ BotsSchema.statics.updateBotsExecutionCount = function updateBotsExecutionCount(
 
 BotsSchema.statics.getScheduledBots = function getScheduledBots(callback) {
     Bots.find({
-        isBotScheduled: true
+        isBotScheduled: true,
+        isDeleted:false
     }, function (err, bots) {
         if (err) {
             logger.error(err);
