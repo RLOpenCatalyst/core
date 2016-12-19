@@ -30,6 +30,11 @@ var AuditTrailSchema = function AuditTrail() {
             trim:true,
             required:true
         },
+        auditHistoryId: {
+            type: String,
+            trim:true,
+            required:false
+        },
         masterDetails:{
             orgName: {
                 type: String,

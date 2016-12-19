@@ -8,7 +8,7 @@
 (function (angular) {
 	"use strict";
 	angular.module('dashboard.bots')
-		.controller('botExecutionLogsCtrl', ['$q', '$scope', '$timeout', 'items', function ($q, $scope, $timeout, items) {
+		.controller('botExecutionLogsCtrl', ['$q', '$scope', '$timeout', 'items','$modalInstance', function ($q, $scope, $timeout, items,$modalInstance) {
 			console.log(items);
 			$scope.parentItemDetail=items;
 			var botExecLogCtrl={};
