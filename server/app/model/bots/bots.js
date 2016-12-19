@@ -15,6 +15,7 @@
  */
 
 var mongoose = require('mongoose');
+var logger = require('_pr/logger')(module);
 var ObjectId = require('mongoose').Types.ObjectId;
 var mongoosePaginate = require('mongoose-paginate');
 var Schema = mongoose.Schema;

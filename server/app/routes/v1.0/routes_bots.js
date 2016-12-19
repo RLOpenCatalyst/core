@@ -57,6 +57,16 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         })
     });
 
+    app.get('/bots/:botId/bots-history/:historyId',function(req,res){
+        botsService.getPerticularBotsHistory(req.params.botId,req.params.historyId, function(err,data){
+            if (err) {
+                return res.status(500).send(err);
+            } else {
+                return res.status(200).send(data);
+            }
+        })
+    });
+
     app.post('/bots/:botId/execute',function(req,res){
         var reqBody = null;
         if(req.body.category && req.body.category ==='Blueprints') {

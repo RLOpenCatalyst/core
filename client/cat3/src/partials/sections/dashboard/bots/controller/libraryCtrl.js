@@ -374,23 +374,29 @@
 
         $scope.ok=function(){
             $scope.eventParams = {
-                repeats: $scope.repeatsType,
-                repeatBy: $scope.repeatBy,
-                cronStart: $scope.schedulerStartOn,
-                cronEnd: $scope.schedulerEndOn,
-                startTime: $scope.timeEventType,
-                startTimeMinute: $scope.timeEventMinute,
-                dayOfWeek: $scope.weekOfTheDay,
-                selectedDayOfTheMonth: $scope.selectedDayOfTheMonth,
-                monthOfYear: $scope.selectedMonth
+                cronFrequency: $scope.repeatsType,
+                cronRepeatEvery: $scope.repeatBy,
+                cronStartOn: $scope.schedulerStartOn,
+                cronEndOn: $scope.schedulerEndOn,
+                cronHour: $scope.timeEventType,
+                cronMinute: $scope.timeEventMinute,
+                cronWeekDay: $scope.weekOfTheDay,
+                cronDate: $scope.selectedDayOfTheMonth,
+                cronMonth: $scope.selectedMonth
             };
+            var reqBody = {
+                botScheduler:$scope.eventParams,
+                isBotScheduled:true
+            }
             var param={
                 url:'/bots/' + $scope.botId + '/scheduler',
-                reqBody: $scope.eventParams
+                data: reqBody
             };
             genSevs.promisePut(param).then(function (response) {
-                $scope.botSummary = response;
-                $scope.totalSavedTimeForBots = parseInt($scope.botSummary.totalSavedTimeForBots);
+                if(response){
+                    toastr.success('BOTs Scheduler successfully updated');
+                    $modalInstance.dismiss('cancel');
+                }
             });
         };
 
@@ -443,21 +449,6 @@
                         $scope.errorMessage = "No Chef History Records found";
                         $scope.ischefTaskHistoryPageLoading = false;
                     });
-                    /*workzoneServices.getHistory(items.botId).then(function(response) {
-                     console.log(response);
-                     $timeout(function() {
-                     if(response.data){
-                     $scope.taskHistoryChefData = response.data;
-                     $scope.ischefTaskHistoryPageLoading = false;
-                     }else if(response){
-                     $scope.taskHistoryChefData = response;
-                     $scope.ischefTaskHistoryPageLoading = false;
-                     }
-                     },100);
-                     }, function(){
-                     $scope.errorMessage = "No Chef History Records found";
-                     $scope.ischefTaskHistoryPageLoading = false;
-                     });*/
                 },
                 getExecutionTime: function(endTime, startTime) {
                     $scope.executionTimeinMS = endTime-startTime;
@@ -675,7 +666,7 @@
                         items: function() {
                             return {
                                 taskId : hist.auditId,
-                                historyId : hist._id,
+                                historyId : hist.auditHistoryId,
                                 taskType:hist.auditTrailConfig.executionType
                             };
                         }

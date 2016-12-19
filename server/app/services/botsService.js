@@ -23,8 +23,6 @@ var taskService =  require('_pr/services/taskService.js');
 var auditTrailService =  require('_pr/services/auditTrailService.js');
 var blueprintService =  require('_pr/services/blueprintService.js');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
-var catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
-var cronTab = require('node-crontab');
 
 const errorType = 'botsService';
 
@@ -101,10 +99,12 @@ botsService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,call
             bots.getBotsById(botId, function (err, botsData) {
                 if (err) {
                     logger.error(err);
-                } else if(botData.length > 0){
+                } else if(botsData.length > 0){
                     if (botsData[0].isBotScheduled === true) {
+                        var catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
                         catalystSync.executeScheduledBots();
                     } else if (botsData[0].cronJobId && botsData[0].cronJobId !== null) {
+                        var cronTab = require('node-crontab');
                         cronTab.cancelJob(botsData[0].cronJobId);
                     } else {
                         logger.debug("There is no cron job associated with Bot ");
@@ -239,6 +239,35 @@ botsService.getBotsHistory = function getBotsHistory(botId,callback){
         }
         callback(null,data);
         return;
+    });
+}
+
+botsService.getPerticularBotsHistory = function getPerticularBotsHistory(botId,historyId,callback){
+    async.waterfall([
+        function(next){
+            bots.getBotsById(botId,next);
+        },
+        function(bots,next){
+            if(bots.length > 0){
+                var query={
+                    auditType:'BOTs',
+                    auditId:botId,
+                    auditHistoryId:historyId
+                };
+                auditTrail.getAuditTrails(query,next);
+            }else{
+                next({errCode:400, errMsg:"Bots is not exist in DB"},null)
+            }
+        }
+    ],function(err,results){
+        if(err){
+            logger.error(err);
+            callback(err,null);
+            return;
+        }else{
+            callback(null,results);
+            return;
+        }
     });
 }
 
