@@ -46,7 +46,7 @@ var botsDao = require('_pr/model/bots/bots.js');
 schedulerService.executeSchedulerForInstances = function executeSchedulerForInstances(instance,callback) {
     logger.debug("Instance Scheduler is started for Instance. "+instance.platformId);
     logger.debug("Instance current state is  "+instance.instanceState);
-    var catUser = 'superadmin';
+    var catUser = 'system';
     if(instance.catUser){
         catUser = instance.catUser;
     }
@@ -122,7 +122,7 @@ schedulerService.executeParallelScheduledTasks = function executeParallelSchedul
                     logger.error("Error in updating cron job Ids. "+err);
                 }
             })
-            taskService.executeTask(task._id, "superadmin", "", "", "","","",function(err, historyData) {
+            taskService.executeTask(task._id, "system", "", "", "","","",function(err, historyData) {
                 if (err === 404) {
                     logger.error("Task not found.", err);
                     return;
@@ -193,7 +193,7 @@ schedulerService.executeSerialScheduledTasks = function executeSerialScheduledTa
                     logger.error("Error in updating cron job Ids. "+err);
                 }
             })
-            taskService.executeTask(task._id, "superadmin", "", "", "","","",function(err, historyData) {
+            taskService.executeTask(task._id, "system", "", "", "","","",function(err, historyData) {
                 if (err === 404) {
                     logger.error("Task not found.", err);
                     callback(err,null);

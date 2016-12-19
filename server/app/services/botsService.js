@@ -279,7 +279,9 @@ botsService.executeBots = function executeBots(botId,reqBody,callback){
         function(bots,next){
             if(bots.length > 0){
                 if(bots[0].botLinkedCategory === 'Task'){
-                    taskService.executeTask(botId,reqBody.userName,reqBody.hostProtocol,reqBody.choiceParam,reqBody.appData,reqBody.paramOptions,reqBody.tagServer, callback);
+                    taskService.executeTask(botId,reqBody.userName ? reqBody.userName : 'system',reqBody.hostProtocol ? reqBody.hostProtocol : '',
+                        reqBody.choiceParam ? reqBody.choiceParam : '',reqBody.appData ? reqBody.appData : '',reqBody.paramOptions ? reqBody.paramOptions : '',
+                        reqBody.tagServer ? reqBody.tagServer : '', callback);
                 }else{
                     blueprintService.launch(botId,reqBody,callback)
                 }

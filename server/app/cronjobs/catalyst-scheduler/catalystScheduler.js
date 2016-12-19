@@ -175,7 +175,7 @@ catalystSync.executeSerialScheduledTasks = function executeSerialScheduledTasks(
 }
 
 catalystSync.executeScheduledBots = function executeScheduledBots() {
-   /* botsDao.getScheduledBots(function(err, bots) {
+    botsDao.getScheduledBots(function(err, bots) {
         if (err) {
             logger.error("Failed to fetch bots: ", err);
             return;
@@ -209,7 +209,7 @@ catalystSync.executeScheduledBots = function executeScheduledBots() {
             logger.debug("There is no scheduled Bots right now.");
             return;
         }
-    });*/
+    });
 }
 
 function cancelOldCronJobs(ids){
