@@ -139,7 +139,7 @@
             });
         };
 
-        genericServices.botHistory=function(bot) {
+        /*genericServices.botHistory=function(bot) {
             $modal.open({
                 animation: true,
                 templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationHistory.html',
@@ -153,7 +153,7 @@
                     }
                 }
             });
-        };
+        };*/
 
         genericServices.removeBlueprint= function(blueprintObj, bpType) {
             var modalOptions = {
@@ -201,23 +201,23 @@
                 }).result.then(function(response) {
                     console.log(response);
                     //genericServices.log();
-                    if(response.blueprintMessage){
+                    /*if(response.blueprintMessage){
                         $rootScope.$emit('WZ_INSTANCES_SHOW_LATEST');
                     }
-                    $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
+                    $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');*/
                 }, function() {
-                    $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
+                    //$rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
                 });
             } else {
                 $modal.open({
                     animation: true,
-                    templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/confirmJobRun.html',
-                    controller: 'confirmJobRunCtrl',
+                    templateUrl: 'src/partials/sections/dashboard/bots/view/confirmBotRun.html',
+                    controller: 'confirmBotRunCtrl',
                     backdrop: 'static',
                     keyboard: false,
                     resolve: {
                         items: function() {
-                            return task._id;
+                            return task;
                         }
                     }
                 }).result.then(function(response) {

@@ -9,8 +9,10 @@
 	</div>
 	<div class="borderTop"></div>
 
-	<div id="grid1" ng-if="audit.gridOptions.data.length > 0" ui-grid="audit.gridOptions" ui-grid-pagination class="grid" style="height: {{gridHeight}}px"></div>
-	<div class="alert alert-info text-center" ng-if="!audit.gridOptions.data.length > 0">
+	<loading size="large" name="isBotAuditTrailPageLoading" type="block"></loading>
+	<div class="alert alert-info text-center" ng-if="!botAuditTrailGridOptions.data.length > 0">
 	    No data Available
 	</div>
+
+	<div id="grid1" ng-if="botAuditTrailGridOptions.data.length > 0 && !isBotAuditTrailPageLoading" ui-grid="botAuditTrailGridOptions" ui-grid-pagination class="grid" style="height: {{gridHeight}}px"></div>
 </div>
