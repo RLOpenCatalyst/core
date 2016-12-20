@@ -16,32 +16,34 @@
         var botLibraryUIGridDefaults = uiGridOptionsService.options();
         $scope.paginationParams = botLibraryUIGridDefaults.pagination;
         $scope.paginationParams=[];
+        $scope.paginationParams.page = 1;
+        $scope.paginationParams.pageSize = 10;
         $scope.paginationParams.sortBy = 'createdOn';
         $scope.paginationParams.sortOrder = 'desc';
-        console.log($scope.paginationParams.sortBy);
             
         $scope.initGrids = function(){
             $scope.botLibGridOptions={};
             $scope.botLibGridOptions.columnDefs= [
-                    { name:'Task Type', field:'botLinkedSubCategory' ,cellTemplate:'<img src="images/orchestration/chef.png" ng-show="row.entity.botLinkedSubCategory==\'chef\'" alt="row.entity.taskType" title="Chef" class="task-type-img" />'+
-                        '<img src="images/orchestration/jenkins.png" ng-show="row.entity.botLinkedSubCategory==\'jenkins\'" alt="row.entity.botLinkedSubCategory" title="Jenkins" class="task-type-img" />'+
-                        '<img src="images/orchestration/script.jpg" ng-show="row.entity.botLinkedSubCategory==\'script\'" alt="row.entity.taskType" title="Script" class="task-type-img" />'+
-                        '<img src="images/devops-roles/devopsRole1.png" ng-show="row.entity.botLinkedCategory==\'Blueprint\'" alt="row.entity.botType" title="Blueprint" class="task-type-img" />',cellTooltip: true},
-                    { name: 'BOT Type',displayName: 'BOT Type',field:'botType',cellTooltip: true},
-                    { name: 'BOT Name',displayName: 'BOT Name',field:'botName',cellTooltip: true},
-                    { name: 'Category',field:'botCategory',cellTooltip: true},
-                    { name: 'description',field:'botDesc',cellTooltip: true},
-                    { name: 'Total Runs',field:'executionCount'},
-                    { name: 'BOT History',displayName: 'BOT History',cellTemplate:'<span ng-show="row.entity.blueprintType">NA</span>'+
-                        '<span class="btn cat-btn-update control-panel-button" title="History" ng-show="row.entity.botLinkedSubCategory" ng-click="grid.appScope.botHistory(row.entity);"><i class="fa fa-header white"></i></span>'},
-                    { name: 'BOT Info',displayName: 'BOT Info',cellTemplate:
-                        '<span class="btn cat-btn-update control-panel-button" title="Info" ng-click="grid.appScope.botInfo(row.entity);"><i class="fa fa-info white"></i></span>'},
-                    { name: 'BOT Action',displayName: 'BOT Action',cellTemplate:
-                        '<span class="btn cat-btn-update control-panel-button" title="Schedule" ng-click="grid.appScope.botSchedule(row.entity);"><i class="fa fa-calendar white"></i></span>' +
-                        '<span class="btn cat-btn-update control-panel-button" title="Execute" ng-click="grid.appScope.launchInstance(row.entity);"><i class="fa fa-play white"></i></span>' +
-                        '<span class="btn btn-danger control-panel-button" title="Delete Bot" ng-click="grid.appScope.deleteBot(row.entity);"><i class="fa fa-trash-o white"></i></span>'
-                    }
-                ]
+                { name:'Task Type', field:'botLinkedSubCategory' ,cellTemplate:'<img src="images/orchestration/chef.png" ng-show="row.entity.botLinkedSubCategory==\'chef\'" alt="row.entity.taskType" title="Chef" class="task-type-img" />'+
+                    '<img src="images/orchestration/jenkins.png" ng-show="row.entity.botLinkedSubCategory==\'jenkins\'" alt="row.entity.botLinkedSubCategory" title="Jenkins" class="task-type-img" />'+
+                    '<img src="images/orchestration/script.jpg" ng-show="row.entity.botLinkedSubCategory==\'script\'" alt="row.entity.taskType" title="Script" class="task-type-img" />'+
+                    '<img src="images/devops-roles/devopsRole1.png" ng-show="row.entity.botLinkedCategory==\'Blueprint\'" alt="row.entity.botType" title="Blueprint" class="task-type-img" />',cellTooltip: true},
+                { name: 'BOT Type',displayName: 'BOT Type',field:'botLinkedCategory',cellTooltip: true},
+                { name: 'BOT Name',displayName: 'BOT Name',field:'botName',cellTooltip: true},
+                { name: 'Category',field:'botCategory',cellTooltip: true},
+                { name: 'description',field:'botDesc',cellTooltip: true},
+                { name: 'Org',field:'masterDetails.orgName',cellTooltip: true},
+                { name: 'Total Runs',field:'executionCount'},
+                { name: 'BOT History',displayName: 'BOT History',cellTemplate:'<span ng-show="row.entity.blueprintType">NA</span>'+
+                    '<span class="btn cat-btn-update control-panel-button" title="History" ng-show="row.entity.botLinkedSubCategory" ng-click="grid.appScope.botHistory(row.entity);"><i class="fa fa-header white"></i></span>'},
+                { name: 'BOT Info',displayName: 'BOT Info',cellTemplate:
+                    '<span class="btn cat-btn-update control-panel-button" title="Info" ng-click="grid.appScope.botInfo(row.entity);"><i class="fa fa-info white"></i></span>'},
+                { name: 'BOT Action',displayName: 'BOT Action',cellTemplate:
+                    '<span class="btn cat-btn-update control-panel-button" title="Schedule" ng-click="grid.appScope.botSchedule(row.entity);"><i class="fa fa-calendar white"></i></span>' +
+                    '<span class="btn cat-btn-update control-panel-button" title="Execute" ng-click="grid.appScope.launchInstance(row.entity);"><i class="fa fa-play white"></i></span>' +
+                    '<span class="btn btn-danger control-panel-button" title="Delete Bot" ng-click="grid.appScope.deleteBot(row.entity);"><i class="fa fa-trash-o white"></i></span>'
+                }
+            ]
             $scope.botLibGridOptions.data=[];
             angular.extend($scope.botLibGridOptions,botLibraryUIGridDefaults.gridOption);
         };
@@ -66,42 +68,74 @@
                 });
             },
         });
+        $scope.setFirstPageView = function(){
+            $scope.botLibGridOptions.paginationCurrentPage = $scope.paginationParams.page = 1;
+        };
         $scope.setPaginationDefaults = function() {
             $scope.paginationParams.sortBy = 'createdOn';
             $scope.paginationParams.sortOrder = 'desc';
-            /*if($scope.paginationParams.page !== 1){
+            if($scope.paginationParams.page !== 1){
                 $scope.setFirstPageView();//if current page is not 1, then ui grid will trigger a call when set to 1.
             }else{
-                $scope.botLibraryGridView();
-            }*/
+                //$scope.botLibraryGridView();
+            }
         };
         $scope.setPaginationDefaults();
         $scope.botLibraryGridView = function() {
             lib.gridOptions=[];
             var param={
-                url:'/bots?page=1&pageSize=10&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                url:'/bots?page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
             };
             genSevs.promiseGet(param).then(function (result) {
                 $timeout(function() {
-                    console.log(result);
                     $scope.botLibGridOptions.totalItems = result.metaData.totalRecords;
                     $scope.botLibGridOptions.data=result.bots;
                 }, 100);
                 $scope.isBotLibraryPageLoading = false;
             }, function(error) {
                 $scope.isBotLibraryPageLoading = false;
-                console.log(error);
+                toastr.error(error);
                 $scope.errorMessage = "No Records found";
             });
         };
-        var gridBottomSpace = 250;
+        $scope.botLibraryGridView();
+        $scope.searchBotNameCategory = function() {
+            $scope.searchString = $scope.botLibrarySearch;
+            lib.gridOptions=[];
+            if($scope.totalBotsSelected) {
+                var param={
+                    url:'/bots?page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
+                }
+            } else if($scope.runningBotsselected) {
+                var param={
+                    url:'/bots?actionStatus=running&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
+                }
+            } else if($scope.failedBotsselected) {
+                var param={
+                    url:'/bots?actionStatus=failed&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
+                }
+            };
+            genSevs.promiseGet(param).then(function (result) {
+                $timeout(function() {
+                    $scope.botLibGridOptions.totalItems = result.metaData.totalRecords;
+                    $scope.botLibGridOptions.data=result.bots;
+                }, 100);
+                $scope.isBotLibraryPageLoading = false;
+            }, function(error) {
+                $scope.isBotLibraryPageLoading = false;
+                toastr.error(error);
+                $scope.errorMessage = "No Records found";
+            });
+        };
+        var gridBottomSpace = 225;
         $scope.gridHeight = workzoneUIUtils.makeTabScrollable('botLibraryPage') - gridBottomSpace;
         $scope.launchInstance = function(launch){
-            genSevs.executeTask(launch);
+            if(launch.botLinkedCategory === 'Task'){
+                genSevs.executeTask(launch);
+            } else if(launch.botLinkedCategory === 'Blueprint') {
+                genSevs.launchBlueprint(launch);
+            }
         };
-        /*$scope.botLogs = function(bot){
-            genSevs.botHistory(bot);
-        };*/
         $scope.botHistory=function(bot) {
             var modalInstance = $modal.open({
                 animation: true,
@@ -141,7 +175,7 @@
                 console.log('Modal Dismissed at ' + new Date());
             });
         };
-        $scope.botSchedule = function() {
+        $scope.botSchedule = function(bot) {
             $modal.open({
                 templateUrl: 'src/partials/sections/dashboard/bots/view/botSchedule.html',
                 controller: 'botScheduleCtrl',
@@ -149,34 +183,11 @@
                 keyboard: false,
                 resolve: {
                     items: function () {
-                        return {
-                            chefJenkScriptTaskObj:$scope.chefJenkScriptTaskObj,
-                            type:$scope.type
-                        }
+                        return bot
                     }
                 }
-            }).result.then(function (chefEventDetails) {
-                $scope.isEventAvailable = true;
-                $scope.chefJenkScriptTaskObj = chefEventDetails;
-                var startTimeMinute,startTimeHour,dayOfWeek,selectedDayOfTheMonth,selectedMonth;
-                startTimeMinute = $scope.chefJenkScriptTaskObj.startTimeMinute;
-                startTimeHour = $scope.chefJenkScriptTaskObj.startTime;
-                dayOfWeek = $scope.chefJenkScriptTaskObj.dayOfWeek;
-                selectedDayOfTheMonth = $scope.chefJenkScriptTaskObj.selectedDayOfTheMonth;
-                selectedMonth = $scope.chefJenkScriptTaskObj.monthOfYear;
-                $scope.type = 'edit';
-                $scope._isEventSelected = true;
+            }).result.then(function () {
                 
-                $scope.repeatPattern = 'Repeat Every -' +  $scope.chefJenkScriptTaskObj.repeats;   
-                $scope.cronDetails = {
-                    cronStartOn : $scope.chefJenkScriptTaskObj.cronStart,
-                    cronEndOn : $scope.chefJenkScriptTaskObj.cronEnd,
-                    cronRepeatEvery : $scope.chefJenkScriptTaskObj.repeatBy,
-                    cronFrequency: $scope.chefJenkScriptTaskObj.repeats,
-                    cronTime: typeof startTimeHour !=='undefined'? startTimeHour : new Date().getHours() + ':' + typeof startTimeMinute !=='undefined'? startTimeMinute:new Date().getMinutes(),
-                    cronDays: $scope.chefJenkScriptTaskObj.dayOfWeek,
-                    cronMonth: $scope.chefJenkScriptTaskObj.monthOfYear
-                }
             }, function () {
                 console.log('Dismiss time is ' + new Date());
             });
@@ -220,6 +231,7 @@
             $scope.totalBotsSelected = true;
             $scope.runningBotsselected = false;
             $scope.failedBotsselected = false;
+            $scope.botLibrarySearch = '';
             lib.summary();
             $scope.botLibraryGridView();
         };
@@ -229,12 +241,13 @@
             $scope.failedBotsselected = false;
             lib.gridOptions.data=[];
             var param={
-                url:'/bots?actionStatus=running?page=1&pageSize=10&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                url:'/bots?actionStatus=running&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
             };
             genSevs.promiseGet(param).then(function (result) {
-                angular.forEach(result,function (val) {
-                    lib.gridOptions.data.push(val);
-                });
+                $timeout(function() {
+                    $scope.botLibGridOptions.totalItems = result.metaData.totalRecords;
+                    $scope.botLibGridOptions.data=result.bots;
+                }, 100);
             });
             lib.summary();
         };
@@ -244,12 +257,13 @@
             $scope.totalBotsSelected = false;
             lib.gridOptions.data=[];
             var param={
-                url:'/bots?actionStatus=failed?page=1&pageSize=10&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                url:'/bots?actionStatus=failed&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
             };
             genSevs.promiseGet(param).then(function (result) {
-                angular.forEach(result,function (val) {
-                    lib.gridOptions.data.push(val);
-                });
+                $timeout(function() {
+                    $scope.botLibGridOptions.totalItems = result.metaData.totalRecords;
+                    $scope.botLibGridOptions.data=result.bots;
+                }, 100);
             });
             lib.summary();
         };
@@ -266,13 +280,12 @@
         lib.summary();
     }]).controller('botInfoCtrl',['$scope', 'items', '$modalInstance', function ($scope, items, $modalInstance) {
         $scope.botInfo = items;
-        console.log(items);
 
         $scope.cancel= function() {
             $modalInstance.dismiss('cancel');
         };
     }]).controller('botScheduleCtrl',['$scope', '$rootScope', 'genericServices', 'workzoneServices', 'toastr', '$modalInstance', 'items', '$timeout', function ($scope, $rootScope, genSevs, workzoneServices, toastr, $modalInstance, items, $timeout) {
-        console.log(items);
+        $scope.botId = items.botId;
         $scope.defaultSelection = function() {
             $scope.repeatsType = 'Minutes';//default selection.
             $scope.schedulerStartOn=moment(new Date()).format('MM/DD/YYYY');
@@ -319,7 +332,7 @@
             } else {
                 $scope.validDateRange=false;
             }
-      
+
         };
 
         $scope.repeatCount = function(max, step) {
@@ -333,35 +346,45 @@
         $scope.isDaySelected = {
             flag:true
         }
-        
+
         $scope.daysOfWeek = [ 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' ];
 
         $scope.monthOfYear = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ];
-        $scope.cancel = function() {
-            $modalInstance.dismiss('cancel');
-        };
+
         $scope.ok=function(){
             $scope.eventParams = {
-                repeats: $scope.repeatsType,
-                repeatBy: $scope.repeatBy,
-                cronStart: $scope.schedulerStartOn,
-                cronEnd: $scope.schedulerEndOn,
-                startTime: $scope.timeEventType,
-                startTimeMinute: $scope.timeEventMinute,
-                dayOfWeek: $scope.weekOfTheDay,
-                selectedDayOfTheMonth: $scope.selectedDayOfTheMonth,
-                monthOfYear: $scope.selectedMonth
+                cronFrequency: $scope.repeatsType,
+                cronRepeatEvery: $scope.repeatBy,
+                cronStartOn: $scope.schedulerStartOn,
+                cronEndOn: $scope.schedulerEndOn,
+                cronHour: $scope.timeEventType,
+                cronMinute: $scope.timeEventMinute,
+                cronWeekDay: $scope.weekOfTheDay,
+                cronDate: $scope.selectedDayOfTheMonth,
+                cronMonth: $scope.selectedMonth
             };
-            $modalInstance.close($scope.eventParams);
+            var reqBody = {
+                botScheduler:$scope.eventParams,
+                isBotScheduled:true
+            }
+            var param={
+                url:'/bots/' + $scope.botId + '/scheduler',
+                data: reqBody
+            };
+            genSevs.promisePut(param).then(function (response) {
+                if(response){
+                    toastr.success('BOTs Scheduler successfully updated');
+                    $modalInstance.dismiss('cancel');
+                }
+            });
         };
 
         $scope.cancel = function() {
             $modalInstance.dismiss('cancel');
         };
-    }]).controller('botHistoryCtrl',["items", '$scope', '$modalInstance', '$modal', '$timeout', 'uiGridOptionsClient', 'genericServices',
-        function(items, $scope, $modalInstance, $modal, $timeout, uiGridOptionsClient, genSevs){
+    }]).controller('botHistoryCtrl',["items", '$scope', '$modalInstance', '$modal', '$timeout', 'uiGridOptionsClient', 'genericServices', 'workzoneServices',
+        function(items, $scope, $modalInstance, $modal, $timeout, uiGridOptionsClient, genSevs, workzoneServices){
             //UI Grid for chef Task starts
-            console.log(items);
             $scope.botHistory = items;
             $scope.botId = items.botId;
             $scope.taskHistoryChefData = [];
@@ -371,16 +394,15 @@
             $scope.initChefGrids = function(){
                 $scope.taskHistoryChefGridOptions.data='taskHistoryChefData';
                 $scope.taskHistoryChefGridOptions.columnDefs = [
-                { name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status}}">{{row.entity.status}}</div>', cellTooltip: true},
-                { name:'Message', field: 'message', 
-                  cellTemplate:'<span title="{{row.entity.message}}">{{row.entity.message}}</span>'},
-                { name:'User',field:'user',cellTooltip: true},
-                { name:'Logs',width: 70,
-                  cellTemplate:'<div class="text-center"><i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.historyLogs(row.entity)"></i></div>'},{ name:'Start Time',field:'timestampStarted',cellTemplate:'<span title="{{row.entity.timestampStarted  | timestampToLocaleTime}}">{{row.entity.timestampStarted  | timestampToLocaleTime}}</span>', sort:{ direction: 'desc'}, cellTooltip: true},
-                { name:'End Time',field:'timestampEnded',cellTemplate:'<span title="{{row.entity.timestampEnded  | timestampToLocaleTime}}">{{row.entity.timestampEnded  | timestampToLocaleTime}}</span>', cellTooltip: true},
-                { name:'Execution Time',cellTemplate:'<span ng-if="row.entity.timestampEnded">{{grid.appScope.getExecutionTime(row.entity.timestampEnded,row.entity.timestampStarted)}} mins</span>'},
-                { name:'Manual Time',cellTemplate: '<span>{{row.entity.manualExecutionTime}} mins</span>', cellTooltip: true},
-                { name:'Saved Time',cellTemplate:'<span ng-if="row.entity.status == \'success\'">{{grid.appScope.getSavedTime(row.entity.timestampEnded,row.entity.timestampStarted)}} mins</span>' +
+                    { name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status}}">{{row.entity.status}}</div>', cellTooltip: true},
+                    { name:'User',field:'user',cellTooltip: true},
+                    { name:'Logs',width: 70,
+                        cellTemplate:'<div class="text-center"><i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.historyLogs(row.entity)"></i></div>'},
+                    { name:'Start Time',field:'startedOn',cellTemplate:'<span title="{{row.entity.startedOn  | timestampToLocaleTime}}">{{row.entity.startedOn  | timestampToLocaleTime}}</span>', sort:{ direction: 'desc'}, cellTooltip: true},
+                    { name:'End Time',field:'timestampEnded',cellTemplate:'<span title="{{row.entity.endedOn  | timestampToLocaleTime}}">{{row.entity.endedOn  | timestampToLocaleTime}}</span>', cellTooltip: true},
+                    { name:'Execution Time',cellTemplate:'<span ng-if="row.entity.endedOn">{{grid.appScope.getExecutionTime(row.entity.endedOn,row.entity.startedOn)}} mins</span>'},
+                    { name:'Manual Time',cellTemplate: '<span>{{row.entity.auditTrailConfig.manualExecutionTime}} mins</span>', cellTooltip: true},
+                    { name:'Saved Time',cellTemplate:'<span ng-if="row.entity.status == \'success\'">{{grid.appScope.getSavedTime(row.entity.endedOn,row.entity.startedOn)}} mins</span>' +
                     '<span ng-if="row.entity.status !== \'success\'" title="NA">NA</span>', cellTooltip: true}
                 ];
             };
@@ -388,24 +410,9 @@
                 taskHistoryChefListView: function() {
                     $scope.taskHistoryChefData = [];
                     var param={
-                        url:'/bots/:$scope.botId/bots-history'
+                        url:'/bots/' + $scope.botId + '/bots-history'
                     };
                     genSevs.promiseGet(param).then(function (response) {
-                        console.log(response);
-                        $timeout(function() {
-                            if(response.data){
-                                $scope.taskHistoryChefData = response.data;
-                                $scope.ischefTaskHistoryPageLoading = false;
-                            }else if(response){
-                                $scope.taskHistoryChefData = response;
-                                $scope.ischefTaskHistoryPageLoading = false;
-                            }
-                        },100);
-                    }, function(){
-                        $scope.errorMessage = "No Chef History Records found";
-                        $scope.ischefTaskHistoryPageLoading = false;
-                    });
-                    genSevs.getHistory(items._id).then(function(response) {
                         $timeout(function() {
                             if(response.data){
                                 $scope.taskHistoryChefData = response.data;
@@ -447,15 +454,15 @@
             $scope.initJenkinsGrids = function(){
                 $scope.taskHistoryJenkinsGridOptions.data='taskHistoryJenkinsData';
                 $scope.taskHistoryJenkinsGridOptions.columnDefs = [
-                { name:'Job Number',field:'buildNumber',cellTemplate:'<a target="_blank" title="Jenkins" ng-href="{{grid.appScope.task.taskConfig.jobURL}}/{{row.entity.buildNumber}}">{{row.entity.buildNumber}}</a>', sort:{ direction: 'desc'}, cellTooltip: true},
-                { name:'Job Output',cellTemplate:'<span><a target="_blank" title="{{jobResultUrlName}}" class="fa fa-file-text bigger-120 btn cat-btn-update btn-sg tableactionbutton marginbottomright3" ng-repeat="jobResultUrlName in row.entity.jobResultURL" ng-href="{{jobResultUrlName}}"></a></span>',cellTooltip: true},
-                { name:'Log Info',width: 90,cellTemplate:'<span title="Jenkins Log" class="fa fa-list bigger-120 btn cat-btn-update btn-sg tableactionbutton" ng-click="grid.appScope.historyLogs(row.entity);"></span>',cellTooltip: true},
-                { name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status.toUpperCase()}}">{{row.entity.status.toUpperCase()}}</div>'},
-                { name:'Start Time',field:'timestampStarted',cellTemplate:'<span title="{{row.entity.timestampStarted  | timestampToLocaleTime}}">{{row.entity.timestampStarted  | timestampToLocaleTime}}</span>',cellTooltip: true},
-                { name:'End Time',field:'timestampEnded',cellTemplate:'<span title="{{row.entity.timestampEnded  | timestampToLocaleTime}}">{{row.entity.timestampEnded  | timestampToLocaleTime}}</span>',cellTooltip: true},
-                { name:'Execution Time',cellTemplate:'<span ng-if="row.entity.timestampEnded">{{grid.appScope.getExecutionTime(row.entity.timestampEnded,row.entity.timestampStarted)}} mins</span>'},
-                { name:'Manual Time',cellTemplate: '<span>{{row.entity.manualExecutionTime}} mins</span>', cellTooltip: true},
-                { name:'Saved Time',cellTemplate:'<span ng-if="row.entity.status === \'success\'">{{grid.appScope.getSavedTime(row.entity.timestampEnded,row.entity.timestampStarted)}} mins</span>' +
+                    { name:'Job Number',field:'auditTrailConfig.jenkinsBuildNumber',cellTemplate:'<a target="_blank" title="Jenkins" ng-href="{{grid.appScope.task.taskConfig.jobURL}}/{{row.entity.auditTrailConfig.jenkinsBuildNumber}}">{{row.entity.auditTrailConfig.jenkinsBuildNumber}}</a>', sort:{ direction: 'desc'}, cellTooltip: true},
+                    { name:'Job Output',cellTemplate:'<span><a target="_blank" title="{{jobResultUrlName}}" class="fa fa-file-text bigger-120 btn cat-btn-update btn-sg tableactionbutton marginbottomright3" ng-repeat="jobResultUrlName in row.entity.jobResultURL" ng-href="{{jobResultUrlName}}"></a></span>',cellTooltip: true},
+                    { name:'Log Info',width: 90,cellTemplate:'<span title="Jenkins Log" class="fa fa-list bigger-120 btn cat-btn-update btn-sg tableactionbutton" ng-click="grid.appScope.historyLogs(row.entity);"></span>',cellTooltip: true},
+                    { name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status.toUpperCase()}}">{{row.entity.status.toUpperCase()}}</div>'},
+                    { name:'Start Time',field:'startedOn',cellTemplate:'<span title="{{row.entity.startedOn  | timestampToLocaleTime}}">{{row.entity.startedOn  | timestampToLocaleTime}}</span>',cellTooltip: true},
+                    { name:'End Time',field:'endedOn',cellTemplate:'<span title="{{row.entity.endedOn  | timestampToLocaleTime}}">{{row.entity.endedOn  | timestampToLocaleTime}}</span>',cellTooltip: true},
+                    { name:'Execution Time',cellTemplate:'<span ng-if="row.entity.endedOn">{{grid.appScope.getExecutionTime(row.entity.endedOn,row.entity.startedOn)}} mins</span>'},
+                    { name:'Manual Time',cellTemplate: '<span>{{row.entity.auditTrailConfig.manualExecutionTime}} mins</span>', cellTooltip: true},
+                    { name:'Saved Time',cellTemplate:'<span ng-if="row.entity.status === \'success\'">{{grid.appScope.getSavedTime(row.entity.endedOn,row.entity.startedOn)}} mins</span>' +
                     '<span ng-if="row.entity.status !== \'success\'" title="NA">NA</span>', cellTooltip: true}
                 ];
             };
@@ -463,10 +470,9 @@
                 taskHistoryJenkinsListView: function() {
                     $scope.taskHistoryJenkinsData = [];
                     var param={
-                        url:'/bots/:$scope.botId/bots-history'
+                        url:'/bots/' + $scope.botId + '/bots-history'
                     };
                     genSevs.promiseGet(param).then(function (response) {
-                        console.log(response);
                         $timeout(function() {
                             if(response.data){
                                 $scope.taskHistoryJenkinsData = response.data;
@@ -490,98 +496,6 @@
             };
             //UI Grid for jenkins Task ends
 
-            //UI Grid for composite Task starts
-            $scope.taskHistoryCompositeData = [];
-            var gridOptionsComposite = uiGridOptionsClient.options().gridOption;
-            $scope.taskHistoryCompositeGridOptions = gridOptionsComposite;
-
-            $scope.initCompositeGrids = function(){
-                $scope.taskHistoryCompositeGridOptions.data='taskHistoryCompositeData';
-                $scope.taskHistoryCompositeGridOptions.columnDefs = [
-                { name:'Start Time',field:'timestampStarted',cellTemplate:'<span title="{{row.entity.timestampStarted  | timestampToLocaleTime}}">{{row.entity.timestampStarted  | timestampToLocaleTime}}</span>', sort:{ direction: 'desc'}, cellTooltip: true},
-                { name:'End Time',field:'timestampEnded',cellTemplate:'<span title="{{row.entity.timestampEnded  | timestampToLocaleTime}}">{{row.entity.timestampEnded  | timestampToLocaleTime}}</span>',cellTooltip: true},
-                { name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status}}">{{row.entity.status}}</div>', cellTooltip: true},
-                { name:'Message', field: 'message', 
-                  cellTemplate:'<span title="{{row.entity.message}}">{{row.entity.message}}</span>'},
-                { name:'User',field:'user',cellTooltip: true},
-                { name:'Logs',width: 70,
-                  cellTemplate:'<div class="text-center"><i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.historyLogs(row.entity)"></i></div>'}
-                ];
-            };
-            angular.extend($scope, {
-                taskHistoryCompositeListView: function() {
-                    $scope.taskHistoryCompositeData = [];
-                    var param={
-                        url:'/bots/:$scope.botId/bots-history'
-                    };
-                    genSevs.promiseGet(param).then(function (response) {
-                        console.log(response);
-                        $timeout(function() {
-                            if(response.data){
-                                $scope.taskHistoryCompositeData = response.data;
-                                $scope.iscompositeTaskHistoryPageLoading = false;
-                            }else if(response){
-                                $scope.taskHistoryCompositeData = response;
-                                $scope.iscompositeTaskHistoryPageLoading = false;
-                            }
-                        },100);
-                    }, function(){
-                        $scope.errorMessage = "No Composite History Records found";
-                        $scope.iscompositeTaskHistoryPageLoading = false;
-                    });
-                },
-            });
-            $scope.initcomposite = function(){
-                $scope.initCompositeGrids();
-                $scope.taskHistoryCompositeListView();
-            };
-            //UI Grid for composite Task ends
-
-            //UI Grid for puppet Task starts
-            $scope.taskHistoryPuppetData = [];
-            var gridOptionsPuppet = uiGridOptionsClient.options().gridOption;
-            $scope.taskHistoryPuppetGridOptions = gridOptionsPuppet;
-
-            $scope.initPuppetGrids = function(){
-                $scope.taskHistoryPuppetGridOptions.data='taskHistoryPuppetData';
-                $scope.taskHistoryPuppetGridOptions.columnDefs = [
-                    { name:'Start Time',field:'timestampStarted',cellTemplate:'<span title="{{row.entity.timestampStarted  | timestampToLocaleTime}}">{{row.entity.timestampStarted  | timestampToLocaleTime}}</span>', sort:{ direction: 'desc'}, cellTooltip: true},
-                    { name:'End Time',field:'timestampEnded',cellTemplate:'<span title="{{row.entity.timestampEnded  | timestampToLocaleTime}}">{{row.entity.timestampEnded  | timestampToLocaleTime}}</span>', cellTooltip: true},
-                    { name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status}}">{{row.entity.status}}</div>', cellTooltip: true},
-                    { name:'Message', field: 'message', cellTemplate:'<span title="{{row.entity.message}}">{{row.entity.message}}</span>'},
-                    { name:'User',field:'user',cellTooltip: true},
-                    { name:'Logs',width: 70, cellTemplate:'<div class="text-center"><i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.historyLogs(row.entity)"></i></div>'}
-                ];
-            };
-            angular.extend($scope, {
-                taskHistoryPuppetListView: function() {
-                    $scope.taskHistoryPuppetData = [];
-                    var param={
-                        url:'/bots/:$scope.botId/bots-history'
-                    };
-                    genSevs.promiseGet(param).then(function (response) {
-                        console.log(response);
-                        $timeout(function() {
-                            if(response.data){
-                                $scope.taskHistoryPuppetData = response.data;
-                                $scope.ispuppetTaskHistoryPageLoading = false;
-                            }else if(response){
-                                $scope.taskHistoryPuppetData = response;
-                                $scope.ispuppetTaskHistoryPageLoading = false;
-                            }
-                        },100);
-                    }, function(){
-                        $scope.errorMessage = "No Puppet History Records found";
-                        $scope.ispuppetTaskHistoryPageLoading = false;
-                    });
-                },
-            });
-            $scope.initpuppet = function(){
-                $scope.initPuppetGrids();
-                $scope.taskHistoryPuppetListView();
-            };
-            //UI Grid for puppet Task ends
-
             //UI Grid for script Task starts
             $scope.taskHistoryScriptData = [];
             var gridOptionsScript = uiGridOptionsClient.options().gridOption;
@@ -590,17 +504,15 @@
             $scope.initScriptGrids = function(){
                 $scope.taskHistoryScriptGridOptions.data='taskHistoryScriptData';
                 $scope.taskHistoryScriptGridOptions.columnDefs = [
-                { name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status}}">{{row.entity.status}}</div>', cellTooltip: true},
-                { name:'Message', field: 'message', 
-                  cellTemplate:'<span title="{{row.entity.message}}">{{row.entity.message}}</span>'},
-                { name:'User',field:'user',cellTooltip: true},
-                { name:'Logs',width: 70,
-                  cellTemplate:'<div class="text-center"><i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.historyLogs(row.entity)"></i></div>'},
-                  { name:'Start Time',field:'timestampStarted',cellTemplate:'<span title="{{row.entity.timestampStarted  | timestampToLocaleTime}}">{{row.entity.timestampStarted  | timestampToLocaleTime}}</span>', sort:{ direction: 'desc'}, cellTooltip: true},
-                { name:'End Time',field:'timestampEnded',cellTemplate:'<span title="{{row.entity.timestampEnded  | timestampToLocaleTime}}">{{row.entity.timestampEnded  | timestampToLocaleTime}}</span>', cellTooltip: true},
-                { name:'Execution Time',cellTemplate:'<span ng-if="row.entity.timestampEnded">{{grid.appScope.getExecutionTime(row.entity.timestampEnded,row.entity.timestampStarted)}} mins</span>'},
-                { name:'Manual Time',cellTemplate: '<span>{{row.entity.manualExecutionTime}} mins</span>', cellTooltip: true},
-                { name:'Saved Time',cellTemplate:'<span ng-if="row.entity.status === \'success\'">{{grid.appScope.getSavedTime(row.entity.timestampEnded,row.entity.timestampStarted)}} mins</span>' +
+                    { name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status}}">{{row.entity.status}}</div>', cellTooltip: true},
+                    { name:'User',field:'user',cellTooltip: true},
+                    { name:'Logs',width: 70,
+                        cellTemplate:'<div class="text-center"><i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.historyLogs(row.entity)"></i></div>'},
+                    { name:'Start Time',field:'startedOn',cellTemplate:'<span title="{{row.entity.startedOn  | timestampToLocaleTime}}">{{row.entity.startedOn  | timestampToLocaleTime}}</span>', sort:{ direction: 'desc'}, cellTooltip: true},
+                    { name:'End Time',field:'endedOn',cellTemplate:'<span title="{{row.entity.endedOn  | timestampToLocaleTime}}">{{row.entity.endedOn  | timestampToLocaleTime}}</span>', cellTooltip: true},
+                    { name:'Execution Time',cellTemplate:'<span ng-if="row.entity.endedOn">{{grid.appScope.getExecutionTime(row.entity.endedOn,row.entity.startedOn)}} mins</span>'},
+                    { name:'Manual Time',cellTemplate: '<span>{{row.entity.auditTrailConfig.manualExecutionTime}} mins</span>', cellTooltip: true},
+                    { name:'Saved Time',cellTemplate:'<span ng-if="row.entity.status === \'success\'">{{grid.appScope.getSavedTime(row.entity.endedOn,row.entity.startedOn)}} mins</span>' +
                     '<span ng-if="row.entity.status !== \'success\'" title="NA">NA</span>', cellTooltip: true}
                 ];
             };
@@ -608,10 +520,9 @@
                 taskHistoryScriptListView: function() {
                     $scope.taskHistoryScriptData = [];
                     var param={
-                        url:'/bots/:$scope.botId/bots-history'
+                        url:'/bots/' + $scope.botId + '/bots-history'
                     };
                     genSevs.promiseGet(param).then(function (response) {
-                        console.log(response);
                         $timeout(function() {
                             if(response.data){
                                 $scope.taskHistoryScriptData = response.data;
@@ -635,75 +546,190 @@
             };
             //UI Grid for script Task ends
 
-            $scope.task=items;
-            switch ($scope.task.taskType){
+            //UI Grid for Blueprint starts
+            $scope.botHistoryBlueprintData = [];
+            var gridOptionsScript = uiGridOptionsClient.options().gridOption;
+            $scope.botHistoryBlueprintGridOptions = gridOptionsScript;
+
+            $scope.initBlueprintGrids = function(){
+                $scope.botHistoryBlueprintGridOptions.data='botHistoryBlueprintData';
+                $scope.botHistoryBlueprintGridOptions.columnDefs = [
+                    { name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status}}">{{row.entity.status}}</div>', cellTooltip: true},
+                    { name:'User',field:'user',cellTooltip: true},
+                    { name:'Logs',width: 70,
+                        cellTemplate:'<div class="text-center"><i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.historyLogs(row.entity)"></i></div>'},
+                    { name:'Start Time',field:'startedOn',cellTemplate:'<span title="{{row.entity.startedOn  | timestampToLocaleTime}}">{{row.entity.startedOn  | timestampToLocaleTime}}</span>', sort:{ direction: 'desc'}, cellTooltip: true},
+                    { name:'End Time',field:'timestampEnded',cellTemplate:'<span title="{{row.entity.endedOn  | timestampToLocaleTime}}">{{row.entity.timestampEnded  | timestampToLocaleTime}}</span>', cellTooltip: true},
+                    { name:'Execution Time',cellTemplate:'<span ng-if="row.entity.endedOn">{{grid.appScope.getExecutionTime(row.entity.endedOn,row.entity.startedOn)}} mins</span>'},
+                    { name:'Manual Time',cellTemplate: '<span>{{row.entity.auditTrailConfig.manualExecutionTime}} mins</span>', cellTooltip: true},
+                    { name:'Saved Time',cellTemplate:'<span ng-if="row.entity.status === \'success\'">{{grid.appScope.getSavedTime(row.entity.endedOn,row.entity.startedOn)}} mins</span>' +
+                    '<span ng-if="row.entity.status !== \'success\'" title="NA">NA</span>', cellTooltip: true}
+                ];
+            };
+            angular.extend($scope, {
+                botHistoryBlueprintListView: function() {
+                    $scope.botHistoryBlueprintData = [];
+                    var param={
+                        url:'/bots/' + $scope.botId + '/bots-history'
+                    };
+                    genSevs.promiseGet(param).then(function (response) {
+                        $timeout(function() {
+                            if(response.data){
+                                $scope.botHistoryBlueprintData = response.data;
+                                $scope.isBlueprintBotHistoryPageLoading = false;
+                            }else if(response){
+                                $scope.botHistoryBlueprintData = response;
+                                $scope.isBlueprintBotHistoryPageLoading = false;
+                            }
+                        },100);
+                    }, function(){
+                        $scope.errorMessage = "No Script History Records found";
+                        $scope.isBlueprintBotHistoryPageLoading = false;
+                    });
+                },
+            });
+            $scope.initblueprint = function(){
+                $scope.initBlueprintGrids();
+                $scope.botHistoryBlueprintListView();
+                $scope.getExecutionTime();
+                $scope.getSavedTime();
+            };
+            //UI Grid for Blueprint ends
+
+            $scope.bot=items;
+            switch ($scope.bot.botLinkedSubCategory){
                 case 'chef' :
                     $scope.ischefTaskHistoryPageLoading = true;
                     $scope.isjenkinsTaskHistoryPageLoading = false;
-                    $scope.iscompositeTaskHistoryPageLoading = false;
-                    $scope.ispuppetTaskHistoryPageLoading = false;
                     $scope.isscriptTaskHistoryPageLoading = false;
+                    $scope.isBlueprintBotHistoryPageLoading = false;
                     $scope.initchef();
                     break;
                 case 'jenkins' :
                     $scope.ischefTaskHistoryPageLoading = false;
                     $scope.isjenkinsTaskHistoryPageLoading = true;
-                    $scope.iscompositeTaskHistoryPageLoading = false;
-                    $scope.ispuppetTaskHistoryPageLoading = false;
                     $scope.isscriptTaskHistoryPageLoading = false;
+                    $scope.isBlueprintBotHistoryPageLoading = false;
                     $scope.initjenkins();
                     break;
-                case 'composite' :
-                    $scope.ischefTaskHistoryPageLoading = false;
-                    $scope.isjenkinsTaskHistoryPageLoading = false;
-                    $scope.iscompositeTaskHistoryPageLoading = true;
-                    $scope.ispuppetTaskHistoryPageLoading = false;
-                    $scope.isscriptTaskHistoryPageLoading = false;
-                    $scope.initcomposite();
-                    break;
-                case 'puppet':
-                    $scope.ischefTaskHistoryPageLoading = false;
-                    $scope.isjenkinsTaskHistoryPageLoading = false;
-                    $scope.iscompositeTaskHistoryPageLoading = false;
-                    $scope.ispuppetTaskHistoryPageLoading = true;
-                    $scope.isscriptTaskHistoryPageLoading = false;
-                    $scope.initpuppet();
-                    break;
                 case 'script':
-                    $scope.isscriptTaskHistoryPageLoading = true;
                     $scope.ischefTaskHistoryPageLoading = false;
                     $scope.isjenkinsTaskHistoryPageLoading = false;
-                    $scope.iscompositeTaskHistoryPageLoading = false;
-                    $scope.ispuppetTaskHistoryPageLoading = false;
+                    $scope.isscriptTaskHistoryPageLoading = true;
+                    $scope.isBlueprintBotHistoryPageLoading = false;
                     $scope.initscript();
+                    break;
+                case 'instance_launch':
+                case 'aws_cf':
+                case 'docker':
+                case 'azure_launch':
+                    $scope.ischefTaskHistoryPageLoading = false;
+                    $scope.isjenkinsTaskHistoryPageLoading = false;
+                    $scope.isscriptTaskHistoryPageLoading = false;
+                    $scope.isBlueprintBotHistoryPageLoading = true;
+                    $scope.initblueprint();
                     break;
             }
 
             $scope.historyLogs=function(hist) {
-                var modalInstance = $modal.open({
-                    animation: true,
-                    templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationLog.html',
-                    controller: 'orchestrationLogCtrl as orchLogCtrl',
-                    backdrop : 'static',
-                    keyboard: false,
-                    resolve: {
-                        items: function() {
-                            return {
-                                taskId : hist.taskId,
-                                historyId : hist._id,
-                                taskType:hist.taskType
-                            };
+                console.log(hist.auditTrailConfig.executionType);
+                if(hist.auditTrailConfig && (hist.auditTrailConfig.executionType == 'chef') || (hist.auditTrailConfig.executionType == 'jenkins') || (hist.auditTrailConfig.executionType == 'script')) {
+                    var modalInstance = $modal.open({
+                        animation: true,
+                        templateUrl: 'src/partials/sections/dashboard/bots/view/botExecutionLogs.html',
+                        controller: 'botExecutionLogsCtrl as botExecLogCtrl',
+                        backdrop : 'static',
+                        keyboard: false,
+                        resolve: {
+                            items: function() {
+                                return {
+                                    taskId : hist.auditId,
+                                    historyId : hist.auditHistoryId ? hist.auditHistoryId : hist.auditTrailConfig.nodeIdsWithActionLog[0].actionLogId,
+                                    taskType:hist.auditTrailConfig.executionType
+                                };
+                            }
                         }
-                    }
-                });
-                modalInstance.result.then(function(selectedItem) {
-                    $scope.selected = selectedItem;
-                }, function() {
-                    console.log('Modal Dismissed at ' + new Date());
-                });
-            };
+                    });
+                    modalInstance.result.then(function(selectedItem) {
+                        $scope.selected = selectedItem;
+                    }, function() {
+                        console.log('Modal Dismissed at ' + new Date());
+                    });
+                } else {
+                    var modalInstance = $modal.open({
+                        animation: true,
+                        templateUrl: 'src/partials/sections/dashboard/workzone/instance/popups/instanceLogs.html',
+                        controller: 'cpActionHistoryLogCtrl',
+                        backdrop : 'static',
+                        keyboard: false,
+                        resolve: {
+                            items: function() {
+                                return {
+                                    actionHistoryData : hist,
+                                    cpInstance: hist
+                                };
+                            }
+                        }
+                    });
+                    modalInstance.result.then(function(selectedItem) {
+                        $scope.selected = selectedItem;
+                    }, function() {
+                        console.log('Modal Dismissed at ' + new Date());
+                    });
+                };
+            }
+
             $scope.cancel= function() {
                 $modalInstance.dismiss('cancel');
+            };
+        }
+    ]).controller('confirmBotRunCtrl', ['$scope', '$modal', '$modalInstance', 'items', 'genericServices','toastr', '$rootScope', function ($scope, $modal, $modalInstance, items, genSevs, toastr, $rootScope) {
+            $scope.botId = items.botId;
+            $scope.isJobRunExecuting = false;
+
+            var helper = {
+                botLogModal: function(id,historyId,taskType) {
+                    $modal.open({
+                        animation: true,
+                        templateUrl: 'src/partials/sections/dashboard/bots/view/botExecutionLogs.html',
+                        controller: 'botExecutionLogsCtrl as botExecLogCtrl',
+                        backdrop: 'static',
+                        keyboard: false,
+                        resolve: {
+                            items: function() {
+                                return {
+                                    taskId: id,
+                                    historyId: historyId,
+                                    taskType: taskType
+                                };
+                            }
+                        }
+                    });
+                }
+            };
+
+            $scope.cancel = function () {
+                $modalInstance.dismiss('cancel');
+            };
+
+            $scope.runJob = function () {
+                $scope.isJobRunExecuting = true;
+                var param={
+                    url:'/bots/' + items.botId + '/execute'
+                };
+                genSevs.promisePost(param).then(function (response) {
+                    $modalInstance.close(response.data);
+                    $rootScope.$emit('BOTS_LIBRARY_REFRESH');
+                    helper.botLogModal(items.botId, response.historyId, response.taskType);
+                },
+                function (error) {
+                    error = error.responseText || error;
+                    if (error.message) {
+                        toastr.error(error.message);
+                    } else {
+                        toastr.error(error);
+                    }
+                });
             };
         }
     ]);

@@ -10,7 +10,7 @@
 	angular.module('workzone.blueprint')
 		.controller('blueprintLaunchCtrl', ['$scope', '$rootScope', '$modalInstance', 'bpItem', 'workzoneServices', 'workzoneEnvironment', 'instanceLogs', function($scope, $rootScope, $modalInstance, bpItem, workzoneServices, workzoneEnvironment, instanceLogs) {
 		console.log(bpItem);
-			if(bpItem.bp.blueprintType) {
+			if(bpItem.bp.blueprintType || bpItem.bp.botLinkedSubCategory) {
 				$scope.isBPLogsLoading = true;
 				$scope.isNewInstanceLogsPromise = false;
 				var helper = {
@@ -44,9 +44,9 @@
 						}
 						else{
 							isSuccess = true;
-							if (bpItem.bp.blueprintType === 'aws_cf') {
+							if (bpItem.bp.blueprintType === 'aws_cf' || bpItem.bp.botLinkedSubCategory === 'aws_cf') {
 								msgStr = 'Stack Id : ' + $scope.launchResponse.stackId + '. You can view your stack in cloudformation tab';
-							} else if (bpItem.bp.blueprintType === 'azure_arm') {
+							} else if (bpItem.bp.blueprintType === 'azure_arm' || bpItem.bp.botLinkedSubCategory === 'azure_arm') {
 								msgStr = 'Deployment Id : ' + $scope.launchResponse.armId + '. You can view your deployment in ARM tab';
 							} else {
 								msgStr = 'Instance Id : ';
@@ -80,12 +80,16 @@
 						versionsList = bpItem.bp.blueprintConfig.infraManagerData.versionsList;
 						versionOptional = versionsList[versionsList.length-1].ver;
 					}
+				}else{
+					versionOptional = bpItem.bp.version ? bpItem.bp.version : 1;
 				}
 				var selectedVersionBpId = bpItem.bp.selectedVersionBpId;
 				var monitorId = bpItem.monitorId;
 				if(bpItem && bpItem.bp && bpItem.bp.selectedVersionBpId){
 					selectedVersionBpId = bpItem.bp.selectedVersionBpId;
-				} else {
+				} else if(bpItem.bp.botType){
+					selectedVersionBpId = bpItem.bp.botId;
+				} else{
 					selectedVersionBpId = bpItem.bp._id;
 				}
 				var lEnv=null;

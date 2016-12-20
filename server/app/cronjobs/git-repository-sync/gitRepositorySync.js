@@ -8,12 +8,14 @@ var path = "/tmp/bot-factory";
 var Promise = require('promise');
 
 var gitRepoSync = Object.create(CatalystCronJob);
-gitRepoSync.interval = '*/2 * * * *';
+gitRepoSync.interval = '* * * * *';
 gitRepoSync.execute = gitRepositorySync;
 
 module.exports = gitRepoSync;
 
 function gitRepositorySync(){
+
+
     /*var nodegit = require('nodegit'),
         path = require('path');
 
@@ -41,7 +43,7 @@ function gitRepositorySync(){
         }
     };*/
 
-    var url = "https://github.com/pazdera/scriptster.git", cloneOpts = {},userName ='Durgesh1988'
+    var url = "https://github.com/pazdera/scriptster.git", cloneOpts = {},userName ='Durgesh1988';
 
     var cloneOpts = {
         fetchOpts: {
@@ -62,19 +64,7 @@ function gitRepositorySync(){
         nodeGit.Clone(
             "https://github.com/RLIndia/botsfactory.git",
             path,
-            {
-                fetchOpts: {
-                    callbacks: {
-                        credentials: function(url, userName) {
-                            return nodeGit.Cred.sshKeyNew(
-                                userName,
-                                '/Users/radek/.ssh/id_rsa.pub',
-                                '/Users/radek/.ssh/id_rsa',
-                                "<your-passphrase-here>");
-                        }
-                    }
-                }
-            })
+            cloneOpts)
             .then(function(repo) {
                 console.log("Durgesh");
                 console.log(repo);

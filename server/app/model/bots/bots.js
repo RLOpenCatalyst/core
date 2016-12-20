@@ -15,6 +15,7 @@
  */
 
 var mongoose = require('mongoose');
+var logger = require('_pr/logger')(module);
 var ObjectId = require('mongoose').Types.ObjectId;
 var mongoosePaginate = require('mongoose-paginate');
 var Schema = mongoose.Schema;
@@ -176,6 +177,14 @@ var BotsSchema = new Schema ({
         type: Boolean,
         default: false
     },
+    version: {
+        type: Number,
+        default: 1
+    },
+    domainNameCheck: {
+        type: Boolean,
+        default: false
+    }
 });
 BotsSchema.plugin(mongoosePaginate);
 
@@ -293,7 +302,8 @@ BotsSchema.statics.updateBotsExecutionCount = function updateBotsExecutionCount(
 
 BotsSchema.statics.getScheduledBots = function getScheduledBots(callback) {
     Bots.find({
-        isBotScheduled: true
+        isBotScheduled: true,
+        isDeleted:false
     }, function (err, bots) {
         if (err) {
             logger.error(err);

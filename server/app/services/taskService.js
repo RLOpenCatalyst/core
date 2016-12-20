@@ -52,7 +52,8 @@ taskService.getAllServiceDeliveryTask = function getAllServiceDeliveryTask(query
         var query = {
             auditType: 'BOTs',
             actionStatus: queryObj.actionStatus,
-            auditCategory: 'Task'
+            auditCategory: 'Task',
+            isDeleted:false
         };
         var taskIds = [];
         async.waterfall([
@@ -222,6 +223,11 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
                         if (historyData) {
                             taskRes.historyId = historyData.id;
                         }
+                        auditTrailService.updateAuditTrail('BOTs',auditTrailId,{auditHistoryId:historyData.id},function(err,auditTrail){
+                            if (err) {
+                                logger.error("Failed to create or update bots Log: ", err);
+                            }
+                        });
                         callback(null, taskRes);
                         return;
                     });
