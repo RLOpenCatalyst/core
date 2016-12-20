@@ -1441,8 +1441,7 @@ div::-webkit-scrollbar
     background-color: #F5F5F5;
 }
 
-div::-webkit-scrollbar-thumb
-{
+div::-webkit-scrollbar-thumb {
     background-color: #40BAF1;
     background-image: -webkit-linear-gradient(45deg,
             rgba(255, 255, 255, .2) 25%,
@@ -1452,4 +1451,9 @@ div::-webkit-scrollbar-thumb
             rgba(255, 255, 255, .2) 75%,
             transparent 75%,
             transparent)
+}
+// thems
+.main-header .navbar{
+    max-height: 50px;
+>>>>>>> Stashed changes
 }
