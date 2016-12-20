@@ -208,7 +208,24 @@
 
   /*global css*/
   .ui-grid .ui-grid-row {
-
     border-bottom: 1px solid #ccc;
   }
+}
+
+.bot-library-search {
+  height: 33px;
+  margin-right: 12px;
+}
+
+.bot-audit-trail-search {
+  height: 31px;
+  margin: 6px 9px 0 0px;
+}
+
+.search-text {
+  font-weight: normal;
+}
+
+.bot-search {
+  -webkit-appearance: textfield !important;
 }

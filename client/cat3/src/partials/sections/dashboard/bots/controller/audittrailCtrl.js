@@ -50,7 +50,7 @@
         };
         $scope.initGrids();
 
-        var gridBottomSpace = 40;
+        var gridBottomSpace = 80;
         $scope.gridHeight = workzoneUIUtils.makeTabScrollable('botAuditTrailPage') - gridBottomSpace;
         
         //for server side(external) pagination.
@@ -72,38 +72,26 @@
                 });
             },
         });
-        /*angular.extend($scope.botAuditTrailGridOptions,botAuditTrailUIGridDefaults.gridOption, {
-            onRegisterApi :function(gridApi) {
-                $scope.gridApi = gridApi;
-                gridApi.core.on.sortChanged($scope, function(grid, sortColumns) {
-                    if (sortColumns[0] && sortColumns[0].field && sortColumns[0].sort && sortColumns[0].sort.direction) {
-                        $scope.paginationParams.sortBy = sortColumns[0].field;
-                        $scope.paginationParams.sortOrder = sortColumns[0].sort.direction;
-                        $scope.botAuditTrailGridView();
-                    }
-                });
-                //Pagination for page and pageSize
-                gridApi.pagination.on.paginationChanged($scope, function(newPage, pageSize) {
-                    console.log(newPage);
-                    $scope.paginationParams.page = newPage;
-                    $scope.paginationParams.pageSize = pageSize;
-                    $scope.botAuditTrailGridView();
-                });
-            },
-        });*/
-        /*$scope.setFirstPageView = function(){
-            $scope.botAuditTrailGridOptions.paginationCurrentPage = $scope.paginationParams.page = 1;
+
+        $scope.searchBotAuditTrailName = function() {
+            $scope.searchString = $scope.botAuditTrailSearch;
+            $scope.botAuditTrailGridOptions.data=[];
+                var param={
+                    url:'/audit-trail?filterBy=auditType:BOTs&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
+            };
+            genSevs.promiseGet(param).then(function (result) {
+                console.log(result);
+                $timeout(function() {
+                    $scope.botAuditTrailGridOptions.totalItems = result.metaData.totalRecords;
+                    $scope.botAuditTrailGridOptions.data=result.auditTrails;
+                }, 100);
+                $scope.isBotAuditTrailPageLoading = false;
+            }, function(error) {
+                $scope.isBotAuditTrailPageLoading = false;
+                toastr.error(error);
+                $scope.errorMessage = "No Records found";
+            });
         };
-        $scope.setPaginationDefaults = function() {
-            $scope.paginationParams.sortBy = 'createdOn';
-            $scope.paginationParams.sortOrder = 'desc';
-            if($scope.paginationParams.page !== 1){
-                $scope.setFirstPageView();//if current page is not 1, then ui grid will trigger a call when set to 1.
-            }else{
-                //$scope.init();
-            }
-        };
-        $scope.setPaginationDefaults();*/
 
         $scope.botAuditTrailLogs=function(hist) {
             var modalInstance = $modal.open({
@@ -142,7 +130,7 @@
                 $scope.isBotAuditTrailPageLoading = false;
             }, function(error) {
                 $scope.isBotAuditTrailPageLoading = false;
-                console.log(error);
+                toastr.error(error);
                 $scope.errorMessage = "No Records found";
             });
         };
