@@ -139,11 +139,13 @@
                 helper.botLogModal(items.botId, response.historyId, response.taskType);
             },
             function (error) {
-                error = error.responseText || error;
-                if (error.message) {
-                    toastr.error(error.message);
-                } else {
-                    toastr.error(error);
+                if(error) {
+                    error = error.responseText || error;
+                    if (error.message) {
+                        toastr.error(error.message);
+                    } else {
+                        toastr.error(error);
+                    }
                 }
             });
         };
