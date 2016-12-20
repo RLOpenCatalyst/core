@@ -52,7 +52,8 @@ taskService.getAllServiceDeliveryTask = function getAllServiceDeliveryTask(query
         var query = {
             auditType: 'BOTs',
             actionStatus: queryObj.actionStatus,
-            auditCategory: 'Task'
+            auditCategory: 'Task',
+            isDeleted:false
         };
         var taskIds = [];
         async.waterfall([

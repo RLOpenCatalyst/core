@@ -2736,8 +2736,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                                     logger.error('Hit getting setting wizard error', err);
                                                                     res.send(500);
                                                                     return;
-                                                                }
-                                                                if (settingWizards.currentStep && settingWizards.currentStep.name === 'User Configuration') {
+                                                                }else if (settingWizards.currentStep && settingWizards.currentStep.name === 'User Configuration') {
                                                                     var settingWizardSteps = appConfig.settingWizardSteps;
                                                                     settingWizards.currentStep.nestedSteps[1].isCompleted = true;
                                                                     settingWizards.currentStep.isCompleted = true;
@@ -2753,6 +2752,9 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                                         res.send(200);
                                                                         return;
                                                                     });
+                                                                }else{
+                                                                    res.send(200);
+                                                                    return;
                                                                 }
                                                             })
                                                         }

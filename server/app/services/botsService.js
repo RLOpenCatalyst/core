@@ -20,6 +20,7 @@ var bots = require('_pr/model/bots/bots.js');
 var async = require("async");
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var taskService =  require('_pr/services/taskService.js');
+var tasks =  require('_pr/model/classes/tasks/tasks.js');
 var auditTrailService =  require('_pr/services/auditTrailService.js');
 var blueprintService =  require('_pr/services/blueprintService.js');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
@@ -50,6 +51,8 @@ botsService.createOrUpdateBots = function createOrUpdateBots(botsDetail,linkedCa
         botLinkedCategory: linkedCategory,
         botLinkedSubCategory:linkedSubCategory,
         manualExecutionTime:botsDetail.manualExecutionTime,
+        version:botsDetail.version,
+        domainNameCheck:botsDetail.domainNameCheck,
         createdOn: new Date().getTime()
     };
     bots.getBotsById(botsDetail._id,function(err,data){
@@ -103,6 +106,23 @@ botsService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,call
                     if (botsData[0].isBotScheduled === true) {
                         var catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
                         catalystSync.executeScheduledBots();
+                        if(botsData[0].botLinkedCategory === 'Task'){
+                            tasks.getTaskById(botId,function(err,task){
+                                if(err){
+                                    logger.error("Error in fetching Task details",err);
+                                }else if(task.isTaskScheduled === true){
+                                    tasks.updateTaskScheduler(botId,function(err,updateData){
+                                        if(err){
+                                            logger.error("Error in Updating Task details",err);
+                                        }
+                                    });
+                                    if(task.cronJobId && task.cronJobId !== null){
+                                        var cronTab = require('node-crontab');
+                                        cronTab.cancelJob(task.cronJobId);
+                                    }
+                                }
+                            });
+                        }
                     } else if (botsData[0].cronJobId && botsData[0].cronJobId !== null) {
                         var cronTab = require('node-crontab');
                         cronTab.cancelJob(botsData[0].cronJobId);
@@ -279,9 +299,9 @@ botsService.executeBots = function executeBots(botId,reqBody,callback){
         function(bots,next){
             if(bots.length > 0){
                 if(bots[0].botLinkedCategory === 'Task'){
-                    taskService.executeTask(botId,reqBody.userName ? reqBody.userName : 'system',reqBody.hostProtocol ? reqBody.hostProtocol : '',
-                        reqBody.choiceParam ? reqBody.choiceParam : '',reqBody.appData ? reqBody.appData : '',reqBody.paramOptions ? reqBody.paramOptions : '',
-                        reqBody.tagServer ? reqBody.tagServer : '', callback);
+                    taskService.executeTask(botId,reqBody.userName ? reqBody.userName : 'system',reqBody.hostProtocol ? reqBody.hostProtocol : 'undefined',
+                        reqBody.choiceParam ? reqBody.choiceParam : 'undefined',reqBody.appData ? reqBody.appData : 'undefined',reqBody.paramOptions ? reqBody.paramOptions : 'undefined',
+                        reqBody.tagServer ? reqBody.tagServer : 'undefined', callback);
                 }else{
                     blueprintService.launch(botId,reqBody,callback)
                 }

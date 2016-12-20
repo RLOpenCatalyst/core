@@ -81,7 +81,10 @@ settingsService.updateProjectData = function updateProjectData(enviornment,callb
 };
 
 settingsService.trackSettingWizard = function trackSettingWizard(id,orgId,callback){
-   if(id === '1'){
+   if(orgId === null || orgId === ''){
+       callback(null,orgId);
+       return;
+   }else if(id === '1'){
        settingWizard.removeSettingWizardByOrgId(orgId,function(err,data){
            if(err){
                callback(err,null);
