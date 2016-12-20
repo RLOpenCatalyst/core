@@ -136,7 +136,7 @@ auditTrailService.getAuditTrailList = function getAuditTrailList(auditTrailQuery
             apiUtil.paginationRequest(auditTrailQuery, 'auditTrails', next);
         },
         function(paginationReq, next) {
-            paginationReq['searchColumns'] = ['status', 'action', 'user', 'actionStatus', 'masterDetails.orgName', 'masterDetails.bgName', 'masterDetails.projectName', 'masterDetails.envName'];
+            paginationReq['searchColumns'] = ['status', 'action', 'user', 'actionStatus', 'auditTrailConfig.name','masterDetails.orgName', 'masterDetails.bgName', 'masterDetails.projectName', 'masterDetails.envName'];
             reqData = paginationReq;
             apiUtil.databaseUtil(paginationReq, next);
         },
@@ -227,7 +227,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
                     for(var i = 0; i < botAuditTrail.length; i++){
                         (function(auditTrail){
                             count++;
-                            if(auditTrail.endedOn && auditTrail.endedOn !== null && auditTrail.actionStatus !== 'failed'
+                            if(auditTrail.endedOn && auditTrail.endedOn !== null
                                 && auditTrail.auditTrailConfig.manualExecutionTime && auditTrail.auditTrailConfig.manualExecutionTime !== null) {
                                 var executionTime = getExecutionTime(auditTrail.endedOn, auditTrail.startedOn);
                                 totalTimeInSeconds = totalTimeInSeconds + ((auditTrail.auditTrailConfig.manualExecutionTime*60) - executionTime);

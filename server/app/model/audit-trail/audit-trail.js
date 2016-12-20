@@ -60,6 +60,18 @@ AuditTrailSchema.statics.removeAuditTrails = function(queryObj,callback){
     });
 };
 
+AuditTrailSchema.statics.updateAuditTrails = function(auditId,queryObj,callback){
+    AuditTrail.update({_id:new ObjectId(auditId)},{$set:queryObj},{multi:true}, function(err, updatedAuditTrail) {
+        if (err) {
+            logger.error(err);
+            var error = new Error('Internal server error');
+            error.status = 500;
+            return callback(error);
+        }
+        return callback(null, updatedAuditTrail);
+    });
+};
+
 AuditTrailSchema.statics.softRemoveAuditTrails = function(auditId,callback){
     AuditTrail.update({auditId:auditId},{$set:{isDeleted:true}},{multi:true}, function(err, sortDeleteAuditTrail) {
         if (err) {

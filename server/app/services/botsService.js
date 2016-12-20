@@ -146,7 +146,7 @@ botsService.getBotsList = function getBotsList(botsQuery,actionStatus,callback) 
             apiUtil.paginationRequest(botsQuery, 'bots', next);
         },
         function(paginationReq, next) {
-            paginationReq['searchColumns'] = ['botName', 'botType', 'botCategory', 'botLinkedCategory','botLinkedSubCategory', 'masterDetails.orgName', 'masterDetails.bgName', 'masterDetails.projectName', 'masterDetails.envName'];
+            paginationReq['searchColumns'] = ['botName', 'botType', 'botCategory','botDesc', 'botLinkedCategory','botLinkedSubCategory', 'masterDetails.orgName', 'masterDetails.bgName', 'masterDetails.projectName', 'masterDetails.envName'];
             reqData = paginationReq;
             apiUtil.databaseUtil(paginationReq, next);
         },
