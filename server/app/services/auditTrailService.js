@@ -186,7 +186,8 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
         totalNoOfSuccessBots: function(callback){
             var query={
                 auditType:'BOTs',
-                actionStatus:'success'
+                actionStatus:'success',
+                isDeleted:false
             };
             auditTrail.getAuditTrails(query,function(err,data){
                 if(err){
@@ -200,7 +201,8 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
         totalNoOfRunningBots: function(callback){
             var query={
                 auditType:'BOTs',
-                actionStatus:'running'
+                actionStatus:'running',
+                isDeleted:false
             };
             auditTrail.getAuditTrails(query,function(err,data){
                 if(err){
@@ -213,7 +215,9 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
         },
         totalSavedTimeForBots: function(callback){
             var query={
-                auditType:'BOTs'
+                auditType:'BOTs',
+                actionStatus:'success',
+                isDeleted:false
             };
             auditTrail.getAuditTrails(query,function(err,botAuditTrail){
                 if(err){
@@ -241,7 +245,8 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
         totalNoOfFailedBots: function(callback){
             var query={
                 auditType:'BOTs',
-                actionStatus:'failed'
+                actionStatus:'failed',
+                isDeleted:false
             };
             auditTrail.getAuditTrails(query,function(err,data){
                 if(err){
@@ -267,7 +272,8 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
 auditTrailService.getBotsAuditTrailHistory = function getBotsAuditTrailHistory(botId,callback){
     var query={
         auditType:'BOTs',
-        auditId:botId
+        auditId:botId,
+        isDeleted:false
     };
     auditTrail.getAuditTrails(query,function(err,data){
         if(err){

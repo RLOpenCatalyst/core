@@ -699,7 +699,7 @@
                         items: function() {
                             return {
                                 taskId : hist.auditId,
-                                historyId : hist._id,
+                                historyId : hist.auditHistoryId ? hist.auditHistoryId : hist.auditTrailConfig.nodeIdsWithActionLog[0].actionLogId,
                                 taskType:hist.auditTrailConfig.executionType
                             };
                         }
@@ -731,22 +731,40 @@
         $scope.cancel= function() {
             $modalInstance.dismiss('cancel');
         };
-    }]).controller('confirmBotRunCtrl', ['$scope', '$modalInstance', 'items', 'genericServices','toastr', function ($scope, $modalInstance, items, genSevs, toastr) {
+    }]).controller('confirmBotRunCtrl', ['$scope', '$modalInstance', 'items', 'genericServices','toastr','$modal', function ($scope, $modalInstance, items, genSevs, toastr,$modal) {
             console.log(items);
             $scope.botId = items.botId;
             $scope.isJobRunExecuting = false;
             $scope.cancel = function () {
                 $modalInstance.dismiss('cancel');
             };
+        var helper = {
+            botLogModal: function(id,historyId,taskType) {
+                $modal.open({
+                    animation: true,
+                    templateUrl: 'src/partials/sections/dashboard/bots/view/botExecutionLogs.html',
+                    controller: 'botExecutionLogsCtrl as botExecLogCtrl',
+                    backdrop: 'static',
+                    keyboard: false,
+                    resolve: {
+                        items: function() {
+                            return {
+                                taskId: id,
+                                historyId: historyId,
+                                taskType: taskType
+                            };
+                        }
+                    }
+                });
+            }
+        };
             $scope.runJob = function () {
                 $scope.isJobRunExecuting = true;
                 var param={
                     url:'/bots/' + items.botId + '/execute'
                 };
                 genSevs.promisePost(param).then(function (response) {
-                    console.log(response);
                     $modalInstance.close(response.data);
-                    $rootScope.$emit('BOTS_LIBRARY_REFRESH');
                     helper.botLogModal(items.botId, response.historyId, response.taskType);
                 },
                 function (error) {
