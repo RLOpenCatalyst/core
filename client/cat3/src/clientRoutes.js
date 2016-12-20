@@ -32,6 +32,14 @@ function routeConfig($stateProvider, $urlRouterProvider, $httpProvider, modulePe
 		},
 		onExit: function () {
 		}
+	}).state('dashboard.home', {
+		url: "/home",
+		templateUrl: "src/partials/sections/dashboard/home.html",
+		//controller: "dashboardCtrl",
+		onEnter: function () {
+		},
+		onExit: function () {
+		}
 	}).state('dashboard.workzone', {
 		url: "/workzone",
 		templateUrl: "src/partials/sections/dashboard/workzone/workzone.html",

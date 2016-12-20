@@ -107,7 +107,8 @@ angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', '$http', '$l
 	$rootScope.$emit('SET_HEADER', $rootScope.appDetails);
 	$scope.showLogoutConfirmationSection = false;
 	$scope.logoutConfirmation = function () {
-		$scope.showLogoutConfirmationSection = true;
+		$rootScope.$emit('HIDE_BREADCRUMB');
+		$state.go('signin');
 	};
 	$scope.closeLogoutPanel = function () {
 		$scope.showLogoutConfirmationSection = false;

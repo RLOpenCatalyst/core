@@ -18,6 +18,11 @@
 		<link rel="stylesheet" href="lib/nvd3/nv.d3.css" />
 		<link rel="stylesheet" href="lib/angularMultipleSelect/multiple-select.min.css" />
 		<link rel="stylesheet" href="customlib/dateTime/css/bootstrap-material-datetimepicker.css" />
+		<!-- Theme style -->
+		<link rel="stylesheet" href="bower_components/AdminLTE/dist/css/AdminLTE.min.css">
+		<!-- AdminLTE Skins. Choose a skin from the css/skins
+       folder instead of downloading all of them to reduce the load. -->
+		<link rel="stylesheet" href="bower_components/AdminLTE/dist/css/skins/_all-skins.min.css">
 		<!-- Library scripts -->
 		<script src="lib/jquery/jquery.min.js"></script>
 		<script src="lib/angular/angular.min.js"></script>
@@ -44,41 +49,242 @@
 		<script src="lib/d3/d3.js"></script>
 		<script src="lib/nvd3/nv.d3.js"></script>
 		<script src="lib/angular-nvd3/angular-nvd3.js"></script>
-		<script src="lib/angularMultipleSelect/multiple-select.min.js"></script>
+		<!-- AdminLTE App -->
+		<script src="bower_components/AdminLTE/dist/js/app.min.js"></script>
 	</head>
-	<body ng-class="{ 'loading-body': onBodyLoading === true }">
+	<body class="hold-transition skin-blue sidebar-mini " ng-class="{ 'loading-body': onBodyLoading === true }">
+	<div class="wrapper">
 	<loading size="large" name="onBodyLoading"  class="onbody-loading"></loading>
-		<!--<div class="globalPopup" id="globalSuccessMessage">-->
-			<!--<span class="close green" ng-click="hideGlobalMessage()">×</span> -->
-			<!--<p>{{globalSuccessMessage}}</p>           -->
-		<!--</div>-->
-		<div ng-controller="HeadNavigatorCtrl">
-			<div ng-show="app.isDashboard" class="dashboard">
-				<ng-include src="'src/partials/globals/header/headerDashboard.html'"></ng-include>
-			</div>
-			<div ng-show="!app.isDashboard" class="login">
-				<ng-include src="'src/partials/globals/header/headerLogin.html'"></ng-include>
-			</div>
-		</div>
-		<div class="breadcrumb-wrapper">
-			<div class="container-fluid" id="breadcrumb-block" ng-controller="breadcrumbCtrl" ng-show="isBreadCrumbAvailable">
-				<div class="col-lg-2 col-md-2 col-sm-2 col-xs-2 no-padding">
-					<div id="section-name">
-						<span ng-mouseover="showTreeOverlay()" ng-mouseleave="hideTreeOverlay()" class="cursor">
-			                <i class="fa fa-bars tree-toggle">
-			                </i>
-			                Menu
-			            </span>
-					</div>
-				</div>
-				<div id="breadcrumb-nav" class="col-lg-10 col-md-10 col-sm-10 col-xs-10 no-padding">
-					<ul>
-						<li ng-cloak ng-repeat="item in breadcrumbData">{{item}} {{$last ? "" : " &raquo; "}}</li>
+		<header class="main-header"  ng-controller="HeadNavigatorCtrl">
+			<!-- Logo -->
+			<a  class="logo">
+				<!-- mini logo for sidebar mini 50x50 pixels -->
+				<span class="logo-mini"><img class="header-logo-image" src="images/global/logo.png" width="50" /></span>
+				<!-- logo for regular state and mobile devices -->
+				<span class="logo-lg"><img class="header-logo-image pull-left" src="images/global/logo.png" width="100" /></span>
+			</a>
+			<!-- Header Navbar: style can be found in header.less -->
+			<nav class="navbar navbar-static-top">
+				<!-- Sidebar toggle button-->
+				<a class="sidebar-toggle" data-toggle="offcanvas" role="button">
+					<span class="sr-only">Toggle navigation</span>
+				</a>
+
+				<div class="navbar-custom-menu">
+					<ul class="nav navbar-nav">
+
+						<!-- Messages: style can be found in dropdown.less-->
+						<li class="dropdown messages-menu pull-right active">
+							<a  class="dropdown-toggle" data-toggle="dropdown">
+								<i class="fa fa-user white"></i>
+							</a>
+							<ul class="dropdown-menu">
+								<li>
+									<!-- inner menu: contains the actual data -->
+									<ul class="menu">
+
+										<li>
+											<a >
+												<div class="pull-left">
+													<i class="fa fa-info-circle"></i>
+												</div>
+												<h4>
+													Admin
+												</h4>
+												<p>Superadmin</p>
+											</a>
+										</li>
+										<li>
+											<a class="pointer-cursor" href="https://catalyst.readthedocs.org" target="_blank">
+												<div class="pull-left">
+													<i class="fa fa-question-circle"></i>
+												</div>
+												<h4>
+													HELP
+												</h4>
+											</a>
+										</li>
+										<li>
+											<a class="pointer-cursor" ng-click="logoutConfirmation();">
+												<div class="pull-left">
+													<i class="fa fa-sign-out"></i>
+												</div>
+												<h4>
+													Sign-out
+												</h4>
+											</a>
+										</li>
+									</ul>
+								</li>
+							</ul>
+						</li>
+
 					</ul>
 				</div>
-			</div>
+			</nav>
+		</header>
+		<!-- Left side column. contains the logo and sidebar -->
+		<aside class="main-sidebar">
+			<!-- sidebar: style can be found in sidebar.less -->
+			<section class="sidebar">
+
+				<!-- sidebar menu: : style can be found in sidebar.less -->
+				<ul class="sidebar-menu">
+					<li  ui-sref="dashboard.home" class="pointer-cursor" ui-sref-active='active'>
+						<a >
+							<i class="fa fa-dashboard "></i> <span>Dashboard</span>
+						</a>
+					</li>
+					<li class="treeview">
+						<a >
+							<i class="fa fa-globe"></i>
+							<span>WORKZONE</span>
+							<span class="pull-right-container">
+							  <i class="fa fa-angle-left pull-right"></i>
+							</span>
+            <!--<span class="pull-right-container">-->
+              <!--<span class="label label-primary pull-right">4</span>-->
+            <!--</span>-->
+						</a>
+						<ul class="treeview-menu">
+							<li><a href="pages/layout/top-nav.html"><i class="fa fa-circle-o"></i> Orchestration</a></li>
+							<li><a href="pages/layout/boxed.html"><i class="fa fa-circle-o"></i>  Applications</a></li>
+							<li><a href="pages/layout/fixed.html"><i class="fa fa-circle-o"></i>  Instances</a></li>
+							<li><a href="pages/layout/collapsed-sidebar.html"><i class="fa fa-circle-o"></i> CloudFormation</a></li>
+							<li><a href="pages/layout/fixed.html"><i class="fa fa-circle-o"></i>   Containers</a></li>
+							<li><a href="pages/layout/collapsed-sidebar.html"><i class="fa fa-circle-o"></i> AzureARM</a></li>
+						</ul>
+					</li>
+					<!--<li>-->
+						<!--<a href="pages/widgets.html">-->
+							<!--<i class="fa fa-th"></i> <span>Widgets</span>-->
+            <!--<span class="pull-right-container">-->
+              <!--<small class="label pull-right bg-green">new</small>-->
+            <!--</span>-->
+						<!--</a>-->
+					<!--</li>-->
+					<li class="treeview">
+						<a >
+							<i class="fa fa-puzzle-piece"></i>
+							<span>DESIGN</span>
+							<span class="pull-right-container">
+							  <i class="fa fa-angle-left pull-right"></i>
+							</span>
+						</a>
+						<ul class="treeview-menu">
+							<li>
+								<a >
+									<i class="fa fa-pie-chart"></i>
+									<span>AWS</span>
+									<span class="pull-right-container">
+									  <i class="fa fa-angle-left pull-right"></i>
+									</span>
+								</a>
+								<ul class="treeview-menu">
+									<li><a href="pages/charts/morris.html"><i class="fa fa-circle-o"></i> SoftwareStack</a></li>
+									<li><a href="pages/charts/morris.html"><i class="fa fa-circle-o"></i> OSImage</a></li>
+									<li><a href="pages/charts/morris.html"><i class="fa fa-circle-o"></i> Docker</a></li>
+									<li><a href="pages/charts/morris.html"><i class="fa fa-circle-o"></i> CloudFormation</a></li>
+								</ul>
+							</li>
+							<li>
+								<a >
+									<i class="fa fa-pie-chart"></i>
+									<span>AZURE</span>
+									<span class="pull-right-container">
+									  <i class="fa fa-angle-left pull-right"></i>
+									</span>
+								</a>
+								<ul class="treeview-menu">
+									<li><a href="pages/charts/morris.html"><i class="fa fa-circle-o"></i> SoftwareStack</a></li>
+									<li><a href="pages/charts/morris.html"><i class="fa fa-circle-o"></i> OSImage</a></li>
+									<li><a href="pages/charts/morris.html"><i class="fa fa-circle-o"></i> Docker</a></li>
+									<li><a href="pages/charts/morris.html"><i class="fa fa-circle-o"></i> CloudFormation</a></li>
+								</ul>
+							</li>
+						</ul>
+					</li>
+					<li class="treeview">
+						<a >
+							<i class="fa fa-cloud"></i>
+							<span>Cloud Management</span>
+							<span class="pull-right-container">
+							  <i class="fa fa-angle-left pull-right"></i>
+							</span>
+						</a>
+						<ul class="treeview-menu">
+							<li ><a href="pages/UI/sliders.html"><i class="fa fa-circle-o"></i> Tag Mapping</a></li>
+							<li ><a href="pages/UI/timeline.html"><i class="fa fa-circle-o"></i> Timeline</a></li>
+							<li ui-sref="dashboard.analytics.cost" class="pointer-cursor" ui-sref-active='active'><a><i class="fa fa-circle-o"></i> Cost</a></li>
+							<li ui-sref="dashboard.analytics.capacity" class="pointer-cursor" ui-sref-active='active'><a><i class="fa fa-circle-o"></i> Capacity</a></li>
+							<li ui-sref="dashboard.analytics.usage" class="pointer-cursor" ui-sref-active='active' ><a ><i class="fa fa-circle-o"></i> Usage</a></li>
+						</ul>
+					</li>
+					<li class="treeview">
+						<a >
+							<i class="fa fa-delicious"></i> <span>BOTS</span>
+            <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+						</a>
+						<ul class="treeview-menu">
+							<li  ui-sref="dashboard.bots.library" class="pointer-cursor" ui-sref-active='activeSection'><a ><i class="fa fa-circle-o"></i> BOT Library</a></li>
+							<li><a href="pages/forms/advanced.html"><i class="fa fa-circle-o"></i> Audit Trail</a></li>
+						</ul>
+					</li>
+					<li class="treeview">
+						<a >
+							<i class="fa fa-anchor"></i> <span> TRACK</span>
+							<span class="pull-right-container">
+							  <i class="fa fa-angle-left pull-right"></i>
+							</span>
+						</a>
+						<ul class="treeview-menu">
+							<li><a href="pages/tables/simple.html"><i class="fa fa-circle-o"></i> Simple  TRACK</a></li>
+							<li><a href="pages/tables/data.html"><i class="fa fa-circle-o"></i> Data  TRACK</a></li>
+						</ul>
+					</li>
+					<li>
+						<a href="">
+							<i class="fa fa-cog "></i> <span>SETTINGS</span>
+						</a>
+					</li>
+				</ul>
+			</section>
+			<!-- /.sidebar -->
+		</aside>
+
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content-wrapper">
+			<!-- Content Header (Page header) -->
+			<section class="content-header">
+				<h1>
+					<small>Page title</small>
+				</h1>
+				<ol class="breadcrumb" ng-controller="breadcrumbCtrl" >
+					<li><a ><i class="fa fa-dashboard"></i> Dashboard</a></li>
+					<li ng-cloak ng-repeat="item in breadcrumbData">{{item}}</li>
+				</ol>
+			</section>
+
+			<!-- Main content -->
+			<section>
+				<div ui-view></div>
+			</section>
+			<!-- /.content -->
 		</div>
-		<div ui-view></div>
+		<!-- /.content-wrapper -->
+		<footer class="main-footer">
+			<div class="pull-right hidden-xs">
+				<b>Version</b> 1.0.0
+			</div>
+			<strong>Copyright &copy; 2016-2017 <a href="">RLcatalyst</a>.</strong> All rights
+			reserved.
+		</footer>
+		<aside class="control-sidebar control-sidebar-dark">
+			hhh
+		</aside>
+	</div>
 
 		<!-- build:remove:qa,prod,dist -->
 		<script src="src/main.js"></script>
