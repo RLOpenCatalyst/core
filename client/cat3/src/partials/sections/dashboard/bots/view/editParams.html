@@ -40,7 +40,7 @@
 			                </td>
 			                <td style="text-align: left">
 			                	<input type="text" class="cookbook-edit-text" ng-model="value.default" ng-if="!value.choice.length" />
-                                <select ng-if="value.choice.length" class="cookbook-edit-text" ng-options="choice for choice in value.choice" ng-model="value.default"></select>
+                                <select ng-if="value.choice.length" class="cookbook-edit-text pull-left" ng-options="choice for choice in value.choice" ng-model="value.default"></select>
 			                </td>
 			            </tr>
 					</tbody>
@@ -66,7 +66,7 @@
 			                </td>
 			                <td ng-init="jenparams[params.name]=params.defaultValue[0]">
 			                	<input ng-if="params.parameterName !== 'Choice'" type="text" ng-model="jenparams[params.name]" class="form-control" ng-value="params.defaultValue[0]">
-			                	<select  ng-if="params.parameterName === 'Choice'" ng-model="jenparams[params.name]" class="cookbook-edit-text">
+			                	<select  ng-if="params.parameterName === 'Choice'" ng-model="jenparams[params.name]" class="cookbook-edit-text pull-left">
 			                        <option ng-repeat="val in params.defaultValue" value="{{val}}">{{val}}</option>
 			                    </select>
 			                </td>

@@ -620,6 +620,9 @@
                     $scope.initscript();
                     break;
                 case 'instance_launch':
+                case 'aws_cf':
+                case 'docker':
+                case 'azure_launch':
                     $scope.ischefTaskHistoryPageLoading = false;
                     $scope.isjenkinsTaskHistoryPageLoading = false;
                     $scope.isscriptTaskHistoryPageLoading = false;
@@ -680,21 +683,7 @@
                 $modalInstance.dismiss('cancel');
             };
         }
-    ]).controller('botHistoryLogsCtrl',['$scope', 'items', '$modalInstance', '$modal', function ($scope, items, $modalInstance, $modal) {
-        $scope.parentItemDetail=items;
-        var botHistLogsCtrl={};
-        botHistLogsCtrl.taskLogType=items.taskType;
-        botHistLogsCtrl.cancelAll=function(){
-            $scope.$broadcast ('closeWindow');
-            $modalInstance.dismiss('cancel');
-            return  $scope.close;
-        };
-        return botHistLogsCtrl;
-
-        $scope.cancel= function() {
-            $modalInstance.dismiss('cancel');
-        };
-    }]).controller('confirmBotRunCtrl', ['$scope', '$modal', '$modalInstance', 'items', 'genericServices','toastr', function ($scope, $modal, $modalInstance, items, genSevs, toastr) {
+    ]).controller('confirmBotRunCtrl', ['$scope', '$modal', '$modalInstance', 'items', 'genericServices','toastr', '$rootScope', function ($scope, $modal, $modalInstance, items, genSevs, toastr, $rootScope) {
             $scope.botId = items.botId;
             $scope.isJobRunExecuting = false;
 
