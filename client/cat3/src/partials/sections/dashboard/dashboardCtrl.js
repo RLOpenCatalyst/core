@@ -12,7 +12,7 @@
         'apis.workzone','dashboard.genericServices'])
         .controller('dashboardCtrl', ['$rootScope', '$scope', '$http', 'uac', '$location', '$state', function ($rootScope, $scope, $http, uac, $location, $state) {
             $rootScope.isBreadCrumbAvailable = true;
-            $rootScope.app.isDashboard = true;
+            //$rootScope.app.isDashboard = true;
             if($state.current && $state.current.data && $state.current.data.menuName){
                 $rootScope.dashboardChild = $state.current.data.menuName;
             } else {
