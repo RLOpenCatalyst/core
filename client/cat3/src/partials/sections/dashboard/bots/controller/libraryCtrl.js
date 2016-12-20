@@ -88,14 +88,13 @@
             };
             genSevs.promiseGet(param).then(function (result) {
                 $timeout(function() {
-                    console.log(result);
                     $scope.botLibGridOptions.totalItems = result.metaData.totalRecords;
                     $scope.botLibGridOptions.data=result.bots;
                 }, 100);
                 $scope.isBotLibraryPageLoading = false;
             }, function(error) {
                 $scope.isBotLibraryPageLoading = false;
-                console.log(error);
+                toastr.error(error);
                 $scope.errorMessage = "No Records found";
             });
         };
@@ -118,35 +117,25 @@
             };
             genSevs.promiseGet(param).then(function (result) {
                 $timeout(function() {
-                    console.log(result);
                     $scope.botLibGridOptions.totalItems = result.metaData.totalRecords;
                     $scope.botLibGridOptions.data=result.bots;
                 }, 100);
                 $scope.isBotLibraryPageLoading = false;
             }, function(error) {
                 $scope.isBotLibraryPageLoading = false;
-                console.log(error);
+                toastr.error(error);
                 $scope.errorMessage = "No Records found";
             });
         };
         var gridBottomSpace = 225;
         $scope.gridHeight = workzoneUIUtils.makeTabScrollable('botLibraryPage') - gridBottomSpace;
         $scope.launchInstance = function(launch){
-            console.log(launch.botLinkedCategory);
-            /*if(launch.launcType === 'task'){
-                genSevs.executeTask(launch);
-            } else if(launch.launcType === 'bp') {
-                genSevs.launchBlueprint(launch);
-            }*/
             if(launch.botLinkedCategory === 'Task'){
                 genSevs.executeTask(launch);
             } else if(launch.botLinkedCategory === 'Blueprint') {
                 genSevs.launchBlueprint(launch);
             }
         };
-        /*$scope.botLogs = function(bot){
-            genSevs.botHistory(bot);
-        };*/
         $scope.botHistory=function(bot) {
             var modalInstance = $modal.open({
                 animation: true,
@@ -186,27 +175,6 @@
                 console.log('Modal Dismissed at ' + new Date());
             });
         };
-        /*$scope.botInfo=function(bot) {
-            genSevs.newTask(bot);
-            var modalInstance = $modal.open({
-                animation: true,
-                templateUrl: 'src/partials/sections/dashboard/workzone/popups/newTask.html',
-                controller: 'newTaskCtrl',
-                backdrop : 'static',
-                size: 'lg',
-                keyboard: false,
-                resolve: {
-                    items: function() {
-                        return bot;
-                    }
-                }
-            });
-            modalInstance.result.then(function(selectedItem) {
-                $scope.selected = selectedItem;
-            }, function() {
-                console.log('Modal Dismissed at ' + new Date());
-            });
-        };*/
         $scope.botSchedule = function(bot) {
             $modal.open({
                 templateUrl: 'src/partials/sections/dashboard/bots/view/botSchedule.html',
@@ -218,28 +186,8 @@
                         return bot
                     }
                 }
-            }).result.then(function (chefEventDetails) {
-                $scope.isEventAvailable = true;
-                $scope.chefJenkScriptTaskObj = chefEventDetails;
-                var startTimeMinute,startTimeHour,dayOfWeek,selectedDayOfTheMonth,selectedMonth;
-                startTimeMinute = $scope.chefJenkScriptTaskObj.startTimeMinute;
-                startTimeHour = $scope.chefJenkScriptTaskObj.startTime;
-                dayOfWeek = $scope.chefJenkScriptTaskObj.dayOfWeek;
-                selectedDayOfTheMonth = $scope.chefJenkScriptTaskObj.selectedDayOfTheMonth;
-                selectedMonth = $scope.chefJenkScriptTaskObj.monthOfYear;
-                $scope.type = 'edit';
-                $scope._isEventSelected = true;
+            }).result.then(function () {
                 
-                $scope.repeatPattern = 'Repeat Every -' +  $scope.chefJenkScriptTaskObj.repeats;   
-                $scope.cronDetails = {
-                    cronStartOn : $scope.chefJenkScriptTaskObj.cronStart,
-                    cronEndOn : $scope.chefJenkScriptTaskObj.cronEnd,
-                    cronRepeatEvery : $scope.chefJenkScriptTaskObj.repeatBy,
-                    cronFrequency: $scope.chefJenkScriptTaskObj.repeats,
-                    cronTime: typeof startTimeHour !=='undefined'? startTimeHour : new Date().getHours() + ':' + typeof startTimeMinute !=='undefined'? startTimeMinute:new Date().getMinutes(),
-                    cronDays: $scope.chefJenkScriptTaskObj.dayOfWeek,
-                    cronMonth: $scope.chefJenkScriptTaskObj.monthOfYear
-                }
             }, function () {
                 console.log('Dismiss time is ' + new Date());
             });
@@ -332,13 +280,11 @@
         lib.summary();
     }]).controller('botInfoCtrl',['$scope', 'items', '$modalInstance', function ($scope, items, $modalInstance) {
         $scope.botInfo = items;
-        console.log(items);
 
         $scope.cancel= function() {
             $modalInstance.dismiss('cancel');
         };
     }]).controller('botScheduleCtrl',['$scope', '$rootScope', 'genericServices', 'workzoneServices', 'toastr', '$modalInstance', 'items', '$timeout', function ($scope, $rootScope, genSevs, workzoneServices, toastr, $modalInstance, items, $timeout) {
-        console.log(items);
         $scope.botId = items.botId;
         $scope.defaultSelection = function() {
             $scope.repeatsType = 'Minutes';//default selection.
@@ -439,7 +385,6 @@
     }]).controller('botHistoryCtrl',["items", '$scope', '$modalInstance', '$modal', '$timeout', 'uiGridOptionsClient', 'genericServices', 'workzoneServices',
         function(items, $scope, $modalInstance, $modal, $timeout, uiGridOptionsClient, genSevs, workzoneServices){
             //UI Grid for chef Task starts
-            console.log(items);
             $scope.botHistory = items;
             $scope.botId = items.botId;
             $scope.taskHistoryChefData = [];
@@ -468,7 +413,6 @@
                         url:'/bots/' + $scope.botId + '/bots-history'
                     };
                     genSevs.promiseGet(param).then(function (response) {
-                        console.log(response);
                         $timeout(function() {
                             if(response.data){
                                 $scope.taskHistoryChefData = response.data;
@@ -529,7 +473,6 @@
                         url:'/bots/' + $scope.botId + '/bots-history'
                     };
                     genSevs.promiseGet(param).then(function (response) {
-                        console.log(response);
                         $timeout(function() {
                             if(response.data){
                                 $scope.taskHistoryJenkinsData = response.data;
@@ -580,7 +523,6 @@
                         url:'/bots/' + $scope.botId + '/bots-history'
                     };
                     genSevs.promiseGet(param).then(function (response) {
-                        console.log(response);
                         $timeout(function() {
                             if(response.data){
                                 $scope.taskHistoryScriptData = response.data;
@@ -631,7 +573,6 @@
                         url:'/bots/' + $scope.botId + '/bots-history'
                     };
                     genSevs.promiseGet(param).then(function (response) {
-                        console.log(response);
                         $timeout(function() {
                             if(response.data){
                                 $scope.botHistoryBlueprintData = response.data;
@@ -688,36 +629,58 @@
             }
 
             $scope.historyLogs=function(hist) {
-                console.log(hist);
-                var modalInstance = $modal.open({
-                    animation: true,
-                    templateUrl: 'src/partials/sections/dashboard/bots/view/botExecutionLogs.html',
-                    controller: 'botExecutionLogsCtrl as botExecLogCtrl',
-                    backdrop : 'static',
-                    keyboard: false,
-                    resolve: {
-                        items: function() {
-                            return {
-                                taskId : hist.auditId,
-                                historyId : hist.auditHistoryId ? hist.auditHistoryId : hist.auditTrailConfig.nodeIdsWithActionLog[0].actionLogId,
-                                taskType:hist.auditTrailConfig.executionType
-                            };
+                console.log(hist.auditTrailConfig.executionType);
+                if(hist.auditTrailConfig && (hist.auditTrailConfig.executionType == 'chef') || (hist.auditTrailConfig.executionType == 'jenkins') || (hist.auditTrailConfig.executionType == 'script')) {
+                    var modalInstance = $modal.open({
+                        animation: true,
+                        templateUrl: 'src/partials/sections/dashboard/bots/view/botExecutionLogs.html',
+                        controller: 'botExecutionLogsCtrl as botExecLogCtrl',
+                        backdrop : 'static',
+                        keyboard: false,
+                        resolve: {
+                            items: function() {
+                                return {
+                                    taskId : hist.auditId,
+                                    historyId : hist.auditHistoryId ? hist.auditHistoryId : hist.auditTrailConfig.nodeIdsWithActionLog[0].actionLogId,
+                                    taskType:hist.auditTrailConfig.executionType
+                                };
+                            }
                         }
-                    }
-                });
-                modalInstance.result.then(function(selectedItem) {
-                    $scope.selected = selectedItem;
-                }, function() {
-                    console.log('Modal Dismissed at ' + new Date());
-                });
-            };
+                    });
+                    modalInstance.result.then(function(selectedItem) {
+                        $scope.selected = selectedItem;
+                    }, function() {
+                        console.log('Modal Dismissed at ' + new Date());
+                    });
+                } else {
+                    var modalInstance = $modal.open({
+                        animation: true,
+                        templateUrl: 'src/partials/sections/dashboard/workzone/instance/popups/instanceLogs.html',
+                        controller: 'cpActionHistoryLogCtrl',
+                        backdrop : 'static',
+                        keyboard: false,
+                        resolve: {
+                            items: function() {
+                                return {
+                                    actionHistoryData : hist,
+                                    cpInstance: hist
+                                };
+                            }
+                        }
+                    });
+                    modalInstance.result.then(function(selectedItem) {
+                        $scope.selected = selectedItem;
+                    }, function() {
+                        console.log('Modal Dismissed at ' + new Date());
+                    });
+                };
+            }
+
             $scope.cancel= function() {
                 $modalInstance.dismiss('cancel');
             };
         }
-    ]).controller('botHistoryLogsCtrl',['$scope', 'items', '$modalInstance', function ($scope, items, $modalInstance) {
-        $scope.botInfo = items;
-        console.log(items);
+    ]).controller('botHistoryLogsCtrl',['$scope', 'items', '$modalInstance', '$modal', function ($scope, items, $modalInstance, $modal) {
         $scope.parentItemDetail=items;
         var botHistLogsCtrl={};
         botHistLogsCtrl.taskLogType=items.taskType;
@@ -731,33 +694,35 @@
         $scope.cancel= function() {
             $modalInstance.dismiss('cancel');
         };
-    }]).controller('confirmBotRunCtrl', ['$scope', '$modalInstance', 'items', 'genericServices','toastr','$modal', function ($scope, $modalInstance, items, genSevs, toastr,$modal) {
-            console.log(items);
+    }]).controller('confirmBotRunCtrl', ['$scope', '$modal', '$modalInstance', 'items', 'genericServices','toastr', function ($scope, $modal, $modalInstance, items, genSevs, toastr) {
             $scope.botId = items.botId;
             $scope.isJobRunExecuting = false;
+
+            var helper = {
+                botLogModal: function(id,historyId,taskType) {
+                    $modal.open({
+                        animation: true,
+                        templateUrl: 'src/partials/sections/dashboard/bots/view/botExecutionLogs.html',
+                        controller: 'botExecutionLogsCtrl as botExecLogCtrl',
+                        backdrop: 'static',
+                        keyboard: false,
+                        resolve: {
+                            items: function() {
+                                return {
+                                    taskId: id,
+                                    historyId: historyId,
+                                    taskType: taskType
+                                };
+                            }
+                        }
+                    });
+                }
+            };
+
             $scope.cancel = function () {
                 $modalInstance.dismiss('cancel');
             };
-        var helper = {
-            botLogModal: function(id,historyId,taskType) {
-                $modal.open({
-                    animation: true,
-                    templateUrl: 'src/partials/sections/dashboard/bots/view/botExecutionLogs.html',
-                    controller: 'botExecutionLogsCtrl as botExecLogCtrl',
-                    backdrop: 'static',
-                    keyboard: false,
-                    resolve: {
-                        items: function() {
-                            return {
-                                taskId: id,
-                                historyId: historyId,
-                                taskType: taskType
-                            };
-                        }
-                    }
-                });
-            }
-        };
+
             $scope.runJob = function () {
                 $scope.isJobRunExecuting = true;
                 var param={
@@ -765,6 +730,7 @@
                 };
                 genSevs.promisePost(param).then(function (response) {
                     $modalInstance.close(response.data);
+                    $rootScope.$emit('BOTS_LIBRARY_REFRESH');
                     helper.botLogModal(items.botId, response.historyId, response.taskType);
                 },
                 function (error) {

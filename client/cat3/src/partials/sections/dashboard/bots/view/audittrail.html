@@ -9,6 +9,14 @@
 	</div>
 	<div class="borderTop"></div>
 
+	<div class="bot-audit-trail-search">
+		<div class="pull-right">
+			<label><span class="search-text">Search:</span>&nbsp;
+				<input type="search" ng-model="botAuditTrailSearch" ng-change="searchBotAuditTrailName()" class="bot-search" placeholder="">
+			</label>
+		</div>
+	</div>
+
 	<loading size="large" name="isBotAuditTrailPageLoading" type="block"></loading>
 	<div class="alert alert-info text-center" ng-if="!botAuditTrailGridOptions.data.length > 0">
 	    No data Available

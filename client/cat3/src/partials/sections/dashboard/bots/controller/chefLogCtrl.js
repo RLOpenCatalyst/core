@@ -8,7 +8,7 @@
 (function (angular) {
 	"use strict";
 	angular.module('dashboard.bots')
-		.controller('chefLogCtrl', ['$q', '$scope', 'workzoneServices', '$timeout', 'orchestrationSetting', function ($q, $scope, workzoneServices, $timeout, orchestrationSetting) {
+		.controller('chefLogCtrl', ['$q', '$scope', 'workzoneServices', '$timeout', 'orchestrationSetting', 'toastr', function ($q, $scope, workzoneServices, $timeout, orchestrationSetting, toastr) {
 			/*This controller can be invoked from either of two flows - Chef Log History Item Logs OR Chef Task Execute
 			 items object will contain only taskId and historyId. */
 			//var items = $scope.parentItemDetail;
@@ -80,7 +80,6 @@
 					url = '/bots/' + botId + '/history/' + historyId;
 				}
 				genSevs.promiseGet(param).then(function (response) {
-	                console.log(response);
 	                chefLogData.createInstanceList(response.data);
 	                //$modalInstance.close(response.data);
 	                //$rootScope.$emit('BOTS_LIBRARY_REFRESH');
@@ -141,7 +140,7 @@
 				},
 				function (error) {
 					$scope.isInstanceListLoading = false;
-					console.log(error);
+					toastr.error(error);
 					$scope.errorMessage = "";
 				});
 			};
