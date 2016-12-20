@@ -1,8 +1,11 @@
 <div id='instanceLogsPage'>
 	<div class="modal-header">
 		<span class="close" ng-click="cancel()">×</span>
-		<h4 class="modal-title">
+		<h4 class="modal-title" ng-show="!botLogs">
 			<i class="fa fa-bar-chart-o"></i> Instance Logs - {{instanceName}}
+		</h4>
+		<h4 class="modal-title" ng-show="botLogs">
+			<i class="fa fa-bar-chart-o"></i> Execute Logs
 		</h4>
 	</div>
 
