@@ -81,7 +81,10 @@ settingsService.updateProjectData = function updateProjectData(enviornment,callb
 };
 
 settingsService.trackSettingWizard = function trackSettingWizard(id,orgId,callback){
-   if(id === '1'){
+    if(orgId === null || orgId === ''){
+        callback(null,orgId);
+        return;
+    }else if(id === '1'){
        settingWizard.removeSettingWizardByOrgId(orgId,function(err,data){
            if(err){
                callback(err,null);
@@ -89,7 +92,7 @@ settingsService.trackSettingWizard = function trackSettingWizard(id,orgId,callba
            }
            callback(null,data);
        })
-   }else if(id === '2'){
+    }else if(id === '2'){
        settingWizard.getSettingWizardByOrgId(orgId,function(err,settingWizards) {
            if (err) {
                callback(err, null);

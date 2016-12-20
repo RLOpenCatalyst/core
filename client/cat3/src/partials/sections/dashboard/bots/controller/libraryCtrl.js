@@ -94,8 +94,7 @@
                 $scope.errorMessage = "No Records found";
             });
         };
-        $scope.botLibraryGridView();
-        var gridBottomSpace = 190;
+        var gridBottomSpace = 250;
         $scope.gridHeight = workzoneUIUtils.makeTabScrollable('botLibraryPage') - gridBottomSpace;
         $scope.launchInstance = function(launch){
             genSevs.executeTask(launch);

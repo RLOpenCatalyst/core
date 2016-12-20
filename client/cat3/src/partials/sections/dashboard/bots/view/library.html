@@ -10,47 +10,121 @@
     <div class="borderTop"></div>
 	<div class="container summary-container">
 		<div class="panel-group text-center">
-			<div class="col-md-3 col-sm-6 col-xs-12">
-				<div class="info-box cursor" ng-click="RefreshBotsLibrary()" ng-class="{'selected-blue':totalBotsSelected}">
-					<span class="info-box-icon bg-aqua">
-						<i class="fa fa-list-ol" style="color: #fff"></i>
-					</span>
-					<div class="info-box-content">
-					  <span class="info-box-text">Total Number of BOTs</span>
-					  <span class="info-box-number">{{botSummary.totalNoOfBots}}</span>
+			<!--<div class="col-md-3 col-sm-6 col-xs-12">-->
+				<!--<div class="info-box cursor" ng-click="RefreshBotsLibrary()" ng-class="{'selected-blue':totalBotsSelected}">-->
+					<!--<span class="info-box-icon bg-aqua">-->
+						<!--<i class="fa fa-list-ol" style="color: #fff"></i>-->
+					<!--</span>-->
+					<!--<div class="info-box-content">-->
+					  <!--<span class="info-box-text">Total Number of BOTs</span>-->
+					  <!--<span class="info-box-number">{{botSummary.totalNoOfBots}}</span>-->
+					<!--</div>-->
+				<!--</div>-->
+			<!--</div>-->
+			<!--<div class="col-md-3 col-sm-6 col-xs-12">-->
+				<!--<div class="info-box cursor" ng-click="showBotsRunning()" ng-class="{'selected-green':runningBotsselected}">-->
+					<!--<span class="info-box-icon bg-green">-->
+						<!--<i class="fa fa-cogs" style="color: #fff"></i>-->
+					<!--</span>-->
+					<!--<div class="info-box-content">-->
+					  <!--<span class="info-box-text">Number of BOTs running</span>-->
+					  <!--<span class="info-box-number">{{botSummary.totalNoOfRunningBots}}</span>-->
+					<!--</div>-->
+				<!--</div>-->
+			<!--</div>-->
+			<!--<div class="col-md-3 col-sm-6 col-xs-12">-->
+				<!--<div class="info-box">-->
+					<!--<span class="info-box-icon bg-yellow">-->
+						<!--<i class="fa fa-save" style="color: #fff"></i>-->
+					<!--</span>-->
+					<!--<div class="info-box-content">-->
+					  <!--<span class="info-box-text">Total Time saved</span>-->
+					  <!--<span class="info-box-number">{{totalSavedTimeForBots}} mins</span>-->
+					<!--</div>-->
+				<!--</div>-->
+			<!--</div>-->
+			<!--<div class="col-md-3 col-sm-6 col-xs-12">-->
+				<!--<div class="info-box cursor" ng-click="showFailedBots()" ng-class="{'selected-red':failedBotsselected}">-->
+					<!--<span class="info-box-icon bg-red">-->
+						<!--<i class="fa fa-remove" style="color: #fff"></i>-->
+					<!--</span>-->
+					<!--<div class="info-box-content">-->
+					  <!--<span class="info-box-text">Number of failed runs</span>-->
+					  <!--<span class="info-box-number">{{botSummary.totalNoOfFailedBots}}</span>-->
+					<!--</div>-->
+				<!--</div>-->
+			<!--</div>-->
+			<div class="col-lg-3 col-sm-6">
+				<div class="circle-tile cursor" ng-click="RefreshBotsLibrary()">
+					<div  >
+						<div class="circle-tile-heading dark-blue">
+							<i class="fa fa-list-ol fa-fw fa-3x white"></i>
+						</div>
+					</div>
+					<div class="circle-tile-content dark-blue">
+						<div class="circle-tile-description text-faded">
+							Total Number of BOTs
+						</div>
+						<div class="circle-tile-number text-faded">
+							{{botSummary.totalNoOfBots}}
+							<!-- <span id="sparklineA"><canvas width="29" height="24" style="display: inline-block; width: 29px; height: 24px; vertical-align: top;"></canvas></span> -->
+						</div>
+
 					</div>
 				</div>
 			</div>
-			<div class="col-md-3 col-sm-6 col-xs-12">
-				<div class="info-box cursor" ng-click="showBotsRunning()" ng-class="{'selected-green':runningBotsselected}">
-					<span class="info-box-icon bg-green">
-						<i class="fa fa-cogs" style="color: #fff"></i>
-					</span>
-					<div class="info-box-content">
-					  <span class="info-box-text">Number of BOTs running</span>
-					  <span class="info-box-number">{{botSummary.totalNoOfRunningBots}}</span>
+			<div class="col-lg-3 col-sm-6">
+				<div class="circle-tile cursor">
+					<div ng-click="showBotsRunning()">
+						<div class="circle-tile-heading green">
+							<i class="fa fa-cogs fa-fw fa-3x white"></i>
+						</div>
+					</div>
+					<div class="circle-tile-content green">
+						<div class="circle-tile-description text-faded">
+							Number of BOTs running
+						</div>
+						<div class="circle-tile-number text-faded">
+							{{botSummary.totalNoOfRunningBots}}
+						</div>
+
 					</div>
 				</div>
 			</div>
-			<div class="col-md-3 col-sm-6 col-xs-12">
-				<div class="info-box">
-					<span class="info-box-icon bg-yellow">
-						<i class="fa fa-save" style="color: #fff"></i>
-					</span>
-					<div class="info-box-content">
-					  <span class="info-box-text">Total Time saved</span>
-					  <span class="info-box-number">{{totalSavedTimeForBots}} mins</span>
+			<div class="col-lg-3 col-sm-6">
+				<div class="circle-tile cursor">
+					<div href="#">
+						<div class="circle-tile-heading orange">
+							<i class="fa fa-save fa-fw fa-3x white"></i>
+						</div>
+					</div>
+					<div class="circle-tile-content orange">
+						<div class="circle-tile-description text-faded">
+							Total Time saved
+						</div>
+						<div class="circle-tile-number text-faded">
+							{{totalSavedTimeForBots}} mins
+						</div>
+
 					</div>
 				</div>
 			</div>
-			<div class="col-md-3 col-sm-6 col-xs-12">
-				<div class="info-box cursor" ng-click="showFailedBots()" ng-class="{'selected-red':failedBotsselected}">
-					<span class="info-box-icon bg-red">
-						<i class="fa fa-remove" style="color: #fff"></i>
-					</span>
-					<div class="info-box-content">
-					  <span class="info-box-text">Number of failed runs</span>
-					  <span class="info-box-number">{{botSummary.totalNoOfFailedBots}}</span>
+			<div class="col-lg-3 col-sm-6">
+				<div class="circle-tile cursor" ng-click="showFailedBots()">
+					<div >
+						<div class="circle-tile-heading red">
+							<i class="fa fa-remove fa-fw fa-3x white"></i>
+						</div>
+					</div>
+					<div class="circle-tile-content red">
+						<div class="circle-tile-description text-faded">
+							Number of failed runs
+						</div>
+						<div class="circle-tile-number text-faded">
+							{{botSummary.totalNoOfFailedBots}}
+							<!-- <span id="sparklineC"><canvas width="34" height="24" style="display: inline-block; width: 34px; height: 24px; vertical-align: top;"></canvas></span> -->
+						</div>
+
 					</div>
 				</div>
 			</div>
@@ -61,5 +135,4 @@
 	<div class="alert alert-info text-center" ng-show="botLibGridOptions.data.length===0">
 		No data Available
 	</div>
-	<div id="grid1" ng-if="botLibGridOptions.data.length >0 && !isBotLibraryPageLoading" ui-grid="botLibGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid" style="height: {{gridHeight}}px"></div>
 </div>
