@@ -22,6 +22,15 @@
                 <div ng-switch-when="instance_launch">
                     <div ng-include="'src/partials/sections/dashboard/bots/view/chefLog.html'" ></div>
                 </div>
+                <div ng-switch-when="aws_cf">
+                    <div ng-include="'src/partials/sections/dashboard/bots/view/chefLog.html'" ></div>
+                </div>
+                <div ng-switch-when="docker">
+                    <div ng-include="'src/partials/sections/dashboard/bots/view/chefLog.html'" ></div>
+                </div>
+                <div ng-switch-when="azure_launch">
+                    <div ng-include="'src/partials/sections/dashboard/bots/view/chefLog.html'" ></div>
+                </div>
             </div>
         </fieldset>
     </div>
