@@ -9,8 +9,9 @@
     "use strict";
     angular.module('library.params', [])
     .controller('editParamsCtrl',['$scope', '$rootScope', 'genericServices', 'workzoneServices', 'toastr', '$modalInstance', 'items', 'responseFormatter', function ($scope, $rootScope, genSevs, workzoneServices, toastr, $modalInstance, items, responseFormatter) {
-        $scope.botName = items.name;
-        $scope.taskType = items.taskType;
+        console.log(items);
+        $scope.botName = items.botName;
+        $scope.taskType = items.botLinkedSubCategory;
         $scope.taggingServerList=[];
         $scope.envOptions=[];
         workzoneServices.getTaggingServer().then(function (topSer) {
@@ -18,23 +19,23 @@
         });
         $scope.chefAttributesFlag = false;
         $scope.scriptParamsFlag = false;
-        if(items.taskConfig.runlist && items.taskConfig.runlist.length) {
+        if(items.botConfig && items.botConfig.runlist && items.botConfig.runlist.length) {
             $scope.chefAttributesFlag = true;
         }
-        if(items.taskType === 'script') {
-            for (var i=0; i<items.taskConfig.scriptDetails.length; i++) {
-                if(items.taskConfig.scriptDetails[i].scriptParameters.length > 0) {
+        if(items.botLinkedSubCategory === 'script' && items.botConfig) {
+            for (var i=0; i<items.botConfig.scriptDetails.length; i++) {
+                if(items.botConfig.scriptDetails[i].scriptParameters.length > 0) {
                     $scope.scriptParamsFlag = true;
                 }
             }
         }
         $scope.isChefattributesLoading = true;
-        if (items.taskType === 'chef') {
-            $scope.chefComponentSelectorList = responseFormatter.findDataForEditValue(items.taskConfig.runlist);
+        if (items.botLinkedSubCategory === 'chef' && items.botConfig) {
+            $scope.chefComponentSelectorList = responseFormatter.findDataForEditValue(items.botConfig.runlist);
             var nodesList = responseFormatter.chefRunlistFormatter($scope.chefComponentSelectorList);
             $scope.chefattributes = [];
-            $scope.chefattributes = responseFormatter.formatSavedCookbookAttributes(items.taskConfig.attributes);
-            workzoneServices.getCookBookListForOrg(items.orgId).then(function(data){
+            $scope.chefattributes = responseFormatter.formatSavedCookbookAttributes(items.botConfig.attributes);
+            workzoneServices.getCookBookListForOrg(items.masterDetails.orgId).then(function(data){
                 var runlist = [];
                 for (var i = 0; i < nodesList.length; i++) {
                     if (nodesList[i].className === "cookbook" || nodesList[i].className === "deploy") {
@@ -67,9 +68,10 @@
                 }
             });
         }
-
-        $scope.jenkinsparams = items.taskConfig.parameterized;
-        $scope.scriptparams = items.taskConfig.scriptDetails;
+        if (items.botConfig) {
+            $scope.jenkinsparams = items.botConfig.parameterized;
+            $scope.scriptparams = items.botConfig.scriptDetails;
+        }
         $scope.parameters=[''];
         var cookbookAttributes = [];
         var scriptParams = [];
@@ -89,7 +91,7 @@
         };
 
         $scope.executeBot=function(){
-            if (items.taskConfig.taskType === 'script') {
+            if (items.botConfig.botLinkedSubCategory === 'script') {
                 var checkParam = false;
                 if ($scope.scriptParamsFlag) {
                     for(var i =0; i<$scope.parameters.length; i++){
@@ -106,11 +108,11 @@
                     scriptParams = $scope.parameters;
                 } 
             }
-            if (items.taskConfig.taskType === 'chef') {
+            if (items.botConfig.botLinkedSubCategory === 'chef') {
                 cookbookAttributes = responseFormatter.formatSelectedCookbookAttributes($scope.chefattributes);
                 
             }
-            if (items.taskConfig.taskType === 'jenkins') {
+            if (items.botConfig.botLinkedSubCategory === 'jenkins') {
                 choiceParam = $scope.jenparams;
             }
             $scope.executeTask();
@@ -118,20 +120,35 @@
 
         $scope.executeTask = function(){
             var reqBody = {};
-            if (items.taskConfig.taskType === 'jenkins') {
+            if (items.botConfig.botLinkedSubCategory === 'jenkins') {
                 reqBody.choiceParam = choiceParam;
-            } else if (items.taskConfig.taskType === 'chef'){
+            } else if (items.botConfig.botLinkedSubCategory === 'chef'){
                 reqBody.tagServer = $scope.tagSerSelected;
                 if ($scope.chefAttributesFlag) {
                     reqBody.cookbookAttributes = cookbookAttributes;
                 }
-            } else  if (items.taskConfig.taskType === 'script') {
+            } else  if (items.botConfig.botLinkedSubCategory === 'script') {
                 reqBody.tagServer = $scope.tagSerSelected;
                 if ($scope.scriptParamsFlag) {
                     reqBody.scriptParams = scriptParams;
                 }
             }
-            workzoneServices.runTask(items._id, reqBody).then(
+            var param={
+                url:'/bots/' + items.botId + '/execute'
+            };
+            genSevs.promisePost({url:param,data:reqBody}).then(function (response) {
+                $modalInstance.close(response.data);
+                $rootScope.$emit('BOTS_LIBRARY_REFRESH');
+            },
+            function (error) {
+                error = error.responseText || error;
+                if (error.message) {
+                    toastr.error(error.message);
+                } else {
+                    toastr.error(error);
+                }
+            });
+            /*workzoneServices.runTask(items._id, reqBody).then(
                 function (response) {
                     $modalInstance.close(response.data);
                     $rootScope.$emit('BOTS_LIBRARY_REFRESH');
@@ -145,7 +162,7 @@
                         toastr.error(error);
                     }
                 }
-            );
+            );*/
         };
 
         $scope.cancel= function() {
