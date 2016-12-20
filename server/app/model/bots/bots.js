@@ -181,6 +181,10 @@ var BotsSchema = new Schema ({
         type: Number,
         default: 1
     },
+    domainNameCheck: {
+        type: Boolean,
+        default: false
+    }
 });
 BotsSchema.plugin(mongoosePaginate);
 

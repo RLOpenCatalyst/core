@@ -288,15 +288,13 @@ BlueprintSchema.methods.launch = function (opts, callback) {
                     message: "Failed to get env name from env id"
                 }, null);
                 return;
-            }
-            ;
+            };
             if (!envName) {
                 callback({
                     "message": "Unable to find environment name from environment id"
                 });
                 return;
-            }
-            ;
+            };
             configmgmtDao.getChefServerDetails(infraManager.infraManagerId, function (err, chefDetails) {
                 if (err) {
                     logger.error("Failed to getChefServerDetails", err);
@@ -304,16 +302,14 @@ BlueprintSchema.methods.launch = function (opts, callback) {
                         message: "Failed to getChefServerDetails"
                     }, null);
                     return;
-                }
-                ;
+                };
                 if (!chefDetails) {
                     logger.error("No CHef Server Detailed available.", err);
                     callback({
                         message: "No Chef Server Detailed available"
                     }, null);
                     return;
-                }
-                ;
+                };
                 var chef = new Chef({
                     userChefRepoLocation: chefDetails.chefRepoLocation,
                     chefUserName: chefDetails.loginname,

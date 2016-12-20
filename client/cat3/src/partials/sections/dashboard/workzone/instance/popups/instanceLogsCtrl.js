@@ -9,6 +9,8 @@
 	"use strict";
 	 angular.module('workzone.instance')
 		.controller('instanceLogsCtrl', ['$scope', '$rootScope', '$modalInstance', 'items', 'workzoneServices', 'instanceSetting', 'instanceLogs', function($scope, $rootScope , $modalInstance, items, workzoneServices, instanceSetting, instanceLogs) {
+			console.log(items);
+			console.log("Durgesh");
 			$scope.instanceName = items.name;
 			$scope.isInstanceLogsLoading = true;
 			angular.extend($scope, {

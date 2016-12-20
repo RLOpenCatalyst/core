@@ -51,6 +51,8 @@ botsService.createOrUpdateBots = function createOrUpdateBots(botsDetail,linkedCa
         botLinkedCategory: linkedCategory,
         botLinkedSubCategory:linkedSubCategory,
         manualExecutionTime:botsDetail.manualExecutionTime,
+        version:botsDetail.version,
+        domainNameCheck:botsDetail.domainNameCheck,
         createdOn: new Date().getTime()
     };
     bots.getBotsById(botsDetail._id,function(err,data){
