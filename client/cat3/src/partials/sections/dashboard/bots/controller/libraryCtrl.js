@@ -30,15 +30,15 @@
                 { name: 'Category',field:'botCategory',cellTooltip: true},
                 { name: 'description',field:'shortDesc',cellTooltip: true},
                 { name: 'Total Runs',field:'executionCount'},
-                { name: 'BOT History',displayName: 'BOT History',cellTemplate:'<span ng-show="row.entity.blueprintType">NA</span>'+
-                    '<span class="btn cat-btn-update control-panel-button" title="History" ng-show="row.entity.taskType" ng-click="grid.appScope.botLogs(row.entity);"><i class="fa fa-header white"></i></span>'},
-                { name: 'BOT Info',displayName: 'BOT Info',cellTemplate:
-                    '<span class="btn cat-btn-update control-panel-button" title="Info" ng-click="grid.appScope.botInfo(row.entity);"><i class="fa fa-info white"></i></span>'},
+        
                 { name: 'BOT Action',displayName: 'BOT Action',cellTemplate:
-                    '<span class="btn cat-btn-update control-panel-button" title="Schedule" ng-click="grid.appScope.botSchedule(row.entity);"><i class="fa fa-calendar white"></i></span>' +
-                    '<span class="btn cat-btn-update control-panel-button" title="Execute" ng-click="grid.appScope.launchInstance(row.entity);"><i class="fa fa-play white"></i></span>' +
-                    '<span class="btn btn-danger control-panel-button" title="Delete Task" ng-show="row.entity.taskType" ng-click="grid.appScope.deleteBotTask(row.entity);"><i class="fa fa-trash-o white"></i></span>' + 
-                    '<span class="btn btn-danger control-panel-button" title="Delete Blueprint" ng-show="row.entity.blueprintType" ng-click="grid.appScope.deleteBotBP(row.entity);"><i class="fa fa-trash-o white"></i></span>'
+                    '<a class="cursor" title="History" ng-show="row.entity.taskType" ng-click="grid.appScope.botLogs(row.entity);"><i class="fa fa-header font-size-14"></i></a>'+
+                    '<a class="cursor" title="Info" ng-click="grid.appScope.botInfo(row.entity);"><i class="fa fa-info font-size-14"></i></a>'+
+                    '<a class="cursor" title="edit" ng-click="grid.appScope.createBot(row.entity);"><i class="fa fa-pencil font-size-14"></i></a>'+
+                    '<a class="cursor" title="Schedule" ng-click="grid.appScope.botSchedule(row.entity);"><i class="fa fa-calendar font-size-14"></i></a>' +
+                    '<a class="cursor" title="Execute" ng-click="grid.appScope.launchInstance(row.entity);"><i class="fa fa-play font-size-14"></i></a>' +
+                    '<a class="cursor" title="Delete Task" ng-show="row.entity.taskType" ng-click="grid.appScope.deleteBotTask(row.entity);"><i class="fa fa-trash-o font-size-14"></i></a>' + 
+                    '<a class="cursor" title="Delete Blueprint" ng-show="row.entity.blueprintType" ng-click="grid.appScope.deleteBotBP(row.entity);"><i class="fa fa-trash-o font-size-14"></i></a>'
                 }
             ],
             data:[]
@@ -59,6 +59,25 @@
             var modalInstance = $modal.open({
                 animation: true,
                 templateUrl: 'src/partials/sections/dashboard/bots/view/botInfo.html',
+                controller: 'botInfoCtrl',
+                backdrop : 'static',
+                keyboard: false,
+                resolve: {
+                    items: function() {
+                        return bot;
+                    }
+                }
+            });
+            modalInstance.result.then(function(selectedItem) {
+                $scope.selected = selectedItem;
+            }, function() {
+                console.log('Modal Dismissed at ' + new Date());
+            });
+        };
+        $scope.createBot=function(bot) {
+            var modalInstance = $modal.open({
+                animation: true,
+                templateUrl: 'src/partials/sections/dashboard/bots/view/createBot.html',
                 controller: 'botInfoCtrl',
                 backdrop : 'static',
                 keyboard: false,
