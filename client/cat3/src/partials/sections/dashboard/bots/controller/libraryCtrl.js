@@ -35,13 +35,13 @@
                 { name: 'Org',field:'masterDetails.orgName',cellTooltip: true},
                 { name: 'Total Runs',field:'executionCount'},
                    { name: 'BOT Action',width:200,displayName: 'BOT Action',cellTemplate:
-                    '<a class="cursor" title="History"  ng-click="grid.appScope.botLogs(row.entity);"><i class="fa fa-header font-size-14"></i></a>'+
-                    '<a class="cursor" title="Info" ng-click="grid.appScope.botInfo(row.entity);"><i class="fa fa-info font-size-14"></i></a>'+
-                    '<a class="cursor" title="edit" ng-click="grid.appScope.createBot(row.entity);"><i class="fa fa-pencil font-size-14"></i></a>'+
-                    '<a class="cursor" title="Schedule" ng-click="grid.appScope.botSchedule(row.entity);"><i class="fa fa-calendar font-size-14"></i></a>' +
-                    '<a class="cursor" title="Execute" ng-click="grid.appScope.launchInstance(row.entity);"><i class="fa fa-play font-size-14"></i></a>' +
-                    '<a class="cursor" title="Delete Task" ng-show="row.entity.taskType" ng-click="grid.appScope.deleteBotTask(row.entity);"><i class="fa fa-trash-o font-size-14"></i></a>' + 
-                    '<a class="cursor" title="Delete Blueprint" ng-click="grid.appScope.deleteBotBP(row.entity);"><i class="fa fa-trash-o font-size-14"></i></a>'
+                    '<a class="cursor" title="History"  ng-click="grid.appScope.botLogs(row.entity);"><i class="fa fa-header font-size-16"></i></a>'+
+                    '<a class="cursor" title="Info" ng-click="grid.appScope.botInfo(row.entity);"><i class="fa fa-info font-size-16"></i></a>'+
+                    '<a class="cursor" title="edit" ng-click="grid.appScope.createBot(row.entity);"><i class="fa fa-pencil font-size-16"></i></a>'+
+                    '<a class="cursor" title="Schedule" ng-click="grid.appScope.botSchedule(row.entity);"><i class="fa fa-calendar font-size-16"></i></a>' +
+                    '<a class="cursor" title="Execute" ng-click="grid.appScope.launchInstance(row.entity);"><i class="fa fa-play font-size-16"></i></a>' +
+                    '<a class="cursor" title="Delete Task" ng-show="row.entity.taskType" ng-click="grid.appScope.deleteBotTask(row.entity);"><i class="fa fa-trash-o font-size-16"></i></a>' + 
+                    '<a class="cursor" title="Delete Blueprint" ng-click="grid.appScope.deleteBotBP(row.entity);"><i class="fa fa-trash-o font-size-16"></i></a>'
                 }
             ]
             $scope.botLibGridOptions.data=[];
