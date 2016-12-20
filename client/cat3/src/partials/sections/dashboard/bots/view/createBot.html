@@ -1,0 +1,82 @@
+<div id="deployNewAppPage" class="ng-scope">
+    <div class="save-loading ng-hide" ng-show="isLoadingNewApp">
+        <loading size="large" name="isLoadingNewApp" type="inline" class="ng-scope" style="display: none;"><span class="catloader inline ng-scope"><i class="fa fa-spinner fa-spin black"></i></span></loading>
+    </div>
+    <form name="DeploymentForm" novalidate="" class="ng-pristine ng-invalid ng-invalid-required">
+        <div class="modal-header">
+            
+            <span class="close" ng-click="cancel()">×</span>
+            <h4 class="modal-title">
+                <i class="fa fa-plus"></i> Create New BOT
+            </h4>
+        </div>
+        <div class="modal-body">
+            <fieldset>
+                <div class="row">
+                    <div class="col-lg-12 col-md-12 no-padding">
+                        <div class="col-lg-6 col-md-6">
+                            <label for="">Database Name
+                                <span class="control-label red">&nbsp;*</span>
+                                <span ng-show="InstanceImportbyIPForm.instanceFQDN.$touched &amp;&amp; InstanceImportbyIPForm.instanceFQDN.$error.required" class="inputValidationMsg ng-hide">required
+                                </span>
+
+                                <span ng-show="InstanceImportbyIPForm.instanceFQDN.$touched &amp;&amp; InstanceImportbyIPForm.instanceFQDN.$error.pattern" class="inputValidationMsg ng-hide">Invalid IP Address
+                                </span>
+                            </label>
+                            <div class="input-groups">
+                                <input name="instanceFQDN" class="form-control ng-pristine ng-untouched ng-invalid ng-invalid-required ng-valid-pattern" id="instanceFQDN" ng-model="ipAddress" ng-pattern="/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/" required="" type="text">
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                            <label for="">Password
+                                <span class="control-label red">&nbsp;*</span>
+                                <span ng-show="InstanceImportbyIPForm.importinstanceOS.$touched &amp;&amp; InstanceImportbyIPForm.importinstanceOS.$error.required" class="inputValidationMsg ng-hide">required
+                                </span>
+                            </label>
+                            
+                            <div class="input-groups">
+                                <input name="authenticationPassword" class="form-control ng-dirty ng-valid-parse ng-valid-required ng-valid ng-touched" ng-model="$parent.passwordModel" required="" ng-init="passwordModel" type="password">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-12 col-md-12 no-padding margintop15">
+                        <div class="col-lg-6 col-md-6 control-margin">
+                            <label for="username">DB Configs
+                                <span class="control-label red">&nbsp;*</span>
+                                <span ng-show="InstanceImportbyIPForm.username.$touched &amp;&amp; InstanceImportbyIPForm.username.$error.required" class="inputValidationMsg ng-hide">required
+                                </span>
+                            </label>
+                            <div class="input-groups">
+                                <!-- <input name="username" class="form-control ng-untouched ng-dirty ng-valid-parse ng-valid ng-valid-required" ng-model="username" required="" type="file
+"> -->
+                                <input keyfield="configname" onchange="this.nextSibling.value = this.value" class="form-control ng-untouched ng-dirty ng-valid-parse ng-valid ng-valid-required gui-file" cdata="catalyst" cat-validation="required" type="file">
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 control-margin">
+                            <label for="configManagementDropdown">Database datadump
+                                <span class="control-label red">&nbsp;*</span>
+                                <span ng-show="InstanceImportbyIPForm.configManagementDropdown.$touched &amp;&amp; InstanceImportbyIPForm.configManagementDropdown.$error.required" class="inputValidationMsg ng-hide">required
+                                </span>
+                            </label>
+                            <input keyfield="configname" onchange="this.nextSibling.value = this.value" class="form-control ng-untouched ng-dirty ng-valid-parse ng-valid ng-valid-required gui-file" cdata="catalyst" cat-validation="required" type="file">
+                        </div>
+                    </div>
+
+                </div>
+            </fieldset>
+
+
+            
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn cat-btn-close" ng-click="cancel()">
+                <i class="fa fa-times black"></i> Cancel
+            </button>
+                <button type="submit" class="btn cat-btn-update ng-scope" ng-if="!isEditMode" ng-disabled="newTaskForm.$invalid || taskSaving" disabled="disabled">
+                    <i class="fa fa-check white"></i> Save
+                </button>
+        </div>
+    </form>
+</div></div>
