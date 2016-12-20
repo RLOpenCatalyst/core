@@ -15,6 +15,7 @@
  */
 
 var mongoose = require('mongoose');
+var logger = require('_pr/logger')(module);
 var ObjectId = require('mongoose').Types.ObjectId;
 var mongoosePaginate = require('mongoose-paginate');
 var Schema = mongoose.Schema;
@@ -45,7 +46,7 @@ var BotsSchema = new Schema ({
         trim: true,
         required: true
     },
-    botsConfig:Schema.Types.Mixed,
+    botConfig:Schema.Types.Mixed,
     runTimeParams:Schema.Types.Mixed,
     masterDetails: {
         orgName: {
@@ -175,6 +176,10 @@ var BotsSchema = new Schema ({
     isDeleted: {
         type: Boolean,
         default: false
+    },
+    version: {
+        type: Number,
+        default: 1
     },
 });
 BotsSchema.plugin(mongoosePaginate);

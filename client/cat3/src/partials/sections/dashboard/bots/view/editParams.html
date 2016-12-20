@@ -82,8 +82,8 @@
 							<thead>
 								<tr>
 									<th class="headParamTable" style="width: 110px">Key</th>
-									<th class="headParamTable">Value</th>
 									<th class="headParamTable">Description</th>
+									<th class="headParamTable">Value</th>
 									<!-- <th class="headParamTable">Delete</th> -->
 								</tr>
 							</thead>
@@ -91,8 +91,8 @@
 								<tr ng-repeat="param in scriptparams[0].scriptParameters">
 									{{param}}
 									<td class="booleanParam"><label class="control-label" for="choiceName">Parameter {{$index+1}}:<span class="red">*</span></label></td>
-									<td><input id="value" type="text" class="form-control" name="value" ng-model="parameters[$index]"></td>
 									<td><input id="description" type="text" class="form-control" name="description" ng-model="param.paramDesc" disabled="disabled"></td>
+									<td><input id="value" type="text" class="form-control" name="value" ng-model="parameters[$index]"></td>
 									<!-- <td><button ng-show="$index>0" class="scriptParamsDelete" title="Delete Row" type="button" ng-click="removeScriptInputParams(parameters[$index]);"><i class=" fa fa-trash-o"></i></button></td> -->
 								</tr>
 							</tbody>

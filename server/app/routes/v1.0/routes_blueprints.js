@@ -340,21 +340,17 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	});
 
 	app.post('/blueprints/copy',function(req,res){
-		var orgid = req.body.orgid;
-		var buid = req.body.buid;
-		var projid = req.body.projid;
-		var bluepirntIds = req.body.blueprints;
-		if(!orgid || !buid || !projid || !bluepirntIds){
-			logger.error("Could not copy blueprint. Required data missing.");
-			res.send(500, 'Would require a ORG, BU and Project to copy');
-			return;
-		}else{
-			Blueprints.copyByIds(bluepirntIds,orgid,buid,projid,function(err,data){
-				res.status('200').send(data);
-				return;
-			});
-
+		var masterDetails = {
+			orgId:req.body.orgid,
+			bgId:req.body.buid,
+			projectId:req.body.projid
 		}
+		blueprintService.copyBlueprint(req.body.blueprints,masterDetails, function(err, blueprint) {
+			if(err){
+				res.status(err.errCode).send(err.errMessage);
+			}
+			res.status(200).send(blueprint);
+		});
 	});
 
 	//for testing

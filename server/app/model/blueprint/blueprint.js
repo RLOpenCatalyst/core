@@ -496,6 +496,21 @@ BlueprintSchema.statics.createNew = function (blueprintData, callback) {
 
 };
 
+BlueprintSchema.statics.saveCopyBlueprint = function (blueprintData, callback) {
+    var blueprint = new Blueprints(blueprintData);
+    blueprint.save(function (err, blueprint) {
+        if (err) {
+            logger.error(err);
+            callback(err, null);
+            return;
+        }
+        logger.debug('save Complete');
+        callback(null, blueprint);
+    });
+};
+
+
+
 
 BlueprintSchema.statics.getBlueprintInfoById = function (id, callback) {
     logger.debug('finding blueprintInfo by id ===>' + id);
@@ -1008,6 +1023,16 @@ BlueprintSchema.statics.getBlueprintsByOrgBgProject = function (jsonData, callba
 
     });
 
+};
+
+BlueprintSchema.statics.getBlueprintData= function (jsonData, callback) {
+    this.find(jsonData, function (err, blueprints) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, blueprints);
+    });
 };
 
 
