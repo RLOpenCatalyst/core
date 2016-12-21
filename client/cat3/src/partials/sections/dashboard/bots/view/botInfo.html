@@ -71,11 +71,17 @@
 				<tr>
 					<td class="td-padding">Runlist</td>
 					<td>
-						<input class="form-control" disabled="disabled" ng-model="botInfo.botConfig.runlist[0]">
+						<input class="form-control" disabled="disabled" ng-model="botInfo.botConfig.runlist">
 					</td>
 				</tr>
-				<tr ng-show="botInfo.botConfig && botInfo.botConfig.attributes && botInfo.botConfig.attributes.length">
-					<td class="td-padding">Attributes</td>
+				<tr ng-show="botInfo.botConfig && botInfo.botConfig.attributes && botInfo.botConfig.attributes.length > 1" ng-repeat="attribs in botInfo.botConfig.attributes">
+					<td class="td-padding">Attribute{{$index+1}}</td>
+					<td>
+						<input class="form-control" disabled="disabled" ng-model="attribs.name">
+					</td>
+				</tr>
+				<tr ng-show="botInfo.botConfig && botInfo.botConfig.attributes && botInfo.botConfig.attributes.length === 1">
+					<td class="td-padding">Attribute</td>
 					<td>
 						<input class="form-control" disabled="disabled" ng-model="botInfo.botConfig.attributes[0].name">
 					</td>
@@ -106,8 +112,14 @@
 						<input disabled="disabled" class="form-control" ng-model="botInfo.botConfig.parameterized[0].name">
 					</td>
 				</tr>
-				<tr ng-show="botInfo.botConfig && botInfo.botConfig.parameterized && botInfo.botConfig.parameterized.length">
-					<td class="td-padding">Bot Parameter Value</td>
+				<!-- <tr ng-show="botInfo.botConfig && botInfo.botConfig.parameterized && botInfo.botConfig.parameterized.length > 1" ng-repeat="paramval in botInfo.botConfig.parameterized">
+					<td class="td-padding">Bot Parameter Values</td>
+					<td>
+						<input disabled="disabled" class="form-control" ng-model="paramval.defaultValue">
+					</td>
+				</tr> -->
+				<tr ng-show="botInfo.botConfig && botInfo.botConfig.parameterized && botInfo.botConfig.parameterized.length === 1">
+					<td class="td-padding">Bot Parameter Values</td>
 					<td>
 						<input disabled="disabled" class="form-control" ng-model="botInfo.botConfig.parameterized[0].defaultValue">
 					</td>
@@ -126,10 +138,16 @@
 						<input class="form-control" disabled="disabled" ng-model="botInfo.botConfig.scriptTypeName">
 					</td>
 				</tr>
-				<tr ng-show="botInfo.botConfig.scriptDetails.length">
+				<tr ng-show="botInfo.botConfig && botInfo.botConfig.scriptDetails && botInfo.botConfig.scriptDetails[0].scriptParameters.length === 1">
 					<td class="td-padding">Script Parameter Description</td>
 					<td>
 						<input class="form-control" disabled="disabled" ng-model="botInfo.botConfig.scriptDetails[0].scriptParameters[0].paramDesc">
+					</td>
+				</tr>
+				<tr ng-show="botInfo.botConfig && botInfo.botConfig.scriptDetails && botInfo.botConfig.scriptDetails[0].scriptParameters.length > 1" ng-repeat="desc in botInfo.botConfig.scriptDetails[0].scriptParameters">
+					<td class="td-padding">Script Parameter{{$index+1}} Description</td>
+					<td>
+						<input class="form-control" disabled="disabled" ng-model="desc.paramDesc">
 					</td>
 				</tr>
 			</tbody>
