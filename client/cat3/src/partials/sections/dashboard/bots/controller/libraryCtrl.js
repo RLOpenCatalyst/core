@@ -287,6 +287,13 @@
             $modalInstance.dismiss('cancel');
         };
     }]).controller('botScheduleCtrl',['$scope', '$rootScope', 'genericServices', 'workzoneServices', 'toastr', '$modalInstance', 'items', '$timeout', function ($scope, $rootScope, genSevs, workzoneServices, toastr, $modalInstance, items, $timeout) {
+        if(items.isBotScheduled === true){
+            $scope._isEventSelected = true;
+            $scope.isScheduled = true;
+        }else{
+            $scope._isEventSelected = false;
+            $scope.isScheduled = false;
+        }
         $scope.scheduleDeatils = items;
         $scope.botId = items.botId;
         $scope.defaultSelection = function() {
@@ -294,7 +301,13 @@
             $scope.schedulerStartOn=moment(new Date()).format('MM/DD/YYYY');
             $scope.schedulerEndOn=moment(new Date()).format('MM/DD/YYYY');
         };
-        
+        $scope.selectBotCheckbox = function(){
+            if($scope.isScheduled === true || $scope.isScheduled === 'true') {
+                $scope._isEventSelected = true;
+            }else{
+                $scope._isEventSelected = false;
+            }
+        }
         if(items.botScheduler){
             if(items.botScheduler.cronStartOn && items.botScheduler.cronEndOn) {
                 var newStartOn = parseInt(items.botScheduler.cronStartOn);
@@ -364,9 +377,17 @@
                 cronDate: $scope.selectedDayOfTheMonth,
                 cronMonth: $scope.selectedMonth
             };
-            var reqBody = {
-                botScheduler:$scope.eventParams,
-                isBotScheduled:true
+            var reqBody = null;
+            if($scope.isScheduled === true || $scope.isScheduled === 'true'){
+                 reqBody = {
+                    botScheduler:$scope.eventParams,
+                    isBotScheduled:true
+                }
+            }else{
+                 reqBody = {
+                    botScheduler:{},
+                    isBotScheduled:false
+                }
             }
             var param={
                 url:'/bots/' + $scope.botId + '/scheduler',
