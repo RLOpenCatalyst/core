@@ -115,6 +115,7 @@
 
         $scope.RefreshBotsAuditTrail = function() {
             $scope.botAuditTrailGridView();
+            $scope.botAuditTrailSearch = '';
         };
 
         $scope.botAuditTrailGridView =function(){

@@ -8,7 +8,7 @@
 (function (angular) {
 	"use strict";
 	angular.module('dashboard.bots')
-		.controller('chefLogCtrl', ['$q', '$scope', 'workzoneServices', '$timeout', 'orchestrationSetting', 'toastr','items', function ($q, $scope, workzoneServices, $timeout, orchestrationSetting, toastr,items) {
+		.controller('chefLogCtrl', ['$q', '$scope', 'workzoneServices', '$timeout', 'orchestrationSetting', 'toastr', function ($q, $scope, workzoneServices, $timeout, orchestrationSetting, toastr) {
 			/*This controller can be invoked from either of two flows - Chef Log History Item Logs OR Chef Task Execute
 			 items object will contain only taskId and historyId. */
 			//var items = $scope.parentItemDetail;
@@ -232,11 +232,11 @@
 			};
 			init();
 			// on task change event in the parent controller
-			$scope.$on('parentChangeCompTask', function (event, args) {
+			/*$scope.$on('parentChangeCompTask', function (event, args) {
 				items = args;
 				resetAll();
 				init();
-			});
+			});*/
 			return chefLogData;
 		}
 		]);
