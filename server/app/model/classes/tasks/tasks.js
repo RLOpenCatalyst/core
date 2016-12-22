@@ -360,7 +360,20 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
             taskHistory = new TaskHistory(taskHistoryData);
             taskHistory.save();
         }
-        callback(null, taskExecuteData, taskHistory);
+        var resultBots = {
+            "actionLogId":taskHistory.nodeIdsWithActionLog[0].actionLogId,
+            "auditTrailConfig.nodeIdsWithActionLog":taskHistory.nodeIdsWithActionLog
+        };
+        if(auditTrailId !== null && resultBots !== null){
+            auditTrailService.updateAuditTrail('BOTs',auditTrailId,resultBots,function(err,auditTrail){
+                if (err) {
+                logger.error("Failed to create or update bots Log: ", err);
+                }
+            });
+            callback(null, taskExecuteData, taskHistory);
+        }else{
+            callback(null, taskExecuteData, taskHistory);
+        }
     }, function(err, status, resultData) {
         self.timestampEnded = new Date().getTime();
         if (status == 0) {
