@@ -301,7 +301,6 @@
 											<input type="checkbox" ng-checked="_isEventSelected.flag" ng-model="_isEventSelected.flag" ng-change="selectTaskCheckbox()" class="checkbox-list"/>&nbsp;Schedule a Task&nbsp;
 										</label>
 										<i class="fa fa-plus-circle cursor" ng-show="showAddTask" title="Add Task" ng-click="addTaskEvent('new')"></i>
-										<!-- <input type="text" ng-show="isEventAvailable" class="form-control" disabled ng-model="repeatPattern"/> -->
 									</span>
 									<span class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
 										<i class="fa fa-question-circle" title="This is used to schedule a task over a course of time."></i>
@@ -390,7 +389,6 @@
 									<input type="checkbox" ng-checked="_isEventSelected.flag" ng-model="_isEventSelected.flag" ng-change="selectTaskCheckbox()" class="checkbox-list"/>&nbsp;Schedule a Task&nbsp;
 								</label>
 								<i class="fa fa-plus-circle cursor" ng-show="showAddTask" title="Add Task" ng-click="addTaskEvent('new')"></i>
-								<!-- <input type="text" ng-show="isEventAvailable" class="form-control" disabled ng-model="cronPattern"/> -->
 							</span>
 							<span class="col-lg-1 col-md-1 col-sm-1 col-xs-1 margintop7">
 								<i class="fa fa-question-circle" title="This is used to schedule a task over a course of time."></i>
@@ -534,7 +532,6 @@
 													<input type="checkbox" ng-checked="_isEventSelected.flag" ng-model="_isEventSelected.flag" ng-change="selectTaskCheckbox()" class="checkbox-list"/>&nbsp;Schedule a Task&nbsp;
 												</label>
 												<i class="fa fa-plus-circle cursor" ng-show="showAddTask" title="Add Task" ng-click="addTaskEvent('new')"></i>
-												<!-- <input type="text" ng-show="isEventAvailable" class="form-control" disabled ng-model="cronPattern"/> -->
 											</span>
 											<span class="col-lg-1 col-md-1 col-sm-1 col-xs-1 margintop7">
 												<i class="fa fa-question-circle" title="This is used to schedule a task over a course of time."></i>
@@ -554,8 +551,8 @@
 											<ul>
 												<li ng-repeat="script in scriptTaskList">
 													<label class="checkbox check-list">
-														<input type="checkbox" ng-change="optionScriptToggled()" ng-checked="script.isParametrized" ng-model="script._isScriptSelected" ng-click="addRemoveScriptTable(script)" class="checkbox-list"/>{{script.name}}
-														<a class="pull-right cursorPointer" ng-show="script.isParametrized" type="button" id="add" ng-click="showScriptParams(script)" title="Show Params">&nbsp;Params</a>
+														<input type="checkbox" ng-change="optionScriptToggled()" ng-checked="script._isScriptSelected" ng-model="script._isScriptSelected" ng-click="addRemoveScriptTable(script)" class="checkbox-list"/>{{script.name}}
+														<a class="pull-right cursorPointer" ng-show="script._isScriptSelected" type="button" id="add" ng-click="showScriptParams(script)" title="Show Params">&nbsp;Params</a>
 													</label>
 												</li>
 											</ul>

@@ -241,7 +241,6 @@
 					}
 				},
 				selectTaskCheckbox: function(){
-					$scope.isEventAvailable = false;
 					if($scope._isEventSelected.flag) {
 						$scope.showAddTask = true;
 					} else {
@@ -263,7 +262,6 @@
 							}
 						}
 					}).result.then(function (chefEventDetails) {
-						$scope.isEventAvailable = true;
 						$scope.chefJenkScriptTaskObj = chefEventDetails;
 						var startTimeMinute,startTimeHour,dayOfWeek,selectedDayOfTheMonth,selectedMonth;
 						startTimeMinute = $scope.chefJenkScriptTaskObj.startTimeMinute;
@@ -272,7 +270,6 @@
 						selectedDayOfTheMonth = $scope.chefJenkScriptTaskObj.selectedDayOfTheMonth;
 						selectedMonth = $scope.chefJenkScriptTaskObj.monthOfYear;
 						$scope.type = 'edit';
-						//$scope._isEventSelected = true;
 						
 						$scope.repeatPattern = 'Repeat Every -' +  $scope.chefJenkScriptTaskObj.repeats;   
 						$scope.cronDetails = {
@@ -417,8 +414,7 @@
 						//first time execute will get result from jobResultURLPattern.
 						taskJSON.jobResultURLPattern = taskJSON.jobResultURL;
 						taskJSON.parameterized = $scope.jenkinsParamsList;
-						taskJSON.isTaskScheduled = $scope._isEventSelected;
-						//taskJSON.taskScheduler = $scope.cronPattern;
+						taskJSON.isTaskScheduled = $scope._isEventSelected.flag;
 						taskJSON.taskScheduler = $scope.cronDetails;
 					}
 					//if task type is script
@@ -454,8 +450,7 @@
 					}
 					if($scope.taskType === "chef" || $scope.taskType === "script") {
 						taskJSON.executionOrder = $scope.isExecution.flag;
-						taskJSON.isTaskScheduled = $scope._isEventSelected;
-						//taskJSON.taskScheduler = $scope.cronPattern;
+						taskJSON.isTaskScheduled = $scope._isEventSelected.flag;
 						taskJSON.taskScheduler = $scope.cronDetails;
 						var selectedList = instanceSelector.getSelectorList();
 						if (selectedList && selectedList.length) {
@@ -718,13 +713,12 @@
 					$scope.isExecution.flag = items.executionOrder;
 				}
 				if(items.taskType === "chef" || items.taskType === "jenkins" || items.taskType === "script") {
-					//if(items.taskScheduler){
-						$scope._isEventSelected = items.isTaskScheduled;
+					$scope._isEventSelected.flag = items.isTaskScheduled;
+					if(items.isTaskScheduled === true) {
 						$scope.showAddTask = true;
-						$scope.isEventAvailable = true;
-						$scope.chefJenkScriptTaskObj = items.taskScheduler;
-						$scope.type = 'edit';
-					//}
+					}
+					$scope.chefJenkScriptTaskObj = items.taskScheduler;
+					$scope.type = 'edit';
 				}
 			}
 		}
