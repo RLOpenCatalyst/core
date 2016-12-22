@@ -30,6 +30,7 @@ var mongoosePaginate = require('mongoose-paginate');
 var ApiUtils = require('_pr/lib/utils/apiUtil.js');
 var Schema = mongoose.Schema;
 var auditTrailService = require('_pr/services/auditTrailService');
+var bots = require('_pr/model/bots/bots.js');
 
 
 var TASK_TYPE = {
@@ -349,7 +350,67 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                     return;
                 }
                 logger.debug("Task jobResultURL updated");
+                bots.updateBotsDetail(self._id,{botConfig:taskConfig},function(err,botsData){
+                    if (err) {
+                        logger.error("Unable to update Bots");
+                    }
+                    logger.debug("Bots updated");
+                });
+            });
+        }
+        if (taskHistoryData.taskType === TASK_TYPE.SCRIPT_TASK && self.botParams.scriptParams) {
+            var taskConfig = self.taskConfig;
+            for(var i = 0; i < taskConfig.scriptDetails.length; i++){
+                for(var j = 0; j < taskConfig.scriptDetails[i].scriptParameters.length; j++){
+                    taskConfig.scriptDetails[i].scriptParameters[j].paramVal = self.botParams.scriptParams[j];
+                }
+            }
+            Tasks.update({
+                "_id": new ObjectId(self._id)
+            }, {
+                $set: {
+                    taskConfig: taskConfig
+                }
+            }, {
+                upsert: false
+            }, function(err, data) {
+                if (err) {
+                    logger.error("Unable to update Script task.");
+                    return;
+                }
+                logger.debug("Script task updated");
+                bots.updateBotsDetail(self._id,{botConfig:taskConfig},function(err,botsData){
+                    if (err) {
+                        logger.error("Unable to update Bots");
+                    }
+                    logger.debug("Bots updated");
+                });
+            });
+        }
 
+        if (taskHistoryData.taskType === TASK_TYPE.CHEF_TASK && self.botParams.cookbookAttributes) {
+            var taskConfig = self.taskConfig;
+            taskConfig.attributes=self.botParams.cookbookAttributes;
+            Tasks.update({
+                "_id": new ObjectId(self._id)
+            }, {
+                $set: {
+                    taskConfig: taskConfig
+                }
+            }, {
+                upsert: false
+            }, function(err, data) {
+                if (err) {
+                    logger.error("Unable to update Chef task.");
+                    return;
+                }
+                logger.debug("Chef task updated");
+                bots.updateBotsDetail(self._id,{botConfig:taskConfig},function(err,botsData){
+                    if (err) {
+                        logger.error("Unable to update Bots");
+                    }
+                    logger.debug("Bots updated");
+                });
             });
         }
         // hack for composite task
