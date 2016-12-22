@@ -3,7 +3,35 @@
     angular.module('dashboard.analytics')
         .controller('discoveryResourcesCtrl', ['$scope', '$rootScope', '$state','analyticsServices', 'genericServices','$timeout', function ($scope,$rootScope,$state,analyticsServices,genSevs,$timeout){
             var disResrc=this;
+            $scope.TangName={};
             $scope.tagValue=[{'id':'a','value':'a'},{'id':'b','value':'b'}]
+
+            // get gat name  Start
+            disResrc.getAllTagNames=function () {
+                    // environment
+                    var param = {
+                        url: '/providers/' + fltrObj.provider.id + '/tag-mappings/environment'
+                    };
+                    genSevs.promiseGet(param).then(function (instResult) {
+                        $scope.TangName.environment = instResult.tagValues;
+                    });
+                    // Bu
+                    var param = {
+                        url: '/providers/' + fltrObj.provider.id + '/tag-mappings/bgName'
+                    };
+                    genSevs.promiseGet(param).then(function (instResult) {
+                        $scope.TangName.bg = instResult.tagValues;
+                    });
+                    // project
+                    var param = {
+                        url: '/providers/' + fltrObj.provider.id + '/tag-mappings/project'
+                    };
+                    genSevs.promiseGet(param).then(function (instResult) {
+                        $scope.TangName.project = instResult.tagValues;
+                    });
+                    console.log($scope.TangName);
+                // get gat name  End##########
+            };
             disResrc.gridOptionInstances = {
                 columnDefs : [
                 { name: 'InstanceId',field:'platformId' },
@@ -30,11 +58,13 @@
                     var param = {
                         url: '/providers/' + fltrObj.provider.id +'/'+ $rootScope.organNewEnt.instanceType
                     };
+                    disResrc.getAllTagNames();
                     genSevs.promiseGet(param).then(function (instResult) {
                         disResrc.gridOptionInstances.data=instResult.data;
                     });
                 }
             };
+
             $rootScope.applyFilter =function(filterApp,period){
                 analyticsServices.applyFilter(true,null);
                 disResrc.getInstances();
