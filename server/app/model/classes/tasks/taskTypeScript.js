@@ -67,23 +67,8 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
     var sudoFlag = this.isSudo;
     var scriptDetails = this.scriptDetails;
     var instanceResultList = [];
-
     function getInstances(instanceIds, tagServer, callback) {
-        if (tagServer) {
-            logger.debug('in tagServer', tagServer);
-            instancesDao.getInstancesByTagServer(tagServer, function (err, instances) {
-                if (err) {
-                    logger.error(err);
-                    if (typeof onExecute === 'function') {
-                        onExecute(err, null);
-                    }
-                    return;
-                }
-                callback(null, instances);
-            });
-
-        } else {
-
+        if ((typeof tagServer === 'string' && tagServer === 'undefined') || typeof tagServer === 'undefined') {
             if (!(instanceIds && instanceIds.length)) {
                 if (typeof onExecute === 'function') {
                     onExecute({
@@ -102,10 +87,20 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                 }
                 callback(null, instances);
             });
+        } else {
+            logger.debug('in tagServer', tagServer);
+            instancesDao.getInstancesByTagServer(tagServer, function (err, instances) {
+                if (err) {
+                    logger.error(err);
+                    if (typeof onExecute === 'function') {
+                        onExecute(err, null);
+                    }
+                    return;
+                }
+                callback(null, instances);
+            });
         }
     }
-
-
     getInstances(instanceIds, self.botTagServer, function (err, instances) {
         if (err) {
             logger.error(err);

@@ -288,15 +288,13 @@ BlueprintSchema.methods.launch = function (opts, callback) {
                     message: "Failed to get env name from env id"
                 }, null);
                 return;
-            }
-            ;
+            };
             if (!envName) {
                 callback({
                     "message": "Unable to find environment name from environment id"
                 });
                 return;
-            }
-            ;
+            };
             configmgmtDao.getChefServerDetails(infraManager.infraManagerId, function (err, chefDetails) {
                 if (err) {
                     logger.error("Failed to getChefServerDetails", err);
@@ -304,16 +302,14 @@ BlueprintSchema.methods.launch = function (opts, callback) {
                         message: "Failed to getChefServerDetails"
                     }, null);
                     return;
-                }
-                ;
+                };
                 if (!chefDetails) {
                     logger.error("No CHef Server Detailed available.", err);
                     callback({
                         message: "No Chef Server Detailed available"
                     }, null);
                     return;
-                }
-                ;
+                };
                 var chef = new Chef({
                     userChefRepoLocation: chefDetails.chefRepoLocation,
                     chefUserName: chefDetails.loginname,
@@ -474,10 +470,11 @@ BlueprintSchema.statics.createNew = function (blueprintData, callback) {
             version: count,
             parentId: blueprintData.id,
             domainNameCheck: blueprintData.domainNameCheck,
-            shortDesc: blueprintData.shortDesc,
-            botType: blueprintData.botType,
-            serviceDeliveryCheck: blueprintData.serviceDeliveryCheck,
-            botCategory: blueprintData.botCategory
+            shortDesc:blueprintData.shortDesc,
+            botType:blueprintData.botType,
+            serviceDeliveryCheck:blueprintData.serviceDeliveryCheck,
+            botCategory:blueprintData.botCategory,
+            manualExecutionTime:blueprintData.manualExecutionTime
         };
         var blueprint = new Blueprints(blueprintObj);
         logger.debug(blueprint);
@@ -494,6 +491,21 @@ BlueprintSchema.statics.createNew = function (blueprintData, callback) {
     });
 
 };
+
+BlueprintSchema.statics.saveCopyBlueprint = function (blueprintData, callback) {
+    var blueprint = new Blueprints(blueprintData);
+    blueprint.save(function (err, blueprint) {
+        if (err) {
+            logger.error(err);
+            callback(err, null);
+            return;
+        }
+        logger.debug('save Complete');
+        callback(null, blueprint);
+    });
+};
+
+
 
 
 BlueprintSchema.statics.getBlueprintInfoById = function (id, callback) {
@@ -1009,6 +1021,16 @@ BlueprintSchema.statics.getBlueprintsByOrgBgProject = function (jsonData, callba
 
 };
 
+BlueprintSchema.statics.getBlueprintData= function (jsonData, callback) {
+    this.find(jsonData, function (err, blueprints) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, blueprints);
+    });
+};
+
 
 BlueprintSchema.statics.getAllServiceDeliveryBlueprint = function (serviceDeliveryCheck, callback) {
     this.find({serviceDeliveryCheck: serviceDeliveryCheck}, function (err, blueprints) {
@@ -1423,9 +1445,9 @@ BlueprintSchema.statics.getBlueprintsByProviderId = function (providerId, callba
 
     });
 };
-BlueprintSchema.statics.getBlueprintByOrgBgProjectProviderType = function (query, callback) {
-    console.log(JSON.stringify(query));
-    Blueprints.paginate(query.queryObj, query.options, function (err, blueprints) {
+
+BlueprintSchema.statics.getBlueprintByOrgBgProjectProviderType = function(query, callback) {
+    Blueprints.paginate(query.queryObj, query.options, function(err, blueprints) {
         if (err) {
             logger.error("Failed to getBlueprintByOrgBgProjectProviderType", err);
             callback(err, null);

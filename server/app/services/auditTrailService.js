@@ -19,8 +19,7 @@ var instanceAuditTrail = require('_pr/model/audit-trail/instance-audit-trail.js'
 var botAuditTrail = require('_pr/model/audit-trail/bot-audit-trail.js');
 var containerAuditTrail = require('_pr/model/audit-trail/container-audit-trail.js');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
-var blueprints = null;
-var tasks = null;
+var bots = require('_pr/model/bots/bots.js');;
 
 const errorType = 'auditTrailService';
 
@@ -137,7 +136,7 @@ auditTrailService.getAuditTrailList = function getAuditTrailList(auditTrailQuery
             apiUtil.paginationRequest(auditTrailQuery, 'auditTrails', next);
         },
         function(paginationReq, next) {
-            paginationReq['searchColumns'] = ['status', 'action', 'user', 'actionStatus', 'masterDetails.orgName', 'masterDetails.bgName', 'masterDetails.projectName', 'masterDetails.envName'];
+            paginationReq['searchColumns'] = ['status', 'action', 'user', 'actionStatus', 'auditTrailConfig.name','masterDetails.orgName', 'masterDetails.bgName', 'masterDetails.projectName', 'masterDetails.envName'];
             reqData = paginationReq;
             apiUtil.databaseUtil(paginationReq, next);
         },
@@ -176,56 +175,49 @@ auditTrailService.getAuditTrailActionLogs = function getAuditTrailActionLogs(act
 auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
     async.parallel({
         totalNoOfBots: function(callback){
-            blueprints = require('_pr/model/blueprint');
-            tasks = require('_pr/model/classes/tasks/tasks.js');
-            async.parallel({
-                botsTask:function(callback){
-                    tasks.getAllServiceDeliveryTask('true',callback);
-                },
-                botsBlueprint:function(callback){
-                    blueprints.getAllServiceDeliveryBlueprint('true',callback);
-                }
-            },function(err,results){
+            bots.getAllBots(function(err,botsList){
                 if(err){
-                    logger.error(err);
                     callback(err,null);
-                    return;
+                }else {
+                    callback(null, botsList.length);
                 }
-                var totalNoOfBots = results.botsTask.length + results.botsBlueprint.length;
-                callback(null,totalNoOfBots);
-                return;
-            })
-
+            });
         },
         totalNoOfSuccessBots: function(callback){
             var query={
                 auditType:'BOTs',
-                actionStatus:'success'
+                actionStatus:'success',
+                isDeleted:false
             };
             auditTrail.getAuditTrails(query,function(err,data){
                 if(err){
                     callback(err,null);
+                }else {
+                    callback(null, data.length);
                 }
-                callback(null,data.length);
             });
 
         },
         totalNoOfRunningBots: function(callback){
             var query={
                 auditType:'BOTs',
-                actionStatus:'running'
+                actionStatus:'running',
+                isDeleted:false
             };
             auditTrail.getAuditTrails(query,function(err,data){
                 if(err){
                     callback(err,null);
+                }else {
+                    callback(null, data.length);
                 }
-                callback(null,data.length);
             });
 
         },
         totalSavedTimeForBots: function(callback){
             var query={
-                auditType:'BOTs'
+                auditType:'BOTs',
+                actionStatus:'success',
+                isDeleted:false
             };
             auditTrail.getAuditTrails(query,function(err,botAuditTrail){
                 if(err){
@@ -235,7 +227,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
                     for(var i = 0; i < botAuditTrail.length; i++){
                         (function(auditTrail){
                             count++;
-                            if(auditTrail.endedOn && auditTrail.endedOn !== null && auditTrail.actionStatus !== 'failed'
+                            if(auditTrail.endedOn && auditTrail.endedOn !== null
                                 && auditTrail.auditTrailConfig.manualExecutionTime && auditTrail.auditTrailConfig.manualExecutionTime !== null) {
                                 var executionTime = getExecutionTime(auditTrail.endedOn, auditTrail.startedOn);
                                 totalTimeInSeconds = totalTimeInSeconds + ((auditTrail.auditTrailConfig.manualExecutionTime*60) - executionTime);
@@ -253,13 +245,15 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
         totalNoOfFailedBots: function(callback){
             var query={
                 auditType:'BOTs',
-                actionStatus:'failed'
+                actionStatus:'failed',
+                isDeleted:false
             };
             auditTrail.getAuditTrails(query,function(err,data){
                 if(err){
                     callback(err,null);
+                }else {
+                    callback(null, data.length);
                 }
-                callback(null,data.length);
             });
         }
 
@@ -273,6 +267,51 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
         return;
 
     })
+}
+
+auditTrailService.getBotsAuditTrailHistory = function getBotsAuditTrailHistory(botId,callback){
+    var query={
+        auditType:'BOTs',
+        auditId:botId,
+        isDeleted:false
+    };
+    auditTrail.getAuditTrails(query,function(err,data){
+        if(err){
+            callback(err,null);
+        }else {
+            callback(null, data);
+        }
+    });
+}
+
+auditTrailService.softRemoveAuditTrailById = function softRemoveAuditTrailById(auditId,callback){
+    auditTrail.softRemoveAuditTrails(auditId,function(err,data){
+        if(err){
+            return callback(err,null);
+        }else {
+            return callback(null, data);
+        }
+    });
+}
+
+auditTrailService.updateSoftRemoveAuditTrailById = function updateSoftRemoveAuditTrailById(auditId,callback){
+    auditTrail.updateSoftRemoveAuditTrails(auditId,function(err,data){
+        if(err){
+            return callback(err,null);
+        }else {
+            return callback(null, data);
+        }
+    });
+}
+
+auditTrailService.removeAuditTrailById = function removeAuditTrailById(auditId,callback){
+    auditTrail.removeAuditTrails({auditId:auditId},function(err,data){
+        if(err){
+            return callback(err,null);
+        }else {
+            return callback(null, data);
+        }
+    });
 }
 
 

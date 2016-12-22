@@ -3,7 +3,7 @@
 <div id="editParamsPage">
 	<div class="modal-header">
 		<span class="close" ng-click="cancel()">×</span>
-		<h4 class="modal-title"> <i class="fa fa-share-square-o"></i>&nbsp;&nbsp;Execute Bot - {{botName}}</h4>
+		<h4 class="modal-title"> <i class="fa fa-share-square-o"></i>&nbsp;&nbsp;Execute BOT - {{botName}}</h4>
 	</div>
 
 	<div class="modal-body">
@@ -40,7 +40,7 @@
 			                </td>
 			                <td style="text-align: left">
 			                	<input type="text" class="cookbook-edit-text" ng-model="value.default" ng-if="!value.choice.length" />
-                                <select ng-if="value.choice.length" class="cookbook-edit-text" ng-options="choice for choice in value.choice" ng-model="value.default"></select>
+                                <select ng-if="value.choice.length" class="cookbook-edit-text pull-left" ng-options="choice for choice in value.choice" ng-model="value.default"></select>
 			                </td>
 			            </tr>
 					</tbody>
@@ -66,7 +66,7 @@
 			                </td>
 			                <td ng-init="jenparams[params.name]=params.defaultValue[0]">
 			                	<input ng-if="params.parameterName !== 'Choice'" type="text" ng-model="jenparams[params.name]" class="form-control" ng-value="params.defaultValue[0]">
-			                	<select  ng-if="params.parameterName === 'Choice'" ng-model="jenparams[params.name]" class="cookbook-edit-text">
+			                	<select  ng-if="params.parameterName === 'Choice'" ng-model="jenparams[params.name]" class="cookbook-edit-text pull-left">
 			                        <option ng-repeat="val in params.defaultValue" value="{{val}}">{{val}}</option>
 			                    </select>
 			                </td>
@@ -81,21 +81,21 @@
 						<table id="booleanTable" class="table table-striped table-bordered table-hover dataTable no-footer" cellpadding="5px" width="100%">
 							<thead>
 								<tr>
-									<th class="headParamTable">Key</th>
+									<th class="headParamTable" style="width: 110px">Key</th>
+									<th class="headParamTable">Description</th>
 									<th class="headParamTable">Value</th>
-									<th class="headParamTable">Delete</th>
 								</tr>
 							</thead>
 							<tbody>
-								<tr ng-repeat="param in parameters track by $index">
+								<tr ng-repeat="param in scriptparams[0].scriptParameters">
+									{{param}}
 									<td class="booleanParam"><label class="control-label" for="choiceName">Parameter {{$index+1}}:<span class="red">*</span></label></td>
+									<td><input id="description" type="text" class="form-control" name="description" ng-model="param.paramDesc" disabled="disabled"></td>
 									<td><input id="value" type="text" class="form-control" name="value" ng-model="parameters[$index]"></td>
-									<td><button ng-show="$index>0" class="scriptParamsDelete" title="Delete Row" type="button" ng-click="removeScriptInputParams(parameters[$index]);"><i class=" fa fa-trash-o"></i></button></td>
 								</tr>
 							</tbody>
 						</table>
 					</div>
-					<a id="addParams" class="marginleft23 cursor" type="button" id="add" ng-click="add()">Add More</a>
 				</div>
 			</div>
 		</fieldset>

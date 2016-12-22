@@ -16,6 +16,7 @@
 
 var logger = require('_pr/logger')(module);
 var taskDao = require('_pr/model/classes/tasks/tasks.js');
+var bots = require('_pr/model/bots/bots.js');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
 var TaskHistory = require('_pr/model/classes/tasks/taskHistory');
@@ -51,7 +52,8 @@ taskService.getAllServiceDeliveryTask = function getAllServiceDeliveryTask(query
         var query = {
             auditType: 'BOTs',
             actionStatus: queryObj.actionStatus,
-            auditCategory: 'Task'
+            auditCategory: 'Task',
+            isDeleted:false
         };
         var taskIds = [];
         async.waterfall([
@@ -115,7 +117,7 @@ taskService.deleteServiceDeliveryTask = function deleteServiceDeliveryTask(taskI
             taskDao.removeServiceDeliveryTask(taskId, next);
         },
         function (deleteTaskCheck, next) {
-            auditTrail.removeAuditTrails({auditId:taskId},next);
+            auditTrail.softRemoveAuditTrails(taskId,next);
         }
     ],function (err, results) {
         if (err) {
@@ -143,7 +145,6 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
             } else if (task.taskType.SCRIPT_TASK) {
                 paramOptions = paramOptions.scriptDetails;
             }
-
             var blueprintIds = [];
             if (task.blueprintIds && task.blueprintIds.length) {
                 blueprintIds = task.blueprintIds;
@@ -181,6 +182,33 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
                     manualExecutionTime:task.manualExecutionTime,
                     nodeIdsWithActionLog:[]
                 };
+                bots.getBotsById(task._id,function(err,data){
+                    if(err){
+                        logger.error(err);
+                    }else if(data.length > 0){
+                        var botExecutionCount = data[0].executionCount + 1;
+                        bots.updateBotsExecutionCount(task._id,botExecutionCount,function(err,data){
+                            if(err){
+                                logger.error("Error while updating Bot Execution Count");
+                            }
+                        });
+                        var reqBody = {
+                            userName: user,
+                            hostProtocol: hostProtocol,
+                            choiceParam: choiceParam,
+                            appData: appData,
+                            tagServer: botTagServer,
+                            paramOptions:paramOptions
+                        }
+                        bots.updateBotsDetail(task._id,{runTimeParams:reqBody},function(err,data){
+                            if(err){
+                                logger.error("Error while updating Bots Configuration");
+                            }
+                        });
+                    }else{
+                        logger.debug("There is no BOTs data present in DB");
+                    }
+                });
                 auditTrailService.insertAuditTrail(task,auditTrailObj,actionObj,function(err,data) {
                     if (err) {
                         logger.error(err);
@@ -188,32 +216,6 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
                     auditTrailId = data._id;
                     task.execute(user, hostProtocol, choiceParam, appData, blueprintIds, task.envId, auditTrailId, function (err, taskRes, historyData) {
                         if (err) {
-                            if (auditTrailId !== null) {
-                                var resultTaskExecution = null;
-                                if(task.taskType === 'jenkins'){
-                                    resultTaskExecution = {
-                                        "actionStatus":'failed',
-                                        "status":'failed',
-                                        "endedOn":new Date().getTime(),
-                                        "actionLogId":historyData.jenkinsServerId,
-                                        "auditTrailConfig.jenkinsBuildNumber":historyData.buildNumber,
-                                        "auditTrailConfig.jenkinsJobName":historyData.jobName
-                                    };
-                                }else{
-                                    resultTaskExecution = {
-                                        "actionStatus": 'failed',
-                                        "status": "failed",
-                                        "endedOn": new Date().getTime(),
-                                        "actionLogId": historyData.nodeIdsWithActionLog[0].actionLogId,
-                                        "auditTrailConfig.nodeIdsWithActionLog": historyData.nodeIdsWithActionLog
-                                    };
-                                }
-                                auditTrailService.updateAuditTrail('BOTs', auditTrailId, resultTaskExecution, function (err, auditTrail) {
-                                    if (err) {
-                                        logger.error("Failed to create or update bot Log: ", err);
-                                    }
-                                });
-                            }
                             var error = new Error('Failed to execute task.');
                             error.status = 500;
                             return callback(error, null);
@@ -221,6 +223,11 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
                         if (historyData) {
                             taskRes.historyId = historyData.id;
                         }
+                        auditTrailService.updateAuditTrail('BOTs',auditTrailId,{auditHistoryId:historyData.id},function(err,auditTrail){
+                            if (err) {
+                                logger.error("Failed to create or update bots Log: ", err);
+                            }
+                        });
                         callback(null, taskRes);
                         return;
                     });
@@ -228,32 +235,6 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
             }else{
                 task.execute(user, hostProtocol, choiceParam, appData, blueprintIds, task.envId,auditTrailId,function(err, taskRes, historyData) {
                     if (err) {
-                        if(auditTrailId !== null) {
-                            var resultTaskExecution = null;
-                            if(task.taskType === 'jenkins'){
-                                resultTaskExecution = {
-                                    "actionStatus":'failed',
-                                    "status":'failed',
-                                    "endedOn":new Date().getTime(),
-                                    "actionLogId":historyData.jenkinsServerId,
-                                    "auditTrailConfig.jenkinsBuildNumber":historyData.buildNumber,
-                                    "auditTrailConfig.jenkinsJobName":historyData.jobName
-                                };
-                            }else{
-                                resultTaskExecution = {
-                                    "actionStatus": 'failed',
-                                    "status": "failed",
-                                    "endedOn": new Date().getTime(),
-                                    "actionLogId": historyData.nodeIdsWithActionLog[0].actionLogId,
-                                    "auditTrailConfig.nodeIdsWithActionLog": historyData.nodeIdsWithActionLog
-                                };
-                            }
-                            auditTrailService.updateAuditTrail('BOTs', auditTrailId, resultTaskExecution, function (err, auditTrail) {
-                                if (err) {
-                                    logger.error("Failed to create or update bot Log: ", err);
-                                }
-                            });
-                        }
                         var error = new Error('Failed to execute task.');
                         error.status = 500;
                         return callback(error, null);

@@ -12,7 +12,7 @@
  * All modules/feature will be through
  * */
 
-var angularApp = angular.module('catapp', ['ui.router','ngTouch','toastr',
+var angularApp = angular.module('catapp', ['ui.router','ngTouch','toastr','firebase',
 	'global.login',
 	'global.breadcrumb',
 	'authentication',
@@ -100,6 +100,9 @@ angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', '$http', '$l
 		$rootScope.trackBool = _permSet.track;
 		$rootScope.analyticsBool = _permSet.analyticsBool;
 		$rootScope.serviceBool = _permSet.serviceBool;
+	});
+	$scope.$watch(function() {
+		$rootScope.moduleSelection = $state.params;
 	});
 	$rootScope.$emit('SET_HEADER', $rootScope.appDetails);
 	$scope.showLogoutConfirmationSection = false;

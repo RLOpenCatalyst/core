@@ -130,7 +130,7 @@
                     $rootScope.organNewEnt.provider='0';
                     $rootScope.$emit('INI_usage', 'Unassigned');
                     $timeout(function(){$rootScope.applyFilter(true,'month')},500);
-                    var treeNames = ['Analytics','Usage'];
+                    var treeNames = ['Cloud Management','Analytics','Usage'];
                     $rootScope.$emit('treeNameUpdate', treeNames);
 
                 };
