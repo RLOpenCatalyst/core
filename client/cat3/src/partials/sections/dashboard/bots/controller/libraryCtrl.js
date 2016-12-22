@@ -287,6 +287,13 @@
             $modalInstance.dismiss('cancel');
         };
     }]).controller('botScheduleCtrl',['$scope', '$rootScope', 'genericServices', 'workzoneServices', 'toastr', '$modalInstance', 'items', '$timeout', function ($scope, $rootScope, genSevs, workzoneServices, toastr, $modalInstance, items, $timeout) {
+        if(items.isBotScheduled === true){
+            $scope._isEventSelected = true;
+            $scope.isScheduled = true;
+        }else{
+            $scope._isEventSelected = false;
+            $scope.isScheduled = false;
+        }
         $scope.scheduleDeatils = items;
         $scope.botId = items.botId;
         $scope.defaultSelection = function() {
@@ -294,7 +301,13 @@
             $scope.schedulerStartOn=moment(new Date()).format('MM/DD/YYYY');
             $scope.schedulerEndOn=moment(new Date()).format('MM/DD/YYYY');
         };
-        
+        $scope.selectBotCheckbox = function(){
+            if($scope.isScheduled === true || $scope.isScheduled === 'true') {
+                $scope._isEventSelected = true;
+            }else{
+                $scope._isEventSelected = false;
+            }
+        }
         if(items.botScheduler){
             if(items.botScheduler.cronStartOn && items.botScheduler.cronEndOn) {
                 var newStartOn = parseInt(items.botScheduler.cronStartOn);
@@ -364,9 +377,17 @@
                 cronDate: $scope.selectedDayOfTheMonth,
                 cronMonth: $scope.selectedMonth
             };
-            var reqBody = {
-                botScheduler:$scope.eventParams,
-                isBotScheduled:true
+            var reqBody = null;
+            if($scope.isScheduled === true || $scope.isScheduled === 'true'){
+                 reqBody = {
+                    botScheduler:$scope.eventParams,
+                    isBotScheduled:true
+                }
+            }else{
+                 reqBody = {
+                    botScheduler:{},
+                    isBotScheduled:false
+                }
             }
             var param={
                 url:'/bots/' + $scope.botId + '/scheduler',
@@ -457,7 +478,7 @@
                 $scope.taskHistoryJenkinsGridOptions.data='taskHistoryJenkinsData';
                 $scope.taskHistoryJenkinsGridOptions.columnDefs = [
                     { name:'Job Number',field:'auditTrailConfig.jenkinsBuildNumber',cellTemplate:'<a target="_blank" title="Jenkins" ng-href="{{grid.appScope.task.taskConfig.jobURL}}/{{row.entity.auditTrailConfig.jenkinsBuildNumber}}">{{row.entity.auditTrailConfig.jenkinsBuildNumber}}</a>', sort:{ direction: 'desc'}, cellTooltip: true},
-                    { name:'Job Output',cellTemplate:'<span><a target="_blank" title="{{jobResultUrlName}}" class="fa fa-file-text bigger-120 btn cat-btn-update btn-sg tableactionbutton marginbottomright3" ng-repeat="jobResultUrlName in row.entity.jobResultURL" ng-href="{{jobResultUrlName}}"></a></span>',cellTooltip: true},
+                    { name:'Job Output',cellTemplate:'<span><a target="_blank" title="{{jobResultUrlName}}" class="fa fa-file-text bigger-120 btn cat-btn-update btn-sg tableactionbutton marginbottomright3" ng-repeat="jobResultUrlName in row.entity.auditTrailConfig.jobResultURL" ng-href="{{jobResultUrlName}}"></a></span>',cellTooltip: true},
                     { name:'Log Info',width: 90,cellTemplate:'<span title="Jenkins Log" class="fa fa-list bigger-120 btn cat-btn-update btn-sg tableactionbutton" ng-click="grid.appScope.historyLogs(row.entity);"></span>',cellTooltip: true},
                     { name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status.toUpperCase()}}">{{row.entity.status.toUpperCase()}}</div>'},
                     { name:'Start Time',field:'startedOn',cellTemplate:'<span title="{{row.entity.startedOn  | timestampToLocaleTime}}">{{row.entity.startedOn  | timestampToLocaleTime}}</span>',cellTooltip: true},

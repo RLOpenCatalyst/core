@@ -376,7 +376,8 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                 "endedOn":self.timestampEnded,
                 "actionLogId":taskHistory.jenkinsServerId,
                 "auditTrailConfig.jenkinsBuildNumber":taskHistory.buildNumber,
-                "auditTrailConfig.jenkinsJobName":taskHistory.jobName
+                "auditTrailConfig.jenkinsJobName":taskHistory.jobName,
+                "auditTrailConfig.jobResultURL":taskHistory.jobResultURL
             };
         }else{
             resultTaskExecution = {

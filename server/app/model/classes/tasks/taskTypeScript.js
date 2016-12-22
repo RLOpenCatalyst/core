@@ -68,20 +68,7 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
     var scriptDetails = this.scriptDetails;
     var instanceResultList = [];
     function getInstances(instanceIds, tagServer, callback) {
-        if (tagServer !== 'undefined' && tagServer !== null) {
-            logger.debug('in tagServer', tagServer);
-            instancesDao.getInstancesByTagServer(tagServer, function (err, instances) {
-                if (err) {
-                    logger.error(err);
-                    if (typeof onExecute === 'function') {
-                        onExecute(err, null);
-                    }
-                    return;
-                }
-                callback(null, instances);
-            });
-
-        } else {
+        if ((typeof tagServer === 'string' && tagServer === 'undefined') || typeof tagServer === 'undefined') {
             if (!(instanceIds && instanceIds.length)) {
                 if (typeof onExecute === 'function') {
                     onExecute({
@@ -91,6 +78,18 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                 return;
             }
             instancesDao.getInstances(instanceIds, function (err, instances) {
+                if (err) {
+                    logger.error(err);
+                    if (typeof onExecute === 'function') {
+                        onExecute(err, null);
+                    }
+                    return;
+                }
+                callback(null, instances);
+            });
+        } else {
+            logger.debug('in tagServer', tagServer);
+            instancesDao.getInstancesByTagServer(tagServer, function (err, instances) {
                 if (err) {
                     logger.error(err);
                     if (typeof onExecute === 'function') {
