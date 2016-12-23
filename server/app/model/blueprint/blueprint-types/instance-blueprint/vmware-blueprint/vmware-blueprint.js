@@ -291,7 +291,7 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                     }
                                     auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
                                         if (err) {
-                                            logger.error("Failed to create or update bot Log: ", err);
+                                            logger.error("Failed to create or update bots Log: ", err);
                                         }
                                     });
                                 }
@@ -373,7 +373,7 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                             }
                                             auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
                                                 if (err) {
-                                                    logger.error("Failed to create or update bot Log: ", err);
+                                                    logger.error("Failed to create or update bots Log: ", err);
                                                 }
                                             });
                                         }
@@ -477,7 +477,7 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                             }
                                                             auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
                                                                 if (err) {
-                                                                    logger.error("Failed to create or update bot Log: ", err);
+                                                                    logger.error("Failed to create or update bots Log: ", err);
                                                                 }
                                                             });
                                                         }
@@ -583,7 +583,7 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                             }
                                                             auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
                                                                 if (err) {
-                                                                    logger.error("Failed to create or update bot Log: ", err);
+                                                                    logger.error("Failed to create or update bots Log: ", err);
                                                                 }
                                                             });
                                                         }
@@ -618,7 +618,7 @@ vmwareInstanceBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                             }
                                                             auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
                                                                 if (err) {
-                                                                    logger.error("Failed to create or update bot Log: ", err);
+                                                                    logger.error("Failed to create or update bots Log: ", err);
                                                                 }
                                                             });
                                                         }

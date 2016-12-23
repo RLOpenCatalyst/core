@@ -31,6 +31,10 @@ var vmImageDao = require('_pr/model/classes/masters/vmImage.js');
 var Blueprints = require('_pr/model/blueprint');
 var AWSKeyPair = require('_pr/model/classes/masters/cloudprovider/keyPair.js');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
+var usersDao = require('_pr/model/users.js');
+var auditTrailService = require('_pr/services/auditTrailService');
+var bots = require('_pr/model/bots/bots.js');
+var botsService = require('_pr/services/botsService.js');
 
 
 
@@ -77,7 +81,128 @@ blueprintService.deleteServiceDeliveryBlueprint = function deleteServiceDelivery
             Blueprints.removeServiceDeliveryBlueprints(blueprintId, next);
         },
         function (deleteTaskCheck, next) {
-            auditTrail.removeAuditTrails({auditId:blueprintId},next);
+            auditTrail.softRemoveAuditTrails({auditId:blueprintId},next);
+        }
+    ],function (err, results) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, results);
+        return;
+    });
+};
+
+blueprintService.launch = function launch(blueprintId,reqBody, callback) {
+    async.waterfall([
+        function (next) {
+            usersDao.haspermission(reqBody.userName, reqBody.category, reqBody.permissionTo, null, reqBody.permissionSet,next);
+        },
+        function (launchPermission, next) {
+            if(launchPermission === true){
+                Blueprints.getById(blueprintId,next);
+            }else{
+                logger.debug('No permission to ' + reqBody.permissionTo + ' on ' + reqBody.category);
+                next({errCode:401,errMsg:'No permission to ' + reqBody.permissionTo + ' on ' + reqBody.category},null);
+            }
+        },
+        function(blueprint,next){
+            if(blueprint){
+                var stackName = null,domainName = null,monitorId = null,blueprintLaunchCount = 0;
+                if(blueprint.executionCount) {
+                    blueprintLaunchCount = blueprint.executionCount + 1;
+                }else{
+                    blueprintLaunchCount = 1;
+                }
+                Blueprints.updateBlueprintExecutionCount(blueprint._id,blueprintLaunchCount,function(err,data){
+                    if(err){
+                        logger.error("Error while updating Blueprint Execution Count");
+                    }
+                });
+                if (blueprint.blueprintType === 'aws_cf' || blueprint.blueprintType === 'azure_arm') {
+                    stackName = reqBody.stackName;
+                    if (!stackName) {
+                        next({errCode:400,errMsg:"Invalid stack name"},null);
+                    }
+                }
+                if(blueprint.domainNameCheck === true) {
+                    domainName = reqBody.domainName;
+                    if (!domainName) {
+                        next({errCode:400,errMsg:"Invalid Domain name"},null);
+                    }
+                }
+                if (reqBody.monitorId && reqBody.monitorId !== null) {
+                    monitorId = reqBody.monitorId;
+                }
+                if(blueprint.serviceDeliveryCheck === true){
+                    var actionObj={
+                        auditType:'BOTs',
+                        auditCategory:'Blueprint',
+                        status:'running',
+                        action:'BOTs Blueprint Execution',
+                        actionStatus:'running',
+                        catUser:reqBody.userName
+                    };
+                    var auditTrailObj = {
+                        name:blueprint.name,
+                        type:blueprint.botType,
+                        description:blueprint.shortDesc,
+                        category:blueprint.botCategory,
+                        executionType:blueprint.blueprintType,
+                        manualExecutionTime:blueprint.manualExecutionTime,
+                        nodeIdsWithActionLog:[]
+                    };
+                    blueprint.envId= reqBody.envId;
+                    bots.getBotsById(blueprint._id,function(err,botData){
+                        if(err){
+                            logger.error(err);
+                        }else if(botData.length > 0){
+                            var botExecutionCount = botData[0].executionCount + 1;
+                            bots.updateBotsExecutionCount(blueprint._id,botExecutionCount,function(err,data){
+                                if(err){
+                                    logger.error("Error while updating Bot Execution Count");
+                                }
+                            });
+                            bots.updateBotsDetail(blueprint._id,{runTimeParams:reqBody},function(err,data){
+                                if(err){
+                                    logger.error("Error while updating Bots Configuration");
+                                }
+                            });
+                        }else{
+                            logger.debug("There is no Bots Data present in DB");
+                        }
+                    });
+                    auditTrailService.insertAuditTrail(blueprint,auditTrailObj,actionObj,function(err,data){
+                        if(err){
+                            logger.error(err);
+                        }
+                        blueprint.launch({
+                            envId: reqBody.envId,
+                            ver: reqBody.version,
+                            stackName: stackName,
+                            domainName: domainName,
+                            sessionUser: reqBody.userName,
+                            tagServer: reqBody.tagServer,
+                            monitorId: monitorId,
+                            auditTrailId: data._id
+                        },next);
+                    });
+                }else{
+                    blueprint.launch({
+                        envId: reqBody.envId,
+                        ver: reqBody.version,
+                        stackName: stackName,
+                        domainName: domainName,
+                        sessionUser: reqBody.userName,
+                        tagServer: reqBody.tagServer,
+                        monitorId: monitorId,
+                        auditTrailId: null
+                    },next);
+                }
+            }else{
+                logger.debug("Blueprint Does Not Exist");
+                next({errCode:404,errMsg:"Blueprint Does Not Exist"},null);
+            }
         }
     ],function (err, results) {
         if (err) {

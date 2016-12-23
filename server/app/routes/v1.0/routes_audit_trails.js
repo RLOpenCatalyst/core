@@ -47,7 +47,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         })
     });
 
-    app.get('/audit-trail/bot-summary', function(req,res){
+    app.get('/audit-trail/bots-summary', function(req,res){
         auditTrailService.getBOTsSummary(function(err,botSummary){
             if(err){
                 logger.error(err);

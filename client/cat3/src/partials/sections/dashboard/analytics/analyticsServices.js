@@ -48,6 +48,8 @@
                                      id: $rootScope.organNewEnt.instanceType,
                                      title: 'Instance'
                                  };
+                             } else {
+                                 $rootScope.filterNewEnt.instanceType = {};
                              }
                             if ($rootScope.organNewEnt.provider) {
                                 $rootScope.filterNewEnt.provider = {
@@ -62,8 +64,8 @@
                             $rootScope.organNewEnt = {};
                             if($state.current.name === "dashboard.analytics.usage"){
                                 $rootScope.organNewEnt.provider='0';
-                                $rootScope.organNewEnt.instanceType='Unassigned';
-                                $rootScope.$emit('INI_usage', 'Unassigned');
+                                $rootScope.organNewEnt.instanceType='unassigned-instances';
+                                $rootScope.$emit('INI_usage', 'unassigned-instances');
                             }
                             $rootScope.organNewEnt.org = or;
                         }
