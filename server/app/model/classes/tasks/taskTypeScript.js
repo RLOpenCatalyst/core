@@ -287,11 +287,9 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                     } else {
                         var cmdLine = scriptType +' /tmp/' + fileName;
                     }
-                    if (script.isParameterized === true) {
-                        for (var j = 0; j < scriptParameters.length; j++) {
-                            var decryptedText = cryptography.decryptText(scriptParameters[j].paramVal, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-                            cmdLine = cmdLine + ' "' + decryptedText + '"';
-                        }
+                    for (var j = 0; j < scriptParameters.length; j++) {
+                        var decryptedText = cryptography.decryptText(scriptParameters[j].paramVal ? scriptParameters[j].paramVal : scriptParameters[j], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                        cmdLine = cmdLine + ' "' + decryptedText + '"';
                     }
                     sshExec.exec(cmdLine, function (err, retCode) {
                         if (err) {
