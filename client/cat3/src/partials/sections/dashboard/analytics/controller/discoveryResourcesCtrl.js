@@ -3,20 +3,25 @@
     angular.module('dashboard.analytics')
         .controller('discoveryResourcesCtrl', ['$scope', '$rootScope', '$state','analyticsServices', 'genericServices','$timeout', function ($scope,$rootScope,$state,analyticsServices,genSevs,$timeout){
             var disResrc=this;
-            $scope.TangName={
+            $scope.TagName={
                 environment:[],
                 bg:[],
                 project:[]
             };
             // get gat name  Start
             disResrc.getAllTagNames=function () {
+                $scope.TagName={
+                    environment:[],
+                    bg:[],
+                    project:[]
+                };
                 // environment
                 var param = {
                     url: '/providers/' + fltrObj.provider.id + '/tag-mappings/environment'
                 };
                 genSevs.promiseGet(param).then(function (instResult) {
                     angular.forEach(instResult.tagValues,function(val){
-                        $scope.TangName.environment.push({id:val,name:val})
+                        $scope.TagName.environment.push({id:val,name:val})
                     });
                 });
                 // Bu
@@ -25,7 +30,7 @@
                 };
                 genSevs.promiseGet(param).then(function (instResult) {
                     angular.forEach(instResult.tagValues,function(val){
-                        $scope.TangName.bg.push({id:val,name:val})
+                        $scope.TagName.bg.push({id:val,name:val})
                     });
                 });
                 // project
@@ -34,7 +39,7 @@
                 };
                 genSevs.promiseGet(param).then(function (instResult) {
                     angular.forEach(instResult.tagValues,function(val){
-                        $scope.TangName.project.push({id:val,name:val})
+                        $scope.TagName.project.push({id:val,name:val})
                     });
 
                 });
@@ -52,13 +57,13 @@
                         { name: 'state', displayName: 'Status'},
                         { name: 'Region', displayName: 'Region',field:'providerData.region_name',cellTooltip: true},
                         { name: 'Bg Tag Value',width:300, enableCellEdit: true,editableCellTemplate: 'ui-grid/dropdownEditor',
-                            editDropdownOptionsArray:$scope.TangName.bg, editDropdownIdLabel: 'name',
+                            editDropdownOptionsArray:$scope.TagName.bg, editDropdownIdLabel: 'name',
                             editDropdownValueLabel: 'id'},
                         { name: 'Project Tag Value', enableCellEdit: true,editableCellTemplate: 'ui-grid/dropdownEditor',
-                            editDropdownOptionsArray:$scope.TangName.project, editDropdownIdLabel: 'name',
+                            editDropdownOptionsArray:$scope.TagName.project, editDropdownIdLabel: 'name',
                             editDropdownValueLabel: 'id'},
                         { name: 'Env. Tag Value', enableCellEdit: true,editableCellTemplate: 'ui-grid/dropdownEditor',
-                            editDropdownOptionsArray:$scope.TangName.environment, editDropdownIdLabel: 'name',
+                            editDropdownOptionsArray:$scope.TagName.environment, editDropdownIdLabel: 'name',
                             editDropdownValueLabel: 'id'}
                     ]
                 };
