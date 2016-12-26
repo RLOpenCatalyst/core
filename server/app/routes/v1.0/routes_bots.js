@@ -48,7 +48,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
     app.get('/bots/:botId/bots-history',function(req,res){
-        botsService.getBotsHistory(req.params.botId, function(err,data){
+        botsService.getBotsHistory(req.params.botId,req.query, function(err,data){
             if (err) {
                 return res.status(500).send(err);
             } else {
