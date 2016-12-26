@@ -29,7 +29,7 @@
             }
         }
         $scope.isChefattributesLoading = true;
-        if (items.botLinkedSubCategory === 'chef' && items.botConfig) {
+        if (items.botLinkedSubCategory === 'chef') {
             $scope.chefComponentSelectorList = responseFormatter.findDataForEditValue(items.botConfig.runlist);
             var nodesList = responseFormatter.chefRunlistFormatter($scope.chefComponentSelectorList);
             $scope.chefattributes = [];
@@ -121,7 +121,7 @@
             } else if (items.botConfig && items.botConfig.taskType === 'chef'){
                 reqBody.tagServer = $scope.tagSerSelected;
                 if ($scope.chefAttributesFlag) {
-                    reqBody.cookbookAttributes = $scope.cookbookAttributes;
+                    reqBody.cookbookAttributes = cookbookAttributes;
                 }
             } else  if (items.botConfig && items.botConfig.taskType === 'script') {
                 reqBody.tagServer = $scope.tagSerSelected;
