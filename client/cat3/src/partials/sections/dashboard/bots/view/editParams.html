@@ -86,12 +86,17 @@
 									<th class="headParamTable">Value</th>
 								</tr>
 							</thead>
-							<tbody>
-								<tr ng-repeat="param in scriptparams[0].scriptParameters">
-									{{param}}
-									<td class="booleanParam"><label class="control-label" for="choiceName">Parameter {{$index+1}}:<span class="red">*</span></label></td>
-									<td><input id="description" type="text" class="form-control" name="description" ng-model="param.paramDesc" disabled="disabled"></td>
-									<td><input id="value" type="text" class="form-control" name="value" ng-model="parameters[$index]"></td>
+							<tbody ng-repeat="paramjen in scriptparams">
+								<tr ng-repeat="params in paramjen.scriptParameters" ng-init="number = countInit()">
+									<td class="booleanParam">
+										<label class="control-label" for="choiceName">Parameter {{number+1}}:<span class="red">*</span></label>
+									</td>
+									<td>
+										<input id="description" type="text" class="form-control" name="description" ng-model="params.paramDesc" disabled="disabled">
+									</td>
+									<td>
+										<input id="value" type="text" class="form-control" name="value" ng-model="parameters[number]">
+									</td>
 								</tr>
 							</tbody>
 						</table>
