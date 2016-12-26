@@ -122,7 +122,7 @@ schedulerService.executeParallelScheduledTasks = function executeParallelSchedul
                     logger.error("Error in updating cron job Ids. "+err);
                 }
             })
-            taskService.executeTask(task._id, "system", "", "", "","","",function(err, historyData) {
+            taskService.executeTask(task._id, "system", "undefined", "undefined", "undefined","undefined","undefined",function(err, historyData) {
                 if (err === 404) {
                     logger.error("Task not found.", err);
                     return;
@@ -193,7 +193,7 @@ schedulerService.executeSerialScheduledTasks = function executeSerialScheduledTa
                     logger.error("Error in updating cron job Ids. "+err);
                 }
             })
-            taskService.executeTask(task._id, "system", "", "", "","","",function(err, historyData) {
+            taskService.executeTask(task._id, "system", "undefined", "undefined", "undefined","undefined","undefined",function(err, historyData) {
                 if (err === 404) {
                     logger.error("Task not found.", err);
                     callback(err,null);
