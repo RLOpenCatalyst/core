@@ -537,9 +537,10 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                 runlist = launchParams.blueprintData.extraRunlist.concat(instance.runlist);
                                             }
 
-                                            var sensuCookBook = 'recipe[sensu-client]';
+                                            var sensuCookBooks = masterUtil.getSensuCookbooks();
+                                            var sensuCookBook = sensuCookBooks[0];
                                             if (runlist.indexOf(sensuCookBook) === -1 && launchParams.monitor && launchParams.monitor.parameters.transportProtocol === 'rabbitmq') {
-                                                runlist.unshift(sensuCookBook);
+                                                runlist = sensuCookBooks.concat(runlist);
                                                 jsonAttributes['sensu-client'] = masterUtil.getSensuCookbookAttributes(launchParams.monitor, instance.id);
                                             }
 
