@@ -754,6 +754,10 @@ accordion .panel-heading {
 /* global styles for logs display across workzone ends here*/
 
 /*ui grid css starts here*/
+.editCell .ui-grid-cell-contents {
+    background: #b3c4c7 !important;
+    cursor: pointer;
+}
 .ui-grid {
     font-size: 14px;
     text-align: center;

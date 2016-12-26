@@ -28,7 +28,7 @@ var angularApp = angular.module('catapp', ['ui.router','ngTouch','toastr','fireb
 	'ui.grid.resizeColumns',
 	'global.uiGridOptions',
 	'global.messages',
-	'ui.grid.selection'
+	'ui.grid.selection','ui.grid.cellNav'
 ]);
 
 angularApp.run(['$rootScope', 'auth', '$state', '$stateParams','$http','$window',
