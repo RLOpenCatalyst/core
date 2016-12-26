@@ -6,7 +6,7 @@
                 Instances
             </accordion-heading>
             <div ng-if="disResrc.gridOptionInstances.data.length === 0" class="alert alert-info text-center"> No Data Found!</div>
-            <div ng-if="disResrc.gridOptionInstances.data.length > 0" ui-grid="disResrc.gridOptionInstances" ui-grid-edit class="grid"></div>
+            <div ng-if="disResrc.gridOptionInstances.data.length > 0" ui-grid="disResrc.gridOptionInstances" ui-grid-edit  ui-grid-cellNav class="grid"></div>
         </accordion-group>
 
 
@@ -16,7 +16,8 @@
                 <!--<i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus1.opened,'fa-plus-circle':!accGroupStatus1.opened }"></i>-->
                 <!--RDS-->
             <!--</accordion-heading>-->
-<!--sss-->
+            <!--<div ng-if="disResrc.gridOptionRDS.data.length === 0" class="alert alert-info text-center"> No Data Found!</div>-->
+            <!--<div ng-if="disResrc.gridOptionRDS.data.length > 0" ui-grid="disResrc.gridOptionInstances" ui-grid-edit  ui-grid-cellNav class="grid"></div>-->
         <!--</accordion-group>-->
 
         <!--<accordion-group ng-init="accGroupStatus2 = {opened: false}" is-open="accGroupStatus2.opened">-->
@@ -24,7 +25,8 @@
                 <!--<i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus2.opened,'fa-plus-circle':!accGroupStatus2.opened }"></i>-->
                 <!--S3-->
             <!--</accordion-heading>-->
-<!--ss-->
+            <!--<div ng-if="disResrc.gridOptionS3.data.length === 0" class="alert alert-info text-center"> No Data Found!</div>-->
+            <!--<div ng-if="disResrc.gridOptionS3.data.length > 0" ui-grid="disResrc.gridOptionInstances" ui-grid-edit  ui-grid-cellNav class="grid"></div>-->
         <!--</accordion-group>-->
     </accordion>
 
@@ -33,3 +35,11 @@
     <div class="clearfix"></div>
 
 </div></form>
+<style>
+    .editCell select{
+        height: 29px;
+        padding: 2px 10px;
+        font-size: 12px;
+        line-height: 1;
+    }
+</style>
