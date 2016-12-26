@@ -209,6 +209,7 @@
                 genSevs.promiseDelete(param).then(function (response) {
                     if (response) {
                         toastr.success('Successfully deleted');
+                        lib.summary();
                         if($scope.totalBotsSelected) {
                             $scope.botLibraryGridView();
                         } else if($scope.runningBotsselected) {
@@ -218,7 +219,6 @@
                         } else {
                             $scope.botLibraryGridView();
                         }
-                        lib.summary();
                     }
                 }, function(data) {
                     toastr.error('error:: ' + data.toString());
@@ -230,10 +230,22 @@
             $scope.botLibraryGridView();
         });
         $scope.RefreshBotsLibrary = function() {
+            $scope.botLibrarySearch = '';
+            lib.summary();
+            if($scope.totalBotsSelected) {
+                $scope.botLibraryGridView();
+            } else if($scope.runningBotsselected) {
+                $scope.showBotsRunning();
+            } else if($scope.failedBotsselected) {
+                $scope.showFailedBots();
+            } else {
+                $scope.botLibraryGridView();
+            }
+        };
+        $scope.showAllBots = function() {
             $scope.totalBotsSelected = true;
             $scope.runningBotsselected = false;
             $scope.failedBotsselected = false;
-            $scope.botLibrarySearch = '';
             lib.summary();
             $scope.botLibraryGridView();
         };
@@ -656,7 +668,7 @@
             }
 
             $scope.historyLogs=function(hist) {
-                console.log(hist.auditTrailConfig.executionType);
+                console.log(hist);
                 if(hist.auditTrailConfig && (hist.auditTrailConfig.executionType == 'chef') || (hist.auditTrailConfig.executionType == 'jenkins') || (hist.auditTrailConfig.executionType == 'script')) {
                     var modalInstance = $modal.open({
                         animation: true,
@@ -668,7 +680,7 @@
                             items: function() {
                                 return {
                                     taskId : hist.auditId,
-                                    historyId : hist.auditHistoryId ? hist.auditHistoryId : hist.auditTrailConfig.nodeIdsWithActionLog[0].actionLogId,
+                                    historyId : hist.auditHistoryId ? hist.auditHistoryId : hist.auditTrailConfig.nodeIdsWithActionLog[0] && hist.auditTrailConfig.nodeIdsWithActionLog[0].actionLogId,
                                     taskType:hist.auditTrailConfig.executionType
                                 };
                             }
