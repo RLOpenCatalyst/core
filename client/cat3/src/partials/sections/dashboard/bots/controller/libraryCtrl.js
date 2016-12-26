@@ -449,8 +449,8 @@
                     };
                     genSevs.promiseGet(param).then(function (response) {
                         $timeout(function() {
-                            if(response.data){
-                                $scope.taskHistoryChefData = response.data;
+                            if(response.botHistory){
+                                $scope.taskHistoryChefData = response.botHistory;
                                 $scope.ischefTaskHistoryPageLoading = false;
                             }else if(response){
                                 $scope.taskHistoryChefData = response;
@@ -509,8 +509,8 @@
                     };
                     genSevs.promiseGet(param).then(function (response) {
                         $timeout(function() {
-                            if(response.data){
-                                $scope.taskHistoryJenkinsData = response.data;
+                            if(response.botHistory){
+                                $scope.taskHistoryJenkinsData = response.botHistory;
                                 $scope.isjenkinsTaskHistoryPageLoading = false;
                             }else if(response){
                                 $scope.taskHistoryJenkinsData = response;
@@ -560,8 +560,8 @@
                     };
                     genSevs.promiseGet(param).then(function (response) {
                         $timeout(function() {
-                            if(response.data){
-                                $scope.taskHistoryScriptData = response.data;
+                            if(response.botHistory){
+                                $scope.taskHistoryScriptData = response.botHistory;
                                 $scope.isscriptTaskHistoryPageLoading = false;
                             }else if(response){
                                 $scope.taskHistoryScriptData = response;
@@ -610,8 +610,8 @@
                     };
                     genSevs.promiseGet(param).then(function (response) {
                         $timeout(function() {
-                            if(response.data){
-                                $scope.botHistoryBlueprintData = response.data;
+                            if(response.botHistory){
+                                $scope.botHistoryBlueprintData = response.botHistory;
                                 $scope.isBlueprintBotHistoryPageLoading = false;
                             }else if(response){
                                 $scope.botHistoryBlueprintData = response;

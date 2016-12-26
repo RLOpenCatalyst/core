@@ -55,6 +55,13 @@ botsService.createOrUpdateBots = function createOrUpdateBots(botsDetail,linkedCa
         domainNameCheck:botsDetail.domainNameCheck ? botsDetail.domainNameCheck : false,
         createdOn: new Date().getTime()
     };
+    var versionsList = [];
+    var versionOptional;
+    if(botsDetail.blueprintConfig && botsDetail.blueprintConfig.infraManagerData && botsDetail.blueprintConfig.infraManagerData.versionsList){
+        versionsList = botsDetail.blueprintConfig.infraManagerData.versionsList;
+        versionOptional = versionsList[versionsList.length-1].ver;
+        botsObj.version = versionOptional;
+    }
     bots.getBotsById(botsDetail._id,function(err,data){
         if(err){
             callback(err,null);
@@ -92,6 +99,10 @@ botsService.createOrUpdateBots = function createOrUpdateBots(botsDetail,linkedCa
 botsService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,callback) {
     if(botObj.botScheduler  && botObj.botScheduler !== null && Object.keys(botObj.botScheduler).length !== 0) {
         botObj.botScheduler = apiUtil.createCronJobPattern(botObj.botScheduler);
+        botObj.isBotScheduled =true;
+    }else{
+        botObj.botScheduler ={};
+        botObj.isBotScheduled =false;
     }
     bots.updateBotsDetail(botId,botObj,function(err,data){
         if(err){
@@ -154,8 +165,7 @@ botsService.getBotsList = function getBotsList(botsQuery,actionStatus,callback) 
             if(actionStatus !== null){
                 var query = {
                     auditType: 'BOTs',
-                    actionStatus: actionStatus,
-                    auditCategory: 'Task'
+                    actionStatus: actionStatus
                 };
                 var botsIds = [];
                 auditTrail.getAuditTrails(query, function(err,botsAudits){
@@ -250,14 +260,32 @@ botsService.removeBotsById = function removeBotsById(botId,callback){
     });
 }
 
-botsService.getBotsHistory = function getBotsHistory(botId,callback){
-    auditTrailService.getBotsAuditTrailHistory(botId,function(err,data){
-        if(err){
+botsService.getBotsHistory = function getBotsHistory(botId,botsQuery,callback){
+    var reqData = {};
+    async.waterfall([
+        function(next) {
+            apiUtil.paginationRequest(botsQuery, 'botHistory', next);
+        },
+        function(paginationReq, next) {
+            paginationReq['searchColumns'] = ['status', 'action', 'user', 'actionStatus', 'auditTrailConfig.name','masterDetails.orgName', 'masterDetails.bgName', 'masterDetails.projectName', 'masterDetails.envName'];
+            reqData = paginationReq;
+            apiUtil.databaseUtil(paginationReq, next);
+        },
+        function(queryObj, next) {
+            queryObj.queryObj.auditId = botId;
+            queryObj.queryObj.auditType = 'BOTs';
+            auditTrail.getAuditTrailList(queryObj,next)
+        },
+        function(auditTrailList, next) {
+            apiUtil.paginationResponse(auditTrailList, reqData, next);
+        }
+    ],function(err, results) {
+        if (err){
             logger.error(err);
             callback(err,null);
             return;
         }
-        callback(null,data);
+        callback(null,results)
         return;
     });
 }

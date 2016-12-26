@@ -178,8 +178,8 @@ var BotsSchema = new Schema ({
         default: false
     },
     version: {
-        type: Number,
-        default: 1
+        type: String,
+        trim: true
     },
     domainNameCheck: {
         type: Boolean,
@@ -336,7 +336,7 @@ BotsSchema.statics.updateBotsScheduler = function updateBotsScheduler(botId, cal
         "_id": new ObjectId(botId),
     }, {
         $set: {
-            isBotBScheduled: false
+            isBotScheduled: false
         }
     }, {
         upsert: false

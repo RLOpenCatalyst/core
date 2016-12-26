@@ -93,7 +93,6 @@ var AWSInstanceBlueprintSchema = new Schema({
 AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
     var self = this;
     var domainName = launchParams.domainName;
-    logger.debug("launchParams------------->", JSON.stringify(launchParams));
     VMImage.getImageById(self.imageId, function (err, anImage) {
         if (err) {
             logger.error(err);
@@ -103,11 +102,6 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
             return;
         }
         logger.debug("Loaded Image -- : >>>>>>>>>>> %s", anImage.providerId);
-        // //determining osType and decrypting the password field if windows found
-        // if(anImage.osType === 'windows'){
-        //     anImage.instancePassword = 
-        // }
-
         AWSProvider.getAWSProviderById(anImage.providerId, function (err, aProvider) {
             if (err) {
                 logger.error(err);
@@ -556,6 +550,8 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                 jsonAttributes: jsonAttributes,
                                                 instancePassword: decryptedCredentials.password
                                             };
+                                            console.log("****************************");
+                                            console.log("params>>>>>>>>",JSON.stringify(bootstrapInstanceParams));
                                             launchParams.infraManager.bootstrapInstance(bootstrapInstanceParams, function (err, code) {
 
                                                 if (decryptedCredentials.pemFileLocation) {

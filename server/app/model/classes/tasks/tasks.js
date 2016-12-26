@@ -421,10 +421,20 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
             taskHistory = new TaskHistory(taskHistoryData);
             taskHistory.save();
         }
-        var resultBots = {
-            "actionLogId":taskHistory.nodeIdsWithActionLog[0].actionLogId,
-            "auditTrailConfig.nodeIdsWithActionLog":taskHistory.nodeIdsWithActionLog
-        };
+        var resultBots = null;
+        if(taskHistoryData.taskType === TASK_TYPE.JENKINS_TASK){
+            resultBots = {
+                "actionLogId":taskHistory.jenkinsServerId,
+                "auditTrailConfig.jenkinsBuildNumber":taskHistory.buildNumber,
+                "auditTrailConfig.jenkinsJobName":taskHistory.jobName,
+                "auditTrailConfig.jobResultURL":taskHistory.jobResultURL
+            };
+        }else {
+             resultBots = {
+                "actionLogId": taskHistory.nodeIdsWithActionLog[0].actionLogId,
+                "auditTrailConfig.nodeIdsWithActionLog": taskHistory.nodeIdsWithActionLog
+            };
+        }
         if(auditTrailId !== null && resultBots !== null){
             auditTrailService.updateAuditTrail('BOTs',auditTrailId,resultBots,function(err,auditTrail){
                 if (err) {
@@ -616,7 +626,6 @@ taskSchema.statics.createNew = function(taskData, callback) {
     var that = this;
     var task = new that(taskObj);
     logger.debug('saved task:' + JSON.stringify(task));
-
     task.save(function(err, data) {
         if (err) {
             logger.error(err);
@@ -1082,23 +1091,21 @@ function filterScriptTaskData(data,callback){
             if ((task.taskType === 'script')
                 && ('scriptDetails' in task.taskConfig)
                 && (task.taskConfig.scriptDetails.length > 0)) {
+                var scriptCount = 0;
                 for (var j = 0; j < task.taskConfig.scriptDetails.length; j++) {
                     (function (scriptTask) {
                         if (scriptTask.scriptParameters.length > 0) {
-                            var count = 0;
+                            scriptCount++;
                             for (var k = 0; k < scriptTask.scriptParameters.length; k++) {
-                                (function (params) {
-                                    count++;
-                                    scriptTask.scriptParameters[k] = '';
-                                    if (count === scriptTask.scriptParameters.length) {
-                                        taskList.push(task)
-                                    }
-                                })(scriptTask.scriptParameters[k]);
+                                scriptTask.scriptParameters[k] = '';
                             }
                         } else {
-                            taskList.push(task)
+                            scriptCount++;
                         }
                     })(task.taskConfig.scriptDetails[j]);
+                }
+                if(scriptCount === task.taskConfig.scriptDetails.length) {
+                    taskList.push(task);
                 }
             } else {
                 taskList.push(task);
