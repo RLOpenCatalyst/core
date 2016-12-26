@@ -11,7 +11,7 @@
                             </label>
                             <div class="input-groups">
                                 <loading size="small" name="isLoadingTag" type="inline"></loading>
-                                <select  class="form-control with250"  ng-model="newEnt.businessGroup.tagName" ng-change="disTgMap.getTagValues('busTag',newEnt.businessGroup.tagName,'businessGroup');" required>
+                                <select  class="form-control with250 selectTag"  ng-model="newEnt.businessGroup.tagName" ng-change="disTgMap.getTagValues('busTag',newEnt.businessGroup.tagName,'businessGroup');" required>
                                     <option value="">Select</option>
                                     <option ng-repeat="opti in disTgMap.tagOption" value="{{opti.name}}">{{opti.name}}</option>
                                 </select>
@@ -55,7 +55,7 @@
                     </label>
                     <div class="input-groups">
                         <loading size="small" name="isLoadingTag" type="inline"></loading>
-                        <select  ng-model="newEnt.project.tagName"  class="form-control with250" ng-change="disTgMap.getTagValues('projTag',newEnt.project.tagName,'project');"  required>
+                        <select  ng-model="newEnt.project.tagName"  class="form-control with250 selectTag" ng-change="disTgMap.getTagValues('projTag',newEnt.project.tagName,'project');"  required>
                             <option value="">Select</option>
                             <option ng-repeat="opti in disTgMap.tagOption" value="{{opti.name}}">{{opti.name}}</option>
                         </select>
@@ -99,7 +99,7 @@
                         </label>
                         <div class="input-groups">
                             <loading size="small" name="isLoadingTag" type="inline"></loading>
-                            <select  ng-model="newEnt.environment.tagName" ng-change="disTgMap.getTagValues('EnvTag',newEnt.environment.tagName,'environment');"  class="form-control with250" required>
+                            <select  ng-model="newEnt.environment.tagName" ng-change="disTgMap.getTagValues('EnvTag',newEnt.environment.tagName,'environment');"  class="form-control with250 selectTag" required>
                                 <option value="">Select</option>
                                 <option ng-repeat="opti in disTgMap.tagOption" value="{{opti.name}}">{{opti.name}}</option>
                             </select>
