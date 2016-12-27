@@ -36,7 +36,7 @@
                         disTgMap.tagOption = tagResult;
                     });
             };
-            disTgMap.getTagValues= function (tagName,valueType,selectType) {
+            disTgMap.getTagValues= function (tagName,valueType) {
                 if(tagName) {
                     var param = {
                         inlineLoader: true,
