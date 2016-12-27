@@ -16,8 +16,8 @@
                 if(fltrObj && fltrObj.provider && fltrObj.provider.id) {
                     var param = {
                         inlineLoader: true,
-                       // url: '/providers/' + fltrObj.provider.id + '/tag-mappings'
-                        url:'src/partials/sections/dashboard/analytics/data/tag.json'
+                       url: '/providers/' + fltrObj.provider.id + '/tag-mappings'
+                        //url:'src/partials/sections/dashboard/analytics/data/tag.json'
                     };
                     genSevs.promiseGet(param).then(function (tagResult) {
                         angular.forEach(tagResult,function (val,key) {
