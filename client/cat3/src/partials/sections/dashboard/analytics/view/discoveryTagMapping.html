@@ -11,7 +11,7 @@
                             </label>
                             <div class="input-groups">
                                 <loading size="small" name="isLoadingTag" type="inline"></loading>
-                                <select  class="form-control with250 selectTag"  ng-model="newEnt.businessGroup.tagName" ng-change="disTgMap.getTagValues('busTag',newEnt.businessGroup.tagName,'businessGroup');" required>
+                                <select  class="form-control with250 selectTag"  ng-model="newEnt.businessGroup.tagName" ng-change="disTgMap.getTagValues(newEnt.businessGroup.tagName,'businessGroup');" required>
                                     <option value="">Select</option>
                                     <option ng-repeat="opti in disTgMap.tagOption" value="{{opti.name}}">{{opti.name}}</option>
                                 </select>
@@ -33,7 +33,7 @@
                                 <div class="input-groups" ng-init="newEnt.businessGroup.catalystEntityMapping[buss.rowid].catalystEntityName =buss.name ; newEnt.businessGroup.catalystEntityMapping[buss.rowid].catalystEntityId =buss.rowid ">
                                     <loading size="small" name="isLoadingTag" type="inline"></loading>
                                     <multiple-autocomplete ng-model="newEnt.businessGroup.catalystEntityMapping[buss.rowid].tagValues"
-                                                           suggestions-arr="disTgMap.busTag">
+                                                           suggestions-arr="newEnt.businessGroup.tagValues">
                                     </multiple-autocomplete>
                                 </div>
                             </div>
@@ -55,7 +55,7 @@
                     </label>
                     <div class="input-groups">
                         <loading size="small" name="isLoadingTag" type="inline"></loading>
-                        <select  ng-model="newEnt.project.tagName"  class="form-control with250 selectTag" ng-change="disTgMap.getTagValues('projTag',newEnt.project.tagName,'project');"  required>
+                        <select  ng-model="newEnt.project.tagName"  class="form-control with250 selectTag" ng-change="disTgMap.getTagValues(newEnt.project.tagName,'project');"  required>
                             <option value="">Select</option>
                             <option ng-repeat="opti in disTgMap.tagOption" value="{{opti.name}}">{{opti.name}}</option>
                         </select>
@@ -79,7 +79,7 @@
                             <div class="input-groups" ng-init="newEnt.project.catalystEntityMapping[project.rowId].catalystEntityName =project.name ; newEnt.project.catalystEntityMapping[project.rowId].catalystEntityId =project.rowId ">
                                 <loading size="small" name="isLoadingTag" type="inline"></loading>
                                 <multiple-autocomplete ng-model="newEnt.project.catalystEntityMapping[project.rowId].tagValues"
-                                                       suggestions-arr="disTgMap.projTag">
+                                                       suggestions-arr="newEnt.project.tagValues">
                                 </multiple-autocomplete>
                             </div>
                         </div>
@@ -99,7 +99,7 @@
                         </label>
                         <div class="input-groups">
                             <loading size="small" name="isLoadingTag" type="inline"></loading>
-                            <select  ng-model="newEnt.environment.tagName" ng-change="disTgMap.getTagValues('EnvTag',newEnt.environment.tagName,'environment');"  class="form-control with250 selectTag" required>
+                            <select  ng-model="newEnt.environment.tagName" ng-change="disTgMap.getTagValues(newEnt.environment.tagName,'environment');"  class="form-control with250 selectTag" required>
                                 <option value="">Select</option>
                                 <option ng-repeat="opti in disTgMap.tagOption" value="{{opti.name}}">{{opti.name}}</option>
                             </select>
@@ -120,7 +120,7 @@
                             <div class="input-groups" ng-init="newEnt.environment.catalystEntityMapping[envr.rowid].catalystEntityName =envr.name ; newEnt.environment.catalystEntityMapping[envr.rowid].catalystEntityId =envr.rowid ">
                                 <loading size="small" name="isLoadingTag" type="inline"></loading>
                                 <multiple-autocomplete ng-model="newEnt.environment.catalystEntityMapping[envr.rowid].tagValues"
-                                                       suggestions-arr="disTgMap.EnvTag">
+                                                       suggestions-arr="newEnt.environment.tagValues">
                                 </multiple-autocomplete>
                             </div>
                         </div>
