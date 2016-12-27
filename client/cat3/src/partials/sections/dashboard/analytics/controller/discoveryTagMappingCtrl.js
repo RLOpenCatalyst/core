@@ -16,10 +16,19 @@
                 if(fltrObj && fltrObj.provider && fltrObj.provider.id) {
                     var param = {
                         inlineLoader: true,
-                        url: '/providers/' + fltrObj.provider.id + '/tag-mappings'
+                       url: '/providers/' + fltrObj.provider.id + '/tag-mappings'
+                        //url:'src/partials/sections/dashboard/analytics/data/tag.json'
                     };
                     genSevs.promiseGet(param).then(function (tagResult) {
-                        $scope.newEnt = tagResult;
+                        angular.forEach(tagResult,function (val,key) {
+                            if(key === 'environment'){
+                                $scope.newEnt.environment=val;
+                            } else if(key === 'businessGroup'){
+                                $scope.newEnt.businessGroup=val;
+                            } else if(key === 'project'){
+                                $scope.newEnt.project=val;
+                            }
+                        });
                         disTgMap.getAllTags();
                     });
                 }
@@ -34,18 +43,9 @@
                     genSevs.promiseGet(param).then(function (tagResult) {
                         $scope.isLoadingTag = false;
                         disTgMap.tagOption = tagResult;
-                        if($scope.newEnt.businessGroup.tagName){
-                            disTgMap.getTagValues('busTag',$scope.newEnt.businessGroup.tagName,'businessGroup',true)
-                        }
-                        if($scope.newEnt.project.tagName){
-                            disTgMap.getTagValues('projTag',$scope.newEnt.project.tagName,'project',true)
-                        }
-                        if($scope.newEnt.environment.tagName){
-                            disTgMap.getTagValues('EnvTag',$scope.newEnt.environment.tagName,'environment',true)
-                        }
                     });
             };
-            disTgMap.getTagValues= function (type,tagName,valueType,selectType) {
+            disTgMap.getTagValues= function (tagName,valueType) {
                 if(tagName) {
                     var param = {
                         inlineLoader: true,
@@ -53,12 +53,10 @@
                     };
                     genSevs.promiseGet(param).then(function (tagResult) {
                         $scope.isLoadingTagValue = false;
-                        if(!selectType) {
                             for (var key in $scope.newEnt[valueType].catalystEntityMapping) {
                                 $scope.newEnt[valueType].catalystEntityMapping[key].tagValues = [];
                             }
-                        }
-                        disTgMap[type] = tagResult.values;
+                        $scope.newEnt[valueType].tagValues = tagResult.values;
                     });
                 }
             };
