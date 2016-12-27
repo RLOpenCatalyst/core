@@ -197,7 +197,7 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
                                 callback(null,updatedData);
                                 return;
                             });
-                           crontab.cancelJob(task.cronJobId);
+                            crontab.cancelJob(task.cronJobId);
                             taskDao.updateTaskScheduler(task._id,function(err, updatedData) {
                                 if (err) {
                                     logger.error("Failed to update Task Scheduler: ", err);
@@ -262,23 +262,37 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
                     });
                 });
             }else{
-                taskDao.updateTaskExecutionCount(task._id,taskExecutionCount,function(err,data){
-                    if(err){
-                        logger.error("Error while updating Task Execution Count");
-                    }
-                });
-                task.execute(user, hostProtocol, choiceParam, appData, blueprintIds, task.envId,auditTrailId,function(err, taskRes, historyData) {
-                    if (err) {
-                        var error = new Error('Failed to execute task.');
-                        error.status = 500;
-                        return callback(error, null);
-                    }
-                    if (historyData) {
-                        taskRes.historyId = historyData.id;
-                    }
-                    callback(null, taskRes);
-                    return;
-                });
+                if((task.isTaskScheduled === false || (task.isTaskScheduled === true && task.taskScheduler.cronEndOn && currentDate >= task.taskScheduler.cronEndOn)) && user === 'system') {
+                    crontab.cancelJob(task.cronJobId);
+                    taskDao.updateTaskScheduler(task._id, function (err, updatedData) {
+                        if (err) {
+                            logger.error("Failed to update Task Scheduler: ", err);
+                            callback(err, null);
+                            return;
+                        }
+                        logger.debug("Scheduler is ended on for Task. " + task.name);
+                        callback(null, updatedData);
+                        return;
+                    });
+                }else {
+                    taskDao.updateTaskExecutionCount(task._id, taskExecutionCount, function (err, data) {
+                        if (err) {
+                            logger.error("Error while updating Task Execution Count");
+                        }
+                    });
+                    task.execute(user, hostProtocol, choiceParam, appData, blueprintIds, task.envId, auditTrailId, function (err, taskRes, historyData) {
+                        if (err) {
+                            var error = new Error('Failed to execute task.');
+                            error.status = 500;
+                            return callback(error, null);
+                        }
+                        if (historyData) {
+                            taskRes.historyId = historyData.id;
+                        }
+                        callback(null, taskRes);
+                        return;
+                    });
+                }
             }
 
         } else {
