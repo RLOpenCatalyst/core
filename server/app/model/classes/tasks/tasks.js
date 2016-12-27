@@ -431,11 +431,14 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
             };
         }else {
              resultBots = {
-                "actionLogId": taskHistory.nodeIdsWithActionLog[0].actionLogId,
-                "auditTrailConfig.nodeIdsWithActionLog": taskHistory.nodeIdsWithActionLog
+                 "actionLogId": taskHistory.nodeIdsWithActionLog[0].actionLogId,
+                 "auditTrailConfig.nodeIdsWithActionLog": taskHistory.nodeIdsWithActionLog
             };
         }
         if(auditTrailId !== null && resultBots !== null){
+            if(taskHistory.id){
+                resultBots.auditHistoryId=taskHistory.id;
+            }
             auditTrailService.updateAuditTrail('BOTs',auditTrailId,resultBots,function(err,auditTrail){
                 if (err) {
                 logger.error("Failed to create or update bots Log: ", err);
@@ -471,6 +474,9 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                 "actionLogId":taskHistory.nodeIdsWithActionLog[0].actionLogId,
                 "auditTrailConfig.nodeIdsWithActionLog":taskHistory.nodeIdsWithActionLog
             };
+        }
+        if(taskHistory.id){
+            resultTaskExecution.auditHistoryId=taskHistory.id;
         }
         if(auditTrailId !== null && resultTaskExecution !== null){
             auditTrailService.updateAuditTrail('BOTs',auditTrailId,resultTaskExecution,function(err,auditTrail){
