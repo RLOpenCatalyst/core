@@ -262,6 +262,11 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
                     });
                 });
             }else{
+                taskDao.updateTaskExecutionCount(task._id,taskExecutionCount,function(err,data){
+                    if(err){
+                        logger.error("Error while updating Task Execution Count");
+                    }
+                });
                 task.execute(user, hostProtocol, choiceParam, appData, blueprintIds, task.envId,auditTrailId,function(err, taskRes, historyData) {
                     if (err) {
                         var error = new Error('Failed to execute task.');
