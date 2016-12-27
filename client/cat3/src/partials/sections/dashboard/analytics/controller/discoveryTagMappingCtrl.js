@@ -16,10 +16,19 @@
                 if(fltrObj && fltrObj.provider && fltrObj.provider.id) {
                     var param = {
                         inlineLoader: true,
-                        url: '/providers/' + fltrObj.provider.id + '/tag-mappings'
+                       // url: '/providers/' + fltrObj.provider.id + '/tag-mappings'
+                        url:'src/partials/sections/dashboard/analytics/data/tag.json'
                     };
                     genSevs.promiseGet(param).then(function (tagResult) {
-                        $scope.newEnt = tagResult;
+                        angular.forEach(tagResult,function (val,key) {
+                            if(key === 'environment'){
+                                $scope.newEnt.environment=val;
+                            } else if(key === 'businessGroup'){
+                                $scope.newEnt.businessGroup=val;
+                            } else if(key === 'project'){
+                                $scope.newEnt.project=val;
+                            }
+                        });
                         disTgMap.getAllTags();
                     });
                 }
