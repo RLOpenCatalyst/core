@@ -12,6 +12,17 @@
             $scope.newEnt={};
             var fltrObj=$rootScope.filterNewEnt;
             disTgMap.tagOption=[];
+            function checkid(id,array) {
+                var rt=false;
+                angular.forEach(array,function (v,k) {
+                    if(id !== k){
+                        rt= true;
+                    } else {
+                        rt= false;
+                    }
+                });
+                return rt;
+            }
             disTgMap.getTagMapping=function () {
                 if(fltrObj && fltrObj.provider && fltrObj.provider.id) {
                     var param = {
@@ -21,13 +32,17 @@
                     };
                     genSevs.promiseGet(param).then(function (tagResult) {
                         angular.forEach(tagResult,function (val,key) {
-                            if(key === 'environment'){
-                                $scope.newEnt.environment=val;
-                            } else if(key === 'businessGroup'){
-                                $scope.newEnt.businessGroup=val;
-                            } else if(key === 'project'){
-                                $scope.newEnt.project=val;
-                            }
+
+                                $scope.newEnt[key].tagName=val.tagName;
+                                $scope.newEnt[key].tagValues=val.tagValues;
+                                $scope.newEnt[key].catalystEntityType=val.catalystEntityType;
+                                angular.forEach(val.catalystEntityMapping,function (v,k) {
+                                    $scope.newEnt[key].catalystEntityMapping[k]={
+                                        tagValues:v.tagValues,
+                                        catalystEntityId:v.catalystEntityId,
+                                        catalystEntityName:v.catalystEntityName
+                                    }
+                                });
                         });
                         disTgMap.getAllTags();
                     });

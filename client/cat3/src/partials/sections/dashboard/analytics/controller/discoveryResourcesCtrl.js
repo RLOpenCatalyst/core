@@ -17,9 +17,9 @@
                     environment:[],
                     bg:[],
                     project:[],
-                    bgTag:'',
-                    environmentTag:'',
-                    projectTag:''
+                    bgTag:'bg',
+                    environmentTag:'env',
+                    projectTag:'pro'
                 };
                 // environment
                 var param = {
