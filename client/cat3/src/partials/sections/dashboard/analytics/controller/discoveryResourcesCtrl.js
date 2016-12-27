@@ -32,7 +32,7 @@
                 });
                 // Bu
                 var param = {
-                    url: '/providers/' + fltrObj.provider.id + '/tag-mappings/bgName'
+                    url: '/providers/' + fltrObj.provider.id + '/tag-mappings/businessGroup'
                 };
                 genSevs.promiseGet(param).then(function (instResult) {
                     $scope.TagName.bgTag=instResult.tagName;
@@ -78,7 +78,7 @@
                                 {name: 'orgName', displayName: 'Org Name', field: 'orgName', cellTooltip: true,enableCellEditOnFocus: false,
                                     enableCellEdit: false},
                                 {
-                                    name: 'aa',
+                                    name: $scope.TagName.bgTag,
                                     displayName: 'BG Tag Value',
                                     width: 200,
                                     cellClass: 'editCell',
