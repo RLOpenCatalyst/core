@@ -12,17 +12,6 @@
             $scope.newEnt={};
             var fltrObj=$rootScope.filterNewEnt;
             disTgMap.tagOption=[];
-            function checkid(id,array) {
-                var rt=false;
-                angular.forEach(array,function (v,k) {
-                    if(id !== k){
-                        rt= true;
-                    } else {
-                        rt= false;
-                    }
-                });
-                return rt;
-            }
             disTgMap.getTagMapping=function () {
                 if(fltrObj && fltrObj.provider && fltrObj.provider.id) {
                     var param = {
