@@ -3,6 +3,7 @@
     angular.module('dashboard.analytics')
         .controller('discoveryResourcesCtrl', ['$scope', '$rootScope', '$state','analyticsServices', 'genericServices','$timeout','toastr', function ($scope,$rootScope,$state,analyticsServices,genSevs,$timeout,toastr){
             var disResrc=this;
+            $scope.instanceType=null;
             $scope.TagName={
                 environment:[],
                 bg:[],
@@ -25,7 +26,7 @@
                     url: '/providers/' + fltrObj.provider.id + '/tag-mappings/environment'
                 };
                 genSevs.promiseGet(param).then(function (instResult) {
-                    $scope.TagName.environmentTag=instResult.tagName;
+                    $scope.TagName.environmentTag=instResult.tagName+'-en';
                     angular.forEach(instResult.tagValues,function(val){
                         $scope.TagName.environment.push({id:val,name:val})
                     });
@@ -35,7 +36,7 @@
                     url: '/providers/' + fltrObj.provider.id + '/tag-mappings/businessGroup'
                 };
                 genSevs.promiseGet(param).then(function (instResult) {
-                    $scope.TagName.bgTag=instResult.tagName;
+                    $scope.TagName.bgTag=instResult.tagName+'-bu';
                     angular.forEach(instResult.tagValues,function(val){
                         $scope.TagName.bg.push({id:val,name:val})
                     });
@@ -45,7 +46,7 @@
                     url: '/providers/' + fltrObj.provider.id + '/tag-mappings/project'
                 };
                 genSevs.promiseGet(param).then(function (instResult) {
-                    $scope.TagName.projectTag=instResult.tagName;
+                    $scope.TagName.projectTag=instResult.tagName+'-pr';
                     angular.forEach(instResult.tagValues,function(val){
                         $scope.TagName.project.push({id:val,name:val})
                     });
@@ -121,7 +122,7 @@
                                             data: {
                                                 "tags": {
                                                     "environment": newValue,
-                                                    "application": colDef.name
+                                                    "application": colDef.name.substring(0, colDef.name.length-3)
                                                 }
                                             }
                                         };
@@ -134,11 +135,25 @@
                             }
                         };
                         disResrc.gridOptionInstances.data = [];
+                        if($rootScope.organNewEnt.instanceType === 'Managed') {
+                            $scope.instanceType= 'unmanagedInstances';
+                        } else if($rootScope.organNewEnt.instanceType === 'Assigned'){
+                            $scope.instanceType= 'unmanagedInstances';
+                        } else if($rootScope.organNewEnt.instanceType === 'Unassigned'){
+                            $scope.instanceType= 'unassigned-instances';
+                        }
                             var param = {
-                                url: '/providers/' + fltrObj.provider.id + '/' + $rootScope.organNewEnt.instanceType
+                                url: '/providers/' + fltrObj.provider.id + '/' + $scope.instanceType
                             };
                             genSevs.promiseGet(param).then(function (instResult) {
-                                disResrc.gridOptionInstances.data = instResult.data;
+                                if($rootScope.organNewEnt.instanceType === 'Managed') {
+                                    disResrc.gridOptionInstances.data = instResult.managedInstances;
+                                } else if($rootScope.organNewEnt.instanceType === 'Assigned'){
+                                    disResrc.gridOptionInstances.data = instResult.unmanagedInstances;
+                                } else if($rootScope.organNewEnt.instanceType === 'Unassigned'){
+                                    disResrc.gridOptionInstances.data = instResult.data;
+                                }
+
                             });
                     }, 200);
                 }
@@ -146,7 +161,14 @@
 
             $rootScope.stateItems = $state.params;
             $rootScope.organNewEnt.provider='0';
-            $rootScope.organNewEnt.instanceType='unassigned-instances';
+            $rootScope.organNewEnt.instanceType='Unassigned';
+            if($rootScope.organNewEnt.instanceType === 'Managed') {
+                $scope.instanceType= 'unmanagedInstances';
+            } else if($rootScope.organNewEnt.instanceType === 'Assigned'){
+                $scope.instanceType= 'unmanagedInstances';
+            } else if($rootScope.organNewEnt.instanceType === 'Unassigned'){
+                $scope.instanceType= 'unassigned-instances';
+            }
             analyticsServices.applyFilter(true,null);
             var treeNames = ['Cloud Management','Discovery','Resources'];
             $rootScope.$emit('treeNameUpdate', treeNames);
