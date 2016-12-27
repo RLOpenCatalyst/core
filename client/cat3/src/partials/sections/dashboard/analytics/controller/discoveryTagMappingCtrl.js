@@ -19,7 +19,7 @@
                         url: '/providers/' + fltrObj.provider.id + '/tag-mappings'
                     };
                     genSevs.promiseGet(param).then(function (tagResult) {
-                        $scope.newEnt = tagResult;
+                        //$scope.newEnt = tagResult;
                         disTgMap.getAllTags();
                     });
                 }
