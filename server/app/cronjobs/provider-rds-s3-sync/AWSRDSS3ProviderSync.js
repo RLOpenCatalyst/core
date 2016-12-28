@@ -16,8 +16,6 @@ AWSRDSS3ProviderSync.execute = awsRDSS3ProviderSync;
 
 module.exports = AWSRDSS3ProviderSync;
 
-AWSRDSS3ProviderSync.execute()
-
 function awsRDSS3ProviderSync() {
     MasterUtils.getAllActiveOrg(function(err, orgs) {
         if(err) {
