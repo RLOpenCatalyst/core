@@ -58,10 +58,73 @@
             disResrc.init=function () {
                 if(fltrObj && fltrObj.provider && fltrObj.provider.id) {
                     disResrc.getAllTagNames();
+
                     $timeout(function () {
                         console.log( $scope.TagName);
                         disResrc.gridOptionInstances = {
-                            columnDefs: [
+                            columnDefs: [],
+                            onRegisterApi: function (gridApi) {
+                                gridApi.edit.on.afterCellEdit($scope, function (rowEntity, colDef, newValue, oldValue) {
+                                        var param = {
+                                            url: '/providers/' + fltrObj.provider.id + '/unassigned-instances/' + rowEntity._id,
+                                            data: {
+                                                "tags": {
+                                                    "environment": newValue,
+                                                    "application": colDef.name.substring(0, colDef.name.length-3)
+                                                }
+                                            }
+                                        };
+                                    if(newValue !== oldValue) {
+                                        genSevs.promisePatch(param).then(function () {
+                                            toastr.success('Successfully updated.', 'Update');
+                                        });
+                                    }
+                                });
+                            }
+                        };
+                        disResrc.gridOptionInstances.data = [];
+                        if($rootScope.organNewEnt.instanceType === 'Managed') {
+                            $scope.instanceType= 'unmanagedInstances';
+                        } else if($rootScope.organNewEnt.instanceType === 'Assigned'){
+                            disResrc.gridOptionInstances.columnDefs=[
+                                {name: 'InstanceId', field: 'platformId',enableCellEditOnFocus: false,
+                                    enableCellEdit: false},
+                                {name: 'os', displayName: 'OS', enableCellEdit: false, type: 'number',enableCellEditOnFocus: false},
+                                {name: 'privateIpAddress', displayName: 'IP Address',enableCellEditOnFocus: false,
+                                    enableCellEdit: false},
+                                {name: 'state', displayName: 'Status',enableCellEditOnFocus: false,
+                                    enableCellEdit: false},
+                                {
+                                    name: 'Region',
+                                    displayName: 'Region',
+                                    field: 'providerData.region_name',
+                                    cellTooltip: true,enableCellEditOnFocus: false,
+                                    enableCellEdit: false
+                                },
+                                {name: 'orgName', displayName: 'Org Name', field: 'orgName', cellTooltip: true,enableCellEditOnFocus: false,
+                                    enableCellEdit: false},
+                                {
+                                    name: 'bgName',
+                                    displayName: 'BG Name',
+                                    field: 'bgName', cellTooltip: true,enableCellEditOnFocus: false,
+                                    enableCellEdit: false
+                                },
+                                {
+                                    name: 'projectName',
+                                    displayName: 'Project Name',
+                                    field: 'projectName', cellTooltip: true,enableCellEditOnFocus: false,
+                                    enableCellEdit: false
+                                },
+                                {
+                                    name: 'environmentName',
+                                    displayName: 'Env Name',
+                                    field: 'environmentName', cellTooltip: true,enableCellEditOnFocus: false,
+                                    enableCellEdit: false
+                                }
+                            ];
+                            $scope.instanceType= 'unmanagedInstances';
+                        } else if($rootScope.organNewEnt.instanceType === 'Unassigned'){
+                            disResrc.gridOptionInstances.columnDefs= [
                                 {name: 'InstanceId', field: 'platformId',enableCellEditOnFocus: false,
                                     enableCellEdit: false},
                                 {name: 'os', displayName: 'OS', enableCellEdit: false, type: 'number',enableCellEditOnFocus: false},
@@ -114,32 +177,7 @@
                                     editDropdownIdLabel: 'name',
                                     editDropdownValueLabel: 'id'
                                 }
-                            ],
-                            onRegisterApi: function (gridApi) {
-                                gridApi.edit.on.afterCellEdit($scope, function (rowEntity, colDef, newValue, oldValue) {
-                                        var param = {
-                                            url: '/providers/' + fltrObj.provider.id + '/unassigned-instances/' + rowEntity._id,
-                                            data: {
-                                                "tags": {
-                                                    "environment": newValue,
-                                                    "application": colDef.name.substring(0, colDef.name.length-3)
-                                                }
-                                            }
-                                        };
-                                    if(newValue !== oldValue) {
-                                        genSevs.promisePatch(param).then(function () {
-                                            toastr.success('Successfully updated.', 'Update');
-                                        });
-                                    }
-                                });
-                            }
-                        };
-                        disResrc.gridOptionInstances.data = [];
-                        if($rootScope.organNewEnt.instanceType === 'Managed') {
-                            $scope.instanceType= 'unmanagedInstances';
-                        } else if($rootScope.organNewEnt.instanceType === 'Assigned'){
-                            $scope.instanceType= 'unmanagedInstances';
-                        } else if($rootScope.organNewEnt.instanceType === 'Unassigned'){
+                            ]
                             $scope.instanceType= 'unassigned-instances';
                         }
                             var param = {

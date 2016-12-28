@@ -73,13 +73,16 @@ function awsProviderSyncForProvider(provider,orgName) {
                 assignedInstance: function(callback){
                     async.waterfall([
                         function(next){
-                            unassignedInstancesModel.getUnAssignedInstancesByProviderId(provider._id,next)
+                            unassignedInstancesModel.getUnAssignedInstancesByProviderId(provider._id,next);
                         },
                         function(unassignedInstances,next){
                             tagMappingForInstances(unassignedInstances,provider,next);
                         },
                         function(assignedInstances,next){
                             saveAssignedInstances(assignedInstances,next);
+                        },
+                        function(instances,next){
+                            assignedInstancesDao.getInstanceByProviderId(provider._id,next);
                         }
                     ],function(err,results){
                         if(err){
@@ -95,6 +98,9 @@ function awsProviderSyncForProvider(provider,orgName) {
                 next(null,results);
             });
         },
+        function(assignedInstances,next){
+            syncAssignedInstancesWithTagMapping(assignedInstances.assignedInstance,provider,next);
+        }
     ],function (err, results) {
         if (err) {
             logger.error(err);
@@ -192,7 +198,6 @@ function saveEC2Data(ec2Info,provider, callback){
     };
 };
 
-//@TODO To be re-factored
 function tagMappingForInstances(instances,provider,next){
     tagsModel.getTagsByProviderId(provider._id, function (err, tagDetails) {
         if (err) {
@@ -222,23 +227,24 @@ function tagMappingForInstances(instances,provider,next){
         if(instances.length > 0) {
             for (var i = 0; i < instances.length; i++) {
                 (function(instance) {
-                    var catalystProjectId = null;
-                    var catalystProjectName = null;
-                    var catalystEnvironmentId = null;
-                    var catalystEnvironmentName = null;
-                    var catalystBgId = null;
-                    var catalystBgName = null;
-                    var assignmentFound = false;
                     if(instance.tags) {
+                        var catalystProjectId = null;
+                        var catalystProjectName = null;
+                        var catalystEnvironmentId = null;
+                        var catalystEnvironmentName = null;
+                        var catalystBgId = null;
+                        var catalystBgName = null;
+                        var assignmentFound = false;
                         if ((bgTag !== null || projectTag !== null || environmentTag !== null) && (instance.isDeleted === false)){
                             if(bgTag !== null && bgTag.name in instance.tags) {
                                 var entityMappingArray
                                     = Object.keys(bgTag.catalystEntityMapping).map(
                                     function(k){return bgTag.catalystEntityMapping[k]});
+
                                 for (var y = 0; y < entityMappingArray.length; y++) {
-                                    if (entityMappingArray[y].tagValue !== '' && instance.tags[bgTag.name] !== ''
-                                        && 'tagValues' in entityMappingArray[y]
-                                        && instance.tags[bgTag.name] in entityMappingArray[y].tagValues) {
+                                    if ((instance.tags[bgTag.name] !== '')
+                                        && ('tagValues' in entityMappingArray[y])
+                                        && (entityMappingArray[y].tagValues.indexOf(instance.tags[bgTag.name]) >= 0)) {
                                         catalystBgId = entityMappingArray[y].catalystEntityId;
                                         catalystBgName = entityMappingArray[y].catalystEntityName;
                                         break;
@@ -249,10 +255,12 @@ function tagMappingForInstances(instances,provider,next){
                                 var entityMappingArray
                                     = Object.keys(projectTag.catalystEntityMapping).map(
                                     function(k){return projectTag.catalystEntityMapping[k]});
+
                                 for (var y = 0; y < entityMappingArray.length; y++) {
-                                    if (entityMappingArray[y].tagValue !== '' && instance.tags[projectTag.name] !== ''
-                                        && 'tagValues' in entityMappingArray[y]
-                                        && instance.tags[projectTag.name] in entityMappingArray[y].tagValues) {
+                                    if ((instance.tags[projectTag.name] !== '')
+                                        && ('tagValues' in entityMappingArray[y])
+                                        && (entityMappingArray[y].tagValues.indexOf(instance.tags[projectTag.name])
+                                        >= 0)) {
                                         catalystProjectId = entityMappingArray[y].catalystEntityId;
                                         catalystProjectName = entityMappingArray[y].catalystEntityName;
                                         break;
@@ -263,10 +271,12 @@ function tagMappingForInstances(instances,provider,next){
                                 var entityMappingArray
                                     = Object.keys(environmentTag.catalystEntityMapping).map(
                                     function(k){return environmentTag.catalystEntityMapping[k]});
+
                                 for (var y = 0; y < entityMappingArray.length; y++) {
-                                    if (entityMappingArray[y].tagValue !== '' && instance.tags[environmentTag.name] !== ''
-                                        && 'tagValues' in entityMappingArray[y]
-                                        && instance.tags[environmentTag.name] in entityMappingArray[y].tagValues) {
+                                    if ((instance.tags[environmentTag.name] !== '')
+                                        && ('tagValues' in entityMappingArray[y])
+                                        && (entityMappingArray[y].tagValues.indexOf(instance.tags[environmentTag.name])
+                                        >= 0)) {
                                         catalystEnvironmentId = entityMappingArray[y].catalystEntityId;
                                         catalystEnvironmentName = entityMappingArray[y].catalystEntityName;
                                         break;
@@ -363,6 +373,148 @@ function saveAssignedInstances(assignedInstances,callback){
         }
     }else{
         callback(null,assignedInstances);
+        return;
+    }
+}
+
+function syncAssignedInstancesWithTagMapping(assignedInstances,provider,callback){
+    if(assignedInstances.length > 0){
+        tagsModel.getTagsByProviderId(provider._id, function (err, tagDetails) {
+            if (err) {
+                logger.error("Unable to get tags", err);
+                callback(err);
+                return;
+            }
+            var projectTag = null;
+            var environmentTag = null;
+            var bgTag = null;
+            var count = 0;
+            if (tagDetails.length > 0) {
+                for (var i = 0; i < tagDetails.length; i++) {
+                    if (('catalystEntityType' in tagDetails[i]) && tagDetails[i].catalystEntityType == 'project') {
+                        projectTag = tagDetails[i];
+                    } else if (('catalystEntityType' in tagDetails[i])
+                        && tagDetails[i].catalystEntityType == 'environment') {
+                        environmentTag = tagDetails[i];
+                    } else if (('catalystEntityType' in tagDetails[i])
+                        && tagDetails[i].catalystEntityType == 'businessGroup') {
+                        bgTag = tagDetails[i];
+                    }
+                }
+                for(var j = 0; j < assignedInstances.length; j++){
+                    (function(assignedInstance){
+                        var catalystProjectId = null;
+                        var catalystProjectName = null;
+                        var catalystEnvironmentId = null;
+                        var catalystEnvironmentName = null;
+                        var catalystBgId = null;
+                        var catalystBgName = null;
+                        if(bgTag !== null && bgTag.name in assignedInstance.tags) {
+                            var entityMappingArray
+                                = Object.keys(bgTag.catalystEntityMapping).map(
+                                function(k){return bgTag.catalystEntityMapping[k]});
+                            for (var y = 0; y < entityMappingArray.length; y++) {
+                                if (entityMappingArray[y].tagValue !== '' && assignedInstance.tags[bgTag.name] !== ''
+                                    && 'tagValues' in entityMappingArray[y]
+                                    && assignedInstance.tags[bgTag.name] in entityMappingArray[y].tagValues) {
+                                    catalystBgId = entityMappingArray[y].catalystEntityId;
+                                    catalystBgName = entityMappingArray[y].catalystEntityName;
+                                    break;
+                                }
+                            }
+                        }
+                        if(projectTag !== null && projectTag.name in assignedInstance.tags) {
+                            var entityMappingArray
+                                = Object.keys(projectTag.catalystEntityMapping).map(
+                                function(k){return projectTag.catalystEntityMapping[k]});
+                            for (var y = 0; y < entityMappingArray.length; y++) {
+                                if (entityMappingArray[y].tagValue !== '' && assignedInstance.tags[projectTag.name] !== ''
+                                    && 'tagValues' in entityMappingArray[y]
+                                    && assignedInstance.tags[projectTag.name] in entityMappingArray[y].tagValues) {
+                                    catalystProjectId = entityMappingArray[y].catalystEntityId;
+                                    catalystProjectName = entityMappingArray[y].catalystEntityName;
+                                    break;
+                                }
+                            }
+                        }
+                        if(environmentTag !== null && environmentTag.name in assignedInstance.tags) {
+                            var entityMappingArray
+                                = Object.keys(environmentTag.catalystEntityMapping).map(
+                                function(k){return environmentTag.catalystEntityMapping[k]});
+                            for (var y = 0; y < entityMappingArray.length; y++) {
+                                if (entityMappingArray[y].tagValue !== '' && assignedInstance.tags[environmentTag.name] !== ''
+                                    && 'tagValues' in entityMappingArray[y]
+                                    && assignedInstance.tags[environmentTag.name] in entityMappingArray[y].tagValues) {
+                                    catalystEnvironmentId = entityMappingArray[y].catalystEntityId;
+                                    catalystEnvironmentName = entityMappingArray[y].catalystEntityName;
+                                    break;
+                                }
+                            }
+                        }
+                        if (catalystBgId !== null || catalystProjectId !== null || catalystEnvironmentId !== null) {
+                            var masterDetails= {
+                                bgId: catalystBgId,
+                                bgName: catalystBgName,
+                                projectId: catalystProjectId,
+                                projectName: catalystProjectName,
+                                environmentId: catalystEnvironmentId,
+                                environmentName: catalystEnvironmentName
+                            };
+                            assignedInstancesDao.updateInstanceMasterDetails(assignedInstance._id,masterDetails,function(err,data){
+                                if(err){
+                                    logger.error("Unable to update master details of assigned Instance", err);
+                                    count++;
+                                    if(count === assignedInstances.length){
+                                        callback(null,assignedInstances);
+                                        return;
+                                    }
+                                }else{
+                                    count++;
+                                    if(count === assignedInstances.length){
+                                        callback(null,assignedInstances);
+                                        return;
+                                    }
+                                }
+                            });
+                        }else{
+                            assignedInstancesDao.removeInstanceByInstanceId(assignedInstance._id,function(err,data){
+                                if(err){
+                                    logger.error("Unable to remove assigned Instance", err);
+                                    count++;
+                                    if(count === assignedInstances.length){
+                                        callback(null,assignedInstances);
+                                        return;
+                                    }
+                                }else{
+                                    count++;
+                                    if(count === assignedInstances.length){
+                                        callback(null,assignedInstances);
+                                        return;
+                                    }
+                                }
+                            });
+                        }
+
+                    })(assignedInstances[j]);
+                }
+            } else {
+                logger.info("There is no Tag Mapping");
+                assignedInstancesDao.removeInstancesByProviderId(provider._id,function(err,data){
+                    if(err){
+                        logger.error("Unable to remove assigned Instance", err);
+                        callback(err);
+                        return;
+                    }else{
+                        callback(null, data);
+                        return;
+                    }
+                });
+            }
+        })
+    }else{
+        logger.info("There is no Assigned Instances for Tag Mapping Sync");
+        callback(null,assignedInstances);
+        return;
     }
 }
 
