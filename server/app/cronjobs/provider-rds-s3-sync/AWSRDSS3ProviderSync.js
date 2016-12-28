@@ -335,7 +335,7 @@ function tagMappingForResources(resources,provider,next){
                     projectTag = tagDetails[i];
                 }else if (('catalystEntityType' in tagDetails[i]) && tagDetails[i].catalystEntityType == 'environment') {
                     environmentTag = tagDetails[i];
-                }else if (('catalystEntityType' in tagDetails[i]) && tagDetails[i].catalystEntityType == 'bgName') {
+                }else if (('catalystEntityType' in tagDetails[i]) && tagDetails[i].catalystEntityType == 'businessGroup') {
                     bgTag = tagDetails[i];
                 }
             }
@@ -353,33 +353,48 @@ function tagMappingForResources(resources,provider,next){
                     var catalystBgId = null;
                     var catalystBgName = null;
                     var assignmentFound = false;
-                    if ((bgTag !== null || projectTag !== null || environmentTag !== null) && (resources[j].isDeleted === false)){
+                    if ((bgTag !== null || projectTag !== null || environmentTag !== null)
+                        && (resources[j].isDeleted === false)){
+
                         if(bgTag !== null && bgTag.name in resources[j].tags) {
-                            for (var y = 0; y < bgTag.catalystEntityMapping.length; y++) {
-                                if (bgTag.catalystEntityMapping[y].tagValue !== '' && resources[j].tags[bgTag.name] !== ''
-                                    && bgTag.catalystEntityMapping[y].tagValue === resources[j].tags[bgTag.name]) {
-                                    catalystBgId = bgTag.catalystEntityMapping[y].catalystEntityId;
-                                    catalystBgName = bgTag.catalystEntityMapping[y].catalystEntityName;
+                            var bgEntityMappings = Object.keys(bgTag.catalystEntityMapping).map(
+                                function(k){return bgTag.catalystEntityMapping[k]});
+
+                            for (var y = 0; y < bgEntityMappings.length; y++) {
+                                if ((resources[j].tags[bgTag.name] !== '') && ('tagValues' in bgEntityMappings[y])
+                                    && (bgEntityMappings[y].tagValues.indexOf(resources[j].tags[bgTag.name])
+                                    >= 0)) {
+                                    catalystBgId = bgEntityMappings[y].catalystEntityId;
+                                    catalystBgName = bgEntityMappings[y].catalystEntityName;
                                     break;
                                 }
                             }
                         }
                         if(projectTag !== null && projectTag.name in resources[j].tags) {
-                            for (var y = 0; y < projectTag.catalystEntityMapping.length; y++) {
-                                if (projectTag.catalystEntityMapping[y].tagValue !== '' && resources[j].tags[projectTag.name] !== '' &&
-                                    projectTag.catalystEntityMapping[y].tagValue === resources[j].tags[projectTag.name]) {
-                                    catalystProjectId = projectTag.catalystEntityMapping[y].catalystEntityId;
-                                    catalystProjectName = projectTag.catalystEntityMapping[y].catalystEntityName;
+                            var projectEntityMappings = Object.keys(projectTag.catalystEntityMapping).map(
+                                function(k){return projectTag.catalystEntityMapping[k]});
+
+                            for (var y = 0; y < projectEntityMappings.length; y++) {
+                                if ((resources[j].tags[bgTag.name] !== '') && ('tagValues' in projectEntityMappings[y])
+                                    && (projectEntityMappings[y].tagValues.indexOf(resources[j].tags[projectTag.name])
+                                    >= 0)) {
+                                    catalystProjectId = projectEntityMappings[y].catalystEntityId;
+                                    catalystProjectName = projectEntityMappings[y].catalystEntityName;
                                     break;
                                 }
                             }
                         }
                         if(environmentTag !== null && environmentTag.name in resources[j].tags) {
+                            var environmentEntityMappings = Object.keys(environmentTag.catalystEntityMapping).map(
+                                function(k){return environmentTag.catalystEntityMapping[k]});
+
                             for (var y = 0; y < environmentTag.catalystEntityMapping.length; y++) {
-                                if (environmentTag.catalystEntityMapping[y].tagValue !== '' && resources[j].tags[environmentTag.name] !== '' &&
-                                    environmentTag.catalystEntityMapping[y].tagValue === resources[j].tags[environmentTag.name]) {
-                                    catalystEnvironmentId = environmentTag.catalystEntityMapping[y].catalystEntityId;
-                                    catalystEnvironmentName = environmentTag.catalystEntityMapping[y].catalystEntityName;
+                                if ((resources[j].tags[bgTag.name] !== '')
+                                    && ('tagValues' in environmentEntityMappings[y])
+                                    && (environmentEntityMappings[y].tagValues.indexOf(
+                                        resources[j].tags[environmentTag.name]) >= 0)) {
+                                    catalystEnvironmentId = environmentEntityMappings[y].catalystEntityId;
+                                    catalystEnvironmentName = environmentEntityMappings[y].catalystEntityName;
                                     break;
                                 }
                             }
