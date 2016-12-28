@@ -207,7 +207,7 @@
         $scope.getResourse = function(instType) {
 			$rootScope.filterNewEnt.resources=[];
 			$scope.selectedResources=[];
-        	if(instType === 'managedInstances') {
+        	if(instType === 'Managed') {
 	        	workzoneServices.getManagedInstances($scope.filter.providerId).then(function(response) {
 					if(response.data && response.data.managedInstances &&  response.data.managedInstances.length >0){
 						$scope.resourceList = response.data.managedInstances;
@@ -218,7 +218,7 @@
 	                toastr.error(error);
 	            });
 	        }
-	        if(instType === 'unmanagedInstances') {
+	        if(instType === 'Assigned') {
 	            workzoneServices.getAssignedInstances($scope.filter.providerId).then(function(response) {
 					if(response.data && response.data.unmanagedInstances.length >0){
 						$scope.resourceList = response.data.unmanagedInstances;
@@ -230,7 +230,7 @@
 	                toastr.error(error);
 	            });
 	        }
-	        if(instType === 'unassigned-instances') {
+	        if(instType === 'Unassigned') {
 	            workzoneServices.getUnassignedInstances($scope.filter.providerId).then(function(response) {
 					if(response.data && response.data.data && response.data.data.length >0){
 						$scope.resourceList = response.data.data;
