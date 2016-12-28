@@ -99,7 +99,7 @@ function awsProviderSyncForProvider(provider,orgName) {
             });
         },
         function(assignedInstances,next){
-            syncAssignedInstancesWithTagMapping(assignedInstances.assignedInstance,provider.next);
+            syncAssignedInstancesWithTagMapping(assignedInstances.assignedInstance,provider,next);
         }
     ],function (err, results) {
         if (err) {
