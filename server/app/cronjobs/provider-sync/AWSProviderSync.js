@@ -227,14 +227,14 @@ function tagMappingForInstances(instances,provider,next){
         if(instances.length > 0) {
             for (var i = 0; i < instances.length; i++) {
                 (function(instance) {
-                    var catalystProjectId = null;
-                    var catalystProjectName = null;
-                    var catalystEnvironmentId = null;
-                    var catalystEnvironmentName = null;
-                    var catalystBgId = null;
-                    var catalystBgName = null;
-                    var assignmentFound = false;
                     if(instance.tags) {
+                        var catalystProjectId = null;
+                        var catalystProjectName = null;
+                        var catalystEnvironmentId = null;
+                        var catalystEnvironmentName = null;
+                        var catalystBgId = null;
+                        var catalystBgName = null;
+                        var assignmentFound = false;
                         if ((bgTag !== null || projectTag !== null || environmentTag !== null) && (instance.isDeleted === false)){
                             if(bgTag !== null && bgTag.name in instance.tags) {
                                 var entityMappingArray
