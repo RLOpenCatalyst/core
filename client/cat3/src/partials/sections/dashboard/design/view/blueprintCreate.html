@@ -216,9 +216,11 @@
                            </accordion-heading>
                            <div class="col-lg-4 col-md-4">
                               <label for="blueprintNameInput">Enter Blueprint Name:<span class="red"  >&nbsp;*</span>
-                                 <span ng-show="newBlueprintForm.blueprintNameInput.$touched && newBlueprintForm.blueprintNameInput.$invalid" class="inputValidationMsg">Required</span>
+                                 <span ng-show="newBlueprintForm.blueprintNameInput.$dirty && newBlueprintForm.blueprintNameInput.$error.required" class="inputValidationMsg">Required</span>
+                                 <span class="red inputValidationMsg" ng-show="newBlueprintForm.blueprintNameInput.$error.maxlength">
+                                 (only 25 chars allowed)</span>
                               </label>
-                              <input ng-model="bpCreate.newEnt.blueprintName" name="blueprintNameInput" class="form-control" type="text" autofocus="autofocus" required>
+                              <input ng-model="bpCreate.newEnt.blueprintName" ng-maxlength="25" name="blueprintNameInput" class="form-control" type="text" autofocus="autofocus" required>
                            </div>
                            <div class="col-lg-4 col-md-4">
                               <label for="orgnameSelect">Select Organization <span class="red">&nbsp;*</span>
@@ -533,8 +535,9 @@
                                     Configure Resource : {{key}}
                                  </accordion-heading>
                                  <div class="col-lg-6 col-md-6 margintop15">
-                                    <label for="cftUserName">Instance Username<span class="red">&nbsp;*</span></label>
-                                    <input type="text" ng-model="bpCreate.newEnt.cftModelResources[key]" name="cftUserName" class="form-control"/>
+                                    <label for="cftUserName">Instance Username<span class="red">&nbsp;*</span>
+                                       <span ng-show="newBlueprintForm.cftUserName.$touched && newBlueprintForm.cftUserName.$invalid" class="inputValidationMsg">Required</span></label>
+                                    <input type="text" ng-model="bpCreate.newEnt.cftModelResources[key]" name="cftUserName" class="form-control" required/>
                                  </div>
                                  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <span class="cursor pull-right">
