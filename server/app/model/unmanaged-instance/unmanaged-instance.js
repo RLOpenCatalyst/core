@@ -112,6 +112,25 @@ UnmanagedInstanceSchema.statics.updateInstance = function updateInstance(instanc
 	});
 };
 
+UnmanagedInstanceSchema.statics.updateInstanceMasterDetails = function updateInstanceMasterDetails(instanceId,masterDetails,callBack) {
+	this.update({
+		"platformId": instanceId,
+	}, {
+		$set: masterDetails
+	}, function(err, data) {
+		if (err) {
+			logger.error("Failed to update Unmanaged Instance data", err);
+			if (typeof callBack == 'function') {
+				callBack(err, null);
+			}
+			return;
+		}
+		if (typeof callBack == 'function') {
+			callBack(null, data);
+		}
+	});
+};
+
 UnmanagedInstanceSchema.statics.getAll = function getAll(query, callback) {
 	query.queryObj.isDeleted =  false;
 	this.paginate(query.queryObj, query.options,
@@ -140,6 +159,16 @@ UnmanagedInstanceSchema.statics.removeInstancesByProviderId = function(providerI
 	var queryObj={};
 	queryObj['providerId'] =providerId;
 	this.remove(queryObj, function(err, data) {
+		if (err) {
+			return callback(err, null);
+		} else {
+			callback(null, data);
+		}
+	});
+};
+
+UnmanagedInstanceSchema.statics.removeInstanceByInstanceId = function(instanceId,callback) {
+	this.remove({_id: new ObjectId(instanceId)}, function(err, data) {
 		if (err) {
 			return callback(err, null);
 		} else {
@@ -189,7 +218,6 @@ UnmanagedInstanceSchema.statics.getInstanceByProviderId = function(providerId, c
 		}
 		logger.debug("Exit getInstanceByProviderId (%s)", providerId);
 		callback(null, data);
-
 	});
 };
 
