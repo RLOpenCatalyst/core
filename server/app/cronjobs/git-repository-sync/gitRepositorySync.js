@@ -4,7 +4,7 @@ var CatalystCronJob = require('_pr/cronjobs/CatalystCronJob');
 var nodeGit =  require('nodegit');
 var promisify = require("promisify-node");
 var fse = promisify(require("fs-extra"));
-var path = "/tmp/bot-factory";
+var path = "/tmp/rl-bot-factory";
 var Promise = require('promise');
 
 var gitRepoSync = Object.create(CatalystCronJob);

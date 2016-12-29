@@ -495,10 +495,11 @@ function syncAssignedResourcesWithTagMapping(assignedResources,provider,callback
                             var entityMappingArray
                                 = Object.keys(bgTag.catalystEntityMapping).map(
                                 function(k){return bgTag.catalystEntityMapping[k]});
+
                             for (var y = 0; y < entityMappingArray.length; y++) {
-                                if (entityMappingArray[y].tagValue !== '' && assignedResource.tags[bgTag.name] !== ''
-                                    && 'tagValues' in entityMappingArray[y]
-                                    && assignedResource.tags[bgTag.name] in entityMappingArray[y].tagValues) {
+                                if ((assignedResource.tags[bgTag.name] !== '')
+                                    && ('tagValues' in entityMappingArray[y])
+                                    && (entityMappingArray[y].tagValues.indexOf(assignedResource.tags[bgTag.name]) >= 0)) {
                                     catalystBgId = entityMappingArray[y].catalystEntityId;
                                     catalystBgName = entityMappingArray[y].catalystEntityName;
                                     break;
@@ -509,10 +510,12 @@ function syncAssignedResourcesWithTagMapping(assignedResources,provider,callback
                             var entityMappingArray
                                 = Object.keys(projectTag.catalystEntityMapping).map(
                                 function(k){return projectTag.catalystEntityMapping[k]});
+
                             for (var y = 0; y < entityMappingArray.length; y++) {
-                                if (entityMappingArray[y].tagValue !== '' && assignedResource.tags[projectTag.name] !== ''
-                                    && 'tagValues' in entityMappingArray[y]
-                                    && assignedResource.tags[projectTag.name] in entityMappingArray[y].tagValues) {
+                                if ((assignedResource.tags[projectTag.name] !== '')
+                                    && ('tagValues' in entityMappingArray[y])
+                                    && (entityMappingArray[y].tagValues.indexOf(assignedResource.tags[projectTag.name])
+                                    >= 0)) {
                                     catalystProjectId = entityMappingArray[y].catalystEntityId;
                                     catalystProjectName = entityMappingArray[y].catalystEntityName;
                                     break;
@@ -523,10 +526,12 @@ function syncAssignedResourcesWithTagMapping(assignedResources,provider,callback
                             var entityMappingArray
                                 = Object.keys(environmentTag.catalystEntityMapping).map(
                                 function(k){return environmentTag.catalystEntityMapping[k]});
+
                             for (var y = 0; y < entityMappingArray.length; y++) {
-                                if (entityMappingArray[y].tagValue !== '' && assignedResource.tags[environmentTag.name] !== ''
-                                    && 'tagValues' in entityMappingArray[y]
-                                    && assignedResource.tags[environmentTag.name] in entityMappingArray[y].tagValues) {
+                                if ((assignedResource.tags[environmentTag.name] !== '')
+                                    && ('tagValues' in entityMappingArray[y])
+                                    && (entityMappingArray[y].tagValues.indexOf(assignedResource.tags[environmentTag.name])
+                                    >= 0)) {
                                     catalystEnvironmentId = entityMappingArray[y].catalystEntityId;
                                     catalystEnvironmentName = entityMappingArray[y].catalystEntityName;
                                     break;
