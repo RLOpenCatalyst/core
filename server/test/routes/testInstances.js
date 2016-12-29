@@ -59,21 +59,53 @@ describe("Deploy Permission ",function(){
             });
     });*/
 
-    it(" Save and Update deploy permission  ",function(done){
+    it(" Save Git Hub  ",function(done){
         var reqBody = {
-            "projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
-            "envName": "Dev",
-            "appName": "D4D",
-            "version": "3.02.100",
-            "comments":"Durgesh Sharma",
-            "isApproved": true
+            "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
+            "name": "RL-Bot-Library",
+            "description": "RL-BOTs Factory",
+            "repositoryName": "RLIndia/botsfactory",
+            "isAuthenticated":true,
+            "repositoryUserName": "Durgesh1988",
+            "repositoryPassword": "Durgesh@123"
 
         };
             server
-            .post('/deploy-permission/save/permissionData')
+            .post('/git-hub')
             .send(reqBody)
             .end(function(err,res){
                 console.log(res.body);
+                assert.equal(res.status, 201);
+                done();
+            });
+    });
+
+    it(" Update Git Hub  ",function(done){
+        var reqBody = {
+            "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
+            "name": "Bot-Library-Catalyst",
+            "description": "BOTs Factory Catalyst",
+            "repositoryName": "RLIndia/botsfactory",
+            "isAuthenticated":true,
+            "repositoryUserName": "Durgesh1988",
+            "repositoryPassword": "Durgesh@123"
+
+        };
+        server
+            .put('/git-hub/5864e1a67beeb0fd27591e23')
+            .send(reqBody)
+            .end(function(err,res){
+                console.log(res);
+                assert.equal(res.status, 200);
+                done();
+            });
+    });
+
+    it(" Delete Git Hub  ",function(done){
+        server
+            .delete('/git-hub/5864e1a67beeb0fd27591e23')
+            .end(function(err,res){
+                console.log(res);
                 assert.equal(res.status, 200);
                 done();
             });
