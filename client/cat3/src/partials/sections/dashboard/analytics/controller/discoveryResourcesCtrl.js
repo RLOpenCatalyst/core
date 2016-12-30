@@ -229,7 +229,7 @@
                                     }
                                 };
                             });
-                    }, 200);
+                    }, 2000);
                 }
             };
             disResrc.importInstance =function ($event) {
