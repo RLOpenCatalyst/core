@@ -168,7 +168,7 @@ UnmanagedInstanceSchema.statics.removeInstancesByProviderId = function(providerI
 };
 
 UnmanagedInstanceSchema.statics.removeInstanceByInstanceId = function(instanceId,callback) {
-	this.remove({_id: new ObjectId(instanceId)}, function(err, data) {
+	this.remove({"_id": ObjectId(instanceId)}, function(err, data) {
 		if (err) {
 			return callback(err, null);
 		} else {

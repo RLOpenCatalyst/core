@@ -19,6 +19,8 @@ AWSProviderSync.execute = awsProviderSync;
 
 module.exports = AWSProviderSync;
 
+// AWSProviderSync.execute();
+
 // @TODO Simplify methods
 function awsProviderSync() {
     MasterUtils.getAllActiveOrg(function(err, orgs) {
@@ -76,7 +78,7 @@ function awsProviderSyncForProvider(provider,orgName) {
                             unassignedInstancesModel.getUnAssignedInstancesByProviderId(provider._id,next);
                         },
                         function(unassignedInstances,next){
-                            tagMappingForInstances(unassignedInstances,provider,next);
+                            tagMappingSyncForInstances(unassignedInstances,provider,'unassigned',next);
                         },
                         function(assignedInstances,next){
                             saveAssignedInstances(assignedInstances,next);
@@ -99,7 +101,7 @@ function awsProviderSyncForProvider(provider,orgName) {
             });
         },
         function(assignedInstances,next){
-            syncAssignedInstancesWithTagMapping(assignedInstances.assignedInstance,provider,next);
+            tagMappingSyncForInstances(assignedInstances.assignedInstance,provider,'assigned',next);
         }
     ],function (err, results) {
         if (err) {
@@ -198,7 +200,8 @@ function saveEC2Data(ec2Info,provider, callback){
     };
 };
 
-function tagMappingForInstances(instances,provider,next){
+
+function tagMappingSyncForInstances(instances,provider,category,next){
     tagsModel.getTagsByProviderId(provider._id, function (err, tagDetails) {
         if (err) {
             logger.error("Unable to get tags", err);
@@ -227,117 +230,155 @@ function tagMappingForInstances(instances,provider,next){
         if(instances.length > 0) {
             for (var i = 0; i < instances.length; i++) {
                 (function(instance) {
-                    if(instance.tags) {
+                    if (instance.tags) {
                         var catalystProjectId = null;
                         var catalystProjectName = null;
                         var catalystEnvironmentId = null;
                         var catalystEnvironmentName = null;
                         var catalystBgId = null;
                         var catalystBgName = null;
-                        var assignmentFound = false;
-                        if ((bgTag !== null || projectTag !== null || environmentTag !== null) && (instance.isDeleted === false)){
-                            if(bgTag !== null && bgTag.name in instance.tags) {
-                                var entityMappingArray
-                                    = Object.keys(bgTag.catalystEntityMapping).map(
-                                    function(k){return bgTag.catalystEntityMapping[k]});
+                        if (bgTag !== null && bgTag.name in instance.tags) {
+                            var bgMappingArray
+                                = Object.keys(bgTag.catalystEntityMapping).map(
+                                function (k) {
+                                    return bgTag.catalystEntityMapping[k]
+                                });
 
-                                for (var y = 0; y < entityMappingArray.length; y++) {
-                                    if ((instance.tags[bgTag.name] !== '')
-                                        && ('tagValues' in entityMappingArray[y])
-                                        && (entityMappingArray[y].tagValues.indexOf(instance.tags[bgTag.name]) >= 0)) {
-                                        catalystBgId = entityMappingArray[y].catalystEntityId;
-                                        catalystBgName = entityMappingArray[y].catalystEntityName;
-                                        break;
-                                    }
+                            for (var y = 0; y < bgMappingArray.length; y++) {
+                                if ((instance.tags[bgTag.name] !== '')
+                                    && ('tagValues' in bgMappingArray[y])
+                                    && (bgMappingArray[y].tagValues.indexOf(instance.tags[bgTag.name]) >= 0)) {
+                                    catalystBgId = bgMappingArray[y].catalystEntityId;
+                                    catalystBgName = bgMappingArray[y].catalystEntityName;
+                                    break;
                                 }
                             }
-                            if(projectTag !== null && projectTag.name in instance.tags) {
-                                var entityMappingArray
-                                    = Object.keys(projectTag.catalystEntityMapping).map(
-                                    function(k){return projectTag.catalystEntityMapping[k]});
+                        }
+                        if (projectTag !== null && projectTag.name in instance.tags) {
+                            var projectMappingArray
+                                = Object.keys(projectTag.catalystEntityMapping).map(
+                                function (k) {
+                                    return projectTag.catalystEntityMapping[k]
+                                });
 
-                                for (var y = 0; y < entityMappingArray.length; y++) {
-                                    if ((instance.tags[projectTag.name] !== '')
-                                        && ('tagValues' in entityMappingArray[y])
-                                        && (entityMappingArray[y].tagValues.indexOf(instance.tags[projectTag.name])
-                                        >= 0)) {
-                                        catalystProjectId = entityMappingArray[y].catalystEntityId;
-                                        catalystProjectName = entityMappingArray[y].catalystEntityName;
-                                        break;
-                                    }
+                            for (var y = 0; y < projectMappingArray.length; y++) {
+                                if ((instance.tags[projectTag.name] !== '')
+                                    && ('tagValues' in projectMappingArray[y])
+                                    && (projectMappingArray[y].tagValues.indexOf(instance.tags[projectTag.name])
+                                    >= 0)) {
+                                    catalystProjectId = projectMappingArray[y].catalystEntityId;
+                                    catalystProjectName = projectMappingArray[y].catalystEntityName;
+                                    break;
                                 }
                             }
-                            if(environmentTag !== null && environmentTag.name in instance.tags) {
-                                var entityMappingArray
-                                    = Object.keys(environmentTag.catalystEntityMapping).map(
-                                    function(k){return environmentTag.catalystEntityMapping[k]});
+                        }
+                        if (environmentTag !== null && environmentTag.name in instance.tags) {
+                            var environmentMappingArray
+                                = Object.keys(environmentTag.catalystEntityMapping).map(
+                                function (k) {
+                                    return environmentTag.catalystEntityMapping[k]
+                                });
 
-                                for (var y = 0; y < entityMappingArray.length; y++) {
-                                    if ((instance.tags[environmentTag.name] !== '')
-                                        && ('tagValues' in entityMappingArray[y])
-                                        && (entityMappingArray[y].tagValues.indexOf(instance.tags[environmentTag.name])
-                                        >= 0)) {
-                                        catalystEnvironmentId = entityMappingArray[y].catalystEntityId;
-                                        catalystEnvironmentName = entityMappingArray[y].catalystEntityName;
-                                        break;
-                                    }
+                            for (var y = 0; y < environmentMappingArray.length; y++) {
+                                if ((instance.tags[environmentTag.name] !== '')
+                                    && ('tagValues' in environmentMappingArray[y])
+                                    && (environmentMappingArray[y].tagValues.indexOf(instance.tags[environmentTag.name])
+                                    >= 0)) {
+                                    catalystEnvironmentId = environmentMappingArray[y].catalystEntityId;
+                                    catalystEnvironmentName = environmentMappingArray[y].catalystEntityName;
+                                    break;
                                 }
                             }
-                            if (catalystBgId !== null || catalystProjectId !== null || catalystEnvironmentId !== null) {
-                                assignmentFound = true;
-                            }
-                            if (assignmentFound === true) {
-                                unassignedInstancesModel.removeInstanceById(instance._id, function (err, data) {
-                                    if (err) {
-                                        logger.error(err);
-                                        count++;
-                                        return;
+                        }
+
+                        if ((catalystBgId !== null || catalystProjectId !== null || catalystEnvironmentId !== null) && category === 'unassigned') {
+                            unassignedInstancesModel.removeInstanceById(instance._id, function (err, data) {
+                                if (err) {
+                                    logger.error(err);
+                                    count++;
+                                    return;
+                                } else {
+                                    var assignedInstanceObj = {
+                                        orgId: instance.orgId,
+                                        orgName: instance.orgName,
+                                        bgId: catalystBgId,
+                                        bgName: catalystBgName,
+                                        projectId: catalystProjectId,
+                                        projectName: catalystProjectName,
+                                        environmentId: catalystEnvironmentId,
+                                        environmentName: catalystEnvironmentName,
+                                        providerId: instance.providerId,
+                                        providerType: instance.providerType,
+                                        providerData: instance.providerData,
+                                        platformId: instance.platformId,
+                                        ip: instance.ip,
+                                        os: instance.os,
+                                        state: instance.state,
+                                        subnetId: instance.subnetId,
+                                        vpcId: instance.vpcId,
+                                        privateIpAddress: instance.privateIpAddress,
+                                        hostName: instance.hostName,
+                                        tags: instance.tags,
+                                    }
+                                    assignedInstanceList.push(assignedInstanceObj);
+                                    assignedInstanceObj = {};
+                                    count++;
+                                    if (count === instances.length) {
+                                        next(null, assignedInstanceList);
                                     } else {
-                                        var assignedInstanceObj = {
-                                            orgId: instance.orgId,
-                                            orgName: instance.orgName,
-                                            bgId: catalystBgId,
-                                            bgName: catalystBgName,
-                                            projectId: catalystProjectId,
-                                            projectName: catalystProjectName,
-                                            environmentId: catalystEnvironmentId,
-                                            environmentName: catalystEnvironmentName,
-                                            providerId: instance.providerId,
-                                            providerType: instance.providerType,
-                                            providerData: instance.providerData,
-                                            platformId: instance.platformId,
-                                            ip: instance.ip,
-                                            os: instance.os,
-                                            state: instance.state,
-                                            subnetId: instance.subnetId,
-                                            vpcId: instance.vpcId,
-                                            privateIpAddress: instance.privateIpAddress,
-                                            hostName:instance.hostName,
-                                            tags: instance.tags,
-                                        }
-                                        assignedInstanceList.push(assignedInstanceObj);
-                                        assignedInstanceObj = {};
-                                        count++;
-                                        if (count === instances.length) {
-                                            next(null, assignedInstanceList);
-                                        } else {
-                                            return;
-                                        }
+                                        return;
                                     }
-                                })
-                            } else {
-                                count++;
-                                if (count === instances.length) {
-                                    next(null, assignedInstanceList);
                                 }
-                            }
-                        }else {
+                            })
+                        } else if ((catalystBgId !== null || catalystProjectId !== null || catalystEnvironmentId !== null) && category === 'assigned') {
+                            var masterDetails= {
+                                bgId: catalystBgId,
+                                bgName: catalystBgName,
+                                projectId: catalystProjectId,
+                                projectName: catalystProjectName,
+                                environmentId: catalystEnvironmentId,
+                                environmentName: catalystEnvironmentName
+                            };
+                            assignedInstancesDao.updateInstanceMasterDetails(instance._id,masterDetails,function(err,data){
+                                if(err){
+                                    logger.error("Unable to update master details of assigned Instance", err);
+                                    count++;
+                                    if(count === instances.length){
+                                        next(null,assignedInstances);
+                                        return;
+                                    }
+                                }else{
+                                    count++;
+                                    if(count === instances.length){
+                                        next(null,instances);
+                                        return;
+                                    }
+                                }
+                            });
+                        } else if(category ==='assigned') {
+                            assignedInstancesDao.removeInstanceByInstanceId(instance._id,function(err,data){
+                                if(err){
+                                    logger.error("Unable to remove assigned Instance", err);
+                                    count++;
+                                    if(count === instances.length){
+                                        next(null,instances);
+                                        return;
+                                    }
+                                }else{
+                                    count++;
+                                    if(count === instances.length){
+                                        next(null,instances);
+                                        return;
+                                    }
+                                }
+                            });
+                        } else {
                             count++;
                             if (count === instances.length) {
                                 next(null, assignedInstanceList);
                             }
                         }
-                    }else{
+                    } else {
                         count++;
                         if (count === instances.length) {
                             next(null, assignedInstanceList);
@@ -372,152 +413,6 @@ function saveAssignedInstances(assignedInstances,callback){
             })(assignedInstances[i]);
         }
     }else{
-        callback(null,assignedInstances);
-        return;
-    }
-}
-
-function syncAssignedInstancesWithTagMapping(assignedInstances,provider,callback){
-    if(assignedInstances.length > 0){
-        tagsModel.getTagsByProviderId(provider._id, function (err, tagDetails) {
-            if (err) {
-                logger.error("Unable to get tags", err);
-                callback(err);
-                return;
-            }
-            var projectTag = null;
-            var environmentTag = null;
-            var bgTag = null;
-            var count = 0;
-            if (tagDetails.length > 0) {
-                for (var i = 0; i < tagDetails.length; i++) {
-                    if (('catalystEntityType' in tagDetails[i]) && tagDetails[i].catalystEntityType == 'project') {
-                        projectTag = tagDetails[i];
-                    } else if (('catalystEntityType' in tagDetails[i])
-                        && tagDetails[i].catalystEntityType == 'environment') {
-                        environmentTag = tagDetails[i];
-                    } else if (('catalystEntityType' in tagDetails[i])
-                        && tagDetails[i].catalystEntityType == 'businessGroup') {
-                        bgTag = tagDetails[i];
-                    }
-                }
-                for(var j = 0; j < assignedInstances.length; j++){
-                    (function(assignedInstance){
-                        var catalystProjectId = null;
-                        var catalystProjectName = null;
-                        var catalystEnvironmentId = null;
-                        var catalystEnvironmentName = null;
-                        var catalystBgId = null;
-                        var catalystBgName = null;
-                        if(bgTag !== null && bgTag.name in assignedInstance.tags) {
-                            var entityMappingArray
-                                = Object.keys(bgTag.catalystEntityMapping).map(
-                                function(k){return bgTag.catalystEntityMapping[k]});
-
-                            for (var y = 0; y < entityMappingArray.length; y++) {
-                                if ((assignedInstance.tags[bgTag.name] !== '')
-                                    && ('tagValues' in entityMappingArray[y])
-                                    && (entityMappingArray[y].tagValues.indexOf(assignedInstance.tags[bgTag.name]) >= 0)) {
-                                    catalystBgId = entityMappingArray[y].catalystEntityId;
-                                    catalystBgName = entityMappingArray[y].catalystEntityName;
-                                    break;
-                                }
-                            }
-                        }
-                        if(projectTag !== null && projectTag.name in assignedInstance.tags) {
-                            var entityMappingArray
-                                = Object.keys(projectTag.catalystEntityMapping).map(
-                                function(k){return projectTag.catalystEntityMapping[k]});
-
-                            for (var y = 0; y < entityMappingArray.length; y++) {
-                                if ((assignedInstance.tags[projectTag.name] !== '')
-                                    && ('tagValues' in entityMappingArray[y])
-                                    && (entityMappingArray[y].tagValues.indexOf(assignedInstance.tags[projectTag.name])
-                                    >= 0)) {
-                                    catalystProjectId = entityMappingArray[y].catalystEntityId;
-                                    catalystProjectName = entityMappingArray[y].catalystEntityName;
-                                    break;
-                                }
-                            }
-                        }
-                        if(environmentTag !== null && environmentTag.name in assignedInstance.tags) {
-                            var entityMappingArray
-                                = Object.keys(environmentTag.catalystEntityMapping).map(
-                                function(k){return environmentTag.catalystEntityMapping[k]});
-
-                            for (var y = 0; y < entityMappingArray.length; y++) {
-                                if ((assignedInstance.tags[environmentTag.name] !== '')
-                                    && ('tagValues' in entityMappingArray[y])
-                                    && (entityMappingArray[y].tagValues.indexOf(assignedInstance.tags[environmentTag.name])
-                                    >= 0)) {
-                                    catalystEnvironmentId = entityMappingArray[y].catalystEntityId;
-                                    catalystEnvironmentName = entityMappingArray[y].catalystEntityName;
-                                    break;
-                                }
-                            }
-                        }
-                        if (catalystBgId !== null || catalystProjectId !== null || catalystEnvironmentId !== null) {
-                            var masterDetails= {
-                                bgId: catalystBgId,
-                                bgName: catalystBgName,
-                                projectId: catalystProjectId,
-                                projectName: catalystProjectName,
-                                environmentId: catalystEnvironmentId,
-                                environmentName: catalystEnvironmentName
-                            };
-                            assignedInstancesDao.updateInstanceMasterDetails(assignedInstance._id,masterDetails,function(err,data){
-                                if(err){
-                                    logger.error("Unable to update master details of assigned Instance", err);
-                                    count++;
-                                    if(count === assignedInstances.length){
-                                        callback(null,assignedInstances);
-                                        return;
-                                    }
-                                }else{
-                                    count++;
-                                    if(count === assignedInstances.length){
-                                        callback(null,assignedInstances);
-                                        return;
-                                    }
-                                }
-                            });
-                        }else{
-                           assignedInstancesDao.removeInstanceByInstanceId(assignedInstance._id,function(err,data){
-                                if(err){
-                                    logger.error("Unable to remove assigned Instance", err);
-                                    count++;
-                                    if(count === assignedInstances.length){
-                                        callback(null,assignedInstances);
-                                        return;
-                                    }
-                                }else{
-                                    count++;
-                                    if(count === assignedInstances.length){
-                                        callback(null,assignedInstances);
-                                        return;
-                                    }
-                                }
-                            });
-                        }
-
-                    })(assignedInstances[j]);
-                }
-            } else {
-                logger.info("There is no Tag Mapping");
-                assignedInstancesDao.removeInstancesByProviderId(provider._id,function(err,data){
-                    if(err){
-                        logger.error("Unable to remove assigned Instance", err);
-                        callback(err);
-                        return;
-                    }else{
-                        callback(null, data);
-                        return;
-                    }
-                });
-            }
-        })
-    }else{
-        logger.info("There is no Assigned Instances for Tag Mapping Sync");
         callback(null,assignedInstances);
         return;
     }
