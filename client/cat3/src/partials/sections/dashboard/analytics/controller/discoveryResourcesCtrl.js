@@ -62,7 +62,7 @@
             disResrc.init=function () {
                 if(fltrObj && fltrObj.provider && fltrObj.provider.id) {
                     disResrc.getAllTagNames();
-
+                    $scope.instLoader=true;
                     $timeout(function () {
                         console.log( $scope.TagName);
                         disResrc.gridOptionInstances = {
@@ -211,6 +211,7 @@
                             $scope.instanceType= 'unassigned-instances';
                         }
                             var param = {
+                                inlineLoader:true,
                                 url: '/providers/' + fltrObj.provider.id + '/' + $scope.instanceType
                             };
                             genSevs.promiseGet(param).then(function (instResult) {
@@ -229,6 +230,7 @@
                                     }
                                 };
                             });
+                        $scope.instLoader=false;
                     }, 1000);
                 }
             };
