@@ -109,6 +109,42 @@
                         };
                         disResrc.gridOptionInstances.data = [];
                         if($rootScope.organNewEnt.instanceType === 'Managed') {
+                            disResrc.gridOptionInstances.columnDefs=[
+                                {name: 'InstanceId', field: 'platformId',enableCellEditOnFocus: false,
+                                    enableCellEdit: false,enableFiltering: true},
+                                {name: 'os', enableFiltering: true,displayName: 'OS', enableCellEdit: false, type: 'number',enableCellEditOnFocus: false},
+                                {name: 'privateIpAddress',enableFiltering: true, displayName: 'IP Address',enableCellEditOnFocus: false,
+                                    enableCellEdit: false},
+                                {name: 'state',enableFiltering: true, displayName: 'Status',enableCellEditOnFocus: false,
+                                    enableCellEdit: false},
+                                {
+                                    name: 'Region',enableFiltering: true,
+                                    displayName: 'Region',
+                                    field: 'providerData.region_name',
+                                    cellTooltip: true,enableCellEditOnFocus: false,
+                                    enableCellEdit: false
+                                },
+                                {name: 'orgName', enableFiltering: true,displayName: 'Org Name', field: 'orgName', cellTooltip: true,enableCellEditOnFocus: false,
+                                    enableCellEdit: false},
+                                {
+                                    name: 'bgName',
+                                    displayName: 'BG Name',enableFiltering: true,
+                                    field: 'bgName', cellTooltip: true,enableCellEditOnFocus: false,
+                                    enableCellEdit: false
+                                },
+                                {
+                                    name: 'projectName',enableFiltering: true,
+                                    displayName: 'Project Name',
+                                    field: 'projectName', cellTooltip: true,enableCellEditOnFocus: false,
+                                    enableCellEdit: false
+                                },
+                                {
+                                    name: 'environmentName',enableFiltering: true,
+                                    displayName: 'Env Name',
+                                    field: 'environmentName', cellTooltip: true,enableCellEditOnFocus: false,
+                                    enableCellEdit: false
+                                }
+                            ];
                             $scope.instanceType= 'managedInstances';
                         } else if($rootScope.organNewEnt.instanceType === 'Assigned'){
                             disResrc.gridOptionInstances.enableFiltering=true;
