@@ -4,7 +4,7 @@ var CatalystCronJob = require('_pr/cronjobs/CatalystCronJob');
 var nodeGit =  require('nodegit');
 var promisify = require("promisify-node");
 var fse = promisify(require("fs-extra"));
-var path = "/tmp/bot-factory";
+var path = "/tmp/rl-bot-factory";
 var Promise = require('promise');
 
 var gitRepoSync = Object.create(CatalystCronJob);
@@ -48,12 +48,8 @@ function gitRepositorySync(){
     var cloneOpts = {
         fetchOpts: {
             callbacks: {
-                credentials: function (url, userName) {
-                    return nodegit.Cred.sshKeyNew(
-                        userName,
-                        '/Users/radek/.ssh/id_rsa.pub',
-                        '/Users/radek/.ssh/id_rsa',
-                        "<your-passphrase-here>");
+                credentials: function () {
+                    return nodeGit.Cred.userpassPlaintextNew("Durgesh1988","Durgesh@123");
                 }
             }
         }

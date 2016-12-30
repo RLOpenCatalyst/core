@@ -413,10 +413,11 @@ function syncAssignedInstancesWithTagMapping(assignedInstances,provider,callback
                             var entityMappingArray
                                 = Object.keys(bgTag.catalystEntityMapping).map(
                                 function(k){return bgTag.catalystEntityMapping[k]});
+
                             for (var y = 0; y < entityMappingArray.length; y++) {
-                                if (entityMappingArray[y].tagValue !== '' && assignedInstance.tags[bgTag.name] !== ''
-                                    && 'tagValues' in entityMappingArray[y]
-                                    && assignedInstance.tags[bgTag.name] in entityMappingArray[y].tagValues) {
+                                if ((assignedInstance.tags[bgTag.name] !== '')
+                                    && ('tagValues' in entityMappingArray[y])
+                                    && (entityMappingArray[y].tagValues.indexOf(assignedInstance.tags[bgTag.name]) >= 0)) {
                                     catalystBgId = entityMappingArray[y].catalystEntityId;
                                     catalystBgName = entityMappingArray[y].catalystEntityName;
                                     break;
@@ -427,10 +428,12 @@ function syncAssignedInstancesWithTagMapping(assignedInstances,provider,callback
                             var entityMappingArray
                                 = Object.keys(projectTag.catalystEntityMapping).map(
                                 function(k){return projectTag.catalystEntityMapping[k]});
+
                             for (var y = 0; y < entityMappingArray.length; y++) {
-                                if (entityMappingArray[y].tagValue !== '' && assignedInstance.tags[projectTag.name] !== ''
-                                    && 'tagValues' in entityMappingArray[y]
-                                    && assignedInstance.tags[projectTag.name] in entityMappingArray[y].tagValues) {
+                                if ((assignedInstance.tags[projectTag.name] !== '')
+                                    && ('tagValues' in entityMappingArray[y])
+                                    && (entityMappingArray[y].tagValues.indexOf(assignedInstance.tags[projectTag.name])
+                                    >= 0)) {
                                     catalystProjectId = entityMappingArray[y].catalystEntityId;
                                     catalystProjectName = entityMappingArray[y].catalystEntityName;
                                     break;
@@ -441,10 +444,12 @@ function syncAssignedInstancesWithTagMapping(assignedInstances,provider,callback
                             var entityMappingArray
                                 = Object.keys(environmentTag.catalystEntityMapping).map(
                                 function(k){return environmentTag.catalystEntityMapping[k]});
+
                             for (var y = 0; y < entityMappingArray.length; y++) {
-                                if (entityMappingArray[y].tagValue !== '' && assignedInstance.tags[environmentTag.name] !== ''
-                                    && 'tagValues' in entityMappingArray[y]
-                                    && assignedInstance.tags[environmentTag.name] in entityMappingArray[y].tagValues) {
+                                if ((assignedInstance.tags[environmentTag.name] !== '')
+                                    && ('tagValues' in entityMappingArray[y])
+                                    && (entityMappingArray[y].tagValues.indexOf(assignedInstance.tags[environmentTag.name])
+                                    >= 0)) {
                                     catalystEnvironmentId = entityMappingArray[y].catalystEntityId;
                                     catalystEnvironmentName = entityMappingArray[y].catalystEntityName;
                                     break;
@@ -477,7 +482,7 @@ function syncAssignedInstancesWithTagMapping(assignedInstances,provider,callback
                                 }
                             });
                         }else{
-                            assignedInstancesDao.removeInstanceByInstanceId(assignedInstance._id,function(err,data){
+                           assignedInstancesDao.removeInstanceByInstanceId(assignedInstance._id,function(err,data){
                                 if(err){
                                     logger.error("Unable to remove assigned Instance", err);
                                     count++;
