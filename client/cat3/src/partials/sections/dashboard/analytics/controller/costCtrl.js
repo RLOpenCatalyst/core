@@ -109,14 +109,14 @@
                     } else {
                         entityId=fltObj.org.id;
                     }
-                  //param.url='http://d4d.rlcatalyst.com/analytics/cost/aggregate?parentEntityId=46d1da9a-d927-41dc-8e9e-7e926d927537&entityId=57f49acdbc45e71f11491f8c&toTimeStamp=Wed%20Oct%2005%202016%2016:03:08%20GMT+0530%20(IST)&period=month';
+                  //param.url='src/partials/sections/dashboard/analytics/data/cost.json';
                     param.url='/analytics/cost/aggregate?parentEntityId='+fltObj.org.id+'&entityId='+entityId+'&toTimeStamp='+new Date()+'&period='+fltObj.period;
                 }
 
                 genSevs.promiseGet(param).then(function (result) {
                     costObj.chartData=result;
                     $rootScope.splitUpCosts=[];
-                    if(result.splitUpCosts) {
+                    if(result.splitUpCosts && Object.keys(result.splitUpCosts).length >0 ) {
                         angular.forEach(result.splitUpCosts, function (val, key) {
                             var a=key.replace(/([A-Z])/g, ' $1').replace(/^./, function(str) {
                                 return str.toUpperCase();
@@ -147,12 +147,19 @@
                     // create bar
                     //if(viewType === 'ProviderView'){
                     costObj.costGridOptions.data = result.splitUpCosts[viewType];
-                    angular.forEach(result.splitUpCosts[viewType], function (value) {
-                        costObj.pieChat.data.push({
-                            key: value.name,
-                            value: value.cost.totalCost
+                    if(result.splitUpCosts && Object.keys(result.splitUpCosts).length >0 ) {
+                        angular.forEach(result.splitUpCosts[viewType], function (value) {
+                            costObj.pieChat.data.push({
+                                key: value.name,
+                                value: value.cost.totalCost
+                            });
                         });
-                    });
+                    } else {
+                        costObj.pieChat.data.push({
+                            key: result.entity.name,
+                            value: result.cost.totalCost
+                        });
+                    }
                     if(result.cost && result.cost.AWS && result.cost.AWS.serviceCosts) {
                         costObj.serviceCosts = result.cost.AWS.serviceCosts;
                         angular.forEach(result.cost.AWS.serviceCosts, function (valueChild, keyChild) {
@@ -161,20 +168,37 @@
                                 name: keyChild,
                                 field: 'cost.AWS.serviceCosts.' + keyChild
                             });
-                            angular.forEach(result.splitUpCosts[viewType], function (valBar) {
-                                var chVal = '';
-                                if (valBar.cost.AWS.serviceCosts[keyChild]) {
-                                    chVal = valBar.cost.AWS.serviceCosts[keyChild];
-                                } else {
-                                    chVal = 0;
-                                }
-                                va.push(
-                                    {
-                                        "label": valBar.name,
-                                        "value": chVal
+                            if(result.splitUpCosts && Object.keys(result.splitUpCosts).length >0 ) {
+                                angular.forEach(result.splitUpCosts[viewType], function (valBar) {
+                                    var chVal = '';
+                                    if (valBar.cost.AWS.serviceCosts[keyChild]) {
+                                        chVal = valBar.cost.AWS.serviceCosts[keyChild];
+                                    } else {
+                                        chVal = 0;
                                     }
-                                );
-                            });
+                                    va.push(
+                                        {
+                                            "label": valBar.name,
+                                            "value": chVal
+                                        }
+                                    );
+                                });
+                            } else {
+
+                                    var chVal = '';
+                                    if (result.cost.AWS.serviceCosts[keyChild]) {
+                                        chVal =result.cost.AWS.serviceCosts[keyChild];
+                                    } else {
+                                        chVal = 0;
+                                    }
+                                    va.push(
+                                        {
+                                            "label": result.name,
+                                            "value": chVal
+                                        }
+                                    );
+
+                            }
                             costObj.barChat.data.push({
                                 "key": keyChild,
                                 "values": va
