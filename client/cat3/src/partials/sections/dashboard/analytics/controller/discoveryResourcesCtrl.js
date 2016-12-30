@@ -69,15 +69,16 @@
                             columnDefs: [],
                             onRegisterApi: function (gridApi) {
                                 gridApi.edit.on.afterCellEdit($scope, function (rowEntity, colDef, newValue, oldValue) {
+                                    var tagna=colDef.name.substring(0, colDef.name.length-3);
                                         var param = {
                                             url: '/providers/' + fltrObj.provider.id + '/unassigned-instances/' + rowEntity._id,
                                             data: {
                                                 "tags": {
-                                                    "environment": newValue,
-                                                    "application": colDef.name.substring(0, colDef.name.length-3)
+
                                                 }
                                             }
                                         };
+                                    param.data.tags[tagna]=newValue;
                                     if(newValue !== oldValue) {
                                         genSevs.promisePatch(param).then(function () {
                                             toastr.success('Successfully updated.', 'Update');
