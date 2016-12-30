@@ -239,52 +239,53 @@ function tagMappingForInstances(instances,provider,next){
                         var assignmentFound = false;
                         if ((bgTag !== null || projectTag !== null || environmentTag !== null) && (instance.isDeleted === false)){
                             if(bgTag !== null && bgTag.name in instance.tags) {
-                                var entityMappingArray
+                                var bgMappingArray
                                     = Object.keys(bgTag.catalystEntityMapping).map(
                                     function(k){return bgTag.catalystEntityMapping[k]});
 
-                                for (var y = 0; y < entityMappingArray.length; y++) {
+                                for (var y = 0; y < bgMappingArray.length; y++) {
                                     if ((instance.tags[bgTag.name] !== '')
-                                        && ('tagValues' in entityMappingArray[y])
-                                        && (entityMappingArray[y].tagValues.indexOf(instance.tags[bgTag.name]) >= 0)) {
-                                        catalystBgId = entityMappingArray[y].catalystEntityId;
-                                        catalystBgName = entityMappingArray[y].catalystEntityName;
+                                        && ('tagValues' in bgMappingArray[y])
+                                        && (bgMappingArray[y].tagValues.indexOf(instance.tags[bgTag.name]) >= 0)) {
+                                        catalystBgId = bgMappingArray[y].catalystEntityId;
+                                        catalystBgName = bgMappingArray[y].catalystEntityName;
                                         break;
                                     }
                                 }
                             }
                             if(projectTag !== null && projectTag.name in instance.tags) {
-                                var entityMappingArray
+                                var projectMappingArray
                                     = Object.keys(projectTag.catalystEntityMapping).map(
                                     function(k){return projectTag.catalystEntityMapping[k]});
 
-                                for (var y = 0; y < entityMappingArray.length; y++) {
+                                for (var y = 0; y < projectMappingArray.length; y++) {
                                     if ((instance.tags[projectTag.name] !== '')
-                                        && ('tagValues' in entityMappingArray[y])
-                                        && (entityMappingArray[y].tagValues.indexOf(instance.tags[projectTag.name])
+                                        && ('tagValues' in projectMappingArray[y])
+                                        && (projectMappingArray[y].tagValues.indexOf(instance.tags[projectTag.name])
                                         >= 0)) {
-                                        catalystProjectId = entityMappingArray[y].catalystEntityId;
-                                        catalystProjectName = entityMappingArray[y].catalystEntityName;
+                                        catalystProjectId = projectMappingArray[y].catalystEntityId;
+                                        catalystProjectName = projectMappingArray[y].catalystEntityName;
                                         break;
                                     }
                                 }
                             }
                             if(environmentTag !== null && environmentTag.name in instance.tags) {
-                                var entityMappingArray
+                                var environmentMappingArray
                                     = Object.keys(environmentTag.catalystEntityMapping).map(
                                     function(k){return environmentTag.catalystEntityMapping[k]});
 
-                                for (var y = 0; y < entityMappingArray.length; y++) {
+                                for (var y = 0; y < environmentMappingArray.length; y++) {
                                     if ((instance.tags[environmentTag.name] !== '')
-                                        && ('tagValues' in entityMappingArray[y])
-                                        && (entityMappingArray[y].tagValues.indexOf(instance.tags[environmentTag.name])
+                                        && ('tagValues' in environmentMappingArray[y])
+                                        && (environmentMappingArray[y].tagValues.indexOf(instance.tags[environmentTag.name])
                                         >= 0)) {
-                                        catalystEnvironmentId = entityMappingArray[y].catalystEntityId;
-                                        catalystEnvironmentName = entityMappingArray[y].catalystEntityName;
+                                        catalystEnvironmentId = environmentMappingArray[y].catalystEntityId;
+                                        catalystEnvironmentName = environmentMappingArray[y].catalystEntityName;
                                         break;
                                     }
                                 }
                             }
+
                             if (catalystBgId !== null || catalystProjectId !== null || catalystEnvironmentId !== null) {
                                 assignmentFound = true;
                             }
