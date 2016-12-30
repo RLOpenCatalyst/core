@@ -71,9 +71,9 @@
                             paginationPageSize:25,
                             columnDefs: [],
                             onRegisterApi: function (gridApi) {
-                                gridApi.edit.on.afterCellEdit($scope, function (rowEntity, colDef, newValue, oldValue) {
-                                    console.log( colDef.name,'---',colDef.name.substring(0, colDef.name.length-3));
-                                    var tagna=colDef.name.substring(0, colDef.name.length-3);
+                                gridApi.edit.on.afterCellEdit($scope, function (rowEntity, colDefa, newValue, oldValue) {
+                                    console.log( colDefa.name,'---',colDefa.name.substring(0, colDefa.name.length-3));
+                                    var tagna=colDefa.name.substring(0, colDefa.name.length-3);
                                         var param = {
                                             url: '/providers/' + fltrObj.provider.id + '/unassigned-instances/' + rowEntity._id,
                                             data: {
