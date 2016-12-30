@@ -16,24 +16,32 @@
                 if(fltrObj && fltrObj.provider && fltrObj.provider.id) {
                     var param = {
                         inlineLoader: true,
-                       url: '/providers/' + fltrObj.provider.id + '/tag-mappings'
+                        url: '/providers/' + fltrObj.provider.id + '/tag-mappings'
                         //url:'src/partials/sections/dashboard/analytics/data/tag.json'
                     };
                     genSevs.promiseGet(param).then(function (tagResult) {
-                        angular.forEach(tagResult,function (val,key) {
+                        $scope.newEnt.project.tagName='';
+                        $scope.newEnt.businessGroup.tagName='';
+                        $scope.newEnt.environment.tagName='';
+                        disTgMap.getTagValues('','businessGroup');
+                        disTgMap.getTagValues('','environment');
+                        disTgMap.getTagValues('','project');
 
-                                $scope.newEnt[key].tagName=val.tagName;
-                                $scope.newEnt[key].tagValues=val.tagValues;
-                                $scope.newEnt[key].catalystEntityType=val.catalystEntityType;
-                                angular.forEach(val.catalystEntityMapping,function (v,k) {
-                                    $scope.newEnt[key].catalystEntityMapping[k]={
-                                        tagValues:v.tagValues,
-                                        catalystEntityId:v.catalystEntityId,
-                                        catalystEntityName:v.catalystEntityName
+                            angular.forEach(tagResult, function (val, key) {
+                                $scope.newEnt[key].tagName = val.tagName;
+                                $scope.newEnt[key].tagValues = val.tagValues;
+                                $scope.newEnt[key].catalystEntityType = val.catalystEntityType;
+                                angular.forEach(val.catalystEntityMapping, function (v, k) {
+                                    $scope.newEnt[key].catalystEntityMapping[k] = {
+                                        tagValues: v.tagValues,
+                                        catalystEntityId: v.catalystEntityId,
+                                        catalystEntityName: v.catalystEntityName
                                     }
                                 });
-                        });
+                            });
+                       
                         disTgMap.getAllTags();
+
                     });
                 }
             };
@@ -62,6 +70,10 @@
                             }
                         $scope.newEnt[valueType].tagValues = tagResult.values;
                     });
+                } else{
+                    for (var key in $scope.newEnt[valueType].catalystEntityMapping) {
+                        $scope.newEnt[valueType].catalystEntityMapping[key].tagValues = [];
+                    }
                 }
             };
             disTgMap.save =function(){

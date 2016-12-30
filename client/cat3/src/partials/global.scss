@@ -1456,3 +1456,9 @@ div::-webkit-scrollbar-thumb
             transparent 75%,
             transparent)
 }
+.ui-grid-row.ui-grid-row-selected > [ui-grid-row] > .ui-grid-cell{
+    background-color: #E8F1F3 !important;
+}
+input[type="text"].ui-grid-filter-input{
+    color: #000000;
+}
