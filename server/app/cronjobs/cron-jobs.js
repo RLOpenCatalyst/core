@@ -27,7 +27,6 @@ var dockerContainerSync = require('_pr/cronjobs/docker-container-sync');
 var awsRDSS3ProviderSync = require('_pr/cronjobs/provider-rds-s3-sync');
 var chefSync = require('_pr/cronjobs/chef-sync');
 var taskSync = require('_pr/cronjobs/task-sync');
-var gitSync = require('_pr/cronjobs/git-repository-sync');
 
 module.exports.start = function start() {
 
@@ -65,9 +64,5 @@ module.exports.start = function start() {
 	logger.info('Task Sync started with interval ==> '+ taskSync.getInterval());
 	var taskSyncJobId
 		= crontab.scheduleJob(taskSync.getInterval(), taskSync.execute);
-
-	/*logger.info('Git Sync started with interval ==> '+ gitSync.getInterval());
-	var gitSyncJobId
-		= crontab.scheduleJob(gitSync.getInterval(), gitSync.execute);*/
 
 }
