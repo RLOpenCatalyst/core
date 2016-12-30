@@ -72,16 +72,16 @@
                             columnDefs: [],
                             onRegisterApi: function (gridApi) {
                                 gridApi.edit.on.afterCellEdit($scope, function (rowEntity, colDef, newValue, oldValue) {
+                                    console.log( colDef.name,'---',colDef.name.substring(0, colDef.name.length-3));
                                     var tagna=colDef.name.substring(0, colDef.name.length-3);
                                         var param = {
                                             url: '/providers/' + fltrObj.provider.id + '/unassigned-instances/' + rowEntity._id,
                                             data: {
-                                                "tags": {
-
-                                                }
+                                                tags:{}
                                             }
                                         };
                                     param.data.tags[tagna]=newValue;
+                                    console.log(param);
                                     if(newValue !== oldValue) {
                                         genSevs.promisePatch(param).then(function () {
                                             toastr.success('Successfully updated.', 'Update');
