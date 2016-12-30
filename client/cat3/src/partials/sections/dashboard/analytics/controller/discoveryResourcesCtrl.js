@@ -28,6 +28,7 @@
                 };
                 genSevs.promiseGet(param).then(function (instResult) {
                     $scope.TagName.environmentTag=instResult.tagName+'-en';
+                    $scope.TagName.envFild='tags.'+instResult.tagName;
                     angular.forEach(instResult.tagValues,function(val){
                         $scope.TagName.environment.push({id:val,name:val})
                     });
@@ -38,6 +39,7 @@
                 };
                 genSevs.promiseGet(param).then(function (instResult) {
                     $scope.TagName.bgTag=instResult.tagName+'-bu';
+                    $scope.TagName.bgFild='tags.'+instResult.tagName;
                     angular.forEach(instResult.tagValues,function(val){
                         $scope.TagName.bg.push({id:val,name:val})
                     });
@@ -48,6 +50,7 @@
                 };
                 genSevs.promiseGet(param).then(function (instResult) {
                     $scope.TagName.projectTag=instResult.tagName+'-pr';
+                    $scope.TagName.projFild='tags.'+instResult.tagName;
                     angular.forEach(instResult.tagValues,function(val){
                         $scope.TagName.project.push({id:val,name:val})
                     });
@@ -69,15 +72,16 @@
                             columnDefs: [],
                             onRegisterApi: function (gridApi) {
                                 gridApi.edit.on.afterCellEdit($scope, function (rowEntity, colDef, newValue, oldValue) {
+                                    var tagna=colDef.name.substring(0, colDef.name.length-3);
                                         var param = {
                                             url: '/providers/' + fltrObj.provider.id + '/unassigned-instances/' + rowEntity._id,
                                             data: {
                                                 "tags": {
-                                                    "environment": newValue,
-                                                    "application": colDef.name.substring(0, colDef.name.length-3)
+
                                                 }
                                             }
                                         };
+                                    param.data.tags[tagna]=newValue;
                                     if(newValue !== oldValue) {
                                         genSevs.promisePatch(param).then(function () {
                                             toastr.success('Successfully updated.', 'Update');
@@ -166,6 +170,7 @@
                                     enableCellEdit: false},
                                 {
                                     name: $scope.TagName.bgTag,
+                                    field:$scope.TagName.bgFild,
                                     displayName: 'BG Tag Value',
                                     width: 200,
                                     cellClass: 'editCell',
@@ -178,6 +183,7 @@
                                 },
                                 {
                                     name: $scope.TagName.projectTag,
+                                    field:$scope.TagName.projFild,
                                     displayName: 'Project Tag Value',
                                     cellClass: 'editCell',
                                     width: 200,
@@ -190,6 +196,7 @@
                                 },
                                 {
                                     name: $scope.TagName.environmentTag,
+                                    field:$scope.TagName.envFild,
                                     displayName: 'Env Tag Value',
                                     cellClass: 'editCell',
                                     width: 200,
