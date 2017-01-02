@@ -198,6 +198,15 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
             });
 
         },
+        totalNoOfScheduledBots: function(callback){
+            bots.getScheduledBots(function(err,scheduledBotsList){
+                if(err){
+                    callback(err,null);
+                }else {
+                    callback(null, scheduledBotsList.length);
+                }
+            });
+        },
         totalNoOfRunningBots: function(callback){
             var query={
                 auditType:'BOTs',

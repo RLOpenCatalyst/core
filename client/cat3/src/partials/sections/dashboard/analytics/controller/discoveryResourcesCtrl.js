@@ -28,6 +28,7 @@
                 };
                 genSevs.promiseGet(param).then(function (instResult) {
                     $scope.TagName.environmentTag=instResult.tagName+'-en';
+                    $scope.TagName.envFild='tags.'+instResult.tagName;
                     angular.forEach(instResult.tagValues,function(val){
                         $scope.TagName.environment.push({id:val,name:val})
                     });
@@ -38,6 +39,7 @@
                 };
                 genSevs.promiseGet(param).then(function (instResult) {
                     $scope.TagName.bgTag=instResult.tagName+'-bu';
+                    $scope.TagName.bgFild='tags.'+instResult.tagName;
                     angular.forEach(instResult.tagValues,function(val){
                         $scope.TagName.bg.push({id:val,name:val})
                     });
@@ -48,6 +50,7 @@
                 };
                 genSevs.promiseGet(param).then(function (instResult) {
                     $scope.TagName.projectTag=instResult.tagName+'-pr';
+                    $scope.TagName.projFild='tags.'+instResult.tagName;
                     angular.forEach(instResult.tagValues,function(val){
                         $scope.TagName.project.push({id:val,name:val})
                     });
@@ -59,7 +62,7 @@
             disResrc.init=function () {
                 if(fltrObj && fltrObj.provider && fltrObj.provider.id) {
                     disResrc.getAllTagNames();
-
+                    $scope.instLoader=true;
                     $timeout(function () {
                         console.log( $scope.TagName);
                         disResrc.gridOptionInstances = {
@@ -68,16 +71,17 @@
                             paginationPageSize:25,
                             columnDefs: [],
                             onRegisterApi: function (gridApi) {
-                                gridApi.edit.on.afterCellEdit($scope, function (rowEntity, colDef, newValue, oldValue) {
+                                gridApi.edit.on.afterCellEdit($scope, function (rowEntity, colDefa, newValue, oldValue) {
+                                    console.log( colDefa.name,'---',colDefa.name.substring(0, colDefa.name.length-3));
+                                    var tagna=colDefa.name.substring(0, colDefa.name.length-3);
                                         var param = {
                                             url: '/providers/' + fltrObj.provider.id + '/unassigned-instances/' + rowEntity._id,
                                             data: {
-                                                "tags": {
-                                                    "environment": newValue,
-                                                    "application": colDef.name.substring(0, colDef.name.length-3)
-                                                }
+                                                tags:{}
                                             }
                                         };
+                                    param.data.tags[tagna]=newValue;
+                                    console.log(param);
                                     if(newValue !== oldValue) {
                                         genSevs.promisePatch(param).then(function () {
                                             toastr.success('Successfully updated.', 'Update');
@@ -105,6 +109,42 @@
                         };
                         disResrc.gridOptionInstances.data = [];
                         if($rootScope.organNewEnt.instanceType === 'Managed') {
+                            disResrc.gridOptionInstances.columnDefs=[
+                                {name: 'InstanceId', field: 'platformId',enableCellEditOnFocus: false,
+                                    enableCellEdit: false,enableFiltering: true},
+                                {name: 'os', enableFiltering: true,displayName: 'OS', enableCellEdit: false, type: 'number',enableCellEditOnFocus: false},
+                                {name: 'privateIpAddress',enableFiltering: true, displayName: 'IP Address',enableCellEditOnFocus: false,
+                                    enableCellEdit: false},
+                                {name: 'state',enableFiltering: true, displayName: 'Status',enableCellEditOnFocus: false,
+                                    enableCellEdit: false},
+                                {
+                                    name: 'Region',enableFiltering: true,
+                                    displayName: 'Region',
+                                    field: 'providerData.region_name',
+                                    cellTooltip: true,enableCellEditOnFocus: false,
+                                    enableCellEdit: false
+                                },
+                                {name: 'orgName', enableFiltering: true,displayName: 'Org Name', field: 'orgName', cellTooltip: true,enableCellEditOnFocus: false,
+                                    enableCellEdit: false},
+                                {
+                                    name: 'bgName',
+                                    displayName: 'BG Name',enableFiltering: true,
+                                    field: 'bgName', cellTooltip: true,enableCellEditOnFocus: false,
+                                    enableCellEdit: false
+                                },
+                                {
+                                    name: 'projectName',enableFiltering: true,
+                                    displayName: 'Project Name',
+                                    field: 'projectName', cellTooltip: true,enableCellEditOnFocus: false,
+                                    enableCellEdit: false
+                                },
+                                {
+                                    name: 'environmentName',enableFiltering: true,
+                                    displayName: 'Env Name',
+                                    field: 'environmentName', cellTooltip: true,enableCellEditOnFocus: false,
+                                    enableCellEdit: false
+                                }
+                            ];
                             $scope.instanceType= 'managedInstances';
                         } else if($rootScope.organNewEnt.instanceType === 'Assigned'){
                             disResrc.gridOptionInstances.enableFiltering=true;
@@ -166,6 +206,7 @@
                                     enableCellEdit: false},
                                 {
                                     name: $scope.TagName.bgTag,
+                                    field:$scope.TagName.bgFild,
                                     displayName: 'BG Tag Value',
                                     width: 200,
                                     cellClass: 'editCell',
@@ -178,6 +219,7 @@
                                 },
                                 {
                                     name: $scope.TagName.projectTag,
+                                    field:$scope.TagName.projFild,
                                     displayName: 'Project Tag Value',
                                     cellClass: 'editCell',
                                     width: 200,
@@ -190,6 +232,7 @@
                                 },
                                 {
                                     name: $scope.TagName.environmentTag,
+                                    field:$scope.TagName.envFild,
                                     displayName: 'Env Tag Value',
                                     cellClass: 'editCell',
                                     width: 200,
@@ -204,6 +247,7 @@
                             $scope.instanceType= 'unassigned-instances';
                         }
                             var param = {
+                                inlineLoader:true,
                                 url: '/providers/' + fltrObj.provider.id + '/' + $scope.instanceType
                             };
                             genSevs.promiseGet(param).then(function (instResult) {
@@ -222,7 +266,8 @@
                                     }
                                 };
                             });
-                    }, 200);
+                        $scope.instLoader=false;
+                    }, 1000);
                 }
             };
             disResrc.importInstance =function ($event) {
