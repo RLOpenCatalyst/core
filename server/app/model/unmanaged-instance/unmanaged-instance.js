@@ -114,7 +114,7 @@ UnmanagedInstanceSchema.statics.updateInstance = function updateInstance(instanc
 
 UnmanagedInstanceSchema.statics.updateInstanceMasterDetails = function updateInstanceMasterDetails(instanceId,masterDetails,callBack) {
 	this.update({
-		"platformId": instanceId,
+		_id: new ObjectId(instanceId)
 	}, {
 		$set: masterDetails
 	}, function(err, data) {
