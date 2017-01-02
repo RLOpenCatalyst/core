@@ -115,7 +115,6 @@
                         disResrc.gridOptionInstances.data = [];
                         if($rootScope.organNewEnt.instanceType === 'Managed') {
                             $scope.colArray=['platformId','privateIpAddress','os','state'];
-                            disResrc.gridOptionInstances.enableFiltering=true;
                             disResrc.gridOptionInstances.columnDefs=[
                                 {name: 'InstanceId', field: 'platformId',enableCellEditOnFocus: false,
                                     enableCellEdit: false,enableFiltering: true},
