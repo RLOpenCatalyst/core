@@ -61,12 +61,12 @@ gitGubService.createGitHub = function createGitHub(gitHubObj, callback) {
 };
 
 gitGubService.updateGitHub = function updateGitHub(gitHubId, gitHubObj, callback) {
-    if(gitHubObj.isAuthenticated === true || gitHubObj.isAuthenticated === 'true'){
+    if((gitHubObj.isAuthenticated === true || gitHubObj.isAuthenticated === 'true') && gitHubObj.authenticationType === 'UserName'){
         var cryptoConfig = appConfig.cryptoSettings;
         var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
         gitHubObj.repositoryPassword =  cryptography.encryptText(gitHubObj.repositoryPassword, cryptoConfig.encryptionEncoding,
             cryptoConfig.decryptionEncoding);
-    };
+    }
     gitHubModel.updateGitHub(gitHubId, gitHubObj, function (err, gitHub) {
         if (err && err.name === 'ValidationError') {
             var err = new Error('Bad Request');

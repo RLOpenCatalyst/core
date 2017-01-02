@@ -2685,84 +2685,97 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                             }
                                             logger.debug("hashedPassword: ", hashedPassword);
                                             bodyJson["password"] = hashedPassword;
-                                            var userModel = new d4dModelNew.d4dModelMastersUsers(bodyJson);
-                                            userModel.save(function (err, data) {
+                                            d4dModelNew.d4dModelMastersUsers.find({
+                                                $or: [ { loginname: bodyJson["loginname"]}, { email: bodyJson["email"] } ]
+                                            }, function (err, users) {
                                                 if (err) {
                                                     logger.error('Hit Save error', err);
                                                     res.send(500);
                                                     return;
-
-                                                }
-                                                var teamName = bodyJson["teamname"].split(",");
-                                                var rowId = bodyJson["teamname_rowid"].split(",");
-                                                for (var x = 0; x < rowId.length; x++) {
-                                                    d4dModelNew.d4dModelMastersTeams.find({
-                                                        rowid: rowId[x]
-                                                    }, function (err, teamData) {
+                                                } else if (users.length > 0) {
+                                                    logger.error('UserName or Email already exists. Please try to register with different UserName or Email');
+                                                    res.status(400).send("UserName or Email already exists.Please try to register with different UserName or Email");
+                                                    return;
+                                                } else {
+                                                    var userModel = new d4dModelNew.d4dModelMastersUsers(bodyJson);
+                                                    userModel.save(function (err, data) {
                                                         if (err) {
-                                                            logger.debug("Error : ", err);
-                                                        }
-                                                        teamData[0].loginname = teamData[0].loginname + "," + bodyJson["loginname"];
-                                                        teamData[0].loginname_rowid = teamData[0].loginname_rowid + "," + bodyJson["rowid"];
-                                                        if (teamData[0].loginname.length > 0 && teamData[0].loginname_rowid.length > 0) {
-                                                            if (teamData[0].loginname.substring(0, 1) == ',') {
-                                                                teamData[0].loginname = teamData[0].loginname.substring(1);
-                                                            }
-                                                            if (teamData[0].loginname_rowid.substring(0, 1) == ',') {
-                                                                teamData[0].loginname_rowid = teamData[0].loginname_rowid.substring(1);
-                                                            }
-                                                        }
-                                                        d4dModelNew.d4dModelMastersTeams.update({
-                                                            rowid: teamData[0].rowid
-                                                        }, {
-                                                            $set: JSON.parse(JSON.stringify(teamData[0]))
-                                                        }, {
-                                                            upsert: false
-                                                        }, function (err, updatedTeam) {
-                                                            if (err) {
-                                                                logger.debug("Failed to update Team: ", errorResponses.db.error);
-                                                            }
-                                                            logger.debug("Successfully Team updated with User.");
-                                                        });
-
-                                                    });
-                                                    if (x === rowId.length - 1) {
-                                                        if (bodyJson['orgname_rowid'] === '' || bodyJson['orgname_rowid'] === null) {
-                                                            res.send(200);
+                                                            logger.error('Hit Save error', err);
+                                                            res.send(500);
                                                             return;
-                                                        } else {
-                                                            settingWizard.getSettingWizardByOrgId(bodyJson['orgname_rowid'], function (err, settingWizards) {
+
+                                                        }
+                                                        var teamName = bodyJson["teamname"].split(",");
+                                                        var rowId = bodyJson["teamname_rowid"].split(",");
+                                                        for (var x = 0; x < rowId.length; x++) {
+                                                            d4dModelNew.d4dModelMastersTeams.find({
+                                                                rowid: rowId[x]
+                                                            }, function (err, teamData) {
                                                                 if (err) {
-                                                                    logger.error('Hit getting setting wizard error', err);
-                                                                    res.send(500);
+                                                                    logger.debug("Error : ", err);
+                                                                }
+                                                                teamData[0].loginname = teamData[0].loginname + "," + bodyJson["loginname"];
+                                                                teamData[0].loginname_rowid = teamData[0].loginname_rowid + "," + bodyJson["rowid"];
+                                                                if (teamData[0].loginname.length > 0 && teamData[0].loginname_rowid.length > 0) {
+                                                                    if (teamData[0].loginname.substring(0, 1) == ',') {
+                                                                        teamData[0].loginname = teamData[0].loginname.substring(1);
+                                                                    }
+                                                                    if (teamData[0].loginname_rowid.substring(0, 1) == ',') {
+                                                                        teamData[0].loginname_rowid = teamData[0].loginname_rowid.substring(1);
+                                                                    }
+                                                                }
+                                                                d4dModelNew.d4dModelMastersTeams.update({
+                                                                    rowid: teamData[0].rowid
+                                                                }, {
+                                                                    $set: JSON.parse(JSON.stringify(teamData[0]))
+                                                                }, {
+                                                                    upsert: false
+                                                                }, function (err, updatedTeam) {
+                                                                    if (err) {
+                                                                        logger.debug("Failed to update Team: ", errorResponses.db.error);
+                                                                    }
+                                                                    logger.debug("Successfully Team updated with User.");
+                                                                });
+
+                                                            });
+                                                            if (x === rowId.length - 1) {
+                                                                if (bodyJson['orgname_rowid'] === '' || bodyJson['orgname_rowid'] === null) {
+                                                                    res.send(200);
                                                                     return;
-                                                                }else if (settingWizards !== null && settingWizards.currentStep && settingWizards.currentStep.name === 'User Configuration') {
-                                                                    var settingWizardSteps = appConfig.settingWizardSteps;
-                                                                    settingWizards.currentStep.nestedSteps[1].isCompleted = true;
-                                                                    settingWizards.currentStep.isCompleted = true;
-                                                                    settingWizards.previousStep = settingWizards.currentStep;
-                                                                    settingWizards.currentStep = settingWizards.nextStep;
-                                                                    settingWizards.nextStep = settingWizardSteps[5];
-                                                                    settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                                                                } else {
+                                                                    settingWizard.getSettingWizardByOrgId(bodyJson['orgname_rowid'], function (err, settingWizards) {
                                                                         if (err) {
                                                                             logger.error('Hit getting setting wizard error', err);
                                                                             res.send(500);
                                                                             return;
+                                                                        } else if (settingWizards !== null && settingWizards.currentStep && settingWizards.currentStep.name === 'User Configuration') {
+                                                                            var settingWizardSteps = appConfig.settingWizardSteps;
+                                                                            settingWizards.currentStep.nestedSteps[1].isCompleted = true;
+                                                                            settingWizards.currentStep.isCompleted = true;
+                                                                            settingWizards.previousStep = settingWizards.currentStep;
+                                                                            settingWizards.currentStep = settingWizards.nextStep;
+                                                                            settingWizards.nextStep = settingWizardSteps[5];
+                                                                            settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                                                                                if (err) {
+                                                                                    logger.error('Hit getting setting wizard error', err);
+                                                                                    res.send(500);
+                                                                                    return;
+                                                                                }
+                                                                                res.send(200);
+                                                                                return;
+                                                                            });
+                                                                        } else {
+                                                                            res.send(200);
+                                                                            return;
                                                                         }
-                                                                        res.send(200);
-                                                                        return;
-                                                                    });
-                                                                }else {
-                                                                    res.send(200);
-                                                                    return;
+                                                                    })
                                                                 }
-                                                            })
+                                                            }
                                                         }
-                                                    }
+                                                    });
                                                 }
                                             });
                                         });
-
                                     } else if (req.params.id === '4') {
                                         // bodyJson['repositories'] = JSON.parse(bodyJson['repositories']);
                                         var projectModel = new d4dModelNew.d4dModelMastersProjects(bodyJson);
