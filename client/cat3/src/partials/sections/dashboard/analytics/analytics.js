@@ -196,12 +196,13 @@
         };
 
         $scope.getAllRegionsList();
-		$scope.fnProviderChange = function() {
+		$scope.ProviderChange = function(val) {
             $scope.filter.regionId = '';
             $scope.filter.vpcId = '';
             $scope.regions = [];
-            if ($scope.filter.providerId && $scope.filter.providerId !== '') {
-                $scope.getProviderRegions();
+			$scope.filter.providerId=$rootScope.providers[val]._id;
+            if ($scope.filter.providerId) {
+                $scope.getResourse($rootScope.organNewEnt.instanceType);
             }
         };
         $scope.getResourse = function(instType) {
@@ -211,6 +212,7 @@
 	        	workzoneServices.getManagedInstances($scope.filter.providerId).then(function(response) {
 					if(response.data && response.data.managedInstances &&  response.data.managedInstances.length >0){
 						$scope.resourceList = response.data.managedInstances;
+						$scope.toggleResourceSelection($scope.resourceList[0]._id,$scope.resourceList[0].platformId);
 					} else{
 						$scope.resourceList=[];
 					}
@@ -222,6 +224,7 @@
 	            workzoneServices.getAssignedInstances($scope.filter.providerId).then(function(response) {
 					if(response.data && response.data.unmanagedInstances.length >0){
 						$scope.resourceList = response.data.unmanagedInstances;
+						$scope.toggleResourceSelection($scope.resourceList[0]._id,$scope.resourceList[0].platformId);
 					} else{
 						$scope.resourceList = [];
 					}
@@ -234,7 +237,7 @@
 	            workzoneServices.getUnassignedInstances($scope.filter.providerId).then(function(response) {
 					if(response.data && response.data.data && response.data.data.length >0){
 						$scope.resourceList = response.data.data;
-						$scope.selectedResources.push(response.data.data[0]._id);
+						$scope.toggleResourceSelection(response.data.data[0]._id,response.data.data[0].platformId);
 						$rootScope.filterNewEnt.resources=$scope.selectedResources;
 						$rootScope.filterNewEnt.platformId[response.data.data[0]._id]=response.data.data[0].platformId;
 					} else {
@@ -252,7 +255,7 @@
             var idx = $scope.selectedResources.indexOf(resourceId);
             if(idx > -1) {
         		$scope.selectedResources.splice(idx, 1);
-				
+
     		} else {
     			if($scope.selectedResources.length === 10){
     				console.log($scope.selectedResources.length);
