@@ -3,6 +3,9 @@
     angular.module('dashboard.analytics')
         .controller('discoveryResourcesCtrl', ['$scope', '$rootScope', '$state','analyticsServices', 'genericServices','$timeout','toastr','$modal', function ($scope,$rootScope,$state,analyticsServices,genSevs,$timeout,toastr,$modal){
             var disResrc=this;
+            $scope.gridApi=null;
+            disResrc.filterValue='';
+            $scope.colArray=[];
             $scope.instanceType=null;
             $scope.selectInstanceRow=[];
             $scope.TagName={
@@ -71,6 +74,8 @@
                             paginationPageSize:25,
                             columnDefs: [],
                             onRegisterApi: function (gridApi) {
+                                gridApi.grid.registerRowsProcessor( $scope.singleFilter, 200 );
+                                $scope.gridApi=gridApi;
                                 gridApi.edit.on.afterCellEdit($scope, function (rowEntity, colDefa, newValue, oldValue) {
                                     console.log( colDefa.name,'---',colDefa.name.substring(0, colDefa.name.length-3));
                                     var tagna=colDefa.name.substring(0, colDefa.name.length-3);
@@ -109,10 +114,11 @@
                         };
                         disResrc.gridOptionInstances.data = [];
                         if($rootScope.organNewEnt.instanceType === 'Managed') {
+                            $scope.colArray=['platformId','privateIpAddress','os','state'];
                             disResrc.gridOptionInstances.columnDefs=[
                                 {name: 'InstanceId', field: 'platformId',enableCellEditOnFocus: false,
                                     enableCellEdit: false,enableFiltering: true},
-                                {name: 'os', enableFiltering: true,displayName: 'OS', enableCellEdit: false, type: 'number',enableCellEditOnFocus: false},
+                                {name: 'os', enableFiltering: true,displayName: 'OS', enableCellEdit: false,enableCellEditOnFocus: false},
                                 {name: 'privateIpAddress',enableFiltering: true, displayName: 'IP Address',enableCellEditOnFocus: false,
                                     enableCellEdit: false},
                                 {name: 'state',enableFiltering: true, displayName: 'Status',enableCellEditOnFocus: false,
@@ -147,6 +153,9 @@
                             ];
                             $scope.instanceType= 'managedInstances';
                         } else if($rootScope.organNewEnt.instanceType === 'Assigned'){
+
+                            $scope.colArray=['platformId','privateIpAddress','os','state'];
+
                             disResrc.gridOptionInstances.columnDefs=[
                                 {name: 'InstanceId', field: 'platformId',enableCellEditOnFocus: false,
                                     enableCellEdit: false,enableFiltering: true},
@@ -185,6 +194,7 @@
                             ];
                             $scope.instanceType= 'unmanagedInstances';
                         } else if($rootScope.organNewEnt.instanceType === 'Unassigned'){
+                            $scope.colArray=['platformId','privateIpAddress','os','state'];
                             disResrc.gridOptionInstances.columnDefs= [
                                 {name: 'InstanceId', field: 'platformId',enableCellEditOnFocus: false,
                                     enableCellEdit: false},
@@ -242,6 +252,7 @@
                                     editDropdownValueLabel: 'id'
                                 }
                             ];
+
                             $scope.instanceType= 'unassigned-instances';
                         }
                             var param = {
@@ -304,6 +315,24 @@
             $rootScope.applyFilter =function(filterApp,period){
                 analyticsServices.applyFilter(true,null);
                 disResrc.init();
+            };
+            $scope.filterInst = function() {
+                $scope.gridApi.grid.refresh();
+            };
+            $scope.singleFilter = function( renderableRows ){
+                var matcher = new RegExp(disResrc.filterValue);
+                renderableRows.forEach( function( row ) {
+                    var match = false;
+                    angular.forEach($scope.colArray,function( field ){
+                        if ( row.entity[field] && row.entity[field].match(matcher) ){
+                            match = true;
+                        }
+                    });
+                    if ( !match ){
+                        row.visible = false;
+                    }
+                });
+                return renderableRows;
             };
             disResrc.init();
             

@@ -97,13 +97,13 @@ function awsRDSS3ProviderSyncForProvider(provider,orgName) {
             resourceModel.getAllResourcesByCategory(provider._id,'unassigned',next);
         },
         function(resources,next){
-            tagMappingForResources(resources,provider,next);
+            tagMappingSyncForResources(resources,provider,'unassigned',next);
         },
         function(resources,next){
             resourceModel.getAllResourcesByCategory(provider._id,'assigned',next);
         },
         function(assignedResources,next){
-            syncAssignedResourcesWithTagMapping(assignedResources,provider,next);
+            tagMappingSyncForResources(assignedResources,provider,'assigned',next);
         }
     ], function (err, results) {
         if (err) {
@@ -325,8 +325,7 @@ function deleteRDSResourceData(rdsInfo,providerId, callback) {
     }
 }
 
-
-function tagMappingForResources(resources,provider,next){
+function tagMappingSyncForResources(resources,provider,category,next){
     tagsModel.getTagsByProviderId(provider._id, function (err, tagDetails) {
         if (err) {
             logger.error("Unable to get tags", err);
@@ -335,33 +334,27 @@ function tagMappingForResources(resources,provider,next){
         var projectTag = null;
         var environmentTag = null;
         var bgTag = null;
-        if(tagDetails.length > 0) {
+        if (tagDetails.length > 0) {
             for (var i = 0; i < tagDetails.length; i++) {
                 if (('catalystEntityType' in tagDetails[i]) && tagDetails[i].catalystEntityType == 'project') {
                     projectTag = tagDetails[i];
-                }else if (('catalystEntityType' in tagDetails[i]) && tagDetails[i].catalystEntityType == 'environment') {
+                } else if (('catalystEntityType' in tagDetails[i]) && tagDetails[i].catalystEntityType == 'environment') {
                     environmentTag = tagDetails[i];
-                }else if (('catalystEntityType' in tagDetails[i]) && tagDetails[i].catalystEntityType == 'businessGroup') {
+                } else if (('catalystEntityType' in tagDetails[i]) && tagDetails[i].catalystEntityType == 'businessGroup') {
                     bgTag = tagDetails[i];
                 }
             }
-        }else{
-            next(null,tagDetails);
-        }
-        var count = 0;
-        if(resources.length > 0) {
-            for (var j = 0; j < resources.length; j++) {
-                (function(resource) {
-                    if (resource.tags) {
-                        var catalystProjectId = null;
-                        var catalystProjectName = null;
-                        var catalystEnvironmentId = null;
-                        var catalystEnvironmentName = null;
-                        var catalystBgId = null;
-                        var catalystBgName = null;
-                        var assignmentFound = false;
-                        if ((bgTag !== null || projectTag !== null || environmentTag !== null)
-                            && (resource.isDeleted === false)) {
+            var count = 0;
+            if (resources.length > 0) {
+                for (var j = 0; j < resources.length; j++) {
+                    (function (resource) {
+                        if (resource.tags) {
+                            var catalystProjectId = null;
+                            var catalystProjectName = null;
+                            var catalystEnvironmentId = null;
+                            var catalystEnvironmentName = null;
+                            var catalystBgId = null;
+                            var catalystBgName = null;
 
                             if (bgTag !== null && bgTag.name in resource.tags) {
                                 var bgEntityMappings = Object.keys(bgTag.catalystEntityMapping).map(
@@ -412,14 +405,10 @@ function tagMappingForResources(resources,provider,next){
                                     }
                                 }
                             }
-                            if (catalystBgId !== null || catalystProjectId !== null || catalystEnvironmentId !== null) {
-                                assignmentFound = true;
-                            }
-                            if (assignmentFound === true) {
-                                count++;
+                            if ((catalystBgId !== null || catalystProjectId !== null || catalystEnvironmentId !== null) && category ==='unassigned') {
                                 var masterDetails = {
-                                    orgId:resource.masterDetails.orgId,
-                                    orgName:resource.masterDetails.orgName,
+                                    orgId: resource.masterDetails.orgId,
+                                    orgName: resource.masterDetails.orgName,
                                     bgId: catalystBgId,
                                     bgName: catalystBgName,
                                     projectId: catalystProjectId,
@@ -430,179 +419,79 @@ function tagMappingForResources(resources,provider,next){
                                 resourceModel.updateResourcesForAssigned(resource._id, masterDetails, function (err, data) {
                                     if (err) {
                                         logger.error(err);
+                                    }
+                                    count++;
+                                    if (count === resources.length) {
+                                        next(null, resources);
                                         return;
-                                    } else {
-                                        masterDetails = {};
                                     }
                                 })
+                            } else if ((catalystBgId !== null || catalystProjectId !== null || catalystEnvironmentId !== null) && category ==='assigned') {
+                                var masterDetails= {
+                                    "masterDetails.bgId": catalystBgId,
+                                    "masterDetails.bgName": catalystBgName,
+                                    "masterDetails.projectId": catalystProjectId,
+                                    "masterDetails.projectName": catalystProjectName,
+                                    "masterDetails.envId": catalystEnvironmentId,
+                                    "masterDetails.envName": catalystEnvironmentName
+                                };
+                                resourceModel.updateResourceMasterDetails(resource._id,masterDetails,function(err,data){
+                                    if(err){
+                                        logger.error("Unable to update master details of assigned Resource", err);
+                                    }
+                                    count++;
+                                    if(count === resources.length) {
+                                        next(null, resources);
+                                        return;
+                                    }
+                                });
+                            } else if(category === 'assigned') {
+                                resourceModel.removeResourceById(resource._id,function(err,data){
+                                    if(err){
+                                        logger.error("Unable to remove assigned Resource", err);
+                                    }
+                                    count++;
+                                    if(count === resources.length) {
+                                        next(null, resources);
+                                        return;
+                                    }
+                                });
                             } else {
                                 count++;
+                                if (count === resources.length) {
+                                    next(null, resources);
+                                    return;
+                                }
                             }
-                        } else {
+                        }else{
                             count++;
+                            if (count === resources.length) {
+                                next(null, resources);
+                                return;
+                            }
                         }
-                        if (count === resources.length) {
-                            next(null, resources);
-                        }
-                    } else {
-                        count++;
-                        if (count === resources.length) {
-                            next(null, resources);
-                        }
-                    }
-                })(resources[j]);
+                          
+                    })(resources[j]);
+                }
             }
-        }else{
+        } else if (category === 'assigned') {
+            logger.info("There is no Tag Mapping");
+            resourceModel.removeResourcesByProviderId(provider._id, function (err, data) {
+                if (err) {
+                    logger.error("Unable to remove assigned Resource", err);
+                    next(err);
+                    return;
+                } else {
+                    logger.info("Please configure Resources for Tag Mapping");
+                    next(null, data);
+                    return;
+                }
+            });
+        } else {
             logger.info("Please configure Resources for Tag Mapping");
-            next(null,resources);
+            next(null, resources);
         }
     });
-}
-
-function syncAssignedResourcesWithTagMapping(assignedResources,provider,callback){
-    if(assignedResources.length > 0){
-        tagsModel.getTagsByProviderId(provider._id, function (err, tagDetails) {
-            if (err) {
-                logger.error("Unable to get tags", err);
-                callback(err);
-                return;
-            }
-            var projectTag = null;
-            var environmentTag = null;
-            var bgTag = null;
-            var count = 0;
-            if (tagDetails.length > 0) {
-                for (var i = 0; i < tagDetails.length; i++) {
-                    if (('catalystEntityType' in tagDetails[i]) && tagDetails[i].catalystEntityType == 'project') {
-                        projectTag = tagDetails[i];
-                    } else if (('catalystEntityType' in tagDetails[i])
-                        && tagDetails[i].catalystEntityType == 'environment') {
-                        environmentTag = tagDetails[i];
-                    } else if (('catalystEntityType' in tagDetails[i])
-                        && tagDetails[i].catalystEntityType == 'businessGroup') {
-                        bgTag = tagDetails[i];
-                    }
-                }
-                for(var j = 0; j < assignedResources.length; j++){
-                    (function(assignedResource){
-                        var catalystProjectId = null;
-                        var catalystProjectName = null;
-                        var catalystEnvironmentId = null;
-                        var catalystEnvironmentName = null;
-                        var catalystBgId = null;
-                        var catalystBgName = null;
-                        if(bgTag !== null && bgTag.name in assignedResource.tags) {
-                            var entityMappingArray
-                                = Object.keys(bgTag.catalystEntityMapping).map(
-                                function(k){return bgTag.catalystEntityMapping[k]});
-
-                            for (var y = 0; y < entityMappingArray.length; y++) {
-                                if ((assignedResource.tags[bgTag.name] !== '')
-                                    && ('tagValues' in entityMappingArray[y])
-                                    && (entityMappingArray[y].tagValues.indexOf(assignedResource.tags[bgTag.name]) >= 0)) {
-                                    catalystBgId = entityMappingArray[y].catalystEntityId;
-                                    catalystBgName = entityMappingArray[y].catalystEntityName;
-                                    break;
-                                }
-                            }
-                        }
-                        if(projectTag !== null && projectTag.name in assignedResource.tags) {
-                            var entityMappingArray
-                                = Object.keys(projectTag.catalystEntityMapping).map(
-                                function(k){return projectTag.catalystEntityMapping[k]});
-
-                            for (var y = 0; y < entityMappingArray.length; y++) {
-                                if ((assignedResource.tags[projectTag.name] !== '')
-                                    && ('tagValues' in entityMappingArray[y])
-                                    && (entityMappingArray[y].tagValues.indexOf(assignedResource.tags[projectTag.name])
-                                    >= 0)) {
-                                    catalystProjectId = entityMappingArray[y].catalystEntityId;
-                                    catalystProjectName = entityMappingArray[y].catalystEntityName;
-                                    break;
-                                }
-                            }
-                        }
-                        if(environmentTag !== null && environmentTag.name in assignedResource.tags) {
-                            var entityMappingArray
-                                = Object.keys(environmentTag.catalystEntityMapping).map(
-                                function(k){return environmentTag.catalystEntityMapping[k]});
-
-                            for (var y = 0; y < entityMappingArray.length; y++) {
-                                if ((assignedResource.tags[environmentTag.name] !== '')
-                                    && ('tagValues' in entityMappingArray[y])
-                                    && (entityMappingArray[y].tagValues.indexOf(assignedResource.tags[environmentTag.name])
-                                    >= 0)) {
-                                    catalystEnvironmentId = entityMappingArray[y].catalystEntityId;
-                                    catalystEnvironmentName = entityMappingArray[y].catalystEntityName;
-                                    break;
-                                }
-                            }
-                        }
-                        if (catalystBgId !== null || catalystProjectId !== null || catalystEnvironmentId !== null) {
-                            var masterDetails= {
-                                "masterDetails.bgId": catalystBgId,
-                                "masterDetails.bgName": catalystBgName,
-                                "masterDetails.projectId": catalystProjectId,
-                                "masterDetails.projectName": catalystProjectName,
-                                "masterDetails.envId": catalystEnvironmentId,
-                                "masterDetails.envName": catalystEnvironmentName
-                            };
-                            resourceModel.updateResourceMasterDetails(assignedResource._id,masterDetails,function(err,data){
-                                if(err){
-                                    logger.error("Unable to update master details of assigned Resource", err);
-                                    count++;
-                                    if(count === assignedResources.length){
-                                        callback(null,assignedResources);
-                                        return;
-                                    }
-                                }else{
-                                    count++;
-                                    if(count === assignedResources.length){
-                                        callback(null,assignedResources);
-                                        return;
-                                    }
-                                }
-                            });
-                        }else{
-                            resourceModel.removeResourceById(assignedResource._id,function(err,data){
-                                if(err){
-                                    logger.error("Unable to remove assigned Resource", err);
-                                    count++;
-                                    if(count === assignedResources.length){
-                                        callback(null,assignedResources);
-                                        return;
-                                    }
-                                }else{
-                                    count++;
-                                    if(count === assignedResources.length){
-                                        callback(null,assignedResources);
-                                        return;
-                                    }
-                                }
-                            });
-                        }
-
-                    })(assignedResources[j]);
-                }
-            } else {
-                logger.info("There is no Tag Mapping");
-                resourceModel.removeResourcesByProviderId(provider._id,function(err,data){
-                    if(err){
-                        logger.error("Unable to remove assigned Resource", err);
-                        callback(err);
-                        return;
-                    }else{
-                        callback(null, data);
-                        return;
-                    }
-                });
-            }
-        })
-    }else{
-        logger.info("There is no Assigned Resource for Tag Mapping Sync");
-        callback(null,assignedResources);
-        return;
-    }
 }
 
 function bucketNameList(s3Info,callback){
