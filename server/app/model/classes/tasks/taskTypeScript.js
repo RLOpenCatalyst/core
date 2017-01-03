@@ -52,6 +52,10 @@ var scriptTaskSchema = taskTypeSchema.extend({
             paramDesc:{
                 type: String,
                 required: false
+            },
+            paramType:{
+                type: String,
+                required: false
             }
         }]
     }]

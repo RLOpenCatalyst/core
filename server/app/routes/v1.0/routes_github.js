@@ -40,6 +40,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         async.waterfall(
             [
                 function(next) {
+                    gitHubService.checkIfGitHubExists(req.params.gitHubId, next);
+                },
+                function(gitHub,next) {
                     gitHubService.getGitHubById(req.params.gitHubId, next);
                 }
             ],
@@ -52,6 +55,28 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             }
         );
     }
+
+    app.get('/git-hub/:gitHubId/sync', getGitHubSync);
+    function getGitHubSync(req, res) {
+        async.waterfall(
+            [
+                function(next) {
+                    gitHubService.checkIfGitHubExists(req.params.gitHubId, next);
+                },
+                function(gitHub,next) {
+                    gitHubService.getGitHubSync(req.params.gitHubId, next);
+                }
+            ],
+            function(err, results) {
+                if (err) {
+                    res.status(err.status).send(err);
+                } else {
+                    return res.status(200).send(results);
+                }
+            }
+        );
+    }
+
     app.post('/git-hub', validate(gitHubValidator.create), createGitHub);
 
     function createGitHub(req, res) {
@@ -71,106 +96,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         );
     }
 
-    /**
-     * @api {put} /git-hub/:gitHubId  Update Git Hub Repository
-     * @apiName updateGitHub
-     * @apiGroup github
-     *
-     * @apiSuccess {Object} monitor             monitor data
-     * @apiSuccess {String} orgId        Organization Id
-     * @apiSuccess {String} type         Monitor Server type
-     * @apiSuccess {String} name         Monitor Server name
-     * @apiSuccess {Object} parameters       Monitor Server Parameters
-     * @apiSuccess {String} parameters.url   Monitor Server Url
-     * @apiSuccess {String} parameters.transportProtocol   Monitor Server Transport Protocols Name
-     * @apiSuccess {Object} parameters.transportProtocolParameters   Monitor Server Transport Protocols Parameters
-     * @apiParamExample {json} Request-Example:
-     *      HTTP/1.1 200 OK
-     *      {
-     *          "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927535",
-     *          "type": "sensu",
-     *          "name": "someName",
-     *          "parameters": {
-     *              "url": "Server Url",
-     *              "transportProtocol": "redis",
-     *              "transportProtocolParameters":{
-     *                  "host": "10.0.0.6",
-     *                  "port": 5671,
-     *                  "password": "secret",
-     *              }
-     *          }
-     *      }
-     *
-     *      {
-     *          "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927535",
-     *          "type": "sensu",
-     *          "name": "someName",
-     *          "parameters": {
-     *          "url": "Server Url",
-     *          "transportProtocol": "rabbitmq",
-     *          "transportProtocolParameters":{
-     *              "host": "10.0.0.6",
-     *              "port": 5671,
-     *              "vhost": "/sensu",
-     *              "user": "sensu",
-     *              "password": "secret",
-     *              "heartbeat": 30,
-     *              "prefetch": 50,
-     *              "ssl": {
-     *                  "certChainFileId": "SomeId",
-     *                  "privateKeyFileId": "SomeId"
-     *              }
-     *          }
-     *          }
-     *      }
-     *
-     *
-     * @apiSuccessExample {json} Success-Response:
-     *      HTTP/1.1 200 OK
-     *      {
-     *          "__v": 0,
-     *          "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927535",
-     *          "type": "sensu",
-     *          "name": "someName",
-     *          "parameters": {
-     *              "transportProtocolParameters": {
-     *                  "password": "iEhK5+u/dBHRNbilkF7f7Q==",
-     *                  "port": 5671,
-     *                  "host": "10.0.0.6"
-     *              },
-     *              "transportProtocol": "redis",
-     *              "url": "Server Url"
-     *          },
-     *          "_id": "58071046efa15bb50b7ccdf8",
-     *          "isDeleted": false
-     *      }
-     *
-     *      {
-     *          "__v": 0,
-     *          "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927535",
-     *          "name": "someName",
-     *          "type": "sensu",
-     *          "parameters": {
-     *              "transportProtocolParameters": {
-     *                  "ssl": {
-     *                      "privateKeyFileId": "SomeId",
-     *                      "certChainFileId": "SomeId"
-     *                  },
-     *                  "prefetch": 50,
-     *                  "heartbeat": 30,
-     *                  "password": "iEhK5+u/dBHRNbilkF7f7Q==",
-     *                  "user": "sensu",
-     *                  "vhost": "/sensu",
-     *                  "port": 5671,
-     *                  "host": "10.0.0.6"
-     *              },
-     *              "transportProtocol": "rabbitmq",
-     *              "url": "Server Url"
-     *          },
-     *          "_id": "58071104efa15bb50b7cce41",
-     *          "isDeleted": false
-     *      }
-     */
 
     app.put('/git-hub/:gitHubId', validate(gitHubValidator.update), updateGitHub);
 
@@ -180,7 +105,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 function(next) {
                     gitHubService.checkIfGitHubExists(req.params.gitHubId, next);
                 },
-                function(monitor, next) {
+                function(gitHub, next) {
                     gitHubService.updateGitHub(req.params.gitHubId, req.body, next);
                 }
             ],

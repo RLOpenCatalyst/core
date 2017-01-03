@@ -94,6 +94,22 @@ gitGubService.deleteGitHub = function deleteGitHub(gitHubId, callback) {
     });
 };
 
+gitGubService.getGitHubSync = function getGitHubSync(gitHubId, callback) {
+    gitHubModel.getGitHubById(gitHubId, function (err, gitHub) {
+        if (err) {
+            var err = new Error('Internal Server Error');
+            err.status = 500;
+            return callback(err);
+        } else if (!gitHub) {
+            var err = new Error('Git-Hub not found');
+            err.status = 404;
+            return callback(err);
+        } else{
+            
+        }
+    });
+};
+
 gitGubService.getGitHubList = function getGitHubList(query, callback) {
     var params = {};
     logger.debug('get GitHub');

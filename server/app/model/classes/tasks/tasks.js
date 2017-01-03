@@ -31,6 +31,8 @@ var ApiUtils = require('_pr/lib/utils/apiUtil.js');
 var Schema = mongoose.Schema;
 var auditTrailService = require('_pr/services/auditTrailService');
 var bots = require('_pr/model/bots/bots.js');
+var Cryptography = require('_pr/lib/utils/cryptography');
+var appConfig = require('_pr/config');
 
 
 var TASK_TYPE = {
@@ -1092,6 +1094,8 @@ taskSchema.statics.updateTaskExecutionCount = function updateTaskExecutionCount(
 
 function filterScriptTaskData(data,callback){
     var taskList = [];
+    var cryptoConfig = appConfig.cryptoSettings;
+    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     for(var i = 0; i < data.length; i++){
         (function(task){
             if ((task.taskType === 'script')
@@ -1103,7 +1107,12 @@ function filterScriptTaskData(data,callback){
                         if (scriptTask.scriptParameters.length > 0) {
                             scriptCount++;
                             for (var k = 0; k < scriptTask.scriptParameters.length; k++) {
-                                scriptTask.scriptParameters[k] = '';
+                                if(scriptTask.scriptParameters[k].paramType === 'default' || scriptTask.scriptParameters[k].paramType === 'password'){
+                                    scriptTask.scriptParameters[k].paramVal = cryptography.decryptText(scriptTask.scriptParameters[k].paramVal, cryptoConfig.decryptionEncoding,
+                                        cryptoConfig.encryptionEncoding);
+                                }else {
+                                    scriptTask.scriptParameters[k] = '';
+                                }
                             }
                         } else {
                             scriptCount++;

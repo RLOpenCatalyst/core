@@ -704,7 +704,8 @@ function encryptedParam(paramDetails, existingParams, callback) {
                                 cryptoConfig.decryptionEncoding);
                             encryptedList.push({
                                 paramVal:encryptedText,
-                                paramVal:scriptParameter.paramVal
+                                paramDesc:scriptParameter.paramDesc,
+                                paramType:scriptParameter.paramType
                             });
                         }
                         if (encryptedList.length === paramDetail.scriptParameters.length) {

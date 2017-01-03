@@ -24,6 +24,8 @@ var tasks =  require('_pr/model/classes/tasks/tasks.js');
 var auditTrailService =  require('_pr/services/auditTrailService.js');
 var blueprintService =  require('_pr/services/blueprintService.js');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
+var Cryptography = require('_pr/lib/utils/cryptography');
+var appConfig = require('_pr/config');
 
 const errorType = 'botsService';
 
@@ -194,8 +196,11 @@ botsService.getBotsList = function getBotsList(botsQuery,actionStatus,callback) 
                 bots.getBotsList(queryObj, next);
             }
         },
-        function(auditTrailList, next) {
-            apiUtil.paginationResponse(auditTrailList, reqData, next);
+        function(botList, next) {
+            filterScriptBotsData(botList,next);
+        },
+        function(filterBotList, next) {
+            apiUtil.paginationResponse(filterBotList, reqData, next);
         }
     ],function(err, results) {
         if (err){
@@ -347,6 +352,48 @@ botsService.executeBots = function executeBots(botId,reqBody,callback){
             return;
         }
     });
+}
+
+function filterScriptBotsData(data,callback){
+    var botsList = [];
+    var cryptoConfig = appConfig.cryptoSettings;
+    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+    for(var i = 0; i < data.docs.length; i++){
+        (function(bots){
+            if ((bots.botLinkedSubCategory === 'script')
+                && ('scriptDetails' in bots.botConfig)
+                && (bots.botConfig.scriptDetails.length > 0)) {
+                var scriptCount = 0;
+                for (var j = 0; j < bots.botConfig.scriptDetails.length; j++) {
+                    (function (scriptBot) {
+                        if (scriptBot.scriptParameters.length > 0) {
+                            scriptCount++;
+                            for (var k = 0; k < scriptBot.scriptParameters.length; k++) {
+                                if(scriptBot.scriptParameters[k].paramType === 'Default' || scriptBot.scriptParameters[k].paramType === 'Password'){
+                                    scriptBot.scriptParameters[k].paramVal = cryptography.decryptText(scriptBot.scriptParameters[k].paramVal, cryptoConfig.decryptionEncoding,
+                                        cryptoConfig.encryptionEncoding);
+                                }else {
+                                    scriptBot.scriptParameters[k] = '';
+                                }
+                            }
+                        } else {
+                            scriptCount++;
+                        }
+                    })(bots.botConfig.scriptDetails[j]);
+                }
+                if(scriptCount === bots.botConfig.scriptDetails.length) {
+                    botsList.push(bots);
+                }
+            } else {
+                botsList.push(bots);
+            }
+        })(data.docs[i]);
+        if(botsList.length === data.docs.length){
+            data.docs = botsList;
+            callback(null,data);
+            return;
+        }
+    }
 }
 
 
