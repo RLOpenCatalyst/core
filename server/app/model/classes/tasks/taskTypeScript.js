@@ -188,15 +188,15 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                                 } else {
                                     if (scripts.type === 'Bash') {
                                         var params = script.scriptParameters;
-                                        if (self.botParams && self.botParams.scriptParams) {
+                                        /*if (self.botParams && self.botParams.scriptParams) {
                                             params = self.botParams.scriptParams;
-                                        }
+                                        }*/
                                         executeScriptOnNode(scripts, sshOptions, logsReferenceIds, params, instanceLog,'bash');
                                     } else if (scripts.type === 'Python') {
                                         var params = script.scriptParameters;
-                                        if (self.botParams && self.botParams.scriptParams) {
+                                        /*if (self.botParams && self.botParams.scriptParams) {
                                             params = self.botParams.scriptParams;
-                                        }
+                                        }*/
                                         executeScriptOnNode(scripts, sshOptions, logsReferenceIds, params, instanceLog,'python');
                                     } else {
                                         return;
@@ -292,7 +292,7 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                         var cmdLine = scriptType +' /tmp/' + fileName;
                     }
                     for (var j = 0; j < scriptParameters.length; j++) {
-                        var decryptedText = cryptography.decryptText(scriptParameters[j].paramVal ? scriptParameters[j].paramVal : scriptParameters[j], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                        var decryptedText = cryptography.decryptText(scriptParameters[j].paramVal, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
                         cmdLine = cmdLine + ' "' + decryptedText + '"';
                     }
                     sshExec.exec(cmdLine, function (err, retCode) {

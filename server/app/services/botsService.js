@@ -327,7 +327,37 @@ botsService.getPerticularBotsHistory = function getPerticularBotsHistory(botId,h
 botsService.executeBots = function executeBots(botId,reqBody,callback){
     async.waterfall([
         function(next){
-            bots.getBotsById(botId,next);
+            if(reqBody.paramOptions.scriptParams){
+                encryptedParam(reqBody.paramOptions.scriptParams,next);
+            }else{
+                next([],next);
+            }
+        },
+        function(encryptedParamList,next) {
+            if (encryptedParamList.length > 0){
+                async.parallel({
+                    bot: function (callback) {
+                        var botObj = {
+                            'botConfig.scriptDetails':encryptedParamList
+                        }
+                        bots.updateBotsDetail(botId,botObj,callback);
+                    },
+                    task: function (callback) {
+                        var taskObj = {
+                            'taskConfig.scriptDetails':encryptedParamList
+                        }
+                        tasks.updateTaskDetail(botId,taskObj,callback);
+                    }
+                }, function (err, data) {
+                    if (err) {
+                        next(err);
+                    } else {
+                        bots.getBotsById(botId, next);
+                    }
+                })
+            }else{
+                bots.getBotsById(botId, next);
+            }
         },
         function(bots,next){
             if(bots.length > 0){
@@ -373,7 +403,7 @@ function filterScriptBotsData(data,callback){
                                     scriptBot.scriptParameters[k].paramVal = cryptography.decryptText(scriptBot.scriptParameters[k].paramVal, cryptoConfig.decryptionEncoding,
                                         cryptoConfig.encryptionEncoding);
                                 }else {
-                                    scriptBot.scriptParameters[k] = '';
+                                    scriptBot.scriptParameters[k].paramVal = '';
                                 }
                             }
                         } else {
@@ -395,6 +425,42 @@ function filterScriptBotsData(data,callback){
         }
     }
 }
+
+function encryptedParam(paramDetails, callback) {
+    var cryptoConfig = appConfig.cryptoSettings;
+    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+    var count = 0;
+    var encryptedList = [];
+    for (var i = 0; i < paramDetails.length; i++) {
+        (function (paramDetail) {
+            if (paramDetail.scriptParameters.length > 0) {
+                count++;
+                for (var j = 0; j < paramDetail.scriptParameters.length; j++) {
+                    (function (scriptParameter) {
+                        var encryptedText = cryptography.encryptText(scriptParameter.paramVal, cryptoConfig.encryptionEncoding,
+                            cryptoConfig.decryptionEncoding);
+                        encryptedList.push({
+                            paramVal: encryptedText,
+                            paramDesc: scriptParameter.paramDesc,
+                            paramType: scriptParameter.paramType
+                        });
+                        if (encryptedList.length === paramDetail.scriptParameters.length) {
+                            paramDetail.scriptParameters = encryptedList;
+                            encryptedList = [];
+                        }
+                    })(paramDetail.scriptParameters[j]);
+                }
+            } else {
+                count++;
+            }
+            if (count === paramDetails.length) {
+                callback(null, paramDetails);
+                return;
+            }
+        })(paramDetails[i]);
+    }
+}
+
 
 
 

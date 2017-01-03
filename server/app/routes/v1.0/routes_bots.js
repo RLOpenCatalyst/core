@@ -94,9 +94,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 hostProtocol: req.protocol + '://' + req.get('host'),
                 choiceParam: req.body.choiceParam,
                 appData: req.body.appData,
-                tagServer: req.body.tagServer
+                tagServer: req.body.tagServer,
+                paramOptions:{
+                    cookbookAttributes: req.body.cookbookAttributes,
+                    scriptParams: req.body.scriptParams
+                }
             }
-            var paramOptions = {
+            /*var paramOptions = {
                 cookbookAttributes: req.body.cookbookAttributes,
                 scriptParams: req.body.scriptParams
             };
@@ -112,7 +116,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 }
                 paramOptions.scriptParams = encryptedParams;
             }
-            reqBody.paramOptions=paramOptions;
+            reqBody.paramOptions=paramOptions;*/
         }
         if(reqBody !== null) {
             botsService.executeBots(req.params.botId, reqBody, function (err, data) {
