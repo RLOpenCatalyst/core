@@ -114,19 +114,20 @@
                         };
                         disResrc.gridOptionInstances.data = [];
                         if($rootScope.organNewEnt.instanceType === 'Managed') {
-                            $scope.colArray=['platformId','privateIpAddress','os','state'];
+                            disResrc.gridOptionInstances.enableRowHeaderSelection= false;
+                            $scope.colArray=['platformId','privateIpAddress','instanceState','region'];
                             disResrc.gridOptionInstances.columnDefs=[
-                                {name: 'InstanceId', field: 'platformId',enableCellEditOnFocus: false,
+                                {name: 'InstanceId', field: 'platformId',enableCellEditOnFocus: false, cellTooltip: true,
                                     enableCellEdit: false,enableFiltering: true},
-                                {name: 'os', enableFiltering: true,displayName: 'OS', enableCellEdit: false,enableCellEditOnFocus: false},
+                                {name: 'os', enableFiltering: true,displayName: 'os', field:'hardware.os',enableCellEdit: false,enableCellEditOnFocus: false},
                                 {name: 'privateIpAddress',enableFiltering: true, displayName: 'IP Address',enableCellEditOnFocus: false,
                                     enableCellEdit: false},
-                                {name: 'state',enableFiltering: true, displayName: 'Status',enableCellEditOnFocus: false,
+                                {name: 'instanceState',enableFiltering: true, displayName: 'Status',enableCellEditOnFocus: false,
                                     enableCellEdit: false},
                                 {
                                     name: 'Region',enableFiltering: true,
                                     displayName: 'Region',
-                                    field: 'providerData.region_name',
+                                    field: 'region',
                                     cellTooltip: true,enableCellEditOnFocus: false,
                                     enableCellEdit: false
                                 },
@@ -153,9 +154,11 @@
                             ];
                             $scope.instanceType= 'managedInstances';
                         } else if($rootScope.organNewEnt.instanceType === 'Assigned'){
+
                             $scope.colArray=['platformId','privateIpAddress','os','state'];
+
                             disResrc.gridOptionInstances.columnDefs=[
-                                {name: 'InstanceId', field: 'platformId',enableCellEditOnFocus: false,
+                                {name: 'InstanceId', field: 'platformId',enableCellEditOnFocus: false, cellTooltip: true,
                                     enableCellEdit: false,enableFiltering: true},
                                 {name: 'os', enableFiltering: true,displayName: 'OS', enableCellEdit: false, type: 'number',enableCellEditOnFocus: false},
                                 {name: 'privateIpAddress',enableFiltering: true, displayName: 'IP Address',enableCellEditOnFocus: false,
@@ -192,9 +195,10 @@
                             ];
                             $scope.instanceType= 'unmanagedInstances';
                         } else if($rootScope.organNewEnt.instanceType === 'Unassigned'){
+                            disResrc.gridOptionInstances.enableRowHeaderSelection= false;
                             $scope.colArray=['platformId','privateIpAddress','os','state'];
                             disResrc.gridOptionInstances.columnDefs= [
-                                {name: 'InstanceId', field: 'platformId',enableCellEditOnFocus: false,
+                                {name: 'InstanceId', field: 'platformId',enableCellEditOnFocus: false, cellTooltip: true,
                                     enableCellEdit: false},
                                 {name: 'os', displayName: 'OS', enableCellEdit: false, type: 'number',enableCellEditOnFocus: false},
                                 {name: 'privateIpAddress', displayName: 'IP Address',enableCellEditOnFocus: false,
@@ -256,6 +260,7 @@
                             var param = {
                                 inlineLoader:true,
                                 url: '/providers/' + fltrObj.provider.id + '/' + $scope.instanceType
+                               // url:'src/partials/sections/dashboard/analytics/data/ins.json'
                             };
                             genSevs.promiseGet(param).then(function (instResult) {
                                 if($rootScope.organNewEnt.instanceType === 'Managed') {
@@ -334,7 +339,7 @@
             };
             disResrc.init();
             
-        }]).controller('instanceManageCtrl',['$scope','$rootScope','items','$modalInstance','genericServices',function ($scope,$rootScope,items,$modalInstance,genericServices) {
+        }]).controller('instanceManageCtrl',['$scope','$rootScope','items','$modalInstance','genericServices','$modal',function ($scope,$rootScope,items,$modalInstance,genericServices,$modal) {
         $scope.items=items;
         var fltrObj=$rootScope.filterNewEnt;
         var reqBody = {};
@@ -365,6 +370,8 @@
             }
         };
         $scope.ok = function() {
+            $scope.importSpinner = true;
+            $scope.importSync = true;
             reqBody.orgId = $scope.IMGNewEnt.org.orgid;
             reqBody.bgId = $scope.IMGNewEnt.buss.rowid;
             reqBody.projectId = $scope.IMGNewEnt.proj.rowId;
@@ -387,9 +394,36 @@
                     data:reqBody
                 }
                 genericServices.promisePost(params).then(function (response) {
-                    if(response.data){
-                        toastr.success('Successfully Imported.','Update');
-                        $modalInstance.dismiss(response.data);
+                    
+                    if(response.taskId){
+                        $modalInstance.dismiss(response.taskId);
+                        $scope.importSpinner = false;
+                        $scope.importSync = false;
+                        $modal.open({
+                            animation: true,
+                            templateUrl: 'src/partials/sections/dashboard/analytics/view/discoverySyncResult.html',
+                            controller: 'discoverySyncResultCtrl',
+                            backdrop: 'static',
+                            keyboard: false,
+                            resolve: {
+                                items: function() {
+                                    return {
+                                        taskId:response.taskId,
+                                        nodeIds:reqBody.instanceIds
+                                    };
+                                }
+                            }
+                        }).result.then(function(response) {
+                        }, function() {
+                            console.log("Dismiss at " + new Date());
+                        });
+                    }
+                },function(response){
+                    $scope.isStartStopInstanceLoading = false;
+                    if(response.data.message){
+                        $scope.authMsg = response.data.message;
+                    }else{
+                        $scope.authMsg = response.data;
                     }
                 });
             };

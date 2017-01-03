@@ -21,11 +21,14 @@
                     };
                     genSevs.promiseGet(param).then(function (tagResult) {
                         $scope.newEnt.project.tagName='';
+                        $scope.newEnt.project.tagValues=[];
+                        $scope.newEnt.businessGroup.tagValues=[];
                         $scope.newEnt.businessGroup.tagName='';
-                        $scope.newEnt.environment.tagName='';
-                        disTgMap.getTagValues('','businessGroup');
-                        disTgMap.getTagValues('','environment');
-                        disTgMap.getTagValues('','project');
+                        $scope.newEnt.environment.tagName=''
+                        $scope.newEnt.environment.tagValues=[];;
+                        disTgMap.getTagValues(false,'businessGroup');
+                        disTgMap.getTagValues(false,'environment');
+                        disTgMap.getTagValues(false,'project');
 
                             angular.forEach(tagResult, function (val, key) {
                                 $scope.newEnt[key].tagName = val.tagName;
@@ -44,6 +47,9 @@
 
                     });
                 }
+            };
+            disTgMap.reset =function () {
+                disTgMap.getTagMapping();
             };
             disTgMap.getAllTags =function () {
                     //$scope.newEnt.providerId = fltrObj.provider.id;
