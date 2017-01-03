@@ -12,8 +12,11 @@
 				</span>
             <loading size="large" name="instLoader" type="block"></loading>
 
+
             <input ng-if="!instLoader && disResrc.gridOptionInstances.data.length > 0"  ng-model='disResrc.filterValue' class="form-control with250" ng-change="filterInst()" placeholder="Search" />
+
             <div ng-if="!instLoader && disResrc.gridOptionInstances.data.length > 0" ui-grid="disResrc.gridOptionInstances" ui-grid-pagination ui-grid-selection ui-grid-edit  ui-grid-cellNav class="grid margintop15"></div>
+
             <div ng-if="!instLoader && disResrc.gridOptionInstances.data.length === 0" class="alert alert-info text-center margintop15"> No Data Found!</div>
         </accordion-group>
 
