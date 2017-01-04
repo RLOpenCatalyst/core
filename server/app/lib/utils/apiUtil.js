@@ -253,10 +253,7 @@ var ApiUtil = function() {
 
         }
         if(data.search){
-            var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-            var encrypt=cryptography.encryptText(data.search, cryptoConfig.encryptionEncoding,cryptoConfig.decryptionEncoding);
-            var decrypt=cryptography.decryptText(encrypt, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-            request['search']=decrypt;
+            request['search']=data.search;
         }
         if (typeof callback === 'function') {
             callback(null, request);
