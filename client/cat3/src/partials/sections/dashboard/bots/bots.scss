@@ -45,6 +45,11 @@
   overflow-y: auto;
 }
 
+.bot-info-wrapper {
+  max-height: 450px;
+  overflow-y: auto;
+}
+
 #botLibraryPage, #botAuditTrailPage {
   .page-name {
     font-size: 18px;
