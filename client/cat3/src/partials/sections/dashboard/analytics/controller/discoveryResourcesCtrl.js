@@ -343,6 +343,8 @@
         $scope.items=items;
         var fltrObj=$rootScope.filterNewEnt;
         var reqBody = {};
+        $scope.monitorList = [];
+        $scope.monitorId = 'null';
         $scope.IMGNewEnt={
             passType:'password',
             org:$rootScope.organObject[0]
@@ -353,6 +355,14 @@
         }
         genericServices.promiseGet(params).then(function (list) {
             $scope.configOptions=list;
+        });
+
+        //get monitors
+        var monitorParam={
+            url:'/monitors?filterBy=orgId:' + $scope.IMGNewEnt.org.orgid
+        }
+        genericServices.promiseGet(monitorParam).then(function (list) {
+            $scope.monitorList = list;
         });
 
         $scope.pemFileSelection = function($event) {
@@ -381,7 +391,8 @@
             reqBody.projectName = $scope.IMGNewEnt.proj.name;
             reqBody.environmentName = $scope.IMGNewEnt.env.name;
             reqBody.configManagmentId = $scope.IMGNewEnt.serverTypeInd;
-            
+            reqBody.monitorId = $scope.monitorId;
+
             reqBody.credentials = {};
             reqBody.credentials.username = $scope.IMGNewEnt.userName;
             reqBody.instanceIds = [];
