@@ -327,7 +327,7 @@ botsService.getPerticularBotsHistory = function getPerticularBotsHistory(botId,h
 botsService.executeBots = function executeBots(botId,reqBody,callback){
     async.waterfall([
         function(next){
-            if(typeof reqBody !== 'undefined'  && reqBody !== null
+            if(reqBody !== null
                 && reqBody.paramOptions
                 && reqBody.paramOptions.scriptParams
                 && reqBody.paramOptions.scriptParams !== null){
@@ -365,7 +365,7 @@ botsService.executeBots = function executeBots(botId,reqBody,callback){
         function(bots,next){
             if(bots.length > 0){
                 if(bots[0].botLinkedCategory === 'Task'){
-                    if(typeof reqBody === 'undefined') {
+                    if(reqBody === null) {
                         taskService.executeTask(botId, 'system', 'undefined', 'undefined', 'undefined',  'undefined', 'undefined', callback);
                     }else{
                         taskService.executeTask(botId, reqBody.userName ? reqBody.userName : 'system', reqBody.hostProtocol ? reqBody.hostProtocol : 'undefined',

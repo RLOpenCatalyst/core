@@ -159,14 +159,25 @@ schedulerService.executeScheduledBots = function executeScheduledBots(bots,callb
                     logger.error("Error in updating cron job Ids. "+err);
                 }
             })
-            botsService.executeBots(bots.botId,bots.runTimeParams,function(err, historyData) {
-                if (err) {
-                    logger.error("Failed to execute Bots.", err);
+            if(bots.botLinkedCategory === 'Blueprint') {
+                botsService.executeBots(bots.botId, bots.runTimeParams, function (err, historyData) {
+                    if (err) {
+                        logger.error("Failed to execute Bots.", err);
+                        return;
+                    }
+                    logger.debug("Bots Execution Success for - ", bots.botName);
                     return;
-                }
-                logger.debug("Bots Execution Success for - ", bots.botName);
-                return;
-            });
+                });
+            }else{
+                botsService.executeBots(bots.botId,null,function (err, historyData) {
+                    if (err) {
+                        logger.error("Failed to execute Bots.", err);
+                        return;
+                    }
+                    logger.debug("Bots Execution Success for - ", bots.botName);
+                    return;
+                });
+            }
         });
     }
 }
