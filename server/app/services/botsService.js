@@ -399,7 +399,7 @@ function filterScriptBotsData(data,callback){
                         if (scriptBot.scriptParameters.length > 0) {
                             scriptCount++;
                             for (var k = 0; k < scriptBot.scriptParameters.length; k++) {
-                                if(scriptBot.scriptParameters[k].paramType === 'Default' || scriptBot.scriptParameters[k].paramType === 'Password'){
+                                if(scriptBot.scriptParameters[k].paramType === '' || scriptBot.scriptParameters[k].paramType === 'Default' || scriptBot.scriptParameters[k].paramType === 'Password'){
                                     scriptBot.scriptParameters[k].paramVal = cryptography.decryptText(scriptBot.scriptParameters[k].paramVal, cryptoConfig.decryptionEncoding,
                                         cryptoConfig.encryptionEncoding);
                                 }else {
