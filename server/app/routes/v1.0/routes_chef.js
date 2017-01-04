@@ -260,7 +260,7 @@ module.exports.setRoutes = function (app, verificationFunc) {
                             credentials = {
                                 username: appConfig.aws.instanceUserName,
                                 pemFileLocation: tempPemFileLocation
-                            }
+                            };
                             callback(null, credentials);
                         });
                     } else {
@@ -350,25 +350,34 @@ module.exports.setRoutes = function (app, verificationFunc) {
 
                                         //install sensu client if monitoring server configured
                                         if (instance.monitor && instance.monitor.parameters.transportProtocol === 'rabbitmq') {
-                                            var sensuCookBooks = MasterUtils.getSensuCookbooks();
-                                            var runlist = sensuCookBooks;
-                                            var jsonAttributes = {};
-                                            jsonAttributes['sensu-client'] = MasterUtils.getSensuCookbookAttributes(instance.monitor, instance.id);
+                                            credentialCryptography.decryptCredential(instance.credentials, function (err, decryptedCredentials) {
+                                                if (err) {
+                                                    logger.error("Unable to decrypt pem file. client run failed: ", err);
+                                                } else {
+                                                    var sensuCookBooks = MasterUtils.getSensuCookbooks();
+                                                    var runlist = sensuCookBooks;
+                                                    var jsonAttributes = {};
+                                                    jsonAttributes['sensu-client'] = MasterUtils.getSensuCookbookAttributes(instance.monitor, instance.id);
 
-                                            runOptions = {
-                                                privateKey: credentials.pemFileLocation,
-                                                username: credentials.username,
-                                                host: instance.instanceIP,
-                                                instanceOS: instance.hardware.os,
-                                                port: 22,
-                                                runlist: runlist,
-                                                overrideRunlist: false,
-                                                jsonAttributes: JSON.stringify(jsonAttributes)
-                                            };
-                                            chef.runClient(runOptions, function (err, retCode) {
-                                                logger.debug("knife ret code", retCode);
+                                                    runOptions = {
+                                                        username: decryptedCredentials.username,
+                                                        host: instance.instanceIP,
+                                                        instanceOS: instance.hardware.os,
+                                                        port: 22,
+                                                        runlist: runlist,
+                                                        overrideRunlist: false,
+                                                        jsonAttributes: JSON.stringify(jsonAttributes)
+                                                    };
+                                                    if (decryptedCredentials.pemFileLocation) {
+                                                        runOptions.privateKey = decryptedCredentials.pemFileLocation;
+                                                    } else {
+                                                        runOptions.password = decryptedCredentials.password;
+                                                    }
+                                                    chef.runClient(runOptions, function (err, retCode) {
+                                                        logger.debug("knife ret code", retCode);
+                                                    });
+                                                }
                                             });
-
                                         }
 
 
