@@ -328,7 +328,7 @@
   }
   .btnFoot{
     float: right;
-    width: 51%;
+    width: 57%;
   }
   .form-control{
     height: 29px;
@@ -358,7 +358,10 @@
 
 }
 .autocomplete-list {
-  width: calc(37% + 3px) !important;
-  left: 40% !important;
-  z-index: 100;
+  width: calc(94% + 2px) !important;
+  left: 3% !important;
+  z-index: 999999;
+}
+label {
+  font-weight: 400 !important;
 }

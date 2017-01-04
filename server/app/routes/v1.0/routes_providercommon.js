@@ -90,32 +90,32 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
     function getManagedInstancesList(req, res, next) {
         var reqObj = {};
         async.waterfall(
-            [
-                function (next) {
-                    apiUtil.changeRequestForJqueryPagination(req.query, next);
-                },
-                function (reqData, next) {
-                    reqObj = reqData;
-                    apiUtil.paginationRequest(reqData, 'managedInstances', next);
-                },
-                function (paginationReq, next) {
-                    paginationReq['providerId'] = req.params.providerId;
-                    paginationReq['searchColumns'] = ['instanceIP', 'instanceState', 'platformId', 'hardware.os', 'projectName', 'environmentName'];
-                    apiUtil.databaseUtil(paginationReq, next);
-                },
-                function (queryObj, next) {
-                    instancesDao.getByProviderId(queryObj, next);
-                },
-                function (managedInstances, next) {
-                    apiUtil.changeResponseForJqueryPagination(managedInstances, reqObj, next);
-                }
-            ],
-            function (err, results) {
-                if (err)
-                    next(err);
-                else
-                    return res.status(200).send(results);
-            });
+                [
+                    function (next) {
+                        apiUtil.changeRequestForJqueryPagination(req.query, next);
+                    },
+                    function (reqData, next) {
+                        reqObj = reqData;
+                        apiUtil.paginationRequest(reqData, 'managedInstances', next);
+                    },
+                    function (paginationReq, next) {
+                        paginationReq['providerId'] = req.params.providerId;
+                        paginationReq['searchColumns'] = ['instanceIP', 'instanceState', 'platformId', 'hardware.os', 'projectName', 'environmentName'];
+                        apiUtil.databaseUtil(paginationReq, next);
+                    },
+                    function (queryObj, next) {
+                        instancesDao.getByProviderId(queryObj, next);
+                    },
+                    function (managedInstances, next) {
+                        apiUtil.changeResponseForJqueryPagination(managedInstances, reqObj, next);
+                    }
+                ],
+                function (err, results) {
+                    if (err)
+                        next(err);
+                    else
+                        return res.status(200).send(results);
+                });
     }
     ;
 
@@ -124,29 +124,29 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
     function getManagedInstances(req, res, next) {
         var reqData = {};
         async.waterfall(
-            [
-                function (next) {
-                    apiUtil.paginationRequest(req.query, 'managedInstances', next);
-                },
-                function (paginationReq, next) {
-                    paginationReq['providerId'] = req.params.providerId;
-                    paginationReq['searchColumns'] = ['instanceIP', 'instanceState', 'platformId', 'hardware.os', 'projectName', 'environmentName'];
-                    reqData = paginationReq;
-                    apiUtil.databaseUtil(paginationReq, next);
-                },
-                function (queryObj, next) {
-                    instancesDao.getByProviderId(queryObj, next);
-                },
-                function (managedInstances, next) {
-                    apiUtil.paginationResponse(managedInstances, reqData, next);
-                }
-            ],
-            function (err, results) {
-                if (err)
-                    next(err);
-                else
-                    return res.status(200).send(results);
-            });
+                [
+                    function (next) {
+                        apiUtil.paginationRequest(req.query, 'managedInstances', next);
+                    },
+                    function (paginationReq, next) {
+                        paginationReq['providerId'] = req.params.providerId;
+                        paginationReq['searchColumns'] = ['instanceIP', 'instanceState', 'platformId', 'hardware.os', 'projectName', 'environmentName'];
+                        reqData = paginationReq;
+                        apiUtil.databaseUtil(paginationReq, next);
+                    },
+                    function (queryObj, next) {
+                        instancesDao.getByProviderId(queryObj, next);
+                    },
+                    function (managedInstances, next) {
+                        apiUtil.paginationResponse(managedInstances, reqData, next);
+                    }
+                ],
+                function (err, results) {
+                    if (err)
+                        next(err);
+                    else
+                        return res.status(200).send(results);
+                });
     }
 
 
@@ -155,30 +155,30 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
     function getUnManagedInstances(req, res, next) {
         var reqData = {};
         async.waterfall(
-            [
-                function (next) {
-                    apiUtil.paginationRequest(req.query, 'unmanagedInstances', next);
-                },
-                function (paginationReq, next) {
-                    paginationReq['providerId'] = req.params.providerId;
-                    paginationReq['searchColumns'] = ['ip', 'platformId', 'os', 'state', 'projectName', 'environmentName', 'providerData.region'];
-                    reqData = paginationReq;
-                    apiUtil.databaseUtil(paginationReq, next);
-                },
-                function (queryObj, next) {
-                    unManagedInstancesDao.getByProviderId(queryObj, next);
-                },
-                function (unmanagedInstances, next) {
-                    apiUtil.paginationResponse(unmanagedInstances, reqData, next);
-                }
+                [
+                    function (next) {
+                        apiUtil.paginationRequest(req.query, 'unmanagedInstances', next);
+                    },
+                    function (paginationReq, next) {
+                        paginationReq['providerId'] = req.params.providerId;
+                        paginationReq['searchColumns'] = ['ip', 'platformId', 'os', 'state', 'projectName', 'environmentName', 'providerData.region'];
+                        reqData = paginationReq;
+                        apiUtil.databaseUtil(paginationReq, next);
+                    },
+                    function (queryObj, next) {
+                        unManagedInstancesDao.getByProviderId(queryObj, next);
+                    },
+                    function (unmanagedInstances, next) {
+                        apiUtil.paginationResponse(unmanagedInstances, reqData, next);
+                    }
 
-            ],
-            function (err, results) {
-                if (err)
-                    next(err);
-                else
-                    return res.status(200).send(results);
-            });
+                ],
+                function (err, results) {
+                    if (err)
+                        next(err);
+                    else
+                        return res.status(200).send(results);
+                });
     }
     ;
 
@@ -187,33 +187,33 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
     function getUnManagedInstancesList(req, res, next) {
         var reqObj = {};
         async.waterfall(
-            [
-                function (next) {
-                    apiUtil.changeRequestForJqueryPagination(req.query, next);
-                },
-                function (reqData, next) {
-                    reqObj = reqData;
-                    apiUtil.paginationRequest(reqData, 'unmanagedInstances', next);
-                },
-                function (paginationReq, next) {
-                    paginationReq['providerId'] = req.params.providerId;
-                    paginationReq['searchColumns'] = ['ip', 'platformId', 'os', 'state', 'projectName', 'environmentName', 'providerData.region'];
-                    apiUtil.databaseUtil(paginationReq, next);
-                },
-                function (queryObj, next) {
-                    unManagedInstancesDao.getByProviderId(queryObj, next);
-                },
-                function (unmanagedInstances, next) {
-                    apiUtil.changeResponseForJqueryPagination(unmanagedInstances, reqObj, next);
-                }
+                [
+                    function (next) {
+                        apiUtil.changeRequestForJqueryPagination(req.query, next);
+                    },
+                    function (reqData, next) {
+                        reqObj = reqData;
+                        apiUtil.paginationRequest(reqData, 'unmanagedInstances', next);
+                    },
+                    function (paginationReq, next) {
+                        paginationReq['providerId'] = req.params.providerId;
+                        paginationReq['searchColumns'] = ['ip', 'platformId', 'os', 'state', 'projectName', 'environmentName', 'providerData.region'];
+                        apiUtil.databaseUtil(paginationReq, next);
+                    },
+                    function (queryObj, next) {
+                        unManagedInstancesDao.getByProviderId(queryObj, next);
+                    },
+                    function (unmanagedInstances, next) {
+                        apiUtil.changeResponseForJqueryPagination(unmanagedInstances, reqObj, next);
+                    }
 
-            ],
-            function (err, results) {
-                if (err)
-                    next(err);
-                else
-                    return res.status(200).send(results);
-            });
+                ],
+                function (err, results) {
+                    if (err)
+                        next(err);
+                    else
+                        return res.status(200).send(results);
+                });
     }
     ;
     // @TODO To be refactored and API end point to be changed
@@ -383,7 +383,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                             return;
                                         }
                                         taskstatus = obj;
-                                       
+
                                         for (var i = 0; i < unmanagedInstances.length; i++) {
                                             (function (unmanagedInstance) {
                                                 var openport = 22;
@@ -571,11 +571,9 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
 
 
                                                                             if (instance.monitor && instance.monitor.parameters.transportProtocol === 'rabbitmq') {
-                                                                                var sensuCookBook = 'recipe[sensu-client]';
-                                                                                var runlist = [];
+                                                                                var sensuCookBooks = MasterUtils.getSensuCookbooks();
+                                                                                var runlist = sensuCookBooks;
                                                                                 var jsonAttributes = {};
-
-                                                                                runlist.push(sensuCookBook);
                                                                                 jsonAttributes['sensu-client'] = MasterUtils.getSensuCookbookAttributes(instance.monitor, instance.id);
                                                                                 ;
 
@@ -1219,7 +1217,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *      }
      */
     app.get('/providers/:providerId/tag-mappings/:catalystEntityType', validate(tagsValidator.tagsMapping),
-        getTagMapping);
+            getTagMapping);
 
     /**
      * @api {post} /providers/:providerId/tags-mappings                             Create tag mappings
@@ -1377,7 +1375,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *      }
      */
     app.patch('/providers/:providerId/tag-mappings/:catalystEntityType', validate(tagsValidator.tagsMapping),
-        updateTagMapping);
+            updateTagMapping);
 
     /**
      * @api {delete} /providers/:providerId/tag-mappings/:catalystEntityType     Delete tag mapping
@@ -1391,7 +1389,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *
      */
     app.delete('/providers/:providerId/tag-mappings/:catalystEntityType', validate(tagsValidator.tagsMapping),
-        deleteTagMapping);
+            deleteTagMapping);
 
 
     /**
@@ -1491,7 +1489,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *      }
      */
     app.patch('/providers/:providerId/unassigned-instances/:instanceId',
-        validate(instanceValidator.update), updateUnassignedInstanceTags);
+            validate(instanceValidator.update), updateUnassignedInstanceTags);
 
     /**
      * @api {patch} /providers/:providerId/unassigned-instances     Update unassigned instance
@@ -1554,79 +1552,79 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *      }
      */
     app.patch('/providers/:providerId/unassigned-instances',
-        validate(instanceValidator.get), bulkUpdateUnassignedInstances);
+            validate(instanceValidator.get), bulkUpdateUnassignedInstances);
 
     function getTagsList(req, res, callback) {
         async.waterfall(
-            [
+                [
 
-                function (next) {
-                    providerService.checkIfProviderExists(req.params.providerId, next);
-                },
-                providerService.getTagsByProvider,
-                providerService.createTagsList
-            ],
-            function (err, results) {
-                if (err) {
-                    callback(err);
-                } else {
-                    return res.status(200).send(results);
+                    function (next) {
+                        providerService.checkIfProviderExists(req.params.providerId, next);
+                    },
+                    providerService.getTagsByProvider,
+                    providerService.createTagsList
+                ],
+                function (err, results) {
+                    if (err) {
+                        callback(err);
+                    } else {
+                        return res.status(200).send(results);
+                    }
                 }
-            }
         );
     }
 
     function getUnassignedInstancesList(req, res, callback) {
         var reqData = {};
         async.waterfall(
-            [
-                function (next) {
-                    apiUtil.changeRequestForJqueryPagination(req.query, next);
-                },
-                function (reqData, next) {
-                    apiUtil.paginationRequest(reqData, 'unassignedInstances', next);
-                },
-                function (paginationReq, next) {
-                    paginationReq['providerId'] = req.params.providerId;
-                    paginationReq['searchColumns'] = ['ip', 'platformId', 'os', 'state', 'providerData.region'];
-                    reqData = paginationReq;
-                    apiUtil.databaseUtil(paginationReq, next);
-                },
-                function (queryObj, next) {
-                    instanceService.getUnassignedInstancesByProvider(queryObj, next);
-                },
-                function (unAssignedInstances, next) {
-                    apiUtil.changeResponseForJqueryPagination(unAssignedInstances, reqData, next);
-                }
+                [
+                    function (next) {
+                        apiUtil.changeRequestForJqueryPagination(req.query, next);
+                    },
+                    function (reqData, next) {
+                        apiUtil.paginationRequest(reqData, 'unassignedInstances', next);
+                    },
+                    function (paginationReq, next) {
+                        paginationReq['providerId'] = req.params.providerId;
+                        paginationReq['searchColumns'] = ['ip', 'platformId', 'os', 'state', 'providerData.region'];
+                        reqData = paginationReq;
+                        apiUtil.databaseUtil(paginationReq, next);
+                    },
+                    function (queryObj, next) {
+                        instanceService.getUnassignedInstancesByProvider(queryObj, next);
+                    },
+                    function (unAssignedInstances, next) {
+                        apiUtil.changeResponseForJqueryPagination(unAssignedInstances, reqData, next);
+                    }
 
-            ],
-            function (err, results) {
-                if (err)
-                    callback(err);
-                else
-                    return res.status(200).send(results);
-            });
+                ],
+                function (err, results) {
+                    if (err)
+                        callback(err);
+                    else
+                        return res.status(200).send(results);
+                });
     }
 
     function getTag(req, res, callback) {
         async.waterfall(
-            [
+                [
 
-                function (next) {
-                    providerService.checkIfProviderExists(req.params.providerId, next);
-                },
-                function (provider, next) {
-                    providerService.getTagByNameAndProvider(provider._id, req.params.tagName, next);
-                },
-                providerService.createTagObject
-            ],
-            function (err, results) {
-                if (err) {
-                    callback(err);
-                } else {
-                    return res.status(200).send(results);
+                    function (next) {
+                        providerService.checkIfProviderExists(req.params.providerId, next);
+                    },
+                    function (provider, next) {
+                        providerService.getTagByNameAndProvider(provider._id, req.params.tagName, next);
+                    },
+                    providerService.createTagObject
+                ],
+                function (err, results) {
+                    if (err) {
+                        callback(err);
+                    } else {
+                        return res.status(200).send(results);
+                    }
                 }
-            }
         );
     }
 
@@ -1635,252 +1633,252 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
 
     function updateTag(req, res, callback) {
         async.waterfall(
-            [
+                [
 
-                function (next) {
-                    providerService.checkIfProviderExists(req.params.providerId, next);
-                },
-                function (provider, next) {
-                    var tagDetails = {
-                        'name': req.params.tagName,
-                        'description': req.body.description
-                    };
-                    providerService.updateTag(provider, tagDetails, next);
-                },
-                providerService.createTagObject
-            ],
-            function (err, results) {
-                if (err) {
-                    callback(err);
-                } else {
-                    return res.status(200).send(results);
+                    function (next) {
+                        providerService.checkIfProviderExists(req.params.providerId, next);
+                    },
+                    function (provider, next) {
+                        var tagDetails = {
+                            'name': req.params.tagName,
+                            'description': req.body.description
+                        };
+                        providerService.updateTag(provider, tagDetails, next);
+                    },
+                    providerService.createTagObject
+                ],
+                function (err, results) {
+                    if (err) {
+                        callback(err);
+                    } else {
+                        return res.status(200).send(results);
+                    }
                 }
-            }
         );
     }
 
     function deleteTag(req, res, callback) {
         async.waterfall(
-            [
+                [
 
-                function (next) {
-                    providerService.checkIfProviderExists(req.params.providerId, next);
-                },
-                function (provider, next) {
-                    providerService.deleteTag(provider, req.params.tagName, next);
+                    function (next) {
+                        providerService.checkIfProviderExists(req.params.providerId, next);
+                    },
+                    function (provider, next) {
+                        providerService.deleteTag(provider, req.params.tagName, next);
+                    }
+                ],
+                function (err, results) {
+                    if (err) {
+                        callback(err);
+                    } else {
+                        return res.status(200).send(results);
+                    }
                 }
-            ],
-            function (err, results) {
-                if (err) {
-                    callback(err);
-                } else {
-                    return res.status(200).send(results);
-                }
-            }
         );
     }
 
     function getTagMappingsList(req, res, callback) {
         async.waterfall(
-            [
+                [
 
-                function (next) {
-                    providerService.checkIfProviderExists(req.params.providerId, next);
-                },
-                providerService.getTagsByProvider,
-                providerService.createTagMappingList
-            ],
-            function (err, results) {
-                if (err) {
-                    callback(err);
-                } else {
-                    return res.status(200).send(results);
+                    function (next) {
+                        providerService.checkIfProviderExists(req.params.providerId, next);
+                    },
+                    providerService.getTagsByProvider,
+                    providerService.createTagMappingList
+                ],
+                function (err, results) {
+                    if (err) {
+                        callback(err);
+                    } else {
+                        return res.status(200).send(results);
+                    }
                 }
-            }
         );
     }
 
     function getTagMapping(req, res, callback) {
         async.waterfall(
-            [
+                [
 
-                function (next) {
-                    providerService.checkIfProviderExists(req.params.providerId, next);
-                },
-                function (provider, next) {
-                    providerService.getTagByCatalystEntityTypeAndProvider(provider._id,
-                        req.params.catalystEntityType, next);
-                },
-                providerService.createTagMappingObject
-            ],
-            function (err, results) {
-                if (err) {
-                    callback(err);
-                } else {
-                    return res.status(200).send(results);
+                    function (next) {
+                        providerService.checkIfProviderExists(req.params.providerId, next);
+                    },
+                    function (provider, next) {
+                        providerService.getTagByCatalystEntityTypeAndProvider(provider._id,
+                                req.params.catalystEntityType, next);
+                    },
+                    providerService.createTagMappingObject
+                ],
+                function (err, results) {
+                    if (err) {
+                        callback(err);
+                    } else {
+                        return res.status(200).send(results);
+                    }
                 }
-            }
         );
     }
 
     function addTagMappings(req, res, callback) {
         async.waterfall(
-            [
+                [
 
-                function (next) {
-                    providerService.checkIfProviderExists(req.params.providerId, next);
-                },
-                function (provider, next) {
-                    providerService.addMultipleTagMappings(provider._id, req.body, next);
-                },
-                providerService.createTagMappingList
-            ],
-            function (err, results) {
-                if (err) {
-                    callback(err);
-                } else {
-                    return res.status(201).send(results);
+                    function (next) {
+                        providerService.checkIfProviderExists(req.params.providerId, next);
+                    },
+                    function (provider, next) {
+                        providerService.addMultipleTagMappings(provider._id, req.body, next);
+                    },
+                    providerService.createTagMappingList
+                ],
+                function (err, results) {
+                    if (err) {
+                        callback(err);
+                    } else {
+                        return res.status(201).send(results);
+                    }
                 }
-            }
         );
 
     }
 
     function updateTagMapping(req, res, callback) {
         async.waterfall(
-            [
-                function (next) {
-                    providerService.checkIfProviderExists(req.params.providerId, next);
-                },
-                function (provider, next) {
-                    providerService.getTagByCatalystEntityTypeAndProvider(provider._id,
-                        req.params.catalystEntityType, next);
-                },
-                function (tag, next) {
-                    providerService.updateTagMapping(tag, req.body, next);
-                },
-                /*function (tag, next) {
-                    providerService.getTagByNameAndProvider(req.params.providerId, tag.name, next);
-                },*/
-                providerService.createTagMappingObject
-            ],
-            function (err, results) {
-                if (err) {
-                    callback(err);
-                } else {
-                    return res.status(200).send(results);
+                [
+                    function (next) {
+                        providerService.checkIfProviderExists(req.params.providerId, next);
+                    },
+                    function (provider, next) {
+                        providerService.getTagByCatalystEntityTypeAndProvider(provider._id,
+                                req.params.catalystEntityType, next);
+                    },
+                    function (tag, next) {
+                        providerService.updateTagMapping(tag, req.body, next);
+                    },
+                    /*function (tag, next) {
+                     providerService.getTagByNameAndProvider(req.params.providerId, tag.name, next);
+                     },*/
+                    providerService.createTagMappingObject
+                ],
+                function (err, results) {
+                    if (err) {
+                        callback(err);
+                    } else {
+                        return res.status(200).send(results);
+                    }
                 }
-            }
         );
     }
 
     function deleteTagMapping(req, res, callback) {
         async.waterfall(
-            [
+                [
 
-                function (next) {
-                    providerService.checkIfProviderExists(req.params.providerId, next);
-                },
-                function (provider, next) {
-                    providerService.deleteTagMapping(provider._id, req.params.catalystEntityType, next);
+                    function (next) {
+                        providerService.checkIfProviderExists(req.params.providerId, next);
+                    },
+                    function (provider, next) {
+                        providerService.deleteTagMapping(provider._id, req.params.catalystEntityType, next);
+                    }
+                ],
+                function (err, results) {
+                    if (err) {
+                        callback(err);
+                    } else {
+                        return res.status(200).send(results);
+                    }
                 }
-            ],
-            function (err, results) {
-                if (err) {
-                    callback(err);
-                } else {
-                    return res.status(200).send(results);
-                }
-            }
         );
     }
 
     function getCatalystEntityMapping(req, res, callback) {
         async.waterfall(
-            [
+                [
 
-                function (next) {
-                    providerService.checkIfProviderExists(req.params.providerId, next);
-                },
-                function (provider, next) {
-                    providerService.getTagByCatalystEntityTypeAndProvider(provider._id,
-                        req.params.catalystEntityType, next);
-                },
-                function (tag, next) {
-                    providerService.createCatalystEntityMappingObject(tag, req.params.catalystEntityId, next);
+                    function (next) {
+                        providerService.checkIfProviderExists(req.params.providerId, next);
+                    },
+                    function (provider, next) {
+                        providerService.getTagByCatalystEntityTypeAndProvider(provider._id,
+                                req.params.catalystEntityType, next);
+                    },
+                    function (tag, next) {
+                        providerService.createCatalystEntityMappingObject(tag, req.params.catalystEntityId, next);
+                    }
+                ],
+                function (err, results) {
+                    if (err) {
+                        callback(err);
+                    } else {
+                        return res.status(200).send(results);
+                    }
                 }
-            ],
-            function (err, results) {
-                if (err) {
-                    callback(err);
-                } else {
-                    return res.status(200).send(results);
-                }
-            }
         );
     }
 
     function updateUnassignedInstanceTags(req, res, callback) {
         async.waterfall(
-            [
-                function (next) {
-                    providerService.checkIfProviderExists(req.params.providerId, next);
-                },
-                function (provider, next) {
-                    instanceService.updateUnassignedInstanceProviderTags(provider, req.params.instanceId,
-                        req.body.tags, next);
-                },
-                function (instance, next) {
-                    // @TODO Nested callback with anonymous function to be avoided.
-                    providerService.getTagMappingsByProviderId(instance.providerId,
-                        function (err, tagMappingsList) {
-                            if (err) {
-                                next(err);
-                            } else {
-                                instanceService.updateUnassignedInstanceTags(instance,
-                                    req.body.tags, tagMappingsList, next);
-                            }
-                        }
-                    );
-                },
-                instanceService.createUnassignedInstanceObject
-            ],
-            function (err, results) {
-                if (err) {
-                    callback(err);
-                } else {
-                    return res.status(200).send(results);
+                [
+                    function (next) {
+                        providerService.checkIfProviderExists(req.params.providerId, next);
+                    },
+                    function (provider, next) {
+                        instanceService.updateUnassignedInstanceProviderTags(provider, req.params.instanceId,
+                                req.body.tags, next);
+                    },
+                    function (instance, next) {
+                        // @TODO Nested callback with anonymous function to be avoided.
+                        providerService.getTagMappingsByProviderId(instance.providerId,
+                                function (err, tagMappingsList) {
+                                    if (err) {
+                                        next(err);
+                                    } else {
+                                        instanceService.updateUnassignedInstanceTags(instance,
+                                                req.body.tags, tagMappingsList, next);
+                                    }
+                                }
+                        );
+                    },
+                    instanceService.createUnassignedInstanceObject
+                ],
+                function (err, results) {
+                    if (err) {
+                        callback(err);
+                    } else {
+                        return res.status(200).send(results);
+                    }
                 }
-            }
         );
     }
 
     function bulkUpdateUnassignedInstances(req, res, callback) {
         async.waterfall(
-            [
-                function (next) {
-                    providerService.checkIfProviderExists(req.params.providerId, next);
-                },
-                function (provider, next) {
-                    if ('instances' in req.body) {
-                        instanceService.bulkUpdateInstanceProviderTags(provider, req.body.instances, next);
-                    } else {
-                        var err = new Error("Malformed request");
-                        err.status = 400;
-                        next(err);
+                [
+                    function (next) {
+                        providerService.checkIfProviderExists(req.params.providerId, next);
+                    },
+                    function (provider, next) {
+                        if ('instances' in req.body) {
+                            instanceService.bulkUpdateInstanceProviderTags(provider, req.body.instances, next);
+                        } else {
+                            var err = new Error("Malformed request");
+                            err.status = 400;
+                            next(err);
+                        }
+                    },
+                    function (instances, next) {
+                        instanceService.bulkUpdateUnassignedInstanceTags(instances, next);
                     }
-                },
-                function (instances, next) {
-                    instanceService.bulkUpdateUnassignedInstanceTags(instances, next);
+                ],
+                function (err, results) {
+                    if (err) {
+                        callback(err);
+                    } else {
+                        return res.status(200).send(results);
+                    }
                 }
-            ],
-            function (err, results) {
-                if (err) {
-                    callback(err);
-                } else {
-                    return res.status(200).send(results);
-                }
-            }
         );
     }
 };

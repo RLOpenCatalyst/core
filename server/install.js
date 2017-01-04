@@ -106,6 +106,7 @@ function getDefaultsConfig() {
                 "resources":"createdOn",
                 "instanceLogs":"createdOn",
                 "auditTrails":"startedOn",
+                "botHistory":"startedOn",
                 "taskLogs":"timestampStarted",
                 "unassignedInstances":"state",
                 "unassignedInstances":"state",

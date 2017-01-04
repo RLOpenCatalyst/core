@@ -76,6 +76,7 @@ var settingWizard = require('./routes_setting_wizard');
 var configData = require('./routes_config_data');
 var monitors = require('./routes_monitors');
 var bots = require('./routes_bots');
+var gitHub = require('./routes_github');
 /*
  * @TODO
  * Change app to router in internal routes files
@@ -189,6 +190,8 @@ module.exports.setRoutes = function(app) {
     configData.setRoutes(app, sessionVerificationFunc);
 
     bots.setRoutes(app, sessionVerificationFunc);
+
+    gitHub.setRoutes(app, sessionVerificationFunc);
 
 
     app.get('/', function(req, res) {

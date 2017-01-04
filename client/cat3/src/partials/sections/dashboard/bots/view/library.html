@@ -11,7 +11,7 @@
 	<div class="container summary-container">
 		<div class="panel-group text-center">
 			<div class="col-md-3 col-sm-6 col-xs-12">
-				<div class="info-box cursor" ng-click="RefreshBotsLibrary()" ng-class="{'selected-blue':totalBotsSelected}">
+				<div class="info-box cursor" ng-click="showAllBots()" ng-class="{'selected-blue':totalBotsSelected}">
 					<span class="info-box-icon bg-aqua">
 						<i class="fa fa-list-ol" style="color: #fff"></i>
 					</span>
@@ -69,6 +69,5 @@
 	<div class="alert alert-info text-center" ng-show="botLibGridOptions.data.length===0">
 		No data Available
 	</div>
-	
 	<div id="grid1" ng-if="botLibGridOptions.data.length >0 && !isBotLibraryPageLoading" ui-grid="botLibGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid" style="height: {{gridHeight}}px"></div>
 </div>

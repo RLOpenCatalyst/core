@@ -24,6 +24,7 @@ var instancesDao = require('_pr/model/classes/instance/instance');
 var auditTrailService = require('_pr/services/auditTrailService');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
 var async = require('async');
+var crontab = require('node-crontab');
 
 const errorType = 'taskService';
 
@@ -158,11 +159,6 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
             }else{
                 taskExecutionCount = 1;
             }
-            taskDao.updateTaskExecutionCount(task._id,taskExecutionCount,function(err,data){
-                if(err){
-                    logger.error("Error while updating Task Execution Count");
-                }
-            });
             if(task.serviceDeliveryCheck === true){
                 var actionObj={
                     auditType:'BOTs',
@@ -186,25 +182,58 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
                     if(err){
                         logger.error(err);
                     }else if(data.length > 0){
-                        var botExecutionCount = data[0].executionCount + 1;
-                        bots.updateBotsExecutionCount(task._id,botExecutionCount,function(err,data){
-                            if(err){
-                                logger.error("Error while updating Bot Execution Count");
+                        var currentDate = new Date().getTime();
+                        if(((data[0].isBotScheduled === false || (data[0].botScheduler.cronEndOn && currentDate >= data[0].botScheduler.cronEndOn)) ||
+                            (data[0].isBotScheduled === true && data[0].botScheduler.cronEndOn && currentDate >= data[0].botScheduler.cronEndOn) ||
+                            (task.isTaskScheduled === true && task.taskScheduler.cronEndOn && currentDate >= task.taskScheduler.cronEndOn)) && user === 'system'){
+                            crontab.cancelJob(data[0].cronJobId);
+                            bots.updateBotsScheduler(data[0]._id,function(err, updatedData) {
+                                if (err) {
+                                    logger.error("Failed to update Bots Scheduler: ", err);
+                                    callback(err,null);
+                                    return;
+                                }
+                                logger.debug("Scheduler is ended on for Bots. "+data[0].botName);
+                                callback(null,updatedData);
+                                return;
+                            });
+                            crontab.cancelJob(task.cronJobId);
+                            taskDao.updateTaskScheduler(task._id,function(err, updatedData) {
+                                if (err) {
+                                    logger.error("Failed to update Task Scheduler: ", err);
+                                    callback(err,null);
+                                    return;
+                                }
+                                logger.debug("Scheduler is ended on for Task. "+task.name);
+                                callback(null,updatedData);
+                                return;
+                            });
+                        }else {
+                            var botExecutionCount = data[0].executionCount + 1;
+                            taskDao.updateTaskExecutionCount(task._id,taskExecutionCount,function(err,data){
+                                if(err){
+                                    logger.error("Error while updating Task Execution Count");
+                                }
+                            });
+                            bots.updateBotsExecutionCount(task._id, botExecutionCount, function (err, data) {
+                                if (err) {
+                                    logger.error("Error while updating Bot Execution Count");
+                                }
+                            });
+                            var reqBody = {
+                                userName: user,
+                                hostProtocol: hostProtocol,
+                                choiceParam: choiceParam,
+                                appData: appData,
+                                tagServer: botTagServer,
+                                paramOptions: paramOptions
                             }
-                        });
-                        var reqBody = {
-                            userName: user,
-                            hostProtocol: hostProtocol,
-                            choiceParam: choiceParam,
-                            appData: appData,
-                            tagServer: botTagServer,
-                            paramOptions:paramOptions
+                            bots.updateBotsDetail(task._id, {runTimeParams: reqBody}, function (err, data) {
+                                if (err) {
+                                    logger.error("Error while updating Bots Configuration");
+                                }
+                            });
                         }
-                        bots.updateBotsDetail(task._id,{runTimeParams:reqBody},function(err,data){
-                            if(err){
-                                logger.error("Error while updating Bots Configuration");
-                            }
-                        });
                     }else{
                         logger.debug("There is no BOTs data present in DB");
                     }
@@ -233,18 +262,37 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
                     });
                 });
             }else{
-                task.execute(user, hostProtocol, choiceParam, appData, blueprintIds, task.envId,auditTrailId,function(err, taskRes, historyData) {
-                    if (err) {
-                        var error = new Error('Failed to execute task.');
-                        error.status = 500;
-                        return callback(error, null);
-                    }
-                    if (historyData) {
-                        taskRes.historyId = historyData.id;
-                    }
-                    callback(null, taskRes);
-                    return;
-                });
+                if((task.isTaskScheduled === false || (task.isTaskScheduled === true && task.taskScheduler.cronEndOn && currentDate >= task.taskScheduler.cronEndOn)) && user === 'system') {
+                    crontab.cancelJob(task.cronJobId);
+                    taskDao.updateTaskScheduler(task._id, function (err, updatedData) {
+                        if (err) {
+                            logger.error("Failed to update Task Scheduler: ", err);
+                            callback(err, null);
+                            return;
+                        }
+                        logger.debug("Scheduler is ended on for Task. " + task.name);
+                        callback(null, updatedData);
+                        return;
+                    });
+                }else {
+                    taskDao.updateTaskExecutionCount(task._id, taskExecutionCount, function (err, data) {
+                        if (err) {
+                            logger.error("Error while updating Task Execution Count");
+                        }
+                    });
+                    task.execute(user, hostProtocol, choiceParam, appData, blueprintIds, task.envId, auditTrailId, function (err, taskRes, historyData) {
+                        if (err) {
+                            var error = new Error('Failed to execute task.');
+                            error.status = 500;
+                            return callback(error, null);
+                        }
+                        if (historyData) {
+                            taskRes.historyId = historyData.id;
+                        }
+                        callback(null, taskRes);
+                        return;
+                    });
+                }
             }
 
         } else {
