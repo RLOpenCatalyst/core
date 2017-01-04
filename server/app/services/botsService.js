@@ -330,7 +330,7 @@ botsService.executeBots = function executeBots(botId,reqBody,callback){
             if(reqBody.paramOptions.scriptParams){
                 encryptedParam(reqBody.paramOptions.scriptParams,next);
             }else{
-                next([],next);
+                next(null,[]);
             }
         },
         function(encryptedParamList,next) {
@@ -388,40 +388,45 @@ function filterScriptBotsData(data,callback){
     var botsList = [];
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-    for(var i = 0; i < data.docs.length; i++){
-        (function(bots){
-            if ((bots.botLinkedSubCategory === 'script')
-                && ('scriptDetails' in bots.botConfig)
-                && (bots.botConfig.scriptDetails.length > 0)) {
-                var scriptCount = 0;
-                for (var j = 0; j < bots.botConfig.scriptDetails.length; j++) {
-                    (function (scriptBot) {
-                        if (scriptBot.scriptParameters.length > 0) {
-                            scriptCount++;
-                            for (var k = 0; k < scriptBot.scriptParameters.length; k++) {
-                                if(scriptBot.scriptParameters[k].paramType === 'Default' || scriptBot.scriptParameters[k].paramType === 'Password'){
-                                    scriptBot.scriptParameters[k].paramVal = cryptography.decryptText(scriptBot.scriptParameters[k].paramVal, cryptoConfig.decryptionEncoding,
-                                        cryptoConfig.encryptionEncoding);
-                                }else {
-                                    scriptBot.scriptParameters[k].paramVal = '';
+    if(data.docs.length === 0){
+        callback(null,data);
+        return;
+    }else {
+        for (var i = 0; i < data.docs.length; i++) {
+            (function (bots) {
+                if ((bots.botLinkedSubCategory === 'script')
+                    && ('scriptDetails' in bots.botConfig)
+                    && (bots.botConfig.scriptDetails.length > 0)) {
+                    var scriptCount = 0;
+                    for (var j = 0; j < bots.botConfig.scriptDetails.length; j++) {
+                        (function (scriptBot) {
+                            if (scriptBot.scriptParameters.length > 0) {
+                                scriptCount++;
+                                for (var k = 0; k < scriptBot.scriptParameters.length; k++) {
+                                    if (scriptBot.scriptParameters[k].paramType === '' || scriptBot.scriptParameters[k].paramType === 'Default' || scriptBot.scriptParameters[k].paramType === 'Password') {
+                                        scriptBot.scriptParameters[k].paramVal = cryptography.decryptText(scriptBot.scriptParameters[k].paramVal, cryptoConfig.decryptionEncoding,
+                                            cryptoConfig.encryptionEncoding);
+                                    } else {
+                                        scriptBot.scriptParameters[k].paramVal = '';
+                                    }
                                 }
+                            } else {
+                                scriptCount++;
                             }
-                        } else {
-                            scriptCount++;
-                        }
-                    })(bots.botConfig.scriptDetails[j]);
-                }
-                if(scriptCount === bots.botConfig.scriptDetails.length) {
+                        })(bots.botConfig.scriptDetails[j]);
+                    }
+                    if (scriptCount === bots.botConfig.scriptDetails.length) {
+                        botsList.push(bots);
+                    }
+                } else {
                     botsList.push(bots);
                 }
-            } else {
-                botsList.push(bots);
+            })(data.docs[i]);
+            if (botsList.length === data.docs.length) {
+                data.docs = botsList;
+                callback(null, data);
+                return;
             }
-        })(data.docs[i]);
-        if(botsList.length === data.docs.length){
-            data.docs = botsList;
-            callback(null,data);
-            return;
         }
     }
 }

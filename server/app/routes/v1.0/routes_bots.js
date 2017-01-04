@@ -100,23 +100,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     scriptParams: req.body.scriptParams
                 }
             }
-            /*var paramOptions = {
-                cookbookAttributes: req.body.cookbookAttributes,
-                scriptParams: req.body.scriptParams
-            };
-
-            if (paramOptions.scriptParams && paramOptions.scriptParams.length) {
-                var cryptoConfig = appConfig.cryptoSettings;
-                var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-                var encryptedParams = [];
-                for (var i = 0; i < paramOptions.scriptParams.length; i++) {
-                    var encryptedText = cryptography.encryptText(paramOptions.scriptParams[i], cryptoConfig.encryptionEncoding,
-                        cryptoConfig.decryptionEncoding);
-                    encryptedParams.push(encryptedText);
-                }
-                paramOptions.scriptParams = encryptedParams;
-            }
-            reqBody.paramOptions=paramOptions;*/
         }
         if(reqBody !== null) {
             botsService.executeBots(req.params.botId, reqBody, function (err, data) {

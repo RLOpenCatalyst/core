@@ -90,13 +90,13 @@
 							<tbody ng-repeat="paramjen in scriptparams">
 								<tr ng-repeat="params in paramjen.scriptParameters" ng-init="number = countInit()">
 									<td class="booleanParam">
-										<label class="control-label" for="choiceName">Parameter {{number+1}}:<span class="red">*</span></label>
+										<label class="control-label" for="choiceName">Parameter{{number+1}}:<span class="red">*</span></label>
 									</td>
 									<td>
 										<input id="description" type="text" class="form-control" name="description" ng-model="params.paramDesc" disabled="disabled">
 									</td>
 									<td>
-										<input  type="text" class="form-control" name="value" ng-if="params.paramType === 'Default'"  ng-model="params.paramVal" required>
+										<input  type="text" class="form-control" name="value" ng-if="params.paramType === '' || params.paramType === 'Default'"  ng-model="params.paramVal" required>
 										<input  type="password" class="form-control" name="value"  ng-if="params.paramType === 'Password'"  ng-model="params.paramVal" required>
 										<input  type="text" class="form-control" name="value" ng-if="params.paramType === 'Restricted'"  ng-model="params.paramVal" required>
 									</td>
