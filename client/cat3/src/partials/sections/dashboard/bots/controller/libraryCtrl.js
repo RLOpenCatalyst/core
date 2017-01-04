@@ -34,14 +34,15 @@
                 { name: 'description',field:'botDesc',cellTooltip: true},
                 { name: 'Organization',field:'masterDetails.orgName',cellTooltip: true},
                 { name: 'Total Runs',field:'executionCount'},
-                { name: 'BOT History',displayName: 'BOT History',cellTemplate:'<span ng-show="row.entity.blueprintType">NA</span>'+
-                    '<span class="btn cat-btn-update control-panel-button" title="History" ng-show="row.entity.botLinkedSubCategory" ng-click="grid.appScope.botHistory(row.entity);"><i class="fa fa-header white"></i></span>'},
-                { name: 'BOT Info',displayName: 'BOT Info',cellTemplate:
-                    '<span class="btn cat-btn-update control-panel-button" title="Info" ng-click="grid.appScope.botInfo(row.entity);"><i class="fa fa-info white"></i></span>'},
-                { name: 'BOT Action',displayName: 'BOT Action',cellTemplate:
-                    '<span class="btn cat-btn-update control-panel-button" title="Schedule" ng-click="grid.appScope.botSchedule(row.entity);"><i class="fa fa-calendar white"></i></span>' +
-                    '<span class="btn cat-btn-update control-panel-button" title="Execute" ng-click="grid.appScope.launchInstance(row.entity);"><i class="fa fa-play white"></i></span>' +
-                    '<span class="btn btn-danger control-panel-button" title="Delete Bot" ng-click="grid.appScope.deleteBot(row.entity);"><i class="fa fa-trash-o white"></i></span>'
+                   { name: 'BOT Action',width:200,displayName: 'BOT Action',cellTemplate:
+                    // '<a class="cursor" title="History" ng-click="grid.appScope.botLogs(row.entity);"><i class="fa fa-header font-size-16"></i></a>'+
+                    '<a class="cursor" title="History" ng-click="grid.appScope.botHistory(row.entity);"><i class="fa fa-header font-size-16"></i></a>'+
+                    '<a class="cursor" title="Info" ng-click="grid.appScope.botInfo(row.entity);"><i class="fa fa-info font-size-16"></i></a>'+
+                    //'<a class="cursor" title="Edit" ng-click="grid.appScope.createBot(row.entity);"><i class="fa fa-pencil font-size-16"></i></a>'+
+                    '<a class="cursor" title="Schedule" ng-click="grid.appScope.botSchedule(row.entity);"><i class="fa fa-calendar font-size-16"></i></a>' +
+                    '<a class="cursor" title="Execute" ng-click="grid.appScope.launchInstance(row.entity);"><i class="fa fa-play font-size-16"></i></a>' +
+                    //'<a class="cursor" title="Report" ng-click="grid.appScope.botReport(row.entity);"><i class="fa fa-file-text font-size-16"></i></a>' + 
+                    '<a class="cursor" title="Delete" ng-click="grid.appScope.deleteBot(row.entity);"><i class="fa fa-trash-o font-size-16"></i></a>'
                 }
             ]
             $scope.botLibGridOptions.data=[];
@@ -127,7 +128,7 @@
                 $scope.errorMessage = "No Records found";
             });
         };
-        var gridBottomSpace = 225;
+        var gridBottomSpace = 265;
         $scope.gridHeight = workzoneUIUtils.makeTabScrollable('botLibraryPage') - gridBottomSpace;
         $scope.launchInstance = function(launch){
             if(launch.botLinkedCategory === 'Task'){
@@ -214,6 +215,8 @@
                             $scope.botLibraryGridView();
                         } else if($scope.runningBotsselected) {
                             $scope.showBotsRunning();
+                        } else if($scope.scheduledBotsSelected) {
+                            $scope.showScheduledBots();
                         } else if($scope.failedBotsselected) {
                             $scope.showFailedBots();
                         } else {
@@ -236,6 +239,8 @@
                 $scope.botLibraryGridView();
             } else if($scope.runningBotsselected) {
                 $scope.showBotsRunning();
+            } else if($scope.scheduledBotsSelected) {
+                $scope.showScheduledBots();
             } else if($scope.failedBotsselected) {
                 $scope.showFailedBots();
             } else {
@@ -246,6 +251,7 @@
             $scope.totalBotsSelected = true;
             $scope.runningBotsselected = false;
             $scope.failedBotsselected = false;
+            $scope.scheduledBotsSelected = false;
             lib.summary();
             $scope.botLibraryGridView();
         };
@@ -253,6 +259,7 @@
             $scope.runningBotsselected = true;
             $scope.totalBotsSelected = false;
             $scope.failedBotsselected = false;
+            $scope.scheduledBotsSelected = false;
             lib.gridOptions.data=[];
             var param={
                 url:'/bots?actionStatus=running&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
@@ -269,9 +276,27 @@
             $scope.failedBotsselected = true;
             $scope.runningBotsselected = false;
             $scope.totalBotsSelected = false;
+            $scope.scheduledBotsSelected = false;
             lib.gridOptions.data=[];
             var param={
                 url:'/bots?actionStatus=failed&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+            };
+            genSevs.promiseGet(param).then(function (result) {
+                $timeout(function() {
+                    $scope.botLibGridOptions.totalItems = result.metaData.totalRecords;
+                    $scope.botLibGridOptions.data=result.bots;
+                }, 100);
+            });
+            lib.summary();
+        };
+        $scope.showScheduledBots = function() {
+            $scope.failedBotsselected = false;
+            $scope.runningBotsselected = false;
+            $scope.totalBotsSelected = false;
+            $scope.scheduledBotsSelected = true;
+            lib.gridOptions.data=[];
+            var param={
+                url:'/bots?filterBy=isBotScheduled:true&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
             };
             genSevs.promiseGet(param).then(function (result) {
                 $timeout(function() {

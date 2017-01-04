@@ -115,7 +115,7 @@
                         disResrc.gridOptionInstances.data = [];
                         if($rootScope.organNewEnt.instanceType === 'Managed') {
                             disResrc.gridOptionInstances.enableRowHeaderSelection= false;
-                            $scope.colArray=['platformId','privateIpAddress','instanceState','region'];
+                            $scope.colArray=['platformId','privateIpAddress','instanceState'];
                             disResrc.gridOptionInstances.columnDefs=[
                                 {name: 'InstanceId', field: 'platformId',enableCellEditOnFocus: false, cellTooltip: true,
                                     enableCellEdit: false,enableFiltering: true},
@@ -127,7 +127,7 @@
                                 {
                                     name: 'Region',enableFiltering: true,
                                     displayName: 'Region',
-                                    field: 'region',
+                                    field: 'providerData.region',
                                     cellTooltip: true,enableCellEditOnFocus: false,
                                     enableCellEdit: false
                                 },
@@ -343,6 +343,8 @@
         $scope.items=items;
         var fltrObj=$rootScope.filterNewEnt;
         var reqBody = {};
+        $scope.monitorList = [];
+        $scope.monitorId = 'null';
         $scope.IMGNewEnt={
             passType:'password',
             org:$rootScope.organObject[0]
@@ -353,6 +355,14 @@
         }
         genericServices.promiseGet(params).then(function (list) {
             $scope.configOptions=list;
+        });
+
+        //get monitors
+        var monitorParam={
+            url:'/monitors?filterBy=orgId:' + $scope.IMGNewEnt.org.orgid
+        }
+        genericServices.promiseGet(monitorParam).then(function (list) {
+            $scope.monitorList = list;
         });
 
         $scope.pemFileSelection = function($event) {
@@ -381,7 +391,8 @@
             reqBody.projectName = $scope.IMGNewEnt.proj.name;
             reqBody.environmentName = $scope.IMGNewEnt.env.name;
             reqBody.configManagmentId = $scope.IMGNewEnt.serverTypeInd;
-            
+            reqBody.monitorId = $scope.monitorId;
+
             reqBody.credentials = {};
             reqBody.credentials.username = $scope.IMGNewEnt.userName;
             reqBody.instanceIds = [];
