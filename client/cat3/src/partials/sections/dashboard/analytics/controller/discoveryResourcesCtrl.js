@@ -115,7 +115,7 @@
                         disResrc.gridOptionInstances.data = [];
                         if($rootScope.organNewEnt.instanceType === 'Managed') {
                             disResrc.gridOptionInstances.enableRowHeaderSelection= false;
-                            $scope.colArray=['platformId','privateIpAddress','instanceState','region'];
+                            $scope.colArray=['platformId','privateIpAddress','instanceState'];
                             disResrc.gridOptionInstances.columnDefs=[
                                 {name: 'InstanceId', field: 'platformId',enableCellEditOnFocus: false, cellTooltip: true,
                                     enableCellEdit: false,enableFiltering: true},
@@ -127,7 +127,7 @@
                                 {
                                     name: 'Region',enableFiltering: true,
                                     displayName: 'Region',
-                                    field: 'region',
+                                    field: 'providerData.region',
                                     cellTooltip: true,enableCellEditOnFocus: false,
                                     enableCellEdit: false
                                 },
