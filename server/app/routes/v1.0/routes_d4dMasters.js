@@ -159,12 +159,12 @@ module.exports.setRoutes = function (app, sessionVerification) {
         });
     });
     //d4dmasters/getdockertags/centos/null
-    app.get('/d4dmasters/getdockertags/:repopath/:dockerreponame', function (req, res) {
-        logger.debug("Enter get() for /d4dmasters/getdockertags/%s/%s", req.params.repopath, req.params.dockerreponame);
+    app.get('/d4dmasters/getdockertags', function (req, res) {
+        logger.debug("Enter get() for /d4dmasters/getdockertags/%s/%s", req.query.repopath, req.query.dockerreponame);
         //fetch the username and password from
         //Need to populate dockerrowid in template card. - done
         logger.debug('hit getdockertags');
-        configmgmtDao.getMasterRow(18, 'dockerreponame', req.params.dockerreponame, function (err, data) {
+        configmgmtDao.getMasterRow(18, 'dockerreponame', req.query.dockerreponame, function (err, data) {
             if (!err) {
                 logger.debug('data rcvd:' + data == '');
                 logger.debug(data);
@@ -188,7 +188,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
                 // Tried with http rest call but api did not working from docker side, so commenting and keeping old code: Gobinda
 
 
-                var dockerUrl = 'https://registry.hub.docker.com/v1/repositories/' + req.params.repopath.replace(/\$\$/g, '/') + '/tags';
+                var dockerUrl = 'https://registry.hub.docker.com/v1/repositories/' + req.query.repopath.replace(/\$\$/g, '/') + '/tags';
                 //https://index.docker.io/v1/repositories/
                 logger.debug('dockerurl:' + dockerUrl);
                 client.registerMethod("jsonMethod", dockerUrl, "GET");
