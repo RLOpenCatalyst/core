@@ -2519,162 +2519,178 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                 if (!editMode) { //push new values only when not in edit mode
                                     // Start Auto create Team
                                     if (req.params.id === '1') {
-                                        var orgData = {
-                                            "orgname": bodyJson['orgname'],
-                                            "domainname": bodyJson['domainname'],
-                                            "rowid": bodyJson['rowid'],
-                                            "plannedCost": bodyJson['plannedCost'],
-                                            "id": "1"
-                                        }
-                                        var orgObj = new d4dModelNew.d4dModelMastersOrg(orgData);
-                                        orgObj.save(function (err, anOrg) {
+                                        d4dModelNew.d4dModelMastersOrg.find({
+                                            orgname: bodyJson["orgname"]
+                                        }, function (err, orgs) {
                                             if (err) {
-                                                res.status(500).send("Failed to save Org.");
+                                                logger.error('Hit error while check org is exist with Org Name', err);
+                                                res.send(500);
                                                 return;
-                                            }
-                                            async.parallel({
-                                                template: function (callback) {
-                                                    for (var x1 = 0; x1 < 6; x1++) {
-                                                        (function (x1) {
-                                                            var templatetypename;
-                                                            var designtemplateicon_filename;
-                                                            var templatetype;
-                                                            var providerType;
-                                                            if (x1 === 0) {
-                                                                templatetypename = "Docker";
-                                                                designtemplateicon_filename = "Docker.png";
-                                                                templatetype = "docker";
-                                                                providerType = ['aws', 'azure', 'openstack', 'vmware'];
-                                                            } else if (x1 === 1) {
-                                                                templatetypename = "OSImage";
-                                                                designtemplateicon_filename = "Desktop Provisining.png";
-                                                                templatetype = "ami";
-                                                                providerType = ['aws', 'azure', 'openstack', 'vmware'];
-                                                            } else if (x1 === 2) {
-                                                                templatetypename = "SoftwareStack";
-                                                                designtemplateicon_filename = "Appfactory.png";
-                                                                templatetype = "chef";
-                                                                providerType = ['aws', 'azure', 'openstack', 'vmware'];
-                                                            } else if (x1 === 3) {
-                                                                templatetypename = "CloudFormation";
-                                                                designtemplateicon_filename = "CloudFormation.png";
-                                                                templatetype = "cft";
-                                                                providerType = ['aws'];
+                                            } else if (orgs.length > 0) {
+                                                logger.error('Org Name already exists. Please enter different Org Name');
+                                                res.status(400).send("Org Name already exists.Please enter different Org Name");
+                                                return;
+                                            } else {
 
-                                                            } else if (x1 === 4) {
-                                                                templatetypename = "ARMTemplate";
-                                                                designtemplateicon_filename = "CloudFormation.png";
-                                                                templatetype = "arm";
-                                                                providerType = ['azure'];
-                                                            } else {
-                                                                templatetypename = "Composite";
-                                                                designtemplateicon_filename = "composite.png";
-                                                                templatetype = "composite";
-                                                                providerType = ['aws'];
-                                                            }
 
-                                                            var templateTypeData = {
-                                                                "templatetypename": templatetypename,
-                                                                "orgname": bodyJson["orgname"],
-                                                                "orgname_rowid": bodyJson["rowid"],
-                                                                "rowid": uuid.v4(),
-                                                                "id": "16",
-                                                                "templatetype": templatetype,
-                                                                "providerType": providerType
-
-                                                            };
-
-                                                            var templateTypeModel = new d4dModelNew.d4dModelMastersDesignTemplateTypes(templateTypeData);
-                                                            templateTypeModel.save(function (err, aTemplateType) {
-                                                                if (err) {
-                                                                    logger.debug("Failed to save TemplateType.");
-                                                                }
-                                                                logger.debug("Default TemplateType created.");
-                                                                if (x1 === 5) {
-                                                                    callback(null, aTemplateType);
-                                                                    return;
-                                                                }
-                                                            });
-                                                        })(x1);
-                                                    }
-                                                },
-                                                team: function (callback) {
-                                                    for (var x = 0; x < 4; x++) {
-                                                        (function (x) {
-                                                            var teamName;
-                                                            var descriptions;
-                                                            if (x === 0) {
-                                                                teamName = bodyJson["orgname"] + "_Admins";
-                                                                descriptions = "Team For " + teamName;
-                                                            } else if (x === 1) {
-                                                                teamName = bodyJson["orgname"] + "_DEV";
-                                                                descriptions = "Team For " + teamName;
-                                                            } else if (x === 2) {
-                                                                teamName = bodyJson["orgname"] + "_QA";
-                                                                descriptions = "Team For " + teamName;
-                                                            } else {
-                                                                teamName = bodyJson["orgname"] + "_DevOps";
-                                                                descriptions = "Team For " + teamName;
-                                                            }
-
-                                                            var teamData = {
-                                                                "teamname": teamName,
-                                                                "description": descriptions,
-                                                                "orgname": bodyJson["orgname"],
-                                                                "orgname_rowid": bodyJson["rowid"],
-                                                                "rowid": uuid.v4(),
-                                                                "id": "21",
-                                                                "loginname": "",
-                                                                "loginname_rowid": "",
-                                                                "projectname": "",
-                                                                "projectname_rowid": ""
-
-                                                            };
-                                                            var teamModel = new d4dModelNew.d4dModelMastersTeams(teamData);
-                                                            teamModel.save(function (err, aTeam) {
-                                                                if (err) {
-                                                                    logger.debug("Failed to save Team.");
-                                                                }
-                                                                logger.debug("Auto created Team: ", JSON.stringify(aTeam));
-                                                                if (x === 3) {
-                                                                    callback(null, aTeam);
-                                                                    return;
-                                                                }
-                                                            });
-                                                        })(x);
-
-                                                    }
-                                                },
-                                                wizard: function (callback) {
-                                                    var settingWizardSteps = appConfig.settingWizardSteps;
-                                                    var currentStep = settingWizardSteps[1];
-                                                    if (currentStep.nestedSteps) {
-                                                        currentStep.nestedSteps[0].isCompleted = true;
-                                                    }
-                                                    var wizardBody = {
-                                                        orgId: bodyJson["rowid"],
-                                                        orgName: bodyJson["orgname"],
-                                                        previousStep: settingWizardSteps[0],
-                                                        currentStep: currentStep,
-                                                        nextStep: settingWizardSteps[2]
-                                                    }
-                                                    settingWizard.createSettingWizard(wizardBody, function (err, data) {
-                                                        if (err) {
-                                                            logger.debug("Failed to save Setting Wizard.");
-                                                        }
-                                                        logger.debug("Setting Wizard created.");
-                                                        callback(null, data);
+                                                var orgData = {
+                                                    "orgname": bodyJson['orgname'],
+                                                    "domainname": bodyJson['domainname'],
+                                                    "rowid": bodyJson['rowid'],
+                                                    "plannedCost": bodyJson['plannedCost'],
+                                                    "id": "1"
+                                                }
+                                                var orgObj = new d4dModelNew.d4dModelMastersOrg(orgData);
+                                                orgObj.save(function (err, anOrg) {
+                                                    if (err) {
+                                                        res.status(500).send("Failed to save Org.");
                                                         return;
-                                                    });
-                                                }
-                                            }, function (err, results) {
-                                                if (err) {
-                                                    res.status(500).send("Failed to save template/Team/Wizard.");
-                                                    return;
-                                                }
-                                                res.send(200);
-                                                return;
-                                            })
+                                                    }
+                                                    async.parallel({
+                                                        template: function (callback) {
+                                                            for (var x1 = 0; x1 < 6; x1++) {
+                                                                (function (x1) {
+                                                                    var templatetypename;
+                                                                    var designtemplateicon_filename;
+                                                                    var templatetype;
+                                                                    var providerType;
+                                                                    if (x1 === 0) {
+                                                                        templatetypename = "Docker";
+                                                                        designtemplateicon_filename = "Docker.png";
+                                                                        templatetype = "docker";
+                                                                        providerType = ['aws', 'azure', 'openstack', 'vmware'];
+                                                                    } else if (x1 === 1) {
+                                                                        templatetypename = "OSImage";
+                                                                        designtemplateicon_filename = "Desktop Provisining.png";
+                                                                        templatetype = "ami";
+                                                                        providerType = ['aws', 'azure', 'openstack', 'vmware'];
+                                                                    } else if (x1 === 2) {
+                                                                        templatetypename = "SoftwareStack";
+                                                                        designtemplateicon_filename = "Appfactory.png";
+                                                                        templatetype = "chef";
+                                                                        providerType = ['aws', 'azure', 'openstack', 'vmware'];
+                                                                    } else if (x1 === 3) {
+                                                                        templatetypename = "CloudFormation";
+                                                                        designtemplateicon_filename = "CloudFormation.png";
+                                                                        templatetype = "cft";
+                                                                        providerType = ['aws'];
+
+                                                                    } else if (x1 === 4) {
+                                                                        templatetypename = "ARMTemplate";
+                                                                        designtemplateicon_filename = "CloudFormation.png";
+                                                                        templatetype = "arm";
+                                                                        providerType = ['azure'];
+                                                                    } else {
+                                                                        templatetypename = "Composite";
+                                                                        designtemplateicon_filename = "composite.png";
+                                                                        templatetype = "composite";
+                                                                        providerType = ['aws'];
+                                                                    }
+
+                                                                    var templateTypeData = {
+                                                                        "templatetypename": templatetypename,
+                                                                        "orgname": bodyJson["orgname"],
+                                                                        "orgname_rowid": bodyJson["rowid"],
+                                                                        "rowid": uuid.v4(),
+                                                                        "id": "16",
+                                                                        "templatetype": templatetype,
+                                                                        "providerType": providerType
+
+                                                                    };
+
+                                                                    var templateTypeModel = new d4dModelNew.d4dModelMastersDesignTemplateTypes(templateTypeData);
+                                                                    templateTypeModel.save(function (err, aTemplateType) {
+                                                                        if (err) {
+                                                                            logger.debug("Failed to save TemplateType.");
+                                                                        }
+                                                                        logger.debug("Default TemplateType created.");
+                                                                        if (x1 === 5) {
+                                                                            callback(null, aTemplateType);
+                                                                            return;
+                                                                        }
+                                                                    });
+                                                                })(x1);
+                                                            }
+                                                        },
+                                                        team: function (callback) {
+                                                            for (var x = 0; x < 4; x++) {
+                                                                (function (x) {
+                                                                    var teamName;
+                                                                    var descriptions;
+                                                                    if (x === 0) {
+                                                                        teamName = bodyJson["orgname"] + "_Admins";
+                                                                        descriptions = "Team For " + teamName;
+                                                                    } else if (x === 1) {
+                                                                        teamName = bodyJson["orgname"] + "_DEV";
+                                                                        descriptions = "Team For " + teamName;
+                                                                    } else if (x === 2) {
+                                                                        teamName = bodyJson["orgname"] + "_QA";
+                                                                        descriptions = "Team For " + teamName;
+                                                                    } else {
+                                                                        teamName = bodyJson["orgname"] + "_DevOps";
+                                                                        descriptions = "Team For " + teamName;
+                                                                    }
+
+                                                                    var teamData = {
+                                                                        "teamname": teamName,
+                                                                        "description": descriptions,
+                                                                        "orgname": bodyJson["orgname"],
+                                                                        "orgname_rowid": bodyJson["rowid"],
+                                                                        "rowid": uuid.v4(),
+                                                                        "id": "21",
+                                                                        "loginname": "",
+                                                                        "loginname_rowid": "",
+                                                                        "projectname": "",
+                                                                        "projectname_rowid": ""
+
+                                                                    };
+                                                                    var teamModel = new d4dModelNew.d4dModelMastersTeams(teamData);
+                                                                    teamModel.save(function (err, aTeam) {
+                                                                        if (err) {
+                                                                            logger.debug("Failed to save Team.");
+                                                                        }
+                                                                        logger.debug("Auto created Team: ", JSON.stringify(aTeam));
+                                                                        if (x === 3) {
+                                                                            callback(null, aTeam);
+                                                                            return;
+                                                                        }
+                                                                    });
+                                                                })(x);
+
+                                                            }
+                                                        },
+                                                        wizard: function (callback) {
+                                                            var settingWizardSteps = appConfig.settingWizardSteps;
+                                                            var currentStep = settingWizardSteps[1];
+                                                            if (currentStep.nestedSteps) {
+                                                                currentStep.nestedSteps[0].isCompleted = true;
+                                                            }
+                                                            var wizardBody = {
+                                                                orgId: bodyJson["rowid"],
+                                                                orgName: bodyJson["orgname"],
+                                                                previousStep: settingWizardSteps[0],
+                                                                currentStep: currentStep,
+                                                                nextStep: settingWizardSteps[2]
+                                                            }
+                                                            settingWizard.createSettingWizard(wizardBody, function (err, data) {
+                                                                if (err) {
+                                                                    logger.debug("Failed to save Setting Wizard.");
+                                                                }
+                                                                logger.debug("Setting Wizard created.");
+                                                                callback(null, data);
+                                                                return;
+                                                            });
+                                                        }
+                                                    }, function (err, results) {
+                                                        if (err) {
+                                                            res.status(500).send("Failed to save template/Team/Wizard.");
+                                                            return;
+                                                        }
+                                                        res.send(200);
+                                                        return;
+                                                    })
+                                                });
+                                            }
                                         });
                                     } else if (req.params.id === '7') {
                                         authUtil.hashPassword(bodyJson["password"], function (err, hashedPassword) {

@@ -95,7 +95,9 @@
 										<input id="description" type="text" class="form-control" name="description" ng-model="params.paramDesc" disabled="disabled">
 									</td>
 									<td>
-										<input id="value" type="text" class="form-control" name="value" ng-model="parameters[number]">
+										<input  type="text" class="form-control" name="value" ng-if="params.paramType === 'Default'"  ng-model="params.paramVal">
+										<input  type="password" class="form-control" name="value"  ng-if="params.paramType === 'Password'"  ng-model="params.paramVal">
+										<input  type="text" class="form-control" name="value" ng-if="params.paramType === 'Restricted'"  ng-model="params.paramVal">
 									</td>
 								</tr>
 							</tbody>
