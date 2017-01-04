@@ -14,6 +14,7 @@
 								<th class="headParamTable">Key</th>
 								<th class="headParamTable">Value</th>
 								<th class="headParamTable">Description</th>
+								<th class="headParamTable">Type</th>
 							<!--	<th class="headParamTable">Delete</th>-->
 							</tr>
 						</thead>
@@ -22,6 +23,12 @@
 								<td class="booleanParam"><label class="control-label" for="choiceName">Parameter {{$index+1}}:<span class="red">*</span></label></td>
 								<td><input id="paramVal" type="text" class="form-control" name="paramVal" ng-model="param.paramVal"></td>
 								<td><input id="paramDesc" type="text" class="form-control" name="paramDesc" ng-model="param.paramDesc"></td>
+								<td><select id="paramType" name="paramType" class="form-control" ng-model="param.paramType">
+									<option value="">Choose</option>
+									<option value="Default">Default</option>
+									<option value="Password">Password</option>
+									<option value="Restricted">Restricted</option>
+								</select></td>
 								<!--<td><button ng-show="$index>0" class="scriptParamsDelete" title="Delete Row" type="button" ng-click="removeScriptInputParams(param);"><i class=" fa fa-trash-o"></i></button></td>-->
 							</tr>
 						</tbody>

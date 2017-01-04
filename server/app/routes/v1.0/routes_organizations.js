@@ -1100,7 +1100,8 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                     cryptoConfig.decryptionEncoding);
                             encryptedList.push({
                                 paramVal: encryptedText,
-                                paramDesc: scriptParameter.paramDesc
+                                paramDesc: scriptParameter.paramDesc,
+                                paramType: scriptParameter.paramType
                             });
                             if (encryptedList.length === paramDetail.scriptParameters.length) {
                                 paramDetail.scriptParameters = encryptedList;

@@ -51,8 +51,23 @@ var GitHubSchema = new Schema({
     },
     isAuthenticated: {
         type: Boolean,
-        required: true,
+        required: false,
         default: false
+    },
+    authenticationType: {
+        type: String,
+        required: false,
+        default: false
+    },
+    repositorySSHPublicKeyFileId: {
+        type: String,
+        trim: true,
+        required: false
+    },
+    repositorySSHPrivateKeyFileId: {
+        type: String,
+        trim: true,
+        required: false
     }
 });
 
