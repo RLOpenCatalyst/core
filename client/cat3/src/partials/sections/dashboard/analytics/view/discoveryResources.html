@@ -5,14 +5,19 @@
                 <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
                 Instances
             </accordion-heading>
-            <span class="pull-right" style="margin-top: -49px;position: absolute;right: 17px;z-index: 9;" ng-show="organNewEnt.instanceType === 'Assigned' && selectInstanceRow.length >0">
+            <span class="pull-right" style="margin-top: -49px;position: absolute;right:34px;z-index: 9;" ng-show="organNewEnt.instanceType === 'Assigned' && selectInstanceRow.length >0">
 					<button type="button" title="Schedule" class="btn btn-xs cat-btn-update" ng-click="disResrc.importInstance($event);">
                         <i class="fa fa-plus white"></i> Import
                     </button>
 				</span>
             <loading size="large" name="instLoader" type="block"></loading>
-            <div ng-if="!instLoader && disResrc.gridOptionInstances.data.length > 0" ui-grid="disResrc.gridOptionInstances" ui-grid-pagination ui-grid-selection ui-grid-edit  ui-grid-cellNav class="grid"></div>
-            <div ng-if="!instLoader && disResrc.gridOptionInstances.data.length === 0" class="alert alert-info text-center"> No Data Found!</div>
+
+
+            <input ng-if="!instLoader && disResrc.gridOptionInstances.data.length > 0"  ng-model='disResrc.filterValue' class="form-control with250" ng-change="filterInst()" placeholder="Search" />
+
+            <div ng-if="!instLoader && disResrc.gridOptionInstances.data.length > 0" ui-grid="disResrc.gridOptionInstances" ui-grid-pagination ui-grid-selection ui-grid-edit  ui-grid-cellNav class="grid margintop15"></div>
+
+            <div ng-if="!instLoader && disResrc.gridOptionInstances.data.length === 0" class="alert alert-info text-center margintop15"> No Data Found!</div>
         </accordion-group>
 
 

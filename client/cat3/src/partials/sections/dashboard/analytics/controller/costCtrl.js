@@ -146,8 +146,9 @@
                     costObj.barChat.data = [];
                     // create bar
                     //if(viewType === 'ProviderView'){
-                    costObj.costGridOptions.data = result.splitUpCosts[viewType];
+
                     if(result.splitUpCosts && Object.keys(result.splitUpCosts).length >0 ) {
+                        costObj.costGridOptions.data = result.splitUpCosts[viewType];
                         angular.forEach(result.splitUpCosts[viewType], function (value) {
                             costObj.pieChat.data.push({
                                 key: value.name,
@@ -155,6 +156,7 @@
                             });
                         });
                     } else {
+                        costObj.costGridOptions.data = result;
                         costObj.pieChat.data.push({
                             key: result.entity.name,
                             value: result.cost.totalCost
