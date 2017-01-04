@@ -117,31 +117,38 @@ botsService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,call
                     logger.error(err);
                 } else if(botsData.length > 0){
                     if (botsData[0].isBotScheduled === true) {
-                        var catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
-                        catalystSync.executeScheduledBots();
-                        if(botsData[0].botLinkedCategory === 'Task'){
-                            tasks.getTaskById(botId,function(err,task){
-                                if(err){
-                                    logger.error("Error in fetching Task details",err);
-                                }else if(task.isTaskScheduled === true){
-                                    tasks.updateTaskScheduler(botId,function(err,updateData){
-                                        if(err){
-                                            logger.error("Error in Updating Task details",err);
+                        var schedulerService = require('_pr/services/schedulerService.js');
+                        schedulerService.executeScheduledBots(botsData[0],function(err,data){
+                            if(err){
+                                logger.error("Error in executing BOTs Scheduler");
+                            }
+                        });
+                        if (botsData[0].botLinkedCategory === 'Task') {
+                            tasks.getTaskById(botId, function (err, task) {
+                                if (err) {
+                                    logger.error("Error in fetching Task details", err);
+                                } else if (task.isTaskScheduled === true) {
+                                    tasks.updateTaskScheduler(botId, function (err, updateData) {
+                                        if (err) {
+                                            logger.error("Error in Updating Task details", err);
                                         }
                                     });
-                                    if(task.cronJobId && task.cronJobId !== null){
+                                    if (task.cronJobId && task.cronJobId !== null) {
                                         var cronTab = require('node-crontab');
                                         cronTab.cancelJob(task.cronJobId);
                                     }
                                 }
                             });
                         }
-                    } else if (botsData[0].cronJobId && botsData[0].cronJobId !== null) {
-                        var cronTab = require('node-crontab');
-                        cronTab.cancelJob(botsData[0].cronJobId);
-                    } else {
-                        logger.debug("There is no cron job associated with Bot ");
+                    }else{
+                        var schedulerService = require('_pr/services/schedulerService.js');
+                        schedulerService.executeScheduledBots(botsData[0],function(err,data){
+                            if(err){
+                                logger.error("Error in executing BOTs Scheduler");
+                            }
+                        });
                     }
+
                 } else{
                     logger.debug("There is no Bots ");
                 }

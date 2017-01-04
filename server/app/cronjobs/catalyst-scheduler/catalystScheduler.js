@@ -3,7 +3,6 @@ var instancesDao = require('_pr/model/classes/instance/instance');
 var taskDao = require('_pr/model/classes/tasks/tasks.js');
 var botsDao = require('_pr/model/bots/bots.js');
 var schedulerService = require('_pr/services/schedulerService');
-var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
 var async = require('async');
 var cronTab = require('node-crontab');
 var catalystSync = module.exports = {};
@@ -145,37 +144,28 @@ catalystSync.executeScheduledBots = function executeScheduledBots() {
             return;
         }
         if (bots && bots.length) {
-            var botsList=[],count = 0;
+            var botsList=[];
             for (var i = 0; i < bots.length; i++) {
                 (function(bot) {
-                    var query = {
-                        auditType: 'BOTs',
-                        actionStatus: 'running',
-                        auditId:bot.botId
-                    };
-                    auditTrail.getAuditTrails(query, function(err,botsAudits){
-                        if(err){
-                            logger.error("Failed to fetch running Bots",err);
-                            count++
-                            return;
-                        }else if(botsAudits.length > 0){
-                            count++;
-                        }else{
-                            botsList.push(function(callback){schedulerService.executeScheduledBots(bot,callback);});
-                            count++;
-                        }
-                        if(count===bots.length){
-                            executeBots(botsList,function(err,data){
-                                if(err) {
-                                    logger.error("Error while executing BOTs Scheduler");
-                                    return;
-                                }else{
-                                    logger.debug("Bots Scheduler Completed");
+                    if(bot.cronJobId && bot.cronJobId !== null){
+                        cronTab.cancelJob(bot.cronJobId);
+                    }
+                    botsList.push(function(callback){schedulerService.executeScheduledBots(bot,callback);});
+                    if(botsList.length === bots.length){
+                        if(botsList.length > 0) {
+                            async.parallel(botsList, function (err, results) {
+                                if (err) {
+                                    logger.error(err);
                                     return;
                                 }
+                                logger.debug("Bots Scheduler Completed");
+                                return;
                             })
+                        }else{
+                            logger.debug("There is no scheduled Bots right now.");
+                            return;
                         }
-                    });
+                    }
                 })(bots[i]);
             }
         }else{
@@ -183,24 +173,6 @@ catalystSync.executeScheduledBots = function executeScheduledBots() {
             return;
         }
     });
-}
-
-function executeBots(botsList,callback){
-    if(botsList.length > 0) {
-        async.parallel(botsList, function (err, results) {
-            if (err) {
-                logger.error(err);
-                callback(err,null);
-                return;
-            }
-            callback(null,results);
-            return;
-        })
-    }else{
-        logger.debug("There is no scheduled Bots right now.");
-        callback(null,botsList);
-        return;
-    }
 }
 
 function cancelOldCronJobs(ids){
