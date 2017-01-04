@@ -330,7 +330,7 @@ botsService.executeBots = function executeBots(botId,reqBody,callback){
             if(reqBody.paramOptions.scriptParams){
                 encryptedParam(reqBody.paramOptions.scriptParams,next);
             }else{
-                next([],next);
+                next(null,[]);
             }
         },
         function(encryptedParamList,next) {
