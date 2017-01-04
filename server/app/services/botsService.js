@@ -327,7 +327,10 @@ botsService.getPerticularBotsHistory = function getPerticularBotsHistory(botId,h
 botsService.executeBots = function executeBots(botId,reqBody,callback){
     async.waterfall([
         function(next){
-            if(reqBody.paramOptions.scriptParams){
+            if(typeof reqBody !== 'undefined'  && reqBody !== null
+                && reqBody.paramOptions
+                && reqBody.paramOptions.scriptParams
+                && reqBody.paramOptions.scriptParams !== null){
                 encryptedParam(reqBody.paramOptions.scriptParams,next);
             }else{
                 next(null,[]);
@@ -362,9 +365,13 @@ botsService.executeBots = function executeBots(botId,reqBody,callback){
         function(bots,next){
             if(bots.length > 0){
                 if(bots[0].botLinkedCategory === 'Task'){
-                    taskService.executeTask(botId,reqBody.userName ? reqBody.userName : 'system',reqBody.hostProtocol ? reqBody.hostProtocol : 'undefined',
-                        reqBody.choiceParam ? reqBody.choiceParam : 'undefined',reqBody.appData ? reqBody.appData : 'undefined',reqBody.paramOptions ? reqBody.paramOptions : 'undefined',
-                        reqBody.tagServer ? reqBody.tagServer : 'undefined', callback);
+                    if(typeof reqBody === 'undefined') {
+                        taskService.executeTask(botId, 'system', 'undefined', 'undefined', 'undefined',  'undefined', 'undefined', callback);
+                    }else{
+                        taskService.executeTask(botId, reqBody.userName ? reqBody.userName : 'system', reqBody.hostProtocol ? reqBody.hostProtocol : 'undefined',
+                            reqBody.choiceParam ? reqBody.choiceParam : 'undefined', reqBody.appData ? reqBody.appData : 'undefined', reqBody.paramOptions ? reqBody.paramOptions : 'undefined',
+                            reqBody.tagServer ? reqBody.tagServer : 'undefined', callback);
+                    }
                 }else{
                     blueprintService.launch(botId,reqBody,callback)
                 }
