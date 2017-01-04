@@ -5,8 +5,8 @@
                 <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
                 Instances
             </accordion-heading>
-            <span class="pull-right" style="margin-top: -49px;position: absolute;right:34px;z-index: 9;" ng-show="organNewEnt.instanceType === 'Assigned' && selectInstanceRow.length >0">
-					<button type="button" title="Schedule" class="btn btn-xs cat-btn-update" ng-click="disResrc.importInstance($event);">
+            <span class="pull-right" ng-show="organNewEnt.instanceType === 'Assigned' && selectInstanceRow.length >0">
+					<button type="button" title="Import" class="btn btn-xs cat-btn-update" ng-click="disResrc.importInstance($event);">
                         <i class="fa fa-plus white"></i> Import
                     </button>
 				</span>
