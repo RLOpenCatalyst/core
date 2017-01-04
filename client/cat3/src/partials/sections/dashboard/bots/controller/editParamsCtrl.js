@@ -108,7 +108,24 @@
 
         $scope.executeBot=function(){
             if (items.botConfig && items.botConfig.taskType === 'script') {
-                scriptParams = $scope.parameters;
+                /*for(var i = 0; i < $scope.scriptparams.length; i++){
+                    var scriptObj = {};
+                    var scriptParamList = [];
+                    if($scope.scriptparams[i].scriptParameters.length > 0){
+                        for(var j = 0; j<$scope.scriptparams[i].scriptParameters.length;j++){
+                            scriptParamList.push($scope.scriptparams[i].scriptParameters[j].paramVal);
+                        }
+                        if($scope.scriptparams[i].scriptParameters.length === scriptParamList.length){
+                            scriptObj[$scope.scriptparams[i].scriptId] = scriptParamList;
+                            scriptParams.push(scriptObj);
+                        }
+                    }else{
+                        scriptObj[$scope.scriptparams[i].scriptId] = [];
+                        scriptParams.push(scriptObj);
+                    }
+                }*/
+
+                scriptParams = $scope.scriptparams;
             }
             if (items.botConfig && items.botConfig.taskType === 'chef') {
                 cookbookAttributes = responseFormatter.formatSelectedCookbookAttributes($scope.chefattributes);

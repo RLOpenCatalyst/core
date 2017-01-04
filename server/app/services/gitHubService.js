@@ -61,12 +61,12 @@ gitGubService.createGitHub = function createGitHub(gitHubObj, callback) {
 };
 
 gitGubService.updateGitHub = function updateGitHub(gitHubId, gitHubObj, callback) {
-    if(gitHubObj.isAuthenticated === true || gitHubObj.isAuthenticated === 'true'){
+    if((gitHubObj.isAuthenticated === true || gitHubObj.isAuthenticated === 'true') && gitHubObj.authenticationType === 'UserName'){
         var cryptoConfig = appConfig.cryptoSettings;
         var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
         gitHubObj.repositoryPassword =  cryptography.encryptText(gitHubObj.repositoryPassword, cryptoConfig.encryptionEncoding,
             cryptoConfig.decryptionEncoding);
-    };
+    }
     gitHubModel.updateGitHub(gitHubId, gitHubObj, function (err, gitHub) {
         if (err && err.name === 'ValidationError') {
             var err = new Error('Bad Request');
@@ -90,6 +90,22 @@ gitGubService.deleteGitHub = function deleteGitHub(gitHubId, callback) {
             return callback(err);
         } else {
             return callback(null, gitHub);
+        }
+    });
+};
+
+gitGubService.getGitHubSync = function getGitHubSync(gitHubId, callback) {
+    gitHubModel.getGitHubById(gitHubId, function (err, gitHub) {
+        if (err) {
+            var err = new Error('Internal Server Error');
+            err.status = 500;
+            return callback(err);
+        } else if (!gitHub) {
+            var err = new Error('Git-Hub not found');
+            err.status = 404;
+            return callback(err);
+        } else{
+            
         }
     });
 };
