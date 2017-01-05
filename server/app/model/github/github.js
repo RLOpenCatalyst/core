@@ -34,9 +34,13 @@ var GitHubSchema = new Schema({
         required: false,
         trim: true
     },
-    repositoryName: {
+    repositoryURL: {
         type: String,
         trim: true,
+        required: true
+    },
+    repositoryType: {
+        type: String,
         required: true
     },
     repositoryUserName: {
@@ -48,11 +52,6 @@ var GitHubSchema = new Schema({
         type: String,
         trim: true,
         required: false
-    },
-    isAuthenticated: {
-        type: Boolean,
-        required: false,
-        default: false
     },
     authenticationType: {
         type: String,

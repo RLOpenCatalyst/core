@@ -29,8 +29,8 @@ input[type="file"] {
                                 <td>Name</td>
                                 <td>Description</td>
                                 <td>Organization</td>
-                                <td>Repo Name</td>
-                                <td>Authentication</td>
+                                <td>Repo URL</td>
+                                <td>Repo Type</td>
                                 <td>Action</td>
                             </tr>
                             </thead>
@@ -80,21 +80,28 @@ input[type="file"] {
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-6 margintop15">
-                            <label for="gitRepoName">Repository Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                            <label for="gitRepoURL">Repository URL:<span class="control-label redSpan">&nbsp;*</span></label>
                             <div class="input-groups">
-                                <input type="text" name="gitRepoName" class="required gitRepoName form-control" id="gitRepoName">
+                                <input type="text" name="gitRepoURL" class="required gitRepoURL form-control" id="gitRepoURL">
                             </div>
                         </div>
                         <hr/>
                         <div class="col-lg-12 col-md-12 col-xs-12 margintop15 isAuthenticated">
-                            <label for="">Is Repository Authenticated:</label>
-                              <input id="isAuthenticated" type="checkbox" name="isAuthenticated"/>
+                            <label for="">Repository Type:</label>
+                            <div class="input-groups">
+                                <div class="radio">
+                                    <label><input type="radio" value="Public" checked="true" name="isAuthenticated" >Public</label>
+                                </div>
+                                <div class="radio">
+                                    <label><input type="radio"  value="Private" name="isAuthenticated">Private</label>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-lg-12 col-lg-12 col-xs-12 margintop15 isAunthenticatedSection hidden">
                           <label for="authenticationType">Authentication Type:</label>
                           <select id="authenticationType" name="authenticationType" class="form-control width-100" style="vertical-align:central">
                                   <option value="">Choose Authentication Type</option>
-                                  <option value="userName">User Name/Password</option>
+                                  <option value="userName">Username/Password</option>
                                   <option value="sshKey">SSH Key</option>
                               </select>
                         </div>
@@ -114,7 +121,7 @@ input[type="file"] {
                             <input type="file" extension="pem" name="certificateFile" id="certificateFile" class="form-control form-controls" onchange="setFileNameCertificate(this.value);"/>
                           </div>
                             <span class="pull-left">
-                                <label title="Please choose a Certificate file" class="choose-file cursor" for="certificateFile">Choose File</label>
+                                <label title="Please choose a Public SSH Key file" class="choose-file cursor" for="certificateFile">Choose File</label>
                             </span>
                             <div id="certificateFileNameDisplay" class="file-name"></div>
                         </div>
@@ -124,7 +131,7 @@ input[type="file"] {
                             <input type="file" extension="pem" name="privateFile" id="privateFile" class="form-control form-controls" onchange="setFileNamePrivate(this.value);"/>
                           </div>
                             <span class="pull-left">
-                                <label title="Please choose a Private file" class="choose-file cursor" for="privateFile">Choose File</label>
+                                <label title="Please choose a Private SSH Key file" class="choose-file cursor" for="privateFile">Choose File</label>
                             </span>
                             <div id="privateFileNameDisplay" class="file-name"></div>
                         </div>
@@ -188,8 +195,9 @@ input[type="file"] {
         $("#privateFileNameDisplay").append(fileNamePrivate);
     }
 
-    $('#isAuthenticated').click(function() {
-        if ($('#isAuthenticated').prop("checked")) {
+
+    $("input[name='isAuthenticated']:radio").change(function(){
+        if($(this).val() === 'Private') {
             $('.isAunthenticatedSection').removeClass('hidden');
         } else {
             $("#authenticationType").val($("#authenticationType option:first").val());
@@ -249,10 +257,10 @@ input[type="file"] {
         ignore: [],
         rules: {
             certificateFile: {
-                extension: "pem"
+                extension: "pem|txt|sh"
             },
             privateFile: {
-                extension: "pem"
+                extension: "pem|txt|sh"
             },
             gitName: {
                 maxlength: 15
@@ -260,10 +268,10 @@ input[type="file"] {
         },
         messages: {
             certificateFile: {
-                extension: "Only .pem files"
+                extension: "Only .pem/.txt/.sh files"
             },
             privateFile: {
-                extension: "Only .pem files"
+                extension: "Only .pem/.txt/.sh files"
             },
             gitName: {
                 maxlength: "Limited to 15 chars"
@@ -323,9 +331,9 @@ input[type="file"] {
 
         var $tdOrganization = $('<td class="gitRepoOrg">' + githubDetails.orgName + '</td>');
 
-        var $tdRepoName = $('<td class="gitRepoName">' + githubDetails.repositoryName + '</td>');
+        var $tdRepoURL = $('<td class="gitRepoURL">' + githubDetails.repositoryURL + '</td>');
 
-        var $tdAuthentication = $('<td class="gitRepoAuthentication">' + githubDetails.isAuthenticated + '</td>');
+        var $tdRepoType = $('<td class="gitRepoType">' + githubDetails.repositoryType + '</td>');
 
         var $tdAction = $('<td/>');
 
@@ -343,17 +351,29 @@ input[type="file"] {
             $editModal.find('h4.modal-title').html('Edit GitHub Repo Item &nbsp;-&nbsp;&nbsp;' + githubDetails.name);
             $editModal.find('#gitName').val(githubDetails.name);
             $editModal.find('#gitDescription').val(githubDetails.description);
-            $editModal.find('#isAuthenticated').val(githubDetails.isAuthenticated);
-            if(githubDetails.isAuthenticated === true){
-                $('#isAuthenticated').prop("checked",true);
-                if(githubDetails.repositoryUserName) {
+
+            if(githubDetails.repositoryType === 'Private'){
+                $('input:radio[name="isAuthenticated"][value="Private"]').prop('checked', true);
+                if(githubDetails.authenticationType ==='userName') {
                     $('.isAunthenticatedSection').removeClass('hidden');
                     $editModal.find('#authenticationType').val('userName').change().attr('disabled','disabled');
                     $editModal.find('#protocolUser').val(githubDetails.repositoryUserName);
                     $editModal.find('#protocolPassword').val(githubDetails.repositoryPassword);
+                }else{
+                    $('.isAunthenticatedSection').removeClass('hidden');
+                    $('#privateFile').val('');
+                    $('#privateFile').removeClass('required');
+                    $('#certificateFile').val('');
+                    $('#certificateFile').removeClass('required');
+                    $editModal.find('#certificateFileNameDisplay').empty();
+                    $editModal.find('#privateFileNameDisplay').empty();
+                    $editModal.find('#authenticationType').val('sshKey').change().attr('disabled','disabled');
+                    $editModal.find('#gitHiddenPublicFile').val(githubDetails.repositorySSHPublicKeyFileId);
+                    $editModal.find('#gitHiddenPrivateFile').val(githubDetails.repositorySSHPrivateKeyFileId);
+                    $editModal.find('#certificateFileNameDisplay').val(githubDetails.repositorySSHPublicKeyFileName);
+                    $editModal.find('#privateFileNameDisplay').val(githubDetails.repositorySSHPrivateKeyFileName);
                 }
-                //please put the response for fileId @Durgesh. 
-            } else {
+            }else{
                 $('#isAuthenticated').prop("checked",false);
                 $('.isAunthenticatedSection').addClass('hidden');
                 $("#authenticationType").val($("#authenticationType option:first").val());
@@ -363,15 +383,8 @@ input[type="file"] {
                 $('.showForSSH').addClass('hidden');
             }
             $editModal.find('#orgName').empty().append('<option value="'+$this.parents('tr').attr("orgId")+'">'+$this.parents('tr').attr("orgName")+'</option>').attr('disabled','disabled');
-            $editModal.find('#gitRepoName').val(githubDetails.repositoryName);
-            
+            $editModal.find('#gitRepoURL').val(githubDetails.repositoryURL);
             $editModal.find('#gitEditHiddenInputId').val(githubDetails._id);
-            
-                /*$editModal.find('#gitHiddenPublicFile').val(githubDetails.parameters.transportProtocolParameters.ssl.certChainFile.id);
-                $editModal.find('#certificateFileNameDisplay').empty().append(githubDetails.parameters.transportProtocolParameters.ssl.certChainFile.name);
-                $editModal.find('#gitHiddenPrivateFile').val(githubDetails.parameters.transportProtocolParameters.ssl.privateKeyFile.id);
-                $editModal.find('#privateFileNameDisplay').empty().append(githubDetails.parameters.transportProtocolParameters.ssl.privateKeyFile.name);*/
-            
             return false;
         });
 
@@ -411,13 +424,13 @@ input[type="file"] {
             return false;
         });
 
-        $tr.append($tdName).append($tdDescription).append($tdOrganization).append($tdRepoName).append($tdAuthentication).append($tdAction);
+        $tr.append($tdName).append($tdDescription).append($tdOrganization).append($tdRepoURL).append($tdRepoType).append($tdAction);
         $gitList.append($tr);
         $gitDatatable.row.add($tr).draw();
     }
 
 
-function saveForm(methodName,url,reqBody,createNewEdit,gitHubId,name,repositoryName,description,isAuthenticated) {
+function saveForm(methodName,url,reqBody,createNewEdit,gitHubId,name,description,repositoryURL,repositoryType) {
   $.ajax({
   method: methodName,
   url: url,
@@ -435,14 +448,14 @@ function saveForm(methodName,url,reqBody,createNewEdit,gitHubId,name,repositoryN
               var $tr = $('tr[data-gitId="' + gitHubId + '"]');
               $tr.find('.gitName').html(reqBody.name);
               $tr.find('.gitRepoDescription').html(reqBody.description);
-              $tr.find('.gitRepoName').html(reqBody.repositoryName);
-              $tr.find('.gitRepoAuthentication').html(reqBody.isAuthenticated);
+              $tr.find('.gitRepoURL').html(reqBody.repositoryURL);
+              $tr.find('.gitRepoType').html(reqBody.repositoryType);
               $tr.data('githubDetails', {
                   name:name,
                   _id: gitHubId,
                   description: description,
-                  repositoryName: repositoryName,
-                  isAuthenticated: isAuthenticated
+                  repositoryURL: repositoryURL,
+                  repositoryType: repositoryType
               });
           }
       },
@@ -473,17 +486,13 @@ $('#gitHubRepoForn').submit(function(e) {
         $('#saveItemSpinner').removeClass('hidden');
         var $form = $('#gitHubRepoForn');
         $this = $(this);
-        var name, orgValue, description, authenticationType, repositoryName, isAuthenticated, passwordName, userName, certChainFileId, privateKeyFileId;
+        var name, orgValue, description, authenticationType, repositoryURL, repositoryType, passwordName, userName, certChainFileId, privateKeyFileId;
 
         name = $this.find('.gitName').val().trim();
         orgValue = $this.find('#orgName').val();
         description = $this.find('#gitDescription').val();
-        repositoryName = $this.find('#gitRepoName').val();
-        if ($('#isAuthenticated').prop("checked")) {
-            isAuthenticated = true;
-        } else {
-            isAuthenticated = false;
-        }
+        repositoryURL = $this.find('#gitRepoURL').val();
+        repositoryType= $('input[name=isAuthenticated]:checked').val();
         authenticationType = $this.find('#authenticationType').val();
         userName = $this.find('#protocolUser').val().trim();
         passwordName = $this.find('#protocolPassword').val().trim();
@@ -531,52 +540,51 @@ $('#gitHubRepoForn').submit(function(e) {
                                 "name": name,
                                 "orgId": orgValue,
                                 "description": description,
-                                "repositoryName": repositoryName,
-                                "isAuthenticated": isAuthenticated,
+                                "repositoryURL": repositoryURL,
+                                "repositoryType": repositoryType,
                                 "authenticationType": authenticationType,
                                 "repositorySSHPublicKeyFileId": dataCertificate.fileId,
                                 "repositorySSHPrivateKeyFileId": dataPrivate.fileId
                             }
-                            saveForm(methodName,url,reqBody,dashboardEditNew,gitHubId,name,description,repositoryName,isAuthenticated);
+                            saveForm(methodName,url,reqBody,dashboardEditNew,gitHubId,name,description,repositoryURL,repositoryType);
                         }
                     });
                 }
             });
           } else {
-            
             reqBody = {
                 "name": name,
                 "orgId": orgValue,
                 "description": description,
-                "repositoryName": repositoryName,
-                "isAuthenticated": isAuthenticated,
+                "repositoryURL": repositoryURL,
+                "repositoryType": repositoryType,
                 "authenticationType": authenticationType,
                 "repositorySSHPublicKeyFileId": certChainFileId,
                 "repositorySSHPrivateKeyFileId": privateKeyFileId
             }
-            saveForm(methodName,url,reqBody,dashboardEditNew,gitHubId,name,description,repositoryName,isAuthenticated);
+            saveForm(methodName,url,reqBody,dashboardEditNew,gitHubId,name,description,repositoryURL,repositoryType);
           }
         } else if (authenticationType === 'userName') {
             reqBody = {
                 "name": name,
                 "orgId": orgValue,
                 "description": description,
-                "repositoryName": repositoryName,
-                "isAuthenticated": isAuthenticated,
+                "repositoryURL": repositoryURL,
+                "repositoryType": repositoryType,
                 "authenticationType": authenticationType,
                 "repositoryUserName": userName,
                 "repositoryPassword": passwordName
             }
-            saveForm(methodName,url,reqBody,dashboardEditNew,gitHubId,name,description,repositoryName,isAuthenticated);
+            saveForm(methodName,url,reqBody,dashboardEditNew,gitHubId,name,description,repositoryURL,repositoryType);
         } else {
             reqBody = {
                 "name": name,
                 "orgId": orgValue,
                 "description": description,
-                "repositoryName": repositoryName,
-                "isAuthenticated": isAuthenticated
+                "repositoryURL": repositoryURL,
+                "repositoryType": repositoryType
             }
-            saveForm(methodName,url,reqBody,dashboardEditNew,gitHubId,name,description,repositoryName,isAuthenticated);
+            saveForm(methodName,url,reqBody,dashboardEditNew,gitHubId,name,description,repositoryURL,repositoryType);
         }
         return false;
     }
