@@ -38,18 +38,19 @@ module.exports = function(options, callback) {
 
     connectionString += '/' + options.dbName;
     logger.debug(connectionString);
-    mongoose.connect(connectionString, {
-        auto_reconnect: true
-    });
+
+    var connectWithRetry = function() {
+        return mongoose.connect(connectionString, function(err) {
+          if (err) {
+             console.error('Failed to connect to mongo on startup - retrying in 5 sec', err);
+             setTimeout(connectWithRetry, 5000);
+          }
+        });
+    };
+    connectWithRetry();
 
     mongoose.connection.on('connected', function() {
         callback(null);
     });
-
-
-    mongoose.connection.on('error', function(err) {
-        callback(err);
-    });
-
 
 };
