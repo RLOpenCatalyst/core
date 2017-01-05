@@ -1,7 +1,7 @@
 (function (angular) {
     "use strict";
     angular.module('dashboard.analytics')
-        .controller('discoveryResourcesCtrl', ['$scope', '$rootScope', '$state','analyticsServices', 'genericServices','$timeout','toastr','$modal', function ($scope,$rootScope,$state,analyticsServices,genSevs,$timeout,toastr,$modal){
+        .controller('discoveryResourcesCtrl', ['$scope', '$rootScope', '$state','analyticsServices', 'genericServices','$timeout','toastr','$modal','confirmbox', function ($scope,$rootScope,$state,analyticsServices,genSevs,$timeout,toastr,$modal,confirmbox){
             var disResrc=this;
             $scope.gridApi=null;
             disResrc.filterValue='';
@@ -77,21 +77,51 @@
                                 gridApi.grid.registerRowsProcessor( $scope.singleFilter, 200 );
                                 $scope.gridApi=gridApi;
                                 gridApi.edit.on.afterCellEdit($scope, function (rowEntity, colDefa, newValue, oldValue) {
-                                    console.log( colDefa.name,'---',colDefa.name.substring(0, colDefa.name.length-3));
-                                    var tagna=colDefa.name.substring(0, colDefa.name.length-3);
+                                    console.log(rowEntity);
+                                    confirmbox.showModal({}, {
+                                        closeButtonText: 'Cancel',
+                                        actionButtonText: 'Yes',
+                                        actionButtonStyle: 'cat-btn-update',
+                                        headerText: 'Update tag value',
+                                        bodyText: 'Are you sure you want to Update tag value?'
+                                    }).then(function() {
+                                        var tagna=colDefa.name.substring(0, colDefa.name.length-3);
                                         var param = {
                                             url: '/providers/' + fltrObj.provider.id + '/unassigned-instances/' + rowEntity._id,
                                             data: {
                                                 tags:{}
                                             }
                                         };
-                                    param.data.tags[tagna]=newValue;
-                                    console.log(param);
-                                    if(newValue !== oldValue) {
-                                        genSevs.promisePatch(param).then(function () {
-                                            toastr.success('Successfully updated.', 'Update');
+                                        param.data.tags[tagna]=newValue;
+                                        console.log(param);
+                                        if(newValue !== oldValue) {
+                                            genSevs.promisePatch(param).then(function () {
+                                                toastr.success('Successfully updated.', 'Update');
+                                            });
+                                        }
+                                    },function() {
+                                        var param = {
+                                            url: '/providers/' + fltrObj.provider.id + '/' + $scope.instanceType
+                                            // url:'src/partials/sections/dashboard/analytics/data/ins.json'
+                                        };
+                                        genSevs.promiseGet(param).then(function (instResult) {
+                                            if($rootScope.organNewEnt.instanceType === 'Managed') {
+                                                disResrc.gridOptionInstances.data = instResult.managedInstances;
+                                            } else if($rootScope.organNewEnt.instanceType === 'Assigned'){
+                                                disResrc.gridOptionInstances.data = instResult.unmanagedInstances;
+                                            } else if($rootScope.organNewEnt.instanceType === 'Unassigned'){
+                                                disResrc.gridOptionInstances.data = instResult.data;
+                                            }
+                                            disResrc.gridOptionInstances.isRowSelectable = function(row){
+                                                if(row.entity.state !== 'running'){
+                                                    return false;
+                                                } else {
+                                                    return true;
+                                                }
+                                            };
                                         });
-                                    }
+                                    });
+
                                 });
                                 gridApi.selection.on.rowSelectionChanged($scope,function(row){
                                     if(row.isSelected){
