@@ -83,7 +83,7 @@
                                         actionButtonText: 'Yes',
                                         actionButtonStyle: 'cat-btn-update',
                                         headerText: 'Update tag value',
-                                        bodyText: 'Are you sure you want to Update tag value?'
+                                        bodyText: 'Are you sure you want to Update ?'
                                     }).then(function() {
                                         var tagna=colDefa.name.substring(0, colDefa.name.length-3);
                                         var param = {
