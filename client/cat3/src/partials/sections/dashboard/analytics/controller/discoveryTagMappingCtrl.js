@@ -20,6 +20,7 @@
                         //url:'src/partials/sections/dashboard/analytics/data/tag.json'
                     };
                     genSevs.promiseGet(param).then(function (tagResult) {
+                        disTgMap.getAllTags();
                         $scope.newEnt.project.tagName='';
                         $scope.newEnt.project.tagValues=[];
                         $scope.newEnt.businessGroup.tagValues=[];
@@ -42,8 +43,6 @@
                                     }
                                 });
                             });
-                       
-                        disTgMap.getAllTags();
 
                     });
                 }
