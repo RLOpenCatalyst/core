@@ -117,31 +117,38 @@ botsService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,call
                     logger.error(err);
                 } else if(botsData.length > 0){
                     if (botsData[0].isBotScheduled === true) {
-                        var catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
-                        catalystSync.executeScheduledBots();
-                        if(botsData[0].botLinkedCategory === 'Task'){
-                            tasks.getTaskById(botId,function(err,task){
-                                if(err){
-                                    logger.error("Error in fetching Task details",err);
-                                }else if(task.isTaskScheduled === true){
-                                    tasks.updateTaskScheduler(botId,function(err,updateData){
-                                        if(err){
-                                            logger.error("Error in Updating Task details",err);
+                        var schedulerService = require('_pr/services/schedulerService.js');
+                        schedulerService.executeScheduledBots(botsData[0],function(err,data){
+                            if(err){
+                                logger.error("Error in executing BOTs Scheduler");
+                            }
+                        });
+                        if (botsData[0].botLinkedCategory === 'Task') {
+                            tasks.getTaskById(botId, function (err, task) {
+                                if (err) {
+                                    logger.error("Error in fetching Task details", err);
+                                } else if (task.isTaskScheduled === true) {
+                                    tasks.updateTaskScheduler(botId, function (err, updateData) {
+                                        if (err) {
+                                            logger.error("Error in Updating Task details", err);
                                         }
                                     });
-                                    if(task.cronJobId && task.cronJobId !== null){
+                                    if (task.cronJobId && task.cronJobId !== null) {
                                         var cronTab = require('node-crontab');
                                         cronTab.cancelJob(task.cronJobId);
                                     }
                                 }
                             });
                         }
-                    } else if (botsData[0].cronJobId && botsData[0].cronJobId !== null) {
-                        var cronTab = require('node-crontab');
-                        cronTab.cancelJob(botsData[0].cronJobId);
-                    } else {
-                        logger.debug("There is no cron job associated with Bot ");
+                    }else{
+                        var schedulerService = require('_pr/services/schedulerService.js');
+                        schedulerService.executeScheduledBots(botsData[0],function(err,data){
+                            if(err){
+                                logger.error("Error in executing BOTs Scheduler");
+                            }
+                        });
                     }
+
                 } else{
                     logger.debug("There is no Bots ");
                 }
@@ -327,10 +334,13 @@ botsService.getPerticularBotsHistory = function getPerticularBotsHistory(botId,h
 botsService.executeBots = function executeBots(botId,reqBody,callback){
     async.waterfall([
         function(next){
-            if(reqBody.paramOptions.scriptParams){
+            if(reqBody !== null
+                && reqBody.paramOptions
+                && reqBody.paramOptions.scriptParams
+                && reqBody.paramOptions.scriptParams !== null){
                 encryptedParam(reqBody.paramOptions.scriptParams,next);
             }else{
-                next([],next);
+                next(null,[]);
             }
         },
         function(encryptedParamList,next) {
@@ -362,9 +372,13 @@ botsService.executeBots = function executeBots(botId,reqBody,callback){
         function(bots,next){
             if(bots.length > 0){
                 if(bots[0].botLinkedCategory === 'Task'){
-                    taskService.executeTask(botId,reqBody.userName ? reqBody.userName : 'system',reqBody.hostProtocol ? reqBody.hostProtocol : 'undefined',
-                        reqBody.choiceParam ? reqBody.choiceParam : 'undefined',reqBody.appData ? reqBody.appData : 'undefined',reqBody.paramOptions ? reqBody.paramOptions : 'undefined',
-                        reqBody.tagServer ? reqBody.tagServer : 'undefined', callback);
+                    if(reqBody === null) {
+                        taskService.executeTask(botId, 'system', 'undefined', 'undefined', 'undefined',  'undefined', 'undefined', callback);
+                    }else{
+                        taskService.executeTask(botId, reqBody.userName ? reqBody.userName : 'system', reqBody.hostProtocol ? reqBody.hostProtocol : 'undefined',
+                            reqBody.choiceParam ? reqBody.choiceParam : 'undefined', reqBody.appData ? reqBody.appData : 'undefined', reqBody.paramOptions ? reqBody.paramOptions : 'undefined',
+                            reqBody.tagServer ? reqBody.tagServer : 'undefined', callback);
+                    }
                 }else{
                     blueprintService.launch(botId,reqBody,callback)
                 }
@@ -388,40 +402,45 @@ function filterScriptBotsData(data,callback){
     var botsList = [];
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-    for(var i = 0; i < data.docs.length; i++){
-        (function(bots){
-            if ((bots.botLinkedSubCategory === 'script')
-                && ('scriptDetails' in bots.botConfig)
-                && (bots.botConfig.scriptDetails.length > 0)) {
-                var scriptCount = 0;
-                for (var j = 0; j < bots.botConfig.scriptDetails.length; j++) {
-                    (function (scriptBot) {
-                        if (scriptBot.scriptParameters.length > 0) {
-                            scriptCount++;
-                            for (var k = 0; k < scriptBot.scriptParameters.length; k++) {
-                                if(scriptBot.scriptParameters[k].paramType === 'Default' || scriptBot.scriptParameters[k].paramType === 'Password'){
-                                    scriptBot.scriptParameters[k].paramVal = cryptography.decryptText(scriptBot.scriptParameters[k].paramVal, cryptoConfig.decryptionEncoding,
-                                        cryptoConfig.encryptionEncoding);
-                                }else {
-                                    scriptBot.scriptParameters[k].paramVal = '';
+    if(data.docs.length === 0){
+        callback(null,data);
+        return;
+    }else {
+        for (var i = 0; i < data.docs.length; i++) {
+            (function (bots) {
+                if ((bots.botLinkedSubCategory === 'script')
+                    && ('scriptDetails' in bots.botConfig)
+                    && (bots.botConfig.scriptDetails.length > 0)) {
+                    var scriptCount = 0;
+                    for (var j = 0; j < bots.botConfig.scriptDetails.length; j++) {
+                        (function (scriptBot) {
+                            if (scriptBot.scriptParameters.length > 0) {
+                                scriptCount++;
+                                for (var k = 0; k < scriptBot.scriptParameters.length; k++) {
+                                    if (scriptBot.scriptParameters[k].paramType === '' || scriptBot.scriptParameters[k].paramType === 'Default' || scriptBot.scriptParameters[k].paramType === 'Password') {
+                                        scriptBot.scriptParameters[k].paramVal = cryptography.decryptText(scriptBot.scriptParameters[k].paramVal, cryptoConfig.decryptionEncoding,
+                                            cryptoConfig.encryptionEncoding);
+                                    } else {
+                                        scriptBot.scriptParameters[k].paramVal = '';
+                                    }
                                 }
+                            } else {
+                                scriptCount++;
                             }
-                        } else {
-                            scriptCount++;
-                        }
-                    })(bots.botConfig.scriptDetails[j]);
-                }
-                if(scriptCount === bots.botConfig.scriptDetails.length) {
+                        })(bots.botConfig.scriptDetails[j]);
+                    }
+                    if (scriptCount === bots.botConfig.scriptDetails.length) {
+                        botsList.push(bots);
+                    }
+                } else {
                     botsList.push(bots);
                 }
-            } else {
-                botsList.push(bots);
+            })(data.docs[i]);
+            if (botsList.length === data.docs.length) {
+                data.docs = botsList;
+                callback(null, data);
+                return;
             }
-        })(data.docs[i]);
-        if(botsList.length === data.docs.length){
-            data.docs = botsList;
-            callback(null,data);
-            return;
         }
     }
 }
