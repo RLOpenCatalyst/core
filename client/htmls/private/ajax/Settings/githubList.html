@@ -353,7 +353,15 @@ input[type="file"] {
                     $editModal.find('#protocolPassword').val(githubDetails.repositoryPassword);
                 }
                 //please put the response for fileId @Durgesh. 
-            } 
+            } else {
+                $('#isAuthenticated').prop("checked",false);
+                $('.isAunthenticatedSection').addClass('hidden');
+                $("#authenticationType").val($("#authenticationType option:first").val());
+                $editModal.find('#protocolUser').val('');
+                $editModal.find('#protocolPassword').val('');
+                $('.showForUser').addClass('hidden');
+                $('.showForSSH').addClass('hidden');
+            }
             $editModal.find('#orgName').empty().append('<option value="'+$this.parents('tr').attr("orgId")+'">'+$this.parents('tr').attr("orgName")+'</option>').attr('disabled','disabled');
             $editModal.find('#gitRepoName').val(githubDetails.repositoryName);
             
