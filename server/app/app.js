@@ -225,6 +225,7 @@ cronTabManager.start();
 catalystSync.executeScheduledInstances();
 catalystSync.executeSerialScheduledTasks();
 catalystSync.executeParallelScheduledTasks();
+catalystSync.executeScheduledBots();
 server.listen(app.get('port'), function() {
     logger.debug('Express server listening on port ' + app.get('port'));
 });

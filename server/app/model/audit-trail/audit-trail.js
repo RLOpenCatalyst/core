@@ -24,6 +24,7 @@ var AuditTrailSchema = new BaseAuditTrail();
 AuditTrailSchema.plugin(mongoosePaginate);
 
 AuditTrailSchema.statics.getAuditTrailList = function(auditTrailQuery,callback){
+    auditTrailQuery.queryObj.isDeleted = false;
     AuditTrail.paginate(auditTrailQuery.queryObj, auditTrailQuery.options, function(err, auditTrailList) {
         if (err) {
             logger.error(err);
@@ -56,6 +57,42 @@ AuditTrailSchema.statics.removeAuditTrails = function(queryObj,callback){
             return callback(error);
         }
         return callback(null, deleteAuditTrail);
+    });
+};
+
+AuditTrailSchema.statics.updateAuditTrails = function(auditId,queryObj,callback){
+    AuditTrail.update({_id:new ObjectId(auditId)},{$set:queryObj},{multi:true}, function(err, updatedAuditTrail) {
+        if (err) {
+            logger.error(err);
+            var error = new Error('Internal server error');
+            error.status = 500;
+            return callback(error);
+        }
+        return callback(null, updatedAuditTrail);
+    });
+};
+
+AuditTrailSchema.statics.softRemoveAuditTrails = function(auditId,callback){
+    AuditTrail.update({auditId:auditId},{$set:{isDeleted:true}},{multi:true}, function(err, sortDeleteAuditTrail) {
+        if (err) {
+            logger.error(err);
+            var error = new Error('Internal server error');
+            error.status = 500;
+            return callback(error);
+        }
+        return callback(null, sortDeleteAuditTrail);
+    });
+};
+
+AuditTrailSchema.statics.updateSoftRemoveAuditTrails = function(auditId,callback){
+    AuditTrail.update({auditId:auditId},{$set:{isDeleted:false}},{multi:true}, function(err, sortDeleteAuditTrail) {
+        if (err) {
+            logger.error(err);
+            var error = new Error('Internal server error');
+            error.status = 500;
+            return callback(error);
+        }
+        return callback(null, sortDeleteAuditTrail);
     });
 };
 

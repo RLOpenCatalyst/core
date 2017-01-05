@@ -76,9 +76,19 @@
 			};
 			$scope.init();
 		}]).controller('cpActionHistoryLogCtrl',['$scope', '$modalInstance', 'items', 'workzoneServices', 'instanceSetting', '$interval',function($scope, $modalInstance, items, workzoneServices, instanceSetting, $interval){
+			if(items.actionHistoryData.auditType === 'BOTs') {
+				$scope.botLogs = true;
+			}
 			var _instance = items.cpInstance;
+			console.log(_instance);
 			$scope.instanceName = _instance.name;
-			var _actionItem = items.actionHistoryData;
+			if($scope.botLogs) {
+				var _actionItem = items.actionHistoryData.actionLogId;
+			}
+			else {
+				var _actionItem = items.actionHistoryData;
+			}
+			console.log(_actionItem);
 			var helper = {
 				lastTimeStamp: '',
 				getlastTimeStamp: function(logObj) {
@@ -88,13 +98,23 @@
 				},
 				logsPolling: function() {
 					$scope.timerObject = $interval(function() {
-						workzoneServices.getActionHistoryLogs(_instance._id,_actionItem._id)
+						if($scope.botLogs) {
+							workzoneServices.getActionHistoryLogs(_instance.auditTrailConfig.nodeIds[0],_actionItem)
 							.then(function(response) {
 								if (response.data.length) {
 									helper.lastTimeStamp = helper.getlastTimeStamp(response);
 									$scope.logListDelta.push.apply($scope.logListDelta, response.data);
 								}
 							});
+						} else {
+							workzoneServices.getActionHistoryLogs(_instance._id,_actionItem._id)
+							.then(function(response) {
+								if (response.data.length) {
+									helper.lastTimeStamp = helper.getlastTimeStamp(response);
+									$scope.logListDelta.push.apply($scope.logListDelta, response.data);
+								}
+							});
+						}
 					}, instanceSetting.logCheckTimer * 100);
 				},
 				stopPolling: function() {
@@ -111,12 +131,31 @@
 				},
 				timerObject: undefined
 			});
+			if($scope.botLogs) {
+				workzoneServices.getActionHistoryLogs(_instance.auditTrailConfig.nodeIds[0],_actionItem)
+				.then(function(response) {
+					if (response.data.length) {
+						helper.lastTimeStamp = helper.getlastTimeStamp(response);
+						$scope.logListInitial = response.data;
+						helper.logsPolling();
+					}
+				});
+			} else {
+				workzoneServices.getActionHistoryLogs(_instance._id,_actionItem._id)
+				.then(function(response) {
+					if (response.data.length) {
+						helper.lastTimeStamp = helper.getlastTimeStamp(response);
+						$scope.logListInitial = response.data;
+						helper.logsPolling();
+					}
+				});
+			}
 
-			workzoneServices.getActionHistoryLogs(_instance._id,_actionItem._id).then(function(response) {
+			/*workzoneServices.getActionHistoryLogs(_instance._id,_actionItem._id).then(function(response) {
 				helper.lastTimeStamp = helper.getlastTimeStamp(response.data);
 				$scope.logListInitial = response.data;
 				helper.logsPolling();
-			});
+			});*/
 
 			$scope.$on('$destroy', function() {
 				$interval.cancel($scope.timerObject);

@@ -48,6 +48,8 @@
                                      id: $rootScope.organNewEnt.instanceType,
                                      title: 'Instance'
                                  };
+                             } else {
+                                 $rootScope.filterNewEnt.instanceType = {};
                              }
                             if ($rootScope.organNewEnt.provider) {
                                 $rootScope.filterNewEnt.provider = {

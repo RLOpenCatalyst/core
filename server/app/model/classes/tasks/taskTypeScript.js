@@ -52,6 +52,10 @@ var scriptTaskSchema = taskTypeSchema.extend({
             paramDesc:{
                 type: String,
                 required: false
+            },
+            paramType:{
+                type: String,
+                required: false
             }
         }]
     }]
@@ -67,23 +71,8 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
     var sudoFlag = this.isSudo;
     var scriptDetails = this.scriptDetails;
     var instanceResultList = [];
-
     function getInstances(instanceIds, tagServer, callback) {
-        if (tagServer) {
-            logger.debug('in tagServer', tagServer);
-            instancesDao.getInstancesByTagServer(tagServer, function (err, instances) {
-                if (err) {
-                    logger.error(err);
-                    if (typeof onExecute === 'function') {
-                        onExecute(err, null);
-                    }
-                    return;
-                }
-                callback(null, instances);
-            });
-
-        } else {
-
+        if ((typeof tagServer === 'string' && tagServer === 'undefined') || typeof tagServer === 'undefined') {
             if (!(instanceIds && instanceIds.length)) {
                 if (typeof onExecute === 'function') {
                     onExecute({
@@ -102,10 +91,20 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                 }
                 callback(null, instances);
             });
+        } else {
+            logger.debug('in tagServer', tagServer);
+            instancesDao.getInstancesByTagServer(tagServer, function (err, instances) {
+                if (err) {
+                    logger.error(err);
+                    if (typeof onExecute === 'function') {
+                        onExecute(err, null);
+                    }
+                    return;
+                }
+                callback(null, instances);
+            });
         }
     }
-
-
     getInstances(instanceIds, self.botTagServer, function (err, instances) {
         if (err) {
             logger.error(err);
@@ -189,15 +188,15 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                                 } else {
                                     if (scripts.type === 'Bash') {
                                         var params = script.scriptParameters;
-                                        if (self.botParams && self.botParams.scriptParams) {
+                                        /*if (self.botParams && self.botParams.scriptParams) {
                                             params = self.botParams.scriptParams;
-                                        }
+                                        }*/
                                         executeScriptOnNode(scripts, sshOptions, logsReferenceIds, params, instanceLog,'bash');
                                     } else if (scripts.type === 'Python') {
                                         var params = script.scriptParameters;
-                                        if (self.botParams && self.botParams.scriptParams) {
+                                        /*if (self.botParams && self.botParams.scriptParams) {
                                             params = self.botParams.scriptParams;
-                                        }
+                                        }*/
                                         executeScriptOnNode(scripts, sshOptions, logsReferenceIds, params, instanceLog,'python');
                                     } else {
                                         return;
@@ -292,11 +291,9 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                     } else {
                         var cmdLine = scriptType +' /tmp/' + fileName;
                     }
-                    if (script.isParameterized === true) {
-                        for (var j = 0; j < scriptParameters.length; j++) {
-                            var decryptedText = cryptography.decryptText(scriptParameters[j].paramVal, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-                            cmdLine = cmdLine + ' "' + decryptedText + '"';
-                        }
+                    for (var j = 0; j < scriptParameters.length; j++) {
+                        var decryptedText = cryptography.decryptText(scriptParameters[j].paramVal, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                        cmdLine = cmdLine + ' "' + decryptedText + '"';
                     }
                     sshExec.exec(cmdLine, function (err, retCode) {
                         if (err) {

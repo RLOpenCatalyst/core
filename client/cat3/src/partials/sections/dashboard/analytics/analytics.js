@@ -1,10 +1,10 @@
 (function (angular) {
 	"use strict";
-	angular.module('dashboard.analytics', ['apis.analytics','nvd3'])
+	angular.module('dashboard.analytics', ['apis.analytics','nvd3','multipleSelect','ui.grid.edit'])
 		.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', 'modulePermissionProvider', function($stateProvider, $urlRouterProvider, $httpProvider, modulePermissionProvider) {
 			var modulePerms = modulePermissionProvider.$get();
 			$stateProvider.state('dashboard.analytics.cost', {
-				url: "cost/",
+				url: "analytics/cost/",
 				templateUrl: "src/partials/sections/dashboard/analytics/view/cost.html",
 				controller: "costCtrl as cost",
 				params:{filterView:{cost:true,viewBy:true,splitUpType:true,org:true}},
@@ -22,7 +22,7 @@
 					}]
 				}
 			}).state('dashboard.analytics.capacity', {
-				url: "capacity/",
+				url: "analytics/capacity/",
 				templateUrl: "src/partials/sections/dashboard/analytics/view/capacity.html",
 				controller: "capacityCtrl as capaCtr",
 				params:{filterView:{period:true,cost:true,viewBy:true,splitUpType:true,org:true}},
@@ -40,10 +40,46 @@
 					}]
 				}
 			}).state('dashboard.analytics.usage', {
-				url: "usage/",
+				url: "analytics/usage/",
 				templateUrl: "src/partials/sections/dashboard/analytics/view/usage.html",
 				controller: "usageCtrl as usage",
 				params:{filterView:{usage:true,org:true,provi:true,instanceType:true,resources:true}},
+				resolve: {
+					auth: ["$q", function ($q) {
+						var deferred = $q.defer();
+						// instead, go to a different page
+						if (modulePerms.analyticsBool()) {
+							// everything is fine, proceed
+							deferred.resolve();
+						} else {
+							deferred.reject({redirectTo: 'dashboard'});
+						}
+						return deferred.promise;
+					}]
+				}
+			}).state('dashboard.analytics.tagMapping', {
+				url: "discovery/tagMapping/",
+				templateUrl: "src/partials/sections/dashboard/analytics/view/discoveryTagMapping.html",
+				controller: "discoveryTagMappingCtrl as disTgMap",
+				params:{filterView:{period:true,org:true,provi:true},dashboardHide:true,reportHide:true,otherTab:'Tag mapping',otherTabView:true},
+				resolve: {
+					auth: ["$q", function ($q) {
+						var deferred = $q.defer();
+						// instead, go to a different page
+						if (modulePerms.analyticsBool()) {
+							// everything is fine, proceed
+							deferred.resolve();
+						} else {
+							deferred.reject({redirectTo: 'dashboard'});
+						}
+						return deferred.promise;
+					}]
+				}
+			}).state('dashboard.analytics.resources', {
+				url: "discovery/resources/",
+				templateUrl: "src/partials/sections/dashboard/analytics/view/discoveryResources.html",
+				controller: "discoveryResourcesCtrl as disResrc",
+				params:{filterView:{period:true,org:true,provi:true,instanceType:true},dashboardHide:true,otherTab:'Resources',otherTabView:true,reportHide:true},
 				resolve: {
 					auth: ["$q", function ($q) {
 						var deferred = $q.defer();
@@ -61,6 +97,7 @@
 		}])
 	.controller('analyticsCtrl',['$scope', '$rootScope','$state','genericServices','analyticsServices', 'workzoneServices', 'toastr', function ($scope, $rootScope, $state, genericServices,analyticsServices, workzoneServices, toastr) {
 		var analytic = this;
+		$scope.isTreeOpen = false;
 		//var splitUp=null;
 		analytic.tabShowChat=true;
 		analytic.tabShowReport=false;
@@ -159,12 +196,13 @@
         };
 
         $scope.getAllRegionsList();
-		$scope.fnProviderChange = function() {
+		$scope.ProviderChange = function(val) {
             $scope.filter.regionId = '';
             $scope.filter.vpcId = '';
             $scope.regions = [];
-            if ($scope.filter.providerId && $scope.filter.providerId !== '') {
-                $scope.getProviderRegions();
+			$scope.filter.providerId=$rootScope.providers[val]._id;
+            if ($scope.filter.providerId) {
+                $scope.getResourse($rootScope.organNewEnt.instanceType);
             }
         };
         $scope.getResourse = function(instType) {
@@ -174,6 +212,7 @@
 	        	workzoneServices.getManagedInstances($scope.filter.providerId).then(function(response) {
 					if(response.data && response.data.managedInstances &&  response.data.managedInstances.length >0){
 						$scope.resourceList = response.data.managedInstances;
+						$scope.toggleResourceSelection($scope.resourceList[0]._id,$scope.resourceList[0].platformId);
 					} else{
 						$scope.resourceList=[];
 					}
@@ -185,6 +224,7 @@
 	            workzoneServices.getAssignedInstances($scope.filter.providerId).then(function(response) {
 					if(response.data && response.data.unmanagedInstances.length >0){
 						$scope.resourceList = response.data.unmanagedInstances;
+						$scope.toggleResourceSelection($scope.resourceList[0]._id,$scope.resourceList[0].platformId);
 					} else{
 						$scope.resourceList = [];
 					}
@@ -197,7 +237,7 @@
 	            workzoneServices.getUnassignedInstances($scope.filter.providerId).then(function(response) {
 					if(response.data && response.data.data && response.data.data.length >0){
 						$scope.resourceList = response.data.data;
-						$scope.selectedResources.push(response.data.data[0]._id);
+						$scope.toggleResourceSelection(response.data.data[0]._id,response.data.data[0].platformId);
 						$rootScope.filterNewEnt.resources=$scope.selectedResources;
 						$rootScope.filterNewEnt.platformId[response.data.data[0]._id]=response.data.data[0].platformId;
 					} else {
@@ -215,7 +255,7 @@
             var idx = $scope.selectedResources.indexOf(resourceId);
             if(idx > -1) {
         		$scope.selectedResources.splice(idx, 1);
-				
+
     		} else {
     			if($scope.selectedResources.length === 10){
     				console.log($scope.selectedResources.length);

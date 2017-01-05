@@ -8,9 +8,9 @@
 (function (angular) {
     "use strict";
     angular.module('library.params', [])
-    .controller('editParamsCtrl',['$scope', '$rootScope', 'genericServices', 'workzoneServices', 'toastr', '$modalInstance', 'items', 'responseFormatter', function ($scope, $rootScope, genSevs, workzoneServices, toastr, $modalInstance, items, responseFormatter) {
-        $scope.botName = items.name;
-        $scope.taskType = items.taskType;
+    .controller('editParamsCtrl',['$scope', '$rootScope', 'genericServices', 'workzoneServices', 'toastr', '$modalInstance', 'items', 'responseFormatter', '$modal', function ($scope, $rootScope, genSevs, workzoneServices, toastr, $modalInstance, items, responseFormatter, $modal) {
+        $scope.botName = items.botName;
+        $scope.taskType = items.botLinkedSubCategory;
         $scope.taggingServerList=[];
         $scope.envOptions=[];
         workzoneServices.getTaggingServer().then(function (topSer) {
@@ -18,23 +18,29 @@
         });
         $scope.chefAttributesFlag = false;
         $scope.scriptParamsFlag = false;
-        if(items.taskConfig.runlist && items.taskConfig.runlist.length) {
+        if(items.botConfig && items.botConfig.runlist && items.botConfig.runlist.length) {
             $scope.chefAttributesFlag = true;
         }
-        if(items.taskType === 'script') {
-            for (var i=0; i<items.taskConfig.scriptDetails.length; i++) {
-                if(items.taskConfig.scriptDetails[i].scriptParameters.length > 0) {
+        if(items.botLinkedSubCategory === 'script' && items.botConfig) {
+            for (var i=0; i<items.botConfig.scriptDetails.length; i++) {
+                if(items.botConfig.scriptDetails[i].scriptParameters.length > 0) {
                     $scope.scriptParamsFlag = true;
                 }
             }
         }
         $scope.isChefattributesLoading = true;
-        if (items.taskType === 'chef') {
-            $scope.chefComponentSelectorList = responseFormatter.findDataForEditValue(items.taskConfig.runlist);
+
+        $scope.totalCount = 0;
+        $scope.countInit = function() {
+           return $scope.totalCount++;
+        }
+
+        if (items.botLinkedSubCategory === 'chef') {
+            $scope.chefComponentSelectorList = responseFormatter.findDataForEditValue(items.botConfig.runlist);
             var nodesList = responseFormatter.chefRunlistFormatter($scope.chefComponentSelectorList);
             $scope.chefattributes = [];
-            $scope.chefattributes = responseFormatter.formatSavedCookbookAttributes(items.taskConfig.attributes);
-            workzoneServices.getCookBookListForOrg(items.orgId).then(function(data){
+            $scope.chefattributes = responseFormatter.formatSavedCookbookAttributes(items.botConfig.attributes);
+            workzoneServices.getCookBookListForOrg(items.masterDetails.orgId).then(function(data){
                 var runlist = [];
                 for (var i = 0; i < nodesList.length; i++) {
                     if (nodesList[i].className === "cookbook" || nodesList[i].className === "deploy") {
@@ -61,56 +67,71 @@
                                 }
                             }
                             $scope.chefattributes = data;
+                            $scope.cookbookAttributes = responseFormatter.formatSelectedCookbookAttributes($scope.chefattributes);
                             $scope.isChefattributesLoading = false;
                         });
                     });
                 }
             });
         }
-
-        $scope.jenkinsparams = items.taskConfig.parameterized;
-        $scope.scriptparams = items.taskConfig.scriptDetails;
+        if (items.botConfig) {
+            $scope.jenkinsparams = items.botConfig.parameterized;
+            $scope.scriptparams = items.botConfig.scriptDetails;
+        }
         $scope.parameters=[''];
         var cookbookAttributes = [];
+        $scope.cookbookAttributes = [];
         var scriptParams = [];
         var choiceParam = {};
         $scope.jenparams = {};
-        $scope.add = function() {
-            $scope.parameters.push('');
-        };
 
-        $scope.removeScriptInputParams = function(paramInput) {
-            if($scope.parameters.length > 1){
-                var idx = $scope.parameters.indexOf(paramInput);
-                $scope.parameters.splice(idx,1);
-            }else{
-                toastr.error('Cannot delete the row');
+        var helper = {
+            botLogModal: function(id,historyId,taskType) {
+                $modal.open({
+                    animation: true,
+                    templateUrl: 'src/partials/sections/dashboard/bots/view/botExecutionLogs.html',
+                    controller: 'botExecutionLogsCtrl as botExecLogCtrl',
+                    backdrop: 'static',
+                    keyboard: false,
+                    resolve: {
+                        items: function() {
+                            return {
+                                taskId: id,
+                                historyId: historyId,
+                                taskType: taskType
+                            };
+                        }
+                    }
+                });
             }
         };
 
         $scope.executeBot=function(){
-            if (items.taskConfig.taskType === 'script') {
-                var checkParam = false;
-                if ($scope.scriptParamsFlag) {
-                    for(var i =0; i<$scope.parameters.length; i++){
-                        if($scope.parameters[i] === '' || $scope.parameters[i] === null){
-                            checkParam = false;
-                            toastr.error('Please enter parameters');
-                            return false;
-                        } else {
-                            checkParam = true;
+            if (items.botConfig && items.botConfig.taskType === 'script') {
+                /*for(var i = 0; i < $scope.scriptparams.length; i++){
+                    var scriptObj = {};
+                    var scriptParamList = [];
+                    if($scope.scriptparams[i].scriptParameters.length > 0){
+                        for(var j = 0; j<$scope.scriptparams[i].scriptParameters.length;j++){
+                            scriptParamList.push($scope.scriptparams[i].scriptParameters[j].paramVal);
                         }
+                        if($scope.scriptparams[i].scriptParameters.length === scriptParamList.length){
+                            scriptObj[$scope.scriptparams[i].scriptId] = scriptParamList;
+                            scriptParams.push(scriptObj);
+                        }
+                    }else{
+                        scriptObj[$scope.scriptparams[i].scriptId] = [];
+                        scriptParams.push(scriptObj);
                     }
-                }
-                if(checkParam){
-                    scriptParams = $scope.parameters;
-                } 
+                }*/
+
+                scriptParams = $scope.scriptparams;
             }
-            if (items.taskConfig.taskType === 'chef') {
+            if (items.botConfig && items.botConfig.taskType === 'chef') {
                 cookbookAttributes = responseFormatter.formatSelectedCookbookAttributes($scope.chefattributes);
                 
             }
-            if (items.taskConfig.taskType === 'jenkins') {
+            if (items.botConfig && items.botConfig.taskType === 'jenkins') {
                 choiceParam = $scope.jenparams;
             }
             $scope.executeTask();
@@ -118,26 +139,30 @@
 
         $scope.executeTask = function(){
             var reqBody = {};
-            if (items.taskConfig.taskType === 'jenkins') {
+            if (items.botConfig && items.botConfig.taskType === 'jenkins') {
                 reqBody.choiceParam = choiceParam;
-            } else if (items.taskConfig.taskType === 'chef'){
+            } else if (items.botConfig && items.botConfig.taskType === 'chef'){
                 reqBody.tagServer = $scope.tagSerSelected;
                 if ($scope.chefAttributesFlag) {
                     reqBody.cookbookAttributes = cookbookAttributes;
                 }
-            } else  if (items.taskConfig.taskType === 'script') {
+            } else  if (items.botConfig && items.botConfig.taskType === 'script') {
                 reqBody.tagServer = $scope.tagSerSelected;
                 if ($scope.scriptParamsFlag) {
                     reqBody.scriptParams = scriptParams;
                 }
             }
-            workzoneServices.runTask(items._id, reqBody).then(
-                function (response) {
-                    $modalInstance.close(response.data);
-                    $rootScope.$emit('BOTS_LIBRARY_REFRESH');
-                    $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
-                },
-                function (error) {
+            var param={
+                url:'/bots/' + items.botId + '/execute',
+                data: reqBody
+            };
+            genSevs.promisePost(param).then(function (response) {
+                $modalInstance.close(response.data);
+                $rootScope.$emit('BOTS_LIBRARY_REFRESH');
+                helper.botLogModal(items.botId, response.historyId, response.taskType);
+            },
+            function (error) {
+                if(error) {
                     error = error.responseText || error;
                     if (error.message) {
                         toastr.error(error.message);
@@ -145,7 +170,7 @@
                         toastr.error(error);
                     }
                 }
-            );
+            });
         };
 
         $scope.cancel= function() {

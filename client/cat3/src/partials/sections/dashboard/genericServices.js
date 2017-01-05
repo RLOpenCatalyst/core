@@ -55,6 +55,21 @@
                 });
             return deferred.promise;
         };
+        genericServices.promisePatch = function (paramsObject) {
+            if(!paramsObject.inlineLoader){ $rootScope.onBodyLoading=true;}
+            var deferred = $q.defer();
+            $http.patch(paramsObject.url,paramsObject.data)
+                .success(function(data) {
+                    $rootScope.onBodyLoading=false;
+                    deferred.resolve(data);
+                })
+                .error(function(data, status) {
+                    $rootScope.onBodyLoading=false;
+                    deferred.reject();
+                    toastr.error(data.message, status);
+                });
+            return deferred.promise;
+        };
         genericServices.promiseDelete= function (paramsObject) {
             $rootScope.onBodyLoading=true;
             var deferred = $q.defer();
@@ -120,11 +135,11 @@
             }
         };
 
-        genericServices.log=function(id,historyId,taskType) {
+        genericServices.log=function(id,historyId,botLinkedSubCategory) {
             $modal.open({
                 animation: true,
-                templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationLog.html',
-                controller: 'orchestrationLogCtrl as orchLogCtrl',
+                templateUrl: 'src/partials/sections/dashboard/bots/view/botExecutionLogs.html',
+                controller: 'botExecutionLogsCtrl',
                 backdrop: 'static',
                 keyboard: false,
                 resolve: {
@@ -132,14 +147,14 @@
                         return {
                             taskId: id,
                             historyId: historyId,
-                            taskType: taskType
+                            taskType: botLinkedSubCategory
                         };
                     }
                 }
             });
         };
 
-        genericServices.botHistory=function(bot) {
+        /*genericServices.botHistory=function(bot) {
             $modal.open({
                 animation: true,
                 templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationHistory.html',
@@ -153,7 +168,7 @@
                     }
                 }
             });
-        };
+        };*/
 
         genericServices.removeBlueprint= function(blueprintObj, bpType) {
             var modalOptions = {
@@ -186,7 +201,7 @@
         };
 
         genericServices.executeTask =function(task) {
-            if ((task.taskConfig.parameterized && task.taskConfig.parameterized.length) || (task.taskType === 'chef') || (task.taskType === 'script')) {
+            if ((task.botConfig && task.botConfig.parameterized && task.botConfig.parameterized.length) || (task.botLinkedSubCategory === 'chef') || (task.botLinkedSubCategory === 'script')) {
                 $modal.open({
                     animation: true,
                     templateUrl: 'src/partials/sections/dashboard/bots/view/editParams.html',
@@ -199,28 +214,29 @@
                         }
                     }
                 }).result.then(function(response) {
-                    genericServices.log(task._id,response.historyId,task.taskType);
-                    if(response.blueprintMessage){
+                    console.log(response);
+                    //genericServices.log();
+                    /*if(response.blueprintMessage){
                         $rootScope.$emit('WZ_INSTANCES_SHOW_LATEST');
                     }
-                    $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
+                    $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');*/
                 }, function() {
-                    $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
+                    //$rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
                 });
             } else {
                 $modal.open({
                     animation: true,
-                    templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/confirmJobRun.html',
-                    controller: 'confirmJobRunCtrl',
+                    templateUrl: 'src/partials/sections/dashboard/bots/view/confirmBotRun.html',
+                    controller: 'confirmBotRunCtrl',
                     backdrop: 'static',
                     keyboard: false,
                     resolve: {
                         items: function() {
-                            return task._id;
+                            return task;
                         }
                     }
                 }).result.then(function(response) {
-                    genericServices.log(task._id,response.historyId,task.taskType);
+                    genericServices.log(task._id,response.historyId,task.botLinkedSubCategory);
                     if(response.blueprintMessage){
                         $rootScope.$emit('WZ_INSTANCES_SHOW_LATEST');
                     }
@@ -231,7 +247,7 @@
             }
         };
 
-        genericServices.lunchBlueprint=function(blueprintObj) {
+        genericServices.launchBlueprint=function(blueprintObj) {
             $modal.open({
                 animate: true,
                 templateUrl: "src/partials/sections/dashboard/workzone/blueprint/popups/blueprintLaunchParams.html",
@@ -244,7 +260,8 @@
                     }
                 }
             }).result.then(function(bpObj) {
-                if (bpObj.bp.blueprintType === "docker") {
+                console.log(bpObj);
+                if (bpObj.bp.botLinkedSubCategory === "docker") {
                     $modal.open({
                         animate: true,
                         templateUrl: "src/partials/sections/dashboard/workzone/blueprint/popups/dockerLaunchParams.html",

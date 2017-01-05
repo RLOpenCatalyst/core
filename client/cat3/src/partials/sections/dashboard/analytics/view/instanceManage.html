@@ -1,0 +1,118 @@
+<form name="instMG">
+<div id='startInstancePage'>
+    <div class="modal-header">
+        <span class="close" ng-click="cancel()">×</span>
+        <h4 class="modal-title"><i class="fa fa-upload"></i> Import Instance</h4>
+    </div>
+
+    <div class="modal-body">
+        <div class="col-lg-6 col-md-6 ">
+            <label for="">Organization:<span class="red">*</span> <!-- ngIf: depNewApp.errorMsg.server -->
+            </label>
+            <div class="input-groups">
+                <loading size="small" name="isLoadingServer" type="inline" class="ng-scope" style="display: none;"><span class="catloader inline ng-scope small"><i class="fa fa-spinner fa-spin black"></i></span></loading>
+                <select name="org" ng-disabled="true" ng-model="IMGNewEnt.org" ng-options="org.name group by org.a for org in organObject" class="chooseProjectExisting width-100 form-control"  required>
+                    <option value="">Select</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-6 ">
+            <label for="">Business Groups:<span class="red">*</span> <!-- ngIf: depNewApp.errorMsg.server -->
+            </label>
+            <div class="input-groups">
+                <loading size="small" name="isLoadingServer" type="inline" class="ng-scope" style="display: none;"><span class="catloader inline ng-scope small"><i class="fa fa-spinner fa-spin black"></i></span></loading>
+                <select name="buss" id="bgListInputExisting" class="chooseBGExisting width-100 form-control" ng-options="buss.name group by buss.a for buss in organObject[organObject.indexOf(IMGNewEnt.org)].businessGroups"  ng-model="IMGNewEnt.buss"  required>
+                    <option value="">Select</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-6 margintop15">
+            <label for="">Project:<span class="red">*</span> <!-- ngIf: depNewApp.errorMsg.server -->
+            </label>
+            <div class="input-groups">
+                <loading size="small" name="isLoadingServer" type="inline" class="ng-scope" style="display: none;"><span class="catloader inline ng-scope small"><i class="fa fa-spinner fa-spin black"></i></span></loading>
+                <select name="proj" class="chooseProjectExisting width-100 form-control" ng-options="buss.name group by buss.a for buss in organObject[organObject.indexOf(IMGNewEnt.org)].businessGroups[organObject[organObject.indexOf(IMGNewEnt.org)].businessGroups.indexOf(IMGNewEnt.buss)].projects" ng-model="IMGNewEnt.proj" required>
+                    <option value="">Select</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-6 margintop15">
+            <label for="">Environment:<span class="red">*</span> <!-- ngIf: depNewApp.errorMsg.server -->
+            </label>
+            <div class="input-groups">
+                <loading size="small" name="isLoadingServer" type="inline" class="ng-scope" style="display: none;"><span class="catloader inline ng-scope small"><i class="fa fa-spinner fa-spin black"></i></span></loading>
+                <select name="proj" class="chooseProjectExisting width-100 form-control" ng-options="env.name group by env.a for env in IMGNewEnt.proj.environments" ng-model="IMGNewEnt.env" required>
+                    <option value="">Select</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-6 margintop15">
+            <label for="">Config Management :<span class="red">*</span> <!-- ngIf: depNewApp.errorMsg.server -->
+            </label>
+            <div class="input-groups">
+                <loading size="small" name="isLoadingServer" type="inline" class="ng-scope" style="display: none;"><span class="catloader inline ng-scope small"><i class="fa fa-spinner fa-spin black"></i></span></loading>
+                <select ng-model="IMGNewEnt.serverTypeInd" class="form-control ng-pristine ng-untouched ng-invalid ng-invalid-required"  required="">
+                    <option value="">Choose Server</option>
+                    <option ng-repeat="serverOption in configOptions" value="{{serverOption.rowid}}" class="ng-binding ng-scope">{{serverOption.configname}}{{serverOption.puppetservername}}</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-6 margintop15">
+            <label for="">Username:<span class="red">*</span> <!-- ngIf: depNewApp.errorMsg.server -->
+            </label>
+            <div class="input-groups">
+                <input ng-model="IMGNewEnt.userName" type="text" name="coBlueprintName" class="form-control" required >
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-6 margintop15">
+            <label for="">Choose Authentication Type:<span class="red">*</span> <!-- ngIf: depNewApp.errorMsg.server -->
+            </label>
+            <div class="input-groups">
+                <loading size="small" name="isLoadingServer" type="inline" class="ng-scope" style="display: none;"><span class="catloader inline ng-scope small"><i class="fa fa-spinner fa-spin black"></i></span></loading>
+                <select ng-model="IMGNewEnt.passType" class="form-control ng-pristine ng-untouched ng-invalid ng-invalid-required" ng-change="depNewApp.getRepository();" required="">
+                    <option value="password">Password</option>
+                    <option value="pemFile">Pem File</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-6 margintop15" ng-if="IMGNewEnt.passType === 'password' ">
+            <label for="">Password :<span class="red">*</span> <!-- ngIf: depNewApp.errorMsg.server -->
+            </label>
+            <div class="input-groups">
+                <input ng-model="IMGNewEnt.password" type="password" name="coBlueprintName" class="form-control" required >
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-6 margintop15" ng-if="IMGNewEnt.passType === 'pemFile' ">
+            <label for="">File Upload:<span class="red">*</span> <!-- ngIf: depNewApp.errorMsg.server -->
+            </label>
+            <div class="input-groups">
+                <input type="file" name="autenticationPemfile" class="form-control form-controls" ngf-select="" ng-model="$parent.pemfile" name="file" accept=".pem" required="">
+            </div>
+        </div>
+        <div class="col-lg-12 col-md-12 no-padding margintop15">
+            <div class="col-lg-6 col-md-6 control-margin">
+                <label for="">Monitoring:</label>
+                    <select name="monitorId" ng-model="monitorId" class="form-control width-100">
+                        <option value="null">None</option>
+                        <option ng-repeat="monitor in monitorList" value="{{monitor._id}}">
+                            {{monitor.name}}
+                        </option>
+                </select>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="modal-footer">
+        <div ng-show="!isStartStopInstanceLoading">{{authMsg}}</div>
+        <button type="button" class="btn cat-btn-cancel" ng-click="cancel()">
+            <i class="fa fa-times black"></i> Cancel
+        </button>
+        <button type="button" class="btn cat-btn-update" ng-disabled="instMG.$invalid || importSync" ng-click="ok()">
+            <i class="fa fa-check white"></i> Sync 
+        </button>
+        <span ng-show="importSpinner">
+            <i class="fa fa-spinner fa-pulse fa-fw black"></i>
+        </span>
+    </div>
+</div>
+</form>

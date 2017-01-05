@@ -25,10 +25,10 @@ var permissionsetDao = require('../../model/dao/permissionsetsdao');
 var d4dModel = require('../../model/d4dmasters/d4dmastersmodel.js');
 var configmgmtDao = require('../../model/d4dmasters/configmgmt.js');
 var appConfig = require('_pr/config');
+var Cryptography = require('../utils/cryptography');
 var chefSettings = appConfig.chef;
 var AppDeploy = require('_pr/model/app-deploy/app-deploy');
 var async = require('async');
-var monitorsModel = require('_pr/model/monitors/monitors.js');
 
 var MasterUtil = function () {
     // Return All Orgs specific to User
@@ -1791,18 +1791,7 @@ var MasterUtil = function () {
                         chefmgmt[0].chefRepoLocation = chefSettings.chefReposLocation + chefmgmt[0].orgname_rowid[0] + '/' + chefmgmt[0].loginname + '/';
                         chefmgmt[0].userpemfile = chefSettings.chefReposLocation + chefmgmt[0].orgname_rowid[0] + '/' + chefmgmt[0].folderpath + chefmgmt[0].userpemfile_filename;
                         chefmgmt[0].validatorpemfile = chefSettings.chefReposLocation + chefmgmt[0].orgname_rowid[0] + '/' + chefmgmt[0].folderpath + chefmgmt[0].validatorpemfile_filename;
-                        if (chefmgmt[0].monitorId) {
-                            monitorsModel.getById(chefmgmt[0].monitorId, function (err, monitor) {
-                                if (err || !monitor) {
-                                     chefmgmt[0].monitor = null;
-                                } else {
-                                     chefmgmt[0].monitor = monitor;
-                                }
-                                callback(null, chefmgmt[0]);
-                            });
-                        }else{
-                            callback(null, chefmgmt[0]);
-                        }                        
+                        callback(null, chefmgmt[0]);
                     } else {
                         callback(null, null);
                     }
@@ -2235,6 +2224,29 @@ var MasterUtil = function () {
             }
             return callback(null, templates);
         });
+    };
+    
+    this.getSensuCookbooks = function(){
+        var cookbooks = ['recipe[sensu-client]','recipe[sensu_check_load]','recipe[sensu_check_disk]','recipe[sensu_check_cpu]','recipe[sensu_check_memory]'];
+        return cookbooks;
+    };
+
+    //return cookbook attributes object for sensu-client
+    this.getSensuCookbookAttributes = function (monitorDetails, instanceId) {
+        var cryptoConfig = appConfig.cryptoSettings;
+        var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+        var decryptedPassword = cryptography.decryptText(monitorDetails.parameters.transportProtocolParameters.password, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+
+        var sensuAttributes = {
+            'rabbitmq_host': monitorDetails.parameters.transportProtocolParameters.host,
+            'rabbitmq_port': monitorDetails.parameters.transportProtocolParameters.port,
+            'rabbitmq_username': monitorDetails.parameters.transportProtocolParameters.user,
+            'rabbitmq_password': decryptedPassword,
+            'rabbitmq_vhostname': monitorDetails.parameters.transportProtocolParameters.vhost,
+            'instance-id': instanceId
+        };
+        logger.debug("sensuAttributes-------->", JSON.stringify(sensuAttributes));
+        return sensuAttributes;
     };
 }
 
