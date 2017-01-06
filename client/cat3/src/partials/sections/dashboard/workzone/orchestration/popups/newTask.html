@@ -573,14 +573,17 @@
 												<tr class="rowCustomStyle" role="row">
 													<td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Parameter">Parameter</td>
 													<td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Description">Description</td>
+													<td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Type">Type</td>
 													<td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Action">Action</td>
 												</tr>
 												</thead>
 												<tbody>
 												<tr ng-repeat="param in scriptParamsObj[selectedScript._id] track by $index">
-													<td ng-if="param.paramVal !== ''">{{param.paramVal}}</td>
-													<td ng-if="param.paramVal === ''">.....</td>
+													<td ng-if="param.paramType === 'Default' || param.paramType === ''">{{param.paramVal}}</td>
+													<td ng-if="param.paramType === 'Restricted' || param.paramType === 'Password'">.....</td>
 													<td>{{param.paramDesc}}</td>
+													<td ng-if="param.paramType === 'Default' || param.paramType === ''">Default</td>
+													<td ng-if="param.paramType === 'Restricted' || param.paramType === 'Password'">{{param.paramType}}</td>
 													<td>
 														<button title="Delete" type="button" ng-click="removeScriptParams(selectedScript._id,param);"><i class=" fa fa-trash-o"></i></button>
 													</td>

@@ -869,7 +869,7 @@
                     var modalOptions = {
                         closeButtonText: 'Cancel',
                         actionButtonText: 'Submit',
-                        actionButtonStyle: 'bp-btn-create',
+                        actionButtonStyle: 'btn cat-btn-update',
                         headerText: 'Confirm Blueprint Creation',
                         bodyText: 'Are you sure want to submit this Blueprint Data? Press Ok to Continue'
                     };

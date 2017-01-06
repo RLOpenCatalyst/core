@@ -53,7 +53,7 @@
                 <loading size="small" name="isLoadingServer" type="inline" class="ng-scope" style="display: none;"><span class="catloader inline ng-scope small"><i class="fa fa-spinner fa-spin black"></i></span></loading>
                 <select ng-model="IMGNewEnt.serverTypeInd" class="form-control ng-pristine ng-untouched ng-invalid ng-invalid-required"  required="">
                     <option value="">Choose Server</option>
-                    <option ng-repeat="serverOption in configOptions" value="{{serverOption._id}}" class="ng-binding ng-scope">{{serverOption.configname}}{{serverOption.puppetservername}}</option>
+                    <option ng-repeat="serverOption in configOptions" value="{{serverOption.rowid}}" class="ng-binding ng-scope">{{serverOption.configname}}{{serverOption.puppetservername}}</option>
                 </select>
             </div>
         </div>
@@ -79,17 +79,27 @@
             <label for="">Password :<span class="red">*</span> <!-- ngIf: depNewApp.errorMsg.server -->
             </label>
             <div class="input-groups">
-                <input ng-model="IMGNewEnt.password" type="text" name="coBlueprintName" class="form-control" required >
+                <input ng-model="IMGNewEnt.password" type="password" name="coBlueprintName" class="form-control" required >
             </div>
         </div>
         <div class="col-lg-6 col-md-6 margintop15" ng-if="IMGNewEnt.passType === 'pemFile' ">
             <label for="">File Upload:<span class="red">*</span> <!-- ngIf: depNewApp.errorMsg.server -->
             </label>
             <div class="input-groups">
-                <input type="file" name="coBlueprintName" class="form-control" >
+                <input type="file" name="autenticationPemfile" class="form-control form-controls" ngf-select="" ng-model="$parent.pemfile" name="file" accept=".pem" required="">
             </div>
         </div>
-
+        <div class="col-lg-12 col-md-12 no-padding margintop15">
+            <div class="col-lg-6 col-md-6 control-margin">
+                <label for="">Monitoring:</label>
+                    <select name="monitorId" ng-model="monitorId" class="form-control width-100">
+                        <option value="null">None</option>
+                        <option ng-repeat="monitor in monitorList" value="{{monitor._id}}">
+                            {{monitor.name}}
+                        </option>
+                </select>
+            </div>
+        </div>
         <div class="clearfix"></div>
     </div>
     <div class="modal-footer">
@@ -97,9 +107,12 @@
         <button type="button" class="btn cat-btn-cancel" ng-click="cancel()">
             <i class="fa fa-times black"></i> Cancel
         </button>
-        <button type="button" class="btn cat-btn-update" ng-disabled="instMG.$invalid" ng-click="ok()">
-            <i class="fa fa-check white"></i> Ok
+        <button type="button" class="btn cat-btn-update" ng-disabled="instMG.$invalid || importSync" ng-click="ok()">
+            <i class="fa fa-check white"></i> Sync 
         </button>
+        <span ng-show="importSpinner">
+            <i class="fa fa-spinner fa-pulse fa-fw black"></i>
+        </span>
     </div>
 </div>
-    </form>
+</form>

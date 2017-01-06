@@ -184,7 +184,9 @@
                             ];
                             $scope.instanceType= 'managedInstances';
                         } else if($rootScope.organNewEnt.instanceType === 'Assigned'){
+
                             $scope.colArray=['platformId','privateIpAddress','os','state'];
+
                             disResrc.gridOptionInstances.columnDefs=[
                                 {name: 'InstanceId', field: 'platformId',enableCellEditOnFocus: false, cellTooltip: true,
                                     enableCellEdit: false,enableFiltering: true},
@@ -367,19 +369,117 @@
             };
             disResrc.init();
             
-        }]).controller('instanceManageCtrl',['$scope','$rootScope','items','$modalInstance','genericServices',function ($scope,$rootScope,items,$modalInstance,genericServices) {
+        }]).controller('instanceManageCtrl',['$scope','$rootScope','items','$modalInstance','genericServices','$modal',function ($scope,$rootScope,items,$modalInstance,genericServices,$modal) {
         $scope.items=items;
+        var fltrObj=$rootScope.filterNewEnt;
+        var reqBody = {};
+        $scope.monitorList = [];
+        $scope.monitorId = 'null';
         $scope.IMGNewEnt={
             passType:'password',
             org:$rootScope.organObject[0]
         };
         //get configmanagement
         var params={
-            url:'/organization/'+$scope.IMGNewEnt.org.orgid+'/configmanagement/list'
+            url:'/d4dMasters/organization/'+$scope.IMGNewEnt.org.orgid+'/configmanagement/list'
         }
         genericServices.promiseGet(params).then(function (list) {
             $scope.configOptions=list;
         });
+
+        //get monitors
+        var monitorParam={
+            url:'/monitors?filterBy=orgId:' + $scope.IMGNewEnt.org.orgid
+        }
+        genericServices.promiseGet(monitorParam).then(function (list) {
+            $scope.monitorList = list;
+        });
+
+        $scope.pemFileSelection = function($event) {
+            if (FileReader) {
+                var fileContent = new FileReader();
+                fileContent.onload = function(e) {
+                    $scope.addPemText(e.target.result);
+                };
+                fileContent.onerror = function(e) {
+                    toastr.error(e);
+                };
+                fileContent.readAsText($event);
+            } else {
+                toastr.error('HTMl5 File Reader is not Supported. Please upgrade your browser');
+            }
+        };
+        $scope.ok = function() {
+            $scope.importSpinner = true;
+            $scope.importSync = true;
+            reqBody.orgId = $scope.IMGNewEnt.org.orgid;
+            reqBody.bgId = $scope.IMGNewEnt.buss.rowid;
+            reqBody.projectId = $scope.IMGNewEnt.proj.rowId;
+            reqBody.envId = $scope.IMGNewEnt.env.rowid
+            reqBody.orgName = $scope.IMGNewEnt.org.name; 
+            reqBody.bgName = $scope.IMGNewEnt.buss.name;
+            reqBody.projectName = $scope.IMGNewEnt.proj.name;
+            reqBody.environmentName = $scope.IMGNewEnt.env.name;
+            reqBody.configManagmentId = $scope.IMGNewEnt.serverTypeInd;
+            reqBody.monitorId = $scope.monitorId;
+
+            reqBody.credentials = {};
+            reqBody.credentials.username = $scope.IMGNewEnt.userName;
+            reqBody.instanceIds = [];
+            reqBody.instanceIds = $scope.items;
+            
+            $scope.postMethodImportByIp = function(){
+                var params = {
+                    inlineLoader: true,
+                    url:'/providers/' + fltrObj.provider.id + '/sync',
+                    data:reqBody
+                }
+                genericServices.promisePost(params).then(function (response) {
+                    
+                    if(response.taskId){
+                        $modalInstance.dismiss(response.taskId);
+                        $scope.importSpinner = false;
+                        $scope.importSync = false;
+                        $modal.open({
+                            animation: true,
+                            templateUrl: 'src/partials/sections/dashboard/analytics/view/discoverySyncResult.html',
+                            controller: 'discoverySyncResultCtrl',
+                            backdrop: 'static',
+                            keyboard: false,
+                            resolve: {
+                                items: function() {
+                                    return {
+                                        taskId:response.taskId,
+                                        nodeIds:reqBody.instanceIds
+                                    };
+                                }
+                            }
+                        }).result.then(function(response) {
+                        }, function() {
+                            console.log("Dismiss at " + new Date());
+                        });
+                    }
+                },function(response){
+                    $scope.isStartStopInstanceLoading = false;
+                    if(response.data.message){
+                        $scope.authMsg = response.data.message;
+                    }else{
+                        $scope.authMsg = response.data;
+                    }
+                });
+            };
+            if ($scope.IMGNewEnt.passType === "password") {
+                reqBody.credentials.password = $scope.IMGNewEnt.password;
+                $scope.postMethodImportByIp();  
+            } else {
+                $scope.pemFileSelection($scope.pemfile);
+            }
+            $scope.addPemText = function(pemfileText){
+                reqBody.credentials.pemFileData = pemfileText;
+                $scope.postMethodImportByIp();
+            };
+            
+        }
         $scope.cancel = function() {
             $modalInstance.dismiss('cancel');
         };

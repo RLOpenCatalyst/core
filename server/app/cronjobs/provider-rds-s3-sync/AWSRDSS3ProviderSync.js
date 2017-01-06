@@ -94,10 +94,16 @@ function awsRDSS3ProviderSyncForProvider(provider,orgName) {
             });
         },
         function(resourcesDetails,next){
-            resourceModel.getAllUnassignedResources(provider._id,next);
+            resourceModel.getAllResourcesByCategory(provider._id,'unassigned',next);
         },
         function(resources,next){
-            tagMappingForResources(resources,provider,next);
+            tagMappingSyncForResources(resources,provider,'unassigned',next);
+        },
+        function(resources,next){
+            resourceModel.getAllResourcesByCategory(provider._id,'assigned',next);
+        },
+        function(assignedResources,next){
+            tagMappingSyncForResources(assignedResources,provider,'assigned',next);
         }
     ], function (err, results) {
         if (err) {
@@ -319,8 +325,7 @@ function deleteRDSResourceData(rdsInfo,providerId, callback) {
     }
 }
 
-
-function tagMappingForResources(resources,provider,next){
+function tagMappingSyncForResources(resources,provider,category,next){
     tagsModel.getTagsByProviderId(provider._id, function (err, tagDetails) {
         if (err) {
             logger.error("Unable to get tags", err);
@@ -329,118 +334,162 @@ function tagMappingForResources(resources,provider,next){
         var projectTag = null;
         var environmentTag = null;
         var bgTag = null;
-        if(tagDetails.length > 0) {
+        if (tagDetails.length > 0) {
             for (var i = 0; i < tagDetails.length; i++) {
                 if (('catalystEntityType' in tagDetails[i]) && tagDetails[i].catalystEntityType == 'project') {
                     projectTag = tagDetails[i];
-                }else if (('catalystEntityType' in tagDetails[i]) && tagDetails[i].catalystEntityType == 'environment') {
+                } else if (('catalystEntityType' in tagDetails[i]) && tagDetails[i].catalystEntityType == 'environment') {
                     environmentTag = tagDetails[i];
-                }else if (('catalystEntityType' in tagDetails[i]) && tagDetails[i].catalystEntityType == 'businessGroup') {
+                } else if (('catalystEntityType' in tagDetails[i]) && tagDetails[i].catalystEntityType == 'businessGroup') {
                     bgTag = tagDetails[i];
                 }
             }
-        }else{
-            next(null,tagDetails);
-        }
-        var count = 0;
-        if(resources.length > 0) {
-            for (var j = 0; j < resources.length; j++) {
-                if (resources[j].tags) {
-                    var catalystProjectId = null;
-                    var catalystProjectName = null;
-                    var catalystEnvironmentId = null;
-                    var catalystEnvironmentName = null;
-                    var catalystBgId = null;
-                    var catalystBgName = null;
-                    var assignmentFound = false;
-                    if ((bgTag !== null || projectTag !== null || environmentTag !== null)
-                        && (resources[j].isDeleted === false)){
+            var count = 0;
+            if (resources.length > 0) {
+                for (var j = 0; j < resources.length; j++) {
+                    (function (resource) {
+                        if (resource.tags) {
+                            var catalystProjectId = null;
+                            var catalystProjectName = null;
+                            var catalystEnvironmentId = null;
+                            var catalystEnvironmentName = null;
+                            var catalystBgId = null;
+                            var catalystBgName = null;
 
-                        if(bgTag !== null && bgTag.name in resources[j].tags) {
-                            var bgEntityMappings = Object.keys(bgTag.catalystEntityMapping).map(
-                                function(k){return bgTag.catalystEntityMapping[k]});
+                            if (bgTag !== null && bgTag.name in resource.tags) {
+                                var bgEntityMappings = Object.keys(bgTag.catalystEntityMapping).map(
+                                    function (k) {
+                                        return bgTag.catalystEntityMapping[k]
+                                    });
 
-                            for (var y = 0; y < bgEntityMappings.length; y++) {
-                                if ((resources[j].tags[bgTag.name] !== '') && ('tagValues' in bgEntityMappings[y])
-                                    && (bgEntityMappings[y].tagValues.indexOf(resources[j].tags[bgTag.name])
-                                    >= 0)) {
-                                    catalystBgId = bgEntityMappings[y].catalystEntityId;
-                                    catalystBgName = bgEntityMappings[y].catalystEntityName;
-                                    break;
+                                for (var y = 0; y < bgEntityMappings.length; y++) {
+                                    if ((resource.tags[bgTag.name] !== '') && ('tagValues' in bgEntityMappings[y])
+                                        && (bgEntityMappings[y].tagValues.indexOf(resource.tags[bgTag.name])
+                                        >= 0)) {
+                                        catalystBgId = bgEntityMappings[y].catalystEntityId;
+                                        catalystBgName = bgEntityMappings[y].catalystEntityName;
+                                        break;
+                                    }
                                 }
                             }
-                        }
-                        if(projectTag !== null && projectTag.name in resources[j].tags) {
-                            var projectEntityMappings = Object.keys(projectTag.catalystEntityMapping).map(
-                                function(k){return projectTag.catalystEntityMapping[k]});
+                            if (projectTag !== null && projectTag.name in resource.tags) {
+                                var projectEntityMappings = Object.keys(projectTag.catalystEntityMapping).map(
+                                    function (k) {
+                                        return projectTag.catalystEntityMapping[k]
+                                    });
 
-                            for (var y = 0; y < projectEntityMappings.length; y++) {
-                                if ((resources[j].tags[bgTag.name] !== '') && ('tagValues' in projectEntityMappings[y])
-                                    && (projectEntityMappings[y].tagValues.indexOf(resources[j].tags[projectTag.name])
-                                    >= 0)) {
-                                    catalystProjectId = projectEntityMappings[y].catalystEntityId;
-                                    catalystProjectName = projectEntityMappings[y].catalystEntityName;
-                                    break;
+                                for (var y = 0; y < projectEntityMappings.length; y++) {
+                                    if ((resource.tags[projectTag.name] !== '') && ('tagValues' in projectEntityMappings[y])
+                                        && (projectEntityMappings[y].tagValues.indexOf(resource.tags[projectTag.name])
+                                        >= 0)) {
+                                        catalystProjectId = projectEntityMappings[y].catalystEntityId;
+                                        catalystProjectName = projectEntityMappings[y].catalystEntityName;
+                                        break;
+                                    }
                                 }
                             }
-                        }
-                        if(environmentTag !== null && environmentTag.name in resources[j].tags) {
-                            var environmentEntityMappings = Object.keys(environmentTag.catalystEntityMapping).map(
-                                function(k){return environmentTag.catalystEntityMapping[k]});
+                            if (environmentTag !== null && environmentTag.name in resource.tags) {
+                                var environmentEntityMappings = Object.keys(environmentTag.catalystEntityMapping).map(
+                                    function (k) {
+                                        return environmentTag.catalystEntityMapping[k]
+                                    });
 
-                            for (var y = 0; y < environmentTag.catalystEntityMapping.length; y++) {
-                                if ((resources[j].tags[bgTag.name] !== '')
-                                    && ('tagValues' in environmentEntityMappings[y])
-                                    && (environmentEntityMappings[y].tagValues.indexOf(
-                                        resources[j].tags[environmentTag.name]) >= 0)) {
-                                    catalystEnvironmentId = environmentEntityMappings[y].catalystEntityId;
-                                    catalystEnvironmentName = environmentEntityMappings[y].catalystEntityName;
-                                    break;
+                                for (var y = 0; y < environmentTag.catalystEntityMapping.length; y++) {
+                                    if ((resource.tags[environmentTag.name] !== '')
+                                        && ('tagValues' in environmentEntityMappings[y])
+                                        && (environmentEntityMappings[y].tagValues.indexOf(
+                                            resource.tags[environmentTag.name]) >= 0)) {
+                                        catalystEnvironmentId = environmentEntityMappings[y].catalystEntityId;
+                                        catalystEnvironmentName = environmentEntityMappings[y].catalystEntityName;
+                                        break;
+                                    }
                                 }
                             }
-                        }
-                        if (catalystBgId !== null || catalystProjectId !== null || catalystEnvironmentId !== null) {
-                            assignmentFound = true;
-                        }
-                        if (assignmentFound === true) {
-                            count++;
-                            var masterDetails = {
-                                orgId: resources[j].masterDetails.orgId,
-                                orgName: resources[j].masterDetails.orgName,
-                                bgId: catalystBgId,
-                                bgName: catalystBgName,
-                                projectId: catalystProjectId,
-                                projectName: catalystProjectName,
-                                envId: catalystEnvironmentId,
-                                envName: catalystEnvironmentName
-                            }
-                            resourceModel.updateResourcesForAssigned(resources[j]._id, masterDetails, function (err, data) {
-                                if (err) {
-                                    logger.error(err);
+                            if ((catalystBgId !== null || catalystProjectId !== null || catalystEnvironmentId !== null) && category ==='unassigned') {
+                                var masterDetails = {
+                                    orgId: resource.masterDetails.orgId,
+                                    orgName: resource.masterDetails.orgName,
+                                    bgId: catalystBgId,
+                                    bgName: catalystBgName,
+                                    projectId: catalystProjectId,
+                                    projectName: catalystProjectName,
+                                    envId: catalystEnvironmentId,
+                                    envName: catalystEnvironmentName
+                                }
+                                resourceModel.updateResourcesForAssigned(resource._id, masterDetails, function (err, data) {
+                                    if (err) {
+                                        logger.error(err);
+                                    }
+                                    count++;
+                                    if (count === resources.length) {
+                                        next(null, resources);
+                                        return;
+                                    }
+                                })
+                            } else if ((catalystBgId !== null || catalystProjectId !== null || catalystEnvironmentId !== null) && category ==='assigned') {
+                                var masterDetails= {
+                                    "masterDetails.bgId": catalystBgId,
+                                    "masterDetails.bgName": catalystBgName,
+                                    "masterDetails.projectId": catalystProjectId,
+                                    "masterDetails.projectName": catalystProjectName,
+                                    "masterDetails.envId": catalystEnvironmentId,
+                                    "masterDetails.envName": catalystEnvironmentName
+                                };
+                                resourceModel.updateResourceMasterDetails(resource._id,masterDetails,function(err,data){
+                                    if(err){
+                                        logger.error("Unable to update master details of assigned Resource", err);
+                                    }
+                                    count++;
+                                    if(count === resources.length) {
+                                        next(null, resources);
+                                        return;
+                                    }
+                                });
+                            } else if(category === 'assigned') {
+                                resourceModel.removeResourceById(resource._id,function(err,data){
+                                    if(err){
+                                        logger.error("Unable to remove assigned Resource", err);
+                                    }
+                                    count++;
+                                    if(count === resources.length) {
+                                        next(null, resources);
+                                        return;
+                                    }
+                                });
+                            } else {
+                                count++;
+                                if (count === resources.length) {
+                                    next(null, resources);
                                     return;
-                                } else {
-                                    masterDetails = {};
                                 }
-                            })
-                        } else {
+                            }
+                        }else{
                             count++;
+                            if (count === resources.length) {
+                                next(null, resources);
+                                return;
+                            }
                         }
-                    } else {
-                        count++;
-                    }
-                    if (count === resources.length) {
-                        next(null, resources);
-                    }
-                }else{
-                    count++;
-                    if (count === resources.length) {
-                        next(null, resources);
-                    }
+                          
+                    })(resources[j]);
                 }
             }
-        }else{
+        } else if (category === 'assigned') {
+            logger.info("There is no Tag Mapping");
+            resourceModel.removeResourcesByProviderId(provider._id, function (err, data) {
+                if (err) {
+                    logger.error("Unable to remove assigned Resource", err);
+                    next(err);
+                    return;
+                } else {
+                    logger.info("Please configure Resources for Tag Mapping");
+                    next(null, data);
+                    return;
+                }
+            });
+        } else {
             logger.info("Please configure Resources for Tag Mapping");
-            next(null,resources);
+            next(null, resources);
         }
     });
 }

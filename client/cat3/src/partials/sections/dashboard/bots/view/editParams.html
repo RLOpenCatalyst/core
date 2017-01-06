@@ -1,6 +1,7 @@
 <link rel='stylesheet' href='catalyst/partials/sections/dashboard/bots/bots.css'>
 
 <div id="editParamsPage">
+	<form name="editParamsForm" novalidate ng-submit="editParamsForm.$valid && executeBot()">
 	<div class="modal-header">
 		<span class="close" ng-click="cancel()">×</span>
 		<h4 class="modal-title"> <i class="fa fa-share-square-o"></i>&nbsp;&nbsp;Execute BOT - {{botName}}</h4>
@@ -8,7 +9,7 @@
 
 	<div class="modal-body">
 		<fieldset>
-			<div class="col-lg-12 col-md-12 paddingbottom10" ng-hide="taskType === 'jenkins'">
+			<div class="col-lg-12 col-md-12 paddingbottom20" ng-hide="taskType === 'jenkins'">
 				<div class="col-lg-2 col-md-2 no-padding">
 					<label for="" class="margintop8">Tag Server:</label>
 				</div>
@@ -19,7 +20,7 @@
 					</select>
 				</div>
 			</div>
-			<div class="col-lg-12 col-md-12" ng-show="taskType === 'chef' && chefAttributesFlag">
+			<div class="col-lg-12 col-md-12 param-table" ng-show="taskType === 'chef' && chefAttributesFlag">
 				<h4 style="margin-top: 0px;">Edit Parameters:</h4>
 				<loading size="large" name="isChefattributesLoading" type="block" align="center"></loading>
 				<table class="table table-bordered text-center" ng-show="!isChefattributesLoading">
@@ -74,7 +75,7 @@
 					</tbody>
 				</table>
 			</div>
-			<div class="col-lg-12 col-md-12" ng-if="taskType === 'script' && scriptParamsFlag">
+			<div class="col-lg-12 col-md-12 param-table" ng-if="taskType === 'script' && scriptParamsFlag">
 				<h4 style="margin-top: 0px;">Add Parameters:</h4>
 				<div class="parameter-section">
 					<div class="col-lg-12 col-md-12 margintop15">
@@ -89,13 +90,15 @@
 							<tbody ng-repeat="paramjen in scriptparams">
 								<tr ng-repeat="params in paramjen.scriptParameters" ng-init="number = countInit()">
 									<td class="booleanParam">
-										<label class="control-label" for="choiceName">Parameter {{number+1}}:<span class="red">*</span></label>
+										<label class="control-label" for="choiceName">Parameter{{number+1}}:<span class="red">*</span></label>
 									</td>
 									<td>
 										<input id="description" type="text" class="form-control" name="description" ng-model="params.paramDesc" disabled="disabled">
 									</td>
 									<td>
-										<input id="value" type="text" class="form-control" name="value" ng-model="parameters[number]">
+										<input  type="text" class="form-control" name="value" ng-if="params.paramType === '' || params.paramType === 'Default'"  ng-model="params.paramVal" required>
+										<input  type="password" class="form-control" name="value"  ng-if="params.paramType === 'Password'"  ng-model="params.paramVal" required>
+										<input  type="text" class="form-control" name="value" ng-if="params.paramType === 'Restricted'"  ng-model="params.paramVal" required>
 									</td>
 								</tr>
 							</tbody>
@@ -110,7 +113,7 @@
 		<button type="button" class="btn cat-btn-cancel" ng-click="cancel()">
 			<i class="fa fa-times black"></i> Cancel
 		</button>
-		<button type="button" class="btn cat-btn-update" ng-click="executeBot()">
+		<button type="button" class="btn cat-btn-update" ng-disabled="editParamsForm.$invalid" ng-click="executeBot()">
 			<i class="fa fa-check white"></i> Ok
 		</button>
 	</div>
