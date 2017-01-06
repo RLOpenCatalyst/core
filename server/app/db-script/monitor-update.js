@@ -14,7 +14,7 @@
  limitations under the License.
 */
 
-// This script will update task history with org details and create action log.
+// This script will update the monitor details for some instances
 
 var logger = require('_pr/logger')(module);
 var mongoDbConnect = require('_pr/lib/mongodb');
