@@ -1,7 +1,7 @@
 (function (angular) {
     "use strict";
     angular.module('dashboard.analytics')
-        .controller('discoveryResourcesCtrl', ['$scope', '$rootScope', '$state','analyticsServices', 'genericServices','$timeout','toastr','$modal', function ($scope,$rootScope,$state,analyticsServices,genSevs,$timeout,toastr,$modal){
+        .controller('discoveryResourcesCtrl', ['$scope', '$rootScope', '$state','analyticsServices', 'genericServices','$timeout','toastr','$modal','confirmbox', function ($scope,$rootScope,$state,analyticsServices,genSevs,$timeout,toastr,$modal,confirmbox){
             var disResrc=this;
             $scope.gridApi=null;
             disResrc.filterValue='';
@@ -77,21 +77,51 @@
                                 gridApi.grid.registerRowsProcessor( $scope.singleFilter, 200 );
                                 $scope.gridApi=gridApi;
                                 gridApi.edit.on.afterCellEdit($scope, function (rowEntity, colDefa, newValue, oldValue) {
-                                    console.log( colDefa.name,'---',colDefa.name.substring(0, colDefa.name.length-3));
-                                    var tagna=colDefa.name.substring(0, colDefa.name.length-3);
+                                    console.log(rowEntity);
+                                    confirmbox.showModal({}, {
+                                        closeButtonText: 'Cancel',
+                                        actionButtonText: 'Yes',
+                                        actionButtonStyle: 'cat-btn-update',
+                                        headerText: 'Update tag value',
+                                        bodyText: 'Are you sure you want to Update ?'
+                                    }).then(function() {
+                                        var tagna=colDefa.name.substring(0, colDefa.name.length-3);
                                         var param = {
                                             url: '/providers/' + fltrObj.provider.id + '/unassigned-instances/' + rowEntity._id,
                                             data: {
                                                 tags:{}
                                             }
                                         };
-                                    param.data.tags[tagna]=newValue;
-                                    console.log(param);
-                                    if(newValue !== oldValue) {
-                                        genSevs.promisePatch(param).then(function () {
-                                            toastr.success('Successfully updated.', 'Update');
+                                        param.data.tags[tagna]=newValue;
+                                        console.log(param);
+                                        if(newValue !== oldValue) {
+                                            genSevs.promisePatch(param).then(function () {
+                                                toastr.success('Successfully updated.', 'Update');
+                                            });
+                                        }
+                                    },function() {
+                                        var param = {
+                                            url: '/providers/' + fltrObj.provider.id + '/' + $scope.instanceType
+                                            // url:'src/partials/sections/dashboard/analytics/data/ins.json'
+                                        };
+                                        genSevs.promiseGet(param).then(function (instResult) {
+                                            if($rootScope.organNewEnt.instanceType === 'Managed') {
+                                                disResrc.gridOptionInstances.data = instResult.managedInstances;
+                                            } else if($rootScope.organNewEnt.instanceType === 'Assigned'){
+                                                disResrc.gridOptionInstances.data = instResult.unmanagedInstances;
+                                            } else if($rootScope.organNewEnt.instanceType === 'Unassigned'){
+                                                disResrc.gridOptionInstances.data = instResult.data;
+                                            }
+                                            disResrc.gridOptionInstances.isRowSelectable = function(row){
+                                                if(row.entity.state !== 'running'){
+                                                    return false;
+                                                } else {
+                                                    return true;
+                                                }
+                                            };
                                         });
-                                    }
+                                    });
+
                                 });
                                 gridApi.selection.on.rowSelectionChanged($scope,function(row){
                                     if(row.isSelected){
@@ -115,7 +145,7 @@
                         disResrc.gridOptionInstances.data = [];
                         if($rootScope.organNewEnt.instanceType === 'Managed') {
                             disResrc.gridOptionInstances.enableRowHeaderSelection= false;
-                            $scope.colArray=['platformId','privateIpAddress','instanceState','region'];
+                            $scope.colArray=['platformId','privateIpAddress','instanceState'];
                             disResrc.gridOptionInstances.columnDefs=[
                                 {name: 'InstanceId', field: 'platformId',enableCellEditOnFocus: false, cellTooltip: true,
                                     enableCellEdit: false,enableFiltering: true},
@@ -127,7 +157,7 @@
                                 {
                                     name: 'Region',enableFiltering: true,
                                     displayName: 'Region',
-                                    field: 'region',
+                                    field: 'providerData.region',
                                     cellTooltip: true,enableCellEditOnFocus: false,
                                     enableCellEdit: false
                                 },
@@ -343,6 +373,8 @@
         $scope.items=items;
         var fltrObj=$rootScope.filterNewEnt;
         var reqBody = {};
+        $scope.monitorList = [];
+        $scope.monitorId = 'null';
         $scope.IMGNewEnt={
             passType:'password',
             org:$rootScope.organObject[0]
@@ -353,6 +385,14 @@
         }
         genericServices.promiseGet(params).then(function (list) {
             $scope.configOptions=list;
+        });
+
+        //get monitors
+        var monitorParam={
+            url:'/monitors?filterBy=orgId:' + $scope.IMGNewEnt.org.orgid
+        }
+        genericServices.promiseGet(monitorParam).then(function (list) {
+            $scope.monitorList = list;
         });
 
         $scope.pemFileSelection = function($event) {
@@ -381,7 +421,8 @@
             reqBody.projectName = $scope.IMGNewEnt.proj.name;
             reqBody.environmentName = $scope.IMGNewEnt.env.name;
             reqBody.configManagmentId = $scope.IMGNewEnt.serverTypeInd;
-            
+            reqBody.monitorId = $scope.monitorId;
+
             reqBody.credentials = {};
             reqBody.credentials.username = $scope.IMGNewEnt.userName;
             reqBody.instanceIds = [];

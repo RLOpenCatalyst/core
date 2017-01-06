@@ -1089,8 +1089,12 @@ function filterScriptTaskData(data,callback){
                         if (scriptTask.scriptParameters.length > 0) {
                             scriptCount++;
                             for (var k = 0; k < scriptTask.scriptParameters.length; k++) {
-                                scriptTask.scriptParameters[k].paramVal = cryptography.decryptText(scriptTask.scriptParameters[k].paramVal, cryptoConfig.decryptionEncoding,
+                                if(scriptTask.scriptParameters[k].paramType === '' || scriptTask.scriptParameters[k].paramType === 'Default'  || scriptTask.scriptParameters[k].paramType === 'Password'){
+                                    scriptTask.scriptParameters[k].paramVal = cryptography.decryptText(scriptTask.scriptParameters[k].paramVal, cryptoConfig.decryptionEncoding,
                                         cryptoConfig.encryptionEncoding);
+                                }else {
+                                    scriptTask.scriptParameters[k].paramVal = '';
+                                }
                             }
                         } else {
                             scriptCount++;
