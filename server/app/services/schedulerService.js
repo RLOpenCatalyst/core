@@ -46,7 +46,7 @@ var botsDao = require('_pr/model/bots/bots.js');
 schedulerService.executeSchedulerForInstances = function executeSchedulerForInstances(instance,callback) {
     logger.debug("Instance Scheduler is started for Instance. "+instance.platformId);
     logger.debug("Instance current state is  "+instance.instanceState);
-    var catUser = 'superadmin';
+    var catUser = 'system';
     if(instance.catUser){
         catUser = instance.catUser;
     }
@@ -102,7 +102,7 @@ schedulerService.executeSchedulerForInstances = function executeSchedulerForInst
 
 schedulerService.executeParallelScheduledTasks = function executeParallelScheduledTasks(task,callback) {
     logger.debug("Task Scheduler is started for Parallel Task. "+task.name);
-    var currentDate = new Date();
+    var currentDate = new Date().getTime();
     if(currentDate >= task.taskScheduler.cronEndOn){
         crontab.cancelJob(task.cronJobId);
         taskDao.updateTaskScheduler(task._id,function(err, updatedData) {
@@ -122,7 +122,7 @@ schedulerService.executeParallelScheduledTasks = function executeParallelSchedul
                     logger.error("Error in updating cron job Ids. "+err);
                 }
             })
-            taskService.executeTask(task._id, "superadmin", "", "", "","","",function(err, historyData) {
+            taskService.executeTask(task._id, "system", "undefined", "undefined", "undefined","undefined","undefined",function(err, historyData) {
                 if (err === 404) {
                     logger.error("Task not found.", err);
                     return;
@@ -139,10 +139,10 @@ schedulerService.executeParallelScheduledTasks = function executeParallelSchedul
 
 schedulerService.executeScheduledBots = function executeScheduledBots(bots,callback) {
     logger.debug("Bots Scheduler is started for - "+bots.botName);
-    var currentDate = new Date();
+    var currentDate = new Date().getTime();
     if(currentDate >= bots.botScheduler.cronEndOn){
         crontab.cancelJob(bots.cronJobId);
-        botsDao.updateBotScheduler(bots._id,function(err, updatedData) {
+        botsDao.updateBotsScheduler(bots._id,function(err, updatedData) {
             if (err) {
                 logger.error("Failed to update Bots Scheduler: ", err);
                 callback(err,null);
@@ -159,21 +159,32 @@ schedulerService.executeScheduledBots = function executeScheduledBots(bots,callb
                     logger.error("Error in updating cron job Ids. "+err);
                 }
             })
-            botsService.executeBots(bots._id,bots.botsConfig,function(err, historyData) {
-                if (err) {
-                    logger.error("Failed to execute Bots.", err);
+            if(bots.botLinkedCategory === 'Blueprint') {
+                botsService.executeBots(bots.botId, bots.runTimeParams, function (err, historyData) {
+                    if (err) {
+                        logger.error("Failed to execute Bots.", err);
+                        return;
+                    }
+                    logger.debug("Bots Execution Success for - ", bots.botName);
                     return;
-                }
-                logger.debug("Bots Execution Success for - ", bots.botName);
-                return;
-            });
+                });
+            }else{
+                botsService.executeBots(bots.botId,null,function (err, historyData) {
+                    if (err) {
+                        logger.error("Failed to execute Bots.", err);
+                        return;
+                    }
+                    logger.debug("Bots Execution Success for - ", bots.botName);
+                    return;
+                });
+            }
         });
     }
 }
 
 schedulerService.executeSerialScheduledTasks = function executeSerialScheduledTasks(task,callback) {
     logger.debug("Task Scheduler is started for Serial Task. "+task.name);
-    var currentDate = new Date();
+    var currentDate = new Date().getTime();
     if(currentDate >= task.taskScheduler.cronEndOn){
         crontab.cancelJob(task.cronJobId);
         taskDao.updateTaskScheduler(task._id,function(err, updatedData) {
@@ -193,7 +204,7 @@ schedulerService.executeSerialScheduledTasks = function executeSerialScheduledTa
                     logger.error("Error in updating cron job Ids. "+err);
                 }
             })
-            taskService.executeTask(task._id, "superadmin", "", "", "","","",function(err, historyData) {
+            taskService.executeTask(task._id, "system", "undefined", "undefined", "undefined","undefined","undefined",function(err, historyData) {
                 if (err === 404) {
                     logger.error("Task not found.", err);
                     callback(err,null);
@@ -218,7 +229,7 @@ schedulerService.startStopInstance= function startStopInstance(instanceId,catUse
             instancesDao.getInstanceById(instanceId, next);
         },
         function(instanceDetails,next){
-            var currentDate = new Date();
+            var currentDate = new Date().getTime();
             if(instanceDetails[0].instanceState === 'terminated'){
                 callback({
                     errCode:201,

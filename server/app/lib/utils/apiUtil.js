@@ -75,9 +75,9 @@ var ApiUtil = function() {
             "cronPattern":scheduler.pattern,
             "cronStartOn":Date.parse(startOn),
             "cronEndOn":Date.parse(endOn),
-            "cronHour":scheduler.cronHour,
-            "cronMinute":scheduler.cronMinute,
-            "cronDate":scheduler.cronDate,
+            "cronHour":scheduler.cronHour ? parseInt(scheduler.cronHour):0,
+            "cronMinute":scheduler.cronMinute ? parseInt(scheduler.cronMinute):0,
+            "cronDate":scheduler.cronDate ? parseInt(scheduler.cronDate):0,
             "cronWeekDay":scheduler.cronWeekDay ? parseInt(scheduler.cronWeekDay):0,
             "cronMonth":scheduler.cronMonth ? scheduler.cronMonth: null,
             "cronYear":scheduler.cronYear ? scheduler.cronYear: null
@@ -253,10 +253,7 @@ var ApiUtil = function() {
 
         }
         if(data.search){
-            var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-            var encrypt=cryptography.encryptText(data.search, cryptoConfig.encryptionEncoding,cryptoConfig.decryptionEncoding);
-            var decrypt=cryptography.decryptText(encrypt, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-            request['search']=decrypt;
+            request['search']=data.search;
         }
         if (typeof callback === 'function') {
             callback(null, request);

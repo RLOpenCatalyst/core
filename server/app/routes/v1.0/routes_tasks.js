@@ -545,7 +545,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     res.status(500).send(errorResponses.db.error);
                     return;
                 }
-                encryptedParam(taskData.scriptDetails, scriptTask.taskConfig.scriptDetails, function(err, encryptedParam) {
+                encryptedParam(taskData.scriptDetails,scriptTask.taskConfig.scriptDetails,function(err, encryptedParam) {
                     if (err) {
                         logger.error(err);
                         res.status(500).send("Failed to encrypted script parameters: ", err);
@@ -684,27 +684,42 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
 };
 
-function encryptedParam(paramDetails, existingParams, callback) {
+function encryptedParam(paramDetails,existingParams, callback) {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var count = 0;
     var encryptedList = [];
     for (var i = 0; i < paramDetails.length; i++) {
-        (function(paramDetail) {
+        (function (paramDetail) {
             if (paramDetail.scriptParameters.length > 0) {
                 count++;
                 for (var j = 0; j < paramDetail.scriptParameters.length; j++) {
-                    (function(scriptParameter) {
-                        if (scriptParameter === '') {
-                            encryptedList.push(existingParams[i].scriptParameters[j]);
-                        } else if (scriptParameter.paramVal === existingParams[i].scriptParameters[j].paramVal) {
-                            encryptedList.push(scriptParameter);
-                        } else {
+                    (function (scriptParameter) {
+                        if(scriptParameter.paramType ==='Restricted' && scriptParameter.paramVal ===''){
+                            if(paramDetails.length === existingParams.length && paramDetail.scriptId ===existingParams[i].scriptId) {
+                                encryptedList.push({
+                                    paramVal: existingParams[i].scriptParameters[j].paramVal,
+                                    paramDesc: scriptParameter.paramDesc,
+                                    paramType: scriptParameter.paramType
+                                });
+                            }else{
+                                for(var k = 0; k < existingParams.length; k++){
+                                    if(paramDetail.scriptId === existingParams[k].scriptId){
+                                        encryptedList.push({
+                                            paramVal: existingParams[k].scriptParameters[j].paramVal,
+                                            paramDesc: scriptParameter.paramDesc,
+                                            paramType: scriptParameter.paramType
+                                        });
+                                    }
+                                }
+                            }
+                        }else {
                             var encryptedText = cryptography.encryptText(scriptParameter.paramVal, cryptoConfig.encryptionEncoding,
                                 cryptoConfig.decryptionEncoding);
                             encryptedList.push({
-                                paramVal:encryptedText,
-                                paramVal:scriptParameter.paramVal
+                                paramVal: encryptedText,
+                                paramDesc: scriptParameter.paramDesc,
+                                paramType: scriptParameter.paramType
                             });
                         }
                         if (encryptedList.length === paramDetail.scriptParameters.length) {

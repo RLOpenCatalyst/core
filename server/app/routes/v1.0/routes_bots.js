@@ -48,11 +48,21 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
     app.get('/bots/:botId/bots-history',function(req,res){
-        botsService.getBotsHistory(req.params.botId, function(err,data){
+        botsService.getBotsHistory(req.params.botId,req.query, function(err,data){
             if (err) {
                 return res.status(500).send(err);
             } else {
                 return res.status(200).send(data);
+            }
+        })
+    });
+
+    app.get('/bots/:botId/bots-history/:historyId',function(req,res){
+        botsService.getPerticularBotsHistory(req.params.botId,req.params.historyId, function(err,data){
+            if (err) {
+                return res.status(500).send(err);
+            } else {
+                return res.status(200).send(data[0]);
             }
         })
     });
@@ -84,31 +94,19 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 hostProtocol: req.protocol + '://' + req.get('host'),
                 choiceParam: req.body.choiceParam,
                 appData: req.body.appData,
-                tagServer: req.body.tagServer
-            }
-            var paramOptions = {
-                cookbookAttributes: req.body.cookbookAttributes,
-                scriptParams: req.body.scriptParams
-            };
-
-            if (paramOptions.scriptParams && paramOptions.scriptParams.length) {
-                var cryptoConfig = appConfig.cryptoSettings;
-                var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-                var encryptedParams = [];
-                for (var i = 0; i < paramOptions.scriptParams.length; i++) {
-                    var encryptedText = cryptography.encryptText(paramOptions.scriptParams[i], cryptoConfig.encryptionEncoding,
-                        cryptoConfig.decryptionEncoding);
-                    encryptedParams.push(encryptedText);
+                tagServer: req.body.tagServer,
+                paramOptions:{
+                    cookbookAttributes: req.body.cookbookAttributes,
+                    scriptParams: req.body.scriptParams
                 }
-                paramOptions.scriptParams = encryptedParams;
             }
-            reqBody.paramOptions=paramOptions;
         }
         if(reqBody !== null) {
             botsService.executeBots(req.params.botId, reqBody, function (err, data) {
                 if (err) {
                     return res.status(500).send(err);
                 } else {
+                    data.botId=req.params.botId;
                     return res.status(200).send(data);
                 }
             })
@@ -124,5 +122,4 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             }
         })
     });
-
 };

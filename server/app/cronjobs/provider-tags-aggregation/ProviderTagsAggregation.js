@@ -12,7 +12,6 @@ ProviderTagsAggregation.execute = providerTagAggregation;
 
 module.exports = ProviderTagsAggregation;
 
-
 function providerTagAggregation() {
     MasterUtils.getAllActiveOrg(function(err, orgs) {
         if(err) {
@@ -139,12 +138,12 @@ function getResourceTags(tagDetails,resourceDetails,provider,next){
                     if (tagDetails[tagName].values.indexOf(tagValue) < 0) {
                         tagDetails[tagName].values.push(tagValue);
                     }
-                } else {
+                } else if((typeof tagName != undefined) && (tagName != null)) {
                     tagDetails[tagName] = {
                         'providerId': provider._id,
                         'orgId': provider.orgId[0],
                         'name': tagName,
-                        'values': [tagValue],
+                        'values': (tagValue == "")?[]:[tagValue],
                         'new': true
                     }
                 }

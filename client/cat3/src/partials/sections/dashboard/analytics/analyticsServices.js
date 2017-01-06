@@ -64,8 +64,8 @@
                             $rootScope.organNewEnt = {};
                             if($state.current.name === "dashboard.analytics.usage"){
                                 $rootScope.organNewEnt.provider='0';
-                                $rootScope.organNewEnt.instanceType='unassigned-instances';
-                                $rootScope.$emit('INI_usage', 'unassigned-instances');
+                                $rootScope.organNewEnt.instanceType='Unassigned';
+                                $rootScope.$emit('INI_usage', 'Unassigned');
                             }
                             $rootScope.organNewEnt.org = or;
                         }

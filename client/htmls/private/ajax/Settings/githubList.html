@@ -1,0 +1,585 @@
+<style>
+input[type="file"] { 
+    display: none;
+}
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="widget-box">
+            <div class="widget-header">
+                <h5 class="widget-title widgetColor">
+                    <strong>List of GitHub Repo</strong>
+                </h5>
+                <div class="widget-toolbar no-border">
+                    <div>
+                        <!--new button for adding a new item-->
+                        <a href="#modalForGitEdit" type="reset" data-backdrop="false" data-toggle="modal" class="btn btn-minier btn-primary addGitHub">
+                            <i class="ace-icon ace-icon fa fa-plus bigger-110"></i>&nbsp;New
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="widget-body">
+                <div class="widget-main widgetHeight">
+                    <div class="col-md-12 table-responsive tablePadding">
+                        <table id="gitTable" class="tableData table table-striped table-bordered table-hover dataTable no-footer textCenter" cellpadding="5px">
+                            <thead>
+                            <tr class="rowCustomStyle">
+                                <td>Name</td>
+                                <td>Description</td>
+                                <td>Organization</td>
+                                <td>Repo Name</td>
+                                <td>Authentication</td>
+                                <td>Action</td>
+                            </tr>
+                            </thead>
+                            <tbody id="githubInput">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!--widget main ends here-->
+            </div>
+            <!--widget body ends here-->
+        </div>
+        <!--widget box ends here-->
+    </div>
+    <!-- col-lg-12 ends here-->
+</div>
+<!--row ends here-->
+
+<!--modal for ItemList-->
+<div class="modal fade" id="modalForGitEdit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog " style="">
+        <div class="modal-content">
+            <form role="form" id="gitHubRepoForn">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <fieldset class="fieldsetCustom">
+                        <div class="col-lg-6 col-md-6 col-xs-6">
+                            <label for="gitName">Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                            <div class="input-groups">
+                                <input type="text" name="gitName" class="required gitName form-control" id="gitName">
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-xs-6">
+                            <label for="gitDescription">Description:<span class="control-label redSpan">&nbsp;*</span></label>
+                            <div class="input-groups">
+                                <input type="text" name="gitDescription" class="gitDescription form-control" id="gitDescription">
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-xs-6 margintop15">
+                            <label for="">Organization Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                            <div class="input-groups">
+                                <select id="orgName" name="orgName" class="required form-control width-100" style="vertical-align:central"></select>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 margintop15">
+                            <label for="gitRepoName">Repository Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                            <div class="input-groups">
+                                <input type="text" name="gitRepoName" class="required gitRepoName form-control" id="gitRepoName">
+                            </div>
+                        </div>
+                        <hr/>
+                        <div class="col-lg-12 col-md-12 col-xs-12 margintop15 isAuthenticated">
+                            <label for="">Is Repository Authenticated:</label>
+                              <input id="isAuthenticated" type="checkbox" name="isAuthenticated"/>
+                        </div>
+                        <div class="col-lg-12 col-lg-12 col-xs-12 margintop15 isAunthenticatedSection hidden">
+                          <label for="authenticationType">Authentication Type:</label>
+                          <select id="authenticationType" name="authenticationType" class="form-control width-100" style="vertical-align:central">
+                                  <option value="">Choose Authentication Type</option>
+                                  <option value="userName">User Name/Password</option>
+                                  <option value="sshKey">SSH Key</option>
+                              </select>
+                        </div>
+                        
+                        <div class="col-lg-6 col-md-6 col-xs-6 margintop15 hidden showForUser">
+                            <label for="protocolUser">User Name:</label>
+                              <input type="text" name="protocolUser" class="protocolUser form-control" id="protocolUser">
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-xs-6 margintop15 hidden showForUser">
+                            <label for="protocolPassword">Password:</label>
+                              <input type="password" name="protocolPassword" class="protocolPassword form-control" id="protocolPassword">
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-xs-6 margintop15 hidden showForSSH">
+                          <label for="certificateFile">Public File:</label>
+                          <div class="input-groups">
+                            <input type="file" extension="pem" name="certificateFile" id="certificateFile" class="form-control form-controls" onchange="setFileNameCertificate(this.value);"/>
+                          </div>
+                            <span class="pull-left">
+                                <label title="Please choose a Certificate file" class="choose-file cursor" for="certificateFile">Choose File</label>
+                            </span>
+                            <div id="certificateFileNameDisplay" class="file-name"></div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-xs-6 margintop15 hidden showForSSH">
+                          <label for="privateFile">Private File:</label>
+                          <div class="input-groups">
+                            <input type="file" extension="pem" name="privateFile" id="privateFile" class="form-control form-controls" onchange="setFileNamePrivate(this.value);"/>
+                          </div>
+                            <span class="pull-left">
+                                <label title="Please choose a Private file" class="choose-file cursor" for="privateFile">Choose File</label>
+                            </span>
+                            <div id="privateFileNameDisplay" class="file-name"></div>
+                        </div>
+                        <input type="hidden" id="gitEditHiddenInputId">
+                        <input type="hidden" id="gitEditHiddenInput">
+                        <input type="hidden" id="gitHiddenPublicFile">
+                        <input type="hidden" id="gitHiddenPrivateFile">
+                    </fieldset>
+                </div>
+                <div class="modal-footer">
+                    <label id="saveItemSpinner" class="hidden"><img  style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label>
+                    <a type="button" class="btn btn-default" data-dismiss="modal"><i class="ace-icon fa fa-times bigger-110"></i>&nbsp;Cancel</a>
+                    <button type="submit" id="saveBtnTrack" class="btn btn-primary" value="Save"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!--model ends here-->
+
+<script>
+    //initialising the datatable...
+    if (!$.fn.dataTable.isDataTable('#gitTable')) {
+        var $gitDatatable = $('#gitTable').DataTable({
+            "pagingType": "full_numbers",
+            "bInfo": false,
+            "bLengthChange": false,
+            "paging": true,
+            "bFilter": false,
+            "aoColumns": [{
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }, {
+                "bSortable": false
+            }]
+
+        });
+    }
+
+    //calling the global track functionality when track params are available..
+    $(document).ready(function(e) {
+        getGlobalGitServers();
+    });
+
+    function setFileNameCertificate(val) {
+        $('#certificateFileNameDisplay').empty();
+        var fileNamePublic = val.substr(val.lastIndexOf("\\") + 1, val.length);
+        $("#certificateFileNameDisplay").append(fileNamePublic);
+    }
+
+    function setFileNamePrivate(val) {
+        $('#privateFileNameDisplay').empty();
+        var fileNamePrivate = val.substr(val.lastIndexOf("\\") + 1, val.length);
+        $("#privateFileNameDisplay").append(fileNamePrivate);
+    }
+
+    $('#isAuthenticated').click(function() {
+        if ($('#isAuthenticated').prop("checked")) {
+            $('.isAunthenticatedSection').removeClass('hidden');
+        } else {
+            $("#authenticationType").val($("#authenticationType option:first").val());
+            $('.isAunthenticatedSection').addClass('hidden');
+            $('.showForUser').addClass('hidden');
+            $('.showForSSH').addClass('hidden');
+        }
+    });
+
+    $('#authenticationType').change(function(e) {
+        var val = $(this).val();
+        if (val === 'userName') {
+            $('.showForUser').removeClass('hidden');
+            $('.showForSSH').addClass('hidden');
+        } else if(val === 'sshKey') {
+            $('.showForUser').addClass('hidden');
+            $('.showForSSH').removeClass('hidden');
+        } else {
+            $('.showForUser').addClass('hidden');
+            $('.showForSSH').addClass('hidden');
+        }
+    });
+
+    //when the user clicks on the new button the setting the value to 'new' for the hidden field to know that user is creating the new item..
+    $('.addGitHub').click(function(e) {
+        $('#gitHubRepoForn').trigger('reset');
+        $('.modal-header').find('.modal-title').html('Create New GitHub Repository');
+        $('#gitEditHiddenInput').val('new');
+        getOrganizationList();
+        $('#orgName,#authenticationType').removeAttr('disabled');
+         $('.isAunthenticatedSection').addClass('hidden');
+        $('#authenticationType').change();
+        $('#gitEditHiddenInputId,#gitHiddenPublicFile,#gitHiddenPrivateFile').val('');
+        $('#certificateFileNameDisplay').empty();
+        $('#privateFileNameDisplay').empty();
+    });
+
+    //to list down the organization for creating the gitHub repo item.
+    function getOrganizationList() {
+        $.get('/d4dMasters/readmasterjsonnew/1', function(data) {
+            var str = ' <option value="">Select Organization</option>',
+                len = data.length;
+            for (var i = 0; i < data.length; i++) {
+                str = str + '<option value="' + data[i].rowid + '">' + data[i].orgname + '</option>';
+            }
+            $('#orgName').html(str);
+        })
+    }
+
+    //to show the focus on first input ....
+    $(document).on('shown.bs.modal', function(e) {
+        $('[autofocus]', e.target).focus();
+    });
+
+    //form validation for dashboard save
+    var validator = $('#gitHubRepoForn').validate({
+        ignore: [],
+        rules: {
+            certificateFile: {
+                extension: "pem"
+            },
+            privateFile: {
+                extension: "pem"
+            },
+            gitName: {
+                maxlength: 15
+            }
+        },
+        messages: {
+            certificateFile: {
+                extension: "Only .pem files"
+            },
+            privateFile: {
+                extension: "Only .pem files"
+            },
+            gitName: {
+                maxlength: "Limited to 15 chars"
+            }
+        },
+        onkeyup: false,
+        errorClass: "error",
+
+        //put error message behind each form element
+        errorPlacement: function(error, element) {
+            console.log(error, element);
+            var elem = $(element);
+            if (element.parent('.input-groups').length) {
+                error.insertBefore(element.parent());
+            } else {
+                if (element.parent('div.inputGroups')) {
+                    error.insertBefore('div.inputGroups');
+                }
+            }
+        }
+    });
+    $('a.addGitHub[type="reset"]').on('click', function(e) {
+        validator.resetForm();
+    });
+
+    //this is a functionality to get the list of global github repo items that have been created....
+    function getGlobalGitServers() {
+        //for getting the list of github repos
+        var githubDetails = '../git-hub';
+        $.get(githubDetails, function(data) {
+            if (data && data.length) {
+                for (var kk = 0; kk < data.length; kk++) {
+                    createTableForGithubList(data[kk]);
+                }
+            }
+
+
+        }).fail(function(jxhr) {
+            var msg = "Server Behaved Unexpectedly";
+            if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                msg = jxhr.responseJSON.message;
+            } else if (jxhr.responseText) {
+                msg = jxhr.responseText;
+            }
+            bootbox.alert(msg);
+        });
+    };
+
+    function createTableForGithubList(githubDetails) {
+        var $gitList = $('#gitTable tbody');
+        var $tr = $('<tr class="gitItemRow"></tr>').attr('data-gitId', githubDetails._id).attr('orgId', githubDetails.orgId).attr('orgName', githubDetails.orgName).attr('isAuthenticated',githubDetails.isAuthenticated);
+        $tr.data('githubDetails', githubDetails);
+
+        var $tdName = $('<td class="gitName">' + githubDetails.name + '</td>');
+
+        var $tdDescription = $('<td class="gitRepoDescription">' + githubDetails.description + '</td>');
+
+        var $tdOrganization = $('<td class="gitRepoOrg">' + githubDetails.orgName + '</td>');
+
+        var $tdRepoName = $('<td class="gitRepoName">' + githubDetails.repositoryName + '</td>');
+
+        var $tdAuthentication = $('<td class="gitRepoAuthentication">' + githubDetails.isAuthenticated + '</td>');
+
+        var $tdAction = $('<td/>');
+
+        $tdAction.append('<div class="btn-group"><button class="btn btn-info pull-left btn-sg tableactionbutton editGitRepo" data-placement="top" value="Update" title="Edit"><i class="ace-icon fa fa-pencil bigger-120"></i></button></div>').append('<div style="margin-left:14px;" class="btn-group"><button class="btn btn-danger pull-left btn-sg tableactionbutton globalGithubRemove" data-placement="top" value="Remove" title="Delete"><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>');
+
+        //for editing github items from the table...
+        $tdAction.find('button.editGitRepo').click(function() {
+            var $this = $(this);
+            var $tr = $this.parents('tr.gitItemRow');
+            var githubDetails = $tr.data('githubDetails');
+            var gitHubId = githubDetails._id;
+            var $editModal = $('#modalForGitEdit');
+            $editModal.modal('show');
+            $editModal.find('#gitEditHiddenInput').val('edit');
+            $editModal.find('h4.modal-title').html('Edit GitHub Repo Item &nbsp;-&nbsp;&nbsp;' + githubDetails.name);
+            $editModal.find('#gitName').val(githubDetails.name);
+            $editModal.find('#gitDescription').val(githubDetails.description);
+            $editModal.find('#isAuthenticated').val(githubDetails.isAuthenticated);
+            if(githubDetails.isAuthenticated === true){
+                $('#isAuthenticated').prop("checked",true);
+                if(githubDetails.repositoryUserName) {
+                    $('.isAunthenticatedSection').removeClass('hidden');
+                    $editModal.find('#authenticationType').val('userName').change().attr('disabled','disabled');
+                    $editModal.find('#protocolUser').val(githubDetails.repositoryUserName);
+                    $editModal.find('#protocolPassword').val(githubDetails.repositoryPassword);
+                }
+                //please put the response for fileId @Durgesh. 
+            } else {
+                $('#isAuthenticated').prop("checked",false);
+                $('.isAunthenticatedSection').addClass('hidden');
+                $("#authenticationType").val($("#authenticationType option:first").val());
+                $editModal.find('#protocolUser').val('');
+                $editModal.find('#protocolPassword').val('');
+                $('.showForUser').addClass('hidden');
+                $('.showForSSH').addClass('hidden');
+            }
+            $editModal.find('#orgName').empty().append('<option value="'+$this.parents('tr').attr("orgId")+'">'+$this.parents('tr').attr("orgName")+'</option>').attr('disabled','disabled');
+            $editModal.find('#gitRepoName').val(githubDetails.repositoryName);
+            
+            $editModal.find('#gitEditHiddenInputId').val(githubDetails._id);
+            
+                /*$editModal.find('#gitHiddenPublicFile').val(githubDetails.parameters.transportProtocolParameters.ssl.certChainFile.id);
+                $editModal.find('#certificateFileNameDisplay').empty().append(githubDetails.parameters.transportProtocolParameters.ssl.certChainFile.name);
+                $editModal.find('#gitHiddenPrivateFile').val(githubDetails.parameters.transportProtocolParameters.ssl.privateKeyFile.id);
+                $editModal.find('#privateFileNameDisplay').empty().append(githubDetails.parameters.transportProtocolParameters.ssl.privateKeyFile.name);*/
+            
+            return false;
+        });
+
+        //for deletion of track items from the table..
+        $tdAction.find('button.globalGithubRemove').click(function() {
+
+            var $this = $(this);
+            var $tr = $this.parents('tr.gitItemRow');
+            var gitHubId = githubDetails._id;
+            bootbox.confirm({
+                message: 'Are you sure you want to Delete GitRepo -&nbsp;' + githubDetails.name,
+                title: "Warning",
+                callback: function(result) {
+                    if (result) {
+                        $.ajax({
+                            url: '../git-hub/' + gitHubId,
+                            method: 'DELETE',
+                            success: function() {
+                                $gitDatatable.row($tr).remove().draw(false);
+                            },
+                            error: function(jxhr) {
+                                bootbox.alert(result);
+                                var msg = "Unable to Delete GitRepo please try again later";
+                                if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                                    msg = jxhr.responseJSON.message;
+                                } else if (jxhr.responseText) {
+                                    msg = jxhr.responseText;
+                                }
+                                bootbox.alert(msg);
+                            }
+                        });
+                    } else {
+                        return;
+                    }
+                }
+            });
+            return false;
+        });
+
+        $tr.append($tdName).append($tdDescription).append($tdOrganization).append($tdRepoName).append($tdAuthentication).append($tdAction);
+        $gitList.append($tr);
+        $gitDatatable.row.add($tr).draw();
+    }
+
+
+function saveForm(methodName,url,reqBody,createNewEdit,gitHubId,name,repositoryName,description,isAuthenticated) {
+  $.ajax({
+  method: methodName,
+  url: url,
+  async:false,
+  data: reqBody,
+      success: function(data, success) {
+          $('#modalForGitEdit').modal('hide');
+          $('#saveItemSpinner').addClass('hidden');
+          $('#saveBtnTrack').removeAttr('disabled');  
+          if (createNewEdit === 'new') {
+              $gitDatatable.clear().draw(); 
+              getGlobalGitServers();
+              $('#saveBtnTrack').removeAttr('disabled');
+          } else {
+              var $tr = $('tr[data-gitId="' + gitHubId + '"]');
+              $tr.find('.gitName').html(reqBody.name);
+              $tr.find('.gitRepoDescription').html(reqBody.description);
+              $tr.find('.gitRepoName').html(reqBody.repositoryName);
+              $tr.find('.gitRepoAuthentication').html(reqBody.isAuthenticated);
+              $tr.data('githubDetails', {
+                  name:name,
+                  _id: gitHubId,
+                  description: description,
+                  repositoryName: repositoryName,
+                  isAuthenticated: isAuthenticated
+              });
+          }
+      },
+      error: function(jxhr) {
+          console.log(jxhr);
+          var msg = "Server Behaved Unexpectedly";
+          if (jxhr.responseJSON && jxhr.responseJSON.message) {
+              msg = jxhr.responseJSON.message;
+          } else if (jxhr.responseText) {
+              msg = jxhr.responseText;
+          }
+          bootbox.alert(msg);
+
+          $('#saveItemSpinner').addClass('hidden');
+          $('#saveBtnTrack').removeAttr('disabled');
+      }
+    });
+}
+
+//save form for creating a new gitHub item and updation of the gitHub details.
+$('#gitHubRepoForn').submit(function(e) {
+    var isValidator = $('#gitHubRepoForn').valid();
+    if (!isValidator) {
+        e.preventDefault();
+        return false;
+    } else {
+        e.preventDefault();
+        $('#saveItemSpinner').removeClass('hidden');
+        var $form = $('#gitHubRepoForn');
+        $this = $(this);
+        var name, orgValue, description, authenticationType, repositoryName, isAuthenticated, passwordName, userName, certChainFileId, privateKeyFileId;
+
+        name = $this.find('.gitName').val().trim();
+        orgValue = $this.find('#orgName').val();
+        description = $this.find('#gitDescription').val();
+        repositoryName = $this.find('#gitRepoName').val();
+        if ($('#isAuthenticated').prop("checked")) {
+            isAuthenticated = true;
+        } else {
+            isAuthenticated = false;
+        }
+        authenticationType = $this.find('#authenticationType').val();
+        userName = $this.find('#protocolUser').val().trim();
+        passwordName = $this.find('#protocolPassword').val().trim();
+        certChainFileId = $this.find('#gitHiddenPublicFile').val();
+        privateKeyFileId = $this.find('#gitHiddenPrivateFile').val();
+
+        var dashboardEditNew = $this.find('#gitEditHiddenInput').val();
+        var gitHubId = $form.find('input#gitEditHiddenInputId').val();
+        var url;
+        var reqBody = {};
+        var methodName;
+        //for edit of form.
+        var fileCertificate = $('#certificateFile').get(0).files[0];
+        var filePrivate = $('#privateFile').get(0).files[0];
+        var formData = new FormData();
+        formData.append('file', fileCertificate);
+        var newFormData = new FormData();
+        newFormData.append('file', filePrivate);
+        if (dashboardEditNew === 'edit') {
+            url = '../git-hub/' + gitHubId;
+            methodName = 'PUT';
+        } else {
+            methodName = 'POST';
+            url = '../git-hub';
+        }
+        if (authenticationType === 'sshKey') {
+          if(certChainFileId === '' && privateKeyFileId === ''){
+            $.ajax({
+                method: "POST",
+                url: '../fileUpload?fileId=' + certChainFileId,
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function(dataCertificate, success) {
+                    $.ajax({
+                        method: "POST",
+                        url: '../fileUpload?fileId=' + privateKeyFileId,
+                        data: newFormData,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        success: function(dataPrivate, success) {
+                            reqBody = {
+                                "name": name,
+                                "orgId": orgValue,
+                                "description": description,
+                                "repositoryName": repositoryName,
+                                "isAuthenticated": isAuthenticated,
+                                "authenticationType": authenticationType,
+                                "repositorySSHPublicKeyFileId": dataCertificate.fileId,
+                                "repositorySSHPrivateKeyFileId": dataPrivate.fileId
+                            }
+                            saveForm(methodName,url,reqBody,dashboardEditNew,gitHubId,name,description,repositoryName,isAuthenticated);
+                        }
+                    });
+                }
+            });
+          } else {
+            
+            reqBody = {
+                "name": name,
+                "orgId": orgValue,
+                "description": description,
+                "repositoryName": repositoryName,
+                "isAuthenticated": isAuthenticated,
+                "authenticationType": authenticationType,
+                "repositorySSHPublicKeyFileId": certChainFileId,
+                "repositorySSHPrivateKeyFileId": privateKeyFileId
+            }
+            saveForm(methodName,url,reqBody,dashboardEditNew,gitHubId,name,description,repositoryName,isAuthenticated);
+          }
+        } else if (authenticationType === 'userName') {
+            reqBody = {
+                "name": name,
+                "orgId": orgValue,
+                "description": description,
+                "repositoryName": repositoryName,
+                "isAuthenticated": isAuthenticated,
+                "authenticationType": authenticationType,
+                "repositoryUserName": userName,
+                "repositoryPassword": passwordName
+            }
+            saveForm(methodName,url,reqBody,dashboardEditNew,gitHubId,name,description,repositoryName,isAuthenticated);
+        } else {
+            reqBody = {
+                "name": name,
+                "orgId": orgValue,
+                "description": description,
+                "repositoryName": repositoryName,
+                "isAuthenticated": isAuthenticated
+            }
+            saveForm(methodName,url,reqBody,dashboardEditNew,gitHubId,name,description,repositoryName,isAuthenticated);
+        }
+        return false;
+    }
+});
+
+</script>

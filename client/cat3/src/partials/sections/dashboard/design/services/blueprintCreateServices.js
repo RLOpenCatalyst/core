@@ -294,7 +294,7 @@
 			//listing down docker templates
 			blueprintServices.getDockerTemplates = function(dockerTemplate,repoName) {
 				var params = {
-					url: '/d4dmasters/getdockertags/' + encodeURIComponent(dockerTemplate) + '/' + repoName,
+					url: '/d4dmasters/getdockertags?repopath='+encodeURIComponent(dockerTemplate)+'&dockerreponame=' + repoName,
 					inlineLoader:true
 				};
 				return genericServices.promiseGet(params);

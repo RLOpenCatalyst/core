@@ -12,7 +12,7 @@
  * All modules/feature will be through
  * */
 
-var angularApp = angular.module('catapp', ['ui.router','ngTouch','toastr',
+var angularApp = angular.module('catapp', ['ui.router','ngTouch','toastr','firebase',
 	'global.login',
 	'global.breadcrumb',
 	'authentication',
@@ -28,7 +28,7 @@ var angularApp = angular.module('catapp', ['ui.router','ngTouch','toastr',
 	'ui.grid.resizeColumns',
 	'global.uiGridOptions',
 	'global.messages',
-	'ui.grid.selection'
+	'ui.grid.selection','ui.grid.cellNav'
 ]);
 
 angularApp.run(['$rootScope', 'auth', '$state', '$stateParams','$http','$window',
