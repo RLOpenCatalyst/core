@@ -207,6 +207,10 @@ function updateResourceCosts(provider, downloadedCSVPath, callback) {
             resourceService.getAllResourcesForProvider(provider, next)
         },
         function(resources, next) {
+            resourceService.updateAWSResourceCostsFromCSV(provider, resources, downloadedCSVPath,
+                AWSResourceCostsAggregation.currentCronRunTime, next)
+        },
+        function(resources, next) {
             AWSResourceCostsAggregation.aggregateResourceCostsForAllPeriods(provider, resources, next)
         },
         function(next) {
