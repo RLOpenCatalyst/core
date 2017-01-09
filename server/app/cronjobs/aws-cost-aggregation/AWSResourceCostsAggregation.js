@@ -52,7 +52,7 @@ AWSResourceCostsAggregation.aggregateEntityCostTrendByOrg = aggregateEntityCostT
 AWSResourceCostsAggregation.aggregateEntityCostTrendByProvider = aggregateEntityCostTrendByProvider
 AWSResourceCostsAggregation.aggregateResourceCostsForAllPeriods = aggregateResourceCostsForAllPeriods
 
-AWSResourceCostsAggregation.execute()
+// AWSResourceCostsAggregation.execute()
 
 module.exports = AWSResourceCostsAggregation
 
