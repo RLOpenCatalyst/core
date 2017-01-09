@@ -22,7 +22,7 @@ monitorsValidator.create = {
     body: {
         "orgId": Joi.string().max(40).required(),
         "name": Joi.string().max(40).required(),
-        "repositoryURL": Joi.string().max(40).required(),
+        "repositoryURL": Joi.string().max(100).required(),
         "repositoryType": Joi.string().max(40).required()
     }
 };
@@ -31,7 +31,7 @@ monitorsValidator.update = {
     body: {
         "orgId": Joi.string().max(40).required(),
         "name": Joi.string().max(40).required(),
-        "repositoryURL": Joi.string().max(40).required(),
+        "repositoryURL": Joi.string().max(100).required(),
         "repositoryType": Joi.string().max(40).required()
     }
 };

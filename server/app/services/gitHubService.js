@@ -22,6 +22,8 @@ var fileUpload = require('_pr/model/file-upload/file-upload');
 var nodeGit =  require('nodegit');
 var promisify = require("promisify-node");
 var fse = promisify(require("fs-extra"));
+var async = require('async');
+var apiUtil = require('_pr/lib/utils/apiUtil.js');
 
 var gitGubService = module.exports = {};
 
@@ -127,8 +129,11 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId, callback) {
                             path,
                             cloneOpts)
                             .then(function (repo) {
+                                logger.debug("GIT Repository Clone is Done.");
                                 callback(null,repo);
                             }).catch(function(err){
+                            var err = new Error('Invalid Credentials');
+                            err.status = 400;
                             callback(err,null);
                         })
                     });
@@ -149,16 +154,22 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId, callback) {
                             path,
                             cloneOpts)
                             .then(function (repo) {
+                                logger.debug("GIT Repository Clone is Done.");
                                 callback(null,repo);
                             }).catch(function(err){
-                            callback(err,null);
+                                var err = new Error('Invalid Credentials');
+                                err.status = 400;
+                                callback(err,null);
                         })
                     });
                 }else{
                     var path = "/tmp/"+ formattedGitHub.name;
                     nodeGit.Clone(formattedGitHub.repositoryURL, path, {}).then(function (repo) {
+                        logger.debug("GIT Repository Clone is Done.");
                         callback(null,repo);
                     }).catch(function (err) {
+                        var err = new Error('Invalid Credentials');
+                        err.status = 400;
                         callback(err,null);
                     });
                 }
@@ -168,34 +179,46 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId, callback) {
 };
 
 gitGubService.getGitHubList = function getGitHubList(query, callback) {
-    var params = {};
-    logger.debug('get GitHub');
-    if ('filterBy' in query) {
-        params = parseFilterBy(query.filterBy);
-    }
-    gitHubModel.getGitHubList(params, function (err, gitHubList) {
-        if (err) {
-            logger.error(err);
-            var err = new Error('Internal Server Error');
-            err.status = 500;
-            return callback(err);
-        } else {
-            var response = [];
-            if (gitHubList.length > 0) {
-                for (var i = 0; i < gitHubList.length; i++) {
-                    formatGitHubResponse(gitHubList[i],function(formattedData){
-                        response.push(formattedData);
-                        if (response.length === gitHubList.length) {
-                            return callback(null, response);
-                        }else{
-                            return;
+    var reqData = {};
+    async.waterfall([
+        function(next) {
+            apiUtil.paginationRequest(query, 'gitHub', next);
+        },
+        function(paginationReq, next) {
+            paginationReq['searchColumns'] = ['name', 'repositoryType', 'repositoryURL'];
+            reqData = paginationReq;
+            apiUtil.databaseUtil(paginationReq, next);
+        },
+        function(queryObj, next) {
+            gitHubModel.getGitHubList(queryObj, next);
+        },
+        function(gitHubList, next) {
+            if (gitHubList.docs.length > 0) {
+                var formattedResponseList = [];
+                for (var i = 0; i < gitHubList.docs.length; i++) {
+                    formatGitHubResponse(gitHubList.docs[i],function(formattedData){
+                        formattedResponseList.push(formattedData);
+                        if (formattedResponseList.length === gitHubList.docs.length) {
+                            gitHubList.docs = formattedResponseList;
+                            next(null,gitHubList);
                         }
                     });
                 }
             } else {
-                return callback(null, response);
+                next(null,gitHubList);
             }
+        },
+        function(formattedGitHubResponseList, next) {
+            apiUtil.paginationResponse(formattedGitHubResponseList, reqData, next);
         }
+    ],function(err, results) {
+        if (err){
+            logger.error(err);
+            callback(err,null);
+            return;
+        }
+        callback(null,results)
+        return;
     });
 };
 
@@ -243,12 +266,14 @@ function formatGitHubResponse(gitHub,callback) {
     }
     if (gitHub.repositoryType === 'Private' && gitHub.authenticationType === 'userName') {
         formatted.repositoryUserName = gitHub.repositoryUserName;
+        formatted.authenticationType = gitHub.authenticationType;
         var cryptoConfig = appConfig.cryptoSettings;
         var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
         formatted.repositoryPassword =  cryptography.decryptText(gitHub.repositoryPassword, cryptoConfig.decryptionEncoding,
             cryptoConfig.encryptionEncoding);
         callback(formatted);
     }else if (gitHub.repositoryType === 'Private' && gitHub.authenticationType === 'sshKey') {
+        formatted.authenticationType = gitHub.authenticationType;
         fileUpload.getReadStreamFileByFileId(gitHub.repositorySSHPublicKeyFileId,function(err,publicKeyFile){
             if(err){
                 var err = new Error('Internal server error');
@@ -271,6 +296,7 @@ function formatGitHubResponse(gitHub,callback) {
             });
         });
     }else {
+        formatted.authenticationType = gitHub.authenticationType;
         callback(formatted);
     }
 }
