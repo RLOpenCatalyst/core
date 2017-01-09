@@ -1,20 +1,20 @@
 <div class="leftnavdiv" style="padding-right:7px;">
     <br>
-    <div class="col-lg-12 col-md-12 col-sm-12 top-stats">
-        <div class="col-lg-9 col-md-9 col-sm-12 no-padding" >
-            <span class="box-title font-size-15" ng-show="capaCtr.pieChat.data.length >0" ><span>Total Capacity:</span> <span class="red">{{capaCtr.pieChat.totalCoust}}</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                             <span class="box-title font-size-15" ng-show="capaCtr.pieChat.data.length >0"><span>Services</span>
-                         <span class="badge cursor"  ng-repeat="(value , key) in capaCtr.serviceCapacity" ng-click="gototab(value)"> {{value}} : {{key}}</span>
-                         </span>
-        </div>
-        <div class="col-lg-3 col-md-3 col-sm-12 text-right no-padding" >
-            <div ng-show="stateItems.filterView.splitUpType && splitUpCapacities.length > 1">
-                <span class="box-title font-size-15">Segregated by  </span>
-                <select class="form-control select2 select2-hidden-accessible" ng-model="analytic.splitUp" ng-options="sp.id as sp.val for sp in splitUpCapacities" >
-                </select>
-            </div>
-        </div>
-    </div>
+    <!--<div class="col-lg-12 col-md-12 col-sm-12 top-stats">-->
+        <!--<div class="col-lg-9 col-md-9 col-sm-12 no-padding" >-->
+            <!--<span class="box-title font-size-15" ng-show="capaCtr.pieChat.data.length >0" ><span>Total Capacity:</span> <span class="red">{{capaCtr.pieChat.totalCoust}}</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>-->
+                             <!--<span class="box-title font-size-15" ng-show="capaCtr.pieChat.data.length >0"><span>Services</span>-->
+                         <!--<span class="badge cursor"  ng-repeat="(value , key) in capaCtr.serviceCapacity" ng-click="gototab(value)"> {{value}} : {{key}}</span>-->
+                         <!--</span>-->
+        <!--</div>-->
+        <!--<div class="col-lg-3 col-md-3 col-sm-12 text-right no-padding" >-->
+            <!--<div ng-show="stateItems.filterView.splitUpType && splitUpCapacities.length > 1">-->
+                <!--<span class="box-title font-size-15">Segregated by  </span>-->
+                <!--<select class="form-control select2 select2-hidden-accessible" ng-model="analytic.splitUp" ng-options="sp.id as sp.val for sp in splitUpCapacities" >-->
+                <!--</select>-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</div>-->
     <div class="clearfix"></div>
     <div ng-if="analytic.tabShowChat">
         <div class="row">
@@ -25,7 +25,8 @@
                     <div class="box-header with-border"><h3 class="box-title font-size-15"> <i class="fa fa-line-chart"></i> <a id="{{value}}">Instnce</a> </h3>
                     </div>
                     <div class="box-body" >
-                        <div ng-if="capaCtr.listGrid['RDS'].data.length >0" ui-grid="capaCtr.listGrid['RDS']"  ui-grid-exporter ui-grid-auto-resize ui-grid-pagination class="grid"></div>
+                        <input ng-if="capaCtr.listGrid['RDS'].data.length > 0"  ng-model='capaCtr.filterValue' class="form-control with250" ng-change="filterInst()" placeholder="Search" />
+                        <div ng-if="capaCtr.listGrid['RDS'].data.length >0" ui-grid="capaCtr.listGrid['RDS']"  ui-grid-exporter ui-grid-auto-resize ui-grid-pagination class="grid margintop15"></div>
                         <div ng-if="!capaCtr.listGrid['RDS'].data.length >0">
                             <div class="alert alert-warning">
                                 No Data Available.

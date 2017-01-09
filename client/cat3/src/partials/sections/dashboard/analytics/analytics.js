@@ -25,7 +25,7 @@
 				url: "analytics/capacity/",
 				templateUrl: "src/partials/sections/dashboard/analytics/view/capacity.html",
 				controller: "capacityCtrl as capaCtr",
-				params:{filterView:{usage:true,org:true,provi:true,instanceType:true}},
+				params:{filterView:{usage:true,org:true,provi:true,instanceType:true,period:true}},
 				resolve: {
 					auth: ["$q", function ($q) {
 						var deferred = $q.defer();

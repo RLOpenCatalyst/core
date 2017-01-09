@@ -2,8 +2,7 @@
     "use strict";
     angular.module('dashboard.analytics')
         .controller('capacityCtrl', ['$scope', '$rootScope', '$state','analyticsServices', 'genericServices','$timeout','$location', '$anchorScroll','$modal',function ($scope,$rootScope,$state,analyticsServices,genSevs,$timeout,$location, $anchorScroll,$modal){
-
-            $rootScope.organNewEnt.provider='0';
+            $rootScope.stateItems = $state.params;
             //analyticsServices.initFilter();
             $scope.gototab = function(id) {
                 // set the location.hash to the id of
@@ -16,101 +15,6 @@
             var capaCtr =this;
             capaCtr.chartData=[];
             capaCtr.splitUp=null;
-            capaCtr.pieChat={
-                option:{},
-                totalCoust:'',
-                data: []
-            };
-            capaCtr.barChat={
-                option:{},
-                data: []
-            };
-            capaCtr.capaGridOptions={
-                columnDefs:[],
-                data:[]
-            };
-            capaCtr.createChart = function() {
-                capaCtr.pieChat = {
-                    option: {
-                        chart: {
-                            type: 'pieChart',
-                            margin: {
-                                top: 20,
-                                right: 0,
-                                bottom: 60,
-                                left: 0
-                            },
-                            height: 300,
-                            x: function (d) {
-                                return d.key;
-                            },
-                            y: function (d) {
-                                return d.value;
-                            },
-                            pie: {
-                                valueFormat: function (d) {
-                                    return d3.round(d);
-                                }
-                            },
-                            showLabels: false,
-                            labelType: "value",
-                            labelThreshold: 0.01,
-                            labelSunbeamLayout: true,
-                            legend: {}
-                        }
-                    },
-                    totalCoust: '',
-                    data: []
-                };
-
-                capaCtr.barChat = {
-                    option: {
-                        chart: {
-                            type: 'multiBarChart',
-                            height: 300,
-                            margin: {
-                                top: 20,
-                                right: 20,
-                                bottom: 60,
-                                left: 60
-                            },
-                            duration:1000,
-                            stacked: true,
-                            x: function (d) {
-                                return d.label;
-                            },
-                            y: function (d) {
-                                return d.value;
-                            },
-                            showControls: true,
-                            showValues: true,
-                            xAxis: {
-                                axisLabel: 'Aggregate',
-                                showMaxMin: false,
-                                staggerLabels:false
-                            },
-                            yAxis: {
-                                axisLabel: 'Count',
-                                tickFormat: function (d) {
-                                    return d3.round(d);
-                                }
-                            }
-                        }
-                    },
-                    data: []
-                };
-
-                capaCtr.capaGridOptions = {
-                    enableGridMenu: true,
-                    enableSelectAll: true,
-                    exporterMenuPdf: false,
-                    exporterCsvFilename: 'costFile.csv',
-                    exporterCsvLinkElement: angular.element(document.querySelectorAll(".custom-csv-link-location")),
-                    onRegisterApi: function (gridApi) {
-                        $scope.gridApi = gridApi;
-                    }
-                };
-            };
             capaCtr.getCapacityData=function(fltObj){
                 var param = {
                     // url: 'src/partials/sections/dashboard/analytics/data/cost.json?org'
@@ -147,186 +51,19 @@
                     }
                 });
             };
-            capaCtr.createLable= function(result,viewType){
-                capaCtr.createChart();
-                if(result && result.capacity) {
-                    capaCtr.capaGridOptions.data = [];
-                    capaCtr.capaGridOptions.columnDefs = [
-                        {name: 'name', field: 'name'},
-                        {name: 'totalCapacity', field: 'capacity.totalCapacity'}
-                    ];
-                    capaCtr.pieChat.totalCoust = result.capacity.totalCapacity;
-                    capaCtr.pieChat.data = [];
-                    capaCtr.barChat.data = [];
-                    // create bar
-                    //if(viewType === 'ProviderView'){
-                    capaCtr.capaGridOptions.data = result.splitUpCapacities[viewType];
-                    if(result.splitUpCapacities && Object.keys(result.splitUpCapacities).length >0 ) {
-                        angular.forEach(result.splitUpCapacities[viewType], function (value) {
-                            capaCtr.pieChat.data.push({
-                                key: value.name,
-                                value: value.capacity.totalCapacity
-                            });
-                        });
-                    } else{
-                        capaCtr.pieChat.data.push({
-                            key: result.entity.name,
-                            value: result.capacity.totalCapacity
-                        });
-                    }
-                    if(result.capacity && result.capacity.AWS && result.capacity.AWS.services) {
-                        capaCtr.serviceCapacity = result.capacity.AWS.services;
-                        capaCtr.createList();
-                        angular.forEach(result.capacity.AWS.services, function (valueChild, keyChild) {
-                            var va = [];
-                            capaCtr.capaGridOptions.columnDefs.push({
-                                name: keyChild,
-                                field: 'capacity.AWS.services.' + keyChild
-                            });
-                            if(result.splitUpCapacities && Object.keys(result.splitUpCapacities).length >0 ) {
-                                angular.forEach(result.splitUpCapacities[viewType], function (valBar) {
-                                    var chVal = '';
-                                    if (valBar.capacity.AWS.services[keyChild]) {
-                                        chVal = valBar.capacity.AWS.services[keyChild];
-                                    } else {
-                                        chVal = 0;
-                                    }
-                                    va.push(
-                                        {
-                                            "label": valBar.name,
-                                            "value": chVal
-                                        }
-                                    );
-                                });
-                            } else {
-                                var chVal = '';
-                                if (result.capacity.AWS.services[keyChild]) {
-                                    chVal =result.capacity.AWS.services[keyChild];
-                                } else {
-                                    chVal = 0;
-                                }
-                                va.push(
-                                    {
-                                        "label": result.entity.name,
-                                        "value": chVal
-                                    }
-                                );
-                            }
-                            capaCtr.barChat.data.push({
-                                "key": keyChild,
-                                "values": va
-                            });
-                        });
-                    }
-                }
-            };
-            capaCtr.trendsChart=function(fltObj){
-                capaCtr.trendLineChart={};
-                capaCtr.trendLineChart.options = {
-                    chart: {
-                        //type: 'stackedAreaChart',
-                        type: 'lineChart',
-                        height: 350,
-                        margin: {
-                            top: 20,
-                            right: 20,
-                            bottom: 40,
-                            left: 60
-                        },
-                        x: function (d) {
-                            return d[0];
-                        },
-                        y: function (d) {
-                            return d[1];
-                        },
-                        useVoronoi: false,
-                        clipEdge: true,
-                        duration: 1000,
-                        useInteractiveGuideline: true,
-                        xAxis: {
-                            showMaxMin: false,
-                            axisLabel: 'Date',
-                            tickFormat: function (d) {
-                                return d3.time.format('%x')(new Date(d));
-                            }
-                        },
-                        yAxis: {
-                            axisLabel: 'Count',
-                            tickFormat: function (d) {
-                                return d3.round(d);
-                            }
-                        },
-                        zoom: {
-                            enabled: true,
-                            scaleExtent: [1, 10],
-                            useFixedDomain: false,
-                            useNiceScale: false,
-                            horizontalOff: true,
-                            verticalOff: true,
-                            unzoomEventType: 'dblclick.zoom'
-                        }
-                    }
-                };
-                capaCtr.trendLineChart.data = [];
-                var param = {
-                    url: ''
-                };
 
-                if(fltObj && fltObj.org){
-                    var entityId=null;
-                    if(fltObj.provider){
-                        entityId=fltObj.provider.id;
-                    } else {
-                        entityId=fltObj.org.id;
-                    }
-                    //http://192.168.152.139:3001
-                   // param.url='/analytics/capacity/trend?parentEntityId='+fltObj.org.id+'&entityId='+fltObj.org.id+'&toTimeStamp='+new Date()+'&period='+fltObj.period+'&interval=86400'
-                }
-
-                genSevs.promiseGet(param).then(function (result) {
-                    if(result.capacityTrends && result.capacityTrends.length) {
-                        capaCtr.trendLineChart.totalCapacity = result.capacity.totalCapacity;
-                        capaCtr.trendLineChart.data = [];
-                        angular.forEach(result.capacity.AWS.services, function (valueChild, keyChild) {
-                            var va = [];
-                            angular.forEach(result.capacityTrends, function (value) {
-                                var chVal='';
-                                if(value.capacity.AWS.services[keyChild]){
-                                    chVal=value.capacity.AWS.services[keyChild];
-                                } else {
-                                    chVal=0;
-                                }
-                                va.push([value.fromTime,chVal]);
-                            });
-                            capaCtr.trendLineChart.data.push({
-                                "key": keyChild,
-                                "values": va
-                            });
-                        });
-                        capaCtr.trendLineChart.data[0].values.push([]);
-                    }
-                });
-            };
-            $scope.$on('CHANGE_VIEW', function (event, data) {
-                if (data) {
-                    capaCtr.splitUp = data.replace(/([A-Z])/g, ' $1').replace(/^./, function (str) {
-                        return str.toUpperCase();
-                    });
-                    capaCtr.createLable(capaCtr.chartData, data);
-                }
-            });
             $rootScope.applyFilter =function(filterApp,period){
                 analyticsServices.applyFilter(filterApp,period);
                 if($state.current.name === "dashboard.analytics.capacity") {
-                    capaCtr.getCapacityData($rootScope.filterNewEnt);
+                    capaCtr.createList();
                 }
             };
             capaCtr.init =function(){
-                analyticsServices.initFilter();
-                capaCtr.createChart();
+                $rootScope.organNewEnt.instanceType='Unassigned';
+                $rootScope.organNewEnt.provider='0';
+                $rootScope.$emit('INI_usage', 'Unassigned');
                 $timeout(function () {
                     $rootScope.applyFilter(true,'month');
-                    capaCtr.trendsChart($rootScope.filterNewEnt);
                     var treeNames = ['Cloud Management','Analytics','capacity'];
                     $rootScope.$emit('treeNameUpdate', treeNames);
                 },500);
@@ -364,8 +101,9 @@
                     capaCtr.listGrid[value].data=[];
                     capaCtr.listGrid[value].paginationPageSizes= [25, 50, 100];
                     capaCtr.listGrid[value].paginationPageSize=25;
+                    $scope.colArray=['platformId','state','orgName','privateIpAddress','os']
                     capaCtr.listGrid[value].columnDefs=[
-                        {name: 'platformId', field: 'platformId', cellTooltip: true},
+                        {name: 'Instance Id', field: 'platformId', cellTooltip: true},
                         {name: 'os', enableFiltering: true,displayName: 'os', field:'os',cellTooltip: true},
                         {name: 'privateIpAddress', displayName: 'IP Address',cellTooltip: true},
                         {name: 'state', displayName: 'Status',cellTooltip: true},
@@ -373,10 +111,15 @@
                             field: 'providerData.region',
                             cellTooltip: true
                         },
-                        {name: 'cost', displayName: 'cost',cellTemplate: '<span>12</span>'},
+                        {name: 'orgName', displayName: 'Org Name', field: 'orgName', cellTooltip: true},
+                        {name: 'cost', displayName: 'cost',cellTemplate: '<span>{{row.entity.cost.symbol}} {{row.entity.cost.aggregateInstanceCost}}</span>'},
                         {name: 'Usage', cellTooltip: true,cellTemplate:"<span class='cursor' ng-click='grid.appScope.openChart(row.entity)'><i class=\"fa fa-bar-chart\"></i></span>"},
-                        {name: 'Chef', cellTooltip: true,cellTemplate:"<span class='cursor' ng-click='grid.appScope.chefConfig(row.entity)'><i  class=\"fa fa-eye\" title=\"Chef Configuration\"></i></span>"}
+                        // {name: 'Chef', cellTooltip: true,cellTemplate:"<span class='cursor' ng-click='grid.appScope.chefConfig(row.entity)'><i  class=\"fa fa-eye\" title=\"Chef Configuration\"></i></span>"}
                     ];
+                    capaCtr.listGrid[value].onRegisterApi=function (gridApi) {
+                        gridApi.grid.registerRowsProcessor($scope.singleFilter, 200);
+                        $scope.gridApi = gridApi;
+                    }
                 if(fltrObj && fltrObj.provider && fltrObj.provider.id) {
                     var param = {
                         url: '/providers/' + fltrObj.provider.id + '/unassigned-instances'
@@ -389,7 +132,24 @@
 
                 //}
             };
-
+            $scope.filterInst = function() {
+                $scope.gridApi.grid.refresh();
+            };
+            $scope.singleFilter = function( renderableRows ){
+                var matcher = new RegExp(capaCtr.filterValue);
+                renderableRows.forEach( function( row ) {
+                    var match = false;
+                    angular.forEach($scope.colArray,function( field ){
+                        if ( row.entity[field] && row.entity[field].match(matcher) ){
+                            match = true;
+                        }
+                    });
+                    if ( !match ){
+                        row.visible = false;
+                    }
+                });
+                return renderableRows;
+            };
             capaCtr.init();
 
 
@@ -462,7 +222,7 @@
                     };
                     genSevs.promiseGet(param).then(function (result) {
                         var va = [];
-                        if (result) {
+                        if (result && result.length) {
                             angular.forEach(result[capChat.splitUp].dataPoints, function (value) {
                                 va.push([Date.parse(value.fromTime), value.average]);
                             });
