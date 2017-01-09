@@ -50,8 +50,9 @@ AWSResourceCostsAggregation.aggregateEntityCostsByOrg = aggregateEntityCostsByOr
 AWSResourceCostsAggregation.aggregateEntityCostsByProvider = aggregateEntityCostsByProvider
 AWSResourceCostsAggregation.aggregateEntityCostTrendByOrg = aggregateEntityCostTrendByOrg
 AWSResourceCostsAggregation.aggregateEntityCostTrendByProvider = aggregateEntityCostTrendByProvider
+AWSResourceCostsAggregation.aggregateResourceCostsForAllPeriods = aggregateResourceCostsForAllPeriods
 
-// AWSResourceCostsAggregation.execute()
+AWSResourceCostsAggregation.execute()
 
 module.exports = AWSResourceCostsAggregation
 
@@ -206,8 +207,7 @@ function updateResourceCosts(provider, downloadedCSVPath, callback) {
             resourceService.getAllResourcesForProvider(provider, next)
         },
         function(resources, next) {
-            resourceService.updateAWSResourceCostsFromCSV(provider, resources, downloadedCSVPath,
-                AWSResourceCostsAggregation.currentCronRunTime, next)
+            AWSResourceCostsAggregation.aggregateResourceCostsForAllPeriods(provider, resources, next)
         },
         function(next) {
             AWSProvider.updateLastBillUpdateTime(provider._id,
@@ -221,6 +221,13 @@ function updateResourceCosts(provider, downloadedCSVPath, callback) {
             callback()
         }
     })
+}
+
+// Only aggregates monthly cost as of now and updates resource/instance collections
+// @TODO To be aggregated for all periods
+function aggregateResourceCostsForAllPeriods(provider, resources, callback) {
+    resourceService.aggregateResourceCostsForPeriod(provider, resources, 'month',
+        AWSResourceCostsAggregation.currentCronRunTime, callback)
 }
 
 function aggregateEntityCostsByOrg(orgs, callback) {

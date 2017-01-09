@@ -47,6 +47,7 @@ resourceService.getEC2InstancesInfo=getEC2InstancesInfo;
 resourceService.getAllResourcesForProvider =  getAllResourcesForProvider;
 resourceService.updateAWSResourceCostsFromCSV = updateAWSResourceCostsFromCSV
 resourceService.updateDomainNameForInstance = updateDomainNameForInstance
+resourceService.aggregateResourceCostsForPeriod = aggregateResourceCostsForPeriod
 
 // @TODO To be cached if needed. In memory data will not exceed 200MB for upto 2000 instances.
 function getAllResourcesForProvider(provider, next) {
@@ -193,10 +194,56 @@ function updateAWSResourceCostsFromCSV(provider, resources, downlaodedCSVPath, u
         if(err) {
             callback(err)
         } else {
+            callback(null, resources)
+        }
+    })
+}
+
+function aggregateResourceCostsForPeriod(provider, resources, period, endTime, callback) {
+    var catalystEntityHierarchy = appConfig.catalystEntityHierarchy
+    var date = new Date()
+    var billIntervalId = date.getFullYear() + '-' + (date.getMonth() + 1)
+
+    var offset = (new Date()).getTimezoneOffset()*60000
+    var startTime = dateUtil.getStartOfPeriod(period, endTime)
+
+    var query = { 'providerId': provider._id.toString() }
+    query.startTime = {$gte: Date.parse(startTime) + offset}
+    query.endTime = {$lte: Date.parse(endTime) + offset}
+
+    async.waterfall([
+        function(next) {
+            resourceCost.aggregate([
+                {$match: query},
+                {$group: {_id: "$" + catalystEntityHierarchy['resource'].key,
+                    totalCost: {$sum: "$cost"}}}
+            ],next)
+        },
+        function(resourceCosts, next) {
+            async.forEach(resourceCosts, function(resourceCost, next1) {
+                if(resourceCost._id in resources) {
+                    resources[resourceCost._id].cost = {
+                        aggregateInstanceCost: Math.round(resourceCost.totalCost * 100) / 100,
+                        currency:'USD',
+                        symbol:"$"
+                    }
+                    resources[resourceCost._id].save(next1)
+                }
+            }, function(err) {
+                if(err) {
+                    next(err)
+                } else {
+                    next()
+                }
+            })
+        }
+    ], function(err) {
+        if(err) {
+            callback(err)
+        } else {
             callback()
         }
     })
-
 }
 
 function getCostForServices_deprecated(provider,callback) {
