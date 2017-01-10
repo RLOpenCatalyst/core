@@ -34,6 +34,8 @@
                 genSevs.promiseGet(param).then(function (result) {
                     capaCtr.chartData=result;
                     $rootScope.splitUpCapacities=[];
+                    capaCtr.serviceCapacity=result.capacity.AWS;
+                    capaCtr.serviceType=Object.keys(capaCtr.serviceCapacity.services)[0];
                     if(result.splitUpCapacities && Object.keys(result.splitUpCapacities).length >0) {
                         angular.forEach(result.splitUpCapacities, function (val, key) {
                             var a=key.replace(/([A-Z])/g, ' $1').replace(/^./, function(str) {
@@ -46,16 +48,16 @@
                             capaCtr.splitUp = $rootScope.splitUpCapacities[0].val;
                             capaCtr.createLable(result, $rootScope.splitUpCapacities[0].id);
                         }
-                    } else {
-                        capaCtr.createLable(result,'provider');
                     }
+                    capaCtr.createList();
+
                 });
             };
 
             $rootScope.applyFilter =function(filterApp,period){
                 analyticsServices.applyFilter(filterApp,period);
                 if($state.current.name === "dashboard.analytics.capacity") {
-                    capaCtr.createList();
+                    capaCtr.getCapacityData($rootScope.filterNewEnt);
                 }
             };
             capaCtr.init =function(){
@@ -112,8 +114,9 @@
                             cellTooltip: true
                         },
                         {name: 'orgName', displayName: 'Org Name', field: 'orgName', cellTooltip: true},
-                        {name: 'cost', displayName: 'cost',cellTemplate: '<span>{{row.entity.cost.symbol}} {{row.entity.cost.aggregateInstanceCost}}</span>'},
-                        {name: 'Usage', cellTooltip: true,cellTemplate:"<span class='cursor' ng-click='grid.appScope.openChart(row.entity)'><i class=\"fa fa-bar-chart\"></i></span>"},
+                        {name: 'cost', displayName: 'cost',cellTemplate: '<span ng-bind-html="grid.appScope.aggregateInstanceCost(row.entity.cost)"></span>'},
+                        {name: 'Action', cellTooltip: true,cellTemplate:"<span class='cursor' title='Usage' style='font-size: 14px;' ng-click='grid.appScope.openChart(row.entity)'><i class=\"fa fa-line-chart\"></i></span> " +
+                        "&nbsp;&nbsp; <span class='cursor' ng-click='grid.appScope.Schedule(row.entity._id)' style='font-size: 14px;' title='Schedule'><i class=\"fa fa-calendar\"></i></span>"}
                         // {name: 'Chef', cellTooltip: true,cellTemplate:"<span class='cursor' ng-click='grid.appScope.chefConfig(row.entity)'><i  class=\"fa fa-eye\" title=\"Chef Configuration\"></i></span>"}
                     ];
                     capaCtr.listGrid[value].onRegisterApi=function (gridApi) {
@@ -121,16 +124,41 @@
                         $scope.gridApi = gridApi;
                     }
                 if(fltrObj && fltrObj.provider && fltrObj.provider.id) {
+                    if($rootScope.organNewEnt.instanceType === 'Managed') {
+                        $scope.instanceType= 'managedInstances';
+                    } else if($rootScope.organNewEnt.instanceType === 'Assigned'){
+                        $scope.instanceType= 'unmanagedInstances';
+                    } else if($rootScope.organNewEnt.instanceType === 'Unassigned'){
+                        $scope.instanceType= 'unassigned-instances';
+                    }
                     var param = {
-                        url: '/providers/' + fltrObj.provider.id + '/unassigned-instances'
+                        url: '/providers/' + fltrObj.provider.id + '/'+$scope.instanceType
                         // url:'src/partials/sections/dashboard/analytics/data/ins.json'
                     };
                     genSevs.promiseGet(param).then(function (instResult) {
-                        capaCtr.listGrid[value].data=instResult.data;
+                        if($rootScope.organNewEnt.instanceType === 'Managed') {
+                            capaCtr.listGrid[value].data= instResult.managedInstances;
+                        } else if($rootScope.organNewEnt.instanceType === 'Assigned'){
+                            capaCtr.listGrid[value].data= instResult.unmanagedInstances;
+                        } else if($rootScope.organNewEnt.instanceType === 'Unassigned'){
+                            capaCtr.listGrid[value].data = instResult.data;
+                        }
                     });
                 }
 
                 //}
+            };
+            $scope.aggregateInstanceCost=function (cost) {
+                if(cost){
+                    return cost.symbol+' '+ cost.aggregateInstanceCost;
+                } else {
+                    return '....';
+                }
+            };
+            $scope.Schedule =function (id) {
+                var a=[];
+                a.push(id);
+                genSevs.scheduleTime(a);
             };
             $scope.filterInst = function() {
                 $scope.gridApi.grid.refresh();
@@ -222,7 +250,7 @@
                     };
                     genSevs.promiseGet(param).then(function (result) {
                         var va = [];
-                        if (result && result.length) {
+                        if (result) {
                             angular.forEach(result[capChat.splitUp].dataPoints, function (value) {
                                 va.push([Date.parse(value.fromTime), value.average]);
                             });
