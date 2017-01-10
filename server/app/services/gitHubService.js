@@ -134,6 +134,7 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId, callback) {
                             }).catch(function(err){
                             var err = new Error('Invalid Credentials');
                             err.status = 400;
+                            err.msg = 'Invalid Credentials';
                             callback(err,null);
                         })
                     });
@@ -159,6 +160,7 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId, callback) {
                             }).catch(function(err){
                                 var err = new Error('Invalid Credentials');
                                 err.status = 400;
+                                err.msg = 'Invalid Credentials';
                                 callback(err,null);
                         })
                     });
@@ -170,6 +172,7 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId, callback) {
                     }).catch(function (err) {
                         var err = new Error('Invalid Credentials');
                         err.status = 400;
+                        err.msg = 'Invalid Credentials';
                         callback(err,null);
                     });
                 }
@@ -182,11 +185,14 @@ gitGubService.getGitHubList = function getGitHubList(query, callback) {
     var reqData = {};
     async.waterfall([
         function(next) {
-            apiUtil.paginationRequest(query, 'gitHub', next);
+            apiUtil.changeRequestForJqueryPagination(query, next);
+        },
+        function(filterQuery,next) {
+            reqData = filterQuery;
+            apiUtil.paginationRequest(filterQuery, 'gitHub', next);
         },
         function(paginationReq, next) {
             paginationReq['searchColumns'] = ['name', 'repositoryType', 'repositoryURL'];
-            reqData = paginationReq;
             apiUtil.databaseUtil(paginationReq, next);
         },
         function(queryObj, next) {
@@ -209,7 +215,7 @@ gitGubService.getGitHubList = function getGitHubList(query, callback) {
             }
         },
         function(formattedGitHubResponseList, next) {
-            apiUtil.paginationResponse(formattedGitHubResponseList, reqData, next);
+            apiUtil.changeResponseForJqueryPagination(formattedGitHubResponseList, reqData, next);
         }
     ],function(err, results) {
         if (err){

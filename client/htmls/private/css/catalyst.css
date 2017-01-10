@@ -4675,3 +4675,11 @@ input:focus, select:focus, textarea:focus {
 .blueprintdiv-aws {
     width:77%!important;
 }
+
+.radioInline {
+    display: inline-block;
+}
+
+.marginTop8 {
+    margin-top: 8px!important;
+}
