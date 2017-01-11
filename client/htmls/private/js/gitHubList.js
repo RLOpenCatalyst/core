@@ -264,12 +264,14 @@
     });
 
     $('#gitTable tbody').on( 'click', 'button.syncGitRepo', function(){
+        $('#gitHubListLoader').show();
         var $this = $(this);
         $.ajax({
             url: '../git-hub/' + $this.parents('tr').attr('githubId') + '/sync',
             method: 'GET',
             success: function() {
                 bootbox.alert('Sucessfully cloned');
+                $('#gitHubListLoader').hide();
             },
             error: function(jxhr) {
                 console.log(jxhr);
@@ -277,9 +279,11 @@
                 if (jxhr.responseJSON && jxhr.responseJSON.message) {
                     msg = jxhr.responseJSON.message;
                 } else if (jxhr.responseText) {
-                    msg = jxhr.responseText;
+                    var msgCheck = JSON.parse(jxhr.responseText);
+                    msg = msgCheck.msg;
                 }
                 bootbox.alert(msg);
+                $('#gitHubListLoader').hide();
             }
         });
         return false;
