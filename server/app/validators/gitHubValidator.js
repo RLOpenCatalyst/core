@@ -21,8 +21,8 @@ var monitorsValidator = module.exports = {};
 monitorsValidator.create = {
     body: {
         "orgId": Joi.string().max(40).required(),
-        "name": Joi.string().max(40).required(),
-        "repositoryURL": Joi.string().max(100).required(),
+        "repositoryName": Joi.string().max(40).required(),
+        "repositoryOwner": Joi.string().max(100).required(),
         "repositoryType": Joi.string().max(40).required()
     }
 };
@@ -30,8 +30,8 @@ monitorsValidator.create = {
 monitorsValidator.update = {
     body: {
         "orgId": Joi.string().max(40).required(),
-        "name": Joi.string().max(40).required(),
-        "repositoryURL": Joi.string().max(100).required(),
+        "repositoryName": Joi.string().max(40).required(),
+        "repositoryOwner": Joi.string().max(100).required(),
         "repositoryType": Joi.string().max(40).required()
     }
 };
