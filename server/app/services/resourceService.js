@@ -225,9 +225,11 @@ function aggregateResourceCostsForPeriod(provider, resources, period, endTime, c
                     resources[resourceCost._id].cost = {
                         aggregateInstanceCost: Math.round(resourceCost.totalCost * 100) / 100,
                         currency:'USD',
-                        symbol:"$"
+                        symbol: '$'
                     }
                     resources[resourceCost._id].save(next1)
+                } else {
+                    next1()
                 }
             }, function(err) {
                 if(err) {
@@ -241,6 +243,7 @@ function aggregateResourceCostsForPeriod(provider, resources, period, endTime, c
         if(err) {
             callback(err)
         } else {
+            logger.info("Individual resource costs aggregation complete")
             callback()
         }
     })
