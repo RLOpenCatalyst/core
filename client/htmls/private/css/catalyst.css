@@ -4683,3 +4683,11 @@ input:focus, select:focus, textarea:focus {
 .marginTop8 {
     margin-top: 8px!important;
 }
+
+#gitHubListLoader {
+    opacity: 0.6;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    background: #ddd;
+}
