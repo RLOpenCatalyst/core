@@ -17,6 +17,8 @@ var appConfig = require('_pr/config');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var aws = require('aws-sdk');
 var resources = require('_pr/model/resources/resources');
+var S3Resource = require('_pr/model/resources/s3-resource')
+var RDSResource = require('_pr/model/resources/rds-resource')
 var CW = require('_pr/lib/cloudwatch.js');
 var S3 = require('_pr/lib/s3.js');
 var EC2 = require('_pr/lib/ec2.js');
@@ -50,6 +52,7 @@ resourceService.updateDomainNameForInstance = updateDomainNameForInstance
 resourceService.aggregateResourceCostsForPeriod = aggregateResourceCostsForPeriod
 
 // @TODO To be cached if needed. In memory data will not exceed 200MB for upto 2000 instances.
+// @TODO Unique identifier of S3 and RDS resources should be available in resource without casting.
 function getAllResourcesForProvider(provider, next) {
     async.parallel([
             function(callback) {
@@ -61,10 +64,10 @@ function getAllResourcesForProvider(provider, next) {
             },
             function(callback) {
                 unassignedInstancesModel.getUnAssignedInstancesByProviderId(provider._id, callback);
+            },
+            function(callback) {
+                resources.getResourcesByProviderId(provider._id, callback);
             }
-            /*function(callback) {
-             resources.getResourcesByProviderId(provider._id, callback);
-             }*/
         ],
         function(err, results) {
             if (err) {
@@ -76,6 +79,19 @@ function getAllResourcesForProvider(provider, next) {
                 var resultsObject = resultsArray.reduce(function(temp, current) {
                     if('platformId' in current) {
                         temp[current.platformId] = current;
+                    } else if('resourceType' in current) {
+                        switch(current.resourceType) {
+                            case 'RDS':
+                                var temp = new RDSResource(current)
+                                temp[temp.resourceDetails.dbInstanceIdentifier] = current;
+                                break;
+                            case 'S3':
+                                var temp = new S3Resource(current)
+                                temp[temp.resourceDetails.bucketName] = current;
+                                break;
+                            default:
+                                break;
+                        }
                     }
                     return temp;
                 }, {})
@@ -217,7 +233,7 @@ function aggregateResourceCostsForPeriod(provider, resources, period, endTime, c
                 {$match: query},
                 {$group: {_id: "$" + catalystEntityHierarchy['resource'].key,
                     totalCost: {$sum: "$cost"}}}
-            ],next)
+            ], next)
         },
         function(resourceCosts, next) {
             async.forEach(resourceCosts, function(resourceCost, next1) {
