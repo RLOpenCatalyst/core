@@ -13,11 +13,8 @@
         <span class="pull-right">
         <span class="box-title font-size-15">Usage Type</span>
         <select  class="form-control select2 select2-hidden-accessible " ng-change="capChat.splitChange()" style="width: auto;height: 31px;display: table-cell" ng-model="capChat.splitUp" >
-            <option value="CPUUtilization">CPUUtilization</option>
-            <option value="DiskReadBytes">DiskReadBytes</option>
-            <option value="DiskWriteBytes">DiskWriteBytes</option>
-            <option value="NetworkIn">NetworkIn</option>
-            <option value="NetworkOut">NetworkOut</option>
+            <option ng-repeat="(val,ke) in capChat.sliptOptions" value="{{ke}}">{{ke}}</option>
+
         </select>
             </span>
         </div>
