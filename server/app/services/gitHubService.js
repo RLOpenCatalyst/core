@@ -20,6 +20,8 @@ var appConfig = require('_pr/config');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var fileUpload = require('_pr/model/file-upload/file-upload');
 var nodeGit =  require('nodegit');
+var async = require('async');
+var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var promisify = require("promisify-node");
 var fse = promisify(require("fs-extra"));
 
@@ -110,56 +112,92 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId, callback) {
             return callback(err);
         } else{
             formatGitHubResponse(gitHub,function(formattedGitHub){
-                if(formattedGitHub.repositoryType === 'Private' && formattedGitHub.authenticationType === 'userName') {
+                if(formattedGitHub.repositoryType === 'Private' && formattedGitHub.authenticationType === 'token') {
                     var cloneOpts = {
                         fetchOpts: {
                             callbacks: {
                                 credentials: function () {
-                                    return nodeGit.Cred.userpassPlaintextNew(formattedGitHub.repositoryUserName, formattedGitHub.repositoryPassword);
+                                    var cred = nodeGit.Cred.userpassPlaintextNew(formattedGitHub.repositoryToken, "x-oauth-basic");
+                                    return cred;
+                                },
+                                certificateCheck: function() {
+                                    return 1;
                                 }
                             }
                         }
                     }
-                    var path = "/tmp/"+ formattedGitHub.name;
-                    fse.remove(path).then(function () {
-                        nodeGit.Clone(
-                            formattedGitHub.repositoryURL,
-                            path,
-                            cloneOpts)
-                            .then(function (repo) {
-                                callback(null,repo);
-                            }).catch(function(err){
+                    var localClonePath = "/tmp/"+ formattedGitHub.repositoryName;
+                    var repoUrl = "https://github.com/" + formattedGitHub.repositoryOwner + "/" + formattedGitHub.repositoryName + ".git";
+                    gitRepoCloning(repoUrl,localClonePath,cloneOpts,function(err,cloneStatus){
+                        if(err){
                             callback(err,null);
-                        })
+                            return;
+                        }else{
+                            callback(null,cloneStatus);
+                            return;
+                        }
+                    });
+                } else if(formattedGitHub.repositoryType === 'Private' && formattedGitHub.authenticationType === 'userName') {
+                    var cloneOpts = {
+                        fetchOpts: {
+                            callbacks: {
+                                credentials: function () {
+                                    var cred = nodeGit.Cred.userpassPlaintextNew(formattedGitHub.repositoryUserName, formattedGitHub.repositoryPassword);
+                                    return cred;
+                                },
+                                certificateCheck: function() {
+                                    return 1;
+                                }
+                            }
+                        }
+                    }
+                    var localClonePath = "/tmp/"+ formattedGitHub.repositoryName;
+                    var repoUrl = "https://github.com/" + formattedGitHub.repositoryOwner + "/" + formattedGitHub.repositoryName + ".git";
+                    gitRepoCloning(repoUrl,localClonePath,cloneOpts,function(err,cloneStatus){
+                        if(err){
+                            callback(err,null);
+                            return;
+                        }else{
+                            callback(null,cloneStatus);
+                            return;
+                        }
                     });
                 }else if(formattedGitHub.repositoryType === 'Private' && formattedGitHub.authenticationType === 'sshKey') {
                     var cloneOpts = {
                         fetchOpts: {
                             callbacks: {
                                 credentials: function () {
-                                    return nodeGit.Cred.sshKeyNew(formattedGitHub.repositoryUserName, formattedGitHub.repositorySSHPublicKeyFileData,formattedGitHub.repositorySSHPrivateKeyFileData,'');
+                                    var cred = nodeGit.Cred.sshKeyNew(formattedGitHub.repositoryUserName, formattedGitHub.repositorySSHPublicKeyFileData,formattedGitHub.repositorySSHPrivateKeyFileData,'');
+                                    return cred;
+                                },
+                                certificateCheck: function() {
+                                    return 1;
                                 }
                             }
                         }
                     }
-                    var path = "/tmp/"+ formattedGitHub.name;
-                    fse.remove(path).then(function () {
-                        nodeGit.Clone(
-                            formattedGitHub.repositoryURL,
-                            path,
-                            cloneOpts)
-                            .then(function (repo) {
-                                callback(null,repo);
-                            }).catch(function(err){
+                    var localClonePath = "/tmp/"+ formattedGitHub.repositoryName;
+                    var repoUrl = "https://github.com/" + formattedGitHub.repositoryOwner + "/" + formattedGitHub.repositoryName + ".git";
+                    gitRepoCloning(repoUrl,localClonePath,cloneOpts,function(err,cloneStatus){
+                        if(err){
                             callback(err,null);
-                        })
+                            return;
+                        }else{
+                            callback(null,cloneStatus);
+                            return;
+                        }
                     });
                 }else{
-                    var path = "/tmp/"+ formattedGitHub.name;
-                    nodeGit.Clone(formattedGitHub.repositoryURL, path, {}).then(function (repo) {
-                        callback(null,repo);
-                    }).catch(function (err) {
-                        callback(err,null);
+                    var localClonePath = "/tmp/"+ formattedGitHub.repositoryName;
+                    var repoUrl = "https://github.com/" + formattedGitHub.repositoryOwner + "/" + formattedGitHub.repositoryName + ".git";
+                    gitRepoCloning(repoUrl,localClonePath,{},function(err,cloneStatus){
+                        if(err){
+                            callback(err,null);
+                            return;
+                        }else{
+                            callback(null,cloneStatus);
+                            return;
+                        }
                     });
                 }
             })
@@ -168,34 +206,49 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId, callback) {
 };
 
 gitGubService.getGitHubList = function getGitHubList(query, callback) {
-    var params = {};
-    logger.debug('get GitHub');
-    if ('filterBy' in query) {
-        params = parseFilterBy(query.filterBy);
-    }
-    gitHubModel.getGitHubList(params, function (err, gitHubList) {
-        if (err) {
-            logger.error(err);
-            var err = new Error('Internal Server Error');
-            err.status = 500;
-            return callback(err);
-        } else {
-            var response = [];
-            if (gitHubList.length > 0) {
-                for (var i = 0; i < gitHubList.length; i++) {
-                    formatGitHubResponse(gitHubList[i],function(formattedData){
-                        response.push(formattedData);
-                        if (response.length === gitHubList.length) {
-                            return callback(null, response);
-                        }else{
-                            return;
+    var reqData = {};
+    async.waterfall([
+        function(next) {
+            apiUtil.changeRequestForJqueryPagination(query, next);
+        },
+        function(filterQuery,next) {
+            reqData = filterQuery;
+            apiUtil.paginationRequest(filterQuery, 'gitHub', next);
+        },
+        function(paginationReq, next) {
+            paginationReq['searchColumns'] = ['name', 'repositoryType', 'repositoryURL'];
+            apiUtil.databaseUtil(paginationReq, next);
+        },
+        function(queryObj, next) {
+            gitHubModel.getGitHubList(queryObj, next);
+        },
+        function(gitHubList, next) {
+            if (gitHubList.docs.length > 0) {
+                var formattedResponseList = [];
+                for (var i = 0; i < gitHubList.docs.length; i++) {
+                    formatGitHubResponse(gitHubList.docs[i],function(formattedData){
+                        formattedResponseList.push(formattedData);
+                        if (formattedResponseList.length === gitHubList.docs.length) {
+                            gitHubList.docs = formattedResponseList;
+                            next(null,gitHubList);
                         }
                     });
                 }
             } else {
-                return callback(null, response);
+                next(null,gitHubList);
             }
+        },
+        function(formattedGitHubResponseList, next) {
+            apiUtil.changeResponseForJqueryPagination(formattedGitHubResponseList, reqData, next);
         }
+    ],function(err, results) {
+        if (err){
+            logger.error(err);
+            callback(err,null);
+            return;
+        }
+        callback(null,results)
+        return;
     });
 };
 
@@ -217,24 +270,12 @@ gitGubService.getGitHubById = function getGitHubById(gitHubId, callback) {
     });
 };
 
-
-function parseFilterBy(filterByString) {
-    var filterQuery = {};
-    var filters = filterByString.split('+');
-    for (var i = 0; i < filters.length; i++) {
-        var filter = filters[i].split(':');
-        var filterQueryValues = filter[1].split(",");
-        filterQuery[filter[0]] = {'$in': filterQueryValues};
-    }
-    return filterQuery;
-};
-
 function formatGitHubResponse(gitHub,callback) {
     var formatted = {
         _id:gitHub._id,
-        name:gitHub.name,
-        description:gitHub.description,
-        repositoryURL:gitHub.repositoryURL,
+        repositoryName:gitHub.repositoryName,
+        repositoryDesc:gitHub.repositoryDesc,
+        repositoryOwner:gitHub.repositoryOwner,
         repositoryType:gitHub.repositoryType
     };
     if (gitHub.organization.length) {
@@ -243,12 +284,14 @@ function formatGitHubResponse(gitHub,callback) {
     }
     if (gitHub.repositoryType === 'Private' && gitHub.authenticationType === 'userName') {
         formatted.repositoryUserName = gitHub.repositoryUserName;
+        formatted.authenticationType = gitHub.authenticationType;
         var cryptoConfig = appConfig.cryptoSettings;
         var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
         formatted.repositoryPassword =  cryptography.decryptText(gitHub.repositoryPassword, cryptoConfig.decryptionEncoding,
             cryptoConfig.encryptionEncoding);
         callback(formatted);
     }else if (gitHub.repositoryType === 'Private' && gitHub.authenticationType === 'sshKey') {
+        formatted.authenticationType = gitHub.authenticationType;
         fileUpload.getReadStreamFileByFileId(gitHub.repositorySSHPublicKeyFileId,function(err,publicKeyFile){
             if(err){
                 var err = new Error('Internal server error');
@@ -270,7 +313,30 @@ function formatGitHubResponse(gitHub,callback) {
                 callback(formatted);
             });
         });
+    }else if (gitHub.repositoryType === 'Private' && gitHub.authenticationType === 'token') {
+        formatted.authenticationType = gitHub.authenticationType;
+        formatted.repositoryToken = gitHub.repositoryToken;
+        callback(formatted);
     }else {
+        formatted.authenticationType = gitHub.authenticationType;
         callback(formatted);
     }
+}
+
+function gitRepoCloning(url,path,options,callback){
+    fse.remove(path).then(function() {
+        nodeGit.Clone(url, path, options)
+            .done(function(repo) {
+                if (repo instanceof nodeGit.Repository) {
+                    logger.debug("GIT Repository Clone is Done.");
+                    callback(null, repo);
+                }
+                else {
+                    var err = new Error('Invalid Credentials');
+                    err.status = 400;
+                    err.msg = 'Invalid Credentials';
+                    callback(err, null);
+                }
+            });
+    });
 }

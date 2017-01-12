@@ -59,7 +59,7 @@ describe("Deploy Permission ",function(){
             });
     });*/
 
-    it(" Save Git Hub  ",function(done){
+    /*it(" Save Git Hub  ",function(done){
         var reqBody = {
             "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
             "name": "RL-Bot-Library",
@@ -100,12 +100,12 @@ describe("Deploy Permission ",function(){
                 done();
             });
     });
-
-    it(" Delete Git Hub  ",function(done){
+*/
+    it(" Sync Git Hub  ",function(done){
         server
-            .delete('/git-hub/5864e1a67beeb0fd27591e23')
+            .get('/git-hub/586f58a417c109866b1067ba/sync')
             .end(function(err,res){
-                console.log(res);
+                console.log(res.body);
                 assert.equal(res.status, 200);
                 done();
             });
