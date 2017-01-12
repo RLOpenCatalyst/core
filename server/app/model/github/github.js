@@ -18,36 +18,26 @@ var mongoose = require('mongoose');
 var ObjectId = require('mongoose').Types.ObjectId;
 var logger = require('_pr/logger')(module);
 var Schema = mongoose.Schema;
-var mongoosePaginate = require('mongoose-paginate');
 var GitHubSchema = new Schema({
     orgId: {
         type: String,
         required: true,
         trim: true
     },
-    repositoryName: {
+    name: {
         type: String,
         required: true,
         trim: true
     },
-    repositoryDesc: {
+    description: {
         type: String,
         required: false,
         trim: true
     },
-    repositoryOwner: {
+    repositoryName: {
         type: String,
         trim: true,
         required: true
-    },
-    repositoryType: {
-        type: String,
-        required: true
-    },
-    repositoryToken: {
-        type: String,
-        trim: true,
-        required: false
     },
     repositoryUserName: {
         type: String,
@@ -58,6 +48,11 @@ var GitHubSchema = new Schema({
         type: String,
         trim: true,
         required: false
+    },
+    isAuthenticated: {
+        type: Boolean,
+        required: false,
+        default: false
     },
     authenticationType: {
         type: String,
@@ -73,20 +68,8 @@ var GitHubSchema = new Schema({
         type: String,
         trim: true,
         required: false
-    },
-    isRepoCloned:{
-        type: Boolean,
-        required: false,
-        default:false
-    },
-    createdOn:{
-        type: Number,
-        required: false,
-        default:Date.now()
     }
 });
-
-GitHubSchema.plugin(mongoosePaginate);
 
 GitHubSchema.statics.createNew = function createNew(gitHubObj, callback) {
     var self = this;
@@ -102,37 +85,23 @@ GitHubSchema.statics.createNew = function createNew(gitHubObj, callback) {
 };
 
 GitHubSchema.statics.getGitHubList = function (params, callback) {
-    console.log(params);
-    GitHub.paginate(params.queryObj, params.options, function(err, gitRepoList) {
-        if (err) {
-            logger.error(err);
-            var error = new Error('Internal server error');
-            error.status = 500;
-            return callback(error);
+    this.aggregate([{
+        $lookup: {
+            from: "d4dmastersnew",
+            localField: "orgId",
+            foreignField: "rowid",
+            as: "organization"
         }
-        GitHub.aggregate([
-            {$match: params.queryObj},
-            {
-                $lookup: {
-                    from: "d4dmastersnew",
-                    localField: "orgId",
-                    foreignField: "rowid",
-                    as: "organization"
-                }
-            },
-            {$skip: (params.options.page - 1) * params.options.limit},
-            {$limit: params.options.limit},
-            {$sort: params.options.sort}
-        ], function (err, gitHubList) {
-            if (err) {
-                callback(err, null);
-                return;
-            } else {
-                gitRepoList.docs = gitHubList;
-                callback(null, gitRepoList);
-                return;
-            }
-        });
+    }], function (err, gitHubList) {
+        if (err) {
+            callback(err, null);
+            return;
+        } else if (gitHubList.length === 0) {
+            callback(null, gitHubList);
+            return;
+        } else {
+            return callback(null, gitHubList);
+        }
     });
 };
 

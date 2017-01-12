@@ -189,25 +189,11 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
                 actionStatus:'success',
                 isDeleted:false
             };
-            var botsIds = [];
-            auditTrail.getAuditTrails(query, function(err,botsAudits){
+            auditTrail.getAuditTrails(query,function(err,data){
                 if(err){
                     callback(err,null);
-                }else if (botsAudits.length > 0) {
-                    var results = [];
-                    for (var i = 0; i < botsAudits.length; i++) {
-                        if (botsIds.indexOf(botsAudits[i].auditId) === -1) {
-                            botsIds.push(botsAudits[i].auditId);
-                            results.push(botsAudits[i].auditId);
-                        } else {
-                            results.push(botsAudits[i].auditId);
-                        }
-                    }
-                    if (results.length === botsAudits.length) {
-                        callback(null,botsIds.length);
-                    }
-                } else {
-                    callback(null,botsIds.length);
+                }else {
+                    callback(null, data.length);
                 }
             });
 
@@ -227,27 +213,14 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
                 actionStatus:'running',
                 isDeleted:false
             };
-            var botsIds = [];
-            auditTrail.getAuditTrails(query, function(err,botsAudits){
+            auditTrail.getAuditTrails(query,function(err,data){
                 if(err){
                     callback(err,null);
-                }else if (botsAudits.length > 0) {
-                    var results = [];
-                    for (var i = 0; i < botsAudits.length; i++) {
-                        if (botsIds.indexOf(botsAudits[i].auditId) === -1) {
-                            botsIds.push(botsAudits[i].auditId);
-                            results.push(botsAudits[i].auditId);
-                        } else {
-                            results.push(botsAudits[i].auditId);
-                        }
-                    }
-                    if (results.length === botsAudits.length) {
-                        callback(null,botsIds.length);
-                    }
-                } else {
-                    callback(null,botsIds.length);
+                }else {
+                    callback(null, data.length);
                 }
             });
+
         },
         totalSavedTimeForBots: function(callback){
             var query={
@@ -284,25 +257,11 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
                 actionStatus:'failed',
                 isDeleted:false
             };
-            var botsIds = [];
-            auditTrail.getAuditTrails(query, function(err,botsAudits){
+            auditTrail.getAuditTrails(query,function(err,data){
                 if(err){
                     callback(err,null);
-                }else if (botsAudits.length > 0) {
-                    var results = [];
-                    for (var i = 0; i < botsAudits.length; i++) {
-                        if (botsIds.indexOf(botsAudits[i].auditId) === -1) {
-                            botsIds.push(botsAudits[i].auditId);
-                            results.push(botsAudits[i].auditId);
-                        } else {
-                            results.push(botsAudits[i].auditId);
-                        }
-                    }
-                    if (results.length === botsAudits.length) {
-                        callback(null,botsIds.length);
-                    }
-                } else {
-                   callback(null,botsIds.length);
+                }else {
+                    callback(null, data.length);
                 }
             });
         }
