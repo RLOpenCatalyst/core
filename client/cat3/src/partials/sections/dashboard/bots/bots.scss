@@ -24,6 +24,10 @@
   margin-top: 8px;
 }
 
+.paddingleft0 {
+  padding-left: 0px;
+}
+
 .cookbook-edit-text {
   background: #fff;
 }
@@ -88,6 +92,23 @@
     width: 100%;
   }
 
+  .botFilter, .botSubFilter {
+    height: 26px;
+      padding: 2px 12px;
+  }
+
+  .botFilter {
+      width: 112px;
+  }
+  
+  .botSubFilter {
+      width: 200px;
+  }
+
+  .filter-by-text {
+    margin-top: 4px;
+  }
+
   .bot-library-search {
     height: 33px;
     margin-right: 12px;
@@ -123,11 +144,11 @@
   }
 
   .circle-tile-number {
-    padding: 5px 0 6px;
-    font-size: 26px;
+    padding: 0px 0 0px;
+    font-size: 30px;
     font-weight: 700;
-    line-height: 1;
-    height: 37px;
+    line-height: .6;
+    height: 28px;
   }
 
   .circle-tile-content {
@@ -136,11 +157,12 @@
 
   .circle-tile-description {
     text-transform: uppercase;
+    height: 29px;
   }
 
   .text-faded {
-    color: rgba(255,255,255,0.7);
-    font-weight: bold;
+    font-weight: normal;
+    color: #fff;
   }
 
   .dark-blue {
@@ -183,8 +205,8 @@
     font-size: 16px;
   }
 
-  a.cursor {
-    padding: 0 5px;
+  a {
+    padding: 0 8px;
   }
 
   .margin-21 {

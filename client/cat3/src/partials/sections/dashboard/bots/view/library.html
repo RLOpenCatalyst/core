@@ -22,11 +22,11 @@
 	                    </div>
 	                </div>
 	                <div class="circle-tile-content dark-blue" ng-click="showAllBots()">
+	                	<div class="circle-tile-number text-faded">
+	                        {{botSummary.totalNoOfBots}}
+	                    </div>
 	                    <div class="circle-tile-description text-faded">
 	                        Total BOTs
-	                    </div>
-	                    <div class="circle-tile-number text-faded">
-	                        {{botSummary.totalNoOfBots}}
 	                    </div>
 	                    <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph dark-blue-glyph" ng-class="{'selected-section':totalBotsSelected}"></span>
 	                </div>
@@ -40,11 +40,11 @@
 	                    </div>
 	                </div>
 	                <div class="circle-tile-content green" ng-click="showBotsRunning()">
-	                    <div class="circle-tile-description text-faded">
-	                        Running BOTs
-	                    </div>
 	                    <div class="circle-tile-number text-faded">
 	                        {{botSummary.totalNoOfRunningBots}}
+	                    </div>
+	                    <div class="circle-tile-description text-faded">
+	                        Running BOTs
 	                    </div>
 	                    <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph green-glyph" ng-class="{'selected-section':runningBotsselected}"></span>
 	                </div>
@@ -59,11 +59,11 @@
 	                    </div>
 	                </div>
 	                <div class="circle-tile-content orange">
+	                	<div class="circle-tile-number text-faded">
+	                        {{totalSavedTimeForBots}} mins
+	                    </div>
 	                    <div class="circle-tile-description text-faded">
 	                        Time saved
-	                    </div>
-	                    <div class="circle-tile-number text-faded">
-	                        {{totalSavedTimeForBots}} mins
 	                    </div>
 	                </div>
 	            </div>
@@ -76,11 +76,11 @@
 	                    </div>
 	                </div>
 	                <div class="circle-tile-content bg-blue" ng-click="showScheduledBots()">
+	                	<div class="circle-tile-number text-faded">
+	                        {{botSummary.totalNoOfScheduledBots}}
+	                    </div>
 	                    <div class="circle-tile-description text-faded">
 	                        Scheduled BOTs
-	                    </div>
-	                    <div class="circle-tile-number text-faded">
-	                        {{botSummary.totalNoOfScheduledBots}}
 	                    </div>
 	                    <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph bg-blue-glyph" ng-class="{'selected-section':scheduledBotsSelected}"></span>
 	                </div>
@@ -94,11 +94,11 @@
 	                    </div>
 	                </div>
 	                <div class="circle-tile-content redcard" ng-click="showFailedBots()">
+	                	<div class="circle-tile-number text-faded">
+	                        {{botSummary.totalNoOfFailedBots}}
+	                    </div>
 	                    <div class="circle-tile-description text-faded">
 	                        Failed BOTs
-	                    </div>
-	                    <div class="circle-tile-number text-faded">
-	                        {{botSummary.totalNoOfFailedBots}}
 	                    </div>
 	                    <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph redcard-glyph" ng-class="{'selected-section':failedBotsselected}"></span>
 	                </div>
@@ -110,9 +110,46 @@
 	<div class="bot-library-search">
 		<div class="pull-right">
 			<label><span class="search-text">Search:</span>&nbsp;
-				<input type="search" ng-model="botLibrarySearch" class="bot-search" placeholder="">
-				<i class="fa fa-search search-icon" ng-click="searchBotNameCategory()"></i>
+				<input type="search" ng-model="botLibrarySearch" class="bot-search" placeholder="" id="searchBots">
+				<i class="fa fa-search search-icon" ng-show="!searchText" ng-click="searchBotNameCategory()"></i>
+				<i class="fa fa-close search-icon" ng-show="searchText" ng-click="clearBotSearchText()"></i>
 			</label>
+		</div>
+		<div class="pull-right">
+			<div class="col-lg-12 col-md-12">
+				<div class="col-lg-8 col-md-8 paddingleft0">
+					<select class="form-control botSubFilter" ng-model="botLibFilter" ng-show="subFilterBy">
+    					<option selected="selected" value="">All</option>
+					</select>
+					<select class="form-control" ng-model="botLibFilterBot" ng-change="filterByBot();" ng-show="filterByBotType">
+    					<option ng-model="Task">Task</option>
+    					<option ng-model="Blueprint">Blueprint</option>
+					</select>
+					<select class="form-control" ng-model="botLibFilterTask" ng-change="filterByTask()" ng-show="filterByTaskType">
+    					<option ng-model="chef">chef</option>
+    					<option ng-model="jenkins">jenkins</option>
+    					<option ng-model="script">script</option>
+					</select>
+					<select class="form-control" ng-model="botLibFilterCategory" ng-change="filterByCateg()" ng-show="filterByCategory">
+						<option ng-repeat="(key , value) in botCategoryList" value="{{value}}">{{value}}</option>
+					</select>
+				</div>
+			</div>
+		</div>
+		<div class="pull-right">
+			<div class="col-lg-12 col-md-12">
+				<div class="col-lg-4 col-md-4 no-padding">
+					<label class="filter-by-text"><span class="search-text">Filter By:</span>&nbsp;
+				</div>
+				<div class="col-lg-8 col-md-8 paddingleft0">
+					<select class="form-control botFilter" ng-model="botLibFilter" ng-change="filterBy(column);">
+						<option selected="selected" value="">All</option>
+						<option value="botType" ng-model="botType">Bot Type</option>
+						<option value="taskType" ng-model="taskType">Task Type</option>
+						<option value="category" ng-model="category">Category</option>
+					</select>
+				</div>
+			</div>
 		</div>
 	</div>
 
