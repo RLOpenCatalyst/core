@@ -128,7 +128,7 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId, callback) {
                     }
                     var localClonePath = "/tmp/"+ formattedGitHub.repositoryName;
                     var repoUrl = "https://github.com/" + formattedGitHub.repositoryOwner + "/" + formattedGitHub.repositoryName + ".git";
-                    gitRepoCloning(repoUrl,localClonePath,cloneOpts,function(err,cloneStatus){
+                    gitRepoCloning(repoUrl,localClonePath,cloneOpts,gitHubId,function(err,cloneStatus){
                         if(err){
                             callback(err,null);
                             return;
@@ -153,7 +153,7 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId, callback) {
                     }
                     var localClonePath = "/tmp/"+ formattedGitHub.repositoryName;
                     var repoUrl = "https://github.com/" + formattedGitHub.repositoryOwner + "/" + formattedGitHub.repositoryName + ".git";
-                    gitRepoCloning(repoUrl,localClonePath,cloneOpts,function(err,cloneStatus){
+                    gitRepoCloning(repoUrl,localClonePath,cloneOpts,gitHubId,function(err,cloneStatus){
                         if(err){
                             callback(err,null);
                             return;
@@ -178,7 +178,7 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId, callback) {
                     }
                     var localClonePath = "/tmp/"+ formattedGitHub.repositoryName;
                     var repoUrl = "https://github.com/" + formattedGitHub.repositoryOwner + "/" + formattedGitHub.repositoryName + ".git";
-                    gitRepoCloning(repoUrl,localClonePath,cloneOpts,function(err,cloneStatus){
+                    gitRepoCloning(repoUrl,localClonePath,cloneOpts,gitHubId,function(err,cloneStatus){
                         if(err){
                             callback(err,null);
                             return;
@@ -190,7 +190,7 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId, callback) {
                 }else{
                     var localClonePath = "/tmp/"+ formattedGitHub.repositoryName;
                     var repoUrl = "https://github.com/" + formattedGitHub.repositoryOwner + "/" + formattedGitHub.repositoryName + ".git";
-                    gitRepoCloning(repoUrl,localClonePath,{},function(err,cloneStatus){
+                    gitRepoCloning(repoUrl,localClonePath,{},gitHubId,function(err,cloneStatus){
                         if(err){
                             callback(err,null);
                             return;
@@ -323,13 +323,18 @@ function formatGitHubResponse(gitHub,callback) {
     }
 }
 
-function gitRepoCloning(url,path,options,callback){
+function gitRepoCloning(url,path,options,gitHubId,callback){
     fse.remove(path).then(function() {
         nodeGit.Clone(url, path, options)
             .done(function(repo) {
                 if (repo instanceof nodeGit.Repository) {
-                    logger.debug("GIT Repository Clone is Done.");
-                    callback(null, repo);
+                    gitHubModel.updateGitHub(gitHubId, {isRepoCloned:true}, function (err, gitHub) {
+                        if (err) {
+                            logger.error(err);
+                        }
+                        logger.debug("GIT Repository Clone is Done.");
+                        callback(null, repo);
+                    });
                 }
                 else {
                     var err = new Error('Invalid Credentials');
