@@ -121,16 +121,16 @@
 					<select class="form-control botSubFilter" ng-model="botLibFilter" ng-show="subFilterBy">
     					<option selected="selected" value="">All</option>
 					</select>
-					<select class="form-control" ng-model="botLibFilterBot" ng-change="filterByBot();" ng-show="filterByBotType">
+					<select class="form-control botSubFilter" ng-model="botLibFilterBot" ng-change="filterByAll();" ng-show="filterByBotType">
     					<option ng-model="Task">Task</option>
     					<option ng-model="Blueprint">Blueprint</option>
 					</select>
-					<select class="form-control" ng-model="botLibFilterTask" ng-change="filterByTask()" ng-show="filterByTaskType">
+					<select class="form-control botSubFilter" ng-model="botLibFilterTask" ng-change="filterByAll()" ng-show="filterByTaskType">
     					<option ng-model="chef">chef</option>
     					<option ng-model="jenkins">jenkins</option>
     					<option ng-model="script">script</option>
 					</select>
-					<select class="form-control" ng-model="botLibFilterCategory" ng-change="filterByCateg()" ng-show="filterByCategory">
+					<select class="form-control botSubFilter" ng-model="botLibFilterCategory" ng-change="filterByAll()" ng-show="filterByCategory">
 						<option ng-repeat="(key , value) in botCategoryList" value="{{value}}">{{value}}</option>
 					</select>
 				</div>

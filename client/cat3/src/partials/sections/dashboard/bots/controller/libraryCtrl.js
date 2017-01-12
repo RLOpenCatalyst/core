@@ -168,19 +168,19 @@
                 $scope.filterByTaskType = false;
                 $scope.filterByCategory = false;
                 $scope.subFilterBy = false;
-                $scope.filterByBot();
+                $scope.filterByAll();
             } else if($scope.botLibFilter === 'taskType') {
                 $scope.filterByTaskType = true;
                 $scope.filterByBotType = false;
                 $scope.filterByCategory = false;
                 $scope.subFilterBy = false;
-                $scope.filterByTask();
+                $scope.filterByAll();
             } else if($scope.botLibFilter === 'category') {
                 $scope.filterByCategory = true;
                 $scope.filterByBotType = false;
                 $scope.filterByTaskType = false;
                 $scope.subFilterBy = false;
-                $scope.filterByCateg();
+                $scope.filterByAll();
             } else {
                 $scope.subFilterBy = true;
                 $scope.filterByBotType = false;
@@ -189,49 +189,22 @@
                 //$scope.showAllBots();
             }
         };
-        $scope.filterByBot = function() {
-            console.log($scope.botLibFilterBot);
+        $scope.filterByAll = function() {
             lib.gridOptions=[];
-            var param={
-                url:'/bots?filterBy=botLinkedCategory:'+$scope.botLibFilterBot+'&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
-            }
-            genSevs.promiseGet(param).then(function (result) {
-                $timeout(function() {
-                    $scope.botLibGridOptions.totalItems = result.metaData.totalRecords;
-                    $scope.botLibGridOptions.data=result.bots;
-                }, 100);
-                $scope.isBotLibraryPageLoading = false;
-            }, function(error) {
-                $scope.isBotLibraryPageLoading = false;
-                toastr.error(error);
-                $scope.errorMessage = "No Records found";
-            });
-        };
-
-        $scope.filterByTask = function() {
-            console.log($scope.botLibFilterTask);
-            lib.gridOptions=[];
-            var param={
-                url:'/bots?filterBy=botLinkedSubCategory:'+$scope.botLibFilterTask+'&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
-            }
-            genSevs.promiseGet(param).then(function (result) {
-                $timeout(function() {
-                    $scope.botLibGridOptions.totalItems = result.metaData.totalRecords;
-                    $scope.botLibGridOptions.data=result.bots;
-                }, 100);
-                $scope.isBotLibraryPageLoading = false;
-            }, function(error) {
-                $scope.isBotLibraryPageLoading = false;
-                toastr.error(error);
-                $scope.errorMessage = "No Records found";
-            });
-        };
-
-        $scope.filterByCateg = function() {
-            console.log($scope.botLibFilterCategory);
-            lib.gridOptions=[];
-            var param={
-                url:'/bots?filterBy=botCategory:'+$scope.botLibFilterCategory+'&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+            if ($scope.botLibFilter === 'botType') {
+                var param={
+                    url:'/bots?filterBy=botLinkedCategory:'+$scope.botLibFilterBot+'&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                }
+            } else if($scope.botLibFilter === 'taskType') {
+                var param={
+                    url:'/bots?filterBy=botLinkedSubCategory:'+$scope.botLibFilterTask+'&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                }
+            } else if($scope.botLibFilter === 'category') {
+                var param={
+                    url:'/bots?filterBy=botCategory:'+$scope.botLibFilterCategory+'&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                } 
+            } else {
+                $scope.RefreshBotsLibrary();
             }
             genSevs.promiseGet(param).then(function (result) {
                 $timeout(function() {
