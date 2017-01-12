@@ -157,6 +157,11 @@ var d4dMastersProductGroup = new mongoose.Schema({
         trim: true,
         validate: descValidator
     },
+    plannedCost: {
+        type: Number,
+        required: false,
+        default: 0.0
+    },
     active: {
         type: Boolean,
         trim: true,

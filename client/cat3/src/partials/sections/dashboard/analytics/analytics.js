@@ -39,6 +39,24 @@
 						return deferred.promise;
 					}]
 				}
+			}).state('dashboard.analytics.capacityReport', {
+				url: "analytics/capacityReport/",
+				templateUrl: "src/partials/sections/dashboard/analytics/view/capacityReport.html",
+				controller: "capacityReportCtrl as capRept",
+				params:{filterView:{usage:true,org:true,provi:true,instanceType:true,period:true},dashboardHide:true,otherTab:'Capacity',otherTabView:true,reportHide:true},
+				resolve: {
+					auth: ["$q", function ($q) {
+						var deferred = $q.defer();
+						// instead, go to a different page
+						if (modulePerms.analyticsBool()) {
+							// everything is fine, proceed
+							deferred.resolve();
+						} else {
+							deferred.reject({redirectTo: 'dashboard'});
+						}
+						return deferred.promise;
+					}]
+				}
 			}).state('dashboard.analytics.usage', {
 				url: "analytics/usage/",
 				templateUrl: "src/partials/sections/dashboard/analytics/view/usage.html",

@@ -471,7 +471,7 @@ function getDefaultsConfig() {
                 key: 'platformDetails.region'
             },
             resource: {
-                key: 'resourceId'
+                key: 'platformDetails.instanceId'
             }
         },
         costAggregationPeriods: {
