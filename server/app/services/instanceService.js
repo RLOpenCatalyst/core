@@ -46,7 +46,6 @@ var AppData = require('_pr/model/app-deploy/app-data');
 var instancesDao = require('_pr/model/classes/instance/instance');
 var providerService = require('_pr/services/providerService.js');
 var schedulerService = require('_pr/services/schedulerService.js');
-var catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
 
 
 var instanceService = module.exports = {};
@@ -1485,6 +1484,7 @@ function updateScheduler(instanceScheduler, callback) {
             return callback(err, null);
         } else {
             callback(null, {"message": "Scheduler Updated."});
+            var catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
             catalystSync.executeScheduledInstances();
             return;
         }
