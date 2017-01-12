@@ -231,7 +231,7 @@ var ApiUtil = function() {
         };
         var filterBy={};
         if(data.filterBy) {
-            var a = data.filterBy.split(",");
+            var a = data.filterBy.split(" ");
             for (var i = 0; i < a.length; i++) {
                 var b = a[i].split(":");
                 var c = b[1].split(",");

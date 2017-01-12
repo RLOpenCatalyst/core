@@ -179,7 +179,7 @@
                 } else if(fltrObj && fltrObj.provider && fltrObj.provider.id){
                     var param = {
                         inlineLoader:true,
-                       url: '/resources?filterBy=providerId:'+fltrObj.provider.id+'+resourceType:'+capRept.serviceType+'+category:'+$rootScope.organNewEnt.instanceType.toLowerCase()
+                       url: '/resources?filterBy=providerId:'+fltrObj.provider.id+',resourceType:'+capRept.serviceType+',category:'+$rootScope.organNewEnt.instanceType.toLowerCase()
                         //url:'?filterBy=providerId:57e3774d4e738a500b342889+resourceType:RDS+category:unassigned'
                     };
                     genSevs.promiseGet(param).then(function (instResult) {
