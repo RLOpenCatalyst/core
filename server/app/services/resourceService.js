@@ -82,12 +82,12 @@ function getAllResourcesForProvider(provider, next) {
                     } else if('resourceType' in current) {
                         switch(current.resourceType) {
                             case 'RDS':
-                                var temp = new RDSResource(current)
-                                temp[temp.resourceDetails.dbInstanceIdentifier] = current;
+                                var tempInstance = new RDSResource(current)
+                                temp[tempInstance.resourceDetails.dbInstanceIdentifier] = current;
                                 break;
                             case 'S3':
-                                var temp = new S3Resource(current)
-                                temp[temp.resourceDetails.bucketName] = current;
+                                var tempInstance = new S3Resource(current)
+                                temp[tempInstance.resourceDetails.bucketName] = current;
                                 break;
                             default:
                                 break;
