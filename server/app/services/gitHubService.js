@@ -137,7 +137,7 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId, callback) {
                             return;
                         }
                     });
-                }else if(formattedGitHub.repositoryType === 'Private' && formattedGitHub.authenticationType === 'userName') {
+                } else if(formattedGitHub.repositoryType === 'Private' && formattedGitHub.authenticationType === 'userName') {
                     var cloneOpts = {
                         fetchOpts: {
                             callbacks: {
@@ -324,23 +324,19 @@ function formatGitHubResponse(gitHub,callback) {
 }
 
 function gitRepoCloning(url,path,options,callback){
-    console.log("Hello");
     fse.remove(path).then(function() {
-        nodeGit.Clone(url, path, options,function(err,data){
-            if(err){
-                console.log("Error");
-            }else{
-                console.log("no Error");
-            }
-        })/*.then(function(repo) {
-            logger.debug("GIT Repository Clone is Done.");
-            callback(null, repo);
-        }).catch(function(err) {
-            logger.error(err);
-            var err = new Error('Invalid Credentials');
-            err.status = 400;
-            err.msg = 'Invalid Credentials';
-            callback(err, null);
-        });*/
+        nodeGit.Clone(url, path, options)
+            .done(function(repo) {
+                if (repo instanceof nodeGit.Repository) {
+                    logger.debug("GIT Repository Clone is Done.");
+                    callback(null, repo);
+                }
+                else {
+                    var err = new Error('Invalid Credentials');
+                    err.status = 400;
+                    err.msg = 'Invalid Credentials';
+                    callback(err, null);
+                }
+            });
     });
 }
