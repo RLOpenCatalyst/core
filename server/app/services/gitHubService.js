@@ -325,23 +325,19 @@ function formatGitHubResponse(gitHub,callback) {
 
 function gitRepoCloning(url,path,options,gitHubId,callback){
     fse.remove(path).then(function() {
-        nodeGit.Clone(url, path, options)
-            .done(function(repo) {
-                if (repo instanceof nodeGit.Repository) {
-                    gitHubModel.updateGitHub(gitHubId, {isRepoCloned:true}, function (err, gitHub) {
-                        if (err) {
-                            logger.error(err);
-                        }
-                        logger.debug("GIT Repository Clone is Done.");
-                        callback(null, repo);
-                    });
+        nodeGit.Clone(url, path, options).then(function(repo){
+            gitHubModel.updateGitHub(gitHubId, {isRepoCloned:true}, function (err, gitHub) {
+                if (err) {
+                    logger.error(err);
                 }
-                else {
-                    var err = new Error('Invalid Credentials');
-                    err.status = 400;
-                    err.msg = 'Invalid Credentials';
-                    callback(err, null);
-                }
+                logger.debug("GIT Repository Clone is Done.");
+                callback(null, repo);
             });
+        }).catch(function(err){
+            var err = new Error('Invalid Git-Hub Details');
+            err.status = 400;
+            err.msg = 'Invalid Git-Hub Details';
+            callback(err, null);
+        })
     });
 }
