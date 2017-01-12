@@ -25,17 +25,17 @@ var GitHubSchema = new Schema({
         required: true,
         trim: true
     },
-    name: {
+    repositoryName: {
         type: String,
         required: true,
         trim: true
     },
-    description: {
+    repositoryDesc: {
         type: String,
         required: false,
         trim: true
     },
-    repositoryURL: {
+    repositoryOwner: {
         type: String,
         trim: true,
         required: true
@@ -43,6 +43,11 @@ var GitHubSchema = new Schema({
     repositoryType: {
         type: String,
         required: true
+    },
+    repositoryToken: {
+        type: String,
+        trim: true,
+        required: false
     },
     repositoryUserName: {
         type: String,
