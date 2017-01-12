@@ -29,12 +29,12 @@ input[type="file"] {
                         <table id="gitTable" class="tableData table table-striped table-bordered table-hover dataTable no-footer textCenter" cellpadding="5px">
                             <thead>
                             <tr class="rowCustomStyle">
-                                <td>Name</td>
+                                <td>Repository Name</td>
                                 <td>Description</td>
                                 <td>Organization</td>
-                                <td>Repo URL</td>
-                                <td>Repo Type</td>
-                                <td>Action</td>
+                                <td>Repository Owner</td>
+                                <td>Repository Type</td>
+                                <td style="width:180px;">Action</td>
                             </tr>
                             </thead>
                             <tbody id="githubInput">
@@ -65,13 +65,13 @@ input[type="file"] {
                 <div class="modal-body">
                     <fieldset class="fieldsetCustom">
                         <div class="col-lg-6 col-md-6 col-xs-6">
-                            <label for="gitName">Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                            <label for="gitName">Repository Name:<span class="control-label redSpan">&nbsp;*</span></label>
                             <div class="input-groups">
                                 <input type="text" name="gitName" class="required gitName form-control" id="gitName">
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-6 col-xs-6">
-                            <label for="gitDescription">Description:<span class="control-label redSpan">&nbsp;*</span></label>
+                            <label for="gitDescription">Description:</label>
                             <div class="input-groups">
                                 <input type="text" name="gitDescription" class="gitDescription form-control" id="gitDescription">
                             </div>
@@ -83,9 +83,9 @@ input[type="file"] {
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-6 margintop15">
-                            <label for="gitRepoURL">Repository URL:<span class="control-label redSpan">&nbsp;*</span></label>
+                            <label for="gitRepoOwner">Repository Owner:<span class="control-label redSpan">&nbsp;*</span></label>
                             <div class="input-groups">
-                                <input type="url" name="gitRepoURL" class="required gitRepoURL form-control" id="gitRepoURL">
+                                <input type="text" name="gitRepoOwner" class="required gitRepoOwner form-control" id="gitRepoOwner">
                             </div>
                         </div>
                         <hr/>
@@ -106,6 +106,7 @@ input[type="file"] {
                                   <option value="">Choose Authentication Type</option>
                                   <option value="userName">Username/Password</option>
                                   <option value="sshKey">SSH Key</option>
+                                  <option value="token">Token</option>
                               </select>
                         </div>
                         
@@ -137,6 +138,12 @@ input[type="file"] {
                                 <label title="Please choose a Private SSH Key file" class="choose-file cursor" for="privateFile">Choose File</label>
                             </span>
                             <div id="privateFileNameDisplay" class="file-name"></div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-xs-6 margintop15 hidden showForToken">
+                            <label for="token">Repository Token:</label>
+                            <div class="input-groups">
+                                <input type="text" name="token" class="token form-control" id="token">
+                            </div>
                         </div>
                         <input type="hidden" id="gitEditHiddenInputId">
                         <input type="hidden" id="gitEditHiddenInput">
