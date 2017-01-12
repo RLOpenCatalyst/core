@@ -733,7 +733,7 @@
             "processing": true,
             "serverSide": true,
             "destroy":true,
-            "ajax": '/resources?filterBy=providerId:'+ urlproviderId +'+resourceType:S3+category:assigned',
+            "ajax": '/resources?filterBy=providerId:'+ urlproviderId +',resourceType:S3,category:assigned',
             "columns": [
                 {"data": "resourceDetails.bucketName", "orderable" : true},
                 {"data": "resourceDetails.bucketOwnerName" ,"orderable" : false },
@@ -884,7 +884,7 @@
             "processing": true,
             "serverSide": true,
             "destroy":true,
-            "ajax": '/resources?filterBy=providerId:'+ urlproviderId +'+resourceType:RDS+category:assigned',
+            "ajax": '/resources?filterBy=providerId:'+ urlproviderId +',resourceType:RDS,category:assigned',
             "columns": [
                 {"data": "resourceDetails.dbInstanceIdentifier",  "orderable" : true},
                 {"data": "resourceDetails.dbEngine","orderable" : true  },
