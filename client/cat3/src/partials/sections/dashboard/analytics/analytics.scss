@@ -369,3 +369,14 @@ label {
 .with250{
   width: 250px !important;
 }
+.weekPick {
+  position: absolute;
+  left: 24%;
+  background: #FFFFFF;
+  width: 217px;
+  z-index: 999;
+  padding: 7px 17px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin: 2px;
+}

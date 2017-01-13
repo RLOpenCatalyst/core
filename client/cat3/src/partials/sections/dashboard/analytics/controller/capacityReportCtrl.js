@@ -136,7 +136,7 @@
                     capRept.listGrid[value].columnDefs=[
                         {name: 'bucketName', field: 'bucketName', cellTooltip: true},
                         {name: 'bucketOwnerName', field: 'bucketOwnerName', cellTooltip: true},
-                        {name: 'bucketSize', field: 'bucketSize', cellTooltip: true},
+                        {name: 'bucketSize', field: 'bucketSize', displayName:'Bucket Size (MB)', cellTooltip: true},
                         {name: 'orgName', field: 'orgName', cellTooltip: true},
                         {name: 'cost', displayName: 'Cost',cellTemplate: '<span ng-bind-html="grid.appScope.aggregateInstanceCost(row.entity.cost)"></span>'},
                         {name: 'Action', cellTooltip: true,cellTemplate:"<span class='cursor' title='Usage' style='font-size: 14px;' ng-click='grid.appScope.openChart(row.entity)'><i class=\"fa fa-line-chart\"></i></span> "}
@@ -161,6 +161,7 @@
                         // url:'src/partials/sections/dashboard/analytics/data/ins.json'
                     };
                     genSevs.promiseGet(param).then(function (instResult) {
+                        capRept.listGrid[value].data=[];
                         if($rootScope.organNewEnt.instanceType === 'Managed') {
                             capRept.listGrid[value].data= instResult.managedInstances;
                         } else if($rootScope.organNewEnt.instanceType === 'Assigned'){
@@ -271,7 +272,7 @@
                         top: 20,
                         right: 20,
                         bottom:70,
-                        left: 40
+                        left: 60
                     },
                     x: function (d) {
                         return d[0];
@@ -291,6 +292,7 @@
                         }
                     },
                     yAxis: {
+                        axisLabel: 'Date',
                         tickFormat: function (d) {
                             return d3.format(',.2f')(d);
                         }
@@ -337,6 +339,7 @@
             var va = [];
             capChat.trendLineChart.data = [];
             if (capChat.result) {
+                capChat.trendLineChart.options.chart.yAxis.axisLabel=capChat.result[capChat.splitUp].unit;
                 angular.forEach(capChat.result[capChat.splitUp].dataPoints, function (value) {
                     va.push([Date.parse(value.fromTime), value.average]);
                 });
