@@ -174,7 +174,8 @@ botsService.getBotsList = function getBotsList(botsQuery,actionStatus,callback) 
             if(actionStatus !== null){
                 var query = {
                     auditType: 'BOTs',
-                    actionStatus: actionStatus
+                    actionStatus: actionStatus,
+                    isDeleted:false
                 };
                 var botsIds = [];
                 auditTrail.getAuditTrails(query, function(err,botsAudits){
