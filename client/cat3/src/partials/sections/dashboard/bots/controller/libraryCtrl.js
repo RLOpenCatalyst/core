@@ -12,6 +12,7 @@
         var treeNames = ['BOTs','Library'];
         $rootScope.$emit('treeNameUpdate', treeNames);
         var lib=this;
+        $rootScope.isOpenSidebar = false;
         $scope.totalBotsSelected = true;
         $scope.botCategoryList = [];
         workzoneServices.getBotCategoryList().then(function (catList) {
@@ -36,10 +37,11 @@
                     '<img src="images/orchestration/jenkins.png" ng-show="row.entity.botLinkedSubCategory==\'jenkins\'" alt="row.entity.botLinkedSubCategory" title="Jenkins" class="task-type-img" />'+
                     '<img src="images/orchestration/script.jpg" ng-show="row.entity.botLinkedSubCategory==\'script\'" alt="row.entity.taskType" title="Script" class="task-type-img" />'+
                     '<img src="images/devops-roles/devopsRole1.png" ng-show="row.entity.botLinkedCategory==\'Blueprint\'" alt="row.entity.botType" title="Blueprint" class="task-type-img" />',cellTooltip: true},
-                { name: 'BOT Type',displayName: 'BOT Type',field:'botLinkedCategory',cellTooltip: true},
+                { name: 'BOT Type',displayName: 'BOT Type',field:'botType',cellTooltip: true},
                 { name: 'BOT Name',displayName: 'BOT Name',field:'botName',cellTooltip: true},
                 { name: 'Category',field:'botCategory',cellTooltip: true},
                 { name: 'description',field:'botDesc',cellTooltip: true},
+                { name: 'BOT Created From',displayName: 'BOT Created From',field:'botLinkedCategory',cellTooltip: true},
                 { name: 'Organization',field:'masterDetails.orgName',cellTooltip: true},
                 { name: 'Total Runs',field:'executionCount'},
                    { name: 'BOT Action',width:200,displayName: 'BOT Action',cellTemplate:
@@ -161,26 +163,23 @@
                 $scope.searchBotNameCategory();          
             }
         });
-        //$scope.subFilterBy = true;
-        $scope.filterBy = function() {
+
+         $scope.filterBy = function() {
             if($scope.botLibFilter === 'botType') {
                 $scope.filterByBotType = true;
                 $scope.filterByTaskType = false;
                 $scope.filterByCategory = false;
                 $scope.subFilterBy = false;
-                $scope.filterByAll();
             } else if($scope.botLibFilter === 'taskType') {
                 $scope.filterByTaskType = true;
                 $scope.filterByBotType = false;
                 $scope.filterByCategory = false;
                 $scope.subFilterBy = false;
-                $scope.filterByAll();
             } else if($scope.botLibFilter === 'category') {
                 $scope.filterByCategory = true;
                 $scope.filterByBotType = false;
                 $scope.filterByTaskType = false;
                 $scope.subFilterBy = false;
-                $scope.filterByAll();
             } else {
                 $scope.subFilterBy = true;
                 $scope.filterByBotType = false;
@@ -189,11 +188,12 @@
                 //$scope.showAllBots();
             }
         };
-        $scope.filterByAll = function() {
+
+        $rootScope.applyFilter = function() {
             lib.gridOptions=[];
             if ($scope.botLibFilter === 'botType') {
                 var param={
-                    url:'/bots?filterBy=botLinkedCategory:'+$scope.botLibFilterBot+'&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                    url:'/bots?filterBy=botType:'+$scope.botLibFilterBot+'&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
                 }
             } else if($scope.botLibFilter === 'taskType') {
                 var param={
