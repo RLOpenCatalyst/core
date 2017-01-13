@@ -10,14 +10,28 @@
                     $rootScope.filterNewEnt.period='month';
                     $rootScope.splitUpCosts=[];
                     $rootScope.filterNewEnt.platformId=[];
+                    var months=['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                    $rootScope.filterNewEnt.endDate={
+                        year:'2017',
+                        week:'1st',
+                        month:months[new Date().getMonth()],
+                        day:moment(new Date()).format('YYYY-MM-DD')
+                    };
+                    $rootScope.filterNewEnt.date= $rootScope.filterNewEnt.endDate.month+' '+ $rootScope.filterNewEnt.endDate.year;
                 },
                 applyFilter : function(filterApp,period){
+                    $rootScope.filterNewEnt.date= $rootScope.filterNewEnt.endDate.month+' '+ $rootScope.filterNewEnt.endDate.year;
                     if($rootScope.organObject) {
                         var obj = $rootScope.organObject,
                             or = $rootScope.organNewEnt.org,
                             bu = $rootScope.organNewEnt.buss,
                             pr = $rootScope.organNewEnt.proj;
                         if (period) {
+                            if (period === 'day'){
+                                $rootScope.filterNewEnt.date= $rootScope.filterNewEnt.endDate.day;
+                            } else {
+                                $rootScope.filterNewEnt.date= $rootScope.filterNewEnt.endDate.month+' '+ $rootScope.filterNewEnt.endDate.year;
+                            }
                             $rootScope.filterNewEnt.period = period;
                         }
 
