@@ -10,30 +10,28 @@
                     $rootScope.filterNewEnt.period='month';
                     $rootScope.splitUpCosts=[];
                     $rootScope.filterNewEnt.platformId=[];
-                    $rootScope.filterNewEnt.endDate=moment(new Date()).format('DD/MM/YYYY');
-                    $rootScope.filterNewEnt.fromDate='';
+                    var months=['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                    $rootScope.filterNewEnt.endDate={
+                        year:'2017',
+                        week:'1st',
+                        month:months[new Date().getMonth()],
+                        day:moment(new Date()).format('YYYY-MM-DD')
+                    };
+                    $rootScope.filterNewEnt.date= $rootScope.filterNewEnt.endDate.month+' '+ $rootScope.filterNewEnt.endDate.year;
                 },
                 applyFilter : function(filterApp,period){
-
+                    $rootScope.filterNewEnt.date= $rootScope.filterNewEnt.endDate.month+' '+ $rootScope.filterNewEnt.endDate.year;
                     if($rootScope.organObject) {
                         var obj = $rootScope.organObject,
                             or = $rootScope.organNewEnt.org,
                             bu = $rootScope.organNewEnt.buss,
                             pr = $rootScope.organNewEnt.proj;
                         if (period) {
-                            // if(period === 'month'){
-                            //     var newdate =  $rootScope.filterNewEnt.endDate;
-                            //     newdate.setDate(newdate.getDate() - 30);
-                            //     $rootScope.filterNewEnt.fromDate = new Date(newdate);
-                            // } else if(period === 'week') {
-                            //     var newdate =  $rootScope.filterNewEnt.endDate;
-                            //     newdate.setDate(newdate.getDate() - 7);
-                            //     $rootScope.filterNewEnt.fromDate = new Date(newdate);
-                            // } else if(period === 'day') {
-                            //     var newdate = $rootScope.filterNewEnt.endDate;
-                            //     newdate.setDate(newdate.getDate() - 1);
-                            //     $rootScope.filterNewEnt.fromDate = new Date(newdate);
-                            // }
+                            if (period === 'day'){
+                                $rootScope.filterNewEnt.date= $rootScope.filterNewEnt.endDate.day;
+                            } else {
+                                $rootScope.filterNewEnt.date= $rootScope.filterNewEnt.endDate.month+' '+ $rootScope.filterNewEnt.endDate.year;
+                            }
                             $rootScope.filterNewEnt.period = period;
                         }
 
