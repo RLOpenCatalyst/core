@@ -30,8 +30,7 @@
                         </h3>
                         <div class="box-tools" style="left: 10px;">
                             <ul class="nav nav-tabs inst">
-                                <li class="active"><a ng-click="capRept.serviceType = 'Instance' "  data-toggle="tab"><i class="fa fa-list-ol"></i> Instance</a></li>
-                                <li ng-repeat="(value , key) in capRept.serviceCapacity.services"><a ng-click="capRept.serviceType = value"  data-toggle="tab"><i class="fa fa-list-ol"></i> {{value}} </a></li>
+                                <li  ng-repeat="(value , key) in capRept.serviceCapacity.services" ng-class="{'active':capRept.serviceType === value}"><a ng-click="capRept.serviceType = value"  data-toggle="tab"><i class="fa fa-list-ol"></i> {{value}} </a></li>
                             </ul>
                             <!--Service: <select class="form-control select2 select2-hidden-accessible" ng-model="capRept.serviceType"  style=" display: table-cell; width: auto;" >-->
                                 <!--<option ng-repeat="(value , key) in capRept.serviceCapacity.services" value="{{value}}"> {{value}} : {{key}}</option>-->

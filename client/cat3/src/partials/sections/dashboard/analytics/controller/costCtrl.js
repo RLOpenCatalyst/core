@@ -109,8 +109,9 @@
                     } else {
                         entityId=fltObj.org.id;
                     }
+
                   //param.url='src/partials/sections/dashboard/analytics/data/cost.json';
-                   param.url='/analytics/cost/aggregate?parentEntityId='+fltObj.org.id+'&entityId='+entityId+'&toTimeStamp='+new Date()+'&period='+fltObj.period;
+                   param.url='/analytics/cost/aggregate?parentEntityId='+fltObj.org.id+'&entityId='+entityId+'&toTimeStamp='+fltObj.endDate+'&period='+fltObj.period;
                 }
 
                 genSevs.promiseGet(param).then(function (result) {

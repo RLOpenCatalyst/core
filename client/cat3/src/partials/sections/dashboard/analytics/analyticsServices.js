@@ -10,14 +10,30 @@
                     $rootScope.filterNewEnt.period='month';
                     $rootScope.splitUpCosts=[];
                     $rootScope.filterNewEnt.platformId=[];
+                    $rootScope.filterNewEnt.endDate=moment(new Date()).format('DD/MM/YYYY');
+                    $rootScope.filterNewEnt.fromDate='';
                 },
                 applyFilter : function(filterApp,period){
+
                     if($rootScope.organObject) {
                         var obj = $rootScope.organObject,
                             or = $rootScope.organNewEnt.org,
                             bu = $rootScope.organNewEnt.buss,
                             pr = $rootScope.organNewEnt.proj;
                         if (period) {
+                            // if(period === 'month'){
+                            //     var newdate =  $rootScope.filterNewEnt.endDate;
+                            //     newdate.setDate(newdate.getDate() - 30);
+                            //     $rootScope.filterNewEnt.fromDate = new Date(newdate);
+                            // } else if(period === 'week') {
+                            //     var newdate =  $rootScope.filterNewEnt.endDate;
+                            //     newdate.setDate(newdate.getDate() - 7);
+                            //     $rootScope.filterNewEnt.fromDate = new Date(newdate);
+                            // } else if(period === 'day') {
+                            //     var newdate = $rootScope.filterNewEnt.endDate;
+                            //     newdate.setDate(newdate.getDate() - 1);
+                            //     $rootScope.filterNewEnt.fromDate = new Date(newdate);
+                            // }
                             $rootScope.filterNewEnt.period = period;
                         }
 

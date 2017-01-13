@@ -35,7 +35,7 @@
                     capRept.chartData=result;
                     $rootScope.splitUpCapacities=[];
                     capRept.serviceCapacity=result.capacity.AWS;
-
+                    capRept.serviceType=Object.keys(capRept.serviceCapacity.services)[0];
                     if(result.splitUpCapacities && Object.keys(result.splitUpCapacities).length >0) {
                         angular.forEach(result.splitUpCapacities, function (val, key) {
                             var a=key.replace(/([A-Z])/g, ' $1').replace(/^./, function(str) {
@@ -61,7 +61,6 @@
                 }
             };
             capRept.init =function(){
-                capRept.serviceType='Instance';
                 $rootScope.organNewEnt.instanceType='Unassigned';
                 $rootScope.organNewEnt.provider='0';
                 $rootScope.$emit('INI_usage', 'Unassigned');
@@ -120,14 +119,14 @@
                         {name: 'orgName', displayName: 'Org Name', field: 'orgName', cellTooltip: true},
                         {
                             name: 'cost',
-                            displayName: 'cost',
+                            displayName: 'Cost',
                             cellTemplate: '<span ng-bind-html="grid.appScope.aggregateInstanceCost(row.entity.cost)"></span>'
                         },
                         {
                             name: 'Action',
                             cellTooltip: true,
                             cellTemplate: "<span class='cursor' title='Usage' style='font-size: 14px;' ng-click='grid.appScope.openChart(row.entity)'><i class=\"fa fa-line-chart\"></i></span> " +
-                            "&nbsp;&nbsp; <span class='cursor' ng-click='grid.appScope.Schedule(row.entity._id)' style='font-size: 14px;' title='Schedule'><i class=\"fa fa-calendar\"></i></span>"
+                            "&nbsp;&nbsp; <span ng-hide='row.entity.hideSchedule' class='cursor' ng-click='grid.appScope.Schedule(row.entity._id)' style='font-size: 14px;' title='Schedule'><i class=\"fa fa-calendar\"></i></span>"
                         }
                         // {name: 'Chef', cellTooltip: true,cellTemplate:"<span class='cursor' ng-click='grid.appScope.chefConfig(row.entity)'><i  class=\"fa fa-eye\" title=\"Chef Configuration\"></i></span>"}
                     ];
@@ -139,9 +138,8 @@
                         {name: 'bucketOwnerName', field: 'bucketOwnerName', cellTooltip: true},
                         {name: 'bucketSize', field: 'bucketSize', cellTooltip: true},
                         {name: 'orgName', field: 'orgName', cellTooltip: true},
-                        {name: 'cost', displayName: 'cost',cellTemplate: '<span ng-bind-html="grid.appScope.aggregateInstanceCost(row.entity.cost)"></span>'},
-                        {name: 'Action', cellTooltip: true,cellTemplate:"<span class='cursor' title='Usage' style='font-size: 14px;' ng-click='grid.appScope.openChart(row.entity)'><i class=\"fa fa-line-chart\"></i></span> " +
-                        "&nbsp;&nbsp; <span class='cursor' ng-click='grid.appScope.Schedule(row.entity._id)' style='font-size: 14px;' title='Schedule'><i class=\"fa fa-calendar\"></i></span>"}
+                        {name: 'cost', displayName: 'Cost',cellTemplate: '<span ng-bind-html="grid.appScope.aggregateInstanceCost(row.entity.cost)"></span>'},
+                        {name: 'Action', cellTooltip: true,cellTemplate:"<span class='cursor' title='Usage' style='font-size: 14px;' ng-click='grid.appScope.openChart(row.entity)'><i class=\"fa fa-line-chart\"></i></span> "}
                     ]
                 }
                     capRept.listGrid[value].onRegisterApi=function (gridApi) {
@@ -149,7 +147,7 @@
                         $scope.gridApi = gridApi;
                     }
 
-                if(capRept.serviceType === 'Instance' && fltrObj && fltrObj.provider && fltrObj.provider.id) {
+                if(capRept.serviceType === 'EC2' && fltrObj && fltrObj.provider && fltrObj.provider.id) {
                     if($rootScope.organNewEnt.instanceType === 'Managed') {
                         $scope.instanceType= 'managedInstances';
                     } else if($rootScope.organNewEnt.instanceType === 'Assigned'){
@@ -193,6 +191,7 @@
                                     capRept.listGrid[value].data[ke].providerData={};
                                     capRept.listGrid[value].data[ke].providerData.region = va.resourceDetails.region;
                                     capRept.listGrid[value].data[ke].orgName = va.masterDetails.orgName;
+                                    capRept.listGrid[value].data[ke].hideSchedule=true;
                                 });
                             }
 
