@@ -16,7 +16,7 @@
  */
 
 var logger = require('_pr/logger')(module);
-var bots = require('_pr/model/bots/bots.js');
+var bots = require('_pr/model/bots/1.0/bots.js');
 var async = require("async");
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var taskService =  require('_pr/services/taskService.js');

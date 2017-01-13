@@ -19,7 +19,7 @@ var instanceAuditTrail = require('_pr/model/audit-trail/instance-audit-trail.js'
 var botAuditTrail = require('_pr/model/audit-trail/bot-audit-trail.js');
 var containerAuditTrail = require('_pr/model/audit-trail/container-audit-trail.js');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
-var bots = require('_pr/model/bots/bots.js');;
+var bots = require('_pr/model/bots/1.0/bots.js');;
 
 const errorType = 'auditTrailService';
 
