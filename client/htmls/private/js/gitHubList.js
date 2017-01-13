@@ -17,8 +17,6 @@ if (!$.fn.dataTable.isDataTable('#gitTable')) {
             "bSortable": false
         }, {
             "bSortable": false
-        }, {
-            "bSortable": false
         }]
 
     });
@@ -173,7 +171,6 @@ function getGlobalGitServers() {
         "ajax": '/git-hub',
         "columns": [
             {"data": "repositoryName", "orderable" : true},
-            {"data": "repositoryDesc" ,"orderable" : false },
             {"data": "orgName","orderable" : false  },
             {"data": "repositoryOwner" ,"orderable" : false },
             {"data": "repositoryType" ,"orderable" : false},

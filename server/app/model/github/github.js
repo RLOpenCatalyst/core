@@ -102,7 +102,6 @@ GitHubSchema.statics.createNew = function createNew(gitHubObj, callback) {
 };
 
 GitHubSchema.statics.getGitHubList = function (params, callback) {
-    console.log(params);
     GitHub.paginate(params.queryObj, params.options, function(err, gitRepoList) {
         if (err) {
             logger.error(err);
