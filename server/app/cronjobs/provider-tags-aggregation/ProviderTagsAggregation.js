@@ -28,7 +28,7 @@ function providerTagAggregation() {
                             for(var j = 0; j < providers.length; j++){
                                 (function(provider){
                                     count++;
-                                    aggregateTagForProvider(provider)
+                                    aggregateTagForProvider(provider);
                                 })(providers[j]);
                             }
                             if(count ===providers.length){
@@ -60,7 +60,6 @@ function aggregateTagForProvider(provider) {
         },
         function (tags, next) {
             var tagDetails = {};
-            var count = 0;
             if (tags.length === 0) {
                 next(null, tags);
             } else {
@@ -90,7 +89,7 @@ function aggregateTagForProvider(provider) {
             logger.info('Tags aggregation ended for Provider'+provider._id);
             return;
         }
-    })
+    });
 };
 
 function getResourcesForTagAggregation(provider,next){
@@ -124,7 +123,7 @@ function getResourcesForTagAggregation(provider,next){
             next(null,results);
         }
 
-    })
+    });
 };
 
 function getResourceTags(tagDetails,resourceDetails,provider,next){
@@ -135,7 +134,7 @@ function getResourceTags(tagDetails,resourceDetails,provider,next){
             for (var tagName in resourceDetails[m].tags) {
                 var tagValue = resourceDetails[m].tags[tagName];
                 if (tagName in tagDetails) {
-                    if (tagDetails[tagName].values.indexOf(tagValue) < 0) {
+                    if (tagValue &&  tagValue != '' && tagDetails[tagName].values.indexOf(tagValue) < 0) {
                         tagDetails[tagName].values.push(tagValue);
                     }
                 } else if((typeof tagName != undefined) && (tagName != null)) {
@@ -143,9 +142,9 @@ function getResourceTags(tagDetails,resourceDetails,provider,next){
                         'providerId': provider._id,
                         'orgId': provider.orgId[0],
                         'name': tagName,
-                        'values': (tagValue == "")?[]:[tagValue],
+                        'values': (tagValue &&  tagValue != '')?[tagValue]:[],
                         'new': true
-                    }
+                    };
                 }
             }
         }
@@ -171,10 +170,10 @@ function saveAndUpdateResourceTags(tags,provider,next){
                 var params = {
                     'providerId': provider._id,
                     'name': tagName
-                }
+                };
                 var fields = {
                     'values': tags[tagName].values
-                }
+                };
                 tagsModel.updateTag(params, fields);
             }
         }
