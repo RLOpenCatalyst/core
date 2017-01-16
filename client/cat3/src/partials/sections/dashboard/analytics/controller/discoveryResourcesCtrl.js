@@ -77,50 +77,51 @@
                                 gridApi.grid.registerRowsProcessor( $scope.singleFilter, 200 );
                                 $scope.gridApi=gridApi;
                                 gridApi.edit.on.afterCellEdit($scope, function (rowEntity, colDefa, newValue, oldValue) {
-                                    console.log(rowEntity);
-                                    confirmbox.showModal({}, {
-                                        closeButtonText: 'Cancel',
-                                        actionButtonText: 'Yes',
-                                        actionButtonStyle: 'cat-btn-update',
-                                        headerText: 'Update tag value',
-                                        bodyText: 'Are you sure you want to Update ?'
-                                    }).then(function() {
-                                        var tagna=colDefa.name.substring(0, colDefa.name.length-3);
-                                        var param = {
-                                            url: '/providers/' + fltrObj.provider.id + '/unassigned-instances/' + rowEntity._id,
-                                            data: {
-                                                tags:{}
-                                            }
-                                        };
-                                        param.data.tags[tagna]=newValue;
-                                        console.log(param);
-                                        if(newValue !== oldValue) {
-                                            genSevs.promisePatch(param).then(function () {
-                                                toastr.success('Successfully updated.', 'Update');
-                                            });
-                                        }
-                                    },function() {
-                                        var param = {
-                                            url: '/providers/' + fltrObj.provider.id + '/' + $scope.instanceType
-                                            // url:'src/partials/sections/dashboard/analytics/data/ins.json'
-                                        };
-                                        genSevs.promiseGet(param).then(function (instResult) {
-                                            if($rootScope.organNewEnt.instanceType === 'Managed') {
-                                                disResrc.gridOptionInstances.data = instResult.managedInstances;
-                                            } else if($rootScope.organNewEnt.instanceType === 'Assigned'){
-                                                disResrc.gridOptionInstances.data = instResult.unmanagedInstances;
-                                            } else if($rootScope.organNewEnt.instanceType === 'Unassigned'){
-                                                disResrc.gridOptionInstances.data = instResult.data;
-                                            }
-                                            disResrc.gridOptionInstances.isRowSelectable = function(row){
-                                                if(row.entity.state !== 'running'){
-                                                    return false;
-                                                } else {
-                                                    return true;
+                                    if(newValue !== oldValue) {
+                                        confirmbox.showModal({}, {
+                                            closeButtonText: 'Cancel',
+                                            actionButtonText: 'Yes',
+                                            actionButtonStyle: 'cat-btn-update',
+                                            headerText: 'Update tag value',
+                                            bodyText: 'Are you sure you want to Update ?'
+                                        }).then(function () {
+                                            var tagna = colDefa.name.substring(0, colDefa.name.length - 3);
+                                            var param = {
+                                                url: '/providers/' + fltrObj.provider.id + '/unassigned-instances/' + rowEntity._id,
+                                                data: {
+                                                    tags: {}
                                                 }
                                             };
+                                            param.data.tags[tagna] = newValue;
+                                            console.log(param);
+                                            if (newValue !== oldValue) {
+                                                genSevs.promisePatch(param).then(function () {
+                                                    toastr.success('Successfully updated.', 'Update');
+                                                });
+                                            }
+                                        }, function () {
+                                            var param = {
+                                                url: '/providers/' + fltrObj.provider.id + '/' + $scope.instanceType
+                                                // url:'src/partials/sections/dashboard/analytics/data/ins.json'
+                                            };
+                                            genSevs.promiseGet(param).then(function (instResult) {
+                                                if ($rootScope.organNewEnt.instanceType === 'Managed') {
+                                                    disResrc.gridOptionInstances.data = instResult.managedInstances;
+                                                } else if ($rootScope.organNewEnt.instanceType === 'Assigned') {
+                                                    disResrc.gridOptionInstances.data = instResult.unmanagedInstances;
+                                                } else if ($rootScope.organNewEnt.instanceType === 'Unassigned') {
+                                                    disResrc.gridOptionInstances.data = instResult.data;
+                                                }
+                                                disResrc.gridOptionInstances.isRowSelectable = function (row) {
+                                                    if (row.entity.state !== 'running') {
+                                                        return false;
+                                                    } else {
+                                                        return true;
+                                                    }
+                                                };
+                                            });
                                         });
-                                    });
+                                    }
 
                                 });
                                 gridApi.selection.on.rowSelectionChanged($scope,function(row){
