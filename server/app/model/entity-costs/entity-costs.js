@@ -122,5 +122,20 @@ EntityCostsSchema.statics.upsertEntityCost = function upsertEntityCost(entityCos
     });
 }
 
+EntityCostsSchema.statics.deleteEntityCost = function deleteEntityCost(parentEntityId, startTime, callback) {
+    var query = {
+        'parentEntity.id': parentEntityId,
+        'startTime': {$gte:startTime}
+    };
+
+    this.find(query).remove(function(err, result) {
+        if (err) {
+            callback(err)
+        } else {
+            callback(null, result)
+        }
+    })
+}
+
 var EntityCosts = mongoose.model('EntityCosts', EntityCostsSchema)
 module.exports = EntityCosts
