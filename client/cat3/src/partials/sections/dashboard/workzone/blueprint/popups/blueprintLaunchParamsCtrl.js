@@ -75,10 +75,13 @@
 			$scope.cancel = function() {
 				$modalInstance.dismiss('cancel');
 			};
-			$scope.launchBP = function() {
+			$scope.monitorIdCheck = function() {
 				if($scope.monitorId == 'null') {
 	                $scope.monitorId = null;
 	            }
+			}
+			$scope.launchBP = function() {
+				$scope.monitorIdCheck();
 				if(items.orgId === undefined && items.botType === undefined){
 					var compBlue={
 						"blueprintId": (items.id)?items.id:items._id,
@@ -104,15 +107,11 @@
 				}
 			};
 			$scope.cftSubmitHandler = function(){
-				if($scope.monitorId == 'null') {
-	                $scope.monitorId = null;
-	            }
+				$scope.monitorIdCheck();
 				launchHelper.launch();
 			};
 			$scope.launchBPWithDomainName = function(){
-				if($scope.monitorId == 'null') {
-	                $scope.monitorId = null;
-	            }
+				$scope.monitorIdCheck();
 				launchHelper.launch();
 			};
 		}
