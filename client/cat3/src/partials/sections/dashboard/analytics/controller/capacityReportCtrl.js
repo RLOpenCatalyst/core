@@ -57,7 +57,7 @@
             $rootScope.applyFilter =function(filterApp,period){
                 analyticsServices.applyFilter(filterApp,period);
                 if($state.current.name === "dashboard.analytics.capacityReport") {
-                    capRept.getCapacityData($rootScope.filterNewEnt);
+                    capRept.createList();
                 }
             };
             capRept.init =function(){
@@ -66,6 +66,7 @@
                 $rootScope.$emit('INI_usage', 'Unassigned');
                 $timeout(function () {
                     $rootScope.applyFilter(true,'month');
+                    capRept.getCapacityData($rootScope.filterNewEnt);
                     var treeNames = ['Cloud Management','Analytics','capacity'];
                     $rootScope.$emit('treeNameUpdate', treeNames);
                 },500);
@@ -178,7 +179,7 @@
                 } else if(fltrObj && fltrObj.provider && fltrObj.provider.id){
                     var param = {
                         inlineLoader:true,
-                       url: '/resources?filterBy=providerId:'+fltrObj.provider.id+'+resourceType:'+capRept.serviceType+'+category:'+$rootScope.organNewEnt.instanceType.toLowerCase()
+                       url: '/resources?filterBy=providerDetails.id:'+fltrObj.provider.id+'+resourceType:'+capRept.serviceType+'+category:'+$rootScope.organNewEnt.instanceType.toLowerCase()
                         //url:'?filterBy=providerId:57e3774d4e738a500b342889+resourceType:RDS+category:unassigned'
                     };
                     genSevs.promiseGet(param).then(function (instResult) {
