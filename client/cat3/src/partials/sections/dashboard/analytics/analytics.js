@@ -144,8 +144,13 @@
 			$rootScope.stateItems = $state.params;
 		}, true);
 		$scope.$on('CHANGE_splitUp', function (event, data) {
-			if(!analytic.splitUp)
-			analytic.splitUp=data;
+			if(!analytic.splitUp){
+				analytic.splitUp=data;
+				$scope.$broadcast('splitUp_value', {data:data});
+			} else{
+				$scope.$broadcast('splitUp_value', {data:analytic.splitUp});
+			}
+
 		});
 		$scope.$watch(function() { return analytic.splitUp}, function(newVal) {
 			$scope.$broadcast('CHANGE_VIEW',newVal);
