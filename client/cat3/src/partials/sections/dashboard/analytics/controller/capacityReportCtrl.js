@@ -170,6 +170,17 @@
                         } else if($rootScope.organNewEnt.instanceType === 'Unassigned'){
                             capRept.listGrid[value].data = instResult.data;
                         }
+                        angular.forEach( capRept.listGrid[value].data,function (rs,k) {
+                            if(rs.hardware && rs.hardware.os){
+                                capRept.listGrid[value].data[k].os=rs.hardware.os;
+                            }
+                            if(rs.providerData && rs.providerData.region){
+                                capRept.listGrid[value].data[k].region=rs.providerData.region;
+                            }
+                            if(rs.instanceState){
+                                capRept.listGrid[value].data[k].state=rs.instanceState;
+                            }
+                        });
                         if(capRept.listGrid[value].data && capRept.listGrid[value].data.length == 0){
                             capRept.listGrid[value].nodataFound =true;
                         } else {
