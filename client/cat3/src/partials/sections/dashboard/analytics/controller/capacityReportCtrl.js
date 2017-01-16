@@ -127,7 +127,7 @@
                             name: 'Action',
                             cellTooltip: true,
                             cellTemplate: "<span class='cursor' title='Usage' style='font-size: 14px;' ng-click='grid.appScope.openChart(row.entity)'><i class=\"fa fa-line-chart\"></i></span> " +
-                            "&nbsp;&nbsp; <span ng-hide='$rootScope.organNewEnt.instanceType !==\"Managed\" || row.entity.hideSchedule' class='cursor' ng-click='grid.appScope.Schedule(row.entity._id)' style='font-size: 14px;' title='Schedule'><i class=\"fa fa-calendar\"></i></span>"
+                            "&nbsp;&nbsp; <span ng-show='row.entity.showSchedule' class='cursor' ng-click='grid.appScope.Schedule(row.entity._id)' style='font-size: 14px;' title='Schedule'><i class=\"fa fa-calendar\"></i></span>"
                         }
                         // {name: 'Chef', cellTooltip: true,cellTemplate:"<span class='cursor' ng-click='grid.appScope.chefConfig(row.entity)'><i  class=\"fa fa-eye\" title=\"Chef Configuration\"></i></span>"}
                     ];
@@ -158,8 +158,8 @@
                     }
                     var param = {
                         inlineLoader:true,
-                        url: '/providers/' + fltrObj.provider.id + '/'+$scope.instanceType
-                        // url:'src/partials/sections/dashboard/analytics/data/ins.json'
+                       url: '/providers/' + fltrObj.provider.id + '/'+$scope.instanceType
+                        //url:'src/partials/sections/dashboard/analytics/data/ins.json'
                     };
                     genSevs.promiseGet(param).then(function (instResult) {
                         capRept.listGrid[value].data=[];
@@ -180,6 +180,9 @@
                             if(rs.instanceState){
                                 capRept.listGrid[value].data[k].state=rs.instanceState;
                             }
+                            if($rootScope.organNewEnt.instanceType === 'Managed'){
+                                capRept.listGrid[value].data[k].showSchedule=true;
+                            }
                         });
                         if(capRept.listGrid[value].data && capRept.listGrid[value].data.length == 0){
                             capRept.listGrid[value].nodataFound =true;
@@ -191,7 +194,7 @@
                     var param = {
                         inlineLoader:true,
                        url: '/resources?filterBy=providerDetails.id:'+fltrObj.provider.id+'+resourceType:'+capRept.serviceType+'+category:'+$rootScope.organNewEnt.instanceType.toLowerCase()
-                        //url:'?filterBy=providerId:57e3774d4e738a500b342889+resourceType:RDS+category:unassigned'
+                       // url:'src/partials/sections/dashboard/analytics/data/ins.json'
                     };
                     genSevs.promiseGet(param).then(function (instResult) {
                         /////
@@ -204,7 +207,7 @@
                                     capRept.listGrid[value].data[ke].providerData={};
                                     capRept.listGrid[value].data[ke].providerData.region = va.resourceDetails.region;
                                     capRept.listGrid[value].data[ke].orgName = va.masterDetails.orgName;
-                                    capRept.listGrid[value].data[ke].hideSchedule=true;
+                                    capRept.listGrid[value].data[ke].showSchedule=false;
                                 });
                             }
 
