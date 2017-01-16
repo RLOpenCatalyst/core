@@ -26,6 +26,7 @@ var blueprintService =  require('_pr/services/blueprintService.js');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var appConfig = require('_pr/config');
+const gitHubService = require('_pr/services/gitHubService.js');
 
 const errorType = 'botsService';
 
@@ -479,6 +480,30 @@ function encryptedParam(paramDetails, callback) {
             }
         })(paramDetails[i]);
     }
+}
+
+botsService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
+    async.waterfall([
+        function(next) {
+            gitHubService.getGitHubById(gitHubId,next);
+        },
+        function(gitHubDetails,next){
+            if(gitHubDetails !== null){
+
+            }else{
+                next(null,gitHubDetails);
+            }
+        }
+    ],function(err, results) {
+        if (err){
+            logger.error(err);
+            callback(err,null);
+            return;
+        }else {
+            callback(null, results)
+            return;
+        }
+    });
 }
 
 
