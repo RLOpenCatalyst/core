@@ -114,7 +114,7 @@
                         {name: 'state', displayName: 'Status', cellTooltip: true},
                         {
                             name: 'Region', displayName: 'Region',
-                            field: 'providerData.region',
+                            field: 'region',
                             cellTooltip: true
                         },
                         {name: 'orgName', displayName: 'Org Name', field: 'orgName', cellTooltip: true},
