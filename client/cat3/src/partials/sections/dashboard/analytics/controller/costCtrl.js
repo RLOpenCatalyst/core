@@ -126,8 +126,11 @@
                         });
                         if( $rootScope.splitUpCosts && $rootScope.splitUpCosts.length >0) {
                             $scope.$emit('CHANGE_splitUp', $rootScope.splitUpCosts[0].id);
-                            costObj.splitUp = $rootScope.splitUpCosts[0].val;
-                            costObj.createLable(result, $rootScope.splitUpCosts[0].id);
+                            $scope.$on('splitUp_value', function (event, args) {
+                                costObj.splitUp = args.data;
+                                costObj.createLable(result, args.data);
+                            });
+
                         }
                     } else {
                         costObj.createLable(result,'provider');
