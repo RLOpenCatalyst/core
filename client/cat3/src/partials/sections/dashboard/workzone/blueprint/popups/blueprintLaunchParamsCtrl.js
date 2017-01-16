@@ -76,6 +76,9 @@
 				$modalInstance.dismiss('cancel');
 			};
 			$scope.launchBP = function() {
+				if($scope.monitorId == 'null') {
+	                $scope.monitorId = null;
+	            }
 				if(items.orgId === undefined && items.botType === undefined){
 					var compBlue={
 						"blueprintId": (items.id)?items.id:items._id,
@@ -101,9 +104,15 @@
 				}
 			};
 			$scope.cftSubmitHandler = function(){
+				if($scope.monitorId == 'null') {
+	                $scope.monitorId = null;
+	            }
 				launchHelper.launch();
 			};
 			$scope.launchBPWithDomainName = function(){
+				if($scope.monitorId == 'null') {
+	                $scope.monitorId = null;
+	            }
 				launchHelper.launch();
 			};
 		}

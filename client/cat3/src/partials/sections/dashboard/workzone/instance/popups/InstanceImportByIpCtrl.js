@@ -63,6 +63,9 @@
 					}
 				},
 				ok: function() {
+					if($scope.monitorId == 'null') {
+		                $scope.monitorId = null;
+		            }
 					reqBody.fqdn = $scope.ipAddress;
 					reqBody.os = $scope.os;
 					reqBody.configManagmentId = $scope.selectedConfig;
