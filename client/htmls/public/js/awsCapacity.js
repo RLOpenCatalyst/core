@@ -117,9 +117,9 @@ $(document).ready(function() {
         $('#instanceActionListLoader').show();
         var urlManagedNoProvider, urlManagedProvider;
         if (orgProviderId) {
-            urlManagedNoProvider = "../tracked-instances?category=managed&filterBy=orgId:" + orgId + ' ' + "providerId:" + orgProviderId;
+            urlManagedNoProvider = "../tracked-instances?category=managed&filterBy=orgId:" + orgId + ",providerId:" + orgProviderId;
         } else {
-            urlManagedProvider = "../tracked-instances?category=managed&filterBy=orgId:" + orgId + ' ' + "providerType:aws";
+            urlManagedProvider = "../tracked-instances?category=managed&filterBy=orgId:" + orgId + ",providerType:aws";
         }
         $.ajax({
             type: "get",
@@ -143,9 +143,9 @@ $(document).ready(function() {
         $('#instanceActionListLoader').show();
         var urlManagedNoProvider, urlManagedProvider;
         if (orgProviderId) {
-            urlManagedNoProvider = "../tracked-instances?category=assigned&filterBy=orgId:" + orgId + ' ' + "providerId:" + orgProviderId;
+            urlManagedNoProvider = "../tracked-instances?category=assigned&filterBy=orgId:" + orgId + ",providerId:" + orgProviderId;
         } else {
-            urlManagedProvider = "../tracked-instances?category=assigned&filterBy=orgId:" + orgId + ' ' + "providerType:aws";
+            urlManagedProvider = "../tracked-instances?category=assigned&filterBy=orgId:" + orgId + ",providerType:aws";
         }
         $.ajax({
             type: "get",
@@ -169,9 +169,9 @@ $(document).ready(function() {
         $('#instanceActionListLoader').show();
         var urlManagedNoProvider, urlManagedProvider;
         if (orgProviderId) {
-            urlManagedNoProvider = "../tracked-instances?category=unassigned&filterBy=orgId:" + orgId + ' ' + "providerId:" + orgProviderId;
+            urlManagedNoProvider = "../tracked-instances?category=unassigned&filterBy=orgId:" + orgId + ",providerId:" + orgProviderId;
         } else {
-            urlManagedProvider = "../tracked-instances?category=unassigned&filterBy=orgId:" + orgId + ' ' + "providerType:aws";
+            urlManagedProvider = "../tracked-instances?category=unassigned&filterBy=orgId:" + orgId +",providerType:aws";
         }
         $.ajax({
             type: "get",
@@ -230,9 +230,9 @@ $(document).ready(function() {
     function loadAllManagedInstances() {
         var urlManagedNoProvider, urlManagedProvider;
         if (orgProviderId) {
-            urlManagedNoProvider = "../tracked-instances?category=managed&filterBy=orgId:" + orgId + ' ' + "providerId:" + orgProviderId;
+            urlManagedNoProvider = "../tracked-instances?category=managed&filterBy=orgId:" + orgId + ",providerId:" + orgProviderId;
         } else {
-            urlManagedProvider = "../tracked-instances?category=managed&filterBy=orgId:" + orgId + ' ' + "providerType:aws";
+            urlManagedProvider = "../tracked-instances?category=managed&filterBy=orgId:" + orgId +",providerType:aws";
         }
         $('.footer').addClass('hidden');
         $('#instanceListTable').DataTable({
@@ -287,9 +287,9 @@ $(document).ready(function() {
     function loadAllUnManagedInstances() {
         var urlManagedNoProvider, urlManagedProvider;
         if (orgProviderId) {
-            urlManagedNoProvider = "../tracked-instances?category=assigned&filterBy=orgId:" + orgId + ' ' + "providerId:" + orgProviderId;
+            urlManagedNoProvider = "../tracked-instances?category=assigned&filterBy=orgId:" + orgId +  ",providerId:" + orgProviderId;
         } else {
-            urlManagedProvider = "../tracked-instances?category=assigned&filterBy=orgId:" + orgId + ' ' + "providerType:aws";
+            urlManagedProvider = "../tracked-instances?category=assigned&filterBy=orgId:" + orgId + ",providerType:aws";
         }
         $('.footer').addClass('hidden');
         $('#instanceAssignedTable').DataTable({
@@ -345,7 +345,7 @@ $(document).ready(function() {
         var urlManagedNoProvider, urlManagedProvider;
         var envProjectMappingObject = {};
         if (orgProviderId) {
-            urlManagedNoProvider = "../tracked-instances?category=unassigned&filterBy=orgId:" + orgId + ' ' + "providerId:" + orgProviderId;
+            urlManagedNoProvider = "../tracked-instances?category=unassigned&filterBy=orgId:" + orgId + ",providerId:" + orgProviderId;
             $.get('/providers/'+ orgProviderId +'/tag-mappings', function(tagsListSelected) {
                 if (tagsListSelected) {
                     for (var i = 0; i < tagsListSelected.length; i++) {
@@ -373,7 +373,7 @@ $(document).ready(function() {
                 bootbox.alert(msg);
             });
         } else {
-            urlManagedProvider = "../tracked-instances?category=unassigned&filterBy=orgId:" + orgId + ' ' + "providerType:aws";
+            urlManagedProvider = "../tracked-instances?category=unassigned&filterBy=orgId:" + orgId + ",providerType:aws";
             getUnassignedInstancesWithTagMapping(envProjectMappingObject,urlManagedProvider,false);
         }
     }
