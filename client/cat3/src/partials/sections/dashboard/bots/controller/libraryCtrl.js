@@ -158,13 +158,7 @@
             }
         };
 
-         $("#searchBots").keyup(function(event) {         
-            if (event.keyCode === 13) {       
-                $scope.searchBotNameCategory();          
-            }
-        });
-
-         $scope.filterBy = function() {
+        $scope.filterBy = function() {
             if($scope.botLibFilter === 'botType') {
                 $scope.filterByBotType = true;
                 $scope.filterByTaskType = false;

@@ -151,15 +151,17 @@
 	    </div>
 	</div>
 
-	<div class="bot-library-search">
-		<div class="pull-right">
-			<label><span class="search-text">Search:</span>&nbsp;
-				<input type="search" ng-model="botLibrarySearch" class="bot-search" placeholder="" id="searchBots">
-				<i class="fa fa-search search-icon" ng-show="!searchText" ng-click="searchBotNameCategory()"></i>
-				<i class="fa fa-close search-icon" ng-show="searchText" ng-click="clearBotSearchText()"></i>
-			</label>
+	<form novalidate name="library-form" ng-submit="searchBotNameCategory()">
+		<div class="bot-library-search">
+			<div class="pull-right">
+				<label><span class="search-text">Search:</span>&nbsp;
+					<input type="search" ng-model="botLibrarySearch" class="bot-search" placeholder="" id="searchBots">
+					<i title="Search" class="fa fa-search search-icon" ng-show="!searchText" ng-click="searchBotNameCategory()"></i>
+					<i title="Clear Search" class="fa fa-close search-icon" ng-show="searchText" ng-click="clearBotSearchText()"></i>
+				</label>
+			</div>
 		</div>
-	</div>
+	</form>
 
 	<div class="alert alert-info text-center" ng-if="!botLibGridOptions.data.length > 0">
 		No data Available
