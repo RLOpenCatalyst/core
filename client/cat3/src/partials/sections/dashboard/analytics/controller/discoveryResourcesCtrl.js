@@ -376,6 +376,7 @@
         var reqBody = {};
         $scope.monitorList = [];
         $scope.monitorId = 'null';
+        
         $scope.IMGNewEnt={
             passType:'password',
             org:$rootScope.organObject[0]
@@ -411,6 +412,9 @@
             }
         };
         $scope.ok = function() {
+            if($scope.monitorId == 'null') {
+                $scope.monitorId = null;
+            }
             $scope.importSpinner = true;
             $scope.importSync = true;
             reqBody.orgId = $scope.IMGNewEnt.org.orgid;
