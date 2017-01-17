@@ -39,5 +39,5 @@
     			},1000);
             };
             $scope.pollTaskStatus(0);
-       	}])
+       	}]);
 })(angular);

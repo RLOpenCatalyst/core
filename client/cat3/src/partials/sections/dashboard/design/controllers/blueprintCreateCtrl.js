@@ -371,7 +371,7 @@
                     });
                 } else {
                     $scope.showNexusDocker = false;
-                    blueprintCreation.newEnt.nexusDockerServer = null
+                    blueprintCreation.newEnt.nexusDockerServer = null;
                     blueprintCreation.serverRepos = [];
                 }
             };

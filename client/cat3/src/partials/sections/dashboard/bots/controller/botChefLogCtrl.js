@@ -68,18 +68,18 @@
 				$scope.selectedInstance = firstInstance;
 				chefLogData.instanceChange();
 			};
-			var resetAll = function(){
+			/*var resetAll = function(){
 				$scope.isInstanceListLoading = true;
 				chefLogData.chefHistoryItem = {};
 				chefLogData.nodeIdsWithActionLog = {};
 				helper.stopPolling(); //Ensuring polling is stopped, eventhough the scope values for instance id and actionlog id are updated on change
 				helper.lastTimeStamp = '';
-			};
+			};*/
 			var init = function () {
 				//get the details of one chef history entry
 				var param = {
 					url : '/bots/' + items.taskId + '/bots-history/' + items.historyId
-				}
+				};
 				genSevs.promiseGet(param).then(function (response) {
 					chefLogData.createInstanceList(response);
 				});
@@ -111,7 +111,7 @@
 					$scope.isInstanceListLoading = false;
 					toastr.error(error);
 					$scope.errorMessage = "";
-				})
+				});
 			};
 			chefLogData.instanceChange = function () {
 				$scope.isLogsLoading = true;
@@ -122,8 +122,8 @@
 					urlParams = 'timestamp=' + chefLogData.chefHistoryItem.startedOn  + '&timestampEnded=' + chefLogData.chefHistoryItem.endedOn;
 					var param = {
 						url : "/instances/" + $scope.selectedInstance.nodeId + '/actionLogs/' + $scope.selectedInstance.actionLogId +
-						'/logs?' + urlParams
-					}
+							'/logs?' + urlParams
+						};
 					genSevs.promiseGet(param).then(function (response) {
 						$scope.isLogsLoading = false;
 						var logData = {
@@ -138,8 +138,8 @@
 					var urlParams = 'timestamp=' + chefLogData.chefHistoryItem.startedOn;
 					var param = {
 						url : "/instances/" + $scope.selectedInstance.nodeId + '/actionLogs/' + $scope.selectedInstance.actionLogId +
-						'/logs?' + urlParams
-					}
+							'/logs?' + urlParams
+						};
 					genSevs.promiseGet(param).then(function (response) {
 						$scope.isLogsLoading = false;
 						helper.lastTimeStamp = helper.getlastTimeStamp(response) || chefLogData.chefHistoryItem.startedOn;

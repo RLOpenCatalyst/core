@@ -105,7 +105,7 @@
                     capRept.listGrid[value].data=[];
                     capRept.listGrid[value].paginationPageSizes= [25, 50, 100];
                     capRept.listGrid[value].paginationPageSize=25;
-                    $scope.colArray=['platformId','state','orgName','privateIpAddress','os']
+                    $scope.colArray=['platformId','state','orgName','privateIpAddress','os'];
                 if(capRept.serviceType !== 'S3') {
                     capRept.listGrid[value].columnDefs = [
                         {name: 'Instance Id', field: 'platformId', cellTooltip: true},
@@ -133,7 +133,7 @@
                     ];
                 }
                 if(capRept.serviceType === 'S3'){
-                    $scope.colArray=['bucketName','bucketOwnerName','orgName']
+                    $scope.colArray=['bucketName','bucketOwnerName','orgName'];
                     capRept.listGrid[value].columnDefs=[
                         {name: 'bucketName', field: 'bucketName', cellTooltip: true},
                         {name: 'bucketOwnerName', field: 'bucketOwnerName', cellTooltip: true},
@@ -141,12 +141,12 @@
                         {name: 'orgName', field: 'orgName', cellTooltip: true},
                         {name: 'cost', displayName: 'Cost',cellTemplate: '<span ng-bind-html="grid.appScope.aggregateInstanceCost(row.entity.cost)"></span>'},
                         {name: 'Action', cellTooltip: true,cellTemplate:"<span class='cursor' title='Usage' style='font-size: 14px;' ng-click='grid.appScope.openChart(row.entity)'><i class=\"fa fa-line-chart\"></i></span> "}
-                    ]
+                    ];
                 }
                     capRept.listGrid[value].onRegisterApi=function (gridApi) {
                        gridApi.grid.registerRowsProcessor($scope.singleFilter, 200);
                         $scope.gridApi = gridApi;
-                    }
+                    };
 
                 if(capRept.serviceType === 'EC2' && fltrObj && fltrObj.provider && fltrObj.provider.id) {
                     if($rootScope.organNewEnt.instanceType === 'Managed') {
@@ -184,7 +184,7 @@
                                 capRept.listGrid[value].data[k].showSchedule=true;
                             }
                         });
-                        if(capRept.listGrid[value].data && capRept.listGrid[value].data.length == 0){
+                        if(capRept.listGrid[value].data && capRept.listGrid[value].data.length === 0){
                             capRept.listGrid[value].nodataFound =true;
                         } else {
                             capRept.listGrid[value].nodataFound =false;
@@ -224,7 +224,7 @@
                         ///
 
 
-                        if(capRept.listGrid[value].data && capRept.listGrid[value].data.length == 0){
+                        if(capRept.listGrid[value].data && capRept.listGrid[value].data.length === 0){
                             capRept.listGrid[value].nodataFound =true;
                         } else {
                             capRept.listGrid[value].nodataFound =false;
