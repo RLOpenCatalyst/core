@@ -2520,7 +2520,8 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                     // Start Auto create Team
                                     if (req.params.id === '1') {
                                         d4dModelNew.d4dModelMastersOrg.find({
-                                            orgname: bodyJson["orgname"]
+                                            orgname: bodyJson["orgname"],
+                                            id:'1'
                                         }, function (err, orgs) {
                                             if (err) {
                                                 logger.error('Hit error while check org is exist with Org Name', err);
@@ -2531,8 +2532,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                 res.status(400).send("Org Name already exists.Please enter different Org Name");
                                                 return;
                                             } else {
-
-
                                                 var orgData = {
                                                     "orgname": bodyJson['orgname'],
                                                     "domainname": bodyJson['domainname'],
@@ -2701,7 +2700,8 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                             }
                                             bodyJson["password"] = hashedPassword;
                                             d4dModelNew.d4dModelMastersUsers.find({
-                                               loginname: bodyJson["loginname"]
+                                                loginname: bodyJson["loginname"],
+                                                id:'7'
                                             }, function (err, users) {
                                                 if (err) {
                                                     logger.error('Hit error while check user is exist with Login Name', err);
@@ -2713,8 +2713,9 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                     return;
                                                 } else {
                                                     d4dModelNew.d4dModelMastersUsers.find({
-                                                            email: bodyJson["email"]
-                                                        },function(err,usersList){
+                                                        email: bodyJson["email"],
+                                                        id:'7'
+                                                    },function(err,usersList){
                                                         if (err) {
                                                             logger.error('Hit error while check user is exist with email', err);
                                                             res.send(500);
