@@ -738,7 +738,7 @@ $(document).ready(function() {
             var chefEnv = $('#environmentname option:selected').val();
             var puppetEnv = $('#puppetenvironmentname option:selected').val();
             if (!chefEnv && !puppetEnv) {
-                alert('Either Chef or Puppet Environment Required.');
+                bootbox.alert('Either Chef or Puppet Environment Required');
                 return false;
             }
 
