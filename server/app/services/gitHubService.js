@@ -126,13 +126,14 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId, callback) {
                             }
                         }
                     }
-                    var localClonePath = "/tmp/"+ formattedGitHub.repositoryName;
+                    var localClonePath = appConfig.gitHubDir + formattedGitHub.repositoryName;
                     var repoUrl = "https://github.com/" + formattedGitHub.repositoryOwner + "/" + formattedGitHub.repositoryName + ".git";
                     gitRepoCloning(repoUrl,localClonePath,cloneOpts,gitHubId,function(err,cloneStatus){
                         if(err){
                             callback(err,null);
                             return;
                         }else{
+                            callback(null,cloneStatus);
                             callback(null,cloneStatus);
                             return;
                         }
@@ -151,7 +152,7 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId, callback) {
                             }
                         }
                     }
-                    var localClonePath = "/tmp/"+ formattedGitHub.repositoryName;
+                    var localClonePath = appConfig.gitHubDir + formattedGitHub.repositoryName;
                     var repoUrl = "https://github.com/" + formattedGitHub.repositoryOwner + "/" + formattedGitHub.repositoryName + ".git";
                     gitRepoCloning(repoUrl,localClonePath,cloneOpts,gitHubId,function(err,cloneStatus){
                         if(err){
@@ -176,7 +177,7 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId, callback) {
                             }
                         }
                     }
-                    var localClonePath = "/tmp/"+ formattedGitHub.repositoryName;
+                    var localClonePath = appConfig.gitHubDir + formattedGitHub.repositoryName;
                     var repoUrl = "https://github.com/" + formattedGitHub.repositoryOwner + "/" + formattedGitHub.repositoryName + ".git";
                     gitRepoCloning(repoUrl,localClonePath,cloneOpts,gitHubId,function(err,cloneStatus){
                         if(err){
@@ -188,7 +189,7 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId, callback) {
                         }
                     });
                 }else{
-                    var localClonePath = "/tmp/"+ formattedGitHub.repositoryName;
+                    var localClonePath = appConfig.gitHubDir + formattedGitHub.repositoryName;
                     var repoUrl = "https://github.com/" + formattedGitHub.repositoryOwner + "/" + formattedGitHub.repositoryName + ".git";
                     gitRepoCloning(repoUrl,localClonePath,{},gitHubId,function(err,cloneStatus){
                         if(err){
@@ -263,8 +264,8 @@ gitGubService.getGitHubById = function getGitHubById(gitHubId, callback) {
             err.status = 404;
             return callback(err);
         } else{
-            formatGitHubResponse(gitHub,function(err,formattedData){
-                callback(null,formattedData);
+            formatGitHubResponse(gitHub,function(formattedData){
+                callback(null, formattedData);
             });
         }
     });

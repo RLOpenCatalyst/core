@@ -194,18 +194,12 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
                 if(err){
                     callback(err,null);
                 }else if (botsAudits.length > 0) {
-                    var results = [];
                     for (var i = 0; i < botsAudits.length; i++) {
                         if (botsIds.indexOf(botsAudits[i].auditId) === -1) {
                             botsIds.push(botsAudits[i].auditId);
-                            results.push(botsAudits[i].auditId);
-                        } else {
-                            results.push(botsAudits[i].auditId);
                         }
                     }
-                    if (results.length === botsAudits.length) {
-                        callback(null,botsIds.length);
-                    }
+                    callback(null,botsIds.length);
                 } else {
                     callback(null,botsIds.length);
                 }
@@ -232,18 +226,12 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
                 if(err){
                     callback(err,null);
                 }else if (botsAudits.length > 0) {
-                    var results = [];
                     for (var i = 0; i < botsAudits.length; i++) {
                         if (botsIds.indexOf(botsAudits[i].auditId) === -1) {
                             botsIds.push(botsAudits[i].auditId);
-                            results.push(botsAudits[i].auditId);
-                        } else {
-                            results.push(botsAudits[i].auditId);
                         }
                     }
-                    if (results.length === botsAudits.length) {
-                        callback(null,botsIds.length);
-                    }
+                    callback(null,botsIds.length);
                 } else {
                     callback(null,botsIds.length);
                 }
@@ -293,14 +281,9 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
                     for (var i = 0; i < botsAudits.length; i++) {
                         if (botsIds.indexOf(botsAudits[i].auditId) === -1) {
                             botsIds.push(botsAudits[i].auditId);
-                            results.push(botsAudits[i].auditId);
-                        } else {
-                            results.push(botsAudits[i].auditId);
                         }
                     }
-                    if (results.length === botsAudits.length) {
-                        callback(null,botsIds.length);
-                    }
+                    callback(null,botsIds.length);
                 } else {
                     callback(null,botsIds.length);
                 }

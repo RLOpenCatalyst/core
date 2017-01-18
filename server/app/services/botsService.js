@@ -26,6 +26,8 @@ var blueprintService =  require('_pr/services/blueprintService.js');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var appConfig = require('_pr/config');
+const fileHound= require('filehound');
+const yamlJs= require('yamljs');
 const gitHubService = require('_pr/services/gitHubService.js');
 
 const errorType = 'botsService';
@@ -489,10 +491,54 @@ botsService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
         },
         function(gitHubDetails,next){
             if(gitHubDetails !== null){
+                console.log(JSON.stringify(gitHubDetails));
+                var gitHubDirPath = appConfig.gitHubDir + gitHubDetails.repositoryName;
+                fileHound.create()
+                    .paths(gitHubDirPath)
+                    .ext('yaml')
+                    .find().then(function(files){
+                    if(files.length > 0){
+                        var count = 0;
+                        var botObjList = [];
+                        for(var i = 0; i < files.length; i++){
+                            (function(ymlFile){
+                                yamlJs.load(ymlFile, function(result) {
+                                    if(result !== null){
+                                        count++;
+                                        var botsObj={
+                                            name:result.name,
+                                            botId:result.id,
+                                            desc:result.desc,
+                                            category:result.category,
+                                            type:result.type,
+                                            inputFormFields:result.input.form,
+                                            outputOptions:result.output
+                                        }
+                                        botObjList.push(botsObj);
+                                    }else{
+                                        count++;
+                                    }
+                                    if(count === files.length){
+                                        next(null,botObjList);
+                                    }
+                                });
+                            })(files[i]);
+                        }
+
+                    }else{
+                        logger.info("There is no YAML files in this directory.",gitHubDirPath);
+                    }
+                }).catch(function(err){
+                    next(err,null);
+                });
 
             }else{
                 next(null,gitHubDetails);
             }
+        },
+        function(botsObjList,next){
+            console.log(JSON.stringify(botsObjList));
+            next(null,botsObjList);
         }
     ],function(err, results) {
         if (err){

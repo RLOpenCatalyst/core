@@ -37,6 +37,7 @@ function getDefaultsConfig() {
         app_run_port: 3001,
         catalystDataDir: currentDirectory + '/catdata',
         javaLibDir: currentDirectory + '/app',
+        gitHubDir: currentDirectory + '/gitHub/',
         catalysHomeDirName: 'catalyst',
         instancePemFilesDirName: 'instance-pemfiles',
         tempDirName: 'temp',
