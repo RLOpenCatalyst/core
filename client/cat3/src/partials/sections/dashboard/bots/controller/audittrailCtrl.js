@@ -12,7 +12,6 @@
     function ($scope, $rootScope, $state, genSevs, confirmbox, workzoneServices, toastr, workzoneUIUtils, $modal, uiGridOptionsService, $timeout) {
         var treeNames = ['BOTs','Audit Trail'];
         $rootScope.$emit('treeNameUpdate', treeNames);
-        var audit=this;
         var botAuditTrailUIGridDefaults = uiGridOptionsService.options();
         $scope.paginationParams = botAuditTrailUIGridDefaults.pagination;
         $scope.paginationParams=[];
@@ -44,7 +43,7 @@
                 { name: 'Environment',field:'masterDetails.envName'},
                 { name: 'User',field:'user'},
                 { name: 'Logs',cellTemplate: '<span class="btn cat-btn-update control-panel-button" title="Logs" ng-click="grid.appScope.botAuditTrailLogs(row.entity);"><i class="fa fa-info white"></i></span>'}
-            ]
+            ];
             $scope.botAuditTrailGridOptions.data=[];
             angular.extend($scope.botAuditTrailGridOptions,botAuditTrailUIGridDefaults.gridOption);
         };

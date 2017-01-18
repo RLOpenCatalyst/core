@@ -33,7 +33,7 @@
                     $scope.TagName.environmentTag=instResult.tagName+'-en';
                     $scope.TagName.envFild='tags.'+instResult.tagName;
                     angular.forEach(instResult.tagValues,function(val){
-                        $scope.TagName.environment.push({id:val,name:val})
+                        $scope.TagName.environment.push({id:val,name:val});
                     });
                 });
                 // Bu
@@ -44,7 +44,7 @@
                     $scope.TagName.bgTag=instResult.tagName+'-bu';
                     $scope.TagName.bgFild='tags.'+instResult.tagName;
                     angular.forEach(instResult.tagValues,function(val){
-                        $scope.TagName.bg.push({id:val,name:val})
+                        $scope.TagName.bg.push({id:val,name:val});
                     });
                 });
                 // project
@@ -55,7 +55,7 @@
                     $scope.TagName.projectTag=instResult.tagName+'-pr';
                     $scope.TagName.projFild='tags.'+instResult.tagName;
                     angular.forEach(instResult.tagValues,function(val){
-                        $scope.TagName.project.push({id:val,name:val})
+                        $scope.TagName.project.push({id:val,name:val});
                     });
 
                 });
@@ -122,7 +122,6 @@
                                             });
                                         });
                                     }
-
                                 });
                                 gridApi.selection.on.rowSelectionChanged($scope,function(row){
                                     if(row.isSelected){
@@ -130,7 +129,6 @@
                                     } else {
                                         $scope.selectInstanceRow.splice(row.entity._id,1);
                                     }
-
                                 });
                                 gridApi.selection.on.rowSelectionChangedBatch($scope,function(rows){
                                     angular.forEach(rows,function(row){
@@ -370,7 +368,7 @@
             };
             disResrc.init();
             
-        }]).controller('instanceManageCtrl',['$scope','$rootScope','items','$modalInstance','genericServices','$modal',function ($scope,$rootScope,items,$modalInstance,genericServices,$modal) {
+        }]).controller('instanceManageCtrl',['$scope','$rootScope','items','$modalInstance','genericServices','$modal','toastr',function ($scope,$rootScope,items,$modalInstance,genericServices,$modal,toastr) {
         $scope.items=items;
         var fltrObj=$rootScope.filterNewEnt;
         var reqBody = {};
@@ -384,7 +382,7 @@
         //get configmanagement
         var params={
             url:'/d4dMasters/organization/'+$scope.IMGNewEnt.org.orgid+'/configmanagement/list'
-        }
+        };
         genericServices.promiseGet(params).then(function (list) {
             $scope.configOptions=list;
         });
@@ -392,7 +390,7 @@
         //get monitors
         var monitorParam={
             url:'/monitors?filterBy=orgId:' + $scope.IMGNewEnt.org.orgid
-        }
+        };
         genericServices.promiseGet(monitorParam).then(function (list) {
             $scope.monitorList = list;
         });
@@ -412,7 +410,7 @@
             }
         };
         $scope.ok = function() {
-            if($scope.monitorId == 'null') {
+            if($scope.monitorId === 'null') {
                 $scope.monitorId = null;
             }
             $scope.importSpinner = true;
@@ -420,7 +418,7 @@
             reqBody.orgId = $scope.IMGNewEnt.org.orgid;
             reqBody.bgId = $scope.IMGNewEnt.buss.rowid;
             reqBody.projectId = $scope.IMGNewEnt.proj.rowId;
-            reqBody.envId = $scope.IMGNewEnt.env.rowid
+            reqBody.envId = $scope.IMGNewEnt.env.rowid;
             reqBody.orgName = $scope.IMGNewEnt.org.name; 
             reqBody.bgName = $scope.IMGNewEnt.buss.name;
             reqBody.projectName = $scope.IMGNewEnt.proj.name;
@@ -438,7 +436,7 @@
                     inlineLoader: true,
                     url:'/providers/' + fltrObj.provider.id + '/sync',
                     data:reqBody
-                }
+                };
                 genericServices.promisePost(params).then(function (response) {
                     
                     if(response.taskId){
@@ -483,8 +481,7 @@
                 reqBody.credentials.pemFileData = pemfileText;
                 $scope.postMethodImportByIp();
             };
-            
-        }
+        };
         $scope.cancel = function() {
             $modalInstance.dismiss('cancel');
         };

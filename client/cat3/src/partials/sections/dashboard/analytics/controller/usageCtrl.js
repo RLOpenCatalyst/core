@@ -132,9 +132,7 @@
                     $timeout(function(){$rootScope.applyFilter(true,'month')},500);
                     var treeNames = ['Cloud Management','Analytics','Usage'];
                     $rootScope.$emit('treeNameUpdate', treeNames);
-
                 };
             usage.init();
-
         }]);
 })(angular);
