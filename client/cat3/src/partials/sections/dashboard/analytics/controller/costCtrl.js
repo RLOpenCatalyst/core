@@ -98,6 +98,8 @@
                 };
            };
             costObj.getCostData=function(fltObj){
+                costObj.pieChat.data = [];
+                costObj.barChat.data = [];
                 var param = {
                     // url: 'src/partials/sections/dashboard/analytics/data/cost.json?org'
                     url:''
