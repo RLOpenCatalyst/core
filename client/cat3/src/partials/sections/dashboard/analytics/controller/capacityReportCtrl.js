@@ -220,7 +220,7 @@
                 } else if(fltrObj && fltrObj.provider && fltrObj.provider.id){
                     var param = {
                         inlineLoader:true,
-                       url: '/resources?filterBy=providerDetails.id:'+fltrObj.provider.id+'+resourceType:'+capRept.serviceType+'+category:'+$rootScope.organNewEnt.instanceType.toLowerCase()
+                       url: '/resources?filterBy=providerDetails.id:'+fltrObj.provider.id+',resourceType:'+capRept.serviceType+',category:'+$rootScope.organNewEnt.instanceType.toLowerCase()
                        // url:'src/partials/sections/dashboard/analytics/data/ins.json'
                     };
                     genSevs.promiseGet(param).then(function (instResult) {
