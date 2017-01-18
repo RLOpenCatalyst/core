@@ -54,7 +54,7 @@
                     //'<a class="cursor" title="Report" ng-click="grid.appScope.botReport(row.entity);"><i class="fa fa-file-text font-size-16"></i></a>' + 
                     '<a title="Delete"><i class="fa fa-trash-o font-size-16 cursor" ng-click="grid.appScope.deleteBot(row.entity);"></i></a>'
                 }
-            ]
+            ];
             $scope.botLibGridOptions.data=[];
             angular.extend($scope.botLibGridOptions,botLibraryUIGridDefaults.gridOption);
         };
@@ -87,8 +87,6 @@
             $scope.paginationParams.sortOrder = 'desc';
             if($scope.paginationParams.page !== 1){
                 $scope.setFirstPageView();//if current page is not 1, then ui grid will trigger a call when set to 1.
-            }else{
-                //$scope.botLibraryGridView();
             }
         };
         $scope.setPaginationDefaults();
@@ -118,20 +116,20 @@
             if($scope.totalBotsSelected) {
                 var param={
                     url:'/bots?page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
-                }
+                };
             } else if($scope.runningBotsselected) {
                 var param={
                     url:'/bots?actionStatus=running&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
-                }
+                };
             } else if($scope.scheduledBotsselected) {
                 var param={
                     url:'/bots?filterBy=isBotScheduled:true&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
-                }
+                };
             } else if($scope.failedBotsselected) {
                 var param={
                     url:'/bots?actionStatus=failed&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
-                }
-            };
+                };
+            }
             genSevs.promiseGet(param).then(function (result) {
                 $timeout(function() {
                     $scope.botLibGridOptions.totalItems = result.metaData.totalRecords;
@@ -188,15 +186,15 @@
             if ($scope.botLibFilter === 'botType') {
                 var param={
                     url:'/bots?filterBy=botType:'+$scope.botLibFilterBot+'&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
-                }
+                };
             } else if($scope.botLibFilter === 'taskType') {
                 var param={
                     url:'/bots?filterBy=botLinkedSubCategory:'+$scope.botLibFilterTask+'&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
-                }
+                };
             } else if($scope.botLibFilter === 'category') {
                 var param={
                     url:'/bots?filterBy=botCategory:'+$scope.botLibFilterCategory+'&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
-                } 
+                }; 
             } else {
                 $scope.RefreshBotsLibrary();
             }
@@ -270,7 +268,7 @@
                 keyboard: false,
                 resolve: {
                     items: function () {
-                        return bot
+                        return bot;
                     }
                 }
             }).result.then(function () {
@@ -286,7 +284,7 @@
                 actionButtonText: 'Delete',
                 actionButtonStyle: 'cat-btn-delete',
                 headerText: 'Delete Bot',
-                bodyText: 'Are you sure you want to delete this bots?'
+                bodyText: 'Are you sure you want to delete this BOT?'
             };
             confirmbox.showModal({}, modalOptions).then(function() {
                 var param={
@@ -294,7 +292,7 @@
                 };
                 genSevs.promiseDelete(param).then(function (response) {
                     if (response) {
-                        toastr.success('Successfully deleted');
+                        toastr.success('Successfully deleted.');
                         lib.summary();
                         if($scope.totalBotsSelected) {
                             $scope.botLibraryGridView();
@@ -412,7 +410,7 @@
         $scope.cancel= function() {
             $modalInstance.dismiss('cancel');
         };
-    }]).controller('botScheduleCtrl',['$scope', '$rootScope', 'genericServices', 'workzoneServices', 'toastr', '$modalInstance', 'items', '$timeout', function ($scope, $rootScope, genSevs, workzoneServices, toastr, $modalInstance, items, $timeout) {
+    }]).controller('botScheduleCtrl',['$scope', '$rootScope', 'genericServices', 'workzoneServices', 'toastr', '$modalInstance', 'items', function ($scope, $rootScope, genSevs, workzoneServices, toastr, $modalInstance, items) {
         if(items.isBotScheduled === true){
             $scope._isEventSelected = true;
             $scope.isScheduled = true;
@@ -463,7 +461,6 @@
             $scope.defaultSelection();
         }
         
-
         $scope.dateChange= function () {
             var startDate =  Date.parse($scope.schedulerStartOn);
             var endDate =  Date.parse($scope.schedulerEndOn);
@@ -472,7 +469,6 @@
             } else {
                 $scope.validDateRange=false;
             }
-
         };
 
         $scope.repeatCount = function(max, step) {
@@ -485,7 +481,7 @@
         };
         $scope.isDaySelected = {
             flag:true
-        }
+        };
 
         $scope.daysOfWeek = [ 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' ];
 
@@ -505,15 +501,15 @@
             };
             var reqBody = null;
             if($scope.isScheduled === true || $scope.isScheduled === 'true'){
-                 reqBody = {
+                reqBody = {
                     botScheduler:$scope.eventParams,
                     isBotScheduled:true
-                }
+                };
             }else{
-                 reqBody = {
+                reqBody = {
                     botScheduler:{},
                     isBotScheduled:false
-                }
+                };
             }
             var param={
                 url:'/bots/' + $scope.botId + '/scheduler',
@@ -531,8 +527,8 @@
         $scope.cancel = function() {
             $modalInstance.dismiss('cancel');
         };
-    }]).controller('botHistoryCtrl',["items", '$scope', '$modalInstance', '$modal', '$timeout', 'uiGridOptionsClient', 'genericServices', 'workzoneServices',
-        function(items, $scope, $modalInstance, $modal, $timeout, uiGridOptionsClient, genSevs, workzoneServices){
+    }]).controller('botHistoryCtrl',["items", '$scope', '$modalInstance', '$modal', '$timeout', 'uiGridOptionsClient', 'genericServices',
+        function(items, $scope, $modalInstance, $modal, $timeout, uiGridOptionsClient, genSevs){
             //UI Grid for chef Task starts
             $scope.botHistory = items;
             $scope.botId = items.botId;
@@ -782,51 +778,27 @@
             }
 
             $scope.historyLogs=function(hist) {
-                console.log(hist);
-                //if(hist.auditTrailConfig && (hist.auditTrailConfig.executionType == 'chef') || (hist.auditTrailConfig.executionType == 'jenkins') || (hist.auditTrailConfig.executionType == 'script')) {
-                    var modalInstance = $modal.open({
-                        animation: true,
-                        templateUrl: 'src/partials/sections/dashboard/bots/view/botExecutionLogs.html',
-                        controller: 'botExecutionLogsCtrl as botExecLogCtrl',
-                        backdrop : 'static',
-                        keyboard: false,
-                        resolve: {
-                            items: function() {
-                                return {
-                                    taskId : hist.auditId,
-                                    historyId : hist.auditHistoryId ? hist.auditHistoryId : hist.auditTrailConfig.nodeIdsWithActionLog[0] && hist.auditTrailConfig.nodeIdsWithActionLog[0].actionLogId,
-                                    taskType:hist.auditTrailConfig.executionType
-                                };
-                            }
+                var modalInstance = $modal.open({
+                    animation: true,
+                    templateUrl: 'src/partials/sections/dashboard/bots/view/botExecutionLogs.html',
+                    controller: 'botExecutionLogsCtrl as botExecLogCtrl',
+                    backdrop : 'static',
+                    keyboard: false,
+                    resolve: {
+                        items: function() {
+                            return {
+                                taskId : hist.auditId,
+                                historyId : hist.auditHistoryId ? hist.auditHistoryId : hist.auditTrailConfig.nodeIdsWithActionLog[0] && hist.auditTrailConfig.nodeIdsWithActionLog[0].actionLogId,
+                                taskType:hist.auditTrailConfig.executionType
+                            };
                         }
-                    });
-                    modalInstance.result.then(function(selectedItem) {
-                        $scope.selected = selectedItem;
-                    }, function() {
-                        console.log('Modal Dismissed at ' + new Date());
-                    });
-               /* } else {
-                    var modalInstance = $modal.open({
-                        animation: true,
-                        templateUrl: 'src/partials/sections/dashboard/workzone/instance/popups/instanceLogs.html',
-                        controller: 'cpActionHistoryLogCtrl',
-                        backdrop : 'static',
-                        keyboard: false,
-                        resolve: {
-                            items: function() {
-                                return {
-                                    actionHistoryData : hist,
-                                    cpInstance: hist
-                                };
-                            }
-                        }
-                    });
-                    modalInstance.result.then(function(selectedItem) {
-                        $scope.selected = selectedItem;
-                    }, function() {
-                        console.log('Modal Dismissed at ' + new Date());
-                    });
-                };*/
+                    }
+                });
+                modalInstance.result.then(function(selectedItem) {
+                    $scope.selected = selectedItem;
+                }, function() {
+                    console.log('Modal Dismissed at ' + new Date());
+                });
             }
 
             $scope.cancel= function() {

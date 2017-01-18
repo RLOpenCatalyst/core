@@ -33,7 +33,7 @@
         $scope.totalCount = 0;
         $scope.countInit = function() {
            return $scope.totalCount++;
-        }
+        };
 
         if (items.botLinkedSubCategory === 'chef') {
             $scope.chefComponentSelectorList = responseFormatter.findDataForEditValue(items.botConfig.runlist);
