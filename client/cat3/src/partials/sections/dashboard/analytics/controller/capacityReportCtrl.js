@@ -232,7 +232,7 @@
                                     capRept.listGrid[value].data[ke].dbEngine = va.resourceDetails.dbEngine;
                                     capRept.listGrid[value].data[ke].state = va.resourceDetails.dbInstanceStatus;
                                     capRept.listGrid[value].data[ke].providerData={};
-                                    capRept.listGrid[value].data[ke].providerData.region = va.resourceDetails.region;
+                                    capRept.listGrid[value].data[ke].region = va.resourceDetails.region;
                                     capRept.listGrid[value].data[ke].orgName = va.masterDetails.orgName;
                                     capRept.listGrid[value].data[ke].showSchedule=false;
                                 });

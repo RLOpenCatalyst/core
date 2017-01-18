@@ -100,6 +100,7 @@
             costObj.getCostData=function(fltObj){
                 costObj.pieChat.data = [];
                 costObj.barChat.data = [];
+                costObj.costGridOptions.data = [];
                 var param = {
                     // url: 'src/partials/sections/dashboard/analytics/data/cost.json?org'
                     url:''
