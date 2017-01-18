@@ -17,6 +17,7 @@
 
 var logger = require('_pr/logger')(module);
 var bots = require('_pr/model/bots/1.0/bots.js');
+var botsDao = require('_pr/model/bots/1.1/botsDao.js');
 var async = require("async");
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var taskService =  require('_pr/services/taskService.js');
@@ -485,7 +486,6 @@ botsService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
         },
         function(gitHubDetails,next){
             if(gitHubDetails !== null){
-                console.log(JSON.stringify(gitHubDetails));
                 var gitHubDirPath = appConfig.gitHubDir + gitHubDetails.repositoryName;
                 fileHound.create()
                     .paths(gitHubDirPath)
@@ -501,14 +501,22 @@ botsService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
                                         count++;
                                         var botsObj={
                                             name:result.name,
-                                            botId:result.id,
+                                            id:result.id,
                                             desc:result.desc,
                                             category:result.category,
                                             type:result.type,
                                             inputFormFields:result.input.form,
-                                            outputOptions:result.output
+                                            outputOptions:result.output,
+                                            ymlDocFilePath:ymlFile,
+                                            orgId:gitHubDetails.orgId,
+                                            orgName:gitHubDetails.orgName
                                         }
-                                        botObjList.push(botsObj);
+                                        botsDao.createNew(botsObj,function(err,data){
+                                            if(err){
+                                                logger.error(err);
+                                            }
+                                            botObjList.push(botsObj);
+                                        })
                                     }else{
                                         count++;
                                     }
@@ -520,7 +528,7 @@ botsService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
                         }
 
                     }else{
-                        logger.info("There is no YAML files in this directory.",gitHubDirPath);
+                        logger.info("There is no YML files in this directory.",gitHubDirPath);
                     }
                 }).catch(function(err){
                     next(err,null);
@@ -529,9 +537,6 @@ botsService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
             }else{
                 next(null,gitHubDetails);
             }
-        },
-        function(botsObjList,next){
-            next(null,botsObjList);
         }
     ],function(err, results) {
         if (err){
