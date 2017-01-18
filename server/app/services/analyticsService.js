@@ -133,7 +133,7 @@ analyticsService.aggregateEntityCosts
 
 analyticsService.deleteAggregateEntityCosts = function deleteAggregateEntityCosts(parentEntityId, endTime, period, callback) {
     var startTime = dateUtil.getStartOfPeriod(period, endTime);
-    entityCostsModel.deleteEntityCost(parentEntityId, Date.parse(startTime), function (err) {
+    entityCostsModel.deleteEntityCost(parentEntityId, Date.parse(startTime), period, function (err) {
         if (err) {
             return callback(err);
         }

@@ -122,10 +122,11 @@ EntityCostsSchema.statics.upsertEntityCost = function upsertEntityCost(entityCos
     });
 }
 
-EntityCostsSchema.statics.deleteEntityCost = function deleteEntityCost(parentEntityId, startTime, callback) {
+EntityCostsSchema.statics.deleteEntityCost = function deleteEntityCost(parentEntityId, startTime, period, callback) {
     var query = {
         'parentEntity.id': parentEntityId,
-        'startTime': {$gte:startTime}
+        'startTime': startTime,
+        'period': period
     };
 
     this.find(query).remove(function(err, result) {
