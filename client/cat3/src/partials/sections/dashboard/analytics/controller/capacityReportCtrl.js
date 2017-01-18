@@ -35,7 +35,8 @@
                     capRept.chartData=result;
                     $rootScope.splitUpCapacities=[];
                     capRept.serviceCapacity=result.capacity.AWS;
-                    capRept.serviceType=Object.keys(capRept.serviceCapacity.services)[0];
+                    //capRept.serviceType=Object.keys(capRept.serviceCapacity.services)[0];
+                    capRept.serviceType='EC2';
                     if(result.splitUpCapacities && Object.keys(result.splitUpCapacities).length >0) {
                         angular.forEach(result.splitUpCapacities, function (val, key) {
                             var a=key.replace(/([A-Z])/g, ' $1').replace(/^./, function(str) {
@@ -106,11 +107,37 @@
                     capRept.listGrid[value].paginationPageSizes= [25, 50, 100];
                     capRept.listGrid[value].paginationPageSize=25;
                     $scope.colArray=['platformId','state','orgName','privateIpAddress','os'];
-                if(capRept.serviceType !== 'S3') {
+                    if(capRept.serviceType === 'EC2') {
                     capRept.listGrid[value].columnDefs = [
                         {name: 'Instance Id', field: 'platformId', cellTooltip: true},
                         {name: 'os', enableFiltering: true, displayName: 'OS', field: 'os', cellTooltip: true},
                         {name: 'privateIpAddress', displayName: 'IP Address', cellTooltip: true},
+                        {name: 'state', displayName: 'Status', cellTooltip: true},
+                        {
+                            name: 'Region', displayName: 'Region',
+                            field: 'region',
+                            cellTooltip: true
+                        },
+                        {name: 'orgName', displayName: 'Org Name', field: 'orgName', cellTooltip: true},
+                        {
+                            name: 'cost',
+                            displayName: 'Cost',
+                            cellTemplate: '<span ng-bind-html="grid.appScope.aggregateInstanceCost(row.entity.cost)"></span>'
+                        },
+                        {
+                            name: 'Action',
+                            cellTooltip: true,
+                            cellTemplate: "<span class='cursor' title='Usage' style='font-size: 14px;' ng-click='grid.appScope.openChart(row.entity)'><i class=\"fa fa-line-chart\"></i></span> " +
+                            "&nbsp;&nbsp; <span ng-show='row.entity.showSchedule' class='cursor' ng-click='grid.appScope.Schedule(row.entity._id)' style='font-size: 14px;' title='Schedule'><i class=\"fa fa-calendar\"></i></span>"
+                        }
+                        // {name: 'Chef', cellTooltip: true,cellTemplate:"<span class='cursor' ng-click='grid.appScope.chefConfig(row.entity)'><i  class=\"fa fa-eye\" title=\"Chef Configuration\"></i></span>"}
+                    ];
+                }
+                if(capRept.serviceType === 'RDS') {
+                    $scope.colArray=['platformId','state','orgName','dbEngine']
+                    capRept.listGrid[value].columnDefs = [
+                        {name: 'Instance', field: 'platformId', cellTooltip: true},
+                        {name: 'dbEngine', enableFiltering: true, displayName: 'Engine', field: 'dbEngine', cellTooltip: true},
                         {name: 'state', displayName: 'Status', cellTooltip: true},
                         {
                             name: 'Region', displayName: 'Region',
@@ -202,7 +229,7 @@
                             if(capRept.serviceType === 'RDS'){
                                 angular.forEach(instResult.data,function (va,ke) {
                                     capRept.listGrid[value].data[ke].platformId = va.resourceDetails.dbInstanceIdentifier;
-                                    capRept.listGrid[value].data[ke].privateIpAddress = '....';
+                                    capRept.listGrid[value].data[ke].dbEngine = va.resourceDetails.dbEngine;
                                     capRept.listGrid[value].data[ke].state = va.resourceDetails.dbInstanceStatus;
                                     capRept.listGrid[value].data[ke].providerData={};
                                     capRept.listGrid[value].data[ke].providerData.region = va.resourceDetails.region;
