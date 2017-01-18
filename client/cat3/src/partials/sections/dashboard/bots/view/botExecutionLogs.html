@@ -13,10 +13,7 @@
                 <div ng-switch-when="jenkins">
                     <div ng-include="'src/partials/sections/dashboard/bots/view/jenkinsLog.html'" ></div>
                 </div>
-                <div ng-switch-when="chef">
-                    <div ng-include="'src/partials/sections/dashboard/bots/view/chefLog.html'" ></div>
-                </div>
-                <div ng-switch-when="script">
+                <div ng-switch-default>
                     <div ng-include="'src/partials/sections/dashboard/bots/view/chefLog.html'" ></div>
                 </div>
             </div>
