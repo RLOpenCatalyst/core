@@ -247,10 +247,9 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
                 if(err){
                     callback(err,null);
                 } else if(botAuditTrail.length > 0){
-                    var totalTimeInSeconds = 0,count =0
+                    var totalTimeInSeconds = 0;
                     for(var i = 0; i < botAuditTrail.length; i++){
                         (function(auditTrail){
-                            count++;
                             if(auditTrail.endedOn && auditTrail.endedOn !== null
                                 && auditTrail.auditTrailConfig.manualExecutionTime && auditTrail.auditTrailConfig.manualExecutionTime !== null) {
                                 var executionTime = getExecutionTime(auditTrail.endedOn, auditTrail.startedOn);
@@ -258,9 +257,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
                             }
                         })(botAuditTrail[i]);
                     }
-                    if(count === botAuditTrail.length){
-                        callback(null,(totalTimeInSeconds/60).toFixed(2));
-                    }
+                    callback(null,(totalTimeInSeconds/60).toFixed(2));
                 } else{
                     callback(null,botAuditTrail.length);
                 }

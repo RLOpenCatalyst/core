@@ -185,19 +185,13 @@ botsService.getBotsList = function getBotsList(botsQuery,actionStatus,callback) 
                     if(err){
                         next(err,null);
                     }else if (botsAudits.length > 0) {
-                        var results = [];
                         for (var i = 0; i < botsAudits.length; i++) {
                             if (botsIds.indexOf(botsAudits[i].auditId) < 0) {
                                 botsIds.push(botsAudits[i].auditId);
-                                results.push(botsAudits[i].auditId);
-                            } else {
-                                results.push(botsAudits[i].auditId);
                             }
                         }
-                        if (results.length === botsAudits.length) {
-                            queryObj.queryObj.botId = {$in:botsIds};
-                            bots.getBotsList(queryObj, next);
-                        }
+                        queryObj.queryObj.botId = {$in:botsIds};
+                        bots.getBotsList(queryObj, next);
                     } else {
                         queryObj.queryObj.botId = null;
                         bots.getBotsList(queryObj, next);
@@ -537,7 +531,6 @@ botsService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
             }
         },
         function(botsObjList,next){
-            console.log(JSON.stringify(botsObjList));
             next(null,botsObjList);
         }
     ],function(err, results) {
