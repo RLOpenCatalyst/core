@@ -13,7 +13,7 @@
                     var months=['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
                     $rootScope.filterNewEnt.endDate={
                         year:'2017',
-                        week:'1st',
+                        week:'0',
                         month:months[new Date().getMonth()],
                         day:moment(new Date()).format('YYYY-MM-DD')
                     };
@@ -29,6 +29,11 @@
                         if (period) {
                             if (period === 'day'){
                                 $rootScope.filterNewEnt.date= $rootScope.filterNewEnt.endDate.day;
+                            }else if(period === 'week'){
+                                var dt = new Date($rootScope.filterNewEnt.endDate.month+' '+ $rootScope.filterNewEnt.endDate.year);
+                                var wk=7*$rootScope.filterNewEnt.endDate.week;
+                                console.log(moment(dt).add(wk, 'days').format('YYYY-MM-DD'));
+                                $rootScope.filterNewEnt.date=moment(dt).add(wk, 'days').format('YYYY-MM-DD');
                             } else {
                                 $rootScope.filterNewEnt.date= $rootScope.filterNewEnt.endDate.month+' '+ $rootScope.filterNewEnt.endDate.year;
                             }
