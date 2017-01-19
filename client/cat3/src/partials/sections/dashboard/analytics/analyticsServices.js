@@ -11,9 +11,10 @@
                     $rootScope.splitUpCosts=[];
                     $rootScope.filterNewEnt.platformId=[];
                     var months=['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                    var weekInd= 0 | new Date().getDate() / 7;
                     $rootScope.filterNewEnt.endDate={
                         year:'2017',
-                        week:'0',
+                        week:weekInd.toString(),
                         month:months[new Date().getMonth()],
                         day:moment(new Date()).format('YYYY-MM-DD')
                     };
