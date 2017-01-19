@@ -12,12 +12,24 @@
   margin-left: 23px;
 }
 
+.marginbottom15 {
+  margin-bottom: 15px;
+}
+
 .paddingbottom10 {
   padding-bottom: 10px;
 }
 
+.paddingbottom20 {
+  padding-bottom: 20px;
+}
+
 .margintop8 {
   margin-top: 8px;
+}
+
+.paddingleft0 {
+  padding-left: 0px;
 }
 
 .cookbook-edit-text {
@@ -36,29 +48,46 @@
   height: 50px;
 }
 
-#botAuditTrailPage {
-  .ui-grid-column-menu-button {
-    display: none;
-  }
+.param-table {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.bot-info-wrapper {
+  max-height: 450px;
+  overflow-y: auto;
 }
 
 #botLibraryPage, #botAuditTrailPage {
   .page-name {
-      font-size: 18px;
-      margin: 5px 0 5px 10px;
+    font-size: 18px;
+    margin: 5px 0 5px 10px;
+  }
+
+  .search-icon {
+    margin-left: -26px; 
+    cursor: pointer;
   }
 
   .btn-xs {
-      padding: 1px 5px;
-      font-size: 12px;
+    padding: 1px 5px;
+    font-size: 12px;
   }
 
   .refresh-btn {
     margin: 2px 10px 0 0;
   }
 
+  .search-text {
+    font-weight: normal;
+  }
+
+  .bot-search {
+    -webkit-appearance: textfield !important;
+  }
+
   .borderTop {
-      border-top: 1px dashed #ddd;
+    border-top: 1px dashed #ddd;
   }
 }
 
@@ -67,84 +96,31 @@
     width: 100%;
   }
 
-  .selected {
-    height: 92px !important;
-    margin-top: 14px !important;
+  .filter-margin {
+    margin: 2px 10px 0 0;
   }
 
-  .selected-blue {
-    color: #00c0ef !important;
-    border: 1px solid #00c0ef !important;
+  .filter-by-text {
+    margin-top: 4px;
   }
 
-  .selected-green {
-    color: #00a65a !important;
-    border: 1px solid #00a65a !important;
+  .bot-library-search {
+    height: 33px;
+    margin-right: 12px;
   }
 
-  .selected-red {
-    color: #dd4b39 !important;
-    border: 1px solid #dd4b39 !important;
+  .section-bottom-glyph {
+    position: absolute;
+    top: 140px;
+    left: 97px;
+    font-size: 22px;
+    display: none;
   }
 
-  .info-box {
-    display: block;
-    min-height: 90px;
-    background: #fff;
-    width: 100%;
-    box-shadow: 0 1px 1px rgba(0,0,0,0.1);
-    margin: 15px 0;
-    border: 1px solid #ccc;
+  .selected-section {
+    display: block !important;
   }
 
-  .info-box-content {
-    padding: 5px 10px;
-    margin-left: 90px;
-  }
-
-  .info-box-text {
-    text-transform: uppercase;
-  }
-
-  .info-box-text {
-    display: block;
-    font-size: 13px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .info-box-number {
-    display: block;
-    font-weight: bold;
-    font-size: 20px;
-  }
-
-  .info-box-icon {
-    display: block;
-    float: left;
-    height: 88px;
-    width: 88px;
-    text-align: center;
-    font-size: 45px;
-    line-height: 90px;
-    background: rgba(0,0,0,0.2);
-  }
-
-  .bg-aqua {
-    background-color: #00c0ef !important;
-  }
-
-  .bg-green {
-    background-color: #00a65a !important;
-  }
-
-  .bg-red {
-    background-color: #dd4b39 !important;
-  }
-}
-
-#botLibraryPage{
   .circle-tile {
     margin-bottom: 15px;
     text-align: center;
@@ -152,21 +128,22 @@
 
   .circle-tile-heading {
     position: relative;
-    width: 80px;
-    height: 80px;
-    margin: 10px auto -40px;
-    border: 3px solid rgba(255,255,255,0.3);
+    width: 65px;
+    height: 65px;
+    margin: 10px auto -35px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
     border-radius: 100%;
     color: #fff;
-    padding-top: 16px;
+    padding-top: 15px;
     transition: all ease-in-out .3s;
   }
 
   .circle-tile-number {
-    padding: 5px 0 15px;
-    font-size: 26px;
+    padding: 0px 0 0px;
+    font-size: 30px;
     font-weight: 700;
-    line-height: 1;
+    line-height: .6;
+    height: 28px;
   }
 
   .circle-tile-content {
@@ -175,15 +152,24 @@
 
   .circle-tile-description {
     text-transform: uppercase;
+    height: 29px;
   }
 
   .text-faded {
-    color: rgba(255,255,255,0.7);
-    font-weight: bold;
+    font-weight: normal;
+    color: #fff;
   }
 
   .dark-blue {
     background-color: #00c0ef;
+  }
+
+  .dark-blue-glyph {
+    color: #00c0ef;
+  }
+
+  .green-glyph {
+    color: #00a65a;
   }
 
   .green {
@@ -194,8 +180,32 @@
     background-color: #f39c12;
   }
 
-  .red {
+  .redcard {
     background-color: #e74c3c;
+  }
+
+  .redcard-glyph {
+    color: #e74c3c;
+  }
+
+  .bg-blue {
+    background-color: #2980b9;
+  }
+
+  .bg-blue-glyph {
+    color: #2980b9;
+  }
+
+  .font-size-16 {
+    font-size: 16px;
+  }
+
+  a {
+    padding: 0 8px;
+  }
+
+  .margin-21 {
+    margin: 0 20px;
   }
 
   #botLibraryPage .selected-blue {
@@ -205,27 +215,21 @@
   .ui-grid-cell{
     border-right:none !important;
   }
+}
 
-  /*global css*/
-  .ui-grid .ui-grid-row {
-    border-bottom: 1px solid #ccc;
+
+#botAuditTrailPage {
+  .bot-audit-trail-search {
+    height: 31px;
+    margin: 6px 9px 0 0px;
+  }
+
+  .ui-grid-column-menu-button {
+    display: none;
   }
 }
 
-.bot-library-search {
-  height: 33px;
-  margin-right: 12px;
-}
-
-.bot-audit-trail-search {
-  height: 31px;
-  margin: 6px 9px 0 0px;
-}
-
-.search-text {
-  font-weight: normal;
-}
-
-.bot-search {
-  -webkit-appearance: textfield !important;
+/*global css*/
+.ui-grid .ui-grid-row {
+  border-bottom: 1px solid #ccc;
 }

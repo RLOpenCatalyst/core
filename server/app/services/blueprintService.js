@@ -211,7 +211,7 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                         next({errCode:400,errMsg:"Invalid Domain name"},null);
                     }
                 }
-                if (reqBody.monitorId && reqBody.monitorId !== null) {
+                if (reqBody.monitorId && reqBody.monitorId !== null && reqBody.monitorId !== 'null') {
                     monitorId = reqBody.monitorId;
                 }
                 if(blueprint.serviceDeliveryCheck === true){

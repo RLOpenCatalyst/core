@@ -260,7 +260,7 @@ module.exports.setRoutes = function (app, verificationFunc) {
                             credentials = {
                                 username: appConfig.aws.instanceUserName,
                                 pemFileLocation: tempPemFileLocation
-                            }
+                            };
                             callback(null, credentials);
                         });
                     } else {
@@ -308,131 +308,139 @@ module.exports.setRoutes = function (app, verificationFunc) {
                                 return;
                             } else if (credentialStatus) {
                                 monitorsModel.getById(reqBody.monitorId, function (err, monitor) {
-                                var instance = {
-                                    name: node.name,
-                                    orgId: orgId,
-                                    bgId: bgId,
-                                    projectId: projectId,
-                                    envId: node.envId,
-                                    orgName: reqBody.orgName,
-                                    bgName: reqBody.bgName,
-                                    projectName: reqBody.projectName,
-                                    environmentName: envName,
-                                    chefNodeName: node.name,
-                                    runlist: runlist,
-                                    platformId: platformId,
-                                    instanceIP: nodeIp,
-                                    instanceState: 'running',
-                                    bootStrapStatus: 'success',
-                                    hardware: hardwareData,
-                                    tagServer: reqBody.tagServer,
-                                    monitor: monitor,
-                                    credentials: encryptedCredentials,
-                                    users: users,
-                                    chef: {
-                                        serverId: req.params.serverId,
-                                        chefNodeName: node.name
-                                    },
-                                    blueprintData: {
-                                        blueprintName: node.name,
-                                        templateId: "chef_import",
-                                        iconPath: "../private/img/templateicons/chef_import.png"
-                                    }
-                                };
-                                instancesDao.createInstance(instance, function (err, data) {
-                                    if (err) {
-                                        logger.debug(err, 'occured in inserting node in mongo');
-                                        callback(err, null);
-                                        return;
-                                    }
-                                    instance.id = data._id;
-                                    instance._id = data._id;
-                                    
-                                    //install sensu client if monitoring server configured
-                                    if (instance.monitor && instance.monitor.parameters.transportProtocol === 'rabbitmq') {
-                                        var sensuCookBook = 'recipe[sensu-client]';
-                                        var runlist = [];
-                                        var jsonAttributes = {};
-                                        runlist.push(sensuCookBook);
-                                        jsonAttributes['sensu-client'] = MasterUtils.getSensuCookbookAttributes(instance.monitor,instance.id);
-                                        
-                                        runOptions = {
-                                            privateKey: credentials.pemFileLocation,
-                                            username: credentials.username,
-                                            host: instance.instanceIP,
-                                            instanceOS: instance.hardware.os,
-                                            port: 22,
-                                            runlist: runlist,
-                                            overrideRunlist: false,
-                                            jsonAttributes: JSON.stringify(jsonAttributes)
-                                        };
-                                        chef.runClient(runOptions, function (err, retCode) {
-                                            logger.debug("knife ret code", retCode);
-                                        });
-
-                                    }
-
-
-
-
-                                    var timestampStarted = new Date().getTime();
-                                    var actionLog = instancesDao.insertBootstrapActionLogForChef(instance.id, [], req.session.user.cn, timestampStarted);
-                                    var logsReferenceIds = [instance.id, actionLog._id];
-                                    logsDao.insertLog({
-                                        referenceId: logsReferenceIds,
-                                        err: false,
-                                        log: "Node Imported",
-                                        timestamp: timestampStarted
-                                    });
-                                    var instanceLog = {
-                                        actionId: actionLog._id,
-                                        instanceId: instance.id,
+                                    var instance = {
+                                        name: node.name,
+                                        orgId: orgId,
+                                        bgId: bgId,
+                                        projectId: projectId,
+                                        envId: node.envId,
                                         orgName: reqBody.orgName,
                                         bgName: reqBody.bgName,
                                         projectName: reqBody.projectName,
-                                        envName: envName,
-                                        status: "running",
-                                        bootStrap: "success",
-                                        actionStatus: "success",
+                                        environmentName: envName,
+                                        chefNodeName: node.name,
+                                        runlist: runlist,
                                         platformId: platformId,
-                                        blueprintName: node.name,
-                                        data: runlist,
-                                        platform: hardwareData.platform,
-                                        os: hardwareData.os,
-                                        size: "",
-                                        user: req.session.user.cn,
-                                        startedOn: new Date().getTime(),
-                                        createdOn: new Date().getTime(),
-                                        providerType: "",
-                                        action: "Imported From ChefServer",
-                                        logs: [{
-                                                err: false,
-                                                log: "Node Imported",
-                                                timestamp: new Date().getTime()
-                                            }]
-                                    };
-
-                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
-                                        if (err) {
-                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        instanceIP: nodeIp,
+                                        instanceState: 'running',
+                                        bootStrapStatus: 'success',
+                                        hardware: hardwareData,
+                                        tagServer: reqBody.tagServer,
+                                        monitor: monitor,
+                                        credentials: encryptedCredentials,
+                                        users: users,
+                                        chef: {
+                                            serverId: req.params.serverId,
+                                            chefNodeName: node.name
+                                        },
+                                        blueprintData: {
+                                            blueprintName: node.name,
+                                            templateId: "chef_import",
+                                            iconPath: "../private/img/templateicons/chef_import.png"
                                         }
-                                    });
-                                    var _docker = new Docker();
-                                    _docker.checkDockerStatus(data._id, function (err, retCode) {
+                                    };
+                                    instancesDao.createInstance(instance, function (err, data) {
                                         if (err) {
-                                            logger.error("Failed _docker.checkDockerStatus", err);
+                                            logger.debug(err, 'occured in inserting node in mongo');
+                                            callback(err, null);
                                             return;
                                         }
-                                        logger.debug('Docker Check Returned:' + retCode);
-                                        if (retCode == '0') {
-                                            instancesDao.updateInstanceDockerStatus(data._id, "success", '', function (data) {
-                                                logger.debug('Instance Docker Status set to Success');
+                                        instance.id = data._id;
+                                        instance._id = data._id;
+
+                                        //install sensu client if monitoring server configured
+                                        if (instance.monitor && instance.monitor.parameters.transportProtocol === 'rabbitmq') {
+                                            credentialCryptography.decryptCredential(instance.credentials, function (err, decryptedCredentials) {
+                                                if (err) {
+                                                    logger.error("Unable to decrypt pem file. client run failed: ", err);
+                                                } else {
+                                                    var sensuCookBooks = MasterUtils.getSensuCookbooks();
+                                                    var runlist = sensuCookBooks;
+                                                    var jsonAttributes = {};
+                                                    jsonAttributes['sensu-client'] = MasterUtils.getSensuCookbookAttributes(instance.monitor, instance.id);
+
+                                                    runOptions = {
+                                                        username: decryptedCredentials.username,
+                                                        host: instance.instanceIP,
+                                                        instanceOS: instance.hardware.os,
+                                                        port: 22,
+                                                        runlist: runlist,
+                                                        overrideRunlist: false,
+                                                        jsonAttributes: JSON.stringify(jsonAttributes)
+                                                    };
+                                                    if (decryptedCredentials.pemFileLocation) {
+                                                        runOptions.privateKey = decryptedCredentials.pemFileLocation;
+                                                    } else {
+                                                        runOptions.password = decryptedCredentials.password;
+                                                    }
+                                                    chef.runClient(runOptions, function (err, retCode) {
+                                                        logger.debug("knife ret code", retCode);
+                                                    });
+                                                }
                                             });
                                         }
+
+
+
+
+                                        var timestampStarted = new Date().getTime();
+                                        var actionLog = instancesDao.insertBootstrapActionLogForChef(instance.id, [], req.session.user.cn, timestampStarted);
+                                        var logsReferenceIds = [instance.id, actionLog._id];
+                                        logsDao.insertLog({
+                                            referenceId: logsReferenceIds,
+                                            err: false,
+                                            log: "Node Imported",
+                                            timestamp: timestampStarted
+                                        });
+                                        var instanceLog = {
+                                            actionId: actionLog._id,
+                                            instanceId: instance.id,
+                                            orgName: reqBody.orgName,
+                                            bgName: reqBody.bgName,
+                                            projectName: reqBody.projectName,
+                                            envName: envName,
+                                            status: "running",
+                                            bootStrap: "success",
+                                            actionStatus: "success",
+                                            platformId: platformId,
+                                            blueprintName: node.name,
+                                            data: runlist,
+                                            platform: hardwareData.platform,
+                                            os: hardwareData.os,
+                                            size: "",
+                                            user: req.session.user.cn,
+                                            startedOn: new Date().getTime(),
+                                            createdOn: new Date().getTime(),
+                                            providerType: "",
+                                            action: "Imported From ChefServer",
+                                            logs: [{
+                                                    err: false,
+                                                    log: "Node Imported",
+                                                    timestamp: new Date().getTime()
+                                                }]
+                                        };
+
+                                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
+                                            if (err) {
+                                                logger.error("Failed to create or update instanceLog: ", err);
+                                            }
+                                        });
+                                        var _docker = new Docker();
+                                        _docker.checkDockerStatus(data._id, function (err, retCode) {
+                                            if (err) {
+                                                logger.error("Failed _docker.checkDockerStatus", err);
+                                                return;
+                                            }
+                                            logger.debug('Docker Check Returned:' + retCode);
+                                            if (retCode == '0') {
+                                                instancesDao.updateInstanceDockerStatus(data._id, "success", '', function (data) {
+                                                    logger.debug('Instance Docker Status set to Success');
+                                                });
+                                            }
+                                        });
+                                        callback(null, data);
                                     });
-                                    callback(null, data);
                                 });
-                            });
                             } else {
                                 callback({message: "Invalid Credentials"}, null);
                             }
@@ -559,7 +567,7 @@ module.exports.setRoutes = function (app, verificationFunc) {
 
         }
         MasterUtils.getCongifMgmtsById(req.params.serverId, function (err, chefDetails) {
-            
+
             if (err) {
                 res.send(500);
                 return;
@@ -1422,25 +1430,25 @@ module.exports.setRoutes = function (app, verificationFunc) {
     app.get("/chef/nodeList", function (req, res) {
         var reqObj = {};
         async.waterfall(
-            [
-                function (next) {
-                    apiUtil.changeRequestForJqueryPagination(req.query, next);
-                },
-                function (reqData, next) {
-                    reqObj = reqData;
-                    apiUtil.paginationRequest(reqData, 'chefNodes', next);
-                },
-                function (paginationReq, next) {
-                    paginationReq['searchColumns'] = ['chefNodeIp', 'chefNodeName', "chefNodePlatform"];
-                    apiUtil.databaseUtil(paginationReq, next);
-                },
-                function (queryObj, next) {
-                    chefDao.getNodesByServerId(queryObj, next);
-                },
-                function (nodes, next) {
-                    apiUtil.changeResponseForJqueryPagination(nodes, reqObj, next);
-                },
-            ], function (err, results) {
+                [
+                    function (next) {
+                        apiUtil.changeRequestForJqueryPagination(req.query, next);
+                    },
+                    function (reqData, next) {
+                        reqObj = reqData;
+                        apiUtil.paginationRequest(reqData, 'chefNodes', next);
+                    },
+                    function (paginationReq, next) {
+                        paginationReq['searchColumns'] = ['chefNodeIp', 'chefNodeName', "chefNodePlatform"];
+                        apiUtil.databaseUtil(paginationReq, next);
+                    },
+                    function (queryObj, next) {
+                        chefDao.getNodesByServerId(queryObj, next);
+                    },
+                    function (nodes, next) {
+                        apiUtil.changeResponseForJqueryPagination(nodes, reqObj, next);
+                    },
+                ], function (err, results) {
             if (err) {
                 res.send(err);
             } else {

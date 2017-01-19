@@ -36,6 +36,7 @@ var AWSCloudFormation = require('_pr/lib/awsCloudFormation.js');
 var AwsAutoScaleInstance = require('_pr/model/aws-auto-scale-instance');
 var AWSKeyPair = require('_pr/model/classes/masters/cloudprovider/keyPair.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
+var auditTrailService = require('_pr/services/auditTrailService');
 
 
 
@@ -95,6 +96,7 @@ function getInfraManagerConfigType(blueprint) {
 // TODO Reduce function size and reduce callbacks
 CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) {
     var self = this;
+    var nodeIdWithActionLogId = [];
 
     AWSProvider.getAWSProviderById(self.cloudProviderId, function(err, aProvider) {
         if (err) {
@@ -151,7 +153,6 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                 templateParameters: JSON.parse(JSON.stringify(self.stackParameters)),
                 templateBody: fileData
             }, function(err, stackData) {
-
                 if (err) {
                     logger.error("Unable to launch CloudFormation Stack", err);
                     callback({
@@ -159,8 +160,6 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                     });
                     return;
                 }
-
-
                 awsCF.getStack(stackData.StackId, function(err, stack) {
                     if (err) {
                         logger.error("Unable to get stack details", err);
@@ -171,7 +170,6 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                     }
 
                     if (stack) {
-
                         // getting autoscale topic arn from templateJSON
                         var topicARN = null;
                         var autoScaleUsername = null;
@@ -230,7 +228,7 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                         }, function(err, cloudFormation) {
                             if (err) {
                                 logger.error("Unable to save CloudFormation data in DB", err);
-                                res.send(500, errorResponses.db.error);
+                                callback(err,null);
                                 return;
                             }
                             callback(null, {
@@ -471,6 +469,27 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                 timestamp: timestampStarted
                                                             });
 
+                                                            nodeIdWithActionLogId.push({
+                                                                nodeId:instance.id,
+                                                                actionLogId:actionLog._id
+                                                            });
+
+                                                            if (launchParams.auditTrailId !== null) {
+                                                                var resultTaskExecution = {
+                                                                    "actionLogId": logsReferenceIds[1],
+                                                                    "auditTrailConfig.nodeIdsWithActionLog":nodeIdWithActionLogId,
+                                                                    "auditTrailConfig.nodeIds": [logsReferenceIds[0]],
+                                                                    "masterDetails.orgName": launchParams.orgName,
+                                                                    "masterDetails.bgName": launchParams.bgName,
+                                                                    "masterDetails.projectName": launchParams.projectName,
+                                                                    "masterDetails.envName": launchParams.envName
+                                                                }
+                                                                auditTrailService.updateAuditTrail('BOTs', launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                                                    if (err) {
+                                                                        logger.error("Failed to create or update bots Log: ", err);
+                                                                    }
+                                                                });
+                                                            }
                                                             var instanceLog = {
                                                                 actionId: actionLog._id,
                                                                 instanceId: instance.id,
@@ -528,6 +547,25 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                             logger.error("Failed to create or update instanceLog: ", err);
                                                                         }
                                                                     });
+                                                                    if(nodeIdWithActionLogId.length ===instances.length && launchParams.auditTrailId !== null) {
+                                                                        var resultTaskExecution = {
+                                                                            "actionLogId": logsReferenceIds[1],
+                                                                            "auditTrailConfig.nodeIdsWithActionLog": nodeIdWithActionLogId,
+                                                                            "auditTrailConfig.nodeIds": [logsReferenceIds[0]],
+                                                                            "masterDetails.orgName": launchParams.orgName,
+                                                                            "masterDetails.bgName": launchParams.bgName,
+                                                                            "masterDetails.projectName": launchParams.projectName,
+                                                                            "masterDetails.envName": launchParams.envName,
+                                                                            "actionStatus": "failed",
+                                                                            "status": "failed",
+                                                                            "endedOn": new Date().getTime()
+                                                                        }
+                                                                        auditTrailService.updateAuditTrail('BOTs', launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                                                            if (err) {
+                                                                                logger.error("Failed to create or update bots Log: ", err);
+                                                                            }
+                                                                        });
+                                                                    }
                                                                     return;
                                                                 }
 
@@ -563,6 +601,25 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                                 logger.error("Failed to create or update instanceLog: ", err);
                                                                             }
                                                                         });
+                                                                        if(nodeIdWithActionLogId.length ===instances.length && launchParams.auditTrailId !== null) {
+                                                                            var resultTaskExecution = {
+                                                                                "actionLogId": logsReferenceIds[1],
+                                                                                "auditTrailConfig.nodeIdsWithActionLog": nodeIdWithActionLogId,
+                                                                                "auditTrailConfig.nodeIds": [logsReferenceIds[0]],
+                                                                                "masterDetails.orgName": launchParams.orgName,
+                                                                                "masterDetails.bgName": launchParams.bgName,
+                                                                                "masterDetails.projectName": launchParams.projectName,
+                                                                                "masterDetails.envName": launchParams.envName,
+                                                                                "actionStatus": "failed",
+                                                                                "status": "failed",
+                                                                                "endedOn": new Date().getTime()
+                                                                            }
+                                                                            auditTrailService.updateAuditTrail('BOTs', launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                                                                if (err) {
+                                                                                    logger.error("Failed to create or update bots Log: ", err);
+                                                                                }
+                                                                            });
+                                                                        }
                                                                         if (instance.hardware.os != 'windows')
                                                                             return;
                                                                     }
@@ -628,6 +685,25 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                                         logger.error("Failed to create or update instanceLog: ", err);
                                                                                     }
                                                                                 });
+                                                                                if(nodeIdWithActionLogId.length ===instances.length && launchParams.auditTrailId !== null) {
+                                                                                    var resultTaskExecution = {
+                                                                                        "actionLogId": logsReferenceIds[1],
+                                                                                        "auditTrailConfig.nodeIdsWithActionLog": nodeIdWithActionLogId,
+                                                                                        "auditTrailConfig.nodeIds": [logsReferenceIds[0]],
+                                                                                        "masterDetails.orgName": launchParams.orgName,
+                                                                                        "masterDetails.bgName": launchParams.bgName,
+                                                                                        "masterDetails.projectName": launchParams.projectName,
+                                                                                        "masterDetails.envName": launchParams.envName,
+                                                                                        "actionStatus": "failed",
+                                                                                        "status": "failed",
+                                                                                        "endedOn": new Date().getTime()
+                                                                                    }
+                                                                                    auditTrailService.updateAuditTrail('BOTs', launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                                                                        if (err) {
+                                                                                            logger.error("Failed to create or update bots Log: ", err);
+                                                                                        }
+                                                                                    });
+                                                                                }
 
                                                                             } else {
                                                                                 if (code == 0) {
@@ -653,6 +729,25 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                                     };
                                                                                     instanceLog.actionStatus = "success";
                                                                                     instanceLog.endedOn = new Date().getTime();
+                                                                                    if(nodeIdWithActionLogId.length ===instances.length && launchParams.auditTrailId !== null) {
+                                                                                        var resultTaskExecution = {
+                                                                                            "actionLogId": logsReferenceIds[1],
+                                                                                            "auditTrailConfig.nodeIdsWithActionLog": nodeIdWithActionLogId,
+                                                                                            "auditTrailConfig.nodeIds": [logsReferenceIds[0]],
+                                                                                            "masterDetails.orgName": launchParams.orgName,
+                                                                                            "masterDetails.bgName": launchParams.bgName,
+                                                                                            "masterDetails.projectName": launchParams.projectName,
+                                                                                            "masterDetails.envName": launchParams.envName,
+                                                                                            "actionStatus": "success",
+                                                                                            "status": "success",
+                                                                                            "endedOn": new Date().getTime()
+                                                                                        }
+                                                                                        auditTrailService.updateAuditTrail('BOTs', launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                                                                            if (err) {
+                                                                                                logger.error("Failed to create or update bots Log: ", err);
+                                                                                            }
+                                                                                        });
+                                                                                    }
 
                                                                                     launchParams.infraManager.getNode(instance.chefNodeName, function(err, nodeData) {
                                                                                         if (err) {
@@ -731,6 +826,25 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                                     };
                                                                                     instanceLog.actionStatus = "failed";
                                                                                     instanceLog.endedOn = new Date().getTime();
+                                                                                    if(nodeIdWithActionLogId.length ===instances.length && launchParams.auditTrailId !== null) {
+                                                                                        var resultTaskExecution = {
+                                                                                            "actionLogId": logsReferenceIds[1],
+                                                                                            "auditTrailConfig.nodeIdsWithActionLog": nodeIdWithActionLogId,
+                                                                                            "auditTrailConfig.nodeIds": [logsReferenceIds[0]],
+                                                                                            "masterDetails.orgName": launchParams.orgName,
+                                                                                            "masterDetails.bgName": launchParams.bgName,
+                                                                                            "masterDetails.projectName": launchParams.projectName,
+                                                                                            "masterDetails.envName": launchParams.envName,
+                                                                                            "actionStatus": "failed",
+                                                                                            "status": "failed",
+                                                                                            "endedOn": new Date().getTime()
+                                                                                        }
+                                                                                        auditTrailService.updateAuditTrail('BOTs', launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                                                                            if (err) {
+                                                                                                logger.error("Failed to create or update bots Log: ", err);
+                                                                                            }
+                                                                                        });
+                                                                                    }
                                                                                     instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
                                                                                         if (err) {
                                                                                             logger.error("Failed to create or update instanceLog: ", err);

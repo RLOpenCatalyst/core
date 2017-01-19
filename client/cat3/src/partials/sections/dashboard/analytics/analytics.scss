@@ -328,17 +328,9 @@
   }
   .btnFoot{
     float: right;
-    width: 51%;
+    width: 57%;
   }
-  .form-control{
-    height: 29px;
-    padding: 2px 10px;
-    font-size: 12px;
-    line-height: 1;
-  }
-  .with250{
-    width: 250px !important;
-  }
+
 }
 .form-item-container {
   .list-inline {
@@ -358,7 +350,33 @@
 
 }
 .autocomplete-list {
-  width: calc(37% + 3px) !important;
-  left: 40% !important;
-  z-index: 100;
+  width: calc(94% + 2px) !important;
+  left: 3% !important;
+  z-index: 999999;
+}
+label {
+  font-weight: 400 !important;
+}
+.ui-grid-viewport {
+  overflow-x: hidden !important;
+}
+.form-control{
+  height: 29px;
+  padding: 2px 10px;
+  font-size: 12px;
+  line-height: 1;
+}
+.with250{
+  width: 250px !important;
+}
+.weekPick {
+  position: absolute;
+  left: 24%;
+  background: #FFFFFF;
+  width: 217px;
+  z-index: 999;
+  padding: 7px 17px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin: 2px;
 }

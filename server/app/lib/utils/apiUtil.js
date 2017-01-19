@@ -231,10 +231,10 @@ var ApiUtil = function() {
         };
         var filterBy={};
         if(data.filterBy) {
-            var a = data.filterBy.split(" ");
+            var a = data.filterBy.split(",");
             for (var i = 0; i < a.length; i++) {
                 var b = a[i].split(":");
-                var c = b[1].split(",");
+                var c = b[1].split("+");
                 if (c.length > 1) {
                     filterBy[b[0]] = {'$in': c};
                 } else {
@@ -253,13 +253,30 @@ var ApiUtil = function() {
 
         }
         if(data.search){
-            var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-            var encrypt=cryptography.encryptText(data.search, cryptoConfig.encryptionEncoding,cryptoConfig.decryptionEncoding);
-            var decrypt=cryptography.decryptText(encrypt, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-            request['search']=decrypt;
+            request['search']=data.search;
         }
         if (typeof callback === 'function') {
             callback(null, request);
+        }
+    }
+
+    this.queryFilterBy = function(query,callback){
+        var filterByObj = {};
+        if(query.filterBy) {
+            var filters = query.filterBy.split(',');
+            for (var i = 0; i < filters.length; i++) {
+                var filter = filters[i].split(':');
+                var filterQueryValues = filter[1].split("+");
+                if (filterQueryValues.length > 1) {
+                    filterByObj[filter[0]] = {'$in': filterQueryValues};
+                } else {
+                    filterByObj[filter[0]] = filter[1];
+                }
+
+            }
+            callback(null, filterByObj);
+        }else{
+            callback(null, filterByObj);
         }
     }
 

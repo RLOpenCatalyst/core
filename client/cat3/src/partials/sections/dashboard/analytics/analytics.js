@@ -39,11 +39,29 @@
 						return deferred.promise;
 					}]
 				}
+			}).state('dashboard.analytics.capacityReport', {
+				url: "analytics/capacityReport/",
+				templateUrl: "src/partials/sections/dashboard/analytics/view/capacityReport.html",
+				controller: "capacityReportCtrl as capRept",
+				params:{filterView:{usage:true,org:true,provi:true,instanceType:true,period:true},dashboardHide:true,otherTab:'Capacity',otherTabView:true,reportHide:true},
+				resolve: {
+					auth: ["$q", function ($q) {
+						var deferred = $q.defer();
+						// instead, go to a different page
+						if (modulePerms.analyticsBool()) {
+							// everything is fine, proceed
+							deferred.resolve();
+						} else {
+							deferred.reject({redirectTo: 'dashboard'});
+						}
+						return deferred.promise;
+					}]
+				}
 			}).state('dashboard.analytics.usage', {
 				url: "analytics/usage/",
 				templateUrl: "src/partials/sections/dashboard/analytics/view/usage.html",
 				controller: "usageCtrl as usage",
-				params:{filterView:{usage:true,org:true,provi:true,instanceType:true,resources:true}},
+				params:{filterView:{period:true,usage:true,org:true,provi:true,instanceType:true,resources:true}},
 				resolve: {
 					auth: ["$q", function ($q) {
 						var deferred = $q.defer();
@@ -125,12 +143,7 @@
 			}
 			$rootScope.stateItems = $state.params;
 		}, true);
-		$scope.$on('CHANGE_splitUp', function (event, data) {
-			analytic.splitUp=data;
-		});
-		$scope.$watch(function() { return analytic.splitUp}, function(newVal) {
-			$scope.$broadcast('CHANGE_VIEW',newVal);
-		}, true);
+		
 		analytic.applyCount=0;
 
 		//get organisation
@@ -196,21 +209,23 @@
         };
 
         $scope.getAllRegionsList();
-		$scope.fnProviderChange = function() {
+		$scope.ProviderChange = function(val) {
             $scope.filter.regionId = '';
             $scope.filter.vpcId = '';
             $scope.regions = [];
-            if ($scope.filter.providerId && $scope.filter.providerId !== '') {
-                $scope.getProviderRegions();
+			$scope.filter.providerId=$rootScope.providers[val]._id;
+            if ($scope.filter.providerId) {
+                $scope.getResourse($rootScope.organNewEnt.instanceType);
             }
         };
         $scope.getResourse = function(instType) {
 			$rootScope.filterNewEnt.resources=[];
 			$scope.selectedResources=[];
-        	if(instType === 'managedInstances') {
+        	if(instType === 'Managed') {
 	        	workzoneServices.getManagedInstances($scope.filter.providerId).then(function(response) {
 					if(response.data && response.data.managedInstances &&  response.data.managedInstances.length >0){
 						$scope.resourceList = response.data.managedInstances;
+						$scope.toggleResourceSelection($scope.resourceList[0]._id,$scope.resourceList[0].platformId);
 					} else{
 						$scope.resourceList=[];
 					}
@@ -218,10 +233,11 @@
 	                toastr.error(error);
 	            });
 	        }
-	        if(instType === 'unmanagedInstances') {
+	        if(instType === 'Assigned') {
 	            workzoneServices.getAssignedInstances($scope.filter.providerId).then(function(response) {
 					if(response.data && response.data.unmanagedInstances.length >0){
 						$scope.resourceList = response.data.unmanagedInstances;
+						$scope.toggleResourceSelection($scope.resourceList[0]._id,$scope.resourceList[0].platformId);
 					} else{
 						$scope.resourceList = [];
 					}
@@ -230,11 +246,11 @@
 	                toastr.error(error);
 	            });
 	        }
-	        if(instType === 'unassigned-instances') {
+	        if(instType === 'Unassigned') {
 	            workzoneServices.getUnassignedInstances($scope.filter.providerId).then(function(response) {
 					if(response.data && response.data.data && response.data.data.length >0){
 						$scope.resourceList = response.data.data;
-						$scope.selectedResources.push(response.data.data[0]._id);
+						$scope.toggleResourceSelection(response.data.data[0]._id,response.data.data[0].platformId);
 						$rootScope.filterNewEnt.resources=$scope.selectedResources;
 						$rootScope.filterNewEnt.platformId[response.data.data[0]._id]=response.data.data[0].platformId;
 					} else {
@@ -252,7 +268,7 @@
             var idx = $scope.selectedResources.indexOf(resourceId);
             if(idx > -1) {
         		$scope.selectedResources.splice(idx, 1);
-				
+
     		} else {
     			if($scope.selectedResources.length === 10){
     				console.log($scope.selectedResources.length);

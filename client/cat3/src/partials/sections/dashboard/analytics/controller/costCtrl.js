@@ -98,6 +98,9 @@
                 };
            };
             costObj.getCostData=function(fltObj){
+                costObj.pieChat.data = [];
+                costObj.barChat.data = [];
+                costObj.costGridOptions.data = [];
                 var param = {
                     // url: 'src/partials/sections/dashboard/analytics/data/cost.json?org'
                     url:''
@@ -109,14 +112,15 @@
                     } else {
                         entityId=fltObj.org.id;
                     }
-                  //param.url='http://d4d.rlcatalyst.com/analytics/cost/aggregate?parentEntityId=46d1da9a-d927-41dc-8e9e-7e926d927537&entityId=57f49acdbc45e71f11491f8c&toTimeStamp=Wed%20Oct%2005%202016%2016:03:08%20GMT+0530%20(IST)&period=month';
-                    param.url='/analytics/cost/aggregate?parentEntityId='+fltObj.org.id+'&entityId='+entityId+'&toTimeStamp='+new Date()+'&period='+fltObj.period;
+
+                 // param.url='src/partials/sections/dashboard/analytics/data/cost.json';
+                   param.url='/analytics/cost/aggregate?parentEntityId='+fltObj.org.id+'&entityId='+entityId+'&toTimeStamp='+new Date(fltObj.date)+'&period='+fltObj.period;
                 }
 
                 genSevs.promiseGet(param).then(function (result) {
                     costObj.chartData=result;
                     $rootScope.splitUpCosts=[];
-                    if(result.splitUpCosts) {
+                    if(result.splitUpCosts && Object.keys(result.splitUpCosts).length >0 ) {
                         angular.forEach(result.splitUpCosts, function (val, key) {
                             var a=key.replace(/([A-Z])/g, ' $1').replace(/^./, function(str) {
                                 return str.toUpperCase();
@@ -124,17 +128,25 @@
                             $rootScope.splitUpCosts.push({id:key,val:a});
                         });
                         if( $rootScope.splitUpCosts && $rootScope.splitUpCosts.length >0) {
-                            $scope.$emit('CHANGE_splitUp', $rootScope.splitUpCosts[0].id);
-                            costObj.splitUp = $rootScope.splitUpCosts[0].val;
-                            costObj.createLable(result, $rootScope.splitUpCosts[0].id);
+                            if(!costObj.splitUp){
+                                costObj.splitUp=$rootScope.splitUpCosts[0].id;
+                            }
+                            costObj.createLable(result,costObj.splitUp);
+
                         }
                     } else {
                         costObj.createLable(result,'provider');
                     }
                 });
             };
+            costObj.spliteChange= function() {
+                costObj.createLable( costObj.chartData, costObj.splitUp);
+            };
             costObj.createLable= function(result,viewType){
+                console.log(1);
                 costObj.createChart();
+                costObj.pieChat.data = [];
+                costObj.barChat.data = [];
                 if(result && result.cost) {
                     costObj.costGridOptions.data = [];
                     costObj.costGridOptions.columnDefs = [
@@ -142,39 +154,64 @@
                         {name: 'totalCost', field: 'cost.totalCost'}
                     ];
                     costObj.pieChat.totalCoust = result.cost.totalCost;
-                    costObj.pieChat.data = [];
-                    costObj.barChat.data = [];
                     // create bar
                     //if(viewType === 'ProviderView'){
-                    costObj.costGridOptions.data = result.splitUpCosts[viewType];
-                    angular.forEach(result.splitUpCosts[viewType], function (value) {
-                        costObj.pieChat.data.push({
-                            key: value.name,
-                            value: value.cost.totalCost
+
+                    if(result.splitUpCosts && Object.keys(result.splitUpCosts).length >0 ) {
+                        costObj.costGridOptions.data = result.splitUpCosts[viewType];
+                        angular.forEach(result.splitUpCosts[viewType], function (value) {
+                            costObj.pieChat.data.push({
+                                key: value.name,
+                                value: value.cost.totalCost
+                            });
                         });
-                    });
+                    } else {
+                        costObj.costGridOptions.data = result;
+                        costObj.pieChat.data.push({
+                            key: result.entity.name,
+                            value: result.cost.totalCost
+                        });
+                    }
                     if(result.cost && result.cost.AWS && result.cost.AWS.serviceCosts) {
                         costObj.serviceCosts = result.cost.AWS.serviceCosts;
                         angular.forEach(result.cost.AWS.serviceCosts, function (valueChild, keyChild) {
                             var va = [];
                             costObj.costGridOptions.columnDefs.push({
                                 name: keyChild,
+                                displayName:keyChild,
                                 field: 'cost.AWS.serviceCosts.' + keyChild
                             });
-                            angular.forEach(result.splitUpCosts[viewType], function (valBar) {
-                                var chVal = '';
-                                if (valBar.cost.AWS.serviceCosts[keyChild]) {
-                                    chVal = valBar.cost.AWS.serviceCosts[keyChild];
-                                } else {
-                                    chVal = 0;
-                                }
-                                va.push(
-                                    {
-                                        "label": valBar.name,
-                                        "value": chVal
+                            if(result.splitUpCosts && Object.keys(result.splitUpCosts).length >0 ) {
+                                angular.forEach(result.splitUpCosts[viewType], function (valBar) {
+                                    var chVal = '';
+                                    if (valBar.cost.AWS.serviceCosts[keyChild]) {
+                                        chVal = valBar.cost.AWS.serviceCosts[keyChild];
+                                    } else {
+                                        chVal = 0;
                                     }
-                                );
-                            });
+                                    va.push(
+                                        {
+                                            "label": valBar.name,
+                                            "value": chVal
+                                        }
+                                    );
+                                });
+                            } else {
+
+                                    var chVal = '';
+                                    if (result.cost.AWS.serviceCosts[keyChild]) {
+                                        chVal =result.cost.AWS.serviceCosts[keyChild];
+                                    } else {
+                                        chVal = 0;
+                                    }
+                                    va.push(
+                                        {
+                                            "label": result.entity.name,
+                                            "value": chVal
+                                        }
+                                    );
+
+                            }
                             costObj.barChat.data.push({
                                 "key": keyChild,
                                 "values": va
@@ -270,14 +307,6 @@
                     }
                 });
             };
-            $scope.$on('CHANGE_VIEW', function (event, data) {
-                if (data) {
-                    costObj.splitUp = data.replace(/([A-Z])/g, ' $1').replace(/^./, function (str) {
-                        return str.toUpperCase();
-                    });
-                    costObj.createLable(costObj.chartData, data);
-                }
-            });
             $rootScope.applyFilter =function(filterApp,period){
                 analyticsServices.applyFilter(filterApp,period);
                 if($state.current.name === "dashboard.analytics.cost") {

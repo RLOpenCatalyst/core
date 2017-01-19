@@ -178,8 +178,8 @@ var BotsSchema = new Schema ({
         default: false
     },
     version: {
-        type: Number,
-        default: 1
+        type: String,
+        trim: true
     },
     domainNameCheck: {
         type: Boolean,
@@ -241,8 +241,8 @@ BotsSchema.statics.getBotsById = function(botId,callback){
     });
 };
 
-BotsSchema.statics.getAllBots = function(callback){
-    Bots.find({isDeleted:false}, function(err, bots) {
+BotsSchema.statics.getAllBots = function(queryParam,callback){
+    Bots.find(queryParam, function(err, bots) {
         if (err) {
             logger.error(err);
             var error = new Error('Internal server error');
@@ -336,7 +336,7 @@ BotsSchema.statics.updateBotsScheduler = function updateBotsScheduler(botId, cal
         "_id": new ObjectId(botId),
     }, {
         $set: {
-            isBotBScheduled: false
+            isBotScheduled: false
         }
     }, {
         upsert: false

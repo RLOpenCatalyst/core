@@ -29,7 +29,13 @@
             }
         }
         $scope.isChefattributesLoading = true;
-        if (items.botLinkedSubCategory === 'chef' && items.botConfig) {
+
+        $scope.totalCount = 0;
+        $scope.countInit = function() {
+           return $scope.totalCount++;
+        };
+
+        if (items.botLinkedSubCategory === 'chef') {
             $scope.chefComponentSelectorList = responseFormatter.findDataForEditValue(items.botConfig.runlist);
             var nodesList = responseFormatter.chefRunlistFormatter($scope.chefComponentSelectorList);
             $scope.chefattributes = [];
@@ -102,7 +108,24 @@
 
         $scope.executeBot=function(){
             if (items.botConfig && items.botConfig.taskType === 'script') {
-                scriptParams = $scope.parameters;
+                /*for(var i = 0; i < $scope.scriptparams.length; i++){
+                    var scriptObj = {};
+                    var scriptParamList = [];
+                    if($scope.scriptparams[i].scriptParameters.length > 0){
+                        for(var j = 0; j<$scope.scriptparams[i].scriptParameters.length;j++){
+                            scriptParamList.push($scope.scriptparams[i].scriptParameters[j].paramVal);
+                        }
+                        if($scope.scriptparams[i].scriptParameters.length === scriptParamList.length){
+                            scriptObj[$scope.scriptparams[i].scriptId] = scriptParamList;
+                            scriptParams.push(scriptObj);
+                        }
+                    }else{
+                        scriptObj[$scope.scriptparams[i].scriptId] = [];
+                        scriptParams.push(scriptObj);
+                    }
+                }*/
+
+                scriptParams = $scope.scriptparams;
             }
             if (items.botConfig && items.botConfig.taskType === 'chef') {
                 cookbookAttributes = responseFormatter.formatSelectedCookbookAttributes($scope.chefattributes);
@@ -121,7 +144,7 @@
             } else if (items.botConfig && items.botConfig.taskType === 'chef'){
                 reqBody.tagServer = $scope.tagSerSelected;
                 if ($scope.chefAttributesFlag) {
-                    reqBody.cookbookAttributes = $scope.cookbookAttributes;
+                    reqBody.cookbookAttributes = cookbookAttributes;
                 }
             } else  if (items.botConfig && items.botConfig.taskType === 'script') {
                 reqBody.tagServer = $scope.tagSerSelected;

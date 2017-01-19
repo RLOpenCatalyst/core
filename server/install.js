@@ -106,6 +106,7 @@ function getDefaultsConfig() {
                 "resources":"createdOn",
                 "instanceLogs":"createdOn",
                 "auditTrails":"startedOn",
+                "botHistory":"startedOn",
                 "taskLogs":"timestampStarted",
                 "unassignedInstances":"state",
                 "unassignedInstances":"state",
@@ -132,7 +133,7 @@ function getDefaultsConfig() {
         },
         taggingServerList: ['Sensu Server','LDAP Server','AD Server'],
         botTypeList: ['Task','Check','Learning', 'Composite','Built with other','Run','UI'],
-        categoryList: ['Active Directory', 'OpenDJ LDAP','Monitoring', 'Application Deployment', 'Service Management', 'Database Management', 'Upgrade', 'Installation'],
+        categoryList: ['Active Directory', 'OpenDJ LDAP','Monitoring', 'Application Deployment', 'Service Management', 'User Management', 'Upgrade', 'Installation'],
         aws: {
             pemFileLocation: __dirname + '/app/config/',
             s3BucketDownloadFileLocation: currentDirectory + '/catdata/catalyst/temp/',
@@ -470,7 +471,7 @@ function getDefaultsConfig() {
                 key: 'platformDetails.region'
             },
             resource: {
-                key: 'resourceId'
+                key: 'platformDetails.instanceId'
             }
         },
         costAggregationPeriods: {

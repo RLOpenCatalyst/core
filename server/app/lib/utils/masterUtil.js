@@ -2357,6 +2357,11 @@ var MasterUtil = function () {
             return callback(null, templates);
         });
     };
+    
+    this.getSensuCookbooks = function(){
+        var cookbooks = ['recipe[sensu-client]','recipe[sensu_check_load]','recipe[sensu_check_disk]','recipe[sensu_check_cpu]','recipe[sensu_check_memory]'];
+        return cookbooks;
+    };
 
     //return cookbook attributes object for sensu-client
     this.getSensuCookbookAttributes = function (monitorDetails, instanceId) {
