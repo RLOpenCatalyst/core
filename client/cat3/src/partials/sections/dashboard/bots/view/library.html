@@ -10,6 +10,14 @@
 			<button type="button" class="btn btn-xs cat-btn-update pull-right filter-margin" ng-click="isOpenSidebar = !isOpenSidebar">
 				<i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;Filter
 			</button>
+			<span class="marginright10">
+				<span ng-if="filterByBotType" class="label cat-btn-update" title="{{}}">Bot Type: {{botLibFilterBot}}
+				</span>
+				<span ng-if="filterByTaskType" class="label cat-btn-update" title="{{}}">Task Type: {{botLibFilterTask}}
+				</span>
+				<span ng-if="filterByCategory" class="label cat-btn-update" title="{{}}">Bot Category: {{botLibFilterCategory}}
+				</span>
+			</span>
         </span>
     </div>
     <div class="borderTop"></div>
@@ -50,6 +58,7 @@
 				</div>
                 <div class="col-lg-12 col-md-12 marginbottom5">
 					<button type="button" class="btn btn-primary" ng-disabled="filterForm.$invalid" ng-click="applyFilter();isOpenSidebar=false;"><i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;Apply</button>
+					<button type="button" class="btn btn-default" ng-click="clearFilter();"><i class="fa fa-times fa-2" aria-hidden="true"></i>&nbsp;Clear</button>
 				</div>
 			</div>
 		</form>
