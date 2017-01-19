@@ -177,38 +177,62 @@
                 $scope.filterByBotType = false;
                 $scope.filterByTaskType = false;
                 $scope.filterByCategory = false;
-                //$scope.showAllBots();
             }
         };
 
         $rootScope.applyFilter = function() {
             lib.gridOptions=[];
+            $scope.botSummary=[];
             if ($scope.botLibFilter === 'botType') {
+                var summaryParam={
+                    url:'/audit-trail/bots-summary?filterBy=botType:'+$scope.botLibFilterBot+''
+                };
                 var param={
                     url:'/bots?filterBy=botType:'+$scope.botLibFilterBot+'&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
                 };
             } else if($scope.botLibFilter === 'taskType') {
+                var summaryParam={
+                    url:'/audit-trail/bots-summary?filterBy=botLinkedSubCategory:'+$scope.botLibFilterTask+''
+                };
                 var param={
                     url:'/bots?filterBy=botLinkedSubCategory:'+$scope.botLibFilterTask+'&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
                 };
             } else if($scope.botLibFilter === 'category') {
+                var summaryParam={
+                    url:'/audit-trail/bots-summary?filterBy=botCategory:'+$scope.botLibFilterCategory+''
+                };
                 var param={
                     url:'/bots?filterBy=botCategory:'+$scope.botLibFilterCategory+'&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
-                }; 
+                };
             } else {
                 $scope.RefreshBotsLibrary();
             }
+            genSevs.promiseGet(summaryParam).then(function (response) {
+                $scope.botSummary = response;
+                $scope.totalSavedTimeForBots = parseInt($scope.botSummary.totalSavedTimeForBots);
+            });
             genSevs.promiseGet(param).then(function (result) {
                 $timeout(function() {
                     $scope.botLibGridOptions.totalItems = result.metaData.totalRecords;
                     $scope.botLibGridOptions.data=result.bots;
                 }, 100);
                 $scope.isBotLibraryPageLoading = false;
+                $scope.isOpenSidebar = false;
             }, function(error) {
                 $scope.isBotLibraryPageLoading = false;
                 toastr.error(error);
                 $scope.errorMessage = "No Records found";
+                $scope.isOpenSidebar = false;
             });
+        };
+
+        $scope.clearFilter = function() {
+            $scope.botLibFilter = '';
+            $scope.subFilterBy = true;
+            $scope.filterByBotType = false;
+            $scope.filterByTaskType = false;
+            $scope.filterByCategory = false;
+            //$scope.isOpenSidebar = false;
         };
         
         var gridBottomSpace = 265;
