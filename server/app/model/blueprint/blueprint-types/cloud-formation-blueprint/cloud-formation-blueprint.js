@@ -549,6 +549,10 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                         }
                                                                     });
                                                                     if (nodeIdWithActionLogId.length === instances.length && launchParams.auditTrailId !== null) {
+                                                                        var nodeIds = [];
+                                                                        for(var i = 0; i < nodeIdWithActionLogId.length;i++){
+                                                                            nodeIds.push(nodeIdWithActionLogId[i].nodeId);
+                                                                        }
                                                                         var resultTaskExecution = {
                                                                             "actionLogId": logsReferenceIds[1],
                                                                             "auditTrailConfig.nodeIdsWithActionLog": nodeIdWithActionLogId,
