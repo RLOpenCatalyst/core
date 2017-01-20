@@ -98,6 +98,9 @@
                 };
            };
             costObj.getCostData=function(fltObj){
+                costObj.pieChat.data = [];
+                costObj.barChat.data = [];
+                costObj.costGridOptions.data = [];
                 var param = {
                     // url: 'src/partials/sections/dashboard/analytics/data/cost.json?org'
                     url:''
@@ -109,8 +112,9 @@
                     } else {
                         entityId=fltObj.org.id;
                     }
-                  //param.url='src/partials/sections/dashboard/analytics/data/cost.json';
-                   param.url='/analytics/cost/aggregate?parentEntityId='+fltObj.org.id+'&entityId='+entityId+'&toTimeStamp='+new Date()+'&period='+fltObj.period;
+
+                 // param.url='src/partials/sections/dashboard/analytics/data/cost.json';
+                   param.url='/analytics/cost/aggregate?parentEntityId='+fltObj.org.id+'&entityId='+entityId+'&toTimeStamp='+new Date(fltObj.date)+'&period='+fltObj.period;
                 }
 
                 genSevs.promiseGet(param).then(function (result) {
@@ -124,17 +128,25 @@
                             $rootScope.splitUpCosts.push({id:key,val:a});
                         });
                         if( $rootScope.splitUpCosts && $rootScope.splitUpCosts.length >0) {
-                            $scope.$emit('CHANGE_splitUp', $rootScope.splitUpCosts[0].id);
-                            costObj.splitUp = $rootScope.splitUpCosts[0].val;
-                            costObj.createLable(result, $rootScope.splitUpCosts[0].id);
+                            if(!costObj.splitUp){
+                                costObj.splitUp=$rootScope.splitUpCosts[0].id;
+                            }
+                            costObj.createLable(result,costObj.splitUp);
+
                         }
                     } else {
                         costObj.createLable(result,'provider');
                     }
                 });
             };
+            costObj.spliteChange= function() {
+                costObj.createLable( costObj.chartData, costObj.splitUp);
+            };
             costObj.createLable= function(result,viewType){
+                console.log(1);
                 costObj.createChart();
+                costObj.pieChat.data = [];
+                costObj.barChat.data = [];
                 if(result && result.cost) {
                     costObj.costGridOptions.data = [];
                     costObj.costGridOptions.columnDefs = [
@@ -142,8 +154,6 @@
                         {name: 'totalCost', field: 'cost.totalCost'}
                     ];
                     costObj.pieChat.totalCoust = result.cost.totalCost;
-                    costObj.pieChat.data = [];
-                    costObj.barChat.data = [];
                     // create bar
                     //if(viewType === 'ProviderView'){
 
@@ -168,6 +178,7 @@
                             var va = [];
                             costObj.costGridOptions.columnDefs.push({
                                 name: keyChild,
+                                displayName:keyChild,
                                 field: 'cost.AWS.serviceCosts.' + keyChild
                             });
                             if(result.splitUpCosts && Object.keys(result.splitUpCosts).length >0 ) {
@@ -296,14 +307,6 @@
                     }
                 });
             };
-            $scope.$on('CHANGE_VIEW', function (event, data) {
-                if (data) {
-                    costObj.splitUp = data.replace(/([A-Z])/g, ' $1').replace(/^./, function (str) {
-                        return str.toUpperCase();
-                    });
-                    costObj.createLable(costObj.chartData, data);
-                }
-            });
             $rootScope.applyFilter =function(filterApp,period){
                 analyticsServices.applyFilter(filterApp,period);
                 if($state.current.name === "dashboard.analytics.cost") {

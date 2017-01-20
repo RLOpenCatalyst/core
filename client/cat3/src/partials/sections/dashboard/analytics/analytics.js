@@ -39,11 +39,29 @@
 						return deferred.promise;
 					}]
 				}
+			}).state('dashboard.analytics.capacityReport', {
+				url: "analytics/capacityReport/",
+				templateUrl: "src/partials/sections/dashboard/analytics/view/capacityReport.html",
+				controller: "capacityReportCtrl as capRept",
+				params:{filterView:{usage:true,org:true,provi:true,instanceType:true,period:true},dashboardHide:true,otherTab:'Capacity',otherTabView:true,reportHide:true},
+				resolve: {
+					auth: ["$q", function ($q) {
+						var deferred = $q.defer();
+						// instead, go to a different page
+						if (modulePerms.analyticsBool()) {
+							// everything is fine, proceed
+							deferred.resolve();
+						} else {
+							deferred.reject({redirectTo: 'dashboard'});
+						}
+						return deferred.promise;
+					}]
+				}
 			}).state('dashboard.analytics.usage', {
 				url: "analytics/usage/",
 				templateUrl: "src/partials/sections/dashboard/analytics/view/usage.html",
 				controller: "usageCtrl as usage",
-				params:{filterView:{usage:true,org:true,provi:true,instanceType:true,resources:true}},
+				params:{filterView:{period:true,usage:true,org:true,provi:true,instanceType:true,resources:true}},
 				resolve: {
 					auth: ["$q", function ($q) {
 						var deferred = $q.defer();
@@ -125,12 +143,7 @@
 			}
 			$rootScope.stateItems = $state.params;
 		}, true);
-		$scope.$on('CHANGE_splitUp', function (event, data) {
-			analytic.splitUp=data;
-		});
-		$scope.$watch(function() { return analytic.splitUp}, function(newVal) {
-			$scope.$broadcast('CHANGE_VIEW',newVal);
-		}, true);
+		
 		analytic.applyCount=0;
 
 		//get organisation
