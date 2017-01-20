@@ -177,8 +177,10 @@
 
                 if(capRept.serviceType === 'EC2' && fltrObj && fltrObj.provider && fltrObj.provider.id) {
                     if($rootScope.organNewEnt.instanceType === 'Managed') {
+                        capRept.listGrid[value].columnDefs.splice(6,0,{name: 'bgName', displayName: 'Bg Name', field: 'bgName', cellTooltip: true});
                         $scope.instanceType= 'managedInstances';
                     } else if($rootScope.organNewEnt.instanceType === 'Assigned'){
+                        capRept.listGrid[value].columnDefs.splice(6,0,{name: 'bgName', displayName: 'Bg Name', field: 'bgName', cellTooltip: true});
                         $scope.instanceType= 'unmanagedInstances';
                     } else if($rootScope.organNewEnt.instanceType === 'Unassigned'){
                         $scope.instanceType= 'unassigned-instances';
