@@ -810,7 +810,48 @@ module.exports.setRoutes = function (app, sessionVerification) {
                             return;
                         });
 
-                    } else if (req.params.id === '6') {
+                    }  else if (req.params.id === '27') {
+                    // For BitBucket
+                    masterUtil.getBitbucket(orgList, function(err, bitbucketList) {
+                        if (err) {
+                            res.status(500).send('Not able to fetch Bitbucket.');
+                        }
+                        res.send(bitbucketList);
+                        return;
+                    });
+
+                } else if (req.params.id === '28') {
+                    // For Octopus
+                    masterUtil.getOctopus(orgList, function(err, octopusList) {
+                        if (err) {
+                            res.status(500).send('Not able to fetch Octopus.');
+                        }
+                        res.send(octopusList);
+                        return;
+                    });
+
+                } else if (req.params.id === '29') {
+                    // For QA Portal
+                    masterUtil.getFunctionalTest(orgList, function(err, functionaltestlist) {
+                        if (err) {
+                            res.status(500).send('Not able to fetch Functional Tests.');
+                        }
+                        res.send(functionaltestlist);
+                        return;
+                    });
+
+                }else if (req.params.id === '23') {
+                    // For Jira
+                    logger.debug("Entering getJira");
+                    masterUtil.getJira(orgList, function(err, jiraList) {
+                        if (err) {
+                            res.status(500).send('Not able to fetch Jira.');
+                        }
+                        res.send(jiraList);
+                        return;
+                    });
+
+                } else if (req.params.id === '6') {
                         // For User Role
                         masterUtil.getUserRoles(function (err, userRoleList) {
                             if (err) {
@@ -966,7 +1007,47 @@ module.exports.setRoutes = function (app, sessionVerification) {
                             return;
                         });
 
-                    } else if (req.params.id === '6') {
+                    } else if (req.params.id === '27') {
+                        // For Bitbucket
+                        masterUtil.getBitbucket(orgList, function(err, bitbucketList) {
+                            if (err) {
+                                res.status(500).send('Not able to fetch bitbucket.');
+                            }
+                            res.send(bitbucketList);
+                            return;
+                        });
+
+                    }else if (req.params.id === '28') {
+                        // For Octopus
+                        masterUtil.getOctopus(orgList, function(err, octopusList) {
+                            if (err) {
+                                res.status(500).send('Not able to fetch Octopus.');
+                            }
+                            res.send(octopusList);
+                            return;
+                        });
+
+                    }else if (req.params.id === '29') {
+                        // For QA Portal
+                        masterUtil.getFunctionalTest(orgList, function(err, functionaltestlist) {
+                            if (err) {
+                                res.status(500).send('Not able to fetch Functional Tests.');
+                            }
+                            res.send(functionaltestlist);
+                            return;
+                        });
+
+                    }else if (req.params.id === '23') {
+                        // For Jira
+                        masterUtil.getJira(orgList, function(err, jiraList) {
+                            if (err) {
+                                res.status(500).send('Not able to fetch Jira.');
+                            }
+                            res.send(jiraList);
+                            return;
+                        });
+
+                    }else if (req.params.id === '6') {
                         // For User Role
                         masterUtil.getUserRoles(function (err, userRoleList) {
                             if (err) {
