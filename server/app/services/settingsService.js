@@ -334,8 +334,8 @@ settingsService.trackSettingWizard = function trackSettingWizard(id,orgId,callba
            }
            if (settingWizards !== null && settingWizards.currentStep && settingWizards.currentStep.nestedSteps
                && settingWizards.currentStep.name === 'Gallery Setup'
-               && settingWizards.nestedSteps[1].isCompleted === false) {
-               settingWizards.nestedSteps[0].isCompleted = false;
+               && settingWizards.currentStep.nestedSteps[1].isCompleted === false) {
+               settingWizards.currentStep.nestedSteps[0].isCompleted = false;
                settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                    if (err) {
                        callback(err,null);
@@ -356,8 +356,8 @@ settingsService.trackSettingWizard = function trackSettingWizard(id,orgId,callba
            }
            if (settingWizards !== null && settingWizards.currentStep && settingWizards.currentStep.nestedSteps
                && settingWizards.currentStep.name === 'Gallery Setup'
-               && settingWizards.nestedSteps[2].isCompleted === false) {
-               settingWizards.nestedSteps[1].isCompleted = false;
+               && settingWizards.currentStep.nestedSteps[2].isCompleted === false) {
+               settingWizards.currentStep.nestedSteps[1].isCompleted = false;
                settingWizard.updateSettingWizard(settingWizards, function (err, data) {
                    if (err) {
                        callback(err,null);

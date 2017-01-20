@@ -85,7 +85,14 @@
 				});
 			};
 			chefLogData.createInstanceList = function (historyItem) {
-				var nodeIds =historyItem.nodeIds ? historyItem.nodeIds : historyItem.auditTrailConfig.nodeIds ;
+				var nodeIds = [];
+				if(historyItem.nodeIds){
+					nodeIds = historyItem.nodeIds;
+				}else{
+					for(var i = 0; i < historyItem.auditTrailConfig.nodeIdsWithActionLog.length;i++){
+						nodeIds.push(historyItem.auditTrailConfig.nodeIdsWithActionLog[i].nodeId);
+					}
+				}
 				var nodeIdWithActionLogs = [];
 				var requestObj = {
 					"instanceIds": nodeIds
