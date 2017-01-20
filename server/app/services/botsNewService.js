@@ -19,6 +19,7 @@ var logger = require('_pr/logger')(module);
 var botsDao = require('_pr/model/bots/1.1/botsDao.js');
 var async = require("async");
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
+var Cryptography = require('_pr/lib/utils/cryptography');
 var appConfig = require('_pr/config');
 const fileHound= require('filehound');
 const yamlJs= require('yamljs');
@@ -42,20 +43,6 @@ botsNewService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,c
             callback(err,null);
             return;
         }else {
-            botsDao.getBotsById(botId, function (err, botsData) {
-                if (err) {
-                    logger.error(err);
-                }else if(botsData.length > 0){
-                    var schedulerService = require('_pr/services/schedulerService.js');
-                    schedulerService.executeScheduledBots(botsData[0],function(err,data){
-                        if(err){
-                            logger.error("Error in executing BOTs Scheduler");
-                        }
-                    });
-                } else{
-                    logger.debug("There is no Bots ");
-                }
-            });
             callback(null, data);
             return;
         }
@@ -71,6 +58,59 @@ botsNewService.removeBotsById = function removeBotsById(botId,callback){
         }
         callback(null,data);
         return;
+    });
+}
+
+botsNewService.executeBots = function executeBots(botId,reqBody,callback){
+    async.waterfall([
+        function(next){
+            if(reqBody !== null
+                && reqBody.scriptParams
+                && reqBody.scriptParams !== null){
+                encryptedParam(reqBody.scriptParams,next);
+            }else{
+                next(null,[]);
+            }
+        },
+        function(encryptedParamList,next) {
+            if(encryptedParamList.length > 0){
+                botsDao.updateBotsDetail(botId,{params:encryptedParamList},function(err,botsData){
+                    if(err){
+                        next(err);
+                    }else{
+                        botsDao.getBotsById(botId, next);
+                    }
+                })
+            }else {
+                botsDao.getBotsById(botId, next);
+            }
+        },
+        function(bots,next){
+            if(bots.length > 0){
+                if(bots[0].botLinkedCategory === 'Task'){
+                    if(reqBody === null) {
+                        taskService.executeTask(botId, 'system', 'undefined', 'undefined', 'undefined',  'undefined', 'undefined', callback);
+                    }else{
+                        taskService.executeTask(botId, reqBody.userName ? reqBody.userName : 'system', reqBody.hostProtocol ? reqBody.hostProtocol : 'undefined',
+                            reqBody.choiceParam ? reqBody.choiceParam : 'undefined', reqBody.appData ? reqBody.appData : 'undefined', reqBody.paramOptions ? reqBody.paramOptions : 'undefined',
+                            reqBody.tagServer ? reqBody.tagServer : 'undefined', callback);
+                    }
+                }else{
+                    blueprintService.launch(botId,reqBody,callback)
+                }
+            }else{
+                next({errCode:400, errMsg:"Bots is not exist in DB"},null)
+            }
+        }
+    ],function(err,results){
+        if(err){
+            logger.error(err);
+            callback(err,null);
+            return;
+        }else{
+            callback(null,results);
+            return;
+        }
     });
 }
 
@@ -143,6 +183,26 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
             return;
         }
     });
+}
+
+function encryptedParam(paramDetails, callback) {
+    var cryptoConfig = appConfig.cryptoSettings;
+    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+    var encryptedList = [];
+    if(paramDetails.length > 0) {
+        for (var i = 0; i < paramDetails.length; i++) {
+            var encryptedText = cryptography.encryptText(paramDetails[i].paramVal, cryptoConfig.encryptionEncoding,
+                cryptoConfig.decryptionEncoding);
+            encryptedList.push({
+                paramVal: encryptedText,
+                paramDesc: paramDetails[i].paramDesc,
+                paramType: paramDetails[i].paramType
+            });
+        }
+        callback(null,encryptedList);
+    }else{
+        callback(null,encryptedList);
+    }
 }
 
 

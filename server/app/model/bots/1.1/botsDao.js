@@ -58,6 +58,7 @@ var BotsSchema = new Schema ({
     },
     inputFormFields:Schema.Types.Mixed,
     outputOptions:Schema.Types.Mixed,
+    params:Schema.Types.Mixed,
     ymlDocFilePath:{
         type: String,
         trim: true,
