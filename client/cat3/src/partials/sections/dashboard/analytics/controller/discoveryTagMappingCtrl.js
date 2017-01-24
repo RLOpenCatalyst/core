@@ -25,8 +25,8 @@
                         $scope.newEnt.project.tagValues=[];
                         $scope.newEnt.businessGroup.tagValues=[];
                         $scope.newEnt.businessGroup.tagName='';
-                        $scope.newEnt.environment.tagName=''
-                        $scope.newEnt.environment.tagValues=[];;
+                        $scope.newEnt.environment.tagName='';
+                        $scope.newEnt.environment.tagValues=[];
                         disTgMap.getTagValues(false,'businessGroup');
                         disTgMap.getTagValues(false,'environment');
                         disTgMap.getTagValues(false,'project');
@@ -40,7 +40,7 @@
                                         tagValues: v.tagValues,
                                         catalystEntityId: v.catalystEntityId,
                                         catalystEntityName: v.catalystEntityName
-                                    }
+                                    };
                                 });
                             });
 
@@ -93,7 +93,7 @@
                     toastr.success('Successfully updated.','Update');
                 });
             };
-            $rootScope.applyFilter =function(filterApp,period){
+            $rootScope.applyFilter =function(){
                 analyticsServices.applyFilter(true,null);
                 disTgMap.getTagMapping();
             };

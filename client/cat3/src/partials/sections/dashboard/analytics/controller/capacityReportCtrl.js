@@ -93,7 +93,7 @@
                 });
             };
             $scope.chefConfig=function (id) {
-                var promise = genSevs.editRunlist(id);
+                genSevs.editRunlist(id);
             };
             capRept.createList = function () {
                 capRept.filterValue='';
@@ -106,7 +106,7 @@
                     capRept.listGrid[value].data=[];
                     capRept.listGrid[value].paginationPageSizes= [25, 50, 100];
                     capRept.listGrid[value].paginationPageSize=25;
-                    $scope.colArray=['platformId','state','orgName','privateIpAddress','os']
+                    $scope.colArray=['platformId','state','orgName','privateIpAddress','os'];
                 if(capRept.serviceType === 'EC2') {
                     capRept.listGrid[value].columnDefs = [
                         {name: 'Instance Id', field: 'platformId', cellTooltip: true},
@@ -134,7 +134,7 @@
                     ];
                 }
                 if(capRept.serviceType === 'RDS') {
-                    $scope.colArray=['platformId','state','orgName','dbEngine']
+                    $scope.colArray=['platformId','state','orgName','dbEngine'];
                     capRept.listGrid[value].columnDefs = [
                         {name: 'Instance', field: 'platformId', cellTooltip: true},
                         {name: 'dbEngine', enableFiltering: true, displayName: 'Engine', field: 'dbEngine', cellTooltip: true},
@@ -160,7 +160,7 @@
                     ];
                 }
                 if(capRept.serviceType === 'S3'){
-                    $scope.colArray=['bucketName','bucketOwnerName','orgName']
+                    $scope.colArray=['bucketName','bucketOwnerName','orgName'];
                     capRept.listGrid[value].columnDefs=[
                         {name: 'bucketName', field: 'bucketName', cellTooltip: true},
                         {name: 'bucketOwnerName', field: 'bucketOwnerName', cellTooltip: true},
@@ -168,12 +168,12 @@
                         {name: 'orgName', field: 'orgName', cellTooltip: true},
                         {name: 'cost', displayName: 'Cost',cellTemplate: '<span ng-bind-html="grid.appScope.aggregateInstanceCost(row.entity.cost)"></span>'},
                         {name: 'Action', cellTooltip: true,cellTemplate:"<span class='cursor' title='Usage' style='font-size: 14px;' ng-click='grid.appScope.openChart(row.entity)'><i class=\"fa fa-line-chart\"></i></span> "}
-                    ]
+                    ];
                 }
                     capRept.listGrid[value].onRegisterApi=function (gridApi) {
                        gridApi.grid.registerRowsProcessor($scope.singleFilter, 200);
                         $scope.gridApi = gridApi;
-                    }
+                    };
 
                 if(capRept.serviceType === 'EC2' && fltrObj && fltrObj.provider && fltrObj.provider.id) {
                     if($rootScope.organNewEnt.instanceType === 'Managed') {
@@ -215,19 +215,19 @@
                                 capRept.listGrid[value].data[k].showSchedule=true;
                             }
                         });
-                        if(capRept.listGrid[value].data && capRept.listGrid[value].data.length == 0){
+                        if(capRept.listGrid[value].data && capRept.listGrid[value].data.length === 0){
                             capRept.listGrid[value].nodataFound =true;
                         } else {
                             capRept.listGrid[value].nodataFound =false;
                         }
                     });
                 } else if(fltrObj && fltrObj.provider && fltrObj.provider.id){
-                    var param = {
+                    var paramResources= {
                         inlineLoader:true,
                        url: '/resources?filterBy=providerDetails.id:'+fltrObj.provider.id+',resourceType:'+capRept.serviceType+',category:'+$rootScope.organNewEnt.instanceType.toLowerCase()
                        // url:'src/partials/sections/dashboard/analytics/data/ins.json'
                     };
-                    genSevs.promiseGet(param).then(function (instResult) {
+                    genSevs.promiseGet(paramResources).then(function (instResult) {
                         /////
                         capRept.listGrid[value].data = instResult.data;
                             if(capRept.serviceType === 'RDS'){
@@ -255,7 +255,7 @@
                         ///
 
 
-                        if(capRept.listGrid[value].data && capRept.listGrid[value].data.length == 0){
+                        if(capRept.listGrid[value].data && capRept.listGrid[value].data.length === 0){
                             capRept.listGrid[value].nodataFound =true;
                         } else {
                             capRept.listGrid[value].nodataFound =false;
@@ -265,7 +265,7 @@
 
                 //}
             };
-            $scope.$watch('capRept.serviceType',function (newValue, oldValue) {
+            $scope.$watch('capRept.serviceType',function () {
                 capRept.createList();
             });
             $scope.aggregateInstanceCost=function (cost) {
@@ -363,11 +363,11 @@
             var $yesterday = new Date($today);
             $yesterday.setDate($today.getDate() - 1);
             if(fltObj && fltObj.resources && fltObj.resources.length >0) {
-                var  $today = new Date();
-                var $yesterday = new Date($today);
-                $yesterday.setDate($today.getDate() - 1);
+                var  $todayA = new Date();
+                var $yesterdayA = new Date($todayA);
+                $yesterday.setDate($todayA.getDate() - 1);
                     var param = {
-                        url: '/analytics/trend/usage?resource=' + items._id + '&fromTimeStamp=' + $yesterday + '&toTimeStamp=' + $today + '&interval=3600'
+                        url: '/analytics/trend/usage?resource=' + items._id + '&fromTimeStamp=' + $yesterdayA + '&toTimeStamp=' + $todayA + '&interval=3600'
                         //url:'src/partials/sections/dashboard/analytics/data/usage.json'
                     };
                     genSevs.promiseGet(param).then(function (result) {

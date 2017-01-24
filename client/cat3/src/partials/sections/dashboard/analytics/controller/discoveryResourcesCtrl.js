@@ -33,14 +33,14 @@
                     $scope.TagName.environmentTag=instResult.tagName+'-en';
                     $scope.TagName.envFild='tags.'+instResult.tagName;
                     angular.forEach(instResult.tagValues,function(val){
-                        $scope.TagName.environment.push({id:val,name:val})
+                        $scope.TagName.environment.push({id:val,name:val});
                     });
                 });
                 // Bu
-                var param = {
+                var paramProviders = {
                     url: '/providers/' + fltrObj.provider.id + '/tag-mappings/businessGroup'
                 };
-                genSevs.promiseGet(param).then(function (instResult) {
+                genSevs.promiseGet(paramProviders).then(function (instResult) {
                     $scope.TagName.bgTag=instResult.tagName+'-bu';
                     $scope.TagName.bgFild='tags.'+instResult.tagName;
                     angular.forEach(instResult.tagValues,function(val){
@@ -48,14 +48,14 @@
                     });
                 });
                 // project
-                var param = {
+                var paramP = {
                     url: '/providers/' + fltrObj.provider.id + '/tag-mappings/project'
                 };
-                genSevs.promiseGet(param).then(function (instResult) {
+                genSevs.promiseGet(paramP).then(function (instResult) {
                     $scope.TagName.projectTag=instResult.tagName+'-pr';
                     $scope.TagName.projFild='tags.'+instResult.tagName;
                     angular.forEach(instResult.tagValues,function(val){
-                        $scope.TagName.project.push({id:val,name:val})
+                        $scope.TagName.project.push({id:val,name:val});
                     });
 
                 });
@@ -313,7 +313,7 @@
                     }, 1000);
                 }
             };
-            disResrc.importInstance =function ($event) {
+            disResrc.importInstance =function () {
                 var modalInstance = $modal.open({
                     animation: true,
                     templateUrl: 'src/partials/sections/dashboard/analytics/view/instanceManage.html',
@@ -346,7 +346,7 @@
             var treeNames = ['Cloud Management','Discovery','Resources'];
             $rootScope.$emit('treeNameUpdate', treeNames);
             var fltrObj=$rootScope.filterNewEnt;
-            $rootScope.applyFilter =function(filterApp,period){
+            $rootScope.applyFilter =function(){
                 analyticsServices.applyFilter(true,null);
                 disResrc.init();
             };
@@ -384,7 +384,7 @@
         //get configmanagement
         var params={
             url:'/d4dMasters/organization/'+$scope.IMGNewEnt.org.orgid+'/configmanagement/list'
-        }
+        };
         genericServices.promiseGet(params).then(function (list) {
             $scope.configOptions=list;
         });
@@ -392,7 +392,7 @@
         //get monitors
         var monitorParam={
             url:'/monitors?filterBy=orgId:' + $scope.IMGNewEnt.org.orgid
-        }
+        };
         genericServices.promiseGet(monitorParam).then(function (list) {
             $scope.monitorList = list;
         });
@@ -412,7 +412,7 @@
             }
         };
         $scope.ok = function() {
-            if($scope.monitorId == 'null') {
+            if($scope.monitorId === 'null') {
                 $scope.monitorId = null;
             }
             $scope.importSpinner = true;
@@ -420,7 +420,7 @@
             reqBody.orgId = $scope.IMGNewEnt.org.orgid;
             reqBody.bgId = $scope.IMGNewEnt.buss.rowid;
             reqBody.projectId = $scope.IMGNewEnt.proj.rowId;
-            reqBody.envId = $scope.IMGNewEnt.env.rowid
+            reqBody.envId = $scope.IMGNewEnt.env.rowid;
             reqBody.orgName = $scope.IMGNewEnt.org.name; 
             reqBody.bgName = $scope.IMGNewEnt.buss.name;
             reqBody.projectName = $scope.IMGNewEnt.proj.name;
@@ -438,7 +438,7 @@
                     inlineLoader: true,
                     url:'/providers/' + fltrObj.provider.id + '/sync',
                     data:reqBody
-                }
+                };
                 genericServices.promisePost(params).then(function (response) {
                     
                     if(response.taskId){
@@ -459,7 +459,7 @@
                                     };
                                 }
                             }
-                        }).result.then(function(response) {
+                        }).result.then(function() {
                         }, function() {
                             console.log("Dismiss at " + new Date());
                         });
@@ -484,7 +484,7 @@
                 $scope.postMethodImportByIp();
             };
             
-        }
+        };
         $scope.cancel = function() {
             $modalInstance.dismiss('cancel');
         };
