@@ -133,7 +133,7 @@
 
 							<span ng-show="filterNewEnt.period === 'week'"> <label for="" >Select Week</label>
 								<select class="form-control marginbottom10" ng-model="filterNewEnt.endDate.week">
-									<option ng-repeat="w in ['1st','2nd','3rd','4th','5th']" value="{{w}}">{{w}}</option>
+									<option ng-repeat="w in [{v:0,l:'1st'},{v:1,l:'2nd'},{v:2,l:'3rd'},{v:3,l:'4th'},{v:4,l:'5th'}]" value="{{w.v}}">{{w.l}}</option>
 								</select>
 							</span>
 							<span ng-show="filterNewEnt.period === 'month'|| filterNewEnt.period === 'week'">

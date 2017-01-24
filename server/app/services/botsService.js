@@ -16,8 +16,10 @@
  */
 
 var logger = require('_pr/logger')(module);
-var bots = require('_pr/model/bots/1.0/bots.js');
 var botsDao = require('_pr/model/bots/1.1/botsDao.js');
+var bots = require('_pr/model/bots/bots.js');
+var mongoose = require('mongoose');
+var ObjectId = require('mongoose').Types.ObjectId;
 var async = require("async");
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var taskService =  require('_pr/services/taskService.js');
@@ -307,13 +309,22 @@ botsService.getPerticularBotsHistory = function getPerticularBotsHistory(botId,h
             bots.getBotsById(botId,next);
         },
         function(bots,next){
-            if(bots.length > 0){
-                var query={
-                    auditType:'BOTs',
-                    auditId:botId,
-                    auditHistoryId:historyId
-                };
-                auditTrail.getAuditTrails(query,next);
+            if(bots.length > 0) {
+                if (bots[0].botLinkedCategory === 'Task') {
+                    var query = {
+                        auditType: 'BOTs',
+                        auditId: botId,
+                        auditHistoryId: historyId
+                    };
+                    auditTrail.getAuditTrails(query, next);
+                }else{
+                    var query = {
+                        "auditType": 'BOTs',
+                        "auditId": botId,
+                        "auditTrailConfig.nodeIdsWithActionLog": {$elemMatch:{actionLogId:ObjectId(historyId)}}
+                    };
+                    auditTrail.getAuditTrails(query, next);
+                }
             }else{
                 next({errCode:400, errMsg:"Bots is not exist in DB"},null)
             }

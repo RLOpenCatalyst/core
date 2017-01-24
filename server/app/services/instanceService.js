@@ -47,7 +47,6 @@ var instancesDao = require('_pr/model/classes/instance/instance');
 var providerService = require('_pr/services/providerService.js');
 var schedulerService = require('_pr/services/schedulerService.js');
 
-
 var instanceService = module.exports = {};
 instanceService.checkIfUnassignedInstanceExists = checkIfUnassignedInstanceExists;
 instanceService.getUnassignedInstancesByProvider = getUnassignedInstancesByProvider;

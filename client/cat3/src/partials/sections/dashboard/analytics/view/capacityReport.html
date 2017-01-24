@@ -16,7 +16,6 @@
         <!--</div>-->
     <!--</div>-->
     <div class="clearfix"></div>
-    <div ng-if="analytic.tabShowChat">
         <div class="row">
             <div class="clearfix"></div>
             <!--ng-repeat="(value , key) in capRept.serviceCapacity"-->
@@ -30,7 +29,9 @@
                         </h3>
                         <div class="box-tools" style="left: 10px;">
                             <ul class="nav nav-tabs inst">
-                                <li  ng-repeat="(value , key) in capRept.serviceCapacity.services" ng-class="{'active':capRept.serviceType === value}"><a ng-click="capRept.serviceType = value"  data-toggle="tab"><i class="fa fa-list-ol"></i> {{value}} </a></li>
+                                <li   ng-class="{'active':capRept.serviceType === 'EC2'}"><a ng-click="capRept.serviceType = 'EC2'"  data-toggle="tab"><i class="fa fa-list-ol"></i> EC2 </a></li>
+                                <li   ng-class="{'active':capRept.serviceType === 'RDS'}"><a ng-click="capRept.serviceType = 'RDS'"  data-toggle="tab"><i class="fa fa-list-ol"></i> RDS </a></li>
+                                <li   ng-class="{'active':capRept.serviceType === 'S3'}"><a ng-click="capRept.serviceType = 'S3'"  data-toggle="tab"><i class="fa fa-list-ol"></i> S3 </a></li>
                             </ul>
                             <!--Service: <select class="form-control select2 select2-hidden-accessible" ng-model="capRept.serviceType"  style=" display: table-cell; width: auto;" >-->
                                 <!--<option ng-repeat="(value , key) in capRept.serviceCapacity.services" value="{{value}}"> {{value}} : {{key}}</option>-->
@@ -50,16 +51,7 @@
                 </div>
             </div>
     </div>
-    </div>
-    <div ng-if="analytic.tabShowReport">
-        <div ng-if="capRept.capaGridOptions.data.length >0" ui-grid="capRept.capaGridOptions" ui-grid-selection ui-grid-exporter ui-grid-auto-resize class="grid"></div>
-        <div ng-if="!capRept.capaGridOptions.data.length >0">
-            <div class="alert alert-warning">
-                No Data Available.
-            </div>
-        </div>
 
-    </div>
 </div>
 <style>
     .inst > li > a {

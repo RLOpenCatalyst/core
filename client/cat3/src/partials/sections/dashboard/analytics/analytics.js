@@ -143,12 +143,7 @@
 			}
 			$rootScope.stateItems = $state.params;
 		}, true);
-		$scope.$on('CHANGE_splitUp', function (event, data) {
-			analytic.splitUp=data;
-		});
-		$scope.$watch(function() { return analytic.splitUp}, function(newVal) {
-			$scope.$broadcast('CHANGE_VIEW',newVal);
-		}, true);
+		
 		analytic.applyCount=0;
 
 		//get organisation

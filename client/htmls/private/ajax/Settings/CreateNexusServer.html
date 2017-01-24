@@ -203,59 +203,75 @@
      $('#frmconfigmanagement').hide();
    });
    $(document).ready(function() {
-     var url = window.location.href;
-     var queryString = url.substring(url.indexOf('?') + 1);
-     if (queryString == 'new') {} else {
-       $.get('/d4dMasters/readmasterjsonnew/26', function(data) {
-         for (var i = 0; i < data.length; i++) {
-           (function(i) {
-             if (queryString == data[i].rowid) {
-               for (var j = 0; j < data[i].groupid.length; j++) {
-                 (function(j) {
-                   var nexusGroupName = data[i].groupid[j];
-                   var $nexusGroupTbody = $('#nexusGroupTbody');
-                   var $tr = $('<tr class="nexusGroupDetailsRow"></tr>');
-                   var $tdnexusGroupName = $('<td class="tdnexusGroupName" value=' + nexusGroupName + ' style="word-break: break-word;"></td>');
-                   $tr.data('nexusGroupName', nexusGroupName);
+    var url = window.location.href;
+    var queryString = url.substring(url.indexOf('?') + 1);
+    if (queryString == 'new') {} else {
+        $.get('/d4dMasters/readmasterjsonnew/26', function(data) {
+            for (var i = 0; i < data.length; i++) {
+                (function(i) {
+                    if (queryString == data[i].rowid) {
+                        for (var j = 0; j < data[i].groupid.length; j++) {
+                            (function(j) {
+                                var nexusGroupName = data[i].groupid[j];
+                                var $nexusGroupTbody = $('#nexusGroupTbody');
+                                var $tr = $('<tr class="nexusGroupDetailsRow"></tr>');
+                                var $tdnexusGroupName = $('<td class="tdnexusGroupName" value=' + nexusGroupName + ' style="word-break: break-word;"></td>');
+                                $tr.data('nexusGroupName', nexusGroupName);
 
-                   $tdnexusGroupName.append(nexusGroupName);
-                   var $tdAction = $('<td/>');
-                   $tdAction.append('<div class="btn-group"><button class="deleteRow" value="Remove" title="Remove"><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>');
+                                $tdnexusGroupName.append(nexusGroupName);
+                                var $tdAction = $('<td/>');
+                                $tdAction.append('<div class="btn-group"><button class="deleteRow" value="Remove" title="Remove"><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>');
 
-                   $tdAction.find('.deleteRow').click(function() {
-                     $nexusGroupDetails.row($tr).remove().draw(true);
-                   });
+                                $tdAction.find('.deleteRow').click(function() {
+                                    $nexusGroupDetails.row($tr).remove().draw(true);
+                                });
 
-                   $tr.append($tdnexusGroupName).append($tdAction);
-                   $nexusGroupTbody.append($tr);
-                   $nexusGroupDetails.row.add($tr).draw();
-                 })(j);
-               }
-             }
-           })(i);
-         }
-       });
-     }
-     if (!$.fn.dataTable.isDataTable('#tablerepositoryDetails')) {
-      $repoDetails = $('#tablerepositoryDetails').DataTable({
-           "pagingType": "full_numbers",
-           "iDisplayLength": 5,
-           "aLengthMenu": [
-               [5, 40, 100, -1],
-               [5, 40, 100, "All"]
-           ],
-           "aoColumns": [
-               {
-                   "bSortable": true
-               }, {
-                   "bSortable": true
-               }
-           ]
-       });
-   }
-   $("#tablerepositoryDetails_length").hide();
-   $("#tablerepositoryDetails_filter").hide();
-   });
+                                $tr.append($tdnexusGroupName).append($tdAction);
+                                $nexusGroupTbody.append($tr);
+                                $nexusGroupDetails.row.add($tr).draw();
+                            })(j);
+                        }
+                        for (var k = 0; k < data[i].repositories.nexus.length; k++) {
+                            var nexusRepoName = data[i].repositories.nexus[k];
+                            var $repoDeployTbody = $('#repoDeployTbody');
+                            var $tr = $('<tr class="repoDetailsRow"></tr>');
+                            var $tdName = $('<td class="tdrepoName" value=' + nexusRepoName + ' style="word-break: break-word;"></td>');
+                            $tr.data('repoName', nexusRepoName);
+
+                            $tdName.append(nexusRepoName);
+                            var $tdAction = $('<td/>');
+                            $tdAction.append('<div style="margin-right:17px;float:right;" class="btn-group"><button class="deleteRow" value="Remove" title="Remove"><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>');
+
+                            $tdAction.find('.deleteRow').click(function() {
+                                $repoDetails.row($tr).remove().draw(true);
+                            });
+                            $tr.append($tdName).append($tdAction);
+                            $repoDeployTbody.append($tr);
+                            $repoDetails.row.add($tr).draw();
+                        }
+                    }
+                })(i);
+            }
+        });
+    }
+    if (!$.fn.dataTable.isDataTable('#tablerepositoryDetails')) {
+        $repoDetails = $('#tablerepositoryDetails').DataTable({
+            "pagingType": "full_numbers",
+            "iDisplayLength": 5,
+            "aLengthMenu": [
+                [5, 40, 100, -1],
+                [5, 40, 100, "All"]
+            ],
+            "aoColumns": [{
+                "bSortable": true
+            }, {
+                "bSortable": true
+            }]
+        });
+    }
+    $("#tablerepositoryDetails_length").hide();
+    $("#tablerepositoryDetails_filter").hide();
+  });
 
   $('#repoanchorDetails').click(function(e){
       $("#repodetailsModal").show();
@@ -286,7 +302,7 @@
      var repoServerName = $("#chooseRepoServer").val();
      var repoName = $("#repoNameCreate").val();
      if (repoName == '') {
-         alert("Please enter Repository Name");
+         bootbox.alert("Please select Repository Server");
      }
      if (repoName != '') {
          var $repoDeployTbody = $('#repoDeployTbody');

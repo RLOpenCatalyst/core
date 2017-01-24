@@ -241,8 +241,8 @@ BotsSchema.statics.getBotsById = function(botId,callback){
     });
 };
 
-BotsSchema.statics.getAllBots = function(callback){
-    Bots.find({isDeleted:false}, function(err, bots) {
+BotsSchema.statics.getAllBots = function(queryParam,callback){
+    Bots.find(queryParam, function(err, bots) {
         if (err) {
             logger.error(err);
             var error = new Error('Internal server error');
