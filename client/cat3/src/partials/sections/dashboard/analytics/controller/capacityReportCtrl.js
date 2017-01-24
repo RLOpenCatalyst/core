@@ -107,7 +107,7 @@
                     capRept.listGrid[value].paginationPageSizes= [25, 50, 100];
                     capRept.listGrid[value].paginationPageSize=25;
                     $scope.colArray=['platformId','state','orgName','privateIpAddress','os'];
-                if(capRept.serviceType === 'EC2') {
+         if(capRept.serviceType === 'EC2') {
                     capRept.listGrid[value].columnDefs = [
                         {name: 'Instance Id', field: 'platformId', cellTooltip: true},
                         {name: 'os', enableFiltering: true, displayName: 'OS', field: 'os', cellTooltip: true},

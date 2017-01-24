@@ -194,7 +194,6 @@ botsService.getBotsList = function getBotsList(botsQuery,actionStatus,callback) 
                             }
                         }
                         if (results.length === botsAudits.length) {
-                            console.log(botsIds);
                             queryObj.queryObj.botId = {$in:botsIds};
                             bots.getBotsList(queryObj, next);
                         }

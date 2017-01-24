@@ -44,7 +44,7 @@
                     $scope.TagName.bgTag=instResult.tagName+'-bu';
                     $scope.TagName.bgFild='tags.'+instResult.tagName;
                     angular.forEach(instResult.tagValues,function(val){
-                        $scope.TagName.bg.push({id:val,name:val})
+                        $scope.TagName.bg.push({id:val,name:val});
                     });
                 });
                 // project
@@ -122,7 +122,6 @@
                                             });
                                         });
                                     }
-
                                 });
                                 gridApi.selection.on.rowSelectionChanged($scope,function(row){
                                     if(row.isSelected){
@@ -130,7 +129,6 @@
                                     } else {
                                         $scope.selectInstanceRow.splice(row.entity._id,1);
                                     }
-
                                 });
                                 gridApi.selection.on.rowSelectionChangedBatch($scope,function(rows){
                                     angular.forEach(rows,function(row){
@@ -370,7 +368,7 @@
             };
             disResrc.init();
             
-        }]).controller('instanceManageCtrl',['$scope','$rootScope','items','$modalInstance','genericServices','$modal',function ($scope,$rootScope,items,$modalInstance,genericServices,$modal) {
+        }]).controller('instanceManageCtrl',['$scope','$rootScope','items','$modalInstance','genericServices','$modal','toastr',function ($scope,$rootScope,items,$modalInstance,genericServices,$modal,toastr) {
         $scope.items=items;
         var fltrObj=$rootScope.filterNewEnt;
         var reqBody = {};
@@ -483,7 +481,6 @@
                 reqBody.credentials.pemFileData = pemfileText;
                 $scope.postMethodImportByIp();
             };
-            
         };
         $scope.cancel = function() {
             $modalInstance.dismiss('cancel');

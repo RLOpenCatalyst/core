@@ -31,7 +31,7 @@
 				workzoneServices.getMonitorList(orgId).then(function (response) {		
 			        $scope.monitorList = response.data;
 				});
-			}
+			};
 			genericServices.getTreeNew().then(function (envData) {
 				angular.forEach(envData,function(val){
 					var orgID,bgID,projID;
@@ -76,10 +76,10 @@
 				$modalInstance.dismiss('cancel');
 			};
 			$scope.monitorIdCheck = function() {
-				if($scope.monitorId == 'null') {
+				if($scope.monitorId === 'null') {
 	                $scope.monitorId = null;
 	            }
-			}
+			};
 			$scope.launchBP = function() {
 				$scope.monitorIdCheck();
 				if(items.orgId === undefined && items.botType === undefined){

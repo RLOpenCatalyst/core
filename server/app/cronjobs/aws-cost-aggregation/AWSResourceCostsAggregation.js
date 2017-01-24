@@ -243,7 +243,7 @@ function aggregateEntityCostsByOrg(orgs, callback) {
         async.forEach(orgs, function (org, next1) {
             async.waterfall([
                 function (next3) {
-                    analyticsService.deleteAggregateEntityCosts(org.rowid, AWSResourceCostsAggregation.currentCronRunTime, 'month', next3)
+                    analyticsService.deleteAggregateEntityCosts(org.rowid, AWSResourceCostsAggregation.currentCronRunTime, period, next3)
                 },
                 function (next3) {
                     analyticsService.aggregateEntityCosts('organization', org.rowid, {'organizationId': org.rowid},
@@ -284,7 +284,7 @@ function aggregateEntityCostsByProvider(providers, callback) {
         async.forEach(providers, function (provider, next2) {
             async.waterfall([
                 function (next3) {
-                    analyticsService.deleteAggregateEntityCosts(provider._id, AWSResourceCostsAggregation.currentCronRunTime, 'month', next3)
+                    analyticsService.deleteAggregateEntityCosts(provider._id, AWSResourceCostsAggregation.currentCronRunTime, period, next3)
                 },
                 function (next3) {
                     analyticsService.aggregateEntityCosts('provider', provider._id, {'providerId': provider._id},

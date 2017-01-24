@@ -31,19 +31,18 @@
                         disTgMap.getTagValues(false,'environment');
                         disTgMap.getTagValues(false,'project');
 
-                            angular.forEach(tagResult, function (val, key) {
-                                $scope.newEnt[key].tagName = val.tagName;
-                                $scope.newEnt[key].tagValues = val.tagValues;
-                                $scope.newEnt[key].catalystEntityType = val.catalystEntityType;
-                                angular.forEach(val.catalystEntityMapping, function (v, k) {
-                                    $scope.newEnt[key].catalystEntityMapping[k] = {
-                                        tagValues: v.tagValues,
-                                        catalystEntityId: v.catalystEntityId,
-                                        catalystEntityName: v.catalystEntityName
-                                    };
-                                });
+                        angular.forEach(tagResult, function (val, key) {
+                            $scope.newEnt[key].tagName = val.tagName;
+                            $scope.newEnt[key].tagValues = val.tagValues;
+                            $scope.newEnt[key].catalystEntityType = val.catalystEntityType;
+                            angular.forEach(val.catalystEntityMapping, function (v, k) {
+                                $scope.newEnt[key].catalystEntityMapping[k] = {
+                                    tagValues: v.tagValues,
+                                    catalystEntityId: v.catalystEntityId,
+                                    catalystEntityName: v.catalystEntityName
+                                };
                             });
-
+                        });
                     });
                 }
             };
