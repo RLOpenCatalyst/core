@@ -179,9 +179,12 @@
                         capRept.listGrid[value].columnDefs.splice(5,0,{name: 'bgName', displayName: 'Bg Name', field: 'bgName', cellTooltip: true});
                         capRept.listGrid[value].columnDefs.splice(6,0,{name: 'projectName', displayName: 'Project Name', field: 'projectName', cellTooltip: true});
                         capRept.listGrid[value].columnDefs.splice(7,0,{name: 'environmentName', displayName: 'Env Name', field: 'environmentName', cellTooltip: true}); $scope.instanceType= 'managedInstances';
+                        $scope.instanceType= 'managedInstances';
                     } else if($rootScope.organNewEnt.instanceType === 'Assigned'){
-                        $scope.colArray.push('bgName');
-                        capRept.listGrid[value].columnDefs.splice(6,0,{name: 'bgName', displayName: 'Bg Name', field: 'bgName', cellTooltip: true});
+                        $scope.colArray.push('bgName','projectName','environmentName');
+                        capRept.listGrid[value].columnDefs.splice(5,0,{name: 'bgName', displayName: 'Bg Name', field: 'bgName', cellTooltip: true});
+                        capRept.listGrid[value].columnDefs.splice(6,0,{name: 'projectName', displayName: 'Project Name', field: 'projectName', cellTooltip: true});
+                        capRept.listGrid[value].columnDefs.splice(7,0,{name: 'environmentName', displayName: 'Env Name', field: 'environmentName', cellTooltip: true}); $scope.instanceType= 'managedInstances';
                         $scope.instanceType= 'unmanagedInstances';
                     } else if($rootScope.organNewEnt.instanceType === 'Unassigned'){
                         $scope.instanceType= 'unassigned-instances';
