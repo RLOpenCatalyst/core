@@ -17,7 +17,7 @@
 
 var logger = require('_pr/logger')(module);
 var botsDao = require('_pr/model/bots/1.1/botsDao.js');
-var bots = require('_pr/model/bots/bots.js');
+var bots = require('_pr/model/bots/1.0/bots.js');
 var mongoose = require('mongoose');
 var ObjectId = require('mongoose').Types.ObjectId;
 var async = require("async");

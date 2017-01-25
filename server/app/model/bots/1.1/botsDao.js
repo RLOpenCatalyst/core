@@ -31,6 +31,11 @@ var BotsSchema = new Schema ({
         trim: true,
         required: true
     },
+    gitHubId: {
+        type: String,
+        trim: true,
+        required: true
+    },
     type: {
         type: String,
         trim: true,
@@ -219,6 +224,19 @@ BotsSchema.statics.getAllBots = function(queryParam,callback){
 
 BotsSchema.statics.removeBotsById = function(botId,callback){
     Bots.remove({_id:ObjectId(botId)}, function(err, bots) {
+        if (err) {
+            logger.error(err);
+            var error = new Error('Internal server error');
+            error.status = 500;
+            return callback(error);
+        }else {
+            return callback(null, bots);
+        }
+    });
+};
+
+BotsSchema.statics.removeBotsByGitHubId = function(gitHubId,callback){
+    Bots.remove({gitHubId:gitHubId}, function(err, bots) {
         if (err) {
             logger.error(err);
             var error = new Error('Internal server error');

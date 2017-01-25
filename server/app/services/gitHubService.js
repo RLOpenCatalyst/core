@@ -24,6 +24,7 @@ var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var promisify = require("promisify-node");
 var fse = promisify(require("fs-extra"));
+var botsNewService = require("_pr/services/botsNewService.js")
 
 var gitGubService = module.exports = {};
 
@@ -134,7 +135,13 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId, callback) {
                             return;
                         }else{
                             callback(null,cloneStatus);
-                            callback(null,cloneStatus);
+                            botsNewService.syncBotsWithGitHub(gitHubId,function(err,data){
+                                if(err){
+                                    logger.error("Error in Syncing GIT-Hub.",err);
+                                }else{
+                                    logger.debug("Git Hub Sync is Done.");
+                                }
+                            });
                             return;
                         }
                     });
@@ -160,6 +167,13 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId, callback) {
                             return;
                         }else{
                             callback(null,cloneStatus);
+                            botsNewService.syncBotsWithGitHub(gitHubId,function(err,data){
+                                if(err){
+                                    logger.error("Error in Syncing GIT-Hub.",err);
+                                }else{
+                                    logger.debug("Git Hub Sync is Done.");
+                                }
+                            });
                             return;
                         }
                     });
@@ -185,6 +199,13 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId, callback) {
                             return;
                         }else{
                             callback(null,cloneStatus);
+                            botsNewService.syncBotsWithGitHub(gitHubId,function(err,data){
+                                if(err){
+                                    logger.error("Error in Syncing GIT-Hub.",err);
+                                }else{
+                                    logger.debug("Git Hub Sync is Done.");
+                                }
+                            });
                             return;
                         }
                     });
@@ -197,6 +218,13 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId, callback) {
                             return;
                         }else{
                             callback(null,cloneStatus);
+                            botsNewService.syncBotsWithGitHub(gitHubId,function(err,data){
+                                if(err){
+                                    logger.error("Error in Syncing GIT-Hub.",err);
+                                }else{
+                                    logger.debug("Git Hub Sync is Done.");
+                                }
+                            });
                             return;
                         }
                     });

@@ -117,6 +117,10 @@ botsNewService.executeBots = function executeBots(botId,reqBody,callback){
 botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
     async.waterfall([
         function(next) {
+            botsDao.removeBotsByGitHubId(gitHubId,next);
+        },
+        function(gitHubSyncStatus,next) {
+            var  gitHubService = require('_pr/services/gitHubService.js');
             gitHubService.getGitHubById(gitHubId,next);
         },
         function(gitHubDetails,next){
@@ -136,6 +140,7 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                         count++;
                                         var botsObj={
                                             name:result.name,
+                                            gitHubId:gitHubDetails._id,
                                             id:result.id,
                                             desc:result.desc,
                                             category:result.category,
