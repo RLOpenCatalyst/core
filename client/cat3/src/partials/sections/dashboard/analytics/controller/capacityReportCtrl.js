@@ -106,7 +106,7 @@
                     capRept.listGrid[value].data=[];
                     capRept.listGrid[value].paginationPageSizes= [25, 50, 100];
                     capRept.listGrid[value].paginationPageSize=25;
-                    $scope.colArray=['platformId','state','orgName','privateIpAddress','os'];
+                    $scope.colArray=['platformId','state','privateIpAddress','os'];
          if(capRept.serviceType === 'EC2') {
                     capRept.listGrid[value].columnDefs = [
                         {name: 'Instance Id', field: 'platformId', cellTooltip: true},
@@ -118,7 +118,6 @@
                             field: 'region',
                             cellTooltip: true
                         },
-                        {name: 'orgName', displayName: 'Org Name', field: 'orgName', cellTooltip: true},
                         {
                             name: 'cost',
                             displayName: 'Cost',
@@ -134,7 +133,7 @@
                     ];
                 }
                 if(capRept.serviceType === 'RDS') {
-                    $scope.colArray=['platformId','state','orgName','dbEngine'];
+                    $scope.colArray=['platformId','state','dbEngine'];
                     capRept.listGrid[value].columnDefs = [
                         {name: 'Instance', field: 'platformId', cellTooltip: true},
                         {name: 'dbEngine', enableFiltering: true, displayName: 'Engine', field: 'dbEngine', cellTooltip: true},
@@ -144,7 +143,6 @@
                             field: 'region',
                             cellTooltip: true
                         },
-                        {name: 'orgName', displayName: 'Org Name', field: 'orgName', cellTooltip: true},
                         {
                             name: 'cost',
                             displayName: 'Cost',
@@ -165,7 +163,7 @@
                         {name: 'bucketName', field: 'bucketName', cellTooltip: true},
                         {name: 'bucketOwnerName', field: 'bucketOwnerName', cellTooltip: true},
                         {name: 'bucketSize', field: 'bucketSize', displayName:'Bucket Size (MB)', cellTooltip: true},
-                        {name: 'orgName', field: 'orgName', cellTooltip: true},
+
                         {name: 'cost', displayName: 'Cost',cellTemplate: '<span ng-bind-html="grid.appScope.aggregateInstanceCost(row.entity.cost)"></span>'},
                         {name: 'Action', cellTooltip: true,cellTemplate:"<span class='cursor' title='Usage' style='font-size: 14px;' ng-click='grid.appScope.openChart(row.entity)'><i class=\"fa fa-line-chart\"></i></span> "}
                     ];
@@ -177,9 +175,10 @@
 
                 if(capRept.serviceType === 'EC2' && fltrObj && fltrObj.provider && fltrObj.provider.id) {
                     if($rootScope.organNewEnt.instanceType === 'Managed') {
-                        $scope.colArray.push('bgName');
-                        capRept.listGrid[value].columnDefs.splice(6,0,{name: 'bgName', displayName: 'Bg Name', field: 'bgName', cellTooltip: true});
-                        $scope.instanceType= 'managedInstances';
+                        $scope.colArray.push('bgName','projectName','environmentName');
+                        capRept.listGrid[value].columnDefs.splice(5,0,{name: 'bgName', displayName: 'Bg Name', field: 'bgName', cellTooltip: true});
+                        capRept.listGrid[value].columnDefs.splice(6,0,{name: 'projectName', displayName: 'Project Name', field: 'projectName', cellTooltip: true});
+                        capRept.listGrid[value].columnDefs.splice(7,0,{name: 'environmentName', displayName: 'Env Name', field: 'environmentName', cellTooltip: true}); $scope.instanceType= 'managedInstances';
                     } else if($rootScope.organNewEnt.instanceType === 'Assigned'){
                         $scope.colArray.push('bgName');
                         capRept.listGrid[value].columnDefs.splice(6,0,{name: 'bgName', displayName: 'Bg Name', field: 'bgName', cellTooltip: true});

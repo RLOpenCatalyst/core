@@ -82,15 +82,6 @@
 							<span class="cursor" ng-click="isTreeOpen = !isTreeOpen"><i class="fa fa-area-chart white"></i> ANALYTICS </span>
 							<div ng-class="{'show-providers':isTreeOpen === true}" data-ng-hide="node.collapsed" data-tree-id="relevancelab" data-analytics-tree-model="node.nodes" data-node-id="rowid" data-node-label="text" data-node-children="nodes">
 								<ul class="tree-ul">
-									<li  class="pointer-cursor" ui-sref="dashboard.analytics.cost"  ui-sref-active='activeSection'>
-										<div class="liContents">
-											<div class="liContents-wrapper">
-												<i class="icon fa fa-money label-spacing"></i>
-												<span>Cost</span>
-												<!--<i class="caret-spacing fa fa-caret-left pull-right"></i>-->
-											</div>
-										</div>
-									</li>
 									<li  class="pointer-cursor" ui-sref="dashboard.analytics.capacityReport" ui-sref-active='activeSection' >
 										<div class="liContents">
 											<div class="liContents-wrapper">
@@ -100,6 +91,16 @@
 											</div>
 										</div>
 									</li>
+									<li  class="pointer-cursor" ui-sref="dashboard.analytics.cost"  ui-sref-active='activeSection'>
+										<div class="liContents">
+											<div class="liContents-wrapper">
+												<i class="icon fa fa-money label-spacing"></i>
+												<span>Cost</span>
+												<!--<i class="caret-spacing fa fa-caret-left pull-right"></i>-->
+											</div>
+										</div>
+									</li>
+
 									<li ui-sref="dashboard.analytics.usage" class="pointer-cursor" ui-sref-active='activeSection'  >
 										<div class="liContents">
 											<div class="liContents-wrapper">

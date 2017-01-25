@@ -114,6 +114,7 @@
                     }
 
                  // param.url='src/partials/sections/dashboard/analytics/data/cost.json';
+                    console.log(fltObj.date);
                    param.url='/analytics/cost/aggregate?parentEntityId='+fltObj.org.id+'&entityId='+entityId+'&toTimeStamp='+new Date(fltObj.date)+'&period='+fltObj.period;
                 }
 
