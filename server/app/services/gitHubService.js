@@ -24,7 +24,7 @@ var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var promisify = require("promisify-node");
 var fse = promisify(require("fs-extra"));
-var botsNewService = require("_pr/services/botsNewService.js")
+var botsNewService = require("_pr/services/botsNewService.js");
 
 var gitGubService = module.exports = {};
 

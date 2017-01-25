@@ -69,6 +69,11 @@ var BotsSchema = new Schema ({
         trim: true,
         required: false
     },
+    ymlDocFileId : {
+        type: String,
+        trim: true,
+        required: false
+    },
     scriptDocFilePath:{
         type: String,
         trim: true,
@@ -194,6 +199,21 @@ BotsSchema.statics.getBotsList = function(botsQuery,callback){
 
 BotsSchema.statics.getBotsById = function(botId,callback){
     Bots.find({_id:ObjectId(botId)}, function(err, bots) {
+        if (err) {
+            logger.error(err);
+            var error = new Error('Internal server error');
+            error.status = 500;
+            return callback(error);
+        }else if(bots.length > 0){
+            return callback(null, bots);
+        }else{
+            return callback(null, []);
+        }
+    });
+};
+
+BotsSchema.statics.getBotsByGitHubId = function(gitHubId,callback){
+    Bots.find({gitHubId:gitHubId}, function(err, bots) {
         if (err) {
             logger.error(err);
             var error = new Error('Internal server error');

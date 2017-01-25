@@ -20,7 +20,9 @@ var botsDao = require('_pr/model/bots/1.1/botsDao.js');
 var async = require("async");
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
+var fileUpload = require('_pr/model/file-upload/file-upload');
 var appConfig = require('_pr/config');
+var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
 const fileHound= require('filehound');
 const yamlJs= require('yamljs');
 const gitHubService = require('_pr/services/gitHubService.js');
@@ -61,6 +63,62 @@ botsNewService.removeBotsById = function removeBotsById(botId,callback){
     });
 }
 
+botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,callback) {
+    var reqData = {};
+    async.waterfall([
+        function(next) {
+            apiUtil.paginationRequest(botsQuery, 'bots', next);
+        },
+        function(paginationReq, next) {
+            paginationReq['searchColumns'] = ['name', 'type', 'category','desc', 'orgName'];
+            reqData = paginationReq;
+            apiUtil.databaseUtil(paginationReq, next);
+        },
+        function(queryObj, next) {
+            if(actionStatus !== null){
+                var query = {
+                    auditType: 'BOTs',
+                    actionStatus: actionStatus,
+                    isDeleted:false
+                };
+                var botsIds = [];
+                auditTrail.getAuditTrails(query, function(err,botsAudits){
+                    if(err){
+                        next(err,null);
+                    }else if (botsAudits.length > 0) {
+                        for (var i = 0; i < botsAudits.length; i++) {
+                            if (botsIds.indexOf(botsAudits[i].auditId) < 0) {
+                                botsIds.push(botsAudits[i].auditId);
+                            }
+                        }
+                        queryObj.queryObj.botId = {$in:botsIds};
+                        botsDao.getBotsList(queryObj, next);
+                    } else {
+                        queryObj.queryObj.botId = null;
+                        botsDao.getBotsList(queryObj, next);
+                    }
+                });
+            }else{
+                botsDao.getBotsList(queryObj, next);
+            }
+        },
+        function(botList, next) {
+            addYmlFileDetailsForBots(botList,next);
+        },
+        function(filterBotList, next) {
+            apiUtil.paginationResponse(filterBotList, reqData, next);
+        }
+    ],function(err, results) {
+        if (err){
+            logger.error(err);
+            callback(err,null);
+            return;
+        }
+        callback(null,results)
+        return;
+    });
+}
+
 botsNewService.executeBots = function executeBots(botId,reqBody,callback){
     async.waterfall([
         function(next){
@@ -84,23 +142,6 @@ botsNewService.executeBots = function executeBots(botId,reqBody,callback){
             }else {
                 botsDao.getBotsById(botId, next);
             }
-        },
-        function(bots,next){
-            if(bots.length > 0){
-                if(bots[0].botLinkedCategory === 'Task'){
-                    if(reqBody === null) {
-                        taskService.executeTask(botId, 'system', 'undefined', 'undefined', 'undefined',  'undefined', 'undefined', callback);
-                    }else{
-                        taskService.executeTask(botId, reqBody.userName ? reqBody.userName : 'system', reqBody.hostProtocol ? reqBody.hostProtocol : 'undefined',
-                            reqBody.choiceParam ? reqBody.choiceParam : 'undefined', reqBody.appData ? reqBody.appData : 'undefined', reqBody.paramOptions ? reqBody.paramOptions : 'undefined',
-                            reqBody.tagServer ? reqBody.tagServer : 'undefined', callback);
-                    }
-                }else{
-                    blueprintService.launch(botId,reqBody,callback)
-                }
-            }else{
-                next({errCode:400, errMsg:"Bots is not exist in DB"},null)
-            }
         }
     ],function(err,results){
         if(err){
@@ -117,7 +158,40 @@ botsNewService.executeBots = function executeBots(botId,reqBody,callback){
 botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
     async.waterfall([
         function(next) {
-            botsDao.removeBotsByGitHubId(gitHubId,next);
+            botsDao.getBotsByGitHubId(gitHubId,next);
+        },
+        function(botDetails,next) {
+            async.parallel({
+                botsSync: function(callback){
+                    botsDao.removeBotsByGitHubId(gitHubId,callback);
+                },
+                fileSync: function(callback){
+                    if(botDetails.length > 0){
+                        var count = 0;
+                        for(var  i = 0 ; i < botDetails.length; i++){
+                            (function(botDetail){
+                                fileUpload.removeFileByFileId(botDetail.ymlDocFileId,function(err,data){
+                                    if(err){
+                                        logger.error("There are some error in deleting yml file.",err,botDetail.ymlDocFileId);
+                                    }
+                                    count++;
+                                    if(count === botDetails.length){
+                                        callback(null,botDetails);
+                                    }
+                                })
+                            })(botDetails[i]);
+                        }
+                    }else{
+                        callback(null,botDetails);
+                    }
+                }
+            },function(err,results){
+                if(err){
+                    next(err);
+                }else{
+                    next(null,results);
+                }
+            })
         },
         function(gitHubSyncStatus,next) {
             var  gitHubService = require('_pr/services/gitHubService.js');
@@ -137,25 +211,33 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                             (function(ymlFile){
                                 yamlJs.load(ymlFile, function(result) {
                                     if(result !== null){
-                                        count++;
-                                        var botsObj={
-                                            name:result.name,
-                                            gitHubId:gitHubDetails._id,
-                                            id:result.id,
-                                            desc:result.desc,
-                                            category:result.category,
-                                            type:result.type,
-                                            inputFormFields:result.input.form,
-                                            outputOptions:result.output,
-                                            ymlDocFilePath:ymlFile,
-                                            orgId:gitHubDetails.orgId,
-                                            orgName:gitHubDetails.orgName
-                                        }
-                                        botsDao.createNew(botsObj,function(err,data){
+                                        fileUpload.uploadFile(result.id,ymlFile,null,function(err,ymlDocFileId){
                                             if(err){
-                                                logger.error(err);
+                                                logger.error("Error in uploading yaml documents.",err);
+                                                next(err);
+                                            }else{
+                                                count++;
+                                                var botsObj={
+                                                    name:result.name,
+                                                    gitHubId:gitHubDetails._id,
+                                                    id:result.id,
+                                                    desc:result.desc,
+                                                    category:result.category,
+                                                    type:result.type,
+                                                    inputFormFields:result.input.form,
+                                                    outputOptions:result.output,
+                                                    ymlDocFilePath:ymlFile,
+                                                    ymlDocFileId:ymlDocFileId,
+                                                    orgId:gitHubDetails.orgId,
+                                                    orgName:gitHubDetails.orgName
+                                                }
+                                                botsDao.createNew(botsObj,function(err,data){
+                                                    if(err){
+                                                        logger.error(err);
+                                                    }
+                                                    botObjList.push(botsObj);
+                                                })
                                             }
-                                            botObjList.push(botsObj);
                                         })
                                     }else{
                                         count++;
@@ -207,6 +289,55 @@ function encryptedParam(paramDetails, callback) {
         callback(null,encryptedList);
     }else{
         callback(null,encryptedList);
+    }
+}
+
+function addYmlFileDetailsForBots(bots,callback){
+    if (bots.docs.length === 0) {
+        return callback(null,scripts);
+    }else{
+        var botsList =[];
+        var botsObj={};
+        for(var i = 0; i <bots.docs.length; i++){
+            (function(bot){
+                fileUpload.getReadStreamFileByFileId(bot.ymlDocFileId,function(err,file){
+                    if(err){
+                        var err = new Error('Internal server error');
+                        err.status = 500;
+                        return callback(err,null);
+                    }else{
+                        botsObj = {
+                            name:bot.name,
+                            gitHubId:bot._id,
+                            id:bot.id,
+                            desc:bot.desc,
+                            category:bot.category,
+                            type:bot.type,
+                            inputFormFields:bot.inputFormFields,
+                            outputOptions:bot.outputOptions,
+                            ymlDocFilePath:bot.ymlDocFilePath,
+                            ymlDocFileId:bot.ymlDocFileId,
+                            orgId:bot.orgId,
+                            orgName:bot.orgName,
+                            ymlFileName: file.fileName,
+                            ymlFileData: file.fileData,
+                            isScheduled:bot.isScheduled,
+                            manualExecutionTime:bot.manualExecutionTime,
+                            executionCount:bot.executionCount,
+                            scheduler:bot.scheduler,
+                            createdOn:bot.createdOn
+                            
+                        }
+                        botsList.push(botsObj);
+                        botsObj={};
+                        if (botsList.length === bots.docs.length) {
+                            bots.docs = botsList;
+                            return callback(null, bots);
+                        }
+                    }
+                })
+            })(bots.docs[i]);
+        }
     }
 }
 
