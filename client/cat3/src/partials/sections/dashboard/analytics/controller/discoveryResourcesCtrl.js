@@ -33,7 +33,7 @@
                     $scope.TagName.environmentTag=instResult.tagName+'-en';
                     $scope.TagName.envFild='tags.'+instResult.tagName;
                     angular.forEach(instResult.tagValues,function(val){
-                        $scope.TagName.environment.push({id:val,name:val})
+                        $scope.TagName.environment.push({id:val,name:val});
                     });
                 });
                 // Bu
@@ -44,7 +44,7 @@
                     $scope.TagName.bgTag=instResult.tagName+'-bu';
                     $scope.TagName.bgFild='tags.'+instResult.tagName;
                     angular.forEach(instResult.tagValues,function(val){
-                        $scope.TagName.bg.push({id:val,name:val})
+                        $scope.TagName.bg.push({id:val,name:val});
                     });
                 });
                 // project
@@ -55,7 +55,7 @@
                     $scope.TagName.projectTag=instResult.tagName+'-pr';
                     $scope.TagName.projFild='tags.'+instResult.tagName;
                     angular.forEach(instResult.tagValues,function(val){
-                        $scope.TagName.project.push({id:val,name:val})
+                        $scope.TagName.project.push({id:val,name:val});
                     });
 
                 });
@@ -77,51 +77,51 @@
                                 gridApi.grid.registerRowsProcessor( $scope.singleFilter, 200 );
                                 $scope.gridApi=gridApi;
                                 gridApi.edit.on.afterCellEdit($scope, function (rowEntity, colDefa, newValue, oldValue) {
-                                    console.log(rowEntity);
-                                    confirmbox.showModal({}, {
-                                        closeButtonText: 'Cancel',
-                                        actionButtonText: 'Yes',
-                                        actionButtonStyle: 'cat-btn-update',
-                                        headerText: 'Update tag value',
-                                        bodyText: 'Are you sure you want to Update ?'
-                                    }).then(function() {
-                                        var tagna=colDefa.name.substring(0, colDefa.name.length-3);
-                                        var param = {
-                                            url: '/providers/' + fltrObj.provider.id + '/unassigned-instances/' + rowEntity._id,
-                                            data: {
-                                                tags:{}
-                                            }
-                                        };
-                                        param.data.tags[tagna]=newValue;
-                                        console.log(param);
-                                        if(newValue !== oldValue) {
-                                            genSevs.promisePatch(param).then(function () {
-                                                toastr.success('Successfully updated.', 'Update');
-                                            });
-                                        }
-                                    },function() {
-                                        var param = {
-                                            url: '/providers/' + fltrObj.provider.id + '/' + $scope.instanceType
-                                            // url:'src/partials/sections/dashboard/analytics/data/ins.json'
-                                        };
-                                        genSevs.promiseGet(param).then(function (instResult) {
-                                            if($rootScope.organNewEnt.instanceType === 'Managed') {
-                                                disResrc.gridOptionInstances.data = instResult.managedInstances;
-                                            } else if($rootScope.organNewEnt.instanceType === 'Assigned'){
-                                                disResrc.gridOptionInstances.data = instResult.unmanagedInstances;
-                                            } else if($rootScope.organNewEnt.instanceType === 'Unassigned'){
-                                                disResrc.gridOptionInstances.data = instResult.data;
-                                            }
-                                            disResrc.gridOptionInstances.isRowSelectable = function(row){
-                                                if(row.entity.state !== 'running'){
-                                                    return false;
-                                                } else {
-                                                    return true;
+                                    if(newValue !== oldValue) {
+                                        confirmbox.showModal({}, {
+                                            closeButtonText: 'Cancel',
+                                            actionButtonText: 'Yes',
+                                            actionButtonStyle: 'cat-btn-update',
+                                            headerText: 'Update tag value',
+                                            bodyText: 'Are you sure you want to Update ?'
+                                        }).then(function () {
+                                            var tagna = colDefa.name.substring(0, colDefa.name.length - 3);
+                                            var param = {
+                                                url: '/providers/' + fltrObj.provider.id + '/unassigned-instances/' + rowEntity._id,
+                                                data: {
+                                                    tags: {}
                                                 }
                                             };
+                                            param.data.tags[tagna] = newValue;
+                                            console.log(param);
+                                            if (newValue !== oldValue) {
+                                                genSevs.promisePatch(param).then(function () {
+                                                    toastr.success('Successfully updated.', 'Update');
+                                                });
+                                            }
+                                        }, function () {
+                                            var param = {
+                                                url: '/providers/' + fltrObj.provider.id + '/' + $scope.instanceType
+                                                // url:'src/partials/sections/dashboard/analytics/data/ins.json'
+                                            };
+                                            genSevs.promiseGet(param).then(function (instResult) {
+                                                if ($rootScope.organNewEnt.instanceType === 'Managed') {
+                                                    disResrc.gridOptionInstances.data = instResult.managedInstances;
+                                                } else if ($rootScope.organNewEnt.instanceType === 'Assigned') {
+                                                    disResrc.gridOptionInstances.data = instResult.unmanagedInstances;
+                                                } else if ($rootScope.organNewEnt.instanceType === 'Unassigned') {
+                                                    disResrc.gridOptionInstances.data = instResult.data;
+                                                }
+                                                disResrc.gridOptionInstances.isRowSelectable = function (row) {
+                                                    if (row.entity.state !== 'running') {
+                                                        return false;
+                                                    } else {
+                                                        return true;
+                                                    }
+                                                };
+                                            });
                                         });
-                                    });
-
+                                    }
                                 });
                                 gridApi.selection.on.rowSelectionChanged($scope,function(row){
                                     if(row.isSelected){
@@ -129,7 +129,6 @@
                                     } else {
                                         $scope.selectInstanceRow.splice(row.entity._id,1);
                                     }
-
                                 });
                                 gridApi.selection.on.rowSelectionChangedBatch($scope,function(rows){
                                     angular.forEach(rows,function(row){
@@ -369,12 +368,13 @@
             };
             disResrc.init();
             
-        }]).controller('instanceManageCtrl',['$scope','$rootScope','items','$modalInstance','genericServices','$modal',function ($scope,$rootScope,items,$modalInstance,genericServices,$modal) {
+        }]).controller('instanceManageCtrl',['$scope','$rootScope','items','$modalInstance','genericServices','$modal','toastr',function ($scope,$rootScope,items,$modalInstance,genericServices,$modal,toastr) {
         $scope.items=items;
         var fltrObj=$rootScope.filterNewEnt;
         var reqBody = {};
         $scope.monitorList = [];
         $scope.monitorId = 'null';
+        
         $scope.IMGNewEnt={
             passType:'password',
             org:$rootScope.organObject[0]
@@ -382,7 +382,7 @@
         //get configmanagement
         var params={
             url:'/d4dMasters/organization/'+$scope.IMGNewEnt.org.orgid+'/configmanagement/list'
-        }
+        };
         genericServices.promiseGet(params).then(function (list) {
             $scope.configOptions=list;
         });
@@ -390,7 +390,7 @@
         //get monitors
         var monitorParam={
             url:'/monitors?filterBy=orgId:' + $scope.IMGNewEnt.org.orgid
-        }
+        };
         genericServices.promiseGet(monitorParam).then(function (list) {
             $scope.monitorList = list;
         });
@@ -410,12 +410,15 @@
             }
         };
         $scope.ok = function() {
+            if($scope.monitorId === 'null') {
+                $scope.monitorId = null;
+            }
             $scope.importSpinner = true;
             $scope.importSync = true;
             reqBody.orgId = $scope.IMGNewEnt.org.orgid;
             reqBody.bgId = $scope.IMGNewEnt.buss.rowid;
             reqBody.projectId = $scope.IMGNewEnt.proj.rowId;
-            reqBody.envId = $scope.IMGNewEnt.env.rowid
+            reqBody.envId = $scope.IMGNewEnt.env.rowid;
             reqBody.orgName = $scope.IMGNewEnt.org.name; 
             reqBody.bgName = $scope.IMGNewEnt.buss.name;
             reqBody.projectName = $scope.IMGNewEnt.proj.name;
@@ -433,7 +436,7 @@
                     inlineLoader: true,
                     url:'/providers/' + fltrObj.provider.id + '/sync',
                     data:reqBody
-                }
+                };
                 genericServices.promisePost(params).then(function (response) {
                     
                     if(response.taskId){
@@ -478,8 +481,7 @@
                 reqBody.credentials.pemFileData = pemfileText;
                 $scope.postMethodImportByIp();
             };
-            
-        }
+        };
         $scope.cancel = function() {
             $modalInstance.dismiss('cancel');
         };

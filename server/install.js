@@ -37,6 +37,7 @@ function getDefaultsConfig() {
         app_run_port: 3001,
         catalystDataDir: currentDirectory + '/catdata',
         javaLibDir: currentDirectory + '/app',
+        gitHubDir: currentDirectory + '/gitHub/',
         catalysHomeDirName: 'catalyst',
         instancePemFilesDirName: 'instance-pemfiles',
         tempDirName: 'temp',
@@ -134,7 +135,7 @@ function getDefaultsConfig() {
         },
         taggingServerList: ['Sensu Server','LDAP Server','AD Server'],
         botTypeList: ['Task','Check','Learning', 'Composite','Built with other','Run','UI'],
-        categoryList: ['Active Directory', 'OpenDJ LDAP','Monitoring', 'Application Deployment', 'Service Management', 'Database Management', 'Upgrade', 'Installation'],
+        categoryList: ['Active Directory', 'OpenDJ LDAP','Monitoring', 'Application Deployment', 'Service Management', 'User Management', 'Upgrade', 'Installation'],
         aws: {
             pemFileLocation: __dirname + '/app/config/',
             s3BucketDownloadFileLocation: currentDirectory + '/catdata/catalyst/temp/',
@@ -472,7 +473,7 @@ function getDefaultsConfig() {
                 key: 'platformDetails.region'
             },
             resource: {
-                key: 'resourceId'
+                key: 'platformDetails.instanceId'
             }
         },
         costAggregationPeriods: {

@@ -33,7 +33,7 @@ var AWSKeyPair = require('_pr/model/classes/masters/cloudprovider/keyPair.js');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
 var usersDao = require('_pr/model/users.js');
 var auditTrailService = require('_pr/services/auditTrailService');
-var bots = require('_pr/model/bots/bots.js');
+var bots = require('_pr/model/bots/1.0/bots.js');
 var botsService = require('_pr/services/botsService.js');
 var ObjectId = require('mongoose').Types.ObjectId;
 var uuid = require('node-uuid');
@@ -211,7 +211,7 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                         next({errCode:400,errMsg:"Invalid Domain name"},null);
                     }
                 }
-                if (reqBody.monitorId && reqBody.monitorId !== null) {
+                if (reqBody.monitorId && reqBody.monitorId !== null && reqBody.monitorId !== 'null') {
                     monitorId = reqBody.monitorId;
                 }
                 if(blueprint.serviceDeliveryCheck === true){

@@ -312,7 +312,7 @@ function deleteRDSResourceData(rdsInfo,providerId, callback) {
                         })(rdsData[i]);
                     }
                 } else {
-                    next(null, dbNames);
+                    next(null, rdsData);
                 }
             }], function (err, results) {
             if (err) {

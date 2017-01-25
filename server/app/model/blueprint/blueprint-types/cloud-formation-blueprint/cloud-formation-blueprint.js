@@ -1,18 +1,18 @@
 /*
-Copyright [2016] [Relevance Lab]
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Copyright [2016] [Relevance Lab]
+ 
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+ 
+ http://www.apache.org/licenses/LICENSE-2.0
+ 
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 
 
 
@@ -36,7 +36,8 @@ var AWSCloudFormation = require('_pr/lib/awsCloudFormation.js');
 var AwsAutoScaleInstance = require('_pr/model/aws-auto-scale-instance');
 var AWSKeyPair = require('_pr/model/classes/masters/cloudprovider/keyPair.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
-
+var auditTrailService = require('_pr/services/auditTrailService');
+var masterUtil = require('_pr/lib/utils/masterUtil.js');
 
 
 var CHEFInfraBlueprint = require('./chef-infra-manager/chef-infra-manager');
@@ -59,22 +60,22 @@ var CloudFormationBlueprintSchema = new Schema({
     infraManagerId: String,
     templateFile: String,
     stackParameters: [{
-        _id: false,
-        ParameterKey: {
-            type: String,
-            trim: true
-        },
-        ParameterValue: {
-            type: String,
-            trim: true
-        }
-    }],
+            _id: false,
+            ParameterKey: {
+                type: String,
+                trim: true
+            },
+            ParameterValue: {
+                type: String,
+                trim: true
+            }
+        }],
     instances: [{
-        _id: false,
-        logicalId: String,
-        username: String,
-        runlist: [String]
-    }],
+            _id: false,
+            logicalId: String,
+            username: String,
+            runlist: [String]
+        }],
     templateFile: String,
     region: String,
 });
@@ -93,10 +94,11 @@ function getInfraManagerConfigType(blueprint) {
 }
 
 // TODO Reduce function size and reduce callbacks
-CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) {
+CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback) {
     var self = this;
+    var nodeIdWithActionLogId = [];
 
-    AWSProvider.getAWSProviderById(self.cloudProviderId, function(err, aProvider) {
+    AWSProvider.getAWSProviderById(self.cloudProviderId, function (err, aProvider) {
         if (err) {
             logger.error("Unable to fetch provide", err);
             callback({
@@ -132,7 +134,7 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
         var templateFile = self.templateFile;
         var settings = appConfig.chef;
         var chefRepoPath = settings.chefReposLocation;
-        fileIo.readFile(chefRepoPath + 'catalyst_files/' + templateFile, function(err, fileData) {
+        fileIo.readFile(chefRepoPath + 'catalyst_files/' + templateFile, function (err, fileData) {
             if (err) {
                 logger.error("Unable to read template file " + templateFile, err);
                 callback({
@@ -150,8 +152,7 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                 name: launchParams.stackName,
                 templateParameters: JSON.parse(JSON.stringify(self.stackParameters)),
                 templateBody: fileData
-            }, function(err, stackData) {
-
+            }, function (err, stackData) {
                 if (err) {
                     logger.error("Unable to launch CloudFormation Stack", err);
                     callback({
@@ -159,9 +160,7 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                     });
                     return;
                 }
-
-
-                awsCF.getStack(stackData.StackId, function(err, stack) {
+                awsCF.getStack(stackData.StackId, function (err, stack) {
                     if (err) {
                         logger.error("Unable to get stack details", err);
                         callback({
@@ -171,7 +170,6 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                     }
 
                     if (stack) {
-
                         // getting autoscale topic arn from templateJSON
                         var topicARN = null;
                         var autoScaleUsername = null;
@@ -227,17 +225,17 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                             autoScaleRunlist: autoScaleRunlist
 
 
-                        }, function(err, cloudFormation) {
+                        }, function (err, cloudFormation) {
                             if (err) {
                                 logger.error("Unable to save CloudFormation data in DB", err);
-                                res.send(500, errorResponses.db.error);
+                                callback(err, null);
                                 return;
                             }
                             callback(null, {
                                 stackId: cloudFormation._id,
                             });
 
-                            awsCF.waitForStackCompleteStatus(stackData.StackId, function(err, completeStack) {
+                            awsCF.waitForStackCompleteStatus(stackData.StackId, function (err, completeStack) {
                                 if (err) {
                                     logger.error('Unable to wait for stack status', err);
                                     if (err.stackStatus) {
@@ -249,7 +247,7 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                 cloudFormation.status = completeStack.StackStatus;
                                 cloudFormation.save();
 
-                                awsCF.listAllStackResources(stackData.StackId, function(err, resources) {
+                                awsCF.listAllStackResources(stackData.StackId, function (err, resources) {
                                     if (err) {
                                         logger.error('Unable to fetch stack resources', err);
                                         return;
@@ -283,7 +281,7 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                     }
 
                                     // fetching autoscale resouce if any
-                                    AwsAutoScaleInstance.findByAutoScaleResourceId(autoScaleResourceId, function(err, autoScaleInstances) {
+                                    AwsAutoScaleInstance.findByAutoScaleResourceId(autoScaleResourceId, function (err, autoScaleInstances) {
                                         if (err) {
                                             logger.error('Unable to fetch autoscale instance resources', err);
                                             return;
@@ -297,7 +295,7 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                         if (instanceIds.length) {
                                             var instances = [];
 
-                                            ec2.describeInstances(instanceIds, function(err, awsRes) {
+                                            ec2.describeInstances(instanceIds, function (err, awsRes) {
                                                 if (err) {
                                                     logger.error("Unable to get instance details from aws", err);
                                                     return;
@@ -333,7 +331,7 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                             function addAndBootstrapInstance(instanceData, jsonAttributesObj) {
 
                                                 var keyPairName = instanceData.KeyName;
-                                                AWSKeyPair.getAWSKeyPairByProviderIdAndKeyPairName(cloudFormation.cloudProviderId, keyPairName, function(err, keyPairs) {
+                                                AWSKeyPair.getAWSKeyPairByProviderIdAndKeyPairName(cloudFormation.cloudProviderId, keyPairName, function (err, keyPairs) {
                                                     if (err) {
                                                         logger.error("Unable to get keypairs", err);
                                                         return;
@@ -398,7 +396,7 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                             }
                                                         }
 
-                                                        logger.debug("instanceSize: ",instanceSize);
+                                                        logger.debug("instanceSize: ", instanceSize);
 
                                                         var instance = {
                                                             name: instanceName,
@@ -424,6 +422,7 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                             users: launchParams.users,
                                                             instanceType: instanceSize,
                                                             catUser: launchParams.sessionUser,
+                                                            monitor: launchParams.monitor,
                                                             hardware: {
                                                                 platform: 'unknown',
                                                                 platformVersion: 'unknown',
@@ -454,7 +453,7 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                         };
 
                                                         logger.debug('Creating instance in catalyst');
-                                                        instancesDao.createInstance(instance, function(err, data) {
+                                                        instancesDao.createInstance(instance, function (err, data) {
                                                             if (err) {
                                                                 logger.error("Failed to create Instance", err);
                                                                 res.send(500);
@@ -471,6 +470,27 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                 timestamp: timestampStarted
                                                             });
 
+                                                            nodeIdWithActionLogId.push({
+                                                                nodeId: instance.id,
+                                                                actionLogId: actionLog._id
+                                                            });
+
+                                                            if (launchParams.auditTrailId !== null) {
+                                                                var resultTaskExecution = {
+                                                                    "actionLogId": logsReferenceIds[1],
+                                                                    "auditTrailConfig.nodeIdsWithActionLog": nodeIdWithActionLogId,
+                                                                    "auditTrailConfig.nodeIds": [logsReferenceIds[0]],
+                                                                    "masterDetails.orgName": launchParams.orgName,
+                                                                    "masterDetails.bgName": launchParams.bgName,
+                                                                    "masterDetails.projectName": launchParams.projectName,
+                                                                    "masterDetails.envName": launchParams.envName
+                                                                }
+                                                                auditTrailService.updateAuditTrail('BOTs', launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                                                    if (err) {
+                                                                        logger.error("Failed to create or update bots Log: ", err);
+                                                                    }
+                                                                });
+                                                            }
                                                             var instanceLog = {
                                                                 actionId: actionLog._id,
                                                                 instanceId: instance.id,
@@ -492,20 +512,20 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                 providerType: self.cloudProviderType || 'aws',
                                                                 action: "CFT Launch",
                                                                 logs: [{
-                                                                    err: false,
-                                                                    log: "Waiting for instance ok state",
-                                                                    timestamp: new Date().getTime()
-                                                                }]
+                                                                        err: false,
+                                                                        log: "Waiting for instance ok state",
+                                                                        timestamp: new Date().getTime()
+                                                                    }]
                                                             };
 
-                                                            instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                            instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
                                                                 if (err) {
                                                                     logger.error("Failed to create or update instanceLog: ", err);
                                                                 }
                                                             });
-                                                            ec2.waitForEvent(instanceData.InstanceId, 'instanceStatusOk', function(err) {
+                                                            ec2.waitForEvent(instanceData.InstanceId, 'instanceStatusOk', function (err) {
                                                                 if (err) {
-                                                                    instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function(err, updateData) {
+                                                                    instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function (err, updateData) {
 
                                                                     });
                                                                     var timestampEnded = new Date().getTime();
@@ -523,20 +543,39 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                         timestamp: new Date().getTime()
                                                                     };
                                                                     instanceLog.endedOn = new Date().getTime();
-                                                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
                                                                         if (err) {
                                                                             logger.error("Failed to create or update instanceLog: ", err);
                                                                         }
                                                                     });
+                                                                    if (nodeIdWithActionLogId.length === instances.length && launchParams.auditTrailId !== null) {
+                                                                        var resultTaskExecution = {
+                                                                            "actionLogId": logsReferenceIds[1],
+                                                                            "auditTrailConfig.nodeIdsWithActionLog": nodeIdWithActionLogId,
+                                                                            "auditTrailConfig.nodeIds": [logsReferenceIds[0]],
+                                                                            "masterDetails.orgName": launchParams.orgName,
+                                                                            "masterDetails.bgName": launchParams.bgName,
+                                                                            "masterDetails.projectName": launchParams.projectName,
+                                                                            "masterDetails.envName": launchParams.envName,
+                                                                            "actionStatus": "failed",
+                                                                            "status": "failed",
+                                                                            "endedOn": new Date().getTime()
+                                                                        }
+                                                                        auditTrailService.updateAuditTrail('BOTs', launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                                                            if (err) {
+                                                                                logger.error("Failed to create or update bots Log: ", err);
+                                                                            }
+                                                                        });
+                                                                    }
                                                                     return;
                                                                 }
 
                                                                 //decrypting pem file
                                                                 var cryptoConfig = appConfig.cryptoSettings;
                                                                 var tempUncryptedPemFileLoc = appConfig.tempDir + uuid.v4();
-                                                                cryptography.decryptFile(instance.credentials.pemFileLocation, cryptoConfig.decryptionEncoding, tempUncryptedPemFileLoc, cryptoConfig.encryptionEncoding, function(err) {
+                                                                cryptography.decryptFile(instance.credentials.pemFileLocation, cryptoConfig.decryptionEncoding, tempUncryptedPemFileLoc, cryptoConfig.encryptionEncoding, function (err) {
                                                                     if (err) {
-                                                                        instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function(err, updateData) {
+                                                                        instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function (err, updateData) {
                                                                             if (err) {
                                                                                 logger.error("Unable to set instance bootstarp status", err);
                                                                             } else {
@@ -558,11 +597,30 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                             timestamp: new Date().getTime()
                                                                         };
                                                                         instanceLog.endedOn = new Date().getTime();
-                                                                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
                                                                             if (err) {
                                                                                 logger.error("Failed to create or update instanceLog: ", err);
                                                                             }
                                                                         });
+                                                                        if (nodeIdWithActionLogId.length === instances.length && launchParams.auditTrailId !== null) {
+                                                                            var resultTaskExecution = {
+                                                                                "actionLogId": logsReferenceIds[1],
+                                                                                "auditTrailConfig.nodeIdsWithActionLog": nodeIdWithActionLogId,
+                                                                                "auditTrailConfig.nodeIds": [logsReferenceIds[0]],
+                                                                                "masterDetails.orgName": launchParams.orgName,
+                                                                                "masterDetails.bgName": launchParams.bgName,
+                                                                                "masterDetails.projectName": launchParams.projectName,
+                                                                                "masterDetails.envName": launchParams.envName,
+                                                                                "actionStatus": "failed",
+                                                                                "status": "failed",
+                                                                                "endedOn": new Date().getTime()
+                                                                            }
+                                                                            auditTrailService.updateAuditTrail('BOTs', launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                                                                if (err) {
+                                                                                    logger.error("Failed to create or update bots Log: ", err);
+                                                                                }
+                                                                            });
+                                                                        }
                                                                         if (instance.hardware.os != 'windows')
                                                                             return;
                                                                     }
@@ -573,11 +631,18 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                     } else if (launchParams.blueprintData.docker.image) {
                                                                         repoData['repoName'] = launchParams.blueprintData.docker.image;
                                                                     }
-                                                                    launchParams.blueprintData.getCookBookAttributes(instance.instanceIP, repoData, function(err, jsonAttributes) {
+                                                                    launchParams.blueprintData.getCookBookAttributes(instance.instanceIP, repoData, function (err, jsonAttributes) {
                                                                         var runlist = instance.runlist;
                                                                         logger.debug("launchParams.blueprintData.extraRunlist: ", JSON.stringify(launchParams.blueprintData.extraRunlist));
                                                                         if (launchParams.blueprintData.extraRunlist) {
                                                                             runlist = launchParams.blueprintData.extraRunlist.concat(instance.runlist);
+                                                                        }
+
+                                                                        var sensuCookBooks = masterUtil.getSensuCookbooks();
+                                                                        var sensuCookBook = sensuCookBooks[0];
+                                                                        if (runlist.indexOf(sensuCookBook) === -1 && launchParams.monitor && launchParams.monitor.parameters.transportProtocol === 'rabbitmq') {
+                                                                            runlist = sensuCookBooks.concat(runlist);
+                                                                            jsonAttributes['sensu-client'] = masterUtil.getSensuCookbookAttributes(launchParams.monitor, instance.id);
                                                                         }
 
                                                                         logger.debug("runlist: ", JSON.stringify(runlist));
@@ -591,9 +656,9 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                             instanceOS: instance.hardware.os,
                                                                             //jsonAttributes: jsonAttributesObj // This attribute not using,may use in future
                                                                             jsonAttributes: jsonAttributes
-                                                                        }, function(err, code) {
+                                                                        }, function (err, code) {
 
-                                                                            fileIo.removeFile(tempUncryptedPemFileLoc, function(err) {
+                                                                            fileIo.removeFile(tempUncryptedPemFileLoc, function (err) {
                                                                                 if (err) {
                                                                                     logger.error("Unable to delete temp pem file =>", err);
                                                                                 } else {
@@ -605,7 +670,7 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                             logger.error('process stopped ==> ', err, code);
                                                                             if (err) {
                                                                                 logger.error("knife launch err ==>", err);
-                                                                                instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function(err, updateData) {
+                                                                                instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function (err, updateData) {
 
                                                                                 });
                                                                                 var timestampEnded = new Date().getTime();
@@ -623,15 +688,34 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                                 };
                                                                                 instanceLog.actionStatus = "failed";
                                                                                 instanceLog.endedOn = new Date().getTime();
-                                                                                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                                                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
                                                                                     if (err) {
                                                                                         logger.error("Failed to create or update instanceLog: ", err);
                                                                                     }
                                                                                 });
+                                                                                if (nodeIdWithActionLogId.length === instances.length && launchParams.auditTrailId !== null) {
+                                                                                    var resultTaskExecution = {
+                                                                                        "actionLogId": logsReferenceIds[1],
+                                                                                        "auditTrailConfig.nodeIdsWithActionLog": nodeIdWithActionLogId,
+                                                                                        "auditTrailConfig.nodeIds": [logsReferenceIds[0]],
+                                                                                        "masterDetails.orgName": launchParams.orgName,
+                                                                                        "masterDetails.bgName": launchParams.bgName,
+                                                                                        "masterDetails.projectName": launchParams.projectName,
+                                                                                        "masterDetails.envName": launchParams.envName,
+                                                                                        "actionStatus": "failed",
+                                                                                        "status": "failed",
+                                                                                        "endedOn": new Date().getTime()
+                                                                                    }
+                                                                                    auditTrailService.updateAuditTrail('BOTs', launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                                                                        if (err) {
+                                                                                            logger.error("Failed to create or update bots Log: ", err);
+                                                                                        }
+                                                                                    });
+                                                                                }
 
                                                                             } else {
                                                                                 if (code == 0) {
-                                                                                    instancesDao.updateInstanceBootstrapStatus(instance.id, 'success', function(err, updateData) {
+                                                                                    instancesDao.updateInstanceBootstrapStatus(instance.id, 'success', function (err, updateData) {
                                                                                         if (err) {
                                                                                             logger.error("Unable to set instance bootstarp status. code 0", err);
                                                                                         } else {
@@ -653,8 +737,27 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                                     };
                                                                                     instanceLog.actionStatus = "success";
                                                                                     instanceLog.endedOn = new Date().getTime();
+                                                                                    if (nodeIdWithActionLogId.length === instances.length && launchParams.auditTrailId !== null) {
+                                                                                        var resultTaskExecution = {
+                                                                                            "actionLogId": logsReferenceIds[1],
+                                                                                            "auditTrailConfig.nodeIdsWithActionLog": nodeIdWithActionLogId,
+                                                                                            "auditTrailConfig.nodeIds": [logsReferenceIds[0]],
+                                                                                            "masterDetails.orgName": launchParams.orgName,
+                                                                                            "masterDetails.bgName": launchParams.bgName,
+                                                                                            "masterDetails.projectName": launchParams.projectName,
+                                                                                            "masterDetails.envName": launchParams.envName,
+                                                                                            "actionStatus": "success",
+                                                                                            "status": "success",
+                                                                                            "endedOn": new Date().getTime()
+                                                                                        }
+                                                                                        auditTrailService.updateAuditTrail('BOTs', launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                                                                            if (err) {
+                                                                                                logger.error("Failed to create or update bots Log: ", err);
+                                                                                            }
+                                                                                        });
+                                                                                    }
 
-                                                                                    launchParams.infraManager.getNode(instance.chefNodeName, function(err, nodeData) {
+                                                                                    launchParams.infraManager.getNode(instance.chefNodeName, function (err, nodeData) {
                                                                                         if (err) {
                                                                                             logger.error("Failed chef.getNode", err);
                                                                                             return;
@@ -672,14 +775,14 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                                             hardwareData.memory.free = nodeData.automatic.memory.free;
                                                                                         }
                                                                                         hardwareData.os = instance.hardware.os;
-                                                                                        instanceLog.platform=nodeData.automatic.platform;
-                                                                                        instanceLog.os=instance.hardware.os;
-                                                                                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                                                        instanceLog.platform = nodeData.automatic.platform;
+                                                                                        instanceLog.os = instance.hardware.os;
+                                                                                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
                                                                                             if (err) {
                                                                                                 logger.error("Failed to create or update instanceLog: ", err);
                                                                                             }
                                                                                         });
-                                                                                        instancesDao.setHardwareDetails(instance.id, hardwareData, function(err, updateData) {
+                                                                                        instancesDao.setHardwareDetails(instance.id, hardwareData, function (err, updateData) {
                                                                                             if (err) {
                                                                                                 logger.error("Unable to set instance hardware details  code (setHardwareDetails)", err);
                                                                                             } else {
@@ -689,7 +792,7 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                                         //Checking docker status and updating
                                                                                         var _docker = new Docker();
                                                                                         _docker.checkDockerStatus(instance.id,
-                                                                                            function(err, retCode) {
+                                                                                            function (err, retCode) {
                                                                                                 if (err) {
                                                                                                     logger.error("Failed _docker.checkDockerStatus", err);
                                                                                                     res.send(500);
@@ -699,7 +802,7 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                                                 }
                                                                                                 logger.debug('Docker Check Returned:' + retCode);
                                                                                                 if (retCode == '0') {
-                                                                                                    instancesDao.updateInstanceDockerStatus(instance.id, "success", '', function(data) {
+                                                                                                    instancesDao.updateInstanceDockerStatus(instance.id, "success", '', function (data) {
                                                                                                         logger.debug('Instance Docker Status set to Success');
                                                                                                     });
 
@@ -709,7 +812,7 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                                     });
 
                                                                                 } else {
-                                                                                    instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function(err, updateData) {
+                                                                                    instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function (err, updateData) {
                                                                                         if (err) {
                                                                                             logger.error("Unable to set instance bootstarp status code != 0", err);
                                                                                         } else {
@@ -731,7 +834,26 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                                     };
                                                                                     instanceLog.actionStatus = "failed";
                                                                                     instanceLog.endedOn = new Date().getTime();
-                                                                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                                                    if (nodeIdWithActionLogId.length === instances.length && launchParams.auditTrailId !== null) {
+                                                                                        var resultTaskExecution = {
+                                                                                            "actionLogId": logsReferenceIds[1],
+                                                                                            "auditTrailConfig.nodeIdsWithActionLog": nodeIdWithActionLogId,
+                                                                                            "auditTrailConfig.nodeIds": [logsReferenceIds[0]],
+                                                                                            "masterDetails.orgName": launchParams.orgName,
+                                                                                            "masterDetails.bgName": launchParams.bgName,
+                                                                                            "masterDetails.projectName": launchParams.projectName,
+                                                                                            "masterDetails.envName": launchParams.envName,
+                                                                                            "actionStatus": "failed",
+                                                                                            "status": "failed",
+                                                                                            "endedOn": new Date().getTime()
+                                                                                        }
+                                                                                        auditTrailService.updateAuditTrail('BOTs', launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                                                                            if (err) {
+                                                                                                logger.error("Failed to create or update bots Log: ", err);
+                                                                                            }
+                                                                                        });
+                                                                                    }
+                                                                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
                                                                                         if (err) {
                                                                                             logger.error("Failed to create or update instanceLog: ", err);
                                                                                         }
@@ -739,7 +861,7 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                                 }
                                                                             }
 
-                                                                        }, function(stdOutData) {
+                                                                        }, function (stdOutData) {
 
                                                                             logsDao.insertLog({
                                                                                 referenceId: logsReferenceIds,
@@ -752,13 +874,13 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                                 log: stdOutData.toString('ascii'),
                                                                                 timestamp: new Date().getTime()
                                                                             };
-                                                                            instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                                            instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
                                                                                 if (err) {
                                                                                     logger.error("Failed to create or update instanceLog: ", err);
                                                                                 }
                                                                             });
 
-                                                                        }, function(stdErrData) {
+                                                                        }, function (stdErrData) {
 
                                                                             //retrying 4 times before giving up.
                                                                             logsDao.insertLog({
@@ -772,7 +894,7 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
                                                                                 log: stdErrData.toString('ascii'),
                                                                                 timestamp: new Date().getTime()
                                                                             };
-                                                                            instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
+                                                                            instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
                                                                                 if (err) {
                                                                                     logger.error("Failed to create or update instanceLog: ", err);
                                                                                 }
@@ -817,7 +939,7 @@ CloudFormationBlueprintSchema.methods.launch = function(launchParams, callback) 
 
 };
 
-CloudFormationBlueprintSchema.methods.update = function(updateData) {
+CloudFormationBlueprintSchema.methods.update = function (updateData) {
     // infraManagerConfig = getInfraManagerConfigType(this);
     // infraManagerConfig.update(updateData);
     // this.infraManagerData = infraManagerConfig;
@@ -825,7 +947,7 @@ CloudFormationBlueprintSchema.methods.update = function(updateData) {
 };
 
 
-CloudFormationBlueprintSchema.methods.getVersionData = function(ver) {
+CloudFormationBlueprintSchema.methods.getVersionData = function (ver) {
     // infraManagerConfig = getInfraManagerConfigType(this);
     // return infraManagerConfig.getVersionData(ver);
     return null;
@@ -833,7 +955,7 @@ CloudFormationBlueprintSchema.methods.getVersionData = function(ver) {
 
 
 
-CloudFormationBlueprintSchema.methods.getLatestVersion = function() {
+CloudFormationBlueprintSchema.methods.getLatestVersion = function () {
     // infraManagerConfig = getInfraManagerConfigType(this);
     // return infraManagerConfig.getLatestVersion();
     return null;
@@ -841,14 +963,14 @@ CloudFormationBlueprintSchema.methods.getLatestVersion = function() {
 
 
 
-CloudFormationBlueprintSchema.methods.getCloudProviderData = function() {
+CloudFormationBlueprintSchema.methods.getCloudProviderData = function () {
     return {
         cloudProviderId: this.cloudProviderId
     };
 
 }
 
-CloudFormationBlueprintSchema.methods.getInfraManagerData = function() {
+CloudFormationBlueprintSchema.methods.getInfraManagerData = function () {
     return {
         infraMangerType: this.infraManagerType,
         infraManagerId: this.infraManagerId
@@ -858,7 +980,7 @@ CloudFormationBlueprintSchema.methods.getInfraManagerData = function() {
 
 
 // static methods
-CloudFormationBlueprintSchema.statics.createNew = function(data) {
+CloudFormationBlueprintSchema.statics.createNew = function (data) {
 
 
     var infraManagerBlueprint;
