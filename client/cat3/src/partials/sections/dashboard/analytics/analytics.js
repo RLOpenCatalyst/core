@@ -153,7 +153,7 @@
 			$scope.getProviders(orgs[0].rowid);
 		});
 		if (!$rootScope.stateParams.view) {
-			$state.go('dashboard.analytics.capacityReport');
+			$state.go('dashboard.analytics.cost');
 		}
 		analytic.tabShow=function(chat,report){
 			analytic.tabShowChat=chat;
@@ -288,7 +288,7 @@
 			$rootScope.filterNewEnt.resources=$scope.selectedResources;
 		};
 		if (!$rootScope.stateParams.view && $rootScope.organObject) {
-			$state.go('dashboard.analytics.capacityReport');
+			$state.go('dashboard.analytics.cost');
 		}
 	}]);
 })(angular);

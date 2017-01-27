@@ -37,19 +37,6 @@
                     capRept.serviceCapacity=result.capacity.AWS;
                     //capRept.serviceType=Object.keys(capRept.serviceCapacity.services)[0];
                     capRept.serviceType='EC2';
-                    if(result.splitUpCapacities && Object.keys(result.splitUpCapacities).length >0) {
-                        angular.forEach(result.splitUpCapacities, function (val, key) {
-                            var a=key.replace(/([A-Z])/g, ' $1').replace(/^./, function(str) {
-                                return str.toUpperCase();
-                            });
-                            $rootScope.splitUpCapacities.push({id:key,val:a});
-                        });
-                        if( $rootScope.splitUpCapacities && $rootScope.splitUpCapacities.length >0) {
-                            $scope.$emit('CHANGE_splitUp', $rootScope.splitUpCapacities[0].id);
-                            capRept.splitUp = $rootScope.splitUpCapacities[0].val;
-                            capRept.createLable(result, $rootScope.splitUpCapacities[0].id);
-                        }
-                    }
                     capRept.createList();
 
                 });
@@ -172,7 +159,6 @@
                        gridApi.grid.registerRowsProcessor($scope.singleFilter, 200);
                         $scope.gridApi = gridApi;
                     };
-
                 if(capRept.serviceType === 'EC2' && fltrObj && fltrObj.provider && fltrObj.provider.id) {
                     if($rootScope.organNewEnt.instanceType === 'Managed') {
                         $scope.colArray.push('bgName','projectName','environmentName');
