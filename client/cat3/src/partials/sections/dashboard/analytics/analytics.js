@@ -128,7 +128,8 @@
 		$rootScope.$emit('HEADER_NAV_CHANGE', 'ANALYTICS');
 		$scope.selectedResources = [];
 		analytic.viewByFilter='orgView';
-		$scope.$watch(function() { return analytic.viewByFilter}, function(newVal) {
+		$scope.$watch(function() { 
+			return analytic.viewByFilter}, function(newVal) {
 			if(newVal === 'ProviderView'){
 				$rootScope.viewType='ProviderView';
 				if($state.params && $state.params.filterView){
@@ -152,7 +153,7 @@
 			$scope.getProviders(orgs[0].rowid);
 		});
 		if (!$rootScope.stateParams.view) {
-			$state.go('dashboard.analytics.cost');
+			$state.go('dashboard.analytics.capacityReport');
 		}
 		analytic.tabShow=function(chat,report){
 			analytic.tabShowChat=chat;
@@ -287,7 +288,7 @@
 			$rootScope.filterNewEnt.resources=$scope.selectedResources;
 		};
 		if (!$rootScope.stateParams.view && $rootScope.organObject) {
-			$state.go('dashboard.analytics.cost');
+			$state.go('dashboard.analytics.capacityReport');
 		}
 	}]);
 })(angular);

@@ -93,7 +93,7 @@
                 });
             };
             $scope.chefConfig=function (id) {
-                var promise = genSevs.editRunlist(id);
+                genSevs.editRunlist(id);
             };
             capRept.createList = function () {
                 capRept.filterValue='';
@@ -106,8 +106,8 @@
                     capRept.listGrid[value].data=[];
                     capRept.listGrid[value].paginationPageSizes= [25, 50, 100];
                     capRept.listGrid[value].paginationPageSize=25;
-                    $scope.colArray=['platformId','state','orgName','privateIpAddress','os'];
-                    if(capRept.serviceType === 'EC2') {
+                    $scope.colArray=['platformId','state','privateIpAddress','os'];
+         if(capRept.serviceType === 'EC2') {
                     capRept.listGrid[value].columnDefs = [
                         {name: 'Instance Id', field: 'platformId', cellTooltip: true},
                         {name: 'os', enableFiltering: true, displayName: 'OS', field: 'os', cellTooltip: true},
@@ -118,7 +118,6 @@
                             field: 'region',
                             cellTooltip: true
                         },
-                        {name: 'orgName', displayName: 'Org Name', field: 'orgName', cellTooltip: true},
                         {
                             name: 'cost',
                             displayName: 'Cost',
@@ -134,7 +133,7 @@
                     ];
                 }
                 if(capRept.serviceType === 'RDS') {
-                    $scope.colArray=['platformId','state','orgName','dbEngine']
+                    $scope.colArray=['platformId','state','dbEngine'];
                     capRept.listGrid[value].columnDefs = [
                         {name: 'Instance', field: 'platformId', cellTooltip: true},
                         {name: 'dbEngine', enableFiltering: true, displayName: 'Engine', field: 'dbEngine', cellTooltip: true},
@@ -144,7 +143,6 @@
                             field: 'region',
                             cellTooltip: true
                         },
-                        {name: 'orgName', displayName: 'Org Name', field: 'orgName', cellTooltip: true},
                         {
                             name: 'cost',
                             displayName: 'Cost',
@@ -165,7 +163,7 @@
                         {name: 'bucketName', field: 'bucketName', cellTooltip: true},
                         {name: 'bucketOwnerName', field: 'bucketOwnerName', cellTooltip: true},
                         {name: 'bucketSize', field: 'bucketSize', displayName:'Bucket Size (MB)', cellTooltip: true},
-                        {name: 'orgName', field: 'orgName', cellTooltip: true},
+
                         {name: 'cost', displayName: 'Cost',cellTemplate: '<span ng-bind-html="grid.appScope.aggregateInstanceCost(row.entity.cost)"></span>'},
                         {name: 'Action', cellTooltip: true,cellTemplate:"<span class='cursor' title='Usage' style='font-size: 14px;' ng-click='grid.appScope.openChart(row.entity)'><i class=\"fa fa-line-chart\"></i></span> "}
                     ];
@@ -177,12 +175,16 @@
 
                 if(capRept.serviceType === 'EC2' && fltrObj && fltrObj.provider && fltrObj.provider.id) {
                     if($rootScope.organNewEnt.instanceType === 'Managed') {
-                        $scope.colArray.push('bgName');
-                        capRept.listGrid[value].columnDefs.splice(6,0,{name: 'bgName', displayName: 'Bg Name', field: 'bgName', cellTooltip: true});
+                        $scope.colArray.push('bgName','projectName','environmentName');
+                        capRept.listGrid[value].columnDefs.splice(5,0,{name: 'bgName', displayName: 'Bg Name', field: 'bgName', cellTooltip: true});
+                        capRept.listGrid[value].columnDefs.splice(6,0,{name: 'projectName', displayName: 'Project Name', field: 'projectName', cellTooltip: true});
+                        capRept.listGrid[value].columnDefs.splice(7,0,{name: 'environmentName', displayName: 'Env Name', field: 'environmentName', cellTooltip: true}); $scope.instanceType= 'managedInstances';
                         $scope.instanceType= 'managedInstances';
                     } else if($rootScope.organNewEnt.instanceType === 'Assigned'){
-                        $scope.colArray.push('bgName');
-                        capRept.listGrid[value].columnDefs.splice(6,0,{name: 'bgName', displayName: 'Bg Name', field: 'bgName', cellTooltip: true});
+                        $scope.colArray.push('bgName','projectName','environmentName');
+                        capRept.listGrid[value].columnDefs.splice(5,0,{name: 'bgName', displayName: 'Bg Name', field: 'bgName', cellTooltip: true});
+                        capRept.listGrid[value].columnDefs.splice(6,0,{name: 'projectName', displayName: 'Project Name', field: 'projectName', cellTooltip: true});
+                        capRept.listGrid[value].columnDefs.splice(7,0,{name: 'environmentName', displayName: 'Env Name', field: 'environmentName', cellTooltip: true}); $scope.instanceType= 'managedInstances';
                         $scope.instanceType= 'unmanagedInstances';
                     } else if($rootScope.organNewEnt.instanceType === 'Unassigned'){
                         $scope.instanceType= 'unassigned-instances';
@@ -222,12 +224,12 @@
                         }
                     });
                 } else if(fltrObj && fltrObj.provider && fltrObj.provider.id){
-                    var param = {
+                    var paramResources= {
                         inlineLoader:true,
                        url: '/resources?filterBy=providerDetails.id:'+fltrObj.provider.id+',resourceType:'+capRept.serviceType+',category:'+$rootScope.organNewEnt.instanceType.toLowerCase()
                        // url:'src/partials/sections/dashboard/analytics/data/ins.json'
                     };
-                    genSevs.promiseGet(param).then(function (instResult) {
+                    genSevs.promiseGet(paramResources).then(function (instResult) {
                         /////
                         capRept.listGrid[value].data = instResult.data;
                             if(capRept.serviceType === 'RDS'){
@@ -265,7 +267,7 @@
 
                 //}
             };
-            $scope.$watch('capRept.serviceType',function (newValue, oldValue) {
+            $scope.$watch('capRept.serviceType',function () {
                 capRept.createList();
             });
             $scope.aggregateInstanceCost=function (cost) {
@@ -363,11 +365,11 @@
             var $yesterday = new Date($today);
             $yesterday.setDate($today.getDate() - 1);
             if(fltObj && fltObj.resources && fltObj.resources.length >0) {
-                var  $today = new Date();
-                var $yesterday = new Date($today);
-                $yesterday.setDate($today.getDate() - 1);
+                var  $todayA = new Date();
+                var $yesterdayA = new Date($todayA);
+                $yesterday.setDate($todayA.getDate() - 1);
                     var param = {
-                        url: '/analytics/trend/usage?resource=' + items._id + '&fromTimeStamp=' + $yesterday + '&toTimeStamp=' + $today + '&interval=3600'
+                        url: '/analytics/trend/usage?resource=' + items._id + '&fromTimeStamp=' + $yesterdayA + '&toTimeStamp=' + $todayA + '&interval=3600'
                         //url:'src/partials/sections/dashboard/analytics/data/usage.json'
                     };
                     genSevs.promiseGet(param).then(function (result) {

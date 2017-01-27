@@ -92,7 +92,7 @@
                     toastr.success('Successfully updated.','Update');
                 });
             };
-            $rootScope.applyFilter =function(filterApp,period){
+            $rootScope.applyFilter =function(){
                 analyticsServices.applyFilter(true,null);
                 disTgMap.getTagMapping();
             };
