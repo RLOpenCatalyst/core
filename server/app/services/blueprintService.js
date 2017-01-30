@@ -238,12 +238,12 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                             logger.error(err);
                         }else if(botData.length > 0){
                             var botExecutionCount = botData[0].executionCount + 1;
-                            bots.updateBotsExecutionCount(blueprint._id,botExecutionCount,function(err,data){
-                                if(err){
-                                    logger.error("Error while updating Bot Execution Count");
-                                }
-                            });
-                            bots.updateBotsDetail(blueprint._id,{runTimeParams:reqBody},function(err,data){
+                            var botUpdateObj = {
+                                executionCount:botExecutionCount,
+                                lastRunTime:new Date().getTime(),
+                                runTimeParams:reqBody
+                            }
+                            bots.updateBotsDetail(blueprint._id,botUpdateObj,function(err,data){
                                 if(err){
                                     logger.error("Error while updating Bots Configuration");
                                 }
