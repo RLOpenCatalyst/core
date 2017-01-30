@@ -215,7 +215,11 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
                                     logger.error("Error while updating Task Execution Count");
                                 }
                             });
-                            bots.updateBotsExecutionCount(task._id, botExecutionCount, function (err, data) {
+                            var botUpdateObj = {
+                                executionCount:botExecutionCount,
+                                lastRunTime:new Date().getTime()
+                            }
+                            bots.updateBotsDetail(task._id, botUpdateObj, function (err, data) {
                                 if (err) {
                                     logger.error("Error while updating Bot Execution Count");
                                 }
