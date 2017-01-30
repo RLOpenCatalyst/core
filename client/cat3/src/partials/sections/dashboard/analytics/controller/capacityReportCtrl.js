@@ -82,6 +82,9 @@
             $scope.chefConfig=function (id) {
                 genSevs.editRunlist(id);
             };
+            $scope.monthNames = ["January", "February", "March", "April", "May", "June","July", "August", "September", "October", "November", "December"];
+
+            $scope.currentMonth =  $scope.monthNames[new Date().getMonth()];
             capRept.createList = function () {
                 capRept.filterValue='';
                 capRept.listGrid=[];
@@ -107,7 +110,7 @@
                         },
                         {
                             name: 'cost',
-                            displayName: 'Cost',
+                            displayName: 'Cost ( '+$scope.currentMonth+' )',
                             cellTemplate: '<span ng-bind-html="grid.appScope.aggregateInstanceCost(row.entity.cost)"></span>'
                         },
                         {
@@ -132,7 +135,7 @@
                         },
                         {
                             name: 'cost',
-                            displayName: 'Cost',
+                            displayName: 'Cost ( '+$scope.currentMonth+' )',
                             cellTemplate: '<span ng-bind-html="grid.appScope.aggregateInstanceCost(row.entity.cost)"></span>'
                         },
                         {
@@ -151,7 +154,7 @@
                         {name: 'bucketOwnerName', field: 'bucketOwnerName', cellTooltip: true},
                         {name: 'bucketSize', field: 'bucketSize', displayName:'Bucket Size (MB)', cellTooltip: true},
 
-                        {name: 'cost', displayName: 'Cost',cellTemplate: '<span ng-bind-html="grid.appScope.aggregateInstanceCost(row.entity.cost)"></span>'},
+                        {name: 'cost',  displayName: 'Cost ( '+$scope.currentMonth+' )',cellTemplate: '<span ng-bind-html="grid.appScope.aggregateInstanceCost(row.entity.cost)"></span>'},
                         {name: 'Action', cellTooltip: true,cellTemplate:"<span class='cursor' title='Usage' style='font-size: 14px;' ng-click='grid.appScope.openChart(row.entity)'><i class=\"fa fa-line-chart\"></i></span> "}
                     ];
                 }
