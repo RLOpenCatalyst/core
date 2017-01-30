@@ -2,7 +2,7 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  * Written by Relevance UI Team,
- * Oct 2016
+ * Jan 2017
  */
 
 (function (angular) {
@@ -27,32 +27,27 @@
         $scope.paginationParams.sortBy = 'createdOn';
         $scope.paginationParams.sortOrder = 'desc';
         $scope.botLibrarySearch = '';
-        /*$scope.botLibFilterBot = 'Task';
-        $scope.botLibFilterTask = 'chef';
-        $scope.botLibFilterCategory = 'Active Directory';*/
+        $scope.showLoadMore = false;
             
         $scope.initGrids = function(){
             $scope.botLibGridOptions={};
             $scope.botLibGridOptions.columnDefs= [
-                { name:'Task Type', field:'botLinkedSubCategory' ,cellTemplate:'<img src="images/orchestration/chef.png" ng-show="row.entity.botLinkedSubCategory==\'chef\'" alt="row.entity.taskType" title="Chef" class="task-type-img" />'+
-                    '<img src="images/orchestration/jenkins.png" ng-show="row.entity.botLinkedSubCategory==\'jenkins\'" alt="row.entity.botLinkedSubCategory" title="Jenkins" class="task-type-img" />'+
-                    '<img src="images/orchestration/script.jpg" ng-show="row.entity.botLinkedSubCategory==\'script\'" alt="row.entity.taskType" title="Script" class="task-type-img" />'+
-                    '<img src="images/devops-roles/devopsRole1.png" ng-show="row.entity.botLinkedCategory==\'Blueprint\'" alt="row.entity.botType" title="Blueprint" class="task-type-img" />',cellTooltip: true},
-                { name: 'BOT Type',displayName: 'BOT Type',field:'botType',cellTooltip: true},
-                { name: 'BOT Name',displayName: 'BOT Name',field:'botName',cellTooltip: true},
-                { name: 'Category',field:'botCategory',cellTooltip: true},
-                { name: 'description',field:'botDesc',cellTooltip: true},
-                { name: 'BOT Created From',displayName: 'BOT Created From',field:'botLinkedCategory',cellTooltip: true},
-                { name: 'Organization',field:'masterDetails.orgName',cellTooltip: true},
+                { name:'Task Type', field:'type' ,cellTemplate:'<img src="images/orchestration/chef.png" ng-show="row.entity.type==\'chef\'" alt="row.entity.taskType" title="Chef" class="task-type-img" />'+
+                    '<img src="images/orchestration/jenkins.png" ng-show="row.entity.type==\'jenkin\'" alt="row.entity.botLinkedSubCategory" title="Jenkins" class="task-type-img" />'+
+                    '<img src="images/orchestration/script.jpg" ng-show="row.entity.type==\'script\'" alt="row.entity.taskType" title="Script" class="task-type-img" />'+
+                    '<img src="images/devops-roles/devopsRole1.png" ng-show="row.entity.type==\'Blueprint\'" alt="row.entity.botType" title="Blueprint" class="task-type-img" />',cellTooltip: true},
+                { name: 'BOT Type',displayName: 'BOT Type',field:'id',cellTooltip: true},
+                { name: 'BOT Name',displayName: 'BOT Name',field:'name',cellTooltip: true},
+                { name: 'Category',field:'category',cellTooltip: true},
+                { name: 'description',field:'desc',cellTooltip: true},
+             //   { name: 'BOT Created From',displayName: 'BOT Created From',field:'botLinkedCategory',cellTooltip: true},
+                { name: 'Organization',field:'orgName',cellTooltip: true},
                 { name: 'Total Runs',field:'executionCount'},
                    { name: 'BOT Action',width:200,displayName: 'BOT Action',cellTemplate:
-                    // '<a class="cursor" title="History" ng-click="grid.appScope.botLogs(row.entity);"><i class="fa fa-header font-size-16"></i></a>'+
                     '<a title="History"><i class="fa fa-header font-size-16 cursor" ng-click="grid.appScope.botHistory(row.entity);"></i></a>'+
                     '<a title="Info"><i class="fa fa-info font-size-16 cursor" ng-click="grid.appScope.botInfo(row.entity);"></i></a>'+
-                    //'<a class="cursor" title="Edit" ng-click="grid.appScope.createBot(row.entity);"><i class="fa fa-pencil font-size-16"></i></a>'+
                     '<a title="Schedule"><i class="fa fa-calendar font-size-16 cursor" ng-click="grid.appScope.botSchedule(row.entity);"></i></a>' +
                     '<a title="Execute"><i class="fa fa-play font-size-16 cursor" ng-click="grid.appScope.launchInstance(row.entity);"></i></a>' +
-                    //'<a class="cursor" title="Report" ng-click="grid.appScope.botReport(row.entity);"><i class="fa fa-file-text font-size-16"></i></a>' + 
                     '<a title="Delete"><i class="fa fa-trash-o font-size-16 cursor" ng-click="grid.appScope.deleteBot(row.entity);"></i></a>'
                 }
             ];
@@ -102,11 +97,15 @@
         $scope.botLibraryGridView = function() {
             lib.gridOptions=[];
             var param={
-                url:'/bots?page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                url:'/botsNew?page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
             };
             genSevs.promiseGet(param).then(function (result) {
                 $timeout(function() {
                     $scope.botLibGridOptions.totalItems = result.metaData.totalRecords;
+                    $scope.botSummary = result.botSummary;
+                    if(result.metaData.totalRecords >= 9) {
+                        $scope.showLoadMore = true;
+                    }
                     if($scope.isCardViewActive){
                         $scope.botLibGridOptions.data = $scope.botLibGridOptions.data.concat(result.bots);
                     } else {
@@ -133,11 +132,11 @@
             $scope.searchString = $scope.botLibrarySearch;
             $scope.searchText = true;
             lib.gridOptions=[];
-            if($scope.totalBotsSelected) {
+            //if($scope.totalBotsSelected) {
                 var param={
-                    url:'/bots?page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
+                    url:'/botsNew?page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
                 };
-            } else if($scope.runningBotsselected) {
+            /*} else if($scope.runningBotsselected) {
                 var param={
                     url:'/bots?actionStatus=running&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
                 };
@@ -149,11 +148,12 @@
                 var param={
                     url:'/bots?actionStatus=failed&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
                 };
-            }
+            }*/
             genSevs.promiseGet(param).then(function (result) {
                 $timeout(function() {
                     $scope.botLibGridOptions.totalItems = result.metaData.totalRecords;
-                    $scope.botLibGridOptions.data=result.bots;
+                    $scope.botLibGridOptions.data =  result.bots;
+                    $scope.statusBar = "Showing " + ($scope.botLibGridOptions.data.length === 0 ? "0" : "1") + " to " + $filter('number')($scope.botLibGridOptions.data.length) + " of " + $filter('number')(result.metaData.totalRecords) + " entries";
                 }, 100);
                 $scope.isBotLibraryPageLoading = false;
             }, function(error) {
@@ -164,6 +164,7 @@
         };
         $scope.clearBotSearchText = function() {
             $scope.botLibrarySearch = '';
+            $scope.botLibGridOptions.data = [];
             $scope.searchText = false;
             if($scope.totalBotsSelected) {
                $scope.showAllBots();
@@ -224,6 +225,7 @@
                     $scope.botLibGridOptions.data=result.bots;
                 }, 100);
                 $scope.isBotLibraryPageLoading = false;
+                $scope.isOpenSidebar = false;
             }, function(error) {
                 $scope.isBotLibraryPageLoading = false;
                 toastr.error(error);
@@ -308,6 +310,7 @@
         };
 
         $scope.deleteBot = function(bot) {
+            console.log(bot.gitHubId);
             var modalOptions = {
                 closeButtonText: 'Cancel',
                 actionButtonText: 'Delete',
@@ -317,12 +320,12 @@
             };
             confirmbox.showModal({}, modalOptions).then(function() {
                 var param={
-                    url:'/bots/' + bot.botId
+                    url:'/botsNew/' + bot.gitHubId
                 };
                 genSevs.promiseDelete(param).then(function (response) {
                     if (response) {
                         toastr.success('Successfully deleted.');
-                        lib.summary();
+                       // lib.summary();
                         if($scope.totalBotsSelected) {
                             $scope.botLibraryGridView();
                         } else if($scope.runningBotsselected) {
@@ -341,7 +344,7 @@
             });
         };
         $rootScope.$on('BOTS_LIBRARY_REFRESH', function() {
-            lib.summary();
+           // lib.summary();
             $scope.botLibraryGridView();
         });
 
@@ -361,7 +364,7 @@
             $scope.botLibType = '';
            // $scope.botLibFilterCategory = 'Active Directory';
             $scope.botLibrarySearch = '';
-            lib.summary();
+           // lib.summary();
             if($scope.totalBotsSelected) {
                 $scope.botLibraryGridView();
             } else if($scope.runningBotsselected) {
@@ -379,7 +382,7 @@
             $scope.runningBotsselected = false;
             $scope.failedBotsselected = false;
             $scope.scheduledBotsSelected = false;
-            lib.summary();
+            //lib.summary();
             $scope.botLibraryGridView();
         };
         $scope.showBotsRunning = function() {
@@ -397,7 +400,7 @@
                     $scope.botLibGridOptions.data=result.bots;
                 }, 100);
             });
-            lib.summary();
+           // lib.summary();
         };
         $scope.showFailedBots = function() {
             $scope.failedBotsselected = true;
@@ -414,7 +417,7 @@
                     $scope.botLibGridOptions.data=result.bots;
                 }, 100);
             });
-            lib.summary();
+            //lib.summary();
         };
         $scope.showScheduledBots = function() {
             $scope.failedBotsselected = false;
@@ -431,9 +434,9 @@
                     $scope.botLibGridOptions.data=result.bots;
                 }, 100);
             });
-            lib.summary();
+           // lib.summary();
         };
-        lib.summary = function() {
+        /*lib.summary = function() {
             $scope.botSummary=[];
             var param={
                 url:'/audit-trail/bots-summary'
@@ -443,7 +446,7 @@
                 $scope.totalSavedTimeForBots = parseInt($scope.botSummary.totalSavedTimeForBots);
             });
         };
-        lib.summary();
+        lib.summary();*/
         $scope.setCardView();
     }]).controller('botInfoCtrl',['$scope', 'items', '$modalInstance', function ($scope, items, $modalInstance) {
         $scope.botInfo = items;

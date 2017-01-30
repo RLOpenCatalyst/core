@@ -74,6 +74,11 @@ var GitHubSchema = new Schema({
         trim: true,
         required: false
     },
+    isRepoCloned:{
+        type: Boolean,
+        required: false,
+        default:false
+    },
     createdOn:{
         type: Number,
         required: false,

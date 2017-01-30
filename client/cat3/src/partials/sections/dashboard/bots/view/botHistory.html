@@ -1,10 +1,10 @@
 <div id='botHistoryPage'>
 	<div class="modal-header">
 		<h4 class="modal-title">
-			<span class="close" ng-click="cancel()">×</span>
+			<span class="close" ng-click="$dismiss('cancel')">×</span>
 			<span>
 				<i class="fa fa-history"></i>&nbsp;
-				Bot History For - {{botHistory.botName}}
+				Bot History For - {{botHistory.name}}
 			</span>
 		</h4>
 	</div>
@@ -36,7 +36,7 @@
 	</div>
 
 	<div class="modal-footer">
-		<button type="button" class="btn cat-btn-close" ng-click="cancel()">
+		<button type="button" class="btn cat-btn-close" ng-click="$dismiss('cancel')">
 			<i class="fa fa-times black"></i> Close
 		</button>
 	</div>

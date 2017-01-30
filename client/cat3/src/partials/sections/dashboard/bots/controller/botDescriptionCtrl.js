@@ -8,8 +8,8 @@
 (function (angular) {
     "use strict";
     angular.module('dashboard.bots')
-    .controller('botDescriptionCtrl',['$scope', 'uiGridOptionsClient', '$rootScope', '$state', 'genericServices',
-    function ($scope, uiGridOptionsClient, $rootScope, $state, genSevs) {
+    .controller('botDescriptionCtrl',['$scope', 'uiGridOptionsClient', '$rootScope', 'confirmbox', '$state', 'genericServices',
+    function ($scope, uiGridOptionsClient, $rootScope, confirmbox, $state, genSevs) {
             var treeNames = ['BOTs','Bots Description'];
             $rootScope.$emit('treeNameUpdate', treeNames);
             $rootScope.$on('BOTS_TEMPLATE_SELECTED', function(event,reqParams) {
@@ -22,6 +22,40 @@
                 } else if(launch.botLinkedCategory === 'Blueprint') {
                     genSevs.launchBlueprint(launch);
                 }
+            };
+            $scope.deleteBot = function(bot) {
+                console.log(bot.gitHubId);
+                var modalOptions = {
+                    closeButtonText: 'Cancel',
+                    actionButtonText: 'Delete',
+                    actionButtonStyle: 'cat-btn-delete',
+                    headerText: 'Delete Bot',
+                    bodyText: 'Are you sure you want to delete this BOT?'
+                };
+                confirmbox.showModal({}, modalOptions).then(function() {
+                    var param={
+                        url:'/botsNew/' + bot.gitHubId
+                    };
+                    genSevs.promiseDelete(param).then(function (response) {
+                        if (response) {
+                            toastr.success('Successfully deleted.');
+                           // lib.summary();
+                            if($scope.totalBotsSelected) {
+                                $scope.botLibraryGridView();
+                            } else if($scope.runningBotsselected) {
+                                $scope.showBotsRunning();
+                            } else if($scope.scheduledBotsSelected) {
+                                $scope.showScheduledBots();
+                            } else if($scope.failedBotsselected) {
+                                $scope.showFailedBots();
+                            } else {
+                                $scope.botLibraryGridView();
+                            }
+                        }
+                    }, function(data) {
+                        toastr.error('error:: ' + data.toString());
+                    });
+                });
             };
             $scope.botInfo = $scope.templateSelected;
          
@@ -49,11 +83,11 @@
                     schedule: {
                         "title": "Schedule",
                         "url": "src/partials/sections/dashboard/bots/tabs/schedule.html"
-                    }, 
+                    }/*, 
                     settings: {
                         "title": "Settings",
                         "url": "src/partials/sections/dashboard/bots/tabs/settings.html"
-                    }
+                    }*/
                 }
             };
             $scope.tab = botsTab;

@@ -7,7 +7,7 @@
       <button type="button" title="Refresh" class="btn btn-xs cat-btn-update pull-right refresh-btn" ng-click="RefreshBotsLibrary();">
       <i class="fa fa-refresh white"></i>
       </button>
-      <button style="margin-right:4px;margin-top:2px;" type="button" class="btn btn-xs cat-btn-update pull-right filter-margin" ng-click="isOpenSidebar = !isOpenSidebar">
+      <button type="button" class="btn btn-xs cat-btn-update pull-right filter-margin" ng-click="isOpenSidebar = !isOpenSidebar">
       <i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;Filter
       </button>
       </span>
@@ -51,9 +51,9 @@
    </div>
    <!--sidebar filter ends here -->
    <!--panel description-->
-   <div class="container summary-container" style="margin-top:6px;">
+   <div class="container summary-container margintop6">
       <div class="panel-group">
-         <div class="col-lg-2 col-sm-6" style="margin-left:-5px;width:17%!important">
+         <div class="col-lg-2 col-sm-6 boxWidth" style="margin-left:-5px;">
             <div class="info-box">
                <span class="info-box-icon bg-aqua"><i class="faColor fa fa-list-ol"></i></span>
                <div class="info-box-content">
@@ -62,7 +62,7 @@
                </div>
             </div>
          </div>
-         <div class="col-lg-2 col-sm-6 margin-21" style="width:17%!important">
+         <div class="col-lg-2 col-sm-6 margin-21 boxWidth">
             <div class="info-box">
                <span class="info-box-icon bg-green"><i class="faColor fa fa-cogs fa-fw"></i></span>
                <div class="info-box-content">
@@ -71,7 +71,7 @@
                </div>
             </div>
          </div>
-         <div class="col-lg-2 col-sm-6 margin-21" style="width:17%!important">
+         <div class="col-lg-2 col-sm-6 margin-21 boxWidth">
             <div class="info-box">
                <span class="info-box-icon orange"><i class="faColor fa fa-calendar fa-fw"></i></span>
                <div class="info-box-content">
@@ -80,7 +80,7 @@
                </div>
             </div>
          </div>
-         <div class="col-lg-2 col-sm-6 margin-21" style="width:17%!important">
+         <div class="col-lg-2 col-sm-6 margin-21 boxWidth">
             <div class="info-box">
                <span class="info-box-icon bg-blue"><i class="faColor fa fa-save fa-fw"></i></span>
                <div class="info-box-content">
@@ -89,7 +89,7 @@
                </div>
             </div>
          </div>
-         <div class="col-lg-2 col-sm-6 margin-21" style="width:17%!important">
+         <div class="col-lg-2 col-sm-6 margin-21 boxWidth">
             <div class="info-box">
                <span class="info-box-icon bg-red"><i class="faColor fa fa-remove fa-fw"></i></span>
                <div class="info-box-content">
@@ -98,17 +98,6 @@
                </div>
             </div>
          </div>
-         <!-- <div class="col-lg-3 col-sm-6">
-            <div class="bot-library-search" style="margin-top:60px;">
-               <div class="pull-right">
-                  <label>&nbsp;
-                  <input style="font-size:120%" type="search" ng-model="botLibrarySearch" placeholder="Enter Bot Name" class="bot-search ng-pristine ng-valid ng-touched" placeholder="" id="searchBots">
-                  <i title="Search" class="fa fa-search search-icon" ng-show="!searchText" ng-click="searchBotNameCategory()"></i>
-                  <i title="Clear Search" class="fa fa-close search-icon ng-hide" ng-show="searchText" ng-click="clearBotSearchText()"></i>
-                  </label>
-               </div>
-            </div>
-         </div> -->
       </div>
    </div>
    <!--panel description along with search ends here-->
@@ -118,7 +107,7 @@
    <div style="width:1346px;">
       <div style="margin-left:35px;width:1300px" class="boxBots box-infobox" style="border-top-color:floralwhite"></div>
       <div class="gallery-header top-stats" style="margin-left:34px;margin-top:-10px;margin-bottom:20px;">
-         <span style="font-size:18px!important">Featured BOTs&nbsp; ({{botSummary.totalNoOfBots}})</span>
+         <span style="font-size:18px!important">BOTs&nbsp; ({{botSummary.totalNoOfBots}})</span>
          <span style="margin-left:10px;">
              <button style="font-size:12px;" type="button" class="btn btn-link {{botsCardViewSelection}}" title="Card View" ng-click="setCardView()"  >
                  <i class="fa fa-th"></i>
@@ -130,13 +119,13 @@
              </button>
          </span>
          <span style="margin-left:30px;" ng-if="botLibCategory" class="box-title font-size-16"><span>Functionality</span>
-         <span class="badge">{{botLibCategory}}<span class="filterClear" ng-click="clearFilter(botLibCategory)">×</span></span>
+         <span class="badge">{{botLibCategory}}<span title="Clear" class="filterClear" ng-click="clearFilter(botLibCategory)">×</span></span>
          </span>
-         <span style="margin-left:10px;" ng-if="botLibAction" class="box-title font-size-16"><span>Action</span>
-         <span class="badge">{{botLibAction}}<span class="filterClear" ng-click="clearFilter(botLibAction)">×</span></span>
+         <span ng-if="botLibAction" class="marginleft10 box-title font-size-16"><span>Action</span>
+         <span class="badge">{{botLibAction}}<span title="Clear" class="filterClear" ng-click="clearFilter(botLibAction)">×</span></span>
          </span>
-         <span style="margin-left:10px;" ng-if="botLibType" class="box-title font-size-16"><span>Type</span>
-         <span class="badge">{{botLibType}}<span class="filterClear" ng-click="clearFilter(botLibType)">×</span></span>
+         <span ng-if="botLibType" class="marginleft10 box-title font-size-16"><span>Type</span>
+         <span class="badge">{{botLibType}}<span title="Clear" class="filterClear" ng-click="clearFilter(botLibType)">×</span></span>
          </span>
          <!-- <span class="marginright10">
             <span style="margin-left:30px;" ng-if="botLibCategory" class="label filterButtons" title="{{}}">Bot Type: {{botLibCategory}}
@@ -146,14 +135,15 @@
             <span style="margin-left:10px;" ng-if="botLibType" class="label filterButtons" title="{{}}">Bot Category: {{botLibType}}
             </span>
          </span> -->
-         <span class="bot-library-search">
-            <span class="pull-right">
+         <form class="pull-right" novalidate name="library-form" ng-submit="searchBotNameCategory()">
+            <span class="bot-library-search">
                <label><span class="search-text">Search:</span>&nbsp;
-                  <input type="search" ng-model="botLibrarySearch" class="bot-search" placeholder="">
-                  <i class="fa fa-search search-icon" ng-click="searchBotNameCategory()"></i>
+                  <input type="search" ng-model="botLibrarySearch" class="bot-search" placeholder="Search">
+                  <i class="fa fa-search search-icon" ng-show="!searchText" ng-click="searchBotNameCategory()"></i>
+                  <i title="Clear Search" class="fa fa-close search-icon ng-hide" ng-show="searchText" ng-click="clearBotSearchText()"></i>
                </label>
             </span>
-         </span>
+         </form>
       </div>
       <loading size="large" name="isBotLibraryPageLoading" type="block"></loading>
       <div class="col-lg-4 col-md-4 col-sm-6" ng-show="isCardViewActive" ng-repeat="botsDetails in botLibGridOptions.data">
@@ -163,23 +153,23 @@
                   <img class="highlight" src="images/user.png">
                </div>
                <div class="info-cell">
-                  <div title="{{botsDetails.botName}}" class="title">{{botsDetails.botName}}</div>
+                  <div title="{{botsDetails.name}}" class="title">{{botsDetails.name}}</div>
                   <div class="publisher">
                      <!-- Create User -->
                   </div>
                </div>
                <div class="desc-cell">
-                  <div title="{{botsDetails.botDesc}}" class="description">{{botsDetails.botDesc}}</div>
+                  <div title="{{botsDetails.desc}}" class="description">{{botsDetails.desc}}</div>
                </div>
                <div class="pull-right" style="margin-top:42px;">
-                  <a style="margin-left:10px;margin-right:10px;" ng-click="launchInstance(botsDetails);" title="Execute"><i class="fa fa-play font-size-20"></i></a>
+                  <a style="margin-left:10px;margin-right:10px;cursor:pointer;" ng-click="launchInstance(botsDetails);" title="Execute"><i class="fa fa-play font-size-20"></i></a>
                </div>
             </a>
          </div>
       </div>
       
-      <div class="text-center" ng-show="paginationParams.pageSize && isCardViewActive"><a style="cursor:pointer;font-size:16px;" ng-model="currentCardPage" ng-click="cardPaginationChange()";>Load More</a></div>
-      <div ng-show="isCardViewActive" class="pull-right" style="margin-top:-34px;">
+      <div class="text-center" ng-show="showLoadMore && isCardViewActive"><a style="cursor:pointer;font-size:16px;" ng-model="currentCardPage" ng-click="cardPaginationChange()";>Load More</a></div>
+      <div ng-show="showLoadMore && isCardViewActive" class="pull-right" style="margin-top:-34px;">
          <div class="alert alert-success pull-left small">{{statusBar}}</div>
       </div>
    </div>

@@ -19,7 +19,8 @@ var instanceAuditTrail = require('_pr/model/audit-trail/instance-audit-trail.js'
 var botAuditTrail = require('_pr/model/audit-trail/bot-audit-trail.js');
 var containerAuditTrail = require('_pr/model/audit-trail/container-audit-trail.js');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
-var bots = require('_pr/model/bots/bots.js');;
+var bots = require('_pr/model/bots/1.0/bots.js');
+var botsDao = require('_pr/model/bots/1.1/botsDao.js');;
 
 const errorType = 'auditTrailService';
 
@@ -172,101 +173,147 @@ auditTrailService.getAuditTrailActionLogs = function getAuditTrailActionLogs(act
     });
 }
 
-auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
-    async.parallel({
-        totalNoOfBots: function(callback){
-            bots.getAllBots(function(err,botsList){
-                if(err){
-                    callback(err,null);
-                }else {
-                    callback(null, botsList.length);
-                }
-            });
+auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,callback){
+    async.waterfall([
+        function(next){
+            apiUtil.queryFilterBy(queryParam,next);
         },
-        totalNoOfSuccessBots: function(callback){
-            var query={
-                auditType:'BOTs',
-                actionStatus:'success',
-                isDeleted:false
-            };
-            auditTrail.getAuditTrails(query,function(err,data){
-                if(err){
-                    callback(err,null);
-                }else {
-                    callback(null, data.length);
-                }
-            });
-
+        function(filterQuery,next) {
+            filterQuery.isDeleted=false;
+            if(BOTSchema === 'BOTs') {
+                bots.getAllBots(filterQuery, next);
+            }else{
+                botsDao.getAllBots(filterQuery, next);
+            }
         },
-        totalNoOfScheduledBots: function(callback){
-            bots.getScheduledBots(function(err,scheduledBotsList){
-                if(err){
-                    callback(err,null);
-                }else {
-                    callback(null, scheduledBotsList.length);
-                }
-            });
-        },
-        totalNoOfRunningBots: function(callback){
-            var query={
-                auditType:'BOTs',
-                actionStatus:'running',
-                isDeleted:false
-            };
-            auditTrail.getAuditTrails(query,function(err,data){
-                if(err){
-                    callback(err,null);
-                }else {
-                    callback(null, data.length);
-                }
-            });
-
-        },
-        totalSavedTimeForBots: function(callback){
-            var query={
-                auditType:'BOTs',
-                actionStatus:'success',
-                isDeleted:false
-            };
-            auditTrail.getAuditTrails(query,function(err,botAuditTrail){
-                if(err){
-                    callback(err,null);
-                } else if(botAuditTrail.length > 0){
-                    var totalTimeInSeconds = 0,count =0
-                    for(var i = 0; i < botAuditTrail.length; i++){
-                        (function(auditTrail){
-                            count++;
-                            if(auditTrail.endedOn && auditTrail.endedOn !== null
-                                && auditTrail.auditTrailConfig.manualExecutionTime && auditTrail.auditTrailConfig.manualExecutionTime !== null) {
-                                var executionTime = getExecutionTime(auditTrail.endedOn, auditTrail.startedOn);
-                                totalTimeInSeconds = totalTimeInSeconds + ((auditTrail.auditTrailConfig.manualExecutionTime*60) - executionTime);
+        function(botsList,next){
+            var auditIds = [];
+            for(var i = 0; i < botsList.length; i++) {
+                auditIds.push(botsList[i].botId);
+            }
+            async.parallel({
+                totalNoOfBots: function(callback){
+                            callback(null, botsList.length);
+                },
+                totalNoOfSuccessBots: function(callback){
+                    var query = {
+                        auditType: BOTSchema,
+                        actionStatus: 'success',
+                        isDeleted: false,
+                        auditId:{$in:auditIds}
+                    };
+                    var botsIds = [];
+                    auditTrail.getAuditTrails(query, function (err, botsAudits) {
+                        if (err) {
+                            callback(err, null);
+                        } else if (botsAudits.length > 0) {
+                            for (var j = 0; j < botsAudits.length; j++) {
+                                if (botsIds.indexOf(botsAudits[j].auditId) === -1) {
+                                    botsIds.push(botsAudits[j].auditId);
+                                }
                             }
-                        })(botAuditTrail[i]);
+                            callback(null, botsIds.length);
+                        } else {
+                            callback(null, botsIds.length);
+                        }
+                    });
+                },
+                totalNoOfScheduledBots: function(callback){
+                    var scheduleBotsIds = [];
+                    if(botsList.length > 0) {
+                        for (var j = 0; j < botsList.length; j++) {
+                            if(botsList[j].isBotScheduled === true) {
+                                scheduleBotsIds.push(botsList[j]._id);
+                            }
+                        }
+                        callback(null,scheduleBotsIds.length);
+                    }else{
+                        callback(null,scheduleBotsIds.length);
                     }
-                    if(count === botAuditTrail.length){
-                        callback(null,(totalTimeInSeconds/60).toFixed(2));
-                    }
-                } else{
-                    callback(null,botAuditTrail.length);
+                },
+                totalNoOfRunningBots: function(callback){
+                    var query={
+                        auditType:BOTSchema,
+                        actionStatus:'running',
+                        isDeleted:false,
+                        auditId:{$in:auditIds}
+                    };
+                    var botsIds = [];
+                    auditTrail.getAuditTrails(query, function(err,botsAudits){
+                        if(err){
+                            callback(err,null);
+                        }else if (botsAudits.length > 0) {
+                            for (var j = 0; j < botsAudits.length; j++) {
+                                if (botsIds.indexOf(botsAudits[j].auditId) === -1) {
+                                    botsIds.push(botsAudits[j].auditId);
+                                }
+                            }
+                            callback(null,botsIds.length);
+                        } else {
+                            callback(null,botsIds.length);
+                        }
+                    });
+                },
+                totalSavedTimeForBots: function(callback){
+                    var query={
+                        auditType:BOTSchema,
+                        actionStatus:'success',
+                        isDeleted:false,
+                        auditId:{$in:auditIds}
+                    };
+                    auditTrail.getAuditTrails(query,function(err,botAuditTrail){
+                        if(err){
+                            callback(err,null);
+                        } else if(botAuditTrail.length > 0){
+                            var totalTimeInSeconds = 0;
+                            for(var j = 0; j < botAuditTrail.length; j++){
+                                (function(auditTrail){
+                                    if(auditTrail.endedOn && auditTrail.endedOn !== null
+                                        && auditTrail.auditTrailConfig.manualExecutionTime && auditTrail.auditTrailConfig.manualExecutionTime !== null) {
+                                        var executionTime = getExecutionTime(auditTrail.endedOn, auditTrail.startedOn);
+                                        totalTimeInSeconds = totalTimeInSeconds + ((auditTrail.auditTrailConfig.manualExecutionTime*60) - executionTime);
+                                    }
+                                })(botAuditTrail[j]);
+                            }
+                            callback(null,(totalTimeInSeconds/60).toFixed(2));
+                        } else{
+                            callback(null,botAuditTrail.length);
+                        }
+                    });
+                },
+                totalNoOfFailedBots: function(callback){
+                    var query={
+                        auditType:BOTSchema,
+                        actionStatus:'failed',
+                        isDeleted:false,
+                        auditId:{$in:auditIds}
+                    };
+                    var botsIds = [];
+                    auditTrail.getAuditTrails(query, function(err,botsAudits){
+                        if(err){
+                            callback(err,null);
+                        }else if (botsAudits.length > 0) {
+                            for (var j = 0; j < botsAudits.length; j++) {
+                                if (botsIds.indexOf(botsAudits[j].auditId) === -1) {
+                                    botsIds.push(botsAudits[j].auditId);
+                                }
+                            }
+                            callback(null,botsIds.length);
+                        } else {
+                            callback(null,botsIds.length);
+                        }
+                    });
                 }
-            });
-        },
-        totalNoOfFailedBots: function(callback){
-            var query={
-                auditType:'BOTs',
-                actionStatus:'failed',
-                isDeleted:false
-            };
-            auditTrail.getAuditTrails(query,function(err,data){
-                if(err){
-                    callback(err,null);
-                }else {
-                    callback(null, data.length);
-                }
-            });
-        }
 
-    },function(err,results){
+            },function(err,data){
+                if(err){
+                    logger.error(err);
+                    next(err,null);
+                }
+                next(null,data);
+            })
+        }
+    ],function(err,results){
         if(err){
             logger.error(err);
             callback(err,null);
@@ -274,7 +321,6 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
         }
         callback(null,results);
         return;
-
     })
 }
 
@@ -329,4 +375,3 @@ function getExecutionTime(endTime,startTime){
     var totalSeconds = Math.floor(executionTimeInMS/1000);
     return totalSeconds;
 }
-

@@ -9,7 +9,7 @@ var should = require("should");
 var xlsx = require('node-xlsx');
 var util = require('util'),
     fs = require('fs');
-var server = supertest.agent("http://localhost:3001");
+var server = supertest.agent("http://d4d.rlcatalyst.com");
 
 
 before(function(done){
@@ -78,9 +78,37 @@ describe("Deploy Permission ",function(){
                 assert.equal(res.status, 201);
                 done();
             });
-    });
+    });*/
 
-    it(" Update Git Hub  ",function(done){
+
+   /* it(" Create A New Org ",function(done){
+        var reqBody = {
+            "orgname":"DurgeshOrg",
+            "domainname":"Catalyst Organization",
+            "plannedCost":"1800",
+            "active":"true"
+        };
+        server
+            .post('/d4dMasters/savemasterjsonrownew/1/null/DurgeshOrg')
+            .send(reqBody)
+            .end(function(err,res){
+                console.log(res.body);
+                assert.equal(res.status, 200);
+                done();
+            });
+    });
+*/
+
+
+   it(" Delete A New Org ",function(done){
+        server
+            .get('/d4dMasters/removeitem/1/rowid/ef32efeb-5ce0-49bd-b7e2-66255e51e329')
+            .end(function(err,res){
+                assert.equal(res.status, 200);
+                done();
+            });
+    });
+    /*it(" Update Git Hub  ",function(done){
         var reqBody = {
             "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
             "name": "Bot-Library-Catalyst",
@@ -100,16 +128,16 @@ describe("Deploy Permission ",function(){
                 done();
             });
     });
-*/
-    it(" Sync Git Hub  ",function(done){
+
+    it(" Delete Git Hub  ",function(done){
         server
-            .get('/git-hub/586f58a417c109866b1067ba/sync')
+            .delete('/git-hub/5864e1a67beeb0fd27591e23')
             .end(function(err,res){
-                console.log(res.body);
+                console.log(res);
                 assert.equal(res.status, 200);
                 done();
             });
-    });
+    });*/
 
 
 

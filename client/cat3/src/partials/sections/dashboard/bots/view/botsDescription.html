@@ -1,82 +1,82 @@
 <link rel='stylesheet' href='catalyst/partials/sections/dashboard/bots/bots.css'>
-
 <div id="botsDescriptionPage">
-	<div class="page-name">
-		BOTs Description&nbsp;
-		<button style="padding:4px 10px;font-size:13px;margin-right:10px;" type="button" title="Bots List" class="btn cat-btn-update btn-primary pull-right" ui-sref="dashboard.bots.library">
-			<i class="fa fa-chevron-left" style="color: #fff"></i><span style="margin-left:5px;">Bots List</span>
-		</button>
-	</div>
-	<div class="borderTop"></div>
-	<div class="container summary-container">
-		<div class="col-lg-6 col-md-6" style="margin-top:20px;margin-left:-25px;">
-	    <div class="agent-card grid-card hoverable">
-				<div class="image-cell two-tone-11">
-					<img class="highlight" src="images/user.png">
-				</div>
-				<div class="info-cell"><div class="title" title="{{templateSelected.botName}}">{{templateSelected.botName}}</div>
-				<div class="publisher"><!-- Create User --></div></div>
-
-				<div class="desc-cell">
-					<div class="description" title="{{templateSelected.botDesc}}">{{templateSelected.botDesc}}</div>
-				</div>
-				<div class="pull-right" style="margin-top:42px;">
-					<span style="margin-left:10px;" title="Edit"><i class="fa fa-pencil font-size-20"></i></span>
-					<span style="margin-left:10px;" title="Delete"><i class="fa fa-trash font-size-20"></i></span>
-					<a style="margin-left:10px;margin-right:10px;" ng-click="launchInstance(templateSelected);" title="Execute"><i class="fa fa-play font-size-20"></i></a>
-				</div>
-			
-		</div>
-		</div>
-		
-		<div class="col-lg-12 col-md-12 col-sm-12" style="margin-left:-5px;">
-	<ul id="myTab3" class="nav nav-tabs tabs-pull-left">
-		<li ng-class="{active:tab.isSet('ReadMe')}">
-			<a ng-click="tab.setTab('ReadMe')">
-				<i class="fa fa-codepen black"></i>&nbsp;
-				Read Me
-			</a>
-		</li>
-		<li ng-class="{active:tab.isSet('Param')}">
-			<a ng-click="tab.setTab('Param')">
-				<i class="fa fa-info black"></i>&nbsp;
-				Param
-			</a>
-		</li>
-		<li ng-class="{active:tab.isSet('Report')}">
-			<a ng-click="tab.setTab('Report')">
-				<i class="fa fa-header black"></i>&nbsp;
-				History
-			</a>
-		</li>
-		<li ng-class="{active:tab.isSet('Schedule')}">
-			<a ng-click="tab.setTab('Schedule')">
-				<i class="fa fa-calendar black"></i>&nbsp;
-				Schedule
-			</a>
-		</li>
-		<li ng-class="{active:tab.isSet('Settings')}">
-			<a ng-click="tab.setTab('Settings')">
-				<i class="fa fa-cog black"></i>&nbsp;
-				Settings
-			</a>
-		</li>
-	</ul>
-</div>
-</div>
-	<div class="{{tab.isSet('ReadMe')? 'show-grid-tab':'hide-grid'}}">
-		<div ng-include="tab.templates.readme.url"></div>
-	</div>
-	<div class="{{tab.isSet('Param')? 'show-grid-tab':'hide-grid'}}">
-		<div ng-include="tab.templates.param.url"></div>
-	</div>
-	<div class="{{tab.isSet('Report')? 'show-grid-tab':'hide-grid'}}">
-		<div ng-include="tab.templates.report.url"></div>
-	</div>
-	<div class="{{tab.isSet('Schedule')? 'show-grid-tab':'hide-grid'}}">
-		<div ng-include="tab.templates.schedule.url"></div>
-	</div>
-	<div class="{{tab.isSet('Settings')? 'show-grid-tab':'hide-grid'}}">
-		  <div ng-include="tab.templates.settings.url"></div>
-	</div>
+   <div class="page-name">
+      BOTs Description&nbsp;
+      <button style="padding:4px 10px;font-size:13px;margin-right:10px;" type="button" title="Bots List" class="btn cat-btn-update btn-primary pull-right" ui-sref="dashboard.bots.library">
+      <i class="fa fa-chevron-left" style="color: #fff"></i><span style="margin-left:5px;">Bots List</span>
+      </button>
+   </div>
+   <div class="borderTop"></div>
+   <div class="container summary-container">
+      <div class="col-lg-6 col-md-6" style="margin-top:20px;margin-left:-25px;">
+         <div class="agent-card grid-card hoverable">
+            <div class="image-cell two-tone-11">
+               <img class="highlight" src="images/user.png">
+            </div>
+            <div class="info-cell">
+               <div class="title" title="{{templateSelected.botName}}">{{templateSelected.name}}</div>
+               <div class="publisher">
+                  <!-- Create User -->
+               </div>
+            </div>
+            <div class="desc-cell">
+               <div class="description" title="{{templateSelected.botDesc}}">{{templateSelected.desc}}</div>
+            </div>
+            <div class="pull-right">
+               <!-- <span style="margin-left:10px;" title="Edit"><i class="fa fa-pencil font-size-20"></i></span> -->
+               <span style="margin-left:10px;" title="Delete" ng-click="deleteBot(templateSelected)"><i class="fa fa-trash font-size-20"></i></span>
+               <a style="margin-left:10px;margin-right:10px;" ng-click="launchInstance(templateSelected);" title="Execute"><i class="fa fa-play font-size-20"></i></a>
+            </div>
+         </div>
+      </div>
+      <div class="col-lg-12 col-md-12 col-sm-12" style="margin-left:-5px;">
+         <ul id="myTab3" class="nav nav-tabs tabs-pull-left">
+            <li ng-class="{active:tab.isSet('ReadMe')}">
+               <a ng-click="tab.setTab('ReadMe')">
+               <i class="fa fa-codepen black"></i>&nbsp;
+               Read Me
+               </a>
+            </li>
+            <li ng-class="{active:tab.isSet('Param')}">
+               <a ng-click="tab.setTab('Param')">
+               <i class="fa fa-info black"></i>&nbsp;
+               Param
+               </a>
+            </li>
+            <li ng-class="{active:tab.isSet('Report')}">
+               <a ng-click="tab.setTab('Report')">
+               <i class="fa fa-header black"></i>&nbsp;
+               History
+               </a>
+            </li>
+            <li ng-class="{active:tab.isSet('Schedule')}">
+               <a ng-click="tab.setTab('Schedule')">
+               <i class="fa fa-calendar black"></i>&nbsp;
+               Schedule
+               </a>
+            </li>
+            <!-- <li ng-class="{active:tab.isSet('Settings')}">
+               <a ng-click="tab.setTab('Settings')">
+               <i class="fa fa-cog black"></i>&nbsp;
+               Settings
+               </a>
+            </li> -->
+         </ul>
+      </div>
+   </div>
+   <div class="{{tab.isSet('ReadMe')? 'show-grid-tab':'hide-grid'}}">
+      <div ng-include="tab.templates.readme.url"></div>
+   </div>
+   <div class="{{tab.isSet('Param')? 'show-grid-tab':'hide-grid'}}">
+      <div ng-include="tab.templates.param.url"></div>
+   </div>
+   <div class="{{tab.isSet('Report')? 'show-grid-tab':'hide-grid'}}">
+      <div ng-include="tab.templates.report.url"></div>
+   </div>
+   <div class="{{tab.isSet('Schedule')? 'show-grid-tab':'hide-grid'}}">
+      <div ng-include="tab.templates.schedule.url"></div>
+   </div>
+   <!-- <div class="{{tab.isSet('Settings')? 'show-grid-tab':'hide-grid'}}">
+      <div ng-include="tab.templates.settings.url"></div>
+   </div> -->
 </div>

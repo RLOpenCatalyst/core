@@ -5,12 +5,18 @@
          <table class="table table-bordered">
             <thead>
                <tr>
-                  <th class="th-parameters">Parameters</th>
-                  <th class="th-values">Values</th>
+                  <th class="th-parameters">Label</th>
+                  <th class="th-values">Type</th>
+                  <th class="th-values">Default</th>
                </tr>
             </thead>
             <tbody>
-               <tr>
+               <tr ng-repeat = "botParams in botInfo.inputFormFields">
+                  <td>{{botParams.label}}</td>
+                  <td>{{botParams.type}}</td>
+                  <td>{{botParams.default}}</td>
+               </tr>
+               <!-- <tr>
                   <td class="td-padding">BOT Name</td>
                   <td>{{botInfo.botName}}</td>
                </tr>
@@ -96,7 +102,7 @@
                <tr ng-show="botInfo.botConfig && botInfo.botConfig.scriptDetails && botInfo.botConfig.scriptDetails[0].scriptParameters.length > 1" ng-repeat="desc in botInfo.botConfig.scriptDetails[0].scriptParameters">
                   <td class="td-padding">Script Parameter{{$index+1}} Description</td>
                   <td>{{desc.paramDesc}}</td>
-               </tr>
+               </tr> -->
             </tbody>
          </table>
       </div>
