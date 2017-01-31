@@ -8,8 +8,8 @@
 (function (angular) {
     "use strict";
     angular.module('dashboard.bots')
-    .controller('botHistoryCtrl',['$scope', '$rootScope', '$modal', '$timeout', 'uiGridOptionsClient', 'genericServices',
-        function($scope, $rootScope, $modal, $timeout, uiGridOptionsClient, genSevs){
+    .controller('botHistoryCtrl',['$scope', '$rootScope', '$modal', '$timeout', 'uiGridOptionsService', 'genericServices',
+        function($scope, $rootScope, $modal, $timeout, uiGridOptionsService, genSevs){
             
             var items = $rootScope.botHistory;
 
@@ -22,14 +22,20 @@
             }
         
             $scope.botHistory = items;
-            console.log(items);
             $scope.botId = items.botId;
             $scope.taskHistoryChefData = [];
-            var gridOptionsChef = uiGridOptionsClient.options().gridOption;
-            $scope.taskHistoryChefGridOptions = gridOptionsChef;
+            $scope.paginationParams = [];
+            var botLibraryUIGridDefaults = uiGridOptionsService.options();
+            $scope.paginationParams = botLibraryUIGridDefaults.pagination;
+            
+            $scope.paginationParams.page = 1;
+            $scope.paginationParams.pageSize = 10;
+            $scope.paginationParams.sortBy = 'startedOn';
+            $scope.paginationParams.sortOrder = 'desc';
+            
 
             $scope.initChefGrids = function(){
-                $scope.taskHistoryChefGridOptions.data='taskHistoryChefData';
+                $scope.taskHistoryChefGridOptions = {};
                 $scope.taskHistoryChefGridOptions.columnDefs = [
                     { name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status}}">{{row.entity.status}}</div>', cellTooltip: true},
                     { name:'User',field:'user',cellTooltip: true},
@@ -42,20 +48,23 @@
                     { name:'Saved Time',cellTemplate:'<span ng-if="row.entity.status == \'success\'">{{grid.appScope.getSavedTime(row.entity.endedOn,row.entity.startedOn)}} mins</span>' +
                     '<span ng-if="row.entity.status !== \'success\'" title="NA">NA</span>', cellTooltip: true}
                 ];
+                $scope.taskHistoryChefGridOptions.data = [];
+                angular.extend($scope.taskHistoryChefGridOptions,botLibraryUIGridDefaults.gridOption);
             };
             angular.extend($scope, {
                 taskHistoryChefListView: function() {
-                    $scope.taskHistoryChefData = [];
                     var param={
-                        url:'/bots/' + $scope.botId + '/bots-history'
+                        url:'/bots/' + $scope.botId + '/bots-history?page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
                     };
                     genSevs.promiseGet(param).then(function (response) {
                         $timeout(function() {
                             if(response.botHistory){
-                                $scope.taskHistoryChefData = response.botHistory;
+                                $scope.taskHistoryChefGridOptions.totalItems = response.metaData.totalRecords;
+                                $scope.taskHistoryChefGridOptions.data = response.botHistory;
                                 $scope.ischefTaskHistoryPageLoading = false;
                             }else if(response){
-                                $scope.taskHistoryChefData = response;
+                                $scope.taskHistoryChefGridOptions.data = response;
+                                $scope.taskHistoryChefGridOptions = response;
                                 $scope.ischefTaskHistoryPageLoading = false;
                             }
                         },100);
@@ -84,12 +93,8 @@
             //UI Grid for chef Task ends
 
             //UI Grid for jenkins Task starts
-            $scope.taskHistoryJenkinsData = [];
-            var gridOptionsJenkins = uiGridOptionsClient.options().gridOption;
-            $scope.taskHistoryJenkinsGridOptions = gridOptionsJenkins;
-
             $scope.initJenkinsGrids = function(){
-                $scope.taskHistoryJenkinsGridOptions.data='taskHistoryJenkinsData';
+                $scope.taskHistoryJenkinsGridOptions={};
                 $scope.taskHistoryJenkinsGridOptions.columnDefs = [
                     { name:'Job Number',field:'auditTrailConfig.jenkinsBuildNumber',cellTemplate:'<a target="_blank" title="Jenkins" ng-href="{{grid.appScope.bot.botConfig.jobURL}}/{{row.entity.auditTrailConfig.jenkinsBuildNumber}}">{{row.entity.auditTrailConfig.jenkinsBuildNumber}}</a>', sort:{ direction: 'desc'}, cellTooltip: true},
                     { name:'Job Output',cellTemplate:'<span><a target="_blank" title="{{jobResultUrlName}}" class="fa fa-file-text bigger-120 btn cat-btn-update btn-sg tableactionbutton marginbottomright3" ng-repeat="jobResultUrlName in row.entity.auditTrailConfig.jobResultURL" ng-href="{{jobResultUrlName}}"></a></span>',cellTooltip: true},
@@ -102,21 +107,23 @@
                     { name:'Saved Time',cellTemplate:'<span ng-if="row.entity.status === \'success\'">{{grid.appScope.getSavedTime(row.entity.endedOn,row.entity.startedOn)}} mins</span>' +
                     '<span ng-if="row.entity.status !== \'success\'" title="NA">NA</span>', cellTooltip: true}
                 ];
+                $scope.taskHistoryJenkinsGridOptions.data = [];
+                angular.extend($scope.taskHistoryJenkinsGridOptions,botLibraryUIGridDefaults.gridOption);
             };
             angular.extend($scope, {
                 taskHistoryJenkinsListView: function() {
-                    $scope.taskHistoryJenkinsData = [];
                     var param={
-                        url:'/bots/' + $scope.botId + '/bots-history'
+                        url:'/bots/' + $scope.botId + '/bots-history?page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
                     };
                     genSevs.promiseGet(param).then(function (response) {
                         $timeout(function() {
                             if(response.botHistory){
-                                $scope.taskHistoryJenkinsData = response.botHistory;
+                                $scope.taskHistoryJenkinsGridOptions.totalItems = response.metaData.totalRecords;
+                                $scope.taskHistoryJenkinsGridOptions.data = response.botHistory;
                                 $scope.isjenkinsTaskHistoryPageLoading = false;
                             }else if(response){
-                                $scope.taskHistoryJenkinsData = response;
-                                console.log($scope.taskHistoryJenkinsData);
+                                $scope.taskHistoryJenkinsGridOptions.data = response;
+                                $scope.taskHistoryJenkinsGridOptions = response;
                                 $scope.isjenkinsTaskHistoryPageLoading = false;
                             }
                         },100);
@@ -135,12 +142,8 @@
             //UI Grid for jenkins Task ends
 
             //UI Grid for script Task starts
-            $scope.taskHistoryScriptData = [];
-            var gridOptionsScript = uiGridOptionsClient.options().gridOption;
-            $scope.taskHistoryScriptGridOptions = gridOptionsScript;
-
             $scope.initScriptGrids = function(){
-                $scope.taskHistoryScriptGridOptions.data='taskHistoryScriptData';
+                $scope.taskHistoryScriptGridOptions = {};
                 $scope.taskHistoryScriptGridOptions.columnDefs = [
                     { name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status}}">{{row.entity.status}}</div>', cellTooltip: true},
                     { name:'User',field:'user',cellTooltip: true},
@@ -153,20 +156,23 @@
                     { name:'Saved Time',cellTemplate:'<span ng-if="row.entity.status === \'success\'">{{grid.appScope.getSavedTime(row.entity.endedOn,row.entity.startedOn)}} mins</span>' +
                     '<span ng-if="row.entity.status !== \'success\'" title="NA">NA</span>', cellTooltip: true}
                 ];
+                $scope.taskHistoryScriptGridOptions.data = [];
+                angular.extend($scope.taskHistoryScriptGridOptions,botLibraryUIGridDefaults.gridOption);
             };
             angular.extend($scope, {
                 taskHistoryScriptListView: function() {
-                    $scope.taskHistoryScriptData = [];
                     var param={
-                        url:'/bots/' + $scope.botId + '/bots-history'
+                        url:'/bots/' + $scope.botId + '/bots-history?page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
                     };
                     genSevs.promiseGet(param).then(function (response) {
                         $timeout(function() {
                             if(response.botHistory){
-                                $scope.taskHistoryScriptData = response.botHistory;
+                                $scope.taskHistoryScriptGridOptions.totalItems = response.metaData.totalRecords;
+                                $scope.taskHistoryScriptGridOptions.data = response.botHistory;
                                 $scope.isscriptTaskHistoryPageLoading = false;
                             }else if(response){
-                                $scope.taskHistoryScriptData = response;
+                                $scope.taskHistoryScriptGridOptions.data = response;
+                                $scope.taskHistoryScriptGridOptions = response;
                                 $scope.isscriptTaskHistoryPageLoading = false;
                             }
                         },100);
@@ -185,11 +191,8 @@
             //UI Grid for script Task ends
 
             //UI Grid for Blueprint starts
-            $scope.botHistoryBlueprintData = [];
-            $scope.botHistoryBlueprintGridOptions = gridOptionsScript;
-
             $scope.initBlueprintGrids = function(){
-                $scope.botHistoryBlueprintGridOptions.data='botHistoryBlueprintData';
+                $scope.botHistoryBlueprintGridOptions = {};
                 $scope.botHistoryBlueprintGridOptions.columnDefs = [
                     { name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status}}">{{row.entity.status}}</div>', cellTooltip: true},
                     { name:'User',field:'user',cellTooltip: true},
@@ -202,20 +205,23 @@
                     { name:'Saved Time',cellTemplate:'<span ng-if="row.entity.status === \'success\'">{{grid.appScope.getSavedTime(row.entity.endedOn,row.entity.startedOn)}} mins</span>' +
                     '<span ng-if="row.entity.status !== \'success\'" title="NA">NA</span>', cellTooltip: true}
                 ];
+                $scope.botHistoryBlueprintGridOptions.data = [];
+                angular.extend($scope.botHistoryBlueprintGridOptions,botLibraryUIGridDefaults.gridOption);
             };
             angular.extend($scope, {
                 botHistoryBlueprintListView: function() {
-                    $scope.botHistoryBlueprintData = [];
                     var param={
-                        url:'/bots/' + $scope.botId + '/bots-history'
+                        url:'/bots/' + $scope.botId + '/bots-history?page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
                     };
                     genSevs.promiseGet(param).then(function (response) {
                         $timeout(function() {
                             if(response.botHistory){
-                                $scope.botHistoryBlueprintData = response.botHistory;
+                                $scope.botHistoryBlueprintGridOptions.totalItems = response.metaData.totalRecords;
+                                $scope.botHistoryBlueprintGridOptions.data = response.botHistory;
                                 $scope.isBlueprintBotHistoryPageLoading = false;
                             }else if(response){
-                                $scope.botHistoryBlueprintData = response;
+                                $scope.botHistoryBlueprintGridOptions.data = response.botHistory;
+                                $scope.botHistoryBlueprintGridOptions = response.botHistory;
                                 $scope.isBlueprintBotHistoryPageLoading = false;
                             }
                         },100);
@@ -267,9 +273,9 @@
                     $scope.initblueprint();
                     break;
             }
-            var modalInstance;
+
             $scope.historyLogs=function(hist) {
-                modalInstance = $modal.open({
+                var modalInstance = $modal.open({
                     animation: true,
                     templateUrl: 'src/partials/sections/dashboard/bots/view/botExecutionLogs.html',
                     controller: 'botExecutionLogsCtrl as botExecLogCtrl',
@@ -290,10 +296,10 @@
                 }, function() {
                     console.log('Modal Dismissed at ' + new Date());
                 });
-            };
+            }
 
             $scope.cancel= function() {
-                $scope.modalInstance.dismiss('cancel');
+                $modalInstance.dismiss('cancel');
             };
         }
     ]);

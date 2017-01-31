@@ -128,7 +128,8 @@
 		$rootScope.$emit('HEADER_NAV_CHANGE', 'ANALYTICS');
 		$scope.selectedResources = [];
 		analytic.viewByFilter='orgView';
-		$scope.$watch(function() { return analytic.viewByFilter}, function(newVal) {
+		$scope.$watch(function() { 
+			return analytic.viewByFilter}, function(newVal) {
 			if(newVal === 'ProviderView'){
 				$rootScope.viewType='ProviderView';
 				if($state.params && $state.params.filterView){

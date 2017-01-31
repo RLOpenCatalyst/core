@@ -15,23 +15,24 @@
             $rootScope.$on('BOTS_TEMPLATE_SELECTED', function(event,reqParams) {
                 $scope.templateSelected = reqParams;
             });
-
-            if($scope.templateSelected.botCategory === 'Active Directory' || $scope.templateSelected.botCategory === 'Database Management') {
-                $scope.botIcon = 'images/bots/activeDirectory.png';
-            } else if($scope.templateSelected.botCategory === 'User Management') {
-                $scope.botIcon = 'images/bots/userManagement.png';
-            } else if($scope.templateSelected.botCategory === 'Service Management') {
-                $scope.botIcon = 'images/bots/serviceManagement.png';
-            } else if($scope.templateSelected.botCategory === 'Upgrade') {
-                $scope.botIcon = 'images/bots/upgrade.png';
-            } else if($scope.templateSelected.botCategory === 'Monitoring') {
-                $scope.botIcon = 'images/bots/monitoring.png';
-            } else if($scope.templateSelected.botCategory === 'Installation') {
-                $scope.botIcon = 'images/bots/installation.png';
-            } else if($scope.templateSelected.botCategory === 'OpenDJ LDAP') {
-                $scope.botIcon = 'images/bots/openDJ.png';
-            } else if($scope.templateSelected.botCategory === 'Application Deployment') {
-                $scope.botIcon = 'images/bots/applicationDeployment.png';
+            if($scope.templateSelected){
+                if($scope.templateSelected.botCategory === 'Active Directory' || $scope.templateSelected.botCategory === 'Database Management') {
+                    $scope.botIcon = 'images/bots/activeDirectory.png';
+                } else if($scope.templateSelected.botCategory === 'User Management') {
+                    $scope.botIcon = 'images/bots/userManagement.png';
+                } else if($scope.templateSelected.botCategory === 'Service Management') {
+                    $scope.botIcon = 'images/bots/serviceManagement.png';
+                } else if($scope.templateSelected.botCategory === 'Upgrade') {
+                    $scope.botIcon = 'images/bots/upgrade.png';
+                } else if($scope.templateSelected.botCategory === 'Monitoring') {
+                    $scope.botIcon = 'images/bots/monitoring.png';
+                } else if($scope.templateSelected.botCategory === 'Installation') {
+                    $scope.botIcon = 'images/bots/installation.png';
+                } else if($scope.templateSelected.botCategory === 'OpenDJ LDAP') {
+                    $scope.botIcon = 'images/bots/openDJ.png';
+                } else if($scope.templateSelected.botCategory === 'Application Deployment') {
+                    $scope.botIcon = 'images/bots/applicationDeployment.png';
+                }
             }
 
             $scope.launchInstance = function(launch){

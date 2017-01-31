@@ -17,7 +17,7 @@
             <h3 title="{{templateSelected.botName}}">{{templateSelected.botName}}</h3>
             <ul class="ul-vert-bar">
                <li class="publisher" title="{{templateSelected.botDesc}}">{{templateSelected.botDesc}}</li>
-               <!-- <li></li> -->
+               <li>Last Run: {{templateSelected.lastRunTime | timestampToLocaleTime}}</li> 
             </ul>
          </div>
          <div class="pull-right" style="margin-top:-26px;">

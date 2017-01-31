@@ -47,6 +47,7 @@
                 { name: 'Description',field:'botDesc',cellTooltip: true},
                 { name: 'BOT Created From',displayName: 'BOT Created From',field:'botLinkedCategory',cellTooltip: true},
                 { name: 'Organization',field:'masterDetails.orgName',cellTooltip: true},
+                { name: 'Last Run',field:'lastRunTime ',cellTemplate:'<span title="{{row.entity.lastRunTime  | timestampToLocaleTime}}">{{row.entity.lastRunTime  | timestampToLocaleTime}}</span>', cellTooltip: true},
                 { name: 'Total Runs',field:'executionCount'},
                    { name: 'BOT Action',width:200,displayName: 'BOT Action',cellTemplate:
                     '<a title="History"><i class="fa fa-header font-size-16 cursor" ng-click="grid.appScope.botHistory(row.entity);"></i></a>'+
@@ -93,7 +94,7 @@
             $scope.botLibGridOptions.paginationCurrentPage = $scope.paginationParams.page = 1;
         };
         $scope.setPaginationDefaults = function() {
-            $scope.paginationParams.sortBy = 'createdOn';
+            $scope.paginationParams.sortBy = 'lastRunTime';
             $scope.paginationParams.sortOrder = 'desc';
             if($scope.paginationParams.page !== 1){
                 $scope.setFirstPageView();//if current page is not 1, then ui grid will trigger a call when set to 1.

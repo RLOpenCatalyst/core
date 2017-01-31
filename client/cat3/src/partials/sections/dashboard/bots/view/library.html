@@ -157,13 +157,13 @@
                <div class="info-cell">
                   <div title="{{botsDetails.botName}}" class="title">{{botsDetails.botName}}</div>
                   <div class="publisher">
-                     <!-- Create User -->
+                     Last Run: {{botsDetails.lastRunTime | timestampToLocaleTime}}
                   </div>
                </div>
                <div class="desc-cell">
                   <div title="{{botsDetails.botDesc}}" class="description">{{botsDetails.botDesc}}</div>
                </div>
-               <div class="pull-right" style="margin-top:42px;">
+               <div class="pull-right" style="margin-top:24px;">
                   <a style="margin-left:10px;margin-right:10px;cursor:pointer;" ng-click="launchInstance(botsDetails);" title="Execute"><i class="fa fa-play font-size-20"></i></a>
                </div>
             </a>
