@@ -487,7 +487,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
                 res.send(500);
                 return;
             }
-            logger.debug("Provider Id: ", req.body.providerId);
+            logger.debug("Provider Id: ", req.body.blueprintData.providerId);
             if (!req.body.blueprintData.runlist) {
                 req.body.blueprintData.runlist = [];
             }
@@ -631,7 +631,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
             } else if (blueprintType === 'aws_cf') {
                 logger.debug('templateFile ==> ', req.body.blueprintData.cftTemplateFile);
                 cloudFormationData = {
-                    cloudProviderId: req.body.blueprintData.cftProviderId,
+                    cloudProviderId: req.body.blueprintData.providerId,
                     infraManagerType: 'chef',
                     infraManagerId: req.body.blueprintData.chefServerId,
                     runlist: req.body.blueprintData.runlist,
@@ -643,7 +643,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
                 blueprintData.cloudFormationData = cloudFormationData;
             } else if (req.body.blueprintData.blueprintType === 'azure_arm') {
                 armTemplateData = {
-                    cloudProviderId: req.body.blueprintData.cftProviderId,
+                    cloudProviderId: req.body.blueprintData.providerId,
                     infraManagerType: 'chef',
                     infraManagerId: req.body.blueprintData.chefServerId,
                     runlist: req.body.blueprintData.runlist,

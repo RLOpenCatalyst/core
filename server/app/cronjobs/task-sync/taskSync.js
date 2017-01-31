@@ -65,7 +65,7 @@ function executeTaskSyncForBotHistory(query,callback){
                                 }else if(count === runningAuditTrailList.length){
                                         next(null,runningAuditTrailList);
                                 }else{
-                                    logger.debug("Task Sync is going on");
+                                    logger.debug("BOTs Sync is going on");
                                 }
                             })
                             
@@ -79,10 +79,8 @@ function executeTaskSyncForBotHistory(query,callback){
                 }
 
             }else{
-                next({
-                    errCode:400,
-                    errMsg:"There is no BOTs in running state currently."
-                },null);
+                logger.info("There is no BOTs in running state currently.")
+                next(null,runningAuditTrailList);
             }
         }
     ],function(err,results){
@@ -134,10 +132,8 @@ function executeTaskSyncForTaskHistory(query,callback){
                 }
 
             }else{
-                next({
-                    errCode:400,
-                    errMsg:"There is no Tasks in running state currently."
-                },null);
+                logger.info("There is no Task in running state currently.")
+                next(null,runningTaskHistoryList);
             }
         }
     ],function(err,results){

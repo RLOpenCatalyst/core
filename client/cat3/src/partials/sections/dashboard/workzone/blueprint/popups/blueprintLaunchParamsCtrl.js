@@ -86,8 +86,6 @@
 
 			});
 
-
-
 			$scope.stackName='';
 			$scope.domainName='';
 			$scope.tagSerSelected = '';
@@ -127,8 +125,6 @@
 
             $scope.getAllTags();
             ///console.log('#####',$scope.tagOption);
-
-
 
 			$scope.launchBP = function() {
 				$scope.monitorIdCheck();
