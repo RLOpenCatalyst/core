@@ -2,51 +2,49 @@
 <div id="botsDescriptionPage">
    <div class="page-name">
       BOTs Description&nbsp;
-      <button style="padding:4px 10px;font-size:13px;margin-right:10px;" type="button" title="Bots List" class="btn cat-btn-update btn-primary pull-right" ui-sref="dashboard.bots.library">
+      <button style="padding:4px 10px;font-size:13px;margin-right:15px;" type="button" title="Bots List" class="btn cat-btn-update btn-primary pull-right" ui-sref="dashboard.bots.library">
       <i class="fa fa-chevron-left" style="color: #fff"></i><span style="margin-left:5px;">Bots List</span>
       </button>
    </div>
    <div class="borderTop"></div>
-   <div class="container summary-container">
-      <div class="col-lg-6 col-md-6" style="margin-top:20px;margin-left:-25px;">
-         <div class="agent-card grid-card hoverable">
-            <div class="image-cell two-tone-11">
-               <img class="highlight" src="images/user.png">
-            </div>
-            <div class="info-cell">
-               <div class="title" title="{{templateSelected.botName}}">{{templateSelected.name}}</div>
-               <div class="publisher">
-                  <!-- Create User -->
-               </div>
-            </div>
-            <div class="desc-cell">
-               <div class="description" title="{{templateSelected.botDesc}}">{{templateSelected.desc}}</div>
-            </div>
-            <div class="pull-right">
-               <!-- <span style="margin-left:10px;" title="Edit"><i class="fa fa-pencil font-size-20"></i></span> -->
-               <span style="margin-left:10px;" title="Delete" ng-click="deleteBot(templateSelected)"><i class="fa fa-trash font-size-20"></i></span>
-               <a style="margin-left:10px;margin-right:10px;" ng-click="launchInstance(templateSelected);" title="Execute"><i class="fa fa-play font-size-20"></i></a>
-            </div>
+   <div class="container summary-container" style="margin-left:36px;">
+      
+      <div class="grid-card-base bot-card-hero no-card-links" style="margin-top:20px;margin-left:10px!important;">
+         <div class="image-cell two-tone-11">
+            <img class="highlight" alt="{{templateSelected.botCategory}}" ng-src="{{botIcon}}">
          </div>
+         <div class="bot-content">
+            <h3 title="{{templateSelected.botName}}">{{templateSelected.botName}}</h3>
+            <ul class="ul-vert-bar">
+               <li class="publisher" title="{{templateSelected.botDesc}}">{{templateSelected.botDesc}}</li>
+               <!-- <li></li> -->
+            </ul>
+         </div>
+         <div class="pull-right" style="margin-top:-26px;">
+            <!--<span style="margin-left:10px;" title="Edit"><i class="fa fa-pencil font-size-20"></i></span> -->
+            <span style="margin-left:10px;cursor:pointer" title="Delete" ng-click="deleteBot(templateSelected)"><i class="fa fa-trash font-size-24"></i></span>
+            <span style="margin-left:10px;margin-right:10px;cursor:pointer" ng-click="launchInstance(templateSelected);" title="Execute"><i class="fa fa-play font-size-24"></i></span>
+         </div> 
       </div>
       <div class="col-lg-12 col-md-12 col-sm-12" style="margin-left:-5px;">
          <ul id="myTab3" class="nav nav-tabs tabs-pull-left">
-            <li ng-class="{active:tab.isSet('ReadMe')}">
+            <!-- <li ng-class="{active:tab.isSet('ReadMe')}">
                <a ng-click="tab.setTab('ReadMe')">
                <i class="fa fa-codepen black"></i>&nbsp;
                Read Me
+               </a>
+            </li> -->
+            
+            <li ng-class="{active:tab.isSet('Report')}">
+               <a ng-click="tab.setTab('Report')">
+               <i class="fa fa-header black"></i>&nbsp;
+               History
                </a>
             </li>
             <li ng-class="{active:tab.isSet('Param')}">
                <a ng-click="tab.setTab('Param')">
                <i class="fa fa-info black"></i>&nbsp;
                Param
-               </a>
-            </li>
-            <li ng-class="{active:tab.isSet('Report')}">
-               <a ng-click="tab.setTab('Report')">
-               <i class="fa fa-header black"></i>&nbsp;
-               History
                </a>
             </li>
             <li ng-class="{active:tab.isSet('Schedule')}">

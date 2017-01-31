@@ -51,9 +51,9 @@
    </div>
    <!--sidebar filter ends here -->
    <!--panel description-->
-   <div class="container summary-container margintop6">
+   <div class="container summary-container margintop6 marginleft20">
       <div class="panel-group">
-         <div class="col-lg-2 col-sm-6 boxWidth" style="margin-left:-5px;">
+         <div class="col-lg-2 col-sm-6 boxWidth">
             <div class="info-box">
                <span class="info-box-icon bg-aqua"><i class="faColor fa fa-list-ol"></i></span>
                <div class="info-box-content">
@@ -102,19 +102,21 @@
    </div>
    <!--panel description along with search ends here-->
    
-
+    <!-- width: 1246px;
+    /* padding: 0; */
+    margin: 0 auto; -->
    <!-- cards section-->
-   <div style="width:1346px;">
-      <div style="margin-left:35px;width:1300px" class="boxBots box-infobox" style="border-top-color:floralwhite"></div>
+   <div  class="botsWidth">
+      <div style="margin-left:35px;width:98%" class="boxBots box-infobox" style="border-top-color:floralwhite"></div>
       <div class="gallery-header top-stats" style="margin-left:34px;margin-top:-10px;margin-bottom:20px;">
-         <span style="font-size:18px!important">BOTs&nbsp; ({{botSummary.totalNoOfBots}})</span>
-         <span style="margin-left:10px;">
-             <button style="font-size:12px;" type="button" class="btn btn-link {{botsCardViewSelection}}" title="Card View" ng-click="setCardView()"  >
-                 <i class="fa fa-th"></i>
+         <!-- <span style="font-size:18px!important">BOTs&nbsp; ({{botSummary.totalNoOfBots}})</span> -->
+         <span style="margin-left:2px;">
+             <button type="button" class="font-size-16 tabReadme btn btn-link {{botsCardViewSelection}}" title="Card View" ng-click="setCardView()"  >
+                 <i class="fa fa-th black"></i>
                  Grid
              </button>
-              <button style="font-size:12px;" type="button" class="btn btn-link {{botsTableViewSelection}}" title="Table View" ng-click="botsTableView()">
-               <i class="fa fa-align-justify"></i>
+              <button type="button" class="font-size-16 tabReadme btn btn-link {{botsTableViewSelection}}" title="Table View" ng-click="botsTableView()">
+               <i class="fa fa-align-justify black"></i>
                  List
              </button>
          </span>
@@ -137,7 +139,7 @@
          </span> -->
          <form class="pull-right" novalidate name="library-form" ng-submit="searchBotNameCategory()">
             <span class="bot-library-search">
-               <label><span class="search-text">Search:</span>&nbsp;
+               <label>&nbsp;
                   <input type="search" ng-model="botLibrarySearch" class="bot-search" placeholder="Search">
                   <i class="fa fa-search search-icon" ng-show="!searchText" ng-click="searchBotNameCategory()"></i>
                   <i title="Clear Search" class="fa fa-close search-icon ng-hide" ng-show="searchText" ng-click="clearBotSearchText()"></i>
@@ -145,21 +147,21 @@
             </span>
          </form>
       </div>
-      <loading size="large" name="isBotLibraryPageLoading" type="block"></loading>
+      <loading size="large" name="isBotLibraryPageLoading" type="block" align="center"></loading>
       <div class="col-lg-4 col-md-4 col-sm-6" ng-show="isCardViewActive" ng-repeat="botsDetails in botLibGridOptions.data">
-         <div class="agent-card grid-card hoverable">
+         <div class="agent-card grid-card hoverable col-lg-12 col-md-12 col-xs-12">
             <a class="appnav" ng-click="botTemplateClick(botsDetails)" ui-sref="dashboard.bots.botsDescription">
                <div class="image-cell two-tone-11">
-                  <img class="highlight" src="images/user.png">
+                  <img class="highlight" alt="{{botsDetails.botCategory}}" ng-src="{{botIcon}}">
                </div>
                <div class="info-cell">
-                  <div title="{{botsDetails.name}}" class="title">{{botsDetails.name}}</div>
+                  <div title="{{botsDetails.botName}}" class="title">{{botsDetails.botName}}</div>
                   <div class="publisher">
                      <!-- Create User -->
                   </div>
                </div>
                <div class="desc-cell">
-                  <div title="{{botsDetails.desc}}" class="description">{{botsDetails.desc}}</div>
+                  <div title="{{botsDetails.botDesc}}" class="description">{{botsDetails.botDesc}}</div>
                </div>
                <div class="pull-right" style="margin-top:42px;">
                   <a style="margin-left:10px;margin-right:10px;cursor:pointer;" ng-click="launchInstance(botsDetails);" title="Execute"><i class="fa fa-play font-size-20"></i></a>
@@ -169,7 +171,7 @@
       </div>
       
       <div class="text-center" ng-show="showLoadMore && isCardViewActive"><a style="cursor:pointer;font-size:16px;" ng-model="currentCardPage" ng-click="cardPaginationChange()";>Load More</a></div>
-      <div ng-show="showLoadMore && isCardViewActive" class="pull-right" style="margin-top:-34px;">
+      <div ng-show="showRecords && isCardViewActive" class="pull-right" style="margin-top:34px;">
          <div class="alert alert-success pull-left small">{{statusBar}}</div>
       </div>
    </div>

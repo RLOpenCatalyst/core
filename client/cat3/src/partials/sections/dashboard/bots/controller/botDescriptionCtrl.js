@@ -16,6 +16,24 @@
                 $scope.templateSelected = reqParams;
             });
 
+            if($scope.templateSelected.botCategory === 'Active Directory' || $scope.templateSelected.botCategory === 'Database Management') {
+                $scope.botIcon = 'images/bots/activeDirectory.png';
+            } else if($scope.templateSelected.botCategory === 'User Management') {
+                $scope.botIcon = 'images/bots/userManagement.png';
+            } else if($scope.templateSelected.botCategory === 'Service Management') {
+                $scope.botIcon = 'images/bots/serviceManagement.png';
+            } else if($scope.templateSelected.botCategory === 'Upgrade') {
+                $scope.botIcon = 'images/bots/upgrade.png';
+            } else if($scope.templateSelected.botCategory === 'Monitoring') {
+                $scope.botIcon = 'images/bots/monitoring.png';
+            } else if($scope.templateSelected.botCategory === 'Installation') {
+                $scope.botIcon = 'images/bots/installation.png';
+            } else if($scope.templateSelected.botCategory === 'OpenDJ LDAP') {
+                $scope.botIcon = 'images/bots/openDJ.png';
+            } else if($scope.templateSelected.botCategory === 'Application Deployment') {
+                $scope.botIcon = 'images/bots/applicationDeployment.png';
+            }
+
             $scope.launchInstance = function(launch){
                 if(launch.botLinkedCategory === 'Task'){
                     genSevs.executeTask(launch);
@@ -24,7 +42,6 @@
                 }
             };
             $scope.deleteBot = function(bot) {
-                console.log(bot.gitHubId);
                 var modalOptions = {
                     closeButtonText: 'Cancel',
                     actionButtonText: 'Delete',
@@ -34,7 +51,7 @@
                 };
                 confirmbox.showModal({}, modalOptions).then(function() {
                     var param={
-                        url:'/botsNew/' + bot.gitHubId
+                        url:'/botsNew/' + bot.botId
                     };
                     genSevs.promiseDelete(param).then(function (response) {
                         if (response) {
@@ -60,7 +77,7 @@
             $scope.botInfo = $scope.templateSelected;
          
             var botsTab = {
-                tab : "ReadMe",
+                tab : "Report",
                 setTab : function (tabId) {
                     botsTab.tab = tabId;   
                 },
@@ -68,10 +85,10 @@
                     return botsTab.tab === tabId;
                 },
                 templates:   {
-                    readme: {
+                    /*readme: {
                         "title": "ReadMe",
                         "url": "src/partials/sections/dashboard/bots/tabs/readme.html"
-                    }, 
+                    }, */
                     param: {
                         "title": "Param",
                         "url": "src/partials/sections/dashboard/bots/tabs/param.html"

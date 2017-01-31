@@ -3,10 +3,9 @@
 <div id="botLibraryPage" ng-controller="botScheduleCtrl">
    
 
-	<div class="container summary-container">
+	<div class="container summary-container" style="margin-left:45px;">
 	    <form name="newSchedule" novalidate>
       <div class="modal-header">
-         <span class="close" ng-click="cancel()">×</span>
          <h4 class="modal-title"><i class="fa fa-calendar"></i>&nbsp;Schedule Your BOT</h4>
       </div>
 
@@ -16,7 +15,7 @@
               </div>
               <div class="col-lg-6 col-md-6 margintop15">
                   <input type="radio" ng-value="true"  ng-model="isScheduled" name="isScheduled" ng-click="selectBotCheckbox()" />
-                  <label for="isScheduled" class="paddingright15">Yes</label>
+                  <label for="isScheduled" class="paddingright15">Yes&nbsp;</label>
                   <input type="radio" ng-value="false"  ng-model="isScheduled" name="isScheduled" ng-click="selectBotCheckbox()" />
                   <label for="isScheduled" class="paddingright15">No</label>
               </div>

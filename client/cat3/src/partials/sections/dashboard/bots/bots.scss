@@ -16,6 +16,10 @@
   margin-left:10px
 }
 
+.marginleft20 {
+  margin-left:20px
+}
+
 .marginbottom15 {
   margin-bottom: 15px;
 }
@@ -104,6 +108,7 @@
 
   .bot-search {
     -webkit-appearance: textfield !important;
+    font-size: 16px;
   }
 
   .borderTop {
@@ -127,7 +132,7 @@
 
   .bot-library-search {
     height: 33px;
-    margin-right: 12px;
+   /* margin-right: 12px;*/
   }
 
   .section-bottom-glyph {
@@ -266,7 +271,7 @@
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
   margin-left: 20px;
   margin-bottom: 20px;
-  overflow: hidden;
+  /*overflow: hidden;*/
   position: relative;
 }
 
@@ -285,8 +290,8 @@
   margin-bottom: 20px;
   overflow: hidden;
   position: relative;
-  min-width: 402px;
-  width: 402px;
+  /*min-width: 402px;
+  width: 402px;*/
   float: left;
 }
 
@@ -415,14 +420,14 @@
 }
 .image-cell img {
   display: block;
-  width: 70%;
+  width: 74%;
   height: 70%;
   border-radius: 70%;
   margin: 15%;
 }
 
 .two-tone-11 .highlight {
-  background-color: #8A8E93;
+ /* background-color: #8A8E93;*/
 }
 
 .agent-card .image-cell + * {
@@ -431,10 +436,6 @@
 
 .two-tone-11 {
   background-color: #D1D4D8;
-}
-
-.two-tone-11 .highlight {
-  background-color: #8A8E93;
 }
 
 .info-cell .title {
@@ -497,7 +498,7 @@ body .botDescriptionPage {
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1)
 }
 
-.nav-tabs li {
+/*.nav-tabs li {
   cursor: pointer;
   margin-bottom: -1px!important;
 }
@@ -515,7 +516,72 @@ body .botDescriptionPage {
 
 .nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover {
   background: none!important;
- /* border: none!important;*/
+  border: none!important;
+}*/
+
+//For Active tab
+.bots-tab-active {
+  /*background-color: #fff !important;*/
+ /* border: 1px solid #40baf1 !important;*/
+  border-bottom: 2px solid #4285F4 !important;
+  /*box-shadow: 0 -1px 5px -1px;*/
+  border-radius: 0px;
+  color: #4285F4 !important;
+  font-weight: 500;
+  outline: none !important;
+  text-decoration: none !important;
+  i {
+      color: #40baf1;
+  }
+}
+
+.tabReadme {
+  color: #666 !important
+}
+
+.nav-tabs {
+  border-bottom: 0px;
+  margin-bottom: 15px;
+}
+
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:focus,
+.nav-tabs > li.active > a:hover {
+  border-width: 0;
+}
+
+.nav-tabs > li > a {
+  border: none;
+  color: #666;
+  cursor: pointer;
+}
+
+.nav-tabs > li.active > a {
+  border: none;
+  color: #4285F4 !important;
+  background: transparent;
+  i {
+      color: #40baf1;
+  }
+}
+
+.nav-tabs > li > a::after {
+  content: "";
+  background: #4285F4;
+  height: 2px;
+  position: absolute;
+  width: 100%;
+  left: 0px;
+  bottom: -1px;
+  transition: all 250ms ease 0s;
+  transform: scale(0);
+  i {
+      color: #40baf1;
+  }
+}
+
+.nav-tabs > li.active > a::after {
+  transform: scale(1);
 }
 
 .actionItems {
@@ -538,22 +604,6 @@ body .botDescriptionPage {
   font-size: 16px;
 }
 
-//For Active tab
-.bots-tab-active {
-    background-color: #fff !important;
-    border: 1px solid #40baf1 !important;
-    border-bottom: 0px !important;
-    box-shadow: 0 -1px 5px -1px;
-    border-radius: 0px;
-    color: #40baf1 !important;
-    font-weight: 500;
-    outline: none !important;
-    text-decoration: none !important;
-    i {
-        color: #40baf1;
-    }
-}
-
 .filterButtons {
   padding: 5px 10px;
   font-size: 85%;
@@ -566,4 +616,84 @@ body .botDescriptionPage {
   cursor:pointer;
   float: right;
   right: -9px;
+}
+
+.bot-card-hero {
+  height: 100px;
+}
+
+.bot-card-hero .image-cell {
+  height: 100px;
+  width: 100px;
+}
+
+.bot-card-hero .bot-content {
+  margin-left: 120px;
+}
+
+.bot-card-hero h3 {
+  font-family: "Segoe UI Semilight", sans-serif;
+  font-size: 24px;
+  line-height: 46px;
+  margin-top: 8px;
+}
+
+.bot-card-hero .card-links {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+}
+
+.inner-grid > .bot-card-hero {
+  margin-top: 20px;
+}
+
+.bot-card-hero h3,
+.bot-card-hero ul {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.bot-card-hero .image-cell {
+  float: left;
+}
+
+.ul-vert-bar {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ul-vert-bar li {
+  display: inline;
+  padding-left: 3ex;
+  padding-right: 3ex;
+  border-left: 1px solid #999999!important;
+}
+
+.ul-vert-bar li:first-child {
+  padding-left: 0;
+  border-left: 0px none transparent!important;
+}
+
+.font-size-24 {
+  font-size: 24px;
+}
+
+.botsWidth {
+  width:98%;
+}
+
+@media (min-width : 1550px){
+    .agent-card .image-cell + * {
+      width: 375px;
+    }
+
+    .info-box-text {
+      font-size: 16px;
+    }
+
+    .info-box-number {
+      font-size: 26px;
+    }
 }
