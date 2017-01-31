@@ -274,8 +274,7 @@ BlueprintSchema.methods.launch = function (opts, callback) {
                 message: "Failed to get project via project id"
             }, null);
             return;
-        }
-        ;
+        };
         if (project.length === 0) {
             callback({
                 "message": "Unable to find Project Information from project id"
@@ -353,7 +352,8 @@ BlueprintSchema.methods.launch = function (opts, callback) {
                             blueprintData: self,
                             tagServer: opts.tagServer,
                             monitor: monitor,
-                            auditTrailId: opts.auditTrailId
+                            auditTrailId: opts.auditTrailId,
+                            tagSetStr: opts.tagSetStr,
                         };
                         if (!env) {
                             chef.createEnvironment(envName, function (err) {

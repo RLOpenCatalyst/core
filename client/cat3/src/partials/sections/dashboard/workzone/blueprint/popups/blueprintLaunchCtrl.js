@@ -9,8 +9,9 @@
    "use strict";
 	angular.module('workzone.blueprint')
 		.controller('blueprintLaunchCtrl', ['$scope', '$rootScope', '$modalInstance', 'bpItem', 'workzoneServices', 'workzoneEnvironment', 'instanceLogs', function($scope, $rootScope, $modalInstance, bpItem, workzoneServices, workzoneEnvironment, instanceLogs) {
-		console.log(bpItem);
+		console.log('the BP Item', bpItem);
 			if(bpItem.bp.blueprintType || bpItem.bp.botLinkedSubCategory) {
+                var tagSetStr = "";
 				$scope.isBPLogsLoading = true;
 				$scope.isNewInstanceLogsPromise = false;
 				var helper = {
@@ -99,7 +100,19 @@
 				if(bpItem.launchEnv){
 					lEnv=bpItem.launchEnv;
 				}
-				workzoneServices.launchBlueprint(selectedVersionBpId, versionOptional, lEnv, bpItem.stackName,bpItem.domainName,bpItem.tagServer,monitorId).then(function(bpLaunchResponse) {
+				if(bpItem.tagSets){
+				    var tagSetStrArray = [];
+				    var tagSetObj = function(key, value){
+				        this.key = key;
+				        this.value = value;
+                    };
+
+				    bpItem.tagSets.forEach(function(tagSet){
+				        tagSetStrArray.push(new tagSetObj(tagSet.tagName,tagSet.tagValue));
+                    });
+				    tagSetStr = JSON.stringify(tagSetStrArray);
+                }
+				workzoneServices.launchBlueprint(selectedVersionBpId, versionOptional, lEnv, bpItem.stackName,bpItem.domainName,bpItem.tagServer,monitorId,tagSetStr).then(function(bpLaunchResponse) {
 					$scope.isBPLogsLoading = false;
 					var launchingInstance;
 					if(bpLaunchResponse.data.id && bpLaunchResponse.data.id.length>0){

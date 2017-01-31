@@ -188,7 +188,7 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
         },
         function(blueprint,next){
             if(blueprint){
-                var stackName = null,domainName = null,monitorId = null,blueprintLaunchCount = 0;
+                var stackName = null,domainName = null,monitorId = null,tagSetStr=null,blueprintLaunchCount = 0;
                 if(blueprint.executionCount) {
                     blueprintLaunchCount = blueprint.executionCount + 1;
                 }else{
@@ -211,8 +211,12 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                         next({errCode:400,errMsg:"Invalid Domain name"},null);
                     }
                 }
-                if (reqBody.monitorId && reqBody.monitorId !== null) {
+                if (reqBody.monitorId && reqBody.monitorId !== null && reqBody.monitorId !== 'null') {
                     monitorId = reqBody.monitorId;
+                }
+                if (reqBody.tagSetStr && reqBody.tagSetStr !== null && reqBody.tagSetStr !== 'null') {
+                    tagSetStr = reqBody.tagSetStr;
+
                 }
                 if(blueprint.serviceDeliveryCheck === true){
                     var actionObj={
@@ -264,10 +268,12 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                             sessionUser: reqBody.userName,
                             tagServer: reqBody.tagServer,
                             monitorId: monitorId,
+                            tagSetStr: reqBody.tagSetStr,
                             auditTrailId: data._id
                         },next);
                     });
                 }else{
+                    logger.debug('setting tagSETString before launch',tagSetStr, reqBody.tagSetStr);
                     blueprint.launch({
                         envId: reqBody.envId,
                         ver: reqBody.version,
@@ -276,6 +282,7 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                         sessionUser: reqBody.userName,
                         tagServer: reqBody.tagServer,
                         monitorId: monitorId,
+                        tagSetStr: reqBody.tagSetStr,
                         auditTrailId: null
                     },next);
                 }

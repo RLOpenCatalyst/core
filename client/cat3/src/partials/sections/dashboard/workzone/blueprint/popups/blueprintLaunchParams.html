@@ -49,6 +49,42 @@
 						</select>
 					</div>
 
+                   <div class="col-lg-6 col-md-6 projectRepo margintop15">
+                    <table>
+                        <tr>
+                            <label for="" class=""> Add Tags :</label>
+                         </tr>
+                   <tr ng-repeat="tagSet in tagSets">
+
+                           <td>
+                            {{tagSet.entity}}
+                           </td>
+                       <td>
+                           <select class="form-control" ng-model="tagNameIndex" class="width-100 form-control" ng-change="getTagName(tagNameIndex,$index)" required>
+                               <option selected="selected" value="">select</option>
+                               {{tagOption}}
+                               <option ng-repeat="name in tagOption track by $index"
+                                       value="{{tagOption.indexOf(name)}}">{{name.name}}
+                               </option>
+                           </select>
+                       </td>
+                       <td>
+                           <select class="form-control" ng-model="tagValueVal" class="width-100 form-control" ng-value="getTagValue(tagValueVal,$index)" required>
+                               <option selected="selected" value="">select</option>
+                               <option ng-repeat="val in tagOption[tagNameIndex].values track by $index"
+                                       value="{{val}}">{{val}}
+                               </option>
+                           </select>
+
+                       </td>
+
+                   </tr>
+                    </table>
+                </div>
+
+
+
+
 					<div ng-show="showMonitor" class="col-lg-6 col-md-6 projectRepo margintop15">
 						<label for="">Monitoring:</label>
                         	<select name="monitorId" ng-model="monitorId" class="form-control width-100">

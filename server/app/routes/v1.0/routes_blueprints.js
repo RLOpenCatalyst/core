@@ -390,7 +390,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			domainName:req.query.domainName,
 			stackName:req.query.stackName,
 			version:req.query.version,
-			tagServer:req.query.tagServer
+			tagServer:req.query.tagServer,
+            tagSetStr:req.query.tagSetStr
 		}
 		blueprintService.launch(req.params.blueprintId,reqBody,function(err,data){
 			if (err) {

@@ -8,17 +8,33 @@
 (function(angular){
 	"use strict";
 	angular.module('workzone.blueprint')
-		.controller('blueprintLaunchParamsCtrl', ['$scope', '$modalInstance', 'toastr',  'items','workzoneServices','genericServices','workzoneEnvironment', function($scope, $modalInstance, toastr, items,workzoneServices,genericServices,workzoneEnvironment) {
-			console.log(items);
+		.controller('blueprintLaunchParamsCtrl', ['$scope', '$rootScope','$modalInstance', 'toastr',  'items','workzoneServices','genericServices','workzoneEnvironment', function($scope, $rootScope, $modalInstance, toastr, items,workzoneServices,genericServices,workzoneEnvironment) {
+
+		    console.log(items);
+            $scope.tagSets = [];
+            var fltrObj=$rootScope.filterNewEnt;
+            $scope.tagOption=[];
+            $scope.tagSet = function(entity,tagName,tagValue)
+            {
+                this.entity = entity;
+                this.tagName = tagName;
+                this.tagValue = tagValue;
+            };
+
+            $scope.tagSets.push(new $scope.tagSet('Business Group','',''));
+            $scope.tagSets.push(new $scope.tagSet('Project','',''));
+            $scope.tagSets.push(new $scope.tagSet('Environment','',''));
+
 			$scope.showMonitor = true;
 			if(items.blueprintType === 'azure_arm' || items.blueprintType === 'azure_launch') {
 				$scope.showMonitor = false;
 			}
 			var launchHelper = {
 				launch : function(){
-					$modalInstance.close({bp:items,stackName:$scope.stackName,domainName:$scope.domainName,tagServer:$scope.tagSerSelected,launchEnv:$scope.envSeleted,monitorId:$scope.monitorId});
+					$modalInstance.close({bp:items,stackName:$scope.stackName,domainName:$scope.domainName,tagServer:$scope.tagSerSelected,launchEnv:$scope.envSeleted,monitorId:$scope.monitorId,tagSets:$scope.tagSets});
 				}
 			};
+
 			//var bPLP=this;
 			$scope.taggingServerList=[];
 			$scope.envOptions=[];
@@ -31,7 +47,7 @@
 				workzoneServices.getMonitorList(orgId).then(function (response) {		
 			        $scope.monitorList = response.data;
 				});
-			}
+			};
 			genericServices.getTreeNew().then(function (envData) {
 				angular.forEach(envData,function(val){
 					var orgID,bgID,projID;
@@ -69,13 +85,53 @@
 				});
 
 			});
+
+
+
 			$scope.stackName='';
 			$scope.domainName='';
 			$scope.tagSerSelected = '';
 			$scope.cancel = function() {
 				$modalInstance.dismiss('cancel');
 			};
+			$scope.monitorIdCheck = function() {
+				if($scope.monitorId === 'null') {
+	                $scope.monitorId = null;
+	            }
+			};
+
+			$scope.getTagName = function(tagIndex,rowIndex){
+			    $scope.tagSets[rowIndex].tagName = $scope.tagOption[tagIndex].name;
+			    console.log($scope.tagSets);
+
+            };
+
+            $scope.getTagValue = function(tagValue,rowIndex){
+			  $scope.tagSets[rowIndex].tagValue = tagValue;
+                console.log($scope.tagSets);
+            };
+
+            $scope.getAllTags =function () {
+                //$scope.newEnt.providerId = fltrObj.provider.id;
+                $scope.isLoadingTag = true;
+                var param = {
+                    inlineLoader: true,
+                    url: '/providers/' + items.blueprintConfig.cloudProviderId + '/tags'
+                };
+                genericServices.promiseGet(param).then(function (tagResult) {
+                    $scope.isLoadingTag = false;
+                    $scope.tagOption = tagResult;
+                    console.log($scope.tagOption);
+                });
+            };
+
+            $scope.getAllTags();
+            ///console.log('#####',$scope.tagOption);
+
+
+
 			$scope.launchBP = function() {
+				$scope.monitorIdCheck();
 				if(items.orgId === undefined && items.botType === undefined){
 					var compBlue={
 						"blueprintId": (items.id)?items.id:items._id,
@@ -101,11 +157,15 @@
 				}
 			};
 			$scope.cftSubmitHandler = function(){
+				$scope.monitorIdCheck();
 				launchHelper.launch();
 			};
 			$scope.launchBPWithDomainName = function(){
+				$scope.monitorIdCheck();
 				launchHelper.launch();
 			};
+
+
 		}
 	]);
 })(angular);
