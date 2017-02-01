@@ -248,11 +248,12 @@ module.exports.setRoutes = function(app) {
                             if (err) {
                                 res.status(500).send('Not able to fetch Jira.');
                             }
-			    var hygProp = '';
-			    if(jiraList[0]){
-			    hygProp += 'feature.jiraBaseUrl=' + jiraList[0].jiraurl + '\n';
-			    hygProp += 'feature.jiraCredentials=' + jiraList[0].jirakey + '\n';
-			    }
+                            var hygProp = '';
+                            if (jiraList[0]) {
+                                jiraList = JSON.parse(JSON.stringify(jiraList));
+                                hygProp += 'feature.jiraBaseUrl=' + jiraList[0].jiraurl + '\n';
+                                hygProp += 'feature.jiraCredentials=' + jiraList[0].jirakey + '\n';
+                            }
                             res.send(hygProp);
                             return;
                         });
