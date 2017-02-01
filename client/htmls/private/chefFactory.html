@@ -2,9 +2,10 @@
 <html lang="en-us">
  <head>
     <title>Chef Factory</title>
-     <link rel="stylesheet" type="text/css" media="screen" href="css/bootstrap.css">
-        <link rel="stylesheet" type="text/css" media="screen" href="css/catalyst.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="css/catalyst.css">
     <link rel="stylesheet" href="js/jquery-filetree/jqueryFileTree.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="css/font-awesome.min.css">
 <style>
 
 #dirArea {
@@ -110,6 +111,19 @@ hr{
 .spinner{
     margin-left: 124px;
 }
+
+.custom-theme .btn-header>:first-child>a {
+    background: none;
+    border: none !important;
+    color: #C5C6CA;
+    box-shadow: none !important;
+}
+
+.custom-theme .btn-header>:first-child>a:hover {
+    color: #fff;
+    cursor: pointer !important;
+}
+
 </style>
 </head>
 <body class="custom-theme"> 
@@ -140,9 +154,10 @@ hr{
                     <li class="left-projects-links active" id="liuserinfo" style="color:white;margin-right:16px;"></li>
                         <li id="logout" class="btn-header transparent pull-right logouttop">
                             <!-- ../auth/signout -->
-                        <span><a href="/auth/signout" title="Sign Out" style="font-size:16px!important;">
-                            <i class="fa fa-sign-out"></i>
-                            </a></span></li>
+                            <span><a href="/auth/signout" title="Sign Out" style="font-size:16px!important;">
+                                <i class="fa fa-sign-out"></i></a>
+                            </span>
+                        </li>
                     </ul>
                 </div>
             </nav>
@@ -193,7 +208,7 @@ hr{
     </div>
     <div id="editorBtnContainer"><button class="btn btn-primary btn-lg editorBtn" role="button" disabled>Clone</button><button class="btn btn-primary btn-lg save editorBtn" role="button">Save</button><button class="btn btn-primary btn-lg editorBtn" role="button" disabled>Test</button></div>
     <div id="fileEditorMsgContainer">
-     <span id='chefAccountMsg' style="display:block;position:absolute;top:4px;color:#fff"></span>
+     <span id='chefAccountMsg' style="display:block;position:absolute;top:18px;color:#fff"></span>
      <span id='chefInstructionMsg'> <span style="font-size:24px">Welcome to Chef Factory </span><br/><br/>
      <span style="font-size:20px">You can Clone, Edit and Upload a Cookbook,Roles to Chef Server.</span><br/>
      <span style="font-size:20px">
