@@ -46,6 +46,11 @@ var BotsSchema = new Schema ({
         trim: true,
         required: true
     },
+    action: {
+        type: String,
+        trim: true
+    },
+    execution: Schema.Types.Mixed,
     desc: {
         type: String,
         trim: true,

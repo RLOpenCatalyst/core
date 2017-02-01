@@ -230,7 +230,7 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                             (function(ymlFile){
                                 yamlJs.load(ymlFile, function(result) {
                                     if(result !== null){
-                                        fileUpload.uploadFile(result.id,ymlFile,null,function(err,ymlDocFileId){
+                                       fileUpload.uploadFile(result.id,ymlFile,null,function(err,ymlDocFileId){
                                             if(err){
                                                 logger.error("Error in uploading yaml documents.",err);
                                                 next(err);
@@ -241,7 +241,9 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                                     gitHubId:gitHubDetails._id,
                                                     id:result.id,
                                                     desc:result.desc,
-                                                    category:result.category,
+                                                    category:result.category?result.category:result.functionality,
+                                                    action:result.action,
+                                                    execution:result.execution,
                                                     type:result.type,
                                                     inputFormFields:result.input[0].form,
                                                     outputOptions:result.output,
@@ -313,7 +315,7 @@ function encryptedParam(paramDetails, callback) {
 
 function addYmlFileDetailsForBots(bots,callback){
     if (bots.docs.length === 0) {
-        return callback(null,scripts);
+        return callback(null,bots);
     }else{
         var botsList =[];
         var botsObj={};
@@ -326,8 +328,9 @@ function addYmlFileDetailsForBots(bots,callback){
                         return callback(err,null);
                     }else{
                         botsObj = {
+                            _id:bot._id,
                             name:bot.name,
-                            gitHubId:bot._id,
+                            gitHubId:bot.gitHubId,
                             id:bot.id,
                             desc:bot.desc,
                             category:bot.category,
