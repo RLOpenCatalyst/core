@@ -14,34 +14,8 @@
             };
             var capRept =this;
             capRept.chartData=[];
+            capRept.serviceType='EC2';
             capRept.splitUp=null;
-            capRept.getCapacityData=function(fltObj){
-                var param = {
-                    // url: 'src/partials/sections/dashboard/analytics/data/cost.json?org'
-                    url:''
-                };
-                if(fltObj && fltObj.org){
-                    var entityId=null;
-                    if(fltObj.provider){
-                        entityId=fltObj.provider.id;
-                    } else {
-                        entityId=fltObj.org.id;
-                    }
-                    //param.url='http://d4d.rlcatalyst.com/analytics/capacity?parentEntityId=46d1da9a-d927-41dc-8e9e-7e926d927537&entityId=46d1da9a-d927-41dc-8e9e-7e926d927537&toTimeStamp=Mon%20Nov%2014%202016%2010:41:29%20GMT+0530%20(IST)&period=month';
-                   param.url='/analytics/capacity?parentEntityId='+fltObj.org.id+'&entityId='+entityId+'&toTimeStamp='+new Date()+'&period=month';
-                }
-
-                genSevs.promiseGet(param).then(function (result) {
-                    capRept.chartData=result;
-                    $rootScope.splitUpCapacities=[];
-                    capRept.serviceCapacity=result.capacity.AWS;
-                    //capRept.serviceType=Object.keys(capRept.serviceCapacity.services)[0];
-                    capRept.serviceType='EC2';
-                    capRept.createList();
-
-                });
-            };
-
             $rootScope.applyFilter =function(filterApp,period){
                 analyticsServices.applyFilter(filterApp,period);
                 if($state.current.name === "dashboard.analytics.capacityReport") {
@@ -54,7 +28,7 @@
                 $rootScope.$emit('INI_usage', 'Unassigned');
                 $timeout(function () {
                     $rootScope.applyFilter(true,'month');
-                    capRept.getCapacityData($rootScope.filterNewEnt);
+                    capRept.createList();
                     var treeNames = ['Cloud Management','Analytics','capacity'];
                     $rootScope.$emit('treeNameUpdate', treeNames);
                 },500);
@@ -356,7 +330,7 @@
             if(fltObj && fltObj.resources && fltObj.resources.length >0) {
                 var  $todayA = new Date();
                 var $yesterdayA = new Date($todayA);
-                $yesterday.setDate($todayA.getDate() - 1);
+                $yesterdayA.setDate($todayA.getDate() - 1);
                     var param = {
                         url: '/analytics/trend/usage?resource=' + items._id + '&fromTimeStamp=' + $yesterdayA + '&toTimeStamp=' + $todayA + '&interval=3600'
                         //url:'src/partials/sections/dashboard/analytics/data/usage.json'
