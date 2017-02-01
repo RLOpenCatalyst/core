@@ -685,6 +685,12 @@ body .botDescriptionPage {
   width:98%;
 }
 
+.btnPadding {
+  padding: 4px 10px;
+  margin-left:10px;
+  cursor:pointer;
+}
+
 @media (min-width : 1550px){
     .agent-card .image-cell + * {
       width: 375px;
