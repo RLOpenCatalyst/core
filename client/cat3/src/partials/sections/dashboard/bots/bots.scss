@@ -290,8 +290,8 @@
   margin-bottom: 20px;
   overflow: hidden;
   position: relative;
-  /*min-width: 402px;
-  width: 402px;*/
+  min-width: 402px;
+  width: 402px;
   float: left;
 }
 
@@ -702,5 +702,17 @@ body .botDescriptionPage {
 
     .info-box-number {
       font-size: 26px;
+    }
+
+    .grid-card {
+      background-color: white;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
+      margin-left: 20px;
+      margin-bottom: 20px;
+      overflow: hidden;
+      position: relative;
+      min-width: 548px;
+      width: 548px;
+      float: left;
     }
 }

@@ -313,7 +313,7 @@ function encryptedParam(paramDetails, callback) {
 
 function addYmlFileDetailsForBots(bots,callback){
     if (bots.docs.length === 0) {
-        return callback(null,scripts);
+        return callback(null,bots);
     }else{
         var botsList =[];
         var botsObj={};
@@ -326,8 +326,9 @@ function addYmlFileDetailsForBots(bots,callback){
                         return callback(err,null);
                     }else{
                         botsObj = {
+                            _id:bot._id,
                             name:bot.name,
-                            gitHubId:bot._id,
+                            gitHubId:bot.gitHubId,
                             id:bot.id,
                             desc:bot.desc,
                             category:bot.category,
