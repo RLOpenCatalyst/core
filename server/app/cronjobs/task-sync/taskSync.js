@@ -79,7 +79,7 @@ function executeTaskSyncForBotHistory(query,callback){
                 }
 
             }else{
-                logger.info("There is no BOTs in running state currently.");
+                logger.info("There is no BOTs in running state currently.")
                 next(null,runningAuditTrailList);
             }
         }
@@ -132,7 +132,7 @@ function executeTaskSyncForTaskHistory(query,callback){
                 }
 
             }else{
-                logger.info("There is no Tasks in running state currently.");
+                logger.info("There is no Task in running state currently.")
                 next(null,runningTaskHistoryList);
             }
         }

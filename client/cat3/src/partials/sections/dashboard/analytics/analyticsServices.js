@@ -18,10 +18,10 @@
                         month:months[new Date().getMonth()],
                         day:moment(new Date()).format('YYYY-MM-DD')
                     };
-                    $rootScope.filterNewEnt.date= $rootScope.filterNewEnt.endDate.month+' '+ $rootScope.filterNewEnt.endDate.year;
+                    $rootScope.filterNewEnt.date= moment($rootScope.filterNewEnt.endDate.month+' 01 '+ $rootScope.filterNewEnt.endDate.year).format('YYYY-MM-DD');
                 },
                 applyFilter : function(filterApp,period){
-                    $rootScope.filterNewEnt.date= $rootScope.filterNewEnt.endDate.month+' '+ $rootScope.filterNewEnt.endDate.year;
+                    $rootScope.filterNewEnt.date= moment($rootScope.filterNewEnt.endDate.month+' 01 '+ $rootScope.filterNewEnt.endDate.year).format('YYYY-MM-DD');
                     if($rootScope.organObject) {
                         var obj = $rootScope.organObject,
                             or = $rootScope.organNewEnt.org,
@@ -36,7 +36,7 @@
                                 console.log(moment(dt).add(wk, 'days').format('YYYY-MM-DD'));
                                 $rootScope.filterNewEnt.date=moment(dt).add(wk, 'days').format('YYYY-MM-DD');
                             } else {
-                                $rootScope.filterNewEnt.date= $rootScope.filterNewEnt.endDate.month+' '+ $rootScope.filterNewEnt.endDate.year;
+                                $rootScope.filterNewEnt.date=moment( $rootScope.filterNewEnt.endDate.month+' 01 '+ $rootScope.filterNewEnt.endDate.year).format('YYYY-MM-DD');
                             }
                             $rootScope.filterNewEnt.period = period;
                         }

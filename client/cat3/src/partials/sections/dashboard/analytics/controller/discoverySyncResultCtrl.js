@@ -27,8 +27,8 @@
                     	} else {
 	                        if (data.statusList && data.statusList.length) {
 	                        	$scope.progressValue = data.statusList.length;
-	                            for (var i = 0; i < data.statusList.length; i++) {
-	                                $scope.statusMessage = data.statusList[i].status.message;
+	                            for (var ii = 0; ii < data.statusList.length; ii++) {
+	                                $scope.statusMessage = data.statusList[ii].status.message;
 	                                $scope.isInstanceImporting = false;
 	                            }
 	                        }
