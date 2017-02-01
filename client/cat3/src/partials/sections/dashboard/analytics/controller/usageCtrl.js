@@ -79,20 +79,20 @@
                     if(fltObj && fltObj.resources && fltObj.resources.length >0) {
                     angular.forEach(fltObj.resources, function (resId) {
                     var param = {
-                       url: '/analytics/trend/usage?resource='+resId+'&fromTimeStamp='+$yesterday+'&toTimeStamp='+ $today+'&interval=3600'
-                        //url:'src/partials/sections/dashboard/analytics/data/usage.json'
+                      // url: '/analytics/trend/usage?resource='+resId+'&fromTimeStamp='+$yesterday+'&toTimeStamp='+ $today+'&interval=3600'
+                        url:'src/partials/sections/dashboard/analytics/data/usage.json'
                     };
                     genSevs.promiseGet(param).then(function (result) {
                        // angular.forEach(result[usage.splitUp], function (valu, keyChild) {
                            var va = [];
-                            if(result) {
+                            if(result && Object.keys(result).length >0) {
                                 usage.costGridOptions.columnDefs=[
-                                    {name: 'name', field: 'name'},
+                                    {name: 'name',field:'name'},
                                     {name: 'fromTime', field: 'fromTime'},
                                     {name: 'toTime', field: 'toTime'},
-                                    {name: 'maximum', field: 'maximum'},
-                                    {name: 'minimum', field: 'minimum'},
-                                    {name: 'average', field: 'average'},
+                                    {name: 'maximum', field: 'maximum',displayName:'Maximum ('+result[usage.splitUp].symbol+')'},
+                                    {name: 'minimum', field: 'minimum',displayName:'Minimum ('+result[usage.splitUp].symbol+')'},
+                                    {name: 'average', field: 'average',displayName:'Average ('+result[usage.splitUp].symbol+')'}
                                 ];
                                 angular.forEach(result[usage.splitUp].dataPoints, function (value) {
                                     usage.costGridOptions.data.push({
