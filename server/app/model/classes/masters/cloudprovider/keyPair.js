@@ -104,27 +104,45 @@ awsKeyPairSchema.statics.createNew = function(req, providerId, callback) {
                 var keyPairObj = keyPairs[count1];
                 keyPairObj.providerId = providerId;
                 keyPairObj.id = 99;
-
-                var keyPair = new that(keyPairObj);
-                keyPair.save(function(err, aKeyPair) {
-                    if (err) {
-                        logger.error(err);
-                        callback(err, null);
-                        return;
-                    }
-                    returnKeyPair.push(keyPair);
-                    count++;
-                    ProviderUtil.saveAwsPemFiles(keyPair, files[count1], function(err, flag) {
-                        if (err) {
-                            logger.debug("Unable to save pem files.");
-                            res.status(500).send("Unable to save pem files.");
-                            return;
-                        }
-                    });
-
-                    if (keyPairs.length === count) {
-                        logger.debug("Exit createNew with keyPair present");
-                        callback(null, returnKeyPair);
+                AWSKeyPair.find({
+                    "providerId": providerId,
+                    'keyPairName': keyPairObj.keyPairName
+                }, function(err, aKeyPair) {
+                    if(err){
+                        
+                    }else if(aKeyPair.length > 0){
+                            count++;
+                            ProviderUtil.saveAwsPemFiles(aKeyPair[0]._id, files[count1], function(err, flag) {
+                                if (err) {
+                                    logger.debug("Unable to save pem files.");
+                                    return;
+                                }
+                            });
+                            if (keyPairs.length === count) {
+                                logger.debug("Exit createNew with keyPair present");
+                                callback(null, returnKeyPair);
+                            }
+                    }else{
+                        var keyPair = new that(keyPairObj);
+                        keyPair.save(function(err, aKeyPair) {
+                            if (err) {
+                                logger.error(err);
+                                callback(err, null);
+                                return;
+                            }
+                            returnKeyPair.push(keyPair);
+                            count++;
+                            ProviderUtil.saveAwsPemFiles(aKeyPair._id, files[count1], function(err, flag) {
+                                if (err) {
+                                    logger.debug("Unable to save pem files.");
+                                    return;
+                                }
+                            });
+                            if (keyPairs.length === count) {
+                                logger.debug("Exit createNew with keyPair present");
+                                callback(null, returnKeyPair);
+                            }
+                        });
                     }
                 });
             })(i);
