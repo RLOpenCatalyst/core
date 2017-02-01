@@ -17,10 +17,10 @@
                     if(!paramsObject.inlineLoader){$rootScope.onBodyLoading=false;}
                     deferred.resolve(data);
                 })
-                .error(function(data, status) {
+                .error(function(data) {
                     if(!paramsObject.inlineLoader){ $rootScope.onBodyLoading=false;}
                     deferred.reject();
-                    toastr.error(data.message, status);
+                    toastr.error(data.message, 'Error');
                 });
             return deferred.promise;
         };
@@ -33,10 +33,10 @@
                     $rootScope.onBodyLoading=false;
                     deferred.resolve(data);
                 })
-                .error(function(data, status) {
+                .error(function(data) {
                     $rootScope.onBodyLoading=false;
                     deferred.reject();
-                    toastr.error(data.message, status);
+                    toastr.error(data.message, 'Error');
                 });
             return deferred.promise;
         };
@@ -48,10 +48,10 @@
                     $rootScope.onBodyLoading=false;
                     deferred.resolve(data);
                 })
-                .error(function(data, status) {
+                .error(function(data) {
                     $rootScope.onBodyLoading=false;
                     deferred.reject();
-                    toastr.error(data.message, status);
+                    toastr.error(data.message, 'Error');
                 });
             return deferred.promise;
         };
@@ -63,10 +63,10 @@
                     $rootScope.onBodyLoading=false;
                     deferred.resolve(data);
                 })
-                .error(function(data, status) {
+                .error(function(data) {
                     $rootScope.onBodyLoading=false;
                     deferred.reject();
-                    toastr.error(data.message, status);
+                    toastr.error(data.message,'Error');
                 });
             return deferred.promise;
         };
@@ -81,10 +81,10 @@
                     $rootScope.onBodyLoading=false;
                     deferred.resolve(data);
                 })
-                .error(function(data, status) {
+                .error(function(data) {
                     $rootScope.onBodyLoading=false;
                     deferred.reject();
-                    toastr.error(data.message, status);
+                    toastr.error(data.message, 'Error');
                 });
             return deferred.promise;
         };
@@ -97,10 +97,10 @@
                     $rootScope.onBodyLoading=false;
                     deferred.resolve(data);
                 })
-                .error(function(data, status) {
+                .error(function(data) {
                     $rootScope.onBodyLoading=false;
                     deferred.reject();
-                    toastr.error(data.message, status);
+                    toastr.error(data.message, 'Error');
                 });
             return deferred.promise;
         };
