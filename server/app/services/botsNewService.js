@@ -24,6 +24,7 @@ var fileUpload = require('_pr/model/file-upload/file-upload');
 var appConfig = require('_pr/config');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
 var auditTrailService = require('_pr/services/auditTrailService.js');
+var executor = require('_pr/executor/bots/executor.js');
 const fileHound= require('filehound');
 const yamlJs= require('yamljs');
 const gitHubService = require('_pr/services/gitHubService.js');
@@ -141,10 +142,8 @@ botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,callbac
 botsNewService.executeBots = function executeBots(botId,reqBody,callback){
     async.waterfall([
         function(next){
-            if(reqBody !== null
-                && reqBody.scriptParams
-                && reqBody.scriptParams !== null){
-                encryptedParam(reqBody.scriptParams,next);
+            if(reqBody !== null && reqBody !== ''){
+                encryptedParam(reqBody.requestParams,next);
             }else{
                 next(null,[]);
             }
@@ -160,6 +159,15 @@ botsNewService.executeBots = function executeBots(botId,reqBody,callback){
                 })
             }else {
                 botsDao.getBotsById(botId, next);
+            }
+        },
+        function(botDetails,next) {
+            if(botDetails.length > 0){
+                if(botDetails[0].type === 'script'){
+                    executor.executeScriptBot(botDetails[0],next);
+                }
+            }else {
+               next(null,botDetails);
             }
         }
     ],function(err,results){

@@ -50,6 +50,10 @@ var BotsSchema = new Schema ({
         type: String,
         trim: true
     },
+    env: {
+        type: String,
+        trim: true
+    },
     execution: Schema.Types.Mixed,
     desc: {
         type: String,
