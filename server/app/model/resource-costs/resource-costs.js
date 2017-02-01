@@ -166,6 +166,19 @@ ResourceCostsSchema.statics.remove
     })
 }
 
+ResourceCostsSchema.statics.removeResourceCostByProviderId = function(providerId, callback) {
+    this.remove({
+        providerId: providerId
+    }, function(err, data) {
+        if (err) {
+            logger.error("Failed to removeResourceCostByProviderId (%s)", providerId, err);
+            callback(err, null);
+            return;
+        }
+        callback(null, data);
+    });
+};
+
 ResourceCostsSchema.statics.upsert = function upsert(resourceCostData, callback) {
     var query = {
         organizationId: resourceCostData.organizationId,
