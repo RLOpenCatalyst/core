@@ -691,6 +691,23 @@ body .botDescriptionPage {
   cursor:pointer;
 }
 
+@-moz-document url-prefix() {
+    .search-icon {
+      margin-left: -24px!important; 
+      cursor: pointer;
+    }
+
+    .cancel-icon {
+      margin-left: -18px!important; 
+      cursor: pointer; 
+    }
+
+    .firefoxForm {
+      margin-top: -20px;
+    }
+
+}
+
 @media (min-width : 1550px){
     .agent-card .image-cell + * {
       width: 375px;

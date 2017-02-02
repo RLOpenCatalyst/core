@@ -985,8 +985,8 @@ var d4dMastersBitbucketConfig = new mongoose.Schema({
     bitbucketusername: {
         type: String,
         required: true,
-        trim: true,
-        validate: nameValidator
+        trim: true
+        //validate: nameValidator
     },
     bitbucketpassword: {
         type: String,
@@ -1310,21 +1310,31 @@ var d4dMastersJira = new mongoose.Schema({
         required: true,
         trim: true
     },
+    orgname: {
+        type: [String],
+        required: true,
+        trim: true,
+        validate: nameValidator
+    },
+    orgname_rowid: {
+        type: [String],
+        trim: true
+    },
     jiraname: {
         type: String,
         required: true,
         trim: true
     },
-    jirausername: {
+    jirakey: {
         type: String,
         required: true,
         trim: true
     },
-    jirapassword: {
+    /*jirapassword: {
         type: String,
         required: true,
         trim: true
-    },
+    },*/
     jiraurl: {
         type: String,
         required: true,
