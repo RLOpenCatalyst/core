@@ -1,7 +1,11 @@
-<div id='addEventsPage'>
-   <form name="newSchedule" novalidate>
+<link rel='stylesheet' href='catalyst/partials/sections/dashboard/bots/bots.css'>
+
+<div id="botLibraryPage" ng-controller="botScheduleCtrl">
+   
+
+	<div class="container summary-container" style="margin-left:35px;">
+	    <form name="newSchedule" novalidate>
       <div class="modal-header">
-         <span class="close" ng-click="$dismiss('cancel')">×</span>
          <h4 class="modal-title"><i class="fa fa-calendar"></i>&nbsp;Schedule Your BOT</h4>
       </div>
 
@@ -11,7 +15,7 @@
               </div>
               <div class="col-lg-6 col-md-6 margintop15">
                   <input type="radio" ng-value="true"  ng-model="isScheduled" name="isScheduled" ng-click="selectBotCheckbox()" />
-                  <label for="isScheduled" class="paddingright15">Yes</label>
+                  <label for="isScheduled" class="paddingright15">Yes&nbsp;</label>
                   <input type="radio" ng-value="false"  ng-model="isScheduled" name="isScheduled" ng-click="selectBotCheckbox()" />
                   <label for="isScheduled" class="paddingright15">No</label>
               </div>
@@ -124,46 +128,13 @@
           </div>
       </div>
       <div class="modal-footer">
-         <button type="button" class="btn cat-btn-close" ng-click="$dismiss('cancel')">
+         <!-- <button type="button" class="btn cat-btn-close" ng-click="cancel()">
          <i class="fa fa-times black"></i> Cancel
-         </button>
+         </button> -->
          <button type="submit" class="btn cat-btn-update" ng-disabled="newSchedule.$invalid" ng-click="ok()">
          <i class="fa fa-check white"></i> Save
          </button>      
       </div>
    </form>
+	</div>
 </div>
-
-<script>
-    $(document).ready(function () {
-        $('#date-end').bootstrapMaterialDatePicker({
-            format: 'MM/DD/YYYY ',
-            weekStart: 1,
-            time: false,
-            switchOnClick : true,
-            nowButton : true,
-        });
-        $('#date-start').bootstrapMaterialDatePicker({
-            format: 'MM/DD/YYYY',
-            weekStart: 1,
-            time: false,
-            switchOnClick : true,
-            nowButton : true,
-        }).on('change', function(e, date)
-        {
-            $('#date-end').bootstrapMaterialDatePicker('setMinDate', date);
-        });
-        $.material.init();
-        $(document).on('click', 'input.time', function(){
-            var $this = $(this);
-            setTimeout(function () {
-                $this.bootstrapMaterialDatePicker({
-                    format: 'HH:mm',
-                    date: false,
-                    switchOnClick : true,
-                });
-            },100);
-
-        });
-    });
-</script>

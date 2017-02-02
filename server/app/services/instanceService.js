@@ -49,8 +49,6 @@ var schedulerService = require('_pr/services/schedulerService.js');
 var entityCost = require('_pr/model/entity-costs');
 var entityCapacity = require('_pr/model/entity-capacity');
 
-
-
 var instanceService = module.exports = {};
 instanceService.checkIfUnassignedInstanceExists = checkIfUnassignedInstanceExists;
 instanceService.getUnassignedInstancesByProvider = getUnassignedInstancesByProvider;
