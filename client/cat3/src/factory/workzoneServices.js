@@ -99,9 +99,9 @@
 					var url = '/blueprints/' + blueprintID;
 					return $http.delete(fullUrl(url), Auth.getHeaderObject());
 				},
-				launchBlueprint: function (blueprintID, version, envId, stackName,domainName, tagServer, monitorId) {
+				launchBlueprint: function (blueprintID, version, envId, stackName,domainName, tagServer, monitorId, tagSetStr) {
 					var url = '/blueprints/' + blueprintID + '/launch?version=' + version +
-							'&envId=' + envId + '&stackName=' + stackName + '&domainName=' + domainName + '&tagServer=' + tagServer + '&monitorId=' + monitorId;
+							'&envId=' + envId + '&stackName=' + stackName + '&domainName=' + domainName + '&tagServer=' + tagServer + '&monitorId=' + monitorId + '&tagSetStr='+tagSetStr;
 					return $http.get(fullUrl(url), Auth.getHeaderObject());
 				},
 				getBlueprintById: function(blueprintId) {

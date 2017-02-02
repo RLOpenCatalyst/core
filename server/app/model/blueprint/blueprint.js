@@ -352,7 +352,8 @@ BlueprintSchema.methods.launch = function (opts, callback) {
                             blueprintData: self,
                             tagServer: opts.tagServer,
                             monitor: monitor,
-                            auditTrailId: opts.auditTrailId
+                            auditTrailId: opts.auditTrailId,
+                            tagSetStr: opts.tagSetStr,
                         };
                         if (!env) {
                             chef.createEnvironment(envName, function (err) {

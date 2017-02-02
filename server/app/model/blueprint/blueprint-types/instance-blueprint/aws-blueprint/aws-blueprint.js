@@ -92,6 +92,7 @@ var AWSInstanceBlueprintSchema = new Schema({
 
 AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
     var self = this;
+
     var domainName = launchParams.domainName;
     VMImage.getImageById(self.imageId, function (err, anImage) {
         if (err) {
@@ -219,6 +220,7 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                             region: aKeyPair.region,
                             chefNodeName: instanceData.InstanceId,
                             tagServer: launchParams.tagServer,
+                            tagSetStr: launchParams.tagSetStr,
                             runlist: paramRunList,
                             attributes: paramAttributes,
                             platformId: instanceData.InstanceId,
@@ -275,6 +277,7 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                             }
                             instance = data;
                             instance.id = data._id;
+                            instance.tagStr = JSON.parse(launchParams.tagSetStr);
 
                             //Returning handle when all instances are created
                             newinstanceIDs.push(instance.id);
@@ -308,6 +311,7 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                     "message": "instance launch success"
                                 });
                             }
+
                             var instanceLog = {
                                 actionId: actionLog._id,
                                 instanceId: instance.id,
@@ -334,6 +338,17 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                         timestamp: new Date().getTime()
                                     }]
                             };
+
+                            logger.debug('YOOOOLLLLLLLLLOO', instanceData.InstanceId ,instance.tagStr,launchParams.tagSetStr);
+
+                            if(instance.tagStr !== null && instance.tagStr!== 'undefined' && instance.tagStr !== "")
+                            {
+
+                                ec2.createTags(instanceData.InstanceId,instance.tagStr, function(err){
+                                    logger.debug(err);
+                                });
+
+                            }
 
                             instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
                                 if (err) {
@@ -652,6 +667,7 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                                 logger.debug("Domain name is updated successfully");
                                                             });
                                                         }
+
                                                         instanceLog.endedOn = new Date().getTime();
                                                         instanceLog.actionStatus = "success";
                                                         instanceLog.logs = {

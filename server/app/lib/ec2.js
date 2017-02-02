@@ -410,12 +410,36 @@ var EC2 = function(awsSettings) {
 	};
 
 	this.createTags = function(instanceId, tags, callback) {
+	    logger.debug('INSIDE CREATE TAGS');
+	    logger.debug(tags);
 		var tagsArray = [];
 		for(var key in tags) {
-			tagsArray.push({
-				Key: key,
-				Value: tags[key]
-			});
+			/*logger.debug(JSON.stringify(key));
+			logger.debug(JSON.stringify(tags[key]));
+            logger.debug(typeof key === "string");
+            logger.debug(typeof tags[key] === "object");*/
+
+		/*	if(typeof tags[key] === "object" )
+            {
+                tagsArray.push({
+                    Key: tags[key].value.key,
+                    Value: JSON.stringify(tags[key].value.value)
+                });
+            }
+            else
+            {*/
+            logger.debug(tags[key]);
+            logger.debug(JSON.stringify(tags[key]));
+		    logger.debug(tags[key].value.key);
+		    logger.debug( tags[key].value.value);
+
+                tagsArray.push({
+                    Key: tags[key].key,
+                    Value: tags[key].value
+                });
+
+
+
 		}
 		console.log(tagsArray);
 
