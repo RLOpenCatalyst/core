@@ -125,7 +125,7 @@
 						<button type="button" class="btn btn-sm btn-primary cat-btn-update" ng-class=" {'active':filterNewEnt.period === 'month'}" ng-click="applyFilter(true,'month')">MONTH</button>
 						<!--<button type="button" class="btn btn-sm btn-primary cat-btn-update" disabled="disabled" ng-class=" {'active':filterNewEnt.period === 'year'}"  ng-click="applyFilter(true,'year')">YEAR</button>-->
 						<!--<input  class="form-control " ng-model="filterNewEnt.StartDate" style="display: table-cell;width: 120px" readonly   />-->
-						<input id="date-select" class="form-control " ng-click="showPick=true" ng-model="filterNewEnt.date" style="display: table-cell;width: 120px"  placeholder="From Date" ng-change="applyFilter(true,filterNewEnt.period);" title="End Date" />
+						<input id="date-select" class="form-control " ng-click="showPick=true" ng-model="filterNewEnt.date" style="display:inherit;width: 120px"  placeholder="From Date" ng-change="applyFilter(true,filterNewEnt.period);" title="End Date" />
 						<div class="weekPick" ng-show="showPick">
 							<span ng-show="filterNewEnt.period === 'day'"> <label for="" >Select Date</label>
 								<input  class="form-control marginbottom10" id="date-cost" ng-model="filterNewEnt.endDate.day"   />

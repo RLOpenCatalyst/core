@@ -23,6 +23,7 @@ var Cryptography = require('_pr/lib/utils/cryptography');
 var fileUpload = require('_pr/model/file-upload/file-upload');
 var appConfig = require('_pr/config');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
+var auditTrailService = require('_pr/services/auditTrailService.js');
 const fileHound= require('filehound');
 const yamlJs= require('yamljs');
 const gitHubService = require('_pr/services/gitHubService.js');
@@ -106,7 +107,20 @@ botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,callbac
             addYmlFileDetailsForBots(botList,next);
         },
         function(filterBotList, next) {
-            apiUtil.paginationResponse(filterBotList, reqData, next);
+           async.parallel({
+               botList:function(callback){
+                   apiUtil.paginationResponse(filterBotList, reqData, callback);
+               },
+               botSummary:function(callback){
+                   auditTrailService.getBOTsSummary(botsQuery,'BOTsNew',callback)
+               }
+           },function(err,data){
+               if(err){
+                   next(err);
+               }else{
+                   next(null,data);
+               }
+           })
         }
     ],function(err, results) {
         if (err){
@@ -114,7 +128,12 @@ botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,callbac
             callback(err,null);
             return;
         }
-        callback(null,results)
+        var resultObj = {            
+            bots : results.botList.bots,            
+            metaData : results.botList.metaData,            
+            botSummary: results.botSummary        
+        }        
+        callback(null,resultObj);        
         return;
     });
 }
@@ -224,7 +243,7 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                                     desc:result.desc,
                                                     category:result.category,
                                                     type:result.type,
-                                                    inputFormFields:result.input.form,
+                                                    inputFormFields:result.input[0].form,
                                                     outputOptions:result.output,
                                                     ymlDocFilePath:ymlFile,
                                                     ymlDocFileId:ymlDocFileId,
@@ -294,7 +313,7 @@ function encryptedParam(paramDetails, callback) {
 
 function addYmlFileDetailsForBots(bots,callback){
     if (bots.docs.length === 0) {
-        return callback(null,scripts);
+        return callback(null,bots);
     }else{
         var botsList =[];
         var botsObj={};
@@ -307,8 +326,9 @@ function addYmlFileDetailsForBots(bots,callback){
                         return callback(err,null);
                     }else{
                         botsObj = {
+                            _id:bot._id,
                             name:bot.name,
-                            gitHubId:bot._id,
+                            gitHubId:bot.gitHubId,
                             id:bot.id,
                             desc:bot.desc,
                             category:bot.category,
@@ -340,7 +360,6 @@ function addYmlFileDetailsForBots(bots,callback){
         }
     }
 }
-
 
 
 

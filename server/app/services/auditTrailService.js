@@ -19,7 +19,8 @@ var instanceAuditTrail = require('_pr/model/audit-trail/instance-audit-trail.js'
 var botAuditTrail = require('_pr/model/audit-trail/bot-audit-trail.js');
 var containerAuditTrail = require('_pr/model/audit-trail/container-audit-trail.js');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
-var bots = require('_pr/model/bots/1.0/bots.js');;
+var bots = require('_pr/model/bots/1.0/bots.js');
+var botsDao = require('_pr/model/bots/1.1/botsDao.js');;
 
 const errorType = 'auditTrailService';
 
@@ -172,14 +173,18 @@ auditTrailService.getAuditTrailActionLogs = function getAuditTrailActionLogs(act
     });
 }
 
-auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,callback){
+auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,callback){
     async.waterfall([
         function(next){
             apiUtil.queryFilterBy(queryParam,next);
         },
         function(filterQuery,next) {
             filterQuery.isDeleted=false;
-            bots.getAllBots(filterQuery, next);
+            if(BOTSchema === 'BOTs') {
+                bots.getAllBots(filterQuery, next);
+            }else{
+                botsDao.getAllBots(filterQuery, next);
+            }
         },
         function(botsList,next){
             var auditIds = [];
@@ -192,7 +197,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,callback){
                 },
                 totalNoOfSuccessBots: function(callback){
                     var query = {
-                        auditType: 'BOTs',
+                        auditType: BOTSchema,
                         actionStatus: 'success',
                         isDeleted: false,
                         auditId:{$in:auditIds}
@@ -228,7 +233,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,callback){
                 },
                 totalNoOfRunningBots: function(callback){
                     var query={
-                        auditType:'BOTs',
+                        auditType:BOTSchema,
                         actionStatus:'running',
                         isDeleted:false,
                         auditId:{$in:auditIds}
@@ -251,7 +256,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,callback){
                 },
                 totalSavedTimeForBots: function(callback){
                     var query={
-                        auditType:'BOTs',
+                        auditType:BOTSchema,
                         actionStatus:'success',
                         isDeleted:false,
                         auditId:{$in:auditIds}
@@ -278,7 +283,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,callback){
                 },
                 totalNoOfFailedBots: function(callback){
                     var query={
-                        auditType:'BOTs',
+                        auditType:BOTSchema,
                         actionStatus:'failed',
                         isDeleted:false,
                         auditId:{$in:auditIds}
@@ -370,4 +375,3 @@ function getExecutionTime(endTime,startTime){
     var totalSeconds = Math.floor(executionTimeInMS/1000);
     return totalSeconds;
 }
-

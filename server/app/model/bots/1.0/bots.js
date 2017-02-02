@@ -108,6 +108,9 @@ var BotsSchema = new Schema ({
         type: Number,
         default: 0
     },
+    lastRunTime: {
+        type: Number
+    },
     isBotScheduled: {
         type: Boolean,
         default: false

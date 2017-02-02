@@ -37,10 +37,10 @@
                     });
                 });
                 // Bu
-                var param = {
+                var paramProviders = {
                     url: '/providers/' + fltrObj.provider.id + '/tag-mappings/businessGroup'
                 };
-                genSevs.promiseGet(param).then(function (instResult) {
+                genSevs.promiseGet(paramProviders).then(function (instResult) {
                     $scope.TagName.bgTag=instResult.tagName+'-bu';
                     $scope.TagName.bgFild='tags.'+instResult.tagName;
                     angular.forEach(instResult.tagValues,function(val){
@@ -48,10 +48,10 @@
                     });
                 });
                 // project
-                var param = {
+                var paramP = {
                     url: '/providers/' + fltrObj.provider.id + '/tag-mappings/project'
                 };
-                genSevs.promiseGet(param).then(function (instResult) {
+                genSevs.promiseGet(paramP).then(function (instResult) {
                     $scope.TagName.projectTag=instResult.tagName+'-pr';
                     $scope.TagName.projFild='tags.'+instResult.tagName;
                     angular.forEach(instResult.tagValues,function(val){
@@ -311,7 +311,7 @@
                     }, 1000);
                 }
             };
-            disResrc.importInstance =function ($event) {
+            disResrc.importInstance =function () {
                 var modalInstance = $modal.open({
                     animation: true,
                     templateUrl: 'src/partials/sections/dashboard/analytics/view/instanceManage.html',
@@ -344,7 +344,7 @@
             var treeNames = ['Cloud Management','Discovery','Resources'];
             $rootScope.$emit('treeNameUpdate', treeNames);
             var fltrObj=$rootScope.filterNewEnt;
-            $rootScope.applyFilter =function(filterApp,period){
+            $rootScope.applyFilter =function(){
                 analyticsServices.applyFilter(true,null);
                 disResrc.init();
             };
@@ -457,7 +457,7 @@
                                     };
                                 }
                             }
-                        }).result.then(function(response) {
+                        }).result.then(function() {
                         }, function() {
                             console.log("Dismiss at " + new Date());
                         });
