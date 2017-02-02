@@ -7,9 +7,9 @@
       <button type="button" title="Refresh" class="btn btn-xs cat-btn-update pull-right refresh-btn" ng-click="RefreshBotsLibrary();">
       <i class="fa fa-refresh white"></i>
       </button>
-      <button type="button" class="btn btn-xs cat-btn-update pull-right filter-margin" ng-click="isOpenSidebar = !isOpenSidebar">
+      <!-- <button type="button" class="btn btn-xs cat-btn-update pull-right filter-margin" ng-click="isOpenSidebar = !isOpenSidebar">
       <i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;Filter
-      </button>
+      </button> -->
       </span>
    </div>
    <div class="borderTop"></div>
@@ -57,7 +57,7 @@
             <div class="info-box">
                <span class="info-box-icon bg-aqua"><i class="faColor fa fa-list-ol"></i></span>
                <div class="info-box-content">
-                  <span class="info-box-text">Total</span>
+                  <span class="info-box-text" title="Total">Total</span>
                   <span class="info-box-number">{{botSummary.totalNoOfBots}}</span>
                </div>
             </div>
@@ -66,7 +66,7 @@
             <div class="info-box">
                <span class="info-box-icon bg-green"><i class="faColor fa fa-cogs fa-fw"></i></span>
                <div class="info-box-content">
-                  <span class="info-box-text">Running</span>
+                  <span class="info-box-text" title="Running">Running</span>
                   <span class="info-box-number">{{botSummary.totalNoOfRunningBots}}</span>
                </div>
             </div>
@@ -75,7 +75,7 @@
             <div class="info-box">
                <span class="info-box-icon orange"><i class="faColor fa fa-calendar fa-fw"></i></span>
                <div class="info-box-content">
-                  <span class="info-box-text">Scheduled</span>
+                  <span class="info-box-text" title="Scheduled">Scheduled</span>
                   <span class="info-box-number">{{botSummary.totalNoOfScheduledBots}}</span>
                </div>
             </div>
@@ -84,7 +84,7 @@
             <div class="info-box">
                <span class="info-box-icon bg-blue"><i class="faColor fa fa-save fa-fw"></i></span>
                <div class="info-box-content">
-                  <span class="info-box-text">Time Saved</span>
+                  <span class="info-box-text" title="Time Saved">Time Saved</span>
                   <span class="info-box-number">{{totalSavedTimeForBots}} mins</span>
                </div>
             </div>
@@ -93,7 +93,7 @@
             <div class="info-box">
                <span class="info-box-icon bg-red"><i class="faColor fa fa-remove fa-fw"></i></span>
                <div class="info-box-content">
-                  <span class="info-box-text">Failed</span>
+                  <span class="info-box-text" title="Failed">Failed</span>
                   <span class="info-box-number">{{botSummary.totalNoOfFailedBots}}</span>
                </div>
             </div>
@@ -108,7 +108,7 @@
    <!-- cards section-->
    <div  class="botsWidth">
       <div style="margin-left:35px;width:98%" class="boxBots box-infobox" style="border-top-color:floralwhite"></div>
-      <div class="gallery-header top-stats" style="margin-left:34px;margin-top:-10px;margin-bottom:20px;">
+      <div class="gallery-header top-stats" style="margin-left:34px;margin-top:-10px;margin-bottom:20px;margin-right:20px;">
          <!-- <span style="font-size:18px!important">BOTs&nbsp; ({{botSummary.totalNoOfBots}})</span> -->
          <span style="margin-left:2px;">
              <button type="button" class="font-size-16 tabReadme btn btn-link {{botsCardViewSelection}}" title="Card View" ng-click="setCardView()"  >
@@ -137,7 +137,7 @@
             <span style="margin-left:10px;" ng-if="botLibType" class="label filterButtons" title="{{}}">Bot Category: {{botLibType}}
             </span>
          </span> -->
-         <form class="pull-right" novalidate name="library-form" ng-submit="searchBotNameCategory()">
+         <form class="pull-right firefoxForm" novalidate name="library-form" ng-submit="searchBotNameCategory()">
             <span class="bot-library-search">
                <label>&nbsp;
                   <input type="search" ng-model="botLibrarySearch" class="bot-search" placeholder="Search">

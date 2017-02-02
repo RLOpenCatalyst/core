@@ -33,7 +33,7 @@
         $scope.initGrids = function(){
             $scope.botLibGridOptions={};
             $scope.botLibGridOptions.columnDefs= [
-                { name:'Task Type', field:'botCategory' ,cellTemplate:'<img src="images/bots/activeDirectory.png" ng-show="row.entity.botCategory==\'Active Directory\'" alt="row.entity.botCategory" title="Active Directory" class="task-type-img" />'+
+                { name:'Category Type', field:'botCategory' ,cellTemplate:'<img src="images/bots/activeDirectory.png" ng-show="row.entity.botCategory==\'Active Directory\'" alt="row.entity.botCategory" title="Active Directory" class="task-type-img" />'+
                     '<img src="images/bots/userManagement.png" ng-show="row.entity.botCategory==\'User Management\'" alt="row.entity.botCategory" title="User Management" class="task-type-img" />'+
                     '<img src="images/bots/applicationDeployment.png" ng-show="row.entity.botCategory==\'Application Deployment\'" alt="row.entity.botCategory" title="Application Deployment" class="task-type-img" />'+
                     '<img src="images/bots/installation.png" ng-show="row.entity.botCategory==\'Installation\'" alt="row.entity.botCategory" title="Installation" class="task-type-img" />'+
