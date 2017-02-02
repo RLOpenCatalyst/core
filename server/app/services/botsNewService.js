@@ -24,7 +24,7 @@ var fileUpload = require('_pr/model/file-upload/file-upload');
 var appConfig = require('_pr/config');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
 var auditTrailService = require('_pr/services/auditTrailService.js');
-var executor = require('_pr/executor/bots/executor.js');
+var executor = require('_pr/engine/bots/executor.js');
 const fileHound= require('filehound');
 const yamlJs= require('yamljs');
 const gitHubService = require('_pr/services/gitHubService.js');
@@ -143,7 +143,7 @@ botsNewService.executeBots = function executeBots(botId,reqBody,callback){
     async.waterfall([
         function(next){
             if(reqBody !== null && reqBody !== ''){
-                encryptedParam(reqBody.requestParams,next);
+                encryptedParam(reqBody,next);
             }else{
                 next(null,[]);
             }
@@ -247,6 +247,7 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                                 var botsObj={
                                                     name:result.name,
                                                     gitHubId:gitHubDetails._id,
+                                                    gitHubRepoName:gitHubDetails.repositoryName,
                                                     id:result.id,
                                                     desc:result.desc,
                                                     category:result.category?result.category:result.functionality,
@@ -307,13 +308,9 @@ function encryptedParam(paramDetails, callback) {
     var encryptedList = [];
     if(paramDetails.length > 0) {
         for (var i = 0; i < paramDetails.length; i++) {
-            var encryptedText = cryptography.encryptText(paramDetails[i].paramVal, cryptoConfig.encryptionEncoding,
+            var encryptedText = cryptography.encryptText(paramDetails[i], cryptoConfig.encryptionEncoding,
                 cryptoConfig.decryptionEncoding);
-            encryptedList.push({
-                paramVal: encryptedText,
-                paramDesc: paramDetails[i].paramDesc,
-                paramType: paramDetails[i].paramType
-            });
+            encryptedList.push(encryptedText);
         }
         callback(null,encryptedList);
     }else{

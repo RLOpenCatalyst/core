@@ -9,7 +9,7 @@ var should = require("should");
 var xlsx = require('node-xlsx');
 var util = require('util'),
     fs = require('fs');
-var server = supertest.agent("http://d4d.rlcatalyst.com");
+var server = supertest.agent("http://localhost:3001");
 
 
 before(function(done){
@@ -100,9 +100,11 @@ describe("Deploy Permission ",function(){
 */
 
 
-   it(" Delete A New Org ",function(done){
+   it(" Execute a Bots ",function(done){
+       var reqBody = ['https://d4d.rlcatalyst.com','superadmin','superadmin@123','catalystUser','durgeshch@gmail.com','Durgesh@123','Admin'];
         server
-            .get('/d4dMasters/removeitem/1/rowid/ef32efeb-5ce0-49bd-b7e2-66255e51e329')
+            .post('/botsNew/58919368d9460c9973ac6a01/execute')
+            .send(reqBody)
             .end(function(err,res){
                 assert.equal(res.status, 200);
                 done();

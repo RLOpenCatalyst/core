@@ -729,6 +729,18 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                         log: "Instance Bootstraped successfully",
                                                                                         timestamp: timestampEnded
                                                                                     });
+                                                                                    logsDao.insertLog({
+                                                                                        referenceId: logsReferenceIds,
+                                                                                        err: false,
+                                                                                        log: "You can access stack using below URL.",
+                                                                                        timestamp: timestampEnded
+                                                                                    });
+                                                                                    logsDao.insertLog({
+                                                                                        referenceId: logsReferenceIds,
+                                                                                        err: false,
+                                                                                        log: launchParams.stackName+'.rlcatalyst.com',
+                                                                                        timestamp: timestampEnded
+                                                                                    });
                                                                                     instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
                                                                                     instanceLog.logs = {
                                                                                         err: false,
