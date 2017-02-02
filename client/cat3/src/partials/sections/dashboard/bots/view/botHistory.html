@@ -1,7 +1,7 @@
 <div id='botHistoryPage'>
 	<div class="modal-header">
 		<h4 class="modal-title">
-			<span class="close" ng-click="cancel()">×</span>
+			<span class="close" ng-click="$dismiss('cancel')">×</span>
 			<span>
 				<i class="fa fa-history"></i>&nbsp;
 				Bot History For - {{botHistory.botName}}
@@ -22,21 +22,21 @@
 				<div id="grid2" ng-if="taskHistoryJenkinsGridOptions.data.length >0 && botHistory.botLinkedSubCategory=='jenkins'" ui-grid="taskHistoryJenkinsGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid"></div>
 			</div>
 			<!--This table will get use when bot job type will be script -->
-			<loading size="large" name="isscriptTaskHistoryPageLoading" type="block" align="center"></loading>
-			<div ng-show="!isscriptTaskHistoryPageLoading">
-				<div id="grid3" ng-if="taskHistoryScriptGridOptions.data.length >0 && botHistory.botLinkedSubCategory=='script'" ui-grid="taskHistoryScriptGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid"></div>
+			<loading size="large" name="ischefTaskHistoryPageLoading" type="block" align="center"></loading>
+			<div ng-show="!ischefTaskHistoryPageLoading">
+				<div id="grid3" ng-if="taskHistoryChefGridOptions.data.length >0 && botHistory.botLinkedSubCategory=='script'" ui-grid="taskHistoryChefGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid"></div>
 			</div>
 			<!--This table will get use when bot type will be blueprint -->
 			<loading size="large" name="isBlueprintBotHistoryPageLoading" type="block" align="center"></loading>
 			<div ng-show="!isBlueprintBotHistoryPageLoading">
 				<div id="grid4" ng-if="botHistoryBlueprintGridOptions.data.length >0 && botHistory.botLinkedCategory=='Blueprint'" ui-grid="botHistoryBlueprintGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid"></div>
 			</div>
-			<div class="alert alert-info text-center" ng-show="!ischefTaskHistoryPageLoading && !isjenkinsTaskHistoryPageLoading && !isscriptTaskHistoryPageLoading && !isBlueprintBotHistoryPageLoading" ng-if="taskHistoryChefGridOptions.data.length == 0 && taskHistoryJenkinsGridOptions.data.length == 0 && taskHistoryScriptGridOptions.data.length == 0 && botHistoryBlueprintGridOptions.data.length == 0" align="center">No Data Found</div>
+			<div class="alert alert-info text-center" ng-show="!ischefTaskHistoryPageLoading && !isjenkinsTaskHistoryPageLoading && !ischefTaskHistoryPageLoading && !isBlueprintBotHistoryPageLoading" ng-if="taskHistoryChefGridOptions.data.length == 0 && taskHistoryJenkinsGridOptions.data.length == 0 && taskHistoryChefGridOptions.data.length == 0 && botHistoryBlueprintGridOptions.data.length == 0" align="center">No Data Found</div>
 		</section>
 	</div>
 
 	<div class="modal-footer">
-		<button type="button" class="btn cat-btn-close" ng-click="cancel()">
+		<button type="button" class="btn cat-btn-close" ng-click="$dismiss('cancel')">
 			<i class="fa fa-times black"></i> Close
 		</button>
 	</div>

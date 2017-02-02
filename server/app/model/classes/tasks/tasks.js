@@ -30,7 +30,7 @@ var mongoosePaginate = require('mongoose-paginate');
 var ApiUtils = require('_pr/lib/utils/apiUtil.js');
 var Schema = mongoose.Schema;
 var auditTrailService = require('_pr/services/auditTrailService');
-var bots = require('_pr/model/bots/bots.js');
+var bots = require('_pr/model/bots/1.0/bots.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var appConfig = require('_pr/config');
 

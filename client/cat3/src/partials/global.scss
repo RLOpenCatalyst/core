@@ -1462,3 +1462,22 @@ div::-webkit-scrollbar-thumb
 input[type="text"].ui-grid-filter-input{
     color: #000000;
 }
+
+// grid view tab class
+.hide-grid {
+    margin: 0px auto !important;
+    padding: 0px !important;
+    visibility: hidden;
+    height: 0px !important;
+    overflow: hidden;
+}
+
+.show-grid-tab {
+    visibility: visible;
+    height: auto;
+}
+
+.show-grid {
+    visibility: inherit;
+    height: auto;
+}

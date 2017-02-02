@@ -16,7 +16,8 @@
  */
 
 var logger = require('_pr/logger')(module);
-var bots = require('_pr/model/bots/bots.js');
+var botsDao = require('_pr/model/bots/1.1/botsDao.js');
+var bots = require('_pr/model/bots/1.0/bots.js');
 var mongoose = require('mongoose');
 var ObjectId = require('mongoose').Types.ObjectId;
 var async = require("async");
@@ -28,6 +29,9 @@ var blueprintService =  require('_pr/services/blueprintService.js');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var appConfig = require('_pr/config');
+const fileHound= require('filehound');
+const yamlJs= require('yamljs');
+const gitHubService = require('_pr/services/gitHubService.js');
 
 const errorType = 'botsService';
 
@@ -184,19 +188,13 @@ botsService.getBotsList = function getBotsList(botsQuery,actionStatus,callback) 
                     if(err){
                         next(err,null);
                     }else if (botsAudits.length > 0) {
-                        var results = [];
                         for (var i = 0; i < botsAudits.length; i++) {
                             if (botsIds.indexOf(botsAudits[i].auditId) < 0) {
                                 botsIds.push(botsAudits[i].auditId);
-                                results.push(botsAudits[i].auditId);
-                            } else {
-                                results.push(botsAudits[i].auditId);
                             }
                         }
-                        if (results.length === botsAudits.length) {
-                            queryObj.queryObj.botId = {$in:botsIds};
-                            bots.getBotsList(queryObj, next);
-                        }
+                        queryObj.queryObj.botId = {$in:botsIds};
+                        bots.getBotsList(queryObj, next);
                     } else {
                         queryObj.queryObj.botId = null;
                         bots.getBotsList(queryObj, next);
@@ -490,6 +488,77 @@ function encryptedParam(paramDetails, callback) {
             }
         })(paramDetails[i]);
     }
+}
+
+botsService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
+    async.waterfall([
+        function(next) {
+            gitHubService.getGitHubById(gitHubId,next);
+        },
+        function(gitHubDetails,next){
+            if(gitHubDetails !== null){
+                var gitHubDirPath = appConfig.gitHubDir + gitHubDetails.repositoryName;
+                fileHound.create()
+                    .paths(gitHubDirPath)
+                    .ext('yaml')
+                    .find().then(function(files){
+                    if(files.length > 0){
+                        var count = 0;
+                        var botObjList = [];
+                        for(var i = 0; i < files.length; i++){
+                            (function(ymlFile){
+                                yamlJs.load(ymlFile, function(result) {
+                                    if(result !== null){
+                                        count++;
+                                        var botsObj={
+                                            name:result.name,
+                                            id:result.id,
+                                            desc:result.desc,
+                                            category:result.category,
+                                            type:result.type,
+                                            inputFormFields:result.input.form,
+                                            outputOptions:result.output,
+                                            ymlDocFilePath:ymlFile,
+                                            orgId:gitHubDetails.orgId,
+                                            orgName:gitHubDetails.orgName
+                                        }
+                                        botsDao.createNew(botsObj,function(err,data){
+                                            if(err){
+                                                logger.error(err);
+                                            }
+                                            botObjList.push(botsObj);
+                                        })
+                                    }else{
+                                        count++;
+                                    }
+                                    if(count === files.length){
+                                        next(null,botObjList);
+                                    }
+                                });
+                            })(files[i]);
+                        }
+
+                    }else{
+                        logger.info("There is no YML files in this directory.",gitHubDirPath);
+                    }
+                }).catch(function(err){
+                    next(err,null);
+                });
+
+            }else{
+                next(null,gitHubDetails);
+            }
+        }
+    ],function(err, results) {
+        if (err){
+            logger.error(err);
+            callback(err,null);
+            return;
+        }else {
+            callback(null, results)
+            return;
+        }
+    });
 }
 
 

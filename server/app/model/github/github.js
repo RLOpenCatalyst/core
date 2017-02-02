@@ -18,26 +18,36 @@ var mongoose = require('mongoose');
 var ObjectId = require('mongoose').Types.ObjectId;
 var logger = require('_pr/logger')(module);
 var Schema = mongoose.Schema;
+var mongoosePaginate = require('mongoose-paginate');
 var GitHubSchema = new Schema({
     orgId: {
         type: String,
         required: true,
         trim: true
     },
-    name: {
+    repositoryName: {
         type: String,
         required: true,
         trim: true
     },
-    description: {
+    repositoryDesc: {
         type: String,
         required: false,
         trim: true
     },
-    repositoryName: {
+    repositoryOwner: {
         type: String,
         trim: true,
         required: true
+    },
+    repositoryType: {
+        type: String,
+        required: true
+    },
+    repositoryToken: {
+        type: String,
+        trim: true,
+        required: false
     },
     repositoryUserName: {
         type: String,
@@ -48,11 +58,6 @@ var GitHubSchema = new Schema({
         type: String,
         trim: true,
         required: false
-    },
-    isAuthenticated: {
-        type: Boolean,
-        required: false,
-        default: false
     },
     authenticationType: {
         type: String,
@@ -68,8 +73,20 @@ var GitHubSchema = new Schema({
         type: String,
         trim: true,
         required: false
+    },
+    isRepoCloned:{
+        type: Boolean,
+        required: false,
+        default:false
+    },
+    createdOn:{
+        type: Number,
+        required: false,
+        default:Date.now()
     }
 });
+
+GitHubSchema.plugin(mongoosePaginate);
 
 GitHubSchema.statics.createNew = function createNew(gitHubObj, callback) {
     var self = this;
@@ -85,23 +102,36 @@ GitHubSchema.statics.createNew = function createNew(gitHubObj, callback) {
 };
 
 GitHubSchema.statics.getGitHubList = function (params, callback) {
-    this.aggregate([{
-        $lookup: {
-            from: "d4dmastersnew",
-            localField: "orgId",
-            foreignField: "rowid",
-            as: "organization"
-        }
-    }], function (err, gitHubList) {
+    GitHub.paginate(params.queryObj, params.options, function(err, gitRepoList) {
         if (err) {
-            callback(err, null);
-            return;
-        } else if (gitHubList.length === 0) {
-            callback(null, gitHubList);
-            return;
-        } else {
-            return callback(null, gitHubList);
+            logger.error(err);
+            var error = new Error('Internal server error');
+            error.status = 500;
+            return callback(error);
         }
+        GitHub.aggregate([
+            {$match: params.queryObj},
+            {
+                $lookup: {
+                    from: "d4dmastersnew",
+                    localField: "orgId",
+                    foreignField: "rowid",
+                    as: "organization"
+                }
+            },
+            {$skip: (params.options.page - 1) * params.options.limit},
+            {$limit: params.options.limit},
+            {$sort: params.options.sort}
+        ], function (err, gitHubList) {
+            if (err) {
+                callback(err, null);
+                return;
+            } else {
+                gitRepoList.docs = gitHubList;
+                callback(null, gitRepoList);
+                return;
+            }
+        });
     });
 };
 
