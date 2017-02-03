@@ -8,8 +8,8 @@
 (function (angular) {
     "use strict";
     angular.module('dashboard.bots')
-    .controller('botDescriptionCtrl',['$scope', 'uiGridOptionsClient', '$rootScope', 'confirmbox', '$state', 'genericServices',
-    function ($scope, uiGridOptionsClient, $rootScope, confirmbox, $state, genSevs) {
+    .controller('botDescriptionCtrl',['$scope', 'uiGridOptionsClient', '$rootScope', '$window', 'toastr', 'confirmbox', '$state', 'genericServices',
+    function ($scope, uiGridOptionsClient, $rootScope, $window,toastr,confirmbox, $state, genSevs) {
             var treeNames = ['BOTs','Bots Description'];
             $rootScope.$emit('treeNameUpdate', treeNames);
             $rootScope.$on('BOTS_TEMPLATE_SELECTED', function(event,reqParams) {
@@ -52,23 +52,12 @@
                 };
                 confirmbox.showModal({}, modalOptions).then(function() {
                     var param={
-                        url:'/botsNew/' + bot.botId
+                        url:'/bots/' + bot.botId
                     };
                     genSevs.promiseDelete(param).then(function (response) {
                         if (response) {
                             toastr.success('Successfully deleted.');
-                           // lib.summary();
-                            if($scope.totalBotsSelected) {
-                                $scope.botLibraryGridView();
-                            } else if($scope.runningBotsselected) {
-                                $scope.showBotsRunning();
-                            } else if($scope.scheduledBotsSelected) {
-                                $scope.showScheduledBots();
-                            } else if($scope.failedBotsselected) {
-                                $scope.showFailedBots();
-                            } else {
-                                $scope.botLibraryGridView();
-                            }
+                            $window.history.back();
                         }
                     }, function(data) {
                         toastr.error('error:: ' + data.toString());

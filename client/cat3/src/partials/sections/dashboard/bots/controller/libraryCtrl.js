@@ -190,6 +190,7 @@
                     }
                     if(result.metaData.totalRecords == $scope.botLibGridOptions.data.length) {
                         $scope.showLoadMore = false;
+                        $scope.showRecords = false;
                     }
                     $scope.statusBar = "Showing " + ($scope.botLibGridOptions.data.length === 0 ? "0" : "1") + " to " + $filter('number')($scope.botLibGridOptions.data.length) + " of " + $filter('number')(result.metaData.totalRecords) + " entries";
                 }, 100);

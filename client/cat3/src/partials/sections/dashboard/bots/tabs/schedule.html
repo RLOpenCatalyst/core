@@ -138,3 +138,39 @@
    </form>
 	</div>
 </div>
+
+
+<script>
+    $(document).ready(function () {
+        $('#date-end').bootstrapMaterialDatePicker({
+            format: 'MM/DD/YYYY ',
+            weekStart: 1,
+            time: false,
+            switchOnClick : true,
+            nowButton : true,
+        });
+        $('#date-start').bootstrapMaterialDatePicker({
+            format: 'MM/DD/YYYY',
+            weekStart: 1,
+            time: false,
+            switchOnClick : true,
+            nowButton : true,
+        }).on('change', function(e, date)
+        {
+            $('#date-end').bootstrapMaterialDatePicker('setMinDate', date);
+        });
+        $.material.init();
+        $(document).on('click', 'input.time', function(){
+            var $this = $(this);
+            setTimeout(function () {
+                $this.bootstrapMaterialDatePicker({
+                    format: 'HH:mm',
+                    date: false,
+                    switchOnClick : true,
+                });
+            },100);
+
+        });
+    });
+
+</script>
