@@ -170,14 +170,13 @@ ResourceCostsSchema.statics.removeResourceCostByProviderId = function removeReso
     var query = {
         providerId: providerId
     }
-    this.find(query).remove(function(err, data) {
+    this.find(query).remove(function(err, result) {
         if (err) {
-            logger.error("Failed to removeResourceCostByProviderId (%s)", providerId, err);
-            callback(err, null);
-            return;
+            callback(err)
+        } else {
+            callback(null, result)
         }
-        callback(null, data);
-    });
+    })
 };
 
 ResourceCostsSchema.statics.upsert = function upsert(resourceCostData, callback) {

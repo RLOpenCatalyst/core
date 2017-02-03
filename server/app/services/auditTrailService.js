@@ -375,4 +375,3 @@ function getExecutionTime(endTime,startTime){
     var totalSeconds = Math.floor(executionTimeInMS/1000);
     return totalSeconds;
 }
-

@@ -129,11 +129,11 @@ botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,callbac
             callback(err,null);
             return;
         }
-        var resultObj = {
-            bots : results.botList.bots,
-            metaData : results.botList.metaData,
-            botSummary: results.botSummary
-        }
+        var resultObj = {            
+            bots : results.botList.bots,            
+            metaData : results.botList.metaData,            
+            botSummary: results.botSummary        
+        }        
         callback(null,resultObj);
         return;
     });
@@ -367,7 +367,6 @@ function addYmlFileDetailsForBots(bots,callback){
         }
     }
 }
-
 
 
 

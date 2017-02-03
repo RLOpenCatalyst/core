@@ -1,179 +1,186 @@
 <link rel='stylesheet' href='catalyst/partials/sections/dashboard/bots/bots.css'>
-
+<!--top description, name along with filter and refresh-->
 <div id="botLibraryPage">
-	<div class="page-name">
-		BOTs Library&nbsp;
-		<span class="pull-right">
-	        <button type="button" title="Refresh" class="btn btn-xs cat-btn-update pull-right refresh-btn" ng-click="RefreshBotsLibrary();">
-				<i class="fa fa-refresh white"></i>
-			</button>
-			<button type="button" class="btn btn-xs cat-btn-update pull-right filter-margin" ng-click="isOpenSidebar = !isOpenSidebar">
-				<i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;Filter
-			</button>
-			<span class="marginright10">
-				<span ng-if="filterByBotType" class="label cat-btn-update" title="{{}}">Bot Type: {{botLibFilterBot}}
-				</span>
-				<span ng-if="filterByTaskType" class="label cat-btn-update" title="{{}}">Task Type: {{botLibFilterTask}}
-				</span>
-				<span ng-if="filterByCategory" class="label cat-btn-update" title="{{}}">Bot Category: {{botLibFilterCategory}}
-				</span>
-			</span>
-        </span>
-    </div>
-    <div class="borderTop"></div>
-    <div id="sidebar-wrapper" ng-class="{'show-wrapper':isOpenSidebar === true}">
-		<form name="filterForm" class="">
-			<div>
-                <div class="repo-job-details-wrapper-inner marginbottom10">Filter:</div>
-                <div class="col-lg-12 col-md-12 form-group">
-					<label for="">Select:</label>
-					<select class="chooseProjectExisting width-100 form-control marginbottom15" ng-model="botLibFilter" ng-change="filterBy(column);">
-						<option selected="selected" value="">All</option>
-						<option value="botType" ="botType">Bot Type</option>
-						<option value="taskType">Task Type</option>
-						<option value="category">Category</option>
-					</select>
-					<label for="">
-						<span ng-show="botLibFilter === 'botType'"> Select Bot Type:</span>
-						<span ng-show="botLibFilter === 'taskType'">Select Task Type:</span>
-						<span ng-show="botLibFilter === 'category'">Select Category:</span>
-					</label>
-					<select class="chooseProjectExisting width-100 form-control" ng-model="botLibFilter" ng-show="subFilterBy">
-    					<option selected="selected" value="">All</option>
-					</select>
-					<select class="chooseProjectExisting width-100 form-control" ng-model="botLibFilterBot" ng-show="filterByBotType">
-    					<option selected="selected" ng-model="Task">Task</option>
-						<option ng-model="Check">Check</option>
-						<option ng-model="Service">Service</option>
-						<option ng-model="UI">UI</option>
-					</select>
-					<select class="chooseProjectExisting width-100 form-control" ng-model="botLibFilterTask" ng-show="filterByTaskType">
-    					<option ng-model="chef">chef</option>
-    					<option ng-model="jenkins">jenkins</option>
-    					<option ng-model="script">script</option>
-					</select>
-					<select class="chooseProjectExisting width-100 form-control" ng-model="botLibFilterCategory" ng-show="filterByCategory">
-						<option ng-repeat="(key,value) in botCategoryList" value="{{value}}">{{value}}</option>
-					</select>
-				</div>
-                <div class="col-lg-12 col-md-12 marginbottom5">
-					<button type="button" class="btn btn-primary" ng-disabled="filterForm.$invalid" ng-click="applyFilter();isOpenSidebar=false;"><i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;Apply</button>
-					<button type="button" class="btn btn-default" ng-click="clearFilter();"><i class="fa fa-times fa-2" aria-hidden="true"></i>&nbsp;Clear</button>
-				</div>
-			</div>
-		</form>
-		<br>
-	</div>
+   <div class="page-name">
+      BOTs Library&nbsp;
+      <span class="pull-right">
+      <button type="button" title="Refresh" class="btn btn-xs cat-btn-update pull-right refresh-btn" ng-click="RefreshBotsLibrary();">
+      <i class="fa fa-refresh white"></i>
+      </button>
+      <!-- <button type="button" class="btn btn-xs cat-btn-update pull-right filter-margin" ng-click="isOpenSidebar = !isOpenSidebar">
+      <i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;Filter
+      </button> -->
+      </span>
+   </div>
+   <div class="borderTop"></div>
+   <!--sidebar filter -->
+   <div id="sidebar-wrapper" ng-class="{'show-wrapper':isOpenSidebar === true}">
+      <form name="filterForm" class="">
+         <div>
+            <div class="repo-job-details-wrapper-inner marginbottom10">BOT Filter:</div>
+            <div class="col-lg-12 col-md-12 form-group">
+               <label for="">Functionality:</label>
+               <select class="chooseProjectExisting width-100 form-control marginbottom15" ng-model="botLibCategory">
+                  <option selected="selected" value="">All</option>
+                  <option value="User Management">User Management</option>
+                  <option value="DB management">DB Management</option>
+                  <option value="Service Management">Service Management</option>
+               </select>
+               <label for="">Action:</label>
+               <select class="chooseProjectExisting width-100 form-control marginbottom15" ng-model="botLibAction">
+                  <option selected="selected" value="">All</option>
+                  <option value="Run" ="botType">Run</option>
+                  <option value="Check">Check</option>
+                  <option value="Predict">Predict</option>
+                  <option value="Utility">Utility</option>
+               </select>
+               <label for="">Type:</label>
+               <select class="chooseProjectExisting width-100 form-control marginbottom15" ng-model="botLibType">
+                  <option selected="selected" value="">All</option>
+                  <option value="UI">UI</option>
+                  <option value="Agent">Agent</option>
+                  <option value="Script">Script</option>
+               </select>
+            </div>
+            <div class="col-lg-12 col-md-12 marginbottom5">
+               <button type="button" class="btn btn-primary" ng-disabled="filterForm.$invalid" ng-click="applyFilter();isOpenSidebar=false;"><i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;Apply</button>
+            </div>
+         </div>
+      </form>
+      <br>
+   </div>
+   <!--sidebar filter ends here -->
+   <!--panel description-->
+   <div class="container summary-container margintop6 marginleft20">
+      <div class="panel-group">
+         <div class="col-lg-2 col-sm-6 boxWidth">
+            <div class="info-box">
+               <span class="info-box-icon bg-aqua"><i class="faColor fa fa-list-ol"></i></span>
+               <div class="info-box-content">
+                  <span class="info-box-text" title="Total">Total</span>
+                  <span class="info-box-number">{{botSummary.totalNoOfBots}}</span>
+               </div>
+            </div>
+         </div>
+         <div class="col-lg-2 col-sm-6 margin-21 boxWidth">
+            <div class="info-box">
+               <span class="info-box-icon bg-green"><i class="faColor fa fa-cogs fa-fw"></i></span>
+               <div class="info-box-content">
+                  <span class="info-box-text" title="Running">Running</span>
+                  <span class="info-box-number">{{botSummary.totalNoOfRunningBots}}</span>
+               </div>
+            </div>
+         </div>
+         <div class="col-lg-2 col-sm-6 margin-21 boxWidth">
+            <div class="info-box">
+               <span class="info-box-icon orange"><i class="faColor fa fa-calendar fa-fw"></i></span>
+               <div class="info-box-content">
+                  <span class="info-box-text" title="Scheduled">Scheduled</span>
+                  <span class="info-box-number">{{botSummary.totalNoOfScheduledBots}}</span>
+               </div>
+            </div>
+         </div>
+         <div class="col-lg-2 col-sm-6 margin-21 boxWidth">
+            <div class="info-box">
+               <span class="info-box-icon bg-blue"><i class="faColor fa fa-save fa-fw"></i></span>
+               <div class="info-box-content">
+                  <span class="info-box-text" title="Time Saved">Time Saved</span>
+                  <span class="info-box-number">{{totalSavedTimeForBots}} mins</span>
+               </div>
+            </div>
+         </div>
+         <div class="col-lg-2 col-sm-6 margin-21 boxWidth">
+            <div class="info-box">
+               <span class="info-box-icon bg-red"><i class="faColor fa fa-remove fa-fw"></i></span>
+               <div class="info-box-content">
+                  <span class="info-box-text" title="Failed">Failed</span>
+                  <span class="info-box-number">{{botSummary.totalNoOfFailedBots}}</span>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <!--panel description along with search ends here-->
+   
+    <!-- width: 1246px;
+    /* padding: 0; */
+    margin: 0 auto; -->
+   <!-- cards section-->
+   <div  class="botsWidth">
+      <div style="margin-left:35px;width:98%" class="boxBots box-infobox" style="border-top-color:floralwhite"></div>
+      <div class="gallery-header top-stats" style="margin-left:34px;margin-top:-10px;margin-bottom:20px;margin-right:20px;">
+         <!-- <span style="font-size:18px!important">BOTs&nbsp; ({{botSummary.totalNoOfBots}})</span> -->
+         <span style="margin-left:2px;">
+             <button type="button" class="font-size-16 tabReadme btn btn-link {{botsCardViewSelection}}" title="Card View" ng-click="setCardView()"  >
+                 <i class="fa fa-th black"></i>
+                 Grid
+             </button>
+              <button type="button" class="font-size-16 tabReadme btn btn-link {{botsTableViewSelection}}" title="Table View" ng-click="botsTableView()">
+               <i class="fa fa-align-justify black"></i>
+                 List
+             </button>
+         </span>
+         <span style="margin-left:30px;" ng-if="botLibCategory" class="box-title font-size-16"><span>Functionality</span>
+         <span class="badge">{{botLibCategory}}<span title="Clear" class="filterClear" ng-click="clearFilter(botLibCategory)">×</span></span>
+         </span>
+         <span ng-if="botLibAction" class="marginleft10 box-title font-size-16"><span>Action</span>
+         <span class="badge">{{botLibAction}}<span title="Clear" class="filterClear" ng-click="clearFilter(botLibAction)">×</span></span>
+         </span>
+         <span ng-if="botLibType" class="marginleft10 box-title font-size-16"><span>Type</span>
+         <span class="badge">{{botLibType}}<span title="Clear" class="filterClear" ng-click="clearFilter(botLibType)">×</span></span>
+         </span>
+         <!-- <span class="marginright10">
+            <span style="margin-left:30px;" ng-if="botLibCategory" class="label filterButtons" title="{{}}">Bot Type: {{botLibCategory}}
+            </span>
+            <span style="margin-left:10px;" ng-if="botLibAction" class="label filterButtons" title="{{}}">Task Type: {{botLibAction}}
+            </span>
+            <span style="margin-left:10px;" ng-if="botLibType" class="label filterButtons" title="{{}}">Bot Category: {{botLibType}}
+            </span>
+         </span> -->
+         <form class="pull-right firefoxForm" novalidate name="library-form" ng-submit="searchBotNameCategory()">
+            <span class="bot-library-search">
+               <label>&nbsp;
+                  <input type="search" ng-model="botLibrarySearch" class="bot-search" placeholder="Search">
+                  <i class="fa fa-search search-icon" ng-show="!searchText" ng-click="searchBotNameCategory()"></i>
+                  <i title="Clear Search" class="fa fa-close search-icon cancel-icon ng-hide" ng-show="searchText" ng-click="clearBotSearchText()"></i>
+               </label>
+            </span>
+         </form>
+      </div>
+      <loading size="large" name="isBotLibraryPageLoading" type="block" align="center"></loading>
+      <div class="col-lg-4 col-md-4 col-sm-6" ng-show="isCardViewActive" ng-repeat="botsDetails in botLibGridOptions.data">
+         <div class="agent-card grid-card hoverable col-lg-12 col-md-12 col-xs-12">
+            <a class="appnav" ng-click="botTemplateClick(botsDetails)" ui-sref="dashboard.bots.botsDescription">
+               <div class="image-cell two-tone-11">
+                  <img class="highlight" alt="{{botsDetails.botCategory}}" ng-src="{{botIcon}}">
+               </div>
+               <div class="info-cell">
+                  <div title="{{botsDetails.botName}}" class="title">{{botsDetails.botName}}</div>
+                  <div class="publisher">
+                     Last Run: {{botsDetails.lastRunTime | timestampToLocaleTime}}
+                  </div>
+               </div>
+               <div class="desc-cell">
+                  <div title="{{botsDetails.botDesc}}" class="description">{{botsDetails.botDesc}}</div>
+               </div>
+               <div class="pull-right" style="margin-top:24px;">
+                  <a style="margin-left:10px;margin-right:10px;cursor:pointer;" ng-click="launchInstance(botsDetails);" title="Execute"><i class="fa fa-play font-size-20"></i></a>
+               </div>
+            </a>
+         </div>
+      </div>
+      
+      <div class="text-center" ng-show="showLoadMore && isCardViewActive"><a style="cursor:pointer;font-size:16px;" ng-model="currentCardPage" ng-click="cardPaginationChange()";>Load More</a></div>
+      <div ng-show="showRecords && isCardViewActive" class="pull-right" style="margin-top:34px;">
+         <div class="alert alert-success pull-left small">{{statusBar}}</div>
+      </div>
+   </div>
+   <!--cards section ends here-->
 
-	<div class="container summary-container">
-	    <div class="panel-group text-center">
-			<div class="col-lg-2 col-sm-6 margin-21">
-	            <div class="circle-tile cursor">
-	                <div ng-click="showAllBots()">
-	                    <div class="circle-tile-heading dark-blue">
-	                        <i class="fa fa-list-ol fa-fw fa-2x white"></i>
-	                    </div>
-	                </div>
-	                <div class="circle-tile-content dark-blue" ng-click="showAllBots()">
-	                	<div class="circle-tile-number text-faded">
-	                        {{botSummary.totalNoOfBots}}
-	                    </div>
-	                    <div class="circle-tile-description text-faded">
-	                        Total BOTs
-	                    </div>
-	                    <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph dark-blue-glyph" ng-class="{'selected-section':totalBotsSelected}"></span>
-	                </div>
-	            </div>
-	        </div>
-	        <div class="col-lg-2 col-sm-6 margin-21">
-	            <div class="circle-tile cursor">
-	                <div ng-click="showBotsRunning()" >
-	                    <div class="circle-tile-heading green">
-	                        <i class="fa fa-cogs fa-fw fa-2x white"></i>
-	                    </div>
-	                </div>
-	                <div class="circle-tile-content green" ng-click="showBotsRunning()">
-	                    <div class="circle-tile-number text-faded">
-	                        {{botSummary.totalNoOfRunningBots}}
-	                    </div>
-	                    <div class="circle-tile-description text-faded">
-	                        Running BOTs
-	                    </div>
-	                    <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph green-glyph" ng-class="{'selected-section':runningBotsselected}"></span>
-	                </div>
-	            </div>
-	        </div>
-	       
-	        <div class="col-lg-2 col-sm-6 margin-21">
-	            <div class="circle-tile">
-	                <div href="#">
-	                    <div class="circle-tile-heading orange">
-	                        <i class="fa fa-save fa-fw fa-2x white"></i>
-	                    </div>
-	                </div>
-	                <div class="circle-tile-content orange">
-	                	<div class="circle-tile-number text-faded">
-	                        {{totalSavedTimeForBots}} mins
-	                    </div>
-	                    <div class="circle-tile-description text-faded">
-	                        Time saved
-	                    </div>
-	                </div>
-	            </div>
-	        </div>
-	        <div class="col-lg-2 col-sm-6 margin-21">
-	            <div class="circle-tile cursor">
-	                <div ng-click="showScheduledBots()">
-	                    <div class="circle-tile-heading bg-blue">
-	                        <i class="fa fa-calendar fa-2x white"></i>
-	                    </div>
-	                </div>
-	                <div class="circle-tile-content bg-blue" ng-click="showScheduledBots()">
-	                	<div class="circle-tile-number text-faded">
-	                        {{botSummary.totalNoOfScheduledBots}}
-	                    </div>
-	                    <div class="circle-tile-description text-faded">
-	                        Scheduled BOTs
-	                    </div>
-	                    <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph bg-blue-glyph" ng-class="{'selected-section':scheduledBotsSelected}"></span>
-	                </div>
-	            </div>
-	        </div>  
-	         <div class="col-lg-2 col-sm-6 margin-21">
-	            <div class="circle-tile cursor">
-	                <div ng-click="showFailedBots()" >
-	                    <div class="circle-tile-heading redcard">
-	                        <i class="fa fa-remove fa-fw fa-2x white"></i>
-	                    </div>
-	                </div>
-	                <div class="circle-tile-content redcard" ng-click="showFailedBots()">
-	                	<div class="circle-tile-number text-faded">
-	                        {{botSummary.totalNoOfFailedBots}}
-	                    </div>
-	                    <div class="circle-tile-description text-faded">
-	                        Failed BOTs
-	                    </div>
-	                    <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph redcard-glyph" ng-class="{'selected-section':failedBotsselected}"></span>
-	                </div>
-	            </div>
-	        </div>    
-	    </div>
-	</div>
-
-	<form novalidate name="library-form" ng-submit="searchBotNameCategory()">
-		<div class="bot-library-search">
-			<div class="pull-right">
-				<label><span class="search-text">Search:</span>&nbsp;
-					<input type="search" ng-model="botLibrarySearch" class="bot-search" placeholder="" id="searchBots">
-					<i title="Search" class="fa fa-search search-icon" ng-show="!searchText" ng-click="searchBotNameCategory()"></i>
-					<i title="Clear Search" class="fa fa-close search-icon" ng-show="searchText" ng-click="clearBotSearchText()"></i>
-				</label>
-			</div>
-		</div>
-	</form>
-
-	<div class="alert alert-info text-center" ng-if="!botLibGridOptions.data.length > 0">
-		No data Available
-	</div>
-	<div id="grid1" ng-if="botLibGridOptions.data.length >0 && !isBotLibraryPageLoading" ui-grid="botLibGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid" style="height: {{gridHeight}}px"></div>
+   <!--table section start here-->
+   <div class="alert alert-info text-center" ng-if="!botLibGridOptions.data.length > 0">
+      No data Available
+   </div>
+   <div id="grid1" ng-show="!isCardViewActive" ng-if="botLibGridOptions.data.length >0 && !isBotLibraryPageLoading" ui-grid="botLibGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid" style="height: {{gridHeight}}px"></div>
+   <!--table section ends here -->
 </div>

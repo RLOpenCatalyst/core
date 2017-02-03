@@ -38,7 +38,7 @@
                     </div>
                     <div class="box-body" >
                         <input ng-if="!capRept.listGrid[capRept.serviceType].nodataFound"  ng-model='capRept.filterValue' class="form-control with250" ng-change="filterInst()" placeholder="Search" />
-                        <div ng-if="!capRept.listGrid[capRept.serviceType].nodataFound" ui-grid="capRept.listGrid[capRept.serviceType]"  ui-grid-exporter ui-grid-auto-resize ui-grid-pagination class="grid margintop15" style="height: 340px;"></div>
+                        <div ng-if="!capRept.listGrid[capRept.serviceType].nodataFound" ui-grid="capRept.listGrid[capRept.serviceType]"  ui-grid-exporter ui-grid-auto-resize ui-grid-pagination class="grid margintop15" ></div>
                         <div ng-if="capRept.listGrid[capRept.serviceType].nodataFound">
                             <div class="alert alert-warning">
                                 No Data Available.

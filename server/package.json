@@ -76,6 +76,7 @@
         "gridfs-stream":"1.1.1",
         "mongoose-double": "0.0.1",
         "nodegit-build": "0.2.4",
+        "promisify-node":"0.1.5",
         "promisify":"0.0.3",
         "filehound":"1.13.0",
         "yamljs":"0.2.8"

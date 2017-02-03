@@ -738,7 +738,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                     logsDao.insertLog({
                                                                                         referenceId: logsReferenceIds,
                                                                                         err: false,
-                                                                                        log: launchParams.stackName+'.rlcatalyst.com',
+                                                                                        log: 'http://'+launchParams.stackName+'.rlcatalyst.com',
                                                                                         timestamp: timestampEnded
                                                                                     });
                                                                                     instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);

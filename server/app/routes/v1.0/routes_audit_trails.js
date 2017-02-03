@@ -241,4 +241,3 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 
 };
-
