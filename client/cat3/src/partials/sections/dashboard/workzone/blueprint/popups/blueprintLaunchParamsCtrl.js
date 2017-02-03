@@ -14,6 +14,14 @@
             $scope.tagSets = [];
             var fltrObj=$rootScope.filterNewEnt;
             $scope.tagOption=[];
+            $scope.tagsList=[{ind:0}];
+            $scope.tagValueVal={};
+            $scope.addTags =function () {
+                $scope.tagsList.push({ind:$scope.tagsList.length});
+            };
+            $scope.removeTags = function (ind) {
+                $scope.tagsList.splice(ind,1);
+            };
             $scope.tagSet = function(entity,tagName,tagValue)
             {
                 this.entity = entity;
@@ -127,6 +135,7 @@
             ///console.log('#####',$scope.tagOption);
 
 			$scope.launchBP = function() {
+				console.log('aaa-',$scope.tagValueVal);
 				$scope.monitorIdCheck();
 				if(items.orgId === undefined && items.botType === undefined){
 					var compBlue={
