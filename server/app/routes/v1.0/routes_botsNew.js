@@ -56,7 +56,22 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
     app.get('/botsNew/:botId/bots-history/:historyId',function(req,res){
-        botsNewService.getPerticularBotsHistory(req.params.botId,req.params.historyId, function(err,data){
+        botsNewService.getParticularBotsHistory(req.params.botId,req.params.historyId, function(err,data){
+            if (err) {
+                return res.status(500).send(err);
+            } else {
+                return res.status(200).send(data[0]);
+            }
+        })
+    });
+
+    app.get('/botsNew/:botId/bots-history/:historyId/logs',function(req,res){
+        var timestamp = null;
+        if (req.query.timestamp) {
+            timestamp = req.query.timestamp;
+            timestamp = parseInt(timestamp);
+        }
+        botsNewService.getParticularBotsHistoryLogs(req.params.botId,req.params.historyId,timestamp, function(err,data){
             if (err) {
                 return res.status(500).send(err);
             } else {

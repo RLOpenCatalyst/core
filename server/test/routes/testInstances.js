@@ -106,6 +106,7 @@ describe("Deploy Permission ",function(){
             .post('/botsNew/58919368d9460c9973ac6a01/execute')
             .send(reqBody)
             .end(function(err,res){
+                console.log(res.body);
                 assert.equal(res.status, 200);
                 done();
             });

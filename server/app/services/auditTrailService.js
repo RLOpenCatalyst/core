@@ -52,7 +52,7 @@ auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,audi
         providerType: auditDetails.providerType,
         action: actionObj.action
     };
-    if(actionObj.auditType === 'BOTs'){
+    if(actionObj.auditType === 'BOTs' || actionObj.auditType === 'BOTsNew'){
         auditTrailObj.auditTrailConfig = auditTrailConfig;
         botAuditTrail.createNew(auditTrailObj,function(err,data){
             if(err){

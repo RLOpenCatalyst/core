@@ -79,7 +79,7 @@ botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,callbac
         function(queryObj, next) {
             if(actionStatus !== null){
                 var query = {
-                    auditType: 'BOTs',
+                    auditType: 'BOTsNew',
                     actionStatus: actionStatus,
                     isDeleted:false
                 };
@@ -172,7 +172,7 @@ botsNewService.executeBots = function executeBots(botId,reqBody,callback){
         }
     ],function(err,results){
         if(err){
-            logger.error(err);
+            logger.error(JSON.stringify(err));
             callback(err,null);
             return;
         }else{
@@ -302,6 +302,93 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
     });
 }
 
+botsNewService.getBotsHistory = function getBotsHistory(botId,botsQuery,callback){
+    var reqData = {};
+    async.waterfall([
+        function(next) {
+            apiUtil.paginationRequest(botsQuery, 'botHistory', next);
+        },
+        function(paginationReq, next) {
+            paginationReq['searchColumns'] = ['status', 'action', 'user', 'actionStatus', 'auditTrailConfig.name','masterDetails.orgName'];
+            reqData = paginationReq;
+            apiUtil.databaseUtil(paginationReq, next);
+        },
+        function(queryObj, next) {
+            queryObj.queryObj.auditId = botId;
+            queryObj.queryObj.auditType = 'BOTsNew';
+            auditTrail.getAuditTrailList(queryObj,next)
+        },
+        function(auditTrailList, next) {
+            apiUtil.paginationResponse(auditTrailList, reqData, next);
+        }
+    ],function(err, results) {
+        if (err){
+            logger.error(err);
+            callback(err,null);
+            return;
+        }
+        callback(null,results)
+        return;
+    });
+}
+
+botsNewService.getParticularBotsHistory = function getParticularBotsHistory(botId,historyId,callback){
+    async.waterfall([
+        function(next){
+            botsDao.getBotsById(botId,next);
+        },
+        function(bots,next){
+            if(bots.length > 0) {
+                var query = {
+                    auditType: 'BOTsNew',
+                    auditId: botId,
+                    actionLogId: historyId
+                };
+                console.log(JSON.stringify(query));
+                auditTrail.getAuditTrails(query, next);
+
+            }else{
+                next({errCode:400, errMsg:"Bots is not exist in DB"},null)
+            }
+        }
+    ],function(err,results){
+        if(err){
+            logger.error(err);
+            callback(err,null);
+            return;
+        }else{
+            callback(null,results);
+            return;
+        }
+    });
+}
+
+botsNewService.getParticularBotsHistoryLogs= function getParticularBotsHistoryLogs(botId,historyId,timestamp,callback){
+    async.waterfall([
+        function(next){
+            botsDao.getBotsById(botId,next);
+        },
+        function(bots,next){
+            if(bots.length > 0) {
+                var logsDao = require('_pr/model/dao/logsdao.js');
+                logsDao.getLogsByReferenceId(historyId, timestamp,next);
+            }else{
+                next({errCode:400, errMsg:"Bots is not exist in DB"},null)
+            }
+        }
+    ],function(err,results){
+        if(err){
+            logger.error(err);
+            callback(err,null);
+            return;
+        }else{
+            callback(null,results);
+            return;
+        }
+    });
+}
+
+
 function encryptedParam(paramDetails, callback) {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
@@ -367,6 +454,5 @@ function addYmlFileDetailsForBots(bots,callback){
         }
     }
 }
-
 
 
