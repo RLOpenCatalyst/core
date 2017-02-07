@@ -48,6 +48,10 @@
   margin-top: 6px;
 }
 
+.margintop20 {
+  margin-top: -20px;
+}
+
 .boxWidth {
   width:17%!important;
 }
@@ -120,7 +124,7 @@
   }
 }
 
-#botLibraryPage, #botsDescriptionPage {
+#botLibraryPage, #botsDescriptionPage, #botAuditTrailPage {
   .summary-container {
     width: 96%;
   }
@@ -488,6 +492,7 @@ body {
   /*background:#F7F7F7;ecf0f5*/
   overflow-y:auto!important;
 }
+
 
 body .botDescriptionPage {
   background:#F7F7F7;
