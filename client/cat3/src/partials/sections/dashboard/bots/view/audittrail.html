@@ -10,11 +10,13 @@
 	<div class="borderTop"></div>
 
 	<div class="bot-audit-trail-search">
-		<div class="pull-right">
-			<label><span class="search-text">Search:</span>&nbsp;
-				<input type="search" ng-model="botAuditTrailSearch" class="bot-search" placeholder="">
-				<i class="fa fa-search search-icon" ng-click="searchBotAuditTrailName()"></i>
-			</label>
+		<div class="pull-right margintop20">
+			<span class="bot-library-search">
+               <label>&nbsp;
+                  <input type="search" ng-model="botAuditTrailSearch" class="bot-search" placeholder="Search">
+				  <i class="fa fa-search search-icon" ng-click="searchBotAuditTrailName()"></i>
+               </label>
+            </span>
 		</div>
 	</div>
 
@@ -23,5 +25,5 @@
 	    No data Available
 	</div>
 
-	<div id="grid1" ng-if="botAuditTrailGridOptions.data.length > 0 && !isBotAuditTrailPageLoading" ui-grid="botAuditTrailGridOptions" ui-grid-pagination class="grid" style="height: {{gridHeight}}px"></div>
+	<div id="grid1" class="margintop8" ng-if="botAuditTrailGridOptions.data.length > 0 && !isBotAuditTrailPageLoading" ui-grid="botAuditTrailGridOptions" ui-grid-pagination class="grid" style="height: {{gridHeight}}px"></div>
 </div>

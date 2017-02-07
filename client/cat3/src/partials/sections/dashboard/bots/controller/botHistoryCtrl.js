@@ -272,27 +272,31 @@
             }
 
             $scope.historyLogs=function(hist) {
-                var modalInstance = $modal.open({
-                    animation: true,
-                    templateUrl: 'src/partials/sections/dashboard/bots/view/botExecutionLogs.html',
-                    controller: 'botExecutionLogsCtrl as botExecLogCtrl',
-                    backdrop : 'static',
-                    keyboard: false,
-                    resolve: {
-                        items: function() {
-                            return {
-                                taskId : hist.auditId,
-                                historyId : hist.auditHistoryId ? hist.auditHistoryId : hist.auditTrailConfig.nodeIdsWithActionLog[0] && hist.auditTrailConfig.nodeIdsWithActionLog[0].actionLogId,
-                                taskType:hist.auditTrailConfig.executionType
-                            };
+                if(hist.auditHistoryId || (hist.auditTrailConfig.nodeIdsWithActionLog[0] && hist.auditTrailConfig.nodeIdsWithActionLog[0].actionLogId)) {
+                    var modalInstance = $modal.open({
+                        animation: true,
+                        templateUrl: 'src/partials/sections/dashboard/bots/view/botExecutionLogs.html',
+                        controller: 'botExecutionLogsCtrl as botExecLogCtrl',
+                        backdrop : 'static',
+                        keyboard: false,
+                        resolve: {
+                            items: function() {
+                                return {
+                                    taskId : hist.auditId,
+                                    historyId : hist.auditHistoryId ? hist.auditHistoryId : hist.auditTrailConfig.nodeIdsWithActionLog[0] && hist.auditTrailConfig.nodeIdsWithActionLog[0].actionLogId,
+                                    taskType:hist.auditTrailConfig.executionType
+                                };
+                            }
                         }
-                    }
-                });
-                modalInstance.result.then(function(selectedItem) {
-                    $scope.selected = selectedItem;
-                }, function() {
-                    console.log('Modal Dismissed at ' + new Date());
-                });
+                    });
+                    modalInstance.result.then(function(selectedItem) {
+                        $scope.selected = selectedItem;
+                    }, function() {
+                        console.log('Modal Dismissed at ' + new Date());
+                    });
+                } else {
+                    toastr.error("Logs are getting generated. Please wait");
+                }
             }
 
             $scope.cancel= function() {
