@@ -20,6 +20,10 @@
   margin-left:20px
 }
 
+.marginleft35 {
+  margin-left:35px
+}
+
 .marginbottom15 {
   margin-bottom: 15px;
 }
@@ -593,12 +597,19 @@ body .botDescriptionPage {
 
 .top-stats {
   .badge {
-      margin-right: 2px; 
-      background: #40baf1; 
-      padding: .2em 1.5em .3em;
-      font-size: 15px;
-      margin-top: -5px;
+    margin-right: 2px; 
+    background: #40baf1; 
+    padding: .2em 1.5em .3em;
+    font-size: 15px;
+    margin-top: -5px;
   }
+}
+
+.marginCheck {
+  margin-left:34px;
+  margin-top:-10px;
+  margin-bottom:20px;
+  margin-right:20px;   
 }
 
 .font-size-16 {
@@ -691,6 +702,16 @@ body .botDescriptionPage {
   cursor:pointer;
 }
 
+.containerBox {
+  margin-left: 19px;
+  margin-top:-7px;
+}
+
+.margin10 {
+  margin-left:10px;
+  margin-right:10px;
+}
+
 @-moz-document url-prefix() {
     .search-icon {
       margin-left: -24px!important; 
@@ -705,6 +726,13 @@ body .botDescriptionPage {
     .firefoxForm {
       margin-top: -20px;
     }
+
+}
+
+@media (min-width : 1200px){
+  .width20 {
+    width: 20%
+  }
 
 }
 

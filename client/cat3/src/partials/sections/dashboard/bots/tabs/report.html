@@ -1,28 +1,28 @@
 <link rel='stylesheet' href='catalyst/partials/sections/dashboard/bots/bots.css'>
 <div id="botLibraryPage" ng-controller="botHistoryCtrl">
-   <div class="container summary-container" style="margin-left:35px;">
+   <div class="container summary-container marginleft35">
       <section>
          <!--This table will get use when bot job type will be chef -->
          <loading size="large" name="ischefTaskHistoryPageLoading" type="block" align="center"></loading>
          <div ng-show="!ischefTaskHistoryPageLoading">
-            <div id="grid1" ng-if="taskHistoryChefGridOptions.data.length >0 && botHistory.botLinkedSubCategory=='chef'" ui-grid="taskHistoryChefGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid"></div>
+            <div id="grid1" ng-if="taskHistoryChefData.length >0 && botHistory.botLinkedSubCategory=='chef'" ui-grid="taskHistoryChefGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid"></div>
          </div>
          <!--This table will get use when bot job type will be jenkins -->
          <loading size="large" name="isjenkinsTaskHistoryPageLoading" type="block" align="center"></loading>
          <div ng-show="!isjenkinsTaskHistoryPageLoading">
-            <div id="grid2" ng-if="taskHistoryJenkinsGridOptions.data.length >0 && botHistory.botLinkedSubCategory=='jenkins'" ui-grid="taskHistoryJenkinsGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid"></div>
+            <div id="grid2" ng-if="taskHistoryJenkinsData.length >0 && botHistory.botLinkedSubCategory=='jenkins'" ui-grid="taskHistoryJenkinsGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid"></div>
          </div>
          <!--This table will get use when bot job type will be script -->
-         <loading size="large" name="ischefTaskHistoryPageLoading" type="block" align="center"></loading>
-         <div ng-show="!ischefTaskHistoryPageLoading">
-            <div id="grid3" ng-if="taskHistoryChefGridOptions.data.length >0 && botHistory.botLinkedSubCategory=='script'" ui-grid="taskHistoryChefGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid"></div>
+         <loading size="large" name="isscriptTaskHistoryPageLoading" type="block" align="center"></loading>
+         <div ng-show="!isscriptTaskHistoryPageLoading">
+            <div id="grid3" ng-if="taskHistoryScriptData.length >0 && botHistory.botLinkedSubCategory=='script'" ui-grid="taskHistoryScriptGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid"></div>
          </div>
          <!--This table will get use when bot type will be blueprint -->
          <loading size="large" name="isBlueprintBotHistoryPageLoading" type="block" align="center"></loading>
          <div ng-show="!isBlueprintBotHistoryPageLoading">
-            <div id="grid4" ng-if="botHistoryBlueprintGridOptions.data.length >0 && botHistory.botLinkedCategory=='Blueprint'" ui-grid="botHistoryBlueprintGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid"></div>
+            <div id="grid4" ng-if="botHistoryBlueprintData.length >0 && botHistory.botLinkedCategory=='Blueprint'" ui-grid="botHistoryBlueprintGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid"></div>
          </div>
-         <div class="alert alert-info text-center" ng-show="!ischefTaskHistoryPageLoading && !isjenkinsTaskHistoryPageLoading && !ischefTaskHistoryPageLoading && !isBlueprintBotHistoryPageLoading" ng-if="taskHistoryChefGridOptions.data.length == 0 && taskHistoryJenkinsGridOptions.data.length == 0 && taskHistoryChefGridOptions.data.length == 0 && botHistoryBlueprintGridOptions.data.length == 0" align="center">No Data Found</div>
+         <div class="alert alert-info text-center" ng-show="!ischefTaskHistoryPageLoading && !isjenkinsTaskHistoryPageLoading && !isscriptTaskHistoryPageLoading && !isBlueprintBotHistoryPageLoading" ng-if="taskHistoryChefData.length == 0 && taskHistoryJenkinsData.length == 0 && taskHistoryScriptData.length == 0 && botHistoryBlueprintData == 0" align="center">No Data Found</div>
       </section>
    </div>
 </div>
