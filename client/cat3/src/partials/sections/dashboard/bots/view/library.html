@@ -54,45 +54,48 @@
    <div class="container summary-container containerBox">
        <div class="panel-group text-center">
          <div class="col-lg-2 col-sm-6 width20">
-               <div class="circle-tile">
-                    <div class="circle-tile-heading dark-blue">
-                        <i class="fa fa-list-ol fa-fw fa-2x white"></i>
+               <div class="circle-tile cursor">
+                  <div ng-click="showAllBots()">
+                      <div class="circle-tile-heading dark-blue">
+                          <i class="fa fa-list-ol fa-fw fa-2x white"></i>
+                      </div>
+                  </div>
+                  <div class="circle-tile-content dark-blue" ng-click="showAllBots()">
+                    <div class="circle-tile-number text-faded ng-binding">
+                        {{botSummary.totalNoOfBots}}
                     </div>
-                   <div class="circle-tile-content dark-blue">
-                     <div class="circle-tile-number text-faded ng-binding">
-                           {{botSummary.totalNoOfBots}}
-                       </div>
-                       <div class="circle-tile-description text-faded">
-                           Total BOTs
-                       </div>
-                       <!-- <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph dark-blue-glyph selected-section" ng-class="{'selected-section':totalBotsSelected}"></span> -->
-                   </div>
+                     <div class="circle-tile-description text-faded">
+                         Total BOTs
+                     </div>
+                     <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph dark-blue-glyph selected-section" ng-class="{'selected-section':totalBotsSelected}"></span>
+                  </div>
                </div>
            </div>
+
            <div class="col-lg-2 col-sm-6 width20">
-               <div class="circle-tile">
+               <div class="circle-tile cursor">
+                  <div ng-click="showBotsRunning()">
                     <div class="circle-tile-heading green">
                         <i class="fa fa-cogs fa-fw fa-2x white"></i>
                     </div>
-                   <div class="circle-tile-content green">
+                  </div>
+                   <div class="circle-tile-content green" ng-click=" showBotsRunning()">
                        <div class="circle-tile-number text-faded ng-binding">
                            {{botSummary.totalNoOfRunningBots}}
                        </div>
                        <div class="circle-tile-description text-faded">
                            Running BOTs
                        </div>
-                       <!-- <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph green-glyph" ng-class="{'selected-section':runningBotsselected}"></span> -->
+                       <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph green-glyph" ng-class="{'selected-section':runningBotsselected}"></span>
                    </div>
                </div>
            </div>
           
            <div class="col-lg-2 col-sm-6 width20">
-               <div class="circle-tile">
-                   
-                       <div class="circle-tile-heading orange">
-                           <i class="fa fa-save fa-fw fa-2x white"></i>
-                       </div>
-                   
+               <div class="circle-tile">            
+                     <div class="circle-tile-heading orange">
+                         <i class="fa fa-save fa-fw fa-2x white"></i>
+                     </div> 
                    <div class="circle-tile-content orange">
                      <div class="circle-tile-number text-faded ng-binding">
                            {{botSummary.totalSavedTimeForBots}} mins
@@ -104,38 +107,38 @@
                </div>
            </div>
            <div class="col-lg-2 col-sm-6 width20">
-               <div class="circle-tile">
-                   
+               <div class="circle-tile cursor">
+                    <div ng-click="showScheduledBots()">
                        <div class="circle-tile-heading bg-blue">
                            <i class="fa fa-calendar fa-2x white"></i>
                        </div>
-                  
-                   <div class="circle-tile-content bg-blue" >
+                    </div>
+                   <div class="circle-tile-content bg-blue" ng-click="showScheduledBots()">
                      <div class="circle-tile-number text-faded ng-binding">
                            {{botSummary.totalNoOfScheduledBots}}
                        </div>
                        <div class="circle-tile-description text-faded">
                            Scheduled BOTs
                        </div>
-                       <!-- <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph bg-blue-glyph" ng-class="{'selected-section':scheduledBotsSelected}"></span> -->
+                       <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph bg-blue-glyph" ng-class="{'selected-section':scheduledBotsSelected}"></span>
                    </div>
                </div>
            </div>  
             <div class="col-lg-2 col-sm-6 width20">
-               <div class="circle-tile">
-                   
+               <div class="circle-tile cursor">
+                    <div ng-click="showFailedBots()">
                        <div class="circle-tile-heading redcard">
                            <i class="fa fa-remove fa-fw fa-2x white"></i>
                        </div>
-                   
-                   <div class="circle-tile-content redcard">
+                    </div>                   
+                   <div class="circle-tile-content redcard" ng-click="showFailedBots()">
                      <div class="circle-tile-number text-faded ng-binding">
                            {{botSummary.totalNoOfFailedBots}}
                        </div>
                        <div class="circle-tile-description text-faded">
                            Failed BOTs
                        </div>
-                       <!-- <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph redcard-glyph" ng-class="{'selected-section':failedBotsselected}"></span> -->
+                       <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph redcard-glyph" ng-class="{'selected-section':failedBotsselected}"></span>
                    </div>
                </div>
            </div>    
