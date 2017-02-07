@@ -46,11 +46,6 @@ var BotsSchema = new Schema ({
         trim: true,
         required: true
     },
-    savedTime:{
-        type: Number,
-        trim: true,
-        default:0
-    },
     botConfig:Schema.Types.Mixed,
     runTimeParams:Schema.Types.Mixed,
     masterDetails: {
