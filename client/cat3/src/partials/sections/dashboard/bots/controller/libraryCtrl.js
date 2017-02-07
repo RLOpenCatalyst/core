@@ -12,6 +12,7 @@
         var treeNames = ['BOTs','Library'];
         $rootScope.$emit('treeNameUpdate', treeNames);
         var lib=this;
+        $rootScope.templateSelected = {};
         $rootScope.isOpenSidebar = false;
         $scope.totalBotsSelected = true;
         $scope.botCategoryList = [];
@@ -33,7 +34,7 @@
         $scope.initGrids = function(){
             $scope.botLibGridOptions={};
             $scope.botLibGridOptions.columnDefs= [
-                { name:'Category Type', field:'botCategory' ,cellTemplate:'<img src="images/bots/activeDirectory.png" ng-show="row.entity.botCategory==\'Active Directory\'" alt="row.entity.botCategory" title="Active Directory" class="task-type-img" />'+
+                { name:'Category', field:'botCategory' ,cellTemplate:'<img src="images/bots/activeDirectory.png" ng-show="row.entity.botCategory==\'Active Directory\'" alt="row.entity.botCategory" title="Active Directory" class="task-type-img" />'+
                     '<img src="images/bots/userManagement.png" ng-show="row.entity.botCategory==\'User Management\'" alt="row.entity.botCategory" title="User Management" class="task-type-img" />'+
                     '<img src="images/bots/applicationDeployment.png" ng-show="row.entity.botCategory==\'Application Deployment\'" alt="row.entity.botCategory" title="Application Deployment" class="task-type-img" />'+
                     '<img src="images/bots/installation.png" ng-show="row.entity.botCategory==\'Installation\'" alt="row.entity.botCategory" title="Installation" class="task-type-img" />'+
@@ -42,10 +43,10 @@
                     '<img src="images/bots/serviceManagement.png" ng-show="row.entity.botCategory==\'Service Management\'" alt="row.entity.botCategory" title="Service Management" class="task-type-img" />'+
                     '<img src="images/bots/upgrade.png" ng-show="row.entity.botCategory==\'Upgrade\'" alt="row.entity.botCategory" title="Upgrade" class="task-type-img" />',cellTooltip: true},
                 { name: 'BOT Name',displayName: 'BOT Name',field:'botName',cellTooltip: true},
-                { name: 'Category',field:'botCategory',cellTooltip: true},
+                //{ name: 'Category',field:'botCategory',cellTooltip: true},
                 { name: 'BOT Type',displayName: 'BOT Type',field:'botType',cellTooltip: true},
                 { name: 'Description',field:'botDesc',cellTooltip: true},
-                { name: 'BOT Created From',displayName: 'BOT Created From',field:'botLinkedCategory',cellTooltip: true},
+                //{ name: 'BOT Created From',displayName: 'BOT Created From',field:'botLinkedCategory',cellTooltip: true},
                 { name: 'Organization',field:'masterDetails.orgName',cellTooltip: true},
                 { name: 'Last Run',field:'lastRunTime ',cellTemplate:'<span title="{{row.entity.lastRunTime  | timestampToLocaleTime}}">{{row.entity.lastRunTime  | timestampToLocaleTime}}</span>', cellTooltip: true},
                 { name: 'Total Runs',field:'executionCount'},
@@ -102,6 +103,27 @@
         };
         $scope.setPaginationDefaults();
         $scope.tabData = [];
+
+        $scope.imageForCard = function(result) {
+            if(result.botCategory === 'Active Directory' || result.botCategory === 'Database Management') {
+                result.imagePath = 'images/bots/activeDirectory.png';
+            }else if(result.botCategory === 'User Management') {
+                result.imagePath = 'images/bots/userManagement.png';
+            }else if(result.botCategory === 'Service Management') {
+                result.imagePath = 'images/bots/serviceManagement.png';
+            }else if(result.botCategory === 'Upgrade') {
+                result.imagePath = 'images/bots/upgrade.png';
+            }else if(result.botCategory === 'Monitoring') {
+                result.imagePath = 'images/bots/monitoring.png';
+            }else if(result.botCategory === 'Installation') {
+                result.imagePath = 'images/bots/installation.png';
+            }else if(result.botCategory === 'OpenDJ LDAP') {
+                result.imagePath = 'images/bots/openDJ.png';
+            }else {
+                result.imagePath = 'images/bots/applicationDeployment.png';
+            }
+        };
+
         $scope.botLibraryGridView = function() {
             lib.gridOptions=[];
             var param={
@@ -118,23 +140,7 @@
                     if($scope.isCardViewActive){
                         $scope.botLibGridOptions.data = $scope.botLibGridOptions.data.concat(result.bots);
                         for(var i=0;i<result.bots.length;i++){
-                            if(result.bots[i].botCategory === 'Active Directory') {
-                                $scope.botIcon = 'images/bots/activeDirectory.png';
-                            } else if(result.bots[i].botCategory === 'User Management') {
-                                $scope.botIcon = 'images/bots/userManagement.png';
-                            } else if(result.bots[i].botCategory === 'Service Management') {
-                                $scope.botIcon = 'images/bots/serviceManagement.png';
-                            } else if(result.bots[i].botCategory === 'Upgrade') {
-                                $scope.botIcon = 'images/bots/upgrade.png';
-                            } else if(result.bots[i].botCategory === 'Monitoring') {
-                                $scope.botIcon = 'images/bots/monitoring.png';
-                            } else if(result.bots[i].botCategory === 'Installation') {
-                                $scope.botIcon = 'images/bots/installation.png';
-                            } else if(result.bots[i].botCategory === 'OpenDJ LDAP') {
-                                $scope.botIcon = 'images/bots/openDJ.png';
-                            } else if(result.bots[i].botCategory === 'Application Deployment') {
-                                $scope.botIcon = 'images/bots/applicationDeployment.png';
-                            }
+                            $scope.imageForCard(result.bots[i]);
                         }
                         if(result.metaData.totalRecords == $scope.botLibGridOptions.data.length) {
                             $scope.showLoadMore = false;
@@ -160,6 +166,7 @@
             $rootScope.$emit('BOTS_TEMPLATE_SELECTED',templateDetail);
         };
         $scope.searchBotNameCategory = function() {
+            $scope.botLibGridOptions.data = [];
             $scope.searchString = $scope.botLibrarySearch;
             $scope.searchText = true;
             lib.gridOptions=[];
@@ -191,6 +198,11 @@
                     if(result.metaData.totalRecords == $scope.botLibGridOptions.data.length) {
                         $scope.showLoadMore = false;
                         $scope.showRecords = false;
+                    }
+                    if($scope.isCardViewActive){
+                        for(var i=0;i<result.bots.length;i++){
+                            $scope.imageForCard(result.bots[i]);
+                        }
                     }
                     $scope.statusBar = "Showing " + ($scope.botLibGridOptions.data.length === 0 ? "0" : "1") + " to " + $filter('number')($scope.botLibGridOptions.data.length) + " of " + $filter('number')(result.metaData.totalRecords) + " entries";
                 }, 100);
@@ -283,7 +295,11 @@
             $scope.paginationParams.page = 1;
             $scope.botLibGridOptions.paginationCurrentPage = $scope.paginationParams.page;
             $scope.paginationParams.pageSize = 18;
-            $scope.botLibraryGridView();
+            if($scope.botLibrarySearch){
+                $scope.searchBotNameCategory();    
+            } else {
+                $scope.botLibraryGridView();
+            }
         };
 
         $scope.botsTableView = function() {
@@ -291,7 +307,11 @@
             $scope.botsTableViewSelection = "bots-tab-active";
             $scope.botsCardViewSelection = "";
             $scope.paginationParams.pageSize = 10;
-            $scope.botLibraryGridView();
+            if($scope.botLibrarySearch){
+                $scope.searchBotNameCategory();    
+            } else {
+                $scope.botLibraryGridView();
+            }
         };
 
         var gridBottomSpace = 250;
@@ -303,9 +323,9 @@
                 genSevs.launchBlueprint(launch);
             }
         };
-        $rootScope.botHistory = '';
+
         $scope.botHistory=function(bot) {
-            $rootScope.botHistory = bot;
+            $rootScope.templateSelected = bot;
             var modalInstance = $modal.open({
                 animation: true,
                 templateUrl: 'src/partials/sections/dashboard/bots/view/botHistory.html',
@@ -336,23 +356,20 @@
                 }
             });
             modalInstance.result.then(function(selectedItem) {
-                console.log(selectedItem);
                 $scope.selected = selectedItem;
             }, function() {
                 console.log('Modal Dismissed at ' + new Date());
             });
         };
 
-        $rootScope.botSchedule = '';
         $scope.botSchedule = function(bot) {
-            $rootScope.botSchedule = bot;
+            $rootScope.templateSelected = bot;
             $modal.open({
                 templateUrl: 'src/partials/sections/dashboard/bots/view/botSchedule.html',
                 controller: 'botScheduleCtrl',
                 backdrop: 'static',
                 keyboard: false
             }).result.then(function () {
-                
             }, function () {
                 console.log('Dismiss time is ' + new Date());
             });
@@ -374,6 +391,7 @@
                     if (response) {
                         toastr.success('Successfully deleted.');
                         lib.summary();
+                        $scope.botLibGridOptions.data = [];
                         if($scope.totalBotsSelected) {
                             $scope.botLibraryGridView();
                         } else if($scope.runningBotsselected) {
@@ -393,7 +411,12 @@
         };
         $rootScope.$on('BOTS_LIBRARY_REFRESH', function() {
             lib.summary();
-            $scope.botLibraryGridView();
+            $scope.botLibGridOptions.data = [];
+            if($scope.botLibrarySearch){
+                $scope.searchBotNameCategory();    
+            } else {
+                $scope.botLibraryGridView();
+            }
         });
 
         $scope.clearFilter = function(name) {
@@ -407,16 +430,15 @@
         };
 
         $scope.RefreshBotsLibrary = function() {
+            $scope.botLibGridOptions.data = [];
             $scope.botLibAction = '';
             $scope.botLibCategory = '';
             $scope.botLibType = '';
-            $scope.botLibGridOptions.data = [];
             $scope.numofCardPages = 0;
             $scope.paginationParams.page = 1;
-            $scope.paginationParams.pageSize = 9;
-            $scope.paginationParams.sortBy = 'createdOn';
+            $scope.paginationParams.pageSize = 18;
+            $scope.paginationParams.sortBy = 'lastRunTime';
             $scope.paginationParams.sortOrder = 'desc';
-           // $scope.botLibFilterCategory = 'Active Directory';
             $scope.botLibrarySearch = '';
             lib.summary();
             if($scope.totalBotsSelected) {

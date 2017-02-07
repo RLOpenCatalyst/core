@@ -11,15 +11,15 @@
     .controller('botHistoryCtrl',['$scope', '$rootScope', '$modal', '$timeout', 'uiGridOptionsClient', 'genericServices',
         function($scope, $rootScope, $modal, $timeout, uiGridOptionsClient, genSevs){
             
-            var items = $rootScope.botHistory;
+            var items;
 
             $rootScope.$on('BOTS_TEMPLATE_SELECTED', function(event,reqParams) {
                 $scope.templateSelected = reqParams;
             });
-            
+
             if($scope.templateSelected) {
                 items = $scope.templateSelected;
-            }
+            } 
         
             $scope.botHistory = items;
             $scope.botId = items.botId;
@@ -136,6 +136,55 @@
             };
             //UI Grid for jenkins Task ends
 
+            //UI Grid for script Task starts
+            $scope.taskHistoryScriptData = [];
+            var gridOptionsScript = uiGridOptionsClient.options().gridOption;
+            $scope.taskHistoryScriptGridOptions = gridOptionsScript;
+
+            $scope.initScriptGrids = function(){
+                $scope.taskHistoryScriptGridOptions.data='taskHistoryScriptData';
+                $scope.taskHistoryScriptGridOptions.columnDefs = [
+                    { name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status}}">{{row.entity.status}}</div>', cellTooltip: true},
+                    { name:'User',field:'user',cellTooltip: true},
+                    { name:'Logs',width: 70,
+                        cellTemplate:'<div class="text-center"><i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.historyLogs(row.entity)"></i></div>'},
+                    { name:'Start Time',field:'startedOn',cellTemplate:'<span title="{{row.entity.startedOn  | timestampToLocaleTime}}">{{row.entity.startedOn  | timestampToLocaleTime}}</span>', sort:{ direction: 'desc'}, cellTooltip: true},
+                    { name:'End Time',field:'endedOn',cellTemplate:'<span title="{{row.entity.endedOn  | timestampToLocaleTime}}">{{row.entity.endedOn  | timestampToLocaleTime}}</span>', cellTooltip: true},
+                    { name:'Execution Time',cellTemplate:'<span ng-if="row.entity.endedOn">{{grid.appScope.getExecutionTime(row.entity.endedOn,row.entity.startedOn)}} mins</span>'},
+                    { name:'Manual Time',cellTemplate: '<span>{{row.entity.auditTrailConfig.manualExecutionTime}} mins</span>', cellTooltip: true},
+                    { name:'Saved Time',cellTemplate:'<span ng-if="row.entity.status === \'success\'">{{grid.appScope.getSavedTime(row.entity.endedOn,row.entity.startedOn)}} mins</span>' +
+                    '<span ng-if="row.entity.status !== \'success\'" title="NA">NA</span>', cellTooltip: true}
+                ];
+            };
+            angular.extend($scope, {
+                taskHistoryScriptListView: function() {
+                    $scope.taskHistoryScriptData = [];
+                    var param={
+                        url:'/bots/' + $scope.botId + '/bots-history'
+                    };
+                    genSevs.promiseGet(param).then(function (response) {
+                        $timeout(function() {
+                            if(response.botHistory){
+                                $scope.taskHistoryScriptData = response.botHistory;
+                                $scope.isscriptTaskHistoryPageLoading = false;
+                            }else if(response){
+                                $scope.taskHistoryScriptData = response;
+                                $scope.isscriptTaskHistoryPageLoading = false;
+                            }
+                        },100);
+                    }, function(){
+                        $scope.errorMessage = "No Script History Records found";
+                        $scope.isscriptTaskHistoryPageLoading = false;
+                    });
+                },
+            });
+            $scope.initscript = function(){
+                $scope.initScriptGrids();
+                $scope.taskHistoryScriptListView();
+                $scope.getExecutionTime();
+                $scope.getSavedTime();
+            };
+            //UI Grid for script Task ends
 
             //UI Grid for Blueprint starts
             $scope.botHistoryBlueprintData = [];
@@ -190,17 +239,25 @@
             $scope.bot=items;
             switch ($scope.bot.botLinkedSubCategory){
                 case 'chef' :
-                case 'script':
                     $scope.ischefTaskHistoryPageLoading = true;
                     $scope.isjenkinsTaskHistoryPageLoading = false;
+                    $scope.isscriptTaskHistoryPageLoading = false;
                     $scope.isBlueprintBotHistoryPageLoading = false;
                     $scope.initchef();
                     break;
                 case 'jenkins' :
                     $scope.ischefTaskHistoryPageLoading = false;
                     $scope.isjenkinsTaskHistoryPageLoading = true;
+                    $scope.isscriptTaskHistoryPageLoading = false;
                     $scope.isBlueprintBotHistoryPageLoading = false;
                     $scope.initjenkins();
+                    break;
+                case 'script':
+                    $scope.ischefTaskHistoryPageLoading = false;
+                    $scope.isjenkinsTaskHistoryPageLoading = false;
+                    $scope.isscriptTaskHistoryPageLoading = true;
+                    $scope.isBlueprintBotHistoryPageLoading = false;
+                    $scope.initscript();
                     break;
                 case 'instance_launch':
                 case 'aws_cf':
@@ -208,6 +265,7 @@
                 case 'azure_launch':
                     $scope.ischefTaskHistoryPageLoading = false;
                     $scope.isjenkinsTaskHistoryPageLoading = false;
+                    $scope.isscriptTaskHistoryPageLoading = false;
                     $scope.isBlueprintBotHistoryPageLoading = true;
                     $scope.initblueprint();
                     break;

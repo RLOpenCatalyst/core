@@ -8,13 +8,16 @@
 (function (angular) {
     "use strict";
     angular.module('dashboard.bots')
-    .controller('botDescriptionCtrl',['$scope', 'uiGridOptionsClient', '$rootScope', '$window', 'toastr', 'confirmbox', '$state', 'genericServices',
-    function ($scope, uiGridOptionsClient, $rootScope, $window,toastr,confirmbox, $state, genSevs) {
+    .controller('botDescriptionCtrl',['$scope', 'uiGridOptionsClient', '$rootScope', '$location', 'toastr', 'confirmbox', '$state', 'genericServices',
+    function ($scope, uiGridOptionsClient, $rootScope, $location, toastr,confirmbox, $state, genSevs) {
             var treeNames = ['BOTs','Bots Description'];
             $rootScope.$emit('treeNameUpdate', treeNames);
             $rootScope.$on('BOTS_TEMPLATE_SELECTED', function(event,reqParams) {
                 $scope.templateSelected = reqParams;
             });
+
+            //refresh of bots History for current implementation.
+
             if($scope.templateSelected){
                 if($scope.templateSelected.botCategory === 'Active Directory' || $scope.templateSelected.botCategory === 'Database Management') {
                     $scope.botIcon = 'images/bots/activeDirectory.png';
@@ -57,7 +60,7 @@
                     genSevs.promiseDelete(param).then(function (response) {
                         if (response) {
                             toastr.success('Successfully deleted.');
-                            $window.history.back();
+                            $location.path('/dashboard/bots/library');
                         }
                     }, function(data) {
                         toastr.error('error:: ' + data.toString());

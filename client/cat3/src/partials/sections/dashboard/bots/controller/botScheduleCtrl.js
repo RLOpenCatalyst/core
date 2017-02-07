@@ -10,7 +10,7 @@
     angular.module('dashboard.bots')
     .controller('botScheduleCtrl',['$scope', '$rootScope', 'genericServices', 'workzoneServices', 'toastr', function ($scope, $rootScope, genSevs, workzoneServices, toastr) {
         
-        var items = $rootScope.botSchedule;
+        var items;
 
         $rootScope.$on('BOTS_TEMPLATE_SELECTED', function(event,reqParams) {
             $scope.templateSelected = reqParams;
@@ -128,13 +128,9 @@
                 if(response){
                     toastr.success('BOTs Scheduler successfully updated');
                     $rootScope.$emit('BOTS_LIBRARY_REFRESH');
-                    //$modalInstance.dismiss('cancel');
+                    $scope.$dismiss('cancel');
                 }
             });
-        };
-
-        $scope.cancel = function() {
-            //$modalInstance.dismiss('cancel');
         };
     }]);
 })(angular);
