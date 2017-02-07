@@ -75,6 +75,10 @@ var BotsSchema = new Schema ({
         trim: true,
         required: true
     },
+    savedTime:{
+        type: String,
+        trim: true
+    },
     inputFormFields:Schema.Types.Mixed,
     outputOptions:Schema.Types.Mixed,
     params:Schema.Types.Mixed,

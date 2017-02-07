@@ -164,6 +164,8 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,callback) {
 };
 
 function  executeScriptOnEnv(botsScriptDetails,auditTrail,envId,userName,callback){
+    var actionLogId = uuid.v4();
+    var count = 0;
     instanceModel.getInstancesByEnvId(envId,userName,function (err,instances) {
         if(err){
             logger.error("Issue with fetching instances which are associated with env. ",envId,err);
@@ -175,7 +177,7 @@ function  executeScriptOnEnv(botsScriptDetails,auditTrail,envId,userName,callbac
                     var timestampStarted = new Date().getTime();
                     var actionLog = instanceModel.insertOrchestrationActionLog(instance._id, null, userName, timestampStarted);
                     instance.tempActionLogId = actionLog._id;
-                    var logsReferenceIds = [instance._id, actionLog._id];
+                    var logsReferenceIds = [instance._id, actionLog._id,actionLogId];
                     var instanceLog = {
                         actionId: actionLog._id,
                         instanceId: instance._id,
@@ -199,6 +201,7 @@ function  executeScriptOnEnv(botsScriptDetails,auditTrail,envId,userName,callbac
                         logs: []
                     };
                     if (!instance.instanceIP) {
+                        count++;
                         var timestampEnded = new Date().getTime();
                         logsDao.insertLog({
                             referenceId: logsReferenceIds,
@@ -219,6 +222,21 @@ function  executeScriptOnEnv(botsScriptDetails,auditTrail,envId,userName,callbac
                                 logger.error("Failed to create or update instanceLog: ", err);
                             }
                         });
+                        if(count === instances.length) {
+                            var resultTaskExecution = {
+                                "actionStatus": 'failed',
+                                "status": 'failed',
+                                "endedOn": new Date().getTime(),
+                                "actionLogId": actionLogId
+                            };
+                            auditTrailService.updateAuditTrail('BOTs', auditTrail._id, resultTaskExecution, function (err, data) {
+                                if (err) {
+                                    logger.error("Failed to create or update bots Log: ", err);
+                                }
+                                return;
+                            });
+                        }
+                        return;
                     }
                     credentialCryptography.decryptCredential(instance.credentials, function (err, decryptedCredentials) {
                         var sshOptions = {
@@ -232,222 +250,327 @@ function  executeScriptOnEnv(botsScriptDetails,auditTrail,envId,userName,callbac
                             sshOptions.password = decryptedCredentials.password;
                         }
 
-
-                        
-                        var fileName = uuid.v4() + '_' + script.fileName
-                        var desPath = appConfig.scriptDir + fileName;
-                        var sshExec = new SSHExec(sshOptions);
                         var cryptoConfig = appConfig.cryptoSettings;
                         var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+                        var cmd = null;
+                        var gitHubDirPath = appConfig.gitHubDir + botsScriptDetails.gitHubRepoName;
+                        var sshExec = new SSHExec(sshOptions);
                         var scp = new SCP(sshOptions);
-                        scp.upload(desPath, '/tmp', function (err) {
-                            if (err) {
-                                var timestampEnded = new Date().getTime();
-                                logsDao.insertLog({
-                                    referenceId: logsReferenceIds,
-                                    err: true,
-                                    log: "Unable to upload script file " + script.name,
-                                    timestamp: timestampEnded
-                                });
-                                instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
-                                instanceLog.endedOn = new Date().getTime();
-                                instanceLog.actionStatus = "failed";
-                                instanceLog.logs = {
-                                    err: false,
-                                    log: "Unable to upload script file " + script.name,
-                                    timestamp: new Date().getTime()
-                                };
-                                instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
-                                    if (err) {
-                                        logger.error("Failed to create or update instanceLog: ", err);
-                                    }
-                                });
-                                return;
-                            }
-                            if (sudoFlag === true) {
-                                var cmdLine = 'sudo ' + scriptType + ' /tmp/' + fileName;
-                            } else {
-                                var cmdLine = scriptType + ' /tmp/' + fileName;
-                            }
-                            for (var j = 0; j < scriptParameters.length; j++) {
-                                var decryptedText = cryptography.decryptText(scriptParameters[j].paramVal, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-                                cmdLine = cmdLine + ' "' + decryptedText + '"';
-                            }
-                            sshExec.exec(cmdLine, function (err, retCode) {
-                                if (err) {
-                                    var timestampEnded = new Date().getTime();
-                                    logsDao.insertLog({
-                                        referenceId: logsReferenceIds,
-                                        err: true,
-                                        log: 'Unable to run script ' + script.name,
-                                        timestamp: timestampEnded
-                                    });
-                                    instancesDao.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
-                                    instanceLog.endedOn = new Date().getTime();
-                                    instanceLog.actionStatus = "failed";
-                                    instanceLog.logs = {
-                                        err: false,
-                                        log: 'Unable to run script ' + script.name,
-                                        timestamp: new Date().getTime()
-                                    };
-                                    instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
+                        count++;
+                        for(var i = 0; i < botsScriptDetails.execution.length; i++) {
+                            (function (scriptObj) {
+                                fileHound.create()
+                                    .paths(gitHubDirPath)
+                                    .match(scriptObj.start)
+                                    .ext('sh')
+                                    .find().then(function (files) {
+                                     scp.upload(files[0], '/tmp', function (err) {
                                         if (err) {
-                                            logger.error("Failed to create or update instanceLog: ", err);
-                                        }
-                                    });
-                                    instanceOnCompleteHandler(err, 1, logsReferenceIds[0], null, logsReferenceIds[1]);
-                                    removeScriptFile(desPath);
-                                    return;
-                                }
-                                if (retCode == 0) {
-                                    var timestampEnded = new Date().getTime();
-                                    logsDao.insertLog({
-                                        referenceId: logsReferenceIds,
-                                        err: false,
-                                        log: 'Task execution success for script ' + script.name,
-                                        timestamp: timestampEnded
-                                    });
-                                    instancesDao.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], true, timestampEnded);
-                                    instanceLog.endedOn = new Date().getTime();
-                                    instanceLog.actionStatus = "success";
-                                    instanceLog.logs = {
-                                        err: false,
-                                        log: 'Task execution success for script ' + script.name,
-                                        timestamp: new Date().getTime()
-                                    };
-                                    instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
-                                        if (err) {
-                                            logger.error("Failed to create or update instanceLog: ", err);
-                                        }
-                                    });
-                                    instanceOnCompleteHandler(null, 0, logsReferenceIds[0], null, logsReferenceIds[1]);
-                                    removeScriptFile(desPath);
-                                    return;
-                                } else {
-                                    instanceOnCompleteHandler(null, retCode, logsReferenceIds[0], null, logsReferenceIds[1]);
-                                    if (retCode === -5000) {
-                                        logsDao.insertLog({
-                                            referenceId: logsReferenceIds,
-                                            err: true,
-                                            log: 'Host Unreachable',
-                                            timestamp: new Date().getTime()
-                                        });
-                                        instanceLog.endedOn = new Date().getTime();
-                                        instanceLog.actionStatus = "failed";
-                                        instanceLog.logs = {
-                                            err: false,
-                                            log: 'Host Unreachable',
-                                            timestamp: new Date().getTime()
-                                        };
-                                        instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
-                                            if (err) {
-                                                logger.error("Failed to create or update instanceLog: ", err);
+                                            var timestampEnded = new Date().getTime();
+                                            logsDao.insertLog({
+                                                referenceId: logsReferenceIds,
+                                                err: true,
+                                                log: "Unable to upload script file " + scriptObj.start,
+                                                timestamp: timestampEnded
+                                            });
+                                            instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
+                                            instanceLog.endedOn = new Date().getTime();
+                                            instanceLog.actionStatus = "failed";
+                                            instanceLog.logs = {
+                                                err: false,
+                                                log: "Unable to upload script file " + script.name,
+                                                timestamp: new Date().getTime()
+                                            };
+                                            instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
+                                                if (err) {
+                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                }
+                                            });
+                                            if(count === instances.length) {
+                                                var resultTaskExecution = {
+                                                    "actionStatus": 'failed',
+                                                    "status": 'failed',
+                                                    "endedOn": new Date().getTime(),
+                                                    "actionLogId": actionLogId
+                                                };
+                                                auditTrailService.updateAuditTrail('BOTs', auditTrail._id, resultTaskExecution, function (err, data) {
+                                                    if (err) {
+                                                        logger.error("Failed to create or update bots Log: ", err);
+                                                    }
+                                                    return;
+                                                });
                                             }
-                                        });
-                                        removeScriptFile(desPath);
-                                        return;
-                                    } else if (retCode === -5001) {
-                                        logsDao.insertLog({
-                                            referenceId: logsReferenceIds,
-                                            err: true,
-                                            log: 'Invalid credentials',
-                                            timestamp: new Date().getTime()
-                                        });
-                                        instanceLog.endedOn = new Date().getTime();
-                                        instanceLog.actionStatus = "failed";
-                                        instanceLog.logs = {
-                                            err: false,
-                                            log: 'Invalid credentials',
-                                            timestamp: new Date().getTime()
-                                        };
-                                        instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
-                                            if (err) {
-                                                logger.error("Failed to create or update instanceLog: ", err);
-                                            }
-                                        });
-                                        removeScriptFile(desPath);
-                                        return;
-                                    } else {
-                                        logsDao.insertLog({
-                                            referenceId: logsReferenceIds,
-                                            err: true,
-                                            log: 'Unknown error occured. ret code = ' + retCode,
-                                            timestamp: new Date().getTime()
-                                        });
-                                        instanceLog.endedOn = new Date().getTime();
-                                        instanceLog.actionStatus = "failed";
-                                        instanceLog.logs = {
-                                            err: false,
-                                            log: 'Unknown error occured. ret code = ' + retCode,
-                                            timestamp: new Date().getTime()
-                                        };
-                                        instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
-                                            if (err) {
-                                                logger.error("Failed to create or update instanceLog: ", err);
-                                            }
-                                        });
-                                        removeScriptFile(desPath);
-                                        return;
-                                    }
-                                    var timestampEnded = new Date().getTime();
-                                    logsDao.insertLog({
-                                        referenceId: logsReferenceIds,
-                                        err: true,
-                                        log: 'Error in running script ' + script.name,
-                                        timestamp: timestampEnded
-                                    });
-                                    instancesDao.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
-                                    instanceLog.endedOn = new Date().getTime();
-                                    instanceLog.actionStatus = "failed";
-                                    instanceLog.logs = {
-                                        err: false,
-                                        log: 'Error in running script ' + script.name,
-                                        timestamp: new Date().getTime()
-                                    };
-                                    instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
-                                        if (err) {
-                                            logger.error("Failed to create or update instanceLog: ", err);
+                                            return;
                                         }
-                                    });
-                                    removeScriptFile(desPath);
-                                    return;
-                                }
-                            }, function (stdOut) {
-                                logsDao.insertLog({
-                                    referenceId: logsReferenceIds,
-                                    err: false,
-                                    log: stdOut.toString('ascii'),
-                                    timestamp: new Date().getTime()
-                                });
-                                instanceLog.logs = {
-                                    err: false,
-                                    log: stdOut.toString('ascii'),
-                                    timestamp: new Date().getTime()
-                                };
-                                instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
-                                    if (err) {
-                                        logger.error("Failed to create or update instanceLog: ", err);
+                                         if (scriptObj.sudoFlag && scriptObj.sudoFlag === true) {
+                                             cmd = 'sudo ' + scriptObj.type + ' /tmp' + scriptObj.start;
+                                         } else {
+                                             cmd = scriptObj.type + ' /tmp' + scriptObj.start;
+                                         }
+                                         if (botsScriptDetails.params.length > 0) {
+                                             for (var j = 0; j < botsScriptDetails.params.length; j++) {
+                                                 var decryptedText = cryptography.decryptText(botsScriptDetails.params[j], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                                                 cmd = cmd + ' ' + decryptedText;
+                                             }
+                                         }
+                                        sshExec.exec(cmd, function (err, retCode) {
+                                            if (err) {
+                                                var timestampEnded = new Date().getTime();
+                                                logsDao.insertLog({
+                                                    referenceId: logsReferenceIds,
+                                                    err: true,
+                                                    log: 'Unable to run script ' + scriptObj.start,
+                                                    timestamp: timestampEnded
+                                                });
+                                                instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
+                                                instanceLog.endedOn = new Date().getTime();
+                                                instanceLog.actionStatus = "failed";
+                                                instanceLog.logs = {
+                                                    err: false,
+                                                    log: 'Unable to run script ' + script.name,
+                                                    timestamp: new Date().getTime()
+                                                };
+                                                instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
+                                                    if (err) {
+                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                    }
+                                                });
+                                                if(count === instances.length) {
+                                                    var resultTaskExecution = {
+                                                        "actionStatus": 'failed',
+                                                        "status": 'failed',
+                                                        "endedOn": new Date().getTime(),
+                                                        "actionLogId": actionLogId
+                                                    };
+                                                    auditTrailService.updateAuditTrail('BOTs', auditTrail._id, resultTaskExecution, function (err, data) {
+                                                        if (err) {
+                                                            logger.error("Failed to create or update bots Log: ", err);
+                                                        }
+                                                        return;
+                                                    });
+                                                }
+                                                return;
+                                            }
+                                            if (retCode == 0) {
+                                                var timestampEnded = new Date().getTime();
+                                                logsDao.insertLog({
+                                                    referenceId: logsReferenceIds,
+                                                    err: false,
+                                                    log: 'Task execution success for script ' + scriptObj.start,
+                                                    timestamp: timestampEnded
+                                                });
+                                                instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], true, timestampEnded);
+                                                instanceLog.endedOn = new Date().getTime();
+                                                instanceLog.actionStatus = "success";
+                                                instanceLog.logs = {
+                                                    err: false,
+                                                    log: 'Task execution success for script ' + script.name,
+                                                    timestamp: new Date().getTime()
+                                                };
+                                                instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
+                                                    if (err) {
+                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                    }
+                                                });
+                                                if(count === instances.length) {
+                                                    var resultTaskExecution = {
+                                                        "actionStatus": 'success',
+                                                        "status": 'success',
+                                                        "endedOn": new Date().getTime(),
+                                                        "actionLogId": actionLogId
+                                                    };
+                                                    auditTrailService.updateAuditTrail('BOTs', auditTrail._id, resultTaskExecution, function (err, data) {
+                                                        if (err) {
+                                                            logger.error("Failed to create or update bots Log: ", err);
+                                                        }
+                                                        return;
+                                                    });
+                                                }
+                                                return;
+                                            } else {
+                                                if (retCode === -5000) {
+                                                    logsDao.insertLog({
+                                                        referenceId: logsReferenceIds,
+                                                        err: true,
+                                                        log: 'Host Unreachable',
+                                                        timestamp: new Date().getTime()
+                                                    });
+                                                    instanceLog.endedOn = new Date().getTime();
+                                                    instanceLog.actionStatus = "failed";
+                                                    instanceLog.logs = {
+                                                        err: false,
+                                                        log: 'Host Unreachable',
+                                                        timestamp: new Date().getTime()
+                                                    };
+                                                    instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
+                                                        if (err) {
+                                                            logger.error("Failed to create or update instanceLog: ", err);
+                                                        }
+                                                    });
+                                                    if(count === instances.length) {
+                                                        var resultTaskExecution = {
+                                                            "actionStatus": 'failed',
+                                                            "status": 'failed',
+                                                            "endedOn": new Date().getTime(),
+                                                            "actionLogId": actionLogId
+                                                        };
+                                                        auditTrailService.updateAuditTrail('BOTs', auditTrail._id, resultTaskExecution, function (err, data) {
+                                                            if (err) {
+                                                                logger.error("Failed to create or update bots Log: ", err);
+                                                            }
+                                                            return;
+                                                        });
+                                                    }
+                                                    return;
+                                                } else if (retCode === -5001) {
+                                                    logsDao.insertLog({
+                                                        referenceId: logsReferenceIds,
+                                                        err: true,
+                                                        log: 'Invalid credentials',
+                                                        timestamp: new Date().getTime()
+                                                    });
+                                                    instanceLog.endedOn = new Date().getTime();
+                                                    instanceLog.actionStatus = "failed";
+                                                    instanceLog.logs = {
+                                                        err: false,
+                                                        log: 'Invalid credentials',
+                                                        timestamp: new Date().getTime()
+                                                    };
+                                                    instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
+                                                        if (err) {
+                                                            logger.error("Failed to create or update instanceLog: ", err);
+                                                        }
+                                                    });
+                                                    if(count === instances.length) {
+                                                        var resultTaskExecution = {
+                                                            "actionStatus": 'failed',
+                                                            "status": 'failed',
+                                                            "endedOn": new Date().getTime(),
+                                                            "actionLogId": actionLogId
+                                                        };
+                                                        auditTrailService.updateAuditTrail('BOTs', auditTrail._id, resultTaskExecution, function (err, data) {
+                                                            if (err) {
+                                                                logger.error("Failed to create or update bots Log: ", err);
+                                                            }
+                                                            return;
+                                                        });
+                                                    }
+                                                    return;
+                                                } else {
+                                                    logsDao.insertLog({
+                                                        referenceId: logsReferenceIds,
+                                                        err: true,
+                                                        log: 'Unknown error occured. ret code = ' + retCode,
+                                                        timestamp: new Date().getTime()
+                                                    });
+                                                    instanceLog.endedOn = new Date().getTime();
+                                                    instanceLog.actionStatus = "failed";
+                                                    instanceLog.logs = {
+                                                        err: false,
+                                                        log: 'Unknown error occured. ret code = ' + retCode,
+                                                        timestamp: new Date().getTime()
+                                                    };
+                                                    instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
+                                                        if (err) {
+                                                            logger.error("Failed to create or update instanceLog: ", err);
+                                                        }
+                                                    });
+                                                    if(count === instances.length) {
+                                                        var resultTaskExecution = {
+                                                            "actionStatus": 'failed',
+                                                            "status": 'failed',
+                                                            "endedOn": new Date().getTime(),
+                                                            "actionLogId": actionLogId
+                                                        };
+                                                        auditTrailService.updateAuditTrail('BOTs', auditTrail._id, resultTaskExecution, function (err, data) {
+                                                            if (err) {
+                                                                logger.error("Failed to create or update bots Log: ", err);
+                                                            }
+                                                            return;
+                                                        });
+                                                    }
+                                                    return;
+                                                }
+                                                var timestampEnded = new Date().getTime();
+                                                logsDao.insertLog({
+                                                    referenceId: logsReferenceIds,
+                                                    err: true,
+                                                    log: 'Error in running script ' + scriptObj.start,
+                                                    timestamp: timestampEnded
+                                                });
+                                                instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
+                                                instanceLog.endedOn = new Date().getTime();
+                                                instanceLog.actionStatus = "failed";
+                                                instanceLog.logs = {
+                                                    err: false,
+                                                    log: 'Error in running script ' + script.name,
+                                                    timestamp: new Date().getTime()
+                                                };
+                                                if(count === instances.length) {
+                                                    var resultTaskExecution = {
+                                                        "actionStatus": 'failed',
+                                                        "status": 'failed',
+                                                        "endedOn": new Date().getTime(),
+                                                        "actionLogId": actionLogId
+                                                    };
+                                                    auditTrailService.updateAuditTrail('BOTs', auditTrail._id, resultTaskExecution, function (err, data) {
+                                                        if (err) {
+                                                            logger.error("Failed to create or update bots Log: ", err);
+                                                        }
+                                                        return;
+                                                    });
+                                                }
+                                                instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
+                                                    if (err) {
+                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                    }
+                                                });
+                                                return;
+                                            }
+                                        }, function (stdOut) {
+                                            logsDao.insertLog({
+                                                referenceId: logsReferenceIds,
+                                                err: false,
+                                                log: stdOut.toString('ascii'),
+                                                timestamp: new Date().getTime()
+                                            });
+                                            instanceLog.logs = {
+                                                err: false,
+                                                log: stdOut.toString('ascii'),
+                                                timestamp: new Date().getTime()
+                                            };
+                                            instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
+                                                if (err) {
+                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                }
+                                            });
+                                        }, function (stdErr) {
+                                            logsDao.insertLog({
+                                                referenceId: logsReferenceIds,
+                                                err: true,
+                                                log: stdErr.toString('ascii'),
+                                                timestamp: new Date().getTime()
+                                            });
+                                            instanceLog.logs = {
+                                                err: false,
+                                                log: stdErr.toString('ascii'),
+                                                timestamp: new Date().getTime()
+                                            };
+                                            instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
+                                                if (err) {
+                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                }
+                                            });
+                                        });
+                                    })
+                                    var botAuditTrailObj = {
+                                        botId:botsScriptDetails._id,
+                                        actionId:actionLogId
                                     }
-                                });
-                            }, function (stdErr) {
-                                logsDao.insertLog({
-                                    referenceId: logsReferenceIds,
-                                    err: true,
-                                    log: stdErr.toString('ascii'),
-                                    timestamp: new Date().getTime()
-                                });
-                                instanceLog.logs = {
-                                    err: false,
-                                    log: stdErr.toString('ascii'),
-                                    timestamp: new Date().getTime()
-                                };
-                                instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
-                                    if (err) {
-                                        logger.error("Failed to create or update instanceLog: ", err);
-                                    }
-                                });
-                            });
-                        })
+                                    callback(null,botAuditTrailObj);
+                                })
+                            })(botsScriptDetails.execution[i])
+                        }
                     });
                 })(instances[i]);
             }
