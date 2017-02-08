@@ -267,15 +267,18 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                         } else if(botAuditTrail.length > 0){
                             var totalTimeInSeconds = 0;
                             for(var j = 0; j < botAuditTrail.length; j++){
-                                (function(auditTrail){
-                                    if(auditTrail.endedOn && auditTrail.endedOn !== null
-                                        && auditTrail.auditTrailConfig.manualExecutionTime && auditTrail.auditTrailConfig.manualExecutionTime !== null) {
-                                        var executionTime = getExecutionTime(auditTrail.endedOn, auditTrail.startedOn);
-                                        totalTimeInSeconds = totalTimeInSeconds + ((auditTrail.auditTrailConfig.manualExecutionTime*60) - executionTime);
+                                    if(botAuditTrail[j].endedOn && botAuditTrail[j].endedOn !== null
+                                        && botAuditTrail[j].auditTrailConfig.manualExecutionTime && botAuditTrail[j].auditTrailConfig.manualExecutionTime !== null) {
+                                        var executionTime = getExecutionTime(botAuditTrail[j].endedOn, botAuditTrail[j].startedOn);
+                                        totalTimeInSeconds = totalTimeInSeconds + ((botAuditTrail[j].auditTrailConfig.manualExecutionTime*60) - executionTime);
                                     }
-                                })(botAuditTrail[j]);
                             }
-                            callback(null,(totalTimeInSeconds/60).toFixed(2));
+                            var totalTimeInMinutes = Math.round(totalTimeInSeconds/60);
+                            var result = {
+                                hours:Math.floor(totalTimeInMinutes / 60),
+                                minutes:totalTimeInMinutes % 60
+                            }
+                            callback(null,result);
                         } else{
                             callback(null,botAuditTrail.length);
                         }

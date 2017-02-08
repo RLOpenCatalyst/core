@@ -408,88 +408,6 @@ botsService.executeBots = function executeBots(botId,reqBody,callback){
     });
 }
 
-function filterScriptBotsData(data,callback){
-    var botsList = [];
-    var cryptoConfig = appConfig.cryptoSettings;
-    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-    if(data.docs.length === 0){
-        callback(null,data);
-        return;
-    }else {
-        for (var i = 0; i < data.docs.length; i++) {
-            (function (bots) {
-                if ((bots.botLinkedSubCategory === 'script')
-                    && ('scriptDetails' in bots.botConfig)
-                    && (bots.botConfig.scriptDetails.length > 0)) {
-                    var scriptCount = 0;
-                    for (var j = 0; j < bots.botConfig.scriptDetails.length; j++) {
-                        (function (scriptBot) {
-                            if (scriptBot.scriptParameters.length > 0) {
-                                scriptCount++;
-                                for (var k = 0; k < scriptBot.scriptParameters.length; k++) {
-                                    if (scriptBot.scriptParameters[k].paramType === '' || scriptBot.scriptParameters[k].paramType === 'Default' || scriptBot.scriptParameters[k].paramType === 'Password') {
-                                        scriptBot.scriptParameters[k].paramVal = cryptography.decryptText(scriptBot.scriptParameters[k].paramVal, cryptoConfig.decryptionEncoding,
-                                            cryptoConfig.encryptionEncoding);
-                                    } else {
-                                        scriptBot.scriptParameters[k].paramVal = '';
-                                    }
-                                }
-                            } else {
-                                scriptCount++;
-                            }
-                        })(bots.botConfig.scriptDetails[j]);
-                    }
-                    if (scriptCount === bots.botConfig.scriptDetails.length) {
-                        botsList.push(bots);
-                    }
-                } else {
-                    botsList.push(bots);
-                }
-            })(data.docs[i]);
-            if (botsList.length === data.docs.length) {
-                data.docs = botsList;
-                callback(null, data);
-                return;
-            }
-        }
-    }
-}
-
-function encryptedParam(paramDetails, callback) {
-    var cryptoConfig = appConfig.cryptoSettings;
-    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-    var count = 0;
-    var encryptedList = [];
-    for (var i = 0; i < paramDetails.length; i++) {
-        (function (paramDetail) {
-            if (paramDetail.scriptParameters.length > 0) {
-                count++;
-                for (var j = 0; j < paramDetail.scriptParameters.length; j++) {
-                    (function (scriptParameter) {
-                        var encryptedText = cryptography.encryptText(scriptParameter.paramVal, cryptoConfig.encryptionEncoding,
-                            cryptoConfig.decryptionEncoding);
-                        encryptedList.push({
-                            paramVal: encryptedText,
-                            paramDesc: scriptParameter.paramDesc,
-                            paramType: scriptParameter.paramType
-                        });
-                        if (encryptedList.length === paramDetail.scriptParameters.length) {
-                            paramDetail.scriptParameters = encryptedList;
-                            encryptedList = [];
-                        }
-                    })(paramDetail.scriptParameters[j]);
-                }
-            } else {
-                count++;
-            }
-            if (count === paramDetails.length) {
-                callback(null, paramDetails);
-                return;
-            }
-        })(paramDetails[i]);
-    }
-}
-
 botsService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
     async.waterfall([
         function(next) {
@@ -560,6 +478,121 @@ botsService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
         }
     });
 }
+
+function filterScriptBotsData(data,callback){
+    var botsList = [];
+    var cryptoConfig = appConfig.cryptoSettings;
+    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+    if(data.docs.length === 0){
+        callback(null,data);
+        return;
+    }else {
+        for (var i = 0; i < data.docs.length; i++) {
+            (function (bots) {
+                if ((bots.botLinkedSubCategory === 'script')
+                    && ('scriptDetails' in bots.botConfig)
+                    && (bots.botConfig.scriptDetails.length > 0)) {
+                    var scriptCount = 0;
+                    for (var j = 0; j < bots.botConfig.scriptDetails.length; j++) {
+                        (function (scriptBot) {
+                            if (scriptBot.scriptParameters.length > 0) {
+                                scriptCount++;
+                                for (var k = 0; k < scriptBot.scriptParameters.length; k++) {
+                                    if (scriptBot.scriptParameters[k].paramType === '' || scriptBot.scriptParameters[k].paramType === 'Default' || scriptBot.scriptParameters[k].paramType === 'Password') {
+                                        scriptBot.scriptParameters[k].paramVal = cryptography.decryptText(scriptBot.scriptParameters[k].paramVal, cryptoConfig.decryptionEncoding,
+                                            cryptoConfig.encryptionEncoding);
+                                    } else {
+                                        scriptBot.scriptParameters[k].paramVal = '';
+                                    }
+                                }
+                            } else {
+                                scriptCount++;
+                            }
+                        })(bots.botConfig.scriptDetails[j]);
+                    }
+                    if (scriptCount === bots.botConfig.scriptDetails.length) {
+                        addSavedTimePerBots(bots.botId,function(err,savedTime) {
+                            if (err) {
+                                logger.error("Error in fetching Saved Time per bots ", err);
+                            }
+                            bots.savedTime = savedTime;
+                            botsList.push(bots);
+                            if (botsList.length === data.docs.length) {
+                                data.docs = botsList;
+                                callback(null, data);
+                                return;
+                            }
+                        });
+                    }
+                } else {
+                    addSavedTimePerBots(bots.botId,function(err,savedTime) {
+                        if (err) {
+                            logger.error("Error in fetching Saved Time per bots ", err);
+                        }
+                        bots.savedTime = savedTime;
+                        botsList.push(bots);
+                        if (botsList.length === data.docs.length) {
+                            data.docs = botsList;
+                            callback(null, data);
+                            return;
+                        }
+                    });
+                }
+            })(data.docs[i]);
+        }
+    }
+}
+
+function encryptedParam(paramDetails, callback) {
+    var cryptoConfig = appConfig.cryptoSettings;
+    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+    for (var i = 0; i < paramDetails.length; i++) {
+        if (paramDetails[i].scriptParameters.length > 0) {
+            for (var j = 0; j < paramDetails[i].scriptParameters.length; j++) {
+                var encryptedText = cryptography.encryptText(paramDetails[i].scriptParameters[j].paramVal, cryptoConfig.encryptionEncoding,
+                    cryptoConfig.decryptionEncoding);
+                paramDetails[i].scriptParameters[j].paramVal = encryptedText;
+            }
+        }
+    }
+    callback(null, paramDetails)
+    return;
+}
+
+function getExecutionTime(endTime, startTime) {
+    var executionTimeInMS = endTime - startTime;
+    var totalSeconds = Math.floor(executionTimeInMS / 1000);
+    return totalSeconds;
+}
+
+function addSavedTimePerBots(botId, callback) {
+    var query = {
+        auditType: 'BOTs',
+        actionStatus: 'success',
+        isDeleted: false,
+        auditId: botId
+    };
+    auditTrail.getAuditTrails(query, function (err, botAuditTrail) {
+        if (err) {
+            logger.error("Error in Fetching Audit Trail.", err);
+            callback(err, null);
+        }
+        if (botAuditTrail.length > 0) {
+            var totalTimeInSeconds = 0;
+            for (var m = 0; m < botAuditTrail.length; m++) {
+                if (botAuditTrail[m].endedOn && botAuditTrail[m].endedOn !== null
+                    && botAuditTrail[m].auditTrailConfig.manualExecutionTime && botAuditTrail[m].auditTrailConfig.manualExecutionTime !== null) {
+                    var executionTime = getExecutionTime(botAuditTrail[m].endedOn, botAuditTrail[m].startedOn);
+                    totalTimeInSeconds = totalTimeInSeconds + ((botAuditTrail[m].auditTrailConfig.manualExecutionTime * 60) - executionTime);
+                }
+            }
+            callback(null, (totalTimeInSeconds / 60).toFixed(2));
+        } else {
+            callback(null, 0);
+        }
+    });
+}
+
 
 
 
