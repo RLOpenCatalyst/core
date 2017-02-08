@@ -49,51 +49,89 @@
 						</select>
 					</div>
 
-                   <div class="col-lg-6 col-md-6 projectRepo margintop15">
-                    <table>
-                        <tr>
-                            <label for="" class=""> Add Tags :</label>
-                         </tr>
-                   <tr ng-repeat="tagSet in tagSets">
+					<div ng-show="showMonitor" class="col-lg-6 col-md-6 projectRepo margintop15">
+						<label for="">Monitoring:</label>
+						<select name="monitorId" ng-model="monitorId" class="form-control width-100">
+							<option value="null">None</option>
+							<option ng-repeat="monitor in monitorList" value="{{monitor._id}}">
+								{{monitor.name}}
+							</option>
+						</select>
+					</div>
 
-                           <td>
-                            {{tagSet.entity}}
-                           </td>
-                       <td>
-                           <select class="form-control" ng-model="tagNameIndex" class="width-100 form-control" ng-change="getTagName(tagNameIndex,$index)" required>
-                               <option selected="selected" value="">select</option>
-                               {{tagOption}}
-                               <option ng-repeat="name in tagOption track by $index"
-                                       value="{{tagOption.indexOf(name)}}">{{name.name}}
-                               </option>
-                           </select>
-                       </td>
-                       <td>
-                           <select class="form-control" ng-model="tagValueVal" class="width-100 form-control" ng-value="getTagValue(tagValueVal,$index)" required>
-                               <option selected="selected" value="">select</option>
-                               <option ng-repeat="val in tagOption[tagNameIndex].values track by $index"
-                                       value="{{val}}">{{val}}
-                               </option>
-                           </select>
+                   <div class="col-lg-12 col-md-12 projectRepo margintop15">
+					   <fieldset class="repo-job-details-wrapper">
+						   <legend class="repo-job-details-wrapper-inner">Add AWS Tags :</legend>
+						   <div ng-show="showMonitor" class="col-lg-12 col-md-12 projectRepo">
+							   <button type="button" class="btn cat-btn-cancel pull-right" ng-click="addTags()">
+								   <i class="fa fa-plus" aria-hidden="true"></i> Add
+							   </button>
+						   </div>
+							<span ng-repeat="t in tagsList" style="max-height: 300px;overflow-y: auto;">
+						   <div ng-show="showMonitor" class="col-lg-5 col-md-5 projectRepo margintop15">
+							   <label for="">Tag Name:</label>
+							   <select class="form-control" ng-model="tagNameIndex[tagsList.indexOf(t)]" class="width-100 form-control"  required>
+								   <option selected="selected" value="">select</option>
+								   {{tagOption}}
+								   <option ng-repeat="name in tagOption track by $index"
+										   value="{{tagOption.indexOf(name)}}">{{name.name}}
+								   </option>
+							   </select>
+						   </div>
 
-                       </td>
+						   <div ng-show="showMonitor" class="col-lg-6 col-md-6 projectRepo margintop15">
+							   <label for="">Tag Value:</label>
+							   <select class="form-control" ng-model="tagValueVal[tagsList.indexOf(t)]" class="width-100 form-control"  required>
+								   <option selected="selected" value="">select</option>
+								   <option ng-repeat="val in tagOption[tagNameIndex[tagsList.indexOf(t)]].values track by $index"
+										   value="{{val}}">{{val}}
+								   </option>
+							   </select>
 
-                   </tr>
-                    </table>
+						   </div>
+								<div ng-show="showMonitor" class="col-lg-1 col-md-1 projectRepo margintop15" ng-if="t.ind !== 0">
+									<label for=""></label>
+									<a class="cursor" ng-click="removeTags(t.ind)" > <i class="fa fa-times" aria-hidden="true"></i></a>
+								</div>
+
+						</span>
+
+					   </fieldset>
+                    <!--<table>-->
+
+
+                   <!--<tr ng-repeat="tagSet in tagSets">-->
+
+                           <!--<td>-->
+                            <!--{{tagSet.entity}}-->
+                           <!--</td>-->
+                       <!--<td>-->
+                           <!--<select class="form-control" ng-model="tagNameIndex" class="width-100 form-control" ng-change="getTagName(tagNameIndex,$index)" required>-->
+                               <!--<option selected="selected" value="">select</option>-->
+                               <!--{{tagOption}}-->
+                               <!--<option ng-repeat="name in tagOption track by $index"-->
+                                       <!--value="{{tagOption.indexOf(name)}}">{{name.name}}-->
+                               <!--</option>-->
+                           <!--</select>-->
+                       <!--</td>-->
+                       <!--<td>-->
+                           <!--<select class="form-control" ng-model="tagValueVal" class="width-100 form-control" ng-value="getTagValue(tagValueVal,$index)" required>-->
+                               <!--<option selected="selected" value="">select</option>-->
+                               <!--<option ng-repeat="val in tagOption[tagNameIndex].values track by $index"-->
+                                       <!--value="{{val}}">{{val}}-->
+                               <!--</option>-->
+                           <!--</select>-->
+
+                       <!--</td>-->
+
+                   <!--</tr>-->
+                    <!--</table>-->
                 </div>
 
 
 
 
-					<div ng-show="showMonitor" class="col-lg-6 col-md-6 projectRepo margintop15">
-						<label for="">Monitoring:</label>
-                        	<select name="monitorId" ng-model="monitorId" class="form-control width-100">
-                        		<option value="null">None</option>
-                        		<option ng-repeat="monitor in monitorList" value="{{monitor._id}}">
-									{{monitor.name}}
-								</option>
-                        </select>
-					</div>
+
 
 				</div>
 				<div ng-show="showCFTInputs || showARMInputs" class="CFTInputs-block">
