@@ -311,7 +311,8 @@
             $.get('../monitors?filterBy=orgId:' + orgValue,function(data){
                 var str = ' <option value="null">None</option>';
                 for(var i=0;i<data.length;i++){
-                    str = str + '<option value="'+data[i]._id+'">'+data[i].name+'</option>';
+                    var selected = (data[i].isDefault)?' selected':'';
+                    str = str + '<option value="'+data[i]._id+'"'+selected+'>'+data[i].name+'</option>';
                 }
                 $('#monitorId').html(str);
             });
