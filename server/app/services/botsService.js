@@ -511,32 +511,20 @@ function filterScriptBotsData(data,callback){
                         })(bots.botConfig.scriptDetails[j]);
                     }
                     if (scriptCount === bots.botConfig.scriptDetails.length) {
-                        addSavedTimePerBots(bots.botId,function(err,savedTime) {
-                            if (err) {
-                                logger.error("Error in fetching Saved Time per bots ", err);
-                            }
-                            bots.savedTime = savedTime;
-                            botsList.push(bots);
-                            if (botsList.length === data.docs.length) {
-                                data.docs = botsList;
-                                callback(null, data);
-                                return;
-                            }
-                        });
-                    }
-                } else {
-                    addSavedTimePerBots(bots.botId,function(err,savedTime) {
-                        if (err) {
-                            logger.error("Error in fetching Saved Time per bots ", err);
-                        }
-                        bots.savedTime = savedTime;
                         botsList.push(bots);
                         if (botsList.length === data.docs.length) {
                             data.docs = botsList;
                             callback(null, data);
                             return;
                         }
-                    });
+                    }
+                } else {
+                    botsList.push(bots);
+                    if (botsList.length === data.docs.length) {
+                        data.docs = botsList;
+                        callback(null, data);
+                        return;
+                    }
                 }
             })(data.docs[i]);
         }
@@ -559,39 +547,6 @@ function encryptedParam(paramDetails, callback) {
     return;
 }
 
-function getExecutionTime(endTime, startTime) {
-    var executionTimeInMS = endTime - startTime;
-    var totalSeconds = Math.floor(executionTimeInMS / 1000);
-    return totalSeconds;
-}
-
-function addSavedTimePerBots(botId, callback) {
-    var query = {
-        auditType: 'BOTs',
-        actionStatus: 'success',
-        isDeleted: false,
-        auditId: botId
-    };
-    auditTrail.getAuditTrails(query, function (err, botAuditTrail) {
-        if (err) {
-            logger.error("Error in Fetching Audit Trail.", err);
-            callback(err, null);
-        }
-        if (botAuditTrail.length > 0) {
-            var totalTimeInSeconds = 0;
-            for (var m = 0; m < botAuditTrail.length; m++) {
-                if (botAuditTrail[m].endedOn && botAuditTrail[m].endedOn !== null
-                    && botAuditTrail[m].auditTrailConfig.manualExecutionTime && botAuditTrail[m].auditTrailConfig.manualExecutionTime !== null) {
-                    var executionTime = getExecutionTime(botAuditTrail[m].endedOn, botAuditTrail[m].startedOn);
-                    totalTimeInSeconds = totalTimeInSeconds + ((botAuditTrail[m].auditTrailConfig.manualExecutionTime * 60) - executionTime);
-                }
-            }
-            callback(null, (totalTimeInSeconds / 60).toFixed(2));
-        } else {
-            callback(null, 0);
-        }
-    });
-}
 
 
 
