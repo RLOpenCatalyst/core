@@ -88,7 +88,7 @@
                <tr>
                   <td class="td-padding">Runlist</td>
                   <td>
-                     {{botInfo.botConfig.runlist}}
+                     {{botInfo.botConfig.runlist.join(",")}}
                   </td>
                </tr>
                <tr ng-show="botInfo.botConfig && botInfo.botConfig.attributes && botInfo.botConfig.attributes.length > 1" ng-repeat="attribs in botInfo.botConfig.attributes">
