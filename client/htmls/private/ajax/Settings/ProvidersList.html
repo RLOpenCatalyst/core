@@ -49,9 +49,6 @@
                                         <td datafield="orgName"></td>
                                         <td>
                                             <div class="btn-group">
-                                                <a class="btn btn-xs btn-info pull-left providerReport" href="#modalForProviderReport" data-backdrop="false" data-toggle="modal" title="Report">
-                                                    <i class="ace-icon fa fa-file-excel-o bigger-120"></i>
-                                                </a>
                                                 <!--<a class="btn btn-xs btn-info pull-left" title="Sync Instances">
                                                     <i class="ace-icon fa fa-refresh bigger-120"></i>
                                                 </a>-->
@@ -103,89 +100,6 @@
     </div>
 </div>
 <!--modal for ItemList-->
-<div class="modal fade" id="modalForProviderReport" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-    <div class="modal-dialog " style="">
-        <div class="modal-content">
-            <form role="form" id="providerReport">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Provider Report
-                    </h4>
-                </div>
-                <div class="modal-body">
-                    <div class="row form-row">
-                        <div class="col-md-3">
-                            <label for="metric">Metric:<span class="control-label redSpan">&nbsp;*</span></label>
-                        </div>
-                        <div class="col-md-9">
-                            <select id="metric" name="metric" class="required form-control width-100" style="vertical-align:central">
-                                <option value="cost">Cost</option>
-                                <option value="usage">Usage</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row form-row" id="rowReportType">
-                        <div class="col-md-3">
-                            <label for="type">Report Type:<span class="control-label redSpan">&nbsp;*</span></label>
-                        </div>
-                        <div class="col-md-9">
-                            <select id="type" name="type" class="form-control width-100" style="vertical-align:central">
-                                <option value="aggregate">Aggregate</option>
-                                <option value="trend">Trend</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row form-row" id="rowPeriod">
-                        <div class="col-md-3">
-                            <label for="period">Period<span class="control-label redSpan">&nbsp;*</span></label>
-                        </div>
-                        <div class="col-md-9">
-                            <select id="period" name="period" class="required form-control width-100" style="vertical-align:central">
-                                <!--<option value="hour">Hour</option>-->
-<!--                                <option value="day">Day</option>
-                                <option value="week">Week</option>-->
-                                <option value="month">Month</option>
-                                <!--<option value="year">Year</option>-->
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row form-row" id="rowInterval">
-                        <div class="col-md-3">
-                            <label for="interval">Interval<span class="control-label redSpan">&nbsp;*</span></label>
-                        </div>
-                        <div class="col-md-9">
-                            <select id="interval" name="interval" class="required form-control width-100" style="vertical-align:central">
-                                <!--<option value="300">5 Min</option>-->
-                                <!-- <option value="3600">1 Hour</option>
-                                <option value="86400">1 Day</option> -->
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row form-row" id="rowFromDate">
-                        <div class="col-md-3">
-                            <label for="fromTimeStamp">From Date:<span class="control-label redSpan">&nbsp;*</span></label>
-                        </div>
-                        <div class="col-md-9">
-                            <input name="fromTimeStamp" class="required form-control" id="fromTimeStamp" />
-                        </div>
-                    </div>
-                    <div class="row form-row">
-                        <div class="col-md-3">
-                            <label for="toTimeStamp">Till Date:<span class="control-label redSpan">&nbsp;*</span></label>
-                        </div>
-                        <div class="col-md-9">
-                            <input name="toTimeStamp" class="required form-control" id="toTimeStamp" />
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <a class="btn btn-default" data-dismiss="modal"><i class="ace-icon fa fa-times bigger-110"></i>&nbsp;Close</a>
-                    <button type="submit" id="downloadReport" class="btn btn-primary" value="Download"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Download</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
 
 <script>
     $(document).ready(function () {
@@ -207,23 +121,8 @@
                 return item.name != thisName;
             });
         }
-        $(document).on("click", ".providerReport", function () {
-            providerId = $(this).data('providerid');
-        });
 
         //when the user closes the modal the form will be reset
-        $('#modalForProviderReport').on('hidden.bs.modal', function () {
-            $('#type').removeAttr('disabled');
-            $('#type').trigger('change');
-            $('#rowPeriod').slideDown();
-            $('#rowInterval').slideUp();
-            $('#rowFromDate').slideUp();
-            $("#interval option[value='3600']").remove();
-            $('#providerReport')[0].reset();
-            $('span.error').empty().hide();
-            return false;
-        });
-
         $('#metric').change(function () {
             var val = $(this).val();
             if (val === 'usage') {
