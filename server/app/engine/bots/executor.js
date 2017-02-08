@@ -35,7 +35,7 @@ const errorType = 'executor';
 
 var executor = module.exports = {};
 
-executor.executeScriptBot = function executeScriptBot(botsDetails,envId,userName,callback) {
+executor.executeScriptBot = function executeScriptBot(botsDetails,userName,callback) {
     async.waterfall([
         function(next){
             var actionObj={
@@ -57,8 +57,8 @@ executor.executeScriptBot = function executeScriptBot(botsDetails,envId,userName
             auditTrailService.insertAuditTrail(botsDetails,auditTrailObj,actionObj,next);
         },
         function(auditTrail,next){
-            if(envId !== null || envId !== ''){
-                executeScriptOnEnv(botsDetails,auditTrail,envId,userName,next);
+            if(botsDetails.env && botsDetails.env !== null){
+                executeScriptOnEnv(botsDetails,auditTrail,botsDetails.env,userName,next);
             }else{
                 executeScriptOnNode(botsDetails,auditTrail,next);
             }
@@ -81,6 +81,7 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,callback) {
     var gitHubDirPath = appConfig.gitHubDir + botsScriptDetails.gitHubRepoName;
     var actionId = uuid.v4();
     var logsReferenceIds = [botsScriptDetails._id, actionId];
+    var botLogFile = appConfig.scriptDir + actionId;
     for(var i = 0; i < botsScriptDetails.execution.length; i++) {
         (function(scriptObj) {
             fileHound.create()
@@ -99,7 +100,7 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,callback) {
                         cmd = cmd + ' ' + decryptedText;
                     }
                 }
-                exec(cmd, function(err, out, code) {
+                exec(['ls', '-lha'], function(err, out, code) {
                     if(err){
                         count++;
                         logsDao.insertLog({
@@ -107,6 +108,11 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,callback) {
                             err: true,
                             log: 'Unable to run script ' + scriptObj.start,
                             timestamp: new Date().getTime()
+                        });
+                        apiUtil.writeLogFile(botLogFile,'Unable to run script ' + scriptObj.start,function(err,data){
+                            if (err) {
+                                logger.error( err);
+                            }
                         });
                         if(count === botsScriptDetails.execution.length) {
                             var resultTaskExecution = {
@@ -129,6 +135,11 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,callback) {
                             log: out.toString('ascii'),
                             timestamp: new Date().getTime()
                         });
+                        apiUtil.writeLogFile(botLogFile,out.toString('ascii'),function(err,data){
+                            if (err) {
+                                logger.error( err);
+                            }
+                        });
                     }
                     if(code === 0){
                         count++;
@@ -137,6 +148,11 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,callback) {
                             err: false,
                             log: 'BOTs execution success for script ' + scriptObj.start,
                             timestamp: new Date().getTime()
+                        });
+                        apiUtil.writeLogFile(botLogFile,'BOTs execution success for script ' + scriptObj.start,function(err,data){
+                            if (err) {
+                                logger.error( err);
+                            }
                         });
                         if(count === botsScriptDetails.execution.length) {
                             var resultTaskExecution = {

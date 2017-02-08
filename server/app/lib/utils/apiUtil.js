@@ -6,6 +6,7 @@ var logger = require('_pr/logger')(module);
 var appConfig = require('_pr/config');
 var commons=appConfig.constantData;
 var normalizedUtil = require('_pr/lib/utils/normalizedUtil.js');
+var fileIo = require('_pr/lib/utils/fileio');
 
 var ApiUtil = function() {
     this.errorResponse=function(code,field){
@@ -276,6 +277,39 @@ var ApiUtil = function() {
         }else{
             callback(null, filterByObj);
         }
+    }
+
+    this.writeLogFile = function(desPath,data,callback){
+        fileIo.exists(desPath,function(err,existFlag){
+            if(err){
+                logger.error("Error in checking File Exists or not.",err);
+                callback(err,null);
+                return;
+            }else if(existFlag === true){
+                fileIo.appendToFile(desPath,data,function(err,dataAppend){
+                    if(err){
+                        logger.error("Error in Appending Data in exist File.",err);
+                        callback(err,null);
+                        return;
+                    }else{
+                        callback(null,dataAppend);
+                        return;
+                    }
+                })
+            }else{
+                fileIo.writeFile(desPath, data, false, function (err, fileWrite) {
+                    if (err) {
+                        logger.error("Error in Writing File.", err);
+                        callback(err, null);
+                        return;
+                    } else {
+                        callback(null, fileWrite);
+                        return;
+                    }
+                });
+            }
+
+        })
     }
 
 

@@ -139,7 +139,7 @@ botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,callbac
     });
 }
 
-botsNewService.executeBots = function executeBots(botId,reqBody,callback){
+botsNewService.executeBots = function executeBots(botId,reqBody,userName,callback){
     async.waterfall([
         function(next){
             if(reqBody !== null && reqBody !== ''){
@@ -164,7 +164,7 @@ botsNewService.executeBots = function executeBots(botId,reqBody,callback){
         function(botDetails,next) {
             if(botDetails.length > 0){
                 if(botDetails[0].type === 'script'){
-                    executor.executeScriptBot(botDetails[0],next);
+                    executor.executeScriptBot(botDetails[0],userName,next);
                 }
             }else {
                next(null,botDetails);
@@ -172,7 +172,7 @@ botsNewService.executeBots = function executeBots(botId,reqBody,callback){
         }
     ],function(err,results){
         if(err){
-            logger.error(JSON.stringify(err));
+            logger.error(err);
             callback(err,null);
             return;
         }else{
