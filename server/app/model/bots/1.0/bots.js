@@ -47,8 +47,14 @@ var BotsSchema = new Schema ({
         required: true
     },
     savedTime: {
-        type: Number,
-        default:0
+        hours:{
+            type: Number,
+            default:0
+        },
+        minutes:{
+            type: Number,
+            default:0
+        }
     },
     botConfig:Schema.Types.Mixed,
     runTimeParams:Schema.Types.Mixed,
