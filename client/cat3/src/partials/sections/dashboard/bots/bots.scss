@@ -145,8 +145,8 @@
 
   .section-bottom-glyph {
     position: absolute;
-    top: 100px; /*140*/
-    left: 97px;
+    top: 141px; /*140*/
+    left: 118px; /*97*/
     font-size: 22px;
     display: none;
   }
@@ -764,5 +764,9 @@ body .botDescriptionPage {
       min-width: 548px;
       width: 548px;
       float: left;
+    }
+    #botLibraryPage .section-bottom-glyph {
+      left: 170px;
+      
     }
 }

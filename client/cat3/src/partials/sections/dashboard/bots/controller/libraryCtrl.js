@@ -124,6 +124,25 @@
             }
         };
 
+        $scope.botsDetails = function(result) {
+            $scope.botLibGridOptions.data = [];
+            $scope.botLibGridOptions.totalItems = result.metaData.totalRecords;
+            $scope.botLibGridOptions.data =  result.bots;
+            if(result.metaData.totalRecords >= 18) {
+                $scope.showLoadMore = true;
+                $scope.showRecords = true;
+            }
+            if(result.metaData.totalRecords == $scope.botLibGridOptions.data.length) {
+                $scope.showLoadMore = false;
+                $scope.showRecords = false;
+            }
+            $scope.statusBar = "Showing " + ($scope.botLibGridOptions.data.length === 0 ? "0" : "1") + " to " + $filter('number')($scope.botLibGridOptions.data.length) + " of " + $filter('number')(result.metaData.totalRecords) + " entries";
+        };
+
+        $scope.clearSearchString = function() {
+            $scope.botLibrarySearch = '';
+        }
+
         $scope.botLibraryGridView = function() {
             lib.gridOptions=[];
             var param={
@@ -132,7 +151,6 @@
             genSevs.promiseGet(param).then(function (result) {
                 $timeout(function() {
                     $scope.botLibGridOptions.totalItems = result.metaData.totalRecords;
-                    //$scope.botSummary = result.botSummary;
                     if(result.metaData.totalRecords >= 18) {
                         $scope.showLoadMore = true;
                         $scope.showRecords = true;
@@ -165,20 +183,35 @@
             $rootScope.templateSelected = templateDetail;
             $rootScope.$emit('BOTS_TEMPLATE_SELECTED',templateDetail);
         };
+
+        $scope.botStatus = function() {
+            if($scope.totalBotsSelected) {
+                $scope.botLibraryGridView();
+            } else if($scope.runningBotsselected) {
+                $scope.showBotsRunning();
+            } else if($scope.scheduledBotsSelected) {
+                $scope.showScheduledBots();
+            } else if($scope.failedBotsselected) {
+                $scope.showFailedBots();
+            } else {
+                $scope.botLibraryGridView();
+            }
+        };
+
         $scope.searchBotNameCategory = function() {
             $scope.botLibGridOptions.data = [];
             $scope.searchString = $scope.botLibrarySearch;
             $scope.searchText = true;
             lib.gridOptions=[];
-            //if($scope.totalBotsSelected) {
+            if($scope.totalBotsSelected) {
                 var param={
                     url:'/bots?page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
                 };
-            /*} else if($scope.runningBotsselected) {
+            } else if($scope.runningBotsselected) {
                 var param={
                     url:'/bots?actionStatus=running&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
                 };
-            } else if($scope.scheduledBotsselected) {
+            } else if($scope.scheduledBotsSelected) {
                 var param={
                     url:'/bots?filterBy=isBotScheduled:true&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
                 };
@@ -186,25 +219,15 @@
                 var param={
                     url:'/bots?actionStatus=failed&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
                 };
-            }*/
+            }
             genSevs.promiseGet(param).then(function (result) {
                 $timeout(function() {
-                    $scope.botLibGridOptions.totalItems = result.metaData.totalRecords;
-                    $scope.botLibGridOptions.data =  result.bots;
-                    if(result.metaData.totalRecords >= 18) {
-                        $scope.showLoadMore = true;
-                        $scope.showRecords = true;
-                    }
-                    if(result.metaData.totalRecords == $scope.botLibGridOptions.data.length) {
-                        $scope.showLoadMore = false;
-                        $scope.showRecords = false;
-                    }
+                    $scope.botsDetails(result);
                     if($scope.isCardViewActive){
                         for(var i=0;i<result.bots.length;i++){
                             $scope.imageForCard(result.bots[i]);
                         }
                     }
-                    $scope.statusBar = "Showing " + ($scope.botLibGridOptions.data.length === 0 ? "0" : "1") + " to " + $filter('number')($scope.botLibGridOptions.data.length) + " of " + $filter('number')(result.metaData.totalRecords) + " entries";
                 }, 100);
                 $scope.isBotLibraryPageLoading = false;
             }, function(error) {
@@ -220,15 +243,7 @@
             $scope.paginationParams.page = 1;
             $scope.botLibGridOptions.paginationCurrentPage = $scope.paginationParams.page;
             $scope.paginationParams.pageSize = 18;
-            if($scope.totalBotsSelected) {
-               $scope.showAllBots();
-            } else if($scope.runningBotsselected) {
-                $scope.showBotsRunning();
-            }else if($scope.scheduledBotsselected) {
-                $scope.showBotsScheduled();
-            } else if($scope.failedBotsselected) {
-                $scope.showBotsFailed();
-            }
+            $scope.botStatus();
         };
 
         /*$scope.filterBy = function() {
@@ -298,7 +313,7 @@
             if($scope.botLibrarySearch){
                 $scope.searchBotNameCategory();    
             } else {
-                $scope.botLibraryGridView();
+                $scope.botStatus();
             }
         };
 
@@ -310,7 +325,7 @@
             if($scope.botLibrarySearch){
                 $scope.searchBotNameCategory();    
             } else {
-                $scope.botLibraryGridView();
+                $scope.botStatus();
             }
         };
 
@@ -392,17 +407,7 @@
                         toastr.success('Successfully deleted.');
                         lib.summary();
                         $scope.botLibGridOptions.data = [];
-                        if($scope.totalBotsSelected) {
-                            $scope.botLibraryGridView();
-                        } else if($scope.runningBotsselected) {
-                            $scope.showBotsRunning();
-                        } else if($scope.scheduledBotsSelected) {
-                            $scope.showScheduledBots();
-                        } else if($scope.failedBotsselected) {
-                            $scope.showFailedBots();
-                        } else {
-                            $scope.botLibraryGridView();
-                        }
+                        $scope.botStatus();
                     }
                 }, function(data) {
                     toastr.error('error:: ' + data.toString());
@@ -415,7 +420,7 @@
             if($scope.botLibrarySearch){
                 $scope.searchBotNameCategory();    
             } else {
-                $scope.botLibraryGridView();
+                $scope.botStatus();
             }
         });
 
@@ -441,19 +446,11 @@
             $scope.paginationParams.sortOrder = 'desc';
             $scope.botLibrarySearch = '';
             lib.summary();
-            if($scope.totalBotsSelected) {
-                $scope.botLibraryGridView();
-            } else if($scope.runningBotsselected) {
-                $scope.showBotsRunning();
-            } else if($scope.scheduledBotsSelected) {
-                $scope.showScheduledBots();
-            } else if($scope.failedBotsselected) {
-                $scope.showFailedBots();
-            } else {
-                $scope.botLibraryGridView();
-            }
+            $scope.botStatus();
         };
         $scope.showAllBots = function() {
+            $scope.clearSearchString();
+            $scope.botLibGridOptions.data = [];
             $scope.totalBotsSelected = true;
             $scope.runningBotsselected = false;
             $scope.failedBotsselected = false;
@@ -462,6 +459,8 @@
             $scope.botLibraryGridView();
         };
         $scope.showBotsRunning = function() {
+            $scope.clearSearchString();
+            lib.summary();
             $scope.runningBotsselected = true;
             $scope.totalBotsSelected = false;
             $scope.failedBotsselected = false;
@@ -472,13 +471,18 @@
             };
             genSevs.promiseGet(param).then(function (result) {
                 $timeout(function() {
-                    $scope.botLibGridOptions.totalItems = result.metaData.totalRecords;
-                    $scope.botLibGridOptions.data=result.bots;
+                    $scope.botsDetails(result);
+                    if($scope.isCardViewActive){
+                        for(var i=0;i<result.bots.length;i++){
+                            $scope.imageForCard(result.bots[i]);
+                        }
+                    }
                 }, 100);
             });
-            lib.summary();
         };
         $scope.showFailedBots = function() {
+            $scope.clearSearchString();
+            lib.summary();
             $scope.failedBotsselected = true;
             $scope.runningBotsselected = false;
             $scope.totalBotsSelected = false;
@@ -489,13 +493,18 @@
             };
             genSevs.promiseGet(param).then(function (result) {
                 $timeout(function() {
-                    $scope.botLibGridOptions.totalItems = result.metaData.totalRecords;
-                    $scope.botLibGridOptions.data=result.bots;
+                    $scope.botsDetails(result);
+                    if($scope.isCardViewActive){
+                        for(var i=0;i<result.bots.length;i++){
+                            $scope.imageForCard(result.bots[i]);
+                        }
+                    }
                 }, 100);
             });
-            lib.summary();
         };
         $scope.showScheduledBots = function() {
+            $scope.clearSearchString();
+            lib.summary();
             $scope.failedBotsselected = false;
             $scope.runningBotsselected = false;
             $scope.totalBotsSelected = false;
@@ -505,12 +514,16 @@
                 url:'/bots?filterBy=isBotScheduled:true&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
             };
             genSevs.promiseGet(param).then(function (result) {
+                console.log(result);
                 $timeout(function() {
-                    $scope.botLibGridOptions.totalItems = result.metaData.totalRecords;
-                    $scope.botLibGridOptions.data=result.bots;
+                    $scope.botsDetails(result);
+                    if($scope.isCardViewActive){
+                        for(var i=0;i<result.bots.length;i++){
+                            $scope.imageForCard(result.bots[i]);
+                        }
+                    }
                 }, 100);
             });
-            lib.summary();
         };
         lib.summary = function() {
             $scope.botSummary=[];
