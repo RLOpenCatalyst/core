@@ -8,8 +8,8 @@
 (function (angular) {
     "use strict";
     angular.module('dashboard.bots')
-    .controller('botHistoryCtrl',['$scope', '$rootScope', '$modal', '$timeout', 'uiGridOptionsService', 'genericServices',
-        function($scope, $rootScope, $modal, $timeout, uiGridOptionsService, genSevs){
+    .controller('botHistoryCtrl',['$scope', '$rootScope', '$modal', '$timeout', 'uiGridOptionsService', 'genericServices', 'toastr',
+        function($scope, $rootScope, $modal, $timeout, uiGridOptionsService, genSevs, toastr){
             
             var items;
             $rootScope.$on('BOTS_TEMPLATE_SELECTED', function(event,reqParams) {
