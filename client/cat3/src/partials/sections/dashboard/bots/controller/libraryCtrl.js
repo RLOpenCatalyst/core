@@ -28,8 +28,12 @@
         $scope.paginationParams.sortBy = 'createdOn';
         $scope.paginationParams.sortOrder = 'desc';
         $scope.botLibrarySearch = '';
-        $scope.showLoadMore = false;
-        $scope.showRecords = false;
+        $scope.showLoadRecord = function() {
+            $scope.showLoadMore = false;
+            $scope.showRecords = false;
+        };
+
+        $scope.showLoadRecord();
 
         $scope.initGrids = function(){
             $scope.botLibGridOptions={};
@@ -127,8 +131,7 @@
 
         $scope.botsDetails = function(result) {
             $scope.botLibGridOptions.data = [];
-            $scope.showLoadMore = false;
-            $scope.showRecords = false;
+            $scope.showLoadRecord();
             $scope.botLibGridOptions.totalItems = result.metaData.totalRecords;
             $scope.botLibGridOptions.data =  result.bots;
             if(result.metaData.totalRecords >= 18) {
@@ -136,8 +139,7 @@
                 $scope.showRecords = true;
             }
             if(result.metaData.totalRecords == $scope.botLibGridOptions.data.length) {
-                $scope.showLoadMore = false;
-                $scope.showRecords = false;
+                $scope.showLoadRecord();
             }
             $scope.statusBar = "Showing " + ($scope.botLibGridOptions.data.length === 0 ? "0" : "1") + " to " + $filter('number')($scope.botLibGridOptions.data.length) + " of " + $filter('number')(result.metaData.totalRecords) + " entries";
             $scope.isBotLibraryPageLoading = false;
@@ -155,8 +157,7 @@
             };
             genSevs.promiseGet(param).then(function (result) {
                 $timeout(function() {
-                    $scope.showLoadMore = false;
-                    $scope.showRecords = false;
+                    $scope.showLoadRecord();
                     $scope.botLibGridOptions.totalItems = result.metaData.totalRecords;
                     if(result.metaData.totalRecords >= 18) {
                         $scope.showLoadMore = true;
@@ -309,8 +310,7 @@
         
         $scope.setCardView = function() {
             $scope.isBotLibraryPageLoading = true;
-            $scope.showLoadMore = false;
-            $scope.showRecords = false;
+            $scope.showLoadRecord();
             $scope.botLibGridOptions.data = [];
             $scope.isCardViewActive = true;
             $scope.botsCardViewSelection = "bots-tab-active";
@@ -425,8 +425,7 @@
         };
         $rootScope.$on('BOTS_LIBRARY_REFRESH', function() {
             lib.summary();
-            $scope.showLoadMore = false;
-            $scope.showRecords = false;
+            $scope.showLoadRecord();
             $scope.isBotLibraryPageLoading = true;
             $scope.botLibGridOptions.data = [];
             if($scope.botLibrarySearch){
