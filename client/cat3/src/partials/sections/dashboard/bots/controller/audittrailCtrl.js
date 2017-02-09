@@ -118,6 +118,7 @@
         };
 
         $scope.botAuditTrailGridView =function(){
+            $scope.isBotAuditTrailPageLoading = true;
             $scope.botAuditTrailGridOptions.data=[];
             var param={
                 url:'/audit-trail?filterBy=auditType:BOTs&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
@@ -126,8 +127,8 @@
                 $timeout(function() {
                     $scope.botAuditTrailGridOptions.data=response.auditTrails;
                     $scope.botAuditTrailGridOptions.totalItems = response.metaData.totalRecords;
+                    $scope.isBotAuditTrailPageLoading = false;
                 }, 100);
-                $scope.isBotAuditTrailPageLoading = false;
             }, function(error) {
                 $scope.isBotAuditTrailPageLoading = false;
                 toastr.error(error);

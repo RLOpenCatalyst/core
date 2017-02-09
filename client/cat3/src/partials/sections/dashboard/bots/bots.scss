@@ -435,7 +435,7 @@
  /* background-color: #8A8E93;*/
 }
 
-.agent-card .image-cell + * {
+.agent-card .info-cell, .agent-card .desc-cell {
   width: 282px;
 }
 
@@ -450,13 +450,20 @@
 }
 
 .agent-card .title {
-  /* font-family: "Segoe UI", sans-serif; */
-  font-size: 22px;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 20px;
   overflow: hidden;
   line-height: 1.5;
   white-space: nowrap;
   text-overflow: ellipsis;
   margin-bottom: -2px;
+}
+
+.agent-card .description {
+  width: 220px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 
