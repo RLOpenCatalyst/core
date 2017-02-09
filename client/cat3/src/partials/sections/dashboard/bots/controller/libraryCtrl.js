@@ -446,7 +446,9 @@
         };
 
         $scope.RefreshBotsLibrary = function() {
+            $scope.isBotDetailsLoading = true;
             $scope.botLibGridOptions.data = [];
+            $scope.showLoadRecord();
             $scope.botLibAction = '';
             $scope.botLibCategory = '';
             $scope.botLibType = '';
@@ -534,6 +536,7 @@
             });
         };
         lib.summary = function() {
+            $scope.isBotDetailsLoading = true;
             $scope.botSummary=[];
             var param={
                 inlineLoader:true,
@@ -542,6 +545,7 @@
             genSevs.promiseGet(param).then(function (response) {
                 $scope.botSummary = response;
                 $scope.totalSavedTimeForBots = parseInt($scope.botSummary.totalSavedTimeForBots);
+                $scope.isBotDetailsLoading = false;
             });
         };
         lib.summary();

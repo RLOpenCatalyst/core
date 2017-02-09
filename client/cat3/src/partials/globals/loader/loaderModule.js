@@ -9,17 +9,17 @@
 	'use strict';
 	angular.module('directive.loading', [])
 		.directive('loading', ['$compile',function($compile) {
-			var getTemplate = function(type) {
+			var getTemplate = function(type, extraClasses) {
 				var template = '';
 				switch (type) {
 					case 'block':
-						template = "<h1 class='catloader block'><i class='fa fa-cog fa-spin black'></i> Loading...</h1>";
+						template = "<h1 class='catloader block'><i class='fa fa-cog fa-spin "+extraClasses+"'></i> Loading...</h1>";
 						break;
 					case 'inline':
-						template = "<span class='catloader inline'><i class='fa fa-spinner fa-spin black'></i></span>";
+						template = "<span class='catloader inline'><i class='fa fa-spinner fa-spin "+extraClasses+"'></i></span>";
 						break;
 					default:
-						template = "<h1 class='catloader block'><i class='fa fa-cog fa-spin black'></i> Loading...</h1>";
+						template = "<h1 class='catloader block'><i class='fa fa-cog fa-spin "+extraClasses+"'></i> Loading...</h1>";
 						break;
 				}
 				return template;
@@ -35,7 +35,8 @@
 						}
 					});
 					var type = attrs.type;
-					var template = getTemplate(type);
+					var extraClasses = (attrs.classes)?attrs.classes:'black';
+					var template = getTemplate(type,extraClasses);
 					elm.html('').append($compile(template)(scope));
 					scope.$watch(scope.dirLoading, function(v) {
 						var size = attrs.size;

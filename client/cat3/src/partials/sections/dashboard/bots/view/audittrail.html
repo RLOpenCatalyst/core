@@ -20,8 +20,8 @@
 		</div>
 	</div>
 
-	<loading size="large" name="isBotAuditTrailPageLoading" type="block"></loading>
-	<div class="alert alert-info text-center" ng-if="!botAuditTrailGridOptions.data.length > 0">
+	<loading size="large" name="isBotAuditTrailPageLoading" type="block" align="center"></loading>
+	<div class="alert alert-info text-center" ng-if="!botAuditTrailGridOptions.data.length > 0 && !isBotAuditTrailPageLoading">
 	    No data Available
 	</div>
 

@@ -62,7 +62,8 @@
                   </div>
                   <div class="circle-tile-content dark-blue" ng-click="showAllBots()">
                     <div class="circle-tile-number text-faded ng-binding">
-                        {{botSummary.totalNoOfBots}}
+                      <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
+                      <span ng-if="!isBotDetailsLoading">{{botSummary.totalNoOfBots}}</span>
                     </div>
                      <div class="circle-tile-description text-faded">
                          Total BOTs
@@ -81,7 +82,8 @@
                   </div>
                    <div class="circle-tile-content green" ng-click=" showBotsRunning()">
                        <div class="circle-tile-number text-faded ng-binding">
-                           {{botSummary.totalNoOfRunningBots}}
+                        <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
+                        <span ng-if="!isBotDetailsLoading">{{botSummary.totalNoOfRunningBots}}</span>
                        </div>
                        <div class="circle-tile-description text-faded">
                            Running BOTs
@@ -98,7 +100,8 @@
                      </div> 
                    <div class="circle-tile-content orange">
                      <div class="circle-tile-number text-faded ng-binding">
-                         {{botSummary.totalSavedTimeForBots.hours}}h {{botSummary.totalSavedTimeForBots.minutes}}m
+                        <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
+                         <span ng-if="!isBotDetailsLoading">{{botSummary.totalSavedTimeForBots.hours ? botSummary.totalSavedTimeForBots.hours : 0}}h {{botSummary.totalSavedTimeForBots.minutes ? botSummary.totalSavedTimeForBots.minutes : 0}}m </span>
                        </div>
                        <div class="circle-tile-description text-faded">
                            Time saved
@@ -115,7 +118,8 @@
                     </div>
                    <div class="circle-tile-content bg-blue" ng-click="showScheduledBots()">
                      <div class="circle-tile-number text-faded ng-binding">
-                           {{botSummary.totalNoOfScheduledBots}}
+                        <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
+                           <span ng-if="!isBotDetailsLoading">{{botSummary.totalNoOfScheduledBots}}</span>
                        </div>
                        <div class="circle-tile-description text-faded">
                            Scheduled BOTs
@@ -133,7 +137,8 @@
                     </div>                   
                    <div class="circle-tile-content redcard" ng-click="showFailedBots()">
                      <div class="circle-tile-number text-faded ng-binding">
-                           {{botSummary.totalNoOfFailedBots}}
+                        <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
+                           <span ng-if="!isBotDetailsLoading">{{botSummary.totalNoOfFailedBots}}</span>
                        </div>
                        <div class="circle-tile-description text-faded">
                            Failed BOTs
