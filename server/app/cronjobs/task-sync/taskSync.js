@@ -27,9 +27,6 @@ function taskSync(){
                 status:'running'
             };
             executeTaskSyncForTaskHistory(query,callback);
-        },
-        savedTimeSync : function(callback){
-            addSavedTimePerBots(callback);
         }
 
     },function(err,results){
@@ -157,74 +154,6 @@ function getMinutesDiff(date1,date2){
     return Math.abs(Math.round(diff));
 }
 
-function getExecutionTime(endTime, startTime) {
-    var executionTimeInMS = endTime - startTime;
-    var totalSeconds = Math.floor(executionTimeInMS / 1000);
-    return totalSeconds;
-}
 
-function addSavedTimePerBots(callback) {
-    var query = {
-        isDeleted:false
-    }
-    botsDao.getAllBots(query,function(err,botList){
-        if(err){
-            callback(err,null);
-            return;
-        }else if(botList.length > 0){
-            var count = 0;
-            for(var i = 0; i<botList.length;i++){
-                (function(bots){
-                    var query = {
-                        auditType: 'BOTs',
-                        actionStatus: 'success',
-                        isDeleted: false,
-                        auditId: bots.botId
-                    };
-                    auditTrail.getAuditTrails(query, function (err, botAuditTrail) {
-                        if (err) {
-                            logger.error("Error in Fetching Audit Trail.", err);
-                            callback(err, null);
-                        }
-                        if (botAuditTrail.length > 0) {
-                            var totalTimeInSeconds = 0;
-                            for (var m = 0; m < botAuditTrail.length; m++) {
-                                if (botAuditTrail[m].endedOn && botAuditTrail[m].endedOn !== null
-                                    && botAuditTrail[m].auditTrailConfig.manualExecutionTime && botAuditTrail[m].auditTrailConfig.manualExecutionTime !== null) {
-                                    var executionTime = getExecutionTime(botAuditTrail[m].endedOn, botAuditTrail[m].startedOn);
-                                    totalTimeInSeconds = totalTimeInSeconds + ((botAuditTrail[m].auditTrailConfig.manualExecutionTime * 60) - executionTime);
-                                }
-                            }
-                            var totalTimeInMinutes = Math.round(totalTimeInSeconds/60);
-                            var result = {
-                                hours:Math.floor(totalTimeInMinutes / 60),
-                                minutes:totalTimeInMinutes % 60
-                            }
-                            botsDao.updateBotsDetail(bots.botId,{savedTime:result},function(err,data){
-                                if(err){
-                                    logger.error(err);
-                                }
-                                count++;
-                                if(count === botList.length){
-                                    callback(null,botList);
-                                    return;
-                                }
-                            })
-                        } else {
-                            count++;
-                            if(count === botList.length){
-                                callback(null,botList);
-                                return;
-                            }
-                        }
-                    });
-                })(botList[i]);
-            }
-        }else{
-            logger.debug("There is no BOTs for Saved Time Implementation.");
-            callback(null,botList);
-        }
-    })
-}
 
 

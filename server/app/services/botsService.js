@@ -23,7 +23,6 @@ var ObjectId = require('mongoose').Types.ObjectId;
 var async = require("async");
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var taskService =  require('_pr/services/taskService.js');
-var tasks =  require('_pr/model/classes/tasks/tasks.js');
 var auditTrailService =  require('_pr/services/auditTrailService.js');
 var blueprintService =  require('_pr/services/blueprintService.js');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
@@ -130,6 +129,7 @@ botsService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,call
                             }
                         });
                         if (botsData[0].botLinkedCategory === 'Task') {
+                            var tasks =  require('_pr/model/classes/tasks/tasks.js');
                             tasks.getTaskById(botId, function (err, task) {
                                 if (err) {
                                     logger.error("Error in fetching Task details", err);
@@ -303,6 +303,48 @@ botsService.getBotsHistory = function getBotsHistory(botId,botsQuery,callback){
     });
 }
 
+botsService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,callback){
+    var query = {
+        auditType: 'BOTs',
+        actionStatus: 'success',
+        isDeleted: false,
+        auditId: botId
+    };
+    auditTrail.getAuditTrails(query, function (err, botAuditTrail) {
+        if (err) {
+            logger.error("Error in Fetching Audit Trail.", err);
+            callback(err, null);
+        }
+        if (botAuditTrail.length > 0) {
+            var totalTimeInSeconds = 0;
+            for (var m = 0; m < botAuditTrail.length; m++) {
+                if (botAuditTrail[m].endedOn && botAuditTrail[m].endedOn !== null
+                    && botAuditTrail[m].auditTrailConfig.manualExecutionTime && botAuditTrail[m].auditTrailConfig.manualExecutionTime !== null) {
+                    var executionTime = getExecutionTime(botAuditTrail[m].endedOn, botAuditTrail[m].startedOn);
+                    totalTimeInSeconds = totalTimeInSeconds + ((botAuditTrail[m].auditTrailConfig.manualExecutionTime * 60) - executionTime);
+                }
+            }
+            var totalTimeInMinutes = Math.round(totalTimeInSeconds / 60);
+            var result = {
+                hours: Math.floor(totalTimeInMinutes / 60),
+                minutes: totalTimeInMinutes % 60
+            }
+            bots.updateBotsDetail(botId, {savedTime: result}, function (err, data) {
+                if (err) {
+                    logger.error(err);
+                    callback(err, null);
+                    return;
+                }
+                callback(null, data);
+                return;
+            })
+        } else {
+            callback(null, botAuditTrail);
+            return;
+        }
+    });
+}
+
 botsService.getPerticularBotsHistory = function getPerticularBotsHistory(botId,historyId,callback){
     async.waterfall([
         function(next){
@@ -366,6 +408,7 @@ botsService.executeBots = function executeBots(botId,reqBody,callback){
                         var taskObj = {
                             'taskConfig.scriptDetails':encryptedParamList
                         }
+                        var tasks =  require('_pr/model/classes/tasks/tasks.js');
                         tasks.updateTaskDetail(botId,taskObj,callback);
                     }
                 }, function (err, data) {
@@ -545,6 +588,12 @@ function encryptedParam(paramDetails, callback) {
     }
     callback(null, paramDetails)
     return;
+}
+
+function getExecutionTime(endTime, startTime) {
+    var executionTimeInMS = endTime - startTime;
+    var totalSeconds = Math.floor(executionTimeInMS / 1000);
+    return totalSeconds;
 }
 
 

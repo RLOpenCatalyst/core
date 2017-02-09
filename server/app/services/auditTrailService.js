@@ -255,34 +255,26 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                     });
                 },
                 totalSavedTimeForBots: function(callback){
-                    var query={
-                        auditType:BOTSchema,
-                        actionStatus:'success',
-                        isDeleted:false,
-                        auditId:{$in:auditIds}
-                    };
-                    auditTrail.getAuditTrails(query,function(err,botAuditTrail){
-                        if(err){
-                            callback(err,null);
-                        } else if(botAuditTrail.length > 0){
-                            var totalTimeInSeconds = 0;
-                            for(var j = 0; j < botAuditTrail.length; j++){
-                                    if(botAuditTrail[j].endedOn && botAuditTrail[j].endedOn !== null
-                                        && botAuditTrail[j].auditTrailConfig.manualExecutionTime && botAuditTrail[j].auditTrailConfig.manualExecutionTime !== null) {
-                                        var executionTime = getExecutionTime(botAuditTrail[j].endedOn, botAuditTrail[j].startedOn);
-                                        totalTimeInSeconds = totalTimeInSeconds + ((botAuditTrail[j].auditTrailConfig.manualExecutionTime*60) - executionTime);
-                                    }
+                    var hours = 0, minutes = 0;
+                    if(botsList.length > 0) {
+                        for (var k = 0; k < botsList.length; k++) {
+                            if(botsList[k].savedTime.hours) {
+                                hours = hours + botsList[k].savedTime.hours;
                             }
-                            var totalTimeInMinutes = Math.round(totalTimeInSeconds/60);
-                            var result = {
-                                hours:Math.floor(totalTimeInMinutes / 60),
-                                minutes:totalTimeInMinutes % 60
+                            if(botsList[k].savedTime.minutes){
+                                minutes = minutes + botsList[k].savedTime.minutes;
                             }
-                            callback(null,result);
-                        } else{
-                            callback(null,botAuditTrail.length);
                         }
-                    });
+                    }
+                    if(minutes >= 60){
+                        hours = hours + Math.floor(minutes / 60);
+                        minutes = minutes % 60;
+                    }
+                    var result = {
+                        hours:hours,
+                        minutes:minutes
+                    }
+                    callback(null,result);
                 },
                 totalNoOfFailedBots: function(callback){
                     var query={

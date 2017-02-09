@@ -766,6 +766,12 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                             if (err) {
                                                                                                 logger.error("Failed to create or update bots Log: ", err);
                                                                                             }
+                                                                                            var botService = require('_pr/services/botsService');
+                                                                                            botService.updateSavedTimePerBots(launchParams.blueprintData._id,function(err,data){
+                                                                                                if (err) {
+                                                                                                    logger.error("Failed to update bots saved Time: ", err);
+                                                                                                }
+                                                                                            });
                                                                                         });
                                                                                     }
 
