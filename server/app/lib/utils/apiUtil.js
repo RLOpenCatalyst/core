@@ -147,7 +147,7 @@ var ApiUtil = function() {
             for(var i = 0; i < jsonData.searchColumns.length; i++){
                 var searchParam={};
                 searchParam[jsonData.searchColumns[i]]={
-                  $regex:jsonData.search
+                  $regex: new RegExp(jsonData.search, "i")
                 };
                 objOr.push(searchParam);
             }

@@ -23,7 +23,7 @@
 </div> -->
 
 <div id='botLibraryPage'>
-   <div class="container summary-container" style="margin-left:35px;">
+   <div class="container summary-container marginleft35">
       <div class="bot-info-wrapper">
          <table class="table table-bordered">
             <thead>
@@ -40,7 +40,7 @@
                   </td>
                </tr>
                <tr ng-show="botInfo.botLinkedSubCategory">
-                  <td class="td-padding">Task Type:</td>
+                  <td class="td-padding">Task Type</td>
                   <td>
                      {{botInfo.botLinkedSubCategory}}
                   </td>
@@ -88,7 +88,7 @@
                <tr>
                   <td class="td-padding">Runlist</td>
                   <td>
-                     {{botInfo.botConfig.runlist}}
+                     {{botInfo.botConfig.runlist.join(",")}}
                   </td>
                </tr>
                <tr ng-show="botInfo.botConfig && botInfo.botConfig.attributes && botInfo.botConfig.attributes.length > 1" ng-repeat="attribs in botInfo.botConfig.attributes">

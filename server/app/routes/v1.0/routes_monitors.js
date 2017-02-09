@@ -19,7 +19,7 @@ var appConfig = require('_pr/config');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var monitorsValidator = require('_pr/validators/monitorsValidator');
 
-module.exports.setRoutes = function(app, sessionVerificationFunc) {
+module.exports.setRoutes = function (app, sessionVerificationFunc) {
 
     app.all('/monitors/*', sessionVerificationFunc);
     /**
@@ -99,10 +99,10 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
         //@TODO Authorization to be implemented after fixing provider schema
         async.waterfall([
-            function(next) {
+            function (next) {
                 monitorsService.getMonitors(req.query, next);
             }
-        ], function(err, monitors) {
+        ], function (err, monitors) {
             if (err) {
                 next(err);
             } else {
@@ -181,11 +181,11 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     function getMonitor(req, res, next) {
         async.waterfall(
             [
-                function(next) {
+                function (next) {
                     monitorsService.getMonitor(req.params.monitorId, next);
                 }
             ],
-            function(err, results) {
+            function (err, results) {
                 if (err) {
                     next(err);
                 } else {
@@ -301,7 +301,18 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     function createMonitors(req, res, next) {
         async.waterfall(
             [
-                function(next) {
+                function (next) {
+                    var query = {
+                        "filterBy": "orgId:"+req.body.orgId
+                    };
+                    monitorsService.getMonitors(query, next);
+                },
+                function (monitors, next) {
+                    if(monitors.length === 0){
+                        req.body.isDefault = true;
+                    }else{
+                        req.body.isDefault = false;
+                    }
                     if (req.body.type === 'sensu' && req.body.parameters.transportProtocolParameters['password']) {
                         var cryptoConfig = appConfig.cryptoSettings;
                         var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
@@ -311,7 +322,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     monitorsService.createMonitor(req.body, next);
                 }
             ],
-            function(err, results) {
+            function (err, results) {
                 if (err) {
                     next(err);
                 } else {
@@ -427,10 +438,10 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     function updateMonitor(req, res, next) {
         async.waterfall(
             [
-                function(next) {
+                function (next) {
                     monitorsService.checkIfMonitorExists(req.params.monitorId, next);
                 },
-                function(monitor, next) {
+                function (monitor, next) {
                     if (req.body.type === 'sensu' && req.body.parameters.transportProtocolParameters['password']) {
                         var cryptoConfig = appConfig.cryptoSettings;
                         var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
@@ -440,7 +451,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     monitorsService.updateMonitor(req.params.monitorId, req.body, next);
                 }
             ],
-            function(err, results) {
+            function (err, results) {
                 if (err) {
                     next(err);
                 } else {
@@ -466,14 +477,47 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     function deleteMonitor(req, res, next) {
         async.waterfall(
             [
-                function(next) {
+                function (next) {
                     monitorsService.checkIfMonitorExists(req.params.monitorId, next);
                 },
-                function(monitor, next) {
+                function (monitor, next) {
                     monitorsService.deleteMonitors(req.params.monitorId, next);
                 }
             ],
-            function(err, results) {
+            function (err, results) {
+                if (err) {
+                    next(err);
+                } else {
+                    return res.status(200).send(results);
+                }
+            }
+        );
+    }
+
+    /**
+     * @api {put} /monitors/:monitorId Set default Monitor for an organization
+     * @apiName setDefaultMonitor
+     * @apiGroup monitors
+     *
+     * @apiParam {Number} monitorId    Monitor ID
+     * @apiParam {Number} orgId        Org ID
+     *
+     * @apiSuccess {Object} response    Empty response object
+     *
+     */
+    app.put('/monitors/:monitorId/org/:orgId/setdefault', setDefaultMonitor);
+
+    function setDefaultMonitor(req, res, next) {
+        async.waterfall(
+            [
+                function (next) {
+                    monitorsService.removeDefaultMonitor(req.params.orgId, next);
+                },
+                function (monitor, next) {
+                    monitorsService.setDefaultMonitor(req.params.monitorId, req.params.orgId, next);
+                }
+            ],
+            function (err, results) {
                 if (err) {
                     next(err);
                 } else {

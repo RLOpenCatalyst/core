@@ -28,6 +28,12 @@
 	        var p = workzoneEnvironment.getEnvParams();
 	        workzoneServices.getMonitorList(p.org).then(function (response) {
 	        	$scope.monitorList = response.data;
+	        	for(var i=0; i<$scope.monitorList.length; i++){
+		        	if($scope.monitorList[i].isDefault){
+		        		$scope.monitorId = $scope.monitorList[i]._id;
+		        		break;
+		        	}
+		        }
 	        });
 			$scope.tagServerChecking = function() {
 				if($scope.tagServerCheck){

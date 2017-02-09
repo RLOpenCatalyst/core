@@ -3,7 +3,7 @@
 <div id="botLibraryPage" ng-controller="botScheduleCtrl">
    
 
-	<div class="container summary-container" style="margin-left:35px;">
+	<div class="container summary-container marginleft35">
 	    <form name="newSchedule" novalidate>
       <div class="modal-header">
          <h4 class="modal-title"><i class="fa fa-calendar"></i>&nbsp;Schedule Your BOT</h4>
@@ -138,3 +138,38 @@
    </form>
 	</div>
 </div>
+
+
+<script>
+  $(document).ready(function () {
+      $('#date-end').bootstrapMaterialDatePicker({
+          format: 'MM/DD/YYYY ',
+          weekStart: 1,
+          time: false,
+          switchOnClick : true,
+          nowButton : true,
+      });
+      $('#date-start').bootstrapMaterialDatePicker({
+          format: 'MM/DD/YYYY',
+          weekStart: 1,
+          time: false,
+          switchOnClick : true,
+          nowButton : true,
+      }).on('change', function(e, date)
+      {
+          $('#date-end').bootstrapMaterialDatePicker('setMinDate', date);
+      });
+      $.material.init();
+      $(document).on('click', 'input.time', function(){
+          var $this = $(this);
+          setTimeout(function () {
+              $this.bootstrapMaterialDatePicker({
+                  format: 'HH:mm',
+                  date: false,
+                  switchOnClick : true,
+              });
+          },100);
+
+      });
+  });
+</script>

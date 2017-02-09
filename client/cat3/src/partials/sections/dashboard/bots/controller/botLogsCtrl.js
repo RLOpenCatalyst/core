@@ -17,6 +17,7 @@
         }
         $scope.taskType = items.auditTrailConfig.executionType;
         $scope.nodeIdsWithActionLog = items.auditTrailConfig.nodeIdsWithActionLog;
+        $scope.jenkinsJobName = items.auditTrailConfig.jenkinsJobName;
         $scope.isBotLogsLoading = true;
         if($scope.taskType === 'jenkins') {
             $scope.jenkinsActionLogId = items.actionLogId;
@@ -73,7 +74,7 @@
         if($scope.taskType === 'jenkins') {
             var param={
                 inlineLoader: true,
-                url:'/jenkins/' + $scope.jenkinsActionLogId + '/jobs/testmail/builds/' + $scope.jenkinsBuildNumber + '/output'
+                url:'/jenkins/' + $scope.jenkinsActionLogId + '/jobs/' + $scope.jenkinsJobName + '/builds/' + $scope.jenkinsBuildNumber + '/output'
             };
             genSevs.promiseGet(param).then(function (response) {
                 if (response) {

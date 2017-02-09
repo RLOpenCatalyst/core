@@ -255,31 +255,26 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                     });
                 },
                 totalSavedTimeForBots: function(callback){
-                    var query={
-                        auditType:BOTSchema,
-                        actionStatus:'success',
-                        isDeleted:false,
-                        auditId:{$in:auditIds}
-                    };
-                    auditTrail.getAuditTrails(query,function(err,botAuditTrail){
-                        if(err){
-                            callback(err,null);
-                        } else if(botAuditTrail.length > 0){
-                            var totalTimeInSeconds = 0;
-                            for(var j = 0; j < botAuditTrail.length; j++){
-                                (function(auditTrail){
-                                    if(auditTrail.endedOn && auditTrail.endedOn !== null
-                                        && auditTrail.auditTrailConfig.manualExecutionTime && auditTrail.auditTrailConfig.manualExecutionTime !== null) {
-                                        var executionTime = getExecutionTime(auditTrail.endedOn, auditTrail.startedOn);
-                                        totalTimeInSeconds = totalTimeInSeconds + ((auditTrail.auditTrailConfig.manualExecutionTime*60) - executionTime);
-                                    }
-                                })(botAuditTrail[j]);
+                    var hours = 0, minutes = 0;
+                    if(botsList.length > 0) {
+                        for (var k = 0; k < botsList.length; k++) {
+                            if(botsList[k].savedTime.hours) {
+                                hours = hours + botsList[k].savedTime.hours;
                             }
-                            callback(null,(totalTimeInSeconds/60).toFixed(2));
-                        } else{
-                            callback(null,botAuditTrail.length);
+                            if(botsList[k].savedTime.minutes){
+                                minutes = minutes + botsList[k].savedTime.minutes;
+                            }
                         }
-                    });
+                    }
+                    if(minutes >= 60){
+                        hours = hours + Math.floor(minutes / 60);
+                        minutes = minutes % 60;
+                    }
+                    var result = {
+                        hours:hours,
+                        minutes:minutes
+                    }
+                    callback(null,result);
                 },
                 totalNoOfFailedBots: function(callback){
                     var query={
