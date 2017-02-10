@@ -100,7 +100,7 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,callback) {
                         cmd = cmd + ' ' + decryptedText;
                     }
                 }
-                exec(['ls', '-lha'], function(err, out, code) {
+                exec(cmd, function(err, out, code) {
                     if(err){
                         count++;
                         logsDao.insertLog({
@@ -596,8 +596,8 @@ function  executeScriptOnEnv(botsScriptDetails,auditTrail,envId,userName,callbac
             return;
         }
     })
-
 }
+
 
 
 

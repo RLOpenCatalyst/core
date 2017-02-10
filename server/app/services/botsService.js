@@ -306,7 +306,6 @@ botsService.getBotsHistory = function getBotsHistory(botId,botsQuery,callback){
 botsService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,callback){
     var query = {
         auditType: 'BOTs',
-        actionStatus: 'success',
         isDeleted: false,
         auditId: botId
     };
@@ -319,7 +318,9 @@ botsService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,callb
             var totalTimeInSeconds = 0;
             for (var m = 0; m < botAuditTrail.length; m++) {
                 if (botAuditTrail[m].endedOn && botAuditTrail[m].endedOn !== null
-                    && botAuditTrail[m].auditTrailConfig.manualExecutionTime && botAuditTrail[m].auditTrailConfig.manualExecutionTime !== null) {
+                    && botAuditTrail[m].auditTrailConfig.manualExecutionTime
+                    && botAuditTrail[m].auditTrailConfig.manualExecutionTime !== null
+                    && botAuditTrail[m].actionStatus === 'success') {
                     var executionTime = getExecutionTime(botAuditTrail[m].endedOn, botAuditTrail[m].startedOn);
                     totalTimeInSeconds = totalTimeInSeconds + ((botAuditTrail[m].auditTrailConfig.manualExecutionTime * 60) - executionTime);
                 }
@@ -329,7 +330,7 @@ botsService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,callb
                 hours: Math.floor(totalTimeInMinutes / 60),
                 minutes: totalTimeInMinutes % 60
             }
-            bots.updateBotsDetail(botId, {savedTime: result}, function (err, data) {
+            bots.updateBotsDetail(botId, {savedTime: result,executionCount : botAuditTrail.length}, function (err, data) {
                 if (err) {
                     logger.error(err);
                     callback(err, null);
