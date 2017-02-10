@@ -16,18 +16,21 @@
  */
 
 var logger = require('_pr/logger')(module);
-var bots = require('_pr/model/bots/bots.js');
+var botsDao = require('_pr/model/bots/1.1/botsDao.js');
+var bots = require('_pr/model/bots/1.0/bots.js');
 var mongoose = require('mongoose');
 var ObjectId = require('mongoose').Types.ObjectId;
 var async = require("async");
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var taskService =  require('_pr/services/taskService.js');
-var tasks =  require('_pr/model/classes/tasks/tasks.js');
 var auditTrailService =  require('_pr/services/auditTrailService.js');
 var blueprintService =  require('_pr/services/blueprintService.js');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var appConfig = require('_pr/config');
+const fileHound= require('filehound');
+const yamlJs= require('yamljs');
+const gitHubService = require('_pr/services/gitHubService.js');
 
 const errorType = 'botsService';
 
@@ -126,6 +129,7 @@ botsService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,call
                             }
                         });
                         if (botsData[0].botLinkedCategory === 'Task') {
+                            var tasks =  require('_pr/model/classes/tasks/tasks.js');
                             tasks.getTaskById(botId, function (err, task) {
                                 if (err) {
                                     logger.error("Error in fetching Task details", err);
@@ -184,19 +188,13 @@ botsService.getBotsList = function getBotsList(botsQuery,actionStatus,callback) 
                     if(err){
                         next(err,null);
                     }else if (botsAudits.length > 0) {
-                        var results = [];
                         for (var i = 0; i < botsAudits.length; i++) {
                             if (botsIds.indexOf(botsAudits[i].auditId) < 0) {
                                 botsIds.push(botsAudits[i].auditId);
-                                results.push(botsAudits[i].auditId);
-                            } else {
-                                results.push(botsAudits[i].auditId);
                             }
                         }
-                        if (results.length === botsAudits.length) {
-                            queryObj.queryObj.botId = {$in:botsIds};
-                            bots.getBotsList(queryObj, next);
-                        }
+                        queryObj.queryObj.botId = {$in:botsIds};
+                        bots.getBotsList(queryObj, next);
                     } else {
                         queryObj.queryObj.botId = null;
                         bots.getBotsList(queryObj, next);
@@ -305,6 +303,48 @@ botsService.getBotsHistory = function getBotsHistory(botId,botsQuery,callback){
     });
 }
 
+botsService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,callback){
+    var query = {
+        auditType: 'BOTs',
+        actionStatus: 'success',
+        isDeleted: false,
+        auditId: botId
+    };
+    auditTrail.getAuditTrails(query, function (err, botAuditTrail) {
+        if (err) {
+            logger.error("Error in Fetching Audit Trail.", err);
+            callback(err, null);
+        }
+        if (botAuditTrail.length > 0) {
+            var totalTimeInSeconds = 0;
+            for (var m = 0; m < botAuditTrail.length; m++) {
+                if (botAuditTrail[m].endedOn && botAuditTrail[m].endedOn !== null
+                    && botAuditTrail[m].auditTrailConfig.manualExecutionTime && botAuditTrail[m].auditTrailConfig.manualExecutionTime !== null) {
+                    var executionTime = getExecutionTime(botAuditTrail[m].endedOn, botAuditTrail[m].startedOn);
+                    totalTimeInSeconds = totalTimeInSeconds + ((botAuditTrail[m].auditTrailConfig.manualExecutionTime * 60) - executionTime);
+                }
+            }
+            var totalTimeInMinutes = Math.round(totalTimeInSeconds / 60);
+            var result = {
+                hours: Math.floor(totalTimeInMinutes / 60),
+                minutes: totalTimeInMinutes % 60
+            }
+            bots.updateBotsDetail(botId, {savedTime: result}, function (err, data) {
+                if (err) {
+                    logger.error(err);
+                    callback(err, null);
+                    return;
+                }
+                callback(null, data);
+                return;
+            })
+        } else {
+            callback(null, botAuditTrail);
+            return;
+        }
+    });
+}
+
 botsService.getPerticularBotsHistory = function getPerticularBotsHistory(botId,historyId,callback){
     async.waterfall([
         function(next){
@@ -368,6 +408,7 @@ botsService.executeBots = function executeBots(botId,reqBody,callback){
                         var taskObj = {
                             'taskConfig.scriptDetails':encryptedParamList
                         }
+                        var tasks =  require('_pr/model/classes/tasks/tasks.js');
                         tasks.updateTaskDetail(botId,taskObj,callback);
                     }
                 }, function (err, data) {
@@ -410,6 +451,77 @@ botsService.executeBots = function executeBots(botId,reqBody,callback){
     });
 }
 
+botsService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
+    async.waterfall([
+        function(next) {
+            gitHubService.getGitHubById(gitHubId,next);
+        },
+        function(gitHubDetails,next){
+            if(gitHubDetails !== null){
+                var gitHubDirPath = appConfig.gitHubDir + gitHubDetails.repositoryName;
+                fileHound.create()
+                    .paths(gitHubDirPath)
+                    .ext('yaml')
+                    .find().then(function(files){
+                    if(files.length > 0){
+                        var count = 0;
+                        var botObjList = [];
+                        for(var i = 0; i < files.length; i++){
+                            (function(ymlFile){
+                                yamlJs.load(ymlFile, function(result) {
+                                    if(result !== null){
+                                        count++;
+                                        var botsObj={
+                                            name:result.name,
+                                            id:result.id,
+                                            desc:result.desc,
+                                            category:result.category,
+                                            type:result.type,
+                                            inputFormFields:result.input.form,
+                                            outputOptions:result.output,
+                                            ymlDocFilePath:ymlFile,
+                                            orgId:gitHubDetails.orgId,
+                                            orgName:gitHubDetails.orgName
+                                        }
+                                        botsDao.createNew(botsObj,function(err,data){
+                                            if(err){
+                                                logger.error(err);
+                                            }
+                                            botObjList.push(botsObj);
+                                        })
+                                    }else{
+                                        count++;
+                                    }
+                                    if(count === files.length){
+                                        next(null,botObjList);
+                                    }
+                                });
+                            })(files[i]);
+                        }
+
+                    }else{
+                        logger.info("There is no YML files in this directory.",gitHubDirPath);
+                    }
+                }).catch(function(err){
+                    next(err,null);
+                });
+
+            }else{
+                next(null,gitHubDetails);
+            }
+        }
+    ],function(err, results) {
+        if (err){
+            logger.error(err);
+            callback(err,null);
+            return;
+        }else {
+            callback(null, results)
+            return;
+        }
+    });
+}
+
 function filterScriptBotsData(data,callback){
     var botsList = [];
     var cryptoConfig = appConfig.cryptoSettings;
@@ -443,16 +555,21 @@ function filterScriptBotsData(data,callback){
                     }
                     if (scriptCount === bots.botConfig.scriptDetails.length) {
                         botsList.push(bots);
+                        if (botsList.length === data.docs.length) {
+                            data.docs = botsList;
+                            callback(null, data);
+                            return;
+                        }
                     }
                 } else {
                     botsList.push(bots);
+                    if (botsList.length === data.docs.length) {
+                        data.docs = botsList;
+                        callback(null, data);
+                        return;
+                    }
                 }
             })(data.docs[i]);
-            if (botsList.length === data.docs.length) {
-                data.docs = botsList;
-                callback(null, data);
-                return;
-            }
         }
     }
 }
@@ -460,37 +577,25 @@ function filterScriptBotsData(data,callback){
 function encryptedParam(paramDetails, callback) {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-    var count = 0;
-    var encryptedList = [];
     for (var i = 0; i < paramDetails.length; i++) {
-        (function (paramDetail) {
-            if (paramDetail.scriptParameters.length > 0) {
-                count++;
-                for (var j = 0; j < paramDetail.scriptParameters.length; j++) {
-                    (function (scriptParameter) {
-                        var encryptedText = cryptography.encryptText(scriptParameter.paramVal, cryptoConfig.encryptionEncoding,
-                            cryptoConfig.decryptionEncoding);
-                        encryptedList.push({
-                            paramVal: encryptedText,
-                            paramDesc: scriptParameter.paramDesc,
-                            paramType: scriptParameter.paramType
-                        });
-                        if (encryptedList.length === paramDetail.scriptParameters.length) {
-                            paramDetail.scriptParameters = encryptedList;
-                            encryptedList = [];
-                        }
-                    })(paramDetail.scriptParameters[j]);
-                }
-            } else {
-                count++;
+        if (paramDetails[i].scriptParameters.length > 0) {
+            for (var j = 0; j < paramDetails[i].scriptParameters.length; j++) {
+                var encryptedText = cryptography.encryptText(paramDetails[i].scriptParameters[j].paramVal, cryptoConfig.encryptionEncoding,
+                    cryptoConfig.decryptionEncoding);
+                paramDetails[i].scriptParameters[j].paramVal = encryptedText;
             }
-            if (count === paramDetails.length) {
-                callback(null, paramDetails);
-                return;
-            }
-        })(paramDetails[i]);
+        }
     }
+    callback(null, paramDetails)
+    return;
 }
+
+function getExecutionTime(endTime, startTime) {
+    var executionTimeInMS = endTime - startTime;
+    var totalSeconds = Math.floor(executionTimeInMS / 1000);
+    return totalSeconds;
+}
+
 
 
 

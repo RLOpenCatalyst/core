@@ -47,6 +47,7 @@ monitorsService.formatResponse = function (monitor, callback) {
             formatted._id = monitor._id;
             formatted.name = monitor.name;
             formatted.type = monitor.type;
+            formatted.isDefault = monitor.isDefault;
             if (monitor.organization.length) {
                 formatted.organization = {
                     id: monitor.organization[0].rowid,
@@ -102,6 +103,7 @@ monitorsService.createMonitor = function (monitorsObj, callback) {
             saveobj['orgId'] = monitorsObj['orgId'];
             saveobj['type'] = monitorsObj['type'];
             saveobj['name'] = monitorsObj['name'];
+            saveobj['isDefault'] = monitorsObj['isDefault'];
             saveobj['parameters'] = {};
             saveobj['parameters']['url'] = monitorsObj['parameters']['url'];
             saveobj['parameters']['transportProtocol'] = monitorsObj['parameters']['transportProtocol'];
@@ -214,9 +216,42 @@ monitorsService.deleteMonitors = function (monitorId, callback) {
     });
 };
 
+monitorsService.removeDefaultMonitor = function (orgId,callback) {
+    monitorsModel.removeDefaultMonitor(orgId, function (err, monitor) {
+        if (err) {
+            var err = new Error('Internal server error');
+            err.status = 500;
+            return callback(err);
+        } else if (!monitor) {
+            var err = new Error('Monitor not found');
+            err.status = 404;
+            return callback(err);
+        } else {
+            // @TODO response to be decided
+            return callback(null, {});
+        }
+    });
+};
+
+monitorsService.setDefaultMonitor = function (monitorId, orgId, callback) {
+    monitorsModel.setDefaultMonitor(monitorId, orgId, function (err, monitor) {
+        if (err) {
+            var err = new Error('Internal server error');
+            err.status = 500;
+            return callback(err);
+        } else if (!monitor) {
+            var err = new Error('Monitor not found');
+            err.status = 404;
+            return callback(err);
+        } else {
+            // @TODO response to be decided
+            return callback(null, {});
+        }
+    });
+};
+
 monitorsService.getMonitors = function (query, callback) {
     var params = {};
-    logger.debug('get monitors');
     if ('filterBy' in query) {
         params = monitorsService.parseFilterBy(query.filterBy);
     }
@@ -265,13 +300,18 @@ monitorsService.getMonitor = function (monitorId, callback) {
 // @TODO Query builder to be made generic
 monitorsService.parseFilterBy = function (filterByString) {
     var filterQuery = {};
-
     var filters = filterByString.split('+');
     for (var i = 0; i < filters.length; i++) {
         var filter = filters[i].split(':');
         var filterQueryValues = filter[1].split(",");
-
-        filterQuery[filter[0]] = {'$in': filterQueryValues};
+        if(filterQueryValues.length > 1){
+           filterQuery[filter[0]] = {'$in': filterQueryValues}; 
+        }else{
+            if(filterQueryValues[0] == 'true' || filterQueryValues[0] == 'false'){
+                filterQueryValues[0] = (filterQueryValues[0] == 'true');
+            }
+            filterQuery[filter[0]] = filterQueryValues[0];
+        }
     }
 
     return filterQuery;

@@ -5,8 +5,6 @@
 var logger = require('_pr/logger')(module);
 var appConfig = require('_pr/config');
 var commons=appConfig.constantData;
-var Cryptography = require('_pr/lib/utils/cryptography.js');
-var cryptoConfig = appConfig.cryptoSettings;
 var normalizedUtil = require('_pr/lib/utils/normalizedUtil.js');
 
 var ApiUtil = function() {
@@ -148,7 +146,7 @@ var ApiUtil = function() {
             for(var i = 0; i < jsonData.searchColumns.length; i++){
                 var searchParam={};
                 searchParam[jsonData.searchColumns[i]]={
-                  $regex:jsonData.search
+                  $regex: new RegExp(jsonData.search, "i")
                 };
                 objOr.push(searchParam);
             }

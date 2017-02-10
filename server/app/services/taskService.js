@@ -16,7 +16,7 @@
 
 var logger = require('_pr/logger')(module);
 var taskDao = require('_pr/model/classes/tasks/tasks.js');
-var bots = require('_pr/model/bots/bots.js');
+var bots = require('_pr/model/bots/1.0/bots.js');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
 var TaskHistory = require('_pr/model/classes/tasks/taskHistory');
@@ -215,7 +215,11 @@ taskService.executeTask = function executeTask(taskId, user, hostProtocol, choic
                                     logger.error("Error while updating Task Execution Count");
                                 }
                             });
-                            bots.updateBotsExecutionCount(task._id, botExecutionCount, function (err, data) {
+                            var botUpdateObj = {
+                                executionCount:botExecutionCount,
+                                lastRunTime:new Date().getTime()
+                            }
+                            bots.updateBotsDetail(task._id, botUpdateObj, function (err, data) {
                                 if (err) {
                                     logger.error("Error while updating Bot Execution Count");
                                 }

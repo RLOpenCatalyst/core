@@ -4,8 +4,9 @@ var CatalystCronJob = require('_pr/cronjobs/CatalystCronJob');
 var async = require('async');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
 var taskHistory = require('_pr/model/classes/tasks/taskHistory.js');
+var botsDao = require('_pr/model/bots/1.0/bots.js');
 var TaskSync = Object.create(CatalystCronJob);
-TaskSync.interval = '*/5 * * * *';
+TaskSync.interval = '*/2 * * * *';
 TaskSync.execute = taskSync;
 
 module.exports = TaskSync;
@@ -65,7 +66,7 @@ function executeTaskSyncForBotHistory(query,callback){
                                 }else if(count === runningAuditTrailList.length){
                                         next(null,runningAuditTrailList);
                                 }else{
-                                    logger.debug("Task Sync is going on");
+                                    logger.debug("BOTs Sync is going on");
                                 }
                             })
                             
@@ -79,10 +80,8 @@ function executeTaskSyncForBotHistory(query,callback){
                 }
 
             }else{
-                next({
-                    errCode:400,
-                    errMsg:"There is no BOTs in running state currently."
-                },null);
+                logger.info("There is no BOTs in running state currently.")
+                next(null,runningAuditTrailList);
             }
         }
     ],function(err,results){
@@ -134,10 +133,8 @@ function executeTaskSyncForTaskHistory(query,callback){
                 }
 
             }else{
-                next({
-                    errCode:400,
-                    errMsg:"There is no Tasks in running state currently."
-                },null);
+                logger.info("There is no Task in running state currently.")
+                next(null,runningTaskHistoryList);
             }
         }
     ],function(err,results){
@@ -156,5 +153,7 @@ function getMinutesDiff(date1,date2){
     diff /= 60;
     return Math.abs(Math.round(diff));
 }
+
+
 
 

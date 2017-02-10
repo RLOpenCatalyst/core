@@ -33,7 +33,7 @@ var AWSKeyPair = require('_pr/model/classes/masters/cloudprovider/keyPair.js');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
 var usersDao = require('_pr/model/users.js');
 var auditTrailService = require('_pr/services/auditTrailService');
-var bots = require('_pr/model/bots/bots.js');
+var bots = require('_pr/model/bots/1.0/bots.js');
 var botsService = require('_pr/services/botsService.js');
 var ObjectId = require('mongoose').Types.ObjectId;
 var uuid = require('node-uuid');
@@ -238,12 +238,12 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                             logger.error(err);
                         }else if(botData.length > 0){
                             var botExecutionCount = botData[0].executionCount + 1;
-                            bots.updateBotsExecutionCount(blueprint._id,botExecutionCount,function(err,data){
-                                if(err){
-                                    logger.error("Error while updating Bot Execution Count");
-                                }
-                            });
-                            bots.updateBotsDetail(blueprint._id,{runTimeParams:reqBody},function(err,data){
+                            var botUpdateObj = {
+                                executionCount:botExecutionCount,
+                                lastRunTime:new Date().getTime(),
+                                runTimeParams:reqBody
+                            }
+                            bots.updateBotsDetail(blueprint._id,botUpdateObj,function(err,data){
                                 if(err){
                                     logger.error("Error while updating Bots Configuration");
                                 }

@@ -729,6 +729,18 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                         log: "Instance Bootstraped successfully",
                                                                                         timestamp: timestampEnded
                                                                                     });
+                                                                                    logsDao.insertLog({
+                                                                                        referenceId: logsReferenceIds,
+                                                                                        err: false,
+                                                                                        log: "You can access stack using below URL.",
+                                                                                        timestamp: timestampEnded
+                                                                                    });
+                                                                                    logsDao.insertLog({
+                                                                                        referenceId: logsReferenceIds,
+                                                                                        err: false,
+                                                                                        log: 'http://'+launchParams.stackName+'.rlcatalyst.com',
+                                                                                        timestamp: timestampEnded
+                                                                                    });
                                                                                     instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
                                                                                     instanceLog.logs = {
                                                                                         err: false,
@@ -754,6 +766,12 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                             if (err) {
                                                                                                 logger.error("Failed to create or update bots Log: ", err);
                                                                                             }
+                                                                                            var botService = require('_pr/services/botsService');
+                                                                                            botService.updateSavedTimePerBots(launchParams.blueprintData._id,function(err,data){
+                                                                                                if (err) {
+                                                                                                    logger.error("Failed to update bots saved Time: ", err);
+                                                                                                }
+                                                                                            });
                                                                                         });
                                                                                     }
 

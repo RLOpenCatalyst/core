@@ -138,5 +138,18 @@ EntityCostsSchema.statics.deleteEntityCost = function deleteEntityCost(parentEnt
     })
 }
 
+EntityCostsSchema.statics.removeEntityCostByProviderId = function removeEntityCostByProviderId(providerId, callback) {
+    var query = {
+        'entity.id': providerId,
+        'entity.type':'provider'
+    };
+    this.find(query).remove(function(err, result) {
+        if (err) {
+            callback(err)
+        } else {
+            callback(null, result)
+        }
+    })
+}
 var EntityCosts = mongoose.model('EntityCosts', EntityCostsSchema)
 module.exports = EntityCosts
