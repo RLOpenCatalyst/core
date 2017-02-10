@@ -47,8 +47,3 @@ bots.getAllBots({isDeleted:false}, function(err, bots) {
         process.exit();
     }
 });
-
-
-
-
-

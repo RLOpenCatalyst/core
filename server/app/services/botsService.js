@@ -320,7 +320,7 @@ botsService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,callb
                 if (botAuditTrail[m].endedOn && botAuditTrail[m].endedOn !== null
                     && botAuditTrail[m].auditTrailConfig.manualExecutionTime
                     && botAuditTrail[m].auditTrailConfig.manualExecutionTime !== null
-                    && botAuditTrail[m].actionStatus === 'success') {
+                    && botAuditTrail[m].actionStatus ==='success' ) {
                     var executionTime = getExecutionTime(botAuditTrail[m].endedOn, botAuditTrail[m].startedOn);
                     totalTimeInSeconds = totalTimeInSeconds + ((botAuditTrail[m].auditTrailConfig.manualExecutionTime * 60) - executionTime);
                 }
@@ -330,7 +330,7 @@ botsService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,callb
                 hours: Math.floor(totalTimeInMinutes / 60),
                 minutes: totalTimeInMinutes % 60
             }
-            bots.updateBotsDetail(botId, {savedTime: result,executionCount : botAuditTrail.length}, function (err, data) {
+            bots.updateBotsDetail(botId, {savedTime: result,executionCount:botAuditTrail.length}, function (err, data) {
                 if (err) {
                     logger.error(err);
                     callback(err, null);
