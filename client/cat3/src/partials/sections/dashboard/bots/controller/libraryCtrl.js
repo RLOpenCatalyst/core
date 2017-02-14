@@ -32,9 +32,7 @@
             $scope.showLoadMore = false;
             $scope.showRecords = false;
         };
-
         $scope.showLoadRecord();
-
         $scope.initGrids = function(){
             $scope.botLibGridOptions={};
             $scope.botLibGridOptions.columnDefs= [
