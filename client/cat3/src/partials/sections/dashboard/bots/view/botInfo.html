@@ -39,7 +39,7 @@
 	<div class="modal-header">
 		<span class="close" ng-click="cancel()">×</span>
 		<h4 class="modal-title">
-			<i class="fa fa-bar-chart-o"></i> Bot Info - {{botInfo.botName}}
+			<i class="fa fa-bar-chart-o"></i> BOT Info - {{botInfo.botName}}
 		</h4>
 	</div>
 
@@ -78,7 +78,7 @@
 		            		</td>
 						</tr>
 						<tr>
-							<td class="td-padding">Bot Type</td>
+							<td class="td-padding">BOT Type</td>
 							<td>
 								{{botInfo.botType}}
 							</td>
@@ -139,13 +139,13 @@
 							</td>
 						</tr>
 						<tr ng-show="botInfo.botConfig && botInfo.botConfig.parameterized && botInfo.botConfig.parameterized.length">
-							<td class="td-padding">Bot Parameter Type</td>
+							<td class="td-padding">BOT Parameter Type</td>
 							<td>
 								{{botInfo.botConfig.parameterized[0].parameterName}}
 							</td>
 						</tr>
 						<tr ng-show="botInfo.botConfig && botInfo.botConfig.parameterized && botInfo.botConfig.parameterized.length">
-							<td class="td-padding">Bot Parameter Name</td>
+							<td class="td-padding">BOT Parameter Name</td>
 							<td>
 								{{botInfo.botConfig.parameterized[0].name}}
 							</td>
@@ -157,13 +157,13 @@
 							</td>
 						</tr> -->
 						<tr ng-show="botInfo.botConfig && botInfo.botConfig.parameterized && botInfo.botConfig.parameterized.length === 1">
-							<td class="td-padding">Bot Parameter Values</td>
+							<td class="td-padding">BOT Parameter Values</td>
 							<td>
 								{{botInfo.botConfig.parameterized[0].defaultValue}}
 							</td>
 						</tr>
 						<tr ng-show="botInfo.botConfig && botInfo.botConfig.parameterized && botInfo.botConfig.parameterized.length">
-							<td class="td-padding">Bot Parameter Description</td>
+							<td class="td-padding">BOT Parameter Description</td>
 							<td>
 								{{botInfo.botConfig.parameterized[0].description}}
 							</td>
