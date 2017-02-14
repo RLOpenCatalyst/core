@@ -469,6 +469,7 @@
             $scope.botLibType = '';
             $scope.numofCardPages = 0;
             $scope.paginationParams.page = 1;
+            $scope.botLibGridOptions.paginationCurrentPage = $scope.paginationParams.page;
             $scope.paginationParams.pageSize = 18;
             $scope.paginationParams.sortBy = 'lastRunTime';
             $scope.paginationParams.sortOrder = 'desc';
