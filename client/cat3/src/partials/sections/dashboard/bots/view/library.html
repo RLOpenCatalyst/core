@@ -75,12 +75,12 @@
 
            <div class="col-lg-2 col-sm-6 width20">
                <div class="circle-tile cursor">
-                  <div ng-click="showBotsRunning()">
+                  <div ng-click="showBotsRunning('resetPage')">
                     <div class="circle-tile-heading green">
                         <i class="fa fa-cogs fa-fw fa-2x white"></i>
                     </div>
                   </div>
-                   <div class="circle-tile-content green" ng-click=" showBotsRunning()">
+                   <div class="circle-tile-content green" ng-click=" showBotsRunning('resetPage')">
                        <div class="circle-tile-number text-faded ng-binding">
                         <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
                         <span ng-if="!isBotDetailsLoading">{{botSummary.totalNoOfRunningBots}}</span>
@@ -111,12 +111,12 @@
            </div>
            <div class="col-lg-2 col-sm-6 width20">
                <div class="circle-tile cursor">
-                    <div ng-click="showScheduledBots()">
+                    <div ng-click="showScheduledBots('resetPage')">
                        <div class="circle-tile-heading bg-blue">
                            <i class="fa fa-calendar fa-2x white"></i>
                        </div>
                     </div>
-                   <div class="circle-tile-content bg-blue" ng-click="showScheduledBots()">
+                   <div class="circle-tile-content bg-blue" ng-click="showScheduledBots('resetPage')">
                      <div class="circle-tile-number text-faded ng-binding">
                         <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
                            <span ng-if="!isBotDetailsLoading">{{botSummary.totalNoOfScheduledBots}}</span>
@@ -130,12 +130,12 @@
            </div>  
             <div class="col-lg-2 col-sm-6 width20">
                <div class="circle-tile cursor">
-                    <div ng-click="showFailedBots()">
+                    <div ng-click="showFailedBots('resetPage')">
                        <div class="circle-tile-heading redcard">
                            <i class="fa fa-remove fa-fw fa-2x white"></i>
                        </div>
                     </div>                   
-                   <div class="circle-tile-content redcard" ng-click="showFailedBots()">
+                   <div class="circle-tile-content redcard" ng-click="showFailedBots('resetPage')">
                      <div class="circle-tile-number text-faded ng-binding">
                         <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
                            <span ng-if="!isBotDetailsLoading">{{botSummary.totalNoOfFailedBots}}</span>
@@ -154,7 +154,7 @@
    <div  class="botsWidth">
       <div class="marginleft35 botsWidth boxBots box-infobox" style="border-top-color:floralwhite"></div>
       <div class="gallery-header top-stats marginCheck">
-          <button type="button" class="font-size-16 tabReadme btn btn-link {{botsCardViewSelection}}" title="Card View" ng-click="setCardView()"  >
+          <button type="button" class="font-size-16 tabReadme btn btn-link {{botsCardViewSelection}}" title="Card View" ng-click="setCardView('pageReset')"  >
               <i class="fa fa-th black"></i>
               Grid
           </button>
@@ -171,11 +171,11 @@
          <span ng-if="botLibType" class="marginleft10 box-title font-size-16"><span>Type</span>
          <span class="badge">{{botLibType}}<span title="Clear" class="filterClear" ng-click="clearFilter(botLibType)">×</span></span>
          </span>
-         <form class="pull-right firefoxForm" novalidate name="library-form" ng-submit="searchBotNameCategory()">
+         <form class="pull-right firefoxForm" novalidate name="library-form" ng-submit="searchBotNameCategory('pageNumber')">
             <span class="bot-library-search">
                <label>&nbsp;
                   <input type="search" ng-model="botLibrarySearch" class="bot-search" placeholder="Search">
-                  <i class="fa fa-search search-icon" ng-show="!searchText" ng-click="searchBotNameCategory()"></i>
+                  <i class="fa fa-search search-icon" ng-show="!searchText" ng-click="searchBotNameCategory('pageNumber')"></i>
                   <i title="Clear Search" class="fa fa-close search-icon cancel-icon ng-hide" ng-show="searchText" ng-click="clearBotSearchText()"></i>
                </label>
             </span>
