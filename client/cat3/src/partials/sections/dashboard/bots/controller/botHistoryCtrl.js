@@ -16,15 +16,10 @@
                 $scope.templateSelected = reqParams;
             });
 
-
             if($scope.templateSelected) {
-                items = $scope.templateSelected;
-                $rootScope.$on('SERVICE_NOW_CHECKED', function(event,reqParams) {
-                    console.log(reqParams);
-                    $scope.serviceNowChecked = reqParams;
-                });
+                items = $scope.templateSelected; 
             } 
-        
+
             $scope.botDetail = items;
             $scope.botId = items.botId;
             
@@ -74,7 +69,7 @@
             angular.extend($scope, {
                 taskHistoryListView : function() {
                     var param = null;
-                    if($scope.scheduledBotsSelected === true){
+                    if($scope.botDetail.serviceNowCheck == true){
                         param = {
                             url: '/bots/' + $scope.botId + '/bots-history?serviceNowCheck=true&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
                         };

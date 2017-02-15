@@ -184,7 +184,7 @@
       <loading size="large" name="isBotLibraryPageLoading" type="block" align="center"></loading>
       <div class="col-lg-4 col-md-4 col-sm-6" ng-show="isCardViewActive" ng-repeat="botsDetails in botLibGridOptions.data">
          <div class="agent-card grid-card hoverable col-lg-12 col-md-12 col-xs-12">
-            <a class="appnav" ng-click="botTemplateClick(botsDetails)" ui-sref="dashboard.bots.botsDescription">
+            <a class="appnav" ng-click="botTemplateClick(botsDetails,false)" ui-sref="dashboard.bots.botsDescription">
                <div class="image-cell two-tone-11">
                   <img class="highlight" alt="{{botsDetails.botCategory}}" ng-src="{{botsDetails.imagePath}}">
                </div>

@@ -181,10 +181,14 @@
             });
         };
        // $scope.botLibraryGridView();
-        $scope.botTemplateClick = function(templateDetail) {
+        $scope.botTemplateClick = function(templateDetail, serviceNowCheck) {
             templateDetail.selected = true;
-            $scope.nextEnabled = true;
             $rootScope.templateSelected = templateDetail;
+            if($scope.scheduledBotsSelected) {
+                serviceNowCheck = true;
+                $rootScope.templateSelected.serviceNowCheck = true;
+            }
+            $scope.nextEnabled = true;
             $rootScope.$emit('BOTS_TEMPLATE_SELECTED',templateDetail);
         };
 
@@ -358,9 +362,12 @@
         };
 
         $scope.botHistory=function(bot) {
+            var serviceNowCheck;
+            if($scope.scheduledBotsSelected) {
+                serviceNowCheck = true;
+                bot.serviceNowCheck = true;
+            }
             $rootScope.templateSelected = bot;
-            $rootScope.scheduledBots = $scope.scheduledBotsSelected;
-            console.log($rootScope.scheduledBots);
             var modalInstance = $modal.open({
                 animation: true,
                 templateUrl: 'src/partials/sections/dashboard/bots/view/botHistory.html',
