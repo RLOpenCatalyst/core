@@ -16,8 +16,13 @@
                 $scope.templateSelected = reqParams;
             });
 
+
             if($scope.templateSelected) {
                 items = $scope.templateSelected;
+                $rootScope.$on('SERVICE_NOW_CHECKED', function(event,reqParams) {
+                    console.log(reqParams);
+                    $scope.serviceNowChecked = reqParams;
+                });
             } 
         
             $scope.botDetail = items;
@@ -68,10 +73,17 @@
 
             angular.extend($scope, {
                 taskHistoryListView : function() {
-                $scope.taskHistoryData.data = [];
-                    var param = {
-                        url: '/bots/' + $scope.botId + '/bots-history?page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
-                    };
+                    var param = null;
+                    if($scope.scheduledBotsSelected === true){
+                        param = {
+                            url: '/bots/' + $scope.botId + '/bots-history?serviceNowCheck=true&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                        };
+                    }else{
+                        param = {
+                            url: '/bots/' + $scope.botId + '/bots-history?page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                        };
+                    }
+                    $scope.taskHistoryData.data = [];
                     genSevs.promiseGet(param).then(function(response) {
                         $timeout(function() {
                             if (response.botHistory) {
