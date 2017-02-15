@@ -224,7 +224,7 @@
             } else if($scope.scheduledBotsSelected) {
                 var param={
                     inlineLoader: true,
-                    url:'/bots?filterBy=isBotScheduled:true&page=' + pageNumber +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
+                    url:'/bots?serviceNowCheck=true&page=' + pageNumber +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
                 };
             } else if($scope.failedBotsselected) {
                 var param={
@@ -359,6 +359,8 @@
 
         $scope.botHistory=function(bot) {
             $rootScope.templateSelected = bot;
+            $rootScope.scheduledBots = $scope.scheduledBotsSelected;
+            console.log($rootScope.scheduledBots);
             var modalInstance = $modal.open({
                 animation: true,
                 templateUrl: 'src/partials/sections/dashboard/bots/view/botHistory.html',
