@@ -181,10 +181,14 @@
             });
         };
        // $scope.botLibraryGridView();
-        $scope.botTemplateClick = function(templateDetail) {
+        $scope.botTemplateClick = function(templateDetail, serviceNowCheck) {
             templateDetail.selected = true;
-            $scope.nextEnabled = true;
             $rootScope.templateSelected = templateDetail;
+            if($scope.scheduledBotsSelected) {
+                serviceNowCheck = true;
+                $rootScope.templateSelected.serviceNowCheck = true;
+            }
+            $scope.nextEnabled = true;
             $rootScope.$emit('BOTS_TEMPLATE_SELECTED',templateDetail);
         };
 
@@ -224,7 +228,7 @@
             } else if($scope.scheduledBotsSelected) {
                 var param={
                     inlineLoader: true,
-                    url:'/bots?filterBy=isBotScheduled:true&page=' + pageNumber +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
+                    url:'/bots?serviceNowCheck=true&page=' + pageNumber +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
                 };
             } else if($scope.failedBotsselected) {
                 var param={
@@ -358,6 +362,11 @@
         };
 
         $scope.botHistory=function(bot) {
+            var serviceNowCheck;
+            if($scope.scheduledBotsSelected) {
+                serviceNowCheck = true;
+                bot.serviceNowCheck = true;
+            }
             $rootScope.templateSelected = bot;
             var modalInstance = $modal.open({
                 animation: true,
@@ -569,7 +578,7 @@
             }
             var param={
                 inlineLoader:true,
-                url:'/bots?filterBy=isBotScheduled:true&page=' + $scope.botLibGridOptions.paginationCurrentPage +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                url:'/bots?serviceNowCheck=true&page=' + $scope.botLibGridOptions.paginationCurrentPage +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
             };
             genSevs.promiseGet(param).then(function (result) {
                 if($scope.isCardViewActive){

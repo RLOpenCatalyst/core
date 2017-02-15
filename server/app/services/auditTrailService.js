@@ -195,7 +195,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                 totalNoOfBots: function(callback){
                             callback(null, botsList.length);
                 },
-                totalNoOfSuccessBots: function(callback){
+               /* totalNoOfSuccessBots: function(callback){
                     var query = {
                         auditType: BOTSchema,
                         actionStatus: 'success',
@@ -217,8 +217,8 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                             callback(null, botsIds.length);
                         }
                     });
-                },
-                totalNoOfScheduledBots: function(callback){
+                },*/
+                /*totalNoOfScheduledBots: function(callback){
                     var scheduleBotsIds = [];
                     if(botsList.length > 0) {
                         for (var j = 0; j < botsList.length; j++) {
@@ -230,6 +230,21 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                     }else{
                         callback(null,scheduleBotsIds.length);
                     }
+                },*/
+                totalNoOfServiceNowTickets: function(callback){
+                    var query={
+                        auditType:BOTSchema,
+                        actionStatus:'success',
+                        isDeleted:false,
+                        user:'servicenow'
+                    };
+                    auditTrail.getAuditTrails(query, function(err,botsAudits){
+                        if(err){
+                            callback(err,null);
+                        }else {
+                            callback(null,botsAudits.length);
+                        }
+                    });
                 },
                 totalNoOfRunningBots: function(callback){
                     var query={
