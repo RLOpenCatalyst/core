@@ -101,9 +101,9 @@ describe("Deploy Permission ",function(){
 
 
    it(" Execute a Bots ",function(done){
-       var reqBody = ['https://d4d.rlcatalyst.com','superadmin','superadmin@123','catalystUser','durgeshch@gmail.com','Durgesh@123','Admin'];
+       var reqBody = ['google.com'];
         server
-            .post('/botsNew/589ac4088f8adecd269c20f5/execute')
+            .post('/botsNew/58a2daadeb2ad8955f9d0352/execute')
             .send(reqBody)
             .end(function(err,res){
                 console.log(res.body);

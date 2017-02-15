@@ -38,7 +38,7 @@ function getDefaultsConfig() {
         catalystDataDir: currentDirectory + '/catdata',
         javaLibDir: currentDirectory + '/app',
         gitHubDir: currentDirectory + '/gitHub/',
-        botLogDir: currentDirectory + '/bots/',
+        botLogDir: currentDirectory + '/app/logs/',
         catalysHomeDirName: 'catalyst',
         instancePemFilesDirName: 'instance-pemfiles',
         tempDirName: 'temp',

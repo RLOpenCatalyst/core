@@ -245,6 +245,7 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                             }else{
                                                 count++;
                                                 var botsObj={
+                                                    ymlJson:result,
                                                     name:result.name,
                                                     gitHubId:gitHubDetails._id,
                                                     gitHubRepoName:gitHubDetails.repositoryName,
@@ -344,7 +345,6 @@ botsNewService.getParticularBotsHistory = function getParticularBotsHistory(botI
                     auditId: botId,
                     actionLogId: historyId
                 };
-                console.log(JSON.stringify(query));
                 auditTrail.getAuditTrails(query, next);
 
             }else{
@@ -454,5 +454,4 @@ function addYmlFileDetailsForBots(bots,callback){
         }
     }
 }
-
 

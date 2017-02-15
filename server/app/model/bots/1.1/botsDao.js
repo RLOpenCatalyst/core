@@ -59,6 +59,17 @@ var BotsSchema = new Schema ({
         type: String,
         trim: true
     },
+    savedTime: {
+        hours:{
+            type: Number,
+            default:0
+        },
+        minutes:{
+            type: Number,
+            default:0
+        }
+    },
+    ymlJson:Schema.Types.Mixed,
     execution: Schema.Types.Mixed,
     desc: {
         type: String,
@@ -74,10 +85,6 @@ var BotsSchema = new Schema ({
         type: String,
         trim: true,
         required: true
-    },
-    savedTime:{
-        type: String,
-        trim: true
     },
     inputFormFields:Schema.Types.Mixed,
     outputOptions:Schema.Types.Mixed,

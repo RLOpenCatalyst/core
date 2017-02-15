@@ -17,7 +17,6 @@
 
 var logger = require('_pr/logger')(module);
 var async = require("async");
-var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var logsDao = require('_pr/model/dao/logsdao.js');
 var instanceModel = require('_pr/model/classes/instance/instance.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
@@ -81,7 +80,38 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,callback) {
     var gitHubDirPath = appConfig.gitHubDir + botsScriptDetails.gitHubRepoName;
     var actionId = uuid.v4();
     var logsReferenceIds = [botsScriptDetails._id, actionId];
-    var botLogFile = appConfig.scriptDir + actionId;
+    var botLogFile = appConfig.botLogDir + actionId;
+    var winston = require('winston');
+    var path = require('path');
+    var mkdirp = require('mkdirp');
+    var log_folder = path.normalize(botLogFile);
+    mkdirp.sync(log_folder);
+    var botLogger = new winston.Logger({
+        transports: [
+            new winston.transports.DailyRotateFile({
+                level: 'debug',
+                datePattern: '.yyyy-MM-dd',
+                filename: 'botExecution.log',
+                dirname:log_folder,
+                handleExceptions: true,
+                json: true,
+                maxsize: 5242880, //5MB
+                maxFiles: 5,
+                colorize: true,
+                timestamp:true,
+                name:'bot-execution-log'
+            }),
+            new winston.transports.Console({
+                level: 'debug',
+                handleExceptions: true,
+                json: false,
+                colorize: true,
+                name:'bot-console'
+            })
+        ],
+        exitOnError: false
+    });
+
     for(var i = 0; i < botsScriptDetails.execution.length; i++) {
         (function(scriptObj) {
             fileHound.create()
@@ -109,11 +139,7 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,callback) {
                             log: 'Unable to run script ' + scriptObj.start,
                             timestamp: new Date().getTime()
                         });
-                        apiUtil.writeLogFile(botLogFile,'Unable to run script ' + scriptObj.start,function(err,data){
-                            if (err) {
-                                logger.error( err);
-                            }
-                        });
+                        botLogger.error('Unable to run script ' + scriptObj.start);
                         if(count === botsScriptDetails.execution.length) {
                             var resultTaskExecution = {
                                 "actionStatus": 'failed',
@@ -135,11 +161,7 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,callback) {
                             log: out.toString('ascii'),
                             timestamp: new Date().getTime()
                         });
-                        apiUtil.writeLogFile(botLogFile,out.toString('ascii'),function(err,data){
-                            if (err) {
-                                logger.error( err);
-                            }
-                        });
+                        botLogger.debug(out.toString('ascii'));
                     }
                     if(code === 0){
                         count++;
@@ -149,12 +171,30 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,callback) {
                             log: 'BOTs execution success for script ' + scriptObj.start,
                             timestamp: new Date().getTime()
                         });
-                        apiUtil.writeLogFile(botLogFile,'BOTs execution success for script ' + scriptObj.start,function(err,data){
-                            if (err) {
-                                logger.error( err);
-                            }
-                        });
+                        botLogger.debug('BOTs execution success for script ' + scriptObj.start);
                         if(count === botsScriptDetails.execution.length) {
+                            var supertest = require("supertest");
+                            var server = supertest.agent("http://192.168.152.62:5000");
+                            var reqBody = {
+                                "botDescription":JSON.stringify(botsScriptDetails.ymlJson),
+                                "logLocation": '/home/karan/Documents/RL_Catalyst/Bots/ipAddress.log'
+                            };
+                            server
+                                .post('/utils')
+                                .send(reqBody)
+                                .set({'Content-Type':'application/json'})
+                                .end(function(err,res){
+                                    if(err){
+                                        console.log("**********Error***********");
+                                        logger.error(err);
+                                        callback(err,null);
+                                    }else{
+                                        console.log("*********Response************");
+                                        logger.debug(JSON.stringify(res));
+                                        callback(null,res);
+                                    }
+                                });
+
                             var resultTaskExecution = {
                                 "actionStatus": 'success',
                                 "status": 'success',
@@ -166,6 +206,7 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,callback) {
                                     logger.error("Failed to create or update bots Log: ", err);
                                 }
                             });
+                            
                         }
                     }
                 });
@@ -182,6 +223,37 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,callback) {
 function  executeScriptOnEnv(botsScriptDetails,auditTrail,envId,userName,callback){
     var actionLogId = uuid.v4();
     var count = 0;
+    var botLogFile = appConfig.botLogDir + actionLogId;
+    var winston = require('winston');
+    var path = require('path');
+    var mkdirp = require('mkdirp');
+    var log_folder = path.normalize(botLogFile);
+    mkdirp.sync(log_folder);
+    var botLogger = new winston.Logger({
+        transports: [
+            new winston.transports.DailyRotateFile({
+                level: 'debug',
+                datePattern: '.yyyy-MM-dd',
+                filename: 'botExecution.log',
+                dirname:log_folder,
+                handleExceptions: true,
+                json: true,
+                maxsize: 5242880, //5MB
+                maxFiles: 5,
+                colorize: true,
+                timestamp:true,
+                name:'bot-execution-log'
+            }),
+            new winston.transports.Console({
+                level: 'debug',
+                handleExceptions: true,
+                json: false,
+                colorize: true,
+                name:'bot-console'
+            })
+        ],
+        exitOnError: false
+    });
     instanceModel.getInstancesByEnvId(envId,userName,function (err,instances) {
         if(err){
             logger.error("Issue with fetching instances which are associated with env. ",envId,err);
@@ -225,6 +297,7 @@ function  executeScriptOnEnv(botsScriptDetails,auditTrail,envId,userName,callbac
                             log: "Instance IP is not defined. Chef Client run failed",
                             timestamp: timestampEnded
                         });
+                        botLogger.error("Instance IP is not defined. Chef Client run failed");
                         instanceModel.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
                         instanceLog.endedOn = new Date().getTime();
                         instanceLog.actionStatus = "failed";
@@ -289,6 +362,7 @@ function  executeScriptOnEnv(botsScriptDetails,auditTrail,envId,userName,callbac
                                                 log: "Unable to upload script file " + scriptObj.start,
                                                 timestamp: timestampEnded
                                             });
+                                            botLogger.error("Unable to upload script file " + scriptObj.start);
                                             instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
                                             instanceLog.endedOn = new Date().getTime();
                                             instanceLog.actionStatus = "failed";
@@ -338,6 +412,7 @@ function  executeScriptOnEnv(botsScriptDetails,auditTrail,envId,userName,callbac
                                                     log: 'Unable to run script ' + scriptObj.start,
                                                     timestamp: timestampEnded
                                                 });
+                                                botLogger.error('Unable to run script ' + scriptObj.start);
                                                 instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
                                                 instanceLog.endedOn = new Date().getTime();
                                                 instanceLog.actionStatus = "failed";
@@ -375,6 +450,7 @@ function  executeScriptOnEnv(botsScriptDetails,auditTrail,envId,userName,callbac
                                                     log: 'Task execution success for script ' + scriptObj.start,
                                                     timestamp: timestampEnded
                                                 });
+                                                botLogger.debug('Task execution success for script ' + scriptObj.start);
                                                 instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], true, timestampEnded);
                                                 instanceLog.endedOn = new Date().getTime();
                                                 instanceLog.actionStatus = "success";
@@ -418,6 +494,7 @@ function  executeScriptOnEnv(botsScriptDetails,auditTrail,envId,userName,callbac
                                                         log: 'Host Unreachable',
                                                         timestamp: new Date().getTime()
                                                     };
+                                                    botLogger.error('Host Unreachable');
                                                     instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
                                                         if (err) {
                                                             logger.error("Failed to create or update instanceLog: ", err);
@@ -445,6 +522,7 @@ function  executeScriptOnEnv(botsScriptDetails,auditTrail,envId,userName,callbac
                                                         log: 'Invalid credentials',
                                                         timestamp: new Date().getTime()
                                                     });
+                                                    botLogger.error('Invalid credentials');
                                                     instanceLog.endedOn = new Date().getTime();
                                                     instanceLog.actionStatus = "failed";
                                                     instanceLog.logs = {
@@ -479,6 +557,7 @@ function  executeScriptOnEnv(botsScriptDetails,auditTrail,envId,userName,callbac
                                                         log: 'Unknown error occured. ret code = ' + retCode,
                                                         timestamp: new Date().getTime()
                                                     });
+                                                    botLogger.error('Unknown error occured. ret code = ' + retCode);
                                                     instanceLog.endedOn = new Date().getTime();
                                                     instanceLog.actionStatus = "failed";
                                                     instanceLog.logs = {
@@ -514,6 +593,7 @@ function  executeScriptOnEnv(botsScriptDetails,auditTrail,envId,userName,callbac
                                                     log: 'Error in running script ' + scriptObj.start,
                                                     timestamp: timestampEnded
                                                 });
+                                                botLogger.error('Error in running script ' + scriptObj.start);
                                                 instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
                                                 instanceLog.endedOn = new Date().getTime();
                                                 instanceLog.actionStatus = "failed";
@@ -550,6 +630,7 @@ function  executeScriptOnEnv(botsScriptDetails,auditTrail,envId,userName,callbac
                                                 log: stdOut.toString('ascii'),
                                                 timestamp: new Date().getTime()
                                             });
+                                            botLogger.debug(stdOut.toString('ascii'));
                                             instanceLog.logs = {
                                                 err: false,
                                                 log: stdOut.toString('ascii'),
@@ -567,6 +648,7 @@ function  executeScriptOnEnv(botsScriptDetails,auditTrail,envId,userName,callbac
                                                 log: stdErr.toString('ascii'),
                                                 timestamp: new Date().getTime()
                                             });
+                                            botLogger.errpr(stdErr.toString('ascii'));
                                             instanceLog.logs = {
                                                 err: false,
                                                 log: stdErr.toString('ascii'),
