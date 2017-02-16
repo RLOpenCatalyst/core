@@ -80,7 +80,8 @@
         "promisify":"0.0.3",
         "filehound":"1.13.0",
         "yamljs":"0.2.8",
-        "exec":"0.2.1"
+        "exec":"0.2.1",
+        "format-message":"5.1.1"
     },
     "devDependencies": {
         "grunt": "0.4.5",
