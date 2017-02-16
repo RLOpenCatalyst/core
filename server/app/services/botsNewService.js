@@ -139,7 +139,7 @@ botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,callbac
     });
 }
 
-botsNewService.executeBots = function executeBots(botId,reqBody,userName,callback){
+botsNewService.executeBots = function executeBots(botId,reqBody,userName,executionType,callback){
     async.waterfall([
         function(next){
             if(reqBody !== null && reqBody !== ''){
@@ -164,7 +164,7 @@ botsNewService.executeBots = function executeBots(botId,reqBody,userName,callbac
         function(botDetails,next) {
             if(botDetails.length > 0){
                 if(botDetails[0].type === 'script'){
-                    executor.executeScriptBot(botDetails[0],userName,next);
+                    executor.executeScriptBot(botDetails[0],userName,executionType,next);
                 }
             }else {
                next(null,botDetails);

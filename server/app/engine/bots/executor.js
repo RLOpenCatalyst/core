@@ -29,12 +29,13 @@ var auditTrailService = require('_pr/services/auditTrailService.js');
 var credentialCryptography = require('_pr/lib/credentialcryptography');
 var SSHExec = require('_pr/lib/utils/sshexec');
 var SCP = require('_pr/lib/utils/scp');
+var apiUtil = require('_pr/lib/utils/apiUtil.js');
 
 const errorType = 'executor';
 
 var executor = module.exports = {};
 
-executor.executeScriptBot = function executeScriptBot(botsDetails,userName,callback) {
+executor.executeScriptBot = function executeScriptBot(botsDetails,userName,executionType,callback) {
     async.waterfall([
         function(next){
             var actionObj={
@@ -57,9 +58,9 @@ executor.executeScriptBot = function executeScriptBot(botsDetails,userName,callb
         },
         function(auditTrail,next){
             if(botsDetails.env && botsDetails.env !== null){
-                executeScriptOnEnv(botsDetails,auditTrail,botsDetails.env,userName,next);
+                executeScriptOnEnv(botsDetails,auditTrail,botsDetails.env,userName,executionType,next);
             }else{
-                executeScriptOnNode(botsDetails,auditTrail,next);
+                executeScriptOnNode(botsDetails,auditTrail,executionType,next);
             }
         }
     ],function(err,result){
@@ -68,12 +69,12 @@ executor.executeScriptBot = function executeScriptBot(botsDetails,userName,callb
         }else{
             callback(null,result);
         }
-        
+
     })
 }
 
 
-function executeScriptOnNode(botsScriptDetails,auditTrail,callback) {
+function executeScriptOnNode(botsScriptDetails,auditTrail,executionType,callback) {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var cmd = null, count = 0;
@@ -111,7 +112,7 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,callback) {
         ],
         exitOnError: false
     });
-
+    var replaceTextObj = {};
     for(var i = 0; i < botsScriptDetails.execution.length; i++) {
         (function(scriptObj) {
             fileHound.create()
@@ -127,6 +128,11 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,callback) {
                 if(botsScriptDetails.params.length > 0) {
                     for (var j = 0; j < botsScriptDetails.params.length; j++) {
                         var decryptedText = cryptography.decryptText(botsScriptDetails.params[j], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                        Object.keys(botsScriptDetails.inputFormFields[j]).forEach(function(key){
+                            if(botsScriptDetails.inputFormFields[j][key] === null) {
+                                replaceTextObj[key] = decryptedText;
+                            }
+                        });
                         cmd = cmd + ' ' + decryptedText;
                     }
                 }
@@ -173,40 +179,99 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,callback) {
                         });
                         botLogger.debug('BOTs execution success for script ' + scriptObj.start);
                         if(count === botsScriptDetails.execution.length) {
-                            var supertest = require("supertest");
-                            var server = supertest.agent("http://192.168.152.62:5000");
-                            var reqBody = {
-                                "botDescription":JSON.stringify(botsScriptDetails.ymlJson),
-                                "logLocation": '/home/karan/Documents/RL_Catalyst/Bots/ipAddress.log'
-                            };
-                            server
-                                .post('/utils')
-                                .send(reqBody)
-                                .set({'Content-Type':'application/json'})
-                                .end(function(err,res){
-                                    if(err){
-                                        console.log("**********Error***********");
-                                        logger.error(err);
+                            /*if(executionType === 'bots' || executionType === 'telemetry') {
+                             var supertest = require("supertest");
+                             var server = supertest.agent("http://192.168.152.62:5000");
+                             var reqBody = {
+                             "botDescription": JSON.stringify(botsScriptDetails.ymlJson),
+                             "logLocation": '/home/karan/Documents/RL_Catalyst/Bots/ipAddress.log'
+                             };
+                             server
+                             .post('/utils')
+                             .send(reqBody)
+                             .set({'Content-Type': 'application/json'})
+                             .end(function (err, res) {
+                             if (err) {
+                             logger.error(err);
+                             callback(err, null);
+                             } else {
+                             callback(null, res.text);
+                             return;
+                             }
+                             });
+                             }else {
+                             var supertest = require("supertest");
+                             var server = supertest.agent("http://192.168.152.62:5000");
+                             var reqBody = {
+                             "botDescription": JSON.stringify(botsScriptDetails.ymlJson),
+                             "logLocation": '/home/karan/Documents/RL_Catalyst/Bots/ipAddress.log'
+                             };
+                             server
+                             .post('/utils')
+                             .send(reqBody)
+                             .set({'Content-Type': 'application/json'})
+                             .end(function (err, res) {
+                             if (err) {
+                             logger.error(err);
+                             callback(err, null);
+                             } else {
+                             Object.keys(res.text).forEach(function(key){
+                             if(botsScriptDetails.inputFormFields[j][key] === null) {
+                             replaceTextObj[key] = res.text[key];
+                             }
+                             });
+                             apiUtil.messageFormatter(botsScriptDetails.outputOptions[3].msgs[0].text,replaceTextObj,function(err,formattedMessage){
+                             if(err){
+                             logger.error(err);
+                             callback(err,null);
+                             }else{
+                             callback(null,formattedMessage);
+                             return;
+                             }
+                             })
+                             }
+                             });
+                             }*/
+                            if(executionType === 'bots' || executionType === 'telemetry') {
+                                logger.debug("Message : > "+ "ipAddress : 192.168.152.208");
+                                var resultTaskExecution = {
+                                    "actionStatus": 'success',
+                                    "status": 'success',
+                                    "endedOn": new Date().getTime(),
+                                    "actionLogId": actionId
+                                };
+                                auditTrailService.updateAuditTrail('BOTs', auditTrail._id, resultTaskExecution, function (err, data) {
+                                    if (err) {
+                                        logger.error("Failed to create or update bots Log: ", err);
                                         callback(err,null);
                                     }else{
-                                        console.log("*********Response************");
-                                        logger.debug(JSON.stringify(res));
-                                        callback(null,res);
+                                        callback(null,data);
+                                        return;
                                     }
                                 });
-
-                            var resultTaskExecution = {
-                                "actionStatus": 'success',
-                                "status": 'success',
-                                "endedOn": new Date().getTime(),
-                                "actionLogId": actionId
-                            };
-                            auditTrailService.updateAuditTrail('BOTs', auditTrail._id, resultTaskExecution, function (err, data) {
-                                if (err) {
-                                    logger.error("Failed to create or update bots Log: ", err);
-                                }
-                            });
-                            
+                            }else{
+                                replaceTextObj.ipAddress = '192.168.152.208';
+                                apiUtil.messageFormatter(botsScriptDetails.outputOptions[3].msgs[0].text, replaceTextObj, function (err, formattedMessage) {
+                                    if (err) {
+                                        logger.error(err);
+                                    }
+                                    logger.debug("Message : > ", formattedMessage);
+                                    var resultTaskExecution = {
+                                        "actionStatus": 'success',
+                                        "status": 'success',
+                                        "endedOn": new Date().getTime(),
+                                        "actionLogId": actionId
+                                    };
+                                    auditTrailService.updateAuditTrail('BOTs', auditTrail._id, resultTaskExecution, function (err, data) {
+                                        if (err) {
+                                            logger.error("Failed to create or update bots Log: ", err);
+                                        }else{
+                                            callback(null,data);
+                                            return;
+                                        }
+                                    });
+                                });
+                            }
                         }
                     }
                 });
@@ -220,7 +285,7 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,callback) {
     }
 };
 
-function  executeScriptOnEnv(botsScriptDetails,auditTrail,envId,userName,callback){
+function  executeScriptOnEnv(botsScriptDetails,auditTrail,envId,userName,executionType,callback){
     var actionLogId = uuid.v4();
     var count = 0;
     var botLogFile = appConfig.botLogDir + actionLogId;
@@ -353,7 +418,7 @@ function  executeScriptOnEnv(botsScriptDetails,auditTrail,envId,userName,callbac
                                     .match(scriptObj.start)
                                     .ext('sh')
                                     .find().then(function (files) {
-                                     scp.upload(files[0], '/tmp', function (err) {
+                                    scp.upload(files[0], '/tmp', function (err) {
                                         if (err) {
                                             var timestampEnded = new Date().getTime();
                                             logsDao.insertLog({
@@ -392,17 +457,17 @@ function  executeScriptOnEnv(botsScriptDetails,auditTrail,envId,userName,callbac
                                             }
                                             return;
                                         }
-                                         if (scriptObj.sudoFlag && scriptObj.sudoFlag === true) {
-                                             cmd = 'sudo ' + scriptObj.type + ' /tmp' + scriptObj.start;
-                                         } else {
-                                             cmd = scriptObj.type + ' /tmp' + scriptObj.start;
-                                         }
-                                         if (botsScriptDetails.params.length > 0) {
-                                             for (var j = 0; j < botsScriptDetails.params.length; j++) {
-                                                 var decryptedText = cryptography.decryptText(botsScriptDetails.params[j], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-                                                 cmd = cmd + ' ' + decryptedText;
-                                             }
-                                         }
+                                        if (scriptObj.sudoFlag && scriptObj.sudoFlag === true) {
+                                            cmd = 'sudo ' + scriptObj.type + ' /tmp' + scriptObj.start;
+                                        } else {
+                                            cmd = scriptObj.type + ' /tmp' + scriptObj.start;
+                                        }
+                                        if (botsScriptDetails.params.length > 0) {
+                                            for (var j = 0; j < botsScriptDetails.params.length; j++) {
+                                                var decryptedText = cryptography.decryptText(botsScriptDetails.params[j], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                                                cmd = cmd + ' ' + decryptedText;
+                                            }
+                                        }
                                         sshExec.exec(cmd, function (err, retCode) {
                                             if (err) {
                                                 var timestampEnded = new Date().getTime();

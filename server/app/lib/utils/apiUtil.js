@@ -6,9 +6,15 @@ var logger = require('_pr/logger')(module);
 var appConfig = require('_pr/config');
 var commons=appConfig.constantData;
 var normalizedUtil = require('_pr/lib/utils/normalizedUtil.js');
+var formatMessage = require('format-message')
 var fileIo = require('_pr/lib/utils/fileio');
 
 var ApiUtil = function() {
+
+    this.messageFormatter=function(formattedMessage,replaceTextObj,callback){
+        var resultMessage = formatMessage(formattedMessage,replaceTextObj);
+        callback(null,resultMessage);
+    }
     this.errorResponse=function(code,field){
         var errObj={};
         if(code==400){
