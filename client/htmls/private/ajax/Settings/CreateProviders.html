@@ -64,7 +64,7 @@
                                             </span>
                                                         </div>
                                                     </div>
-                                                    <div class="row foraws aws-secret-info">
+                                                    <div class="row aws-secret-info">
                                                         <div class="col-lg-6 col-md-6 margintop20">
                                             <span>
                                                 <input type="checkbox" style="vertical-align: middle;"
@@ -244,15 +244,10 @@
                                                                 <option value="">Select Organization</option>
                                                             </select>
                                                         </div>
-                                                        <div class="hidden col-lg-6 col-md-6 margintop20 foraws monitoringCheck">
-                                                            <input type="checkbox" name="updateMonitoringInfo" style="vertical-align: middle;" id="updateMonitoringInfo"/>
-                                                            <label for="">Enable Monitoring:</label>
-                                                            <select id="monitorId" unique="true" name="monitorId" disabled class="chooseOrganization width-100" style="vertical-align: central" cdata="catalyst" skiprowid="yes">
-                                                                <option value="">Select Monitor</option>
-                                                            </select>
-                                                        </div>
-                                                        <input type="hidden" id="hiddenMonitorValue"/>
                                                     </div>
+                                                    <input type="hidden" id="regionNameHidden"/>
+                                                    <input type="hidden" id="keyPairNameHidden"/>
+                                                    <input type="hidden" id="keyPairFileNameHidden"/>
                                                 </div>
                                                 <!-- end widget div -->
                                             </div>
@@ -287,41 +282,6 @@
 <!--Popup for selecting a cloud provider before proceeding-->
 <script type="text/javascript" src="js/jquery.form.js"></script>
 <script>
-    
-    $('select#orgId').change(function(e){
-        var orgValueSelect = $(this).val();
-        if(orgValueSelect !== ''){
-            $('#monitorId').attr('disabled','disabled');
-            $('input[name="updateMonitoringInfo"]').removeAttr('checked');
-            getMonitorValues();
-        } else {
-            $('.monitoringCheck').addClass('hidden');
-        }
-    });
-
-    function getMonitorValues(){
-        $('.monitoringCheck').removeClass('hidden');
-        $.get('../monitors',function(data){
-            var orgValue = $('select#orgId').val();
-            var str = ' <option value="">Select Monitor</option>';
-            for(var i=0;i<data.length;i++){
-                if(orgValue === data[i].organization.id){
-                    str = str + '<option value="'+data[i]._id+'">'+data[i].name+'</option>';
-                }
-            }
-            $('#monitorId').html(str);
-        });
-    }
-
-    $('input[name="updateMonitoringInfo"]').change(function(e){
-        if(this.checked){
-            $('#monitorId').removeAttr('disabled').attr('cat-validation','required');
-        }  else {
-            $('#hiddenMonitorValue').val('');  
-            $('#monitorId').val('').attr('selected', true).change();
-            $('#monitorId').removeAttr('cat-validation').attr('disabled','disabled');;
-        }
-    });
     
     var UtilityMethods = {
         initTooltip: function() {
@@ -536,7 +496,11 @@
         var isDefault = $("input[name='isDefault']:checked").val();
 
         if(providerId && providerId != 'new' && region && region !== '') {
-            loadKeyPair(null, null, false, region, providerId);
+            if(accessKey && secretKey && accessKey !== '' && secretKey !== '') {
+                loadKeyPair(accessKey, secretKey, false, region, null);
+            } else {
+                loadKeyPair(null, null, false, region, providerId);
+            }
         } else if(accessKey && secretKey && accessKey !== '' && secretKey !== ''
                 && region && region !== '') {
             loadKeyPair(accessKey, secretKey, false, region, null);
@@ -672,36 +636,18 @@
             $('.aws-secret-info').hide();
             $('.secretInfo').removeAttr('cat-validation');
         }
-        if(data.monitor !== null){
-            $('.monitoringCheck').removeClass('hidden');
-            $('input[name="updateMonitoringInfo"]').attr('checked', true);
-            $('#monitorId').removeClass('hidden');
-            $.get('../monitors',function(monitorData){
-                var orgValue = $('select#orgId').val();
-                var str = '';
-                for(var i=0;i<monitorData.length;i++){
-                    if(orgValue === monitorData[i].organization.id){
-                        str = '<option value="'+monitorData[i]._id+'">'+monitorData[i].name+'</option>';
-                        $('#monitorId').append(str).removeAttr('disabled');
-                        $("#monitorId").val(data.monitor.id).attr('selected', true).change();
-                    }
-                }
-            });
-            var monitorHiddenValue = $('#monitorId').val();
-            $('#hiddenMonitorValue').val(monitorHiddenValue);
-        } else {
-            $('#hiddenMonitorValue').val('');
-            getMonitorValues();
-        }
+        
         var parentList = $('.addNewRegion');
         $('select.region').on('change', checkForKeyPair);
         for (var i = 0; i < data.keyPairs.length; i++) {
             parentList.eq(i).find('select.region').attr('answer', data.keyPairs[i].region).attr('disabled', 'disabled').select2();
-
+            $('input#regionNameHidden').val(data.keyPairs[i].region);
             parentList.eq(i).find('select.keyvalue').val(data.keyPairs[i].keyPairName).attr({
                 'disabled': 'disabled',
                 'keyID': data.keyPairs[i]._id
             }).attr('answer', data.keyPairs[i].keyPairName).select2();
+            $('input#keyPairNameHidden').val(data.keyPairs[i].keyPairName);
+            $('input#keyPairFileNameHidden').val(data.keyPairs[i].fileName);
             parentList.eq(i).find('.filename').attr('disabled', 'disabled').val(data.keyPairs[i].fileName).removeAttr('cat-validation');
             parentList.eq(i).find('input.file').attr('disabled', 'disabled').removeAttr('cat-validation');
         }
@@ -731,13 +677,23 @@
         $('#updateSecretInfo').change(function() {
             if (this.checked) {
                 $secretInfo.removeAttr('disabled');
+                $('select.region').val($('.region option:first-child').val()).removeAttr('disabled').select2();
+                $('select.keyvalue').val($('.keyvalue option:first-child').val()).removeAttr('disabled').select2();
+                $('input.file').removeAttr('disabled');
+                $('input.filename').val('').removeAttr('disabled').attr('cat-validation','required');
+                bindChange_importPemFile();
                 $awsInputs.attr('cat-validation', 'required');
                 $vmwareInputs.attr('cat-validation-vmware', 'required');
                 $azureInputs.attr('cat-validation-azure', 'required');
                 $openStack.attr('cat-validation-openstack', 'required');
-               // loadKeyPair(null, null, false, region, providerId);
             } else {
-
+                var regionNameOnEdit = $('#regionNameHidden').val();
+                var keyPairNameOnEdit = $('#keyPairNameHidden').val();
+                var keyPairFileNameOnEdit = $('#keyPairFileNameHidden').val();
+                $('select.region').val(regionNameOnEdit).trigger('change').attr('disabled','disabled').select2();
+                $('select.keyvalue').val(keyPairNameOnEdit).trigger('change').attr('disabled','disabled').select2();
+                $('input.filename').attr('disabled', 'disabled').val(keyPairFileNameOnEdit).removeAttr('cat-validation');
+                $('input.file').attr('disabled', 'disabled').removeAttr('cat-validation');
                 $secretInfo.attr('disabled', 'disabled');
                 $secretInfo.removeAttr('cat-validation').removeAttr('cat-validation-vmware').removeAttr('cat-validation-azure').removeAttr('cat-validation-openstack');
                 $secretInfo.val('');
@@ -779,17 +735,15 @@
                 if (location.toString().indexOf('?new') === -1) {
                     var orgValue = $('#orgId').val();
                     arr.push({name:'orgId',value:orgValue,type:'select-one',required:false});
-                    var monitorValue = $('#hiddenMonitorValue').val();
-                    if(!monitorValue) {
-                        arr =  arr.concat({name:'monitorId',value:monitorValue,type:'select-one',required:false});
-                    } else {
-                        arr.push({name:'monitorId',value:monitorValue,type:'select-one',required:false});
+                    if($('#providerType').val() == 'AWS'){
+                        var regionName = $('.region').val();
+                        var keyPairName = $('.keyvalue').val();
+                        var kepPairFile = $('.filename').val();
+                        
+                        arr.push({name:'region',value:regionName,type:'select-one',required:false});
                     }
                 }
-                if (location.toString().indexOf('?new') === -1 && $('#providertype').val() == 'AZURE') {
-                    var azureSubscriptionId = $('#azureSubscriptionId').val();
-                    arr.push({name:'azureSubscriptionId',value:orgValue,type:'text',required:false})
-                }
+                
                 // return false to cancel submit
                 if ($('#providertype').val() == 'OPENSTACK' || $('#providertype').val() == 'HPPUBLICCLOUD') {
                     if (isFormValidOpenStack(null, 'cat-validation-openstack')) {
@@ -1044,13 +998,13 @@
                     return '<img src="img/remove.png" class="removeimage ' + (classs ? classs : '') + '" ' + titile + ' rel="tooltip"  />'
                 },
                 getKeyValueList = function() {
-                    return '<div class="col-lg-6 col-md-6 margintop20" style="width:47%;">' + '<label for="name">Select Key Pair:<span class="control-label redSpan">&nbsp;*</span></label>' + '<select id="' + UtilityMethods.getRandomNumber() + '" name="keyPairName" unique="true" uniqueconditionedby="orgname"  class="chooseOrganization width-100 keyvalue secretInfo" ' + 'style="vertical-align:central" cat-validation="required" skiprowid="yes" cdata="catalyst">' + '  <option value="">Select Any Key Pair</option></select>' + '</div>';
+                    return '<div class="col-lg-6 col-md-6 margintop20" style="width:47%;">' + '<label for="name">Select Key Pair:<span class="control-label redSpan">&nbsp;*</span></label>' + '<select id="' + UtilityMethods.getRandomNumber() + '" name="keyPairName" unique="true" uniqueconditionedby="orgname"  class="editCheck chooseOrganization width-100 keyvalue" ' + 'style="vertical-align:central" cat-validation="required" skiprowid="yes" cdata="catalyst">' + '  <option value="">Select Any Key Pair</option></select>' + '</div>';
                 };
         var getRegion = function() {
-            return '<div class="row">' + '<div class="col-lg-6 col-md-6" style="width:47%">' + '<label for="name">Region:<span class="control-label redSpan">&nbsp;*</span></label>' + '<select id="' + UtilityMethods.getRandomNumber() + '" name="region" unique="true" uniqueconditionedby="orgname"  class="region chooseOrganization width-100 secretInfo" style="' + 'vertical-align:central" cat-validation="required" skiprowid="yes" cdata="catalyst">' + '<option value="">Select Region</option>' + '<option value="us-west-2">us-west-2</option>' + '</select>' + '</div></div>';
+            return '<div class="row">' + '<div class="col-lg-6 col-md-6" style="width:47%">' + '<label for="name">Region:<span class="control-label redSpan">&nbsp;*</span></label>' + '<select id="' + UtilityMethods.getRandomNumber() + '" name="region" unique="true" uniqueconditionedby="orgname"  class="editCheck region chooseOrganization width-100" style="' + 'vertical-align:central" cat-validation="required" skiprowid="yes" cdata="catalyst">' + '<option value="">Select Region</option>' + '<option value="us-west-2">us-west-2</option>' + '</select>' + '</div></div>';
         };
         var getPemFileRow = function() {
-            return '<div class="col-lg-6 col-md-6 authPemFile margintop20" style="display: block;"><div class="smart-forms" style="  margin-left: 7%;"><label for="">Upload .pem file for Provider<span class="control-label redSpan">&nbsp;*</span></label>' + '<label for="templatesicon" name="field" class="file">' + '<span class="button btn-primary btn-importbyIP" style="height:26px;line-height:22px;  padding: 1px ' + '14px;position: absolute;right:4px;margin-top: 4.5%;">Browse</span>' + '<input id="' + UtilityMethods.getRandomNumber() + '" type="file" class="gui-file file secretInfo" cdata="catalyst" cat-validation="required" name="fileObject">' + '<input type="text" readonly="" class="gui-input filename" name="fileName">' + '<input type="text" class="folderpath" style="display:none;" cdata="catalyst" />' + '</label></div></div>';
+            return '<div class="col-lg-6 col-md-6 authPemFile margintop20" style="display: block;"><div class="smart-forms" style="  margin-left: 7%;"><label for="">Upload .pem file for Provider<span class="control-label redSpan">&nbsp;*</span></label>' + '<label for="templatesicon" name="field" class="file">' + '<span class="button btn-primary btn-importbyIP" style="height:26px;line-height:22px;  padding: 1px ' + '14px;position: absolute;right:4px;margin-top: 3.5%;">Browse</span>' + '<input id="' + UtilityMethods.getRandomNumber() + '" type="file" class="gui-file file secretInfo" cdata="catalyst" cat-validation="required" name="fileObject">' + '<input type="text" readonly="" class="gui-input filename" name="fileName">' + '<input type="text" class="folderpath" style="display:none;" cdata="catalyst" />' + '</label></div></div>';
         };
 
         this.getRow = function(isAdd, isRemove, notrequired) {

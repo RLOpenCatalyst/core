@@ -31,10 +31,34 @@ var Chef = require('_pr/lib/chef.js');
 var containerDao = require('_pr/model/container');
 var logsDao = require('_pr/model/dao/logsdao.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
+var apiUtil = require('_pr/lib/utils/apiUtil.js');
+var async = require('async');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     app.all('/cloudformation/*', sessionVerificationFunc);
+
+    app.get('/cloudformation', function(req, res) {
+        async.waterfall([
+            function(next){
+                apiUtil.queryFilterBy(req.query,next);
+            },
+            function(filterObj,next){
+                CloudFormation.getCloudFormationList(filterObj,next);
+            }
+        ],function(err,cloudFormationList){
+            if(err){
+                res.status(500).send(errorResponses.db.error);
+                return;
+            }else if(cloudFormationList.length > 0){
+                res.send(200, cloudFormationList);
+            }else{
+                res.send(404, {
+                    message: "CFT not found"
+                })
+            }
+        });
+    });
 
     app.get('/cloudformation/:cfId', function(req, res) {
         CloudFormation.getById(req.params.cfId, function(err, cloudFormation) {
@@ -73,7 +97,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
     app.delete('/cloudformation/:cfId', function(req, res) {
-
         CloudFormation.getById(req.params.cfId, function(err, cloudFormation) {
             if (err) {
                 res.status(500).send(errorResponses.db.error);

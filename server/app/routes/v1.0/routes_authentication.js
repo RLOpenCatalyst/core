@@ -37,7 +37,6 @@ var aws = require('aws-sdk');
 module.exports.setRoutes = function(app) {
     app.post('/auth/createldapUser', function(req, res) {
         if (req.body) {
-
             LDAPUser.getLdapUser(function(err, ldapData) {
                 if (err) {
                     logger.error("Failed to get ldap-user: ", err);
@@ -365,7 +364,6 @@ module.exports.setRoutes = function(app) {
         if (req.session && req.session.user) {
             next();
         } else {
-            //checking for token authentication
             var token = req.headers[appConfig.catalystAuthHeaderName];
             if (token) {
                 AuthToken.findByToken(token, function(err, authToken) {

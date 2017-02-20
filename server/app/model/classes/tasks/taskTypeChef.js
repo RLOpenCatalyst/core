@@ -269,9 +269,16 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                     });
                 });
 
-            } else if (tagServer) {
-                logger.debug('in tagServer',tagServer);
-                instancesDao.getInstancesByTagServer(tagServer, function(err, instances) {
+            } else  if ((typeof tagServer === 'string' && tagServer === 'undefined') || typeof tagServer === 'undefined') {
+                if (!(instanceIds && instanceIds.length)) {
+                    if (typeof onExecute === 'function') {
+                        onExecute({
+                            message: "Empty Node List"
+                        }, null);
+                    }
+                    return;
+                }
+                instancesDao.getInstances(instanceIds, function (err, instances) {
                     if (err) {
                         logger.error(err);
                         if (typeof onExecute === 'function') {
@@ -283,16 +290,8 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                 });
 
             } else {
-
-                if (!(instanceIds && instanceIds.length)) {
-                    if (typeof onExecute === 'function') {
-                        onExecute({
-                            message: "Empty Node List"
-                        }, null);
-                    }
-                    return;
-                }
-                instancesDao.getInstances(instanceIds, function(err, instances) {
+                logger.debug('in tagServer', tagServer);
+                instancesDao.getInstancesByTagServer(tagServer, function (err, instances) {
                     if (err) {
                         logger.error(err);
                         if (typeof onExecute === 'function') {
@@ -303,7 +302,6 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                     callback(null, instances);
                 });
             }
-
         }
         logger.debug('role ==>', self.role);
         getInstances(self.role, instanceIds, self.botTagServer, function(err, instances) {

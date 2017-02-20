@@ -8,7 +8,7 @@
 (function(angular){
 	"use strict";
 	angular.module('workzone.orchestration')
-		.controller('addChefJobEventCtrl',['$scope', '$modalInstance', 'items' ,'toastr',function($scope, $modalInstance , items , toastr){
+		.controller('addChefJobEventCtrl',['$scope', '$modalInstance', 'items',function($scope, $modalInstance , items){
 			console.log(items);
 			$scope.checkFrequencyCheck=false;
 			$scope.defaultSelection = function() {
@@ -89,7 +89,7 @@
 			};
             $scope.isDaySelected = {
             	flag:true
-            }
+            };
 			
 			$scope.daysOfWeek = [ 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' ];
 

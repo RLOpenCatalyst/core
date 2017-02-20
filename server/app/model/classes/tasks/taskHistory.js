@@ -251,6 +251,28 @@ taskHistorySchema.statics.updateHistory = function updateHistory(hId, historyDat
     });
 };
 
+taskHistorySchema.statics.getTaskHistory = function getTaskHistory(query,callback) {
+    this.find(query,function(err, tHistories) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, tHistories);
+    });
+};
+
+taskHistorySchema.statics.updateRunningTaskHistory = function updateRunningTaskHistory(taskHistoryId,queryObj,callback){
+    TaskHistory.update({_id:new ObjectId(taskHistoryId)},{$set:queryObj},{multi:true}, function(err, updatedTaskHistory) {
+        if (err) {
+            logger.error(err);
+            var error = new Error('Internal server error');
+            error.status = 500;
+            return callback(error);
+        }
+        return callback(null, updatedTaskHistory);
+    });
+};
+
 var TaskHistory = mongoose.model('taskHistory', taskHistorySchema);
 
 module.exports = TaskHistory;

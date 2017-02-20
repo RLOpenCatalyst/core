@@ -13,7 +13,7 @@
 			url: "/library",
 			templateUrl: "src/partials/sections/dashboard/bots/view/library.html",
 			controller: "libraryCtrl as libr",
-			params:{filterView:{library:true}},
+			parameters:{filterView:{library:true}},
 			resolve: {
 				auth: ["$q", function ($q) {
 					var deferred = $q.defer();
@@ -31,7 +31,25 @@
 			url: "/audittrail",
 			templateUrl: "src/partials/sections/dashboard/bots/view/audittrail.html",
 			controller: "audittrailCtrl as audit",
-			params:{filterView:{audittrail:true}},
+			parameters:{filterView:{audittrail:true}},
+			resolve: {
+				auth: ["$q", function ($q) {
+					var deferred = $q.defer();
+					// instead, go to a different page
+					if (modulePerms.serviceBool()) {
+						// everything is fine, proceed
+						deferred.resolve();
+					} else {
+						deferred.reject({redirectTo: 'dashboard'});
+					}
+					return deferred.promise;
+				}]
+			}
+		}).state('dashboard.bots.botsDescription', {
+			url: "/botDescription",
+			templateUrl: "src/partials/sections/dashboard/bots/view/botsDescription.html",
+			controller: "botDescriptionCtrl as btsDescription",
+			parameters:{filterView:{botsDescription:true}},
 			resolve: {
 				auth: ["$q", function ($q) {
 					var deferred = $q.defer();
@@ -49,6 +67,8 @@
 	}])
 	.controller('botsCtrl',['$scope', '$rootScope', '$state', function ($scope, $rootScope, $state) {
 		$state.go('dashboard.bots.library');
-		$rootScope.stateItems = $state.params;
+		$scope.$watch(function() {
+			$rootScope.stateItems = $state.current.name;
+		});
 	}]);
 })(angular);

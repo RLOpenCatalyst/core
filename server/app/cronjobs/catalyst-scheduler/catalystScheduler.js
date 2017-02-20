@@ -1,6 +1,7 @@
 var logger = require('_pr/logger')(module);
 var instancesDao = require('_pr/model/classes/instance/instance');
 var taskDao = require('_pr/model/classes/tasks/tasks.js');
+var botsDao = require('_pr/model/bots/1.0/bots.js');
 var schedulerService = require('_pr/services/schedulerService');
 var async = require('async');
 var cronTab = require('node-crontab');
@@ -86,6 +87,7 @@ catalystSync.executeParallelScheduledTasks = function executeParallelScheduledTa
     });
 }
 
+
 catalystSync.executeSerialScheduledTasks = function executeSerialScheduledTasks() {
     taskDao.getScheduledTasks('SERIAL',function(err, tasks) {
         if (err) {
@@ -130,6 +132,44 @@ catalystSync.executeSerialScheduledTasks = function executeSerialScheduledTasks(
             }
         }else{
             logger.debug("There is no Serial scheduled Task right now.");
+            return;
+        }
+    });
+}
+
+catalystSync.executeScheduledBots = function executeScheduledBots() {
+    botsDao.getScheduledBots(function(err, bots) {
+        if (err) {
+            logger.error("Failed to fetch bots: ", err);
+            return;
+        }
+        if (bots && bots.length) {
+            var botsList=[];
+            for (var i = 0; i < bots.length; i++) {
+                (function(bot) {
+                    if(bot.cronJobId && bot.cronJobId !== null){
+                        cronTab.cancelJob(bot.cronJobId);
+                    }
+                    botsList.push(function(callback){schedulerService.executeScheduledBots(bot,callback);});
+                    if(botsList.length === bots.length){
+                        if(botsList.length > 0) {
+                            async.parallel(botsList, function (err, results) {
+                                if (err) {
+                                    logger.error(err);
+                                    return;
+                                }
+                                logger.debug("Bots Scheduler Completed");
+                                return;
+                            })
+                        }else{
+                            logger.debug("There is no scheduled Bots right now.");
+                            return;
+                        }
+                    }
+                })(bots[i]);
+            }
+        }else{
+            logger.debug("There is no scheduled Bots right now.");
             return;
         }
     });

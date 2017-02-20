@@ -19,18 +19,13 @@
 			$scope.initChefGrids = function(){
 				$scope.taskHistoryChefGridOptions.data='taskHistoryChefData';
 				$scope.taskHistoryChefGridOptions.columnDefs = [
-				{ name:'Start Time',field:'timestampStarted',cellTemplate:'<span title="{{row.entity.timestampStarted  | timestampToLocaleTime}}">{{row.entity.timestampStarted  | timestampToLocaleTime}}</span>', sort:{ direction: 'desc'}, cellTooltip: true},
-				{ name:'End Time',field:'timestampEnded',cellTemplate:'<span title="{{row.entity.timestampEnded  | timestampToLocaleTime}}">{{row.entity.timestampEnded  | timestampToLocaleTime}}</span>', cellTooltip: true},
-				{ name:'Execution Time',cellTemplate:'<span>{{grid.appScope.getExecutionTime(row.entity.timestampEnded,row.entity.timestampStarted)}} mins</span>'},
-				{ name:'Manual Time',cellTemplate: '<span>{{row.entity.manualExecutionTime}} mins</span>', cellTooltip: true},
-				{ name:'Saved Time',cellTemplate:'<span ng-if="row.entity.status == \'success\'">{{grid.appScope.getSavedTime(row.entity.timestampEnded,row.entity.timestampStarted)}} mins</span>' +
-					'<span ng-if="row.entity.status !== \'success\'" title="NA">NA</span>', cellTooltip: true},
 				{ name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status}}">{{row.entity.status}}</div>', cellTooltip: true},
 				{ name:'Message', field: 'message', 
 				  cellTemplate:'<span title="{{row.entity.message}}">{{row.entity.message}}</span>'},
 				{ name:'User',field:'user',cellTooltip: true},
 				{ name:'Logs',width: 70,
-				  cellTemplate:'<div class="text-center"><i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.historyLogs(row.entity)"></i></div>'}
+				  cellTemplate:'<div class="text-center"><i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.historyLogs(row.entity)"></i></div>'},{ name:'Start Time',field:'timestampStarted',cellTemplate:'<span title="{{row.entity.timestampStarted  | timestampToLocaleTime}}">{{row.entity.timestampStarted  | timestampToLocaleTime}}</span>', sort:{ direction: 'desc'}, cellTooltip: true},
+				{ name:'End Time',field:'timestampEnded',cellTemplate:'<span title="{{row.entity.timestampEnded  | timestampToLocaleTime}}">{{row.entity.timestampEnded  | timestampToLocaleTime}}</span>', cellTooltip: true}
 				];
 			};
 			angular.extend($scope, {
@@ -50,23 +45,11 @@
 						$scope.errorMessage = "No Chef History Records found";
 						$scope.ischefTaskHistoryPageLoading = false;
 					});
-				},
-				getExecutionTime: function(endTime, startTime) {
-                    $scope.executionTimeinMS = endTime-startTime;
-                    $scope.executionTime = $scope.executionTimeinMS/(60000);
-                    return $scope.executionTime;
-                },
-                getSavedTime: function(endTime, startTime) {
-                	var executionTime = $scope.getExecutionTime(endTime, startTime);
-                    $scope.savedTime = items.manualExecutionTime-executionTime;
-                    return $scope.savedTime;
-                }
+				}
 			});
 			$scope.initchef = function(){
 				$scope.initChefGrids();
 				$scope.taskHistoryChefListView();
-				$scope.getExecutionTime();
-				$scope.getSavedTime();
 			};
 			//UI Grid for chef Task ends
 
@@ -83,11 +66,7 @@
 				{ name:'Log Info',width: 90,cellTemplate:'<span title="Jenkins Log" class="fa fa-list bigger-120 btn cat-btn-update btn-sg tableactionbutton" ng-click="grid.appScope.historyLogs(row.entity);"></span>',cellTooltip: true},
 				{ name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status.toUpperCase()}}">{{row.entity.status.toUpperCase()}}</div>'},
 				{ name:'Start Time',field:'timestampStarted',cellTemplate:'<span title="{{row.entity.timestampStarted  | timestampToLocaleTime}}">{{row.entity.timestampStarted  | timestampToLocaleTime}}</span>',cellTooltip: true},
-				{ name:'End Time',field:'timestampEnded',cellTemplate:'<span title="{{row.entity.timestampEnded  | timestampToLocaleTime}}">{{row.entity.timestampEnded  | timestampToLocaleTime}}</span>',cellTooltip: true},
-				{ name:'Execution Time',cellTemplate:'<span>{{grid.appScope.getExecutionTime(row.entity.timestampEnded,row.entity.timestampStarted)}} mins</span>'},
-				{ name:'Manual Time',cellTemplate: '<span>{{row.entity.manualExecutionTime}} mins</span>', cellTooltip: true},
-				{ name:'Saved Time',cellTemplate:'<span ng-if="row.entity.status === \'success\'">{{grid.appScope.getSavedTime(row.entity.timestampEnded,row.entity.timestampStarted)}} mins</span>' +
-					'<span ng-if="row.entity.status !== \'success\'" title="NA">NA</span>', cellTooltip: true}
+				{ name:'End Time',field:'timestampEnded',cellTemplate:'<span title="{{row.entity.timestampEnded  | timestampToLocaleTime}}">{{row.entity.timestampEnded  | timestampToLocaleTime}}</span>',cellTooltip: true}
 				];
 			};
 			angular.extend($scope, {
@@ -112,8 +91,6 @@
 			$scope.initjenkins = function(){
 				$scope.initJenkinsGrids();
 				$scope.taskHistoryJenkinsListView();
-				$scope.getExecutionTime();
-				$scope.getSavedTime();
 			};
 			//UI Grid for jenkins Task ends
 
@@ -209,18 +186,15 @@
 			$scope.initScriptGrids = function(){
 				$scope.taskHistoryScriptGridOptions.data='taskHistoryScriptData';
 				$scope.taskHistoryScriptGridOptions.columnDefs = [
-				{ name:'Start Time',field:'timestampStarted',cellTemplate:'<span title="{{row.entity.timestampStarted  | timestampToLocaleTime}}">{{row.entity.timestampStarted  | timestampToLocaleTime}}</span>', sort:{ direction: 'desc'}, cellTooltip: true},
-				{ name:'End Time',field:'timestampEnded',cellTemplate:'<span title="{{row.entity.timestampEnded  | timestampToLocaleTime}}">{{row.entity.timestampEnded  | timestampToLocaleTime}}</span>', cellTooltip: true},
-				{ name:'Execution Time',cellTemplate:'<span>{{grid.appScope.getExecutionTime(row.entity.timestampEnded,row.entity.timestampStarted)}} mins</span>'},
-				{ name:'Manual Time',cellTemplate: '<span>{{row.entity.manualExecutionTime}} mins</span>', cellTooltip: true},
-				{ name:'Saved Time',cellTemplate:'<span ng-if="row.entity.status === \'success\'">{{grid.appScope.getSavedTime(row.entity.timestampEnded,row.entity.timestampStarted)}} mins</span>' +
-					'<span ng-if="row.entity.status !== \'success\'" title="NA">NA</span>', cellTooltip: true},
 				{ name:'Status',field:'status',cellTemplate:'<div class="{{row.entity.status}}">{{row.entity.status}}</div>', cellTooltip: true},
 				{ name:'Message', field: 'message', 
 				  cellTemplate:'<span title="{{row.entity.message}}">{{row.entity.message}}</span>'},
 				{ name:'User',field:'user',cellTooltip: true},
 				{ name:'Logs',width: 70,
-				  cellTemplate:'<div class="text-center"><i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.historyLogs(row.entity)"></i></div>'}
+				  cellTemplate:'<div class="text-center"><i class="fa fa-info-circle cursor" title="More Info" ng-click="grid.appScope.historyLogs(row.entity)"></i></div>'},
+				  { name:'Start Time',field:'timestampStarted',cellTemplate:'<span title="{{row.entity.timestampStarted  | timestampToLocaleTime}}">{{row.entity.timestampStarted  | timestampToLocaleTime}}</span>', sort:{ direction: 'desc'}, cellTooltip: true},
+				{ name:'End Time',field:'timestampEnded',cellTemplate:'<span title="{{row.entity.timestampEnded  | timestampToLocaleTime}}">{{row.entity.timestampEnded  | timestampToLocaleTime}}</span>', cellTooltip: true}
+				
 				];
 			};
 			angular.extend($scope, {
@@ -245,8 +219,6 @@
 			$scope.initscript = function(){
 				$scope.initScriptGrids();
 				$scope.taskHistoryScriptListView();
-				$scope.getExecutionTime();
-				$scope.getSavedTime();
 			};
 			//UI Grid for script Task ends
 

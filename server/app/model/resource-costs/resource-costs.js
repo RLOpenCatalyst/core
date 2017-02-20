@@ -77,7 +77,7 @@ var ResourceCostsSchema = new Schema({
     },
     billLineItemId: {
         type: Number,
-        required: true,
+        required: false,
         trim: true
     },
     platformDetails: {
@@ -137,8 +137,6 @@ var ResourceCostsSchema = new Schema({
 })
 
 ResourceCostsSchema.index({'platformDetails.serviceId' : 1})
-ResourceCostsSchema.index({'organizationId': 1, 'providerId': 1, 'startTime': 1,
-    'billIntervalId': 1, 'billLineItemId': 1,  'interval': 1}, {'unique': true})
 
 ResourceCostsSchema.statics.save = function save(resourceCostData, callback) {
     var resourceCosts = new ResourceCosts(resourceCostData)
@@ -161,12 +159,25 @@ ResourceCostsSchema.statics.remove
 
     this.find(query).remove(function(err, result) {
         if (err) {
-            callback(err)
+            callback(err,null);
         } else {
             callback(null, result)
         }
     })
 }
+
+ResourceCostsSchema.statics.removeResourceCostByProviderId = function removeResourceCostByProviderId(providerId, callback) {
+    var query = {
+        providerId: providerId
+    }
+    this.find(query).remove(function(err, result) {
+        if (err) {
+            callback(err)
+        } else {
+            callback(null, result)
+        }
+    })
+};
 
 ResourceCostsSchema.statics.upsert = function upsert(resourceCostData, callback) {
     var query = {

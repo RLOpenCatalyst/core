@@ -133,6 +133,7 @@
 						$timeout(function() {
 							$scope.orcheGridOptions.totalItems = result.data.metaData.totalRecords;
 							$scope.tabData = result.data.tasks;
+							console.log($scope.tabData);
 						}, 100);
 						$scope.isOrchestrationPageLoading = false;
 					}, function(error) {

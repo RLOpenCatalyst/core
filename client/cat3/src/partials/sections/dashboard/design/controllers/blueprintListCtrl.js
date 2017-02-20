@@ -115,7 +115,7 @@
             };
             pbList.launchInstance  = $scope.launchInstance =function($event,pb){
                 $event.stopPropagation();
-                gencSers.lunchBlueprint(pb);
+                gencSers.launchBlueprint(pb);
             };
             pbList.selectCard = function (cardObj){
                 pbList[cardObj._id] = !pbList[cardObj._id];

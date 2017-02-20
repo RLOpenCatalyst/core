@@ -405,6 +405,11 @@ var InstanceSchema = new Schema({
         type: Boolean,
         required: false,
         default: false
+    },
+    monitor: {
+        type: Schema.Types.Mixed,
+        required: false,
+        default: null
     }
 });
 
@@ -1510,11 +1515,11 @@ var InstancesDao = function () {
         return actionLog._id;
     }
 
-    this.getAllActionLogs = function (instanceId, callback) {
+    this.getAllActionLogs = function (instanceId,filterByQuery, callback) {
         logger.debug("Enter getAllActionLogs (%s)", instanceId);
         Instances.find({
             "_id": new ObjectId(instanceId)
-        }, function (err, data) {
+        },filterByQuery, function (err, data) {
             if (err) {
                 logger.error("Failed getAllActionLogs (%s)", instanceId, err);
                 callback(err, null);
@@ -2064,6 +2069,24 @@ var InstancesDao = function () {
             }
         });
     };
+    
+    this.updateInstanceMonitor = function (instanceAWSId, monitor, callback) {
+        Instances.update({
+            platformId: instanceAWSId
+        }, {
+            $set: {
+                monitor: monitor
+            }
+        }, {
+            upsert: false
+        }, function (err, data) {
+            if (err) {
+                return callback(err, null);
+            } else {
+                callback(null, data);
+            }
+        });
+    };
 
     this.NormalizedInstances = function (jsonData, fieldName, callback) {
         var queryObj = {};
@@ -2327,6 +2350,26 @@ var InstancesDao = function () {
             callback(null, instances);
         })
     }
+
+    this.getInstancesByEnvId = function getInstancesByEnvId (envId,userName,callback) {
+        logger.debug("Enter getInstancesByEnvId(%s, %s)", envId, userName);
+        var queryObj = {
+            envId: envId,
+            users:userName,
+            isDeleted:false
+        }
+        Instances.find(queryObj, {
+            'actionLogs': false
+        }, function (err, data) {
+            if (err) {
+                logger.error("Failed to getInstancesByEnvId( %s, %s)", envId, userName, err);
+                callback(err, null);
+                return;
+            }
+            logger.debug("Exit getInstancesByEnvId(%s, %s)", envId, userName);
+            callback(null, data);
+        });
+    };
 
     this.updateScheduler = function (instanceIds, instanceScheduler, callback) {
         var instanceIdList = [];

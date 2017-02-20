@@ -33,6 +33,7 @@ input[type="file"] {
                   <td>Protocol Type</td>
                   <td>Host</td>
                   <td>Port</td>
+                  <td>Default</td>
                   <td>Action</td>
                 </tr>
               </thead>
@@ -382,6 +383,13 @@ function createTableForMonitorList(monitorData) {
   var $monitorList = $('#monitorTable tbody');
   var $tr = $('<tr class="monitorItemRow"></tr>').attr('data-monitorId', monitorData._id).attr('data-type', monitorData.type).attr('transportProtocol-type', monitorData.parameters.transportProtocol).attr('orgId',monitorData.organization.id).attr('orgName',monitorData.organization.name);
   $tr.data('monitorData', monitorData);
+  var isDefault='';
+
+  if(monitorData.isDefault){
+    isDefault='Default';
+  } else {
+    isDefault='<span class="monitorIsDefault">Set as Default</span>';
+   }
 
   var $tdName = $('<td class="monitorName">' + monitorData.name + '</td>');
 
@@ -396,6 +404,8 @@ function createTableForMonitorList(monitorData) {
   var $tdProtocolHost = $('<td class="monitorProtocolHost">' + monitorData.parameters.transportProtocolParameters.host + '</td>');
 
   var $tdProtocolPort = $('<td class="monitorProtocolPort">' + monitorData.parameters.transportProtocolParameters.port + '</td>');
+
+  var $tdIsDefault = $('<td id="isDefault">' + isDefault + '</td>');
 
   var $tdAction = $('<td/>');
 
@@ -432,6 +442,44 @@ function createTableForMonitorList(monitorData) {
   });*/
 
   //for deletion of track items from the table..
+  $tdIsDefault.click(function() {
+      var $this = $(this);
+      //var $tr = $this.parents('tr.monitorItemRow');
+      var monitorId = monitorData._id;
+      var orgId = monitorData.organization.id;
+      var monitorName = monitorData.name;
+      bootbox.confirm({
+          message: 'Do you want to set this Monitor Item as Default?',
+          title: monitorName,
+          callback: function(result) {
+              if (result) {
+                  $.ajax({
+                      url: '../monitors/' + monitorId + '/org/' + orgId + '/setdefault',
+                      method: 'PUT',
+                      success: function() {
+                        $monitorDatatable.clear().draw();
+                        getGlobalMonitorServers();
+                      },
+                      error: function(jxhr) {
+                          bootbox.alert(result);
+                          var msg = "Unable to Set as Default please try again later";
+                          if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                              msg = jxhr.responseJSON.message;
+                          } else if (jxhr.responseText) {
+                              msg = jxhr.responseText;
+                          }
+                          bootbox.alert(msg);
+                      }
+                  });
+              } else {
+                  return;
+              }
+          }
+      });
+      return false;
+  });
+
+
   $tdAction.find('button.globalMonitorRemove').click(function() {
 
       var $this = $(this);
@@ -468,7 +516,7 @@ function createTableForMonitorList(monitorData) {
       return false;
   });
 
-  $tr.append($tdName).append($tdOrganization).append($tdServerType).append($tdServerURL).append($tdProtocolType).append($tdProtocolHost).append($tdProtocolPort).append($tdAction);
+  $tr.append($tdName).append($tdOrganization).append($tdServerType).append($tdServerURL).append($tdProtocolType).append($tdProtocolHost).append($tdProtocolPort).append($tdIsDefault).append($tdAction);
   $monitorList.append($tr);
   $monitorDatatable.row.add($tr).draw();
 };
@@ -688,4 +736,10 @@ $('#monitorServerForm').submit(function(e) {
     }
 });
 </script>
-                             
+
+<style>
+  .monitorIsDefault {
+    color: #005384;
+    cursor: pointer;
+  }
+</style>                             

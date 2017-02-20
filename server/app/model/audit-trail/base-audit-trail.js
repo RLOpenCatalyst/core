@@ -30,6 +30,11 @@ var AuditTrailSchema = function AuditTrail() {
             trim:true,
             required:true
         },
+        auditHistoryId: {
+            type: String,
+            trim:true,
+            required:false
+        },
         masterDetails:{
             orgName: {
                 type: String,
@@ -116,6 +121,10 @@ var AuditTrailSchema = function AuditTrail() {
             type: String,
             trim:true,
             required:false
+        },
+        isDeleted: {
+            type: Boolean,
+            default:false
         }
     });
 };

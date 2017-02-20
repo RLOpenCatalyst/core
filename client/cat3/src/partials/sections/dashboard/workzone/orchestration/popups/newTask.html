@@ -54,7 +54,7 @@
 								<input type="checkbox" class="checkbox-list" ng-model="checkBotType" ng-click="botStatus()"/>
 							</div>
 							<div class="col-md-6 col-sm-6 col-xs-6 " ng-show="checkBotStatus">
-								<label class="control-label">Bot Type
+								<label class="control-label">BOT Type
 									<span class="control-label red">&nbsp;*</span>
 									<span ng-show="newTaskForm.botType.$touched && newTaskForm.botType.$invalid" class="inputValidationMsg">required
 									</span>
@@ -64,7 +64,7 @@
 									<select name="botType" class="form-control" ng-model="botType" ng-required="checkBotStatus">
 										<option selected="selected" value="Task">Task</option>
 										<option ng-show="!createChefJob" value="Check">Check</option>
-										<option ng-show="!createChefJob" value="Run">Run</option>
+										<option ng-show="!createChefJob" value="Service">Service</option>
 										<option ng-show="!createChefJob" value="UI">UI</option>
 									</select>
 								</span>
@@ -298,10 +298,9 @@
 									</div>
 									<span class="col-lg-5 col-md-5 col-sm-5 col-xs-10">
 										<label>
-											<input type="checkbox" ng-checked="_isEventSelected" ng-model="_isEventSelected" ng-change="selectTaskCheckbox()" class="checkbox-list"/>&nbsp;Schedule a Task&nbsp;
+											<input type="checkbox" ng-checked="_isEventSelected.flag" ng-model="_isEventSelected.flag" ng-change="selectTaskCheckbox()" class="checkbox-list"/>&nbsp;Schedule a Task&nbsp;
 										</label>
 										<i class="fa fa-plus-circle cursor" ng-show="showAddTask" title="Add Task" ng-click="addTaskEvent('new')"></i>
-										<!-- <input type="text" ng-show="isEventAvailable" class="form-control" disabled ng-model="repeatPattern"/> -->
 									</span>
 									<span class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
 										<i class="fa fa-question-circle" title="This is used to schedule a task over a course of time."></i>
@@ -387,10 +386,9 @@
 							</div>
 							<span class="col-lg-5 col-md-5 col-sm-5 col-xs-10 margintop7">
 								<label>
-									<input type="checkbox" ng-checked="_isEventSelected" ng-model="_isEventSelected" ng-change="selectTaskCheckbox()" class="checkbox-list"/>&nbsp;Schedule a Task&nbsp;
+									<input type="checkbox" ng-checked="_isEventSelected.flag" ng-model="_isEventSelected.flag" ng-change="selectTaskCheckbox()" class="checkbox-list"/>&nbsp;Schedule a Task&nbsp;
 								</label>
 								<i class="fa fa-plus-circle cursor" ng-show="showAddTask" title="Add Task" ng-click="addTaskEvent('new')"></i>
-								<!-- <input type="text" ng-show="isEventAvailable" class="form-control" disabled ng-model="cronPattern"/> -->
 							</span>
 							<span class="col-lg-1 col-md-1 col-sm-1 col-xs-1 margintop7">
 								<i class="fa fa-question-circle" title="This is used to schedule a task over a course of time."></i>
@@ -531,10 +529,9 @@
 											</div>
 											<span class="col-lg-5 col-md-5 col-sm-5 col-xs-10 margintop7">
 												<label>
-													<input type="checkbox" ng-checked="_isEventSelected" ng-model="_isEventSelected" ng-change="selectTaskCheckbox()" class="checkbox-list"/>&nbsp;Schedule a Task&nbsp;
+													<input type="checkbox" ng-checked="_isEventSelected.flag" ng-model="_isEventSelected.flag" ng-change="selectTaskCheckbox()" class="checkbox-list"/>&nbsp;Schedule a Task&nbsp;
 												</label>
 												<i class="fa fa-plus-circle cursor" ng-show="showAddTask" title="Add Task" ng-click="addTaskEvent('new')"></i>
-												<!-- <input type="text" ng-show="isEventAvailable" class="form-control" disabled ng-model="cronPattern"/> -->
 											</span>
 											<span class="col-lg-1 col-md-1 col-sm-1 col-xs-1 margintop7">
 												<i class="fa fa-question-circle" title="This is used to schedule a task over a course of time."></i>
@@ -554,8 +551,8 @@
 											<ul>
 												<li ng-repeat="script in scriptTaskList">
 													<label class="checkbox check-list">
-														<input type="checkbox" ng-change="optionScriptToggled()" ng-checked="script.isParametrized" ng-model="script._isScriptSelected" ng-click="addRemoveScriptTable(script)" class="checkbox-list"/>{{script.name}}
-														<a class="pull-right cursorPointer" ng-show="script.isParametrized" type="button" id="add" ng-click="showScriptParams(script)" title="Show Params">&nbsp;Params</a>
+														<input type="checkbox" ng-change="optionScriptToggled()" ng-checked="script._isScriptSelected" ng-model="script._isScriptSelected" ng-click="addRemoveScriptTable(script)" class="checkbox-list"/>{{script.name}}
+														<a class="pull-right cursorPointer" ng-show="script._isScriptSelected" type="button" id="add" ng-click="showScriptParams(script)" title="Show Params">&nbsp;Params</a>
 													</label>
 												</li>
 											</ul>
@@ -576,14 +573,17 @@
 												<tr class="rowCustomStyle" role="row">
 													<td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Parameter">Parameter</td>
 													<td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Description">Description</td>
+													<td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Type">Type</td>
 													<td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Action">Action</td>
 												</tr>
 												</thead>
 												<tbody>
 												<tr ng-repeat="param in scriptParamsObj[selectedScript._id] track by $index">
-													<td ng-if="param.paramVal !== ''">{{param.paramVal}}</td>
-													<td ng-if="param.paramVal === ''">.....</td>
+													<td ng-if="param.paramType === 'Default' || param.paramType === ''">{{param.paramVal}}</td>
+													<td ng-if="param.paramType === 'Restricted' || param.paramType === 'Password'">.....</td>
 													<td>{{param.paramDesc}}</td>
+													<td ng-if="param.paramType === 'Default' || param.paramType === ''">Default</td>
+													<td ng-if="param.paramType === 'Restricted' || param.paramType === 'Password'">{{param.paramType}}</td>
 													<td>
 														<button title="Delete" type="button" ng-click="removeScriptParams(selectedScript._id,param);"><i class=" fa fa-trash-o"></i></button>
 													</td>
