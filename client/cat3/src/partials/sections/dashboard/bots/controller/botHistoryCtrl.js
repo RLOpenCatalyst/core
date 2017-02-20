@@ -17,9 +17,9 @@
             });
 
             if($scope.templateSelected) {
-                items = $scope.templateSelected;
+                items = $scope.templateSelected; 
             } 
-        
+
             $scope.botDetail = items;
             $scope.botId = items.botId;
             
@@ -68,10 +68,17 @@
 
             angular.extend($scope, {
                 taskHistoryListView : function() {
-                $scope.taskHistoryData.data = [];
-                    var param = {
-                        url: '/bots/' + $scope.botId + '/bots-history?page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
-                    };
+                    var param = null;
+                    if($scope.botDetail.serviceNowCheck == true){
+                        param = {
+                            url: '/bots/' + $scope.botId + '/bots-history?serviceNowCheck=true&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                        };
+                    }else{
+                        param = {
+                            url: '/bots/' + $scope.botId + '/bots-history?page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                        };
+                    }
+                    $scope.taskHistoryData.data = [];
                     genSevs.promiseGet(param).then(function(response) {
                         $timeout(function() {
                             if (response.botHistory) {

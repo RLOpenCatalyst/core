@@ -165,7 +165,7 @@ botsService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,call
     });
 }
 
-botsService.getBotsList = function getBotsList(botsQuery,actionStatus,callback) {
+botsService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowCheck,callback) {
     var reqData = {};
     async.waterfall([
         function(next) {
@@ -200,19 +200,50 @@ botsService.getBotsList = function getBotsList(botsQuery,actionStatus,callback) 
                         bots.getBotsList(queryObj, next);
                     }
                 });
-            }else{
+            }else if(serviceNowCheck === true){
+                var query = {
+                    auditType: 'BOTs',
+                    actionStatus: 'success',
+                    user: 'servicenow',
+                    isDeleted:false
+                };
+                var botsIds = [];
+                auditTrail.getAuditTrails(query, function(err,botsAudits){
+                    if(err){
+                        next(err,null);
+                    }else if (botsAudits.length > 0) {
+                        for (var i = 0; i < botsAudits.length; i++) {
+                            if (botsIds.indexOf(botsAudits[i].auditId) < 0) {
+                                botsIds.push(botsAudits[i].auditId);
+                            }
+                        }
+                        queryObj.queryObj.botId = {$in:botsIds};
+                        bots.getBotsList(queryObj, next);
+                    } else {
+                        queryObj.queryObj.botId = null;
+                        bots.getBotsList(queryObj, next);
+                    }
+                });
+            } else{
                 bots.getBotsList(queryObj, next);
             }
         },
         function(botList, next) {
             filterScriptBotsData(botList,next);
         },
+        function(botList, next) {
+            if(serviceNowCheck=== true){
+                filterDataForServiceNow(botList,next);
+            }else{
+                next(null,botList);
+            }
+        },
         function(filterBotList, next) {
             apiUtil.paginationResponse(filterBotList, reqData, next);
         }
     ],function(err, results) {
         if (err){
-            logger.error(err);
+            logger.error(JSON.stringify(err));
             callback(err,null);
             return;
         }
@@ -273,7 +304,7 @@ botsService.removeBotsById = function removeBotsById(botId,callback){
     });
 }
 
-botsService.getBotsHistory = function getBotsHistory(botId,botsQuery,callback){
+botsService.getBotsHistory = function getBotsHistory(botId,botsQuery,serviceNowCheck,callback){
     var reqData = {};
     async.waterfall([
         function(next) {
@@ -287,6 +318,9 @@ botsService.getBotsHistory = function getBotsHistory(botId,botsQuery,callback){
         function(queryObj, next) {
             queryObj.queryObj.auditId = botId;
             queryObj.queryObj.auditType = 'BOTs';
+            if(serviceNowCheck === true){
+                queryObj.queryObj.user = 'servicenow';
+            }
             auditTrail.getAuditTrailList(queryObj,next)
         },
         function(auditTrailList, next) {
@@ -595,6 +629,54 @@ function getExecutionTime(endTime, startTime) {
     var executionTimeInMS = endTime - startTime;
     var totalSeconds = Math.floor(executionTimeInMS / 1000);
     return totalSeconds;
+}
+
+function filterDataForServiceNow(botList,callback){
+    if(botList.docs.length > 0){
+        var resultList = [];
+        for(var i = 0; i < botList.docs.length; i++){
+            (function(bot){
+                var query={
+                    auditType:'BOTs',
+                    actionStatus:'success',
+                    isDeleted:false,
+                    user:'servicenow',
+                    auditId:bot.botId
+                };
+                auditTrail.getAuditTrails(query, function(err,botsAudits){
+                    if(err){
+                        logger.error(err);
+                    }
+                    bot.executionCount = botsAudits.length;
+                    var totalTimeInSeconds = 0;
+                    for (var m = 0; m < botsAudits.length; m++) {
+                        if (botsAudits[m].endedOn && botsAudits[m].endedOn !== null
+                            && botsAudits[m].auditTrailConfig.manualExecutionTime
+                            && botsAudits[m].auditTrailConfig.manualExecutionTime !== null) {
+                            var executionTime = getExecutionTime(botsAudits[m].endedOn, botsAudits[m].startedOn);
+                            totalTimeInSeconds = totalTimeInSeconds + ((botsAudits[m].auditTrailConfig.manualExecutionTime * 60) - executionTime);
+                        }
+                    }
+                    var totalTimeInMinutes = Math.round(totalTimeInSeconds / 60);
+                    var result = {
+                        hours: Math.floor(totalTimeInMinutes / 60),
+                        minutes: totalTimeInMinutes % 60
+                    }
+                    bot.savedTime = result;
+                    resultList.push(bot);
+                    if(resultList.length === botList.docs.length){
+                        botList.docs = resultList;
+                        callback(null,botList);
+                        return;
+                    }
+
+                });
+            })(botList.docs[i]);
+        }
+
+    }else{
+        callback(null,botList);
+    }
 }
 
 
