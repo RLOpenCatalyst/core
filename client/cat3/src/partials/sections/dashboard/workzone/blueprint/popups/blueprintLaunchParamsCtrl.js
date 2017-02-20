@@ -30,6 +30,12 @@
 			$scope.getMonitorList = function(orgId) {
 				workzoneServices.getMonitorList(orgId).then(function (response) {		
 			        $scope.monitorList = response.data;
+			        for(var i=0; i<$scope.monitorList.length; i++){
+			        	if($scope.monitorList[i].isDefault){
+			        		$scope.monitorId = $scope.monitorList[i]._id;
+			        		break;
+			        	}
+			        }
 				});
 			};
 			genericServices.getTreeNew().then(function (envData) {

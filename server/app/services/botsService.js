@@ -23,7 +23,6 @@ var ObjectId = require('mongoose').Types.ObjectId;
 var async = require("async");
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var taskService =  require('_pr/services/taskService.js');
-var tasks =  require('_pr/model/classes/tasks/tasks.js');
 var auditTrailService =  require('_pr/services/auditTrailService.js');
 var blueprintService =  require('_pr/services/blueprintService.js');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
@@ -130,6 +129,7 @@ botsService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,call
                             }
                         });
                         if (botsData[0].botLinkedCategory === 'Task') {
+                            var tasks =  require('_pr/model/classes/tasks/tasks.js');
                             tasks.getTaskById(botId, function (err, task) {
                                 if (err) {
                                     logger.error("Error in fetching Task details", err);
@@ -165,7 +165,7 @@ botsService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,call
     });
 }
 
-botsService.getBotsList = function getBotsList(botsQuery,actionStatus,callback) {
+botsService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowCheck,callback) {
     var reqData = {};
     async.waterfall([
         function(next) {
@@ -200,19 +200,50 @@ botsService.getBotsList = function getBotsList(botsQuery,actionStatus,callback) 
                         bots.getBotsList(queryObj, next);
                     }
                 });
-            }else{
+            }else if(serviceNowCheck === true){
+                var query = {
+                    auditType: 'BOTs',
+                    actionStatus: 'success',
+                    user: 'servicenow',
+                    isDeleted:false
+                };
+                var botsIds = [];
+                auditTrail.getAuditTrails(query, function(err,botsAudits){
+                    if(err){
+                        next(err,null);
+                    }else if (botsAudits.length > 0) {
+                        for (var i = 0; i < botsAudits.length; i++) {
+                            if (botsIds.indexOf(botsAudits[i].auditId) < 0) {
+                                botsIds.push(botsAudits[i].auditId);
+                            }
+                        }
+                        queryObj.queryObj.botId = {$in:botsIds};
+                        bots.getBotsList(queryObj, next);
+                    } else {
+                        queryObj.queryObj.botId = null;
+                        bots.getBotsList(queryObj, next);
+                    }
+                });
+            } else{
                 bots.getBotsList(queryObj, next);
             }
         },
         function(botList, next) {
             filterScriptBotsData(botList,next);
         },
+        function(botList, next) {
+            if(serviceNowCheck=== true){
+                filterDataForServiceNow(botList,next);
+            }else{
+                next(null,botList);
+            }
+        },
         function(filterBotList, next) {
             apiUtil.paginationResponse(filterBotList, reqData, next);
         }
     ],function(err, results) {
         if (err){
-            logger.error(err);
+            logger.error(JSON.stringify(err));
             callback(err,null);
             return;
         }
@@ -273,7 +304,7 @@ botsService.removeBotsById = function removeBotsById(botId,callback){
     });
 }
 
-botsService.getBotsHistory = function getBotsHistory(botId,botsQuery,callback){
+botsService.getBotsHistory = function getBotsHistory(botId,botsQuery,serviceNowCheck,callback){
     var reqData = {};
     async.waterfall([
         function(next) {
@@ -287,6 +318,9 @@ botsService.getBotsHistory = function getBotsHistory(botId,botsQuery,callback){
         function(queryObj, next) {
             queryObj.queryObj.auditId = botId;
             queryObj.queryObj.auditType = 'BOTs';
+            if(serviceNowCheck === true){
+                queryObj.queryObj.user = 'servicenow';
+            }
             auditTrail.getAuditTrailList(queryObj,next)
         },
         function(auditTrailList, next) {
@@ -300,6 +334,49 @@ botsService.getBotsHistory = function getBotsHistory(botId,botsQuery,callback){
         }
         callback(null,results)
         return;
+    });
+}
+
+botsService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,callback){
+    var query = {
+        auditType: 'BOTs',
+        isDeleted: false,
+        auditId: botId
+    };
+    auditTrail.getAuditTrails(query, function (err, botAuditTrail) {
+        if (err) {
+            logger.error("Error in Fetching Audit Trail.", err);
+            callback(err, null);
+        }
+        if (botAuditTrail.length > 0) {
+            var totalTimeInSeconds = 0;
+            for (var m = 0; m < botAuditTrail.length; m++) {
+                if (botAuditTrail[m].endedOn && botAuditTrail[m].endedOn !== null
+                    && botAuditTrail[m].auditTrailConfig.manualExecutionTime
+                    && botAuditTrail[m].auditTrailConfig.manualExecutionTime !== null
+                    && botAuditTrail[m].actionStatus ==='success' ) {
+                    var executionTime = getExecutionTime(botAuditTrail[m].endedOn, botAuditTrail[m].startedOn);
+                    totalTimeInSeconds = totalTimeInSeconds + ((botAuditTrail[m].auditTrailConfig.manualExecutionTime * 60) - executionTime);
+                }
+            }
+            var totalTimeInMinutes = Math.round(totalTimeInSeconds / 60);
+            var result = {
+                hours: Math.floor(totalTimeInMinutes / 60),
+                minutes: totalTimeInMinutes % 60
+            }
+            bots.updateBotsDetail(botId, {savedTime: result,executionCount:botAuditTrail.length}, function (err, data) {
+                if (err) {
+                    logger.error(err);
+                    callback(err, null);
+                    return;
+                }
+                callback(null, data);
+                return;
+            })
+        } else {
+            callback(null, botAuditTrail);
+            return;
+        }
     });
 }
 
@@ -366,6 +443,7 @@ botsService.executeBots = function executeBots(botId,reqBody,callback){
                         var taskObj = {
                             'taskConfig.scriptDetails':encryptedParamList
                         }
+                        var tasks =  require('_pr/model/classes/tasks/tasks.js');
                         tasks.updateTaskDetail(botId,taskObj,callback);
                     }
                 }, function (err, data) {
@@ -406,88 +484,6 @@ botsService.executeBots = function executeBots(botId,reqBody,callback){
             return;
         }
     });
-}
-
-function filterScriptBotsData(data,callback){
-    var botsList = [];
-    var cryptoConfig = appConfig.cryptoSettings;
-    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-    if(data.docs.length === 0){
-        callback(null,data);
-        return;
-    }else {
-        for (var i = 0; i < data.docs.length; i++) {
-            (function (bots) {
-                if ((bots.botLinkedSubCategory === 'script')
-                    && ('scriptDetails' in bots.botConfig)
-                    && (bots.botConfig.scriptDetails.length > 0)) {
-                    var scriptCount = 0;
-                    for (var j = 0; j < bots.botConfig.scriptDetails.length; j++) {
-                        (function (scriptBot) {
-                            if (scriptBot.scriptParameters.length > 0) {
-                                scriptCount++;
-                                for (var k = 0; k < scriptBot.scriptParameters.length; k++) {
-                                    if (scriptBot.scriptParameters[k].paramType === '' || scriptBot.scriptParameters[k].paramType === 'Default' || scriptBot.scriptParameters[k].paramType === 'Password') {
-                                        scriptBot.scriptParameters[k].paramVal = cryptography.decryptText(scriptBot.scriptParameters[k].paramVal, cryptoConfig.decryptionEncoding,
-                                            cryptoConfig.encryptionEncoding);
-                                    } else {
-                                        scriptBot.scriptParameters[k].paramVal = '';
-                                    }
-                                }
-                            } else {
-                                scriptCount++;
-                            }
-                        })(bots.botConfig.scriptDetails[j]);
-                    }
-                    if (scriptCount === bots.botConfig.scriptDetails.length) {
-                        botsList.push(bots);
-                    }
-                } else {
-                    botsList.push(bots);
-                }
-            })(data.docs[i]);
-            if (botsList.length === data.docs.length) {
-                data.docs = botsList;
-                callback(null, data);
-                return;
-            }
-        }
-    }
-}
-
-function encryptedParam(paramDetails, callback) {
-    var cryptoConfig = appConfig.cryptoSettings;
-    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-    var count = 0;
-    var encryptedList = [];
-    for (var i = 0; i < paramDetails.length; i++) {
-        (function (paramDetail) {
-            if (paramDetail.scriptParameters.length > 0) {
-                count++;
-                for (var j = 0; j < paramDetail.scriptParameters.length; j++) {
-                    (function (scriptParameter) {
-                        var encryptedText = cryptography.encryptText(scriptParameter.paramVal, cryptoConfig.encryptionEncoding,
-                            cryptoConfig.decryptionEncoding);
-                        encryptedList.push({
-                            paramVal: encryptedText,
-                            paramDesc: scriptParameter.paramDesc,
-                            paramType: scriptParameter.paramType
-                        });
-                        if (encryptedList.length === paramDetail.scriptParameters.length) {
-                            paramDetail.scriptParameters = encryptedList;
-                            encryptedList = [];
-                        }
-                    })(paramDetail.scriptParameters[j]);
-                }
-            } else {
-                count++;
-            }
-            if (count === paramDetails.length) {
-                callback(null, paramDetails);
-                return;
-            }
-        })(paramDetails[i]);
-    }
 }
 
 botsService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
@@ -560,6 +556,129 @@ botsService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
         }
     });
 }
+
+function filterScriptBotsData(data,callback){
+    var botsList = [];
+    var cryptoConfig = appConfig.cryptoSettings;
+    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+    if(data.docs.length === 0){
+        callback(null,data);
+        return;
+    }else {
+        for (var i = 0; i < data.docs.length; i++) {
+            (function (bots) {
+                if ((bots.botLinkedSubCategory === 'script')
+                    && ('scriptDetails' in bots.botConfig)
+                    && (bots.botConfig.scriptDetails.length > 0)) {
+                    var scriptCount = 0;
+                    for (var j = 0; j < bots.botConfig.scriptDetails.length; j++) {
+                        (function (scriptBot) {
+                            if (scriptBot.scriptParameters.length > 0) {
+                                scriptCount++;
+                                for (var k = 0; k < scriptBot.scriptParameters.length; k++) {
+                                    if (scriptBot.scriptParameters[k].paramType === '' || scriptBot.scriptParameters[k].paramType === 'Default' || scriptBot.scriptParameters[k].paramType === 'Password') {
+                                        scriptBot.scriptParameters[k].paramVal = cryptography.decryptText(scriptBot.scriptParameters[k].paramVal, cryptoConfig.decryptionEncoding,
+                                            cryptoConfig.encryptionEncoding);
+                                    } else {
+                                        scriptBot.scriptParameters[k].paramVal = '';
+                                    }
+                                }
+                            } else {
+                                scriptCount++;
+                            }
+                        })(bots.botConfig.scriptDetails[j]);
+                    }
+                    if (scriptCount === bots.botConfig.scriptDetails.length) {
+                        botsList.push(bots);
+                        if (botsList.length === data.docs.length) {
+                            data.docs = botsList;
+                            callback(null, data);
+                            return;
+                        }
+                    }
+                } else {
+                    botsList.push(bots);
+                    if (botsList.length === data.docs.length) {
+                        data.docs = botsList;
+                        callback(null, data);
+                        return;
+                    }
+                }
+            })(data.docs[i]);
+        }
+    }
+}
+
+function encryptedParam(paramDetails, callback) {
+    var cryptoConfig = appConfig.cryptoSettings;
+    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+    for (var i = 0; i < paramDetails.length; i++) {
+        if (paramDetails[i].scriptParameters.length > 0) {
+            for (var j = 0; j < paramDetails[i].scriptParameters.length; j++) {
+                var encryptedText = cryptography.encryptText(paramDetails[i].scriptParameters[j].paramVal, cryptoConfig.encryptionEncoding,
+                    cryptoConfig.decryptionEncoding);
+                paramDetails[i].scriptParameters[j].paramVal = encryptedText;
+            }
+        }
+    }
+    callback(null, paramDetails)
+    return;
+}
+
+function getExecutionTime(endTime, startTime) {
+    var executionTimeInMS = endTime - startTime;
+    var totalSeconds = Math.floor(executionTimeInMS / 1000);
+    return totalSeconds;
+}
+
+function filterDataForServiceNow(botList,callback){
+    if(botList.docs.length > 0){
+        var resultList = [];
+        for(var i = 0; i < botList.docs.length; i++){
+            (function(bot){
+                var query={
+                    auditType:'BOTs',
+                    actionStatus:'success',
+                    isDeleted:false,
+                    user:'servicenow',
+                    auditId:bot.botId
+                };
+                auditTrail.getAuditTrails(query, function(err,botsAudits){
+                    if(err){
+                        logger.error(err);
+                    }
+                    bot.executionCount = botsAudits.length;
+                    var totalTimeInSeconds = 0;
+                    for (var m = 0; m < botsAudits.length; m++) {
+                        if (botsAudits[m].endedOn && botsAudits[m].endedOn !== null
+                            && botsAudits[m].auditTrailConfig.manualExecutionTime
+                            && botsAudits[m].auditTrailConfig.manualExecutionTime !== null) {
+                            var executionTime = getExecutionTime(botsAudits[m].endedOn, botsAudits[m].startedOn);
+                            totalTimeInSeconds = totalTimeInSeconds + ((botsAudits[m].auditTrailConfig.manualExecutionTime * 60) - executionTime);
+                        }
+                    }
+                    var totalTimeInMinutes = Math.round(totalTimeInSeconds / 60);
+                    var result = {
+                        hours: Math.floor(totalTimeInMinutes / 60),
+                        minutes: totalTimeInMinutes % 60
+                    }
+                    bot.savedTime = result;
+                    resultList.push(bot);
+                    if(resultList.length === botList.docs.length){
+                        botList.docs = resultList;
+                        callback(null,botList);
+                        return;
+                    }
+
+                });
+            })(botList.docs[i]);
+        }
+
+    }else{
+        callback(null,botList);
+    }
+}
+
 
 
 

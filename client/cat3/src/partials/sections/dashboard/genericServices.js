@@ -214,14 +214,7 @@
                         }
                     }
                 }).result.then(function(response) {
-                    console.log(response);
-                    //genericServices.log();
-                    /*if(response.blueprintMessage){
-                        $rootScope.$emit('WZ_INSTANCES_SHOW_LATEST');
-                    }
-                    $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');*/
                 }, function() {
-                    //$rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
                 });
             } else {
                 $modal.open({

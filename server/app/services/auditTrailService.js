@@ -52,7 +52,7 @@ auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,audi
         providerType: auditDetails.providerType,
         action: actionObj.action
     };
-    if(actionObj.auditType === 'BOTs'){
+    if(actionObj.auditType === 'BOTs' || actionObj.auditType === 'BOTsNew'){
         auditTrailObj.auditTrailConfig = auditTrailConfig;
         botAuditTrail.createNew(auditTrailObj,function(err,data){
             if(err){
@@ -195,7 +195,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                 totalNoOfBots: function(callback){
                             callback(null, botsList.length);
                 },
-                totalNoOfSuccessBots: function(callback){
+               /* totalNoOfSuccessBots: function(callback){
                     var query = {
                         auditType: BOTSchema,
                         actionStatus: 'success',
@@ -217,8 +217,8 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                             callback(null, botsIds.length);
                         }
                     });
-                },
-                totalNoOfScheduledBots: function(callback){
+                },*/
+                /*totalNoOfScheduledBots: function(callback){
                     var scheduleBotsIds = [];
                     if(botsList.length > 0) {
                         for (var j = 0; j < botsList.length; j++) {
@@ -230,6 +230,21 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                     }else{
                         callback(null,scheduleBotsIds.length);
                     }
+                },*/
+                totalNoOfServiceNowTickets: function(callback){
+                    var query={
+                        auditType:BOTSchema,
+                        actionStatus:'success',
+                        isDeleted:false,
+                        user:'servicenow'
+                    };
+                    auditTrail.getAuditTrails(query, function(err,botsAudits){
+                        if(err){
+                            callback(err,null);
+                        }else {
+                            callback(null,botsAudits.length);
+                        }
+                    });
                 },
                 totalNoOfRunningBots: function(callback){
                     var query={
@@ -255,31 +270,26 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                     });
                 },
                 totalSavedTimeForBots: function(callback){
-                    var query={
-                        auditType:BOTSchema,
-                        actionStatus:'success',
-                        isDeleted:false,
-                        auditId:{$in:auditIds}
-                    };
-                    auditTrail.getAuditTrails(query,function(err,botAuditTrail){
-                        if(err){
-                            callback(err,null);
-                        } else if(botAuditTrail.length > 0){
-                            var totalTimeInSeconds = 0;
-                            for(var j = 0; j < botAuditTrail.length; j++){
-                                (function(auditTrail){
-                                    if(auditTrail.endedOn && auditTrail.endedOn !== null
-                                        && auditTrail.auditTrailConfig.manualExecutionTime && auditTrail.auditTrailConfig.manualExecutionTime !== null) {
-                                        var executionTime = getExecutionTime(auditTrail.endedOn, auditTrail.startedOn);
-                                        totalTimeInSeconds = totalTimeInSeconds + ((auditTrail.auditTrailConfig.manualExecutionTime*60) - executionTime);
-                                    }
-                                })(botAuditTrail[j]);
+                    var hours = 0, minutes = 0;
+                    if(botsList.length > 0) {
+                        for (var k = 0; k < botsList.length; k++) {
+                            if(botsList[k].savedTime.hours) {
+                                hours = hours + botsList[k].savedTime.hours;
                             }
-                            callback(null,(totalTimeInSeconds/60).toFixed(2));
-                        } else{
-                            callback(null,botAuditTrail.length);
+                            if(botsList[k].savedTime.minutes){
+                                minutes = minutes + botsList[k].savedTime.minutes;
+                            }
                         }
-                    });
+                    }
+                    if(minutes >= 60){
+                        hours = hours + Math.floor(minutes / 60);
+                        minutes = minutes % 60;
+                    }
+                    var result = {
+                        hours:hours,
+                        minutes:minutes
+                    }
+                    callback(null,result);
                 },
                 totalNoOfFailedBots: function(callback){
                     var query={

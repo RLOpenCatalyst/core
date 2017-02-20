@@ -23,7 +23,7 @@
 </div> -->
 
 <div id='botLibraryPage'>
-   <div class="container summary-container" style="margin-left:35px;">
+   <div class="container summary-container marginleft35">
       <div class="bot-info-wrapper">
          <table class="table table-bordered">
             <thead>
@@ -40,7 +40,7 @@
                   </td>
                </tr>
                <tr ng-show="botInfo.botLinkedSubCategory">
-                  <td class="td-padding">Task Type:</td>
+                  <td class="td-padding">Task Type</td>
                   <td>
                      {{botInfo.botLinkedSubCategory}}
                   </td>
@@ -57,7 +57,7 @@
                      </td>
                </tr>
                <tr>
-                  <td class="td-padding">Bot Type</td>
+                  <td class="td-padding">BOT Type</td>
                   <td>
                      {{botInfo.botType}}
                   </td>
@@ -88,7 +88,7 @@
                <tr>
                   <td class="td-padding">Runlist</td>
                   <td>
-                     {{botInfo.botConfig.runlist}}
+                     {{botInfo.botConfig.runlist.join(",")}}
                   </td>
                </tr>
                <tr ng-show="botInfo.botConfig && botInfo.botConfig.attributes && botInfo.botConfig.attributes.length > 1" ng-repeat="attribs in botInfo.botConfig.attributes">
@@ -118,13 +118,13 @@
                   </td>
                </tr>
                <tr ng-show="botInfo.botConfig && botInfo.botConfig.parameterized && botInfo.botConfig.parameterized.length">
-                  <td class="td-padding">Bot Parameter Type</td>
+                  <td class="td-padding">BOT Parameter Type</td>
                   <td>
                      {{botInfo.botConfig.parameterized[0].parameterName}}
                   </td>
                </tr>
                <tr ng-show="botInfo.botConfig && botInfo.botConfig.parameterized && botInfo.botConfig.parameterized.length">
-                  <td class="td-padding">Bot Parameter Name</td>
+                  <td class="td-padding">BOT Parameter Name</td>
                   <td>
                      {{botInfo.botConfig.parameterized[0].name}}
                   </td>
@@ -136,13 +136,13 @@
                   </td>
                </tr> -->
                <tr ng-show="botInfo.botConfig && botInfo.botConfig.parameterized && botInfo.botConfig.parameterized.length === 1">
-                  <td class="td-padding">Bot Parameter Values</td>
+                  <td class="td-padding">BOT Parameter Values</td>
                   <td>
                      {{botInfo.botConfig.parameterized[0].defaultValue}}
                   </td>
                </tr>
                <tr ng-show="botInfo.botConfig && botInfo.botConfig.parameterized && botInfo.botConfig.parameterized.length">
-                  <td class="td-padding">Bot Parameter Description</td>
+                  <td class="td-padding">BOT Parameter Description</td>
                   <td>
                      {{botInfo.botConfig.parameterized[0].description}}
                   </td>

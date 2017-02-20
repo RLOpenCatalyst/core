@@ -153,6 +153,7 @@
                 }
             }
             var param={
+                inlineLoader:true,
                 url:'/bots/' + items.botId + '/execute',
                 data: reqBody
             };
