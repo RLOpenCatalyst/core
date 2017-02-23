@@ -17,9 +17,9 @@
             <img class="highlight" alt="{{templateSelected.botCategory}}" ng-src="{{botIcon}}">
          </div>
          <div class="bot-content">
-            <h3 title="{{templateSelected.botName}}">{{templateSelected.botName}}</h3>
+            <h3 title="{{templateSelected.botName}}">{{templateSelected.name}}</h3>
             <ul class="ul-vert-bar">
-               <li class="publisher" title="{{templateSelected.botDesc}}">{{templateSelected.botDesc}}</li>
+               <li class="publisher" title="{{templateSelected.botDesc}}">{{templateSelected.desc}}</li>
                <li> {{templateSelected.lastRunTime | timestampToLocaleTime}}</li> 
             </ul>
          </div>
@@ -31,12 +31,12 @@
       </div>
       <div class="col-lg-12 col-md-12 col-sm-12" style="margin-left:-14px;">
          <ul id="myTab3" class="nav nav-tabs tabs-pull-left">
-            <!-- <li ng-class="{active:tab.isSet('ReadMe')}">
+            <li ng-class="{active:tab.isSet('ReadMe')}">
                <a ng-click="tab.setTab('ReadMe')">
                <i class="fa fa-codepen black"></i>&nbsp;
                Read Me
                </a>
-            </li> -->
+            </li>
             
             <li ng-class="{active:tab.isSet('Report')}">
                <a ng-click="tab.setTab('Report')">
