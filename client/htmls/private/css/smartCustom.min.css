@@ -219,6 +219,10 @@ label.custom-select {
     color: #40baf1;
 }
 
+.custom-theme nav > ul > li > a {
+    padding-bottom: 13px;
+}
+
 .custom-theme nav ul ul>li:hover b {
     color: #69737A !important;
 }

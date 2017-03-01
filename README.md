@@ -1,4 +1,3 @@
-   [![Code Climate](https://codeclimate.com/github/RLOpenCatalyst/core/badges/gpa.svg)](https://codeclimate.com/github/RLOpenCatalyst/core)
 # RLCatalyst Core Repository
 Repository for RLCatalyst core
 
@@ -104,16 +103,9 @@ Otherwise you can file your issue in the RLCatalyst project and we will make sur
 To decrease the back and forth in issues, and to help us get to the bottom of them quickly, we use the issue template below.  You can copy/paste this template into the issue you are opening and edit it accordingly::
 
 ```
-  Bug description : [Description About Bug]
-
   Version:[Version of the project installed]
 
   Environment:[Details about the environment such as the Operating System, cookbook details, etc.]
-   Catalyst Version:[Tag or Latest Version]
-   OS Type and Version :
-   Versions of MongoDB , NodeJS:
-   Browser Type and Version:
-   Chef Client and Server Version:
 
   Scenario:[What you are trying to achieve and you can't?]
 
@@ -139,16 +131,3 @@ To decrease the back and forth in issues, and to help us get to the bottom of th
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
-
- #API Documentation
-   First Install apidoc and run the below command for this.
-
-     npm install apidoc -g
-
-   For creating a API Documentation for any api, run the below command on terminal.
-   
-   apidoc -i myapp/ -o apidoc/ -t mytemplate/
-
-   Creates an apiDoc of all files within dir myapp/, uses template from dir mytemplate/ and put all output to dir apidoc/.
-   Without any parameter, apiDoc generate a documentation from all .cs .dart .erl .go .java .js .php .py .rb .ts files in current dir (incl. subdirs) and writes the output to ./doc/.
-
