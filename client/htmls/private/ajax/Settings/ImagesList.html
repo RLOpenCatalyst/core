@@ -5,7 +5,7 @@
             <div class="widget-box">
                 <div class="widget-header">
                     <h5 class="widget-title" style="color:#4e5964;">
-                        <strong>VM Images</strong>
+                        <strong>Images</strong>
                     </h5>
                     <div class="widget-toolbar no-border">
                         <div>
@@ -346,7 +346,7 @@
 
                                     for (var i = 0; i < d4ddata.length; i++) {
                                         for (var x = 0; x < data.length; x++) {
-                                            if (d4ddata[i].orgId[0] == data[x].rowid) {
+                                            if (d4ddata[i].orgId[0] == data[x]._id) {
                                                 d4ddata[i].orgName = data[x].orgname;
                                                 break;
                                             }
@@ -382,9 +382,7 @@
                                 var tab = 'envtable';
                                 $('#envtable').dataTable({
                                     "dom": 't<"#tableFooterLeftDataTable"i><"#tableFooterRightDatatable"p>',
-                                    "pagingType": "full_numbers",
-                                    "retrieve": true,
-                                    "destroy":true
+                                    "pagingType": "full_numbers"
                                 });
                                 $('#tableFooterLeftDataTable').detach().appendTo('#tableFooterLeft');
                                 $('#tableFooterRightDatatable').detach().appendTo('#tableFooterRight');

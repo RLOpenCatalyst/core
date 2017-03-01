@@ -430,27 +430,25 @@ function $chefCookbookRoleSelector(catorgname, callback, selectedRunlist, readMo
             }
 
             // loading selected runlist
-            //console.log(selectedRunlist);
-            if (selectedRunlist && selectedRunlist.length) {
-                for (var i = 0; i < selectedRunlist.length; i++) {
-                    var className = 'cookbook';
-                    console.log(selectedRunlist[i]);
-                    var name = '';
-                    if (selectedRunlist[i].indexOf('recipe') === 0) {
-                        className = 'cookbook';
-                        name = getNameFormChefRunlist(selectedRunlist[i]);
-                    } else if (selectedRunlist[i].indexOf('role') === 0) {
-                        className = 'roles';
-                        name = getNameFormChefRunlist(selectedRunlist[i]);
-                    } else {
-                        className = 'runlistTemplate';
-                        name = getNameFromTemplateRunlist(selectedRunlist[i]);
-                    }
-
-                    var $selOption = $('<option class=' + className + ' value=' + selectedRunlist[i] + '>' + name + '</option>')
-                    console.log($selOption);
-                    $chefItemdiv.find('#cookbooksrecipesselectedList').append($selOption);
+            console.log(selectedRunlist);
+            for (var i = 0; i < selectedRunlist.length; i++) {
+                var className = 'cookbook';
+                console.log(selectedRunlist[i]);
+                var name = '';
+                if (selectedRunlist[i].indexOf('recipe') === 0) {
+                    className = 'cookbook';
+                    name = getNameFormChefRunlist(selectedRunlist[i]);
+                } else if (selectedRunlist[i].indexOf('role') === 0) {
+                    className = 'roles';
+                    name = getNameFormChefRunlist(selectedRunlist[i]);
+                } else {
+                    className = 'runlistTemplate';
+                    name = getNameFromTemplateRunlist(selectedRunlist[i]);
                 }
+
+                var $selOption = $('<option class=' + className + ' value=' + selectedRunlist[i] + '>' + name + '</option>')
+                console.log($selOption);
+                $chefItemdiv.find('#cookbooksrecipesselectedList').append($selOption);
             }
 
             $loadingContainerGap.hide();
@@ -571,24 +569,16 @@ function $chefCookbookRoleSelector(catorgname, callback, selectedRunlist, readMo
     $chefItemdiv.find("#btnaddToRunlist").on('click', function() {
         var $options = $chefItemdiv.find('#cookbooksrecipesList option:selected');
         var $selectedList = $chefItemdiv.find("#cookbooksrecipesselectedList");
-        var $runList = $chefItemdiv.find("#cookbooksrecipesselectedList option:not(:selected)");
-        var runListTexts= [];
-        $runList.each(function(){
-            var $this = $(this);
-            runListTexts.push($this.val())
-        });
         $options.each(function() {
             var $this = $(this);
-            if(runListTexts.indexOf($this.val()) === -1) {
-                $selectedList.append($this.clone());
-            }
+            $selectedList.append($this.clone());
             $this.hide();
         });
     });
 
     $chefItemdiv.find("#btnremoveFromRunlist").on('click', function() {
-
         var $instanceCookbookList = $chefItemdiv.find('#cookbooksrecipesList');
+
         $chefItemdiv.find("#cookbooksrecipesselectedList option:selected").each(function() {
             var $this = $(this);
             var value = $this.val();

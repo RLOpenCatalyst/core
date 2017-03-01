@@ -35,7 +35,6 @@
 
 <form class="forms" id="ssh-login-form">
     <input type='hidden' id='ssh-instanceId'>
-    <input type='hidden' id='ssh-containerId'>
     <input type='hidden' id='ssh-sessionUser'>
       <div class="col-lg-12 col-md-12 credentialSection sshStyle">
           Username<span class="control-label" style="color:Red;">&nbsp;*</span>
@@ -253,7 +252,6 @@ $(function() {
         reqBody.id = $('#ssh-instanceId').val();
         reqBody.sessionUser = $('#ssh-sessionUser').val();
         reqBody.username = $('#ssh-username').val();
-        reqBody.dockerContainerId = $('#ssh-containerId').val();
 
 
         if ($pemFileCheckBox.val()==='Password') {

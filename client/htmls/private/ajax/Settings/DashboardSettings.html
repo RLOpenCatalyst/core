@@ -2,9 +2,6 @@
 textarea{
 width:100%;
 }
-.wordBreak {
-    word-break:break-word;
-}
 </style>
 
 
@@ -82,12 +79,10 @@ width:100%;
               <div class="input-groups">
                 <select id="trackType" name="trackType" class="required form-control width-100" style="vertical-align:central">
                   <option value="">Choose Type</option>
-                  <option value="Capacity">Capacity</option>
-                  <option value="Providers">Providers</option>
-                  <option value="Health">Health</option>
-                  <option value="Telemetry">Telemetry</option>
-                  <option value="CI/CD">CI/CD</option>
-                  <option value="Service Delivery">Service Delivery</option>
+                  <option value="Provider">Provider</option>
+                  <option value="Monitoring">Monitoring</option>
+                  <option value="Logs">Logs</option>
+                  <option value="Notifications">Notifications</option>
                 </select>
               </div>
             </div>
@@ -119,7 +114,7 @@ width:100%;
         </div>
         <div class="modal-footer">
           <label id="saveItemSpinner" class="hidden"><img  style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label>
-          <a type="button" class="btn btn-default" data-dismiss="modal"><i class="ace-icon fa fa-times bigger-110"></i>&nbsp;Cancel</a>
+          <a type="button" class="btn btn-default" data-dismiss="modal"><i class="ace-icon fa fa-times bigger-110"></i>&nbsp;Close</a>
           <button type="submit" id="saveBtnTrack" class="btn btn-primary" value="Save"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</button>
         </div>
       </form>
@@ -135,7 +130,7 @@ if (!$.fn.dataTable.isDataTable('#trackTable')) {
         "pagingType": "full_numbers",
         "bInfo": false,
         "bLengthChange": false,
-        "paging": true,
+        "paging": false,
         "bFilter": false,
         "aoColumns": [{
             "bSortable": false
@@ -300,17 +295,13 @@ function createTableForTrack(trackData) {
 
                 var $tdParent = $('<td class="trackParent"/>').append('<a title="' + trackData.itemUrls[j].url + '" target="_blank" href="' + trackData.itemUrls[j].url + '">' + trackData.itemUrls[j].name + '</a>');
 
-                var $child = $('<td class="trackChild wordBreak"/>');
+                var $child = $('<td class="trackChild"/>');
 
                 if (trackData.itemUrls[j].childItem && trackData.itemUrls[j].childItem.length) {
 
                     for (var k = 0; k < trackData.itemUrls[j].childItem.length; k++) {
                         (function(k) {
-                        if(k  === trackData.itemUrls[j].childItem.length -1){
-                            $child.append('<a title="' + trackData.itemUrls[j].childItem[k].url + '" target="_blank" href="' + trackData.itemUrls[j].childItem[k].url + '">' + trackData.itemUrls[j].childItem[k].name + '</a>');
-                        } else {
-                            $child.append('<a title="' + trackData.itemUrls[j].childItem[k].url + '" target="_blank" href="' + trackData.itemUrls[j].childItem[k].url + '">' + trackData.itemUrls[j].childItem[k].name + '</a>').append('&#44;&nbsp;');
-                        }
+                            $child.append('<a title="' + trackData.itemUrls[j].childItem[k].url + '" target="_blank" href="' + trackData.itemUrls[j].childItem[k].url + '">' + trackData.itemUrls[j].childItem[k].name + '</a>').append('&nbsp;&nbsp;');
                         })(k);
                     }
                 } else {
@@ -484,6 +475,8 @@ $('#trackItemUrl').submit(function(e) {
                 console.log(dashboardEditNew);
 
                 if (dashboardEditNew === 'new') {
+                    console.log(data);
+
                     //making itemUrls as an empty array
                     var itemUrls = [];
                     for (var j = 0; j < data.itemUrls.length; j++) {
@@ -496,19 +489,18 @@ $('#trackItemUrl').submit(function(e) {
 
                     $('#saveBtnTrack').removeAttr('disabled');
                 } else {
+                    console.log(dashboardEditNew);
                     var $tr = $('tr[data-itemUrlId="' + itemId + '"]');
                     $tr.find('.trackType').html(reqBody.type);
+                    console.log("reqBody" + JSON.stringify(reqBody.itemUrls));
                     $tr.find('.trackParent').html('<a style="word-break:break-word;" href="' + reqBody.itemUrls.url + '" target="_blank">' + reqBody.itemUrls.name + '</a> ');
 
                     $tr.find('.trackDescription').html(reqBody.itemUrls.description);
                     var $trChild = $tr.find('.trackChild').empty();
                     if (reqBody.itemUrls.childItem && reqBody.itemUrls.childItem.length) {
                         for (var q = 0; q < reqBody.itemUrls.childItem.length; q++) {
-                            if(q === reqBody.itemUrls.childItem.length -1){
-                            $trChild.append('<a href="' + reqBody.itemUrls.childItem[q].url + '" target="_blank">' + reqBody.itemUrls.childItem[q].name + '</a>');
-                            } else {
-                            $trChild.append('<a href="' + reqBody.itemUrls.childItem[q].url + '" target="_blank">' + reqBody.itemUrls.childItem[q].name + '</a>').append('&#44;&nbsp;');
-                            }
+                            console.log("childItem" + JSON.stringify(reqBody.itemUrls.childItem));
+                            $trChild.append('<a style="word-break:break-word;" href="' + reqBody.itemUrls.childItem[q].url + '" target="_blank">' + reqBody.itemUrls.childItem[q].name + '</a>').append('&nbsp;&nbsp;');
                         }
                     }
                     $tr.data('trackData', {

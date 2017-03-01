@@ -2,21 +2,20 @@
     "name": "Catalyst",
     "version": "0.0.1",
     "description": "DevOps Platform for DevOps",
-    "main": "app/app.js",
+    "main": "app.js",
     "config": {
         "unsafe-perm": true
     },
     "dependencies": {
-        "aws-sdk": "2.3.16",
+        "aws-sdk": "2.1.22",
         "connect": "2.12.0",
         "express": "4.13.3",
-        "express-session": "1.12.1",
-        "express-validation": "0.5.0",
         "body-parser": "1.14.1",
         "connect-multiparty": "2.0.0",
         "compression": "1.6.0",
         "serve-favicon": "2.3.0",
         "cookie-parser": "1.4.0",
+        "express-session": "1.12.1",
         "method-override": "2.3.5",
         "serve-static": "1.10.0",
         "mongoose": "4.2.6",
@@ -24,7 +23,7 @@
         "ldapjs": "0.7.1",
         "connect-redis": "1.4.x",
         "node-uuid": "1.4.2",
-        "chef": "0.3.1",
+        "chef": "0.3.0",
         "ssh2": "0.4.10",
         "path-extra": "0.3.0",
         "mkdirp": "0.5.0",
@@ -58,32 +57,16 @@
         "mongoose-paginate": "5.0.0",
         "adal-node": "0.1.17",
         "node-string-pad": "0.0.4",
-        "farmhash": "1.1.0",
-        "mocha": "2.4.5",
-        "apidoc": "0.15.1",
-        "async": "v1.5.2",
-        "joi": "8.0.5",
-        "jsonwebtoken": "6.2.0",
-        "gcloud": "0.34.0",
-		"lodash.topairs": "4.1.0",
-		"adm-zip":"0.4.7",
-		"fast-csv":"2.0.0",
-		"fs":"0.0.2",
-        "cors": "2.7.1",
-        "events": "1.1.1",
-        "moment": "2.14.1",
-        "json2csv": "3.6.3",
-        "gridfs-stream":"1.1.1",
-        "mongoose-double": "0.0.1"
+        "farmhash": "1.1.0"
     },
     "devDependencies": {
         "grunt": "0.4.5",
         "grunt-contrib-jshint": "0.10.0"
     },
     "scripts": {
-        "install": "node app/bin/postInstallscript",
-        "start": "node app/app.js",
-        "test": "mocha --recursive"
+        "install": "node bin/postInstallscript",
+        "start": "node app.js",
+        "test": "echo \"Error: no test specified\" && exit 1"
     },
     "keywords": [
         "DevOps4Devops"

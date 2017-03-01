@@ -346,12 +346,7 @@ $(document).ready(function() {
 	 */
 
 	function logout() {
-		if(isAngularIntegration){
-			doLogout();//implemented in authSetup.js
-		}
-		else{
-			window.location = $.loginURL;
-		}
+		window.location = $.loginURL;
 	}
 
 	/*

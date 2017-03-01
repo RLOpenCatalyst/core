@@ -178,24 +178,13 @@
                                                 <span class="control-label redSpan">&nbsp;*</span>
                                                 </label>
                                                 <div class="input-groups">
-                                                  <select id="instanceCount" name="instanceCount" class="required chooseOrganization width-100 chooseSelect form-control" style="vertical-align:central">
-                                                   <!--  <option value="1">1</option>
+                                                  <select id="instanceCount" name="instanceCount" class="required chooseOrganization width-100 chooseSelect" style="vertical-align:central">
+                                                    <option value="1">1</option>
                                                     <option value="2">2</option>
                                                     <option value="3">3</option>
                                                     <option value="4">4</option>
-                                                    <option value="5">5</option> -->
+                                                    <option value="5">5</option>
                                                   </select>
-                                                </div>
-                                              </div>
-                                              <div class="col-lg-6 col-md-6 margintop15">
-                                                <label>Do you want to configure Domain Name at the time of Blueprint Launch?:</label>
-                                                <div class="input-groups">
-                                                  <div class="radio">
-                                                    <label><input type="radio" name="domainNameCheck">Yes</label>
-                                                  </div>
-                                                  <div class="radio">
-                                                    <label><input type="radio" checked="true" name="domainNameCheck">No</label>
-                                                  </div>
                                                 </div>
                                               </div>
                                               <!--To add the Swipe Functionality-->
@@ -246,7 +235,7 @@
                                                   </select>
                                                 </div>
                                               </div>
-                                              <!-- <div class="col-lg-6 hidden" style="margin-top:5px;">
+                                              <div class="col-lg-6 hidden" style="margin-top:5px;">
                                                 <label for="">Assign Users
                                                 <span style="color:red">*</span>
                                                 </label>
@@ -254,7 +243,7 @@
                                                 </div>
                                                 <select class="custom-scroll width-100" multiple="" id="userListSelect" style="display:none">
                                                 </select>
-                                              </div> -->
+                                              </div>
                                               <div class="col-lg-6 col-md-6 forDocker dockerProjPort hidden notforCFT">
                                                 <label for="category">Select Docker Image
                                                 <span style="color:red">*</span>
@@ -510,8 +499,8 @@
                 <form action="">
                   <div class="col-lg-12 awsExisting">
                     <div class="col-lg-4 col-md-4">
-                      <label for="">Organization
-                     <!-- <span style="color:red">*</span>-->
+                      <label for="">Choose Organization
+                      <span style="color:red">*</span>
                       </label>
                       <select id="orgnameSelectExisting" class="chooseOrgSelectExisting width-100">
                       </select>
@@ -891,20 +880,6 @@ $(document).ready(function() {
       var $projectList = $('#projectListInputExisting');
       var $envList = $('#envListExisting');
       var $projectList = $('#projectListInputExisting');
-      $orgListInput.change(function(e) {
-        var orgName = $(this).val();
-        if (orgName == 'choose') {
-          return;
-        }
-        var $selectedOrgOption = $(this).find(":selected");
-        $bgList.empty();
-        var getBg = orgBg[orgName];
-        for (var i = 0; i < getBg.length; i++) {
-          var $option = $('<option></option>').val(getBg[i].rowid).html(getBg[i].name);
-          $bgList.append($option);
-        }
-        $bgList.trigger('change');
-      });
       $bgList.change(function(e) {
         var bgName = $(this).val();
         if (bgName == 'choose') {
@@ -927,7 +902,7 @@ $(document).ready(function() {
         reqBodyNew.bgId = $bgList.val();
         reqBodyNew.projectId = $projectList.val();
         reqBodyNew.envId = $envList.val();
-        $.get('../organizations/' + reqBodyNew.orgId + '/businessgroups/' + reqBodyNew.bgId + '/projects/' + reqBodyNew.projectId + '/environments/' + reqBodyNew.envId + '/azure', function(data) {
+        $.get('../organizations/' + reqBodyNew.orgId + '/businessgroups/' + reqBodyNew.bgId + '/projects/' + reqBodyNew.projectId + '/environments/' + reqBodyNew.envId + '/', function(data) {
           console.log('success---3---4');
           //Syncing up the tree view based on url
           initializeBlueprintAreaNew(data.blueprints);
@@ -941,20 +916,18 @@ $(document).ready(function() {
         });
       }); //choose env gets over
       var bgProjects = {};
-      var orgBg ={};
       for (var i = 0; i < data.length; i++) {
+        console.log(data[i].businessGroups);
         $orgListInput.append($('<option></option>').val(data[i].rowid).html(data[i].name).data('bglist', data[i].businessGroups).data('envList', data[i].environments));
-        orgBg[data[i].rowid] = data[i].businessGroups;
         for (var j = 0; j < data[i].businessGroups.length; j++) {
           var rowid = data[i].businessGroups[j].rowid;
-         // $bgList.append($('<option></option').val(rowid).html(data[i].businessGroups[j].name));
+          $bgList.append($('<option></option').val(rowid).html(data[i].businessGroups[j].name));
           bgProjects[rowid] = data[i].businessGroups[j].projects;
         }
         for (var k = 0; k < data[i].environments.length; k++) {
           $envList.append($('<option></option').val(data[i].environments[k].rowid).html(data[i].environments[k].name))
         }
       }
-      $orgListInput.trigger('change');
       $bgList.trigger('change');
       $('.chooseOrgSelectExisting').change(function(e) {
         if ($(this).val() == 'choose') {
@@ -1292,7 +1265,7 @@ function getProviderList() {
       console.log(data);
       var str = ' <option value="">Select Provider</option>',
         len = data.length;
-      str += helperConstructOption(data, ['username', 'password', 'providerType','instanceLimit'], 'providerName', '_id');
+      str += helperConstructOption(data, ['username', 'password', 'providerType'], 'providerName', '_id');
       $('#providerId').html(str);
     },
     failure: function(data) {
@@ -1323,17 +1296,6 @@ function getImagesWithOSFilter() {
   function loadData() {
     var providerVal = $('#providerId').val();
     if (providerVal) {
-
-      var $selected = $("#providerId option:selected");
-            var instanceLimit = parseInt($selected.attr('instanceLimit')) || 10;
-            $('#instanceCount').empty();
-            for (var i = 1; i <= instanceLimit; i++) {
-                var $option = $('<option></option>').val(i).html(i);
-                $('#instanceCount').append($option);
-            }
-         
-
-
       $.get("/vmimages/providers/" + providerVal, function(data) {
         var str = ' <option value="">Select Image</option>',
           data = getFilteredList(data, $('#instanceOS').val()),
@@ -1860,7 +1822,7 @@ var blueprintstartup = function() {
       $('#orgIDCheck').val(selectCheck);
       for (var i = 0; i < rowLength; i += 1) {
         $("#templateContent").empty();
-        if (data[i]['templatetype'] && data[i]['templatetype'] == 'cft' || data[i]['templatetype'] == 'composite')
+        if (data[i]['templatetype'] && data[i]['templatetype'] == 'cft')
           continue;
         getDesignTypeImg = data[i]['templatetype'];
         if (selectCheck == data[i].orgname_rowid) {
@@ -2092,8 +2054,9 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
         alert('please choose a blueprint design');
         return false;
       }
-      //Selection of Orgname from the org selected. Fix for CAT -1885
-      $('#orgnameSelect').val($('#orgIDCheck').val());
+      //Selection of Orgname from localstorage
+
+      $('#orgnameSelect').val(localStorage.getItem('selectedOrgId'));
       console.log('role-Selected before ==> ', $('#tab2 .role-Selected').length);
 
       if ($('.productdiv2.role-Selected').length > 0) {
@@ -2352,7 +2315,7 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
           });
         } else {
           //setting the instance count drop down
-          $('#instanceCount').val("1");
+          $('#instanceCount').val("1").select2();
           if ($('.productdiv2.role-Selected').first().attr('templatetype') == "ami") {
             var vmimage = JSON.parse($('.productdiv2.role-Selected').first().attr('imagedata'));
             $('#instanceOS').val(vmimage.osName);
@@ -2639,14 +2602,13 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
               reqBody.instanceImageName = imageIdentifier;
 
 
-              /*
               $('#userListSelect').find('option').attr('selected', 'selected');
               reqBody.users = $('#userListSelect').val();
 
               if (!reqBody.users) {
                 alert("Please choose users");
                 return false;
-              }*/
+              }
               //Checking for docker blueprint images
               if (($('.productdiv2.role-Selected').first().attr('templatetype') == "Docker" || $('.productdiv2.role-Selected').first().attr('templatetype') == "docker") && $('#dockerimageemptytr').length > 0) {
                 //no rows found add empty message
@@ -2811,10 +2773,6 @@ var $wizard = $('#bootstrap-wizard-1').bootstrapWizard({
                       //for getting the blueprint name
                       $blueprintReadContainerCFT.find('.modal-body #blueprintNameCFT').val(data.name);
                       $blueprintReadContainerCFT.find('.modal-body #blueprintTemplateTypeCFT').val(data.templateType);
-                      if (!data.version) {
-                        data.version = "1";
-                      }
-                      $blueprintReadContainerCFT.find('.modal-body #instanceVersion').val(data.version);
                       $.ajax({
                         type: "get",
                         dataType: "json",
@@ -2995,7 +2953,6 @@ $.ajax({
   }
 });
 
-/*
 (function() {
 
   var $loadingContainer = $('.userListLoadingContainer').empty().append('<img class="center-block" style="height:50px;width:50px;margin-top: 10%;margin-bottom: 10%;" src="img/loading.gif" />').show();
@@ -3021,7 +2978,6 @@ $.ajax({
     $loadingContainer.empty().append('Unable to load users. Please try again later.');
   });
 })();
-*/
 
 $(document).ready(function() {
   $("#blueprintNameInput").focus();
@@ -3224,7 +3180,7 @@ function initializeBlueprintAreaNew(data) {
 
             if (data[i].dockerlaunchparameters)
               $itemBody.attr('dockerlaunchparameters', 't ' + data[i].dockerlaunchparameters);
-           /* var $liDockerRepoName = $('<li title="Docker Repo Name" ><i class="fa fa-check-square" style="padding-right:5px"/>' + data[i].dockerreponame + '</li>');
+            var $liDockerRepoName = $('<li title="Docker Repo Name" ><i class="fa fa-check-square" style="padding-right:5px"/>' + data[i].dockerreponame + '</li>');
             $ul.append($liDockerRepoName);
             if (data[i].dockerrepotags && data[i].dockerrepotags != '') {
               $selectVer.empty();
@@ -3232,7 +3188,7 @@ function initializeBlueprintAreaNew(data) {
               $.each(dockerrepostags, function(k) {
                 $selectVer.append('<option value="' + dockerrepostags[k] + '">' + dockerrepostags[k] + '</option>');
               });
-            }*/
+            }
             $selectVer.hide();
             $selectVerEdit.hide();
             function getOrgProjDetails(id) {
@@ -3244,25 +3200,18 @@ function initializeBlueprintAreaNew(data) {
               $blueprintReadContainer.find('.modal-body #blueprintBU').val(bgName);
               $blueprintReadContainer.find('.modal-body #blueprintProject').val(projName);
               var $blueprintReadContainerCFT = $(id);
-              $blueprintReadContainerCFT.find('.modal-body #blueprintORGCFT').val(orgName);
-              $blueprintReadContainerCFT.find('.modal-body #blueprintBUCFT').val(bgName);
-              $blueprintReadContainerCFT.find('.modal-body #blueprintProjectCFT').val(projName);
+              $blueprintReadContainerCFT.find('.modal-body #blueprintORG').val(orgName);
+              $blueprintReadContainerCFT.find('.modal-body #blueprintBU').val(bgName);
+              $blueprintReadContainerCFT.find('.modal-body #blueprintProject').val(projName);
             }
             (function(blueprint) {
               $liRead.click(function(e) {
                 var $blueprintReadContainerCFT = $('#modalForReadCFT');
-                var orgName = $("#orgnameSelectExisting option:selected").text();
-                var bgName = $('#bgListInputExisting option:selected').text();
-                var projName = $('#projectListInputExisting option:selected').text();
                 $('.modal-title').html('Blueprint Information-Docker');
                 $blueprintReadContainerCFT.modal('show');
                 //for getting the blueprint name
                 $blueprintReadContainerCFT.find('.modal-body #blueprintNameCFT').val(blueprint.name);
                 $blueprintReadContainerCFT.find('.modal-body #blueprintTemplateTypeCFT').val(blueprint.templateType);
-                if (!blueprint.version) {
-                  blueprint.version = "1";
-                }
-                $blueprintReadContainerCFT.find('.modal-body #instanceVersion').val(blueprint.version);
                 getOrgProjDetails($blueprintReadContainerCFT);
               });
             })(data[i]);
@@ -3295,11 +3244,15 @@ function initializeBlueprintAreaNew(data) {
                   //for getting the Provider name,Type,Region,KeyPair
                   $.ajax({
                     type: "GET",
-                    url: "/azure/providers/" + blueprint.blueprintConfig.cloudProviderId,
+                    url: "/aws/providers/" + blueprint.blueprintConfig.cloudProviderId,
                     success: function(data) {
                       $blueprintReadContainer.find('.modal-body #instanceProviderName').val(data.providerName);
                       $blueprintReadContainer.find('.modal-body #instanceProviderType').val(data.providerType);
-                      $blueprintReadContainer.find('.modal-body #instanceRegion').val(blueprint.blueprintConfig.region);
+                      // loop for getting region and Keypair
+                      for (var k = 0; k < data.keyPairs.length; k++) {
+                        $blueprintReadContainer.find('.modal-body #instanceRegion').val(data.keyPairs[k].region);
+                        $blueprintReadContainer.find('.modal-body #instancekeyPair').val(data.keyPairs[k].keyPairName);
+                      }
                     },
                     failure: function(data) {
                       alert(data.toString());
