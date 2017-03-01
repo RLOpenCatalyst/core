@@ -25,10 +25,10 @@ var permissionsetDao = require('../../model/dao/permissionsetsdao');
 var d4dModel = require('../../model/d4dmasters/d4dmastersmodel.js');
 var configmgmtDao = require('../../model/d4dmasters/configmgmt.js');
 var appConfig = require('_pr/config');
+var Cryptography = require('../utils/cryptography');
 var chefSettings = appConfig.chef;
 var AppDeploy = require('_pr/model/app-deploy/app-deploy');
 var async = require('async');
-var monitorsModel = require('_pr/model/monitors/monitors.js');
 
 var MasterUtil = function () {
     // Return All Orgs specific to User
@@ -515,6 +515,138 @@ var MasterUtil = function () {
         });
     }
 
+    // Return all Bitbucket
+    this.getBitbucket = function(orgList, callback) {
+        var bitbucketList = [];
+        var rowIds = [];
+        for (var x = 0; x < orgList.length; x++) {
+            rowIds.push(orgList[x].rowid);
+        }
+        logger.debug("org rowids: ", rowIds);
+        d4dModelNew.d4dModelBitbucketConfig.find({
+            orgname_rowid: {
+                $in: rowIds
+            }
+        }, function(err, bitbucket) {
+            if (bitbucket) {
+                configmgmtDao.getRowids(function(err, rowidlist) {
+                    for (var i = 0; i < bitbucket.length; i++) {
+                        if (bitbucket[i].id === '27') {
+                            names = configmgmtDao.convertRowIDToValue(bitbucket[i].orgname_rowid, rowidlist)
+                            bitbucket[i].orgname = names;
+                            bitbucketList.push(bitbucket[i]);
+                        }
+                    }
+                    callback(null, bitbucketList);
+                    return;
+                });
+            } else {
+                callback(err, null);
+                return;
+            }
+
+        });
+    }
+
+    this.getOctopus = function(orgList, callback) {
+        var octopusList = [];
+        var rowIds = [];
+        for (var x = 0; x < orgList.length; x++) {
+            rowIds.push(orgList[x].rowid);
+        }
+        logger.debug("org rowids: ", rowIds);
+        d4dModelNew.d4dModelOctopusConfig.find({
+            orgname_rowid: {
+                $in: rowIds
+            }
+        }, function(err, octopus) {
+            if (octopus) {
+                configmgmtDao.getRowids(function(err, rowidlist) {
+                    for (var i = 0; i < octopus.length; i++) {
+                        if (octopus[i].id === '28') {
+                            names = configmgmtDao.convertRowIDToValue(octopus[i].orgname_rowid, rowidlist)
+                            octopus[i].orgname = names;
+                            octopusList.push(octopus[i]);
+                        }
+                    }
+                    callback(null, octopusList);
+                    return;
+                });
+            } else {
+                callback(err, null);
+                return;
+            }
+
+        });
+    }
+
+    this.getFunctionalTest = function(orgList, callback) {
+        var functionaltestList = [];
+        var rowIds = [];
+        for (var x = 0; x < orgList.length; x++) {
+            rowIds.push(orgList[x].rowid);
+        }
+        logger.debug("org rowids: ", rowIds);
+        d4dModelNew.d4dModelFunctionalTestConfig.find({
+            orgname_rowid: {
+                $in: rowIds
+            }
+        }, function(err, functionaltest) {
+            if (functionaltest) {
+                configmgmtDao.getRowids(function(err, rowidlist) {
+                    for (var i = 0; i < functionaltest.length; i++) {
+                        if (functionaltest[i].id === '29') {
+                            names = configmgmtDao.convertRowIDToValue(functionaltest[i].orgname_rowid, rowidlist)
+                            functionaltest[i].orgname = names;
+                            functionaltestList.push(functionaltest[i]);
+                        }
+                    }
+                    callback(null, functionaltestList);
+                    return;
+                });
+            } else {
+                callback(err, null);
+                return;
+            }
+
+        });
+    }
+    
+    this.getJira = function(orgList, callback) {
+        var jiraList = [];
+        var rowIds = [];
+        for (var x = 0; x < orgList.length; x++) {
+            rowIds.push(orgList[x].rowid);
+        }
+        logger.debug("org rowids: ", rowIds);
+        d4dModelNew.d4dModelMastersJira.find({
+            orgname_rowid: {
+                $in: rowIds
+            }
+        }, function(err, jira) {
+            if (jira) {
+                
+                configmgmtDao.getRowids(function(err, rowidlist) {
+                    for (var i = 0; i < jira.length; i++) {
+                        logger.debug(jira[i].id);
+                        if (jira[i].id === '23') {
+
+                            names = configmgmtDao.convertRowIDToValue(jira[i].orgname_rowid, rowidlist)
+                            jira[i].orgname = names;
+                            jiraList.push(jira[i]);
+                        }
+                    }
+                    callback(null, jiraList);
+                    return;
+                });
+            } else {
+                callback(err, null);
+                return;
+            }
+
+        });
+    }
+
     // Return All Orgs specific to User
     this.getActiveOrgs = function (loggedInUser, callback) {
         var orgList = [];
@@ -795,12 +927,12 @@ var MasterUtil = function () {
         });
     }
 
-    this.getOrgById = function (orgId, callback) {
+    this.getOrgById = function(orgId, callback) {
         var orgList = [];
         logger.debug("Incomming orgid: ", orgId);
         d4dModelNew.d4dModelMastersOrg.find({
             _id: new ObjectId(orgId)
-        }, function (err, orgs) {
+        }, function(err, orgs) {
             if (orgs) {
                 for (var i = 0; i < orgs.length; i++) {
                     if (orgs[i].id === '1') {
@@ -1791,18 +1923,7 @@ var MasterUtil = function () {
                         chefmgmt[0].chefRepoLocation = chefSettings.chefReposLocation + chefmgmt[0].orgname_rowid[0] + '/' + chefmgmt[0].loginname + '/';
                         chefmgmt[0].userpemfile = chefSettings.chefReposLocation + chefmgmt[0].orgname_rowid[0] + '/' + chefmgmt[0].folderpath + chefmgmt[0].userpemfile_filename;
                         chefmgmt[0].validatorpemfile = chefSettings.chefReposLocation + chefmgmt[0].orgname_rowid[0] + '/' + chefmgmt[0].folderpath + chefmgmt[0].validatorpemfile_filename;
-                        if (chefmgmt[0].monitorId) {
-                            monitorsModel.getById(chefmgmt[0].monitorId, function (err, monitor) {
-                                if (err || !monitor) {
-                                     chefmgmt[0].monitor = null;
-                                } else {
-                                     chefmgmt[0].monitor = monitor;
-                                }
-                                callback(null, chefmgmt[0]);
-                            });
-                        }else{
-                            callback(null, chefmgmt[0]);
-                        }                        
+                        callback(null, chefmgmt[0]);
                     } else {
                         callback(null, null);
                     }
@@ -2235,6 +2356,29 @@ var MasterUtil = function () {
             }
             return callback(null, templates);
         });
+    };
+    
+    this.getSensuCookbooks = function(){
+        var cookbooks = ['recipe[sensu-client]','recipe[sensu_check_load]','recipe[sensu_check_disk]','recipe[sensu_check_cpu]','recipe[sensu_check_memory]'];
+        return cookbooks;
+    };
+
+    //return cookbook attributes object for sensu-client
+    this.getSensuCookbookAttributes = function (monitorDetails, instanceId) {
+        var cryptoConfig = appConfig.cryptoSettings;
+        var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+        var decryptedPassword = cryptography.decryptText(monitorDetails.parameters.transportProtocolParameters.password, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+
+        var sensuAttributes = {
+            'rabbitmq_host': monitorDetails.parameters.transportProtocolParameters.host,
+            'rabbitmq_port': monitorDetails.parameters.transportProtocolParameters.port,
+            'rabbitmq_username': monitorDetails.parameters.transportProtocolParameters.user,
+            'rabbitmq_password': decryptedPassword,
+            'rabbitmq_vhostname': monitorDetails.parameters.transportProtocolParameters.vhost,
+            'instance-id': instanceId
+        };
+        logger.debug("sensuAttributes-------->", JSON.stringify(sensuAttributes));
+        return sensuAttributes;
     };
 }
 

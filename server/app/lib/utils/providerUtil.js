@@ -26,13 +26,13 @@ var Cryptography = require('../../lib/utils/cryptography');
 
 // saveAwsPemFiles() capture all uploaded files from request and save.
 var ProviderUtil = function() {
-    this.saveAwsPemFiles = function(keyPair, inFiles, callback) {
+    this.saveAwsPemFiles = function(keyPairId, inFiles, callback) {
         logger.debug("Path: ", inFiles);
         var settings = appConfig;
         //encrypting default pem file
         var cryptoConfig = appConfig.cryptoSettings;
         var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-        var encryptedPemFileLocation = settings.instancePemFilesDir + keyPair._id;
+        var encryptedPemFileLocation = settings.instancePemFilesDir + keyPairId;
         fs.readFile(inFiles.path, function(err, data) {
             if (err) {
                 logger.debug("File not found in specified path.");

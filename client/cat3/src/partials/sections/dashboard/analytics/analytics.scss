@@ -209,6 +209,13 @@
 
 
 #analyticsPage {
+  .ui-grid-row > div .ui-grid-cell {
+    float: left !important;
+    vertical-align: middle;
+    height: 40px !important;
+    padding: 0px !important;
+    overflow: hidden;
+  }
   .filter-btn {
     margin: 9px 10px 0 0;
   }
@@ -308,4 +315,68 @@
 }
 .marginbottom10{
   margin-bottom: 10px !important;
+}
+#tagMappting{
+  .saveBtn{
+    position: fixed;
+    bottom: 0px;
+    display: block;
+    padding: 13px 14px 15px;
+    border-top: 1px solid rgba(0, 0, 0, .1);
+    background: rgba(249, 249, 249, .9);
+    z-index: 999;
+  }
+  .btnFoot{
+    float: right;
+    width: 57%;
+  }
+
+}
+.form-item-container {
+  .list-inline {
+    input {
+      width: 96px;
+      height: 20px;
+      border: 1px solid #ccc;
+      border-radius: 0px !important;
+    }
+    li span {
+      border: 1px solid #23a9e1;
+      border-radius: 0px !important;
+      padding: 2px 4px;
+      font-size: 12px;
+    }
+  }
+
+}
+.autocomplete-list {
+  width: calc(94% + 2px) !important;
+  left: 3% !important;
+  z-index: 999999;
+}
+label {
+  font-weight: 400 !important;
+}
+.ui-grid-viewport {
+  overflow-x: hidden !important;
+}
+.form-control{
+  height: 29px;
+  padding: 2px 10px;
+  font-size: 12px;
+  line-height: 1;
+}
+.with250{
+  width: 250px !important;
+}
+.weekPick {
+  position: absolute;
+  left: 24%;
+  background: #FFFFFF;
+  width: 217px;
+  z-index: 999;
+  padding: 7px 17px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin: 2px;
 }

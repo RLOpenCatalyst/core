@@ -71,9 +71,10 @@ function routeConfig($stateProvider, $urlRouterProvider, $httpProvider, modulePe
 			}]
 		}
 	}).state('dashboard.analytics', {
-		url: "/analytics/",
+		url: "/CM/",
 		templateUrl: "src/partials/sections/dashboard/analytics/analytics.html",
 		controller: "analyticsCtrl as analytic",
+		//params:{filterView:{analytics:true}},
 		resolve: {
 			auth: ["$q", function ($q) {
 				var deferred = $q.defer();

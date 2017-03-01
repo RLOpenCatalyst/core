@@ -19,8 +19,8 @@ var instanceAuditTrail = require('_pr/model/audit-trail/instance-audit-trail.js'
 var botAuditTrail = require('_pr/model/audit-trail/bot-audit-trail.js');
 var containerAuditTrail = require('_pr/model/audit-trail/container-audit-trail.js');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
-var blueprints = null;
-var tasks = null;
+var bots = require('_pr/model/bots/1.0/bots.js');
+var botsDao = require('_pr/model/bots/1.1/botsDao.js');;
 
 const errorType = 'auditTrailService';
 
@@ -52,7 +52,7 @@ auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,audi
         providerType: auditDetails.providerType,
         action: actionObj.action
     };
-    if(actionObj.auditType === 'BOTs'){
+    if(actionObj.auditType === 'BOTs' || actionObj.auditType === 'BOTsNew'){
         auditTrailObj.auditTrailConfig = auditTrailConfig;
         botAuditTrail.createNew(auditTrailObj,function(err,data){
             if(err){
@@ -137,7 +137,7 @@ auditTrailService.getAuditTrailList = function getAuditTrailList(auditTrailQuery
             apiUtil.paginationRequest(auditTrailQuery, 'auditTrails', next);
         },
         function(paginationReq, next) {
-            paginationReq['searchColumns'] = ['status', 'action', 'user', 'actionStatus', 'masterDetails.orgName', 'masterDetails.bgName', 'masterDetails.projectName', 'masterDetails.envName'];
+            paginationReq['searchColumns'] = ['status', 'action', 'user', 'actionStatus', 'auditTrailConfig.name','masterDetails.orgName', 'masterDetails.bgName', 'masterDetails.projectName', 'masterDetails.envName'];
             reqData = paginationReq;
             apiUtil.databaseUtil(paginationReq, next);
         },
@@ -173,97 +173,157 @@ auditTrailService.getAuditTrailActionLogs = function getAuditTrailActionLogs(act
     });
 }
 
-auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
-    async.parallel({
-        totalNoOfBots: function(callback){
-            blueprints = require('_pr/model/blueprint');
-            tasks = require('_pr/model/classes/tasks/tasks.js');
+auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,callback){
+    async.waterfall([
+        function(next){
+            apiUtil.queryFilterBy(queryParam,next);
+        },
+        function(filterQuery,next) {
+            filterQuery.isDeleted=false;
+            if(BOTSchema === 'BOTs') {
+                bots.getAllBots(filterQuery, next);
+            }else{
+                botsDao.getAllBots(filterQuery, next);
+            }
+        },
+        function(botsList,next){
+            var auditIds = [];
+            for(var i = 0; i < botsList.length; i++) {
+                auditIds.push(botsList[i].botId);
+            }
             async.parallel({
-                botsTask:function(callback){
-                    tasks.getAllServiceDeliveryTask('true',callback);
+                totalNoOfBots: function(callback){
+                            callback(null, botsList.length);
                 },
-                botsBlueprint:function(callback){
-                    blueprints.getAllServiceDeliveryBlueprint('true',callback);
+               /* totalNoOfSuccessBots: function(callback){
+                    var query = {
+                        auditType: BOTSchema,
+                        actionStatus: 'success',
+                        isDeleted: false,
+                        auditId:{$in:auditIds}
+                    };
+                    var botsIds = [];
+                    auditTrail.getAuditTrails(query, function (err, botsAudits) {
+                        if (err) {
+                            callback(err, null);
+                        } else if (botsAudits.length > 0) {
+                            for (var j = 0; j < botsAudits.length; j++) {
+                                if (botsIds.indexOf(botsAudits[j].auditId) === -1) {
+                                    botsIds.push(botsAudits[j].auditId);
+                                }
+                            }
+                            callback(null, botsIds.length);
+                        } else {
+                            callback(null, botsIds.length);
+                        }
+                    });
+                },*/
+                /*totalNoOfScheduledBots: function(callback){
+                    var scheduleBotsIds = [];
+                    if(botsList.length > 0) {
+                        for (var j = 0; j < botsList.length; j++) {
+                            if(botsList[j].isBotScheduled === true) {
+                                scheduleBotsIds.push(botsList[j]._id);
+                            }
+                        }
+                        callback(null,scheduleBotsIds.length);
+                    }else{
+                        callback(null,scheduleBotsIds.length);
+                    }
+                },*/
+                totalNoOfServiceNowTickets: function(callback){
+                    var query={
+                        auditType:BOTSchema,
+                        actionStatus:'success',
+                        isDeleted:false,
+                        user:'servicenow'
+                    };
+                    auditTrail.getAuditTrails(query, function(err,botsAudits){
+                        if(err){
+                            callback(err,null);
+                        }else {
+                            callback(null,botsAudits.length);
+                        }
+                    });
+                },
+                totalNoOfRunningBots: function(callback){
+                    var query={
+                        auditType:BOTSchema,
+                        actionStatus:'running',
+                        isDeleted:false,
+                        auditId:{$in:auditIds}
+                    };
+                    var botsIds = [];
+                    auditTrail.getAuditTrails(query, function(err,botsAudits){
+                        if(err){
+                            callback(err,null);
+                        }else if (botsAudits.length > 0) {
+                            for (var j = 0; j < botsAudits.length; j++) {
+                                if (botsIds.indexOf(botsAudits[j].auditId) === -1) {
+                                    botsIds.push(botsAudits[j].auditId);
+                                }
+                            }
+                            callback(null,botsIds.length);
+                        } else {
+                            callback(null,botsIds.length);
+                        }
+                    });
+                },
+                totalSavedTimeForBots: function(callback){
+                    var hours = 0, minutes = 0;
+                    if(botsList.length > 0) {
+                        for (var k = 0; k < botsList.length; k++) {
+                            if(botsList[k].savedTime.hours) {
+                                hours = hours + botsList[k].savedTime.hours;
+                            }
+                            if(botsList[k].savedTime.minutes){
+                                minutes = minutes + botsList[k].savedTime.minutes;
+                            }
+                        }
+                    }
+                    if(minutes >= 60){
+                        hours = hours + Math.floor(minutes / 60);
+                        minutes = minutes % 60;
+                    }
+                    var result = {
+                        hours:hours,
+                        minutes:minutes
+                    }
+                    callback(null,result);
+                },
+                totalNoOfFailedBots: function(callback){
+                    var query={
+                        auditType:BOTSchema,
+                        actionStatus:'failed',
+                        isDeleted:false,
+                        auditId:{$in:auditIds}
+                    };
+                    var botsIds = [];
+                    auditTrail.getAuditTrails(query, function(err,botsAudits){
+                        if(err){
+                            callback(err,null);
+                        }else if (botsAudits.length > 0) {
+                            for (var j = 0; j < botsAudits.length; j++) {
+                                if (botsIds.indexOf(botsAudits[j].auditId) === -1) {
+                                    botsIds.push(botsAudits[j].auditId);
+                                }
+                            }
+                            callback(null,botsIds.length);
+                        } else {
+                            callback(null,botsIds.length);
+                        }
+                    });
                 }
-            },function(err,results){
+
+            },function(err,data){
                 if(err){
                     logger.error(err);
-                    callback(err,null);
-                    return;
+                    next(err,null);
                 }
-                var totalNoOfBots = results.botsTask.length + results.botsBlueprint.length;
-                callback(null,totalNoOfBots);
-                return;
+                next(null,data);
             })
-
-        },
-        totalNoOfSuccessBots: function(callback){
-            var query={
-                auditType:'BOTs',
-                actionStatus:'success'
-            };
-            auditTrail.getAuditTrails(query,function(err,data){
-                if(err){
-                    callback(err,null);
-                }
-                callback(null,data.length);
-            });
-
-        },
-        totalNoOfRunningBots: function(callback){
-            var query={
-                auditType:'BOTs',
-                actionStatus:'running'
-            };
-            auditTrail.getAuditTrails(query,function(err,data){
-                if(err){
-                    callback(err,null);
-                }
-                callback(null,data.length);
-            });
-
-        },
-        totalSavedTimeForBots: function(callback){
-            var query={
-                auditType:'BOTs'
-            };
-            auditTrail.getAuditTrails(query,function(err,botAuditTrail){
-                if(err){
-                    callback(err,null);
-                } else if(botAuditTrail.length > 0){
-                    var totalTimeInSeconds = 0,count =0
-                    for(var i = 0; i < botAuditTrail.length; i++){
-                        (function(auditTrail){
-                            count++;
-                            if(auditTrail.endedOn && auditTrail.endedOn !== null && auditTrail.actionStatus !== 'failed'
-                                && auditTrail.auditTrailConfig.manualExecutionTime && auditTrail.auditTrailConfig.manualExecutionTime !== null) {
-                                var executionTime = getExecutionTime(auditTrail.endedOn, auditTrail.startedOn);
-                                totalTimeInSeconds = totalTimeInSeconds + ((auditTrail.auditTrailConfig.manualExecutionTime*60) - executionTime);
-                            }
-                        })(botAuditTrail[i]);
-                    }
-                    if(count === botAuditTrail.length){
-                        callback(null,(totalTimeInSeconds/60).toFixed(2));
-                    }
-                } else{
-                    callback(null,botAuditTrail.length);
-                }
-            });
-        },
-        totalNoOfFailedBots: function(callback){
-            var query={
-                auditType:'BOTs',
-                actionStatus:'failed'
-            };
-            auditTrail.getAuditTrails(query,function(err,data){
-                if(err){
-                    callback(err,null);
-                }
-                callback(null,data.length);
-            });
         }
-
-    },function(err,results){
+    ],function(err,results){
         if(err){
             logger.error(err);
             callback(err,null);
@@ -271,8 +331,52 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(callback){
         }
         callback(null,results);
         return;
-
     })
+}
+
+auditTrailService.getBotsAuditTrailHistory = function getBotsAuditTrailHistory(botId,callback){
+    var query={
+        auditType:'BOTs',
+        auditId:botId,
+        isDeleted:false
+    };
+    auditTrail.getAuditTrails(query,function(err,data){
+        if(err){
+            callback(err,null);
+        }else {
+            callback(null, data);
+        }
+    });
+}
+
+auditTrailService.softRemoveAuditTrailById = function softRemoveAuditTrailById(auditId,callback){
+    auditTrail.softRemoveAuditTrails(auditId,function(err,data){
+        if(err){
+            return callback(err,null);
+        }else {
+            return callback(null, data);
+        }
+    });
+}
+
+auditTrailService.updateSoftRemoveAuditTrailById = function updateSoftRemoveAuditTrailById(auditId,callback){
+    auditTrail.updateSoftRemoveAuditTrails(auditId,function(err,data){
+        if(err){
+            return callback(err,null);
+        }else {
+            return callback(null, data);
+        }
+    });
+}
+
+auditTrailService.removeAuditTrailById = function removeAuditTrailById(auditId,callback){
+    auditTrail.removeAuditTrails({auditId:auditId},function(err,data){
+        if(err){
+            return callback(err,null);
+        }else {
+            return callback(null, data);
+        }
+    });
 }
 
 
@@ -281,4 +385,3 @@ function getExecutionTime(endTime,startTime){
     var totalSeconds = Math.floor(executionTimeInMS/1000);
     return totalSeconds;
 }
-

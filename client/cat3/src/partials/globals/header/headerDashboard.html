@@ -16,13 +16,13 @@
 				<li>
 					<div id="workzone" class="headNavigItem" ng-if="workZoneBool" ui-sref='dashboard.workzone' ui-sref-active='activeSection'>
 						<!--<a href="../../../../#ajax/Dev.html">-->
-							<i class="fa fa-credit-card"></i> WORKZONE
+							<i class="fa fa-credit-card white" ng-class="{'header-selected-item':moduleSelection.filterView.workzone}"></i> WORKZONE
 						<!--</a>-->
 					</div>
 				</li>
 				<li>
 					<div id="design" class="headNavigItem" ng-if="designBool" ui-sref='dashboard.design' ui-sref-active='activeSection'>
-							<i class="fa fa-puzzle-piece white"></i> DESIGN
+							<i class="fa fa-puzzle-piece white" ng-class="{'header-selected-item':moduleSelection.filterView.design}"></i> DESIGN
 						</a>
 					</div>
 				</li>
@@ -35,18 +35,18 @@
 				</li>
 				<li>
 					<div id="analytics" class="headNavigItem" ng-if="analyticsBool" ui-sref='dashboard.analytics' ui-sref-active='activeSection'>
-						<i class="fa fa-area-chart white"></i> ANALYTICS
+						<i class="fa fa-cloud white"></i> CLOUD
 					</div>
 				</li>
 				<li>
 					<div id="service" class="headNavigItem" ng-if="serviceBool" ui-sref='dashboard.bots' ui-sref-active='activeSection'>
-						<i class="fa fa-delicious white"></i> BOTS
+						<i class="fa fa-delicious white" ng-class="{'header-selected-item':moduleSelection.filterView.bots}"></i> BOTS
 					</div>
 				</li>
 				<li class="header-right">
 					<div id="header-menu">
 						<div id="userInfo" class="headNavigItem" title="{{appDetails.roleId}}">
-							<i class="fa fa-user white"></i> 
+							<i class="fa fa-user white"></i>
 							{{appDetails.cn | uppercase}}
 							[{{appDetails.roleId}}]
 						</div>

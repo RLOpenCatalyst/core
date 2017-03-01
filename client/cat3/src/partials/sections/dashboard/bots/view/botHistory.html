@@ -1,0 +1,29 @@
+<div id='botHistoryPage'>
+	<div class="modal-header">
+		<h4 class="modal-title">
+			<span class="close" ng-click="$dismiss('cancel')">×</span>
+			<span>
+				<i class="fa fa-history"></i>&nbsp;
+				BOT History For - {{botDetail.botName}}
+			</span>
+		</h4>
+	</div>
+
+	<div class="modal-body">
+		<section>
+			<!--This table will get use when bot job type will be chef -->
+			<loading size="large" name="ischefTaskHistoryPageLoading" type="block" align="center"></loading>
+			<div ng-show="!ischefTaskHistoryPageLoading">
+				<div id="grid1" ng-if="taskHistoryData.totalItems > 0" ui-grid="taskHistoryData" ui-grid-pagination ui-grid-auto-resize class="grid"></div>
+			</div>
+			<!--This table will get use when bot job type will be jenkins -->
+			<div class="alert alert-info text-center" ng-show="!ischefTaskHistoryPageLoading" ng-if="taskHistoryData.totalItems <= 0" align="center">No Data Found</div>
+		</section>
+	</div>
+
+	<div class="modal-footer">
+		<button type="button" class="btn cat-btn-close" ng-click="$dismiss('cancel')">
+			<i class="fa fa-times black"></i> Close
+		</button>
+	</div>
+</div>

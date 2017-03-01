@@ -31,7 +31,13 @@ var vmImageDao = require('_pr/model/classes/masters/vmImage.js');
 var Blueprints = require('_pr/model/blueprint');
 var AWSKeyPair = require('_pr/model/classes/masters/cloudprovider/keyPair.js');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
-
+var usersDao = require('_pr/model/users.js');
+var auditTrailService = require('_pr/services/auditTrailService');
+var bots = require('_pr/model/bots/1.0/bots.js');
+var botsService = require('_pr/services/botsService.js');
+var ObjectId = require('mongoose').Types.ObjectId;
+var uuid = require('node-uuid');
+var masterUtil = require('_pr/lib/utils/masterUtil.js');
 
 
 const errorType = 'blueprint';
@@ -77,7 +83,206 @@ blueprintService.deleteServiceDeliveryBlueprint = function deleteServiceDelivery
             Blueprints.removeServiceDeliveryBlueprints(blueprintId, next);
         },
         function (deleteTaskCheck, next) {
-            auditTrail.removeAuditTrails({auditId:blueprintId},next);
+            auditTrail.softRemoveAuditTrails(blueprintId,next);
+        }
+    ],function (err, results) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, results);
+        return;
+    });
+};
+
+blueprintService.copyBlueprint = function copyBlueprint(blueprintId,masterDetails,callback){
+    async.waterfall([
+        function(next){
+            Blueprints.getById(blueprintId,next);
+        },
+        function(blueprint,next){
+            if(blueprint && blueprint !== null){
+                blueprint.orgId = masterDetails.orgId;
+                blueprint.bgId = masterDetails.bgId;
+                blueprint.projectId = masterDetails.projectId;
+                blueprint.parentId = blueprint._id;
+                if (blueprint.projectId !== masterDetails.projectId) {
+                    if (blueprint.nexus) {
+                        blueprint.nexus = undefined;
+                    }
+                    if (blueprint.docker) {
+                        blueprint.docker = undefined;
+                    }
+                }
+                blueprint._id = new ObjectId();
+                masterDetails.name = blueprint.name;
+                Blueprints.getBlueprintData(masterDetails,function(err,data){
+                    if(err){
+                        next({
+                            errCode:400,
+                            errMessage:'There is no blueprint present corresponding to ' + blueprintId + ' in catalyst'
+                        },null);
+                    }else if(data.length > 0){
+                        blueprint.name = blueprint.name + '_copy_' + uuid.v4().split('-')[0];
+                        Blueprints.saveCopyBlueprint(blueprint, next);
+                    }else{
+                        Blueprints.saveCopyBlueprint(blueprint, next);
+                    }
+                })
+            }else{
+                next({
+                    errCode:400,
+                    errMessage:'There is no blueprint present corresponding to ' + blueprintId + ' in catalyst'
+                },null);
+            }
+        },
+        function(blueprints,next){
+            if(blueprints){
+                if(blueprints.serviceDeliveryCheck === true){
+                    masterUtil.getParticularProject(masterDetails.projectId, function(err, project) {
+                        if (err) {
+                            logger.error(err);
+                            next(null,blueprints);
+                        } else if (project.length > 0) {
+                            blueprints.orgName = project[0].orgname;
+                            blueprints.bgName = project[0].productgroupname;
+                            blueprints.projectName = project[0].projectname;
+                            botsService.createOrUpdateBots(blueprints, 'Blueprint', blueprints.blueprintType,next);
+                        } else {
+                            logger.debug("Unable to find Project Information from project id:");
+                            next(null,blueprints);
+                        }
+                    });
+                }else{
+                    next(null,blueprints);
+                }
+            }else{
+                next({
+                    errCode:400,
+                    errMessage:'There is no blueprint present corresponding to ' + blueprintId + ' in catalyst'
+                },null);
+            }
+        }
+    ],function(err,results){
+        if(err){
+            callback(err,null);
+            return;
+        }
+        callback(null,results);
+        return;
+    })
+}
+
+blueprintService.launch = function launch(blueprintId,reqBody, callback) {
+    async.waterfall([
+        function (next) {
+            usersDao.haspermission(reqBody.userName, reqBody.category, reqBody.permissionTo, null, reqBody.permissionSet,next);
+        },
+        function (launchPermission, next) {
+            if(launchPermission === true){
+                Blueprints.getById(blueprintId,next);
+            }else{
+                logger.debug('No permission to ' + reqBody.permissionTo + ' on ' + reqBody.category);
+                next({errCode:401,errMsg:'No permission to ' + reqBody.permissionTo + ' on ' + reqBody.category},null);
+            }
+        },
+        function(blueprint,next){
+            if(blueprint){
+                var stackName = null,domainName = null,monitorId = null,blueprintLaunchCount = 0;
+                if(blueprint.executionCount) {
+                    blueprintLaunchCount = blueprint.executionCount + 1;
+                }else{
+                    blueprintLaunchCount = 1;
+                }
+                Blueprints.updateBlueprintExecutionCount(blueprint._id,blueprintLaunchCount,function(err,data){
+                    if(err){
+                        logger.error("Error while updating Blueprint Execution Count");
+                    }
+                });
+                if (blueprint.blueprintType === 'aws_cf' || blueprint.blueprintType === 'azure_arm') {
+                    stackName = reqBody.stackName;
+                    if (!stackName) {
+                        next({errCode:400,errMsg:"Invalid stack name"},null);
+                    }
+                }
+                if(blueprint.domainNameCheck === true) {
+                    domainName = reqBody.domainName;
+                    if (!domainName) {
+                        next({errCode:400,errMsg:"Invalid Domain name"},null);
+                    }
+                }
+                if (reqBody.monitorId && reqBody.monitorId !== null && reqBody.monitorId !== 'null') {
+                    monitorId = reqBody.monitorId;
+                }
+                if(blueprint.serviceDeliveryCheck === true){
+                    var actionObj={
+                        auditType:'BOTs',
+                        auditCategory:'Blueprint',
+                        status:'running',
+                        action:'BOTs Blueprint Execution',
+                        actionStatus:'running',
+                        catUser:reqBody.userName
+                    };
+                    var auditTrailObj = {
+                        name:blueprint.name,
+                        type:blueprint.botType,
+                        description:blueprint.shortDesc,
+                        category:blueprint.botCategory,
+                        executionType:blueprint.blueprintType,
+                        manualExecutionTime:blueprint.manualExecutionTime,
+                        nodeIdsWithActionLog:[]
+                    };
+                    blueprint.envId= reqBody.envId;
+                    bots.getBotsById(blueprint._id,function(err,botData){
+                        if(err){
+                            logger.error(err);
+                        }else if(botData.length > 0){
+                            var botExecutionCount = botData[0].executionCount + 1;
+                            var botUpdateObj = {
+                                executionCount:botExecutionCount,
+                                lastRunTime:new Date().getTime(),
+                                runTimeParams:reqBody
+                            }
+                            bots.updateBotsDetail(blueprint._id,botUpdateObj,function(err,data){
+                                if(err){
+                                    logger.error("Error while updating Bots Configuration");
+                                }
+                            });
+                        }else{
+                            logger.debug("There is no Bots Data present in DB");
+                        }
+                    });
+                    auditTrailService.insertAuditTrail(blueprint,auditTrailObj,actionObj,function(err,data){
+                        if(err){
+                            logger.error(err);
+                        }
+                        blueprint.launch({
+                            envId: reqBody.envId,
+                            ver: reqBody.version,
+                            stackName: stackName,
+                            domainName: domainName,
+                            sessionUser: reqBody.userName,
+                            tagServer: reqBody.tagServer,
+                            monitorId: monitorId,
+                            auditTrailId: data._id
+                        },next);
+                    });
+                }else{
+                    blueprint.launch({
+                        envId: reqBody.envId,
+                        ver: reqBody.version,
+                        stackName: stackName,
+                        domainName: domainName,
+                        sessionUser: reqBody.userName,
+                        tagServer: reqBody.tagServer,
+                        monitorId: monitorId,
+                        auditTrailId: null
+                    },next);
+                }
+            }else{
+                logger.debug("Blueprint Does Not Exist");
+                next({errCode:404,errMsg:"Blueprint Does Not Exist"},null);
+            }
         }
     ],function (err, results) {
         if (err) {
@@ -252,79 +457,6 @@ blueprintService.launchBlueprint = function launchBlueprint(blueprint, reqBody, 
                 return callback(error, null);
             }
         });
-
-
-
-
-        /*async.waterfall([
-
-    function(next) {
-        providerService.getProvider(providerId, next);
-    },
-    function(provider, next) {
-        switch (networkProfile.type) {
-            case 'gcp':
-                var gcpProvider = new gcpProviderModel(provider);
-                //logger.debug("provider.keyFile: ",JSON.stringify(gcpProvider));
-                // Get file from provider decode it and save, after use delete file
-                // Decode file content with base64 and save.
-                var base64Decoded = new Buffer(gcpProvider.providerDetails.keyFile, 'base64').toString();
-                fs.writeFile('/tmp/' + provider.id + '.json', base64Decoded, next);
-                var params = {
-                    "projectId": gcpProvider.providerDetails.projectId,
-                    "keyFilename": '/tmp/' + provider.id + '.json'
-                }
-                var gcp = new GCP(params);
-                var launchParams = {
-                    "blueprints": blueprint,
-                    "networkConfig": networkProfile,
-                    "providers": gcpProvider
-                }
-                gcp.createVM(launchParams, next);
-                break;
-                defaut: break;
-        }
-    },
-    function(instance, next) {
-        logger.debug("=============== ", JSON.stringify(instance));
-        if (!instance) {
-            var error = new Error("instance creation failed.");
-            error.status = 500;
-            return callback(error, null);
-        }
-        var gcpProvider = new gcpProviderModel(instance.provider);
-        var instanceObj = {
-            "blueprint": blueprint,
-            "instance": instance,
-            "provider": gcpProvider,
-            "envId": reqBody.envId
-        }
-        logger.debug("instanceService: ", JSON.stringify(instanceObj));
-        instanceService.createInstance(instanceObj, next);
-    },
-    function(instanceData, next) {
-        var timestampStarted = new Date().getTime();
-        var actionLog = instancesModel.insertBootstrapActionLog(instanceData.id, instanceData.runlist, instanceData.sessionUser, timestampStarted);
-        var logsReferenceIds = [instanceData.id, actionLog._id];
-        logsDao.insertLog({
-            referenceId: logsReferenceIds,
-            err: false,
-            log: "Starting instance",
-            timestamp: timestampStarted
-        });
-        instanceService.bootstrapInstance(instanceData, next);
-    }
-], function(err, results) {
-    if (err) {
-        logger.error("GCP Blueprint launch failed: " + err);
-        callback(err);
-    } else {
-        // Delete all files after use.
-        fs.unlink('/tmp/' + provider.id + '.json');
-        callback(null, results);
-    }
-})
-*/
     } else {
         var err = new Error("NetworkProfile not configured in Blueprint.");
         err.status = 404;

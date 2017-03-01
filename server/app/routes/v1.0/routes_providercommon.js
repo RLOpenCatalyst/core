@@ -41,6 +41,7 @@ var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var Docker = require('_pr/model/docker.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var SSHExec = require('_pr/lib/utils/sshexec');
+var monitorsModel = require('_pr/model/monitors/monitors.js');
 // @TODO Authorization to be checked for all end points
 module.exports.setRoutes = function (app, sessionVerificationFunc) {
 
@@ -89,32 +90,32 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
     function getManagedInstancesList(req, res, next) {
         var reqObj = {};
         async.waterfall(
-            [
-                function (next) {
-                    apiUtil.changeRequestForJqueryPagination(req.query, next);
-                },
-                function (reqData, next) {
-                    reqObj = reqData;
-                    apiUtil.paginationRequest(reqData, 'managedInstances', next);
-                },
-                function (paginationReq, next) {
-                    paginationReq['providerId'] = req.params.providerId;
-                    paginationReq['searchColumns'] = ['instanceIP', 'instanceState', 'platformId', 'hardware.os', 'projectName', 'environmentName'];
-                    apiUtil.databaseUtil(paginationReq, next);
-                },
-                function (queryObj, next) {
-                    instancesDao.getByProviderId(queryObj, next);
-                },
-                function (managedInstances, next) {
-                    apiUtil.changeResponseForJqueryPagination(managedInstances, reqObj, next);
-                }
-            ],
-            function (err, results) {
-                if (err)
-                    next(err);
-                else
-                    return res.status(200).send(results);
-            });
+                [
+                    function (next) {
+                        apiUtil.changeRequestForJqueryPagination(req.query, next);
+                    },
+                    function (reqData, next) {
+                        reqObj = reqData;
+                        apiUtil.paginationRequest(reqData, 'managedInstances', next);
+                    },
+                    function (paginationReq, next) {
+                        paginationReq['providerId'] = req.params.providerId;
+                        paginationReq['searchColumns'] = ['instanceIP', 'instanceState', 'platformId', 'hardware.os', 'projectName', 'environmentName'];
+                        apiUtil.databaseUtil(paginationReq, next);
+                    },
+                    function (queryObj, next) {
+                        instancesDao.getByProviderId(queryObj, next);
+                    },
+                    function (managedInstances, next) {
+                        apiUtil.changeResponseForJqueryPagination(managedInstances, reqObj, next);
+                    }
+                ],
+                function (err, results) {
+                    if (err)
+                        next(err);
+                    else
+                        return res.status(200).send(results);
+                });
     }
     ;
 
@@ -123,29 +124,29 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
     function getManagedInstances(req, res, next) {
         var reqData = {};
         async.waterfall(
-            [
-                function (next) {
-                    apiUtil.paginationRequest(req.query, 'managedInstances', next);
-                },
-                function (paginationReq, next) {
-                    paginationReq['providerId'] = req.params.providerId;
-                    paginationReq['searchColumns'] = ['instanceIP', 'instanceState', 'platformId', 'hardware.os', 'projectName', 'environmentName'];
-                    reqData = paginationReq;
-                    apiUtil.databaseUtil(paginationReq, next);
-                },
-                function (queryObj, next) {
-                    instancesDao.getByProviderId(queryObj, next);
-                },
-                function (managedInstances, next) {
-                    apiUtil.paginationResponse(managedInstances, reqData, next);
-                }
-            ],
-            function (err, results) {
-                if (err)
-                    next(err);
-                else
-                    return res.status(200).send(results);
-            });
+                [
+                    function (next) {
+                        apiUtil.paginationRequest(req.query, 'managedInstances', next);
+                    },
+                    function (paginationReq, next) {
+                        paginationReq['providerId'] = req.params.providerId;
+                        paginationReq['searchColumns'] = ['instanceIP', 'instanceState', 'platformId', 'hardware.os', 'projectName', 'environmentName'];
+                        reqData = paginationReq;
+                        apiUtil.databaseUtil(paginationReq, next);
+                    },
+                    function (queryObj, next) {
+                        instancesDao.getByProviderId(queryObj, next);
+                    },
+                    function (managedInstances, next) {
+                        apiUtil.paginationResponse(managedInstances, reqData, next);
+                    }
+                ],
+                function (err, results) {
+                    if (err)
+                        next(err);
+                    else
+                        return res.status(200).send(results);
+                });
     }
 
 
@@ -154,30 +155,30 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
     function getUnManagedInstances(req, res, next) {
         var reqData = {};
         async.waterfall(
-            [
-                function (next) {
-                    apiUtil.paginationRequest(req.query, 'unmanagedInstances', next);
-                },
-                function (paginationReq, next) {
-                    paginationReq['providerId'] = req.params.providerId;
-                    paginationReq['searchColumns'] = ['ip', 'platformId', 'os', 'state', 'projectName', 'environmentName', 'providerData.region'];
-                    reqData = paginationReq;
-                    apiUtil.databaseUtil(paginationReq, next);
-                },
-                function (queryObj, next) {
-                    unManagedInstancesDao.getByProviderId(queryObj, next);
-                },
-                function (unmanagedInstances, next) {
-                    apiUtil.paginationResponse(unmanagedInstances, reqData, next);
-                }
+                [
+                    function (next) {
+                        apiUtil.paginationRequest(req.query, 'unmanagedInstances', next);
+                    },
+                    function (paginationReq, next) {
+                        paginationReq['providerId'] = req.params.providerId;
+                        paginationReq['searchColumns'] = ['ip', 'platformId', 'os', 'state', 'projectName', 'environmentName', 'providerData.region'];
+                        reqData = paginationReq;
+                        apiUtil.databaseUtil(paginationReq, next);
+                    },
+                    function (queryObj, next) {
+                        unManagedInstancesDao.getByProviderId(queryObj, next);
+                    },
+                    function (unmanagedInstances, next) {
+                        apiUtil.paginationResponse(unmanagedInstances, reqData, next);
+                    }
 
-            ],
-            function (err, results) {
-                if (err)
-                    next(err);
-                else
-                    return res.status(200).send(results);
-            });
+                ],
+                function (err, results) {
+                    if (err)
+                        next(err);
+                    else
+                        return res.status(200).send(results);
+                });
     }
     ;
 
@@ -186,33 +187,33 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
     function getUnManagedInstancesList(req, res, next) {
         var reqObj = {};
         async.waterfall(
-            [
-                function (next) {
-                    apiUtil.changeRequestForJqueryPagination(req.query, next);
-                },
-                function (reqData, next) {
-                    reqObj = reqData;
-                    apiUtil.paginationRequest(reqData, 'unmanagedInstances', next);
-                },
-                function (paginationReq, next) {
-                    paginationReq['providerId'] = req.params.providerId;
-                    paginationReq['searchColumns'] = ['ip', 'platformId', 'os', 'state', 'projectName', 'environmentName', 'providerData.region'];
-                    apiUtil.databaseUtil(paginationReq, next);
-                },
-                function (queryObj, next) {
-                    unManagedInstancesDao.getByProviderId(queryObj, next);
-                },
-                function (unmanagedInstances, next) {
-                    apiUtil.changeResponseForJqueryPagination(unmanagedInstances, reqObj, next);
-                }
+                [
+                    function (next) {
+                        apiUtil.changeRequestForJqueryPagination(req.query, next);
+                    },
+                    function (reqData, next) {
+                        reqObj = reqData;
+                        apiUtil.paginationRequest(reqData, 'unmanagedInstances', next);
+                    },
+                    function (paginationReq, next) {
+                        paginationReq['providerId'] = req.params.providerId;
+                        paginationReq['searchColumns'] = ['ip', 'platformId', 'os', 'state', 'projectName', 'environmentName', 'providerData.region'];
+                        apiUtil.databaseUtil(paginationReq, next);
+                    },
+                    function (queryObj, next) {
+                        unManagedInstancesDao.getByProviderId(queryObj, next);
+                    },
+                    function (unmanagedInstances, next) {
+                        apiUtil.changeResponseForJqueryPagination(unmanagedInstances, reqObj, next);
+                    }
 
-            ],
-            function (err, results) {
-                if (err)
-                    next(err);
-                else
-                    return res.status(200).send(results);
-            });
+                ],
+                function (err, results) {
+                    if (err)
+                        next(err);
+                    else
+                        return res.status(200).send(results);
+                });
     }
     ;
     // @TODO To be refactored and API end point to be changed
@@ -230,6 +231,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                 });
                 return;
             }
+            logger.debug("provider--------------->", JSON.stringify(provider));
 
             configmgmtDao.getEnvNameFromEnvId(req.body.envId, function (err, envName) {
                 if (err) {
@@ -275,15 +277,12 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                             });
                             return;
                         }
-                        logger.debug("infraManagerDetails", infraManagerDetails);
                         if (!infraManagerDetails) {
                             res.status(500).send({
                                 message: "Config Management not found"
                             });
                             return;
                         }
-
-                        logger.debug("infraManagerDetails----------->>", JSON.stringify(infraManagerDetails));
 
                         if (infraManagerDetails.configType === 'chef') {
                             var chef = new Chef({
@@ -384,6 +383,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                             return;
                                         }
                                         taskstatus = obj;
+
                                         for (var i = 0; i < unmanagedInstances.length; i++) {
                                             (function (unmanagedInstance) {
                                                 var openport = 22;
@@ -403,6 +403,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                                         nodeEnv: req.body.environmentName
                                                     }
                                                     checkNodeCredentials(credentials, nodeDetails, function (err, credentialStatus) {
+
                                                         if (err) {
                                                             logger.error(err);
                                                             res.status(400).send({
@@ -410,471 +411,259 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                                             });
                                                             return;
                                                         } else if (credentialStatus) {
-                                                            var instance = {
-                                                                name: unmanagedInstance.platformId,
-                                                                orgId: req.body.orgId,
-                                                                orgName: req.body.orgName,
-                                                                bgName: req.body.bgName,
-                                                                environmentName: req.body.environmentName,
-                                                                bgId: req.body.bgId,
-                                                                projectId: req.body.projectId,
-                                                                projectName: req.body.projectName,
-                                                                envId: req.body.envId,
-                                                                tagServer: req.body.tagServer,
-                                                                providerId: provider._id,
-                                                                providerType: 'aws',
-                                                                providerData: {
-                                                                    region: unmanagedInstance.providerData.region
-                                                                },
-                                                                chefNodeName: unmanagedInstance.platformId,
-                                                                runlist: [],
-                                                                platformId: unmanagedInstance.platformId,
-                                                                appUrls: appUrls,
-                                                                instanceIP: unmanagedInstance.ip,
-                                                                instanceState: unmanagedInstance.state,
-                                                                network: unmanagedInstance.network,
-                                                                vpcId: unmanagedInstance.vpcId,
-                                                                privateIpAddress: unmanagedInstance.privateIpAddress,
-                                                                hostName: unmanagedInstance.hostName,
-                                                                bootStrapStatus: 'waiting',
-                                                                hardware: {
-                                                                    platform: 'unknown',
-                                                                    platformVersion: 'unknown',
-                                                                    architecture: 'unknown',
-                                                                    memory: {
-                                                                        total: 'unknown',
-                                                                        free: 'unknown',
-                                                                    },
-                                                                    os: unmanagedInstance.os
-                                                                },
-                                                                credentials: encryptedCredentials,
-                                                                blueprintData: {
-                                                                    blueprintName: unmanagedInstance.platformId,
-                                                                    templateId: "chef_import",
-                                                                    iconPath: "../private/img/templateicons/chef_import.png"
-                                                                }
-                                                            };
-
-                                                            if (infraManagerDetails.configType === 'chef') {
-                                                                instance.chef = {
-                                                                    serverId: infraManagerDetails.rowid,
-                                                                    chefNodeName: unmanagedInstance.platformId
-                                                                }
-                                                            } else {
-                                                                instance.puppet = {
-                                                                    serverId: infraManagerDetails.rowid
-
-                                                                }
-                                                            }
-
-                                                            instancesDao.createInstance(instance, function (err, data) {
-                                                                if (err) {
-                                                                    logger.error('Unable to create Instance ', err);
-                                                                    updateTaskStatusNode(unmanagedInstance.platformId, "server beahved unexpectedly while importing instance :" + unmanagedInstance.platformId + ". Cannot sync this node.", true, count);
-                                                                    return;
-                                                                }
-                                                                instance.id = data._id;
-                                                                instance._id = data._id;
-                                                                var timestampStarded = new Date().getTime();
-                                                                var actionLog = instancesDao.insertBootstrapActionLog(instance.id, [], req.session.user.cn, timestampStarded);
-                                                                var logsRefernceIds = [instance.id, actionLog._id];
-                                                                logsDao.insertLog({
-                                                                    referenceId: logsRefernceIds,
-                                                                    err: false,
-                                                                    log: "Bootstrapping instance",
-                                                                    timestamp: timestampStarded
-                                                                });
-
-                                                                var instanceLog = {
-                                                                    actionId: actionLog._id,
-                                                                    instanceId: instance.id,
+                                                            monitorsModel.getById(req.body.monitorId, function (err, monitor) {
+                                                                var instance = {
+                                                                    name: unmanagedInstance.platformId,
+                                                                    orgId: req.body.orgId,
                                                                     orgName: req.body.orgName,
                                                                     bgName: req.body.bgName,
+                                                                    environmentName: req.body.environmentName,
+                                                                    bgId: req.body.bgId,
+                                                                    projectId: req.body.projectId,
                                                                     projectName: req.body.projectName,
-                                                                    envName: req.body.environmentName,
-                                                                    status: unmanagedInstance.state,
-                                                                    actionStatus: "waiting",
+                                                                    envId: req.body.envId,
+                                                                    tagServer: req.body.tagServer,
+                                                                    providerId: provider._id,
+                                                                    providerType: 'aws',
+                                                                    providerData: {
+                                                                        region: unmanagedInstance.providerData.region
+                                                                    },
+                                                                    chefNodeName: unmanagedInstance.platformId,
+                                                                    runlist: [],
                                                                     platformId: unmanagedInstance.platformId,
-                                                                    blueprintName: unmanagedInstance.platformId,
-                                                                    data: [],
-                                                                    platform: "unknown",
-                                                                    os: unmanagedInstance.os,
-                                                                    size: "",
-                                                                    user: req.session.user.cn,
-                                                                    startedOn: new Date().getTime(),
-                                                                    createdOn: new Date().getTime(),
-                                                                    providerType: "aws",
-                                                                    action: "Imported From Provider",
-                                                                    logs: [{
-                                                                            err: false,
-                                                                            log: "Bootstrapping instance",
-                                                                            timestamp: new Date().getTime()
-                                                                        }]
+                                                                    appUrls: appUrls,
+                                                                    instanceIP: unmanagedInstance.ip,
+                                                                    instanceState: unmanagedInstance.state,
+                                                                    network: unmanagedInstance.network,
+                                                                    vpcId: unmanagedInstance.vpcId,
+                                                                    privateIpAddress: unmanagedInstance.privateIpAddress,
+                                                                    hostName: unmanagedInstance.hostName,
+                                                                    monitor: monitor,
+                                                                    bootStrapStatus: 'waiting',
+                                                                    hardware: {
+                                                                        platform: 'unknown',
+                                                                        platformVersion: 'unknown',
+                                                                        architecture: 'unknown',
+                                                                        memory: {
+                                                                            total: 'unknown',
+                                                                            free: 'unknown',
+                                                                        },
+                                                                        os: unmanagedInstance.os
+                                                                    },
+                                                                    credentials: encryptedCredentials,
+                                                                    blueprintData: {
+                                                                        blueprintName: unmanagedInstance.platformId,
+                                                                        templateId: "chef_import",
+                                                                        iconPath: "../private/img/templateicons/chef_import.png"
+                                                                    }
                                                                 };
 
-                                                                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
-                                                                    if (err) {
-                                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                                if (infraManagerDetails.configType === 'chef') {
+                                                                    instance.chef = {
+                                                                        serverId: infraManagerDetails.rowid,
+                                                                        chefNodeName: unmanagedInstance.platformId
                                                                     }
-                                                                });
+                                                                } else {
+                                                                    instance.puppet = {
+                                                                        serverId: infraManagerDetails.rowid
 
-                                                                credentialCryptography.decryptCredential(encryptedCredentials, function (err, decryptedCredentials) {
+                                                                    }
+                                                                }
+
+                                                                instancesDao.createInstance(instance, function (err, data) {
                                                                     if (err) {
-                                                                        logger.error("unable to decrypt credentials", err);
-                                                                        var timestampEnded = new Date().getTime();
-                                                                        logsDao.insertLog({
-                                                                            referenceId: logsRefernceIds,
-                                                                            err: true,
-                                                                            log: "Unable to decrypt credentials. Bootstrap Failed",
-                                                                            timestamp: timestampEnded
-                                                                        });
-                                                                        instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
+                                                                        logger.error('Unable to create Instance ', err);
                                                                         updateTaskStatusNode(unmanagedInstance.platformId, "server beahved unexpectedly while importing instance :" + unmanagedInstance.platformId + ". Cannot sync this node.", true, count);
-                                                                        instanceLog.logs = {
-                                                                            err: true,
-                                                                            log: "Unable to decrypt credentials. Bootstrap Failed",
-                                                                            timestamp: new Date().getTime()
-                                                                        };
-                                                                        instanceLog.endedOn = new Date().getTime();
-                                                                        instanceLog.actionStatus = "failed";
-                                                                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
-                                                                            if (err) {
-                                                                                logger.error("Failed to create or update instanceLog: ", err);
-                                                                            }
-                                                                        });
                                                                         return;
                                                                     }
-                                                                    var infraManager;
-                                                                    var bootstarpOption;
-                                                                    var deleteOptions;
-                                                                    if (infraManagerDetails.configType === 'chef') {
-                                                                        logger.debug('In chef ');
-                                                                        infraManager = new Chef({
-                                                                            userChefRepoLocation: infraManagerDetails.chefRepoLocation,
-                                                                            chefUserName: infraManagerDetails.loginname,
-                                                                            chefUserPemFile: infraManagerDetails.userpemfile,
-                                                                            chefValidationPemFile: infraManagerDetails.validatorpemfile,
-                                                                            hostedChefUrl: infraManagerDetails.url
-                                                                        });
-                                                                        bootstarpOption = {
-                                                                            instanceIp: instance.instanceIP,
-                                                                            pemFilePath: decryptedCredentials.pemFileLocation,
-                                                                            instancePassword: decryptedCredentials.password,
-                                                                            instanceUsername: instance.credentials.username,
-                                                                            nodeName: instance.chef.chefNodeName,
-                                                                            environment: envName,
-                                                                            instanceOS: instance.hardware.os
-                                                                        };
+                                                                    instance.id = data._id;
+                                                                    instance._id = data._id;
+                                                                    var timestampStarded = new Date().getTime();
+                                                                    var actionLog = instancesDao.insertBootstrapActionLog(instance.id, [], req.session.user.cn, timestampStarded);
+                                                                    var logsRefernceIds = [instance.id, actionLog._id];
+                                                                    logsDao.insertLog({
+                                                                        referenceId: logsRefernceIds,
+                                                                        err: false,
+                                                                        log: "Bootstrapping instance",
+                                                                        timestamp: timestampStarded
+                                                                    });
 
+                                                                    var instanceLog = {
+                                                                        actionId: actionLog._id,
+                                                                        instanceId: instance.id,
+                                                                        orgName: req.body.orgName,
+                                                                        bgName: req.body.bgName,
+                                                                        projectName: req.body.projectName,
+                                                                        envName: req.body.environmentName,
+                                                                        status: unmanagedInstance.state,
+                                                                        actionStatus: "waiting",
+                                                                        platformId: unmanagedInstance.platformId,
+                                                                        blueprintName: unmanagedInstance.platformId,
+                                                                        data: [],
+                                                                        platform: "unknown",
+                                                                        os: unmanagedInstance.os,
+                                                                        size: "",
+                                                                        user: req.session.user.cn,
+                                                                        startedOn: new Date().getTime(),
+                                                                        createdOn: new Date().getTime(),
+                                                                        providerType: "aws",
+                                                                        action: "Imported From Provider",
+                                                                        logs: [{
+                                                                                err: false,
+                                                                                log: "Bootstrapping instance",
+                                                                                timestamp: new Date().getTime()
+                                                                            }]
+                                                                    };
 
-                                                                        if (infraManagerDetails.monitor && infraManagerDetails.monitor.parameters.transportProtocol === 'rabbitmq') {
-                                                                            var sensuCookBook = 'recipe[sensu-client]';
-                                                                            var runlist = [];
-                                                                            var jsonAttributes = {};
+                                                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
+                                                                        if (err) {
+                                                                            logger.error("Failed to create or update instanceLog: ", err);
+                                                                        }
+                                                                    });
 
-                                                                            var cryptoConfig = appConfig.cryptoSettings;
-                                                                            var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-                                                                            var decryptedPassword = cryptography.decryptText(infraManagerDetails.monitor.parameters.transportProtocolParameters.password, cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-
-                                                                            var sensuAttributes = {
-                                                                                'rabbitmq_host': infraManagerDetails.monitor.parameters.transportProtocolParameters.host,
-                                                                                'rabbitmq_port': infraManagerDetails.monitor.parameters.transportProtocolParameters.port,
-                                                                                'rabbitmq_username': infraManagerDetails.monitor.parameters.transportProtocolParameters.user,
-                                                                                'rabbitmq_password': decryptedPassword,
-                                                                                'rabbitmq_vhostname': infraManagerDetails.monitor.parameters.transportProtocolParameters.vhost,
-                                                                                'instance-id': instance.platformId
+                                                                    credentialCryptography.decryptCredential(encryptedCredentials, function (err, decryptedCredentials) {
+                                                                        if (err) {
+                                                                            logger.error("unable to decrypt credentials", err);
+                                                                            var timestampEnded = new Date().getTime();
+                                                                            logsDao.insertLog({
+                                                                                referenceId: logsRefernceIds,
+                                                                                err: true,
+                                                                                log: "Unable to decrypt credentials. Bootstrap Failed",
+                                                                                timestamp: timestampEnded
+                                                                            });
+                                                                            instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
+                                                                            updateTaskStatusNode(unmanagedInstance.platformId, "server beahved unexpectedly while importing instance :" + unmanagedInstance.platformId + ". Cannot sync this node.", true, count);
+                                                                            instanceLog.logs = {
+                                                                                err: true,
+                                                                                log: "Unable to decrypt credentials. Bootstrap Failed",
+                                                                                timestamp: new Date().getTime()
+                                                                            };
+                                                                            instanceLog.endedOn = new Date().getTime();
+                                                                            instanceLog.actionStatus = "failed";
+                                                                            instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
+                                                                                if (err) {
+                                                                                    logger.error("Failed to create or update instanceLog: ", err);
+                                                                                }
+                                                                            });
+                                                                            return;
+                                                                        }
+                                                                        var infraManager;
+                                                                        var bootstarpOption;
+                                                                        var deleteOptions;
+                                                                        if (infraManagerDetails.configType === 'chef') {
+                                                                            logger.debug('In chef ');
+                                                                            infraManager = new Chef({
+                                                                                userChefRepoLocation: infraManagerDetails.chefRepoLocation,
+                                                                                chefUserName: infraManagerDetails.loginname,
+                                                                                chefUserPemFile: infraManagerDetails.userpemfile,
+                                                                                chefValidationPemFile: infraManagerDetails.validatorpemfile,
+                                                                                hostedChefUrl: infraManagerDetails.url
+                                                                            });
+                                                                            bootstarpOption = {
+                                                                                instanceIp: instance.instanceIP,
+                                                                                pemFilePath: decryptedCredentials.pemFileLocation,
+                                                                                instancePassword: decryptedCredentials.password,
+                                                                                instanceUsername: instance.credentials.username,
+                                                                                nodeName: instance.chef.chefNodeName,
+                                                                                environment: envName,
+                                                                                instanceOS: instance.hardware.os
                                                                             };
 
-                                                                            logger.debug("sensuAttributes-------->", JSON.stringify(sensuAttributes));
-                                                                            runlist.push(sensuCookBook);
-                                                                            jsonAttributes['sensu-client'] = sensuAttributes;
 
-                                                                            bootstarpOption['runlist'] = runlist;
-                                                                            bootstarpOption['jsonAttributes'] = jsonAttributes;
+                                                                            if (instance.monitor && instance.monitor.parameters.transportProtocol === 'rabbitmq') {
+                                                                                var sensuCookBooks = MasterUtils.getSensuCookbooks();
+                                                                                var runlist = sensuCookBooks;
+                                                                                var jsonAttributes = {};
+                                                                                jsonAttributes['sensu-client'] = MasterUtils.getSensuCookbookAttributes(instance.monitor, instance.id);
+                                                                                ;
 
-                                                                        }
-                                                                        deleteOptions = {
-                                                                            privateKey: decryptedCredentials.pemFileLocation,
-                                                                            username: decryptedCredentials.username,
-                                                                            host: instance.instanceIP,
-                                                                            instanceOS: instance.hardware.os,
-                                                                            port: 22,
-                                                                            cmds: ["rm -rf /etc/chef/", "rm -rf /var/chef/"],
-                                                                            cmdswin: ["del "]
-                                                                        }
-                                                                        if (decryptedCredentials.pemFileLocation) {
-                                                                            deleteOptions.privateKey = decryptedCredentials.pemFileLocation;
-                                                                        } else {
-                                                                            deleteOptions.password = decryptedCredentials.password;
-                                                                        }
+                                                                                bootstarpOption['runlist'] = runlist;
+                                                                                bootstarpOption['jsonAttributes'] = jsonAttributes;
 
-                                                                    } else {
-                                                                        var puppetSettings = {
-                                                                            host: infraManagerDetails.hostname,
-                                                                            username: infraManagerDetails.username,
-                                                                        };
-                                                                        if (infraManagerDetails.pemFileLocation) {
-                                                                            puppetSettings.pemFileLocation = infraManagerDetails.pemFileLocation;
-                                                                        } else {
-                                                                            puppetSettings.password = infraManagerDetails.puppetpassword;
-                                                                        }
-                                                                        logger.debug('puppet pemfile ==> ' + puppetSettings.pemFileLocation);
-                                                                        bootstarpOption = {
-                                                                            host: instance.instanceIP,
-                                                                            username: instance.credentials.username,
-                                                                            pemFileLocation: decryptedCredentials.pemFileLocation,
-                                                                            password: decryptedCredentials.password,
-                                                                            environment: envName
-                                                                        };
-
-                                                                        var deleteOptions = {
-                                                                            username: decryptedCredentials.username,
-                                                                            host: instance.instanceIP,
-                                                                            port: 22,
-                                                                        }
-
-                                                                        if (decryptedCredentials.pemFileLocation) {
-                                                                            deleteOptions.pemFileLocation = decryptedCredentials.pemFileLocation;
-                                                                        } else {
-                                                                            deleteOptions.password = decryptedCredentials.password;
-                                                                        }
-
-                                                                        infraManager = new Puppet(puppetSettings);
-                                                                    }
-
-
-                                                                    //removing files on node to facilitate re-bootstrap
-                                                                    logger.debug("Node OS : %s", instance.hardware.os);
-                                                                    logger.debug('Cleaning instance');
-                                                                    infraManager.cleanClient(deleteOptions, function (err, retCode) {
-                                                                        logger.debug("Entering chef.bootstarp");
-                                                                        infraManager.bootstrapInstance(bootstarpOption, function (err, code, bootstrapData) {
-
-                                                                            if (err) {
-                                                                                logger.error("knife launch err ==>", err);
-                                                                                instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function (err, updateData) {
-
-                                                                                });
-                                                                                if (err.message) {
-                                                                                    var timestampEnded = new Date().getTime();
-                                                                                    logsDao.insertLog({
-                                                                                        referenceId: logsRefernceIds,
-                                                                                        err: true,
-                                                                                        log: err.message,
-                                                                                        timestamp: timestampEnded
-                                                                                    });
-                                                                                    instanceLog.actionStatus = "failed";
-                                                                                    instanceLog.logs = {
-                                                                                        err: true,
-                                                                                        log: err.message,
-                                                                                        timestamp: new Date().getTime()
-                                                                                    };
-                                                                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
-                                                                                        if (err) {
-                                                                                            logger.error("Failed to create or update instanceLog: ", err);
-                                                                                        }
-                                                                                    });
-
-                                                                                }
-                                                                                var timestampEnded = new Date().getTime();
-                                                                                logsDao.insertLog({
-                                                                                    referenceId: logsRefernceIds,
-                                                                                    err: true,
-                                                                                    log: "Bootstrap Failed",
-                                                                                    timestamp: timestampEnded
-                                                                                });
-                                                                                instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-                                                                                instanceLog.logs = {
-                                                                                    err: true,
-                                                                                    log: "Bootstrap Failed",
-                                                                                    timestamp: new Date().getTime()
-                                                                                };
-                                                                                instanceLog.actionStatus = "failed";
-                                                                                instanceLog.endedOn = new Date().getTime();
-                                                                                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
-                                                                                    if (err) {
-                                                                                        logger.error("Failed to create or update instanceLog: ", err);
-                                                                                    }
-                                                                                });
+                                                                            }
+                                                                            deleteOptions = {
+                                                                                privateKey: decryptedCredentials.pemFileLocation,
+                                                                                username: decryptedCredentials.username,
+                                                                                host: instance.instanceIP,
+                                                                                instanceOS: instance.hardware.os,
+                                                                                port: 22,
+                                                                                cmds: ["rm -rf /etc/chef/", "rm -rf /var/chef/"],
+                                                                                cmdswin: ["del "]
+                                                                            }
+                                                                            if (decryptedCredentials.pemFileLocation) {
+                                                                                deleteOptions.privateKey = decryptedCredentials.pemFileLocation;
                                                                             } else {
-                                                                                if (code == 0) {
-                                                                                    instancesDao.updateInstanceBootstrapStatus(instance.id, 'success', function (err, updateData) {
-                                                                                        if (err) {
-                                                                                            logger.error("Unable to set instance bootstarp status. code 0");
-                                                                                        } else {
-                                                                                            logger.debug("Instance bootstrap status set to success");
-                                                                                        }
-                                                                                    });
+                                                                                deleteOptions.password = decryptedCredentials.password;
+                                                                            }
 
-                                                                                    // updating puppet node name
-                                                                                    var nodeName;
-                                                                                    if (bootstrapData && bootstrapData.puppetNodeName) {
-                                                                                        instancesDao.updateInstancePuppetNodeName(instance.id, bootstrapData.puppetNodeName, function (err, updateData) {
-                                                                                            if (err) {
-                                                                                                logger.error("Unable to set puppet node name");
-                                                                                            } else {
-                                                                                                logger.debug("puppet node name updated successfully");
-                                                                                            }
-                                                                                        });
-                                                                                        nodeName = bootstrapData.puppetNodeName;
-                                                                                    } else {
-                                                                                        nodeName = instance.chef.chefNodeName;
-                                                                                    }
+                                                                        } else {
+                                                                            var puppetSettings = {
+                                                                                host: infraManagerDetails.hostname,
+                                                                                username: infraManagerDetails.username,
+                                                                            };
+                                                                            if (infraManagerDetails.pemFileLocation) {
+                                                                                puppetSettings.pemFileLocation = infraManagerDetails.pemFileLocation;
+                                                                            } else {
+                                                                                puppetSettings.password = infraManagerDetails.puppetpassword;
+                                                                            }
+                                                                            logger.debug('puppet pemfile ==> ' + puppetSettings.pemFileLocation);
+                                                                            bootstarpOption = {
+                                                                                host: instance.instanceIP,
+                                                                                username: instance.credentials.username,
+                                                                                pemFileLocation: decryptedCredentials.pemFileLocation,
+                                                                                password: decryptedCredentials.password,
+                                                                                environment: envName
+                                                                            };
 
+                                                                            var deleteOptions = {
+                                                                                username: decryptedCredentials.username,
+                                                                                host: instance.instanceIP,
+                                                                                port: 22,
+                                                                            }
 
-                                                                                    var timestampEnded = new Date().getTime();
-                                                                                    logsDao.insertLog({
-                                                                                        referenceId: logsRefernceIds,
-                                                                                        err: false,
-                                                                                        log: "Instance Bootstrapped Successfully",
-                                                                                        timestamp: timestampEnded
-                                                                                    });
-                                                                                    instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
-                                                                                    instanceLog.logs = {
-                                                                                        err: false,
-                                                                                        log: "Instance Bootstrapped Successfully",
-                                                                                        timestamp: new Date().getTime()
-                                                                                    };
-                                                                                    instanceLog.actionStatus = "success";
-                                                                                    instanceLog.endedOn = new Date().getTime();
-                                                                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
-                                                                                        if (err) {
-                                                                                            logger.error("Failed to create or update instanceLog: ", err);
-                                                                                        }
-                                                                                    });
-                                                                                    var hardwareData = {};
-                                                                                    if (bootstrapData && bootstrapData.puppetNodeName) {
-                                                                                        var runOptions = {
-                                                                                            username: decryptedCredentials.username,
-                                                                                            host: instance.instanceIP,
-                                                                                            port: 22,
-                                                                                        }
+                                                                            if (decryptedCredentials.pemFileLocation) {
+                                                                                deleteOptions.pemFileLocation = decryptedCredentials.pemFileLocation;
+                                                                            } else {
+                                                                                deleteOptions.password = decryptedCredentials.password;
+                                                                            }
 
-                                                                                        if (decryptedCredentials.pemFileLocation) {
-                                                                                            runOptions.pemFileLocation = decryptedCredentials.pemFileLocation;
-                                                                                        } else {
-                                                                                            runOptions.password = decryptedCredentials.password;
-                                                                                        }
-
-                                                                                        infraManager.runClient(runOptions, function (err, retCode) {
-                                                                                            if (decryptedCredentials.pemFileLocation) {
-                                                                                                fileIo.removeFile(decryptedCredentials.pemFileLocation, function (err) {
-                                                                                                    if (err) {
-                                                                                                        logger.debug("Unable to delete temp pem file =>", err);
-                                                                                                    } else {
-                                                                                                        logger.debug("temp pem file deleted =>", err);
-                                                                                                    }
-                                                                                                });
-                                                                                            }
-                                                                                            if (err) {
-                                                                                                logger.error("Unable to run puppet client", err);
-                                                                                                return;
-                                                                                            }
-                                                                                            // waiting for 30 sec to update node data
-                                                                                            setTimeout(function () {
-                                                                                                infraManager.getNode(nodeName, function (err, nodeData) {
-                                                                                                    if (err) {
-                                                                                                        logger.error(err);
-                                                                                                        return;
-                                                                                                    }
-                                                                                                    instanceLog.platform = nodeData.facts.values.operatingsystem;
-                                                                                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
-                                                                                                        if (err) {
-                                                                                                            logger.error("Failed to create or update instanceLog: ", err);
-                                                                                                        }
-                                                                                                    });
-                                                                                                    // is puppet node
-                                                                                                    hardwareData.architecture = nodeData.facts.values.hardwaremodel;
-                                                                                                    hardwareData.platform = nodeData.facts.values.operatingsystem;
-                                                                                                    hardwareData.platformVersion = nodeData.facts.values.operatingsystemrelease;
-                                                                                                    hardwareData.memory = {
-                                                                                                        total: 'unknown',
-                                                                                                        free: 'unknown'
-                                                                                                    };
-                                                                                                    hardwareData.memory.total = nodeData.facts.values.memorysize;
-                                                                                                    hardwareData.memory.free = nodeData.facts.values.memoryfree;
-                                                                                                    hardwareData.os = instance.hardware.os;
-                                                                                                    instancesDao.setHardwareDetails(instance.id, hardwareData, function (err, updateData) {
-                                                                                                        if (err) {
-                                                                                                            logger.error("Unable to set instance hardware details  code (setHardwareDetails)", err);
-                                                                                                        } else {
-                                                                                                            logger.debug("Instance hardware details set successessfully");
-                                                                                                        }
-                                                                                                    });
-                                                                                                });
-                                                                                            }, 30000);
-                                                                                        });
-
-                                                                                    } else {
-                                                                                        infraManager.getNode(nodeName, function (err, nodeData) {
-                                                                                            if (err) {
-                                                                                                logger.error(err);
-                                                                                                return;
-                                                                                            }
-                                                                                            instanceLog.platform = nodeData.automatic.platform;
-                                                                                            instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
-                                                                                                if (err) {
-                                                                                                    logger.error("Failed to create or update instanceLog: ", err);
-                                                                                                }
-                                                                                            });
-                                                                                            hardwareData.architecture = nodeData.automatic.kernel.machine;
-                                                                                            hardwareData.platform = nodeData.automatic.platform;
-                                                                                            hardwareData.platformVersion = nodeData.automatic.platform_version;
-                                                                                            hardwareData.memory = {
-                                                                                                total: 'unknown',
-                                                                                                free: 'unknown'
-                                                                                            };
-                                                                                            if (nodeData.automatic.memory) {
-                                                                                                hardwareData.memory.total = nodeData.automatic.memory.total;
-                                                                                                hardwareData.memory.free = nodeData.automatic.memory.free;
-                                                                                            }
-                                                                                            hardwareData.os = instance.hardware.os;
-                                                                                            instancesDao.setHardwareDetails(instance.id, hardwareData, function (err, updateData) {
-                                                                                                if (err) {
-                                                                                                    logger.error("Unable to set instance hardware details  code (setHardwareDetails)", err);
-                                                                                                } else {
-                                                                                                    logger.debug("Instance hardware details set successessfully");
-                                                                                                }
-                                                                                            });
-                                                                                            if (decryptedCredentials.pemFilePath) {
-                                                                                                fileIo.removeFile(decryptedCredentials.pemFilePath, function (err) {
-                                                                                                    if (err) {
-                                                                                                        logger.error("Unable to delete temp pem file =>", err);
-                                                                                                    } else {
-                                                                                                        logger.debug("temp pem file deleted");
-                                                                                                    }
-                                                                                                });
-                                                                                            }
-                                                                                        });
-                                                                                    }
+                                                                            infraManager = new Puppet(puppetSettings);
+                                                                        }
 
 
-                                                                                    var _docker = new Docker();
-                                                                                    _docker.checkDockerStatus(instance.id, function (err, retCode) {
-                                                                                        if (err) {
-                                                                                            logger.error("Failed _docker.checkDockerStatus", err);
-                                                                                            return;
-                                                                                            //res.end('200');
+                                                                        //removing files on node to facilitate re-bootstrap
+                                                                        logger.debug("Node OS : %s", instance.hardware.os);
+                                                                        logger.debug('Cleaning instance');
+                                                                        infraManager.cleanClient(deleteOptions, function (err, retCode) {
+                                                                            logger.debug("Entering chef.bootstarp");
+                                                                            infraManager.bootstrapInstance(bootstarpOption, function (err, code, bootstrapData) {
 
-                                                                                        }
-                                                                                        logger.debug('Docker Check Returned:' + retCode);
-                                                                                        if (retCode == '0') {
-                                                                                            instancesDao.updateInstanceDockerStatus(instance.id, "success", '', function (data) {
-                                                                                                logger.debug('Instance Docker Status set to Success');
-                                                                                            });
-
-                                                                                        }
-                                                                                    });
-
-                                                                                } else {
+                                                                                if (err) {
+                                                                                    logger.error("knife launch err ==>", err);
                                                                                     instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function (err, updateData) {
-                                                                                        if (err) {
-                                                                                            logger.error("Unable to set instance bootstarp status code != 0");
-                                                                                        } else {
-                                                                                            logger.debug("Instance bootstrap status set to failed");
-                                                                                        }
-                                                                                    });
 
+                                                                                    });
+                                                                                    if (err.message) {
+                                                                                        var timestampEnded = new Date().getTime();
+                                                                                        logsDao.insertLog({
+                                                                                            referenceId: logsRefernceIds,
+                                                                                            err: true,
+                                                                                            log: err.message,
+                                                                                            timestamp: timestampEnded
+                                                                                        });
+                                                                                        instanceLog.actionStatus = "failed";
+                                                                                        instanceLog.logs = {
+                                                                                            err: true,
+                                                                                            log: err.message,
+                                                                                            timestamp: new Date().getTime()
+                                                                                        };
+                                                                                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
+                                                                                            if (err) {
+                                                                                                logger.error("Failed to create or update instanceLog: ", err);
+                                                                                            }
+                                                                                        });
+
+                                                                                    }
                                                                                     var timestampEnded = new Date().getTime();
                                                                                     logsDao.insertLog({
                                                                                         referenceId: logsRefernceIds,
@@ -895,52 +684,252 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                                                                             logger.error("Failed to create or update instanceLog: ", err);
                                                                                         }
                                                                                     });
+                                                                                } else {
+                                                                                    if (code == 0) {
+                                                                                        instancesDao.updateInstanceBootstrapStatus(instance.id, 'success', function (err, updateData) {
+                                                                                            if (err) {
+                                                                                                logger.error("Unable to set instance bootstarp status. code 0");
+                                                                                            } else {
+                                                                                                logger.debug("Instance bootstrap status set to success");
+                                                                                            }
+                                                                                        });
+
+                                                                                        // updating puppet node name
+                                                                                        var nodeName;
+                                                                                        if (bootstrapData && bootstrapData.puppetNodeName) {
+                                                                                            instancesDao.updateInstancePuppetNodeName(instance.id, bootstrapData.puppetNodeName, function (err, updateData) {
+                                                                                                if (err) {
+                                                                                                    logger.error("Unable to set puppet node name");
+                                                                                                } else {
+                                                                                                    logger.debug("puppet node name updated successfully");
+                                                                                                }
+                                                                                            });
+                                                                                            nodeName = bootstrapData.puppetNodeName;
+                                                                                        } else {
+                                                                                            nodeName = instance.chef.chefNodeName;
+                                                                                        }
+
+
+                                                                                        var timestampEnded = new Date().getTime();
+                                                                                        logsDao.insertLog({
+                                                                                            referenceId: logsRefernceIds,
+                                                                                            err: false,
+                                                                                            log: "Instance Bootstrapped Successfully",
+                                                                                            timestamp: timestampEnded
+                                                                                        });
+                                                                                        instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
+                                                                                        instanceLog.logs = {
+                                                                                            err: false,
+                                                                                            log: "Instance Bootstrapped Successfully",
+                                                                                            timestamp: new Date().getTime()
+                                                                                        };
+                                                                                        instanceLog.actionStatus = "success";
+                                                                                        instanceLog.endedOn = new Date().getTime();
+                                                                                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
+                                                                                            if (err) {
+                                                                                                logger.error("Failed to create or update instanceLog: ", err);
+                                                                                            }
+                                                                                        });
+                                                                                        var hardwareData = {};
+                                                                                        if (bootstrapData && bootstrapData.puppetNodeName) {
+                                                                                            var runOptions = {
+                                                                                                username: decryptedCredentials.username,
+                                                                                                host: instance.instanceIP,
+                                                                                                port: 22,
+                                                                                            }
+
+                                                                                            if (decryptedCredentials.pemFileLocation) {
+                                                                                                runOptions.pemFileLocation = decryptedCredentials.pemFileLocation;
+                                                                                            } else {
+                                                                                                runOptions.password = decryptedCredentials.password;
+                                                                                            }
+
+                                                                                            infraManager.runClient(runOptions, function (err, retCode) {
+                                                                                                if (decryptedCredentials.pemFileLocation) {
+                                                                                                    fileIo.removeFile(decryptedCredentials.pemFileLocation, function (err) {
+                                                                                                        if (err) {
+                                                                                                            logger.debug("Unable to delete temp pem file =>", err);
+                                                                                                        } else {
+                                                                                                            logger.debug("temp pem file deleted =>", err);
+                                                                                                        }
+                                                                                                    });
+                                                                                                }
+                                                                                                if (err) {
+                                                                                                    logger.error("Unable to run puppet client", err);
+                                                                                                    return;
+                                                                                                }
+                                                                                                // waiting for 30 sec to update node data
+                                                                                                setTimeout(function () {
+                                                                                                    infraManager.getNode(nodeName, function (err, nodeData) {
+                                                                                                        if (err) {
+                                                                                                            logger.error(err);
+                                                                                                            return;
+                                                                                                        }
+                                                                                                        instanceLog.platform = nodeData.facts.values.operatingsystem;
+                                                                                                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
+                                                                                                            if (err) {
+                                                                                                                logger.error("Failed to create or update instanceLog: ", err);
+                                                                                                            }
+                                                                                                        });
+                                                                                                        // is puppet node
+                                                                                                        hardwareData.architecture = nodeData.facts.values.hardwaremodel;
+                                                                                                        hardwareData.platform = nodeData.facts.values.operatingsystem;
+                                                                                                        hardwareData.platformVersion = nodeData.facts.values.operatingsystemrelease;
+                                                                                                        hardwareData.memory = {
+                                                                                                            total: 'unknown',
+                                                                                                            free: 'unknown'
+                                                                                                        };
+                                                                                                        hardwareData.memory.total = nodeData.facts.values.memorysize;
+                                                                                                        hardwareData.memory.free = nodeData.facts.values.memoryfree;
+                                                                                                        hardwareData.os = instance.hardware.os;
+                                                                                                        instancesDao.setHardwareDetails(instance.id, hardwareData, function (err, updateData) {
+                                                                                                            if (err) {
+                                                                                                                logger.error("Unable to set instance hardware details  code (setHardwareDetails)", err);
+                                                                                                            } else {
+                                                                                                                logger.debug("Instance hardware details set successessfully");
+                                                                                                            }
+                                                                                                        });
+                                                                                                    });
+                                                                                                }, 30000);
+                                                                                            });
+
+                                                                                        } else {
+                                                                                            infraManager.getNode(nodeName, function (err, nodeData) {
+                                                                                                if (err) {
+                                                                                                    logger.error(err);
+                                                                                                    return;
+                                                                                                }
+                                                                                                instanceLog.platform = nodeData.automatic.platform;
+                                                                                                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
+                                                                                                    if (err) {
+                                                                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                                                                    }
+                                                                                                });
+                                                                                                hardwareData.architecture = nodeData.automatic.kernel.machine;
+                                                                                                hardwareData.platform = nodeData.automatic.platform;
+                                                                                                hardwareData.platformVersion = nodeData.automatic.platform_version;
+                                                                                                hardwareData.memory = {
+                                                                                                    total: 'unknown',
+                                                                                                    free: 'unknown'
+                                                                                                };
+                                                                                                if (nodeData.automatic.memory) {
+                                                                                                    hardwareData.memory.total = nodeData.automatic.memory.total;
+                                                                                                    hardwareData.memory.free = nodeData.automatic.memory.free;
+                                                                                                }
+                                                                                                hardwareData.os = instance.hardware.os;
+                                                                                                instancesDao.setHardwareDetails(instance.id, hardwareData, function (err, updateData) {
+                                                                                                    if (err) {
+                                                                                                        logger.error("Unable to set instance hardware details  code (setHardwareDetails)", err);
+                                                                                                    } else {
+                                                                                                        logger.debug("Instance hardware details set successessfully");
+                                                                                                    }
+                                                                                                });
+                                                                                                if (decryptedCredentials.pemFilePath) {
+                                                                                                    fileIo.removeFile(decryptedCredentials.pemFilePath, function (err) {
+                                                                                                        if (err) {
+                                                                                                            logger.error("Unable to delete temp pem file =>", err);
+                                                                                                        } else {
+                                                                                                            logger.debug("temp pem file deleted");
+                                                                                                        }
+                                                                                                    });
+                                                                                                }
+                                                                                            });
+                                                                                        }
+
+
+                                                                                        var _docker = new Docker();
+                                                                                        _docker.checkDockerStatus(instance.id, function (err, retCode) {
+                                                                                            if (err) {
+                                                                                                logger.error("Failed _docker.checkDockerStatus", err);
+                                                                                                return;
+                                                                                                //res.end('200');
+
+                                                                                            }
+                                                                                            logger.debug('Docker Check Returned:' + retCode);
+                                                                                            if (retCode == '0') {
+                                                                                                instancesDao.updateInstanceDockerStatus(instance.id, "success", '', function (data) {
+                                                                                                    logger.debug('Instance Docker Status set to Success');
+                                                                                                });
+
+                                                                                            }
+                                                                                        });
+
+                                                                                    } else {
+                                                                                        instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function (err, updateData) {
+                                                                                            if (err) {
+                                                                                                logger.error("Unable to set instance bootstarp status code != 0");
+                                                                                            } else {
+                                                                                                logger.debug("Instance bootstrap status set to failed");
+                                                                                            }
+                                                                                        });
+
+                                                                                        var timestampEnded = new Date().getTime();
+                                                                                        logsDao.insertLog({
+                                                                                            referenceId: logsRefernceIds,
+                                                                                            err: true,
+                                                                                            log: "Bootstrap Failed",
+                                                                                            timestamp: timestampEnded
+                                                                                        });
+                                                                                        instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
+                                                                                        instanceLog.logs = {
+                                                                                            err: true,
+                                                                                            log: "Bootstrap Failed",
+                                                                                            timestamp: new Date().getTime()
+                                                                                        };
+                                                                                        instanceLog.actionStatus = "failed";
+                                                                                        instanceLog.endedOn = new Date().getTime();
+                                                                                        instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
+                                                                                            if (err) {
+                                                                                                logger.error("Failed to create or update instanceLog: ", err);
+                                                                                            }
+                                                                                        });
+                                                                                    }
                                                                                 }
-                                                                            }
 
-                                                                        }, function (stdOutData) {
+                                                                            }, function (stdOutData) {
 
-                                                                            logsDao.insertLog({
-                                                                                referenceId: logsRefernceIds,
-                                                                                err: false,
-                                                                                log: stdOutData.toString('ascii'),
-                                                                                timestamp: new Date().getTime()
+                                                                                logsDao.insertLog({
+                                                                                    referenceId: logsRefernceIds,
+                                                                                    err: false,
+                                                                                    log: stdOutData.toString('ascii'),
+                                                                                    timestamp: new Date().getTime()
+                                                                                });
+                                                                                instanceLog.logs = {
+                                                                                    err: false,
+                                                                                    log: stdOutData.toString('ascii'),
+                                                                                    timestamp: new Date().getTime()
+                                                                                };
+                                                                                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
+                                                                                    if (err) {
+                                                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                                                    }
+                                                                                });
+
+                                                                            }, function (stdErrData) {
+
+                                                                                logsDao.insertLog({
+                                                                                    referenceId: logsRefernceIds,
+                                                                                    err: true,
+                                                                                    log: stdErrData.toString('ascii'),
+                                                                                    timestamp: new Date().getTime()
+                                                                                });
+                                                                                instanceLog.logs = {
+                                                                                    err: true,
+                                                                                    log: stdErrData.toString('ascii'),
+                                                                                    timestamp: new Date().getTime()
+                                                                                };
+                                                                                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
+                                                                                    if (err) {
+                                                                                        logger.error("Failed to create or update instanceLog: ", err);
+                                                                                    }
+                                                                                });
                                                                             });
-                                                                            instanceLog.logs = {
-                                                                                err: false,
-                                                                                log: stdOutData.toString('ascii'),
-                                                                                timestamp: new Date().getTime()
-                                                                            };
-                                                                            instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
-                                                                                if (err) {
-                                                                                    logger.error("Failed to create or update instanceLog: ", err);
-                                                                                }
-                                                                            });
+                                                                        }); //end of chefcleanup
 
-                                                                        }, function (stdErrData) {
+                                                                        updateTaskStatusNode(unmanagedInstance.platformId, "Instance Imported : " + unmanagedInstance.platformId, false, count);
+                                                                        unmanagedInstance.remove({});
 
-                                                                            logsDao.insertLog({
-                                                                                referenceId: logsRefernceIds,
-                                                                                err: true,
-                                                                                log: stdErrData.toString('ascii'),
-                                                                                timestamp: new Date().getTime()
-                                                                            });
-                                                                            instanceLog.logs = {
-                                                                                err: true,
-                                                                                log: stdErrData.toString('ascii'),
-                                                                                timestamp: new Date().getTime()
-                                                                            };
-                                                                            instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
-                                                                                if (err) {
-                                                                                    logger.error("Failed to create or update instanceLog: ", err);
-                                                                                }
-                                                                            });
-                                                                        });
-                                                                    }); //end of chefcleanup
-
-                                                                    updateTaskStatusNode(unmanagedInstance.platformId, "Instance Imported : " + unmanagedInstance.platformId, false, count);
-                                                                    unmanagedInstance.remove({});
-
+                                                                    });
                                                                 });
                                                             });
                                                         } else {
@@ -1013,6 +1002,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      * @apiSuccess {Object[]} tags              List of tags
      * @apiSuccess {String} tags.name           Tag name
      * @apiSuccess {String} tags.description    Tag description
+     * @apiSuccess {String[]} tags.values       Tag values
      * @apiSuccess {Number} count               Number of tags in the result set
      * @apiSuccess {pageSize} pageSize          Page size
      * @apiSuccess {pageIndex} pageIndex        Page index
@@ -1024,11 +1014,13 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *          "tags": [
      *              {
      *                  "name": "env",
-     *                  "description": "Deployment environment"
+     *                  "description": "Deployment environment",
+     *                  "values": ["value1", "value2"]
      *              },
      *              {
      *                  "name": "application",
-     *                  "description": "Project name"
+     *                  "description": "Project name",
+     *                  "values": ["value1", "value2"]
      *              }
      *          ],
      *          "count": 2,
@@ -1052,12 +1044,14 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      * @apiSuccess {Object} tag                 Tag details
      * @apiSuccess {String} tag.name            Tag name
      * @apiSuccess {String} tag.description     Tag description
+     * @apiSuccess {String[]} tag.values        Tag values
      *
      * @apiSuccessExample {json} Success-Response:
      *      HTTP/1.1 200 OK
      *      {
      *          "name": "environment",
-     *          "description": "Deployment environment"
+     *          "description": "Deployment environment",
+     *          "values": ["value1", "value2"]
      *      }
      *
      */
@@ -1076,7 +1070,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      * @apiParamExample {json} Request-Example:
      *      {
      *          "name": "environment",
-     *          "description": "Tag description"
+     *          "description": "Tag description",
+     *          "values": ["value1", "value2"]
      *      }
      *
      * @apiSuccess {Object} tag                 Tag details
@@ -1087,7 +1082,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *      HTTP/1.1 200 OK
      *      {
      *          "name": "environment",
-     *          "description": "Deployment environment"
+     *          "description": "Deployment environment",
+     *          "values": ["value1", "value2"]
      *      }
      */
     // app.post('/providers/:providerId/tags', validate(tagsValidator.create), createTags);
@@ -1114,7 +1110,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *      HTTP/1.1 200 OK
      *      {
      *          "name": "environment",
-     *          "description": "Deployment environment"
+     *          "description": "Deployment environment",
+     *          "values": ["value1", "value2"]
      *      }
      */
     app.put('/providers/:providerId/tags/:tagName', validate(tagsValidator.update), updateTag);
@@ -1148,41 +1145,36 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      * @apiSuccessExample {json} Success-Response:
      *      HTTP/1.1 200 OK
      *      {
-     *          "tagMappings": [
-     *                  {
-     *                      "tagName":  "application",
-     *                      "tagValues": ["proj1", "proj2"],
-     *                      "catalystEntityType": "project",
-     *                      "catalystEntityMapping": [
-     *                          {
-     *                              "catalystEntityId": "<MongoID>",
-     *                              "tagValue": "proj1"
-     *                          },
-     *                          {
-     *                              "catalystEntityId": "<MongoID>",
-     *                              "tagValue": "proj2"
-     *                          }
-     *                      ]
+     *          "project": {
+     *              "tagName":  "application",
+     *              "tagValues": ["proj1", "proj2"],
+     *              "catalystEntityType": "project",
+     *              "catalystEntityMapping": {
+     *                  "<catalystEntityId>": {
+     *                      "catalystEntityId": "<MongoID>",
+     *                      "tagValue": "proj1"
      *                  },
-     *                  {
-     *                      "tagName":  "environment",
-     *                      "tagValues": ["prod", "dev"],
-     *                      "catalystEntityType": "environment"
-     *                      "catalystEntityMapping": [
-     *                          {
-     *                              "catalystEntityId": "<MongoID>",
-     *                              "tagValue": "dev"
-     *                          },
-     *                          {
-     *                              "catalystEntityId": "<MongoID>",
-     *                              "tagValue": "prod"
-     *                          }
-     *                      ]
+     *                  "<catalystEntityId>": {
+     *                      "catalystEntityId": "<MongoID>",
+     *                      "tagValue": "proj2"
      *                  }
-     *           ],
-     *          "count": 2,
-     *          "pageSize": 10,
-     *          "pageIndex": 1
+     *              }
+     *           },
+     *          "environment": {
+     *              "tagName":  "environment",
+     *              "tagValues": ["prod", "dev"],
+     *              "catalystEntityType": "environment"
+     *              "catalystEntityMapping": {
+     *                  "<catalystEntityId>": {
+     *                      "catalystEntityId": "<MongoID>",
+     *                      "tagValue": "dev"
+     *                  },
+     *                  "<catalystEntityId>": {
+     *                      "catalystEntityId": "<MongoID>",
+     *                      "tagValue": "prod"
+     *                  }
+     *              }
+     *          }
      *      }
      */
     // @TODO Response should match doc
@@ -1210,22 +1202,22 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *      HTTP/1.1 200 OK
      *      {
      *          "name": "application",
-     *          "values": ["proj1", "proj2"]
+     *          "values": ["proj1", "proj2"],
      *          "catalystEntityType": "project",
-     *          "catalystEntityMapping": [
-     *              {
+     *          "catalystEntityMapping": {
+     *              "<catalystEntityId>": {
      *                  "catalystEntityId": "<MongoID>",
      *                  "tagValue": "proj1"
      *              },
-     *              {
+     *              "<catalystEntityId>": {
      *                  "catalystEntityId": "<MongoID>",
      *                  "tagValue": "proj2"
      *              }
-     *          ]
+     *          }
      *      }
      */
     app.get('/providers/:providerId/tag-mappings/:catalystEntityType', validate(tagsValidator.tagsMapping),
-        getTagMapping);
+            getTagMapping);
 
     /**
      * @api {post} /providers/:providerId/tags-mappings                             Create tag mappings
@@ -1235,25 +1227,44 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      * @apiParam {Number} providerId                                                Provider ID
      * @apiParam {Object[]} tagMappings                                             Tag mappings
      * @apiParam {String} tagMappings.tagName                                       Tag name
-     * @apiParam {String[]} tagMappings.tagValues                                   Tag values
      * @apiSuccess {Object[]} tagMappings.catalystEntityType                        Catalyst entity type
      * @apiSuccess {String} tagNameMapping.catalystEntityMapping.catalystEntityId   Catalyst entity id
      * @apiSuccess {String} tagNameMapping.catalystEntityMapping.tagValue           Tag value
      * @apiParamExample {json} Request-Example:
-     *      [
-     *          {
-     *              "tagName": "application",
-     *              "tagValues": [],
+     *      {
+     *          "project": {
+     *              "tagName": "application"
      *              "catalystEntityType": "project",
-     *              "catalystEntityMapping": []
+     *              "catalystEntityMapping": {
+     *                  "<catalystEntityId>": {
+     *                      "catalystEntityId": "<MongoID>",
+     *                      "catalystEntityName": "project 1",
+     *                      "tagValues": ["proj1"]
+     *                  },
+     *                  "<catalystEntityId>": {
+     *                      "catalystEntityId": "<MongoID>",
+     *                      "catalystEntityName": "project 2",
+     *                      "tagValues": ["proj2"]
+     *                  }
+     *              }
      *          },
-     *          {
+     *          "environment": {
      *              "tagName": "env",
-     *              "tagValues": [],
      *              "catalystEntityType": "environment",
-     *              "catalystEntityMapping": []
+     *              "catalystEntityMapping": {
+     *                  "<catalystEntityId>": {
+     *                      "catalystEntityId": "<MongoID>",
+     *                      "catalystEntityName": "Environment 1",
+     *                      "tagValues": ["env1"]
+     *                  },
+     *                  "<catalystEntityId>": {
+     *                      "catalystEntityId": "<MongoID>",
+     *                      "catalystEntityName": "Environment 2",
+     *                      "tagValues": ["env2"]
+     *                  }
+     *              }
      *          }
-     *       ]
+     *       }
      *
      * @apiSuccess {Object[]} tags                                              Tags
      * @apiSuccess {String} tagMappings                                         Tag mappings
@@ -1267,20 +1278,41 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      * @apiSuccessExample {json} Success-Response:
      *      HTTP/1.1 201 OK
      *      {
-     *          "tagMappings": [
-     *                  {
-     *                      "name": "application",
-     *                      "values": ["proj1", "proj2"],
-     *                      "catalystEntityType": "project",
-     *                      "catalystEntityMapping": []
+     *          "project": {
+     *              "name": "application",
+     *              "values": ["proj1", "proj2"],
+     *              "catalystEntityType": "project",
+     *              "catalystEntityMapping": {
+     *                  "<catalystEntityId>": {
+     *                      "catalystEntityId": "<MongoID>",
+     *                      "catalystEntityName": "project 1",
+     *                      "tagValues": ["proj1"]
      *                  },
-     *                  {
-     *                      "name": "environment",
-     *                      "values": ["prod", "dev"],
-     *                      "catalystEntityType": "environment"
-     *                      "catalystEntityMapping": []
+     *                  "<catalystEntityId>": {
+     *                      "catalystEntityId": "<MongoID>",
+     *                      "catalystEntityName": "project 2",
+     *                      "tagValues": ["proj2"]
      *                  }
-     *           ]
+     *              }
+     *          },
+     *          "environment": {
+     *              "name": "environment",
+     *              "values": ["prod", "dev"],
+     *              "catalystEntityType": "environment",
+     *              "catalystEntityMapping": {
+     *                  "<catalystEntityId>": {
+     *                      "catalystEntityId": "<MongoID>",
+     *                      "catalystEntityName": "Environment 1",
+     *                      "tagValues": ["env1"]
+     *                  },
+     *                  "<catalystEntityId>": {
+     *                      "catalystEntityId": "<MongoID>",
+     *                      "catalystEntityName": "Environment 2",
+     *                      "tagValues": ["env2"]
+     *                  }
+     *              }
+     *          }
+     *
      *      }
      */
     app.post('/providers/:providerId/tag-mappings', validate(tagsValidator.list), addTagMappings);
@@ -1299,19 +1331,18 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      * @apiSuccess {String} tagMapping.catalystEntityMapping.tagValue           Tag value
      * @apiParamExample {json} Request-Example:
      *      {
-     *          "catalystEntityMapping": [
-     *              {
+     *          "catalystEntityMapping": {
+     *              "<catalystEntityId>": {
      *                  "catalystEntityId": "<MongoID>",
      *                  "catalystEntityName": "project 1",
-     *                  "tagValue": "proj1"
+     *                  "tagValues": ["proj1"]
      *              },
-     *              {
+     *              "<catalystEntityId>": {
      *                  "catalystEntityId": "<MongoID>",
      *                  "catalystEntityName": "project 2",
-     *                  "tagValue": "proj2"
-     *
+     *                  "tagValues": ["proj2"]
      *              }
-     *          ]
+     *          }
      *      }
      *
      * @apiSuccess {Object} tagMapping                                          Tag mapping
@@ -1328,23 +1359,23 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *          "tagName":  "application",
      *          "tagValues": ["proj1", "proj2"],
      *          "catalystEntityType": "project",
-     *          "catalystEntityMapping": [
-     *              {
+     *          "catalystEntityMapping": {
+     *              "<catalystEntityId>": {
      *                  "catalystEntityId": "<MongoID>",
      *                  "catalystEntityName": "project 1",
-     *                  "tagValue": "proj1"
+     *                  "tagValues": ["proj2", "Proj2"]
      *              },
-     *              {
+     *              "<catalystEntityId>": {
      *                  "catalystEntityId": "<MongoID>",
      *                  "catalystEntityName": "project 2",
-     *                  "tagValue": "proj2"
+     *                  "tagValues": ["proj2", "Proj2"]
      *
      *              }
-     *          ]
+     *          }
      *      }
      */
     app.patch('/providers/:providerId/tag-mappings/:catalystEntityType', validate(tagsValidator.tagsMapping),
-        updateTagMapping);
+            updateTagMapping);
 
     /**
      * @api {delete} /providers/:providerId/tag-mappings/:catalystEntityType     Delete tag mapping
@@ -1358,7 +1389,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *
      */
     app.delete('/providers/:providerId/tag-mappings/:catalystEntityType', validate(tagsValidator.tagsMapping),
-        deleteTagMapping);
+            deleteTagMapping);
 
 
     /**
@@ -1458,7 +1489,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *      }
      */
     app.patch('/providers/:providerId/unassigned-instances/:instanceId',
-        validate(instanceValidator.update), updateUnassignedInstanceTags);
+            validate(instanceValidator.update), updateUnassignedInstanceTags);
 
     /**
      * @api {patch} /providers/:providerId/unassigned-instances     Update unassigned instance
@@ -1521,336 +1552,333 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      *      }
      */
     app.patch('/providers/:providerId/unassigned-instances',
-        validate(instanceValidator.get), bulkUpdateUnassignedInstances);
+            validate(instanceValidator.get), bulkUpdateUnassignedInstances);
 
-    function getTagsList(req, res, next) {
+    function getTagsList(req, res, callback) {
         async.waterfall(
-            [
+                [
 
-                function (next) {
-                    providerService.checkIfProviderExists(req.params.providerId, next);
-                },
-                providerService.getTagsByProvider,
-                providerService.createTagsList
-            ],
-            function (err, results) {
-                if (err) {
-                    next(err);
-                } else {
-                    return res.status(200).send(results);
+                    function (next) {
+                        providerService.checkIfProviderExists(req.params.providerId, next);
+                    },
+                    providerService.getTagsByProvider,
+                    providerService.createTagsList
+                ],
+                function (err, results) {
+                    if (err) {
+                        callback(err);
+                    } else {
+                        return res.status(200).send(results);
+                    }
                 }
-            }
         );
     }
 
-    function getUnassignedInstancesList(req, res, next) {
+    function getUnassignedInstancesList(req, res, callback) {
         var reqData = {};
         async.waterfall(
-            [
-                function (next) {
-                    apiUtil.changeRequestForJqueryPagination(req.query, next);
-                },
-                function (reqData, next) {
-                    apiUtil.paginationRequest(reqData, 'unassignedInstances', next);
-                },
-                function (paginationReq, next) {
-                    paginationReq['providerId'] = req.params.providerId;
-                    paginationReq['searchColumns'] = ['ip', 'platformId', 'os', 'state', 'providerData.region'];
-                    reqData = paginationReq;
-                    apiUtil.databaseUtil(paginationReq, next);
-                },
-                function (queryObj, next) {
-                    instanceService.getUnassignedInstancesByProvider(queryObj, next);
-                },
-                function (unAssignedInstances, next) {
-                    apiUtil.changeResponseForJqueryPagination(unAssignedInstances, reqData, next);
-                }
+                [
+                    function (next) {
+                        apiUtil.changeRequestForJqueryPagination(req.query, next);
+                    },
+                    function (reqData, next) {
+                        apiUtil.paginationRequest(reqData, 'unassignedInstances', next);
+                    },
+                    function (paginationReq, next) {
+                        paginationReq['providerId'] = req.params.providerId;
+                        paginationReq['searchColumns'] = ['ip', 'platformId', 'os', 'state', 'providerData.region'];
+                        reqData = paginationReq;
+                        apiUtil.databaseUtil(paginationReq, next);
+                    },
+                    function (queryObj, next) {
+                        instanceService.getUnassignedInstancesByProvider(queryObj, next);
+                    },
+                    function (unAssignedInstances, next) {
+                        apiUtil.changeResponseForJqueryPagination(unAssignedInstances, reqData, next);
+                    }
 
-            ],
-            function (err, results) {
-                if (err)
-                    next(err);
-                else
-                    return res.status(200).send(results);
-            });
+                ],
+                function (err, results) {
+                    if (err)
+                        callback(err);
+                    else
+                        return res.status(200).send(results);
+                });
     }
-    ;
 
-
-
-    function getTag(req, res, next) {
+    function getTag(req, res, callback) {
         async.waterfall(
-            [
+                [
 
-                function (next) {
-                    providerService.checkIfProviderExists(req.params.providerId, next);
-                },
-                function (provider, next) {
-                    providerService.getTagByNameAndProvider(provider._id, req.params.tagName, next);
-                },
-                providerService.createTagObject
-            ],
-            function (err, results) {
-                if (err) {
-                    next(err);
-                } else {
-                    return res.status(200).send(results);
+                    function (next) {
+                        providerService.checkIfProviderExists(req.params.providerId, next);
+                    },
+                    function (provider, next) {
+                        providerService.getTagByNameAndProvider(provider._id, req.params.tagName, next);
+                    },
+                    providerService.createTagObject
+                ],
+                function (err, results) {
+                    if (err) {
+                        callback(err);
+                    } else {
+                        return res.status(200).send(results);
+                    }
                 }
-            }
         );
     }
 
     // @TODO to be implemented
     function createTags(req, res, next) {}
 
-    function updateTag(req, res, next) {
+    function updateTag(req, res, callback) {
         async.waterfall(
-            [
+                [
 
-                function (next) {
-                    providerService.checkIfProviderExists(req.params.providerId, next);
-                },
-                function (provider, next) {
-                    var tagDetails = {
-                        'name': req.params.tagName,
-                        'description': req.body.description
-                    };
-                    providerService.updateTag(provider, tagDetails, next);
-                },
-                providerService.createTagObject
-            ],
-            function (err, results) {
-                if (err) {
-                    next(err);
-                } else {
-                    return res.status(200).send(results);
-                }
-            }
-        );
-    }
-
-    function deleteTag(req, res, next) {
-        async.waterfall(
-            [
-
-                function (next) {
-                    providerService.checkIfProviderExists(req.params.providerId, next);
-                },
-                function (provider, next) {
-                    providerService.deleteTag(provider, req.params.tagName, next);
-                }
-            ],
-            function (err, results) {
-                if (err) {
-                    next(err);
-                } else {
-                    return res.status(200).send(results);
-                }
-            }
-        );
-    }
-
-    function getTagMappingsList(req, res, next) {
-        async.waterfall(
-            [
-
-                function (next) {
-                    providerService.checkIfProviderExists(req.params.providerId, next);
-                },
-                providerService.getTagsByProvider,
-                providerService.createTagMappingList
-            ],
-            function (err, results) {
-                if (err) {
-                    next(err);
-                } else {
-                    return res.status(200).send(results);
-                }
-            }
-        );
-    }
-
-    function getTagMapping(req, res, next) {
-        async.waterfall(
-            [
-
-                function (next) {
-                    providerService.checkIfProviderExists(req.params.providerId, next);
-                },
-                function (provider, next) {
-                    providerService.getTagByCatalystEntityTypeAndProvider(provider._id,
-                        req.params.catalystEntityType, next);
-                },
-                providerService.createTagMappingObject
-            ],
-            function (err, results) {
-                if (err) {
-                    next(err);
-                } else {
-                    return res.status(200).send(results);
-                }
-            }
-        );
-    }
-
-    function addTagMappings(req, res, next) {
-        async.waterfall(
-            [
-
-                function (next) {
-                    providerService.checkIfProviderExists(req.params.providerId, next);
-                },
-                function (provider, next) {
-                    providerService.addMultipleTagMappings(provider._id, req.body, next);
-                },
-                providerService.createTagMappingList
-            ],
-            function (err, results) {
-                if (err) {
-                    next(err);
-                } else {
-                    return res.status(201).send(results);
-                }
-            }
-        );
-
-    }
-
-    function updateTagMapping(req, res, next) {
-        async.waterfall(
-            [
-                function (next) {
-                    providerService.checkIfProviderExists(req.params.providerId, next);
-                },
-                function (provider, next) {
-                    providerService.getTagByCatalystEntityTypeAndProvider(provider._id,
-                        req.params.catalystEntityType, next);
-                },
-                function (tag, next) {
-                    providerService.updateTagMapping(tag, req.body, next);
-                },
-                function (tag, next) {
-                    providerService.getTagByNameAndProvider(req.params.providerId, tag.name, next);
-                },
-                providerService.createTagMappingObject
-            ],
-            function (err, results) {
-                if (err) {
-                    next(err);
-                } else {
-                    return res.status(200).send(results);
-                }
-            }
-        );
-    }
-
-    function deleteTagMapping(req, res, next) {
-        async.waterfall(
-            [
-
-                function (next) {
-                    providerService.checkIfProviderExists(req.params.providerId, next);
-                },
-                function (provider, next) {
-                    providerService.deleteTagMapping(provider._id, req.params.catalystEntityType, next);
-                }
-            ],
-            function (err, results) {
-                if (err) {
-                    next(err);
-                } else {
-                    return res.status(200).send(results);
-                }
-            }
-        );
-    }
-
-    function getCatalystEntityMapping(req, res, next) {
-        async.waterfall(
-            [
-
-                function (next) {
-                    providerService.checkIfProviderExists(req.params.providerId, next);
-                },
-                function (provider, next) {
-                    providerService.getTagByCatalystEntityTypeAndProvider(provider._id,
-                        req.params.catalystEntityType, next);
-                },
-                function (tag, next) {
-                    providerService.createCatalystEntityMappingObject(tag, req.params.catalystEntityId, next);
-                }
-            ],
-            function (err, results) {
-                if (err) {
-                    next(err);
-                } else {
-                    return res.status(200).send(results);
-                }
-            }
-        );
-    }
-
-    function updateUnassignedInstanceTags(req, res, next) {
-        async.waterfall(
-            [
-                function (next) {
-                    providerService.checkIfProviderExists(req.params.providerId, next);
-                },
-                function (provider, next) {
-                    instanceService.updateUnassignedInstanceProviderTags(provider, req.params.instanceId,
-                        req.body.tags, next);
-                },
-                function (instance, next) {
-                    // @TODO Nested callback with anonymous function to be avoided.
-                    providerService.getTagMappingsByProviderId(instance.providerId,
-                        function (err, tagMappingsList) {
-                            if (err) {
-                                next(err);
-                            } else {
-                                instanceService.updateUnassignedInstanceTags(instance,
-                                    req.body.tags, tagMappingsList, next);
-                            }
-                        }
-                    );
-                },
-                instanceService.createUnassignedInstanceObject
-            ],
-            function (err, results) {
-                if (err) {
-                    next(err);
-                } else {
-                    return res.status(200).send(results);
-                }
-            }
-        );
-    }
-
-    function bulkUpdateUnassignedInstances(req, res, next) {
-        async.waterfall(
-            [
-                function (next) {
-                    providerService.checkIfProviderExists(req.params.providerId, next);
-                },
-                function (provider, next) {
-                    if ('instances' in req.body) {
-                        instanceService.bulkUpdateInstanceProviderTags(provider, req.body.instances, next);
+                    function (next) {
+                        providerService.checkIfProviderExists(req.params.providerId, next);
+                    },
+                    function (provider, next) {
+                        var tagDetails = {
+                            'name': req.params.tagName,
+                            'description': req.body.description
+                        };
+                        providerService.updateTag(provider, tagDetails, next);
+                    },
+                    providerService.createTagObject
+                ],
+                function (err, results) {
+                    if (err) {
+                        callback(err);
                     } else {
-                        var err = new Error("Malformed request");
-                        err.status = 400;
-                        next(err);
+                        return res.status(200).send(results);
                     }
-                },
-                function (instances, next) {
-                    instanceService.bulkUpdateUnassignedInstanceTags(instances, next);
                 }
-            ],
-            function (err, results) {
-                if (err) {
-                    next(err);
-                } else {
-                    return res.status(200).send(results);
+        );
+    }
+
+    function deleteTag(req, res, callback) {
+        async.waterfall(
+                [
+
+                    function (next) {
+                        providerService.checkIfProviderExists(req.params.providerId, next);
+                    },
+                    function (provider, next) {
+                        providerService.deleteTag(provider, req.params.tagName, next);
+                    }
+                ],
+                function (err, results) {
+                    if (err) {
+                        callback(err);
+                    } else {
+                        return res.status(200).send(results);
+                    }
                 }
-            }
+        );
+    }
+
+    function getTagMappingsList(req, res, callback) {
+        async.waterfall(
+                [
+
+                    function (next) {
+                        providerService.checkIfProviderExists(req.params.providerId, next);
+                    },
+                    providerService.getTagsByProvider,
+                    providerService.createTagMappingList
+                ],
+                function (err, results) {
+                    if (err) {
+                        callback(err);
+                    } else {
+                        return res.status(200).send(results);
+                    }
+                }
+        );
+    }
+
+    function getTagMapping(req, res, callback) {
+        async.waterfall(
+                [
+
+                    function (next) {
+                        providerService.checkIfProviderExists(req.params.providerId, next);
+                    },
+                    function (provider, next) {
+                        providerService.getTagByCatalystEntityTypeAndProvider(provider._id,
+                                req.params.catalystEntityType, next);
+                    },
+                    providerService.createTagMappingObject
+                ],
+                function (err, results) {
+                    if (err) {
+                        callback(err);
+                    } else {
+                        return res.status(200).send(results);
+                    }
+                }
+        );
+    }
+
+    function addTagMappings(req, res, callback) {
+        async.waterfall(
+                [
+
+                    function (next) {
+                        providerService.checkIfProviderExists(req.params.providerId, next);
+                    },
+                    function (provider, next) {
+                        providerService.addMultipleTagMappings(provider._id, req.body, next);
+                    },
+                    providerService.createTagMappingList
+                ],
+                function (err, results) {
+                    if (err) {
+                        callback(err);
+                    } else {
+                        return res.status(201).send(results);
+                    }
+                }
+        );
+
+    }
+
+    function updateTagMapping(req, res, callback) {
+        async.waterfall(
+                [
+                    function (next) {
+                        providerService.checkIfProviderExists(req.params.providerId, next);
+                    },
+                    function (provider, next) {
+                        providerService.getTagByCatalystEntityTypeAndProvider(provider._id,
+                                req.params.catalystEntityType, next);
+                    },
+                    function (tag, next) {
+                        providerService.updateTagMapping(tag, req.body, next);
+                    },
+                    /*function (tag, next) {
+                     providerService.getTagByNameAndProvider(req.params.providerId, tag.name, next);
+                     },*/
+                    providerService.createTagMappingObject
+                ],
+                function (err, results) {
+                    if (err) {
+                        callback(err);
+                    } else {
+                        return res.status(200).send(results);
+                    }
+                }
+        );
+    }
+
+    function deleteTagMapping(req, res, callback) {
+        async.waterfall(
+                [
+
+                    function (next) {
+                        providerService.checkIfProviderExists(req.params.providerId, next);
+                    },
+                    function (provider, next) {
+                        providerService.deleteTagMapping(provider._id, req.params.catalystEntityType, next);
+                    }
+                ],
+                function (err, results) {
+                    if (err) {
+                        callback(err);
+                    } else {
+                        return res.status(200).send(results);
+                    }
+                }
+        );
+    }
+
+    function getCatalystEntityMapping(req, res, callback) {
+        async.waterfall(
+                [
+
+                    function (next) {
+                        providerService.checkIfProviderExists(req.params.providerId, next);
+                    },
+                    function (provider, next) {
+                        providerService.getTagByCatalystEntityTypeAndProvider(provider._id,
+                                req.params.catalystEntityType, next);
+                    },
+                    function (tag, next) {
+                        providerService.createCatalystEntityMappingObject(tag, req.params.catalystEntityId, next);
+                    }
+                ],
+                function (err, results) {
+                    if (err) {
+                        callback(err);
+                    } else {
+                        return res.status(200).send(results);
+                    }
+                }
+        );
+    }
+
+    function updateUnassignedInstanceTags(req, res, callback) {
+        async.waterfall(
+                [
+                    function (next) {
+                        providerService.checkIfProviderExists(req.params.providerId, next);
+                    },
+                    function (provider, next) {
+                        instanceService.updateUnassignedInstanceProviderTags(provider, req.params.instanceId,
+                                req.body.tags, next);
+                    },
+                    function (instance, next) {
+                        // @TODO Nested callback with anonymous function to be avoided.
+                        providerService.getTagMappingsByProviderId(instance.providerId,
+                                function (err, tagMappingsList) {
+                                    if (err) {
+                                        next(err);
+                                    } else {
+                                        instanceService.updateUnassignedInstanceTags(instance,
+                                                req.body.tags, tagMappingsList, next);
+                                    }
+                                }
+                        );
+                    },
+                    instanceService.createUnassignedInstanceObject
+                ],
+                function (err, results) {
+                    if (err) {
+                        callback(err);
+                    } else {
+                        return res.status(200).send(results);
+                    }
+                }
+        );
+    }
+
+    function bulkUpdateUnassignedInstances(req, res, callback) {
+        async.waterfall(
+                [
+                    function (next) {
+                        providerService.checkIfProviderExists(req.params.providerId, next);
+                    },
+                    function (provider, next) {
+                        if ('instances' in req.body) {
+                            instanceService.bulkUpdateInstanceProviderTags(provider, req.body.instances, next);
+                        } else {
+                            var err = new Error("Malformed request");
+                            err.status = 400;
+                            next(err);
+                        }
+                    },
+                    function (instances, next) {
+                        instanceService.bulkUpdateUnassignedInstanceTags(instances, next);
+                    }
+                ],
+                function (err, results) {
+                    if (err) {
+                        callback(err);
+                    } else {
+                        return res.status(200).send(results);
+                    }
+                }
         );
     }
 };

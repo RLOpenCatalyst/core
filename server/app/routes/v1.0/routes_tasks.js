@@ -29,12 +29,13 @@ var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var schedulerService = require('_pr/services/schedulerService');
 var catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
-
-
+var botsService = require('_pr/services/botsService.js');
+var auditTrailService = require('_pr/services/auditTrailService.js');
+var cronTab = require('node-crontab');
 
 var appConfig = require('_pr/config');
 var uuid = require('node-uuid');
-var fileIo = require('_pr/lib/utils/fileio');
+
 
 
 module.exports.setRoutes = function(app, sessionVerification) {
@@ -111,7 +112,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
 
     app.post('/tasks/:taskId/run', function(req, res) {
-
         var taskId = req.params.taskId;
         var user = req.session.user.cn;
         var hostProtocol = req.protocol + '://' + req.get('host');
@@ -182,6 +182,16 @@ module.exports.setRoutes = function(app, sessionVerification) {
                             TaskHistory.removeByTaskId(req.params.taskId, function(err, removed) {
                                 if (err) {
                                     logger.error("Failed to remove history: ", err);
+                                }
+                            });
+                            botsService.removeBotsById(req.params.taskId,function(err,botsData){
+                                if(err){
+                                    logger.error("Failed to delete Bots ", err);
+                                }
+                            });
+                            auditTrailService.removeAuditTrailById(req.params.taskId,function(err,auditTrailData){
+                                if(err){
+                                    logger.error("Failed to delete Audit Trail ", err);
                                 }
                             });
                             res.send({
@@ -520,6 +530,8 @@ module.exports.setRoutes = function(app, sessionVerification) {
         if(taskData.taskScheduler  && taskData.taskScheduler !== null && Object.keys(taskData.taskScheduler).length !== 0) {
             taskData.taskScheduler = apiUtil.createCronJobPattern(taskData.taskScheduler);
             taskData.isTaskScheduled = true;
+        }else{
+            taskData.isTaskScheduled = false;
         }
         if(taskData.manualExecutionTime && taskData.manualExecutionTime !== null){
             taskData.manualExecutionTime = parseInt(taskData.manualExecutionTime);
@@ -533,7 +545,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     res.status(500).send(errorResponses.db.error);
                     return;
                 }
-                encryptedParam(taskData.scriptDetails, scriptTask.taskConfig.scriptDetails, function(err, encryptedParam) {
+                encryptedParam(taskData.scriptDetails,scriptTask.taskConfig.scriptDetails,function(err, encryptedParam) {
                     if (err) {
                         logger.error(err);
                         res.status(500).send("Failed to encrypted script parameters: ", err);
@@ -553,7 +565,30 @@ module.exports.setRoutes = function(app, sessionVerification) {
                                     }else{
                                         catalystSync.executeSerialScheduledTasks();
                                     }
-                                };
+                                }else if(scriptTask.cronJobId && scriptTask.cronJobId !== null){
+                                    cronTab.cancelJob(scriptTask.cronJobId);
+                                }else{
+                                    logger.debug("There is no cron job associated with Task ");
+                                }
+                                if(taskData.serviceDeliveryCheck === true) {
+                                    Tasks.getTaskById(req.params.taskId, function (err, task) {
+                                        if (err) {
+                                            logger.error(err);
+                                        } else {
+                                            botsService.createOrUpdateBots(task, 'Task', task.taskType, function (err, data) {
+                                                if (err) {
+                                                    logger.error("Error in creating bots entry." + err);
+                                                }
+                                            });
+                                        }
+                                    });
+                                }else{
+                                    botsService.removeSoftBotsById(req.params.taskId, function (err, data) {
+                                        if (err) {
+                                            logger.error("Error in updating bots entry." + err);
+                                        }
+                                    });
+                                }
                                 res.send({
                                     updateCount: updateCount
                                 });
@@ -575,13 +610,29 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     return;
                 }
                 if (updateCount) {
-                    if(taskData.isTaskScheduled === true){
-                        if(taskData.executionOrder === 'PARALLEL'){
-                            catalystSync.executeParallelScheduledTasks();
-                        }else{
-                            catalystSync.executeSerialScheduledTasks();
+                    Tasks.getTaskById(req.params.taskId, function (err, task) {
+                        if (err) {
+                            logger.error(err);
                         }
-                    };
+                        if (task.isTaskScheduled === true) {
+                            if (taskData.executionOrder === 'PARALLEL') {
+                                catalystSync.executeParallelScheduledTasks();
+                            } else {
+                                catalystSync.executeSerialScheduledTasks();
+                            }
+                        }else if(task.cronJobId && task.cronJobId !== null){
+                            cronTab.cancelJob(task.cronJobId);
+                        }else{
+                            logger.debug("There is no cron job associated with Task ");
+                        }
+                        if (task.serviceDeliveryCheck === true) {
+                            botsService.createOrUpdateBots(task, 'Task', task.taskType, function (err, data) {
+                                if (err) {
+                                    logger.error("Error in creating bots entry." + err);
+                                }
+                            });
+                        }
+                    })
                     res.send({
                         updateCount: updateCount
                     });
@@ -633,27 +684,42 @@ module.exports.setRoutes = function(app, sessionVerification) {
 
 };
 
-function encryptedParam(paramDetails, existingParams, callback) {
+function encryptedParam(paramDetails,existingParams, callback) {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var count = 0;
     var encryptedList = [];
     for (var i = 0; i < paramDetails.length; i++) {
-        (function(paramDetail) {
+        (function (paramDetail) {
             if (paramDetail.scriptParameters.length > 0) {
                 count++;
                 for (var j = 0; j < paramDetail.scriptParameters.length; j++) {
-                    (function(scriptParameter) {
-                        if (scriptParameter === '') {
-                            encryptedList.push(existingParams[i].scriptParameters[j]);
-                        } else if (scriptParameter.paramVal === existingParams[i].scriptParameters[j].paramVal) {
-                            encryptedList.push(scriptParameter);
-                        } else {
+                    (function (scriptParameter) {
+                        if(scriptParameter.paramType ==='Restricted' && scriptParameter.paramVal ===''){
+                            if(paramDetails.length === existingParams.length && paramDetail.scriptId ===existingParams[i].scriptId) {
+                                encryptedList.push({
+                                    paramVal: existingParams[i].scriptParameters[j].paramVal,
+                                    paramDesc: scriptParameter.paramDesc,
+                                    paramType: scriptParameter.paramType
+                                });
+                            }else{
+                                for(var k = 0; k < existingParams.length; k++){
+                                    if(paramDetail.scriptId === existingParams[k].scriptId){
+                                        encryptedList.push({
+                                            paramVal: existingParams[k].scriptParameters[j].paramVal,
+                                            paramDesc: scriptParameter.paramDesc,
+                                            paramType: scriptParameter.paramType
+                                        });
+                                    }
+                                }
+                            }
+                        }else {
                             var encryptedText = cryptography.encryptText(scriptParameter.paramVal, cryptoConfig.encryptionEncoding,
                                 cryptoConfig.decryptionEncoding);
                             encryptedList.push({
-                                paramVal:encryptedText,
-                                paramVal:scriptParameter.paramVal
+                                paramVal: encryptedText,
+                                paramDesc: scriptParameter.paramDesc,
+                                paramType: scriptParameter.paramType
                             });
                         }
                         if (encryptedList.length === paramDetail.scriptParameters.length) {

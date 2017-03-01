@@ -121,7 +121,7 @@
                 genSevs.promiseGet(param).then(function (result) {
                     capaCtr.chartData=result;
                     $rootScope.splitUpCapacities=[];
-                    if(result.splitUpCapacities) {
+                    if(result.splitUpCapacities && Object.keys(result.splitUpCapacities).length >0) {
                         angular.forEach(result.splitUpCapacities, function (val, key) {
                             var a=key.replace(/([A-Z])/g, ' $1').replace(/^./, function(str) {
                                 return str.toUpperCase();
@@ -152,12 +152,19 @@
                     // create bar
                     //if(viewType === 'ProviderView'){
                     capaCtr.capaGridOptions.data = result.splitUpCapacities[viewType];
-                    angular.forEach(result.splitUpCapacities[viewType], function (value) {
-                        capaCtr.pieChat.data.push({
-                            key: value.name,
-                            value: value.capacity.totalCapacity
+                    if(result.splitUpCapacities && Object.keys(result.splitUpCapacities).length >0 ) {
+                        angular.forEach(result.splitUpCapacities[viewType], function (value) {
+                            capaCtr.pieChat.data.push({
+                                key: value.name,
+                                value: value.capacity.totalCapacity
+                            });
                         });
-                    });
+                    } else{
+                        capaCtr.pieChat.data.push({
+                            key: result.entity.name,
+                            value: result.capacity.totalCapacity
+                        });
+                    }
                     if(result.capacity && result.capacity.AWS && result.capacity.AWS.services) {
                         capaCtr.serviceCapacity = result.capacity.AWS.services;
                         angular.forEach(result.capacity.AWS.services, function (valueChild, keyChild) {
@@ -166,20 +173,35 @@
                                 name: keyChild,
                                 field: 'capacity.AWS.services.' + keyChild
                             });
-                            angular.forEach(result.splitUpCapacities[viewType], function (valBar) {
+                            if(result.splitUpCapacities && Object.keys(result.splitUpCapacities).length >0 ) {
+                                angular.forEach(result.splitUpCapacities[viewType], function (valBar) {
+                                    var chVal = '';
+                                    if (valBar.capacity.AWS.services[keyChild]) {
+                                        chVal = valBar.capacity.AWS.services[keyChild];
+                                    } else {
+                                        chVal = 0;
+                                    }
+                                    va.push(
+                                        {
+                                            "label": valBar.name,
+                                            "value": chVal
+                                        }
+                                    );
+                                });
+                            } else {
                                 var chVal = '';
-                                if (valBar.capacity.AWS.services[keyChild]) {
-                                    chVal = valBar.capacity.AWS.services[keyChild];
+                                if (result.capacity.AWS.services[keyChild]) {
+                                    chVal =result.capacity.AWS.services[keyChild];
                                 } else {
                                     chVal = 0;
                                 }
                                 va.push(
                                     {
-                                        "label": valBar.name,
+                                        "label": result.entity.name,
                                         "value": chVal
                                     }
                                 );
-                            });
+                            }
                             capaCtr.barChat.data.push({
                                 "key": keyChild,
                                 "values": va
@@ -295,7 +317,7 @@
                 $timeout(function () {
                     $rootScope.applyFilter(true,'month');
                     capaCtr.trendsChart($rootScope.filterNewEnt);
-                    var treeNames = ['Analytics','capacity'];
+                    var treeNames = ['Cloud Management','Analytics','capacity'];
                     $rootScope.$emit('treeNameUpdate', treeNames);
                 },500);
             };

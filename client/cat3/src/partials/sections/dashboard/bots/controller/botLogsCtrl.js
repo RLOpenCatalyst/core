@@ -10,9 +10,14 @@
     angular.module('library.bots',[])
     .controller('botLogsCtrl',['$scope', '$rootScope', 'genericServices', 'workzoneServices', 'toastr', '$modalInstance', 'items', '$timeout', function ($scope, $rootScope, genSevs, workzoneServices, toastr, $modalInstance, items, $timeout) {
         $scope.botName = items.auditTrailConfig.name;
-        $scope.nodeIds = items.auditTrailConfig.nodeIds;
+        //$scope.nodeIds = items.auditTrailConfig.nodeIds;
+        $scope.nodeIds = [];
+        for(var i = 0; i < items.auditTrailConfig.nodeIdsWithActionLog.length;i++){
+            $scope.nodeIds.push(items.auditTrailConfig.nodeIdsWithActionLog[i].nodeId);
+        }
         $scope.taskType = items.auditTrailConfig.executionType;
         $scope.nodeIdsWithActionLog = items.auditTrailConfig.nodeIdsWithActionLog;
+        $scope.jenkinsJobName = items.auditTrailConfig.jenkinsJobName;
         $scope.isBotLogsLoading = true;
         if($scope.taskType === 'jenkins') {
             $scope.jenkinsActionLogId = items.actionLogId;
@@ -69,7 +74,7 @@
         if($scope.taskType === 'jenkins') {
             var param={
                 inlineLoader: true,
-                url:'/jenkins/' + $scope.jenkinsActionLogId + '/jobs/testmail/builds/' + $scope.jenkinsBuildNumber + '/output'
+                url:'/jenkins/' + $scope.jenkinsActionLogId + '/jobs/' + $scope.jenkinsJobName + '/builds/' + $scope.jenkinsBuildNumber + '/output'
             };
             genSevs.promiseGet(param).then(function (response) {
                 if (response) {

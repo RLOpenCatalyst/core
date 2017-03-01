@@ -79,9 +79,15 @@ passport.serializeUser(function(user, done) {
 passport.deserializeUser(function(user, done) {
     done(null, user);
 });
-
+/*
 var dboptions = {
     host: appConfig.db.host,
+    port: appConfig.db.port,
+    dbName: appConfig.db.dbName
+};
+*/
+var dboptions = {
+    host: process.env.DB_HOST || appConfig.db.host,
     port: appConfig.db.port,
     dbName: appConfig.db.dbName
 };
@@ -219,6 +225,7 @@ cronTabManager.start();
 catalystSync.executeScheduledInstances();
 catalystSync.executeSerialScheduledTasks();
 catalystSync.executeParallelScheduledTasks();
+catalystSync.executeScheduledBots();
 server.listen(app.get('port'), function() {
     logger.debug('Express server listening on port ' + app.get('port'));
 });

@@ -404,7 +404,7 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                 }
                                                 auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
                                                     if (err) {
-                                                        logger.error("Failed to create or update bot Log: ", err);
+                                                        logger.error("Failed to create or update bots Log: ", err);
                                                     }
                                                 });
                                             }
@@ -533,7 +533,7 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                                     }
                                                                     auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
                                                                         if (err) {
-                                                                            logger.error("Failed to create or update bot Log: ", err);
+                                                                            logger.error("Failed to create or update bots Log: ", err);
                                                                         }
                                                                     });
                                                                 }
@@ -574,8 +574,14 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                                     }
                                                                     auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
                                                                         if (err) {
-                                                                            logger.error("Failed to create or update bot Log: ", err);
+                                                                            logger.error("Failed to create or update bots Log: ", err);
                                                                         }
+                                                                        var botService = require('_pr/services/botsService');
+                                                                        botService.updateSavedTimePerBots(launchParams.blueprintData._id,function(err,data){
+                                                                            if (err) {
+                                                                                logger.error("Failed to update bots saved Time: ", err);
+                                                                            }
+                                                                        });
                                                                     });
                                                                 }
                                                                 instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
@@ -650,7 +656,7 @@ azureInstanceBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                                     }
                                                                     auditTrailService.updateAuditTrail('BOTs',launchParams.auditTrailId,resultTaskExecution,function(err,auditTrail){
                                                                         if (err) {
-                                                                            logger.error("Failed to create or update bot Log: ", err);
+                                                                            logger.error("Failed to create or update bots Log: ", err);
                                                                         }
                                                                     });
                                                                 }
