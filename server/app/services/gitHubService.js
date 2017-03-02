@@ -40,6 +40,7 @@ gitGubService.checkIfGitHubExists = function checkIfGitHubExists(gitHubId, callb
             return callback(err);
         } else {
             return callback(null, gitHub);
+            
         }
     });
 };
@@ -354,7 +355,7 @@ function formatGitHubResponse(gitHub,callback) {
 
 function gitRepoCloning(url,path,options,gitHubId,callback){
     fse.remove(path).then(function() {
-        nodeGit.Clone(url, path, options).then(function(repo){
+        nodeGit.Clone(url, path, options).then(function(repo){     
             gitHubModel.updateGitHub(gitHubId, {isRepoCloned:true}, function (err, gitHub) {
                 if (err) {
                     logger.error(err);
