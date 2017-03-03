@@ -150,7 +150,7 @@ botsNewService.executeBots = function executeBots(botId,reqBody,userName,executi
         },
         function(encryptedParamList,next) {
             if(encryptedParamList.length > 0){
-                botsDao.updateBotsDetail(botId,{params:encryptedParamList},function(err,botsData){
+                botsDao.updateBotsDetail(botId,{params:encryptedParamList,lastRunTime:new Date().getTime()},function(err,botsData){
                     if(err){
                         next(err);
                     }else{
