@@ -8,7 +8,21 @@
 (function (angular) {
 	"use strict";
 	angular.module('apis.workzone',['authentication', 'utility.pagination'])
-		.service('workzoneEnvironment', [function () {
+		.service('workzoneNode', [function () {
+			var selectedNode = null;
+			var env = {
+				setWorkzoneNode: function (node) {
+					selectedNode = node;
+				},
+				getWorkzoneNode: function () {
+					return selectedNode;
+				}
+			};
+			return {
+				setWorkzoneNode: env.setWorkzoneNode,
+				getWorkzoneNode: env.getWorkzoneNode
+			};
+		}]).service('workzoneEnvironment', [function () {
 			var requestParams;
 			var env = {
 				setParams: function (params) {
