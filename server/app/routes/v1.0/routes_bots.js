@@ -18,6 +18,7 @@ var	botsService = require('_pr/services/botsService.js');
 var appConfig = require('_pr/config');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var botExecuteService = require('_pr/services/botsExecuteService.js');
+var	botsNewService = require('_pr/services/botsNewService.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all('/bots/*', sessionVerificationFunc);
@@ -39,6 +40,41 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         })
     });
 
+    app.get('/bots/all',function(req,res) {
+        var actionStatus = null,serviceNowCheck = false,data = null;
+        if(req.query.actionStatus && req.query.actionStatus !== null){
+            actionStatus = req.query.actionStatus;
+        }
+        if(req.query.serviceNowCheck && req.query.serviceNowCheck !== null && req.query.serviceNowCheck === 'true'){
+            serviceNowCheck = true;
+        }
+        botsService.getBotsList(req.query,actionStatus,serviceNowCheck, function(err,result){
+            if(!err){
+                var recordCount = result.metaData.totalRecords;
+                for(var i = 0; i<recordCount; i++) {
+                    result.bots[i].isBotNew = false;
+                }
+                data = result;
+            }
+        });
+        botsNewService.getBotsList(req.query,actionStatus, function(err,result){
+            if (err && data === null ) {
+                return res.status(500).send(err);
+            } else {
+                if(data.metaData.totalRecords === 0){
+                    data = result;
+                }else {
+                    var recordCount = result.metaData.totalRecords;
+                    for(var i = 0; i<recordCount; i++) {
+                        result.bots[i].isBotNew = true;
+                    }
+                    data.bots.push(result.bots);
+                    data.metaData.totalRecords += result.metaData.totalRecords;
+                }
+                return res.status(200).send(data);
+            }
+        })
+    });
 
     app.delete('/bots/:botId',function(req,res){
         botsService.removeSoftBotsById(req.params.botId, function(err,data){
