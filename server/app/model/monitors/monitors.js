@@ -37,6 +37,11 @@ var MonitorsSchema = new Schema({
     parameters: {
         type: Schema.Types.Mixed
     },
+    isDefault: {
+        type: Boolean,
+        required: false,
+        default: false
+    },
     isDeleted: {
         type: Boolean,
         required: true,
@@ -65,7 +70,6 @@ MonitorsSchema.statics.createNew = function createNew(data, callback) {
 
 MonitorsSchema.statics.getMonitors = function (params, callback) {
     params.isDeleted = false;
-
     this.aggregate([{
             $match: params
         }, {
@@ -147,6 +151,32 @@ MonitorsSchema.statics.updateMonitors = function (monitorId, fields, callback) {
                 return callback(null, true);
             } else if (typeof callback === 'function') {
                 return callback(null, null);
+            }
+        }
+    );
+};
+
+MonitorsSchema.statics.removeDefaultMonitor = function (orgId, callback) {
+    this.update({'orgId': orgId}, {$set: {isDefault: false}}, { multi: true },
+        function (err, monitors) {
+            if (err) {
+                logger.error(err);
+                return callback(err, null);
+            } else {
+                return callback(null, true);
+            }
+        }
+    );
+};
+
+MonitorsSchema.statics.setDefaultMonitor = function (monitorId, orgId, callback) {
+    this.update({'_id': monitorId, 'orgId': orgId}, {$set: {isDefault: true}},
+        function (err, monitors) {
+            if (err) {
+                logger.error(err);
+                return callback(err, null);
+            } else {
+                return callback(null, true);
             }
         }
     );

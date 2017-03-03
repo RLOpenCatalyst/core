@@ -9,8 +9,21 @@
 	</div>
 	<div class="borderTop"></div>
 
-	<div id="grid1" ng-if="audit.gridOptions.data.length > 0" ui-grid="audit.gridOptions" ui-grid-pagination class="grid" style="height: {{gridHeight}}px"></div>
-	<div class="alert alert-info text-center" ng-if="!audit.gridOptions.data.length > 0">
+	<div class="bot-audit-trail-search">
+		<div class="pull-right margintop20">
+			<span class="bot-library-search">
+               <label>&nbsp;
+                  <input type="search" ng-model="botAuditTrailSearch" class="bot-search" placeholder="Search">
+				  <i class="fa fa-search search-icon" ng-click="searchBotAuditTrailName()"></i>
+               </label>
+            </span>
+		</div>
+	</div>
+
+	<loading size="large" name="isBotAuditTrailPageLoading" type="block" align="center"></loading>
+	<div class="alert alert-info text-center" ng-if="!botAuditTrailGridOptions.data.length > 0 && !isBotAuditTrailPageLoading">
 	    No data Available
 	</div>
+
+	<div id="grid1" class="margintop8" ng-if="botAuditTrailGridOptions.data.length > 0 && !isBotAuditTrailPageLoading" ui-grid="botAuditTrailGridOptions" ui-grid-pagination class="grid" style="height: {{gridHeight}}px"></div>
 </div>

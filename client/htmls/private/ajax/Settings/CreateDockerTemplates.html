@@ -169,6 +169,7 @@
    $("#tablerepositoryDetails_filter").hide();
 
   $('#repoanchorDetails').click(function(e){
+      $("#repodetailsModal").show();
       getDockerRepositories();
   });
   
@@ -196,7 +197,7 @@
      var repoServerName = $("#chooseRepoServer").val();
      var repoName = $("#repoNameCreate").val();
      if (repoName == '') {
-         alert("Please enter Repository Name");
+         bootbox.alert("Please select Repository Server");
      }
      if (repoName != '') {
          var $repoDeployTbody = $('#repoDeployTbody');
@@ -267,19 +268,23 @@
 
   }
 
-  $('#orgname').change(function() {
-       $('#projectname').empty();
-        $.get('/d4dMasters/readmasterjsonnew/4', function(data) {
-           for (var i = 0; i < data.length; i++) {
-                   var str = '',
-                       getTemplate = function(val, rowid) {
-                           return '<label class="toggle font-sm" style="padding-left:4px;"><input onclick="if($(this).is(&quot;:checked&quot;)) {$(this).closest(&quot;label&quot;).' + 'css(&quot;background-color&quot;,&quot;#eeeeee&quot;);$(this).css(&quot;border-color&quot;,&quot;#3b9ff3&quot;);}else{$(this).closest(&quot;label&quot;).css(&quot;background-color&quot;,&quot;#ffffff&quot;);$(this).css(&quot;border-' + 'color&quot;,&quot;red&quot;);}" type="checkbox" id="checkbox-toggle" name="checkbox-toggle"' +'value="'+ val +'"' + 'rowid="' + rowid + '" style="width:100%"><i data-swchoff-text="NO" data-swchon-text="YES"></i>' + val + '</label>';
-                       };
-                   str = str + getTemplate(data[i].projectname, data[i].rowid);
-                   $('#projectname').append(str);
-           }
-       });
-    });
+  getTemplate = function(val, rowid) {
+   return '<label class="toggle font-sm" style="padding-left:4px;"><input onclick="if($(this).is(&quot;:checked&quot;)) {$(this).closest(&quot;label&quot;).' + 'css(&quot;background-color&quot;,&quot;#eeeeee&quot;);$(this).css(&quot;border-color&quot;,&quot;#3b9ff3&quot;);}else{$(this).closest(&quot;label&quot;).css(&quot;background-color&quot;,&quot;#ffffff&quot;);$(this).css(&quot;border-' + 'color&quot;,&quot;red&quot;);}" type="checkbox" id="checkbox-toggle" name="checkbox-toggle"' +'value="'+ val +'"' + 'rowid="' + rowid + '" style="width:100%"><i data-swchoff-text="NO" data-swchon-text="YES"></i>' + val + '</label>';
+  };
+
+  $('#orgname').change(function(e){
+    var orgIdForSetup = $('#orgname').find('option:selected').attr('rowid');
+      $('#projectname').empty();
+      $.get('/d4dMasters/readmasterjsonnew/4', function(data) {
+        for (var i = 0; i < data.length; i++) {
+          if (orgIdForSetup === data[i].orgname_rowid[0]) {
+             var str = '',
+             str = str + getTemplate(data[i].projectname, data[i].rowid);
+             $('#projectname').append(str);
+          }
+        }
+      });
+  });
 
   function inLineReady() {
 

@@ -17,6 +17,8 @@ var appConfig = require('_pr/config');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var aws = require('aws-sdk');
 var resources = require('_pr/model/resources/resources');
+var S3Resource = require('_pr/model/resources/s3-resource')
+var RDSResource = require('_pr/model/resources/rds-resource')
 var CW = require('_pr/lib/cloudwatch.js');
 var S3 = require('_pr/lib/s3.js');
 var EC2 = require('_pr/lib/ec2.js');
@@ -47,8 +49,10 @@ resourceService.getEC2InstancesInfo=getEC2InstancesInfo;
 resourceService.getAllResourcesForProvider =  getAllResourcesForProvider;
 resourceService.updateAWSResourceCostsFromCSV = updateAWSResourceCostsFromCSV
 resourceService.updateDomainNameForInstance = updateDomainNameForInstance
+resourceService.aggregateResourceCostsForPeriod = aggregateResourceCostsForPeriod
 
 // @TODO To be cached if needed. In memory data will not exceed 200MB for upto 2000 instances.
+// @TODO Unique identifier of S3 and RDS resources should be available in resource without casting.
 function getAllResourcesForProvider(provider, next) {
     async.parallel([
             function(callback) {
@@ -60,10 +64,10 @@ function getAllResourcesForProvider(provider, next) {
             },
             function(callback) {
                 unassignedInstancesModel.getUnAssignedInstancesByProviderId(provider._id, callback);
+            },
+            function(callback) {
+                resources.getResourcesByProviderId(provider._id, callback);
             }
-            /*function(callback) {
-             resources.getResourcesByProviderId(provider._id, callback);
-             }*/
         ],
         function(err, results) {
             if (err) {
@@ -75,6 +79,19 @@ function getAllResourcesForProvider(provider, next) {
                 var resultsObject = resultsArray.reduce(function(temp, current) {
                     if('platformId' in current) {
                         temp[current.platformId] = current;
+                    } else if('resourceType' in current) {
+                        switch(current.resourceType) {
+                            case 'RDS':
+                                var tempInstance = new RDSResource(current)
+                                temp[tempInstance.resourceDetails.dbInstanceIdentifier] = current;
+                                break;
+                            case 'S3':
+                                var tempInstance = new S3Resource(current)
+                                temp[tempInstance.resourceDetails.bucketName] = current;
+                                break;
+                            default:
+                                break;
+                        }
                     }
                     return temp;
                 }, {})
@@ -193,10 +210,59 @@ function updateAWSResourceCostsFromCSV(provider, resources, downlaodedCSVPath, u
         if(err) {
             callback(err)
         } else {
+            callback(null, resources)
+        }
+    })
+}
+
+function aggregateResourceCostsForPeriod(provider, resources, period, endTime, callback) {
+    var catalystEntityHierarchy = appConfig.catalystEntityHierarchy
+    var date = new Date()
+    var billIntervalId = date.getFullYear() + '-' + (date.getMonth() + 1)
+
+    var offset = (new Date()).getTimezoneOffset()*60000
+    var startTime = dateUtil.getStartOfPeriod(period, endTime)
+
+    var query = { 'providerId': provider._id.toString() }
+    query.startTime = {$gte: Date.parse(startTime) + offset}
+    query.endTime = {$lte: Date.parse(endTime) + offset}
+
+    async.waterfall([
+        function(next) {
+            resourceCost.aggregate([
+                {$match: query},
+                {$group: {_id: "$" + catalystEntityHierarchy['resource'].key,
+                    totalCost: {$sum: "$cost"}}}
+            ], next)
+        },
+        function(resourceCosts, next) {
+            async.forEach(resourceCosts, function(resourceCost, next1) {
+                if(resourceCost._id in resources) {
+                    resources[resourceCost._id].cost = {
+                        aggregateInstanceCost: Math.round(resourceCost.totalCost * 100) / 100,
+                        currency:'USD',
+                        symbol: '$'
+                    }
+                    resources[resourceCost._id].save(next1)
+                } else {
+                    next1()
+                }
+            }, function(err) {
+                if(err) {
+                    next(err)
+                } else {
+                    next()
+                }
+            })
+        }
+    ], function(err) {
+        if(err) {
+            callback(err)
+        } else {
+            logger.info("Individual resource costs aggregation complete")
             callback()
         }
     })
-
 }
 
 function getCostForServices_deprecated(provider,callback) {

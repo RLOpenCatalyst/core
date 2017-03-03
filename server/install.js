@@ -37,6 +37,7 @@ function getDefaultsConfig() {
         app_run_port: 3001,
         catalystDataDir: currentDirectory + '/catdata',
         javaLibDir: currentDirectory + '/app',
+        gitHubDir: currentDirectory + '/gitHub/',
         catalysHomeDirName: 'catalyst',
         instancePemFilesDirName: 'instance-pemfiles',
         tempDirName: 'temp',
@@ -106,6 +107,7 @@ function getDefaultsConfig() {
                 "resources":"createdOn",
                 "instanceLogs":"createdOn",
                 "auditTrails":"startedOn",
+                "botHistory":"startedOn",
                 "taskLogs":"timestampStarted",
                 "unassignedInstances":"state",
                 "unassignedInstances":"state",
@@ -115,7 +117,8 @@ function getDefaultsConfig() {
                 "blueprints":"name",
                 "compositeBlueprints":"name",
                 "containerLogs":"createdOn",
-                "bots":"createdOn"
+                "bots":"createdOn",
+                "gitHub":"createdOn"
             },
             skip_Records : 1,
             max_record_limit : 200,
@@ -132,7 +135,7 @@ function getDefaultsConfig() {
         },
         taggingServerList: ['Sensu Server','LDAP Server','AD Server'],
         botTypeList: ['Task','Check','Learning', 'Composite','Built with other','Run','UI'],
-        categoryList: ['Active Directory', 'OpenDJ LDAP','Monitoring', 'Application Deployment', 'Service Management', 'Database Management', 'Upgrade', 'Installation'],
+        categoryList: ['Active Directory', 'OpenDJ LDAP','Monitoring', 'Application Deployment', 'Service Management', 'User Management', 'Upgrade', 'Installation'],
         aws: {
             pemFileLocation: __dirname + '/app/config/',
             s3BucketDownloadFileLocation: currentDirectory + '/catdata/catalyst/temp/',
@@ -470,7 +473,7 @@ function getDefaultsConfig() {
                 key: 'platformDetails.region'
             },
             resource: {
-                key: 'resourceId'
+                key: 'platformDetails.instanceId'
             }
         },
         costAggregationPeriods: {

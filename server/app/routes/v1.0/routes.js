@@ -76,6 +76,10 @@ var settingWizard = require('./routes_setting_wizard');
 var configData = require('./routes_config_data');
 var monitors = require('./routes_monitors');
 var bots = require('./routes_bots');
+var botsNew = require('./routes_botsNew');
+var gitHub = require('./routes_github');
+var routesCICD = require('./routes_d4dMastersCICD');
+var routesDashboardCICD = require('./routes_dashboardcicd');
 /*
  * @TODO
  * Change app to router in internal routes files
@@ -190,6 +194,13 @@ module.exports.setRoutes = function(app) {
 
     bots.setRoutes(app, sessionVerificationFunc);
 
+    gitHub.setRoutes(app, sessionVerificationFunc);
+
+    routesCICD.setRoutes(app, sessionVerificationFunc);
+
+    botsNew.setRoutes(app, sessionVerificationFunc);
+
+    routesDashboardCICD.setRoutes(app,sessionVerificationFunc);
 
     app.get('/', function(req, res) {
         res.redirect('/cat3');

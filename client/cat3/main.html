@@ -16,6 +16,7 @@
 		<link rel='stylesheet' type='text/css' href='catalyst/partials/sections/login/login.css'>
 		<link rel="stylesheet" href="src/partials/globals/toaster/angular-toastr.css" />
 		<link rel="stylesheet" href="lib/nvd3/nv.d3.css" />
+		<link rel="stylesheet" href="lib/angularMultipleSelect/multiple-select.min.css" />
 		<link rel="stylesheet" href="customlib/dateTime/css/bootstrap-material-datetimepicker.css" />
 		<!-- Library scripts -->
 		<script src="lib/jquery/jquery.min.js"></script>
@@ -35,12 +36,12 @@
 		<script src="lib/lodash/lodash/lodash.min.js"></script>
 		<script src="lib/ng-file-upload/ng-file-upload.min.js"></script>
 		<script src="src/partials/globals/toaster/angular-toastr.tpls.js"></script>
-		<script src="src/partials/globals/drag-and-drop/angular-drag-and-drop-lists.min.js"></script>
 		<!-- Application configuration -->
 		<script src="uiConfig.js"></script>
 		<script src="lib/d3/d3.js"></script>
 		<script src="lib/nvd3/nv.d3.js"></script>
 		<script src="lib/angular-nvd3/angular-nvd3.js"></script>
+		<script src="lib/angularMultipleSelect/multiple-select.min.js"></script>
 	</head>
 	<body ng-class="{ 'loading-body': onBodyLoading === true }">
 	<loading size="large" name="onBodyLoading"  class="onbody-loading"></loading>
@@ -107,13 +108,22 @@
 		<script src="src/partials/sections/dashboard/analytics/analyticsServices.js"></script>
 		<script src="src/partials/sections/dashboard/analytics/controller/costCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/analytics/controller/capacityCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/analytics/controller/capacityReportCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/analytics/controller/discoveryResourcesCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/analytics/controller/discoverySyncResultCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/analytics/controller/discoveryTagMappingCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/analytics/controller/usageCtrl.js"></script>
+
 		<script src="src/partials/sections/dashboard/bots/botsCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/bots/controller/audittrailCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/bots/controller/botDescriptionCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/bots/controller/botHistoryCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/bots/controller/botLogsCtrl.js"></script>
-		<script src="src/partials/sections/dashboard/bots/controller/botInfoCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/bots/controller/botScheduleCtrl.js"></script>
         <script src="src/partials/sections/dashboard/bots/controller/libraryCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/bots/controller/editParamsCtrl.js"></script>
+		<script src="src/partials/sections/dashboard/bots/controller/botExecutionLogsCtrl.js"></script>
+	    <script src="src/partials/sections/dashboard/bots/controller/botChefLogCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/design/aDesignCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/design/controllers/addDockerTemplateCtrl.js"></script>
 		<script src="src/partials/sections/dashboard/design/controllers/appUrlCreateCtrl.js"></script>

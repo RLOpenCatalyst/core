@@ -30,6 +30,9 @@ var mongoosePaginate = require('mongoose-paginate');
 var ApiUtils = require('_pr/lib/utils/apiUtil.js');
 var Schema = mongoose.Schema;
 var auditTrailService = require('_pr/services/auditTrailService');
+var bots = require('_pr/model/bots/1.0/bots.js');
+var Cryptography = require('_pr/lib/utils/cryptography');
+var appConfig = require('_pr/config');
 
 
 var TASK_TYPE = {
@@ -354,7 +357,37 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                     return;
                 }
                 logger.debug("Task jobResultURL updated");
-
+                bots.updateBotsDetail(self._id,{botConfig:taskConfig},function(err,botsData){
+                    if (err) {
+                        logger.error("Unable to update Bots");
+                    }
+                    logger.debug("Bots updated");
+                });
+            });
+        }
+        if (taskHistoryData.taskType === TASK_TYPE.CHEF_TASK && self.botParams.cookbookAttributes) {
+            var taskConfig = self.taskConfig;
+            taskConfig.attributes=self.botParams.cookbookAttributes;
+            Tasks.update({
+                "_id": new ObjectId(self._id)
+            }, {
+                $set: {
+                    taskConfig: taskConfig
+                }
+            }, {
+                upsert: false
+            }, function(err, data) {
+                if (err) {
+                    logger.error("Unable to update Chef task.");
+                    return;
+                }
+                logger.debug("Chef task updated");
+                bots.updateBotsDetail(self._id,{botConfig:taskConfig},function(err,botsData){
+                    if (err) {
+                        logger.error("Unable to update Bots");
+                    }
+                    logger.debug("Bots updated");
+                });
             });
         }
         // hack for composite task
@@ -365,7 +398,33 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
             taskHistory = new TaskHistory(taskHistoryData);
             taskHistory.save();
         }
-        callback(null, taskExecuteData, taskHistory);
+        var resultBots = null;
+        if(taskHistoryData.taskType === TASK_TYPE.JENKINS_TASK){
+            resultBots = {
+                "actionLogId":taskHistory.jenkinsServerId,
+                "auditTrailConfig.jenkinsBuildNumber":taskHistory.buildNumber,
+                "auditTrailConfig.jenkinsJobName":taskHistory.jobName,
+                "auditTrailConfig.jobResultURL":taskHistory.jobResultURL
+            };
+        }else {
+             resultBots = {
+                 "actionLogId": taskHistory.nodeIdsWithActionLog[0].actionLogId,
+                 "auditTrailConfig.nodeIdsWithActionLog": taskHistory.nodeIdsWithActionLog
+            };
+        }
+        if(auditTrailId !== null && resultBots !== null){
+            if(taskHistory.id){
+                resultBots.auditHistoryId=taskHistory.id;
+            }
+            auditTrailService.updateAuditTrail('BOTs',auditTrailId,resultBots,function(err,auditTrail){
+                if (err) {
+                logger.error("Failed to create or update bots Log: ", err);
+                }
+            });
+            callback(null, taskExecuteData, taskHistory);
+        }else{
+            callback(null, taskExecuteData, taskHistory);
+        }
     }, function(err, status, resultData) {
         self.timestampEnded = new Date().getTime();
         if (status == 0) {
@@ -381,7 +440,8 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                 "endedOn":self.timestampEnded,
                 "actionLogId":taskHistory.jenkinsServerId,
                 "auditTrailConfig.jenkinsBuildNumber":taskHistory.buildNumber,
-                "auditTrailConfig.jenkinsJobName":taskHistory.jobName
+                "auditTrailConfig.jenkinsJobName":taskHistory.jobName,
+                "auditTrailConfig.jobResultURL":taskHistory.jobResultURL
             };
         }else{
             resultTaskExecution = {
@@ -392,10 +452,21 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                 "auditTrailConfig.nodeIdsWithActionLog":taskHistory.nodeIdsWithActionLog
             };
         }
+        if(taskHistory.id){
+            resultTaskExecution.auditHistoryId=taskHistory.id;
+        }
         if(auditTrailId !== null && resultTaskExecution !== null){
             auditTrailService.updateAuditTrail('BOTs',auditTrailId,resultTaskExecution,function(err,auditTrail){
                 if (err) {
                     logger.error("Failed to create or update bots Log: ", err);
+                }
+                if(resultTaskExecution.actionStatus === 'success'){
+                    var botService = require('_pr/services/botsService');
+                    botService.updateSavedTimePerBots(taskHistoryData.taskId,function(err,data){
+                        if (err) {
+                            logger.error("Failed to update bots saved Time: ", err);
+                        }
+                    });
                 }
             });
         }
@@ -546,7 +617,6 @@ taskSchema.statics.createNew = function(taskData, callback) {
     var that = this;
     var task = new that(taskObj);
     logger.debug('saved task:' + JSON.stringify(task));
-
     task.save(function(err, data) {
         if (err) {
             logger.error(err);
@@ -663,6 +733,18 @@ taskSchema.statics.getTaskById = function(taskId, callback) {
             callback(null, null);
         }
 
+    });
+};
+
+taskSchema.statics.updateTaskDetail = function(taskId,taskDetail,callback){
+    this.update({"_id": new ObjectId(taskId)},{$set:taskDetail},{upsert:false}, function(err, updateTask) {
+        if (err) {
+            logger.error(err);
+            var error = new Error('Internal server error');
+            error.status = 500;
+            return callback(error);
+        }
+        return callback(null, updateTask);
     });
 };
 
@@ -1007,28 +1089,33 @@ taskSchema.statics.updateTaskExecutionCount = function updateTaskExecutionCount(
 
 function filterScriptTaskData(data,callback){
     var taskList = [];
+    var cryptoConfig = appConfig.cryptoSettings;
+    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     for(var i = 0; i < data.length; i++){
         (function(task){
             if ((task.taskType === 'script')
                 && ('scriptDetails' in task.taskConfig)
                 && (task.taskConfig.scriptDetails.length > 0)) {
+                var scriptCount = 0;
                 for (var j = 0; j < task.taskConfig.scriptDetails.length; j++) {
                     (function (scriptTask) {
                         if (scriptTask.scriptParameters.length > 0) {
-                            var count = 0;
+                            scriptCount++;
                             for (var k = 0; k < scriptTask.scriptParameters.length; k++) {
-                                (function (params) {
-                                    count++;
-                                    scriptTask.scriptParameters[k] = '';
-                                    if (count === scriptTask.scriptParameters.length) {
-                                        taskList.push(task)
-                                    }
-                                })(scriptTask.scriptParameters[k]);
+                                if(scriptTask.scriptParameters[k].paramType === '' || scriptTask.scriptParameters[k].paramType === 'Default'  || scriptTask.scriptParameters[k].paramType === 'Password'){
+                                    scriptTask.scriptParameters[k].paramVal = cryptography.decryptText(scriptTask.scriptParameters[k].paramVal, cryptoConfig.decryptionEncoding,
+                                        cryptoConfig.encryptionEncoding);
+                                }else {
+                                    scriptTask.scriptParameters[k].paramVal = '';
+                                }
                             }
                         } else {
-                            taskList.push(task)
+                            scriptCount++;
                         }
                     })(task.taskConfig.scriptDetails[j]);
+                }
+                if(scriptCount === task.taskConfig.scriptDetails.length) {
+                    taskList.push(task);
                 }
             } else {
                 taskList.push(task);

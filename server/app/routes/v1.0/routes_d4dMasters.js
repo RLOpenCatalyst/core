@@ -1,12 +1,12 @@
 /*
  Copyright [2016] [Relevance Lab]
- 
+
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
- 
+
  http://www.apache.org/licenses/LICENSE-2.0
- 
+
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -159,12 +159,12 @@ module.exports.setRoutes = function (app, sessionVerification) {
         });
     });
     //d4dmasters/getdockertags/centos/null
-    app.get('/d4dmasters/getdockertags/:repopath/:dockerreponame', function (req, res) {
-        logger.debug("Enter get() for /d4dmasters/getdockertags/%s/%s", req.params.repopath, req.params.dockerreponame);
+    app.get('/d4dmasters/getdockertags', function (req, res) {
+        logger.debug("Enter get() for /d4dmasters/getdockertags/%s/%s", req.query.repopath, req.query.dockerreponame);
         //fetch the username and password from
         //Need to populate dockerrowid in template card. - done
         logger.debug('hit getdockertags');
-        configmgmtDao.getMasterRow(18, 'dockerreponame', req.params.dockerreponame, function (err, data) {
+        configmgmtDao.getMasterRow(18, 'dockerreponame', req.query.dockerreponame, function (err, data) {
             if (!err) {
                 logger.debug('data rcvd:' + data == '');
                 logger.debug(data);
@@ -188,7 +188,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
                 // Tried with http rest call but api did not working from docker side, so commenting and keeping old code: Gobinda
 
 
-                var dockerUrl = 'https://registry.hub.docker.com/v1/repositories/' + req.params.repopath.replace(/\$\$/g, '/') + '/tags';
+                var dockerUrl = 'https://registry.hub.docker.com/v1/repositories/' + req.query.repopath.replace(/\$\$/g, '/') + '/tags';
                 //https://index.docker.io/v1/repositories/
                 logger.debug('dockerurl:' + dockerUrl);
                 client.registerMethod("jsonMethod", dockerUrl, "GET");
@@ -216,10 +216,10 @@ module.exports.setRoutes = function (app, sessionVerification) {
     app.get('/d4dMasters/mastersjson', function (req, res) {
         logger.debug("Enter get() for /d4dMasters/mastersjson");
         res.send([{
-                name: 'master'
-            }, {
-                name: 'master2'
-            }]);
+            name: 'master'
+        }, {
+            name: 'master2'
+        }]);
         logger.debug("Exit get() for /d4dMasters/mastersjson");
     });
     //getAccessFilesForRole
@@ -253,10 +253,10 @@ module.exports.setRoutes = function (app, sessionVerification) {
         logger.debug("Enter get() for /d4dMasters/getuser : " + JSON.stringify(req.session.user));
         res.send({
             "user": [{
-                    username: req.session.user
-                }, {
-                    role: '[' + req.session.user.roleId + ']'
-                }]
+                username: req.session.user
+            }, {
+                role: '[' + req.session.user.roleId + ']'
+            }]
         });
         logger.debug("Exit get() for /d4dMasters/getuser");
     });
@@ -810,7 +810,48 @@ module.exports.setRoutes = function (app, sessionVerification) {
                             return;
                         });
 
-                    } else if (req.params.id === '6') {
+                    }  else if (req.params.id === '27') {
+                    // For BitBucket
+                    masterUtil.getBitbucket(orgList, function(err, bitbucketList) {
+                        if (err) {
+                            res.status(500).send('Not able to fetch Bitbucket.');
+                        }
+                        res.send(bitbucketList);
+                        return;
+                    });
+
+                } else if (req.params.id === '28') {
+                    // For Octopus
+                    masterUtil.getOctopus(orgList, function(err, octopusList) {
+                        if (err) {
+                            res.status(500).send('Not able to fetch Octopus.');
+                        }
+                        res.send(octopusList);
+                        return;
+                    });
+
+                } else if (req.params.id === '29') {
+                    // For QA Portal
+                    masterUtil.getFunctionalTest(orgList, function(err, functionaltestlist) {
+                        if (err) {
+                            res.status(500).send('Not able to fetch Functional Tests.');
+                        }
+                        res.send(functionaltestlist);
+                        return;
+                    });
+
+                }else if (req.params.id === '23') {
+                    // For Jira
+                    logger.debug("Entering getJira");
+                    masterUtil.getJira(orgList, function(err, jiraList) {
+                        if (err) {
+                            res.status(500).send('Not able to fetch Jira.');
+                        }
+                        res.send(jiraList);
+                        return;
+                    });
+
+                } else if (req.params.id === '6') {
                         // For User Role
                         masterUtil.getUserRoles(function (err, userRoleList) {
                             if (err) {
@@ -966,7 +1007,47 @@ module.exports.setRoutes = function (app, sessionVerification) {
                             return;
                         });
 
-                    } else if (req.params.id === '6') {
+                    } else if (req.params.id === '27') {
+                        // For Bitbucket
+                        masterUtil.getBitbucket(orgList, function(err, bitbucketList) {
+                            if (err) {
+                                res.status(500).send('Not able to fetch bitbucket.');
+                            }
+                            res.send(bitbucketList);
+                            return;
+                        });
+
+                    }else if (req.params.id === '28') {
+                        // For Octopus
+                        masterUtil.getOctopus(orgList, function(err, octopusList) {
+                            if (err) {
+                                res.status(500).send('Not able to fetch Octopus.');
+                            }
+                            res.send(octopusList);
+                            return;
+                        });
+
+                    }else if (req.params.id === '29') {
+                        // For QA Portal
+                        masterUtil.getFunctionalTest(orgList, function(err, functionaltestlist) {
+                            if (err) {
+                                res.status(500).send('Not able to fetch Functional Tests.');
+                            }
+                            res.send(functionaltestlist);
+                            return;
+                        });
+
+                    }else if (req.params.id === '23') {
+                        // For Jira
+                        masterUtil.getJira(orgList, function(err, jiraList) {
+                            if (err) {
+                                res.status(500).send('Not able to fetch Jira.');
+                            }
+                            res.send(jiraList);
+                            return;
+                        });
+
+                    }else if (req.params.id === '6') {
                         // For User Role
                         masterUtil.getUserRoles(function (err, userRoleList) {
                             if (err) {
@@ -2519,162 +2600,177 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                 if (!editMode) { //push new values only when not in edit mode
                                     // Start Auto create Team
                                     if (req.params.id === '1') {
-                                        var orgData = {
-                                            "orgname": bodyJson['orgname'],
-                                            "domainname": bodyJson['domainname'],
-                                            "rowid": bodyJson['rowid'],
-                                            "plannedCost": bodyJson['plannedCost'],
-                                            "id": "1"
-                                        }
-                                        var orgObj = new d4dModelNew.d4dModelMastersOrg(orgData);
-                                        orgObj.save(function (err, anOrg) {
+                                        d4dModelNew.d4dModelMastersOrg.find({
+                                            orgname: bodyJson["orgname"],
+                                            id:'1'
+                                        }, function (err, orgs) {
                                             if (err) {
-                                                res.status(500).send("Failed to save Org.");
+                                                logger.error('Hit error while check org is exist with Org Name', err);
+                                                res.send(500);
                                                 return;
-                                            }
-                                            async.parallel({
-                                                template: function (callback) {
-                                                    for (var x1 = 0; x1 < 6; x1++) {
-                                                        (function (x1) {
-                                                            var templatetypename;
-                                                            var designtemplateicon_filename;
-                                                            var templatetype;
-                                                            var providerType;
-                                                            if (x1 === 0) {
-                                                                templatetypename = "Docker";
-                                                                designtemplateicon_filename = "Docker.png";
-                                                                templatetype = "docker";
-                                                                providerType = ['aws', 'azure', 'openstack', 'vmware'];
-                                                            } else if (x1 === 1) {
-                                                                templatetypename = "OSImage";
-                                                                designtemplateicon_filename = "Desktop Provisining.png";
-                                                                templatetype = "ami";
-                                                                providerType = ['aws', 'azure', 'openstack', 'vmware'];
-                                                            } else if (x1 === 2) {
-                                                                templatetypename = "SoftwareStack";
-                                                                designtemplateicon_filename = "Appfactory.png";
-                                                                templatetype = "chef";
-                                                                providerType = ['aws', 'azure', 'openstack', 'vmware'];
-                                                            } else if (x1 === 3) {
-                                                                templatetypename = "CloudFormation";
-                                                                designtemplateicon_filename = "CloudFormation.png";
-                                                                templatetype = "cft";
-                                                                providerType = ['aws'];
-
-                                                            } else if (x1 === 4) {
-                                                                templatetypename = "ARMTemplate";
-                                                                designtemplateicon_filename = "CloudFormation.png";
-                                                                templatetype = "arm";
-                                                                providerType = ['azure'];
-                                                            } else {
-                                                                templatetypename = "Composite";
-                                                                designtemplateicon_filename = "composite.png";
-                                                                templatetype = "composite";
-                                                                providerType = ['aws'];
-                                                            }
-
-                                                            var templateTypeData = {
-                                                                "templatetypename": templatetypename,
-                                                                "orgname": bodyJson["orgname"],
-                                                                "orgname_rowid": bodyJson["rowid"],
-                                                                "rowid": uuid.v4(),
-                                                                "id": "16",
-                                                                "templatetype": templatetype,
-                                                                "providerType": providerType
-
-                                                            };
-
-                                                            var templateTypeModel = new d4dModelNew.d4dModelMastersDesignTemplateTypes(templateTypeData);
-                                                            templateTypeModel.save(function (err, aTemplateType) {
-                                                                if (err) {
-                                                                    logger.debug("Failed to save TemplateType.");
-                                                                }
-                                                                logger.debug("Default TemplateType created.");
-                                                                if (x1 === 5) {
-                                                                    callback(null, aTemplateType);
-                                                                    return;
-                                                                }
-                                                            });
-                                                        })(x1);
-                                                    }
-                                                },
-                                                team: function (callback) {
-                                                    for (var x = 0; x < 4; x++) {
-                                                        (function (x) {
-                                                            var teamName;
-                                                            var descriptions;
-                                                            if (x === 0) {
-                                                                teamName = bodyJson["orgname"] + "_Admins";
-                                                                descriptions = "Team For " + teamName;
-                                                            } else if (x === 1) {
-                                                                teamName = bodyJson["orgname"] + "_DEV";
-                                                                descriptions = "Team For " + teamName;
-                                                            } else if (x === 2) {
-                                                                teamName = bodyJson["orgname"] + "_QA";
-                                                                descriptions = "Team For " + teamName;
-                                                            } else {
-                                                                teamName = bodyJson["orgname"] + "_DevOps";
-                                                                descriptions = "Team For " + teamName;
-                                                            }
-
-                                                            var teamData = {
-                                                                "teamname": teamName,
-                                                                "description": descriptions,
-                                                                "orgname": bodyJson["orgname"],
-                                                                "orgname_rowid": bodyJson["rowid"],
-                                                                "rowid": uuid.v4(),
-                                                                "id": "21",
-                                                                "loginname": "",
-                                                                "loginname_rowid": "",
-                                                                "projectname": "",
-                                                                "projectname_rowid": ""
-
-                                                            };
-                                                            var teamModel = new d4dModelNew.d4dModelMastersTeams(teamData);
-                                                            teamModel.save(function (err, aTeam) {
-                                                                if (err) {
-                                                                    logger.debug("Failed to save Team.");
-                                                                }
-                                                                logger.debug("Auto created Team: ", JSON.stringify(aTeam));
-                                                                if (x === 3) {
-                                                                    callback(null, aTeam);
-                                                                    return;
-                                                                }
-                                                            });
-                                                        })(x);
-
-                                                    }
-                                                },
-                                                wizard: function (callback) {
-                                                    var settingWizardSteps = appConfig.settingWizardSteps;
-                                                    var currentStep = settingWizardSteps[1];
-                                                    if (currentStep.nestedSteps) {
-                                                        currentStep.nestedSteps[0].isCompleted = true;
-                                                    }
-                                                    var wizardBody = {
-                                                        orgId: bodyJson["rowid"],
-                                                        orgName: bodyJson["orgname"],
-                                                        previousStep: settingWizardSteps[0],
-                                                        currentStep: currentStep,
-                                                        nextStep: settingWizardSteps[2]
-                                                    }
-                                                    settingWizard.createSettingWizard(wizardBody, function (err, data) {
-                                                        if (err) {
-                                                            logger.debug("Failed to save Setting Wizard.");
-                                                        }
-                                                        logger.debug("Setting Wizard created.");
-                                                        callback(null, data);
+                                            } else if (orgs.length > 0) {
+                                                logger.error('Org Name already exists. Please enter different Org Name');
+                                                res.status(400).send("Org Name already exists.Please enter different Org Name");
+                                                return;
+                                            } else {
+                                                var orgData = {
+                                                    "orgname": bodyJson['orgname'],
+                                                    "domainname": bodyJson['domainname'],
+                                                    "rowid": bodyJson['rowid'],
+                                                    "plannedCost": bodyJson['plannedCost'],
+                                                    "id": "1"
+                                                }
+                                                var orgObj = new d4dModelNew.d4dModelMastersOrg(orgData);
+                                                orgObj.save(function (err, anOrg) {
+                                                    if (err) {
+                                                        res.status(500).send("Failed to save Org.");
                                                         return;
-                                                    });
-                                                }
-                                            }, function (err, results) {
-                                                if (err) {
-                                                    res.status(500).send("Failed to save template/Team/Wizard.");
-                                                    return;
-                                                }
-                                                res.send(200);
-                                                return;
-                                            })
+                                                    }
+                                                    async.parallel({
+                                                        template: function (callback) {
+                                                            for (var x1 = 0; x1 < 6; x1++) {
+                                                                (function (x1) {
+                                                                    var templatetypename;
+                                                                    var designtemplateicon_filename;
+                                                                    var templatetype;
+                                                                    var providerType;
+                                                                    if (x1 === 0) {
+                                                                        templatetypename = "Docker";
+                                                                        designtemplateicon_filename = "Docker.png";
+                                                                        templatetype = "docker";
+                                                                        providerType = ['aws', 'azure', 'openstack', 'vmware'];
+                                                                    } else if (x1 === 1) {
+                                                                        templatetypename = "OSImage";
+                                                                        designtemplateicon_filename = "Desktop Provisining.png";
+                                                                        templatetype = "ami";
+                                                                        providerType = ['aws', 'azure', 'openstack', 'vmware'];
+                                                                    } else if (x1 === 2) {
+                                                                        templatetypename = "SoftwareStack";
+                                                                        designtemplateicon_filename = "Appfactory.png";
+                                                                        templatetype = "chef";
+                                                                        providerType = ['aws', 'azure', 'openstack', 'vmware'];
+                                                                    } else if (x1 === 3) {
+                                                                        templatetypename = "CloudFormation";
+                                                                        designtemplateicon_filename = "CloudFormation.png";
+                                                                        templatetype = "cft";
+                                                                        providerType = ['aws'];
+
+                                                                    } else if (x1 === 4) {
+                                                                        templatetypename = "ARMTemplate";
+                                                                        designtemplateicon_filename = "CloudFormation.png";
+                                                                        templatetype = "arm";
+                                                                        providerType = ['azure'];
+                                                                    } else {
+                                                                        templatetypename = "Composite";
+                                                                        designtemplateicon_filename = "composite.png";
+                                                                        templatetype = "composite";
+                                                                        providerType = ['aws'];
+                                                                    }
+
+                                                                    var templateTypeData = {
+                                                                        "templatetypename": templatetypename,
+                                                                        "orgname": bodyJson["orgname"],
+                                                                        "orgname_rowid": bodyJson["rowid"],
+                                                                        "rowid": uuid.v4(),
+                                                                        "id": "16",
+                                                                        "templatetype": templatetype,
+                                                                        "providerType": providerType
+
+                                                                    };
+
+                                                                    var templateTypeModel = new d4dModelNew.d4dModelMastersDesignTemplateTypes(templateTypeData);
+                                                                    templateTypeModel.save(function (err, aTemplateType) {
+                                                                        if (err) {
+                                                                            logger.debug("Failed to save TemplateType.");
+                                                                        }
+                                                                        logger.debug("Default TemplateType created.");
+                                                                        if (x1 === 5) {
+                                                                            callback(null, aTemplateType);
+                                                                            return;
+                                                                        }
+                                                                    });
+                                                                })(x1);
+                                                            }
+                                                        },
+                                                        team: function (callback) {
+                                                            for (var x = 0; x < 4; x++) {
+                                                                (function (x) {
+                                                                    var teamName;
+                                                                    var descriptions;
+                                                                    if (x === 0) {
+                                                                        teamName = bodyJson["orgname"] + "_Admins";
+                                                                        descriptions = "Team For " + teamName;
+                                                                    } else if (x === 1) {
+                                                                        teamName = bodyJson["orgname"] + "_DEV";
+                                                                        descriptions = "Team For " + teamName;
+                                                                    } else if (x === 2) {
+                                                                        teamName = bodyJson["orgname"] + "_QA";
+                                                                        descriptions = "Team For " + teamName;
+                                                                    } else {
+                                                                        teamName = bodyJson["orgname"] + "_DevOps";
+                                                                        descriptions = "Team For " + teamName;
+                                                                    }
+
+                                                                    var teamData = {
+                                                                        "teamname": teamName,
+                                                                        "description": descriptions,
+                                                                        "orgname": bodyJson["orgname"],
+                                                                        "orgname_rowid": bodyJson["rowid"],
+                                                                        "rowid": uuid.v4(),
+                                                                        "id": "21",
+                                                                        "loginname": "",
+                                                                        "loginname_rowid": "",
+                                                                        "projectname": "",
+                                                                        "projectname_rowid": ""
+
+                                                                    };
+                                                                    var teamModel = new d4dModelNew.d4dModelMastersTeams(teamData);
+                                                                    teamModel.save(function (err, aTeam) {
+                                                                        if (err) {
+                                                                            logger.debug("Failed to save Team.");
+                                                                        }
+                                                                        logger.debug("Auto created Team: ", JSON.stringify(aTeam));
+                                                                        if (x === 3) {
+                                                                            callback(null, aTeam);
+                                                                            return;
+                                                                        }
+                                                                    });
+                                                                })(x);
+
+                                                            }
+                                                        },
+                                                        wizard: function (callback) {
+                                                            var settingWizardSteps = appConfig.settingWizardSteps;
+                                                            var currentStep = settingWizardSteps[1];
+                                                            if (currentStep.nestedSteps) {
+                                                                currentStep.nestedSteps[0].isCompleted = true;
+                                                            }
+                                                            var wizardBody = {
+                                                                orgId: bodyJson["rowid"],
+                                                                orgName: bodyJson["orgname"],
+                                                                previousStep: settingWizardSteps[0],
+                                                                currentStep: currentStep,
+                                                                nextStep: settingWizardSteps[2]
+                                                            }
+                                                            settingWizard.createSettingWizard(wizardBody, function (err, data) {
+                                                                if (err) {
+                                                                    logger.debug("Failed to save Setting Wizard.");
+                                                                }
+                                                                logger.debug("Setting Wizard created.");
+                                                                callback(null, data);
+                                                                return;
+                                                            });
+                                                        }
+                                                    }, function (err, results) {
+                                                        if (err) {
+                                                            res.status(500).send("Failed to save template/Team/Wizard.");
+                                                            return;
+                                                        }
+                                                        res.send(200);
+                                                        return;
+                                                    })
+                                                });
+                                            }
                                         });
                                     } else if (req.params.id === '7') {
                                         authUtil.hashPassword(bodyJson["password"], function (err, hashedPassword) {
@@ -2683,86 +2779,115 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                 res.send(500);
                                                 return;
                                             }
-                                            logger.debug("hashedPassword: ", hashedPassword);
                                             bodyJson["password"] = hashedPassword;
-                                            var userModel = new d4dModelNew.d4dModelMastersUsers(bodyJson);
-                                            userModel.save(function (err, data) {
+                                            d4dModelNew.d4dModelMastersUsers.find({
+                                                loginname: bodyJson["loginname"],
+                                                id: '7'
+                                            }, function (err, users) {
                                                 if (err) {
-                                                    logger.error('Hit Save error', err);
+                                                    logger.error('Hit error while check user is exist with Login Name', err);
                                                     res.send(500);
                                                     return;
-
-                                                }
-                                                var teamName = bodyJson["teamname"].split(",");
-                                                var rowId = bodyJson["teamname_rowid"].split(",");
-                                                for (var x = 0; x < rowId.length; x++) {
-                                                    d4dModelNew.d4dModelMastersTeams.find({
-                                                        rowid: rowId[x]
-                                                    }, function (err, teamData) {
+                                                } else if (users.length > 0) {
+                                                    logger.error('Login Name already exists. Please try to register with different Login Name');
+                                                    res.status(400).send("Login Name already exists.Please try to register with different Login Name");
+                                                    return;
+                                                } else {
+                                                    d4dModelNew.d4dModelMastersUsers.find({
+                                                        email: bodyJson["email"],
+                                                        id: '7'
+                                                    },function(err,usersList){
                                                         if (err) {
-                                                            logger.debug("Error : ", err);
-                                                        }
-                                                        teamData[0].loginname = teamData[0].loginname + "," + bodyJson["loginname"];
-                                                        teamData[0].loginname_rowid = teamData[0].loginname_rowid + "," + bodyJson["rowid"];
-                                                        if (teamData[0].loginname.length > 0 && teamData[0].loginname_rowid.length > 0) {
-                                                            if (teamData[0].loginname.substring(0, 1) == ',') {
-                                                                teamData[0].loginname = teamData[0].loginname.substring(1);
-                                                            }
-                                                            if (teamData[0].loginname_rowid.substring(0, 1) == ',') {
-                                                                teamData[0].loginname_rowid = teamData[0].loginname_rowid.substring(1);
-                                                            }
-                                                        }
-                                                        d4dModelNew.d4dModelMastersTeams.update({
-                                                            rowid: teamData[0].rowid
-                                                        }, {
-                                                            $set: JSON.parse(JSON.stringify(teamData[0]))
-                                                        }, {
-                                                            upsert: false
-                                                        }, function (err, updatedTeam) {
-                                                            if (err) {
-                                                                logger.debug("Failed to update Team: ", errorResponses.db.error);
-                                                            }
-                                                            logger.debug("Successfully Team updated with User.");
-                                                        });
-
-                                                    });
-                                                    if (x === rowId.length - 1) {
-                                                        if (bodyJson['orgname_rowid'] === '' || bodyJson['orgname_rowid'] === null) {
-                                                            res.send(200);
+                                                            logger.error('Hit error while check user is exist with email', err);
+                                                            res.send(500);
                                                             return;
-                                                        } else {
-                                                            settingWizard.getSettingWizardByOrgId(bodyJson['orgname_rowid'], function (err, settingWizards) {
+                                                        } else if (usersList.length > 0) {
+                                                            logger.error('Email Id already associated with different Login Name. Please enter different Email Id');
+                                                            res.status(400).send("Email Id already associated with different Login Name. Please enter different Email Id");
+                                                            return;
+                                                        }else{
+                                                            var userModel = new d4dModelNew.d4dModelMastersUsers(bodyJson);
+                                                            userModel.save(function (err, data) {
                                                                 if (err) {
-                                                                    logger.error('Hit getting setting wizard error', err);
+                                                                    logger.error('Hit Save error', err);
                                                                     res.send(500);
                                                                     return;
+
                                                                 }
-                                                                if (settingWizards.currentStep && settingWizards.currentStep.name === 'User Configuration') {
-                                                                    var settingWizardSteps = appConfig.settingWizardSteps;
-                                                                    settingWizards.currentStep.nestedSteps[1].isCompleted = true;
-                                                                    settingWizards.currentStep.isCompleted = true;
-                                                                    settingWizards.previousStep = settingWizards.currentStep;
-                                                                    settingWizards.currentStep = settingWizards.nextStep;
-                                                                    settingWizards.nextStep = settingWizardSteps[5];
-                                                                    settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                                                                var teamName = bodyJson["teamname"].split(",");
+                                                                var rowId = bodyJson["teamname_rowid"].split(",");
+                                                                for (var x = 0; x < rowId.length; x++) {
+                                                                    d4dModelNew.d4dModelMastersTeams.find({
+                                                                        rowid: rowId[x]
+                                                                    }, function (err, teamData) {
                                                                         if (err) {
-                                                                            logger.error('Hit getting setting wizard error', err);
-                                                                            res.send(500);
-                                                                            return;
+                                                                            logger.debug("Error : ", err);
                                                                         }
-                                                                        res.send(200);
-                                                                        return;
+                                                                        teamData[0].loginname = teamData[0].loginname + "," + bodyJson["loginname"];
+                                                                        teamData[0].loginname_rowid = teamData[0].loginname_rowid + "," + bodyJson["rowid"];
+                                                                        if (teamData[0].loginname.length > 0 && teamData[0].loginname_rowid.length > 0) {
+                                                                            if (teamData[0].loginname.substring(0, 1) == ',') {
+                                                                                teamData[0].loginname = teamData[0].loginname.substring(1);
+                                                                            }
+                                                                            if (teamData[0].loginname_rowid.substring(0, 1) == ',') {
+                                                                                teamData[0].loginname_rowid = teamData[0].loginname_rowid.substring(1);
+                                                                            }
+                                                                        }
+                                                                        d4dModelNew.d4dModelMastersTeams.update({
+                                                                            rowid: teamData[0].rowid
+                                                                        }, {
+                                                                            $set: JSON.parse(JSON.stringify(teamData[0]))
+                                                                        }, {
+                                                                            upsert: false
+                                                                        }, function (err, updatedTeam) {
+                                                                            if (err) {
+                                                                                logger.debug("Failed to update Team: ", errorResponses.db.error);
+                                                                            }
+                                                                            logger.debug("Successfully Team updated with User.");
+                                                                        });
+
                                                                     });
+                                                                    if (x === rowId.length - 1) {
+                                                                        if (bodyJson['orgname_rowid'] === '' || bodyJson['orgname_rowid'] === null) {
+                                                                            res.send(200);
+                                                                            return;
+                                                                        } else {
+                                                                            settingWizard.getSettingWizardByOrgId(bodyJson['orgname_rowid'], function (err, settingWizards) {
+                                                                                if (err) {
+                                                                                    logger.error('Hit getting setting wizard error', err);
+                                                                                    res.send(500);
+                                                                                    return;
+                                                                                } else if (settingWizards !== null && settingWizards.currentStep && settingWizards.currentStep.name === 'User Configuration') {
+                                                                                    var settingWizardSteps = appConfig.settingWizardSteps;
+                                                                                    settingWizards.currentStep.nestedSteps[1].isCompleted = true;
+                                                                                    settingWizards.currentStep.isCompleted = true;
+                                                                                    settingWizards.previousStep = settingWizards.currentStep;
+                                                                                    settingWizards.currentStep = settingWizards.nextStep;
+                                                                                    settingWizards.nextStep = settingWizardSteps[5];
+                                                                                    settingWizard.updateSettingWizard(settingWizards, function (err, data) {
+                                                                                        if (err) {
+                                                                                            logger.error('Hit getting setting wizard error', err);
+                                                                                            res.send(500);
+                                                                                            return;
+                                                                                        }
+                                                                                        res.send(200);
+                                                                                        return;
+                                                                                    });
+                                                                                } else {
+                                                                                    res.send(200);
+                                                                                    return;
+                                                                                }
+                                                                            })
+                                                                        }
+                                                                    }
                                                                 }
-                                                            })
+                                                            });
                                                         }
-                                                    }
+                                                    })
                                                 }
                                             });
                                         });
-
                                     } else if (req.params.id === '4') {
-                                        // bodyJson['repositories'] = JSON.parse(bodyJson['repositories']);
                                         var projectModel = new d4dModelNew.d4dModelMastersProjects(bodyJson);
                                         projectModel.save(function (err, data) {
                                             if (err) {
@@ -3974,10 +4099,10 @@ module.exports.setRoutes = function (app, sessionVerification) {
             dockerId: '18'
         };
         async.parallel({
-            server: function (callback) {
-                masterUtil.getServerDetails(jsonData, callback)
-            }
-        },
+                server: function (callback) {
+                    masterUtil.getServerDetails(jsonData, callback)
+                }
+            },
             function (err, results) {
                 if (err)
                     res.status(500).send("Internal Server Error");

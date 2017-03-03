@@ -9,7 +9,7 @@ var should = require("should");
 var xlsx = require('node-xlsx');
 var util = require('util'),
     fs = require('fs');
-var server = supertest.agent("http://localhost:3001");
+var server = supertest.agent("http://d4d.rlcatalyst.com");
 
 
 before(function(done){
@@ -59,18 +59,37 @@ describe("Deploy Permission ",function(){
             });
     });*/
 
-    it(" Save and Update deploy permission  ",function(done){
+    /*it(" Save Git Hub  ",function(done){
         var reqBody = {
-            "projectId": "b38ccedc-da2c-4e2c-a278-c66333564719",
-            "envName": "Dev",
-            "appName": "D4D",
-            "version": "3.02.100",
-            "comments":"Durgesh Sharma",
-            "isApproved": true
+            "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
+            "name": "RL-Bot-Library",
+            "description": "RL-BOTs Factory",
+            "repositoryName": "RLIndia/botsfactory",
+            "isAuthenticated":true,
+            "repositoryUserName": "Durgesh1988",
+            "repositoryPassword": "Durgesh@123"
 
         };
             server
-            .post('/deploy-permission/save/permissionData')
+            .post('/git-hub')
+            .send(reqBody)
+            .end(function(err,res){
+                console.log(res.body);
+                assert.equal(res.status, 201);
+                done();
+            });
+    });*/
+
+
+   /* it(" Create A New Org ",function(done){
+        var reqBody = {
+            "orgname":"DurgeshOrg",
+            "domainname":"Catalyst Organization",
+            "plannedCost":"1800",
+            "active":"true"
+        };
+        server
+            .post('/d4dMasters/savemasterjsonrownew/1/null/DurgeshOrg')
             .send(reqBody)
             .end(function(err,res){
                 console.log(res.body);
@@ -78,6 +97,47 @@ describe("Deploy Permission ",function(){
                 done();
             });
     });
+*/
+
+
+   it(" Delete A New Org ",function(done){
+        server
+            .get('/d4dMasters/removeitem/1/rowid/ef32efeb-5ce0-49bd-b7e2-66255e51e329')
+            .end(function(err,res){
+                assert.equal(res.status, 200);
+                done();
+            });
+    });
+    /*it(" Update Git Hub  ",function(done){
+        var reqBody = {
+            "orgId": "46d1da9a-d927-41dc-8e9e-7e926d927537",
+            "name": "Bot-Library-Catalyst",
+            "description": "BOTs Factory Catalyst",
+            "repositoryName": "RLIndia/botsfactory",
+            "isAuthenticated":true,
+            "repositoryUserName": "Durgesh1988",
+            "repositoryPassword": "Durgesh@123"
+
+        };
+        server
+            .put('/git-hub/5864e1a67beeb0fd27591e23')
+            .send(reqBody)
+            .end(function(err,res){
+                console.log(res);
+                assert.equal(res.status, 200);
+                done();
+            });
+    });
+
+    it(" Delete Git Hub  ",function(done){
+        server
+            .delete('/git-hub/5864e1a67beeb0fd27591e23')
+            .end(function(err,res){
+                console.log(res);
+                assert.equal(res.status, 200);
+                done();
+            });
+    });*/
 
 
 

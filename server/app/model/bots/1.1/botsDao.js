@@ -15,86 +15,66 @@
  */
 
 var mongoose = require('mongoose');
+var logger = require('_pr/logger')(module);
 var ObjectId = require('mongoose').Types.ObjectId;
 var mongoosePaginate = require('mongoose-paginate');
 var Schema = mongoose.Schema;
 
 var BotsSchema = new Schema ({
-    botId: {
+    name: {
         type: String,
         trim: true,
         required: true
     },
-    botName: {
+    id: {
         type: String,
         trim: true,
         required: true
     },
-    botType: {
+    gitHubId: {
         type: String,
         trim: true,
         required: true
     },
-    botCategory: {
+    type: {
         type: String,
         trim: true,
         required: true
     },
-    botDesc: {
+    category: {
         type: String,
         trim: true,
         required: true
     },
-    botsConfig:Schema.Types.Mixed,
-    runTimeParams:Schema.Types.Mixed,
-    masterDetails: {
-        orgName: {
-            type: String,
-            trim: true,
-            required: false
-        },
-        orgId: {
-            type: String,
-            trim: true,
-            required: false
-        },
-        bgName: {
-            type: String,
-            trim: true,
-            required: false
-        },
-        bgId: {
-            type: String,
-            trim: true,
-            required: false
-        },
-        projectName: {
-            type: String,
-            trim: true,
-            required: false
-        },
-        projectId: {
-            type: String,
-            trim: true,
-            required: false
-        },
-        envName: {
-            type: String,
-            trim: true,
-            required: false
-        },
-        envId: {
-            type: String,
-            trim: true,
-            required: false
-        }
+    desc: {
+        type: String,
+        trim: true,
+        required: true
     },
-    botLinkedCategory: {
+    orgId:{
+        type: String,
+        trim: true,
+        required: true
+    },
+    orgName:{
+        type: String,
+        trim: true,
+        required: true
+    },
+    inputFormFields:Schema.Types.Mixed,
+    outputOptions:Schema.Types.Mixed,
+    params:Schema.Types.Mixed,
+    ymlDocFilePath:{
         type: String,
         trim: true,
         required: false
     },
-    botLinkedSubCategory: {
+    ymlDocFileId : {
+        type: String,
+        trim: true,
+        required: false
+    },
+    scriptDocFilePath:{
         type: String,
         trim: true,
         required: false
@@ -107,11 +87,11 @@ var BotsSchema = new Schema ({
         type: Number,
         default: 0
     },
-    isBotScheduled: {
+    isScheduled: {
         type: Boolean,
         default: false
     },
-    botScheduler:{
+    scheduler:{
         cronStartOn: {
             type: String,
             required: false,
@@ -175,7 +155,7 @@ var BotsSchema = new Schema ({
     isDeleted: {
         type: Boolean,
         default: false
-    },
+    }
 });
 BotsSchema.plugin(mongoosePaginate);
 
@@ -193,7 +173,7 @@ BotsSchema.statics.createNew = function(botsDetail,callback){
     });
 }
 BotsSchema.statics.updateBotsDetail = function(botId,botsDetail,callback){
-    Bots.update({botId:botId},{$set:botsDetail},{upsert:false}, function(err, updateBotDetail) {
+    Bots.update({_id:ObjectId(botId)},{$set:botsDetail},{upsert:false}, function(err, updateBotDetail) {
         if (err) {
             logger.error(err);
             var error = new Error('Internal server error');
@@ -218,7 +198,7 @@ BotsSchema.statics.getBotsList = function(botsQuery,callback){
 };
 
 BotsSchema.statics.getBotsById = function(botId,callback){
-    Bots.find({botId:botId}, function(err, bots) {
+    Bots.find({_id:ObjectId(botId)}, function(err, bots) {
         if (err) {
             logger.error(err);
             var error = new Error('Internal server error');
@@ -232,8 +212,23 @@ BotsSchema.statics.getBotsById = function(botId,callback){
     });
 };
 
-BotsSchema.statics.getAllBots = function(callback){
-    Bots.find({isDeleted:false}, function(err, bots) {
+BotsSchema.statics.getBotsByGitHubId = function(gitHubId,callback){
+    Bots.find({gitHubId:gitHubId}, function(err, bots) {
+        if (err) {
+            logger.error(err);
+            var error = new Error('Internal server error');
+            error.status = 500;
+            return callback(error);
+        }else if(bots.length > 0){
+            return callback(null, bots);
+        }else{
+            return callback(null, []);
+        }
+    });
+};
+
+BotsSchema.statics.getAllBots = function(queryParam,callback){
+    Bots.find(queryParam, function(err, bots) {
         if (err) {
             logger.error(err);
             var error = new Error('Internal server error');
@@ -248,7 +243,20 @@ BotsSchema.statics.getAllBots = function(callback){
 };
 
 BotsSchema.statics.removeBotsById = function(botId,callback){
-    Bots.remove({botId:botId}, function(err, bots) {
+    Bots.remove({_id:ObjectId(botId)}, function(err, bots) {
+        if (err) {
+            logger.error(err);
+            var error = new Error('Internal server error');
+            error.status = 500;
+            return callback(error);
+        }else {
+            return callback(null, bots);
+        }
+    });
+};
+
+BotsSchema.statics.removeBotsByGitHubId = function(gitHubId,callback){
+    Bots.remove({gitHubId:gitHubId}, function(err, bots) {
         if (err) {
             logger.error(err);
             var error = new Error('Internal server error');
@@ -261,7 +269,7 @@ BotsSchema.statics.removeBotsById = function(botId,callback){
 };
 
 BotsSchema.statics.removeSoftBotsById = function(botId,callback){
-    Bots.update({botId:botId},{$set:{isDeleted:true}}, function(err, bots) {
+    Bots.update({_id:ObjectId(botId)},{$set:{isDeleted:true}}, function(err, bots) {
         if (err) {
             logger.error(err);
             var error = new Error('Internal server error');
@@ -275,7 +283,7 @@ BotsSchema.statics.removeSoftBotsById = function(botId,callback){
 
 BotsSchema.statics.updateBotsExecutionCount = function updateBotsExecutionCount(botId,count,callback) {
     Bots.update({
-        botId: botId,
+        _id:ObjectId(botId),
     }, {
         $set: {
             executionCount: count
@@ -293,7 +301,8 @@ BotsSchema.statics.updateBotsExecutionCount = function updateBotsExecutionCount(
 
 BotsSchema.statics.getScheduledBots = function getScheduledBots(callback) {
     Bots.find({
-        isBotScheduled: true
+        isScheduled: true,
+        isDeleted:false
     }, function (err, bots) {
         if (err) {
             logger.error(err);
@@ -305,7 +314,7 @@ BotsSchema.statics.getScheduledBots = function getScheduledBots(callback) {
 
 BotsSchema.statics.updateCronJobIdByBotId = function updateCronJobIdByBotId(botId, cronJobId, callback) {
     Bots.update({
-        "_id": new ObjectId(botId),
+        "_id": ObjectId(botId),
     }, {
         $set: {
             cronJobId: cronJobId
@@ -323,10 +332,10 @@ BotsSchema.statics.updateCronJobIdByBotId = function updateCronJobIdByBotId(botI
 
 BotsSchema.statics.updateBotsScheduler = function updateBotsScheduler(botId, callback) {
     Bots.update({
-        "_id": new ObjectId(botId),
+        "_id": ObjectId(botId),
     }, {
         $set: {
-            isBotBScheduled: false
+            isScheduled: false
         }
     }, {
         upsert: false
@@ -339,5 +348,5 @@ BotsSchema.statics.updateBotsScheduler = function updateBotsScheduler(botId, cal
     });
 };
 
-var Bots = mongoose.model('bots', BotsSchema);
+var Bots = mongoose.model('botsnew', BotsSchema);
 module.exports = Bots;

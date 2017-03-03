@@ -1,7 +1,7 @@
 var logger = require('_pr/logger')(module);
 var instancesDao = require('_pr/model/classes/instance/instance');
 var taskDao = require('_pr/model/classes/tasks/tasks.js');
-var botsDao = require('_pr/model/bots/bots.js');
+var botsDao = require('_pr/model/bots/1.0/bots.js');
 var schedulerService = require('_pr/services/schedulerService');
 var async = require('async');
 var cronTab = require('node-crontab');
@@ -87,43 +87,6 @@ catalystSync.executeParallelScheduledTasks = function executeParallelScheduledTa
     });
 }
 
-catalystSync.executeParallelScheduledTasks = function executeParallelScheduledTasks() {
-    taskDao.getScheduledTasks('PARALLEL',function(err, tasks) {
-        if (err) {
-            logger.error("Failed to fetch tasks: ", err);
-            return;
-        }
-        if (tasks && tasks.length) {
-            var parallelTaskList=[];
-            for (var i = 0; i < tasks.length; i++) {
-                (function(task) {
-                    if(task.cronJobId && task.cronJobId !== null){
-                        cronTab.cancelJob(task.cronJobId);
-                    }
-                    parallelTaskList.push(function(callback){schedulerService.executeParallelScheduledTasks(task,callback);});
-                    if(parallelTaskList.length === tasks.length){
-                        if(parallelTaskList.length > 0) {
-                            async.parallel(parallelTaskList, function (err, results) {
-                                if (err) {
-                                    logger.error(err);
-                                    return;
-                                }
-                                logger.debug("Task Scheduler Completed for Parallel");
-                                return;
-                            })
-                        }else{
-                            logger.debug("There is no Parallel scheduled Task right now.");
-                            return;
-                        }
-                    }
-                })(tasks[i]);
-            }
-        }else{
-            logger.debug("There is no Parallel scheduled Task right now.");
-            return;
-        }
-    });
-}
 
 catalystSync.executeSerialScheduledTasks = function executeSerialScheduledTasks() {
     taskDao.getScheduledTasks('SERIAL',function(err, tasks) {

@@ -30,15 +30,21 @@
 			$scope.getMonitorList = function(orgId) {
 				workzoneServices.getMonitorList(orgId).then(function (response) {		
 			        $scope.monitorList = response.data;
+			        for(var i=0; i<$scope.monitorList.length; i++){
+			        	if($scope.monitorList[i].isDefault){
+			        		$scope.monitorId = $scope.monitorList[i]._id;
+			        		break;
+			        	}
+			        }
 				});
-			}
+			};
 			genericServices.getTreeNew().then(function (envData) {
 				angular.forEach(envData,function(val){
 					var orgID,bgID,projID;
 					if(items.organizationId === undefined) {
-						orgID = (items.orgId)?items.orgId:items.organization.id;
-			        	bgID = (items.bgId)?items.bgId:items.businessGroup.id;
-			        	projID = (items.projectId)?items.projectId:items.project.id;
+						orgID = (items.orgId)?items.orgId:items.masterDetails.orgId;
+			        	bgID = (items.bgId)?items.bgId:items.masterDetails.bgId;
+			        	projID = (items.projectId)?items.projectId:items.masterDetails.projectId;
 			        	$scope.getMonitorList(orgID);
 					} else {
 						orgID = items.organizationId;
@@ -75,8 +81,14 @@
 			$scope.cancel = function() {
 				$modalInstance.dismiss('cancel');
 			};
+			$scope.monitorIdCheck = function() {
+				if($scope.monitorId === 'null') {
+	                $scope.monitorId = null;
+	            }
+			};
 			$scope.launchBP = function() {
-				if(items.orgId === undefined){
+				$scope.monitorIdCheck();
+				if(items.orgId === undefined && items.botType === undefined){
 					var compBlue={
 						"blueprintId": (items.id)?items.id:items._id,
 						"environmentId": $scope.envSeleted
@@ -88,21 +100,24 @@
                         toastr.error(data.message, 'Error');
 					});
 				} else {
-					if(items.blueprintType === "aws_cf") {
+					if(items.blueprintType === "aws_cf" || items.botLinkedSubCategory === "aws_cf") {
 						$scope.showCFTInputs = true;
-					}else if(items.blueprintType === "azure_arm") {
+					}else if(items.blueprintType === "azure_arm" || items.botLinkedSubCategory === "azure_arm") {
 						$scope.showARMInputs = true;
 					}else if(items.domainNameCheck === true || items.domainNameCheck === "true") {
 						$scope.showBlueprintInputs = true;
 					}else {
+						console.log("Durgesh");
 						launchHelper.launch();
 					}
 				}
 			};
 			$scope.cftSubmitHandler = function(){
+				$scope.monitorIdCheck();
 				launchHelper.launch();
 			};
 			$scope.launchBPWithDomainName = function(){
+				$scope.monitorIdCheck();
 				launchHelper.launch();
 			};
 		}

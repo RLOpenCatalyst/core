@@ -28,18 +28,12 @@ var angularApp = angular.module('catapp', ['ui.router','ngTouch','toastr',
 	'ui.grid.resizeColumns',
 	'global.uiGridOptions',
 	'global.messages',
-	'ui.grid.selection'
+	'ui.grid.selection','ui.grid.cellNav'
 ]);
 
 angularApp.run(['$rootScope', 'auth', '$state', '$stateParams','$http','$window',
 	function ($rootScope, Auth, $state, $stateParams,$http) {
 		'use strict';
-		$http.get('/organizations/getTreeNew').success(function () {
-			// if(result.data && result.data.length >0){
-			// 	console.log(result);
-			// 	$window.location.href="/private/index.html#ajax/Settings/Dashboard.html";
-			// }
-		});
 		$rootScope.$on('$stateChangeStart', function (event, toState) {
 			//More function params: function (event, toState, toParams, fromState, fromParams)
 			function checkAuthentication() {
