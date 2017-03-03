@@ -68,8 +68,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     var recordCount = result.metaData.totalRecords;
                     for(var i = 0; i<recordCount; i++) {
                         result.bots[i].isBotNew = true;
+                        data.bots.push(result.bots[i]);
                     }
-                    data.bots.push(result.bots);
+                    
                     data.metaData.totalRecords += result.metaData.totalRecords;
                 }
                 return res.status(200).send(data);
