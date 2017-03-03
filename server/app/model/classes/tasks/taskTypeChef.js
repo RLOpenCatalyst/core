@@ -202,7 +202,6 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
 
         var instanceIds = this.nodeIds;
 
-
         function getInstances(role, instanceIds, tagServer, callback) {
             if (role) {
                 configmgmtDao.getChefServerDetailsByOrgname(self.orgId, function(err, chefDetails) {
@@ -289,9 +288,20 @@ chefTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, appDat
                     callback(null, instances);
                 });
 
-            } else {
+            } else if(tagServer){
                 logger.debug('in tagServer', tagServer);
                 instancesDao.getInstancesByTagServer(tagServer, function (err, instances) {
+                    if (err) {
+                        logger.error(err);
+                        if (typeof onExecute === 'function') {
+                            onExecute(err, null);
+                        }
+                        return;
+                    }
+                    callback(null, instances);
+                });
+            }else{
+                instancesDao.getInstances(instanceIds, function (err, instances) {
                     if (err) {
                         logger.error(err);
                         if (typeof onExecute === 'function') {

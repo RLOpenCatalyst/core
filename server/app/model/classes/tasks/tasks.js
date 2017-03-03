@@ -365,7 +365,7 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                 });
             });
         }
-        if (taskHistoryData.taskType === TASK_TYPE.CHEF_TASK && self.botParams.cookbookAttributes) {
+        if (taskHistoryData.taskType === TASK_TYPE.CHEF_TASK && self.botParams && self.botParams.cookbookAttributes) {
             var taskConfig = self.taskConfig;
             taskConfig.attributes=self.botParams.cookbookAttributes;
             Tasks.update({
@@ -443,7 +443,7 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                 "auditTrailConfig.jenkinsJobName":taskHistory.jobName,
                 "auditTrailConfig.jobResultURL":taskHistory.jobResultURL
             };
-        }else{
+        }else if(taskHistory){
             resultTaskExecution = {
                 "actionStatus":self.lastTaskStatus,
                 "status":self.lastTaskStatus,
@@ -452,7 +452,7 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                 "auditTrailConfig.nodeIdsWithActionLog":taskHistory.nodeIdsWithActionLog
             };
         }
-        if(taskHistory.id){
+        if(taskHistory && taskHistory.id){
             resultTaskExecution.auditHistoryId=taskHistory.id;
         }
         if(auditTrailId !== null && resultTaskExecution !== null){

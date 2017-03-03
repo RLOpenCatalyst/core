@@ -461,7 +461,23 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     });
                     return;
                 }
-                res.send(200, history);
+                if(history.nodeIds && history.nodeIds.length && history.nodeIdsWithActionLog && history.nodeIdsWithActionLog.length){
+                    var nodes = [];
+                    var count=0;
+                    for(var i=0; i< history.nodeIds.length; i++){
+                        for(var j=0; j<history.nodeIdsWithActionLog.length; j++){
+                            if(history.nodeIds[i] == history.nodeIdsWithActionLog[j].nodeId){
+                                nodes.push(history.nodeIdsWithActionLog[j]);
+                            }
+                        }
+                        count++;
+                    }
+                    if(count === history.nodeIds.length){
+                        history.nodeIdsWithActionLog = nodes;
+                        return res.send(200, history);
+                    }
+                }
+                return res.send(200, history);
             });
         });
     });
