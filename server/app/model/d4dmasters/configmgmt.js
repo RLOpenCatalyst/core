@@ -121,6 +121,11 @@ function Configmgmt() {
                 logger.log('Exting getDBModelFromID ' + id.toString());
                 callback(null, 'd4dModelFunctionalTestConfig');
                 break;
+            case "30":
+                logger.log('Exting getDBModelFromID ' + id.toString());
+                callback(null, 'd4dModelMastersCICDDashboard');
+                break;
+                
         }
     };
 
@@ -206,6 +211,10 @@ function Configmgmt() {
             case "29":
                 logger.log('Exting getDBModelFromID ' + id.toString());
                 return ('fuctionaltestserver');
+                break;
+            case "30":
+                logger.log('Exting getDBModelFromID ' + id.toString());
+                return ('cicddashboard');
                 break;
 
         };

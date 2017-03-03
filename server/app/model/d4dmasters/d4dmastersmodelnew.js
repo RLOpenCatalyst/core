@@ -1502,6 +1502,63 @@ var d4dMastersNexusServer = new mongoose.Schema({
 var d4dModelMastersNexusServer = mongoose.model('d4dModelMastersNexusServer', d4dMastersNexusServer, 'd4dmastersnew');
 
 
+var d4dMastersCICDDashboard = new mongoose.Schema({
+    id: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    dashboardName: {
+        type: String,
+        trim: true,
+        validate: nameValidator
+    },
+    orgname: {
+        type: [String],
+        required: true,
+        trim: true,
+        validate: nameValidator
+    },
+    orgname_rowid: {
+        type: [String],
+        trim: true
+    },
+    projectname: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    projectname_rowid: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    
+    orgrowid: {
+        type: String,
+        trim: true
+    },
+    dashboardId: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    dashboardUrl: {
+        type: String,
+        required: true,
+        trim: true
+    },
+
+    rowid: {
+        type: String,
+        required: true,
+        trim: true
+    }
+}, {
+    collection: 'd4dmastersnew'
+});
+var d4dModelMastersCICDDashboard = mongoose.model('d4dModelMastersCICDDashboard', d4dMastersCICDDashboard, 'd4dmastersnew');
+
 module.exports = d4dModelNew;
 module.exports.d4dModelMastersOrg = d4dModelMastersOrg;
 module.exports.d4dModelMastersProductGroup = d4dModelMastersProductGroup;
@@ -1528,3 +1585,4 @@ module.exports.d4dModelMastersNexusServer = d4dModelMastersNexusServer;
 module.exports.d4dModelBitbucketConfig = d4dModelBitbucketConfig;
 module.exports.d4dModelOctopusConfig = d4dModelOctopusConfig;
 module.exports.d4dModelFunctionalTestConfig = d4dModelFunctionalTestConfig;
+module.exports.d4dModelMastersCICDDashboard = d4dModelMastersCICDDashboard;
