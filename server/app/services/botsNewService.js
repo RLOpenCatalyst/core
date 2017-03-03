@@ -25,6 +25,8 @@ var appConfig = require('_pr/config');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
 var auditTrailService = require('_pr/services/auditTrailService.js');
 var executor = require('_pr/engine/bots/executor.js');
+var logsDao = require('_pr/model/dao/logsdao.js');
+
 const fileHound= require('filehound');
 const yamlJs= require('yamljs');
 const gitHubService = require('_pr/services/gitHubService.js');
@@ -64,6 +66,8 @@ botsNewService.removeBotsById = function removeBotsById(botId,callback){
         return;
     });
 }
+
+botsNewService.getBotsLogsByReferenceId =  function(botId,actionId,timeStamp,callback){    async.waterfall([        function(next){           botsDao.getBotsById(botId,next);        },        function(botsList,next){            if(botsList.length > 0){                logsDao.getLogsByReferenceId(actionId, timeStamp,next)            }else{                next({errCode:401,errMsg : "Bots is not available there"},null);            }        }    ],function(err,result){        if(err){            callback(err,null);            return;        }else{            callback(null,result);            return;        }    });};
 
 botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,callback) {
     var reqData = {};

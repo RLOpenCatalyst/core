@@ -21,7 +21,7 @@
             } 
 
             $scope.botDetail = items;
-            $scope.botId = items.botId;
+            $scope.botId = items._id;
             
             var botHistoryGrid = uiGridOptionsService.options();
             $scope.paginationParams = botHistoryGrid.pagination;
@@ -75,7 +75,7 @@
                         };
                     }else{
                         param = {
-                            url: '/botsNew/' + $scope.botId + '/bots-history?page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                            url: '/botsNew/' + $scope.botId + '/bots-history'
                         };
                     }
                     $scope.taskHistoryData.data = [];
@@ -83,7 +83,8 @@
                         $timeout(function() {
                             if (response.botHistory) {
                                 $scope.taskHistoryData.data = response.botHistory;
-                                var bpcolumnDefs = [];
+                                console.log($scope.taskHistoryData.data);
+                                /*var bpcolumnDefs = [];
                                 angular.forEach($scope.taskHistoryData.data, function(val){
                                     var auditType = val.auditTrailConfig.executionType;
                                     if(auditType === 'chef' || auditType === 'script') {
@@ -133,7 +134,7 @@
                                 $scope.taskHistoryData.columnDefs = bpcolumnDefs;
                                 angular.extend($scope.taskHistoryData,botHistoryGrid.gridOption);
                                 $scope.ischefTaskHistoryPageLoading = false;
-                                $scope.taskHistoryData.totalItems = response.metaData.totalRecords;
+                                $scope.taskHistoryData.totalItems = response.metaData.totalRecords;*/
                             } else if (response) {
                                 $scope.taskHistoryData = response;
                                 $scope.ischefTaskHistoryPageLoading = false;

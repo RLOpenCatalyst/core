@@ -14,7 +14,7 @@
 // The file contains all the end points for AppDeploy
 
 var logger = require('_pr/logger')(module);
-var	botsNewService = require('_pr/services/botsNewService.js');
+var    botsNewService = require('_pr/services/botsNewService.js');
 
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
@@ -75,7 +75,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             if (err) {
                 return res.status(500).send(err);
             } else {
-                return res.status(200).send(data[0]);
+                return res.status(200).send(data);
             }
         })
     });

@@ -212,7 +212,24 @@
                         return task;
                     }
                 }
-            }).result.then(function(response) {
+            }).result.then(function(botResult) {
+                console.log(botResult);
+                $modal.open({
+                        animate: true,
+                        templateUrl: "src/partials/sections/dashboard/bots/view/botExecutionLogs.html",
+                        controller: "botsExecutionLogsCtrl",
+                        backdrop: 'static',
+                        keyboard: false,
+                        resolve: {
+                            items: function() {
+                                return botResult
+                            }
+                        }
+                    }).result.then(function() {
+                        console.log('The modal close is not getting invoked currently. Goes to cancel handler');
+                    }, function() {
+                        console.log('Cancel Handler getting invoked');
+                    });
             }, function() {
             });
         };

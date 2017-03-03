@@ -55,7 +55,7 @@
                 };
                 confirmbox.showModal({}, modalOptions).then(function() {
                     var param={
-                        url:'/bots/' + bot.botId
+                        url:'/botsNew/' + bot.botId
                     };
                     genSevs.promiseDelete(param).then(function (response) {
                         if (response) {
