@@ -303,61 +303,64 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                 rowid: {
                                     $in: masterDetailList[0].bunits
                                 }
-                            }, function (err, bgList) {
+                            },function (err, bgList) {
                                 if (err) {
                                     next(err);
                                 } else if (bgList.length > 0) {
                                     orgCount++;
-                                    for (var j = 0; j < bgList.length; j++) {
-                                        (function (bg) {
-                                            var bgObj = {
-                                                name: bg.productgroupname,
-                                                text: bg.productgroupname,
-                                                rowid: bg.rowid,
-                                                href: 'javascript:void(0)',
-                                                projects: []
+                                    async.forEach(bgList, function (bg, next0) {
+
+                                        var bgObj = {
+                                            name: bg.productgroupname,
+                                            text: bg.productgroupname,
+                                            rowid: bg.rowid,
+                                            href: 'javascript:void(0)',
+                                            projects: []
+                                        };
+                                        var nodeObj = {
+                                            name: bg.productgroupname,
+                                            text: bg.productgroupname,
+                                            orgname: org.name,
+                                            orgid: org.rowid,
+                                            icon: 'fa fa-fw fa-1x fa-group',
+                                            rowid: bg.rowid,
+                                            borderColor: '#000',
+                                            href: 'javascript:void(0)',
+                                            nodes: [],
+                                            selectable: false,
+                                            itemtype: 'bg',
+                                            projects: []
+                                        };
+                                        org.businessGroups.push(bgObj);
+                                        org.nodes.push(nodeObj);
+                                        bgObjList.push(bgObj);
+                                        syncWorkZoneTreeWithProjectAndEnv(org.rowid, org.name, bg.rowid, bg.productgroupname, function (err, data) {
+                                            if (err) {
+                                                next(err);
                                             }
-                                            var nodeObj = {
-                                                name: bg.productgroupname,
-                                                text: bg.productgroupname,
-                                                orgname: org.name,
-                                                orgid: org.rowid,
-                                                icon: 'fa fa-fw fa-1x fa-group',
-                                                rowid: bg.rowid,
-                                                borderColor: '#000',
-                                                href: 'javascript:void(0)',
-                                                nodes: [],
-                                                selectable: false,
-                                                itemtype: 'bg',
-                                                projects: []
+                                            if (data.projectObj) {
+                                                bgObj.projects = data.projectObj;
+                                                nodeObj.projects = data.projectObj;
                                             }
-                                            syncWorkZoneTreeWithProjectAndEnv(org.rowid, org.name, bg.rowid, bg.productgroupname, function (err, data) {
-                                                if (err) {
-                                                    next(err);
-                                                }
-                                                if (data.projectObj) {
-                                                    bgObj.projects = data.projectObj;
-                                                    nodeObj.projects = data.projectObj;
-                                                }
-                                                if (data.projectNodeObj) {
-                                                    nodeObj.nodes = data.projectNodeObj;
-                                                }
-                                                org.businessGroups.push(bgObj);
-                                                org.nodes.push(nodeObj);
-                                                bgObjList.push(bgObj);
-                                                if (orgCount === orgTree.length && bgObjList.length === bgList.length) {
-                                                    next(null, orgTree);
-                                                }
-                                            })
-                                        })(bgList[j]);
-                                    }
+                                            if (data.projectNodeObj) {
+                                                nodeObj.nodes = data.projectNodeObj;
+                                            }
+                                            next0();
+                                        });
+                                    }, function (err) {
+                                        if (err) {
+                                            next(err);
+                                        } else {
+                                            next(null, orgTree);
+                                        }
+                                    });
                                 } else {
                                     orgCount++;
                                     if (orgCount === orgTree.length && bgObjList.length === bgList.length) {
                                         next(null, orgTree);
                                     }
                                 }
-                            })
+                            });
                         })(orgTree[i]);
                     }
                 } else {
@@ -384,7 +387,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                         var envObj = {
                                             name: envList[j].environmentname,
                                             rowid: envList[j].rowid
-                                        }
+                                        };
                                         orgTree.environments.push(envObj);
                                         envObjList.push(envObj);
                                         if (orgCount === orgBgProjectTree.length && envObjList.length === envList.length) {
@@ -957,15 +960,15 @@ module.exports.setRoutes = function (app, sessionVerification) {
                             AzureArm.findByOrgBgProjectAndEnvId(jsonData, callback);
                         }
                     },
-                            function (err, results) {
-                                if (err) {
-                                    res.status(500).send("Internal Server Error");
-                                } else if (!results) {
-                                    res.status(400).send("Data Not Found");
-                                } else {
-                                    res.status(200).send(results);
-                                }
+                        function (err, results) {
+                            if (err) {
+                                res.status(500).send("Internal Server Error");
+                            } else if (!results) {
+                                res.status(400).send("Data Not Found");
+                            } else {
+                                res.status(200).send(results);
                             }
+                        }
                     );
 
                 } else {
@@ -1097,7 +1100,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
                     for (var j = 0; j < paramDetail.scriptParameters.length; j++) {
                         (function (scriptParameter) {
                             var encryptedText = cryptography.encryptText(scriptParameter.paramVal, cryptoConfig.encryptionEncoding,
-                                    cryptoConfig.decryptionEncoding);
+                                cryptoConfig.decryptionEncoding);
                             encryptedList.push({
                                 paramVal: encryptedText,
                                 paramDesc: scriptParameter.paramDesc,
@@ -1180,16 +1183,16 @@ module.exports.setRoutes = function (app, sessionVerification) {
             function (armsData, next) {
                 apiUtil.paginationResponse(armsData, reqData, next);
             }],
-                function (err, results) {
-                    if (err) {
-                        res.send({
-                            "errorCode": 500,
-                            "message": "Error occured while fetching Azure."
-                        });
-                    } else {
-                        return res.send(results);
-                    }
-                });
+            function (err, results) {
+                if (err) {
+                    res.send({
+                        "errorCode": 500,
+                        "message": "Error occured while fetching Azure."
+                    });
+                } else {
+                    return res.send(results);
+                }
+            });
     }
 
     app.get('/organizations/:orgId/businessgroups/:bgId/projects/:projectId/environments/:envId/containerList', validate(orgValidator.get), getContainerList);
@@ -2228,15 +2231,15 @@ module.exports.setRoutes = function (app, sessionVerification) {
                             AzureArm.findByOrgBgProjectAndEnvId(jsonData, callback);
                         }
                     },
-                            function (err, results) {
-                                if (err) {
-                                    res.status(500).send("Internal Server Error");
-                                } else if (!results) {
-                                    res.status(400).send("Data Not Found");
-                                } else {
-                                    res.status(200).send(results);
-                                }
+                        function (err, results) {
+                            if (err) {
+                                res.status(500).send("Internal Server Error");
+                            } else if (!results) {
+                                res.status(400).send("Data Not Found");
+                            } else {
+                                res.status(200).send(results);
                             }
+                        }
                     );
 
                 } else {
