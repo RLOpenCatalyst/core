@@ -3,7 +3,7 @@
 <div class="row">
     <div class="col-md-12">
         <div class="col-md-12">
-            <form action="" id="myForm3">
+            <form id="dashboard-create" >
                 <div class="widget-box">
                     <div class="widget-header">
                         <h4 class="widget-margin" style="color:black;">Create CICD Dashboard</h4>
@@ -25,7 +25,7 @@
                                                         <label for="name">Name:<span class="control-label redSpan">&nbsp;*</span></label>
                                                         <label id="msgOrgName" style="display:none;color:red;float:right;">Required</label>
                                                         <br>
-                                                        <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardname" class="form-control" type="text" cdata="catalyst" cat-validation="required,nospecial,max15,nospace">
+                                                        <input autofocus name="dashboardName" value="" id="dashboardname" class="form-control" type="text" cdata="catalyst" cat-validation="required,nospecial,max15,nospace">
                                                     </div>
                                                     <div class="col-lg-6 col-md-6">
                                                         <label for="">Organization:<span class="control-label redSpan">&nbsp;*</span></label>
@@ -149,7 +149,7 @@
                             <a class="btn btn-default" onclick="window.history.back();" style="margin-right:11px;" id="btncancel">
                                 <i class="ace-icon fa fa-times bigger-110"></i> Cancel
                             </a>
-                            <button class="btn btn-primary btn-mini" onclick="saveCicdDashboard()" id="savecreateProjectbtn">
+                            <button type="button" class="btn btn-primary btn-mini" onclick="saveCicdDashboard()" id="savecreateProjectbtn">
                             <i class="ace-icon fa fa-check bigger-110"></i>
                             Save
                             </button>
@@ -162,45 +162,46 @@
 </div>
 
 <script>
-var url='';
+var dashboardURL='';
+var collecterId=[];
+var dashboardFrom=null;
 function dashboardurl(val) {
-    //dashboardurlV = val.value;
-    url = val.value;
-    /*$.get('/private/ajax/Settings/dashboardurl.xml', function(data) {
-        console.log('here>>>>>>',data);  
-    })*/
+    dashboardURL = val.value;
     $.ajax({
             beforeSend: function(xhrObj){
-                    xhrObj.setRequestHeader("Dashboard-url",url);
+                    xhrObj.setRequestHeader("Dashboard-url",dashboardURL);
             },
             type: "GET",
             url: "/dashboardcicd/collectors",
             processData: false,
             dataType: "json",
             contentType:"json",
-            success: function(data){console.log(url);
+            success: function(data){
                     for(i=0; i<data.length; i++) {
                         if(data[i].name === "Jiraproject") {
                             $("#jira-widget").show();
-                            //$("#jenkins-widget").show();
-                            //dashboardoption(data[i].id);
+//                            $("#jenkins-widget").show();
+                            var a=data[i].name;
+                            collecterId[a]=data[i].id;
+                            dashboardoption(a);
                         }
                     }
             }
     });
 }
-function dashboardoption(id) {
+
+function dashboardoption(name) {
 
     $('#projectNameDropdown').html();
 
     $.ajax({
         beforeSend: function(xhrObj){
-                xhrObj.setRequestHeader("Dashboard-url",url);
+                xhrObj.setRequestHeader("Dashboard-url",dashboardURL);
           xhrObj.setRequestHeader("Content-Type","application/json");
                 
         },
         type: "GET",
-        url: "/dashboardcicd/collector/"+id,
+        url: "/dashboardcicd/collector/"+collecterId[name],
         processData: false,
         dataType: "json",
         contentType:"json",
@@ -218,7 +219,7 @@ function dashboardoption(id) {
                 for (var j = 0; j < data.length; j++) {
                     if(optionProj.indexOf(data[j].options.projectName) == -1){
                         optionProj.push(data[j].options.projectName);
-                        str = str + '<option value="' + data[j].options.projectId + '">' + data[j].options.projectName + '</option>';
+                        str = str + '<option  value="' + data[j].options.projectId + '">' + data[j].options.projectName + '</option>';
                     }
 
             
@@ -227,94 +228,99 @@ function dashboardoption(id) {
             }
         });
 
-    // $.ajax({
-    //         type: 'GET',
-    //         url: '/private/ajax/Settings/dashboardoption.json',
-    //         dataType: 'json',
-    //         success: function(data) {
-                
-    //             var projOption=[]; 
-    //             for(i=0; i<data.length; i++) {
-    //                 var keys=data[i].options.projectName;
-    //                 var values={};
-    //                 values[keys]=data[i].options;
-                    
-    //                 projOption.push(values);
-    //             }
-    //             var str = '<option value=""></option>';
-    //             var optionProj=[];
-    //             for (var j = 0; j < data.length; j++) {
-    //                 if(optionProj.indexOf(data[j].options.projectName) == -1){
-    //                     optionProj.push(data[j].options.projectName);
-    //                     str = str + '<option value="' + data[j].options.projectId + '">' + data[j].options.projectName + '</option>';
-    //                 }
 
-            
-    //             }
-                
-    //             $('#projectNameDropdown').html(str);
-                
-    //         },error:function(xhr) {
-    //         }
-    // });
 }
 
-// function versionOption(projectname) {
-//     $('#versionNameDropdown').html();
-//     $('#versionNameDropdown').val('');
-//     $.ajax({
-//             type: 'GET',
-//             url: "/dashboardcicd/collector/"+id,
-//             dataType: 'json',
-//             success: function(data) {
-//                 //var data=JSON.parse(data_a);
-//                 var projOption=[]; 
-//                 console.log(projectname.value);
-//                var pName=projectname.value;
-//                 var str1 = '<option value=""></option>';
-//                 for (var j = 0; j < data.length; j++) {
+ function versionOption(projectname) {
+     $('#versionNameDropdown').html();
+     $('#versionNameDropdown').val('');
+     $.ajax({
+         beforeSend: function(xhrObj){
+             xhrObj.setRequestHeader("Dashboard-url",dashboardURL);
+             xhrObj.setRequestHeader("Content-Type","application/json");
+         },
+         type: "GET",
+         url: "/dashboardcicd/collector/"+collecterId['Jiraproject'],
+         processData: false,
+         dataType: "json",
+         contentType:"json",
+         success: function(data){
+                 //var data=JSON.parse(data_a);
+                 var projOption=[];
+                var pName=projectname.value;
+                 var str1 = '<option value=""></option>';
+                 for (var j = 0; j < data.length; j++) {
 
-//                 if (data[j].options.projectId == pName) {
-//                     str1 = str1 + '<option value="' + data[j].options.versionId + '">' + data[j].options.versionName + '</option>';
-//                 };
+                 if (data[j].options.projectId == pName) {
+                     str1 = str1 + '<option value="' + data[j].options.versionId + '">' + data[j].options.versionName + '</option>';
+                 };
                     
-//                 }
+                 }
 
-//                 $('#versionNameDropdown').html(str1);
+                 $('#versionNameDropdown').html(str1);
 
-//             },error:function(xhr) {
-//             }
-//     });
-// }
+             },error:function(xhr) {
+             }
+     });
+ }
 
 function jenkinsWidgetOption() {
    
 }
 
-// function saveCicdDashboard() {
-//     $.ajax({
-//         beforeSend: function(xhrObj){
-//                 xhrObj.setRequestHeader("Dashboard-url",dashboardurlV);
-//           xhrObj.setRequestHeader("Content-Type","application/json");
+ function saveCicdDashboard() {
+     dashboardFrom=$("#dashboard-create").serialize();
+     console.log(dashboardFrom);
+     $.ajax({
+         beforeSend: function(xhrObj){
+                 xhrObj.setRequestHeader("Dashboard-url",dashboardURL);
+           xhrObj.setRequestHeader("Content-Type","application/json");
                 
-//         },
-//         type: "POST",
-//         url: "/dashboardcicd/dashboard",
-//         processData: false,
-//         data: JSON.stringify( {"template": "capone",
-//         "title": "testdashboard12",
-//         "type": "team",
-//         "applicationName": "testdashboard12",
-//         "componentName": "testdashboard12",
-//         "owner": "admin"
-//         })
-//           ,  dataType: "json",
-//         contentType:"json",
-//             success: function(json){
-//                     console.log(json);
-//             }
-//         });
-// }
+         },
+         type: "POST",
+         url: "/dashboardcicd/dashboard",
+         processData: false,
+         data: JSON.stringify( {"template": "capone",
+         "title": $('#dashboardname').val(),
+         "type": "team",
+         "applicationName":$('#dashboardname').val(),
+         "componentName":$('#dashboardname').val(),
+         "owner": "admin"
+         })
+           ,  dataType: "json",
+         contentType:"json",
+             success: function(json){
+                 saveSecLabel(json.application.components[0].id)
+             }
+         });
+ }
+
+ function saveSecLabel(id) {
+     $.ajax({
+         beforeSend: function (xhrObj) {
+             xhrObj.setRequestHeader("Dashboard-url", dashboardURL);
+         },
+         type: "POST",
+         url: "/dashboardcicd/setupdashboard/" + id,
+         processData: false,
+         data: JSON.stringify([{
+             "options": {
+                 "id": $('#versionNameDropdown').val()
+             },
+             "name": "Jiraproject",
+             "componentId": id,
+
+             "collectorItemIds": [collecterId['Jiraproject']]
+         }
+         ]),
+         dataType: "json",
+         contentType: 'application/json',
+         success: function (json) {
+             console.log(json);
+         }
+
+     });
+ }
 
 </script>
 
