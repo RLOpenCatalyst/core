@@ -56,7 +56,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 }
                 data = result;
             }
-            
+
         });
         botsNewService.getBotsList(req.query,actionStatus, function(err,result){
             if (err && data === null ) {
