@@ -112,6 +112,9 @@ var BotsSchema = new Schema ({
         type: Number,
         default: 0
     },
+    lastRunTime: {
+        type: Number
+    },
     isScheduled: {
         type: Boolean,
         default: false

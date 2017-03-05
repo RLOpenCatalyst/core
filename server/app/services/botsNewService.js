@@ -154,7 +154,7 @@ botsNewService.executeBots = function executeBots(botId,reqBody,userName,executi
         },
         function(encryptedParamList,next) {
             if(encryptedParamList.length > 0){
-                botsDao.updateBotsDetail(botId,{params:encryptedParamList},function(err,botsData){
+                botsDao.updateBotsDetail(botId,{params:encryptedParamList,lastRunTime:new Date().getTime()},function(err,botsData){
                     if(err){
                         next(err);
                     }else{
@@ -443,8 +443,8 @@ function addYmlFileDetailsForBots(bots,callback){
                             manualExecutionTime:bot.manualExecutionTime,
                             executionCount:bot.executionCount,
                             scheduler:bot.scheduler,
-                            createdOn:bot.createdOn
-                            
+                            createdOn:bot.createdOn,
+                            lastRunTime:bot.lastRunTime
                         }
                         botsList.push(botsObj);
                         botsObj={};

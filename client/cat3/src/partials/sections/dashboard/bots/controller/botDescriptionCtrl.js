@@ -39,7 +39,7 @@
             }
 
             $scope.launchInstance = function(launch){
-                if(launch.botLinkedCategory === 'Task'){
+                if(launch.botLinkedCategory === 'Task' || launch.isBotsNew === true){
                     genSevs.executeTask(launch);
                 } else if(launch.botLinkedCategory === 'Blueprint') {
                     genSevs.launchBlueprint(launch);
@@ -54,8 +54,11 @@
                     bodyText: 'Are you sure you want to delete this BOT?'
                 };
                 confirmbox.showModal({}, modalOptions).then(function() {
-                    var param={
-                        url:'/botsNew/' + bot.botId
+                    var url1 = '/bots/' + bot.botId;
+                    var url2 = '/botsNew/' + bot._id; 
+                    var param1 = {
+                        inlineLoader:true,
+                        url:url1?url1:url2
                     };
                     genSevs.promiseDelete(param).then(function (response) {
                         if (response) {

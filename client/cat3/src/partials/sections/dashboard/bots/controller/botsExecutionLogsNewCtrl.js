@@ -8,7 +8,8 @@
 (function (angular) {
     "use strict";
     angular.module('dashboard.bots')
-    .controller('botsExecutionLogsCtrl',['$scope', 'items', '$rootScope', 'orchestrationSetting','genericServices', 'toastr', '$modalInstance', '$timeout', function ($scope, items, $rootScope, orchestrationSetting,genSevs, toastr, $modalInstance, $timeout) {
+    .controller('botsExecutionLogsNewCtrl',['$scope', 'items', '$rootScope', 'orchestrationSetting','genericServices', 'toastr', '$modalInstance', '$timeout', function ($scope, items, $rootScope, orchestrationSetting,genSevs, toastr, $modalInstance, $timeout) {
+        $scope.isBotsNew = items.isBotNew;
         var helper = {
             lastTimeStamp: '',
             getlastTimeStamp: function (logObj) {
@@ -33,32 +34,23 @@
         
         var param={
             inlineLoader: true,
-            url:'/botsNew/' + items.botId + '/bots-History/' + items.actionId + '/logs'
+            url:'/botsNew/' + items.logDetails.botId + '/bots-History/' + items.logDetails.actionId + '/logs'
         }; 
 
         genSevs.promiseGet(param).then(function (response) {
             if (response) {
                 $scope.logsOutput = response;
-
                 helper.scrollBottom();
                 $scope.isBotLogsLoading = false;
             } else {
-                $scope.jenkinsLogs = helper.formatLogs(response);
+                $scope.logsOutput = response.data;
                 helper.scrollBottom();
                 $scope.isBotLogsLoading = false;
             }
-        })
-        /*genSevs.promiseGet(param).then(function (response) {
-            if (response) {
-                $scope.logsOutput = helper.formatLogs(response.output);
-                helper.scrollBottom();
-                $scope.isBotLogsLoading = false;
-            } else {
-                $scope.jenkinsLogs = helper.formatLogs(response.data.output);
-                helper.scrollBottom();
-                $scope.isBotLogsLoading = false;
+            if(response === null) {
+                $scope.logsOutput = 'No Logs Generated';
             }
-        });*/
+        });
 
         $scope.cancel = function() {
             $modalInstance.dismiss('cancel');

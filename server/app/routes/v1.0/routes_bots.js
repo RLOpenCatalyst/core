@@ -52,7 +52,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             if(!err){
                 var recordCount = result.metaData.totalRecords;
                 for(var i = 0; i<recordCount; i++) {
-                    result.bots[i].isBotNew = false;
+                    result.bots[i].isBotsNew = false;
                 }
                 data = result;
             }
@@ -62,16 +62,23 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             if (err && data === null ) {
                 return res.status(500).send(err);
             } else {
-                if(data.metaData.totalRecords === 0){
+                if(data === null) {
+                    data = result;
+                }else if(data.metaData.totalRecords === 0){
                     data = result;
                 }else {
                     var recordCount = result.metaData.totalRecords;
                     for(var i = 0; i<recordCount; i++) {
-                        result.bots[i].isBotNew = true;
+                        result.bots[i].isBotsNew = true;
                         data.bots.push(result.bots[i]);
                     }
-                    
                     data.metaData.totalRecords += result.metaData.totalRecords;
+                    data.botSummary.totalNoOfBots += result.botSummary.totalNoOfBots;
+                    data.botSummary.totalSavedTimeForBots.hours += result.botSummary.totalSavedTimeForBots.hours;
+                    data.botSummary.totalSavedTimeForBots.minutes += result.botSummary.totalSavedTimeForBots.minutes;
+                    data.botSummary.totalNoOfServiceNowTickets += result.botSummary.totalNoOfServiceNowTickets
+                    data.botSummary.totalNoOfRunningBots += result.botSummary.totalNoOfRunningBots
+                    data.botSummary.totalNoOfFailedBots += result.botSummary.totalNoOfFailedBots
                 }
                 return res.status(200).send(data);
             }

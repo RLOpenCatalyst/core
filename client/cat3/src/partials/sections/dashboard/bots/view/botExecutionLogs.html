@@ -9,10 +9,19 @@
 
     <div class="modal-body">
         <fieldset>
-            <div class="logsArea">
+            <div ng-if="isBotsNew" class="logsArea">
                 <div class="rowSpacing col-lg-12 col-sm-12 {{log.err ? 'logErrorMsg':'logMsg'}}" ng-repeat="log in logsOutput">
                     <span class="timeStamp"> {{log.timestamp | timestampToLocaleTime}} </span>
                     <span class="logInfo"> {{log.log}} </span>
+                </div>
+            </div>
+
+            <div ng-if="!isBotsNew" ng-switch="botExecLogCtrl.taskLogType">
+                <div ng-switch-when="jenkins">
+                    <div ng-include="'src/partials/sections/dashboard/bots/view/jenkinsLog.html'" ></div>
+                </div>
+                <div ng-switch-default>
+                    <div ng-include="'src/partials/sections/dashboard/bots/view/chefLog.html'" ></div>
                 </div>
             </div>
         </fieldset>

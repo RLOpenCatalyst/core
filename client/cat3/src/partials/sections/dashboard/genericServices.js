@@ -135,7 +135,7 @@
             }
         };
 
-        genericServices.log=function(id,historyId) {
+        genericServices.log=function(id,historyId,botLinkedSubCategory) {
             $modal.open({
                 animation: true,
                 templateUrl: 'src/partials/sections/dashboard/bots/view/botExecutionLogs.html',
@@ -153,22 +153,6 @@
                 }
             });
         };
-
-        /*genericServices.botHistory=function(bot) {
-            $modal.open({
-                animation: true,
-                templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationHistory.html',
-                controller: 'orchestrationHistoryCtrl',
-                backdrop: 'static',
-                keyboard: false,
-                size: 'lg',
-                resolve: {
-                    items: function() {
-                        return bot;
-                    }
-                }
-            });
-        };*/
 
         genericServices.removeBlueprint= function(blueprintObj, bpType) {
             var modalOptions = {
@@ -201,28 +185,31 @@
         };
 
         genericServices.executeTask =function(task) {
-            $modal.open({
-                animation: true,
-                templateUrl: 'src/partials/sections/dashboard/bots/view/editParams.html',
-                controller: 'editParamsCtrl',
-                backdrop: 'static',
-                keyboard: false,
-                resolve: {
-                    items: function() {
-                        return task;
-                    }
-                }
-            }).result.then(function(botResult) {
-                console.log(botResult);
+            if ((task.botConfig && task.botConfig.parameterized && task.botConfig.parameterized.length) || (task.botLinkedSubCategory === 'chef') || (task.botLinkedSubCategory === 'script') || (task.isBotsNew ===true)) {
                 $modal.open({
+                    animation: true,
+                    templateUrl: 'src/partials/sections/dashboard/bots/view/editParams.html',
+                    controller: 'editParamsCtrl',
+                    backdrop: 'static',
+                    keyboard: false,
+                    resolve: {
+                        items: function() {
+                            return task;
+                        }
+                    }
+                }).result.then(function(response) {
+                    $modal.open({
                         animate: true,
                         templateUrl: "src/partials/sections/dashboard/bots/view/botExecutionLogs.html",
-                        controller: "botsExecutionLogsCtrl",
+                        controller: "botsExecutionLogsNewCtrl",
                         backdrop: 'static',
                         keyboard: false,
                         resolve: {
                             items: function() {
-                                return botResult
+                                return {
+                                    logDetails : response,
+                                    isBotNew : task.isBotsNew
+                                }
                             }
                         }
                     }).result.then(function() {
@@ -230,8 +217,26 @@
                     }, function() {
                         console.log('Cancel Handler getting invoked');
                     });
-            }, function() {
-            });
+                }, function() {
+                });
+            } else {
+                $modal.open({
+                    animation: true,
+                    templateUrl: 'src/partials/sections/dashboard/bots/view/confirmBotRun.html',
+                    controller: 'confirmBotRunCtrl',
+                    backdrop: 'static',
+                    keyboard: false,
+                    resolve: {
+                        items: function() {
+                            return task;
+                        }
+                    }
+                }).result.then(function(response) {
+                    $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
+                }, function() {
+                    $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
+                });
+            }
         };
 
         genericServices.launchBlueprint=function(blueprintObj) {

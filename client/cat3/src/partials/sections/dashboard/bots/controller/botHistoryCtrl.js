@@ -21,7 +21,11 @@
             } 
 
             $scope.botDetail = items;
-            $scope.botId = items._id;
+            if(items.isBotsNew === true) {
+                $scope.botId = items._id
+            } else {
+                $scope.botId = items.botId;
+            }
             
             var botHistoryGrid = uiGridOptionsService.options();
             $scope.paginationParams = botHistoryGrid.pagination;
@@ -69,13 +73,20 @@
             angular.extend($scope, {
                 taskHistoryListView : function() {
                     var param = null;
+                    var url;
+                    if(items.isBotsNew === true) {
+                        url = '/botsNew/' + $scope.botId + '/bots-history?page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder;
+                    } else {
+                        url = '/bots/' + $scope.botId + '/bots-history?page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder;
+                    }
+                    
                     if($scope.botDetail.serviceNowCheck == true){
                         param = {
-                            url: '/botsNew/' + $scope.botId + '/bots-history?serviceNowCheck=true&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                            url: '/bots/' + $scope.botId + '/bots-history?serviceNowCheck=true&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
                         };
                     }else{
                         param = {
-                            url: '/botsNew/' + $scope.botId + '/bots-history'
+                            url: url
                         };
                     }
                     $scope.taskHistoryData.data = [];
@@ -83,8 +94,7 @@
                         $timeout(function() {
                             if (response.botHistory) {
                                 $scope.taskHistoryData.data = response.botHistory;
-                                console.log($scope.taskHistoryData.data);
-                                /*var bpcolumnDefs = [];
+                                var bpcolumnDefs = [];
                                 angular.forEach($scope.taskHistoryData.data, function(val){
                                     var auditType = val.auditTrailConfig.executionType;
                                     if(auditType === 'chef' || auditType === 'script') {
@@ -134,7 +144,7 @@
                                 $scope.taskHistoryData.columnDefs = bpcolumnDefs;
                                 angular.extend($scope.taskHistoryData,botHistoryGrid.gridOption);
                                 $scope.ischefTaskHistoryPageLoading = false;
-                                $scope.taskHistoryData.totalItems = response.metaData.totalRecords;*/
+                                $scope.taskHistoryData.totalItems = response.metaData.totalRecords;
                             } else if (response) {
                                 $scope.taskHistoryData = response;
                                 $scope.ischefTaskHistoryPageLoading = false;
@@ -185,6 +195,30 @@
                         $scope.selected = selectedItem;
                     }, function() {
                         console.log('Modal Dismissed at ' + new Date());
+                    });
+                } else if(hist.auditType === 'BOTsNew'){
+                    var logDetails = {
+                        actionId : hist.actionLogId,
+                        botId: hist.auditId
+                    }
+                    $modal.open({
+                        animate: true,
+                        templateUrl: "src/partials/sections/dashboard/bots/view/botExecutionLogs.html",
+                        controller: "botsExecutionLogsNewCtrl",
+                        backdrop: 'static',
+                        keyboard: false,
+                        resolve: {
+                            items: function() {
+                                return {
+                                    logDetails : logDetails,
+                                    isBotNew : items.isBotsNew
+                                }
+                            }
+                        }
+                    }).result.then(function() {
+                        console.log('The modal close is not getting invoked currently. Goes to cancel handler');
+                    }, function() {
+                        console.log('Cancel Handler getting invoked');
                     });
                 } else {
                     toastr.error("Logs are getting generated. Please wait");
