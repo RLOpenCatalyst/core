@@ -515,6 +515,39 @@ var MasterUtil = function () {
         });
     }
 
+    // Return all Sonarqube configured
+    this.getSonarqube = function (orgList, callback) {
+        var sonarqubeList = [];
+        var rowIds = [];
+        for (var x = 0; x < orgList.length; x++) {
+            rowIds.push(orgList[x].rowid);
+        }
+        logger.debug("org rowids: ", rowIds);
+        d4dModelNew.d4dModelSonarqubeConfig.find({
+            orgname_rowid: {
+                $in: rowIds
+            }
+        }, function (err, sonarqube) {
+            if (sonarqube) {
+                configmgmtDao.getRowids(function (err, rowidlist) {
+                    for (var i = 0; i < sonarqube.length; i++) {
+                        if (sonarqube[i].id === '31') {
+                            names = configmgmtDao.convertRowIDToValue(sonarqube[i].orgname_rowid, rowidlist)
+                            sonarqube[i].orgname = names;
+                            sonarqubeList.push(sonarqube[i]);
+                        }
+                    }
+                    callback(null, sonarqubeList);
+                    return;
+                });
+            } else {
+                callback(err, null);
+                return;
+            }
+
+        });
+    }
+
     // Return all Bitbucket
     this.getBitbucket = function(orgList, callback) {
         var bitbucketList = [];

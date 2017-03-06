@@ -840,6 +840,16 @@ module.exports.setRoutes = function (app, sessionVerification) {
                         return;
                     });
 
+                }else if (req.params.id === '31') {
+                    // For QA Portal
+                    masterUtil.getSonarqube(orgList, function(err, sonarqubelist) {
+                        if (err) {
+                            res.status(500).send('Not able to fetch Functional Tests.');
+                        }
+                        res.send(sonarqubelist);
+                        return;
+                    });
+
                 }else if (req.params.id === '23') {
                     // For Jira
                     logger.debug("Entering getJira");

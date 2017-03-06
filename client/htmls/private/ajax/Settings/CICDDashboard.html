@@ -27,7 +27,7 @@
                                         <td>Organization</td>
                                         <td>Business Group</td>
                                         <td>Project</td>
-                                        <td>Bot</td>
+                                       
                                         <td>Dashboard URL</td>
                                         <td>Action</td>
                                     </tr>
@@ -54,10 +54,10 @@
                                 <thead>
                                     <tr class="rowCustomStyle">
                                         <td>Name</td>
-                                        <td>Description</td>
+                                       <!--  <td>Description</td> -->
                                         <td>Organization</td>
                                         <td>Business Group</td>
-                                        <td>Bot</td>
+                                        <td>Project</td>
                                         <td>Dashboard URL</td>
                                         <td class="">Action</td>
                                     </tr>
@@ -114,7 +114,7 @@
         //   alert('in');
         // CreateTableFromJson(4);
 
-        CreateTableFromJson(4, 'projectname', 'CreateCICDDashboard.html'); //1 is for Org
+        CreateTableFromJson(30, 'dashboardname', 'CreateCICDDashboard.html'); //1 is for Org
         var tab = 'envtable';
         $('#envtable').dataTable({
             "dom": 't<"#tableFooterLeftDataTable"i><"#tableFooterRightDatatable"p>',
@@ -200,7 +200,7 @@
         // var d4djson = $.parseJSON(d4ddata);
         // alert(d4ddata.sections.section[0].name);
         var formData = null;
-        readMasterJson(4);
+        readMasterJson(30);
 
         /*$.each(d4ddata.sections.section, function (i, item) {
             if (item.name == formName) {

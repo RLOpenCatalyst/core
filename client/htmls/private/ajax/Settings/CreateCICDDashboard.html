@@ -462,7 +462,7 @@ function jenkinsWidgetOption() {
             $(this).select();
             $("#msgOrgName").hide();
         });
-        readform(4);
+        readform(30);
         //Force opening the left navigation menu
         if ($('#navSettings').is(":visible") == false) {
             $('#navSettings').css("display", '');
@@ -568,7 +568,7 @@ function jenkinsWidgetOption() {
 
         // End Prefilling dropdowns
         //  alert("before d4d" + JSON.stringify(d4ddata));
-        readMasterJson(4);
+        readMasterJson(30);
         //   alert("after d4d" + JSON.stringify(d4ddata));
 
         /* $.each(d4ddata.sections.section, function (i, item) {
@@ -664,7 +664,7 @@ function jenkinsWidgetOption() {
         // alert(d4ddata.sections.section[0].name);
         var formData = null;
         //   alert("before d4d" + d4ddata);
-        readMasterJson(4);
+        readMasterJson(30);
         //    alert("after d4d" + JSON.stringify(d4ddata));
         /*$.each(d4ddata.sections.section, function (i, item) {
    
@@ -761,7 +761,7 @@ function jenkinsWidgetOption() {
             dataType: "text",
             data: formData,
             async: false,
-            url: serviceURL + "savemasterjson/4",
+            url: serviceURL + "savemasterjson/30",
             success: function(data) {
                 //alert(data.toString());
                 alert('Successfully Saved');
