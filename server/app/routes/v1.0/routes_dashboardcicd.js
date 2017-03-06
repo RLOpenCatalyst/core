@@ -20,6 +20,7 @@ module.exports.setRoutes = function (app, sessionVerification){
 		client.registerMethod("jsonMethod", durl, "GET");
 		//logger.debug('here :' + durl);
 		var reqSubmit = client.methods.jsonMethod(function (data, response) {
+		logger.debug(data);
             res.send(JSON.stringify(data));
             return;
         });
