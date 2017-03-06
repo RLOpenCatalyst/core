@@ -548,6 +548,40 @@ var MasterUtil = function () {
         });
     }
 
+    this.getCICDDashboard = function (orgList, callback) {
+        var cicdList = [];
+        var rowIds = [];
+        for (var x = 0; x < orgList.length; x++) {
+            rowIds.push(orgList[x].rowid);
+        }
+        logger.debug("org rowids: ", rowIds);
+        d4dModelNew.d4dModelMastersCICDDashboard.find({
+            orgname_rowid: {
+                $in: rowIds
+            }
+        }, function (err, cicd) {
+            if (cicd) {
+                configmgmtDao.getRowids(function (err, rowidlist) {
+                    for (var i = 0; i < cicd.length; i++) {
+                        if (cicd[i].id === '30') {
+                            names = configmgmtDao.convertRowIDToValue(cicd[i].orgname_rowid, rowidlist)
+                            cicd[i].orgname = names;
+                            cicdList.push(cicd[i]);
+                        }
+                    }
+                    callback(null, cicdList);
+                    return;
+                });
+            } else {
+                callback(err, null);
+                return;
+            }
+
+        });
+    }
+
+
+
     // Return all Bitbucket
     this.getBitbucket = function(orgList, callback) {
         var bitbucketList = [];

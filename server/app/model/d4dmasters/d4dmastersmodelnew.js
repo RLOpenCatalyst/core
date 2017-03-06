@@ -1576,6 +1576,14 @@ var d4dMastersCICDDashboard = new mongoose.Schema({
         type: [String],
         trim: true
     },
+    productgroupname: {
+        type: String,
+        trim: true
+    },
+    productgroupname_rowid: {
+        type: String,
+        trim: true
+    },
     projectname: {
         type: String,
         required: false,
@@ -1593,7 +1601,7 @@ var d4dMastersCICDDashboard = new mongoose.Schema({
     },
     dashboardId: {
         type: String,
-        required: true,
+       
         trim: true
     },
     dashboardUrl: {
@@ -1601,8 +1609,12 @@ var d4dMastersCICDDashboard = new mongoose.Schema({
         required: true,
         trim: true
     },
-
-    rowid: {
+    dashboardLink: {
+        type: String,
+        required: true,
+        trim: true
+    },
+        rowid: {
         type: String,
         required: true,
         trim: true
