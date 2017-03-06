@@ -36,19 +36,19 @@
         $scope.initGrids = function(){
             $scope.botLibGridOptions={};
             $scope.botLibGridOptions.columnDefs= [
-                { name:'Category', field:'botCategory' ,cellTemplate:'<img src="images/bots/activeDirectory.png" ng-show="row.entity.botCategory==\'Active Directory\'" alt="row.entity.botCategory" title="Active Directory" class="task-type-img" />'+
-                    '<img src="images/bots/userManagement.png" ng-show="row.entity.botCategory==\'User Management\'" alt="row.entity.botCategory" title="User Management" class="task-type-img" />'+
-                    '<img src="images/bots/applicationDeployment.png" ng-show="row.entity.botCategory==\'Application Deployment\'" alt="row.entity.botCategory" title="Application Deployment" class="task-type-img" />'+
-                    '<img src="images/bots/installation.png" ng-show="row.entity.botCategory==\'Installation\'" alt="row.entity.botCategory" title="Installation" class="task-type-img" />'+
-                    '<img src="images/bots/monitoring.png" ng-show="row.entity.botCategory==\'Monitoring\'" alt="row.entity.botCategory" title="Monitoring" class="task-type-img" />'+
-                    '<img src="images/bots/openDJ.png" ng-show="row.entity.botCategory==\'OpenDJ LDAP\'" alt="row.entity.botCategory" title="OpenDJ-LDAP" class="task-type-img" />'+
-                    '<img src="images/bots/serviceManagement.png" ng-show="row.entity.botCategory==\'Service Management\'" alt="row.entity.botCategory" title="Service Management" class="task-type-img" />'+
-                    '<img src="images/bots/upgrade.png" ng-show="row.entity.botCategory==\'Upgrade\'" alt="row.entity.botCategory" title="Upgrade" class="task-type-img" />',cellTooltip: true},
-                { name: 'BOT Name',displayName: 'BOT Name',field:'botName',cellTooltip: true},
-                { name: 'BOT Type',displayName: 'BOT Type',field:'botType',cellTooltip: true},
-                { name: 'Description',field:'botDesc',cellTooltip: true},
+                { name:'Category', field:'category' ,cellTemplate:'<img src="images/bots/activeDirectory.png" ng-show="row.entity.category==\'Active Directory\'" alt="row.entity.category" title="Active Directory" class="task-type-img" />'+
+                    '<img src="images/bots/userManagement.png" ng-show="row.entity.category==\'User Management\'" alt="row.entity.category" title="User Management" class="task-type-img" />'+
+                    '<img src="images/bots/applicationDeployment.png" ng-show="row.entity.category==\'Application Deployment\'" alt="row.entity.category" title="Application Deployment" class="task-type-img" />'+
+                    '<img src="images/bots/installation.png" ng-show="row.entity.category==\'Installation\'" alt="row.entity.category" title="Installation" class="task-type-img" />'+
+                    '<img src="images/bots/monitoring.png" ng-show="row.entity.category==\'Monitoring\'" alt="row.entity.category" title="Monitoring" class="task-type-img" />'+
+                    '<img src="images/bots/openDJ.png" ng-show="row.entity.category==\'OpenDJ LDAP\'" alt="row.entity.category" title="OpenDJ-LDAP" class="task-type-img" />'+
+                    '<img src="images/bots/serviceManagement.png" ng-show="row.entity.category==\'Service Management\'" alt="row.entity.category" title="Service Management" class="task-type-img" />'+
+                    '<img src="images/bots/upgrade.png" ng-show="row.entity.category==\'Upgrade\'" alt="row.entity.category" title="Upgrade" class="task-type-img" />',cellTooltip: true},
+                { name: 'BOT Name',displayName: 'BOT Name',field:'name',cellTooltip: true},
+                { name: 'BOT Type',displayName: 'BOT Type',field:'id',cellTooltip: true},
+                { name: 'Description',field:'desc',cellTooltip: true},
              //   { name: 'BOT Created From',displayName: 'BOT Created From',field:'botLinkedCategory',cellTooltip: true},
-                { name: 'Organization',field:'masterDetails.orgName',cellTooltip: true},
+                { name: 'Organization',field:'orgName',cellTooltip: true},
                 { name: 'Total Runs',field:'executionCount'},
                    { name: 'BOT Action',width:200,displayName: 'BOT Action',cellTemplate:
                     '<a title="History"><i class="fa fa-header font-size-16 cursor" ng-click="grid.appScope.botHistory(row.entity);"></i></a>'+
@@ -105,19 +105,19 @@
         $scope.tabData = [];
 
         $scope.imageForCard = function(result) {
-            if(result.botCategory === 'Active Directory' || result.botCategory === 'Database Management') {
+            if(result.category === 'Active Directory' || result.category === 'Database Management') {
                 result.imagePath = 'images/bots/activeDirectory.png';
-            }else if(result.botCategory === 'User Management') {
+            }else if(result.category === 'User Management') {
                 result.imagePath = 'images/bots/userManagement.png';
-            }else if(result.botCategory === 'Service Management') {
+            }else if(result.category === 'Service Management') {
                 result.imagePath = 'images/bots/serviceManagement.png';
-            }else if(result.botCategory === 'Upgrade') {
+            }else if(result.category === 'Upgrade') {
                 result.imagePath = 'images/bots/upgrade.png';
-            }else if(result.botCategory === 'Monitoring') {
+            }else if(result.category === 'Monitoring') {
                 result.imagePath = 'images/bots/monitoring.png';
-            }else if(result.botCategory === 'Installation') {
+            }else if(result.category === 'Installation') {
                 result.imagePath = 'images/bots/installation.png';
-            }else if(result.botCategory === 'OpenDJ LDAP') {
+            }else if(result.category === 'OpenDJ LDAP') {
                 result.imagePath = 'images/bots/openDJ.png';
             }else {
                 result.imagePath = 'images/bots/applicationDeployment.png';
@@ -143,10 +143,11 @@
         }
 
         $scope.botLibraryGridView = function() {
+            $scope.isBotDetailsLoading = true;
             lib.gridOptions=[];
             var param={
                 inlineLoader:true,
-                url:'/bots/all?page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                url:'/botsNew?page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
             };
             genSevs.promiseGet(param).then(function (result) {
                 $timeout(function() {
@@ -170,6 +171,7 @@
                     }
                     $scope.statusBar = "Showing " + ($scope.botLibGridOptions.data.length === 0 ? "0" : "1") + " to " + $filter('number')($scope.botLibGridOptions.data.length) + " of " + $filter('number')(result.metaData.totalRecords) + " entries";
                     $scope.isBotLibraryPageLoading = false;
+                    $scope.isBotDetailsLoading = false;
                     //$scope.filterBy();
                 }, 100);
             }, function(error) {
@@ -216,22 +218,22 @@
             if($scope.totalBotsSelected) {
                 var param={
                     inlineLoader: true,
-                    url:'/bots/all?page=' + pageNumber +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
+                    url:'/botsNew?page=' + pageNumber +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
                 };
             } else if($scope.runningBotsselected) {
                 var param={
                     inlineLoader: true,
-                    url:'/bots/all?actionStatus=running&page=' + pageNumber +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
+                    url:'/botsNew?actionStatus=running&page=' + pageNumber +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
                 };
             } else if($scope.scheduledBotsSelected) {
                 var param={
                     inlineLoader: true,
-                    url:'/bots/all?serviceNowCheck=true&page=' + pageNumber +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
+                    url:'/botsNew?serviceNowCheck=true&page=' + pageNumber +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
                 };
             } else if($scope.failedBotsselected) {
                 var param={
                     inlineLoader: true,
-                    url:'/bots/all?actionStatus=failed&page=' + pageNumber +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
+                    url:'/botsNew?actionStatus=failed&page=' + pageNumber +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
                 };
             }
             genSevs.promiseGet(param).then(function (result) {
@@ -352,12 +354,7 @@
         var gridBottomSpace = 250;
         $scope.gridHeight = workzoneUIUtils.makeTabScrollable('botLibraryPage') - gridBottomSpace;
         $scope.launchInstance = function(launch){
-            if(launch.botLinkedCategory === 'Task' || launch.isBotsNew === true){
-
-                genSevs.executeTask(launch);
-            } else if(launch.botLinkedCategory === 'Blueprint') {
-                genSevs.launchBlueprint(launch);
-            }
+            genSevs.executeTask(launch);
         };
 
         $scope.botHistory=function(bot) {
@@ -426,12 +423,8 @@
             };
             confirmbox.showModal({}, modalOptions).then(function() {
                 var url;
-                if(bot.isBotsNew === true) {
-                    url = '/botsNew/' + bot._id;
-                } else {
-                    url = '/bots/' + bot.botId; 
-                }
-                var param1 = {
+                url = '/botsNew/' + bot._id;
+                var param = {
                     inlineLoader:true,
                     url:url
                 };
@@ -515,7 +508,7 @@
             }
             var param={
                 inlineLoader:true,
-                url:'/bots/all?actionStatus=running&page=' + $scope.botLibGridOptions.paginationCurrentPage +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                url:'/botsNew?actionStatus=running&page=' + $scope.botLibGridOptions.paginationCurrentPage +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
             };
             genSevs.promiseGet(param).then(function (result) {
                 if($scope.isCardViewActive){
@@ -546,7 +539,7 @@
             }
             var param={
                 inlineLoader:true,
-                url:'/bots/all?actionStatus=failed&page=' + $scope.botLibGridOptions.paginationCurrentPage +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                url:'/botsNew?actionStatus=failed&page=' + $scope.botLibGridOptions.paginationCurrentPage +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
             };
             genSevs.promiseGet(param).then(function (result) {
                 if($scope.isCardViewActive){
@@ -578,7 +571,7 @@
             }
             var param={
                 inlineLoader:true,
-                url:'/bots/all?serviceNowCheck=true&page=' + $scope.botLibGridOptions.paginationCurrentPage +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                url:'/botsNew?serviceNowCheck=true&page=' + $scope.botLibGridOptions.paginationCurrentPage +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
             };
             genSevs.promiseGet(param).then(function (result) {
                 if($scope.isCardViewActive){
@@ -633,7 +626,7 @@
                 $scope.isJobRunExecuting = true;
                 var param={
                     inlineLoader:true,
-                    url:'/bots/' + items.botId + '/execute'
+                    url:'/botsNew' + items.botId + '/execute'
                 };
                 genSevs.promisePost(param).then(function (response) {
                     $modalInstance.close(response.data);

@@ -270,6 +270,7 @@ BotsSchema.statics.getAllBots = function(queryParam,callback){
     });
 };
 
+
 BotsSchema.statics.removeBotsById = function(botId,callback){
     Bots.remove({_id:ObjectId(botId)}, function(err, bots) {
         if (err) {

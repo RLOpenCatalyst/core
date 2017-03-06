@@ -14,8 +14,7 @@
 // The file contains all the end points for AppDeploy
 
 var logger = require('_pr/logger')(module);
-var	botsNewService = require('_pr/services/botsNewService.js');
-var botExecuteService = require('_pr/services/botsExecuteService.js');
+var    botsNewService = require('_pr/services/botsNewService.js');
 
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
@@ -25,6 +24,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         var actionStatus = null;
         if(req.query.actionStatus && req.query.actionStatus !== null){
             actionStatus = req.query.actionStatus;
+            console.log(actionStatus);
         }
         botsNewService.getBotsList(req.query,actionStatus, function(err,data){
             if (err) {
@@ -81,9 +81,20 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         })
     });
 
-    app.post('/botsNew/:botId/execute', botExecuteService.botExecute);
-    
-    
+    app.post('/botsNew/:botId/execute',function(req,res){
+        var executionType = null;
+        if(req.query.executionType && req.query.executionType !== null){
+            executionType = req.query.executionType;
+        }
+        botsNewService.executeBots(req.params.botId,req.body,req.session.user.cn,executionType,function (err, data) {
+            if (err) {
+                return res.status(500).send(err);
+            } else {
+                data.botId=req.params.botId;
+                return res.status(200).send(data);
+            }
+        })
+    });
 
     app.put('/botsNew/:botId/scheduler',function(req,res){
         botsNewService.updateBotsScheduler(req.params.botId,req.body, function(err,data){
@@ -95,4 +106,3 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         })
     });
 };
-
