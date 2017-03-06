@@ -26,7 +26,6 @@
             };
             genSevs.promisePost(param).then(function (response) {
                 $modalInstance.close(response);
-                console.log(response);
                 $rootScope.$emit('BOTS_LIBRARY_REFRESH');
             },
             function (error) {
