@@ -309,6 +309,23 @@ BotsSchema.statics.removeSoftBotsById = function(botId,callback){
     });
 };
 
+BotsSchema.statics.botsExecutionCountInc = function botsExecutionCountInc(botId,callback) {
+    Bots.findByIdAndUpdate(
+        ObjectId(botId),{
+            $inc:{
+                executionCount:1
+            }
+        }, {
+            upsert: false
+        }, function (err,data) {
+            if(err) {
+                return callback(err);
+            }else {
+                return callback(null,data)
+            }
+        })
+};
+
 BotsSchema.statics.updateBotsExecutionCount = function updateBotsExecutionCount(botId,count,callback) {
     Bots.update({
         _id:ObjectId(botId),

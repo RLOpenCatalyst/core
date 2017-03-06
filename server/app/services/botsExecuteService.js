@@ -1,5 +1,92 @@
 var botsNewService = require('./botsNewService.js');
 var botsService = require('./botsService.js');
+var async = require('async');
+
+module.exports.allBots =  function(req,res) {
+    var actionStatus = null,serviceNowCheck = false,data = null;
+    if(req.query.actionStatus && req.query.actionStatus !== null){
+        actionStatus = req.query.actionStatus;
+    }
+    if(req.query.serviceNowCheck && req.query.serviceNowCheck !== null && req.query.serviceNowCheck === 'true'){
+        serviceNowCheck = true;
+    }
+    async.parallel({
+        oldbots:function(callback) {
+            botsService.getBotsList(req.query,actionStatus,serviceNowCheck, callback);
+        },
+        newbots:function(callback) {
+            botsNewService.getBotsList(req.query,actionStatus, callback);
+        }
+    },function(err,data) {
+        if(err) {
+            return res.status(500).send(err);
+        }else {
+            var bots =[], metaData ={},botSummary ={};
+            var oldbots = data.oldbots;
+            var newbots = data.newbots;
+            if(oldbots.bots.length === 0 && newbots.bots.length === 0){
+                bots = [];
+                metaData['totalRecords'] = 0;
+                metaData['pageSize'] = oldbots.metaData.pageSize;
+                metaData['page'] = oldbots.metaData.page;
+                metaData['totalPages'] = oldbots.metaData.page;
+                metaData['sortBy'] = oldbots.metaData.sortBy;
+                metaData['ortOrder'] = oldbots.metaData.sortOrder;
+                
+            }else if(oldbots.bots.length !== 0 && newbots.bots.length !== 0) {
+                var recordCount = oldbots.metaData.totalRecords;
+                for(var i = 0; i<recordCount; i++) {
+                    bots.push(oldbots.bots[i]);
+                    bots[i].isBotsNew = false;
+                }
+                recordCount = newbots.metaData.totalRecords;
+                 for(var i = 0; i<recordCount; i++) {
+                    bots.push(newbots.bots[i]);
+                    bots[i].isBotsNew = true;
+                }
+                metaData['totalRecords'] = oldbots.metaData.totalRecords + newbots.metaData.totalRecords;
+                metaData['pageSize'] = oldbots.metaData.pageSize;
+                metaData['page'] = oldbots.metaData.page;
+                metaData['totalPages'] = Math.ceil(metaData.totalRecords / metaData.pageSize);
+                metaData['sortBy'] = oldbots.metaData.sortBy;
+                metaData['sortOrder'] = oldbots.metaData.sortOrder;
+            }else {
+                if(oldbots.bots.length !== 0) {
+                    var recordCount = oldbots.metaData.totalRecords;
+                    for(var i = 0; i<recordCount; i++) {
+                        bots.push(oldbots.bots[i]);
+                        bots[i].isBotsNew = false;
+                    }
+                    metaData['totalRecords'] = oldbots.metaData.totalRecords;
+                    metaData['pageSize'] = oldbots.metaData.pageSize;
+                    metaData['page'] = oldbots.metaData.page;
+                    metaData['totalPages'] = oldbots.metaData.totalPages;
+                    metaData['sortBy'] = oldbots.metaData.sortBy;
+                    metaData['sortOrder'] = oldbots.metaData.sortOrder;
+                }else {
+                    var recordCount = newbots.metaData.totalRecords;
+                    for(var i = 0; i<recordCount; i++) {
+                        bots.push(newbots.bots[i]);
+                        bots[i].isBotsNew = true;
+                    }
+                    metaData['totalRecords'] = newbots.metaData.totalRecords;
+                    metaData['pageSize'] = newbots.metaData.pageSize;
+                    metaData['page'] = newbots.metaData.page;
+                    metaData['totalPages'] = newbots.metaData.totalPages;
+                    metaData['sortBy'] = newbots.metaData.sortBy;
+                    metaData['sortOrder'] = newbots.metaData.sortOrder;
+                }
+            }
+            botSummary['totalNoOfBots'] = oldbots.botSummary.totalNoOfBots + newbots.botSummary.totalNoOfBots;
+            botSummary['totalSavedTimeForBots'] = {hours:oldbots.botSummary.totalSavedTimeForBots.hours + newbots.botSummary.totalSavedTimeForBots.hours,
+                minutes:oldbots.botSummary.totalSavedTimeForBots.minutes + newbots.botSummary.totalSavedTimeForBots.minutes};
+            botSummary['totalNoOfServiceNowTickets'] = oldbots.botSummary.totalNoOfServiceNowTickets + newbots.botSummary.totalNoOfServiceNowTickets;
+            botSummary['totalNoOfRunningBots'] = oldbots.botSummary.totalNoOfRunningBots + newbots.botSummary.totalNoOfRunningBots;
+            botSummary['totalNoOfFailedBots'] = oldbots.botSummary.totalNoOfFailedBots + newbots.botSummary.totalNoOfFailedBots;
+        return res.status(200).send({bots:bots,metaData:metaData,botSummary:botSummary});
+        }
+    });
+}
 
 module.exports.botExecute = function botExecute(req,res) {
         var executionType = null;

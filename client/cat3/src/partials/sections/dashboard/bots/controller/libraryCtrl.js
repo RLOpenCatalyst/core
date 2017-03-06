@@ -25,7 +25,7 @@
         $scope.numofCardPages = 0;
         $scope.paginationParams.page = 1;
         $scope.paginationParams.pageSize = 18;
-        $scope.paginationParams.sortBy = 'createdOn';
+        $scope.paginationParams.sortBy = 'lastRunTime';
         $scope.paginationParams.sortOrder = 'desc';
         $scope.botLibrarySearch = '';
         $scope.showLoadRecord = function() {
@@ -44,11 +44,11 @@
                     '<img src="images/bots/openDJ.png" ng-show="row.entity.botCategory==\'OpenDJ LDAP\'" alt="row.entity.botCategory" title="OpenDJ-LDAP" class="task-type-img" />'+
                     '<img src="images/bots/serviceManagement.png" ng-show="row.entity.botCategory==\'Service Management\'" alt="row.entity.botCategory" title="Service Management" class="task-type-img" />'+
                     '<img src="images/bots/upgrade.png" ng-show="row.entity.botCategory==\'Upgrade\'" alt="row.entity.botCategory" title="Upgrade" class="task-type-img" />',cellTooltip: true},
-                { name: 'BOT Name',displayName: 'BOT Name',field:'name',cellTooltip: true},
-                { name: 'BOT Type',displayName: 'BOT Type',field:'id',cellTooltip: true},
-                { name: 'Description',field:'desc',cellTooltip: true},
+                { name: 'BOT Name',displayName: 'BOT Name',field:'botName',cellTooltip: true},
+                { name: 'BOT Type',displayName: 'BOT Type',field:'botType',cellTooltip: true},
+                { name: 'Description',field:'botDesc',cellTooltip: true},
              //   { name: 'BOT Created From',displayName: 'BOT Created From',field:'botLinkedCategory',cellTooltip: true},
-                { name: 'Organization',field:'orgName',cellTooltip: true},
+                { name: 'Organization',field:'masterDetails.orgName',cellTooltip: true},
                 { name: 'Total Runs',field:'executionCount'},
                    { name: 'BOT Action',width:200,displayName: 'BOT Action',cellTemplate:
                     '<a title="History"><i class="fa fa-header font-size-16 cursor" ng-click="grid.appScope.botHistory(row.entity);"></i></a>'+
@@ -353,6 +353,7 @@
         $scope.gridHeight = workzoneUIUtils.makeTabScrollable('botLibraryPage') - gridBottomSpace;
         $scope.launchInstance = function(launch){
             if(launch.botLinkedCategory === 'Task' || launch.isBotsNew === true){
+
                 genSevs.executeTask(launch);
             } else if(launch.botLinkedCategory === 'Blueprint') {
                 genSevs.launchBlueprint(launch);

@@ -166,9 +166,19 @@ botsNewService.executeBots = function executeBots(botId,reqBody,userName,executi
             }
         },
         function(botDetails,next) {
+            console.log('herere');
             if(botDetails.length > 0){
                 if(botDetails[0].type === 'script'){
-                    executor.executeScriptBot(botDetails[0],userName,executionType,next);
+                    async.parallel([
+                        function(callback){
+                            executor.executeScriptBot(botDetails[0],userName,executionType,callback);
+                        },
+                        function(callback){
+                            botsDao.botsExecutionCountInc(botId,callback)
+                        }
+                    ],function(err,data) {
+                        next(err,data[0])
+                    });
                 }
             }else {
                next(null,botDetails);
@@ -415,6 +425,7 @@ function addYmlFileDetailsForBots(bots,callback){
     }else{
         var botsList =[];
         var botsObj={};
+        var masterDetails = {}
         for(var i = 0; i <bots.docs.length; i++){
             (function(bot){
                 fileUpload.getReadStreamFileByFileId(bot.ymlDocFileId,function(err,file){
@@ -425,18 +436,20 @@ function addYmlFileDetailsForBots(bots,callback){
                     }else{
                         botsObj = {
                             _id:bot._id,
-                            name:bot.name,
+                            botName:bot.name,
                             gitHubId:bot.gitHubId,
-                            id:bot.id,
-                            desc:bot.desc,
+                            botType:bot.id,
+                            botDesc:bot.desc,
                             category:bot.category,
                             type:bot.type,
                             inputFormFields:bot.inputFormFields,
                             outputOptions:bot.outputOptions,
                             ymlDocFilePath:bot.ymlDocFilePath,
                             ymlDocFileId:bot.ymlDocFileId,
-                            orgId:bot.orgId,
-                            orgName:bot.orgName,
+                            masterDetails:{
+                             orgId:bot.orgId,
+                             orgName:bot.orgName
+                            },
                             ymlFileName: file.fileName,
                             ymlFileData: file.fileData,
                             isScheduled:bot.isScheduled,
