@@ -54,11 +54,16 @@
                     bodyText: 'Are you sure you want to delete this BOT?'
                 };
                 confirmbox.showModal({}, modalOptions).then(function() {
-                    var url1 = '/bots/' + bot.botId;
-                    var url2 = '/botsNew/' + bot._id; 
-                    var param1 = {
+                    var url;
+                    if(bot.isBotsNew === true) {
+                        url = '/botsNew/' + bot._id; 
+                    } else {
+                        url = '/bots/' + bot.botId;
+                    }
+                     
+                    var param = {
                         inlineLoader:true,
-                        url:url1?url1:url2
+                        url:url
                     };
                     genSevs.promiseDelete(param).then(function (response) {
                         if (response) {
