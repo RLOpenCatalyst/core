@@ -721,6 +721,11 @@ body .botDescriptionPage {
   margin-right:10px;
 }
 
+.scheduleBorder {
+  border: 1px solid #ddd;
+}
+
+
 @-moz-document url-prefix() {
     .search-icon {
       margin-left: -24px!important; 

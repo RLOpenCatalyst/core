@@ -241,7 +241,7 @@ botsService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNow
         function(filterBotList, next) {
             async.parallel({
                 botList:function(callback){
-                    apiUtil.paginationResponse(filterBotList, reqData, next);
+                    apiUtil.paginationResponse(filterBotList, reqData, callback);
                 },
                 botSummary:function(callback){
                    auditTrailService.getBOTsSummary(botsQuery,'BOTs',callback)

@@ -25,6 +25,8 @@ var appConfig = require('_pr/config');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
 var auditTrailService = require('_pr/services/auditTrailService.js');
 var executor = require('_pr/engine/bots/executor.js');
+var logsDao = require('_pr/model/dao/logsdao.js');
+
 const fileHound= require('filehound');
 const yamlJs= require('yamljs');
 const gitHubService = require('_pr/services/gitHubService.js');
@@ -64,6 +66,8 @@ botsNewService.removeBotsById = function removeBotsById(botId,callback){
         return;
     });
 }
+
+botsNewService.getBotsLogsByReferenceId =  function(botId,actionId,timeStamp,callback){    async.waterfall([        function(next){           botsDao.getBotsById(botId,next);        },        function(botsList,next){            if(botsList.length > 0){                logsDao.getLogsByReferenceId(actionId, timeStamp,next)            }else{                next({errCode:401,errMsg : "Bots is not available there"},null);            }        }    ],function(err,result){        if(err){            callback(err,null);            return;        }else{            callback(null,result);            return;        }    });};
 
 botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,callback) {
     var reqData = {};
@@ -162,9 +166,19 @@ botsNewService.executeBots = function executeBots(botId,reqBody,userName,executi
             }
         },
         function(botDetails,next) {
+            console.log('herere');
             if(botDetails.length > 0){
                 if(botDetails[0].type === 'script'){
-                    executor.executeScriptBot(botDetails[0],userName,executionType,next);
+                    async.parallel([
+                        function(callback){
+                            executor.executeScriptBot(botDetails[0],userName,executionType,callback);
+                        },
+                        function(callback){
+                            botsDao.botsExecutionCountInc(botId,callback)
+                        }
+                    ],function(err,data) {
+                        next(err,data[0])
+                    });
                 }
             }else {
                next(null,botDetails);
@@ -411,6 +425,7 @@ function addYmlFileDetailsForBots(bots,callback){
     }else{
         var botsList =[];
         var botsObj={};
+        var masterDetails = {}
         for(var i = 0; i <bots.docs.length; i++){
             (function(bot){
                 fileUpload.getReadStreamFileByFileId(bot.ymlDocFileId,function(err,file){
@@ -421,26 +436,28 @@ function addYmlFileDetailsForBots(bots,callback){
                     }else{
                         botsObj = {
                             _id:bot._id,
-                            name:bot.name,
+                            botName:bot.name,
                             gitHubId:bot.gitHubId,
-                            id:bot.id,
-                            desc:bot.desc,
+                            botType:bot.id,
+                            botDesc:bot.desc,
                             category:bot.category,
                             type:bot.type,
                             inputFormFields:bot.inputFormFields,
                             outputOptions:bot.outputOptions,
                             ymlDocFilePath:bot.ymlDocFilePath,
                             ymlDocFileId:bot.ymlDocFileId,
-                            orgId:bot.orgId,
-                            orgName:bot.orgName,
+                            masterDetails:{
+                             orgId:bot.orgId,
+                             orgName:bot.orgName
+                            },
                             ymlFileName: file.fileName,
                             ymlFileData: file.fileData,
                             isScheduled:bot.isScheduled,
                             manualExecutionTime:bot.manualExecutionTime,
                             executionCount:bot.executionCount,
                             scheduler:bot.scheduler,
-                            createdOn:bot.createdOn
-                            
+                            createdOn:bot.createdOn,
+                            lastRunTime:bot.lastRunTime
                         }
                         botsList.push(botsObj);
                         botsObj={};

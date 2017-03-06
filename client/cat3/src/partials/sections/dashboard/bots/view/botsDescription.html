@@ -17,16 +17,16 @@
             <img class="highlight" alt="{{templateSelected.botCategory}}" ng-src="{{botIcon}}">
          </div>
          <div class="bot-content">
-            <h3 title="{{templateSelected.botName}}">{{templateSelected.name}}</h3>
+            <h3 title="{{templateSelected.name?templateSelected.name:templateSelected.botName}}">{{templateSelected.name?templateSelected.name:templateSelected.botName}}</h3>
             <ul class="ul-vert-bar">
-               <li class="publisher" title="{{templateSelected.botDesc}}">{{templateSelected.desc}}</li>
-               <li> {{templateSelected.lastRunTime | timestampToLocaleTime}}</li> 
+               <li class="publisher" title="{{templateSelected.desc?templateSelected.desc:templateSelected.botDesc}}">{{templateSelected.desc?templateSelected.desc:templateSelected.botDesc}}</li>
+               <li ng-if="templateSelected.lastRunTime"> {{templateSelected.lastRunTime | timestampToLocaleTime}}</li> 
             </ul>
          </div>
          <div class="pull-right" style="margin-top:-26px;">
             <!--<span style="margin-left:10px;" title="Edit"><i class="fa fa-pencil font-size-20"></i></span> -->
             <button style="margin-right:10px;" type="button" class="btn btn-danger btnPadding" title="Delete" ng-click="deleteBot(templateSelected)"><i class="fa fa-trash font-size-16 white"></i>&nbsp;Delete</button>
-            <!-- <button type="button" class="btn cat-btn-update btnPadding" style="margin-right:10px;" ng-click="launchInstance(templateSelected);" title="Execute"><i class="fa fa-play font-size-16 white"></i>&nbsp;Execute</button> -->
+            <button type="button" class="btn cat-btn-update btnPadding" style="margin-right:10px;" ng-click="launchInstance(templateSelected);" title="Execute"><i class="fa fa-play font-size-16 white"></i>&nbsp;Execute</button>
          </div> 
       </div>
       <div class="col-lg-12 col-md-12 col-sm-12" style="margin-left:-14px;">
