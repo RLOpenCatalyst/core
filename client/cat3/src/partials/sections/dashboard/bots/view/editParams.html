@@ -21,7 +21,8 @@
 			                	<span>{{params.label}}</span>
 			                </td>
 			                <td ng-init="botEditParams[$index] = params.default" style="text-align: left">
-			                	<input type="text" class="cookbook-edit-text" ng-model="botEditParams[$index]"/>
+			                	<input ng-if="params.type==='text'" type="text" class="cookbook-edit-text" ng-model="botEditParams[$index]"/>
+			                	<input ng-if="params.type==='password'" type="password" class="cookbook-edit-text" ng-model="botEditParams[$index]"/>
 			                </td>
 			            </tr>
 					</tbody>

@@ -33,7 +33,7 @@
                     $scope.botIcon = 'images/bots/installation.png';
                 } else if($scope.templateSelected.category === 'OpenDJ LDAP') {
                     $scope.botIcon = 'images/bots/openDJ.png';
-                } else if($scope.templateSelected.category === 'Application Deployment') {
+                } else if($scope.templateSelected.category === 'Application Deployment' || $scope.templateSelected.category === 'Application Management') {
                     $scope.botIcon = 'images/bots/applicationDeployment.png';
                 }
             }
