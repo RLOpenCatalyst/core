@@ -41,7 +41,7 @@ var botsService = require('_pr/services/botsService.js');
 var gcpProviderModel = require('_pr/model/v2.0/providers/gcp-providers');
 var GCP = require('_pr/lib/gcp.js');
 var crontab = require('node-crontab');
-var botsDao = require('_pr/model/bots/bots.js');
+var botsDao = require('_pr/model/bots/1.0/bots.js');
 
 schedulerService.executeSchedulerForInstances = function executeSchedulerForInstances(instance,callback) {
     logger.debug("Instance Scheduler is started for Instance. "+instance.platformId);

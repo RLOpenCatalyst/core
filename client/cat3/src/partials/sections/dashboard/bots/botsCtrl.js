@@ -45,6 +45,24 @@
 					return deferred.promise;
 				}]
 			}
+		}).state('dashboard.bots.botsDescription', {
+			url: "/botDescription",
+			templateUrl: "src/partials/sections/dashboard/bots/view/botsDescription.html",
+			controller: "botDescriptionCtrl as btsDescription",
+			parameters:{filterView:{botsDescription:true}},
+			resolve: {
+				auth: ["$q", function ($q) {
+					var deferred = $q.defer();
+					// instead, go to a different page
+					if (modulePerms.serviceBool()) {
+						// everything is fine, proceed
+						deferred.resolve();
+					} else {
+						deferred.reject({redirectTo: 'dashboard'});
+					}
+					return deferred.promise;
+				}]
+			}
 		});
 	}])
 	.controller('botsCtrl',['$scope', '$rootScope', '$state', function ($scope, $rootScope, $state) {

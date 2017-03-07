@@ -5,6 +5,7 @@ var appConfig = require('_pr/config');
 var logger = require('_pr/logger')(module);
 var gfs = null;
 var mongoDbClient = require('mongodb');
+var uuid = require('node-uuid');
 mongoDbClient.connect('mongodb://' + appConfig.db.host + ':' + appConfig.db.port + '/' + appConfig.db.dbName, function (err, db) {
     if (err) {
         throw "unable to connect to mongodb"
@@ -16,6 +17,9 @@ mongoDbClient.connect('mongodb://' + appConfig.db.host + ':' + appConfig.db.port
 var fileUpload = module.exports = {};
 
 fileUpload.uploadFile = function uploadFile(filename, filePath, fileId, callback) {
+    if(fileId === null){
+        fileId = uuid.v4();
+    }
     var writeStream = gfs.createWriteStream({
         _id: fileId,
         filename: filename,
@@ -41,7 +45,7 @@ fileUpload.getFileByFileId = function getFileByFileId(fileId, callback) {
     });
 };
 
-fileUpload.getReadStreamFileByFileId = function getFileByFileId(fileId, callback) {
+fileUpload.getReadStreamFileByFileId = function getReadStreamFileByFileId(fileId, callback) {
     var buffer = '';
     gfs.findOne({
         _id: fileId

@@ -1383,6 +1383,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                         providers[i].clientId = undefined;
                                         providers[i].clientSecret = undefined;
                                         providers[i].tenant = undefined;
+                                        providers[i].subscriptionId = undefined;
                                     }
                                     res.send(providers);
                                     return;
@@ -1420,6 +1421,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                     providers[i].clientId = undefined;
                                     providers[i].clientSecret = undefined;
                                     providers[i].tenant = undefined;
+                                    providers[i].subscriptionId = undefined;
                                 }
                                 res.send(providers);
                                 return;
@@ -1463,7 +1465,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                     aProvider.orgname = orgs[0].orgname;
 
                     if (orgs.length > 0) {
-
+                        aProvider.subscriptionId = undefined;
                         aProvider.clientId = undefined;
                         aProvider.clientSecret = undefined;
                         aProvider.tenant = undefined;
@@ -1493,10 +1495,10 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
         var providerId = req.params.providerId;
         var orgId = req.body.orgId;
 
-        if (typeof azureSubscriptionId === 'undefined' || azureSubscriptionId.length === 0) {
+        /*if (typeof azureSubscriptionId === 'undefined' || azureSubscriptionId.length === 0) {
             res.status(400).send("Please Enter Subscription Id.");
             return;
-        }
+        }*/
 
         if (typeof providerName === 'undefined' || providerName.length === 0) {
             res.status(400).send("Please Enter Name.");

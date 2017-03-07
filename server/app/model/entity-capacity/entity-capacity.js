@@ -124,5 +124,19 @@ EntityCapacitySchema.statics.upsertEntityCapacity
     });
 }
 
+EntityCapacitySchema.statics.removeEntityCapacityByProviderId = function removeEntityCapacityByProviderId(providerId, callback) {
+    var query = {
+        'entity.id': providerId,
+        'entity.type':'provider'
+    };
+    this.find(query).remove(function(err, result) {
+        if (err) {
+            callback(err)
+        } else {
+            callback(null, result)
+        }
+    })
+}
+
 var EntityCapacity = mongoose.model('EntityCapacity', EntityCapacitySchema)
 module.exports = EntityCapacity

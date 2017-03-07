@@ -30,7 +30,7 @@ var mongoosePaginate = require('mongoose-paginate');
 var ApiUtils = require('_pr/lib/utils/apiUtil.js');
 var Schema = mongoose.Schema;
 var auditTrailService = require('_pr/services/auditTrailService');
-var bots = require('_pr/model/bots/bots.js');
+var bots = require('_pr/model/bots/1.0/bots.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var appConfig = require('_pr/config');
 
@@ -454,6 +454,14 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
             auditTrailService.updateAuditTrail('BOTs',auditTrailId,resultTaskExecution,function(err,auditTrail){
                 if (err) {
                     logger.error("Failed to create or update bots Log: ", err);
+                }
+                if(resultTaskExecution.actionStatus === 'success'){
+                    var botService = require('_pr/services/botsService');
+                    botService.updateSavedTimePerBots(taskHistoryData.taskId,function(err,data){
+                        if (err) {
+                            logger.error("Failed to update bots saved Time: ", err);
+                        }
+                    });
                 }
             });
         }

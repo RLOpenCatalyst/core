@@ -22,7 +22,7 @@ var logger = require('_pr/logger')(module);
 var EC2 = require('_pr/lib/ec2.js');
 var Cryptography = require('../lib/utils/cryptography');
 var tagsModel = require('_pr/model/tags/tags.js');
-var resourceCost = require('_pr/model/resource-costs-deprecated/resource-costs-deprecated.js');
+var resourceCost = require('_pr/model/resource-costs/resource-costs.js');
 var resourceUsage = require('_pr/model/resource-metrics/resource-metrics.js');
 var Route53 = require('_pr/lib/route53.js');
 
@@ -46,8 +46,8 @@ var AppData = require('_pr/model/app-deploy/app-data');
 var instancesDao = require('_pr/model/classes/instance/instance');
 var providerService = require('_pr/services/providerService.js');
 var schedulerService = require('_pr/services/schedulerService.js');
-var catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
-
+var entityCost = require('_pr/model/entity-costs');
+var entityCapacity = require('_pr/model/entity-capacity');
 
 var instanceService = module.exports = {};
 instanceService.checkIfUnassignedInstanceExists = checkIfUnassignedInstanceExists;
@@ -1301,6 +1301,12 @@ function removeInstancesByProviderId(providerId, callback) {
         resourcesUsage: function (callback) {
             resourceUsage.removeResourceUsageByProviderId(providerId, callback);
         },
+        entityCost: function (callback) {
+            entityCost.removeEntityCostByProviderId(providerId, callback);
+        },
+        entityCapacity: function (callback) {
+            entityCapacity.removeEntityCapacityByProviderId(providerId, callback);
+        },
         resourcesTags: function (callback) {
             tagsModel.removeTagsByProviderId(providerId, callback);
         }
@@ -1485,6 +1491,7 @@ function updateScheduler(instanceScheduler, callback) {
             return callback(err, null);
         } else {
             callback(null, {"message": "Scheduler Updated."});
+            var catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
             catalystSync.executeScheduledInstances();
             return;
         }
