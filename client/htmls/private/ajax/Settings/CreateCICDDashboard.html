@@ -62,7 +62,7 @@
                                                         <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardUrl"  onchange="getcollectors(this)" class="form-control" type="text" cdata="catalyst" cat-validation="required">
                                                         <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardLink"   class="form-control hidden" type="text" cdata="catalyst" cat-validation="required">
                                                     </div>
-                                                   
+                                                    <div class="clearfix"></div>
                                                     <!-- Widget for Jenkins Starts here -->
                                                     <div class="col-lg-6 col-md-6" id="jenkins-widget" style="margin-top: 25px; ">
                                                         <label for="category">Jenkins:</label>
@@ -98,7 +98,7 @@
                                                     <!-- Widget for Bitbucket Starts here -->
                                                     <div class="col-lg-6 col-md-6" id="github-widget" style="margin-top: 25px; ">
                                                         <label for="category">Git Hub:</label>
-                                                        <div id="divgitciid"  style="height: 165px">
+                                                        <div id="divgitciid"  style="height: 165px" class="widthBox">
                                                             <div class="col-lg-12 col-md-12" style="margin-top:15px;">
                                                                 <label for="">Repo URL:<span class="control-label redSpan">&nbsp;*</span></label>
                                                                 <input autofocus name="ctl00$MainContent$orgname" value="" id="repourl" class="form-control" type="text">
@@ -414,7 +414,10 @@ function sonarWidgetOption(collectorId) {
              success: function(json){
                  $('#dashboardLink').val('http://' + dashboardURL + "#/dashboard/" + json.id);
                 // alert($('#dashboardLink').val());
-                 configureDashboard(json.id,json.application.components[0].id)
+                 console.log(json);
+                 if(json && Object.keys(json).length >0){
+                     configureDashboard(json.id,json.application.components[0].id);
+                 }
              }
          });
  }
@@ -489,7 +492,10 @@ function sonarWidgetOption(collectorId) {
          contentType: 'application/json',
          success: function (json) {
              //save the form only after creation of the dashboard
-             saveform('30');
+             if(json && Object.keys(json).length >0){
+                 saveform('30');
+             }
+
          }
 
      });
