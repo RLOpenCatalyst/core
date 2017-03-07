@@ -93,7 +93,7 @@ module.exports.setRoutes = function (app, sessionVerification){
 	});
 
 	app.post('/dashboardcicd/setupdashboard/:dashid',function(req,res){
-		// logger.debug("dashboardcicd header: ", req.headers['dashboard-url']);
+		 logger.debug("dashboardcicd header: ", req.headers['dashboard-url']);
 		// logger.debug("dashboardcicd body: ", JSON.stringify(req.body));
 		var durl = req.headers['dashboard-url'];
 		if(!durl){
@@ -109,7 +109,7 @@ module.exports.setRoutes = function (app, sessionVerification){
 		durl = 'http://' + durl + '/api/setupdashboard/' + req.params.dashid;
 		client = new Client();
 		client.registerMethod("postMethod", durl, "POST");
-		//logger.debug('here :' + durl);
+		logger.debug('here :' + durl);
 		var reqSubmit = client.methods.postMethod(args,function (data, response) {
             res.send(JSON.stringify(data));
             return;

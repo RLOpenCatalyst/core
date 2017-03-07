@@ -264,8 +264,7 @@
                 return renderableRows;
             };
             capRept.init();
-
-
+            
         }]).controller('capacityChartCtrl',['$scope','$rootScope','items','genericServices','$modalInstance',function($scope,$rootScope,items,genSevs,$modalInstance){
             var capChat=this;
             capChat.items=items;
