@@ -236,7 +236,18 @@ CloudFormationSchema.statics.findByIds = function(cfIds, callback) {
     });
 };
 
-
+CloudFormationSchema.statics.getCloudFormationList = function(queryObj, callback) {
+    this.find(queryObj, function(err, cfs) {
+        if (err) {
+            logger.error(err);
+            callback(err, null);
+            return;
+        }else{
+            callback(null, cfs);
+            return;
+        }
+    });
+};
 // remove task by id
 CloudFormationSchema.statics.removeById = function(cfId, callback) {
     this.remove({

@@ -23,11 +23,14 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all('/bots/*', sessionVerificationFunc);
 
     app.get('/bots',function(req,res){
-        var actionStatus = null;
+        var actionStatus = null,serviceNowCheck = false;
         if(req.query.actionStatus && req.query.actionStatus !== null){
             actionStatus = req.query.actionStatus;
         }
-        botsService.getBotsList(req.query,actionStatus, function(err,data){
+        if(req.query.serviceNowCheck && req.query.serviceNowCheck !== null && req.query.serviceNowCheck === 'true'){
+            serviceNowCheck = true;
+        }
+        botsService.getBotsList(req.query,actionStatus,serviceNowCheck, function(err,data){
             if (err) {
                 return res.status(500).send(err);
             } else {
@@ -48,7 +51,11 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
     app.get('/bots/:botId/bots-history',function(req,res){
-        botsService.getBotsHistory(req.params.botId,req.query, function(err,data){
+        var serviceNowCheck = false;
+        if(req.query.serviceNowCheck && req.query.serviceNowCheck !== null && req.query.serviceNowCheck === 'true'){
+            serviceNowCheck = true;
+        }
+        botsService.getBotsHistory(req.params.botId,req.query, serviceNowCheck,function(err,data){
             if (err) {
                 return res.status(500).send(err);
             } else {

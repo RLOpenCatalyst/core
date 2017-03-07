@@ -1,12 +1,12 @@
 /*
  Copyright [2016] [Relevance Lab]
- 
+
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
- 
+
  http://www.apache.org/licenses/LICENSE-2.0
- 
+
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -216,10 +216,10 @@ module.exports.setRoutes = function (app, sessionVerification) {
     app.get('/d4dMasters/mastersjson', function (req, res) {
         logger.debug("Enter get() for /d4dMasters/mastersjson");
         res.send([{
-                name: 'master'
-            }, {
-                name: 'master2'
-            }]);
+            name: 'master'
+        }, {
+            name: 'master2'
+        }]);
         logger.debug("Exit get() for /d4dMasters/mastersjson");
     });
     //getAccessFilesForRole
@@ -253,10 +253,10 @@ module.exports.setRoutes = function (app, sessionVerification) {
         logger.debug("Enter get() for /d4dMasters/getuser : " + JSON.stringify(req.session.user));
         res.send({
             "user": [{
-                    username: req.session.user
-                }, {
-                    role: '[' + req.session.user.roleId + ']'
-                }]
+                username: req.session.user
+            }, {
+                role: '[' + req.session.user.roleId + ']'
+            }]
         });
         logger.debug("Exit get() for /d4dMasters/getuser");
     });
@@ -810,7 +810,48 @@ module.exports.setRoutes = function (app, sessionVerification) {
                             return;
                         });
 
-                    } else if (req.params.id === '6') {
+                    }  else if (req.params.id === '27') {
+                    // For BitBucket
+                    masterUtil.getBitbucket(orgList, function(err, bitbucketList) {
+                        if (err) {
+                            res.status(500).send('Not able to fetch Bitbucket.');
+                        }
+                        res.send(bitbucketList);
+                        return;
+                    });
+
+                } else if (req.params.id === '28') {
+                    // For Octopus
+                    masterUtil.getOctopus(orgList, function(err, octopusList) {
+                        if (err) {
+                            res.status(500).send('Not able to fetch Octopus.');
+                        }
+                        res.send(octopusList);
+                        return;
+                    });
+
+                } else if (req.params.id === '29') {
+                    // For QA Portal
+                    masterUtil.getFunctionalTest(orgList, function(err, functionaltestlist) {
+                        if (err) {
+                            res.status(500).send('Not able to fetch Functional Tests.');
+                        }
+                        res.send(functionaltestlist);
+                        return;
+                    });
+
+                }else if (req.params.id === '23') {
+                    // For Jira
+                    logger.debug("Entering getJira");
+                    masterUtil.getJira(orgList, function(err, jiraList) {
+                        if (err) {
+                            res.status(500).send('Not able to fetch Jira.');
+                        }
+                        res.send(jiraList);
+                        return;
+                    });
+
+                } else if (req.params.id === '6') {
                         // For User Role
                         masterUtil.getUserRoles(function (err, userRoleList) {
                             if (err) {
@@ -966,7 +1007,47 @@ module.exports.setRoutes = function (app, sessionVerification) {
                             return;
                         });
 
-                    } else if (req.params.id === '6') {
+                    } else if (req.params.id === '27') {
+                        // For Bitbucket
+                        masterUtil.getBitbucket(orgList, function(err, bitbucketList) {
+                            if (err) {
+                                res.status(500).send('Not able to fetch bitbucket.');
+                            }
+                            res.send(bitbucketList);
+                            return;
+                        });
+
+                    }else if (req.params.id === '28') {
+                        // For Octopus
+                        masterUtil.getOctopus(orgList, function(err, octopusList) {
+                            if (err) {
+                                res.status(500).send('Not able to fetch Octopus.');
+                            }
+                            res.send(octopusList);
+                            return;
+                        });
+
+                    }else if (req.params.id === '29') {
+                        // For QA Portal
+                        masterUtil.getFunctionalTest(orgList, function(err, functionaltestlist) {
+                            if (err) {
+                                res.status(500).send('Not able to fetch Functional Tests.');
+                            }
+                            res.send(functionaltestlist);
+                            return;
+                        });
+
+                    }else if (req.params.id === '23') {
+                        // For Jira
+                        masterUtil.getJira(orgList, function(err, jiraList) {
+                            if (err) {
+                                res.status(500).send('Not able to fetch Jira.');
+                            }
+                            res.send(jiraList);
+                            return;
+                        });
+
+                    }else if (req.params.id === '6') {
                         // For User Role
                         masterUtil.getUserRoles(function (err, userRoleList) {
                             if (err) {
@@ -2520,7 +2601,8 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                     // Start Auto create Team
                                     if (req.params.id === '1') {
                                         d4dModelNew.d4dModelMastersOrg.find({
-                                            orgname: bodyJson["orgname"]
+                                            orgname: bodyJson["orgname"],
+                                            id:'1'
                                         }, function (err, orgs) {
                                             if (err) {
                                                 logger.error('Hit error while check org is exist with Org Name', err);
@@ -2531,8 +2613,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                 res.status(400).send("Org Name already exists.Please enter different Org Name");
                                                 return;
                                             } else {
-
-
                                                 var orgData = {
                                                     "orgname": bodyJson['orgname'],
                                                     "domainname": bodyJson['domainname'],
@@ -2701,7 +2781,8 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                             }
                                             bodyJson["password"] = hashedPassword;
                                             d4dModelNew.d4dModelMastersUsers.find({
-                                               loginname: bodyJson["loginname"]
+                                                loginname: bodyJson["loginname"],
+                                                id: '7'
                                             }, function (err, users) {
                                                 if (err) {
                                                     logger.error('Hit error while check user is exist with Login Name', err);
@@ -2713,8 +2794,9 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                                     return;
                                                 } else {
                                                     d4dModelNew.d4dModelMastersUsers.find({
-                                                            email: bodyJson["email"]
-                                                        },function(err,usersList){
+                                                        email: bodyJson["email"],
+                                                        id: '7'
+                                                    },function(err,usersList){
                                                         if (err) {
                                                             logger.error('Hit error while check user is exist with email', err);
                                                             res.send(500);
@@ -2806,7 +2888,6 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                             });
                                         });
                                     } else if (req.params.id === '4') {
-                                        // bodyJson['repositories'] = JSON.parse(bodyJson['repositories']);
                                         var projectModel = new d4dModelNew.d4dModelMastersProjects(bodyJson);
                                         projectModel.save(function (err, data) {
                                             if (err) {
@@ -4018,10 +4099,10 @@ module.exports.setRoutes = function (app, sessionVerification) {
             dockerId: '18'
         };
         async.parallel({
-            server: function (callback) {
-                masterUtil.getServerDetails(jsonData, callback)
-            }
-        },
+                server: function (callback) {
+                    masterUtil.getServerDetails(jsonData, callback)
+                }
+            },
             function (err, results) {
                 if (err)
                     res.status(500).send("Internal Server Error");
