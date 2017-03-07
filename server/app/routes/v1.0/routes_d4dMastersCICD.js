@@ -264,6 +264,29 @@ module.exports.setRoutes = function(app) {
                             return;
                         });
 
+                    }else if (req.params.id === '31') {
+                        // For Jira
+                        logger.debug("Entering getSonar");
+                        masterUtil.getSonarqube(orgList, function(err, sonarqubeList) {
+                            if (err) {
+                                res.status(500).send('Not able to fetch Sonarqube.');
+                            }
+                            var hygProp = '';
+                            // if(octopusList[0]){
+                            //   hygProp += 'octopus.url=' + octopusList[0].octopusurl + '\n';
+                            //   hygProp += 'octopus.apiKey=' + octopusList[0].octopuskey + '\n';
+                            // }
+                            if (sonarqubeList) {
+                                for (var oi = 0; oi < sonarqubeList.length; oi++) {
+                                    hygProp += 'sonar.servers[' + oi + ']=' + sonarqubeList[oi].sonarqubeurl + '\n';
+                                    hygProp += 'sonar.username=' + sonarqubeList[oi].sonarqubeusername + '\n';
+                                    hygProp += 'octopus.password=' + sonarqubeList[oi].sonarqubepassword + '\n';
+                                }
+                            }
+                            res.send(hygProp);
+                            return;
+                        });
+
                     } else if (req.params.id === '6') {
                         // For User Role
                         masterUtil.getUserRoles(function(err, userRoleList) {
@@ -513,6 +536,29 @@ module.exports.setRoutes = function(app) {
                             res.send(pList);
                             return;
                         });
+                    } else if (req.params.id === '31') {
+                        // For Jira
+                        logger.debug("Entering getSonar");
+                        masterUtil.getSonarqube(orgList, function(err, sonarqubeList) {
+                            if (err) {
+                                res.status(500).send('Not able to fetch Sonarqube.');
+                            }
+                            var hygProp = '';
+                            // if(octopusList[0]){
+                            //   hygProp += 'octopus.url=' + octopusList[0].octopusurl + '\n';
+                            //   hygProp += 'octopus.apiKey=' + octopusList[0].octopuskey + '\n';
+                            // }
+                            if (sonarqubeList) {
+                                for (var oi = 0; oi < sonarqubeList.length; oi++) {
+                                    hygProp += 'sonar.servers[' + oi + ']=' + sonarqubeList[oi].sonarqubeurl + '\n';
+                                    hygProp += 'sonar.username=' + sonarqubeList[oi].sonarqubeusername + '\n';
+                                    hygProp += 'octopus.password=' + sonarqubeList[oi].sonarqubepassword + '\n';
+                                }
+                            }
+                            res.send(hygProp);
+                            return;
+                        });
+
                     } else {
                         logger.debug('nothin here');
                         res.send([]);
