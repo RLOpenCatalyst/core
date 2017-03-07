@@ -264,26 +264,7 @@
                 return renderableRows;
             };
             capRept.init();
-
-            genSevs.promiseGet({url:'src/partials/sections/dashboard/analytics/data/cicd.json'}).then(function (result) {
-                var optionProj=[];
-                for(var i=0;i<result.length; i++){
-                    if(optionProj.indexOf(result[i].options.projectName) === -1){
-                        optionProj.push(result[i].options.projectName,{options:[]});
-                    }
-
-                }
-                console.log(optionProj);
-                for(var l=0;l<result.length; l++){
-                    var ind=optionProj.indexOf(result[l].options.projectName);
-                    optionProj[ind].options.push(result[l].options);
-
-                }
-
-
-            });
-
-
+            
         }]).controller('capacityChartCtrl',['$scope','$rootScope','items','genericServices','$modalInstance',function($scope,$rootScope,items,genSevs,$modalInstance){
             var capChat=this;
             capChat.items=items;
