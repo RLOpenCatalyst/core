@@ -59,8 +59,10 @@
                                                     </div> -->
                                                     <div class="col-lg-6 col-md-6" style="margin-top:25px;">
                                                         <label for="">Dashboard URL:<span class="control-label redSpan">&nbsp;*</span></label>
-                                                        <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardUrl"  onchange="getcollectors(this)" class="form-control" type="text" cdata="catalyst" cat-validation="required">
+                                                        <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardUrl"  onchange="getcollectors($(this).val())" class="form-control" type="text" cdata="catalyst" cat-validation="required">
                                                         <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardLink"   class="form-control hidden" type="text" cdata="catalyst" cat-validation="required">
+                                                        
+                                                        <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardId"   class="form-control hidden" type="text" cdata="catalyst">
                                                     </div>
                                                    
                                                     <!-- Widget for Jenkins Starts here -->
@@ -82,7 +84,7 @@
                                                         <div id="divjiraprojectciid" class="input-group from-control col-md-12 widthBox" cdata="catalyst" style="height: 165px">
                                                             <div class="col-lg-12 col-md-12" style="margin-top:15px;">
                                                                 <label for="">Project Name:</label>
-                                                                <select onchange="versionOption(this);" id="jiraprojectciid" class="chooseBG width-100" >
+                                                                <select onchange="versionOption(this.value);" id="jiraprojectciid" class="chooseBG width-100" >
                                                                  <option value="">Select Project Name</option>
                                                                 </select>
                                                             </div>
@@ -190,7 +192,7 @@ var dashboardURL='';
 var collecterId=[];
 var dashboardFrom=null;
 function getcollectors(val) {
-    dashboardURL = val.value;
+    dashboardURL = val;
     $('#dashboardLink').val('http://' + dashboardURL); //to be updated after dashboard is created.
     $.ajax({
             beforeSend: function(xhrObj){
@@ -270,7 +272,8 @@ function dashboardoption(name) {
 
 }
 
- function versionOption(projectname) {
+
+function versionOption(projectname) {
      $('#jiraversionciid').html();
      $('#jiraversionciid').val('');
      $.ajax({
@@ -302,7 +305,7 @@ function dashboardoption(name) {
              },error:function(xhr) {
              }
      });
- }
+}
 
 function jenkinsWidgetOption(collectorId) {
    $('#jenkinsjobciid').html();
@@ -413,6 +416,7 @@ function sonarWidgetOption(collectorId) {
          contentType:"json",
              success: function(json){
                  $('#dashboardLink').val('http://' + dashboardURL + "#/dashboard/" + json.id);
+                 $('#dashboardId').val(json.id);
                 // alert($('#dashboardLink').val());
                  configureDashboard(json.id,json.application.components[0].id)
              }
@@ -495,6 +499,27 @@ function sonarWidgetOption(collectorId) {
      });
  }
 
+ function setoptions(durl,dashboardId){
+    $.ajax({
+        beforeSend: function(xhrObj){
+                xhrObj.setRequestHeader("Dashboard-url",durl);
+          xhrObj.setRequestHeader("Content-Type","application/json");
+                
+        },
+        type: "GET",
+        url: "/dashboardcicd/dashboard/" + dashboardId,
+        processData: false,
+        dataType: "json",
+        contentType:"json",
+            success: function(json){
+                    //To Do set the values based on selection.
+            }
+    });
+ }
+
+
+
+
 </script>
 
 <script>
@@ -538,6 +563,12 @@ function sonarWidgetOption(collectorId) {
         });
         drawBreadCrumb1();
         enableUniqueCheckingForInputs(30);
+        //updating option sectons for dashboard
+
+        if($('#dashboardUrl').val() != ""){
+            getcollectors($('#dashboardUrl').val());
+            setoptions($('#dashboardUrl').val(),$('#dashboardId').val());
+        }
     }
 
     function readform_todelete(formName) {
