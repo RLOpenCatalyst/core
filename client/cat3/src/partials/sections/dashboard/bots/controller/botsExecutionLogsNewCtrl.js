@@ -47,8 +47,9 @@
                 helper.scrollBottom();
                 $scope.isBotLogsLoading = false;
             }
-            if(response === null) {
-                $scope.logsOutput = 'No Logs Generated';
+            if(response.length == 0) {
+                $modalInstance.dismiss('cancel');
+                toastr.error('Logs are Getting generated.');
             }
         });
 

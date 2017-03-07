@@ -81,6 +81,7 @@ botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,callbac
             apiUtil.databaseUtil(paginationReq, next);
         },
         function(queryObj, next) {
+            
             if(actionStatus !== null){
                 var query = {
                     auditType: 'BOTsNew',
@@ -166,8 +167,8 @@ botsNewService.executeBots = function executeBots(botId,reqBody,userName,executi
             }
         },
         function(botDetails,next) {
-            console.log('herere');
             if(botDetails.length > 0){
+                
                 if(botDetails[0].type === 'script'){
                     async.parallel([
                         function(callback){
@@ -177,12 +178,12 @@ botsNewService.executeBots = function executeBots(botId,reqBody,userName,executi
                             botsDao.botsExecutionCountInc(botId,callback)
                         }
                     ],function(err,data) {
-                        next(err,data[0])
+                        next(null,data[0]);
                     });
                 }
             }else {
                next(null,botDetails);
-            }
+            }  
         }
     ],function(err,results){
         if(err){
@@ -265,7 +266,7 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                                     gitHubRepoName:gitHubDetails.repositoryName,
                                                     id:result.id,
                                                     desc:result.desc,
-                                                    category:result.category?result.category:result.functionality,
+                                                    category:result.botCategory?result.botCategory:result.functionality,
                                                     action:result.action,
                                                     execution:result.execution,
                                                     type:result.type,
@@ -425,7 +426,6 @@ function addYmlFileDetailsForBots(bots,callback){
     }else{
         var botsList =[];
         var botsObj={};
-        var masterDetails = {}
         for(var i = 0; i <bots.docs.length; i++){
             (function(bot){
                 fileUpload.getReadStreamFileByFileId(bot.ymlDocFileId,function(err,file){
@@ -436,20 +436,18 @@ function addYmlFileDetailsForBots(bots,callback){
                     }else{
                         botsObj = {
                             _id:bot._id,
-                            botName:bot.name,
+                            name:bot.name,
                             gitHubId:bot.gitHubId,
-                            botType:bot.id,
-                            botDesc:bot.desc,
+                            id:bot.id,
+                            desc:bot.desc,
                             category:bot.category,
                             type:bot.type,
                             inputFormFields:bot.inputFormFields,
                             outputOptions:bot.outputOptions,
                             ymlDocFilePath:bot.ymlDocFilePath,
                             ymlDocFileId:bot.ymlDocFileId,
-                            masterDetails:{
-                             orgId:bot.orgId,
-                             orgName:bot.orgName
-                            },
+                            orgId:bot.orgId,
+                            orgName:bot.orgName,
                             ymlFileName: file.fileName,
                             ymlFileData: file.fileData,
                             isScheduled:bot.isScheduled,
@@ -458,6 +456,7 @@ function addYmlFileDetailsForBots(bots,callback){
                             scheduler:bot.scheduler,
                             createdOn:bot.createdOn,
                             lastRunTime:bot.lastRunTime
+                            
                         }
                         botsList.push(botsObj);
                         botsObj={};
@@ -471,4 +470,3 @@ function addYmlFileDetailsForBots(bots,callback){
         }
     }
 }
-

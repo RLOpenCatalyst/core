@@ -135,25 +135,6 @@
             }
         };
 
-        genericServices.log=function(id,historyId,botLinkedSubCategory) {
-            $modal.open({
-                animation: true,
-                templateUrl: 'src/partials/sections/dashboard/bots/view/botExecutionLogs.html',
-                controller: 'botExecutionLogsCtrl',
-                backdrop: 'static',
-                keyboard: false,
-                resolve: {
-                    items: function() {
-                        return {
-                            taskId: id,
-                            historyId: historyId,
-                            taskType: botLinkedSubCategory
-                        };
-                    }
-                }
-            });
-        };
-
         genericServices.removeBlueprint= function(blueprintObj, bpType) {
             var modalOptions = {
                 closeButtonText: 'Cancel',
@@ -185,58 +166,39 @@
         };
 
         genericServices.executeTask =function(task) {
-            if ((task.botConfig && task.botConfig.parameterized && task.botConfig.parameterized.length) || (task.botLinkedSubCategory === 'chef') || (task.botLinkedSubCategory === 'script') || (task.isBotsNew ===true)) {
+            $modal.open({
+                animation: true,
+                templateUrl: 'src/partials/sections/dashboard/bots/view/editParams.html',
+                controller: 'editParamsCtrl',
+                backdrop: 'static',
+                keyboard: false,
+                resolve: {
+                    items: function() {
+                        return task;
+                    }
+                }
+            }).result.then(function(response) {
                 $modal.open({
-                    animation: true,
-                    templateUrl: 'src/partials/sections/dashboard/bots/view/editParams.html',
-                    controller: 'editParamsCtrl',
+                    animate: true,
+                    templateUrl: "src/partials/sections/dashboard/bots/view/botExecutionLogs.html",
+                    controller: "botsExecutionLogsNewCtrl",
                     backdrop: 'static',
                     keyboard: false,
                     resolve: {
                         items: function() {
-                            return task;
-                        }
-                    }
-                }).result.then(function(response) {
-                    $modal.open({
-                        animate: true,
-                        templateUrl: "src/partials/sections/dashboard/bots/view/botExecutionLogs.html",
-                        controller: "botsExecutionLogsNewCtrl",
-                        backdrop: 'static',
-                        keyboard: false,
-                        resolve: {
-                            items: function() {
-                                return {
-                                    logDetails : response,
-                                    isBotNew : task.isBotsNew
-                                }
+                            return {
+                                logDetails : response,
+                                isBotNew : task.isBotsNew
                             }
                         }
-                    }).result.then(function() {
-                        console.log('The modal close is not getting invoked currently. Goes to cancel handler');
-                    }, function() {
-                        console.log('Cancel Handler getting invoked');
-                    });
-                }, function() {
-                });
-            } else {
-                $modal.open({
-                    animation: true,
-                    templateUrl: 'src/partials/sections/dashboard/bots/view/confirmBotRun.html',
-                    controller: 'confirmBotRunCtrl',
-                    backdrop: 'static',
-                    keyboard: false,
-                    resolve: {
-                        items: function() {
-                            return task;
-                        }
                     }
-                }).result.then(function(response) {
-                    $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
+                }).result.then(function() {
+                    console.log('The modal close is not getting invoked currently. Goes to cancel handler');
                 }, function() {
-                    $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
+                    console.log('Cancel Handler getting invoked');
                 });
-            }
+            }, function() {
+            });
         };
 
         genericServices.launchBlueprint=function(blueprintObj) {
