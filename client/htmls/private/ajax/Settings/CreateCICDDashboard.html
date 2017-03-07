@@ -62,8 +62,9 @@
                                                         <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardUrl"  onchange="getcollectors(this)" class="form-control" type="text" cdata="catalyst" cat-validation="required">
                                                         <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardLink"   class="form-control hidden" type="text" cdata="catalyst" cat-validation="required">
                                                     </div>
+                                                   
                                                     <!-- Widget for Jenkins Starts here -->
-                                                    <div class="col-lg-6 col-md-6" id="jenkins-widget" style="margin-top: 25px; display:none">
+                                                    <div class="col-lg-6 col-md-6" id="jenkins-widget" style="margin-top: 25px; ">
                                                         <label for="category">Jenkins:</label>
                                                         <div id="divjenkinsjobciid" class="input-group from-control col-md-12 widthBox" cdata="catalyst" style="height: 165px">
                                                             <div class="col-lg-12 col-md-12" style="margin-top:15px;">
@@ -95,20 +96,32 @@
                                                     </div>
                                                     <!-- Widget for Jira ends here -->
                                                     <!-- Widget for Bitbucket Starts here -->
-                                                    <div class="col-lg-6 col-md-6" id="bitbucket-widget" style="margin-top: 25px; ">
+                                                    <div class="col-lg-6 col-md-6" id="github-widget" style="margin-top: 25px; ">
                                                         <label for="category">Git Hub:</label>
                                                         <div id="divgitciid"  style="height: 165px">
                                                             <div class="col-lg-12 col-md-12" style="margin-top:15px;">
                                                                 <label for="">Repo URL:<span class="control-label redSpan">&nbsp;*</span></label>
-                                                                <input autofocus name="ctl00$MainContent$orgname" value="" id="reponame" class="form-control" type="text">
+                                                                <input autofocus name="ctl00$MainContent$orgname" value="" id="repourl" class="form-control" type="text">
                                                             </div>
                                                             <div class="col-lg-12 col-md-12" style="margin-top:15px;">
                                                                 <label for="">Branch:<span class="control-label redSpan">&nbsp;*</span></label>
-                                                                <input autofocus name="ctl00$MainContent$orgname" value="" id="branchname" class="form-control" type="text">
+                                                                <input autofocus name="ctl00$MainContent$orgname" value="" id="repobranch" class="form-control" type="text">
+                                                                <input autofocus name="ctl00$MainContent$orgname" value="" id="repocollectorid" class="form-control hidden" type="text">
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <!-- Widget for Bitbucket ends here -->
+                                                    <!-- Widget for Sonar ends here -->
+                                                    <div class="col-lg-6 col-md-6" id="sonar-widget" style="margin-top: 25px; ">
+                                                        <label for="category">SonarQube:</label>
+                                                        <div id="divsonarciid" class="input-group from-control col-md-12 widthBox" style="height: 165px">
+                                                            <div class="col-lg-12 col-md-12" style="margin-top:15px;">
+                                                                <label for="">Job Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                                                                <select id="sonarciid" class="chooseBG width-100" >
+                                                                 <option value="">Select Job Name</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                     <!-- Widget for Chef Starts here -->
                                                     <div class="col-lg-6 col-md-6" id="chef-widget" style="margin-top: 25px; ">
                                                         <label for="category">Chef:</label>
@@ -199,6 +212,18 @@ function getcollectors(val) {
                             collecterId[a]=data[i].id;
                             dashboardoption(a);
                         }
+
+                        if(data[i].name === "Hudson"){
+                            jenkinsWidgetOption(data[i].id);
+                        }
+                        if(data[i].name === "Chef"){
+                            chefWidgetOption(data[i].id);
+                        }
+                        if(data[i].name === "Sonar"){
+                            sonarWidgetOption(data[i].id);
+                        }if(data[i].name === "GitHub"){
+                            $('#repocollectorid').val(data[i].id);
+                        }
                     }
             }
     });
@@ -262,7 +287,7 @@ function dashboardoption(name) {
                  //var data=JSON.parse(data_a);
                  var projOption=[];
                 var pName=$('#jiraprojectciid').val();
-                alert(pName);
+                //alert(pName);
                  var str1 = '<option value=""></option>';
                  for (var j = 0; j < data.length; j++) {
 
@@ -279,9 +304,90 @@ function dashboardoption(name) {
      });
  }
 
-function jenkinsWidgetOption() {
-   
+function jenkinsWidgetOption(collectorId) {
+   $('#jenkinsjobciid').html();
+   $.ajax({
+        beforeSend: function(xhrObj){
+                xhrObj.setRequestHeader("Dashboard-url",dashboardURL);
+          xhrObj.setRequestHeader("Content-Type","application/json");
+                
+        },
+        type: "GET",
+        url: "/dashboardcicd/collector/"+collectorId,
+        processData: false,
+        dataType: "json",
+        contentType:"json",
+        success: function(data){
+                
+                var str = '<option value=""></option>';
+                var optionJenkins=[];
+                for (var j = 0; j < data.length; j++) {
+                    
+                        //optionJenkins.push(data[j].options.jobName);
+                         str = str + '<option  value="' + data[j].id + '">' + data[j].options.jobName + '</option>';
+                    }
+
+                $('#jenkinsjobciid').html(str);
+        }
+    });
 }
+
+function chefWidgetOption(collectorId) {
+   $('#cookbookciid').html();
+   $.ajax({
+        beforeSend: function(xhrObj){
+                xhrObj.setRequestHeader("Dashboard-url",dashboardURL);
+          xhrObj.setRequestHeader("Content-Type","application/json");
+                
+        },
+        type: "GET",
+        url: "/dashboardcicd/collector/"+collectorId,
+        processData: false,
+        dataType: "json",
+        contentType:"json",
+        success: function(data){
+                
+                var str = '<option value=""></option>';
+                
+                for (var j = 0; j < data.length; j++) {
+                    
+                        //optionJenkins.push(data[j].options.jobName);
+                         str = str + '<option  value="' + data[j].id + '">' + data[j].options.cookbookName + '</option>';
+                    }
+
+                $('#cookbookciid').html(str);
+        }
+    });
+}
+
+function sonarWidgetOption(collectorId) {
+   $('#sonarciid').html();
+   $.ajax({
+        beforeSend: function(xhrObj){
+                xhrObj.setRequestHeader("Dashboard-url",dashboardURL);
+          xhrObj.setRequestHeader("Content-Type","application/json");
+                
+        },
+        type: "GET",
+        url: "/dashboardcicd/collector/"+collectorId,
+        processData: false,
+        dataType: "json",
+        contentType:"json",
+        success: function(data){
+                
+                var str = '<option value=""></option>';
+               
+                for (var j = 0; j < data.length; j++) {
+                    
+                        //optionJenkins.push(data[j].options.jobName);
+                         str = str + '<option  value="' + data[j].id + '">' + data[j].options.projectName + '</option>';
+                    }
+
+                $('#sonarciid').html(str);
+        }
+    });
+}
+
 
  function creteDashboard() {
      dashboardFrom=$("#dashboard-create").serialize();
@@ -307,7 +413,7 @@ function jenkinsWidgetOption() {
          contentType:"json",
              success: function(json){
                  $('#dashboardLink').val('http://' + dashboardURL + "#/dashboard/" + json.id);
-                 alert($('#dashboardLink').val());
+                // alert($('#dashboardLink').val());
                  configureDashboard(json.id,json.application.components[0].id)
              }
          });
@@ -316,6 +422,15 @@ function jenkinsWidgetOption() {
  function configureDashboard(id,componentId) {
     var versionCIID = [];
     versionCIID.push($('#jiraversionciid').val());
+    var jenkinsCIID = [];
+    jenkinsCIID.push($('#jenkinsjobciid').val());
+    var chefCIID = [];
+    chefCIID.push($('#cookbookciid').val());
+    var sonarCIID = [];
+    sonarCIID.push($('#sonarciid').val());
+    var giturl = $('#repourl').val();
+    var gitbranch = $('#repobranch').val();
+    var gitCollectorId = $('#repocollectorid').val();
      $.ajax({
          beforeSend: function (xhrObj) {
              xhrObj.setRequestHeader("Dashboard-url", dashboardURL);
@@ -331,7 +446,44 @@ function jenkinsWidgetOption() {
              "componentId": componentId,
 
              "collectorItemIds": versionCIID
-         }
+         }, {
+            "options": {
+                "id": "build0",
+                "buildDurationThreshold": 3,
+                "consecutiveFailureThreshold": 5
+                },
+            "name": "build",
+            "componentId": componentId,
+            "collectorItemIds": jenkinsCIID
+         },
+         { 
+            "options":{"id":"chef0"},
+            "name":"chef",
+            "componentId":componentId,
+            "collectorItemIds": chefCIID
+        },
+        {
+            "options":{"id":"codeanalysis0","testJobNames":[]},
+            "name":"codeanalysis",
+            "componentId":componentId,
+            "collectorItemIds":sonarCIID
+        },{
+        "options": {
+            "id": "repo0",
+            "scm": {
+                "name": "GitHub",
+                "value": "GitHub"
+            },
+            "url": giturl,
+            "branch": gitbranch,
+            "collectorId": gitCollectorId
+        },
+        "name": "repo",
+        "componentId": componentId,
+        "collectorItemIds": []
+    }
+
+
          ]),
          dataType: "json",
          contentType: 'application/json',
