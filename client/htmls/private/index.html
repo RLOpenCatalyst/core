@@ -50,7 +50,7 @@
             </li>
  <li class="left-projects-links hidden" data-target="#Workspace" navigation="Workspace,Workspace1">
               <a class="navigationTab" id="analytics" href="#"  onclick="setleftnavigation(this,'analytics');" >
-              <i class="fa fa-area-chart white"></i>&nbsp; ANALYTICS 
+                <i class="fa fa-cloud white"></i>&nbsp;CLOUD
               </a>
             </li>
 
@@ -827,7 +827,7 @@ function setleftnavigation(toplink, breadcrumbHeader) {
           if(checkUrl.indexOf('ajax/Dev.html') !==-1){
             console.log('here');
           }else{
-             window.location.href = "../../cat3/#/dashboard/analytics/cost/";  
+             window.location.href = "../../cat3/#/dashboard/CM/analytics/cost/";
             return false;
           }
         }
@@ -1134,6 +1134,14 @@ var SettingTreeJson = [{
                 "href": "#ajax/Settings/JenkinsConfigList.html",
                 "selectable": true,
                 "icon": "fa fa-lg fa-fw fa-link"
+
+            },{
+                "name": "organizations",
+                "text": "Github",
+                "borderColor": "#000",
+                "href": "#ajax/Settings/githubList.html",
+                "selectable": true,
+                "icon": "fa fa-lg fa-fw fa-github"
 
             }],
         "borderColor": "#000",

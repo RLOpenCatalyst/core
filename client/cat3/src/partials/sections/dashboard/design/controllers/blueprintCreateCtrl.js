@@ -62,7 +62,7 @@
                     $scope.templateList = data;
                     for(var i=0;i<$scope.templateList.length;i++){
                         if($scope.templateList[i].templatesicon_filePath){
-                            $scope.filePath = '/d4dMasters/image/' + $scope.templateList[i].templatesicon_filePath;
+                            $scope.templateList[i].templatesicon_filePath = '/d4dMasters/image/' + $scope.templateList[i].templatesicon_filePath;
                         }
                     }    
                 });
@@ -361,6 +361,7 @@
             };
 
             blueprintCreation.showRepoServers = function() {
+                $scope.showNexusDocker = true;
                 if(blueprintCreation.newEnt.appDeployCheck_isChecked) {
                     bpCreateSer.getNexusServerList().then(function(data){
                         blueprintCreation.serverRepos = data;
@@ -368,6 +369,10 @@
                     bpCreateSer.getDockerList().then(function(data){
                         blueprintCreation.serverRepos = blueprintCreation.serverRepos.concat(data);
                     });
+                } else {
+                    $scope.showNexusDocker = false;
+                    blueprintCreation.newEnt.nexusDockerServer = null
+                    blueprintCreation.serverRepos = [];
                 }
             };
 
@@ -864,7 +869,7 @@
                     var modalOptions = {
                         closeButtonText: 'Cancel',
                         actionButtonText: 'Submit',
-                        actionButtonStyle: 'bp-btn-create',
+                        actionButtonStyle: 'btn cat-btn-update',
                         headerText: 'Confirm Blueprint Creation',
                         bodyText: 'Are you sure want to submit this Blueprint Data? Press Ok to Continue'
                     };

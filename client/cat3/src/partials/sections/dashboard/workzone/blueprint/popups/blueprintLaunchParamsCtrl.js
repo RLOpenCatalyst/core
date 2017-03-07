@@ -10,28 +10,41 @@
 	angular.module('workzone.blueprint')
 		.controller('blueprintLaunchParamsCtrl', ['$scope', '$modalInstance', 'toastr',  'items','workzoneServices','genericServices','workzoneEnvironment', function($scope, $modalInstance, toastr, items,workzoneServices,genericServices,workzoneEnvironment) {
 			console.log(items);
+			$scope.showMonitor = true;
+			if(items.blueprintType === 'azure_arm' || items.blueprintType === 'azure_launch') {
+				$scope.showMonitor = false;
+			}
 			var launchHelper = {
 				launch : function(){
-					$modalInstance.close({bp:items,stackName:$scope.stackName,domainName:$scope.domainName,tagServer:$scope.tagSerSelected,launchEnv:$scope.envSeleted});
+					$modalInstance.close({bp:items,stackName:$scope.stackName,domainName:$scope.domainName,tagServer:$scope.tagSerSelected,launchEnv:$scope.envSeleted,monitorId:$scope.monitorId});
 				}
 			};
 			//var bPLP=this;
 			$scope.taggingServerList=[];
 			$scope.envOptions=[];
+			$scope.monitorList = [];
 			workzoneServices.getTaggingServer().then(function (topSer) {
 				$scope.taggingServerList=topSer.data;
 			});
+			$scope.monitorId = 'null';
+			$scope.getMonitorList = function(orgId) {
+				workzoneServices.getMonitorList(orgId).then(function (response) {		
+			        $scope.monitorList = response.data;
+				});
+			}
 			genericServices.getTreeNew().then(function (envData) {
 				angular.forEach(envData,function(val){
 					var orgID,bgID,projID;
 					if(items.organizationId === undefined) {
-						orgID = (items.orgId)?items.orgId:items.organization.id;
-			        	bgID = (items.bgId)?items.bgId:items.businessGroup.id;
-			        	projID = (items.projectId)?items.projectId:items.project.id;
+						orgID = (items.orgId)?items.orgId:items.masterDetails.orgId;
+			        	bgID = (items.bgId)?items.bgId:items.masterDetails.bgId;
+			        	projID = (items.projectId)?items.projectId:items.masterDetails.projectId;
+			        	$scope.getMonitorList(orgID);
 					} else {
 						orgID = items.organizationId;
 						bgID = items.businessGroupId;
 						projID = items.projectId;
+						$scope.getMonitorList(orgID);
 					}
 					if(val.rowid === orgID){
 						$scope.orgSeleted=val.name;
@@ -58,12 +71,12 @@
 			});
 			$scope.stackName='';
 			$scope.domainName='';
-			$scope.tagSerSelected = "";
+			$scope.tagSerSelected = '';
 			$scope.cancel = function() {
 				$modalInstance.dismiss('cancel');
 			};
 			$scope.launchBP = function() {
-				if(items.orgId === undefined){
+				if(items.orgId === undefined && items.botType === undefined){
 					var compBlue={
 						"blueprintId": (items.id)?items.id:items._id,
 						"environmentId": $scope.envSeleted
@@ -75,13 +88,14 @@
                         toastr.error(data.message, 'Error');
 					});
 				} else {
-					if(items.blueprintType === "aws_cf") {
+					if(items.blueprintType === "aws_cf" || items.botLinkedSubCategory === "aws_cf") {
 						$scope.showCFTInputs = true;
-					}else if(items.blueprintType === "azure_arm") {
+					}else if(items.blueprintType === "azure_arm" || items.botLinkedSubCategory === "azure_arm") {
 						$scope.showARMInputs = true;
 					}else if(items.domainNameCheck === true || items.domainNameCheck === "true") {
 						$scope.showBlueprintInputs = true;
 					}else {
+						console.log("Durgesh");
 						launchHelper.launch();
 					}
 				}

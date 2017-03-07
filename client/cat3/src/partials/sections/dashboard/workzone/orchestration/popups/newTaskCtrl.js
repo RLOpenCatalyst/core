@@ -241,8 +241,11 @@
 					}
 				},
 				selectTaskCheckbox: function(){
-					$scope.showAddTask = true;
-					$scope.isEventAvailable = false;
+					if($scope._isEventSelected.flag) {
+						$scope.showAddTask = true;
+					} else {
+						$scope.showAddTask = false;
+					}
 				},
 				addTaskEvent : function() {
 					$modal.open({
@@ -259,7 +262,6 @@
 							}
 						}
 					}).result.then(function (chefEventDetails) {
-						$scope.isEventAvailable = true;
 						$scope.chefJenkScriptTaskObj = chefEventDetails;
 						var startTimeMinute,startTimeHour,dayOfWeek,selectedDayOfTheMonth,selectedMonth;
 						startTimeMinute = $scope.chefJenkScriptTaskObj.startTimeMinute;
@@ -268,7 +270,6 @@
 						selectedDayOfTheMonth = $scope.chefJenkScriptTaskObj.selectedDayOfTheMonth;
 						selectedMonth = $scope.chefJenkScriptTaskObj.monthOfYear;
 						$scope.type = 'edit';
-						$scope._isEventSelected = true;
 						
 						$scope.repeatPattern = 'Repeat Every -' +  $scope.chefJenkScriptTaskObj.repeats;   
 						$scope.cronDetails = {
@@ -338,9 +339,21 @@
 							return false;
 						}
 					}
+					if($scope.taskType === "chef" || $scope.taskType === "script") {
+						taskJSON.nodeIds = [];
+						taskJSON.executionOrder = $scope.isExecution.flag;
+						taskJSON.isTaskScheduled = $scope._isEventSelected.flag;
+						taskJSON.taskScheduler = $scope.cronDetails;
+						var selectedList = instanceSelector.getSelectorList();
+						if (selectedList && selectedList.length) {
+							for (var i = 0; i < selectedList.length; i++) {
+								taskJSON.nodeIds.push(selectedList[i].data);
+							}
+						}
+					}
 					/*This will get the values in order to create chef type task and check for any chef node selections*/
 					if ($scope.taskType === "chef") {
-						taskJSON.nodeIds = [];
+						
 						taskJSON.blueprintIds = [];
 						taskJSON.role = $scope.role.name;
 						for(var bi = 0; bi < $scope.chefBluePrintList.length; bi++){
@@ -348,19 +361,19 @@
 								taskJSON.blueprintIds.push($scope.chefBluePrintList[bi]._id);
 							}
 						}
-						if (!taskJSON.nodeIds && !taskJSON.blueprintIds.length && !taskJSON.role ) {
+						if (!taskJSON.nodeIds.length && !taskJSON.blueprintIds.length && !taskJSON.role ) {
 							$scope.inputValidationMsg='Please select a node or blueprint or role';
 							$scope.taskSaving = false;
 							return false;
 						}
-						if (taskJSON.blueprintIds.length) {
-							$scope.inputValidationMsg='Please choose either blueprints or role, not all';
+						if (taskJSON.nodeIds.length && taskJSON.blueprintIds.length) {
+							$scope.inputValidationMsg='Please choose either nodes or blueprints or role, not all';
 							$scope.taskSaving = false;
 							return false;
 						}
 
-						if (taskJSON.role) {
-							$scope.inputValidationMsg='Please choose blueprints or role, not all';
+						if (taskJSON.nodeIds.length && taskJSON.role) {
+							$scope.inputValidationMsg='Please choose either nodes or blueprints or role, not all';
 							$scope.taskSaving = false;
 							return false;
 						}
@@ -413,13 +426,11 @@
 						//first time execute will get result from jobResultURLPattern.
 						taskJSON.jobResultURLPattern = taskJSON.jobResultURL;
 						taskJSON.parameterized = $scope.jenkinsParamsList;
-						taskJSON.isTaskScheduled = $scope._isEventSelected;
-						//taskJSON.taskScheduler = $scope.cronPattern;
+						taskJSON.isTaskScheduled = $scope._isEventSelected.flag;
 						taskJSON.taskScheduler = $scope.cronDetails;
 					}
 					//if task type is script
 					if ($scope.taskType === "script") {
-						taskJSON.nodeIds = [];
 						taskJSON.scriptDetails = [];
 						taskJSON.isSudo = $scope.isSudo;
 						taskJSON.scriptTypeName = $scope.scriptTypeSelelct;
@@ -448,21 +459,7 @@
 							return false;
 						}
 					}
-					if($scope.taskType === "chef" || $scope.taskType === "script") {
-						taskJSON.executionOrder = $scope.isExecution.flag;
-						taskJSON.isTaskScheduled = $scope._isEventSelected;
-						//taskJSON.taskScheduler = $scope.cronPattern;
-						taskJSON.taskScheduler = $scope.cronDetails;
-						var selectedList = instanceSelector.getSelectorList();
-						if (selectedList && selectedList.length) {
-							for (var i = 0; i < selectedList.length; i++) {
-								taskJSON.nodeIds.push(selectedList[i].data);
-							}
-						} else {
-							$scope.inputValidationMsg='Please select atleast one node';
-							return false;
-						}
-					}
+					
 					//checking whether its a update or a new task creation
 					if ($scope.isEditMode) {
 						$scope.updateTask(taskJSON);
@@ -492,6 +489,9 @@
 			};
 			$scope.isExecution = {
 				flag: 'PARALLEL'
+			};
+			$scope._isEventSelected = {
+				flag: false
 			};
 			/*in backend at the time of edit of task the jobResultUrlPattern
 			 was going as null. So there was in issue with the links disappearing.*/
@@ -711,13 +711,12 @@
 					$scope.isExecution.flag = items.executionOrder;
 				}
 				if(items.taskType === "chef" || items.taskType === "jenkins" || items.taskType === "script") {
-					//if(items.taskScheduler){
-						$scope._isEventSelected = items.isTaskScheduled;
+					$scope._isEventSelected.flag = items.isTaskScheduled;
+					if(items.isTaskScheduled === true) {
 						$scope.showAddTask = true;
-						$scope.isEventAvailable = true;
-						$scope.chefJenkScriptTaskObj = items.taskScheduler;
-						$scope.type = 'edit';
-					//}
+					}
+					$scope.chefJenkScriptTaskObj = items.taskScheduler;
+					$scope.type = 'edit';
 				}
 			}
 		}

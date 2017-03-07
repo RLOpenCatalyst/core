@@ -98,6 +98,18 @@ ResourceSchema.statics.deleteResourcesById = function(resourceId,callback) {
     });
 };
 
+ResourceSchema.statics.removeResourceById = function(resourceId,callback) {
+    Resources.remove({
+        _id: new ObjectId(resourceId)
+    }, function(err, data) {
+        if (err) {
+            return callback(err, null);
+        } else {
+            callback(null, data);
+        }
+    });
+};
+
 ResourceSchema.statics.removeResourcesByProviderId = function(providerId,callback) {
     var queryObj={};
     queryObj['providerDetails.id'] =providerId;
@@ -189,13 +201,29 @@ ResourceSchema.statics.updateResourcesForAssigned =  function(resourceId,masterD
     });
 };
 
-ResourceSchema.statics.getAllUnassignedResources=function(providerId,callback){
+ResourceSchema.statics.updateResourceMasterDetails =  function(resourceId,masterDetails,callback){
+    Resources.update({
+        _id: new ObjectId(resourceId)
+    }, {
+        $set:masterDetails
+    }, {
+        upsert: false
+    }, function(err, data) {
+        if (err) {
+            return callback(err, null);
+        } else {
+            callback(null, data);
+        }
+    });
+};
+
+ResourceSchema.statics.getAllResourcesByCategory=function(providerId,category,callback){
     var queryObj={};
     queryObj['providerDetails.id'] =providerId;
-    queryObj['category'] ='unassigned';
+    queryObj['category'] =category;
     Resources.find(queryObj, function(err, data) {
         if (err) {
-            logger.error("Failed to getAllUnassignedResources", err);
+            logger.error("Failed to getAllResourcesByCategory", err);
             callback(err, null);
             return;
         }

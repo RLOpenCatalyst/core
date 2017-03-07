@@ -11,7 +11,7 @@
                   <div class="col-sm-3 col-lg-3 col-md-3 blueprintTemplate" ng-repeat="templateDetail in templateList" ng-if="bpTypeName == templateDetail.templatetypename" ng-class="{'blueprintTemplateSelected':templateDetail.selected}" ng-click="blueprintTemplateClick(templateDetail);">
                      <ul class="list-unstyled system-prop" style="text-align:center;">
                         <li>
-                           <img style="height:40px;width:auto;" ng-if="templateDetail.templatesicon_filePath" alt="templateLogo" ng-src="{{filePath}}">
+                           <img style="height:40px;width:auto;" ng-if="templateDetail.templatesicon_filePath" alt="templateLogo" ng-src="{{templateDetail.templatesicon_filePath}}">
                            <img style="height:40px;width:auto;" ng-if="!templateDetail.templatesicon_filePath" ng-src="{{logo}}">
                         </li>
                         <li style="font-size:12px;"><u><b>{{templateDetail.templatename}}</b></u></li>
@@ -32,7 +32,7 @@
                   <div class="col-sm-2 col-lg-2 col-md-2 blueprintTemplate blueprintTemplateSelected" ng-show="templateSelected.templatetypename !== 'Docker'">
                      <ul class="list-unstyled system-prop" style="text-align:center;">
                         <li ng-if="templateSelected.templatetypename === 'SoftwareStack' || templateSelected.templatetypename === 'CloudFormation' || templateSelected.templatetypename === 'ARMTemplate'">
-                           <img style="height:40px;width:auto;" ng-if="templateSelected.templatesicon_filePath" alt="templateLogo" ng-src="{{filePath}}">
+                           <img style="height:40px;width:auto;" ng-if="templateSelected.templatesicon_filePath" alt="templateLogo" ng-src="{{templateSelected.templatesicon_filePath}}">
                            <img style="height:40px;width:auto;" ng-if="!templateSelected.templatesicon_filePath" ng-src="{{logo}}">
                         </li>
                         <li ng-if="templateSelected.osType">
@@ -216,9 +216,11 @@
                            </accordion-heading>
                            <div class="col-lg-4 col-md-4">
                               <label for="blueprintNameInput">Enter Blueprint Name:<span class="red"  >&nbsp;*</span>
-                                 <span ng-show="newBlueprintForm.blueprintNameInput.$touched && newBlueprintForm.blueprintNameInput.$invalid" class="inputValidationMsg">Required</span>
+                                 <span ng-show="newBlueprintForm.blueprintNameInput.$dirty && newBlueprintForm.blueprintNameInput.$error.required" class="inputValidationMsg">Required</span>
+                                 <span class="red inputValidationMsg" ng-show="newBlueprintForm.blueprintNameInput.$error.maxlength">
+                                 (only 25 chars allowed)</span>
                               </label>
-                              <input ng-model="bpCreate.newEnt.blueprintName" name="blueprintNameInput" class="form-control" type="text" autofocus="autofocus" required>
+                              <input ng-model="bpCreate.newEnt.blueprintName" ng-maxlength="25" name="blueprintNameInput" class="form-control" type="text" autofocus="autofocus" required>
                            </div>
                            <div class="col-lg-4 col-md-4">
                               <label for="orgnameSelect">Select Organization <span class="red">&nbsp;*</span>
@@ -256,11 +258,12 @@
                            </div>
                            
                            <div class="col-lg-4 col-md-4 margintop15" ng-show="botTypes">
-                              <label for="">Bot Type:<span class="red">*</span>
+                              <label for="">BOT Type:<span class="red">*</span>
                               </label>
                               <select ng-model="bpCreate.newEnt.botTypeValue" name="" class=" width-100 form-control">
                                 <option selected="selected" value="Task">Task</option>
                                 <option value="Check">Check</option>
+                                 <option value="Provision">Provision</option>
                                 <option value="Run">Run</option>
                                 <option value="UI">UI</option>
                               </select>
@@ -273,7 +276,7 @@
                            </div>
 
                            <div class="col-lg-4 col-md-4 margintop15" ng-show="botTypes">
-                              <label for="">Bot Category:<span class="red">*</span>
+                              <label for="">BOT Category:<span class="red">*</span>
                               </label>
                               <select ng-model="bpCreate.newEnt.botCategoryValue" name="" class=" width-100 form-control">
                                 <option selected="selected" value="Active Directory">Active Directory</option>
@@ -381,7 +384,7 @@
                            </div>
                            
                            <div ng-if="bpCreate.newEnt.serverType==='docker'">
-                              <div class="col-lg-4 col-md-4 margintop15">
+                              <div class="col-lg-4 col-md-4 margintop15" ng-show="showNexusDocker">
                                  <label >Repository:<span class="red">*</span>
                                     <loading size="small" name="isLoadingNexus" type="inline"></loading>
                                  </label>
@@ -392,7 +395,7 @@
                                     </select>
                                  </div>
                               </div>
-                              <div class="col-lg-4 col-md-4 margintop15">
+                              <div class="col-lg-4 col-md-4 margintop15" ng-show="showNexusDocker">
                                  <label>Tags:<span class="red">*</span>
                                     <loading size="small" name="isLoadingDocTag" type="inline"></loading>
                                  </label>
@@ -401,25 +404,25 @@
                                     <option ng-repeat="tagOption in bpCreate.tagOptions" value="{{tagOption.name}}">{{tagOption.name}}</option>
                                  </select>
                               </div>
-                              <div class="col-lg-4 col-md-4 margintop15">
+                              <div class="col-lg-4 col-md-4 margintop15" ng-show="showNexusDocker">
                                  <label>Container Port:<span class="red">*</span>
                                     <!--<loading size="small" name="isLoadingNexus" type="inline"></loading>-->
                                  </label>
                                  <div class="input-groups"><input type="text" name="contPort" class="form-control" ng-model="bpCreate.newEnt.contPort" required></div>
                               </div>
-                              <div class="col-lg-4 col-md-4 margintop15" >
+                              <div class="col-lg-4 col-md-4 margintop15" ng-show="showNexusDocker">
                                  <label ng-click="showHideLoader()">Host Port:<span class="red">*</span></label>
                                  <!--<loading size="small" name="isLoadingContainer" type="inline"></loading>-->
                                  <input type="text" class="form-control" name="hostPort" ng-model="bpCreate.newEnt.hostPort" required>
                               </div>
-                              <div class="col-lg-4 col-md-4 margintop15" >
+                              <div class="col-lg-4 col-md-4 margintop15" ng-show="showNexusDocker">
                                  <label ng-click="showHideLoader()">Container Name/ID:</label>
                                  <!--<loading size="small" name="isLoadingContainer" type="inline"></loading>-->
                                  <input type="text" class="form-control" ng-model="bpCreate.newEnt.ContNameId" >
                               </div>
                            </div>
-                           <div  ng-if="bpCreate.newEnt.serverType==='nexus'">
-                              <div class="col-lg-4 col-md-4 margintop15">
+                           <div ng-if="bpCreate.newEnt.serverType==='nexus'">
+                              <div class="col-lg-4 col-md-4 margintop15" ng-show="showNexusDocker">
                                  <label >Repository:<span class="red">*</span> <span ng-if="bpCreate.errorMsg.repository" messages msg-config="bpCreate.errorMsg"></span>
                                     <loading size="small" name="isLoadingNexus" type="inline"></loading>
                                  </label>
@@ -430,7 +433,7 @@
                                     </select>
                                  </div>
                               </div>
-                              <div class="col-lg-4 col-md-4 margintop15" >
+                              <div class="col-lg-4 col-md-4 margintop15" ng-show="showNexusDocker">
                                  <label>Group ID:<span class="red">*</span>
                                     <loading size="small" n ame="isLoadingNexus" type="inline"></loading>
                                  </label>
@@ -441,7 +444,7 @@
                                     </select>
                                  </div>
                               </div>
-                              <div class="col-lg-4 col-md-4 margintop15">
+                              <div class="col-lg-4 col-md-4 margintop15" ng-show="showNexusDocker">
                                  <label>Artifacts:<span class="red">*</span>
                                     <loading size="small" name="isLoadingArtifacts" type="inline"></loading>
                                  </label>
@@ -452,7 +455,7 @@
                                     </select>
                                  </div>
                               </div>
-                              <div class="col-lg-4 col-md-4 margintop15" >
+                              <div class="col-lg-4 col-md-4 margintop15" ng-show="showNexusDocker">
                                  <label for="">Versions:<span class="red">*</span>
                                     <loading size="small" name="isLoadingNexusVersion" type="inline"></loading>
                                  </label>
@@ -463,7 +466,7 @@
                                     </select>
                                  </div>
                               </div>
-                              <div class="col-lg-12 col-md-12 margintop15">
+                              <div class="col-lg-12 col-md-12 margintop15" ng-show="showNexusDocker">
                                  <label>Repository URL:<span class="red">*</span>
                                     <!--<loading size="small" name="isLoadingNexus" type="inline"></loading>-->
                                  </label>
@@ -532,8 +535,9 @@
                                     Configure Resource : {{key}}
                                  </accordion-heading>
                                  <div class="col-lg-6 col-md-6 margintop15">
-                                    <label for="cftUserName">Instance Username<span class="red">&nbsp;*</span></label>
-                                    <input type="text" ng-model="bpCreate.newEnt.cftModelResources[key]" name="cftUserName" class="form-control"/>
+                                    <label for="cftUserName">Instance Username<span class="red">&nbsp;*</span>
+                                       <span ng-show="newBlueprintForm.cftUserName.$touched && newBlueprintForm.cftUserName.$invalid" class="inputValidationMsg">Required</span></label>
+                                    <input type="text" ng-model="bpCreate.newEnt.cftModelResources[key]" name="cftUserName" class="form-control" required/>
                                  </div>
                                  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                     <span class="cursor pull-right">
