@@ -25,6 +25,10 @@
             return deferred.promise;
         };
 
+        genericServices.promiseOwn = function (paramsObject) {
+            return $http(paramsObject);
+        };
+
         genericServices.promisePost = function (paramsObject) {
             if(!paramsObject.inlineLoader){ $rootScope.onBodyLoading=true;}
             var deferred = $q.defer();
