@@ -12,7 +12,6 @@
     function ($scope, $rootScope, $state, genSevs, confirmbox, workzoneServices, toastr, workzoneUIUtils, $modal, uiGridOptionsService, $timeout) {
         var treeNames = ['BOTs','Audit Trail'];
         $rootScope.$emit('treeNameUpdate', treeNames);
-        var audit=this;
         var botAuditTrailUIGridDefaults = uiGridOptionsService.options();
         $scope.paginationParams = botAuditTrailUIGridDefaults.pagination;
         $scope.paginationParams=[];
@@ -38,13 +37,13 @@
                   '<img class="bot-status-icon" src="images/instance-states/aws-stopped.png" ng-show="row.entity.status === \'failed\'" title="{{row.entity.status}}">' + 
                   '<img class="bot-status-icon" src="images/instance-states/aws-inactive.png" ng-show="row.entity.status === \'running\'" title="{{row.entity.status}}">',
                   cellTooltip: true},
-                { name: 'Org',field:'masterDetails.orgName'},
-                { name: 'BU',field:'masterDetails.bgName'},
+                { name: 'Organization',field:'masterDetails.orgName'},
+                { name: 'Business Group',field:'masterDetails.bgName'},
                 { name: 'Project',field:'masterDetails.projectName'},
-                { name: 'Env',field:'masterDetails.envName'},
+                { name: 'Environment',field:'masterDetails.envName'},
                 { name: 'User',field:'user'},
                 { name: 'Logs',cellTemplate: '<span class="btn cat-btn-update control-panel-button" title="Logs" ng-click="grid.appScope.botAuditTrailLogs(row.entity);"><i class="fa fa-info white"></i></span>'}
-            ]
+            ];
             $scope.botAuditTrailGridOptions.data=[];
             angular.extend($scope.botAuditTrailGridOptions,botAuditTrailUIGridDefaults.gridOption);
         };
@@ -119,6 +118,7 @@
         };
 
         $scope.botAuditTrailGridView =function(){
+            $scope.isBotAuditTrailPageLoading = true;
             $scope.botAuditTrailGridOptions.data=[];
             var param={
                 url:'/audit-trail?filterBy=auditType:BOTs&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
@@ -127,8 +127,8 @@
                 $timeout(function() {
                     $scope.botAuditTrailGridOptions.data=response.auditTrails;
                     $scope.botAuditTrailGridOptions.totalItems = response.metaData.totalRecords;
+                    $scope.isBotAuditTrailPageLoading = false;
                 }, 100);
-                $scope.isBotAuditTrailPageLoading = false;
             }, function(error) {
                 $scope.isBotAuditTrailPageLoading = false;
                 toastr.error(error);

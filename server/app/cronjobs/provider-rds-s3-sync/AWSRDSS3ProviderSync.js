@@ -312,7 +312,7 @@ function deleteRDSResourceData(rdsInfo,providerId, callback) {
                         })(rdsData[i]);
                     }
                 } else {
-                    next(null, dbNames);
+                    next(null, rdsData);
                 }
             }], function (err, results) {
             if (err) {
@@ -388,13 +388,14 @@ function tagMappingSyncForResources(resources,provider,category,next){
                                     }
                                 }
                             }
+                            
                             if (environmentTag !== null && environmentTag.name in resource.tags) {
+                                
                                 var environmentEntityMappings = Object.keys(environmentTag.catalystEntityMapping).map(
                                     function (k) {
                                         return environmentTag.catalystEntityMapping[k]
                                     });
-
-                                for (var y = 0; y < environmentTag.catalystEntityMapping.length; y++) {
+                                 for (var y = 0; y < environmentEntityMappings.length; y++) {
                                     if ((resource.tags[environmentTag.name] !== '')
                                         && ('tagValues' in environmentEntityMappings[y])
                                         && (environmentEntityMappings[y].tagValues.indexOf(

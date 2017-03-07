@@ -2069,6 +2069,24 @@ var InstancesDao = function () {
             }
         });
     };
+    
+    this.updateInstanceMonitor = function (instanceAWSId, monitor, callback) {
+        Instances.update({
+            platformId: instanceAWSId
+        }, {
+            $set: {
+                monitor: monitor
+            }
+        }, {
+            upsert: false
+        }, function (err, data) {
+            if (err) {
+                return callback(err, null);
+            } else {
+                callback(null, data);
+            }
+        });
+    };
 
     this.NormalizedInstances = function (jsonData, fieldName, callback) {
         var queryObj = {};

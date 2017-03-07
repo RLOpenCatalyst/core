@@ -24,7 +24,7 @@ var credentialcryptography = require('_pr/lib/credentialcryptography');
 var fs = require('fs');
 var blueprintService = require('_pr/services/blueprintService.js');
 var auditTrailService = require('_pr/services/auditTrailService');
-var bots = require('_pr/model/bots/bots.js');
+var bots = require('_pr/model/bots/1.0/bots.js');
 var botsService = require('_pr/services/botsService.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {

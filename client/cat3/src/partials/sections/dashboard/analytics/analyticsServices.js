@@ -10,14 +10,34 @@
                     $rootScope.filterNewEnt.period='month';
                     $rootScope.splitUpCosts=[];
                     $rootScope.filterNewEnt.platformId=[];
+                    var months=['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                    var weekInd= 0 | new Date().getDate() / 7;
+                    $rootScope.filterNewEnt.endDate={
+                        year:'2017',
+                        week:weekInd.toString(),
+                        month:months[new Date().getMonth()],
+                        day:moment(new Date()).format('YYYY-MM-DD')
+                    };
+                    $rootScope.filterNewEnt.date= moment($rootScope.filterNewEnt.endDate.month+' 01 '+ $rootScope.filterNewEnt.endDate.year).format('YYYY-MM-DD');
                 },
                 applyFilter : function(filterApp,period){
+                    $rootScope.filterNewEnt.date= moment($rootScope.filterNewEnt.endDate.month+' 01 '+ $rootScope.filterNewEnt.endDate.year).format('YYYY-MM-DD');
                     if($rootScope.organObject) {
                         var obj = $rootScope.organObject,
                             or = $rootScope.organNewEnt.org,
                             bu = $rootScope.organNewEnt.buss,
                             pr = $rootScope.organNewEnt.proj;
                         if (period) {
+                            if (period === 'day'){
+                                $rootScope.filterNewEnt.date= $rootScope.filterNewEnt.endDate.day;
+                            }else if(period === 'week'){
+                                var dt = new Date($rootScope.filterNewEnt.endDate.month+' '+ $rootScope.filterNewEnt.endDate.year);
+                                var wk=7*$rootScope.filterNewEnt.endDate.week;
+                                console.log(moment(dt).add(wk, 'days').format('YYYY-MM-DD'));
+                                $rootScope.filterNewEnt.date=moment(dt).add(wk, 'days').format('YYYY-MM-DD');
+                            } else {
+                                $rootScope.filterNewEnt.date=moment( $rootScope.filterNewEnt.endDate.month+' 01 '+ $rootScope.filterNewEnt.endDate.year).format('YYYY-MM-DD');
+                            }
                             $rootScope.filterNewEnt.period = period;
                         }
 

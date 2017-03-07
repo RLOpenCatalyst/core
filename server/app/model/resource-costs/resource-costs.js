@@ -166,6 +166,19 @@ ResourceCostsSchema.statics.remove
     })
 }
 
+ResourceCostsSchema.statics.removeResourceCostByProviderId = function removeResourceCostByProviderId(providerId, callback) {
+    var query = {
+        providerId: providerId
+    }
+    this.find(query).remove(function(err, result) {
+        if (err) {
+            callback(err)
+        } else {
+            callback(null, result)
+        }
+    })
+};
+
 ResourceCostsSchema.statics.upsert = function upsert(resourceCostData, callback) {
     var query = {
         organizationId: resourceCostData.organizationId,

@@ -283,7 +283,7 @@
 							cronDate: selectedDayOfTheMonth,
 							cronMonth: selectedMonth,
 							cronYear: $scope.chefJenkScriptTaskObj.monthOfYear
-						}
+						};
 					}, function () {
 						console.log('Dismiss time is ' + new Date());
 					});
@@ -585,7 +585,7 @@
 					});
 					$scope.isNewTaskPageLoading = false;
 				});
-			}
+			};
 			 $scope.$watch('taskType', function() {
         		if($scope.taskType === 'chef' || $scope.taskType === 'script'){
 					$scope.allInstances();

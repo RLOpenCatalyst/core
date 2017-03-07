@@ -25,25 +25,24 @@
                         $scope.newEnt.project.tagValues=[];
                         $scope.newEnt.businessGroup.tagValues=[];
                         $scope.newEnt.businessGroup.tagName='';
-                        $scope.newEnt.environment.tagName=''
-                        $scope.newEnt.environment.tagValues=[];;
+                        $scope.newEnt.environment.tagName='';
+                        $scope.newEnt.environment.tagValues=[];
                         disTgMap.getTagValues(false,'businessGroup');
                         disTgMap.getTagValues(false,'environment');
                         disTgMap.getTagValues(false,'project');
 
-                            angular.forEach(tagResult, function (val, key) {
-                                $scope.newEnt[key].tagName = val.tagName;
-                                $scope.newEnt[key].tagValues = val.tagValues;
-                                $scope.newEnt[key].catalystEntityType = val.catalystEntityType;
-                                angular.forEach(val.catalystEntityMapping, function (v, k) {
-                                    $scope.newEnt[key].catalystEntityMapping[k] = {
-                                        tagValues: v.tagValues,
-                                        catalystEntityId: v.catalystEntityId,
-                                        catalystEntityName: v.catalystEntityName
-                                    }
-                                });
+                        angular.forEach(tagResult, function (val, key) {
+                            $scope.newEnt[key].tagName = val.tagName;
+                            $scope.newEnt[key].tagValues = val.tagValues;
+                            $scope.newEnt[key].catalystEntityType = val.catalystEntityType;
+                            angular.forEach(val.catalystEntityMapping, function (v, k) {
+                                $scope.newEnt[key].catalystEntityMapping[k] = {
+                                    tagValues: v.tagValues,
+                                    catalystEntityId: v.catalystEntityId,
+                                    catalystEntityName: v.catalystEntityName
+                                };
                             });
-
+                        });
                     });
                 }
             };
@@ -93,7 +92,7 @@
                     toastr.success('Successfully updated.','Update');
                 });
             };
-            $rootScope.applyFilter =function(filterApp,period){
+            $rootScope.applyFilter =function(){
                 analyticsServices.applyFilter(true,null);
                 disTgMap.getTagMapping();
             };
