@@ -414,7 +414,10 @@ function sonarWidgetOption(collectorId) {
              success: function(json){
                  $('#dashboardLink').val('http://' + dashboardURL + "#/dashboard/" + json.id);
                 // alert($('#dashboardLink').val());
-                 configureDashboard(json.id,json.application.components[0].id)
+                 console.log(json);
+                 if(json && Object.keys(json).length >0){
+                     configureDashboard(json.id,json.application.components[0].id);
+                 }
              }
          });
  }
@@ -489,7 +492,10 @@ function sonarWidgetOption(collectorId) {
          contentType: 'application/json',
          success: function (json) {
              //save the form only after creation of the dashboard
-             saveform('30');
+             if(json && Object.keys(json).length >0){
+                 saveform('30');
+             }
+
          }
 
      });
