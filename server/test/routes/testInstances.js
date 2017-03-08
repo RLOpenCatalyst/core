@@ -103,7 +103,7 @@ describe("Deploy Permission ",function(){
    it(" Execute a Bots ",function(done){
        var reqBody = ['google.com'];
         server
-            .post('/botsNew/58a2daadeb2ad8955f9d0352/execute?executionType=bots')
+            .post('/botsNew/58a2daadeb2ad8955f9d0352/execute?executionType=bot-console')
             .send(reqBody)
             .end(function(err,res){
                 console.log(res.body);

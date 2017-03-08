@@ -180,59 +180,61 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,executionType,callback
                         botLogger.debug('BOTs execution success for script ' + scriptObj.start);
                         if(count === botsScriptDetails.execution.length) {
                             /*if(executionType === 'bots' || executionType === 'telemetry') {
-                             var supertest = require("supertest");
-                             var server = supertest.agent("http://192.168.152.62:5000");
-                             var reqBody = {
-                             "botDescription": JSON.stringify(botsScriptDetails.ymlJson),
-                             "logLocation": '/home/karan/Documents/RL_Catalyst/Bots/ipAddress.log'
-                             };
-                             server
-                             .post('/utils')
-                             .send(reqBody)
-                             .set({'Content-Type': 'application/json'})
-                             .end(function (err, res) {
-                             if (err) {
-                             logger.error(err);
-                             callback(err, null);
-                             } else {
-                             callback(null, res.text);
-                             return;
-                             }
-                             });
-                             }else {
-                             var supertest = require("supertest");
-                             var server = supertest.agent("http://192.168.152.62:5000");
-                             var reqBody = {
-                             "botDescription": JSON.stringify(botsScriptDetails.ymlJson),
-                             "logLocation": '/home/karan/Documents/RL_Catalyst/Bots/ipAddress.log'
-                             };
-                             server
-                             .post('/utils')
-                             .send(reqBody)
-                             .set({'Content-Type': 'application/json'})
-                             .end(function (err, res) {
-                             if (err) {
-                             logger.error(err);
-                             callback(err, null);
-                             } else {
-                             Object.keys(res.text).forEach(function(key){
-                             if(botsScriptDetails.inputFormFields[j][key] === null) {
-                             replaceTextObj[key] = res.text[key];
-                             }
-                             });
-                             apiUtil.messageFormatter(botsScriptDetails.outputOptions[3].msgs[0].text,replaceTextObj,function(err,formattedMessage){
-                             if(err){
-                             logger.error(err);
-                             callback(err,null);
-                             }else{
-                             callback(null,formattedMessage);
-                             return;
-                             }
-                             })
-                             }
-                             });
-                             }*/
-                            if(executionType === 'bots' || executionType === 'telemetry') {
+                                var supertest = require("supertest");
+                                var server = supertest.agent("http://192.168.152.62:5000");
+                                var reqBody = {
+                                    "botDescription": JSON.stringify(botsScriptDetails.ymlJson),
+                                    "logLocation": '/home/karan/Documents/RL_Catalyst/Bots/ipAddress.log'
+                                };
+                                server
+                                    .post('/utils')
+                                    .send(reqBody)
+                                    .set({'Content-Type': 'application/json'})
+                                    .end(function (err, res) {
+                                        if (err) {
+                                            logger.error(err);
+                                            callback(err, null);
+                                        } else {
+                                            callback(null, res.text);
+                                            return;
+                                        }
+                                    });
+                            }else {
+                                var supertest = require("supertest");
+                                var server = supertest.agent("http://192.168.152.62:5000");
+                                var reqBody = {
+                                    "botDescription": JSON.stringify(botsScriptDetails.ymlJson),
+                                    "logLocation": '/home/karan/Documents/RL_Catalyst/Bots/ipAddress.log'
+                                };
+                                server
+                                    .post('/utils')
+                                    .send(reqBody)
+                                    .set({'Content-Type': 'application/json'})
+                                    .end(function (err, res) {
+                                        if (err) {
+                                            logger.error(err);
+                                            callback(err, null);
+                                        } else {
+                                            Object.keys(res.text).forEach(function (key) {
+                                                if (botsScriptDetails.inputFormFields[j][key] === null) {
+                                                    replaceTextObj[key] = res.text[key];
+                                                }
+                                            });
+                                            console.log(botsScriptDetails.outputOptions[3].msgs[0].text);
+                                            apiUtil.messageFormatter(botsScriptDetails.outputOptions[3].msgs[0].text, replaceTextObj, function (err, formattedMessage) {
+                                                if (err) {
+                                                    logger.error(err);
+                                                    callback(err, null);
+                                                } else {
+                                                    logger.debug("formattedMessage>>>",formattedMessage);
+                                                    callback(null, formattedMessage);
+                                                    return;
+                                                }
+                                            })
+                                        }
+                                    });
+                            }*/
+                           if(executionType === 'bots' || executionType === 'telemetry') {
                                 logger.debug("Message : > "+ "ipAddress : 192.168.152.208");
                                 var resultTaskExecution = {
                                     "actionStatus": 'success',
