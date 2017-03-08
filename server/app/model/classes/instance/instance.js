@@ -539,7 +539,7 @@ var InstancesDao = function () {
                 callback(err, null);
                 return;
             }
-            logger.debug("Exit getInstances :: ", instanceIds);
+            logger.debug("Exit getInstances :: ", data.length);
             callback(null, data);
         });
 
