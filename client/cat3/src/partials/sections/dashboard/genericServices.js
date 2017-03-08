@@ -135,7 +135,7 @@
             }
         };
 
-        genericServices.log=function(id,historyId,botLinkedSubCategory) {
+        genericServices.log=function(id,historyId) {
             $modal.open({
                 animation: true,
                 templateUrl: 'src/partials/sections/dashboard/bots/view/botExecutionLogs.html',
@@ -201,43 +201,20 @@
         };
 
         genericServices.executeTask =function(task) {
-            if ((task.botConfig && task.botConfig.parameterized && task.botConfig.parameterized.length) || (task.botLinkedSubCategory === 'chef') || (task.botLinkedSubCategory === 'script')) {
-                $modal.open({
-                    animation: true,
-                    templateUrl: 'src/partials/sections/dashboard/bots/view/editParams.html',
-                    controller: 'editParamsCtrl',
-                    backdrop: 'static',
-                    keyboard: false,
-                    resolve: {
-                        items: function() {
-                            return task;
-                        }
+            $modal.open({
+                animation: true,
+                templateUrl: 'src/partials/sections/dashboard/bots/view/editParams.html',
+                controller: 'editParamsCtrl',
+                backdrop: 'static',
+                keyboard: false,
+                resolve: {
+                    items: function() {
+                        return task;
                     }
-                }).result.then(function(response) {
-                }, function() {
-                });
-            } else {
-                $modal.open({
-                    animation: true,
-                    templateUrl: 'src/partials/sections/dashboard/bots/view/confirmBotRun.html',
-                    controller: 'confirmBotRunCtrl',
-                    backdrop: 'static',
-                    keyboard: false,
-                    resolve: {
-                        items: function() {
-                            return task;
-                        }
-                    }
-                }).result.then(function(response) {
-                    genericServices.log(task._id,response.historyId,task.botLinkedSubCategory);
-                    if(response.blueprintMessage){
-                        $rootScope.$emit('WZ_INSTANCES_SHOW_LATEST');
-                    }
-                    $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
-                }, function() {
-                    $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
-                });
-            }
+                }
+            }).result.then(function(response) {
+            }, function() {
+            });
         };
 
         genericServices.launchBlueprint=function(blueprintObj) {

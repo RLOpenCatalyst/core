@@ -36,6 +36,11 @@ var BotsSchema = new Schema ({
         trim: true,
         required: true
     },
+    gitHubRepoName: {
+        type: String,
+        trim: true,
+        required: true
+    },
     type: {
         type: String,
         trim: true,
@@ -46,6 +51,26 @@ var BotsSchema = new Schema ({
         trim: true,
         required: true
     },
+    action: {
+        type: String,
+        trim: true
+    },
+    env: {
+        type: String,
+        trim: true
+    },
+    savedTime: {
+        hours:{
+            type: Number,
+            default:0
+        },
+        minutes:{
+            type: Number,
+            default:0
+        }
+    },
+    ymlJson:Schema.Types.Mixed,
+    execution: Schema.Types.Mixed,
     desc: {
         type: String,
         trim: true,

@@ -24,6 +24,7 @@ var fileUpload = require('_pr/model/file-upload/file-upload');
 var appConfig = require('_pr/config');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
 var auditTrailService = require('_pr/services/auditTrailService.js');
+var executor = require('_pr/engine/bots/executor.js');
 const fileHound= require('filehound');
 const yamlJs= require('yamljs');
 const gitHubService = require('_pr/services/gitHubService.js');
@@ -78,7 +79,7 @@ botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,callbac
         function(queryObj, next) {
             if(actionStatus !== null){
                 var query = {
-                    auditType: 'BOTs',
+                    auditType: 'BOTsNew',
                     actionStatus: actionStatus,
                     isDeleted:false
                 };
@@ -133,18 +134,16 @@ botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,callbac
             metaData : results.botList.metaData,            
             botSummary: results.botSummary        
         }        
-        callback(null,resultObj);        
+        callback(null,resultObj);
         return;
     });
 }
 
-botsNewService.executeBots = function executeBots(botId,reqBody,callback){
+botsNewService.executeBots = function executeBots(botId,reqBody,userName,executionType,callback){
     async.waterfall([
         function(next){
-            if(reqBody !== null
-                && reqBody.scriptParams
-                && reqBody.scriptParams !== null){
-                encryptedParam(reqBody.scriptParams,next);
+            if(reqBody !== null && reqBody !== ''){
+                encryptedParam(reqBody,next);
             }else{
                 next(null,[]);
             }
@@ -160,6 +159,15 @@ botsNewService.executeBots = function executeBots(botId,reqBody,callback){
                 })
             }else {
                 botsDao.getBotsById(botId, next);
+            }
+        },
+        function(botDetails,next) {
+            if(botDetails.length > 0){
+                if(botDetails[0].type === 'script'){
+                    executor.executeScriptBot(botDetails[0],userName,executionType,next);
+                }
+            }else {
+               next(null,botDetails);
             }
         }
     ],function(err,results){
@@ -230,18 +238,22 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                             (function(ymlFile){
                                 yamlJs.load(ymlFile, function(result) {
                                     if(result !== null){
-                                        fileUpload.uploadFile(result.id,ymlFile,null,function(err,ymlDocFileId){
+                                       fileUpload.uploadFile(result.id,ymlFile,null,function(err,ymlDocFileId){
                                             if(err){
                                                 logger.error("Error in uploading yaml documents.",err);
                                                 next(err);
                                             }else{
                                                 count++;
                                                 var botsObj={
+                                                    ymlJson:result,
                                                     name:result.name,
                                                     gitHubId:gitHubDetails._id,
+                                                    gitHubRepoName:gitHubDetails.repositoryName,
                                                     id:result.id,
                                                     desc:result.desc,
-                                                    category:result.category,
+                                                    category:result.category?result.category:result.functionality,
+                                                    action:result.action,
+                                                    execution:result.execution,
                                                     type:result.type,
                                                     inputFormFields:result.input[0].form,
                                                     outputOptions:result.output,
@@ -291,19 +303,101 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
     });
 }
 
+botsNewService.getBotsHistory = function getBotsHistory(botId,botsQuery,callback){
+    var reqData = {};
+    async.waterfall([
+        function(next) {
+            apiUtil.paginationRequest(botsQuery, 'botHistory', next);
+        },
+        function(paginationReq, next) {
+            paginationReq['searchColumns'] = ['status', 'action', 'user', 'actionStatus', 'auditTrailConfig.name','masterDetails.orgName'];
+            reqData = paginationReq;
+            apiUtil.databaseUtil(paginationReq, next);
+        },
+        function(queryObj, next) {
+            queryObj.queryObj.auditId = botId;
+            queryObj.queryObj.auditType = 'BOTsNew';
+            auditTrail.getAuditTrailList(queryObj,next)
+        },
+        function(auditTrailList, next) {
+            apiUtil.paginationResponse(auditTrailList, reqData, next);
+        }
+    ],function(err, results) {
+        if (err){
+            logger.error(err);
+            callback(err,null);
+            return;
+        }
+        callback(null,results)
+        return;
+    });
+}
+
+botsNewService.getParticularBotsHistory = function getParticularBotsHistory(botId,historyId,callback){
+    async.waterfall([
+        function(next){
+            botsDao.getBotsById(botId,next);
+        },
+        function(bots,next){
+            if(bots.length > 0) {
+                var query = {
+                    auditType: 'BOTsNew',
+                    auditId: botId,
+                    actionLogId: historyId
+                };
+                auditTrail.getAuditTrails(query, next);
+
+            }else{
+                next({errCode:400, errMsg:"Bots is not exist in DB"},null)
+            }
+        }
+    ],function(err,results){
+        if(err){
+            logger.error(err);
+            callback(err,null);
+            return;
+        }else{
+            callback(null,results);
+            return;
+        }
+    });
+}
+
+botsNewService.getParticularBotsHistoryLogs= function getParticularBotsHistoryLogs(botId,historyId,timestamp,callback){
+    async.waterfall([
+        function(next){
+            botsDao.getBotsById(botId,next);
+        },
+        function(bots,next){
+            if(bots.length > 0) {
+                var logsDao = require('_pr/model/dao/logsdao.js');
+                logsDao.getLogsByReferenceId(historyId, timestamp,next);
+            }else{
+                next({errCode:400, errMsg:"Bots is not exist in DB"},null)
+            }
+        }
+    ],function(err,results){
+        if(err){
+            logger.error(err);
+            callback(err,null);
+            return;
+        }else{
+            callback(null,results);
+            return;
+        }
+    });
+}
+
+
 function encryptedParam(paramDetails, callback) {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var encryptedList = [];
     if(paramDetails.length > 0) {
         for (var i = 0; i < paramDetails.length; i++) {
-            var encryptedText = cryptography.encryptText(paramDetails[i].paramVal, cryptoConfig.encryptionEncoding,
+            var encryptedText = cryptography.encryptText(paramDetails[i], cryptoConfig.encryptionEncoding,
                 cryptoConfig.decryptionEncoding);
-            encryptedList.push({
-                paramVal: encryptedText,
-                paramDesc: paramDetails[i].paramDesc,
-                paramType: paramDetails[i].paramType
-            });
+            encryptedList.push(encryptedText);
         }
         callback(null,encryptedList);
     }else{
@@ -360,6 +454,4 @@ function addYmlFileDetailsForBots(bots,callback){
         }
     }
 }
-
-
 

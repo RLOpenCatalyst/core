@@ -70,7 +70,7 @@
             $scope.botInfo = $scope.templateSelected;
          
             var botsTab = {
-                tab : "Report",
+                tab : "ReadMe",
                 setTab : function (tabId) {
                     botsTab.tab = tabId;   
                 },
@@ -78,10 +78,10 @@
                     return botsTab.tab === tabId;
                 },
                 templates:   {
-                    /*readme: {
+                    readme: {
                         "title": "ReadMe",
                         "url": "src/partials/sections/dashboard/bots/tabs/readme.html"
-                    }, */
+                    }, 
                     param: {
                         "title": "Param",
                         "url": "src/partials/sections/dashboard/bots/tabs/param.html"
