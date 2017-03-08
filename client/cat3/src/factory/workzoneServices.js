@@ -506,7 +506,9 @@
 				},
 				getAllCompsiteBlueprint:function () {
 					var p = workzoneEnvironment.getEnvParams();
-					var url ='/composite-blueprints?filterBy=organizationId:'+p.org+'+businessGroupId:'+p.bg+'+projectId:'+p.proj;
+					//var url ='/composite-blueprints?filterBy=organizationId:'+p.org+'+businessGroupId:'+p.bg+'+projectId:'+p.proj;
+					var url = '/organizations/' + p.org + '/businessgroups/' + p.bg + 
+					'/projects/' + p.proj + '/blueprintList?pagination=true&templateType=composite&providerType='
 					return $http.get(fullUrl(url),Auth.getHeaderObject());
 				},
 				getCompsiteBlueprintInfo:function (compositeBlueprintId) {
