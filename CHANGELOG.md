@@ -1,3 +1,28 @@
+3.9.0 - March 7th , 2017
+----------------------------
+* BOTs Engine and New Framework
+* BOTs Input/Output Extractor
+* Import Scripts from Git and add into BOTs Gallery
+* Auto Configuration of CI/CD Dashboard
+
+3.8.0 - February 15th , 2017
+----------------------------
+* Tagging Instances while Launching
+* Git Integration
+* UI Enhancements in BOT
+
+3.7.0 - January 10th , 2017
+----------------------------
+* Configuring Sensu server in Blueprints 
+* BOTs Console
+* Python Script Orchestrator
+
+3.6.0 - December 10th , 2016
+----------------------------
+* Self Service Portal - Start/Stop Instances
+* Audit Trail for BOTs
+* WorkFlow Scheduler- Parallel and Sequential
+
 3.5.0 - November 10th , 2016
 ----------------------------
 * Cloud Management - Capacity Report
