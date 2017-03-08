@@ -67,8 +67,6 @@ botsNewService.removeBotsById = function removeBotsById(botId,callback){
     });
 }
 
-botsNewService.getBotsLogsByReferenceId =  function(botId,actionId,timeStamp,callback){    async.waterfall([        function(next){           botsDao.getBotsById(botId,next);        },        function(botsList,next){            if(botsList.length > 0){                logsDao.getLogsByReferenceId(actionId, timeStamp,next)            }else{                next({errCode:401,errMsg : "Bots is not available there"},null);            }        }    ],function(err,result){        if(err){            callback(err,null);            return;        }else{            callback(null,result);            return;        }    });};
-
 botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowCheck,callback) {
     var reqData = {};
     async.waterfall([
@@ -133,7 +131,7 @@ botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,service
             }
         },
         function(botList, next) {
-            addYmlFileDetailsForBots(botList,next);
+            addYmlFileDetailsForBots(botList,reqData,next);
         },
         function(filterBotList, next) {
            async.parallel({
@@ -496,7 +494,7 @@ function encryptedParam(paramDetails, callback) {
     }
 }
 
-function addYmlFileDetailsForBots(bots,callback){
+function addYmlFileDetailsForBots(bots,reqData,callback){
     if (bots.docs.length === 0) {
         return callback(null,bots);
     }else{
@@ -531,13 +529,20 @@ function addYmlFileDetailsForBots(bots,callback){
                             executionCount:bot.executionCount,
                             scheduler:bot.scheduler,
                             createdOn:bot.createdOn,
-                            lastRunTime:bot.lastRunTime
-                            
+                            lastRunTime:bot.lastRunTime,
+                            savedTime:bot.savedTime
                         }
                         botsList.push(botsObj);
-                        botsObj={};
                         if (botsList.length === bots.docs.length) {
-                            bots.docs = botsList;
+                            var alaSql = require('alasql');
+                            var sortField=reqData.mirrorSort;
+                            var sortedField=Object.keys(sortField)[0];
+                            var sortedOrder = reqData.mirrorSort ? (sortField[Object.keys(sortField)[0]]==1 ?'asc' :'desc') : '';
+                            if(sortedOrder ==='asc'){
+                                bots.docs = alaSql( 'SELECT * FROM ? ORDER BY '+sortedField+' ASC',[botsList]);
+                            }else{
+                                bots.docs = alaSql( 'SELECT * FROM ? ORDER BY '+sortedField+' DESC',[botsList]);
+                            }
                             return callback(null, bots);
                         }
                     }
