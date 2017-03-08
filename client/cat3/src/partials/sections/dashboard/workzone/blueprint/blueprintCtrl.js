@@ -252,7 +252,6 @@
 				},
 				getAllCompsiteBlueprint:function(){
 					workzoneServices.getAllCompsiteBlueprint().success(function(compBlue){
-						console.log(compBlue);
 						$scope.compositeBlueprints=compBlue.blueprints;
 					});
 				},
