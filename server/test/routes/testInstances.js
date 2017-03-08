@@ -101,9 +101,9 @@ describe("Deploy Permission ",function(){
 
 
    it(" Execute a Bots ",function(done){
-       var reqBody = ['google.com'];
+       var reqBody = ['AKIAJFI6XBYNKEU5YW5Q','BSZ+p6rmKSBo4b6uNxxmzgHdts4Ld/R6YnSzgQc1','eu-west-1','i-0d93618d58f532d03'];
         server
-            .post('/botsNew/58a2daadeb2ad8955f9d0352/execute?executionType=bots')
+            .post('/botsNew/58bfac390ea5d03423df9864/execute?executionType=bot-console')
             .send(reqBody)
             .end(function(err,res){
                 console.log(res.body);
