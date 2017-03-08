@@ -13,8 +13,9 @@
         $scope.botParams = items.inputFormFields;
         $scope.botEditParams = [];
         $scope.botParameters = [];
-        $scope.executeBot = function(){
-            console.log($scope.botEditParams);
+        
+        
+        $scope.executeTask = function(){
             var reqBody = {};
             $scope.botParameters = $scope.botParameters.concat($scope.botEditParams);
             reqBody = $scope.botParameters;
@@ -24,7 +25,7 @@
                 data: reqBody
             };
             genSevs.promisePost(param).then(function (response) {
-                $modalInstance.close(response.data);
+                $modalInstance.close(response);
                 $rootScope.$emit('BOTS_LIBRARY_REFRESH');
             },
             function (error) {

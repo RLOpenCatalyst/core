@@ -14,7 +14,7 @@
 // The file contains all the end points for AppDeploy
 
 var logger = require('_pr/logger')(module);
-var	botsNewService = require('_pr/services/botsNewService.js');
+var    botsNewService = require('_pr/services/botsNewService.js');
 
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
@@ -24,6 +24,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         var actionStatus = null;
         if(req.query.actionStatus && req.query.actionStatus !== null){
             actionStatus = req.query.actionStatus;
+            console.log(actionStatus);
         }
         botsNewService.getBotsList(req.query,actionStatus, function(err,data){
             if (err) {

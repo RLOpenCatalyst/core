@@ -135,41 +135,6 @@
             }
         };
 
-        genericServices.log=function(id,historyId) {
-            $modal.open({
-                animation: true,
-                templateUrl: 'src/partials/sections/dashboard/bots/view/botExecutionLogs.html',
-                controller: 'botExecutionLogsCtrl',
-                backdrop: 'static',
-                keyboard: false,
-                resolve: {
-                    items: function() {
-                        return {
-                            taskId: id,
-                            historyId: historyId,
-                            taskType: botLinkedSubCategory
-                        };
-                    }
-                }
-            });
-        };
-
-        /*genericServices.botHistory=function(bot) {
-            $modal.open({
-                animation: true,
-                templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationHistory.html',
-                controller: 'orchestrationHistoryCtrl',
-                backdrop: 'static',
-                keyboard: false,
-                size: 'lg',
-                resolve: {
-                    items: function() {
-                        return bot;
-                    }
-                }
-            });
-        };*/
-
         genericServices.removeBlueprint= function(blueprintObj, bpType) {
             var modalOptions = {
                 closeButtonText: 'Cancel',
@@ -213,6 +178,25 @@
                     }
                 }
             }).result.then(function(response) {
+                $modal.open({
+                    animate: true,
+                    templateUrl: "src/partials/sections/dashboard/bots/view/botExecutionLogs.html",
+                    controller: "botsExecutionLogsNewCtrl",
+                    backdrop: 'static',
+                    keyboard: false,
+                    resolve: {
+                        items: function() {
+                            return {
+                                logDetails : response,
+                                isBotNew : task.isBotsNew
+                            }
+                        }
+                    }
+                }).result.then(function() {
+                    console.log('The modal close is not getting invoked currently. Goes to cancel handler');
+                }, function() {
+                    console.log('Cancel Handler getting invoked');
+                });
             }, function() {
             });
         };

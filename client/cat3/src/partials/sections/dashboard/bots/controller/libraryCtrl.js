@@ -25,7 +25,7 @@
         $scope.numofCardPages = 0;
         $scope.paginationParams.page = 1;
         $scope.paginationParams.pageSize = 18;
-        $scope.paginationParams.sortBy = 'createdOn';
+        $scope.paginationParams.sortBy = 'lastRunTime';
         $scope.paginationParams.sortOrder = 'desc';
         $scope.botLibrarySearch = '';
         $scope.showLoadRecord = function() {
@@ -36,14 +36,14 @@
         $scope.initGrids = function(){
             $scope.botLibGridOptions={};
             $scope.botLibGridOptions.columnDefs= [
-                { name:'Category', field:'botCategory' ,cellTemplate:'<img src="images/bots/activeDirectory.png" ng-show="row.entity.botCategory==\'Active Directory\'" alt="row.entity.botCategory" title="Active Directory" class="task-type-img" />'+
-                    '<img src="images/bots/userManagement.png" ng-show="row.entity.botCategory==\'User Management\'" alt="row.entity.botCategory" title="User Management" class="task-type-img" />'+
-                    '<img src="images/bots/applicationDeployment.png" ng-show="row.entity.botCategory==\'Application Deployment\'" alt="row.entity.botCategory" title="Application Deployment" class="task-type-img" />'+
-                    '<img src="images/bots/installation.png" ng-show="row.entity.botCategory==\'Installation\'" alt="row.entity.botCategory" title="Installation" class="task-type-img" />'+
-                    '<img src="images/bots/monitoring.png" ng-show="row.entity.botCategory==\'Monitoring\'" alt="row.entity.botCategory" title="Monitoring" class="task-type-img" />'+
-                    '<img src="images/bots/openDJ.png" ng-show="row.entity.botCategory==\'OpenDJ LDAP\'" alt="row.entity.botCategory" title="OpenDJ-LDAP" class="task-type-img" />'+
-                    '<img src="images/bots/serviceManagement.png" ng-show="row.entity.botCategory==\'Service Management\'" alt="row.entity.botCategory" title="Service Management" class="task-type-img" />'+
-                    '<img src="images/bots/upgrade.png" ng-show="row.entity.botCategory==\'Upgrade\'" alt="row.entity.botCategory" title="Upgrade" class="task-type-img" />',cellTooltip: true},
+                { name:'Category', field:'category' ,cellTemplate:'<img src="images/bots/activeDirectory.png" ng-show="row.entity.category==\'Active Directory\'" alt="row.entity.category" title="Active Directory" class="task-type-img" />'+
+                    '<img src="images/bots/userManagement.png" ng-show="row.entity.category==\'User Management\'" alt="row.entity.category" title="User Management" class="task-type-img" />'+
+                    '<img src="images/bots/applicationDeployment.png" ng-show="row.entity.category==\'Application Deployment\'" alt="row.entity.category" title="Application Deployment" class="task-type-img" />'+
+                    '<img src="images/bots/installation.png" ng-show="row.entity.category==\'Installation\'" alt="row.entity.category" title="Installation" class="task-type-img" />'+
+                    '<img src="images/bots/monitoring.png" ng-show="row.entity.category==\'Monitoring\'" alt="row.entity.category" title="Monitoring" class="task-type-img" />'+
+                    '<img src="images/bots/openDJ.png" ng-show="row.entity.category==\'OpenDJ LDAP\'" alt="row.entity.category" title="OpenDJ-LDAP" class="task-type-img" />'+
+                    '<img src="images/bots/serviceManagement.png" ng-show="row.entity.category==\'Service Management\'" alt="row.entity.category" title="Service Management" class="task-type-img" />'+
+                    '<img src="images/bots/upgrade.png" ng-show="row.entity.category==\'Upgrade\'" alt="row.entity.category" title="Upgrade" class="task-type-img" />',cellTooltip: true},
                 { name: 'BOT Name',displayName: 'BOT Name',field:'name',cellTooltip: true},
                 { name: 'BOT Type',displayName: 'BOT Type',field:'id',cellTooltip: true},
                 { name: 'Description',field:'desc',cellTooltip: true},
@@ -105,19 +105,19 @@
         $scope.tabData = [];
 
         $scope.imageForCard = function(result) {
-            if(result.botCategory === 'Active Directory' || result.botCategory === 'Database Management') {
+            if(result.category === 'Active Directory' || result.category === 'Database Management') {
                 result.imagePath = 'images/bots/activeDirectory.png';
-            }else if(result.botCategory === 'User Management') {
+            }else if(result.category === 'User Management') {
                 result.imagePath = 'images/bots/userManagement.png';
-            }else if(result.botCategory === 'Service Management') {
+            }else if(result.category === 'Service Management') {
                 result.imagePath = 'images/bots/serviceManagement.png';
-            }else if(result.botCategory === 'Upgrade') {
+            }else if(result.category === 'Upgrade') {
                 result.imagePath = 'images/bots/upgrade.png';
-            }else if(result.botCategory === 'Monitoring') {
+            }else if(result.category === 'Monitoring') {
                 result.imagePath = 'images/bots/monitoring.png';
-            }else if(result.botCategory === 'Installation') {
+            }else if(result.category === 'Installation') {
                 result.imagePath = 'images/bots/installation.png';
-            }else if(result.botCategory === 'OpenDJ LDAP') {
+            }else if(result.category === 'OpenDJ LDAP') {
                 result.imagePath = 'images/bots/openDJ.png';
             }else {
                 result.imagePath = 'images/bots/applicationDeployment.png';
@@ -143,6 +143,7 @@
         }
 
         $scope.botLibraryGridView = function() {
+            $scope.isBotDetailsLoading = true;
             lib.gridOptions=[];
             var param={
                 inlineLoader:true,
@@ -170,6 +171,7 @@
                     }
                     $scope.statusBar = "Showing " + ($scope.botLibGridOptions.data.length === 0 ? "0" : "1") + " to " + $filter('number')($scope.botLibGridOptions.data.length) + " of " + $filter('number')(result.metaData.totalRecords) + " entries";
                     $scope.isBotLibraryPageLoading = false;
+                    $scope.isBotDetailsLoading = false;
                     //$scope.filterBy();
                 }, 100);
             }, function(error) {
@@ -352,11 +354,7 @@
         var gridBottomSpace = 250;
         $scope.gridHeight = workzoneUIUtils.makeTabScrollable('botLibraryPage') - gridBottomSpace;
         $scope.launchInstance = function(launch){
-            //if(launch.botLinkedCategory === 'Task'){
-                genSevs.executeTask(launch);
-            /*} else if(launch.botLinkedCategory === 'Blueprint') {
-                genSevs.launchBlueprint(launch);
-            }*/
+            genSevs.executeTask(launch);
         };
 
         $scope.botHistory=function(bot) {
@@ -424,14 +422,15 @@
                 bodyText: 'Are you sure you want to delete this BOT?'
             };
             confirmbox.showModal({}, modalOptions).then(function() {
-                var param={
+                var url;
+                url = '/botsNew/' + bot._id;
+                var param = {
                     inlineLoader:true,
-                    url:'/botsNew/' + bot._id
+                    url:url
                 };
                 genSevs.promiseDelete(param).then(function (response) {
                     if (response) {
                         toastr.success('Successfully deleted.');
-                       // lib.summary();
                         $scope.botLibGridOptions.data = [];
                         $scope.botStatus();
                     }
@@ -441,7 +440,6 @@
             });
         };
         $rootScope.$on('BOTS_LIBRARY_REFRESH', function() {
-            //lib.summary();
             $scope.showLoadRecord();
             $scope.isBotLibraryPageLoading = true;
             $scope.botLibGridOptions.data = [];
@@ -492,12 +490,10 @@
             $scope.runningBotsselected = false;
             $scope.failedBotsselected = false;
             $scope.scheduledBotsSelected = false;
-           // lib.summary();
             $scope.botLibraryGridView();
         };
         $scope.showBotsRunning = function(resetPage) {
             $scope.clearSearchString();
-           // lib.summary();
             $scope.isBotLibraryPageLoading = true;
             $scope.showLoadRecord();
             $scope.runningBotsselected = true;
@@ -529,7 +525,6 @@
         };
         $scope.showFailedBots = function(resetPage) {
             $scope.clearSearchString();
-           // lib.summary();
             $scope.isBotLibraryPageLoading = true;
             $scope.showLoadRecord();
             $scope.failedBotsselected = true;
@@ -591,20 +586,7 @@
                 $scope.statusBar = "Showing " + ($scope.botLibGridOptions.data.length === 0 ? "0" : "1") + " to " + $filter('number')($scope.botLibGridOptions.data.length) + " of " + $filter('number')(result.metaData.totalRecords) + " entries";
             });
         };
-        /*lib.summary = function() {
-            $scope.isBotDetailsLoading = true;
-            $scope.botSummary=[];
-            var param={
-                inlineLoader:true,
-                url:'/audit-trail/bots-summary'
-            };
-            genSevs.promiseGet(param).then(function (response) {
-                $scope.botSummary = response;
-                $scope.totalSavedTimeForBots = parseInt($scope.botSummary.totalSavedTimeForBots);
-                $scope.isBotDetailsLoading = false;
-            });
-        };
-        lib.summary();*/
+        
         $scope.setCardView();
     }]).controller('botInfoCtrl',['$scope', 'items', '$modalInstance', function ($scope, items, $modalInstance) {
         $scope.botInfo = items;
@@ -644,12 +626,12 @@
                 $scope.isJobRunExecuting = true;
                 var param={
                     inlineLoader:true,
-                    url:'/botsNew/' + items._id + '/execute'
+                    url:'/botsNew' + items.botId + '/execute'
                 };
                 genSevs.promisePost(param).then(function (response) {
                     $modalInstance.close(response.data);
                     $rootScope.$emit('BOTS_LIBRARY_REFRESH');
-                    helper.botLogModal(items._id, response.historyId, response.taskType);
+                    helper.botLogModal(items.botId, response.historyId, response.taskType);
                 },
                 function (error) {
                     error = error.responseText || error;

@@ -112,6 +112,9 @@ var BotsSchema = new Schema ({
         type: Number,
         default: 0
     },
+    lastRunTime: {
+        type: Number
+    },
     isScheduled: {
         type: Boolean,
         default: false
@@ -267,6 +270,7 @@ BotsSchema.statics.getAllBots = function(queryParam,callback){
     });
 };
 
+
 BotsSchema.statics.removeBotsById = function(botId,callback){
     Bots.remove({_id:ObjectId(botId)}, function(err, bots) {
         if (err) {
@@ -304,6 +308,23 @@ BotsSchema.statics.removeSoftBotsById = function(botId,callback){
             return callback(null, bots);
         }
     });
+};
+
+BotsSchema.statics.botsExecutionCountInc = function botsExecutionCountInc(botId,callback) {
+    Bots.findByIdAndUpdate(
+        ObjectId(botId),{
+            $inc:{
+                executionCount:1
+            }
+        }, {
+            upsert: false
+        }, function (err,data) {
+            if(err) {
+                return callback(err);
+            }else {
+                return callback(null,data)
+            }
+        })
 };
 
 BotsSchema.statics.updateBotsExecutionCount = function updateBotsExecutionCount(botId,count,callback) {

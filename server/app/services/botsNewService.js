@@ -25,6 +25,8 @@ var appConfig = require('_pr/config');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
 var auditTrailService = require('_pr/services/auditTrailService.js');
 var executor = require('_pr/engine/bots/executor.js');
+var logsDao = require('_pr/model/dao/logsdao.js');
+
 const fileHound= require('filehound');
 const yamlJs= require('yamljs');
 const gitHubService = require('_pr/services/gitHubService.js');
@@ -65,6 +67,8 @@ botsNewService.removeBotsById = function removeBotsById(botId,callback){
     });
 }
 
+botsNewService.getBotsLogsByReferenceId =  function(botId,actionId,timeStamp,callback){    async.waterfall([        function(next){           botsDao.getBotsById(botId,next);        },        function(botsList,next){            if(botsList.length > 0){                logsDao.getLogsByReferenceId(actionId, timeStamp,next)            }else{                next({errCode:401,errMsg : "Bots is not available there"},null);            }        }    ],function(err,result){        if(err){            callback(err,null);            return;        }else{            callback(null,result);            return;        }    });};
+
 botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,callback) {
     var reqData = {};
     async.waterfall([
@@ -77,6 +81,7 @@ botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,callbac
             apiUtil.databaseUtil(paginationReq, next);
         },
         function(queryObj, next) {
+            
             if(actionStatus !== null){
                 var query = {
                     auditType: 'BOTsNew',
@@ -150,7 +155,7 @@ botsNewService.executeBots = function executeBots(botId,reqBody,userName,executi
         },
         function(encryptedParamList,next) {
             if(encryptedParamList.length > 0){
-                botsDao.updateBotsDetail(botId,{params:encryptedParamList},function(err,botsData){
+                botsDao.updateBotsDetail(botId,{params:encryptedParamList,lastRunTime:new Date().getTime()},function(err,botsData){
                     if(err){
                         next(err);
                     }else{
@@ -163,12 +168,22 @@ botsNewService.executeBots = function executeBots(botId,reqBody,userName,executi
         },
         function(botDetails,next) {
             if(botDetails.length > 0){
+                
                 if(botDetails[0].type === 'script'){
-                    executor.executeScriptBot(botDetails[0],userName,executionType,next);
+                    async.parallel([
+                        function(callback){
+                            executor.executeScriptBot(botDetails[0],userName,executionType,callback);
+                        },
+                        function(callback){
+                            botsDao.botsExecutionCountInc(botId,callback)
+                        }
+                    ],function(err,data) {
+                        next(null,data[0]);
+                    });
                 }
             }else {
                next(null,botDetails);
-            }
+            }  
         }
     ],function(err,results){
         if(err){
@@ -251,7 +266,7 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                                     gitHubRepoName:gitHubDetails.repositoryName,
                                                     id:result.id,
                                                     desc:result.desc,
-                                                    category:result.category?result.category:result.functionality,
+                                                    category:result.botCategory?result.botCategory:result.functionality,
                                                     action:result.action,
                                                     execution:result.execution,
                                                     type:result.type,
@@ -439,7 +454,8 @@ function addYmlFileDetailsForBots(bots,callback){
                             manualExecutionTime:bot.manualExecutionTime,
                             executionCount:bot.executionCount,
                             scheduler:bot.scheduler,
-                            createdOn:bot.createdOn
+                            createdOn:bot.createdOn,
+                            lastRunTime:bot.lastRunTime
                             
                         }
                         botsList.push(botsObj);
@@ -454,4 +470,3 @@ function addYmlFileDetailsForBots(bots,callback){
         }
     }
 }
-
