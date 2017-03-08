@@ -23,8 +23,7 @@
                                                 <div class="widget-body no-padding">
                                                     <div class="col-lg-6 col-md-6">
                                                         <label for="name">Name:<span class="control-label redSpan">&nbsp;*</span></label>
-                                                        <label id="msgOrgName" style="display:none;color:red;float:right;">Required</label>
-                                                        <br>
+
                                                         <input autofocus name="dashboardName" value="" id="dashboardName" class="form-control" type="text" cdata="catalyst" cat-validation="required,nospecial,max15,nospace">
                                                     </div>
                                                     <div class="col-lg-6 col-md-6">
@@ -35,7 +34,7 @@
                                                     </div>
                                                     <div class="col-lg-6 col-md-6" style="margin-top:25px;">
                                                         <label for="">Business Group:<span class="control-label redSpan">&nbsp;*</span></label>
-                                                        <select id="productgroupname" class="chooseBG width-100" sourcepath="2" datapath="masterjson.rows.row" linkedto="orgname" linkedfields="['projectname']"   cdata="catalyst" cat-validation="required">
+                                                        <select id="productgroupname" class="chooseBG width-100" sourcepath="2" datapath="masterjson.rows.row" linkedto="orgname" linkedfields="['projectname']"   cdata="catalyst" >
                                                          <option value="">Select Business Group</option>
                                                         </select>
                                                     </div>
@@ -60,7 +59,7 @@
                                                     <div class="col-lg-6 col-md-6" style="margin-top:25px;">
                                                         <label for="">Dashboard URL:<span class="control-label redSpan">&nbsp;*</span></label>
                                                         <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardUrl"  onchange="getcollectors($(this).val())" class="form-control" type="text" cdata="catalyst" cat-validation="required">
-                                                        <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardLink"   class="form-control hidden" type="text" cdata="catalyst" cat-validation="required">
+                                                        <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardLink"   class="form-control hidden" type="text" cdata="catalyst" >
                                                         
                                                         <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardId"   class="form-control hidden" type="text" cdata="catalyst">
                                                     </div>
@@ -84,7 +83,7 @@
                                                         <div id="divjiraprojectciid" class="input-group from-control col-md-12 widthBox" cdata="catalyst" style="height: 165px">
                                                             <div class="col-lg-12 col-md-12" style="margin-top:15px;">
                                                                 <label for="">Project Name:</label>
-                                                                <select onchange="versionOption(this.value);" id="jiraprojectciid" class="chooseBG width-100" >
+                                                                <select onchange="versionOption(this.value);" id="jiraprojectciid" class="chooseBG width-100">
                                                                  <option value="">Select Project Name</option>
                                                                 </select>
                                                             </div>
@@ -142,14 +141,14 @@
                                                         <label for="category">Test Rail:</label>
                                                         <div id="divtestrailciid" class="input-group from-control col-md-12 widthBox" cdata="catalyst" style="height: 165px">
                                                             <div class="col-lg-12 col-md-12" style="margin-top:15px;height:">
-                                                                <label for="">Project Name:<span class="control-label redSpan">&nbsp;*</span></label>
-                                                                <select id="projecttlciid" class="chooseBG width-100">
+                                                                <label for="">Project Name:</label>
+                                                                <select id="projecttlciid" class="chooseBG width-100" >
                                                                  <option value="">Select Project Name</option>
                                                                 </select>
                                                             </div>
                                                             <div class="col-lg-12 col-md-12" style="margin-top:15px;">
                                                                 <label for="">Milestone:<span class="control-label redSpan">&nbsp;*</span></label>
-                                                                <select id="milestoneciid" class="chooseBG width-100">
+                                                                <select id="milestoneciid" class="chooseBG width-100" >
                                                                  <option value="">Select Milestone</option>
                                                                 </select>
                                                             </div>
@@ -869,10 +868,12 @@ function validateandsaveform() {
     //Remove existing dashboard
     if($('#dashboardId').val() != ''){
         removeDashboard($('#dashboardId').val(),function(){
+            saveform('23');
             creteDashboard();
         });
     }
     else
+        saveform('23');
         creteDashboard();
     
     return false;
