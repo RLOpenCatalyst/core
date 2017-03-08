@@ -1018,6 +1018,59 @@ var d4dMastersBitbucketConfig = new mongoose.Schema({
 });
 var d4dModelBitbucketConfig = mongoose.model('d4dModelBitbucketConfig', d4dMastersBitbucketConfig, 'd4dmastersnew');
 
+var d4dMastersSonarqubeConfig = new mongoose.Schema({
+    id: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    sonarqubename: {
+        type: String,
+        required: true,
+        trim: true,
+        validate: nameValidator
+    },
+    sonarqubeurl: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    sonarqubeusername: {
+        type: String,
+        required: true,
+        trim: true
+        //validate: nameValidator
+    },
+    sonarqubepassword: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    orgname: {
+        type: [String],
+        required: true,
+        trim: true,
+        validate: nameValidator
+    },
+    orgname_rowid: {
+        type: [String],
+        trim: true
+    },
+    active: {
+        type: Boolean,
+        trim: true,
+        default: true
+    },
+    rowid: {
+        type: String,
+        required: true,
+        trim: true
+    }
+}, {
+    collection: 'd4dmastersnew'
+});
+var d4dModelSonarqubeConfig = mongoose.model('d4dModelSonarqubeConfig', d4dMastersSonarqubeConfig, 'd4dmastersnew');
+
 var d4dMastersFunctionalTestConfig = new mongoose.Schema({
     id: {
         type: String,
@@ -1502,6 +1555,75 @@ var d4dMastersNexusServer = new mongoose.Schema({
 var d4dModelMastersNexusServer = mongoose.model('d4dModelMastersNexusServer', d4dMastersNexusServer, 'd4dmastersnew');
 
 
+var d4dMastersCICDDashboard = new mongoose.Schema({
+    id: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    dashboardName: {
+        type: String,
+        trim: true,
+        validate: nameValidator
+    },
+    orgname: {
+        type: [String],
+        required: true,
+        trim: true,
+        validate: nameValidator
+    },
+    orgname_rowid: {
+        type: [String],
+        trim: true
+    },
+    productgroupname: {
+        type: String,
+        trim: true
+    },
+    productgroupname_rowid: {
+        type: String,
+        trim: true
+    },
+    projectname: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    projectname_rowid: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    
+    orgrowid: {
+        type: String,
+        trim: true
+    },
+    dashboardId: {
+        type: String,
+       
+        trim: true
+    },
+    dashboardUrl: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    dashboardLink: {
+        type: String,
+        required: true,
+        trim: true
+    },
+        rowid: {
+        type: String,
+        required: true,
+        trim: true
+    }
+}, {
+    collection: 'd4dmastersnew'
+});
+var d4dModelMastersCICDDashboard = mongoose.model('d4dModelMastersCICDDashboard', d4dMastersCICDDashboard, 'd4dmastersnew');
+
 module.exports = d4dModelNew;
 module.exports.d4dModelMastersOrg = d4dModelMastersOrg;
 module.exports.d4dModelMastersProductGroup = d4dModelMastersProductGroup;
@@ -1528,3 +1650,6 @@ module.exports.d4dModelMastersNexusServer = d4dModelMastersNexusServer;
 module.exports.d4dModelBitbucketConfig = d4dModelBitbucketConfig;
 module.exports.d4dModelOctopusConfig = d4dModelOctopusConfig;
 module.exports.d4dModelFunctionalTestConfig = d4dModelFunctionalTestConfig;
+module.exports.d4dModelMastersCICDDashboard = d4dModelMastersCICDDashboard;
+module.exports.d4dModelSonarqubeConfig = d4dModelSonarqubeConfig;
+

@@ -572,6 +572,8 @@ function CreateTableFromJson(formID, idFieldName, createFileName) {
 						if (inputC.attr('datatype') == 'list') {
 							v = v.replace(/,/g, "<br/>");
 							inputC.html('<a style="pointer:" data-toggle="popover" data-content="' + v + '" id="cellitem_' + i + '_' + k + '">View</a>');
+						}else if(inputC.attr('datatype') == 'link'){
+							inputC.html('<a target="new" href="' + v + '">Open</a>' );
 						} else {
 							inputC.html(v);
 						}
@@ -733,6 +735,10 @@ function CreateTableFromJson(formID, idFieldName, createFileName) {
 					if (haspermission('puppetserver', 'modify')) {
 						hasEditPermission = true;
 					}
+				}else if (createFileName === 'CreateCICDDashboard.html') {
+					if (haspermission('services', 'modify')) {
+						hasEditPermission = true;
+					}
 				}
 				//user has no permission to edit
 				if (!hasEditPermission) {
@@ -851,6 +857,10 @@ function CreateTableFromJson(formID, idFieldName, createFileName) {
 					}
 				} else if (createFileName === 'CreateNexusServer.html') {
 					if (haspermission('puppetserver', 'delete')) {
+						hasDeletePermission = true;
+					}
+				}else if (createFileName === 'CreateCICDDashboard.html') {
+					if (haspermission('services', 'delete')) {
 						hasDeletePermission = true;
 					}
 				}

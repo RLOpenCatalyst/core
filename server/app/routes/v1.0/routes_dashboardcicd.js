@@ -20,7 +20,9 @@ module.exports.setRoutes = function (app, sessionVerification){
 		client.registerMethod("jsonMethod", durl, "GET");
 		//logger.debug('here :' + durl);
 		var reqSubmit = client.methods.jsonMethod(function (data, response) {
+		logger.debug(data);
             res.send(JSON.stringify(data));
+            client = null;
             return;
         });
 
@@ -28,6 +30,7 @@ module.exports.setRoutes = function (app, sessionVerification){
         reqSubmit.on('error', function (err) {
             logger.debug('Something went wrong on req!!');
             res.send('402');
+            reqSubmit = null;
         });
 	});
 
@@ -78,6 +81,7 @@ module.exports.setRoutes = function (app, sessionVerification){
 		//logger.debug('here :' + durl);
 		var reqSubmit = client.methods.postMethod(args,function (data, response) {
             res.send(JSON.stringify(data));
+
             return;
         });
 
@@ -89,7 +93,7 @@ module.exports.setRoutes = function (app, sessionVerification){
 	});
 
 	app.post('/dashboardcicd/setupdashboard/:dashid',function(req,res){
-		// logger.debug("dashboardcicd header: ", req.headers['dashboard-url']);
+		 logger.debug("dashboardcicd header: ", req.headers['dashboard-url']);
 		// logger.debug("dashboardcicd body: ", JSON.stringify(req.body));
 		var durl = req.headers['dashboard-url'];
 		if(!durl){
@@ -105,8 +109,68 @@ module.exports.setRoutes = function (app, sessionVerification){
 		durl = 'http://' + durl + '/api/setupdashboard/' + req.params.dashid;
 		client = new Client();
 		client.registerMethod("postMethod", durl, "POST");
-		//logger.debug('here :' + durl);
+		logger.debug('here :' + durl);
 		var reqSubmit = client.methods.postMethod(args,function (data, response) {
+            res.send(JSON.stringify(data));
+            return;
+        });
+
+        // Handling Exception for nexus req.
+        reqSubmit.on('error', function (err) {
+            logger.debug('Something went wrong on req!!');
+            res.send('402');
+        });
+	});
+
+	app.delete('/dashboardcicd/dashboard/:dashid',function(req,res){
+		// logger.debug("dashboardcicd header: ", req.headers['dashboard-url']);
+		// logger.debug("dashboardcicd body: ", JSON.stringify(req.body));
+		var durl = req.headers['dashboard-url'];
+		if(!durl){
+			res.send('404');
+			return;
+		}
+		var args = {
+				data : JSON.parse(JSON.stringify(req.body)),
+		        headers: {
+		            "Content-Type": "application/json"
+		        }
+    	}
+		durl = 'http://' + durl + '/api/dashboard/' + req.params.dashid;
+		client = new Client();
+		client.registerMethod("deleteMethod", durl, "DELETE");
+		//logger.debug('here :' + durl);
+		var reqSubmit = client.methods.deleteMethod(args,function (data, response) {
+            res.send(JSON.stringify(data));
+            return;
+        });
+
+        // Handling Exception for nexus req.
+        reqSubmit.on('error', function (err) {
+            logger.debug('Something went wrong on req!!');
+            res.send('402');
+        });
+	});
+
+	app.get('/dashboardcicd/dashboard/:dashid',function(req,res){
+		// logger.debug("dashboardcicd header: ", req.headers['dashboard-url']);
+		// logger.debug("dashboardcicd body: ", JSON.stringify(req.body));
+		var durl = req.headers['dashboard-url'];
+		if(!durl){
+			res.send('404');
+			return;
+		}
+		var args = {
+				data : JSON.parse(JSON.stringify(req.body)),
+		        headers: {
+		            "Content-Type": "application/json"
+		        }
+    	}
+		durl = 'http://' + durl + '/api/dashboard/' + req.params.dashid;
+		client = new Client();
+		client.registerMethod("getMethod", durl, "GET");
+		//logger.debug('here :' + durl);
+		var reqSubmit = client.methods.getMethod(args,function (data, response) {
             res.send(JSON.stringify(data));
             return;
         });

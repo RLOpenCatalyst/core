@@ -121,6 +121,15 @@ function Configmgmt() {
                 logger.log('Exting getDBModelFromID ' + id.toString());
                 callback(null, 'd4dModelFunctionalTestConfig');
                 break;
+            case "30":
+                logger.log('Exting getDBModelFromID ' + id.toString());
+                callback(null, 'd4dModelMastersCICDDashboard');
+                break;
+            case "31":
+                logger.log('Exting getDBModelFromID ' + id.toString());
+                callback(null, 'd4dModelSonarqubeConfig');
+                break;
+                
         }
     };
 
@@ -206,6 +215,14 @@ function Configmgmt() {
             case "29":
                 logger.log('Exting getDBModelFromID ' + id.toString());
                 return ('fuctionaltestserver');
+                break;
+            case "30":
+                logger.log('Exting getDBModelFromID ' + id.toString());
+                return ('cicddashboard');
+                break;
+            case "31":
+                logger.log('Exting getDBModelFromID ' + id.toString());
+                return ('sonarqubeserver');
                 break;
 
         };
