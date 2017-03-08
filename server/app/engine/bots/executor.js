@@ -81,6 +81,7 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,executionType,callback
     var actionId = uuid.v4();
     var logsReferenceIds = [botsScriptDetails._id, actionId];
     var botLogFile = appConfig.botLogDir + actionId;
+    var fileName = 'botExecution.log';
     var winston = require('winston');
     var path = require('path');
     var mkdirp = require('mkdirp');
@@ -90,15 +91,15 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,executionType,callback
         transports: [
             new winston.transports.DailyRotateFile({
                 level: 'debug',
-                datePattern: '.yyyy-MM-dd',
-                filename: 'botExecution.log',
+                datePattern: '',
+                filename: fileName,
                 dirname:log_folder,
                 handleExceptions: true,
                 json: true,
-                maxsize: 5242880, //5MB
+                maxsize: 5242880,
                 maxFiles: 5,
                 colorize: true,
-                timestamp:true,
+                timestamp:false,
                 name:'bot-execution-log'
             }),
             new winston.transports.Console({
@@ -114,10 +115,14 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,executionType,callback
     var replaceTextObj = {};
     for(var i = 0; i < botsScriptDetails.execution.length; i++) {
         (function(scriptObj) {
+            var fileExt = 'sh';
+            if(scriptObj.type ==='python'){
+                fileExt = 'py';
+            }
             fileHound.create()
                 .paths(gitHubDirPath)
                 .match(scriptObj.start)
-                .ext('sh')
+                .ext(fileExt)
                 .find().then(function (files) {
                 if (scriptObj.sudoFlag && scriptObj.sudoFlag === true) {
                     cmd = 'sudo ' +scriptObj.type + ' ' + files[0];
@@ -137,6 +142,7 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,executionType,callback
                 }
                 exec(cmd, function(err, out, code) {
                     if(err){
+                        logger.error("Error in executing script >>>>",err);
                         count++;
                         logsDao.insertLog({
                             referenceId: logsReferenceIds,
@@ -170,20 +176,25 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,executionType,callback
                     }
                     if(code === 0){
                         count++;
-                        logsDao.insertLog({
-                            referenceId: logsReferenceIds,
-                            err: false,
-                            log: 'BOTs execution success for script ' + scriptObj.start,
-                            timestamp: new Date().getTime()
-                        });
                         botLogger.debug('BOTs execution success for script ' + scriptObj.start);
                         if(count === botsScriptDetails.execution.length) {
-                            /*if(executionType === 'bots' || executionType === 'telemetry') {
+                            var resultTaskExecution = {
+                                "actionStatus": 'success',
+                                "status": 'success',
+                                "endedOn": new Date().getTime(),
+                                "actionLogId": actionId
+                            };
+                            auditTrailService.updateAuditTrail('BOTs', auditTrail._id, resultTaskExecution, function (err, data) {
+                                if (err) {
+                                    logger.error("Failed to create or update bots Log: ", err);
+                                }
+                            });
+                            if(executionType === 'bots' || executionType === 'telemetry') {
                                 var supertest = require("supertest");
-                                var server = supertest.agent("http://192.168.152.62:5000");
+                                var server = supertest.agent("http://localhost:5000");
                                 var reqBody = {
                                     "botDescription": JSON.stringify(botsScriptDetails.ymlJson),
-                                    "logLocation": '/home/karan/Documents/RL_Catalyst/Bots/ipAddress.log'
+                                    "logLocation": botLogFile+'/'+fileName
                                 };
                                 server
                                     .post('/utils')
@@ -194,16 +205,35 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,executionType,callback
                                             logger.error(err);
                                             callback(err, null);
                                         } else {
+                                            logsDao.insertLog({
+                                                referenceId: logsReferenceIds,
+                                                err: false,
+                                                log: res.text,
+                                                timestamp: new Date().getTime()
+                                            });
+
+                                            logsDao.insertLog({
+                                                referenceId: logsReferenceIds,
+                                                err: false,
+                                                log: 'BOTs execution success for script ' + scriptObj.start,
+                                                timestamp: new Date().getTime()
+                                            });
+                                            var botsNewService = require('_pr/services/botsNewService.js');
+                                            botsNewService.updateSavedTimePerBots(botsScriptDetails._id,function(err,data){
+                                                if(err){
+                                                    logger.error(err);
+                                                }
+                                            });
                                             callback(null, res.text);
                                             return;
                                         }
                                     });
                             }else {
                                 var supertest = require("supertest");
-                                var server = supertest.agent("http://192.168.152.62:5000");
+                                var server = supertest.agent("http://localhost:5000");
                                 var reqBody = {
                                     "botDescription": JSON.stringify(botsScriptDetails.ymlJson),
-                                    "logLocation": '/home/karan/Documents/RL_Catalyst/Bots/ipAddress.log'
+                                    "logLocation": botLogFile + '/' + fileName
                                 };
                                 server
                                     .post('/utils')
@@ -214,64 +244,41 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,executionType,callback
                                             logger.error(err);
                                             callback(err, null);
                                         } else {
-                                            Object.keys(res.text).forEach(function (key) {
-                                                if (botsScriptDetails.inputFormFields[j][key] === null) {
-                                                    replaceTextObj[key] = res.text[key];
-                                                }
+                                            var logCollectorObj = JSON.parse(res.text);
+                                            Object.keys(logCollectorObj).forEach(function (key) {
+                                                replaceTextObj[key] = logCollectorObj[key];
                                             });
-                                            console.log(botsScriptDetails.outputOptions[3].msgs[0].text);
                                             apiUtil.messageFormatter(botsScriptDetails.outputOptions[3].msgs[0].text, replaceTextObj, function (err, formattedMessage) {
                                                 if (err) {
                                                     logger.error(err);
                                                     callback(err, null);
                                                 } else {
-                                                    logger.debug("formattedMessage>>>",formattedMessage);
+                                                    logger.debug("Formatted Message>>>>",formattedMessage);
+                                                    logsDao.insertLog({
+                                                        referenceId: logsReferenceIds,
+                                                        err: false,
+                                                        log: formattedMessage,
+                                                        timestamp: new Date().getTime()
+                                                    });
+
+                                                    logsDao.insertLog({
+                                                        referenceId: logsReferenceIds,
+                                                        err: false,
+                                                        log: 'BOTs execution success for script ' + scriptObj.start,
+                                                        timestamp: new Date().getTime()
+                                                    });
+                                                    var botsNewService = require('_pr/services/botsNewService.js');
+                                                    botsNewService.updateSavedTimePerBots(botsScriptDetails._id,function(err,data){
+                                                        if(err){
+                                                            logger.error(err);
+                                                        }
+                                                    });
                                                     callback(null, formattedMessage);
                                                     return;
                                                 }
                                             })
                                         }
                                     });
-                            }*/
-                           if(executionType === 'bots' || executionType === 'telemetry') {
-                                logger.debug("Message : > "+ "ipAddress : 192.168.152.208");
-                                var resultTaskExecution = {
-                                    "actionStatus": 'success',
-                                    "status": 'success',
-                                    "endedOn": new Date().getTime(),
-                                    "actionLogId": actionId
-                                };
-                                auditTrailService.updateAuditTrail('BOTs', auditTrail._id, resultTaskExecution, function (err, data) {
-                                    if (err) {
-                                        logger.error("Failed to create or update bots Log: ", err);
-                                        callback(err,null);
-                                    }else{
-                                        callback(null,data);
-                                        return;
-                                    }
-                                });
-                            }else{
-                                replaceTextObj.ipAddress = '192.168.152.208';
-                                apiUtil.messageFormatter(botsScriptDetails.outputOptions[3].msgs[0].text, replaceTextObj, function (err, formattedMessage) {
-                                    if (err) {
-                                        logger.error(err);
-                                    }
-                                    logger.debug("Message : > ", formattedMessage);
-                                    var resultTaskExecution = {
-                                        "actionStatus": 'success',
-                                        "status": 'success',
-                                        "endedOn": new Date().getTime(),
-                                        "actionLogId": actionId
-                                    };
-                                    auditTrailService.updateAuditTrail('BOTs', auditTrail._id, resultTaskExecution, function (err, data) {
-                                        if (err) {
-                                            logger.error("Failed to create or update bots Log: ", err);
-                                        }else{
-                                            callback(null,data);
-                                            return;
-                                        }
-                                    });
-                                });
                             }
                         }
                     }
@@ -299,7 +306,7 @@ function  executeScriptOnEnv(botsScriptDetails,auditTrail,envId,userName,executi
         transports: [
             new winston.transports.DailyRotateFile({
                 level: 'debug',
-                datePattern: '.yyyy-MM-dd',
+                datePattern: '',
                 filename: 'botExecution.log',
                 dirname:log_folder,
                 handleExceptions: true,
@@ -307,7 +314,7 @@ function  executeScriptOnEnv(botsScriptDetails,auditTrail,envId,userName,executi
                 maxsize: 5242880, //5MB
                 maxFiles: 5,
                 colorize: true,
-                timestamp:true,
+                timestamp:false,
                 name:'bot-execution-log'
             }),
             new winston.transports.Console({

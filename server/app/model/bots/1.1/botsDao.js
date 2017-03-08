@@ -240,6 +240,21 @@ BotsSchema.statics.getBotsById = function(botId,callback){
     });
 };
 
+BotsSchema.statics.getBotsByBotId = function(botId,callback){
+    Bots.find({id:botId}, function(err, bots) {
+        if (err) {
+            logger.error(err);
+            var error = new Error('Internal server error');
+            error.status = 500;
+            return callback(error);
+        }else if(bots.length > 0){
+            return callback(null, bots);
+        }else{
+            return callback(null, []);
+        }
+    });
+};
+
 BotsSchema.statics.getBotsByGitHubId = function(gitHubId,callback){
     Bots.find({gitHubId:gitHubId}, function(err, bots) {
         if (err) {
@@ -307,41 +322,6 @@ BotsSchema.statics.removeSoftBotsById = function(botId,callback){
         }else {
             return callback(null, bots);
         }
-    });
-};
-
-BotsSchema.statics.botsExecutionCountInc = function botsExecutionCountInc(botId,callback) {
-    Bots.findByIdAndUpdate(
-        ObjectId(botId),{
-            $inc:{
-                executionCount:1
-            }
-        }, {
-            upsert: false
-        }, function (err,data) {
-            if(err) {
-                return callback(err);
-            }else {
-                return callback(null,data)
-            }
-        })
-};
-
-BotsSchema.statics.updateBotsExecutionCount = function updateBotsExecutionCount(botId,count,callback) {
-    Bots.update({
-        _id:ObjectId(botId),
-    }, {
-        $set: {
-            executionCount: count
-        }
-    }, {
-        upsert: false
-    }, function (err, data) {
-        if (err) {
-            callback(err, null);
-            return;
-        }
-        callback(null, data);
     });
 };
 

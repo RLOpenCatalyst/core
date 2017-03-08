@@ -21,12 +21,14 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all('/botsNew/*', sessionVerificationFunc);
 
     app.get('/botsNew',function(req,res){
-        var actionStatus = null;
+        var actionStatus = null,serviceNowCheck =null;
         if(req.query.actionStatus && req.query.actionStatus !== null){
             actionStatus = req.query.actionStatus;
-            console.log(actionStatus);
         }
-        botsNewService.getBotsList(req.query,actionStatus, function(err,data){
+        if(req.query.serviceNowCheck && req.query.serviceNowCheck !== null && req.query.serviceNowCheck === 'true'){
+            serviceNowCheck = true;
+        }
+        botsNewService.getBotsList(req.query,actionStatus,serviceNowCheck, function(err,data){
             if (err) {
                 return res.status(500).send(err);
             } else {
