@@ -70,7 +70,7 @@
                                                         <label for="category">Jenkins:</label>
                                                         <div id="divjenkinsjobciid" class="input-group from-control col-md-12 widthBox" cdata="catalyst" style="height: 165px">
                                                             <div class="col-lg-12 col-md-12" style="margin-top:15px;">
-                                                                <label for="">Job Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                                                                <label for="">Job Name:</label>
                                                                 <select id="jenkinsjobciid" class="chooseBG width-100" >
                                                                  <option value="">Select Job Name</option>
                                                                 </select>
@@ -102,11 +102,11 @@
                                                         <label for="category">Git Hub:</label>
                                                         <div id="divgitciid"  style="height: 165px" class="widthBox">
                                                             <div class="col-lg-12 col-md-12" style="margin-top:15px;">
-                                                                <label for="">Repo URL:<span class="control-label redSpan">&nbsp;*</span></label>
+                                                                <label for="">Repo URL:</label>
                                                                 <input autofocus name="ctl00$MainContent$orgname" value="" id="repourl" class="form-control" type="text">
                                                             </div>
                                                             <div class="col-lg-12 col-md-12" style="margin-top:15px;">
-                                                                <label for="">Branch:<span class="control-label redSpan">&nbsp;*</span></label>
+                                                                <label for="">Branch:</label>
                                                                 <input autofocus name="ctl00$MainContent$orgname" value="" id="repobranch" class="form-control" type="text">
                                                                 <input autofocus name="ctl00$MainContent$orgname" value="" id="repocollectorid" class="form-control hidden" type="text">
                                                             </div>
@@ -117,7 +117,7 @@
                                                         <label for="category">SonarQube:</label>
                                                         <div id="divsonarciid" class="input-group from-control col-md-12 widthBox" style="height: 165px">
                                                             <div class="col-lg-12 col-md-12" style="margin-top:15px;">
-                                                                <label for="">Job Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                                                                <label for="">Job Name:</label>
                                                                 <select id="sonarciid" class="chooseBG width-100" >
                                                                  <option value="">Select Job Name</option>
                                                                 </select>
@@ -129,7 +129,7 @@
                                                         <label for="category">Chef:</label>
                                                         <div id="divcookbookciid" class="input-group from-control col-md-12 widthBox" style="height: 165px">
                                                             <div class="col-lg-12 col-md-12" style="margin-top:15px;">
-                                                                <label for="">Deploy Cookbook Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                                                                <label for="">Deploy Cookbook Name:</label>
                                                                 <select id="cookbookciid" class="chooseBG width-100" >
                                                                  <option value="">Select Cookbook Name</option>
                                                                 </select>
@@ -191,9 +191,10 @@
 var dashboardURL='';
 var collecterId=[];
 var dashboardFrom=null;
-function getcollectors(val) {
+function getcollectors(val,collectorItems) {
     dashboardURL = val;
     $('#dashboardLink').val('http://' + dashboardURL); //to be updated after dashboard is created.
+   // alert(JSON.stringify(collectorItems));
     $.ajax({
             beforeSend: function(xhrObj){
                     xhrObj.setRequestHeader("Dashboard-url",dashboardURL);
@@ -212,26 +213,33 @@ function getcollectors(val) {
 //                            $("#jenkins-widget").show();
                             var a=data[i].name;
                             collecterId[a]=data[i].id;
-                            dashboardoption(a);
+                            dashboardoption(a,collectorItems);
                         }
 
                         if(data[i].name === "Hudson"){
-                            jenkinsWidgetOption(data[i].id);
+                            jenkinsWidgetOption(data[i].id,collectorItems,collectorItems);
                         }
                         if(data[i].name === "Chef"){
-                            chefWidgetOption(data[i].id);
+                            chefWidgetOption(data[i].id,collectorItems,collectorItems);
                         }
                         if(data[i].name === "Sonar"){
-                            sonarWidgetOption(data[i].id);
+                            sonarWidgetOption(data[i].id,collectorItems,collectorItems);
                         }if(data[i].name === "GitHub"){
-                            $('#repocollectorid').val(data[i].id);
+                            $('#repocollectorid').val(data[i].id,collectorItems);
+                            if(collectorItems){
+                                if(collectorItems.SCM){
+                                     $('#repourl').val(collectorItems.SCM[0].options.url);
+                                     $('#repobranch').val(collectorItems.SCM[0].options.branch);
+                                }
+                            }
                         }
                     }
+                    
             }
     });
 }
 
-function dashboardoption(name) {
+function dashboardoption(name,collectorItems) {
 
     $('#jiraprojectciid').html();
 
@@ -266,6 +274,14 @@ function dashboardoption(name) {
             
                 }
                 $('#jiraprojectciid').html(str);
+                if(collectorItems){
+                    if(collectorItems.Jiraproject){
+                        $('#jiraprojectciid').val(collectorItems.Jiraproject[0].options.projectId);
+                        $('#jiraprojectciid').select2();
+                        versionOption(collectorItems.Jiraproject[0].options.projectId,collectorItems.Jiraproject[0].id);
+                        //$('#jiraprojectciid').trigger('change');
+                    }
+                }
             }
         });
 
@@ -273,7 +289,7 @@ function dashboardoption(name) {
 }
 
 
-function versionOption(projectname) {
+function versionOption(projectname,selectedid) {
      $('#jiraversionciid').html();
      $('#jiraversionciid').val('');
      $.ajax({
@@ -301,13 +317,17 @@ function versionOption(projectname) {
                  }
 
                  $('#jiraversionciid').html(str1);
+                 if(selectedid){
+                    $('#jiraversionciid').val(selectedid);
+                    $('#jiraversionciid').select2();
+                 }
 
              },error:function(xhr) {
              }
      });
 }
 
-function jenkinsWidgetOption(collectorId) {
+function jenkinsWidgetOption(collectorId,collectorItems) {
    $('#jenkinsjobciid').html();
    $.ajax({
         beforeSend: function(xhrObj){
@@ -331,11 +351,17 @@ function jenkinsWidgetOption(collectorId) {
                     }
 
                 $('#jenkinsjobciid').html(str);
+                if(collectorItems){
+                    if(collectorItems.Build){
+                        $('#jenkinsjobciid').val(collectorItems.Build[0].id);
+                        $('#jenkinsjobciid').select2();
+                    }
+                }
         }
     });
 }
 
-function chefWidgetOption(collectorId) {
+function chefWidgetOption(collectorId,collectorItems) {
    $('#cookbookciid').html();
    $.ajax({
         beforeSend: function(xhrObj){
@@ -359,11 +385,17 @@ function chefWidgetOption(collectorId) {
                     }
 
                 $('#cookbookciid').html(str);
+                if(collectorItems){
+                    if(collectorItems.Chef){
+                        $('#cookbookciid').val(collectorItems.Chef[0].id);
+                        $('#cookbookciid').select2();
+                    }
+                }
         }
     });
 }
 
-function sonarWidgetOption(collectorId) {
+function sonarWidgetOption(collectorId,collectorItems) {
    $('#sonarciid').html();
    $.ajax({
         beforeSend: function(xhrObj){
@@ -387,12 +419,38 @@ function sonarWidgetOption(collectorId) {
                     }
 
                 $('#sonarciid').html(str);
+                if(collectorItems){
+                    if(collectorItems.CodeQuality){
+                        $('#sonarciid').val(collectorItems.CodeQuality[0].id);
+                        $('#sonarciid').select2();
+                    }
+                }
         }
     });
 }
 
+function removeDashboard(dashboardId,callback){
+    $.ajax({
+            beforeSend: function(xhrObj){
+                    xhrObj.setRequestHeader("Dashboard-url",dashboardURL);
+              xhrObj.setRequestHeader("Content-Type","application/json");
+                    
+            },
+            type: "DELETE",
+            url: "/dashboardcicd/dashboard/" + dashboardId,
+            processData: false,
+            dataType: "json",
+            contentType:"json",
+            success: function(json){
+                    callback();
+            }
+    });
+
+}
 
  function creteDashboard() {
+     //Remove existing dashboard
+
      dashboardFrom=$("#dashboard-create").serialize();
      console.log(dashboardFrom);
      var title = $('#dashboardName').val();
@@ -438,22 +496,20 @@ function sonarWidgetOption(collectorId) {
     var giturl = $('#repourl').val();
     var gitbranch = $('#repobranch').val();
     var gitCollectorId = $('#repocollectorid').val();
-     $.ajax({
-         beforeSend: function (xhrObj) {
-             xhrObj.setRequestHeader("Dashboard-url", dashboardURL);
-         },
-         type: "POST",
-         url: "/dashboardcicd/setupdashboard/" + id,
-         processData: false,
-         data: JSON.stringify([{
+    //option preparation
+    var options = [];
+    if(versionCIID[0] != ''){
+        options.push({
              "options": {
                  "id": "projectversion0"
              },
              "name": "Jiraproject",
              "componentId": componentId,
-
              "collectorItemIds": versionCIID
-         }, {
+            });
+    }
+    if(jenkinsCIID[0] != ''){
+        options.push({
             "options": {
                 "id": "build0",
                 "buildDurationThreshold": 3,
@@ -462,19 +518,27 @@ function sonarWidgetOption(collectorId) {
             "name": "build",
             "componentId": componentId,
             "collectorItemIds": jenkinsCIID
-         },
-         { 
+         });
+    }
+    if(chefCIID[0] !=''){
+        options.push({ 
             "options":{"id":"chef0"},
             "name":"chef",
             "componentId":componentId,
             "collectorItemIds": chefCIID
-        },
-        {
+        });
+
+    }
+    if(sonarCIID[0] != ''){
+        options.push({
             "options":{"id":"codeanalysis0","testJobNames":[]},
             "name":"codeanalysis",
             "componentId":componentId,
             "collectorItemIds":sonarCIID
-        },{
+        });
+    }
+    if(giturl != '' && gitbranch != '' && gitCollectorId != ''){
+        options.push({
         "options": {
             "id": "repo0",
             "scm": {
@@ -488,10 +552,18 @@ function sonarWidgetOption(collectorId) {
         "name": "repo",
         "componentId": componentId,
         "collectorItemIds": []
+        });
     }
 
 
-         ]),
+     $.ajax({
+         beforeSend: function (xhrObj) {
+             xhrObj.setRequestHeader("Dashboard-url", dashboardURL);
+         },
+         type: "POST",
+         url: "/dashboardcicd/setupdashboard/" + id,
+         processData: false,
+         data: JSON.stringify(options),
          dataType: "json",
          contentType: 'application/json',
          success: function (json) {
@@ -505,22 +577,66 @@ function sonarWidgetOption(collectorId) {
      });
  }
 
- function setoptions(durl,dashboardId){
-    $.ajax({
-        beforeSend: function(xhrObj){
-                xhrObj.setRequestHeader("Dashboard-url",durl);
-          xhrObj.setRequestHeader("Content-Type","application/json");
-                
-        },
-        type: "GET",
-        url: "/dashboardcicd/dashboard/" + dashboardId,
-        processData: false,
-        dataType: "json",
-        contentType:"json",
-            success: function(json){
-                    //To Do set the values based on selection.
-            }
-    });
+ function setoptions(durl,dashboardId,callback){
+    if(dashboardId){
+        $.ajax({
+            beforeSend: function(xhrObj){
+                    xhrObj.setRequestHeader("Dashboard-url",durl);
+              xhrObj.setRequestHeader("Content-Type","application/json");
+                    
+            },
+            type: "GET",
+            url: "/dashboardcicd/dashboard/" + dashboardId,
+            processData: false,
+            dataType: "json",
+            contentType:"json",
+                success: function(data,json){
+                        //To Do set the values based on selection.
+                   
+                        var data = JSON.parse(JSON.stringify(data));
+                        var collectorItems = null;
+                        if(data.application)
+                         collectorItems = data.application.components[0].collectorItems;
+                        
+                        if(collectorItems){
+                            callback(collectorItems);
+                          //  alert(collectorItems.CodeQuality);
+                            // if(collectorItems.CodeQuality)
+                            //     {
+                            //         $('#sonarciid').val(collectorItems.CodeQuality[0].id);
+                            //         $('#sonarciid').select2();
+                            //       //  console.log(collectorItems.CodeQuality[0].id);
+                            //     }
+                            // if(collectorItems.Jiraproject)
+                            //     {
+                            //         $('#jiraversionciid').val();
+                            //         $('#jiraversionciid').select2();
+                            //     }
+                            // if(collectorItems.Chef)  
+                            //     {
+                            //         $('#cookbookciid').val(collectorItems.Chef[0].id);
+                            //         $('#cookbookciid').select2();
+                            //         //console.log(collectorItems.Chef[0].id);
+                            //     }
+                            // if(collectorItems.SCM)  
+                            //     {
+                            //         $('#repourl').val(collectorItems.SCM[0].options.url);
+                            //         $('#repobranch').val(collectorItems.SCM[0].options.branch);
+                            //       //  console.log(collectorItems.SCM[0].options.url);
+                            //     }
+                            // if(collectorItems.Build)  
+                            //     {
+                            //         $('#jenkinsjobciid').val(collectorItems.Build[0].id);
+                            //         $('#jenkinsjobciid').select2();
+                            //         //console.log(collectorItems.Build[0].id);
+                            //     }
+                        }
+                        else
+                            callback(null);
+                  
+                }
+        });
+    }
  }
 
 
@@ -554,6 +670,8 @@ function sonarWidgetOption(collectorId) {
             $("#msgOrgName").hide();
         });
         readform(30);
+        //to do fix Org selection.
+
         //Force opening the left navigation menu
         if ($('#navSettings').is(":visible") == false) {
             $('#navSettings').css("display", '');
@@ -572,8 +690,12 @@ function sonarWidgetOption(collectorId) {
         //updating option sectons for dashboard
 
         if($('#dashboardUrl').val() != ""){
-            getcollectors($('#dashboardUrl').val());
-            setoptions($('#dashboardUrl').val(),$('#dashboardId').val());
+            
+            setoptions($('#dashboardUrl').val(),$('#dashboardId').val(),
+                function(collectorItems){
+                    getcollectors($('#dashboardUrl').val(),collectorItems)
+                });
+        
         }
     }
 
@@ -744,7 +866,14 @@ function sonarWidgetOption(collectorId) {
 function validateandsaveform() {
 
   if (validateForm()) {
-    creteDashboard();
+    //Remove existing dashboard
+    if($('#dashboardId').val() != ''){
+        removeDashboard($('#dashboardId').val(),function(){
+            creteDashboard();
+        });
+    }
+    else
+        creteDashboard();
     
     return false;
   }
@@ -766,7 +895,7 @@ function validateandsaveform() {
          if ($(this).valid) {
            validateandsaveform();
          } else {
-           bootbox.alert('invalid form submitted'); // for demo
+           bootbox.alert('Invalid form submitted'); // for demo
          }
          return false; // for demo
        });
