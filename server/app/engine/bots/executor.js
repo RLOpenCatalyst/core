@@ -169,10 +169,10 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,executionType,callback
                         logsDao.insertLog({
                             referenceId: logsReferenceIds,
                             err: false,
-                            log: out.toString('ascii'),
+                            log: out,
                             timestamp: new Date().getTime()
                         });
-                        botLogger.debug(out.toString('ascii'));
+                        botLogger.debug(out);
                     }
                     if(code === 0){
                         count++;
