@@ -140,6 +140,12 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,executionType,callback
                         cmd = cmd + ' ' + decryptedText;
                     }
                 }
+                logsDao.insertLog({
+                    referenceId: logsReferenceIds,
+                    err: false,
+                    log: 'BOTs execution started for script ' + scriptObj.start,
+                    timestamp: new Date().getTime()
+                });
                 exec(cmd, function(err, out, code) {
                     if(err){
                         logger.error("Error in executing script >>>>",err);
