@@ -159,7 +159,7 @@ ResourceCostsSchema.statics.remove
 
     this.find(query).remove(function(err, result) {
         if (err) {
-            callback(err,null);
+            callback(err)
         } else {
             callback(null, result)
         }

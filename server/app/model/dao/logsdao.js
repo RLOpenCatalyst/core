@@ -68,6 +68,7 @@ var LogsDao = function() {
                 callback(err, null);
                 return;
             }
+
             logger.debug("Exit getLogsByReferenceId ", referenceId, timestamp);
             callback(null, data);
         });

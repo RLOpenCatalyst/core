@@ -14,7 +14,7 @@
 // The file contains all the end points for AppDeploy
 
 var logger = require('_pr/logger')(module);
-var botsService = require('_pr/services/botsService.js');
+var	botsService = require('_pr/services/botsService.js');
 var appConfig = require('_pr/config');
 var Cryptography = require('_pr/lib/utils/cryptography');
 

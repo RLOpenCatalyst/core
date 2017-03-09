@@ -19,27 +19,31 @@
             //refresh of bots History for current implementation.
 
             if($scope.templateSelected){
-                if($scope.templateSelected.category === 'Active Directory' || $scope.templateSelected.category === 'Database Management') {
+                if($scope.templateSelected.botCategory === 'Active Directory' || $scope.templateSelected.botCategory === 'Database Management') {
                     $scope.botIcon = 'images/bots/activeDirectory.png';
-                } else if($scope.templateSelected.category === 'User Management') {
+                } else if($scope.templateSelected.botCategory === 'User Management') {
                     $scope.botIcon = 'images/bots/userManagement.png';
-                } else if($scope.templateSelected.category === 'Service Management') {
+                } else if($scope.templateSelected.botCategory === 'Service Management') {
                     $scope.botIcon = 'images/bots/serviceManagement.png';
-                } else if($scope.templateSelected.category === 'Upgrade') {
+                } else if($scope.templateSelected.botCategory === 'Upgrade') {
                     $scope.botIcon = 'images/bots/upgrade.png';
-                } else if($scope.templateSelected.category === 'Monitoring') {
+                } else if($scope.templateSelected.botCategory === 'Monitoring') {
                     $scope.botIcon = 'images/bots/monitoring.png';
-                } else if($scope.templateSelected.category === 'Installation') {
+                } else if($scope.templateSelected.botCategory === 'Installation') {
                     $scope.botIcon = 'images/bots/installation.png';
-                } else if($scope.templateSelected.category === 'OpenDJ LDAP') {
+                } else if($scope.templateSelected.botCategory === 'OpenDJ LDAP') {
                     $scope.botIcon = 'images/bots/openDJ.png';
-                } else if($scope.templateSelected.category === 'Application Deployment' || $scope.templateSelected.category === 'Application Management') {
+                } else if($scope.templateSelected.botCategory === 'Application Deployment') {
                     $scope.botIcon = 'images/bots/applicationDeployment.png';
                 }
             }
 
             $scope.launchInstance = function(launch){
-                genSevs.executeTask(launch);
+                if(launch.botLinkedCategory === 'Task'){
+                    genSevs.executeTask(launch);
+                } else if(launch.botLinkedCategory === 'Blueprint') {
+                    genSevs.launchBlueprint(launch);
+                }
             };
             $scope.deleteBot = function(bot) {
                 var modalOptions = {
@@ -50,11 +54,8 @@
                     bodyText: 'Are you sure you want to delete this BOT?'
                 };
                 confirmbox.showModal({}, modalOptions).then(function() {
-                    var url;
-                    url = '/botsNew/' + bot._id;  
-                    var param = {
-                        inlineLoader:true,
-                        url:url
+                    var param={
+                        url:'/bots/' + bot.botId
                     };
                     genSevs.promiseDelete(param).then(function (response) {
                         if (response) {
@@ -69,7 +70,7 @@
             $scope.botInfo = $scope.templateSelected;
          
             var botsTab = {
-                tab : "ReadMe",
+                tab : "Report",
                 setTab : function (tabId) {
                     botsTab.tab = tabId;   
                 },
@@ -77,10 +78,10 @@
                     return botsTab.tab === tabId;
                 },
                 templates:   {
-                    readme: {
+                    /*readme: {
                         "title": "ReadMe",
                         "url": "src/partials/sections/dashboard/bots/tabs/readme.html"
-                    }, 
+                    }, */
                     param: {
                         "title": "Param",
                         "url": "src/partials/sections/dashboard/bots/tabs/param.html"
