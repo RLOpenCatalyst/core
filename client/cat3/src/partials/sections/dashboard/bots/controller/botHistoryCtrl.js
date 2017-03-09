@@ -21,7 +21,7 @@
             } 
 
             $scope.botDetail = items;
-            $scope.botId = items._id
+            $scope.botId = items.botId;
             
             var botHistoryGrid = uiGridOptionsService.options();
             $scope.paginationParams = botHistoryGrid.pagination;
@@ -69,16 +69,13 @@
             angular.extend($scope, {
                 taskHistoryListView : function() {
                     var param = null;
-                    var url;
-                    url = '/botsNew/' + $scope.botId + '/bots-history?page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder;
-                    
                     if($scope.botDetail.serviceNowCheck == true){
                         param = {
-                            url: '/botsNew/' + $scope.botId + '/bots-history?serviceNowCheck=true&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                            url: '/bots/' + $scope.botId + '/bots-history?serviceNowCheck=true&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
                         };
                     }else{
                         param = {
-                            url: url
+                            url: '/bots/' + $scope.botId + '/bots-history?page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
                         };
                     }
                     $scope.taskHistoryData.data = [];
@@ -187,30 +184,6 @@
                         $scope.selected = selectedItem;
                     }, function() {
                         console.log('Modal Dismissed at ' + new Date());
-                    });
-                } else if(hist.auditType === 'BOTsNew'){
-                    var logDetails = {
-                        actionId : hist.actionLogId,
-                        botId: hist.auditId
-                    }
-                    $modal.open({
-                        animate: true,
-                        templateUrl: "src/partials/sections/dashboard/bots/view/botExecutionLogs.html",
-                        controller: "botsExecutionLogsNewCtrl",
-                        backdrop: 'static',
-                        keyboard: false,
-                        resolve: {
-                            items: function() {
-                                return {
-                                    logDetails : logDetails,
-                                    isBotNew : items.isBotsNew
-                                }
-                            }
-                        }
-                    }).result.then(function() {
-                        console.log('The modal close is not getting invoked currently. Goes to cancel handler');
-                    }, function() {
-                        console.log('Cancel Handler getting invoked');
                     });
                 } else {
                     toastr.error("Logs are getting generated. Please wait");

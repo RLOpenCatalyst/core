@@ -24,9 +24,6 @@ var fileUpload = require('_pr/model/file-upload/file-upload');
 var appConfig = require('_pr/config');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
 var auditTrailService = require('_pr/services/auditTrailService.js');
-var executor = require('_pr/engine/bots/executor.js');
-var logsDao = require('_pr/model/dao/logsdao.js');
-
 const fileHound= require('filehound');
 const yamlJs= require('yamljs');
 const gitHubService = require('_pr/services/gitHubService.js');
@@ -67,7 +64,7 @@ botsNewService.removeBotsById = function removeBotsById(botId,callback){
     });
 }
 
-botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowCheck,callback) {
+botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,callback) {
     var reqData = {};
     async.waterfall([
         function(next) {
@@ -81,7 +78,7 @@ botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,service
         function(queryObj, next) {
             if(actionStatus !== null){
                 var query = {
-                    auditType: 'BOTsNew',
+                    auditType: 'BOTs',
                     actionStatus: actionStatus,
                     isDeleted:false
                 };
@@ -95,34 +92,10 @@ botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,service
                                 botsIds.push(botsAudits[i].auditId);
                             }
                         }
-                        queryObj.queryObj._id = {$in:botsIds};
-                        botsDao.getBotsList(queryObj, next);
-                    }else {
-                        queryObj.queryObj._id = null;
-                        botsDao.getBotsList(queryObj, next);
-                    }
-                });
-            }else if(serviceNowCheck === true){
-                var query = {
-                    auditType: 'BOTsNew',
-                    actionStatus: 'success',
-                    user: 'servicenow',
-                    isDeleted:false
-                };
-                var botsIds = [];
-                auditTrail.getAuditTrails(query, function(err,botsAudits){
-                    if(err){
-                        next(err,null);
-                    }else if (botsAudits.length > 0) {
-                        for (var i = 0; i < botsAudits.length; i++) {
-                            if (botsIds.indexOf(botsAudits[i].auditId) < 0) {
-                                botsIds.push(botsAudits[i].auditId);
-                            }
-                        }
-                        queryObj.queryObj._id = {$in:botsIds};
+                        queryObj.queryObj.botId = {$in:botsIds};
                         botsDao.getBotsList(queryObj, next);
                     } else {
-                        queryObj.queryObj._id = null;
+                        queryObj.queryObj.botId = null;
                         botsDao.getBotsList(queryObj, next);
                     }
                 });
@@ -131,7 +104,7 @@ botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,service
             }
         },
         function(botList, next) {
-            addYmlFileDetailsForBots(botList,reqData,next);
+            addYmlFileDetailsForBots(botList,next);
         },
         function(filterBotList, next) {
            async.parallel({
@@ -160,23 +133,25 @@ botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,service
             metaData : results.botList.metaData,            
             botSummary: results.botSummary        
         }        
-        callback(null,resultObj);
+        callback(null,resultObj);        
         return;
     });
 }
 
-botsNewService.executeBots = function executeBots(botId,reqBody,userName,executionType,callback){
+botsNewService.executeBots = function executeBots(botId,reqBody,callback){
     async.waterfall([
         function(next){
-            if(reqBody !== null && reqBody !== ''){
-                encryptedParam(reqBody,next);
+            if(reqBody !== null
+                && reqBody.scriptParams
+                && reqBody.scriptParams !== null){
+                encryptedParam(reqBody.scriptParams,next);
             }else{
                 next(null,[]);
             }
         },
         function(encryptedParamList,next) {
             if(encryptedParamList.length > 0){
-                botsDao.updateBotsDetail(botId,{params:encryptedParamList,lastRunTime:new Date().getTime()},function(err,botsData){
+                botsDao.updateBotsDetail(botId,{params:encryptedParamList},function(err,botsData){
                     if(err){
                         next(err);
                     }else{
@@ -186,29 +161,6 @@ botsNewService.executeBots = function executeBots(botId,reqBody,userName,executi
             }else {
                 botsDao.getBotsById(botId, next);
             }
-        },
-        function(botDetails,next) {
-            if(botDetails.length > 0){
-                if(botDetails[0].type === 'script'){
-                    async.parallel([
-                        function(callback){
-                            executor.executeScriptBot(botDetails[0],userName,executionType,callback);
-                        },
-                        function(callback){
-                            var botExecutionCount = botDetails[0].executionCount + 1;
-                            var botUpdateObj = {
-                                executionCount:botExecutionCount,
-                                lastRunTime:new Date().getTime()
-                            }
-                            botsDao.updateBotsDetail(botId, botUpdateObj, callback);
-                        }
-                    ],function(err,data) {
-                        next(null,data[0]);
-                    });
-                }
-            }else {
-               next(null,botDetails);
-            }  
         }
     ],function(err,results){
         if(err){
@@ -228,24 +180,37 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
             botsDao.getBotsByGitHubId(gitHubId,next);
         },
         function(botDetails,next) {
-            if(botDetails.length > 0) {
-                var count = 0;
-                for (var i = 0; i < botDetails.length; i++) {
-                    (function (botDetail) {
-                        fileUpload.removeFileByFileId(botDetail.ymlDocFileId, function (err, data) {
-                            if (err) {
-                                logger.error("There are some error in deleting yml file.", err, botDetail.ymlDocFileId);
-                            }
-                            count++;
-                            if (count === botDetails.length) {
-                                next(null, botDetails);
-                            }
-                        })
-                    })(botDetails[i]);
+            async.parallel({
+                botsSync: function(callback){
+                    botsDao.removeBotsByGitHubId(gitHubId,callback);
+                },
+                fileSync: function(callback){
+                    if(botDetails.length > 0){
+                        var count = 0;
+                        for(var  i = 0 ; i < botDetails.length; i++){
+                            (function(botDetail){
+                                fileUpload.removeFileByFileId(botDetail.ymlDocFileId,function(err,data){
+                                    if(err){
+                                        logger.error("There are some error in deleting yml file.",err,botDetail.ymlDocFileId);
+                                    }
+                                    count++;
+                                    if(count === botDetails.length){
+                                        callback(null,botDetails);
+                                    }
+                                })
+                            })(botDetails[i]);
+                        }
+                    }else{
+                        callback(null,botDetails);
+                    }
                 }
-            }else {
-                next(null, botDetails);
-            }
+            },function(err,results){
+                if(err){
+                    next(err);
+                }else{
+                    next(null,results);
+                }
+            })
         },
         function(gitHubSyncStatus,next) {
             var  gitHubService = require('_pr/services/gitHubService.js');
@@ -265,22 +230,18 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                             (function(ymlFile){
                                 yamlJs.load(ymlFile, function(result) {
                                     if(result !== null){
-                                       fileUpload.uploadFile(result.id,ymlFile,null,function(err,ymlDocFileId){
+                                        fileUpload.uploadFile(result.id,ymlFile,null,function(err,ymlDocFileId){
                                             if(err){
                                                 logger.error("Error in uploading yaml documents.",err);
                                                 next(err);
                                             }else{
                                                 count++;
                                                 var botsObj={
-                                                    ymlJson:result,
                                                     name:result.name,
                                                     gitHubId:gitHubDetails._id,
-                                                    gitHubRepoName:gitHubDetails.repositoryName,
                                                     id:result.id,
                                                     desc:result.desc,
-                                                    category:result.botCategory?result.botCategory:result.functionality,
-                                                    action:result.action,
-                                                    execution:result.execution,
+                                                    category:result.category,
                                                     type:result.type,
                                                     inputFormFields:result.input[0].form,
                                                     outputOptions:result.output,
@@ -289,24 +250,11 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                                     orgId:gitHubDetails.orgId,
                                                     orgName:gitHubDetails.orgName
                                                 }
-                                                botsDao.getBotsByBotId(result.id,function(err,botsList){
+                                                botsDao.createNew(botsObj,function(err,data){
                                                     if(err){
                                                         logger.error(err);
-                                                    }else if(botsList.length > 0){
-                                                        botsDao.updateBotsDetail(botsList[0]._id,botsObj,function(err,updateBots){
-                                                            if(err){
-                                                                logger.error(err);
-                                                            }
-                                                            botObjList.push(botsObj);
-                                                        })
-                                                    }else{
-                                                        botsDao.createNew(botsObj,function(err,data){
-                                                            if(err){
-                                                                logger.error(err);
-                                                            }
-                                                            botObjList.push(botsObj);
-                                                        });
                                                     }
+                                                    botObjList.push(botsObj);
                                                 })
                                             }
                                         })
@@ -343,150 +291,19 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
     });
 }
 
-botsNewService.getBotsHistory = function getBotsHistory(botId,botsQuery,callback){
-    var reqData = {};
-    async.waterfall([
-        function(next) {
-            apiUtil.paginationRequest(botsQuery, 'botHistory', next);
-        },
-        function(paginationReq, next) {
-            paginationReq['searchColumns'] = ['status', 'action', 'user', 'actionStatus', 'auditTrailConfig.name','masterDetails.orgName'];
-            reqData = paginationReq;
-            apiUtil.databaseUtil(paginationReq, next);
-        },
-        function(queryObj, next) {
-            queryObj.queryObj.auditId = botId;
-            queryObj.queryObj.auditType = 'BOTsNew';
-            auditTrail.getAuditTrailList(queryObj,next)
-        },
-        function(auditTrailList, next) {
-            apiUtil.paginationResponse(auditTrailList, reqData, next);
-        }
-    ],function(err, results) {
-        if (err){
-            logger.error(err);
-            callback(err,null);
-            return;
-        }
-        callback(null,results)
-        return;
-    });
-}
-
-botsNewService.getParticularBotsHistory = function getParticularBotsHistory(botId,historyId,callback){
-    async.waterfall([
-        function(next){
-            botsDao.getBotsById(botId,next);
-        },
-        function(bots,next){
-            if(bots.length > 0) {
-                var query = {
-                    auditType: 'BOTsNew',
-                    auditId: botId,
-                    actionLogId: historyId
-                };
-                auditTrail.getAuditTrails(query, next);
-
-            }else{
-                next({errCode:400, errMsg:"Bots is not exist in DB"},null)
-            }
-        }
-    ],function(err,results){
-        if(err){
-            logger.error(err);
-            callback(err,null);
-            return;
-        }else{
-            callback(null,results);
-            return;
-        }
-    });
-}
-
-botsNewService.getParticularBotsHistoryLogs= function getParticularBotsHistoryLogs(botId,historyId,timestamp,callback){
-    async.waterfall([
-        function(next){
-            botsDao.getBotsById(botId,next);
-        },
-        function(bots,next){
-            if(bots.length > 0) {
-                var logsDao = require('_pr/model/dao/logsdao.js');
-                logsDao.getLogsByReferenceId(historyId, timestamp,next);
-            }else{
-                next({errCode:400, errMsg:"Bots is not exist in DB"},null)
-            }
-        }
-    ],function(err,results){
-        if(err){
-            logger.error(err);
-            callback(err,null);
-            return;
-        }else{
-            callback(null,results);
-            return;
-        }
-    });
-}
-
-botsNewService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,callback){
-    var query = {
-        auditType: 'BOTsNew',
-        isDeleted: false,
-        auditId: botId
-    };
-    auditTrail.getAuditTrails(query, function (err, botAuditTrail) {
-        if (err) {
-            logger.error("Error in Fetching Audit Trail.", err);
-            callback(err, null);
-        }
-        if (botAuditTrail.length > 0) {
-            var totalTimeInSeconds = 0;
-            for (var m = 0; m < botAuditTrail.length; m++) {
-                if (botAuditTrail[m].endedOn && botAuditTrail[m].endedOn !== null
-                    && botAuditTrail[m].auditTrailConfig.manualExecutionTime
-                    && botAuditTrail[m].auditTrailConfig.manualExecutionTime !== null
-                    && botAuditTrail[m].actionStatus ==='success' ) {
-                    var executionTime = getExecutionTime(botAuditTrail[m].endedOn, botAuditTrail[m].startedOn);
-                    totalTimeInSeconds = totalTimeInSeconds + ((botAuditTrail[m].auditTrailConfig.manualExecutionTime * 60) - executionTime);
-                }
-            }
-            var totalTimeInMinutes = Math.round(totalTimeInSeconds / 60);
-            var result = {
-                hours: Math.floor(totalTimeInMinutes / 60),
-                minutes: totalTimeInMinutes % 60
-            }
-            botsDao.updateBotsDetail(botId, {savedTime: result,executionCount:botAuditTrail.length}, function (err, data) {
-                if (err) {
-                    logger.error(err);
-                    callback(err, null);
-                    return;
-                }
-                callback(null, data);
-                return;
-            })
-        } else {
-            callback(null, botAuditTrail);
-            return;
-        }
-    });
-}
-
-function getExecutionTime(endTime, startTime) {
-    var executionTimeInMS = endTime - startTime;
-    var totalSeconds = Math.floor(executionTimeInMS / 1000);
-    return totalSeconds;
-}
-
-
 function encryptedParam(paramDetails, callback) {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var encryptedList = [];
     if(paramDetails.length > 0) {
         for (var i = 0; i < paramDetails.length; i++) {
-            var encryptedText = cryptography.encryptText(paramDetails[i], cryptoConfig.encryptionEncoding,
+            var encryptedText = cryptography.encryptText(paramDetails[i].paramVal, cryptoConfig.encryptionEncoding,
                 cryptoConfig.decryptionEncoding);
-            encryptedList.push(encryptedText);
+            encryptedList.push({
+                paramVal: encryptedText,
+                paramDesc: paramDetails[i].paramDesc,
+                paramType: paramDetails[i].paramType
+            });
         }
         callback(null,encryptedList);
     }else{
@@ -494,7 +311,7 @@ function encryptedParam(paramDetails, callback) {
     }
 }
 
-function addYmlFileDetailsForBots(bots,reqData,callback){
+function addYmlFileDetailsForBots(bots,callback){
     if (bots.docs.length === 0) {
         return callback(null,bots);
     }else{
@@ -528,21 +345,13 @@ function addYmlFileDetailsForBots(bots,reqData,callback){
                             manualExecutionTime:bot.manualExecutionTime,
                             executionCount:bot.executionCount,
                             scheduler:bot.scheduler,
-                            createdOn:bot.createdOn,
-                            lastRunTime:bot.lastRunTime,
-                            savedTime:bot.savedTime
+                            createdOn:bot.createdOn
+                            
                         }
                         botsList.push(botsObj);
+                        botsObj={};
                         if (botsList.length === bots.docs.length) {
-                            var alaSql = require('alasql');
-                            var sortField=reqData.mirrorSort;
-                            var sortedField=Object.keys(sortField)[0];
-                            var sortedOrder = reqData.mirrorSort ? (sortField[Object.keys(sortField)[0]]==1 ?'asc' :'desc') : '';
-                            if(sortedOrder ==='asc'){
-                                bots.docs = alaSql( 'SELECT * FROM ? ORDER BY '+sortedField+' ASC',[botsList]);
-                            }else{
-                                bots.docs = alaSql( 'SELECT * FROM ? ORDER BY '+sortedField+' DESC',[botsList]);
-                            }
+                            bots.docs = botsList;
                             return callback(null, bots);
                         }
                     }
@@ -551,3 +360,6 @@ function addYmlFileDetailsForBots(bots,reqData,callback){
         }
     }
 }
+
+
+

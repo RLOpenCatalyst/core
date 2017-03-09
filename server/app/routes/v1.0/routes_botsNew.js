@@ -14,21 +14,18 @@
 // The file contains all the end points for AppDeploy
 
 var logger = require('_pr/logger')(module);
-var    botsNewService = require('_pr/services/botsNewService.js');
+var	botsNewService = require('_pr/services/botsNewService.js');
 
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all('/botsNew/*', sessionVerificationFunc);
 
     app.get('/botsNew',function(req,res){
-        var actionStatus = null,serviceNowCheck =null;
+        var actionStatus = null;
         if(req.query.actionStatus && req.query.actionStatus !== null){
             actionStatus = req.query.actionStatus;
         }
-        if(req.query.serviceNowCheck && req.query.serviceNowCheck !== null && req.query.serviceNowCheck === 'true'){
-            serviceNowCheck = true;
-        }
-        botsNewService.getBotsList(req.query,actionStatus,serviceNowCheck, function(err,data){
+        botsNewService.getBotsList(req.query,actionStatus, function(err,data){
             if (err) {
                 return res.status(500).send(err);
             } else {
@@ -59,7 +56,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
     app.get('/botsNew/:botId/bots-history/:historyId',function(req,res){
-        botsNewService.getParticularBotsHistory(req.params.botId,req.params.historyId, function(err,data){
+        botsNewService.getPerticularBotsHistory(req.params.botId,req.params.historyId, function(err,data){
             if (err) {
                 return res.status(500).send(err);
             } else {
@@ -68,27 +65,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         })
     });
 
-    app.get('/botsNew/:botId/bots-history/:historyId/logs',function(req,res){
-        var timestamp = null;
-        if (req.query.timestamp) {
-            timestamp = req.query.timestamp;
-            timestamp = parseInt(timestamp);
-        }
-        botsNewService.getParticularBotsHistoryLogs(req.params.botId,req.params.historyId,timestamp, function(err,data){
-            if (err) {
-                return res.status(500).send(err);
-            } else {
-                return res.status(200).send(data);
-            }
-        })
-    });
-
     app.post('/botsNew/:botId/execute',function(req,res){
-        var executionType = null;
-        if(req.query.executionType && req.query.executionType !== null){
-            executionType = req.query.executionType;
-        }
-        botsNewService.executeBots(req.params.botId,req.body,req.session.user.cn,executionType,function (err, data) {
+        botsNewService.executeBots(req.params.botId, req.body, function (err, data) {
             if (err) {
                 return res.status(500).send(err);
             } else {

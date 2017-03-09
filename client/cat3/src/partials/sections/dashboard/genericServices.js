@@ -139,6 +139,41 @@
             }
         };
 
+        genericServices.log=function(id,historyId,botLinkedSubCategory) {
+            $modal.open({
+                animation: true,
+                templateUrl: 'src/partials/sections/dashboard/bots/view/botExecutionLogs.html',
+                controller: 'botExecutionLogsCtrl',
+                backdrop: 'static',
+                keyboard: false,
+                resolve: {
+                    items: function() {
+                        return {
+                            taskId: id,
+                            historyId: historyId,
+                            taskType: botLinkedSubCategory
+                        };
+                    }
+                }
+            });
+        };
+
+        /*genericServices.botHistory=function(bot) {
+            $modal.open({
+                animation: true,
+                templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/orchestrationHistory.html',
+                controller: 'orchestrationHistoryCtrl',
+                backdrop: 'static',
+                keyboard: false,
+                size: 'lg',
+                resolve: {
+                    items: function() {
+                        return bot;
+                    }
+                }
+            });
+        };*/
+
         genericServices.removeBlueprint= function(blueprintObj, bpType) {
             var modalOptions = {
                 closeButtonText: 'Cancel',
@@ -170,39 +205,43 @@
         };
 
         genericServices.executeTask =function(task) {
-            $modal.open({
-                animation: true,
-                templateUrl: 'src/partials/sections/dashboard/bots/view/editParams.html',
-                controller: 'editParamsCtrl',
-                backdrop: 'static',
-                keyboard: false,
-                resolve: {
-                    items: function() {
-                        return task;
-                    }
-                }
-            }).result.then(function(response) {
+            if ((task.botConfig && task.botConfig.parameterized && task.botConfig.parameterized.length) || (task.botLinkedSubCategory === 'chef') || (task.botLinkedSubCategory === 'script')) {
                 $modal.open({
-                    animate: true,
-                    templateUrl: "src/partials/sections/dashboard/bots/view/botExecutionLogs.html",
-                    controller: "botsExecutionLogsNewCtrl",
+                    animation: true,
+                    templateUrl: 'src/partials/sections/dashboard/bots/view/editParams.html',
+                    controller: 'editParamsCtrl',
                     backdrop: 'static',
                     keyboard: false,
                     resolve: {
                         items: function() {
-                            return {
-                                logDetails : response,
-                                isBotNew : task.isBotsNew
-                            }
+                            return task;
                         }
                     }
-                }).result.then(function() {
-                    console.log('The modal close is not getting invoked currently. Goes to cancel handler');
+                }).result.then(function(response) {
                 }, function() {
-                    console.log('Cancel Handler getting invoked');
                 });
-            }, function() {
-            });
+            } else {
+                $modal.open({
+                    animation: true,
+                    templateUrl: 'src/partials/sections/dashboard/bots/view/confirmBotRun.html',
+                    controller: 'confirmBotRunCtrl',
+                    backdrop: 'static',
+                    keyboard: false,
+                    resolve: {
+                        items: function() {
+                            return task;
+                        }
+                    }
+                }).result.then(function(response) {
+                    genericServices.log(task._id,response.historyId,task.botLinkedSubCategory);
+                    if(response.blueprintMessage){
+                        $rootScope.$emit('WZ_INSTANCES_SHOW_LATEST');
+                    }
+                    $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
+                }, function() {
+                    $rootScope.$emit('WZ_ORCHESTRATION_REFRESH_CURRENT');
+                });
+            }
         };
 
         genericServices.launchBlueprint=function(blueprintObj) {

@@ -239,20 +239,7 @@ botsService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNow
             }
         },
         function(filterBotList, next) {
-            async.parallel({
-                botList:function(callback){
-                    apiUtil.paginationResponse(filterBotList, reqData, callback);
-                },
-                botSummary:function(callback){
-                   auditTrailService.getBOTsSummary(botsQuery,'BOTs',callback)
-               }
-            },function(err,data){
-               if(err){
-                   next(err);
-               }else{
-                   next(null,data);
-               }
-           })
+            apiUtil.paginationResponse(filterBotList, reqData, next);
         }
     ],function(err, results) {
         if (err){
@@ -260,12 +247,7 @@ botsService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNow
             callback(err,null);
             return;
         }
-        var resultObj = {            
-            bots : results.botList.bots,            
-            metaData : results.botList.metaData,            
-            botSummary: results.botSummary        
-        }    
-        callback(null,resultObj)
+        callback(null,results)
         return;
     });
 }
