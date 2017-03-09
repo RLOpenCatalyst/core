@@ -36,6 +36,11 @@ var BotsSchema = new Schema ({
         trim: true,
         required: true
     },
+    gitHubRepoName: {
+        type: String,
+        trim: true,
+        required: true
+    },
     type: {
         type: String,
         trim: true,
@@ -46,6 +51,26 @@ var BotsSchema = new Schema ({
         trim: true,
         required: true
     },
+    action: {
+        type: String,
+        trim: true
+    },
+    env: {
+        type: String,
+        trim: true
+    },
+    savedTime: {
+        hours:{
+            type: Number,
+            default:0
+        },
+        minutes:{
+            type: Number,
+            default:0
+        }
+    },
+    ymlJson:Schema.Types.Mixed,
+    execution: Schema.Types.Mixed,
     desc: {
         type: String,
         trim: true,
@@ -86,6 +111,9 @@ var BotsSchema = new Schema ({
     executionCount: {
         type: Number,
         default: 0
+    },
+    lastRunTime: {
+        type: Number
     },
     isScheduled: {
         type: Boolean,
@@ -212,6 +240,21 @@ BotsSchema.statics.getBotsById = function(botId,callback){
     });
 };
 
+BotsSchema.statics.getBotsByBotId = function(botId,callback){
+    Bots.find({id:botId}, function(err, bots) {
+        if (err) {
+            logger.error(err);
+            var error = new Error('Internal server error');
+            error.status = 500;
+            return callback(error);
+        }else if(bots.length > 0){
+            return callback(null, bots);
+        }else{
+            return callback(null, []);
+        }
+    });
+};
+
 BotsSchema.statics.getBotsByGitHubId = function(gitHubId,callback){
     Bots.find({gitHubId:gitHubId}, function(err, bots) {
         if (err) {
@@ -241,6 +284,7 @@ BotsSchema.statics.getAllBots = function(queryParam,callback){
         }
     });
 };
+
 
 BotsSchema.statics.removeBotsById = function(botId,callback){
     Bots.remove({_id:ObjectId(botId)}, function(err, bots) {
@@ -278,24 +322,6 @@ BotsSchema.statics.removeSoftBotsById = function(botId,callback){
         }else {
             return callback(null, bots);
         }
-    });
-};
-
-BotsSchema.statics.updateBotsExecutionCount = function updateBotsExecutionCount(botId,count,callback) {
-    Bots.update({
-        _id:ObjectId(botId),
-    }, {
-        $set: {
-            executionCount: count
-        }
-    }, {
-        upsert: false
-    }, function (err, data) {
-        if (err) {
-            callback(err, null);
-            return;
-        }
-        callback(null, data);
     });
 };
 

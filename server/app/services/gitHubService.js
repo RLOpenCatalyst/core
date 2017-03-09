@@ -19,7 +19,7 @@ var gitHubModel = require('_pr/model/github/github.js');
 var appConfig = require('_pr/config');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var fileUpload = require('_pr/model/file-upload/file-upload');
-var nodeGit =  require('nodegit-build');
+var nodeGit =  require('nodegit');
 var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var promisify = require("promisify-node");
@@ -40,6 +40,7 @@ gitGubService.checkIfGitHubExists = function checkIfGitHubExists(gitHubId, callb
             return callback(err);
         } else {
             return callback(null, gitHub);
+            
         }
     });
 };
@@ -354,7 +355,7 @@ function formatGitHubResponse(gitHub,callback) {
 
 function gitRepoCloning(url,path,options,gitHubId,callback){
     fse.remove(path).then(function() {
-        nodeGit.Clone(url, path, options).then(function(repo){
+        nodeGit.Clone(url, path, options).then(function(repo){     
             gitHubModel.updateGitHub(gitHubId, {isRepoCloned:true}, function (err, gitHub) {
                 if (err) {
                     logger.error(err);

@@ -52,7 +52,7 @@ auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,audi
         providerType: auditDetails.providerType,
         action: actionObj.action
     };
-    if(actionObj.auditType === 'BOTs'){
+    if(actionObj.auditType === 'BOTs' || actionObj.auditType === 'BOTsNew'){
         auditTrailObj.auditTrailConfig = auditTrailConfig;
         botAuditTrail.createNew(auditTrailObj,function(err,data){
             if(err){
@@ -189,7 +189,11 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
         function(botsList,next){
             var auditIds = [];
             for(var i = 0; i < botsList.length; i++) {
-                auditIds.push(botsList[i].botId);
+                if(BOTSchema === 'BOTs') {
+                    auditIds.push(botsList[i].botId);
+                }else{
+                    auditIds.push(botsList[i]._id);
+                }
             }
             async.parallel({
                 totalNoOfBots: function(callback){

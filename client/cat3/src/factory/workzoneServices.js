@@ -182,6 +182,14 @@
 					var url = '/instances/' + instanceId + '/logs' + urlParam;
 					return $http.get(fullUrl(url), Auth.getHeaderObject());
 				},
+				getBotLogs: function (botId, botsHistoryId, timestamp) {
+					var urlParam = '';
+					if (timestamp) {
+						urlParam = 'timestamp=' + timestamp;
+					}
+					var url = '/botsNew/' + botId + '/bots-History/' + botsHistoryId +'/logs?' + urlParam;
+					return $http.get(fullUrl(url), Auth.getHeaderObject());	
+				},
 				/*controlPanelCtrl*/
 				getChefServerDetails: function (chefServerId) {
 					var url = '/d4dMasters/19/chefserverid/' + chefServerId;
