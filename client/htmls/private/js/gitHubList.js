@@ -278,7 +278,7 @@ $('#gitTable tbody').on( 'click', 'button.syncGitRepo', function(){
         url: '../git-hub/' + $this.parents('tr').attr('githubId') + '/sync',
         method: 'GET',
         success: function() {
-            bootbox.alert('Sucessfully cloned');
+            bootbox.alert('Successfully cloned');
             $('#gitHubListLoader').hide();
         },
         error: function(jxhr) {
