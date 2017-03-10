@@ -197,7 +197,7 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,executionType,callback
                             });
                             if(executionType === 'bots' || executionType === 'telemetry') {
                                 var supertest = require("supertest");
-                                var server = supertest.agent("http://localhost:5000");
+                                var server = supertest.agent("http://localhost:2687");
                                 var reqBody = {
                                     "botDescription": JSON.stringify(botsScriptDetails.ymlJson),
                                     "logLocation": botLogFile+'/'+fileName
@@ -236,7 +236,7 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,executionType,callback
                                     });
                             }else {
                                 var supertest = require("supertest");
-                                var server = supertest.agent("http://localhost:5000");
+                                var server = supertest.agent("http://localhost:2687");
                                 var reqBody = {
                                     "botDescription": JSON.stringify(botsScriptDetails.ymlJson),
                                     "logLocation": botLogFile + '/' + fileName

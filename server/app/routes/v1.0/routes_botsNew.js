@@ -14,8 +14,8 @@
 // The file contains all the end points for AppDeploy
 
 var logger = require('_pr/logger')(module);
-var    botsNewService = require('_pr/services/botsNewService.js');
-
+var botsNewService = require('_pr/services/botsNewService.js');
+var botsDao = require('_pr/model/bots/1.1/botsDao.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
     app.all('/botsNew/*', sessionVerificationFunc);
@@ -39,7 +39,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 
     app.delete('/botsNew/:botId',function(req,res){
-        botsNewService.removeSoftBotsById(req.params.botId, function(err,data){
+        botsDao.removeSoftBotsById(req.params.botId, function(err,data){
             if (err) {
                 return res.status(500).send(err);
             } else {
