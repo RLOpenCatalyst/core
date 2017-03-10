@@ -33,6 +33,7 @@
                                 <td>Catalyst Organization</td>
                                 <td>Repository User/Organization</td>
                                 <td>Repository Type</td>
+                                <td>Repository Branch</td>
                                 <td style="width:180px;">Action</td>
                             </tr>
                             </thead>
@@ -87,6 +88,12 @@
                                 <input type="text" name="gitRepoOwner" class="required gitRepoOwner form-control" id="gitRepoOwner">
                             </div>
                         </div>
+                        <div class="col-lg-6 col-md-6 margintop15">
+                            <label for="gitRepoOwner">Repository Branch:<span class="control-label redSpan">&nbsp;*</span></label>
+                            <div class="input-groups">
+                                <input type="text" name="gitRepoBranch" class="required gitRepoBranch form-control" id="gitRepoBranch">
+                            </div>
+                        </div>
                         <hr/>
                         <div class="col-lg-12 col-md-12 col-xs-12 margintop15 isAuthenticated">
                             <label for="">Repository Type:</label>
@@ -109,7 +116,7 @@
                             </select>
                         </div>
 
-                        <div class="col-lg-6 col-md-6 col-xs-6 margintop15 hidden showForUser">
+                        <div class="col-lg-6 col-md-6 col-xs-6 margintop15 hidden showForUserToken">
                             <label for="protocolUser">User Name:</label>
                             <input type="text" name="protocolUser" class="protocolUser form-control" id="protocolUser">
                         </div>

@@ -197,6 +197,7 @@
                <div class="desc-cell">
                   <div title="{{botsDetails.desc ? botsDetails.desc:botsDetails.botDesc}}" class="description">{{botsDetails.desc ? botsDetails.desc:botsDetails.botDesc}}</div>
                </div>
+               <div class="pull-left botsExecution" ng-if="botsDetails.executionCount">Total Runs:&nbsp;<span>{{botsDetails.executionCount}}</div>
                <div class="pull-right" style="margin-top:5px;">
                   <a class="margin10 cursor" ng-click="launchInstance(botsDetails);" title="Execute"><i class="fa fa-play font-size-20"></i></a>
                </div>
