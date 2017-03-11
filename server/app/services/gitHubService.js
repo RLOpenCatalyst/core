@@ -26,8 +26,6 @@ var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var promisify = require("promisify-node");
 var fse = promisify(require("fs-extra"));
 var botsNewService = require("_pr/services/botsNewService.js");
-const fileHound= require('filehound');
-
 var gitGubService = module.exports = {};
 
 gitGubService.checkIfGitHubExists = function checkIfGitHubExists(gitHubId, callback) {
@@ -292,10 +290,10 @@ function gitHubCloning(gitHubDetails,cmd,callback){
         fse.remove(filePath).then(function() {
             execCmd(cmd, function (err, out, code) {
                 if (code === 0) {
-                    fse.remove(appConfig.gitHubDir + gitHubId).then(function() {
+                    fse.remove(appConfig.gitHubDir + gitHubDetails._id).then(function() {
                         targz.decompress({
                             src: filePath,
-                            dest: appConfig.gitHubDir + gitHubId
+                            dest: appConfig.gitHubDir + gitHubDetails._id
                         }, function (err) {
                             if (err) {
                                 logger.error("Error in Extracting Files ", err);
@@ -313,6 +311,11 @@ function gitHubCloning(gitHubDetails,cmd,callback){
                             }
                         });
                     })
+                }else{
+                    var err = new Error('Invalid Git-Hub Credentials Details');
+                    err.status = 400;
+                    err.msg = 'Invalid Git-Hub Details';
+                    callback(err, null);
                 }
             });
         });
@@ -321,7 +324,7 @@ function gitHubCloning(gitHubDetails,cmd,callback){
             if (code === 0) {
                 targz.decompress({
                     src: filePath,
-                    dest: appConfig.gitHubDir + gitHubId
+                    dest: appConfig.gitHubDir + gitHubDetails._id
                 }, function (err) {
                     if (err) {
                         logger.error("Error in Extracting Files ", err);
@@ -343,6 +346,11 @@ function gitHubCloning(gitHubDetails,cmd,callback){
                         });
                     }
                 });
+            }else{
+                var err = new Error('Invalid Git-Hub Credentials Details');
+                err.status = 400;
+                err.msg = 'Invalid Git-Hub Details';
+                callback(err, null);
             }
         });
     }
