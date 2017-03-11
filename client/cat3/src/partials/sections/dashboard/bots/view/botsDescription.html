@@ -20,7 +20,8 @@
             <h3 title="{{templateSelected.name?templateSelected.name:templateSelected.botName}}">{{templateSelected.name?templateSelected.name:templateSelected.botName}}</h3>
             <ul class="ul-vert-bar">
                <li class="publisher" title="{{templateSelected.desc?templateSelected.desc:templateSelected.botDesc}}">{{templateSelected.desc?templateSelected.desc:templateSelected.botDesc}}</li>
-               <li ng-if="templateSelected.lastRunTime"> {{templateSelected.lastRunTime | timestampToLocaleTime}}</li> 
+               <li ng-if="templateSelected.lastRunTime"> {{templateSelected.lastRunTime | timestampToLocaleTime}}</li>
+               <li ng-if="templateSelected.executionCount">Total Runs:&nbsp;<span>{{templateSelected.executionCount}}</li> 
             </ul>
          </div>
          <div class="pull-right" style="margin-top:-26px;">

@@ -56,18 +56,22 @@ $('#authenticationType').change(function(e) {
     var val = $(this).val();
     if (val === 'userName') {
         $('.showForUser').removeClass('hidden');
+        $('.showForUserToken').removeClass('hidden');
         $('.showForSSH').addClass('hidden');
         $('.showForToken').addClass('hidden');
     } else if(val === 'sshKey') {
         $('.showForUser').addClass('hidden');
+        $('.showForUserToken').addClass('hidden');
         $('.showForSSH').removeClass('hidden');
         $('.showForToken').addClass('hidden');
     } else if(val === 'token') {
         $('.showForUser').addClass('hidden');
         $('.showForSSH').addClass('hidden');
+        $('.showForUserToken').removeClass('hidden');
         $('.showForToken').removeClass('hidden');
     } else {
         $('.showForUser').addClass('hidden');
+        $('.showForUserToken').addClass('hidden');
         $('.showForSSH').addClass('hidden');
         $('.showForToken').addClass('hidden');
     }
@@ -162,7 +166,8 @@ function getGlobalGitServers() {
                 "githubDescription" : data.repositoryDesc, "orgId" : data.orgId ,"orgName" : data.orgName,
                 "repositoryUserName" : data.repositoryUserName,"repositoryPassword" : data.repositoryPassword,
                 "repositorySSHPublicKeyFileId" : data.repositorySSHPublicKeyFileId,"repositorySSHPrivateKeyFileId":data.repositorySSHPrivateKeyFileId,
-                "repositorySSHPublicKeyFileName": data.repositorySSHPublicKeyFileName,"repositorySSHPrivateKeyFileName": data.repositorySSHPrivateKeyFileName
+                "repositorySSHPublicKeyFileName": data.repositorySSHPublicKeyFileName,"repositorySSHPrivateKeyFileName": data.repositorySSHPrivateKeyFileName,
+                "repositoryBranch": data.repositoryBranch
             });
         },
         "ajax": '/git-hub',
@@ -171,6 +176,7 @@ function getGlobalGitServers() {
             {"data": "orgName","orderable" : false  },
             {"data": "repositoryOwner" ,"orderable" : false },
             {"data": "repositoryType" ,"orderable" : false},
+            {"data": "repositoryBranch" ,"orderable" : false},
             {"data": "","orderable" : true,
                 "render": function (data) {
                     var $tdAction = '<div class="btn-group"><button class="btn btn-info pull-left btn-sg tableactionbutton syncGitRepo" data-placement="top" value="Sync" title="Sync"><i class="ace-icon fa fa-refresh bigger-120"></i></button></div><div style="margin-left:14px;" class="btn-group"><button class="btn btn-info pull-left btn-sg tableactionbutton editGitRepo" data-placement="top" value="Update" title="Edit"><i class="ace-icon fa fa-pencil bigger-120"></i></button></div>';
@@ -195,6 +201,7 @@ $('#gitTable tbody').on( 'click', 'button.editGitRepo', function(){
     $editModal.find('#orgName').empty().append('<option value="'+$this.parents('tr').attr("orgId")+'">'+$this.parents('tr').attr("orgName")+'</option>').attr('disabled','disabled');
     $editModal.find('#gitRepoOwner').val($this.parents('tr').attr('repositoryOwner'));
     $editModal.find('#gitEditHiddenInputId').val($this.parents('tr').attr('githubId'));
+    $editModal.find('#gitRepoBranch').val($this.parents('tr').attr('repositoryBranch'));
     var repoType = $this.parents('tr').attr('repositoryType');
     var authType = $this.parents('tr').attr('authenticationType');
 
@@ -220,6 +227,7 @@ $('#gitTable tbody').on( 'click', 'button.editGitRepo', function(){
             $editModal.find('#privateFileNameDisplay').append($this.parents('tr').attr('repositorySSHPrivateKeyFileName'));
         } else {
             $editModal.find('#authenticationType').val('token').change().attr('disabled','disabled');
+            $editModal.find('#protocolUser').val($this.parents('tr').attr('repositoryUserName'));
             $editModal.find('#token').val($this.parents('tr').attr('repositoryToken'));
         }
     }else{
@@ -230,6 +238,7 @@ $('#gitTable tbody').on( 'click', 'button.editGitRepo', function(){
         $editModal.find('#protocolUser').val('');
         $editModal.find('#protocolPassword').val('');
         $('.showForUser').addClass('hidden');
+        $('.showForUserToken').addClass('hidden');
         $('.showForSSH').addClass('hidden');
         $('.showForToken').addClass('hidden');
     }
@@ -275,7 +284,7 @@ $('#gitTable tbody').on( 'click', 'button.syncGitRepo', function(){
         url: '../git-hub/' + $this.parents('tr').attr('githubId') + '/sync',
         method: 'GET',
         success: function() {
-            bootbox.alert('Sucessfully cloned');
+            bootbox.alert('Successfully cloned');
             $('#gitHubListLoader').hide();
         },
         error: function(jxhr) {
@@ -336,7 +345,8 @@ $('#gitHubRepoForn').submit(function(e) {
         var $form = $('#gitHubRepoForn');
         $this = $(this);
         var repositoryName, orgValue, description, authenticationType, repositoryOwner, repositoryType,
-            passwordName, userName, certChainFileId, privateKeyFileId, certChainFileName, privateKeyFileName, repositoryToken;
+            passwordName, userName, certChainFileId, privateKeyFileId, certChainFileName, privateKeyFileName,
+            repositoryToken, repositoryBranch;
 
         repositoryName = $this.find('.gitName').val().trim();
         orgValue = $this.find('#orgName').val();
@@ -347,6 +357,7 @@ $('#gitHubRepoForn').submit(function(e) {
         userName = $this.find('#protocolUser').val().trim();
         repositoryToken = $this.find('#token').val().trim();
         passwordName = $this.find('#protocolPassword').val().trim();
+        repositoryBranch = $this.find('#gitRepoBranch').val().trim();
         certChainFileId = $this.find('#gitHiddenPublicFile').val();
         privateKeyFileId = $this.find('#gitHiddenPrivateFile').val();
         var dashboardEditNew = $this.find('#gitEditHiddenInput').val();
@@ -391,6 +402,7 @@ $('#gitHubRepoForn').submit(function(e) {
                                     "orgId": orgValue,
                                     "repositoryDesc": description,
                                     "repositoryOwner": repositoryOwner,
+                                    "repositoryBranch": repositoryBranch,
                                     "repositoryType": repositoryType,
                                     "authenticationType": authenticationType,
                                     "repositorySSHPublicKeyFileId": dataCertificate.fileId,
@@ -408,6 +420,7 @@ $('#gitHubRepoForn').submit(function(e) {
                     "orgId": orgValue,
                     "repositoryDesc": description,
                     "repositoryOwner": repositoryOwner,
+                    "repositoryBranch": repositoryBranch,
                     "repositoryType": repositoryType,
                     "authenticationType": authenticationType,
                     "repositorySSHPublicKeyFileId": certChainFileId,
@@ -422,6 +435,7 @@ $('#gitHubRepoForn').submit(function(e) {
                     "orgId": orgValue,
                     "repositoryDesc": description,
                     "repositoryOwner": repositoryOwner,
+                    "repositoryBranch": repositoryBranch,
                     "repositoryType": repositoryType,
                     "authenticationType": authenticationType,
                     "repositoryUserName": userName,
@@ -434,6 +448,7 @@ $('#gitHubRepoForn').submit(function(e) {
                     "orgId": orgValue,
                     "repositoryDesc": description,
                     "repositoryOwner": repositoryOwner,
+                    "repositoryBranch": repositoryBranch,
                     "repositoryType": repositoryType,
                     "authenticationType": authenticationType,
                     "repositoryUserName": userName,
@@ -448,8 +463,10 @@ $('#gitHubRepoForn').submit(function(e) {
                     "orgId": orgValue,
                     "repositoryDesc": description,
                     "repositoryOwner": repositoryOwner,
+                    "repositoryBranch": repositoryBranch,
                     "repositoryType": repositoryType,
                     "authenticationType": authenticationType,
+                    "repositoryUserName": userName,
                     "repositoryToken": repositoryToken
                 }
             } else {
@@ -459,8 +476,10 @@ $('#gitHubRepoForn').submit(function(e) {
                     "orgId": orgValue,
                     "repositoryDesc": description,
                     "repositoryOwner": repositoryOwner,
+                    "repositoryBranch": repositoryBranch,
                     "repositoryType": repositoryType,
                     "authenticationType": authenticationType,
+                    "repositoryUserName": userName,
                     "repositoryToken": repositoryToken
                 }
             }
@@ -472,6 +491,7 @@ $('#gitHubRepoForn').submit(function(e) {
                     "orgId": orgValue,
                     "repositoryDesc": description,
                     "repositoryOwner": repositoryOwner,
+                    "repositoryBranch": repositoryBranch,
                     "repositoryType": repositoryType
                 }
             } else {
@@ -481,6 +501,7 @@ $('#gitHubRepoForn').submit(function(e) {
                     "orgId": orgValue,
                     "repositoryDesc": description,
                     "repositoryOwner": repositoryOwner,
+                    "repositoryBranch": repositoryBranch,
                     "repositoryType": repositoryType
                 }
             }
