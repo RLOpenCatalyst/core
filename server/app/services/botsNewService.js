@@ -253,7 +253,7 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
         },
         function(gitHubDetails,next){
             if(gitHubDetails !== null){
-                var gitHubDirPath = appConfig.gitHubDir + gitHubDetails.repositoryName;
+                var gitHubDirPath = appConfig.gitHubDir + gitHubDetails._id;
                 fileHound.create()
                     .paths(gitHubDirPath)
                     .ext('yaml')
