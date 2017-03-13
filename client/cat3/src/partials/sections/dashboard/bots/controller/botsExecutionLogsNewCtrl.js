@@ -14,15 +14,13 @@
         };
     }])
     .controller('botsExecutionLogsNewCtrl',['$scope', 'items', '$rootScope', 'workzoneServices', 'orchestrationSetting','genericServices', 'toastr', '$modalInstance', '$timeout', function ($scope, items, $rootScope, workzoneServices, orchestrationSetting,genSevs, toastr, $modalInstance, $timeout) {
-
+        $scope.isLogsLoading = true;
         angular.extend($scope, {
             logListInitial: [],
             logListDelta: []
         });
-
-        $scope.getDate = new Date();
-        $scope.getCurrentTime = $scope.getDate.getTime();
-
+ 
+        $scope.getCurrentTime = new Date().getTime();
         var timerObject;
         var helper = {
             lastTimeStamp: '',
@@ -42,6 +40,7 @@
                             };
                             helper.lastTimeStamp = helper.getlastTimeStamp(logData.logs);
                             $scope.logListDelta.push.apply($scope.logListDelta, logData.logs);
+                            $scope.isLogsLoading = false;
                             helper.scrollBottom();
                         }
                         helper.logsPolling();
@@ -60,15 +59,16 @@
         };
     
         workzoneServices.getBotLogs(items.logDetails.botId,items.logDetails.actionId, $scope.getCurrentTime).then(function (response) {
-            $scope.isLogsLoading = true;
             helper.lastTimeStamp = helper.getlastTimeStamp(response.data);
-            $scope.isLogsLoading = false;
             helper.logsPolling();
             var logData = {
                 logs: response.data,
                 fullLogs: true
             };
             $scope.logListInitial = logData.logs;
+            if($scope.logListInitial.length === 0) {
+                $scope.isLogsLoading = true;    
+            }
             helper.scrollBottom();
         }, function (error) {
             $scope.isLogsLoading = false;

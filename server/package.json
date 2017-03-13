@@ -61,7 +61,7 @@
     "node-rest-client": "1.5.1",
     "node-string-pad": "0.0.4",
     "node-uuid": "1.4.2",
-    "nodegit-build": "1.0.2",
+    "targz":"1.0.1",
     "passport": "0.2.1",
     "passport-strategy": "1.0.0",
     "path-extra": "0.3.0",

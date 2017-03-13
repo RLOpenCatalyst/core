@@ -199,6 +199,7 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,executionType,callback
                             });
                             if(executionType === 'bots' || executionType === 'telemetry') {
                                 var supertest = require("supertest");
+
                                 var server = supertest.agent("http://"+pythonHost+':'+pythonPort);
                                 var reqBody = {
                                     "botDescription": JSON.stringify(botsScriptDetails.ymlJson),
