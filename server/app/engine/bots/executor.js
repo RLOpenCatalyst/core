@@ -32,6 +32,8 @@ var apiUtil = require('_pr/lib/utils/apiUtil.js');
 
 const errorType = 'executor';
 
+var pythonHost =  process.env.PY_HOST || 'localhost';
+var pythonPort =  process.env.PY_PORT || '2687';
 var executor = module.exports = {};
 
 executor.executeScriptBot = function executeScriptBot(botsDetails,userName,executionType,callback) {
@@ -197,7 +199,7 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,executionType,callback
                             });
                             if(executionType === 'bots' || executionType === 'telemetry') {
                                 var supertest = require("supertest");
-                                var server = supertest.agent("http://localhost:5000");
+                                var server = supertest.agent("http://"+pythonHost+':'+pythonPort);
                                 var reqBody = {
                                     "botDescription": JSON.stringify(botsScriptDetails.ymlJson),
                                     "logLocation": botLogFile+'/'+fileName
@@ -236,7 +238,7 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,executionType,callback
                                     });
                             }else {
                                 var supertest = require("supertest");
-                                var server = supertest.agent("http://localhost:5000");
+                                var server = supertest.agent("http://"+pythonHost+':'+pythonPort);
                                 var reqBody = {
                                     "botDescription": JSON.stringify(botsScriptDetails.ymlJson),
                                     "logLocation": botLogFile + '/' + fileName
