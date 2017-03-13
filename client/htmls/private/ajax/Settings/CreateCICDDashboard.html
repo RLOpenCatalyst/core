@@ -868,12 +868,12 @@ function validateandsaveform() {
     //Remove existing dashboard
     if($('#dashboardId').val() != ''){
         removeDashboard($('#dashboardId').val(),function(){
-            saveform('23');
+            saveform(30);
             creteDashboard();
         });
     }
     else
-        saveform('23');
+        saveform('30');
         creteDashboard();
     
     return false;
