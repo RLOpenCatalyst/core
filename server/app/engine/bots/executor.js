@@ -79,7 +79,7 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,executionType,callback
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var cmd = null, count = 0;
-    var gitHubDirPath = appConfig.gitHubDir + botsScriptDetails.gitHubRepoName;
+    var gitHubDirPath = appConfig.gitHubDir + botsScriptDetails.gitHubId;
     var actionId = uuid.v4();
     var logsReferenceIds = [botsScriptDetails._id, actionId];
     var botLogFile = appConfig.botLogDir + actionId;
@@ -131,12 +131,21 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,executionType,callback
                 } else {
                     cmd = scriptObj.type + ' ' + files[0]
                 }
-                if(botsScriptDetails.params.length > 0) {
+                if(botsScriptDetails.params && botsScriptDetails.params.length > 0) {
                     for (var j = 0; j < botsScriptDetails.params.length; j++) {
                         var decryptedText = cryptography.decryptText(botsScriptDetails.params[j], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
                         Object.keys(botsScriptDetails.inputFormFields[j]).forEach(function(key){
                             if(botsScriptDetails.inputFormFields[j][key] === null) {
                                 replaceTextObj[key] = decryptedText;
+                            }
+                        });
+                        cmd = cmd + ' ' + decryptedText;
+                    }
+                }else{
+                    for (var j = 0; j < botsScriptDetails.inputFormFields.length; j++) {
+                        Object.keys(botsScriptDetails.inputFormFields[j]).forEach(function (key) {
+                            if (botsScriptDetails.inputFormFields[j][key] === null) {
+                                replaceTextObj[key] = botsScriptDetails.inputFormFields[j].default;
                             }
                         });
                         cmd = cmd + ' ' + decryptedText;

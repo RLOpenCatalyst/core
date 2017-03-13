@@ -43,14 +43,25 @@ botsNewService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,c
         botObj.scheduler ={};
         botObj.isScheduled =false;
     }
-    botsDao.updateBotsDetail(botId,botObj,function(err,data){
-        if(err){
-            logger.error(err);
-            callback(err,null);
+    botsDao.updateBotsDetail(botId,botObj,function(err,data) {
+        if (err) {
+            logger.error("Error in Updating BOTs Scheduler", err);
+            callback(err, null);
             return;
-        }else {
+        } else {
             callback(null, data);
-            return;
+            botsDao.getBotsById(botId, function (err, botsList) {
+                if (err) {
+                    logger.error("Error in fetching BOTs", err);
+                } else {
+                    var schedulerService = require('_pr/services/schedulerService.js');
+                    schedulerService.executeNewScheduledBots(botsList[0], function (err, data) {
+                        if (err) {
+                            logger.error("Error in executing New BOTs Scheduler");
+                        }
+                    });
+                }
+            });
         }
     });
 }
