@@ -32,8 +32,8 @@ var apiUtil = require('_pr/lib/utils/apiUtil.js');
 
 const errorType = 'executor';
 
-var pythonHost =  process.env.PY_HOST || 'localhost';
-var pythonPort =  process.env.PY_PORT || '2687';
+var pythonHost =  process.env.FORMAT_HOST || 'localhost';
+var pythonPort =  process.env.FORMAT_PORT || '2687';
 var executor = module.exports = {};
 
 executor.executeScriptBot = function executeScriptBot(botsDetails,userName,executionType,callback) {
