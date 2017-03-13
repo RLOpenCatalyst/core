@@ -121,10 +121,7 @@ var validator = $('#gitHubRepoForn').validate({
             extension: "pem|txt|sh"
         },
         gitName: {
-            maxlength: 15
-        },
-        token: {
-            number: true
+            maxlength: 30
         }
     },
     messages: {
@@ -135,7 +132,7 @@ var validator = $('#gitHubRepoForn').validate({
             extension: "Only .pem/.txt/.sh files"
         },
         gitName: {
-            maxlength: "Limited to 15 chars"
+            maxlength: "Limited to 30 chars"
         }
     },
     onkeyup: false,
