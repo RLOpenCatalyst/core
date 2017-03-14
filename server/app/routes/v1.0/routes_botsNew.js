@@ -39,7 +39,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 
     app.delete('/botsNew/:botId',function(req,res){
-        botsDao.removeSoftBotsById(req.params.botId, function(err,data){
+        botsNewService.removeBotsById(req.params.botId, function(err,data){
             if (err) {
                 return res.status(500).send(err);
             } else {
