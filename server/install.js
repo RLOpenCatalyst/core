@@ -38,7 +38,7 @@ function getDefaultsConfig() {
         catalystDataDir: currentDirectory + '/catdata',
         currentDir:currentDirectory,
         javaLibDir: currentDirectory + '/app',
-        gitHubDir: currentDirectory + '/gitHub/',
+        gitHubDirName: 'gitHub',
         botLogDir: currentDirectory + '/app/logs/',
         catalysHomeDirName: 'catalyst',
         instancePemFilesDirName: 'instance-pemfiles',
@@ -530,6 +530,9 @@ function getDefaultsConfig() {
         },
         get scriptDir() {
             return this.catalystHome + this.scriptDirName + "/";
+        },
+        get gitHubDir() {
+            return this.catalystHome + this.gitHubDirName + "/";
         }
     };
     return config;
