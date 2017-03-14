@@ -86,8 +86,7 @@ var d4dMastersOrg = new mongoose.Schema({
     },
     name: {
         type: String,
-        trim: true,
-        validate: nameValidator
+        trim: true
     },
     orgname: {
         type: String,
