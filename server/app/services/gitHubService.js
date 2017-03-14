@@ -115,7 +115,7 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId, callback) {
         } else{
             formatGitHubResponse(gitHub,function(formattedGitHub){
                 if(formattedGitHub.repositoryType === 'Private' && formattedGitHub.authenticationType === 'token') {
-                    var cmd = 'curl -u '+formattedGitHub.repositoryUserName+':'+formattedGitHub.repositoryToken + ' -L https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/tarball/'+formattedGitHub.repositoryBranch + ' > '+formattedGitHub.repositoryName+'.tgz';
+                    var cmd = 'curl -u '+formattedGitHub.repositoryUserName+':'+formattedGitHub.repositoryToken + ' -L https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/tarball/'+formattedGitHub.repositoryBranch + ' > '+appConfig.gitHubDir+formattedGitHub.repositoryName+'.tgz';
                     gitHubCloning(formattedGitHub,cmd,function(err,res){
                         if(err){
                             callback(err,null);
@@ -126,7 +126,7 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId, callback) {
                         }
                     });
                 }else if(formattedGitHub.repositoryType === 'Private' && formattedGitHub.authenticationType === 'userName') {
-                    var cmd = 'curl -u '+formattedGitHub.repositoryUserName+':'+formattedGitHub.repositoryPassword + ' -L https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/tarball/'+formattedGitHub.repositoryBranch;
+                    var cmd = 'curl -u '+formattedGitHub.repositoryUserName+':'+formattedGitHub.repositoryPassword + ' -L https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/tarball/'+formattedGitHub.repositoryBranch + ' > '+appConfig.gitHubDir+formattedGitHub.repositoryName+'.tgz';
                     gitHubCloning(formattedGitHub,cmd,function(err,res){
                         if(err){
                             callback(err,null);
@@ -137,7 +137,7 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId, callback) {
                         }
                     });
                 }else if(formattedGitHub.repositoryType === 'Private' && formattedGitHub.authenticationType === 'sshKey') {
-                    var cmd = 'curl -u '+formattedGitHub.repositoryUserName+':'+formattedGitHub.repositoryPassword + ' -L https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/tarball/'+formattedGitHub.repositoryBranch;
+                    var cmd = 'curl -u '+formattedGitHub.repositoryUserName+':'+formattedGitHub.repositoryPassword + ' -L https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/tarball/'+formattedGitHub.repositoryBranch + ' > '+appConfig.gitHubDir+formattedGitHub.repositoryName+'.tgz';
                     gitHubCloning(formattedGitHub,cmd,function(err,res){
                         if(err){
                             callback(err,null);
@@ -148,7 +148,7 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId, callback) {
                         }
                     });
                 }else{
-                    var cmd = 'curl -L https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/tarball/'+formattedGitHub.repositoryBranch;
+                    var cmd = 'curl -L https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/tarball/'+formattedGitHub.repositoryBranch + ' > '+appConfig.gitHubDir+formattedGitHub.repositoryName+'.tgz';
                     gitHubCloning(formattedGitHub,cmd,function(err,res){
                         if(err){
                             callback(err,null);
@@ -285,7 +285,7 @@ function formatGitHubResponse(gitHub,callback) {
 }
 
 function gitHubCloning(gitHubDetails,cmd,callback){
-    var filePath = appConfig.currentDir + '/'+gitHubDetails.repositoryName+'.tgz';
+    var filePath = appConfig.gitHubDir +gitHubDetails.repositoryName+'.tgz';
     if(gitHubDetails.isRepoCloned && gitHubDetails.isRepoCloned === true) {
         fse.remove(filePath).then(function() {
             execCmd(cmd, function (err, out, code) {
