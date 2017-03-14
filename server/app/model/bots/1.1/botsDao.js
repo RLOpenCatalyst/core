@@ -312,19 +312,6 @@ BotsSchema.statics.removeBotsByGitHubId = function(gitHubId,callback){
     });
 };
 
-BotsSchema.statics.removeSoftBotsById = function(botId,callback){
-    Bots.update({_id:ObjectId(botId)},{$set:{isDeleted:true}}, function(err, bots) {
-        if (err) {
-            logger.error(err);
-            var error = new Error('Internal server error');
-            error.status = 500;
-            return callback(error);
-        }else {
-            return callback(null, bots);
-        }
-    });
-};
-
 BotsSchema.statics.getScheduledBots = function getScheduledBots(callback) {
     Bots.find({
         isScheduled: true,

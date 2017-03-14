@@ -67,14 +67,22 @@ botsNewService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,c
 }
 
 botsNewService.removeBotsById = function removeBotsById(botId,callback){
-    botsDao.removeBotsById(botId,function(err,data){
+    async.parallel({
+        bots: function(callback){
+            botsDao.removeBotsById(botId,callback);
+        },
+        auditTrails: function(callback){
+            auditTrail.removeAuditTrails({auditId:botId},callback);
+        }
+    },function(err,resutls){
         if(err){
             logger.error(err);
             callback(err,null);
             return;
+        }else {
+            callback(null, resutls);
+            return;
         }
-        callback(null,data);
-        return;
     });
 }
 
