@@ -20,11 +20,9 @@
             items = $scope.templateSelected;
         }
 
-        if(items.isBotScheduled === true){
-            $scope._isEventSelected = true;
+        if(items.isScheduled === true){
             $scope.isScheduled = true;
         }else{
-            $scope._isEventSelected = false;
             $scope.isScheduled = false;
         }
         $scope.scheduleDeatils = items;
@@ -34,13 +32,7 @@
             $scope.schedulerStartOn=moment(new Date()).format('MM/DD/YYYY');
             $scope.schedulerEndOn=moment(new Date()).format('MM/DD/YYYY');
         };
-        $scope.selectBotCheckbox = function(){
-            if($scope.isScheduled === true || $scope.isScheduled === 'true') {
-                $scope._isEventSelected = true;
-            }else{
-                $scope._isEventSelected = false;
-            }
-        };
+
         if(items.isScheduled === true && items.scheduler !== null){
             if(items.scheduler.cronStartOn && items.scheduler.cronEndOn) {
                 var newStartOn = parseInt(items.scheduler.cronStartOn);
@@ -109,17 +101,7 @@
                 cronMonth: $scope.selectedMonth
             };
             var reqBody = null;
-            /*if($scope.isScheduled === true || $scope.isScheduled === 'true'){
-                reqBody = {
-                    scheduler:$scope.eventParams,
-                    isScheduled:true
-                };
-            }else{
-                reqBody = {
-                    scheduler:{},
-                    isScheduled:false
-                };
-            }*/
+            
             reqBody = {
                 scheduler:$scope.eventParams,
                 isScheduled:true
