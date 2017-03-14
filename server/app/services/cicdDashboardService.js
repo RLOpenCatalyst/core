@@ -29,8 +29,8 @@ var cicdDashboardService = module.exports = {};
 
 
 
-cicdDashboardService.checkIfcicdDashboardExists = function checkIfcicdDashboardExists(cicdDashboardId, callback) {
-    cicdDashboardModel.getById(cicdDashboardId, function (err, cicdDashboard) {
+cicdDashboardService.checkIfcicdDashboardServerExists = function checkIfcicdDashboardServerExists(cicdDashboardServerId, callback) {
+    cicdDashboardModel.getById(cicdDashboardServerId, function (err, cicdDashboard) {
         if (err) {
             var err = new Error('Internal server error');
             err.status = 500;
@@ -45,7 +45,7 @@ cicdDashboardService.checkIfcicdDashboardExists = function checkIfcicdDashboardE
     });
 };
 
-cicdDashboardService.createcicdDashboard = function createcicdDashboard(cicdDashboardObj, callback) {
+cicdDashboardService.createcicdDashboardServer = function createcicdDashboardServer(cicdDashboardObj, callback) {
     
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
@@ -67,14 +67,14 @@ cicdDashboardService.createcicdDashboard = function createcicdDashboard(cicdDash
     });
 };
 
-cicdDashboardService.updatecicdDashboard = function updatecicdDashboard(cicdDashboardId, cicdDashboardObj, callback) {
+cicdDashboardService.updatecicdDashboardServer = function updatecicdDashboardServer(cicdDashboardServerId, cicdDashboardObj, callback) {
     
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     cicdDashboardObj.dashboardServerPassword =  cryptography.encryptText(cicdDashboardObj.dashboardServerPassword, cryptoConfig.encryptionEncoding,
         cryptoConfig.decryptionEncoding);
 
-    cicdDashboardModel.updatecicdDashboad(cicdDashboardId, cicdDashboardObj, function (err, cicdDashboard) {
+    cicdDashboardModel.updatecicdDashboad(cicdDashboardServerId, cicdDashboardObj, function (err, cicdDashboard) {
         if (err && err.name === 'ValidationError') {
             var err = new Error('Bad Request');
             err.status = 400;
@@ -89,8 +89,8 @@ cicdDashboardService.updatecicdDashboard = function updatecicdDashboard(cicdDash
     });
 };
 
-cicdDashboardService.deletecicdDashboard = function deletecicdDashboard(cicdDashboardId, callback) {
-    cicdDashboardModel.deleteGitHub(cicdDashboardId, function (err, cicdDashboard) {
+cicdDashboardService.deletecicdDashboardServer = function deletecicdDashboardServer(cicdDashboardServerId, callback) {
+    cicdDashboardModel.deletecicdDashboad(cicdDashboardServerId, function (err, cicdDashboard) {
         if (err) {
             var err = new Error('Internal server error');
             err.status = 500;
@@ -101,8 +101,25 @@ cicdDashboardService.deletecicdDashboard = function deletecicdDashboard(cicdDash
     });
 };
 
+cicdDashboardService.getcicdDashboardServerById = function getcicdDashboardServerById(cicdDashboardId, callback) {
+    cicdDashboardModel.getcicdDashboardId(cicdDashboardId, function (err, cicdDashboard) {
+        if (err) {
+            var err = new Error('Internal Server Error');
+            err.status = 500;
+            return callback(err);
+        } else if (!cicdDashboard) {
+            var err = new Error('CICD Dashboard server not found');
+            err.status = 404;
+            return callback(err);
+        } else{
+            formatcicdDashboardResponse(cicdDashboard,function(formattedData){
+                callback(null, formattedData);
+            });
+        }
+    });
+};
 
-cicdDashboardService.getcicdDashboardList = function getcicdDashboardList(query, callback) {
+cicdDashboardService.getcicdDashboardServerList = function getcicdDashboardServerList(query, callback) {
     var reqData = {};
     async.waterfall([
         function(next) {

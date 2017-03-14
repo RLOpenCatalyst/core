@@ -23,7 +23,8 @@
                                                 <div class="widget-body no-padding">
                                                     <div class="col-lg-6 col-md-6">
                                                         <label for="name">Name:<span class="control-label redSpan">&nbsp;*</span></label>
-
+                                                        <label id="msgOrgName" style="display:none;color:red;float:right;">Required</label>
+                                                        <br>
                                                         <input autofocus name="dashboardName" value="" id="dashboardName" class="form-control" type="text" cdata="catalyst" cat-validation="required,nospecial,max15,nospace">
                                                     </div>
                                                     <div class="col-lg-6 col-md-6">
@@ -34,7 +35,7 @@
                                                     </div>
                                                     <div class="col-lg-6 col-md-6" style="margin-top:25px;">
                                                         <label for="">Business Group:<span class="control-label redSpan">&nbsp;*</span></label>
-                                                        <select id="productgroupname" class="chooseBG width-100" sourcepath="2" datapath="masterjson.rows.row" linkedto="orgname" linkedfields="['projectname']"   cdata="catalyst" >
+                                                        <select id="productgroupname" class="chooseBG width-100" sourcepath="2" datapath="masterjson.rows.row" linkedto="orgname" linkedfields="['projectname']"   cdata="catalyst" cat-validation="required">
                                                          <option value="">Select Business Group</option>
                                                         </select>
                                                     </div>
@@ -57,9 +58,10 @@
                                                         </select>
                                                     </div> -->
                                                     <div class="col-lg-6 col-md-6" style="margin-top:25px;">
-                                                        <label for="">Dashboard URL:<span class="control-label redSpan">&nbsp;*</span></label>
+                                                        <label for="">Dashboard Host with Port:<span class="control-label redSpan">&nbsp;*</span></label>
                                                         <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardUrl"  onchange="getcollectors($(this).val())" class="form-control" type="text" cdata="catalyst" cat-validation="required">
-                                                        <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardLink"   class="form-control hidden" type="text" cdata="catalyst" >
+                                                        IP / Hostname : Port
+                                                        <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardLink"   class="form-control hidden" type="text" cdata="catalyst" cat-validation="required">
                                                         
                                                         <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardId"   class="form-control hidden" type="text" cdata="catalyst">
                                                     </div>
@@ -868,12 +870,10 @@ function validateandsaveform() {
     //Remove existing dashboard
     if($('#dashboardId').val() != ''){
         removeDashboard($('#dashboardId').val(),function(){
-            saveform(30);
             creteDashboard();
         });
     }
     else
-        saveform('30');
         creteDashboard();
     
     return false;
