@@ -121,10 +121,7 @@ var validator = $('#gitHubRepoForn').validate({
             extension: "pem|txt|sh"
         },
         gitName: {
-            maxlength: 15
-        },
-        token: {
-            number: true
+            maxlength: 30
         }
     },
     messages: {
@@ -135,7 +132,7 @@ var validator = $('#gitHubRepoForn').validate({
             extension: "Only .pem/.txt/.sh files"
         },
         gitName: {
-            maxlength: "Limited to 15 chars"
+            maxlength: "Limited to 30 chars"
         }
     },
     onkeyup: false,
@@ -231,6 +228,8 @@ $('#gitTable tbody').on( 'click', 'button.editGitRepo', function(){
         } else {
             $editModal.find('#authenticationType').val('token').change().attr('disabled','disabled');
             $editModal.find('#protocolUser').val($this.parents('tr').attr('repositoryUserName'));
+            $editModal.find('#token').removeAttr('type');
+            $editModal.find('#token').attr('type', 'password');
             $editModal.find('#token').val($this.parents('tr').attr('repositoryToken'));
         }
     }else{

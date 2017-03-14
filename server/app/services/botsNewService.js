@@ -43,14 +43,25 @@ botsNewService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,c
         botObj.scheduler ={};
         botObj.isScheduled =false;
     }
-    botsDao.updateBotsDetail(botId,botObj,function(err,data){
-        if(err){
-            logger.error(err);
-            callback(err,null);
+    botsDao.updateBotsDetail(botId,botObj,function(err,data) {
+        if (err) {
+            logger.error("Error in Updating BOTs Scheduler", err);
+            callback(err, null);
             return;
-        }else {
+        } else {
             callback(null, data);
-            return;
+            botsDao.getBotsById(botId, function (err, botsList) {
+                if (err) {
+                    logger.error("Error in fetching BOTs", err);
+                } else {
+                    var schedulerService = require('_pr/services/schedulerService.js');
+                    schedulerService.executeNewScheduledBots(botsList[0], function (err, data) {
+                        if (err) {
+                            logger.error("Error in executing New BOTs Scheduler");
+                        }
+                    });
+                }
+            });
         }
     });
 }
@@ -253,13 +264,12 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
         },
         function(gitHubDetails,next){
             if(gitHubDetails !== null){
-                var gitHubDirPath = appConfig.gitHubDir + gitHubDetails.repositoryName;
+                var gitHubDirPath = appConfig.gitHubDir + gitHubDetails._id;
                 fileHound.create()
                     .paths(gitHubDirPath)
                     .ext('yaml')
                     .find().then(function(files){
                     if(files.length > 0){
-                        var count = 0;
                         var botObjList = [];
                         for(var i = 0; i < files.length; i++){
                             (function(ymlFile){
@@ -270,7 +280,6 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                                 logger.error("Error in uploading yaml documents.",err);
                                                 next(err);
                                             }else{
-                                                count++;
                                                 var botsObj={
                                                     ymlJson:result,
                                                     name:result.name,
@@ -292,12 +301,19 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                                 botsDao.getBotsByBotId(result.id,function(err,botsList){
                                                     if(err){
                                                         logger.error(err);
+                                                        botObjList.push(err);
+                                                        if(botObjList.length === files.length){
+                                                            next(null,botObjList);
+                                                        }
                                                     }else if(botsList.length > 0){
                                                         botsDao.updateBotsDetail(botsList[0]._id,botsObj,function(err,updateBots){
                                                             if(err){
                                                                 logger.error(err);
                                                             }
                                                             botObjList.push(botsObj);
+                                                            if(botObjList.length === files.length){
+                                                                next(null,botObjList);
+                                                            }
                                                         })
                                                     }else{
                                                         botsDao.createNew(botsObj,function(err,data){
@@ -305,16 +321,19 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                                                 logger.error(err);
                                                             }
                                                             botObjList.push(botsObj);
+                                                            if(botObjList.length === files.length){
+                                                                next(null,botObjList);
+                                                            }
                                                         });
                                                     }
                                                 })
                                             }
                                         })
                                     }else{
-                                        count++;
-                                    }
-                                    if(count === files.length){
-                                        next(null,botObjList);
+                                        botObjList.push(result);
+                                        if(botObjList.length === files.length){
+                                            next(null,botObjList);
+                                        }
                                     }
                                 });
                             })(files[i]);

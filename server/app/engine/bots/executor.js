@@ -32,6 +32,8 @@ var apiUtil = require('_pr/lib/utils/apiUtil.js');
 
 const errorType = 'executor';
 
+var pythonHost =  process.env.FORMAT_HOST || 'localhost';
+var pythonPort =  process.env.FORMAT_PORT || '2687';
 var executor = module.exports = {};
 
 executor.executeScriptBot = function executeScriptBot(botsDetails,userName,executionType,callback) {
@@ -77,7 +79,7 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,executionType,callback
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var cmd = null, count = 0;
-    var gitHubDirPath = appConfig.gitHubDir + botsScriptDetails.gitHubRepoName;
+    var gitHubDirPath = appConfig.gitHubDir + botsScriptDetails.gitHubId;
     var actionId = uuid.v4();
     var logsReferenceIds = [botsScriptDetails._id, actionId];
     var botLogFile = appConfig.botLogDir + actionId;
@@ -129,12 +131,21 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,executionType,callback
                 } else {
                     cmd = scriptObj.type + ' ' + files[0]
                 }
-                if(botsScriptDetails.params.length > 0) {
+                if(botsScriptDetails.params && botsScriptDetails.params.length > 0) {
                     for (var j = 0; j < botsScriptDetails.params.length; j++) {
                         var decryptedText = cryptography.decryptText(botsScriptDetails.params[j], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
                         Object.keys(botsScriptDetails.inputFormFields[j]).forEach(function(key){
                             if(botsScriptDetails.inputFormFields[j][key] === null) {
                                 replaceTextObj[key] = decryptedText;
+                            }
+                        });
+                        cmd = cmd + ' ' + decryptedText;
+                    }
+                }else{
+                    for (var j = 0; j < botsScriptDetails.inputFormFields.length; j++) {
+                        Object.keys(botsScriptDetails.inputFormFields[j]).forEach(function (key) {
+                            if (botsScriptDetails.inputFormFields[j][key] === null) {
+                                replaceTextObj[key] = botsScriptDetails.inputFormFields[j].default;
                             }
                         });
                         cmd = cmd + ' ' + decryptedText;
@@ -197,7 +208,8 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,executionType,callback
                             });
                             if(executionType === 'bots' || executionType === 'telemetry') {
                                 var supertest = require("supertest");
-                                var server = supertest.agent("http://localhost:2687");
+
+                                var server = supertest.agent("http://"+pythonHost+':'+pythonPort);
                                 var reqBody = {
                                     "botDescription": JSON.stringify(botsScriptDetails.ymlJson),
                                     "logLocation": botLogFile+'/'+fileName
@@ -236,7 +248,7 @@ function executeScriptOnNode(botsScriptDetails,auditTrail,executionType,callback
                                     });
                             }else {
                                 var supertest = require("supertest");
-                                var server = supertest.agent("http://localhost:2687");
+                                var server = supertest.agent("http://"+pythonHost+':'+pythonPort);
                                 var reqBody = {
                                     "botDescription": JSON.stringify(botsScriptDetails.ymlJson),
                                     "logLocation": botLogFile + '/' + fileName

@@ -8,7 +8,7 @@
 (function (angular) {
     "use strict";
     angular.module('library.params', [])
-    .controller('editParamsCtrl',['$scope', '$rootScope', 'genericServices', 'workzoneServices', 'toastr', '$modalInstance', 'items', 'responseFormatter', '$modal', function ($scope, $rootScope, genSevs, workzoneServices, toastr, $modalInstance, items, responseFormatter, $modal) {
+    .controller('editParamsCtrl',['$scope', '$rootScope', '$state', 'genericServices', 'workzoneServices', 'toastr', '$modalInstance', 'items', 'responseFormatter', '$modal', function ($scope, $rootScope, $state,genSevs, workzoneServices, toastr, $modalInstance, items, responseFormatter, $modal) {
         $scope.botName = items.name;
         $scope.botParams = items.inputFormFields;
         $scope.botEditParams = [];
@@ -27,6 +27,12 @@
             genSevs.promisePost(param).then(function (response) {
                 $modalInstance.close(response);
                 $rootScope.$emit('BOTS_LIBRARY_REFRESH');
+                workzoneServices.getBOTDetails(items._id).then(function(response){
+                    for(var i=0;i<response.data.bots.length;i++) {
+                        var botObj = response.data.bots[i];
+                        $rootScope.$emit('BOTS_DESCRIPTION_REFRESH', botObj);   
+                    }
+                });    
             },
             function (error) {
                 if(error) {
