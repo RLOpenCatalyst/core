@@ -228,6 +228,8 @@ $('#gitTable tbody').on( 'click', 'button.editGitRepo', function(){
         } else {
             $editModal.find('#authenticationType').val('token').change().attr('disabled','disabled');
             $editModal.find('#protocolUser').val($this.parents('tr').attr('repositoryUserName'));
+            $editModal.find('#token').removeAttr('type');
+            $editModal.find('#token').attr('type', 'password');
             $editModal.find('#token').val($this.parents('tr').attr('repositoryToken'));
         }
     }else{
