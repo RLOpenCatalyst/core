@@ -16,6 +16,9 @@
                 $scope.templateSelected = reqParams;
             });
 
+            $rootScope.$on('BOTS_DESCRIPTION_REFRESH', function(event,reqParams) {
+                $scope.templateSelected = reqParams;
+            });
             //refresh of bots History for current implementation.
 
             if($scope.templateSelected){
