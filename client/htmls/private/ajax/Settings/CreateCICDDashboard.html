@@ -23,7 +23,7 @@
                                                 <div class="widget-body no-padding">
                                                     <div class="col-lg-6 col-md-6">
                                                         <label for="name">Name:<span class="control-label redSpan">&nbsp;*</span></label>
-                                                        <label id="msgOrgName" style="display:none;color:red;float:right;">Required</label>
+                                                        
                                                         <br>
                                                         <input autofocus name="dashboardName" value="" id="dashboardName" class="form-control" type="text" cdata="catalyst" cat-validation="required,nospecial,max15,nospace">
                                                     </div>
@@ -47,12 +47,17 @@
                                                     </div>
                                                     
                                                     <div class="col-lg-6 col-md-6" style="margin-top:25px;">
-                                                        <label for="">Dashboard Host with Port:<span class="control-label redSpan">&nbsp;*</span></label>
-                                                        <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardUrl"  onchange="getcollectors($(this).val())" class="form-control" type="text" cdata="catalyst" cat-validation="required">
+                                                        <label for="">Dashboard Server:<span class="control-label redSpan">&nbsp;*</span></label>
+                                                        <!-- <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardUrl"  onchange="getcollectors($(this).val())" class="form-control" type="text" cdata="catalyst" cat-validation="required"> -->
+                                                         <select id="dashboardServerId" class="chooseOrganization width-100" cdata="catalyst" cat-validation="required">
+                                                         <option value="">Select Dashboard Server</option>
+                                                      </select>
                                                         IP / Hostname : Port
-                                                        <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardLink"   class="form-control hidden" type="text" cdata="catalyst" cat-validation="required">
+                                                        <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardLink"   class="form-control hidden" type="text" cdata="catalyst">
                                                         
                                                         <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardId"   class="form-control hidden" type="text" cdata="catalyst">
+                                                        <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardUrl"   class="form-control hidden" type="text" cdata="catalyst">
+
                                                     </div>
                                                     <div class="clearfix"></div>
                                                     <!-- Widget for Jenkins Starts here -->
@@ -235,6 +240,7 @@ $('#orgname').change(function(e){
     $('#productgroupname').empty();
     var orgId = $('#orgname').find('option:selected').attr('rowid');
     getBusinessGroupDetails(orgId);
+    getDashboardServers(orgId);
 });
 
 $('#productgroupname').change(function(e){
@@ -247,6 +253,37 @@ $('#productgroupname').change(function(e){
         getProjectDetails(businessGroupId);    
     }
 });
+
+
+$('#dashboardServerId').change(function(e){
+    //updating the url field.
+    $('#dashboardUrl').val($('#dashboardServerId').find('option:selected').attr('dashboardurl'));
+    getcollectors($('#dashboardUrl').val());
+});
+
+
+function getDashboardServers(orgId,callback){
+    $.get('/cicd-dashboardservice/orgId/' + orgId, function(dashboardServers){
+
+        var str = ' <option value="">Select Dashboard Server</option>',
+        len = dashboardServers.length;
+        //alert(JSON.stringify(dashboardServers));
+        for (var i = 0; i < dashboardServers.length; i++) {
+            str = str + '<option dashboardurl="' + dashboardServers[i].dashboardServer + '" value="' + dashboardServers[i]._id + '">' + dashboardServers[i].dashboardName + ' [' + dashboardServers[i].dashboardServer + '] </option>';
+        }
+        $('#dashboardServerId').html(str);
+        $('#dashboardServerId').val($('#dashboardServerId').attr('savedvalue')).trigger('change');
+        $('#dashboardServerId').select2();
+        if(!dashboardServers || dashboardServers.length <= 0){
+            if(callback)
+                callback(null);
+        }
+        else{
+            if(callback)
+                callback(dashboardServers.length);
+        }
+    });
+}
 
 
 var dashboardURL='';
@@ -713,8 +750,7 @@ function removeDashboard(dashboardId,callback){
         });
         drawBreadCrumb1();
         enableUniqueCheckingForInputs(30);
-        //updating option sectons for dashboard
-
+        
         if($('#dashboardUrl').val() != ""){
             
             setoptions($('#dashboardUrl').val(),$('#dashboardId').val(),
@@ -839,16 +875,21 @@ function removeDashboard(dashboardId,callback){
 <script>
 function validateandsaveform() {
 
+  //Include validations
+
+
   if (validateForm()) {
-    //Remove existing dashboard
-    if($('#dashboardId').val() != ''){
-        removeDashboard($('#dashboardId').val(),function(){
-            creteDashboard();
-        });
-    }
-    else
-        creteDashboard();
     
+    if(isFormValid('30')){
+        if($('#dashboardId').val() != ''){
+            //Remove existing dashboard
+            removeDashboard($('#dashboardId').val(),function(){
+                creteDashboard();
+            });
+        }
+        else
+            creteDashboard();
+    }
     return false;
   }
 
@@ -867,7 +908,14 @@ function validateandsaveform() {
             $('#orgname').empty().append('<option rowid="'+data.orgname_rowid[0]+'" value="'+data.orgname[0]+'">'+data.orgname[0]+'</option>').select2().attr('disabled','disabled'); 
 
             var orgIdOnEdit = $('select#orgname option:selected').attr('rowid');
-            getBusinessGroupDetails(orgIdOnEdit,data);            
+            getBusinessGroupDetails(orgIdOnEdit,data); 
+            getDashboardServers(orgIdOnEdit,function(count){
+                if(!count){
+                    bootbox.alert('No Dashboard Servers found. Add a server to continue.'); 
+                    window.history.back();
+                }
+                
+            });           
           });
         }
        $('#myForm55').submit(function() {

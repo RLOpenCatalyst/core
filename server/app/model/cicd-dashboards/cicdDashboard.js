@@ -147,6 +147,29 @@ CICDDashboardSchema.statics.getcicdDashboardId = function (cicdDashboadId, callb
     });
 };
 
+CICDDashboardSchema.statics.getcicdDashboardServerByOrgId = function (orgId, callback) {
+    this.aggregate([{
+        $match: {'orgId': orgId}
+    }, {
+        $lookup: {
+            from: "d4dmastersnew",
+            localField: "orgId",
+            foreignField: "rowid",
+            as: "organization"
+        }
+    }], function (err, cicdDashboad) {
+        if (err) {
+            callback(err, null);
+            return;
+        } else if (cicdDashboad.length === 0) {
+            callback(null, null);
+            return;
+        } else {
+            return callback(null, cicdDashboad);
+        }
+    });
+};
+
 CICDDashboardSchema.statics.updatecicdDashboad = function (cicdDashboadId, fields, callback) {
     this.update({'_id': cicdDashboadId}, {$set: fields},
         function (err, result) {
