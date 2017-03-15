@@ -163,7 +163,7 @@ CICDDashboardSchema.statics.updatecicdDashboad = function (cicdDashboadId, field
 };
 
 CICDDashboardSchema.statics.deletecicdDashboad = function (cicdDashboadId, callback) {
-    this.remove({'_id': gcicdDashboadId},
+    this.remove({'_id': cicdDashboadId},
         function (err, data) {
             if (err) {
                 logger.error(err);
