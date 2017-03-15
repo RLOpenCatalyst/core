@@ -168,15 +168,21 @@ cicdDashboardService.getcicdDashboardServerList = function getcicdDashboardServe
 
 function formatcicdDashboardResponse(cicdDashboard,callback) {
 	var formatted = {
-        _id:gitHub._id,
+        _id:cicdDashboard._id,
        };
     if (cicdDashboard.organization.length) {
         formatted.orgId = cicdDashboard.organization[0].rowid;
         formatted.orgName=cicdDashboard.organization[0].orgname;
     }
+    formatted.dashboardName = cicdDashboard.dashboardName;
+    formatted.dashboardDesc = cicdDashboard.dashboardDesc;
+    formatted.dashboardServer = cicdDashboard.dashboardServer;
+    formatted.dashboardServerUserName = cicdDashboard.dashboardServerUserName;
+    formatted.dashboardDbHostName = cicdDashboard.dashboardDbHostName;
+    logger.debug(JSON.stringify(cicdDashboard));
      var cryptoConfig = appConfig.cryptoSettings;
         var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-        formatted.dashboardServerPassword =  cryptography.decryptText(gitHub.dashboardServerPassword, cryptoConfig.decryptionEncoding,
+        formatted.dashboardServerPassword =  cryptography.decryptText(cicdDashboard.dashboardServerPassword, cryptoConfig.decryptionEncoding,
             cryptoConfig.encryptionEncoding);
         callback(formatted);
 };
