@@ -749,6 +749,8 @@ proc.on('close', function(code) {
         mkdirp.sync(config.catalystHome);
         mkdirp.sync(config.instancePemFilesDir);
         mkdirp.sync(config.tempDir);
+        mkdirp.sync(config.scriptDir);
+        mkdirp.sync(config.gitHubDir);
         mkdirp.sync(config.chef.chefReposLocation);
         mkdirp.sync(config.chef.cookbooksDir);
         mkdirp.sync(config.puppet.puppetReposLocation);
