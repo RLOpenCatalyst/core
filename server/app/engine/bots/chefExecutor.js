@@ -30,6 +30,7 @@ var credentialCryptography = require('_pr/lib/credentialcryptography');
 var ChefClientExecution = require('_pr/model/classes/instance/chefClientExecution/chefClientExecution.js');
 var Chef = require('_pr/lib/chef');
 var fileIo = require('_pr/lib/utils/fileio');
+var utils = require('_pr/model/classes/utils/utils.js');
 
 const errorType = 'chefExecutor';
 
@@ -37,11 +38,7 @@ var pythonHost =  process.env.FORMAT_HOST || 'localhost';
 var pythonPort =  process.env.FORMAT_PORT || '2687';
 var chefExecutor = module.exports = {};
 
-chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executionType,nodeList,runList,attributeList,callback) {
-    var cryptoConfig = appConfig.cryptoSettings;
-    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-    var cmd = null, count = 0;
-    var gitHubDirPath = appConfig.gitHubDir + botsDetails.gitHubId;
+chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executionType,callback) {
     var actionId = uuid.v4();
     var logsReferenceIds = [botsDetails._id, actionId];
     var botLogFile = appConfig.botLogDir + actionId;
@@ -77,7 +74,7 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
         exitOnError: false
     });
     var replaceTextObj = {};
-    for(var i = 0; i < nodeList.length; i++){
+    for(var i = 0; i < botsDetails.nodeIds.length; i++){
         (function(instanceId){
             instanceModel.getInstanceById(instanceId,function(err,instances){
                 if(err){
@@ -85,7 +82,7 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
                 }
                 var instance = instances[0];
                 var timestampStarted = new Date().getTime();
-                var actionLog = instanceModel.insertOrchestrationActionLog(instance._id, runList, userName, timestampStarted);
+                var actionLog = instanceModel.insertOrchestrationActionLog(instance._id, botsDetails.params.runList, userName, timestampStarted);
                 instance.tempActionLogId = actionLog._id;
                 var instanceLog = {
                     actionId: actionLog._id,
@@ -212,7 +209,12 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
                                     catalystCallbackUrl: baseUrl + '/chefClientExecution/' + chefClientExecution.id
                                 }
                             };
-
+                            var attr = botsDetails.params.cookbookAttributes;
+                            var objectArray = [];
+                            for (var j = 0; j < attr.length; j++) {
+                                objectArray.push(attr[j].jsonObj);
+                            }
+                            var attributeObj = utils.mergeObjects(objectArray);
                             var jsonAttributeObj = utils.mergeObjects([executionIdJsonAttributeObj, attributeObj]);
                             var jsonAttributesString = JSON.stringify(jsonAttributeObj);
 
@@ -230,7 +232,7 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
                                 host: instance.instanceIP,
                                 instanceOS: instance.hardware.os,
                                 port: 22,
-                                runlist: runList,
+                                runlist: botsDetails.params.runList,
                                 jsonAttributes: jsonAttributesString,
                                 overrideRunlist: true,
                                 parallel: true
@@ -384,7 +386,7 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
                 });
             })
 
-        })(nodeList[i]);
+        })(botsDetails.nodeIds[i]);
     }
 };
 

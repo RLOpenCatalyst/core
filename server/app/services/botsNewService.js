@@ -187,27 +187,25 @@ botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,service
     });
 }
 
-botsNewService.executeBots = function executeBots(botId,reqBody,userName,executionType,callback){
+botsNewService.executeBots = function executeBots(botsId,reqBody,userName,executionType,callback){
+    var botId = null;
     async.waterfall([
-        function(next){
-            if(reqBody !== null && reqBody !== ''){
-                encryptedParam(reqBody,next);
+        function(next) {
+            botsDao.getBotsByBotId(botsId, next);
+        },
+        function(bots,next){
+            botId = bots[0]._id;
+            if(reqBody !== null && reqBody !== '' && reqBody.type === 'script'){
+                encryptedParam(reqBody.params,next);
             }else{
-                next(null,[]);
+                next(null,reqBody.params);
             }
         },
-        function(encryptedParamList,next) {
-            if(encryptedParamList.length > 0){
-                botsDao.updateBotsDetail(botId,{params:encryptedParamList,lastRunTime:new Date().getTime()},function(err,botsData){
-                    if(err){
-                        next(err);
-                    }else{
-                        botsDao.getBotsById(botId, next);
-                    }
-                })
-            }else {
-                botsDao.getBotsById(botId, next);
-            }
+        function(paramList,next) {
+            botsDao.updateBotsDetail(botId,{params:paramList},next);
+        },
+        function(updateStatus,next) {
+            botsDao.getBotsById(botId, next);
         },
         function(botDetails,next) {
             if(botDetails.length > 0){
