@@ -73,8 +73,8 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
         ],
         exitOnError: false
     });
-    var replaceTextObj = {};
-    for(var i = 0; i < botsDetails.nodeIds.length; i++){
+    var count = 0;
+    for(var i = 0; i < botsDetails.params.nodeIds.length; i++){
         (function(instanceId){
             instanceModel.getInstanceById(instanceId,function(err,instances){
                 if(err){
@@ -106,7 +106,14 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
                     action: "Chef-Task-Run",
                     logs: []
                 };
-                var logsReferenceIds = [instance._id, actionLog._id];
+                logsReferenceIds.push(instance._id);
+                logsReferenceIds.push(actionLog._id);
+                var botAuditTrailObj = {
+                    botId:botsDetails._id,
+                    actionId:actionId
+                }
+                callback(null,botAuditTrailObj);
+                count++;
                 if (!instance.instanceIP) {
                     var timestampEnded = new Date().getTime();
                     logsDao.insertLog({
@@ -119,10 +126,24 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
                     instanceModel.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
                     instanceLog.endedOn = new Date().getTime();
                     instanceLog.actionStatus = "failed";
+                    if(count === botsDetails.params.nodeIds.length) {
+                        var resultTaskExecution = {
+                            "actionStatus": 'failed',
+                            "status": 'failed',
+                            "endedOn": new Date().getTime(),
+                            "actionLogId": actionId
+                        };
+                        auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+                            if (err) {
+                                logger.error("Failed to create or update bots Log: ", err);
+                            }
+                        });
+                    }
                     instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
                         if (err) {
                             logger.error("Failed to create or update instanceLog: ", err);
                         }
+                        return;
                     });
                 }
                 configmgmtDao.getChefServerDetails(instance.chef.serverId, function(err, chefDetails) {
@@ -143,6 +164,20 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
                                 logger.error("Failed to create or update instanceLog: ", err);
                             }
                         });
+                        if(count === botsDetails.params.nodeIds.length) {
+                            var resultTaskExecution = {
+                                "actionStatus": 'failed',
+                                "status": 'failed',
+                                "endedOn": new Date().getTime(),
+                                "actionLogId": actionId
+                            };
+                            auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+                                if (err) {
+                                    logger.error("Failed to create or update bots Log: ", err);
+                                }
+                                return;
+                            });
+                        }
                     }
                     if (!chefDetails) {
                         var timestampEnded = new Date().getTime();
@@ -161,6 +196,20 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
                                 logger.error("Failed to create or update instanceLog: ", err);
                             }
                         });
+                        if(count === botsDetails.params.nodeIds.length) {
+                            var resultTaskExecution = {
+                                "actionStatus": 'failed',
+                                "status": 'failed',
+                                "endedOn": new Date().getTime(),
+                                "actionLogId": actionId
+                            };
+                            auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+                                if (err) {
+                                    logger.error("Failed to create or update bots Log: ", err);
+                                }
+                                return;
+                            });
+                        }
                     }
                     credentialCryptography.decryptCredential(instance.credentials, function(err, decryptedCredentials) {
                         if (err) {
@@ -180,6 +229,20 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
                                     logger.error("Failed to create or update instanceLog: ", err);
                                 }
                             });
+                            if(count === botsDetails.params.nodeIds.length) {
+                                var resultTaskExecution = {
+                                    "actionStatus": 'failed',
+                                    "status": 'failed',
+                                    "endedOn": new Date().getTime(),
+                                    "actionLogId": actionId
+                                };
+                                auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+                                    if (err) {
+                                        logger.error("Failed to create or update bots Log: ", err);
+                                    }
+                                    return;
+                                });
+                            }
                         }
 
                         ChefClientExecution.createNew({
@@ -202,14 +265,28 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
                                         logger.error("Failed to create or update instanceLog: ", err);
                                     }
                                 });
+                                if(count === botsDetails.params.nodeIds.length) {
+                                    var resultTaskExecution = {
+                                        "actionStatus": 'failed',
+                                        "status": 'failed',
+                                        "endedOn": new Date().getTime(),
+                                        "actionLogId": actionId
+                                    };
+                                    auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+                                        if (err) {
+                                            logger.error("Failed to create or update bots Log: ", err);
+                                        }
+                                        return;
+                                    });
+                                }
                             }
 
                             var executionIdJsonAttributeObj = {
                                 catalyst_attribute_handler: {
-                                    catalystCallbackUrl: baseUrl + '/chefClientExecution/' + chefClientExecution.id
+                                    catalystCallbackUrl: botsDetails.params.baseUrl + '/chefClientExecution/' + chefClientExecution.id
                                 }
                             };
-                            var attr = botsDetails.params.cookbookAttributes;
+                            var attr = botsDetails.params.attributes;
                             var objectArray = [];
                             for (var j = 0; j < attr.length; j++) {
                                 objectArray.push(attr[j].jsonObj);
@@ -281,6 +358,20 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
                                             logger.error("Failed to create or update instanceLog: ", err);
                                         }
                                     });
+                                    if(count === botsDetails.params.nodeIds.length) {
+                                        var resultTaskExecution = {
+                                            "actionStatus": 'failed',
+                                            "status": 'failed',
+                                            "endedOn": new Date().getTime(),
+                                            "actionLogId": actionId
+                                        };
+                                        auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+                                            if (err) {
+                                                logger.error("Failed to create or update bots Log: ", err);
+                                            }
+                                            return;
+                                        });
+                                    }
                                 }
                                 if (retCode == 0) {
                                     var timestampEnded = new Date().getTime();
@@ -299,6 +390,20 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
                                             logger.error("Failed to create or update instanceLog: ", err);
                                         }
                                     });
+                                    if(count === botsDetails.params.nodeIds.length) {
+                                        var resultTaskExecution = {
+                                            "actionStatus": 'success',
+                                            "status": 'success',
+                                            "endedOn": new Date().getTime(),
+                                            "actionLogId": actionId
+                                        };
+                                        auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+                                            if (err) {
+                                                logger.error("Failed to create or update bots Log: ", err);
+                                            }
+                                            return;
+                                        });
+                                    }
                                 } else {
                                     if (retCode === -5000) {
                                         logsDao.insertLog({
@@ -315,6 +420,20 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
                                                 logger.error("Failed to create or update instanceLog: ", err);
                                             }
                                         });
+                                        if(count === botsDetails.params.nodeIds.length) {
+                                            var resultTaskExecution = {
+                                                "actionStatus": 'failed',
+                                                "status": 'failed',
+                                                "endedOn": new Date().getTime(),
+                                                "actionLogId": actionId
+                                            };
+                                            auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+                                                if (err) {
+                                                    logger.error("Failed to create or update bots Log: ", err);
+                                                }
+                                                return;
+                                            });
+                                        }
                                     } else if (retCode === -5001) {
                                         logsDao.insertLog({
                                             referenceId: logsReferenceIds,
@@ -330,6 +449,20 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
                                                 logger.error("Failed to create or update instanceLog: ", err);
                                             }
                                         });
+                                        if(count === botsDetails.params.nodeIds.length) {
+                                            var resultTaskExecution = {
+                                                "actionStatus": 'failed',
+                                                "status": 'failed',
+                                                "endedOn": new Date().getTime(),
+                                                "actionLogId": actionId
+                                            };
+                                            auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+                                                if (err) {
+                                                    logger.error("Failed to create or update bots Log: ", err);
+                                                }
+                                                return;
+                                            });
+                                        }
                                     } else {
                                         logsDao.insertLog({
                                             referenceId: logsReferenceIds,
@@ -345,23 +478,21 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
                                                 logger.error("Failed to create or update instanceLog: ", err);
                                             }
                                         });
-                                    }
-                                    var timestampEnded = new Date().getTime();
-                                    logsDao.insertLog({
-                                        referenceId: logsReferenceIds,
-                                        err: true,
-                                        log: 'Error in running chef-client',
-                                        timestamp: timestampEnded
-                                    });
-                                    botLogger.error('Error in running chef-client');
-                                    instanceModel.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
-                                    instanceLog.endedOn = new Date().getTime();
-                                    instanceLog.actionStatus = "failed";
-                                    instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
-                                        if (err) {
-                                            logger.error("Failed to create or update instanceLog: ", err);
+                                        if(count === botsDetails.params.nodeIds.length) {
+                                            var resultTaskExecution = {
+                                                "actionStatus": 'failed',
+                                                "status": 'failed',
+                                                "endedOn": new Date().getTime(),
+                                                "actionLogId": actionId
+                                            };
+                                            auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+                                                if (err) {
+                                                    logger.error("Failed to create or update bots Log: ", err);
+                                                }
+                                                return;
+                                            });
                                         }
-                                    });
+                                    }
                                 }
                             }, function(stdOutData) {
                                 logsDao.insertLog({
@@ -386,7 +517,7 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
                 });
             })
 
-        })(botsDetails.nodeIds[i]);
+        })(botsDetails.params.nodeIds[i]);
     }
 };
 

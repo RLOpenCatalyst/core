@@ -189,7 +189,7 @@ function executeOnNode(botsScriptDetails,auditTrail,executionType,callback) {
                                 "endedOn": new Date().getTime(),
                                 "actionLogId": actionId
                             };
-                            auditTrailService.updateAuditTrail('BOTs', auditTrail._id, resultTaskExecution, function (err, data) {
+                            auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
                                 if (err) {
                                     logger.error("Failed to create or update bots Log: ", err);
                                 }
@@ -397,7 +397,7 @@ function  executeOnEnv(botsScriptDetails,auditTrail,envId,userName,executionType
                                 "endedOn": new Date().getTime(),
                                 "actionLogId": actionLogId
                             };
-                            auditTrailService.updateAuditTrail('BOTs', auditTrail._id, resultTaskExecution, function (err, data) {
+                            auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
                                 if (err) {
                                     logger.error("Failed to create or update bots Log: ", err);
                                 }
@@ -462,7 +462,7 @@ function  executeOnEnv(botsScriptDetails,auditTrail,envId,userName,executionType
                                                     "endedOn": new Date().getTime(),
                                                     "actionLogId": actionLogId
                                                 };
-                                                auditTrailService.updateAuditTrail('BOTs', auditTrail._id, resultTaskExecution, function (err, data) {
+                                                auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
                                                     if (err) {
                                                         logger.error("Failed to create or update bots Log: ", err);
                                                     }
@@ -512,7 +512,7 @@ function  executeOnEnv(botsScriptDetails,auditTrail,envId,userName,executionType
                                                         "endedOn": new Date().getTime(),
                                                         "actionLogId": actionLogId
                                                     };
-                                                    auditTrailService.updateAuditTrail('BOTs', auditTrail._id, resultTaskExecution, function (err, data) {
+                                                    auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
                                                         if (err) {
                                                             logger.error("Failed to create or update bots Log: ", err);
                                                         }
@@ -550,7 +550,7 @@ function  executeOnEnv(botsScriptDetails,auditTrail,envId,userName,executionType
                                                         "endedOn": new Date().getTime(),
                                                         "actionLogId": actionLogId
                                                     };
-                                                    auditTrailService.updateAuditTrail('BOTs', auditTrail._id, resultTaskExecution, function (err, data) {
+                                                    auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
                                                         if (err) {
                                                             logger.error("Failed to create or update bots Log: ", err);
                                                         }
@@ -586,7 +586,7 @@ function  executeOnEnv(botsScriptDetails,auditTrail,envId,userName,executionType
                                                             "endedOn": new Date().getTime(),
                                                             "actionLogId": actionLogId
                                                         };
-                                                        auditTrailService.updateAuditTrail('BOTs', auditTrail._id, resultTaskExecution, function (err, data) {
+                                                        auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
                                                             if (err) {
                                                                 logger.error("Failed to create or update bots Log: ", err);
                                                             }
@@ -621,7 +621,7 @@ function  executeOnEnv(botsScriptDetails,auditTrail,envId,userName,executionType
                                                             "endedOn": new Date().getTime(),
                                                             "actionLogId": actionLogId
                                                         };
-                                                        auditTrailService.updateAuditTrail('BOTs', auditTrail._id, resultTaskExecution, function (err, data) {
+                                                        auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
                                                             if (err) {
                                                                 logger.error("Failed to create or update bots Log: ", err);
                                                             }
@@ -656,7 +656,7 @@ function  executeOnEnv(botsScriptDetails,auditTrail,envId,userName,executionType
                                                             "endedOn": new Date().getTime(),
                                                             "actionLogId": actionLogId
                                                         };
-                                                        auditTrailService.updateAuditTrail('BOTs', auditTrail._id, resultTaskExecution, function (err, data) {
+                                                        auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
                                                             if (err) {
                                                                 logger.error("Failed to create or update bots Log: ", err);
                                                             }
@@ -688,7 +688,7 @@ function  executeOnEnv(botsScriptDetails,auditTrail,envId,userName,executionType
                                                         "endedOn": new Date().getTime(),
                                                         "actionLogId": actionLogId
                                                     };
-                                                    auditTrailService.updateAuditTrail('BOTs', auditTrail._id, resultTaskExecution, function (err, data) {
+                                                    auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
                                                         if (err) {
                                                             logger.error("Failed to create or update bots Log: ", err);
                                                         }
