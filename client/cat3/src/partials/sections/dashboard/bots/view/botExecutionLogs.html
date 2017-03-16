@@ -1,6 +1,6 @@
 <div id='orchestrationLogPage'>
     <div class="modal-header">
-        <span class="close" ng-click="botExecLogCtrl.cancelAll(botExecLogCtrl.taskLogType)">×</span>
+        <span class="close" ng-click="cancel()">×</span>
         <h4 class="modal-title">
             <i class="fa fa-eraser"></i>
             Execute Logs
@@ -9,19 +9,22 @@
 
     <div class="modal-body">
         <fieldset>
-            <div ng-switch="botExecLogCtrl.taskLogType">
-                <div ng-switch-when="jenkins">
-                    <div ng-include="'src/partials/sections/dashboard/bots/view/jenkinsLog.html'" ></div>
+            <loading size="large" name="isLogsLoading" type="block" align="center"></loading>
+            <div class="logsArea" ng-show="!isLogsLoading">
+                <div class="rowSpacing col-lg-12 col-sm-12 {{log.err ? 'logErrorMsg':'logMsg'}}" ng-repeat="log in logListInitial">
+                    <span class="timeStamp"> {{log.timestamp | timestampToLocaleTime}} </span>
+                    <span class="logInfo"> {{log.log}} </span>
                 </div>
-                <div ng-switch-default>
-                    <div ng-include="'src/partials/sections/dashboard/bots/view/chefLog.html'" ></div>
+                <div class="rowSpacing col-lg-12 col-sm-12 {{log.err ? 'logErrorMsg':'logMsg'}}" ng-repeat="log in logListDelta">
+                    <span class="timeStamp"> {{log.timestamp | timestampToLocaleTime}} </span>
+                    <span class="logInfo"> {{log.log}} </span>
                 </div>
             </div>
         </fieldset>
     </div>
     
     <div class="modal-footer">
-        <button type="button" class="btn cat-btn-cancel" ng-click="botExecLogCtrl.cancelAll(botExecLogCtrl.taskLogType)">
+        <button type="button" class="btn cat-btn-cancel" ng-click="cancel();">
             <i class="fa fa-times black"></i> Close
         </button>
     </div>

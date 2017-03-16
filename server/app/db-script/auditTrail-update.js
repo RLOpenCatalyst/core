@@ -7,7 +7,7 @@ var bots = require('_pr/model/bots/1.0/bots.js');
 var botService = require('_pr/services/botsService.js');
 
 var dbOptions = {
-    host: appConfig.db.host,
+    host: process.env.DB_HOST || appConfig.db.host,
     port: appConfig.db.port,
     dbName: appConfig.db.dbName
 };

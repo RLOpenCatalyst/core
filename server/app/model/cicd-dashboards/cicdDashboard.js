@@ -19,70 +19,41 @@ var ObjectId = require('mongoose').Types.ObjectId;
 var logger = require('_pr/logger')(module);
 var Schema = mongoose.Schema;
 var mongoosePaginate = require('mongoose-paginate');
-var GitHubSchema = new Schema({
+var CICDDashboardSchema = new Schema({
     orgId: {
         type: String,
         required: true,
         trim: true
     },
-    repositoryName: {
+    dashboardName: {
         type: String,
         required: true,
         trim: true
     },
-    repositoryDesc: {
+    dashboardDesc: {
         type: String,
         required: false,
         trim: true
     },
-    repositoryOwner: {
+    dashboardServer: {
         type: String,
         trim: true,
         required: true
     },
-    repositoryType: {
-        type: String,
-        required: true
-    },
-    repositoryToken: {
+    dashboardServerUserName: {
         type: String,
         trim: true,
         required: false
     },
-    repositoryUserName: {
+    dashboardServerPassword: {
         type: String,
         trim: true,
         required: false
     },
-    repositoryBranch:{
+    dashboardDbHostName: {
         type: String,
-        trim: true,
-        required: false
-    },
-    repositoryPassword: {
-        type: String,
-        trim: true,
-        required: false
-    },
-    authenticationType: {
-        type: String,
-        required: false,
+        required: true,
         default: false
-    },
-    repositorySSHPublicKeyFileId: {
-        type: String,
-        trim: true,
-        required: false
-    },
-    repositorySSHPrivateKeyFileId: {
-        type: String,
-        trim: true,
-        required: false
-    },
-    isRepoCloned:{
-        type: Boolean,
-        required: false,
-        default:false
     },
     createdOn:{
         type: Number,
@@ -91,12 +62,12 @@ var GitHubSchema = new Schema({
     }
 });
 
-GitHubSchema.plugin(mongoosePaginate);
+CICDDashboardSchema.plugin(mongoosePaginate);
 
-GitHubSchema.statics.createNew = function createNew(gitHubObj, callback) {
+CICDDashboardSchema.statics.createNew = function createNew(dashboardObj, callback) {
     var self = this;
-    var gitHub = new self(gitHubObj);
-    gitHub.save(function (err, data) {
+    var dashboard = new self(dashboardObj);
+    dashboard.save(function (err, data) {
         if (err) {
             logger.error(err);
             return callback(err, null);
@@ -106,15 +77,15 @@ GitHubSchema.statics.createNew = function createNew(gitHubObj, callback) {
     });
 };
 
-GitHubSchema.statics.getGitHubList = function (params, callback) {
-    GitHub.paginate(params.queryObj, params.options, function(err, gitRepoList) {
+CICDDashboardSchema.statics.getCICDDashboardList = function (params, callback) {
+    CICDDashboard.paginate(params.queryObj, params.options, function(err, cicdDashboadList) {
         if (err) {
             logger.error(err);
             var error = new Error('Internal server error');
             error.status = 500;
             return callback(error);
         }
-        GitHub.aggregate([
+        CICDDashboard.aggregate([
             {$match: params.queryObj},
             {
                 $lookup: {
@@ -127,35 +98,35 @@ GitHubSchema.statics.getGitHubList = function (params, callback) {
             {$skip: (params.options.page - 1) * params.options.limit},
             {$limit: params.options.limit},
             {$sort: params.options.sort}
-        ], function (err, gitHubList) {
+        ], function (err, dashboardList) {
             if (err) {
                 callback(err, null);
                 return;
             } else {
-                gitRepoList.docs = gitHubList;
-                callback(null, gitRepoList);
+                cicdDashboadList.docs = dashboardList;
+                callback(null, cicdDashboadList);
                 return;
             }
         });
     });
 };
 
-GitHubSchema.statics.getById = function (gitHubId, callback) {
-    logger.debug('gitHubId-------->',gitHubId);
-    this.findById({'_id': gitHubId},
-        function (err, gitHub) {
+CICDDashboardSchema.statics.getById = function (cicdDashboadId, callback) {
+    logger.debug('cicdDashboadId-------->',cicdDashboadId);
+    this.findById({'_id': cicdDashboadId},
+        function (err, CICDDashboard) {
             if (err) {
                 logger.error(err);
                 return callback(err, null);
             } else {
-                return callback(null, gitHub);
+                return callback(null, CICDDashboard);
             }
         });
 };
 
-GitHubSchema.statics.getGitHubById = function (gitHubId, callback) {
+CICDDashboardSchema.statics.getcicdDashboardId = function (cicdDashboadId, callback) {
     this.aggregate([{
-        $match: {'_id': ObjectId(gitHubId)}
+        $match: {'_id': ObjectId(cicdDashboadId)}
     }, {
         $lookup: {
             from: "d4dmastersnew",
@@ -163,21 +134,21 @@ GitHubSchema.statics.getGitHubById = function (gitHubId, callback) {
             foreignField: "rowid",
             as: "organization"
         }
-    }], function (err, gitHub) {
+    }], function (err, cicdDashboad) {
         if (err) {
             callback(err, null);
             return;
-        } else if (gitHub.length === 0) {
+        } else if (cicdDashboad.length === 0) {
             callback(null, null);
             return;
         } else {
-            return callback(null, gitHub[0]);
+            return callback(null, cicdDashboad[0]);
         }
     });
 };
 
-GitHubSchema.statics.updateGitHub = function (gitHubId, fields, callback) {
-    this.update({'_id': gitHubId}, {$set: fields},
+CICDDashboardSchema.statics.updatecicdDashboad = function (cicdDashboadId, fields, callback) {
+    this.update({'_id': cicdDashboadId}, {$set: fields},
         function (err, result) {
             if (err) {
                 logger.error(err);
@@ -191,8 +162,8 @@ GitHubSchema.statics.updateGitHub = function (gitHubId, fields, callback) {
     );
 };
 
-GitHubSchema.statics.deleteGitHub = function (gitHubId, callback) {
-    this.remove({'_id': gitHubId},
+CICDDashboardSchema.statics.deletecicdDashboad = function (cicdDashboadId, callback) {
+    this.remove({'_id': cicdDashboadId},
         function (err, data) {
             if (err) {
                 logger.error(err);
@@ -203,5 +174,5 @@ GitHubSchema.statics.deleteGitHub = function (gitHubId, callback) {
         }
     );
 };
-var GitHub = mongoose.model('github', GitHubSchema);
-module.exports = GitHub;
+var CICDDashboard = mongoose.model('CicdDashboardServer', CICDDashboardSchema);
+module.exports = CICDDashboard;

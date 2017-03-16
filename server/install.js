@@ -36,8 +36,10 @@ function getDefaultsConfig() {
         catalystAuthHeaderName: 'x-catalyst-auth',
         app_run_port: 3001,
         catalystDataDir: currentDirectory + '/catdata',
+        currentDir:currentDirectory,
         javaLibDir: currentDirectory + '/app',
-        gitHubDir: currentDirectory + '/gitHub/',
+        gitHubDirName: 'gitHub',
+        botLogDir: currentDirectory + '/app/logs/',
         catalysHomeDirName: 'catalyst',
         instancePemFilesDirName: 'instance-pemfiles',
         tempDirName: 'temp',
@@ -528,6 +530,9 @@ function getDefaultsConfig() {
         },
         get scriptDir() {
             return this.catalystHome + this.scriptDirName + "/";
+        },
+        get gitHubDir() {
+            return this.catalystHome + this.gitHubDirName + "/";
         }
     };
     return config;
@@ -744,6 +749,8 @@ proc.on('close', function(code) {
         mkdirp.sync(config.catalystHome);
         mkdirp.sync(config.instancePemFilesDir);
         mkdirp.sync(config.tempDir);
+        mkdirp.sync(config.scriptDir);
+        mkdirp.sync(config.gitHubDir);
         mkdirp.sync(config.chef.chefReposLocation);
         mkdirp.sync(config.chef.cookbooksDir);
         mkdirp.sync(config.puppet.puppetReposLocation);

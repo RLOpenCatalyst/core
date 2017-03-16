@@ -721,6 +721,15 @@ body .botDescriptionPage {
   margin-right:10px;
 }
 
+.scheduleBorder {
+  border: 1px solid #ddd;
+}
+
+.botsExecution {
+  margin-left: 12px;
+  margin-top: 6px;
+}
+
 @-moz-document url-prefix() {
     .search-icon {
       margin-left: -24px!important; 
@@ -775,5 +784,14 @@ body .botDescriptionPage {
     #botLibraryPage .section-bottom-glyph {
       left: 170px;
       
+    }
+    .agent-card .info-cell, .agent-card .desc-cell {
+      width: 325px;
+    }
+    .agent-card .description {
+      width: 330px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
     }
 }

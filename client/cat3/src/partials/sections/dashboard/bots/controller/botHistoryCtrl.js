@@ -21,7 +21,7 @@
             } 
 
             $scope.botDetail = items;
-            $scope.botId = items.botId;
+            $scope.botId = items._id
             
             var botHistoryGrid = uiGridOptionsService.options();
             $scope.paginationParams = botHistoryGrid.pagination;
@@ -69,13 +69,16 @@
             angular.extend($scope, {
                 taskHistoryListView : function() {
                     var param = null;
+                    var url;
+                    url = '/botsNew/' + $scope.botId + '/bots-history?page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder;
+                    
                     if($scope.botDetail.serviceNowCheck == true){
                         param = {
-                            url: '/bots/' + $scope.botId + '/bots-history?serviceNowCheck=true&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                            url: '/botsNew/' + $scope.botId + '/bots-history?serviceNowCheck=true&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
                         };
                     }else{
                         param = {
-                            url: '/bots/' + $scope.botId + '/bots-history?page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                            url: url
                         };
                     }
                     $scope.taskHistoryData.data = [];
@@ -163,27 +166,29 @@
             $scope.getSavedTime();
             
             $scope.historyLogs=function(hist) {
-                if(hist.auditHistoryId || (hist.auditTrailConfig.nodeIdsWithActionLog[0] && hist.auditTrailConfig.nodeIdsWithActionLog[0].actionLogId)) {
-                    var modalInstance = $modal.open({
-                        animation: true,
-                        templateUrl: 'src/partials/sections/dashboard/bots/view/botExecutionLogs.html',
-                        controller: 'botExecutionLogsCtrl as botExecLogCtrl',
-                        backdrop : 'static',
+                if(hist.actionLogId){
+                    var logDetails = {
+                        actionId : hist.actionLogId,
+                        botId: hist.auditId
+                    }
+                    $modal.open({
+                        animate: true,
+                        templateUrl: "src/partials/sections/dashboard/bots/view/botExecutionLogs.html",
+                        controller: "botsExecutionLogsNewCtrl",
+                        backdrop: 'static',
                         keyboard: false,
                         resolve: {
                             items: function() {
                                 return {
-                                    taskId : hist.auditId,
-                                    historyId : hist.auditHistoryId ? hist.auditHistoryId : hist.auditTrailConfig.nodeIdsWithActionLog[0] && hist.auditTrailConfig.nodeIdsWithActionLog[0].actionLogId,
-                                    taskType:hist.auditTrailConfig.executionType
-                                };
+                                    logDetails : logDetails,
+                                    isBotNew : items.isBotsNew
+                                }
                             }
                         }
-                    });
-                    modalInstance.result.then(function(selectedItem) {
-                        $scope.selected = selectedItem;
+                    }).result.then(function() {
+                        console.log('The modal close is not getting invoked currently. Goes to cancel handler');
                     }, function() {
-                        console.log('Modal Dismissed at ' + new Date());
+                        console.log('Cancel Handler getting invoked');
                     });
                 } else {
                     toastr.error("Logs are getting generated. Please wait");
