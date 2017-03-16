@@ -57,6 +57,7 @@ function getGlobalcicdDashboardServers(){
 //when the user clicks on the new button the setting the value to 'new' for the hidden field to know that user is creating the new item..
 $('.addcicddashboardServer').click(function(e) {
     $('#cicddashboardServerForm').trigger('reset');
+    $('#orgName').trigger('change');
     $('.modal-header').find('.modal-title').html('Create New CICD Dashboard Server');
     $('#cicddashboardServerEditHiddenInput').val('new');
     $('#dashboardDbHostName').val('localhost');
@@ -66,7 +67,9 @@ $('.addcicddashboardServer').click(function(e) {
     
     $('#cicddashboardServerEditHiddenInputId').val('');
     var $editModal = $('#modalForcicddashboardServerEdit');
+
     $editModal.modal('show');
+    
    
 });
 
@@ -81,6 +84,12 @@ function getOrganizationList() {
         $('#orgName').html(str);
     });
 }
+
+$('#orgName').change(function(){
+    loadServerDropdown($('#jiraId'),"jiraname","23");
+    loadServerDropdown($('#jenkinsId'),"jenkinsname","20");
+    loadServerDropdown($('#sonarId'),"sonarqubename","31");
+});
 
 //save form for creating a new gitHub item and updation of the gitHub details.
 $('#cicddashboardServerForm').submit(function(e) {
@@ -104,6 +113,9 @@ $('#cicddashboardServerForm').submit(function(e) {
         var newFormData = new FormData();
         var dashboardEditNew = $this.find('#cicddashboardServerEditHiddenInput').val();
         var cicddashboardServerEditHiddenInputId = $form.find('input#cicddashboardServerEditHiddenInputId').val();
+        var jiraServerId = $form.find('select#jiraId').val();
+        var jenkinsServerId = $form.find('select#jenkinsId').val();
+        var sonarServerId = $form.find('select#sonarId').val();
         if (dashboardEditNew === 'edit') {
             url = '../cicd-dashboardservice/' + cicddashboardServerEditHiddenInputId;
             methodName = 'PUT';
@@ -119,6 +131,9 @@ $('#cicddashboardServerForm').submit(function(e) {
                 "dashboardServerUserName": dashboardServerUserName,
                 "dashboardServerPassword": dashboardServerPassword,
                 "dashboardDbHostName": dashboardDbHostName,
+                "jiraServerId":jiraServerId,
+                "jenkinsServerId":jenkinsServerId,
+                "sonarServerId":sonarServerId
           
         }
        
@@ -192,6 +207,30 @@ var validator = $('#cicddashboardServerForm').validate({
     }
 });
 
+function loadServerDropdown($selectObj,keyName,id){
+    $selectObj.html('');
+    $.ajax({
+            type: "get",
+            dataType: "text",
+            async: false,
+            url: serviceURL + "readmasterjsonnew/" + id,
+            success: function(data) {
+                // alert(data.toString());  
+                // debugger;
+                data = JSON.parse(data);
+                for(var i = 0; i < data.length;i++){
+                    if(data[i]['orgname_rowid'][0] == $('#orgName').val())
+                        $selectObj.append('<option value="' + data[i].rowid + '">' + data[i][keyName] + '</option>');
+                }
+            },
+            failure: function(data) {
+                // debugger;
+                //  alert(data.toString());
+            }
+        });
+
+}
+
 //Edit Population
 
 $('#cicdDashboardServerTable tbody').on( 'click', 'button.editcicdDashboardServer', function(){
@@ -204,7 +243,7 @@ $('#cicdDashboardServerTable tbody').on( 'click', 'button.editcicdDashboardServe
     $editModal.find('h4.modal-title').html('Edit CICD Dashboard Server &nbsp;-&nbsp;&nbsp;' + $this.parents('tr').attr('dashboardName'));
     $editModal.find('#dashboardName').val($this.parents('tr').attr('dashboardName')).attr('disabled','true');
     $editModal.find('#dashboardDesc').val($this.parents('tr').attr('dashboardDesc'));
-    $editModal.find('#orgName').empty().append('<option value="'+$this.parents('tr').attr("orgId")+'">'+$this.parents('tr').attr("orgName")+'</option>').attr('disabled','disabled');
+    $editModal.find('#orgName').empty().append('<option value="'+$this.parents('tr').attr("orgId")+'">'+$this.parents('tr').attr("orgName")+'</option>').attr('disabled','disabled').trigger('change');
     $editModal.find('#dashboardServer').val($this.parents('tr').attr('dashboardServer'));
     $editModal.find('#dashboardServerUserName').val($this.parents('tr').attr('dashboardServerUserName'));
     $editModal.find('#dashboardDbHostName').val($this.parents('tr').attr('dashboardDbHostName'));

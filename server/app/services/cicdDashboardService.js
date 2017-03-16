@@ -206,6 +206,9 @@ function formatcicdDashboardResponse(cicdDashboard,callback) {
     formatted.dashboardServer = cicdDashboard.dashboardServer;
     formatted.dashboardServerUserName = cicdDashboard.dashboardServerUserName;
     formatted.dashboardDbHostName = cicdDashboard.dashboardDbHostName;
+    formatted.jiraServerId = cicdDashboard.jiraServerId;
+    formatted.jenkinsServerId = cicdDashboard.jenkinsServerId;
+    formatted.sonarServerId = cicdDashboard.sonarServerId;
     logger.debug(JSON.stringify(cicdDashboard));
      // var cryptoConfig = appConfig.cryptoSettings;
      //    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);

@@ -40,6 +40,21 @@ var CICDDashboardSchema = new Schema({
         trim: true,
         required: true
     },
+    jiraServerId: {
+        type: String,
+        trim: true,
+        required: true
+    },
+    jenkinsServerId: {
+        type: String,
+        trim: true,
+        required: true
+    },
+    sonarServerId: {
+        type: String,
+        trim: true,
+        required: true
+    },
     dashboardServerUserName: {
         type: String,
         trim: true,
