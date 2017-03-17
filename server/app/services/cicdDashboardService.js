@@ -120,6 +120,24 @@ cicdDashboardService.getcicdDashboardServerById = function getcicdDashboardServe
 };
 
 
+cicdDashboardService.getcicdDashboardServerByHost = function getcicdDashboardServerByHost(hostname, callback) {
+    cicdDashboardModel.getcicdDashboardServerByHost(hostname, function (err, cicdDashboard) {
+        if (err) {
+            var err = new Error('Internal Server Error');
+            err.status = 500;
+            return callback(err);
+        } else if (!cicdDashboard) {
+            var err = new Error('CICD Dashboard server not found');
+            err.status = 404;
+            return callback(err);
+        } else{
+            formatcicdDashboardResponse(cicdDashboard,function(formattedData){
+                callback(null, formattedData);
+            });
+        }
+    });
+};
+
 
 cicdDashboardService.getcicdDashboardServerByOrgId = function getcicdDashboardServerByOrgId(cicdDashboardId, callback) {
     cicdDashboardModel.getcicdDashboardServerByOrgId(cicdDashboardId, function (err, cicdDashboards) {

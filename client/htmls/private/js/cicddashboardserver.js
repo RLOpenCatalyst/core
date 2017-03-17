@@ -31,7 +31,7 @@ function getGlobalcicdDashboardServers(){
         "serverSide": true,
         "destroy":true,
         "createdRow": function( row, data ) {
-           $( row ).attr({"dashboardName": data.dashboardName,"dashboardDesc":data.dashboardDesc,"orgId" : data.orgId ,"orgName" : data.orgName,"dashboardId" : data._id,"dashboardServer":data.dashboardServer,"dashboardServerUserName":data.dashboardServerUserName,"dashboardDbHostName":data.dashboardDbHostName
+           $( row ).attr({"dashboardName": data.dashboardName,"dashboardDesc":data.dashboardDesc,"orgId" : data.orgId ,"orgName" : data.orgName,"dashboardId" : data._id,"dashboardServer":data.dashboardServer,"dashboardServerUserName":data.dashboardServerUserName,"dashboardDbHostName":data.dashboardDbHostName,"jiraServerId":data.jiraServerId,"jenkinsServerId":data.jenkinsServerId,"sonarServerId":data.sonarServerId
             });
         },
         "ajax": '/cicd-dashboardservice',
@@ -68,6 +68,10 @@ $('.addcicddashboardServer').click(function(e) {
     $('#cicddashboardServerEditHiddenInputId').val('');
     var $editModal = $('#modalForcicddashboardServerEdit');
 
+    //clearing out saved values from select
+    $editModal.find('#jiraServerId').attr('savedvalue','');
+    $editModal.find('#jenkinsServerId').attr('savedvalue','');
+    $editModal.find('#sonarServerId').attr('savedvalue','');
     $editModal.modal('show');
     
    
@@ -222,6 +226,8 @@ function loadServerDropdown($selectObj,keyName,id){
                     if(data[i]['orgname_rowid'][0] == $('#orgName').val())
                         $selectObj.append('<option value="' + data[i].rowid + '">' + data[i][keyName] + '</option>');
                 }
+                //setting the dropdown to the saved value
+                $selectObj.val($selectObj.attr('savedvalue'));
             },
             failure: function(data) {
                 // debugger;
@@ -243,6 +249,12 @@ $('#cicdDashboardServerTable tbody').on( 'click', 'button.editcicdDashboardServe
     $editModal.find('h4.modal-title').html('Edit CICD Dashboard Server &nbsp;-&nbsp;&nbsp;' + $this.parents('tr').attr('dashboardName'));
     $editModal.find('#dashboardName').val($this.parents('tr').attr('dashboardName')).attr('disabled','true');
     $editModal.find('#dashboardDesc').val($this.parents('tr').attr('dashboardDesc'));
+
+    //setting the saved values into the selects
+    $editModal.find('#jiraId').attr('savedvalue',$this.parents('tr').attr('jiraServerId'));
+    $editModal.find('#jenkinsId').attr('savedvalue',$this.parents('tr').attr('jenkinsServerId'));
+    $editModal.find('#sonarId').attr('savedvalue',$this.parents('tr').attr('sonarServerId'));
+
     $editModal.find('#orgName').empty().append('<option value="'+$this.parents('tr').attr("orgId")+'">'+$this.parents('tr').attr("orgName")+'</option>').attr('disabled','disabled').trigger('change');
     $editModal.find('#dashboardServer').val($this.parents('tr').attr('dashboardServer'));
     $editModal.find('#dashboardServerUserName').val($this.parents('tr').attr('dashboardServerUserName'));
