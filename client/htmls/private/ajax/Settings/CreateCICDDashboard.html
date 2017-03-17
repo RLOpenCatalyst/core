@@ -23,7 +23,7 @@
                                                 <div class="widget-body no-padding">
                                                     <div class="col-lg-6 col-md-6">
                                                         <label for="name">Name:<span class="control-label redSpan">&nbsp;*</span></label>
-                                                        <label id="msgOrgName" style="display:none;color:red;float:right;">Required</label>
+                                                        
                                                         <br>
                                                         <input autofocus name="dashboardName" value="" id="dashboardName" class="form-control" type="text" cdata="catalyst" cat-validation="required,nospecial,max15,nospace">
                                                     </div>
@@ -47,16 +47,22 @@
                                                     </div>
                                                     
                                                     <div class="col-lg-6 col-md-6" style="margin-top:25px;">
-                                                        <label for="">Dashboard Host with Port:<span class="control-label redSpan">&nbsp;*</span></label>
-                                                        <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardUrl"  onchange="getcollectors($(this).val())" class="form-control" type="text" cdata="catalyst" cat-validation="required">
+                                                        <label for="">Dashboard Server:<span class="control-label redSpan">&nbsp;*</span></label>
+                                                        <label id="dashboardServerSpinner" class="hidden" title="Fetching from Dashboard server.."><img class="marginleft5right25" src="img/select2-spinner.gif"></label>
+                                                        <!-- <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardUrl"  onchange="getcollectors($(this).val())" class="form-control" type="text" cdata="catalyst" cat-validation="required"> -->
+                                                         <select id="dashboardServerId" class="chooseOrganization width-100" cdata="catalyst" cat-validation="required">
+                                                         <option value="">Select Dashboard Server</option>
+                                                      </select>
                                                         IP / Hostname : Port
-                                                        <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardLink"   class="form-control hidden" type="text" cdata="catalyst" cat-validation="required">
+                                                        <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardLink"   class="form-control hidden" type="text" cdata="catalyst">
                                                         
                                                         <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardId"   class="form-control hidden" type="text" cdata="catalyst">
+                                                        <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardUrl"   class="form-control hidden" type="text" cdata="catalyst">
+
                                                     </div>
                                                     <div class="clearfix"></div>
                                                     <!-- Widget for Jenkins Starts here -->
-                                                    <div class="col-lg-6 col-md-6" id="jenkins-widget" style="margin-top: 25px; ">
+                                                    <div class="col-lg-6 col-md-6 optionWidget" id="jenkins-widget" style="margin-top: 25px; ">
                                                         <label for="category">Jenkins:</label>
                                                         <div id="divjenkinsjobciid" class="input-group from-control col-md-12 widthBox" cdata="catalyst" style="height: 165px">
                                                             <div class="col-lg-12 col-md-12" style="margin-top:15px;">
@@ -69,7 +75,7 @@
                                                     </div>
                                                     <!-- Widget for Jenkins ends here -->
                                                     <!-- Widget for Jira Starts here -->
-                                                    <div class="col-lg-6 col-md-6" id="jira-widget" style="margin-top: 25px; ">
+                                                    <div class="col-lg-6 col-md-6 optionWidget" id="jira-widget" style="margin-top: 25px; ">
                                                         <label for="category">Jira:</label>
                                                         <div id="divjiraprojectciid" class="input-group from-control col-md-12 widthBox" cdata="catalyst" style="height: 165px">
                                                             <div class="col-lg-12 col-md-12" style="margin-top:15px;">
@@ -88,7 +94,7 @@
                                                     </div>
                                                     <!-- Widget for Jira ends here -->
                                                     <!-- Widget for Bitbucket Starts here -->
-                                                    <div class="col-lg-6 col-md-6" id="github-widget" style="margin-top: 25px; ">
+                                                    <div class="col-lg-6 col-md-6 optionWidget" id="github-widget" style="margin-top: 25px; ">
                                                         <label for="category">Git Hub:</label>
                                                         <div id="divgitciid"  style="height: 165px" class="widthBox">
                                                             <div class="col-lg-12 col-md-12" style="margin-top:15px;">
@@ -103,7 +109,7 @@
                                                         </div>
                                                     </div>
                                                     <!-- Widget for Sonar ends here -->
-                                                    <div class="col-lg-6 col-md-6" id="sonar-widget" style="margin-top: 25px; ">
+                                                    <div class="col-lg-6 col-md-6 optionWidget" id="sonar-widget" style="margin-top: 25px; ">
                                                         <label for="category">SonarQube:</label>
                                                         <div id="divsonarciid" class="input-group from-control col-md-12 widthBox" style="height: 165px">
                                                             <div class="col-lg-12 col-md-12" style="margin-top:15px;">
@@ -115,7 +121,7 @@
                                                         </div>
                                                     </div>
                                                     <!-- Widget for Chef Starts here -->
-                                                    <div class="col-lg-6 col-md-6" id="chef-widget" style="margin-top: 25px; ">
+                                                    <div class="col-lg-6 col-md-6 optionWidget" id="chef-widget" style="margin-top: 25px; ">
                                                         <label for="category">Chef:</label>
                                                         <div id="divcookbookciid" class="input-group from-control col-md-12 widthBox" style="height: 165px">
                                                             <div class="col-lg-12 col-md-12" style="margin-top:15px;">
@@ -162,6 +168,7 @@
                     <!--widget body ends-->
                     <div class="widget-toolbox clearfix">
                         <div class="btn-group pull-right">
+                            <label id="dashboardCreateSpinner" class="pull-left" style="margin-right: 10px;margin-top: 4px;"><img class="marginleft5right25" src="img/select2-spinner.gif" title="Creating and Configuring Dashboard.."></label>
                             <a class="btn btn-default" onclick="window.history.back();" style="margin-right:11px;" id="btncancel">
                                 <i class="ace-icon fa fa-times bigger-110"></i> Cancel
                             </a>
@@ -169,6 +176,7 @@
                             <i class="ace-icon fa fa-check bigger-110"></i>
                             Save
                             </button>
+
                         </div>
                     </div>
                 </div>
@@ -235,6 +243,7 @@ $('#orgname').change(function(e){
     $('#productgroupname').empty();
     var orgId = $('#orgname').find('option:selected').attr('rowid');
     getBusinessGroupDetails(orgId);
+    getDashboardServers(orgId);
 });
 
 $('#productgroupname').change(function(e){
@@ -249,13 +258,62 @@ $('#productgroupname').change(function(e){
 });
 
 
+$('#dashboardServerId').change(function(e){
+    //updating the url field.
+    var slectedDashboardUrl = $('#dashboardServerId').find('option:selected').attr('dashboardurl');
+    if(slectedDashboardUrl)
+    {
+        $('#dashboardUrl').val(slectedDashboardUrl);
+        dashboardURL = slectedDashboardUrl;
+        //Clearning all previous selections.
+        $('#jiraprojectciid').html('<option value="">Select Project Name</option>').select2();
+        $('#jiraversionciid').html('<option value="">Select Project Version</option>').select2();
+        $('#jenkinsjobciid').html('<option value="">Select Job Name</option>').select2();
+        $('#cookbookciid').html('<option value="">Select Cookbook Name</option>').select2();
+        $('#sonarciid').html('<option value="">Select Job Name</option>').select2();
+        $('#repourl').val('');
+        $('#repobranch').val('');
+
+
+        getcollectors(slectedDashboardUrl);
+    }
+});
+
+
+function getDashboardServers(orgId,callback){
+    $.get('/cicd-dashboardservice/orgId/' + orgId, function(dashboardServers){
+
+        var str = ' <option value="">Select Dashboard Server</option>',
+        len = dashboardServers.length;
+        //alert(JSON.stringify(dashboardServers));
+        for (var i = 0; i < dashboardServers.length; i++) {
+            str = str + '<option dashboardurl="' + dashboardServers[i].dashboardServer + '" value="' + dashboardServers[i]._id + '">' + dashboardServers[i].dashboardName + ' [' + dashboardServers[i].dashboardServer + '] </option>';
+        }
+        $('#dashboardServerId').html(str);
+        $('#dashboardServerId').val($('#dashboardServerId').attr('savedvalue')).trigger('change');
+        $('#dashboardServerId').select2();
+        if(!dashboardServers || dashboardServers.length <= 0){
+            if(callback)
+                callback(null);
+        }
+        else{
+            if(callback)
+                callback(dashboardServers.length);
+        }
+    });
+}
+
+
 var dashboardURL='';
 var collecterId=[];
 var dashboardFrom=null;
-function getcollectors(val,collectorItems) {
+var collectorItems = null;
+function getcollectors(val) {
     dashboardURL = val;
     $('#dashboardLink').val('http://' + dashboardURL); //to be updated after dashboard is created.
-   // alert(JSON.stringify(collectorItems));
+  
+   $('#dashboardServerSpinner').removeClass('hidden');
+   $(".optionWidget").hide();
     $.ajax({
             beforeSend: function(xhrObj){
                     xhrObj.setRequestHeader("Dashboard-url",dashboardURL);
@@ -266,7 +324,15 @@ function getcollectors(val,collectorItems) {
             dataType: "json",
             contentType:"json",
             success: function(data){
-
+                    //Hide option widget config if no data
+                    $('#dashboardServerSpinner').addClass('hidden');
+                    if(data.length){
+                        $(".optionWidget").show();
+                    }
+                    else
+                    {
+                        $(".optionWidget").hide();
+                    }
                     for(i=0; i<data.length; i++) {
                         if(data[i].name === "Jiraproject") {
                             $("#jira-widget").show();
@@ -276,7 +342,7 @@ function getcollectors(val,collectorItems) {
                         }
 
                         if(data[i].name === "Hudson"){
-                            jenkinsWidgetOption(data[i].id,collectorItems,collectorItems);
+                            jenkinsWidgetOption(data[i].id,collectorItems);
                         }
                         if(data[i].name === "Chef"){
                             chefWidgetOption(data[i].id,collectorItems,collectorItems);
@@ -300,7 +366,8 @@ function getcollectors(val,collectorItems) {
 
 function dashboardoption(name,collectorItems) {
 
-    $('#jiraprojectciid').html();
+    $('#jiraprojectciid').html('<option value="">Select Project Name</option>').select2();
+    $('#jiraversionciid').html('<option value="">Select Project Version</option>').select2();
 
     $.ajax({
         beforeSend: function(xhrObj){
@@ -344,13 +411,12 @@ function dashboardoption(name,collectorItems) {
             }
         });
 
-
 }
 
 
 function versionOption(projectname,selectedid) {
-     $('#jiraversionciid').html();
-     $('#jiraversionciid').val('');
+     $('#jiraversionciid').html('<option value="">Select Project Version</option>').select2();
+     
      $.ajax({
          beforeSend: function(xhrObj){
              xhrObj.setRequestHeader("Dashboard-url",dashboardURL);
@@ -387,7 +453,7 @@ function versionOption(projectname,selectedid) {
 }
 
 function jenkinsWidgetOption(collectorId,collectorItems) {
-   $('#jenkinsjobciid').html();
+   $('#jenkinsjobciid').html('<option value="">Select Job Name</option>').select2();
    $.ajax({
         beforeSend: function(xhrObj){
                 xhrObj.setRequestHeader("Dashboard-url",dashboardURL);
@@ -421,7 +487,7 @@ function jenkinsWidgetOption(collectorId,collectorItems) {
 }
 
 function chefWidgetOption(collectorId,collectorItems) {
-   $('#cookbookciid').html();
+   $('#cookbookciid').html('<option value="">Select Cookbook Name</option>').select2();
    $.ajax({
         beforeSend: function(xhrObj){
                 xhrObj.setRequestHeader("Dashboard-url",dashboardURL);
@@ -455,7 +521,7 @@ function chefWidgetOption(collectorId,collectorItems) {
 }
 
 function sonarWidgetOption(collectorId,collectorItems) {
-   $('#sonarciid').html();
+   $('#sonarciid').html('<option value="">Select Job Name</option>').select2();
    $.ajax({
         beforeSend: function(xhrObj){
                 xhrObj.setRequestHeader("Dashboard-url",dashboardURL);
@@ -500,8 +566,8 @@ function removeDashboard(dashboardId,callback){
             processData: false,
             dataType: "json",
             contentType:"json",
-            success: function(json){
-                    callback();
+            success: function(json,response){
+                    callback(json);
             }
     });
 
@@ -534,7 +600,15 @@ function removeDashboard(dashboardId,callback){
                  $('#dashboardLink').val('http://' + dashboardURL + "#/dashboard/" + json.id);
                  $('#dashboardId').val(json.id);
                  if(json && Object.keys(json).length >0){
-                     configureDashboard(json.id,json.application.components[0].id);
+                     if(!json.application){
+                        bootbox.alert('Could not create dashboard. Confirm if the dashboard server ' + $('select#dashboardServerId option:selected').text() + ' is online.'); 
+                        $('button:submit').attr('disabled',false);
+                        $("#dashboardCreateSpinner").hide();
+                        return;
+                     }
+                     else{
+                         configureDashboard(json.id,json.application.components[0].id);
+                 }
                  }
              }
          });
@@ -624,6 +698,8 @@ function removeDashboard(dashboardId,callback){
          contentType: 'application/json',
          success: function (json) {
              //save the form only after creation of the dashboard
+             $('button:submit').attr('disabled',false);
+             $("#dashboardCreateSpinner").hide();
              if(json && Object.keys(json).length >0){
                  saveform('30');
              }
@@ -633,7 +709,7 @@ function removeDashboard(dashboardId,callback){
      });
  }
 
- function setoptions(durl,dashboardId,callback){
+ function getDashboardConfig(durl,dashboardId,callback){
     if(dashboardId){
         $.ajax({
             beforeSend: function(xhrObj){
@@ -665,12 +741,6 @@ function removeDashboard(dashboardId,callback){
     }
  }
 
-
-
-
-</script>
-
-<script>
     $(document).ready(function() {
         var url = window.location.href;
         var queryString = url.substring(url.indexOf('?') + 1);
@@ -696,7 +766,7 @@ function removeDashboard(dashboardId,callback){
             $("#msgOrgName").hide();
         });
         readform(30);
-        //to do fix Org selection.
+        $("#dashboardCreateSpinner").hide();
 
         //Force opening the left navigation menu
         if ($('#navSettings').is(":visible") == false) {
@@ -713,13 +783,13 @@ function removeDashboard(dashboardId,callback){
         });
         drawBreadCrumb1();
         enableUniqueCheckingForInputs(30);
-        //updating option sectons for dashboard
-
+        
         if($('#dashboardUrl').val() != ""){
-            
-            setoptions($('#dashboardUrl').val(),$('#dashboardId').val(),
-                function(collectorItems){
-                    getcollectors($('#dashboardUrl').val(),collectorItems)
+            collectorItems = null;
+            getDashboardConfig($('#dashboardUrl').val(),$('#dashboardId').val(),
+                function(cis){
+                   collectorItems = cis;
+                   // getcollectors($('#dashboardUrl').val(),collectorItems)
                 });
         
         }
@@ -839,16 +909,25 @@ function removeDashboard(dashboardId,callback){
 <script>
 function validateandsaveform() {
 
+  //Include validations
+
+
   if (validateForm()) {
-    //Remove existing dashboard
-    if($('#dashboardId').val() != ''){
-        removeDashboard($('#dashboardId').val(),function(){
-            creteDashboard();
-        });
-    }
-    else
-        creteDashboard();
     
+    if(isFormValid('30')){
+        $('button:submit').attr('disabled',true);
+        $("#dashboardCreateSpinner").show();
+        //diabling save.
+        if($('#dashboardId').val() != ''){
+            //Remove existing dashboard
+            removeDashboard($('#dashboardId').val(),function(json){
+                
+                creteDashboard();
+            });
+        }
+        else
+            creteDashboard();
+    }
     return false;
   }
 
@@ -867,7 +946,14 @@ function validateandsaveform() {
             $('#orgname').empty().append('<option rowid="'+data.orgname_rowid[0]+'" value="'+data.orgname[0]+'">'+data.orgname[0]+'</option>').select2().attr('disabled','disabled'); 
 
             var orgIdOnEdit = $('select#orgname option:selected').attr('rowid');
-            getBusinessGroupDetails(orgIdOnEdit,data);            
+            getBusinessGroupDetails(orgIdOnEdit,data); 
+            getDashboardServers(orgIdOnEdit,function(count){
+                if(!count){
+                    bootbox.alert('No Dashboard Servers found. Add a server to continue.'); 
+                    window.history.back();
+                }
+                
+            });           
           });
         }
        $('#myForm55').submit(function() {
