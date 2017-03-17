@@ -8,9 +8,22 @@
 (function (angular) {
     "use strict";
     angular.module('library.params', [])
-    .controller('editParamsCtrl',['$scope', '$rootScope', 'genericServices', 'workzoneServices', 'toastr', '$modalInstance', 'items', 'responseFormatter', '$modal', function ($scope, $rootScope, genSevs, workzoneServices, toastr, $modalInstance, items, responseFormatter, $modal) {
+    .controller('editParamsCtrl',['$scope', '$rootScope', 'genericServices', 'workzoneServices', 'blueprintCreateService', 'toastr', '$modalInstance', 'items', 'responseFormatter', '$modal', function ($scope, $rootScope,  genSevs, workzoneServices, blueprintCreateService,toastr, $modalInstance, items, responseFormatter, $modal) {
+        var appDeployCreate = this;
+        appDeployCreate={
+            newEnt:[],
+            serverRepos:[],
+            groupOptions:[],
+            repositoryOptions:[],
+            artifactsOptions:[],
+            versionsOptions:[],
+            tagOptions:[],
+            artifactsVersion:[],
+            errorMsg:{}
+        };
         $scope.botName = items.botName;
         $scope.taskType = items.botLinkedSubCategory;
+        $scope.botCategory = items.botCategory;
         $scope.taggingServerList=[];
         $scope.envOptions=[];
         workzoneServices.getTaggingServer().then(function (topSer) {
@@ -74,6 +87,114 @@
                 }
             });
         }
+        if(items.botCategory === 'Application Deployment') {
+            
+            appDeployCreate.init = function () {
+                blueprintCreateService.getNexusServerList().then(function(data){
+                    appDeployCreate.serverRepos = data;
+                });
+                blueprintCreateService.getDockerList().then(function(data){
+                    appDeployCreate.serverRepos = appDeployCreate.serverRepos.concat(data);
+                });
+                workzoneServices.getInstanceDetails(items.botConfig.nodeIds[0]).then(function(response){
+                    appDeployCreate.newEnt.hostIP = response.data.instanceIP;
+                })
+            };
+
+            appDeployCreate.getRepository = function(){
+                if (appDeployCreate.newEnt.nexusDockerServer){
+                    appDeployCreate.newEnt.serverType = appDeployCreate.serverRepos[appDeployCreate.newEnt.nexusDockerServer].configType;
+                } else {
+                    appDeployCreate.newEnt.serverType = '';
+                }
+                $scope.isLoadingNexus = true;
+                if(appDeployCreate.newEnt.serverType === 'nexus'){
+                    // create group select box options
+                    appDeployCreate.groupOptions = appDeployCreate.serverRepos[appDeployCreate.newEnt.nexusDockerServer].groupid;
+                    blueprintCreateService.getNexusRepoList(appDeployCreate.serverRepos[appDeployCreate.newEnt.nexusDockerServer].rowid,items.masterDetails.projectId).then(function (data) {
+                        appDeployCreate.repositoryOptions = data;
+                        $scope.isLoadingNexus = false;
+                    });
+                } /*else if(appDeployCreate.newEnt.serverType === 'docker'){
+                    blueprintCreateService.getRepoList(bpCreate.serverRepos[bpCreate.newEnt.nexusDockerServer].rowid).then(function (repositoryResult) {
+                        $scope.isLoadingNexus = false;
+                        blueprintCreation.repositoryOptions = repositoryResult.data[0].repositories.docker;
+                        if(blueprintCreation.repositoryOptions.length === 0){
+                            blueprintCreation.errorMsg= {
+                                text: "Repository is not defined",
+                                type: "warning",
+                                repository:true,
+                                role:"tooltip",
+                                positions:"bottom"
+                            };
+                        }
+                    });
+                }*/
+            };
+
+
+            appDeployCreate.changeRepository = function(){
+                if(appDeployCreate.newEnt.serverType === 'docker') {
+                    var repository=appDeployCreate.newEnt.repositoryIMG.split('/');
+                    appDeployCreate.newEnt.repository=appDeployCreate.newEnt.repositoryIMG;
+                    var tagRep='';
+                    if(appDeployCreate.newEnt.repositoryIMG && appDeployCreate.newEnt.repositoryIMG.indexOf('/') === -1){
+                        tagRep='library';
+                        appDeployCreate.newEnt.image=appDeployCreate.newEnt.repository;
+                    } else {
+                        tagRep=repository[0];
+                        appDeployCreate.newEnt.image=repository[1];
+                    }
+                    $scope.isLoadingDocTag=true;
+                    var requestObject={
+                        dockerId:appDeployCreate.serverRepos[appDeployCreate.newEnt.nexusDockerServer].rowid,
+                        repository:tagRep,
+                        image:appDeployCreate.newEnt.image
+                    };
+                    workzoneServices.getDockerImageTags(requestObject).then(function(tagResult){
+                        appDeployCreate.tagOptions = tagResult.data;
+                        $scope.isLoadingDocTag=false;
+                    });
+                } else {
+                    appDeployCreate.newEnt.repository = appDeployCreate.repositoryOptions[appDeployCreate.newEnt.repositoryInd].id;
+                    appDeployCreate.newEnt.repositoryURL = appDeployCreate.repositoryOptions[appDeployCreate.newEnt.repositoryInd].resourceURI;
+                }
+            };
+
+            appDeployCreate.getArtifacts= function(){
+                $scope.isLoadingArtifacts = true;
+                appDeployCreate.requestData={
+                    nexus:appDeployCreate.serverRepos[appDeployCreate.newEnt.nexusDockerServer].rowid,
+                    repositories:appDeployCreate.newEnt.repository,
+                    group:appDeployCreate.newEnt.groupId
+                };
+                blueprintCreateService.getArtifacts(appDeployCreate.requestData).then(function (artifactsResult) {
+                    var artVerObj=[];
+                    appDeployCreate.atrifactForVersion = artifactsResult;
+                    angular.forEach(artifactsResult,function(val){
+                        artVerObj[val.version]=val;
+                        $scope.checkArtifactVersion = artVerObj[val.version]; 
+                        appDeployCreate.artifactsVersion[val.artifactId]=artVerObj;
+                        if (appDeployCreate.artifactsOptions.indexOf(val.artifactId) === -1) {
+                            appDeployCreate.artifactsOptions.push(val.artifactId);
+                        }
+                    });
+                    $scope.isLoadingArtifacts = false;
+                });
+            };
+            appDeployCreate.getVersions= function(){
+                $scope.isLoadingNexusVersion = true;
+                appDeployCreate.requestData.artifactId = appDeployCreate.newEnt.artifact;
+                    blueprintCreateService.getNexusVersions(appDeployCreate.requestData).then(function (versionsResult) {
+                    appDeployCreate.versionsOptions = versionsResult;
+                    $scope.isLoadingNexusVersion = false;
+                });
+            };
+            appDeployCreate.getResourceURI = function(){
+                appDeployCreate.newEnt.resourceURI = $scope.checkArtifactVersion.resourceURI;
+            };
+            appDeployCreate.init();
+        }
         if (items.botConfig) {
             $scope.jenkinsparams = items.botConfig.parameterized;
             $scope.scriptparams = items.botConfig.scriptDetails;
@@ -128,8 +249,44 @@
                 scriptParams = $scope.scriptparams;
             }
             if (items.botConfig && items.botConfig.taskType === 'chef') {
-                cookbookAttributes = responseFormatter.formatSelectedCookbookAttributes($scope.chefattributes);
-                
+                if($scope.botCategory === 'Application Deployment' && items.botConfig.runlist[0] === 'recipe[deploy_catalyst_3]') {
+                    
+                    var appDeploy = [
+                        {
+                        "name": "Nexus Repo Url",
+                            "jsonObj": {
+                                "rlcatalyst": {
+                                    "nexusUrl": appDeployCreate.newEnt.resourceURI
+                                }
+                            }
+                        },{
+                            "name": "Version",
+                            "jsonObj": {
+                                "rlcatalyst": {
+                                    "version": appDeployCreate.newEnt.version
+                                }
+                            }
+                        },{
+                            "name": "Callback URL for app data ",
+                            "jsonObj": {
+                                "deploy_catalyst_3": {
+                                    "catalystCallbackUrl": "http://neocatalyst.rlcatalyst.com/app-deploy"
+                                }
+                            }
+                        }, {
+                            "name": "applicationNodeIP",
+                            "jsonObj": {
+                                "rlcatalyst": {
+                                    "applicationNodeIP": appDeployCreate.newEnt.hostIP
+                                }
+                            }
+                        }
+                    ]
+                    $scope.chefattributes = appDeploy
+                    cookbookAttributes = $scope.chefattributes;
+                } else {
+                    cookbookAttributes = responseFormatter.formatSelectedCookbookAttributes($scope.chefattributes);
+                }
             }
             if (items.botConfig && items.botConfig.taskType === 'jenkins') {
                 choiceParam = $scope.jenparams;
@@ -143,8 +300,11 @@
                 reqBody.choiceParam = choiceParam;
             } else if (items.botConfig && items.botConfig.taskType === 'chef'){
                 reqBody.tagServer = $scope.tagSerSelected;
-                if ($scope.chefAttributesFlag) {
+                if ($scope.chefAttributesFlag && items.botCategory !== 'Application Deployment') {
                     reqBody.cookbookAttributes = cookbookAttributes;
+                }
+                if(items.botCategory === 'Application Deployment') {
+                    reqBody.cookbookAttributes = cookbookAttributes;   
                 }
             } else  if (items.botConfig && items.botConfig.taskType === 'script') {
                 reqBody.tagServer = $scope.tagSerSelected;
@@ -177,5 +337,6 @@
         $scope.cancel= function() {
             $modalInstance.dismiss('cancel');
         };
+        return appDeployCreate;
     }]);
 })(angular);
