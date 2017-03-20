@@ -1,0 +1,194 @@
+<html>
+  <head>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet"> </link>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"></link>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.11/css/jquery.dataTables.min.css">
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.11/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="../public/js/serviceNow.js"></script>
+    <link rel="stylesheet" href="../public/css/servicenow.css"></link>
+  </head>
+
+  <body>
+    <div class="page-name">
+    Service Now&nbsp;
+          <span class="pull-right">
+          <button type="button" class="btn btn-xs btn-primary cat-btn-update active" id="daily">DAILY</button>
+          <button type="button" class="btn btn-xs btn-primary cat-btn-update" id="weekly">WEEKLY</button>
+          <button type="button" class="btn btn-xs btn-primary cat-btn-update" id="monthly">MONTHLY</button>
+          <button type="button" class="btn btn-xs btn-primary cat-btn-update" title="Refresh">
+          <i class="fa fa-refresh white"></i>
+          </button>
+          </span>
+    </div>
+
+    <div class="borderTop"></div>
+
+    <div class="container summary-container containerBox">
+           <div class="panel-group text-center">
+             <div class="col-lg-2 col-sm-6 width20" style="width: 200px;">
+                   <div class="circle-tile cursor">
+                      <div>
+                          <div class="circle-tile-heading dark-blue">
+                              <i class="fa fa-list-ol fa-fw fa-2x white"></i>
+                          </div>
+                      </div>
+                      <div class="circle-tile-content dark-blue">
+                        <div class="circle-tile-number text-faded">
+                          <span id="total">0</span>
+                        </div>
+                         <div class="circle-tile-description text-faded" title="Total BOTs">
+                             Total Tickets
+                         </div>
+                         <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph dark-blue-glyph selected-section" ></span>
+                      </div>
+                   </div>
+               </div>
+               <div class="col-lg-2 col-sm-6 width20" style="width: 200px;">
+                   <div class="circle-tile cursor">
+                      <div>
+                        <div class="circle-tile-heading green">
+                            <i class="fa fa-hourglass-start fa-fw fa-2x white"></i>
+                        </div>
+                      </div>
+                       <div class="circle-tile-content green">
+                           <div class="circle-tile-number text-faded">
+                            <span id="open">0</span>
+                           </div>
+                           <div class="circle-tile-description text-faded" title="Running BOTs">
+                               Open Tickets
+                           </div>
+                           <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph green-glyph"></span>
+                       </div>
+                   </div>
+               </div>
+              
+               <div class="col-lg-2 col-sm-6 width20" style="width: 200px;">
+                   <div class="circle-tile">            
+                         <div class="circle-tile-heading orange">
+                             <i class="fa fa-hourglass-end fa-fw fa-2x white"></i>
+
+                         </div> 
+                       <div class="circle-tile-content orange">
+                         <div class="circle-tile-number text-faded">
+                             <span id="closed">0</span>
+                           </div>
+                           <div class="circle-tile-description text-faded" title="Time Saved">
+                                Closed Tickets
+                           </div>
+                       </div>
+                   </div>
+               </div>
+               <div class="col-lg-2  col-sm-6 width20" style="width: 200px;">
+                   <div class="circle-tile cursor">
+                        <div>
+                           <div class="circle-tile-heading bg-blue">
+                               <i class="fa fa-hourglass-half fa-fw fa-2x white"></i>
+                           </div>
+                        </div>                   
+                       <div class="circle-tile-content bg-blue">
+                         <div class="circle-tile-number text-faded">
+                            <span id="about_to_miss_sla">0</span>
+                           </div>
+                           <div class="circle-tile-description text-faded" title="Failed BOTs">
+                               About to miss SLA  
+                           </div>
+                           <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph redcard-glyph"></span>
+                       </div>
+                   </div>
+               </div> 
+               <div class="col-lg-2 col-sm-6 width20" style="width: 200px;">
+                   <div class="circle-tile cursor">
+                        <div>
+                           <div class="circle-tile-heading redcard">
+                               <i class="fa fa-hourglass-o fa-2x white"></i>
+                           </div>
+                        </div>
+                       <div class="circle-tile-content redcard">
+                         <div class="circle-tile-number text-faded">
+                               <span="missedSla">0</span>
+                           </div>
+                           <div class="circle-tile-description text-faded" title="Tickets Resolved">
+                               Missed SLA
+                           </div>
+                           <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph bg-blue-glyph"></span>
+                       </div>
+                   </div>
+               </div>
+               <div class="col-lg-2  col-sm-6 width20" style="width: 200px;">
+                   <div class="circle-tile cursor">
+                        <div>
+                           <div class="circle-tile-heading brown">
+                               <i class="fa fa-remove fa-fw fa-2x white"></i>
+                           </div>
+                        </div>                   
+                       <div class="circle-tile-content brown">
+                         <div class="circle-tile-number text-faded">
+                            <span id="unassigned">0</span>
+                           </div>
+                           <div class="circle-tile-description text-faded" title="Failed BOTs">
+                               Unassigned Tickets  
+                           </div>
+                           <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph redcard-glyph"></span>
+                       </div>
+                   </div>
+               </div>  
+           </div>
+          </div>
+
+          <div class="container margin-top-20px">
+            <div class="row">
+            <div class="col-md-8">
+            <div class="progress">
+              <div class="progress-bar active progress-bar-danger" role="progressbar" style="width:5%;background-color: #a94442;">
+                P1
+              </div>
+              <div class="progress-bar active progress-bar-warning" role="progressbar" style="width:10%; background-color: #d9534f;">
+                P2
+              </div>
+              <div class="progress-bar active progress-bar-warning" role="progressbar" style="width:20%">
+                P3
+              </div>
+              <div class="progress-bar active progress-bar-success" role="progressbar" style="width:20%">
+                P4
+              </div>
+              <div class="progress-bar active progress-bar-success" role="progressbar" style="width:45%; 
+    background-color: #00a65a;">
+                P5
+              </div>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="progress">
+              <div class="progress-bar active progress-bar-info" role="progressbar" style="width:100%">Response</div>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="progress">
+              <div class="progress-bar active" role="progressbar" style="width:100%">Resolution</div>
+            </div>
+          </div>
+        </div>
+
+          <div class="borderTop"></div>
+
+          <div class="container">
+          <table id="snTable" class="table table-hover table-bordered text-center" style="background-color:#fff">
+                <thead>
+                      <tr>
+                            <th class="text-center">Incident No</th>
+                            <th class="text-center">Created Date</th>
+                            <th class="text-center">Assigned To</th>
+                            <th class="text-center">Category</th>           
+                            <th class="text-center">Priority</th>
+                            <th class="text-center">Short Description</th>
+                            <th class="text-center">Work Log</th>
+                      </tr>
+                </thead>
+                <tbody id="snInput">
+                </tbody>
+          </table>
+    </div>
+  </body>
+</html>
