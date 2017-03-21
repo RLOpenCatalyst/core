@@ -263,6 +263,7 @@ scriptTaskSchema.methods.execute = function(userName, baseUrl, choiceParam, nexu
                 var scp = new SCP(sshOptions);
                 scp.upload(desPath, '/tmp', function (err) {
                     if (err) {
+                        logger.error(err);
                         var timestampEnded = new Date().getTime();
                         logsDao.insertLog({
                             referenceId: logsReferenceIds,

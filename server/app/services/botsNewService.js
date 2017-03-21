@@ -195,7 +195,7 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
         },
         function(bots,next){
             botId = bots[0]._id;
-            if(reqBody !== null && reqBody !== '' && reqBody.type === 'script'){
+            if(reqBody !== null && reqBody !== '' && bots[0].type === 'script'){
                 encryptedParam(reqBody.params,next);
             }else{
                 next(null,reqBody.params);
@@ -236,10 +236,6 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
                                     scriptExecutor.execute(botDetails[0],auditTrail, userName, executionType, next);
                                 }else if(botDetails[0].type === 'chef'){
                                     chefExecutor.execute(botDetails[0],auditTrail, userName, executionType, next);
-                                }else if(botDetails[0].type === 'jenkins'){
-                                    jenkinsExecutor.execute(botDetails[0],auditTrail, userName, executionType, next);
-                                }else if(botDetails[0].type === 'blueprint'){
-                                    blueprintExecutor.execute(botDetails[0],auditTrail, userName, executionType, next);
                                 }else{
                                     var err = new Error('Invalid BOTs Type');
                                     err.status = 400;

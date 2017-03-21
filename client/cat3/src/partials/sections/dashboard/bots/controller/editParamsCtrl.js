@@ -19,7 +19,6 @@
             var reqBody = {};
             $scope.botParameters = $scope.botParameters.concat($scope.botEditParams);
             reqBody = {
-                type:items.type,
                 params:$scope.botParameters
             };
             var param={
