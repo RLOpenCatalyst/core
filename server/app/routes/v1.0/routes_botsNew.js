@@ -88,11 +88,12 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         if(req.query.executionType && req.query.executionType !== null){
             executionType = req.query.executionType;
         }
+        var hostProtocol = req.protocol + '://' + req.get('host');
+        req.body.params.baseUrl = hostProtocol;
         botsNewService.executeBots(req.params.botId,req.body,req.session.user.cn,executionType,function (err, data) {
             if (err) {
                 return res.status(500).send(err);
             } else {
-                data.botId=req.params.botId;
                 return res.status(200).send(data);
             }
         })

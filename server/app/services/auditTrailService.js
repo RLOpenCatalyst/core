@@ -93,7 +93,7 @@ auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,audi
 }
 
 auditTrailService.updateAuditTrail = function updateAuditTrail(auditType,auditId,auditObj,callback) {
-    if(auditType === 'BOTs'){
+    if(auditType === 'BOTs' || auditType === 'BOTsNew'){
         botAuditTrail.updateBotAuditTrail(auditId,auditObj,function(err,data){
             if(err){
                 logger.error(err);
