@@ -44,25 +44,37 @@
 					</div>
 				</li>
 				<li class="header-right">
-					<div id="header-menu">
-						<div id="userInfo" class="headNavigItem" title="{{appDetails.roleId}}">
+					<div id="settings" class="headNavigItem" ng-if='settingsBool' ui-sref-active='activeSection'>
+						<a>
+							<i class="fa fa-bell white font-size-16"></i><span style="position: absolute;top: 8px;right: 181px;" class="label label-primary">8</span>
+						</a>
+					</div>
+					<div id="header-menu" class="" >
+						<div id="userInfo" class="headNavigItem dropdown-toggle" title="{{appDetails.roleId}}" style="font-size: inherit;"   data-toggle="dropdown">
 							<i class="fa fa-user white"></i>
 							{{appDetails.cn | uppercase}}
 							[{{appDetails.roleId}}]
 						</div>
-						<div id="settings" class="headNavigItem" ng-if='settingsBool' ui-sref-active='activeSection'>
-							<a href="/private/index.html#ajax/Settings/Dashboard.html">
-								<i class="fa fa-cog white"></i> SETTINGS
-							</a>
+
+						<div class="dropdown-menu" style="top:47px;width: 214px;left: initial;" >
+							<ul class="list-group">
+								<li class="list-group-item" >
+									<a href="/private/index.html#ajax/Settings/Dashboard.html">
+										<i class="fa fa-cog"></i> SETTINGS
+									</a>
+								</li>
+								<li class="list-group-item" >
+									<a href="https://catalyst.readthedocs.org" target="_blank" style="color: #000">
+										<i class="fa fa-question "></i> HELP
+									</a>
+								</li>
+								<li class="list-group-item" >
+									<a ng-click="logoutConfirmation();" style="cursor: pointer;"><i class="fa fa-sign-out"></i> Logout</a>
+								</li>
+							</ul>
+
 						</div>
-						<div id="help" class="headNavigItem">
-							<a href="https://catalyst.readthedocs.org" target="_blank">
-								<i class="fa fa-question white"></i> HELP
-							</a>
-						</div>
-						<div id="logout" ng-click="logoutConfirmation();" class="headNavigItem" title="Logout">
-							<i class="fa fa-sign-out white"></i>
-						</div>
+
 					</div>
 				</li>
 			</ul>
