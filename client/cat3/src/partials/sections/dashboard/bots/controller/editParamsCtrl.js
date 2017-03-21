@@ -55,6 +55,20 @@
         $scope.instanceInfo = function($event,instanceDetails) {
             botsCreateService.getInstanceDetails(instanceDetails._id).then(function(response){
                 console.log(response);
+                $modal.open({
+                    animation: true,
+                    templateUrl: 'src/partials/sections/dashboard/bots/view/instanceInfo.html',
+                    controller: 'intanceInfoCtrl',
+                    backdrop: 'static',
+                    keyboard: false,
+                    resolve: {
+                        items: function() {
+                            return instanceDetails;
+                        }
+                    }
+                }).result.then(function(response) {
+                }, function() {
+                });
             });
         }
 
