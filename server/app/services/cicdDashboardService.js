@@ -119,6 +119,51 @@ cicdDashboardService.getcicdDashboardServerById = function getcicdDashboardServe
     });
 };
 
+
+cicdDashboardService.getcicdDashboardServerByHost = function getcicdDashboardServerByHost(hostname, callback) {
+    cicdDashboardModel.getcicdDashboardServerByHost(hostname, function (err, cicdDashboard) {
+        if (err) {
+            var err = new Error('Internal Server Error');
+            err.status = 500;
+            return callback(err);
+        } else if (!cicdDashboard) {
+            var err = new Error('CICD Dashboard server not found');
+            err.status = 404;
+            return callback(err);
+        } else{
+            formatcicdDashboardResponse(cicdDashboard,function(formattedData){
+                callback(null, formattedData);
+            });
+        }
+    });
+};
+
+
+cicdDashboardService.getcicdDashboardServerByOrgId = function getcicdDashboardServerByOrgId(cicdDashboardId, callback) {
+    cicdDashboardModel.getcicdDashboardServerByOrgId(cicdDashboardId, function (err, cicdDashboards) {
+        if (err) {
+            var err = new Error('Internal Server Error');
+            err.status = 500;
+            return callback(err);
+        } else if (!cicdDashboards) {
+            var err = new Error('CICD Dashboard server not found');
+            err.status = 404;
+            return callback(err);
+        } else{
+            var responseFormatted = [];
+            for(var i = 0; i < cicdDashboards.length;i++){
+                formatcicdDashboardResponse(cicdDashboards[i],function(formattedData){
+                    responseFormatted.push(formattedData);
+                    if(responseFormatted.length >= cicdDashboards.length){
+                        callback(null,responseFormatted);
+                    }
+                })
+            }
+            
+        }
+    });
+};
+
 cicdDashboardService.getcicdDashboardServerList = function getcicdDashboardServerList(query, callback) {
     var reqData = {};
     async.waterfall([
@@ -179,11 +224,14 @@ function formatcicdDashboardResponse(cicdDashboard,callback) {
     formatted.dashboardServer = cicdDashboard.dashboardServer;
     formatted.dashboardServerUserName = cicdDashboard.dashboardServerUserName;
     formatted.dashboardDbHostName = cicdDashboard.dashboardDbHostName;
+    formatted.jiraServerId = cicdDashboard.jiraServerId;
+    formatted.jenkinsServerId = cicdDashboard.jenkinsServerId;
+    formatted.sonarServerId = cicdDashboard.sonarServerId;
     logger.debug(JSON.stringify(cicdDashboard));
-     var cryptoConfig = appConfig.cryptoSettings;
-        var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-        formatted.dashboardServerPassword =  cryptography.decryptText(cicdDashboard.dashboardServerPassword, cryptoConfig.decryptionEncoding,
-            cryptoConfig.encryptionEncoding);
+     // var cryptoConfig = appConfig.cryptoSettings;
+     //    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
+     //    formatted.dashboardServerPassword =  cryptography.decryptText(cicdDashboard.dashboardServerPassword, cryptoConfig.decryptionEncoding,
+     //        cryptoConfig.encryptionEncoding);
         callback(formatted);
 };
 

@@ -156,7 +156,6 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 var server = http.createServer(app);
 
-
 //getting socket connection
 var io = socketIo.getInstance(server, {
     log: false,
@@ -222,11 +221,13 @@ io.sockets.on('connection', function(socket) {
 
 var cronTabManager = require('_pr/cronjobs');
 cronTabManager.start();
-/*catalystSync.executeScheduledInstances();
+catalystSync.executeScheduledInstances();
 catalystSync.executeSerialScheduledTasks();
 catalystSync.executeParallelScheduledTasks();
-catalystSync.executeScheduledBots();*/
+catalystSync.executeScheduledBots();
 catalystSync.executeNewScheduledBots();
 server.listen(app.get('port'), function() {
     logger.debug('Express server listening on port ' + app.get('port'));
+    require('_pr/services/noticeService.js').init(io,server.address());
+    //require('_pr/services/noticeService.js').test();
 });

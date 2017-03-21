@@ -68,10 +68,12 @@
         $scope.executeTask = function(){
             var reqBody = {};
             $scope.botParameters = $scope.botParameters.concat($scope.botEditParams);
-            reqBody = $scope.botParameters;
+            reqBody = {
+                params:$scope.botParameters
+            };
             var param={
                 inlineLoader:true,
-                url:'/botsNew/' + items._id + '/execute',
+                url:'/botsNew/' + items.id + '/execute',
                 data: reqBody
             };
             genSevs.promisePost(param).then(function (response) {

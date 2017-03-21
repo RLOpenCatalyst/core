@@ -45,6 +45,24 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         );
     }
 
+    app.get('/cicd-dashboardservice/orgId/:orgId', getcicdDashboardServerByOrgId);
+    function getcicdDashboardServerByOrgId(req, res) {
+        async.waterfall(
+            [
+                function(next) {
+                    cicdDashboardService.getcicdDashboardServerByOrgId(req.params.orgId, next);
+                }
+            ],
+            function(err, results) {
+                if (err) {
+                    res.status(err.status).send(err);
+                } else {
+                    return res.status(200).send(results);
+                }
+            }
+        );
+    }
+
     app.post('/cicd-dashboardservice', validate(cicdDashboardServerValidator.create), createcicdDashboardServer);
 
     function createcicdDashboardServer(req, res) {
