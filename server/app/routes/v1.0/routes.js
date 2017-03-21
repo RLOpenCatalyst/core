@@ -81,6 +81,7 @@ var gitHub = require('./routes_github');
 var routesCICD = require('./routes_d4dMastersCICD');
 var routesDashboardCICD = require('./routes_dashboardcicd');
 var routesCICDDashboardService = require('./routes_cicddashboardserver');
+var botTrasaction = require('./routes_botTransaction');
 /*
  * @TODO
  * Change app to router in internal routes files
@@ -204,6 +205,9 @@ module.exports.setRoutes = function(app) {
     routesDashboardCICD.setRoutes(app,sessionVerificationFunc);
 
     routesCICDDashboardService.setRoutes(app,sessionVerificationFunc);
+
+    botTrasaction.setRoutes(app);
+
 
     app.get('/', function(req, res) {
         res.redirect('/cat3');
