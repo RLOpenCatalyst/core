@@ -1,0 +1,153 @@
+<link rel='stylesheet' href='catalyst/partials/sections/dashboard/bots/bots.css'>
+<div id="editParamsPage" ng-controller="editParamsCtrl">
+	<form class="container summary-container" name="editParamsForm" novalidate ng-submit="editParamsForm.$valid && executeBot()">
+		<fieldset id="botExecution">
+			<div ng-if="botType ==='script'" class="scriptExecution param-table bot-info-wrapper">
+		         <table class="table table-bordered">
+		            <thead>
+		               <tr class="paramRow">
+		                  <th class="th-parameters">Label</th>
+		                  <th class="th-values">Type</th>
+		                  <th class="th-values">Default</th>
+		               </tr>
+		            </thead>
+		            <tbody>
+		               <tr ng-repeat = "botParams in botInfo.inputFormFields">
+		                  <td>{{botParams.label}}</td>
+		                  <td>{{botParams.type}}</td>
+		                  <td ng-init="botEditParams[$index] = botParams.default" style="text-align: left">
+			                	<input ng-if="botParams.type==='text'" type="text" class="width100 cookbook-edit-text" ng-model="botEditParams[$index]"/>
+			                	<input ng-if="botParams.type==='password'" type="password" class="width100 cookbook-edit-text" ng-model="botEditParams[$index]"/>
+			               </td>
+		               </tr>
+		            </tbody>
+		         </table>
+      		</div>
+      		<div ng-if="botType ==='chef'" class="chefExecution scheduleBorder">
+      		<!-- <div class="col-lg-2 col-md-2 margintop8">
+            <label class="botsLabel" for="">Organization:<span class="red">*</span> </label>
+	            <div class="input-groups">
+	                <loading size="small" name="isLoadingServer" type="inline" class="ng-scope" style="display: none;"><span class="catloader inline ng-scope small"><i class="fa fa-spinner fa-spin black"></i></span></loading>
+	                <select name="org" ng-disabled="true" ng-model="IMGNewEnt.org" ng-options="org.name group by org.a for org in organObject" class="chooseProjectExisting width-100 form-control">
+	                    <option value="">Select</option>
+	                </select>
+	            </div>
+        	</div> -->
+	        <div class="col-lg-2 col-md-2 margintop8">
+	            <label class="botsLabel" for="">Business Groups:<span class="red">*</span>
+	            </label>
+	            <div class="input-groups">
+	                <loading size="small" name="isLoadingServer" type="inline" class="ng-scope" style="display: none;"><span class="catloader inline ng-scope small"><i class="fa fa-spinner fa-spin black"></i></span></loading>
+	                <select name="buss" id="bgListInputExisting" class="chooseBGExisting width-100 form-control" ng-options="buss.name group by buss.a for buss in organObject[organObject.indexOf(IMGNewEnt.org)].businessGroups"  ng-model="IMGNewEnt.buss">
+	                    <option value="">Select</option>
+	                </select>
+	            </div>
+	        </div>
+	        <div class="col-lg-2 col-md-2 margintop8">
+	            <label class="botsLabel" for="">Project:<span class="red">*</span>
+	            </label>
+	            <div class="input-groups">
+	                <loading size="small" name="isLoadingServer" type="inline" class="ng-scope" style="display: none;"><span class="catloader inline ng-scope small"><i class="fa fa-spinner fa-spin black"></i></span></loading>
+	                <select name="proj" class="chooseProjectExisting width-100 form-control" ng-options="buss.name group by buss.a for buss in organObject[organObject.indexOf(IMGNewEnt.org)].businessGroups[organObject[organObject.indexOf(IMGNewEnt.org)].businessGroups.indexOf(IMGNewEnt.buss)].projects" ng-model="IMGNewEnt.proj">
+	                    <option value="">Select</option>
+	                </select>
+	            </div>
+	        </div>
+	        <div class="col-lg-2 col-md-2 margintop8">
+	            <label class="botsLabel" for="">Environment:<span class="red">*</span>
+	            </label>
+	            <div class="input-groups">
+	                <loading size="small" name="isLoadingServer" type="inline" class="ng-scope" style="display: none;"><span class="catloader inline ng-scope small"><i class="fa fa-spinner fa-spin black"></i></span></loading>
+	                <select name="proj" class="chooseProjectExisting width-100 form-control" ng-options="env.name group by env.a for env in IMGNewEnt.proj.environments" ng-model="IMGNewEnt.env" required ng-change="getInstanceList();">
+	                    <option value="">Select</option>
+	                </select>
+	            </div>
+	        </div>
+	        <div class="col-lg-12 col-md-12">
+      		<div class="col-lg-6 col-md-6 col-sm-12 margintop15 marginleft15">
+               <div class="panel-group">
+                  <div class="panel panel-default">
+                     <div class="panel-heading" style="height: 40px;"> 
+		                  <form class="pull-right firefoxForm" novalidate name="library-form" ng-submit="searchBotNameCategory('pageNumber')">
+				            <span class="bot-library-search">
+				               <label>&nbsp;
+				                  <input type="search" ng-model="searchText.name" class="bot-search marginleft8" placeholder="Search">
+				                  <i class="fa fa-search search-icon" ng-show="!searchText" ng-click="searchBotNameCategory('pageNumber')"></i>
+				                  <i title="Clear Search" class="fa fa-close search-icon cancel-icon ng-hide" ng-show="searchText" ng-click="clearInstanceSearch()"></i>
+				               </label>
+				            </span>
+				         </form>
+                     </div>
+                     <div class="panel-body bp-panel-body">
+                        <div class="alert alert-info text-center" ng-if="originalInstanceList.length === 0" align="center">No Data Found</div>
+                        <ul ng-if="originalInstanceList.length > 0" class="list-group" ui-sortable>
+                           <li class="list-group-item" ng-repeat="instanceDetails in originalInstanceList | filter :searchText">
+                              <span class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="addInstance(originalInstanceList.indexOf(instanceDetails))" ><i class="fa fa-arrow-right white fa-2" aria-hidden="true"></i></span>
+                              <span class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="instanceInfo($event,instanceDetails)" ><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>
+
+                              <img src="./images/global/chef-import.png" alt="{{instanceDetails.name}}"> &nbsp;{{instanceDetails.name}}
+                           </li>
+                        </ul>
+                     </div>
+                  </div>
+               </div>
+             </div>
+            <div class="col-lg-6 col-md-6 col-sm-12 margintop15">
+               <div class="panel-group">
+                  <div class="panel panel-default">
+                     <div class="panel-heading" style="height: 40px;">
+                        <input type="hidden" ng-model="instanceIds" >
+                        <span>Selected Instances</span> &nbsp;
+                     </div>
+                     <div class="panel-body bp-panel-body">
+                     	<div class="alert alert-info text-center" ng-if="selectedInstanceList.length === 0" align="center">No Data Found</div>
+                        <ul class="list-group" dnd-list="selectedInstanceList" >
+                           <li class="list-group-item bpListComp botsBadge"  ng-repeat="selectedInstance in selectedInstanceList" dnd-draggable="selectedInstance"
+                              dnd-moved="selectedInstanceList.splice($index, 1)"
+                              dnd-effect-allowed="move"
+                              dnd-selected="models.selected = selectedInstance"  ng-class=" {'activeLi':selectInstanceId === selectedInstance._id}">
+                              	<span class="col-lg-12 col-md-12">
+                              	  <span class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="createCBP.instanceInfo($event,selectedInstance)" ><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>
+	                              <span class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="deSelectInstance($event,selectedInstanceList.indexOf(selectedInstance))" ><i class="fa fa-arrow-left fa-2 white" aria-hidden="true"></i></span>
+	                              <span class="badge pull-left" >{{(+selectedInstanceList.indexOf(selectedInstance)) +1}}</span><img class="layersClassComposite" src="./images/global/chef-import.png"  alt="{{selectedInstance.name}}"/> &nbsp;{{selectedInstance.name}}
+                          		</span>
+                          		<div class="info-cell">
+                              		<div class="publisherDesc">{{selectedInstance.orgName}} > {{selectedInstance.bgName}} > {{selectedInstance.projectName}} > {{selectedInstance.environmentName}}
+                              		</div>
+                              	</div>
+                           </li>
+                        </ul>
+                     </div>
+                  </div>
+               </div>
+            </div>
+        </div>
+      		</div>
+			<!-- <div class="col-lg-6 col-md-6 param-table">
+				<h4 style="margin-top: 0px;">Edit Parameters:</h4>
+				<loading size="large" name="" type="block" align="center"></loading>
+				<table class="table table-bordered text-center">
+					<thead>
+					</thead>
+					<tbody>
+						<tr ng-repeat="params in botParams">
+			                <td>
+			                	<span>{{params.label}}</span>
+			                </td>
+			                <td ng-init="botEditParams[$index] = params.default" style="text-align: left">
+			                	<input ng-if="params.type==='text'" type="text" class="cookbook-edit-text" ng-model="botEditParams[$index]"/>
+			                	<input ng-if="params.type==='password'" type="password" class="cookbook-edit-text" ng-model="botEditParams[$index]"/>
+			                </td>
+			            </tr>
+					</tbody>
+				</table>
+			</div> -->
+		</fieldset>
+	
+</form>
+	<div class="pager">
+		<button type="button" class="btn cat-btn-update" ng-disabled="editParamsForm.$invalid" ng-click="executeTask()">
+			<i class="fa fa-check white"></i> Execute
+		</button>
+	</div>
+</div>

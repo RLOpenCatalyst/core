@@ -7,9 +7,9 @@
       <button type="button" title="Refresh" class="btn btn-xs cat-btn-update pull-right refresh-btn" ng-click="RefreshBotsLibrary();">
       <i class="fa fa-refresh white"></i>
       </button>
-      <!-- <button type="button" class="btn btn-xs cat-btn-update pull-right filter-margin" ng-click="isOpenSidebar = !isOpenSidebar">
+      <button type="button" class="btn btn-xs cat-btn-update pull-right filter-margin" ng-click="isOpenSidebar = !isOpenSidebar">
       <i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;Filter
-      </button> -->
+      </button>
       </span>
    </div>
    <div class="borderTop"></div>
@@ -25,6 +25,7 @@
                   <option value="User Management">User Management</option>
                   <option value="DB management">DB Management</option>
                   <option value="Service Management">Service Management</option>
+                  <option value="Application Management">Application Management</option>
                </select>
                <label for="">Action:</label>
                <select class="chooseProjectExisting width-100 form-control marginbottom15" ng-model="botLibAction">
@@ -54,7 +55,7 @@
    <div class="container summary-container containerBox">
        <div class="panel-group text-center">
          <div class="col-lg-2 col-sm-6 width20">
-               <div class="circle-tile cursor">
+               <!-- <div class="circle-tile cursor">
                   <div ng-click="showAllBots()">
                       <div class="circle-tile-heading dark-blue">
                           <i class="fa fa-list-ol fa-fw fa-2x white"></i>
@@ -70,11 +71,19 @@
                      </div>
                      <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph dark-blue-glyph selected-section" ng-class="{'selected-section':totalBotsSelected}"></span>
                   </div>
-               </div>
+               </div> -->
+               <div class="dashboard-stats__item dashboard-stats__item_blue" ng-click="showAllBots()">
+                <i class="fa fa-list"></i>
+                <h3 class="dashboard-stats__title">
+                  <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
+                  <span ng-if="!isBotDetailsLoading" class="count-to" count-to="{{botSummary.totalNoOfBots}}" value="0" duration="1">{{botSummary.totalNoOfBots}}</span> 
+                  <small>Total BOTs</small>
+                </h3>
+              </div>
            </div>
 
            <div class="col-lg-2 col-sm-6 width20">
-               <div class="circle-tile cursor">
+               <!-- <div class="circle-tile cursor">
                   <div ng-click="showBotsRunning('resetPage')">
                     <div class="circle-tile-heading green">
                         <i class="fa fa-cogs fa-fw fa-2x white"></i>
@@ -90,11 +99,19 @@
                        </div>
                        <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph green-glyph" ng-class="{'selected-section':runningBotsselected}"></span>
                    </div>
-               </div>
+               </div> -->
+               <div class="dashboard-stats__item dashboard-stats__item_green" ng-click=" showBotsRunning('resetPage')">
+                <i class="fa fa-cogs"></i>
+                <h3 class="dashboard-stats__title">
+                  <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
+                  <span ng-if="!isBotDetailsLoading" class="count-to" count-to="{{botSummary.totalNoOfRunningBots}}" value="0" duration="1">{{botSummary.totalNoOfRunningBots}}</span> 
+                  <small>Running BOTs</small>
+                </h3>
+              </div>
            </div>
           
            <div class="col-lg-2 col-sm-6 width20">
-               <div class="circle-tile">            
+               <!-- <div class="circle-tile">            
                      <div class="circle-tile-heading orange">
                          <i class="fa fa-save fa-fw fa-2x white"></i>
                      </div> 
@@ -107,10 +124,18 @@
                            Time saved
                        </div>
                    </div>
-               </div>
+               </div> -->
+               <div class="dashboard-stats__item dashboard-stats__item_orange">
+                <i class="fa fa-save"></i>
+                <h3 class="dashboard-stats__title">
+                  <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
+                  <span ng-if="!isBotDetailsLoading" class="count-to">{{botSummary.totalSavedTimeForBots.hours ? botSummary.totalSavedTimeForBots.hours : 0}}h {{botSummary.totalSavedTimeForBots.minutes ? botSummary.totalSavedTimeForBots.minutes : 0}}m</span> 
+                  <small>Time saved</small>
+                </h3>
+              </div>
            </div>
            <div class="col-lg-2 col-sm-6 width20">
-               <div class="circle-tile cursor">
+               <!-- <div class="circle-tile cursor">
                     <div ng-click="showScheduledBots('resetPage')">
                        <div class="circle-tile-heading bg-blue">
                            <i class="fa fa-power-off fa-2x white"></i>
@@ -126,10 +151,18 @@
                        </div>
                        <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph bg-blue-glyph" ng-class="{'selected-section':scheduledBotsSelected}"></span>
                    </div>
-               </div>
+               </div> -->
+               <div class="dashboard-stats__item dashboard-stats__item_bg-blue" ng-click="showScheduledBots('resetPage')">
+                <i class="fa fa-power-off"></i>
+                <h3 class="dashboard-stats__title">
+                  <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
+                  <span ng-if="!isBotDetailsLoading" class="count-to" count-to="{{botSummary.totalNoOfServiceNowTickets}}" value="0" duration="1">{{botSummary.totalNoOfServiceNowTickets}}</span> 
+                  <small>Tickets Resolved</small>
+                </h3>
+              </div>
            </div>  
             <div class="col-lg-2 col-sm-6 width20">
-               <div class="circle-tile cursor">
+               <!-- <div class="circle-tile cursor">
                     <div ng-click="showFailedBots('resetPage')">
                        <div class="circle-tile-heading redcard">
                            <i class="fa fa-remove fa-fw fa-2x white"></i>
@@ -145,14 +178,22 @@
                        </div>
                        <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph redcard-glyph" ng-class="{'selected-section':failedBotsselected}"></span>
                    </div>
-               </div>
+               </div> -->
+               <div class="dashboard-stats__item dashboard-stats__item_red" ng-click="showFailedBots('resetPage')">
+                <i class="fa fa-remove"></i>
+                <h3 class="dashboard-stats__title">
+                  <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
+                  <span ng-if="!isBotDetailsLoading" class="count-to" count-to="{{botSummary.totalNoOfFailedBots}}" value="0" duration="1">{{botSummary.totalNoOfFailedBots}}</span> 
+                  <small>Failed BOTs</small>
+                </h3>
+              </div>
            </div>    
        </div>
    </div>
    <!--panel description along with search ends here-->
    <!-- cards section-->
-   <div  class="botsWidth">
-      <div class="marginleft35 botsWidth boxBots box-infobox" style="border-top-color:floralwhite"></div>
+    <div class="botsWidth">
+      <div class="marginleft35 margintop8 botsWidth  box-infobox" style="border-top-color:floralwhite"></div>
       <div class="gallery-header top-stats marginCheck">
           <button type="button" class="font-size-16 tabReadme btn btn-link {{botsCardViewSelection}}" title="Card View" ng-click="setCardView('pageReset')"  >
               <i class="fa fa-th black"></i>
@@ -198,9 +239,9 @@
                   <div title="{{botsDetails.desc ? botsDetails.desc:botsDetails.botDesc}}" class="description">{{botsDetails.desc ? botsDetails.desc:botsDetails.botDesc}}</div>
                </div>
                <div class="pull-left botsExecution" ng-if="botsDetails.executionCount">Total Runs:&nbsp;<span>{{botsDetails.executionCount}}</div>
-               <div class="pull-right" style="margin-top:5px;">
+               <!-- <div class="pull-right" style="margin-top:5px;">
                   <a class="margin10 cursor" ng-click="launchInstance(botsDetails);" title="Execute"><i class="fa fa-play font-size-20"></i></a>
-               </div>
+               </div> -->
             </a>
          </div>
       </div>
@@ -209,7 +250,7 @@
       <div ng-show="showRecords && isCardViewActive" class="pull-right" style="margin-top:34px;">
          <div class="alert alert-success pull-left small">{{statusBar}}</div>
       </div>
-   </div>
+    </div>   
    <!--cards section ends here-->
 
    <!--table section start here-->
