@@ -26,8 +26,6 @@ var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
 var auditTrailService = require('_pr/services/auditTrailService.js');
 var scriptExecutor = require('_pr/engine/bots/scriptExecutor.js');
 var chefExecutor = require('_pr/engine/bots/chefExecutor.js');
-var jenkinsExecutor = require('_pr/engine/bots/jenkinsExecutor.js');
-var blueprintExecutor = require('_pr/engine/bots/blueprintExecutor.js');
 var logsDao = require('_pr/model/dao/logsdao.js');
 
 const fileHound= require('filehound');
