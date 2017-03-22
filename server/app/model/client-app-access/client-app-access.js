@@ -88,6 +88,6 @@ ClientAppAccessSchema.statics.updateTransaction = function updateTransaction(id,
     });
 }
 
-var BotTransaction = mongoose.model('botTransaction', ClientAppAccessSchema);
+var BotTransaction = mongoose.model('ClientAppAccess', ClientAppAccessSchema);
 
 module.exports = BotTransaction;

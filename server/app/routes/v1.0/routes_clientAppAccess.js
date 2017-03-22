@@ -39,7 +39,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     return next(err);
                 }
                 var base64 = new Buffer(JSON.stringify(data.params)).toString('base64');
-                res.redirect(data.catalystUrl + '?token=' + tokenData.token + '&params=' + base64);
+                res.redirect(data.catalystUrl + '?ttok=' + tokenData.token + '&params=' + base64);
             });
         });
     }
