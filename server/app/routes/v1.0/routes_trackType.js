@@ -22,7 +22,7 @@ var errorResponses = require('./error_responses');
 
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
-    app.all('/trackType/*', sessionVerificationFunc);
+    app.all('/trackType*', sessionVerificationFunc);
 
     // Get all track
     app.get('/trackType', function(req, res) {

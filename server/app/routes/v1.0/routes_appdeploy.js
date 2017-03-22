@@ -24,7 +24,7 @@ var validate = require('express-validation');
 var taskService = require('_pr/services/taskService.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
-    app.all('/app-deploy/*', sessionVerificationFunc);
+    app.all('/app-deploy*', sessionVerificationFunc);
 
     // Get all AppDeploy
     app.get('/app-deploy', function(req, res) {
