@@ -54,7 +54,6 @@
 
         $scope.instanceInfo = function($event,instanceDetails) {
             botsCreateService.getInstanceDetails(instanceDetails._id).then(function(response){
-                console.log(response);
                 $modal.open({
                     animation: true,
                     templateUrl: 'src/partials/sections/dashboard/bots/view/instanceInfo.html',
@@ -76,7 +75,6 @@
             $event.stopPropagation();
             $scope.originalInstanceList.push($scope.selectedInstanceList[indexArr]);
             $scope.selectedInstanceList.splice(indexArr,1);
-
         };
 
         $scope.executeTask = function(){
@@ -91,16 +89,34 @@
                 data: reqBody
             };
             genSevs.promisePost(param).then(function (response) {
-                $modalInstance.close(response);
+                $modal.open({
+                    animation: true,
+                    templateUrl: 'src/partials/sections/dashboard/bots/view/botExecutionLogs.html',
+                    controller: 'botsExecutionLogsNewCtrl',
+                    backdrop: 'static',
+                    keyboard: false,
+                    resolve: {
+                        items: function() {
+                            return {
+                                logDetails : response,
+                                isBotNew : items
+                            }
+                        }
+                    }
+                }).result.then(function(response) {
+                }, function() {
+                });
                 $rootScope.$emit('BOTS_LIBRARY_REFRESH');
                 botsCreateService.getBOTDetails(items._id).then(function(response){
-                    for(var i=0;i<response.data.bots.length;i++) {
-                        var botObj = response.data.bots[i];
+                    for(var i=0;i<response.bots.length;i++) {
+                        var botObj = response.bots[i];
                         $rootScope.$emit('BOTS_DESCRIPTION_REFRESH', botObj);   
                     }
-                });    
+                });
+                $scope.botParameters = [];    
             },
             function (error) {
+                $scope.botParameters = [];
                 if(error) {
                     error = error.responseText || error;
                     if (error.message) {

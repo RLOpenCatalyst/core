@@ -28,6 +28,18 @@
 				};
 				return genericServices.promiseGet(params);
 			};
+
+			botService.getBotLogs = function (botId, botsHistoryId, timestamp) {
+				var urlParam = '';
+				if (timestamp) {
+					urlParam = 'timestamp=' + timestamp;
+				}
+				var params = {
+					url: '/botsNew/' + botId + '/bots-History/' + botsHistoryId +'/logs?' + urlParam,
+					inlineLoader:true
+				};
+				return genericServices.promiseGet(params);
+			};
 			
         }]);
 })(angular);
