@@ -362,13 +362,11 @@ module.exports.setRoutes = function(app) {
 
 
     var verifySession = function verifySession(req, res, next) {
-        console.log('here top');
         if (req.session && req.session.user) {
             next();
         } else {
             var token = req.headers[appConfig.catalystAuthHeaderName];
             var tempToken = req.query.ttok; // getting temp token
-            console.log('here else');
             if (token) {
                 AuthToken.findByToken(token, function(err, authToken) {
                     if (err) {
@@ -379,6 +377,7 @@ module.exports.setRoutes = function(app) {
                     if (authToken) {
                         req.session.user = authToken.sessionData;
                         next();
+                        req.session.destroy();
                     } else {
                         logger.debug("No Valid Session for User - 403");
                         res.send(403);
@@ -395,6 +394,7 @@ module.exports.setRoutes = function(app) {
                     if (tempTokenData) {
                         req.session.user = tempTokenData.sessionData;
                         next();
+                        req.session.destroy();
                     } else {
                         logger.debug("No Valid Session for User - 403");
                         res.send(403);
