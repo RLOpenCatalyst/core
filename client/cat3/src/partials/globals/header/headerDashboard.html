@@ -44,10 +44,19 @@
 					</div>
 				</li>
 				<li class="header-right">
-					<div id="settings" class="headNavigItem" ng-if='settingsBool' ui-sref-active='activeSection'>
-						<a>
-							<i class="fa fa-bell white font-size-16"></i><span style="position: absolute;top: 8px;right: 181px;" class="label label-primary">8</span>
+
+
+					<div id="settings" class="headNavigItem btn-group btn-group-inline" ng-if='settingsBool' ui-sref-active='activeSection'>
+						<a class="dropdown-toggle" data-toggle="dropdown">
+							<i class="fa fa-bell white font-size-20" style="font-size: 20px;"></i><span style="position: absolute;top: -2px;right: -8px;font-size: 12px;" class="label label-primary">8</span>
 						</a>
+						<div class="list-group dropdown-menu btn-block" style="width: 230px;top: 38px; left: inherit;">
+							<a class="list-group-item" href="#">Reason 1</a>
+							<a class="list-group-item" href="#">Reason 2</a>
+							<a class="list-group-item" href="#">Reason 3</a>
+							<a class="list-group-item" href="#">Reason 2</a>
+							<a class="list-group-item" href="#">Reason 3</a>
+						</div>
 					</div>
 					<div id="header-menu" class="" >
 						<div id="userInfo" class="headNavigItem dropdown-toggle" title="{{appDetails.roleId}}" style="font-size: inherit;"   data-toggle="dropdown">
@@ -55,23 +64,16 @@
 							{{appDetails.cn | uppercase}}
 							[{{appDetails.roleId}}]
 						</div>
+						<div class="list-group dropdown-menu" style="top:47px;width: 214px;left: initial;">
 
-						<div class="dropdown-menu" style="top:47px;width: 214px;left: initial;" >
-							<ul class="list-group">
-								<li class="list-group-item" >
-									<a href="/private/index.html#ajax/Settings/Dashboard.html">
-										<i class="fa fa-cog"></i> SETTINGS
-									</a>
-								</li>
-								<li class="list-group-item" >
-									<a href="https://catalyst.readthedocs.org" target="_blank" style="color: #000">
-										<i class="fa fa-question "></i> HELP
-									</a>
-								</li>
-								<li class="list-group-item" >
-									<a ng-click="logoutConfirmation();" style="cursor: pointer;"><i class="fa fa-sign-out"></i> Logout</a>
-								</li>
-							</ul>
+							<a class="list-group-item" href="/private/index.html#ajax/Settings/Dashboard.html">
+								<i class="fa fa-cog"></i> SETTINGS
+							</a>
+							<a class="list-group-item" href="https://catalyst.readthedocs.org" target="_blank" style="color: #000">
+								<i class="fa fa-question "></i> HELP
+							</a>
+
+							<a class="list-group-item cursor" ng-click="logoutConfirmation();" ><i class="fa fa-sign-out"></i> Logout</a>
 
 						</div>
 
