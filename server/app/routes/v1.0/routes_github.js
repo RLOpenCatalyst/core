@@ -17,7 +17,7 @@ var gitHubValidator = require('_pr/validators/gitHubValidator');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
-    app.all('/git-hub/*', sessionVerificationFunc);
+    app.all('/git-hub*', sessionVerificationFunc);
 
     /**
      * @api {get} /git-hub/ List all Git-Hub Repository

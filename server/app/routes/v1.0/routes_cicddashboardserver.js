@@ -4,7 +4,7 @@ var validate = require('express-validation');
 var cicdDashboardServerValidator = require('_pr/validators/cicdDashboardServerValidator');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
-	app.all('/cicd-dashboardservice/*', sessionVerificationFunc);
+	app.all('/cicd-dashboardservice*', sessionVerificationFunc);
 
 
 

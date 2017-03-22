@@ -36,7 +36,7 @@ var settingsService = require('_pr/services/settingsService');
 
 module.exports.setRoutes = function(app, verificationFunc) {
 
-    app.all('/servicenow/*', verificationFunc);
+    app.all('/servicenow*', verificationFunc);
 
     app.get('/servicenow/:serverId/importData', function(req, res) {
         logger.info("ServiceNow Data fetch Call....");
