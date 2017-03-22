@@ -14,6 +14,11 @@
 		<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 			<ul class="nav navbar-nav header-content">
 				<li>
+					<div id="service" class="headNavigItem" ng-if="serviceBool" ui-sref='dashboard.bots' ui-sref-active='activeSection'>
+						<i class="fa fa-delicious white" ng-class="{'header-selected-item':moduleSelection.filterView.bots}"></i> BOTS
+					</div>
+				</li>
+				<li>
 					<div id="workzone" class="headNavigItem" ng-if="workZoneBool" ui-sref='dashboard.workzone' ui-sref-active='activeSection'>
 						<!--<a href="../../../../#ajax/Dev.html">-->
 							<i class="fa fa-credit-card white" ng-class="{'header-selected-item':moduleSelection.filterView.workzone}"></i> WORKZONE
@@ -38,31 +43,41 @@
 						<i class="fa fa-cloud white"></i> CLOUD
 					</div>
 				</li>
-				<li>
-					<div id="service" class="headNavigItem" ng-if="serviceBool" ui-sref='dashboard.bots' ui-sref-active='activeSection'>
-						<i class="fa fa-delicious white" ng-class="{'header-selected-item':moduleSelection.filterView.bots}"></i> BOTS
-					</div>
-				</li>
+
 				<li class="header-right">
-					<div id="header-menu">
-						<div id="userInfo" class="headNavigItem" title="{{appDetails.roleId}}">
+
+
+					<div id="settings" class="headNavigItem btn-group btn-group-inline" ng-if='settingsBool' ui-sref-active='activeSection'>
+						<a class="dropdown-toggle" data-toggle="dropdown">
+							<i class="fa fa-bell white font-size-20" style="font-size: 20px;"></i><span style="position: absolute;top: -2px;right: -8px;font-size: 12px;" class="label label-primary">8</span>
+						</a>
+						<div class="list-group dropdown-menu btn-block" style="width: 230px;top: 38px; left: inherit;">
+							<a class="list-group-item" href="#">Reason 1</a>
+							<a class="list-group-item" href="#">Reason 2</a>
+							<a class="list-group-item" href="#">Reason 3</a>
+							<a class="list-group-item" href="#">Reason 2</a>
+							<a class="list-group-item" href="#">Reason 3</a>
+						</div>
+					</div>
+					<div id="header-menu" class="" >
+						<div id="userInfo" class="headNavigItem dropdown-toggle" title="{{appDetails.roleId}}" style="font-size: inherit;"   data-toggle="dropdown">
 							<i class="fa fa-user white"></i>
 							{{appDetails.cn | uppercase}}
 							[{{appDetails.roleId}}]
 						</div>
-						<div id="settings" class="headNavigItem" ng-if='settingsBool' ui-sref-active='activeSection'>
-							<a href="/private/index.html#ajax/Settings/Dashboard.html">
-								<i class="fa fa-cog white"></i> SETTINGS
+						<div class="list-group dropdown-menu" style="top:47px;width: 214px;left: initial;">
+
+							<a class="list-group-item" href="/private/index.html#ajax/Settings/Dashboard.html">
+								<i class="fa fa-cog"></i> SETTINGS
 							</a>
-						</div>
-						<div id="help" class="headNavigItem">
-							<a href="https://catalyst.readthedocs.org" target="_blank">
-								<i class="fa fa-question white"></i> HELP
+							<a class="list-group-item" href="https://catalyst.readthedocs.org" target="_blank" style="color: #000">
+								<i class="fa fa-question "></i> HELP
 							</a>
+
+							<a class="list-group-item cursor" ng-click="logoutConfirmation();" ><i class="fa fa-sign-out"></i> Logout</a>
+
 						</div>
-						<div id="logout" ng-click="logoutConfirmation();" class="headNavigItem" title="Logout">
-							<i class="fa fa-sign-out white"></i>
-						</div>
+
 					</div>
 				</li>
 			</ul>
