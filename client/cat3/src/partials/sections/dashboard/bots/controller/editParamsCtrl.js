@@ -8,13 +8,77 @@
 (function (angular) {
     "use strict";
     angular.module('library.params', [])
-    .controller('editParamsCtrl',['$scope', '$rootScope', '$state', 'genericServices', 'workzoneServices', 'toastr', '$modalInstance', 'items', 'responseFormatter', '$modal', function ($scope, $rootScope, $state,genSevs, workzoneServices, toastr, $modalInstance, items, responseFormatter, $modal) {
+    .controller('editParamsCtrl',['$scope', '$rootScope', '$state', 'genericServices', 'botsCreateService', 'workzoneServices', 'toastr', '$modal', function ($scope, $rootScope, $state, genSevs, botsCreateService,workzoneServices, toastr, $modal) {
+        
+        var items;
+
+        $rootScope.$on('BOTS_TEMPLATE_SELECTED', function(event,reqParams) {
+            $scope.templateSelected = reqParams;
+        });
+        
+        if($scope.templateSelected) {
+            items = $scope.templateSelected;
+        }    
+        
         $scope.botName = items.name;
         $scope.botParams = items.inputFormFields;
         $scope.botEditParams = [];
         $scope.botParameters = [];
-        
-        
+        $scope.botType = items.type;
+        $scope.botInfo = $scope.templateSelected;
+        $scope.selectedInstanceList = [];
+
+        $scope.IMGNewEnt={
+            org:$rootScope.organObject[0],
+            buss:$rootScope.organObject[0].businessGroups[0],
+            proj:$rootScope.organObject[0].businessGroups[0].projects[0],
+            env:$rootScope.organObject[0].businessGroups[0].projects[0].environments[0]
+        };
+
+        $scope.getInstanceList = function() {
+            botsCreateService.getCurrentEnvInstances($scope.IMGNewEnt.org.orgid,$scope.IMGNewEnt.buss.rowid,$scope.IMGNewEnt.proj.rowId,$scope.IMGNewEnt.env.rowid).then(function(response){
+                if(response){
+                    $scope.originalInstanceList = response;    
+                }
+                else {
+                    $scope.originalInstanceList = [];   
+                }
+                
+            });
+        };
+
+        $scope.addInstance = function (indexArr) {
+            $scope.selectedInstanceList.push($scope.originalInstanceList[indexArr]);
+            $scope.originalInstanceList.splice(indexArr,1);
+        };
+
+        $scope.instanceInfo = function($event,instanceDetails) {
+            botsCreateService.getInstanceDetails(instanceDetails._id).then(function(response){
+                console.log(response);
+                $modal.open({
+                    animation: true,
+                    templateUrl: 'src/partials/sections/dashboard/bots/view/instanceInfo.html',
+                    controller: 'intanceInfoCtrl',
+                    backdrop: 'static',
+                    keyboard: false,
+                    resolve: {
+                        items: function() {
+                            return instanceDetails;
+                        }
+                    }
+                }).result.then(function(response) {
+                }, function() {
+                });
+            });
+        }
+
+        $scope.deSelectInstance = function ($event,indexArr){
+            $event.stopPropagation();
+            $scope.originalInstanceList.push($scope.selectedInstanceList[indexArr]);
+            $scope.selectedInstanceList.splice(indexArr,1);
+
+        };
+
         $scope.executeTask = function(){
             var reqBody = {};
             $scope.botParameters = $scope.botParameters.concat($scope.botEditParams);
@@ -29,7 +93,7 @@
             genSevs.promisePost(param).then(function (response) {
                 $modalInstance.close(response);
                 $rootScope.$emit('BOTS_LIBRARY_REFRESH');
-                workzoneServices.getBOTDetails(items._id).then(function(response){
+                botsCreateService.getBOTDetails(items._id).then(function(response){
                     for(var i=0;i<response.data.bots.length;i++) {
                         var botObj = response.data.bots[i];
                         $rootScope.$emit('BOTS_DESCRIPTION_REFRESH', botObj);   
@@ -51,5 +115,10 @@
         $scope.cancel= function() {
             $modalInstance.dismiss('cancel');
         };
+
+        $scope.init = function() {
+            $scope.getInstanceList();
+        };
+        $scope.init();
     }]);
 })(angular);
