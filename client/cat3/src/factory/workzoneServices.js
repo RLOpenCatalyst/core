@@ -190,10 +190,6 @@
 					var url = '/botsNew/' + botId + '/bots-History/' + botsHistoryId +'/logs?' + urlParam;
 					return $http.get(fullUrl(url), Auth.getHeaderObject());	
 				},
-				getBOTDetails: function(botId) {
-					var url = '/botsNew?filterBy=_id:' + botId;
-					return $http.get(fullUrl(url), Auth.getHeaderObject);
-				},
 				/*controlPanelCtrl*/
 				getChefServerDetails: function (chefServerId) {
 					var url = '/d4dMasters/19/chefserverid/' + chefServerId;

@@ -22,7 +22,7 @@ var uuid = require('node-uuid');
 var fileUpload = require('_pr/model/file-upload/file-upload');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
-    app.all('/fileUpload/*', sessionVerificationFunc);
+    app.all('/fileUpload*', sessionVerificationFunc);
 
     app.post('/fileUpload', function(req, res) {
         if(req.files && req.files.file) {

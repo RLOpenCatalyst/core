@@ -87,6 +87,10 @@
                     param: {
                         "title": "Param",
                         "url": "src/partials/sections/dashboard/bots/tabs/param.html"
+                    },
+                    execute: {
+                        "title": "Execute",
+                        "url": "src/partials/sections/dashboard/bots/tabs/editParams.html"
                     }, 
                     report: {
                         "title": "Report",
@@ -95,11 +99,11 @@
                     schedule: {
                         "title": "Schedule",
                         "url": "src/partials/sections/dashboard/bots/tabs/schedule.html"
-                    }/*, 
+                    }, 
                     settings: {
                         "title": "Settings",
                         "url": "src/partials/sections/dashboard/bots/tabs/settings.html"
-                    }*/
+                    }
                 }
             };
             $scope.tab = botsTab;

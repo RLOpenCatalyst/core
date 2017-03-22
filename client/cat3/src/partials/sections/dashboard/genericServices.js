@@ -169,7 +169,7 @@
             }
         };
 
-        genericServices.executeTask =function(task) {
+        /*genericServices.executeTask =function(task) {
             $modal.open({
                 animation: true,
                 templateUrl: 'src/partials/sections/dashboard/bots/view/editParams.html',
@@ -203,7 +203,7 @@
                 });
             }, function() {
             });
-        };
+        };*/
 
         genericServices.launchBlueprint=function(blueprintObj) {
             $modal.open({
