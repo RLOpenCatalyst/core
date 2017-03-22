@@ -40,39 +40,7 @@ var chefExecutor = module.exports = {};
 
 chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executionType,callback) {
     var actionId = uuid.v4();
-    var logsReferenceIds = [botsDetails._id, actionId];
-    var botLogFile = appConfig.botLogDir + actionId;
-    var fileName = 'botExecution.log';
-    var winston = require('winston');
-    var path = require('path');
-    var mkdirp = require('mkdirp');
-    var log_folder = path.normalize(botLogFile);
-    mkdirp.sync(log_folder);
-    var botLogger = new winston.Logger({
-        transports: [
-            new winston.transports.DailyRotateFile({
-                level: 'debug',
-                datePattern: '',
-                filename: fileName,
-                dirname:log_folder,
-                handleExceptions: true,
-                json: true,
-                maxsize: 5242880,
-                maxFiles: 5,
-                colorize: true,
-                timestamp:false,
-                name:'bot-execution-log'
-            }),
-            new winston.transports.Console({
-                level: 'debug',
-                handleExceptions: true,
-                json: false,
-                colorize: true,
-                name:'bot-console'
-            })
-        ],
-        exitOnError: false
-    });
+    var logsReferenceIds = [actionId,botsDetails._id]
     var count = 0;
     for(var i = 0; i < botsDetails.params.nodeIds.length; i++){
         (function(instanceId){
@@ -122,7 +90,6 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
                         log: "Instance IP is not defined. Chef Client run failed",
                         timestamp: timestampEnded
                     });
-                    botLogger.error("Instance IP is not defined. Chef Client run failed");
                     instanceModel.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
                     instanceLog.endedOn = new Date().getTime();
                     instanceLog.actionStatus = "failed";
@@ -155,7 +122,6 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
                             log: "Chef Data Corrupted. Chef Client run failed",
                             timestamp: timestampEnded
                         });
-                        botLogger.error("Chef Data Corrupted. Chef Client run failed");
                         instanceModel.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
                         instanceLog.endedOn = new Date().getTime();
                         instanceLog.actionStatus = "failed";
@@ -187,7 +153,6 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
                             log: "Chef Data Corrupted. Chef Client run failed",
                             timestamp: timestampEnded
                         });
-                        botLogger.error("Chef Data Corrupted. Chef Client run failed");
                         instanceModel.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
                         instanceLog.endedOn = new Date().getTime();
                         instanceLog.actionStatus = "failed";
@@ -220,7 +185,6 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
                                 log: "Unable to decrypt pem file. Chef run failed",
                                 timestamp: timestampEnded
                             });
-                            botLogger.error("Unable to decrypt pem file. Chef run failed");
                             instanceModel.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
                             instanceLog.endedOn = new Date().getTime();
                             instanceLog.actionStatus = "failed";
@@ -256,7 +220,6 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
                                     log: "Unable to generate chef run execution id. Chef run failed",
                                     timestamp: timestampEnded
                                 });
-                                botLogger.error("Unable to generate chef run execution id. Chef run failed");
                                 instanceModel.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
                                 instanceLog.endedOn = new Date().getTime();
                                 instanceLog.actionStatus = "failed";
@@ -280,7 +243,6 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
                                     });
                                 }
                             }
-
                             var executionIdJsonAttributeObj = {
                                 catalyst_attribute_handler: {
                                     catalystCallbackUrl: botsDetails.params.baseUrl + '/chefClientExecution/' + chefClientExecution.id
@@ -295,21 +257,20 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
                             var jsonAttributeObj = utils.mergeObjects([executionIdJsonAttributeObj, attributeObj]);
                             var jsonAttributesString = JSON.stringify(jsonAttributeObj);
 
-                            var chef = new Chef({
+                            var chefDetail = {
                                 userChefRepoLocation: chefDetails.chefRepoLocation,
                                 chefUserName: chefDetails.loginname,
                                 chefUserPemFile: chefDetails.userpemfile,
                                 chefValidationPemFile: chefDetails.validatorpemfile,
-                                hostedChefUrl: chefDetails.url,
-                            });
-
+                                hostedChefUrl: chefDetails.url
+                            };
                             var chefClientOptions = {
                                 privateKey: decryptedCredentials.pemFileLocation,
                                 username: decryptedCredentials.username,
                                 host: instance.instanceIP,
                                 instanceOS: instance.hardware.os,
                                 port: 22,
-                                runlist: botsDetails.params.runList,
+                                runlist: botsDetails.params.runlist,
                                 jsonAttributes: jsonAttributesString,
                                 overrideRunlist: true,
                                 parallel: true
@@ -325,94 +286,34 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
                                 log: "Executing Task",
                                 timestamp: new Date().getTime()
                             });
-                            botLogger.debug("Executing Task");
                             instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
                                 if (err) {
                                     logger.error("Failed to create or update instanceLog: ", err);
                                 }
                             });
-                            chef.runChefClient(chefClientOptions, function(err, retCode) {
-                                if (decryptedCredentials.pemFileLocation) {
-                                    fileIo.removeFile(decryptedCredentials.pemFileLocation, function(err) {
-                                        if (err) {
-                                            logger.error("Unable to delete temp pem file =>", err);
-                                        } else {
-                                            logger.debug("temp pem file deleted");
-                                        }
-                                    });
-                                }
-                                if (err) {
-                                    var timestampEnded = new Date().getTime();
-                                    logsDao.insertLog({
-                                        referenceId: logsReferenceIds,
-                                        err: true,
-                                        log: 'Unable to run chef-client',
-                                        timestamp: timestampEnded
-                                    });
-                                    botLogger.error("Unable to run chef-client");
-                                    instanceModel.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
-                                    instanceLog.endedOn = new Date().getTime();
-                                    instanceLog.actionStatus = "failed";
-                                    instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
-                                        if (err) {
-                                            logger.error("Failed to create or update instanceLog: ", err);
-                                        }
-                                    });
-                                    if(count === botsDetails.params.nodeIds.length) {
-                                        var resultTaskExecution = {
-                                            "actionStatus": 'failed',
-                                            "status": 'failed',
-                                            "endedOn": new Date().getTime(),
-                                            "actionLogId": actionId
-                                        };
-                                        auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
-                                            if (err) {
-                                                logger.error("Failed to create or update bots Log: ", err);
-                                            }
-                                            return;
-                                        });
-                                    }
-                                }
-                                if (retCode == 0) {
-                                    var timestampEnded = new Date().getTime();
-                                    logsDao.insertLog({
-                                        referenceId: logsReferenceIds,
-                                        err: false,
-                                        log: 'Task execution success',
-                                        timestamp: timestampEnded
-                                    });
-                                    botLogger.debug("Task execution success");
-                                    instanceModel.updateActionLog(instance._id, actionLog._id, true, timestampEnded);
-                                    instanceLog.endedOn = new Date().getTime();
-                                    instanceLog.actionStatus = "success";
-                                    instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
-                                        if (err) {
-                                            logger.error("Failed to create or update instanceLog: ", err);
-                                        }
-                                    });
-                                    if(count === botsDetails.params.nodeIds.length) {
-                                        var resultTaskExecution = {
-                                            "actionStatus": 'success',
-                                            "status": 'success',
-                                            "endedOn": new Date().getTime(),
-                                            "actionLogId": actionId
-                                        };
-                                        auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
-                                            if (err) {
-                                                logger.error("Failed to create or update bots Log: ", err);
-                                            }
-                                            return;
-                                        });
-                                    }
-                                } else {
-                                    if (retCode === -5000) {
+                            var supertest = require("supertest");
+                            var server = supertest.agent("http://"+pythonHost+':'+pythonPort);
+                            var reqBody = {
+                                "type":"chef",
+                                "chefDetails": chefDetail,
+                                "nodeDetails": chefClientOptions
+                            };
+                            var executorUrl = '/bot/'+botsDetails.id+'/exec';
+                            server
+                                .post(executorUrl)
+                                .send(reqBody)
+                                .set({'Content-Type': 'application/json'})
+                                .end(function (err, res) {
+                                    if (err) {
+                                        logger.error(err);
+                                        var timestampEnded = new Date().getTime();
                                         logsDao.insertLog({
                                             referenceId: logsReferenceIds,
                                             err: true,
-                                            log: 'Host Unreachable',
-                                            timestamp: new Date().getTime()
+                                            log: "Error in chef executor: ",
+                                            timestamp: timestampEnded
                                         });
-                                        botLogger.error("Host Unreachable");
+                                        instanceModel.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
                                         instanceLog.endedOn = new Date().getTime();
                                         instanceLog.actionStatus = "failed";
                                         instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
@@ -434,16 +335,23 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
                                                 return;
                                             });
                                         }
-                                    } else if (retCode === -5001) {
+                                    }else{
+                                        var timestampEnded = new Date().getTime();
                                         logsDao.insertLog({
                                             referenceId: logsReferenceIds,
-                                            err: true,
-                                            log: 'Invalid credentials',
-                                            timestamp: new Date().getTime()
+                                            err: false,
+                                            log: res,
+                                            timestamp: timestampEnded
                                         });
-                                        botLogger.error('Invalid credentials');
+                                        logsDao.insertLog({
+                                            referenceId: logsReferenceIds,
+                                            err: false,
+                                            log: 'BOTs execution success for  ' + botsDetails.id,
+                                            timestamp: timestampEnded
+                                        });
+                                        instanceModel.updateActionLog(instance._id, actionLog._id, false, timestampEnded);
                                         instanceLog.endedOn = new Date().getTime();
-                                        instanceLog.actionStatus = "failed";
+                                        instanceLog.actionStatus = "success";
                                         instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
                                             if (err) {
                                                 logger.error("Failed to create or update instanceLog: ", err);
@@ -451,37 +359,8 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
                                         });
                                         if(count === botsDetails.params.nodeIds.length) {
                                             var resultTaskExecution = {
-                                                "actionStatus": 'failed',
-                                                "status": 'failed',
-                                                "endedOn": new Date().getTime(),
-                                                "actionLogId": actionId
-                                            };
-                                            auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
-                                                if (err) {
-                                                    logger.error("Failed to create or update bots Log: ", err);
-                                                }
-                                                return;
-                                            });
-                                        }
-                                    } else {
-                                        logsDao.insertLog({
-                                            referenceId: logsReferenceIds,
-                                            err: true,
-                                            log: 'Unknown error occured. ret code = ' + retCode,
-                                            timestamp: new Date().getTime()
-                                        });
-                                        botLogger.error('Unknown error occured. ret code = ' + retCode);
-                                        instanceLog.endedOn = new Date().getTime();
-                                        instanceLog.actionStatus = "failed";
-                                        instanceLogModel.createOrUpdate(actionLog._id, instance._id, instanceLog, function(err, logData) {
-                                            if (err) {
-                                                logger.error("Failed to create or update instanceLog: ", err);
-                                            }
-                                        });
-                                        if(count === botsDetails.params.nodeIds.length) {
-                                            var resultTaskExecution = {
-                                                "actionStatus": 'failed',
-                                                "status": 'failed',
+                                                "actionStatus": 'success',
+                                                "status": 'success',
                                                 "endedOn": new Date().getTime(),
                                                 "actionLogId": actionId
                                             };
@@ -493,24 +372,7 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
                                             });
                                         }
                                     }
-                                }
-                            }, function(stdOutData) {
-                                logsDao.insertLog({
-                                    referenceId: logsReferenceIds,
-                                    err: false,
-                                    log: stdOutData.toString('ascii'),
-                                    timestamp: new Date().getTime()
-                                });
-                                botLogger.debug(stdOutData.toString('ascii'));
-                            }, function(stdOutErr) {
-                                logsDao.insertLog({
-                                    referenceId: logsReferenceIds,
-                                    err: true,
-                                    log: stdOutErr.toString('ascii'),
-                                    timestamp: new Date().getTime()
-                                });
-                                botLogger.error(stdOutErr.toString('ascii'));
-                            });
+                                })
                         });
                     });
 
