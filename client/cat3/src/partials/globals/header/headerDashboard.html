@@ -14,6 +14,11 @@
 		<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 			<ul class="nav navbar-nav header-content">
 				<li>
+					<div id="service" class="headNavigItem" ng-if="serviceBool" ui-sref='dashboard.bots' ui-sref-active='activeSection'>
+						<i class="fa fa-delicious white" ng-class="{'header-selected-item':moduleSelection.filterView.bots}"></i> BOTS
+					</div>
+				</li>
+				<li>
 					<div id="workzone" class="headNavigItem" ng-if="workZoneBool" ui-sref='dashboard.workzone' ui-sref-active='activeSection'>
 						<!--<a href="../../../../#ajax/Dev.html">-->
 							<i class="fa fa-credit-card white" ng-class="{'header-selected-item':moduleSelection.filterView.workzone}"></i> WORKZONE
@@ -38,11 +43,7 @@
 						<i class="fa fa-cloud white"></i> CLOUD
 					</div>
 				</li>
-				<li>
-					<div id="service" class="headNavigItem" ng-if="serviceBool" ui-sref='dashboard.bots' ui-sref-active='activeSection'>
-						<i class="fa fa-delicious white" ng-class="{'header-selected-item':moduleSelection.filterView.bots}"></i> BOTS
-					</div>
-				</li>
+
 				<li class="header-right">
 
 
