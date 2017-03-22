@@ -130,6 +130,7 @@ module.exports.setRoutes = function(app) {
     jira.setRoutes(app, sessionVerificationFunc);
 
     provider.setRoutes(app, sessionVerificationFunc);
+
     providerCommon.setRoutes(app, sessionVerificationFunc);
 
     vmimage.setRoutes(app, sessionVerificationFunc);

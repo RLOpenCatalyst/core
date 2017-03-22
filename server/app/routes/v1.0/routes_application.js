@@ -27,6 +27,7 @@ var currentDirectory = __dirname;
 module.exports.setRoutes = function(app, sessionVerification) {
 
     // Returning deployed app version
+    app.all('/applications/*', sessionVerification);
     app.get('/applications/latest/version', function(req, res) {
         var appVersion;
         try {
@@ -44,8 +45,6 @@ module.exports.setRoutes = function(app, sessionVerification) {
         res.send(appVersion);
         return;
     });
-    
-    app.all('/applications/*', sessionVerification);
 
     app.get('/applications/:applicationId', function(req, res) {
         Application.getApplicationById(req.params.applicationId, function(err, application) {
