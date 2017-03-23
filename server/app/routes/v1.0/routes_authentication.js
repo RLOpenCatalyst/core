@@ -377,7 +377,7 @@ module.exports.setRoutes = function(app) {
                     if (authToken) {
                         req.session.user = authToken.sessionData;
                         next();
-                        //req.session.destroy();
+                        req.session.destroy();
                     } else {
                         logger.debug("No Valid Session for User - 403");
                         res.send(403);
@@ -394,7 +394,7 @@ module.exports.setRoutes = function(app) {
                     if (tempTokenData) {
                         req.session.user = tempTokenData.sessionData;
                         next();
-                        //req.session.destroy();
+                        req.session.destroy();
                     } else {
                         logger.debug("No Valid Session for User - 403");
                         res.send(403);
