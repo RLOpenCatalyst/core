@@ -178,6 +178,7 @@
                 }, 100);
             }, function(error) {
                 $scope.isBotLibraryPageLoading = false;
+                $scope.isBotDetailsLoading = false;
                 toastr.error(error);
                 $scope.errorMessage = "No Records found";
             });
@@ -291,28 +292,34 @@
             }
         };*/
 
-        /*$rootScope.applyFilter = function() {
+        $rootScope.applyFilter = function() {
             lib.gridOptions=[];
             if ($scope.botLibFilter) {
                 var param={
-                    url:'/bots?filterBy=botType:'+$scope.botLibFilterBot+'&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                    url:'/botsNew?filterBy=action:'+$scope.botLibFilter+'&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
                 };
-            } else if($scope.botLibType) {
+            } 
+            if($scope.botLibType) {
                 var param={
-                    url:'/bots?filterBy=botLinkedSubCategory:'+$scope.botLibFilterTask+'&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                    url:'/botsNew?filterBy=type:'+$scope.botLibType+'&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
                 };
-            } else if($scope.botLibCategory) {
+            } 
+            if($scope.botLibCategory) {
                 var param={
-                    url:'/bots?filterBy=botCategory:'+$scope.botLibFilterCategory+'&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                    url:'/botsNew?filterBy=category:'+$scope.botLibCategory+'&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
                 }; 
             } else {
                 $scope.RefreshBotsLibrary();
             }
             genSevs.promiseGet(param).then(function (result) {
-                $timeout(function() {
-                    $scope.botLibGridOptions.totalItems = result.metaData.totalRecords;
-                    $scope.botLibGridOptions.data=result.bots;
-                }, 100);
+                if($scope.isCardViewActive){
+                    $scope.botLibGridOptions.data = result.bots;
+                    for(var i=0;i<result.bots.length;i++){
+                        $scope.imageForCard(result.bots[i]);
+                    }
+                } else {
+                    $scope.botLibGridOptions.data = result.bots;
+                }
                 $scope.isBotLibraryPageLoading = false;
                 $scope.isOpenSidebar = false;
             }, function(error) {
@@ -320,7 +327,7 @@
                 toastr.error(error);
                 $scope.errorMessage = "No Records found";
             });
-        };*/
+        };
         
         $scope.setCardView = function(pageReset) {
             $scope.isBotLibraryPageLoading = true;
