@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+<script src="../../bower_components/angular/angular.js"></script>
+<script src="https://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-2.5.0.min.js"></script>
+<script>
+    var app = angular.module('poc', ['ui.bootstrap']);
+    app.controller('pocCtrl', function($scope,$uibModal) {
+        var crtl=this;
+        crtl.init=function () {
+
+        };
+        crtl.init();
+
+    });
+
+</script>
+<body ng-app="poc">
+
+<div ng-controller="pocCtrl">
+    <div class="container-fluid text-center">
+        <div class="row content">
+            <div class="col-sm-0 col-md-1 col-lg-1" ></div>
+            <div class="col-sm-12 col-md-10 col-lg-10" >
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Modal Header</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>Some text in the modal.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">OK</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-0 col-md-1 col-lg-1" ></div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
