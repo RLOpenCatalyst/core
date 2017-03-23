@@ -131,57 +131,71 @@ function executeOnNode(botsScriptDetails,auditTrail,executionType,callback) {
                     return;
                 });
             } else {
-                fetchingAuditDetails(resObj.body.link,function (err, res) {
-                    if (err) {
-                        logger.error(err);
-                        var timestampEnded = new Date().getTime();
-                        logsDao.insertLog({
-                            referenceId: logsReferenceIds,
-                            err: true,
-                            log: "Error in Fetching Audit Trails",
-                            timestamp: timestampEnded
-                        });
-                        var resultTaskExecution = {
-                            "actionStatus": 'failed',
-                            "status": 'failed',
-                            "endedOn": new Date().getTime(),
-                            "actionLogId": actionId
-                        };
-                        auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
-                            if (err) {
-                                logger.error("Failed to create or update bots Log: ", err);
-                            }
-                            return;
-                        });
-                    } else {
-                        var timestampEnded = new Date().getTime();
-                        logsDao.insertLog({
-                            referenceId: logsReferenceIds,
-                            err: false,
-                            log: res.body.status.text,
-                            timestamp: timestampEnded
-                        });
-                        logsDao.insertLog({
-                            referenceId: logsReferenceIds,
-                            err: false,
-                            log: 'BOTs execution success for  ' + botsScriptDetails.id,
-                            timestamp: timestampEnded
-                        });
+                fetchingAuditDetails(resObj.body.link);
+                function fetchingAuditDetails(url){
+                    var supertest = require("supertest");
+                    var server = supertest.agent("http://" + pythonHost + ':' + pythonPort);
+                    server
+                        .get(url)
+                        .end(function (err, res) {
+                            if(err) {
+                                logger.error(err);
+                                var timestampEnded = new Date().getTime();
+                                logsDao.insertLog({
+                                    referenceId: logsReferenceIds,
+                                    err: true,
+                                    log: "Error in Fetching Audit Trails",
+                                    timestamp: timestampEnded
+                                });
+                                var resultTaskExecution = {
+                                    "actionStatus": 'failed',
+                                    "status": 'failed',
+                                    "endedOn": new Date().getTime(),
+                                    "actionLogId": actionId
+                                };
+                                auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+                                    if (err) {
+                                        logger.error("Failed to create or update bots Log: ", err);
+                                    }
+                                    return;
+                                });
+                            }else{
+                                if(res.body.state ==='terminated'){
+                                    {
+                                        var timestampEnded = new Date().getTime();
+                                        logsDao.insertLog({
+                                            referenceId: logsReferenceIds,
+                                            err: false,
+                                            log: res.body.status.text,
+                                            timestamp: timestampEnded
+                                        });
+                                        logsDao.insertLog({
+                                            referenceId: logsReferenceIds,
+                                            err: false,
+                                            log: 'BOTs execution success for  ' + botsScriptDetails.id,
+                                            timestamp: timestampEnded
+                                        });
 
-                        var resultTaskExecution = {
-                            "actionStatus": 'success',
-                            "status": 'success',
-                            "endedOn": new Date().getTime(),
-                            "actionLogId": actionId
-                        };
-                        auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
-                            if (err) {
-                                logger.error("Failed to create or update bots Log: ", err);
+                                        var resultTaskExecution = {
+                                            "actionStatus": 'success',
+                                            "status": 'success',
+                                            "endedOn": new Date().getTime(),
+                                            "actionLogId": actionId
+                                        };
+                                        auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+                                            if (err) {
+                                                logger.error("Failed to create or update bots Log: ", err);
+                                            }
+                                            return;
+                                        });
+                                    }
+                                }else{
+                                    setInterval(fetchingAuditDetails(url),2000);
+                                }
                             }
-                            return;
-                        });
-                    }
-                });
+                        })
+
+                }
             }
         })
 };
@@ -437,26 +451,6 @@ function  executeOnEnv(botsScriptDetails,auditTrail,nodeIds,userName,executionTy
     }
 }
 
-function fetchingAuditDetails(url,callback){
-    var supertest = require("supertest");
-    var server = supertest.agent("http://" + pythonHost + ':' + pythonPort);
-    server
-        .get(url)
-        .end(function (err, res) {
-            if(err) {
-                callback(err,null);
-                return;
-            }else{
-                if(res.body.state ==='terminated'){
-                    callback(null,res.body.status.text);
-                    return;
-                }else{
-                    fetchingAuditDetails(url)
-                }
-            }
-        })
-
-}
 
 
 
