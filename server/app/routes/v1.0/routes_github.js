@@ -242,7 +242,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     gitHubService.checkIfGitHubExists(req.params.gitHubId, next);
                 },
                 function(gitHub,next) {
-                    gitHubService.getGitHubSync(req.params.gitHubId, next);
+                    gitHubService.getGitHubSync({gitHubId:req.params.gitHubId,task:'sync'}, next);
                 }
             ],
             function(err, results) {
