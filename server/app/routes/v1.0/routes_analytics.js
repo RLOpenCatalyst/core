@@ -15,6 +15,7 @@ const analyticsService = require('_pr/services/analyticsService')
 const async = require('async')
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
+    app.all('/analytics/*', sessionVerificationFunc);
 
     /**
      * @api {get} /analytics/cost/aggregate?parentEntityId=<organizationId>entityId=<businessGroupId>&period=<period>&toTimeStamp=<endDate>&splitUpBy=<catalystEntityType>

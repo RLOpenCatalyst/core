@@ -12,6 +12,14 @@
   margin-left: 23px;
 }
 
+.marginleft15 {
+  margin-left: -15px;
+}
+
+.marginleft8 {
+  margin-left: -8px; 
+}
+
 .marginleft10 {
   margin-left:10px
 }
@@ -477,6 +485,13 @@
   margin-top: 5px;
 }
 
+.info-cell .publisherDesc {
+  font-size: 14px;
+  color: #999999;
+  margin-top: 5px;
+  margin-left: 35px;
+}
+
 .info-cell {
   display: inline-block;
   vertical-align: top;
@@ -494,7 +509,6 @@
 body {
   background : rgba(0, 0, 0, 0.04);
   /*background:#F7F7F7;ecf0f5*/
-  overflow-y:auto!important;
 }
 
 
@@ -713,7 +727,7 @@ body .botDescriptionPage {
 
 .containerBox {
   margin-left: 19px;
-  margin-top:-7px;
+  margin-top:2px;
 }
 
 .margin10 {
@@ -728,6 +742,29 @@ body .botDescriptionPage {
 .botsExecution {
   margin-left: 12px;
   margin-top: 6px;
+}
+
+#botsPage {
+  height: 600px;
+  overflow-y: auto!important;
+}
+
+.scriptExecution {
+  overflow-y: auto!important;
+  height: 296px;
+}
+
+.width100 {
+  width: 100%;
+}
+
+.chefExecution {
+  overflow-y: auto!important;
+  height:300px;
+}
+
+.btnDescription {
+  padding:4px 10px;font-size:13px;margin-right:19px;
 }
 
 @-moz-document url-prefix() {
@@ -785,4 +822,99 @@ body .botDescriptionPage {
       left: 170px;
       
     }
+    .agent-card .info-cell, .agent-card .desc-cell {
+      width: 335px;
+    }
+    .agent-card .description {
+      width: 330px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    #botsPage {
+      height: 1000px;
+      overflow-y: auto!important;
+    }
+    .btnDescription {
+      padding:4px 10px;font-size:13px;margin-right:42px;
+    }
+    .chefExecution {
+      overflow-y: auto!important;
+      height:500px;
+    }
+    .scriptExecution {
+      overflow-y: auto!important;
+      height: 500px;
+    }
 }
+
+.dashboard-stats__item {
+    position: relative;
+    overflow: hidden;
+    padding: 30px 20px;
+    margin-bottom: 15px; /*30px*/
+    border-radius: 2px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .12), 0 1px 2px rgba(0, 0, 0, .24)
+}
+
+.dashboard-stats__item>.fa {
+    position: absolute;
+    bottom: -14%; /*-20*/
+    left: 0%; /*-5*/
+    font-size: 100px;
+    color: hsla(0, 0%, 100%, .15);
+}
+
+.dashboard-stats__item.dashboard-stats__item_blue {
+    background-color: #00c0ef
+}
+
+.dashboard-stats__item.dashboard-stats__item_red {
+    background-color: #ef5350
+}
+
+.dashboard-stats__item.dashboard-stats__item_orange {
+    background-color: #ffa726
+}
+
+.dashboard-stats__item.dashboard-stats__item_green {
+    background-color: #66bb6a
+}
+
+.dashboard-stats__item.dashboard-stats__item_bg-blue {
+    background-color: #2980b9
+}
+
+.dashboard-stats__title {
+    margin: 0;
+    text-align: right;
+    font-size: 45px;
+    font-weight: 300;
+    color: #fff
+}
+
+.dashboard-stats__title>small {
+    display: block;
+    font-size: 14px;
+    text-transform: uppercase;
+    color: #fff;
+}
+
+.botsLabel {
+  font-weight: 400;
+}
+
+.bpvicon {
+    width: 25px;
+    padding: 0px 5px;
+    margin: 0px 5px;
+    border-radius: 11px !important;
+}
+
+.botsBadge .badge {
+    min-width: 25px;
+    padding: 6px;
+    font-size: 13px;
+    border-radius: 14px;
+}
+

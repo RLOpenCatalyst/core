@@ -40,6 +40,21 @@ var CICDDashboardSchema = new Schema({
         trim: true,
         required: true
     },
+    jiraServerId: {
+        type: String,
+        trim: true,
+        required: true
+    },
+    jenkinsServerId: {
+        type: String,
+        trim: true,
+        required: true
+    },
+    sonarServerId: {
+        type: String,
+        trim: true,
+        required: true
+    },
     dashboardServerUserName: {
         type: String,
         trim: true,
@@ -147,6 +162,52 @@ CICDDashboardSchema.statics.getcicdDashboardId = function (cicdDashboadId, callb
     });
 };
 
+CICDDashboardSchema.statics.getcicdDashboardServerByHost = function (hostname, callback) {
+    this.aggregate([{
+        $match: {'dashboardServer': hostname}
+    }, {
+        $lookup: {
+            from: "d4dmastersnew",
+            localField: "orgId",
+            foreignField: "rowid",
+            as: "organization"
+        }
+    }], function (err, cicdDashboad) {
+        if (err) {
+            callback(err, null);
+            return;
+        } else if (cicdDashboad.length === 0) {
+            callback(null, null);
+            return;
+        } else {
+            return callback(null, cicdDashboad[0]);
+        }
+    });
+};
+
+CICDDashboardSchema.statics.getcicdDashboardServerByOrgId = function (orgId, callback) {
+    this.aggregate([{
+        $match: {'orgId': orgId}
+    }, {
+        $lookup: {
+            from: "d4dmastersnew",
+            localField: "orgId",
+            foreignField: "rowid",
+            as: "organization"
+        }
+    }], function (err, cicdDashboad) {
+        if (err) {
+            callback(err, null);
+            return;
+        } else if (cicdDashboad.length === 0) {
+            callback(null, null);
+            return;
+        } else {
+            return callback(null, cicdDashboad);
+        }
+    });
+};
+
 CICDDashboardSchema.statics.updatecicdDashboad = function (cicdDashboadId, fields, callback) {
     this.update({'_id': cicdDashboadId}, {$set: fields},
         function (err, result) {
@@ -163,7 +224,7 @@ CICDDashboardSchema.statics.updatecicdDashboad = function (cicdDashboadId, field
 };
 
 CICDDashboardSchema.statics.deletecicdDashboad = function (cicdDashboadId, callback) {
-    this.remove({'_id': gcicdDashboadId},
+    this.remove({'_id': cicdDashboadId},
         function (err, data) {
             if (err) {
                 logger.error(err);

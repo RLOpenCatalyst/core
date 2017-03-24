@@ -204,7 +204,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
         });
     });
 
-    app.all('/instances/*', sessionVerificationFunc);
+    app.all('/instances*', sessionVerificationFunc);
 
 
     /*app.get('/instances', function(req, res) {

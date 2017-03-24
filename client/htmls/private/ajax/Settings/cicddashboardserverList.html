@@ -4,7 +4,7 @@
     }
 </style>
 
-<div id="gitHubListLoader" style="display:none">
+<div id="cicddashboardserverListLoader" style="display:none">
     <img class="center-block" style="height: 50px; width: 50px; margin-top: 20%; margin-left: 48%;margin-bottom: 10%; position: absolute;" src="img/loading.gif" />
 </div>
 <div class="row">
@@ -17,7 +17,7 @@
                 <div class="widget-toolbar no-border">
                     <div>
                         <!--new button for adding a new item-->
-                        <a href="#modalForGitEdit" type="reset" data-backdrop="false" data-toggle="modal" class="btn btn-minier btn-primary addGitHub">
+                        <a href="#modalForcicddashboardserverEdit" type="reset" data-backdrop="false" data-toggle="modal" class="btn btn-minier btn-primary addcicddashboardServer">
                             <i class="ace-icon ace-icon fa fa-plus bigger-110"></i>&nbsp;New
                         </a>
                     </div>
@@ -26,7 +26,7 @@
             <div class="widget-body">
                 <div class="widget-main widgetHeight">
                     <div class="col-md-12 table-responsive tablePadding">
-                        <table id="gitTable" class="tableData table table-striped table-bordered table-hover dataTable no-footer textCenter" cellpadding="5px">
+                        <table id="cicdDashboardServerTable" class="tableData table table-striped table-bordered table-hover dataTable no-footer textCenter" cellpadding="5px">
                             <thead>
                             <tr class="rowCustomStyle">
                                 <td>Server Name</td>
@@ -53,27 +53,32 @@
 <!--row ends here-->
 
 <!--modal for ItemList-->
+ 
+
 <div class="modal fade" id="modalForcicddashboardServerEdit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog " style="">
         <div class="modal-content">
-            <form role="form" id="gitHubRepoForn">
+
+            <form role="form" id="cicddashboardServerForm" autocomplete="off">
+
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title">
                     </h4>
                 </div>
                 <div class="modal-body">
+               
                     <fieldset class="fieldsetCustom">
-                        <div class="col-lg-6 col-md-6 col-xs-6">
-                            <label for="dashboardName">CICD Dashboard Server Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                        <div class="col-lg-6 col-md-6 col-xs-6 ">
+                            <label for="dashboardName">Server Name:<span class="control-label redSpan">&nbsp;*</span></label>
                             <div class="input-groups">
-                                <input type="text" name="dashboardName" class="required gitName form-control" id="gitName">
+                                <input type="text" name="dashboardName" autofocus class="required gitName form-control" id="dashboardName">
                             </div>
                         </div>
-                        <div class="col-lg-6 col-md-6 col-xs-6">
+                        <div class="col-lg-6 col-md-6 col-xs-6 ">
                             <label for="dashboardDesc">Description:</label>
                             <div class="input-groups">
-                                <input type="text" name="dashboardDesc" class="gitDescription form-control" id="gitDescription">
+                                <input type="text" name="dashboardDesc" autofocus class="gitDescription form-control" id="dashboardDesc">
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-6 col-xs-6 margintop15">
@@ -82,31 +87,79 @@
                                 <select id="orgName" name="orgName" class="required form-control width-100" style="vertical-align:central"></select>
                             </div>
                         </div>
-                        
-
-                        <div class="col-lg-6 col-md-6 col-xs-6 margintop15 hidden showForUserToken">
-                            <label for="protocolUser">User Name:</label>
-                            <input type="text" name="protocolUser" class="protocolUser form-control" id="protocolUser">
-                        </div>
-                        <div class="col-lg-6 col-md-6 col-xs-6 margintop15 hidden showForUser">
-                            <label for="protocolPassword">Password:</label>
-                            <input type="password" name="protocolPassword" class="protocolPassword form-control" id="protocolPassword">
+                        <div class="col-lg-6 col-md-6 col-xs-6 margintop15">
+                            <label for="dashboardServer">Hostname/IP:Port :<span class="control-label redSpan">&nbsp;*</span></label>
+                            <div class="input-groups">
+                            <input type="text" name="dashboardServer" class="required dashboardServer form-control" id="dashboardServer">
+                            </div>
                         </div>
 
+                        <div class="col-lg-6 col-md-6 col-xs-6 margintop15">
+                            <label for="dashboardServerUserName">Host User Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                            <div class="input-groups">
+                            <input type="text" name="dashboardServerUserName" class="required protocolUser form-control" id="dashboardServerUserName">
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-xs-6 margintop15">
+                            <label for="dashboardServerPassword">Password:<span class="control-label redSpan">&nbsp;*</span></label>
+                            <div class="input-groups">
+                            <input type="password" name="dashboardServerPassword" class="required dashboardServerPassword form-control" id="dashboardServerPassword" autocomplete="whatever" >
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 margintop15">
+                            <label for="dashboardDbHostName">RLCatlyst Username:<span class="control-label redSpan">&nbsp;*</span></label>
+                            <div class="input-groups">
+                                <input type="text" name="catalystUsername" class="required catalystUsername form-control" id="catalystUsername">
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 col-xs-6 margintop15">
+                            <label for="dashboardServerPassword">RLCatalyst Password:<span class="control-label redSpan">&nbsp;*</span></label>
+                            <div class="input-groups">
+                            <input type="password" name="catalystPassword" class="required dashboardServerPassword form-control" id="catalystPassword" autocomplete="whatever" >
+                            </div>
+                        </div>
+                         
+                        <div class="clearfix"></div>
+                        <div class="col-lg-6 col-md-6 margintop15">
+                            <label for="dashboardDbHostName">Jira Server:<span class="control-label redSpan">&nbsp;*</span></label>
+                            <div class="input-groups">
+                               <select id="jiraId" name="jiraId" class="required form-control width-100" style="vertical-align:central"></select>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6 col-md-6 margintop15">
+                            <label for="dashboardDbHostName">Jenkins Server:<span class="control-label redSpan">&nbsp;*</span></label>
+                            <div class="input-groups">
+                               <select id="jenkinsId" name="jenkinsId" class="required form-control width-100" style="vertical-align:central"></select>
+                            </div>
+                        </div>
                         
-                        <input type="hidden" id="gitEditHiddenInputId">
-                        <input type="hidden" id="gitEditHiddenInput">
+                        <div class="col-lg-6 col-md-6 margintop15">
+                            <label for="dashboardDbHostName">Sonar Server:<span class="control-label redSpan">&nbsp;*</span></label>
+                            <div class="input-groups">
+                               <select id="sonarId" name="sonarId" class="required form-control width-100" style="vertical-align:central"></select>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 margintop15">
+                            <label for="dashboardDbHostName">Dashboard DB Hostname:<span class="control-label redSpan">&nbsp;*</span></label>
+                            <div class="input-groups">
+                                <input type="text" name="dashboardDbHostName" class="required dashboardDbHostName form-control" id="dashboardDbHostName">
+                            </div>
+                        </div>                        
+                        <input type="hidden" id="cicddashboardServerEditHiddenInputId">
+                        <input type="hidden" id="cicddashboardServerEditHiddenInput">
                         
                     </fieldset>
                 </div>
                 <div class="modal-footer">
                     <label id="saveItemSpinner" class="hidden"><img  style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label>
                     <a type="button" class="btn btn-default" data-dismiss="modal"><i class="ace-icon fa fa-times bigger-110"></i>&nbsp;Cancel</a>
-                    <button type="submit" id="saveBtnTrack" class="btn btn-primary" value="Save"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</button>
+                    <button  class="btn btn-primary" value="Save"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Save</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 <!--model ends here-->
-<script src="js/gitHubList.js"></script>
+<script src="js/cicddashboardserver.js"></script>

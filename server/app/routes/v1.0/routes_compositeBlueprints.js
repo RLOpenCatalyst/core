@@ -23,7 +23,7 @@ var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
-    app.all("/composite-blueprints/*", sessionVerificationFunc);
+    app.all("/composite-blueprints*", sessionVerificationFunc);
 
     /**
      * @api {get} /composite-blueprints 	                        Get composite blueprints

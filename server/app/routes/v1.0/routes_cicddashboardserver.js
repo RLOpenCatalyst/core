@@ -4,7 +4,7 @@ var validate = require('express-validation');
 var cicdDashboardServerValidator = require('_pr/validators/cicdDashboardServerValidator');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
-	app.all('/cicd-dashboardservice/*', sessionVerificationFunc);
+	app.all('/cicd-dashboardservice*', sessionVerificationFunc);
 
 
 
@@ -33,6 +33,24 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 },
                 function(gitHub,next) {
                     cicdDashboardService.getcicdDashboardServerById(req.params.cicdDashboardServerId, next);
+                }
+            ],
+            function(err, results) {
+                if (err) {
+                    res.status(err.status).send(err);
+                } else {
+                    return res.status(200).send(results);
+                }
+            }
+        );
+    }
+
+    app.get('/cicd-dashboardservice/orgId/:orgId', getcicdDashboardServerByOrgId);
+    function getcicdDashboardServerByOrgId(req, res) {
+        async.waterfall(
+            [
+                function(next) {
+                    cicdDashboardService.getcicdDashboardServerByOrgId(req.params.orgId, next);
                 }
             ],
             function(err, results) {

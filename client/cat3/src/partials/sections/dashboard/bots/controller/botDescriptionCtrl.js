@@ -12,10 +12,7 @@
     function ($scope, uiGridOptionsClient, $rootScope, $location, toastr,confirmbox, $state, genSevs) {
             var treeNames = ['BOTs','Bots Description'];
             $rootScope.$emit('treeNameUpdate', treeNames);
-            $rootScope.$on('BOTS_TEMPLATE_SELECTED', function(event,reqParams) {
-                $scope.templateSelected = reqParams;
-            });
-
+            $scope.templateSelected=$state.params.botDetail;
             $rootScope.$on('BOTS_DESCRIPTION_REFRESH', function(event,reqParams) {
                 $scope.templateSelected = reqParams;
             });
@@ -87,6 +84,10 @@
                     param: {
                         "title": "Param",
                         "url": "src/partials/sections/dashboard/bots/tabs/param.html"
+                    },
+                    execute: {
+                        "title": "Execute",
+                        "url": "src/partials/sections/dashboard/bots/tabs/editParams.html"
                     }, 
                     report: {
                         "title": "Report",
@@ -95,11 +96,11 @@
                     schedule: {
                         "title": "Schedule",
                         "url": "src/partials/sections/dashboard/bots/tabs/schedule.html"
-                    }/*, 
+                    }, 
                     settings: {
                         "title": "Settings",
                         "url": "src/partials/sections/dashboard/bots/tabs/settings.html"
-                    }*/
+                    }
                 }
             };
             $scope.tab = botsTab;
