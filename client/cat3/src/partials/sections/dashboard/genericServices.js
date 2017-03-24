@@ -7,12 +7,12 @@
 
 (function (angular) {
     "use strict";
-    angular.module('dashboard.genericServices',['authentication', 'utility.pagination']).service('genericServices',['$rootScope', '$q', '$http', 'workzoneServices', '$modal', 'confirmbox', 'toastr',function($rootScope, $q, $http, workSvs, $modal, confirmbox, toastr){
+    angular.module('dashboard.genericServices',['authentication', 'utility.pagination']).service('genericServices',['$rootScope', '$q', '$http', 'workzoneServices', '$modal', 'confirmbox', 'toastr','session',function($rootScope, $q, $http, workSvs, $modal, confirmbox, toastr,Auth){
         var genericServices=this;
         genericServices.promiseGet = function (paramsObject) {
             if(!paramsObject.inlineLoader){ $rootScope.onBodyLoading=true;}
             var deferred = $q.defer();
-            $http.get(paramsObject.url)
+            $http.get(paramsObject.url,Auth.getHeaderObject())
                 .success(function(data) {
                     if(!paramsObject.inlineLoader){$rootScope.onBodyLoading=false;}
                     deferred.resolve(data);
@@ -32,7 +32,7 @@
         genericServices.promisePost = function (paramsObject) {
             if(!paramsObject.inlineLoader){ $rootScope.onBodyLoading=true;}
             var deferred = $q.defer();
-            $http.post(paramsObject.url,paramsObject.data)
+            $http.post(paramsObject.url,paramsObject.data,Auth.getHeaderObject())
                 .success(function(data) {
                     $rootScope.onBodyLoading=false;
                     deferred.resolve(data);
@@ -47,7 +47,7 @@
         genericServices.promisePut = function (paramsObject) {
             if(!paramsObject.inlineLoader){ $rootScope.onBodyLoading=true;}
             var deferred = $q.defer();
-            $http.put(paramsObject.url,paramsObject.data)
+            $http.put(paramsObject.url,paramsObject.data,Auth.getHeaderObject())
                 .success(function(data) {
                     $rootScope.onBodyLoading=false;
                     deferred.resolve(data);
@@ -62,7 +62,7 @@
         genericServices.promisePatch = function (paramsObject) {
             if(!paramsObject.inlineLoader){ $rootScope.onBodyLoading=true;}
             var deferred = $q.defer();
-            $http.patch(paramsObject.url,paramsObject.data)
+            $http.patch(paramsObject.url,paramsObject.data,Auth.getHeaderObject())
                 .success(function(data) {
                     $rootScope.onBodyLoading=false;
                     deferred.resolve(data);
@@ -96,7 +96,7 @@
         genericServices.getTreeNew = function () {
             $rootScope.onBodyLoading=true;
             var deferred = $q.defer();
-            $http.get('/organizations/getTreeNew')
+            $http.get('/organizations/getTreeNew',Auth.getHeaderObject())
                 .success(function(data) {
                     $rootScope.onBodyLoading=false;
                     deferred.resolve(data);
@@ -169,7 +169,7 @@
             }
         };
 
-        genericServices.executeTask =function(task) {
+        /*genericServices.executeTask =function(task) {
             $modal.open({
                 animation: true,
                 templateUrl: 'src/partials/sections/dashboard/bots/view/editParams.html',
@@ -203,7 +203,7 @@
                 });
             }, function() {
             });
-        };
+        };*/
 
         genericServices.launchBlueprint=function(blueprintObj) {
             $modal.open({

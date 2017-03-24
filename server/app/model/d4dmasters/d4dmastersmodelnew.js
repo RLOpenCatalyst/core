@@ -1598,6 +1598,11 @@ var d4dMastersCICDDashboard = new mongoose.Schema({
         type: String,
         trim: true
     },
+    dashboardServerId: {
+        type: String,
+        required: true,
+        trim: true
+    },
     dashboardId: {
         type: String,
        

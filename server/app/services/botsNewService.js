@@ -24,7 +24,8 @@ var fileUpload = require('_pr/model/file-upload/file-upload');
 var appConfig = require('_pr/config');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
 var auditTrailService = require('_pr/services/auditTrailService.js');
-var executor = require('_pr/engine/bots/executor.js');
+var scriptExecutor = require('_pr/engine/bots/scriptExecutor.js');
+var chefExecutor = require('_pr/engine/bots/chefExecutor.js');
 var logsDao = require('_pr/model/dao/logsdao.js');
 
 const fileHound= require('filehound');
@@ -184,47 +185,95 @@ botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,service
     });
 }
 
-botsNewService.executeBots = function executeBots(botId,reqBody,userName,executionType,callback){
+botsNewService.executeBots = function executeBots(botsId,reqBody,userName,executionType,callback){
+    var botId = null;
     async.waterfall([
-        function(next){
-            if(reqBody !== null && reqBody !== ''){
-                encryptedParam(reqBody,next);
+        function(next) {
+            botsDao.getBotsByBotId(botsId, next);
+        },
+        function(bots,next){
+            botId = bots[0]._id;
+            if(reqBody !== null && reqBody !== '' && bots[0].type === 'script'){
+                encryptedParam(reqBody.params,next);
             }else{
-                next(null,[]);
+                next(null,reqBody.params);
             }
         },
-        function(encryptedParamList,next) {
-            if(encryptedParamList.length > 0){
-                botsDao.updateBotsDetail(botId,{params:encryptedParamList,lastRunTime:new Date().getTime()},function(err,botsData){
-                    if(err){
-                        next(err);
-                    }else{
-                        botsDao.getBotsById(botId, next);
-                    }
-                })
-            }else {
-                botsDao.getBotsById(botId, next);
-            }
+        function(paramList,next) {
+            botsDao.updateBotsDetail(botId,{params:paramList},next);
+        },
+        function(updateStatus,next) {
+            botsDao.getBotsById(botId, next);
         },
         function(botDetails,next) {
             if(botDetails.length > 0){
-                if(botDetails[0].type === 'script'){
-                    async.parallel([
-                        function(callback){
-                            executor.executeScriptBot(botDetails[0],userName,executionType,callback);
-                        },
-                        function(callback){
+                async.parallel({
+                    executor: function (callback) {
+                        async.waterfall([
+                            function(next){
+                                var actionObj={
+                                    auditType:'BOTsNew',
+                                    auditCategory:'BOTs',
+                                    status:'running',
+                                    action:'BOTs Execution',
+                                    actionStatus:'running',
+                                    catUser:userName
+                                };
+                                var auditTrailObj = {
+                                    name:botDetails[0].name,
+                                    type:botDetails[0].action,
+                                    description:botDetails[0].desc,
+                                    category:botDetails[0].category,
+                                    executionType:botDetails[0].type,
+                                    manualExecutionTime:botDetails[0].manualExecutionTime
+                                };
+                                auditTrailService.insertAuditTrail(botDetails[0],auditTrailObj,actionObj,next);
+                            },
+                            function(auditTrail,next){
+                                if (botDetails[0].type === 'script') {
+                                    scriptExecutor.execute(botDetails[0],auditTrail, userName, executionType, next);
+                                }else if(botDetails[0].type === 'chef'){
+                                    chefExecutor.execute(botDetails[0],auditTrail, userName, executionType, next);
+                                }else{
+                                    var err = new Error('Invalid BOTs Type');
+                                    err.status = 400;
+                                    err.msg = 'Invalid BOTs Type';
+                                    callback(err, null);
+                                }
+                            }
+
+                        ],function(err,executionResult){
+                            if(err){
+                                callback(err,null);
+                                return;
+                            }else{
+                               callback(null,executionResult);
+                               return;
+                            }
+                        })
+                    },
+                    bots: function (callback) {
+                        if(botDetails[0].type === 'script' || botDetails[0].type === 'chef' || botDetails[0].type === 'jenkins' || botDetails[0].type === 'blueprint') {
                             var botExecutionCount = botDetails[0].executionCount + 1;
                             var botUpdateObj = {
-                                executionCount:botExecutionCount,
-                                lastRunTime:new Date().getTime()
+                                executionCount: botExecutionCount,
+                                lastRunTime: new Date().getTime()
                             }
                             botsDao.updateBotsDetail(botId, botUpdateObj, callback);
+                        }else{
+                            var err = new Error('Invalid BOTs Type');
+                            err.status = 400;
+                            err.msg = 'Invalid BOTs Type';
+                            callback(err, null);
                         }
-                    ],function(err,data) {
-                        next(null,data[0]);
-                    });
-                }
+                    }
+                },function(err,data) {
+                    if(err){
+                        next(err,null);
+                    }else {
+                        next(null, data.executor);
+                    }
+                });
             }else {
                next(null,botDetails);
             }  

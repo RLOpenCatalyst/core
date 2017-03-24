@@ -29,6 +29,7 @@ var Cryptography = require('../utils/cryptography');
 var chefSettings = appConfig.chef;
 var AppDeploy = require('_pr/model/app-deploy/app-deploy');
 var async = require('async');
+var cicdDashboardService = require('_pr/services/cicdDashboardService');
 
 var MasterUtil = function () {
     // Return All Orgs specific to User
@@ -480,6 +481,11 @@ var MasterUtil = function () {
             }
 
         });
+    }
+
+    this.getDashboardServerByHost = function(dashboardServer,callback){
+        cicdDashboardService.getcicdDashboardServerByHost(dashboardServer,callback);
+
     }
 
     // Return all Jenkins

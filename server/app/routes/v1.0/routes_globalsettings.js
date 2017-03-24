@@ -23,7 +23,7 @@ var errorResponses = require('./error_responses');
 
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
-    app.all('/globalsettings/*', sessionVerificationFunc);
+    app.all('/globalsettings*', sessionVerificationFunc);
 
     // Get all GlobalSettings
     app.get('/globalsettings', function(req, res) {

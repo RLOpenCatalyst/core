@@ -28,7 +28,7 @@ var bots = require('_pr/model/bots/1.0/bots.js');
 var botsService = require('_pr/services/botsService.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
-	app.all('/blueprints/*', sessionVerificationFunc);
+	app.all('/blueprints*', sessionVerificationFunc);
 
 	app.get('/blueprints', function(req, res) {
 		var queryObj = {

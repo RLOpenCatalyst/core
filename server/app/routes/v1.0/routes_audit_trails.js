@@ -25,7 +25,7 @@ var containerLogModel = require('_pr/model/log-trail/containerLog.js');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
-    app.all('/audit-trail/*', sessionVerificationFunc);
+    app.all('/audit-trail*', sessionVerificationFunc);
 
     app.get('/audit-trail', function(req,res){
         auditTrailService.getAuditTrailList(req.query,function(err,auditTrailList){

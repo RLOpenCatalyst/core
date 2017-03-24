@@ -81,6 +81,9 @@ var gitHub = require('./routes_github');
 var routesCICD = require('./routes_d4dMastersCICD');
 var routesDashboardCICD = require('./routes_dashboardcicd');
 var routesCICDDashboardService = require('./routes_cicddashboardserver');
+var notice = require('./routes_notice');
+
+var clientAppAccess = require('./routes_clientAppAccess');
 /*
  * @TODO
  * Change app to router in internal routes files
@@ -129,6 +132,7 @@ module.exports.setRoutes = function(app) {
     jira.setRoutes(app, sessionVerificationFunc);
 
     provider.setRoutes(app, sessionVerificationFunc);
+
     providerCommon.setRoutes(app, sessionVerificationFunc);
 
     vmimage.setRoutes(app, sessionVerificationFunc);
@@ -204,6 +208,9 @@ module.exports.setRoutes = function(app) {
     routesDashboardCICD.setRoutes(app,sessionVerificationFunc);
 
     routesCICDDashboardService.setRoutes(app,sessionVerificationFunc);
+
+    notice.setRoutes(app,sessionVerificationFunc);
+    clientAppAccess.setRoutes(app,sessionVerificationFunc);
 
     app.get('/', function(req, res) {
         res.redirect('/cat3');

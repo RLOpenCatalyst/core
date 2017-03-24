@@ -25,7 +25,7 @@ var async = require('async');
 
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
-    app.all('/track/*', sessionVerificationFunc);
+    app.all('/track*', sessionVerificationFunc);
 
     // Get all track
     app.get('/track', function(req, res) {
