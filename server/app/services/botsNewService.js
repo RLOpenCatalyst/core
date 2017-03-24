@@ -26,6 +26,7 @@ var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
 var auditTrailService = require('_pr/services/auditTrailService.js');
 var scriptExecutor = require('_pr/engine/bots/scriptExecutor.js');
 var chefExecutor = require('_pr/engine/bots/chefExecutor.js');
+var blueprintExecutor = require('_pr/engine/bots/blueprintExecutor.js');
 var logsDao = require('_pr/model/dao/logsdao.js');
 
 const fileHound= require('filehound');
@@ -185,7 +186,7 @@ botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,service
     });
 }
 
-botsNewService.executeBots = function executeBots(botsId,reqBody,userName,executionType,callback){
+botsNewService.executeBots = function executeBots(botsId,reqBody,userName,executionType,schedulerCallCheck,callback){
     var botId = null;
     async.waterfall([
         function(next) {
@@ -193,14 +194,20 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
         },
         function(bots,next){
             botId = bots[0]._id;
-            if(reqBody !== null && reqBody !== '' && bots[0].type === 'script'){
+            if(reqBody !== null && reqBody !== '' && bots[0].type === 'script' && schedulerCallCheck === false){
                 encryptedParam(reqBody.params,next);
-            }else{
+            }else if(bots[0].type === 'blueprints'){
+                next(null,reqBody);
+            }else {
                 next(null,reqBody.params);
             }
         },
-        function(paramList,next) {
-            botsDao.updateBotsDetail(botId,{params:paramList},next);
+        function(paramObj,next) {
+            if(schedulerCallCheck === false) {
+                botsDao.updateBotsDetail(botId, {params: paramObj}, next);
+            }else{
+                next(null,paramObj);
+            }
         },
         function(updateStatus,next) {
             botsDao.getBotsById(botId, next);
@@ -213,7 +220,7 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
                             function(next){
                                 var actionObj={
                                     auditType:'BOTsNew',
-                                    auditCategory:'BOTs',
+                                    auditCategory:reqBody.category,
                                     status:'running',
                                     action:'BOTs Execution',
                                     actionStatus:'running',
@@ -230,10 +237,14 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
                                 auditTrailService.insertAuditTrail(botDetails[0],auditTrailObj,actionObj,next);
                             },
                             function(auditTrail,next){
+                                var uuid = require('node-uuid');
+                                auditTrail.actionId = uuid.v4();
                                 if (botDetails[0].type === 'script') {
-                                    scriptExecutor.execute(botDetails[0],auditTrail, userName, executionType, next);
+                                    scriptExecutor.execute(botDetails[0],auditTrail, userName,executionType, next);
                                 }else if(botDetails[0].type === 'chef'){
                                     chefExecutor.execute(botDetails[0],auditTrail, userName, executionType, next);
+                                }else if(botDetails[0].type === 'blueprints'){
+                                    blueprintExecutor.execute(botDetails[0],auditTrail, userName,reqBody,next);
                                 }else{
                                     var err = new Error('Invalid BOTs Type');
                                     err.status = 400;
@@ -557,16 +568,16 @@ function getExecutionTime(endTime, startTime) {
 function encryptedParam(paramDetails, callback) {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-    var encryptedList = [];
-    if(paramDetails.length > 0) {
-        for (var i = 0; i < paramDetails.length; i++) {
-            var encryptedText = cryptography.encryptText(paramDetails[i], cryptoConfig.encryptionEncoding,
+    var encryptedObj = {};
+    if(paramDetails !== null) {
+        Object.keys(paramDetails).forEach(function(key){
+            var encryptedText = cryptography.encryptText(paramDetails[key], cryptoConfig.encryptionEncoding,
                 cryptoConfig.decryptionEncoding);
-            encryptedList.push(encryptedText);
-        }
-        callback(null,encryptedList);
+            encryptedObj[key]=encryptedText;
+        });
+        callback(null,encryptedObj);
     }else{
-        callback(null,encryptedList);
+        callback(null,encryptedObj);
     }
 }
 

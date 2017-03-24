@@ -319,7 +319,7 @@ $(document).ready(function() {
 		});
 	*/
 	// LOGOUT BUTTON
-	$('#logout a').click(function(e) {
+	$('a#logout').click(function(e) {
 		//get the link
 		$.loginURL = $(this).attr('logoutlink');
 		// ask verification

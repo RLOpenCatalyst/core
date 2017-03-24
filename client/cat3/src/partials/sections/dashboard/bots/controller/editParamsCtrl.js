@@ -83,7 +83,7 @@
             var reqBody = {};
             $scope.botParameters = $scope.botParameters.concat($scope.botEditParams);
             reqBody = {
-                params:$scope.botParameters
+                params:{"hostName":"google.com"}
             };
             var param={
                 inlineLoader:true,
