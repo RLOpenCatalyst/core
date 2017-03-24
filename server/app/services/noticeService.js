@@ -29,22 +29,22 @@ var noticeService = module.exports = {
             socket.on('join', function(roomData) {
                 socket.join(roomData);
             });
-            socket.in('client').on('onLoad',function(userid){
+            socket.on('onLoad',function(userid){
                 noticeSchema.getAllnotices(userid,function(err,data){
                     if(err){
                         logger.error(err);  
                     }else {
-                        nsp.in('client').emit('noticelist',{data:data,count:data.length});
+                        nsp.in('client-'+userid).emit('noticelist',{data:data,count:data.length});
                     }
                 });
             });
             socket.in('server').on('notice',function(data){
-                nsp.in('client').emit('notice',data);
+                nsp.in('client-'+data.data.user_id).emit('notice',data);
             })
             socket.in('server').on('update',function(data){
-                nsp.in('client').emit('update',data);
+                nsp.in('client-'+data.data.user_id).emit('update',data);
             })
-            socket.in('client').on('noticeack',function(userid){
+            socket.on('noticeack',function(userid){
                 noticeSchema.deleteNotice(userid,function(err,data){
                     if(err)
                     logger.error(err);  
@@ -97,9 +97,9 @@ var noticeService = module.exports = {
     }
     // test:function test(){
     //     socketClient.on('connect',function(){
-    //         socketClient.emit('join','client');
+    //         socketClient.emit('join','client-2');
     //     });
-    //     socketClient.emit('onLoad',1);
+    //     socketClient.emit('onLoad',2);
     //     socketClient.on('noticelist',function(data){
     //         console.log(data);
     //     })
@@ -110,7 +110,7 @@ var noticeService = module.exports = {
     //         console.log(data);
     //     })
     //     socketClient.on('disconnect',function(){
-    //         socketClient.emit('leave','server');
+    //         socketClient.emit('leave','client-2');
     //     })
     // }
 }
