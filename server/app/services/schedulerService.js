@@ -17,6 +17,8 @@
 var logger = require('_pr/logger')(module);
 
 const errorType = 'schedulerService';
+var Client = require('node-rest-client').Client;
+var client = new Client();
 
 var schedulerService = module.exports = {};
 var cronTab = require('node-crontab');
@@ -44,6 +46,10 @@ var GCP = require('_pr/lib/gcp.js');
 var crontab = require('node-crontab');
 var botsDao = require('_pr/model/bots/1.0/bots.js');
 var newBotsDao = require('_pr/model/bots/1.1/botsDao.js');
+var logsDao = require('_pr/model/dao/logsdao.js');
+var auditTrailService = require('_pr/services/auditTrailService.js');
+
+
 
 schedulerService.executeSchedulerForInstances = function executeSchedulerForInstances(instance,callback) {
     logger.debug("Instance Scheduler is started for Instance. "+instance.platformId);
@@ -137,6 +143,22 @@ schedulerService.executeParallelScheduledTasks = function executeParallelSchedul
             });
         });
     }
+}
+
+schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDetails(url,callback) {
+    client.get(url, function (dataObj, response) {
+        if (response.statusCode == 200 && dataObj.state === 'terminated') {
+            callback(null, dataObj);
+            return;
+        } else if (response.statusCode == 200 && dataObj.state === 'active') {
+            callback(null, dataObj);
+            return;
+        } else {
+            logger.error(dataObj);
+            callback(dataObj, null);
+            return;
+        }
+    });
 }
 
 schedulerService.executeNewScheduledBots = function executeNewScheduledBots(bots,callback) {
