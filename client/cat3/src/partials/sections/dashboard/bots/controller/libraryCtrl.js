@@ -280,27 +280,29 @@
         };*/
 
         $rootScope.applyFilter = function() {
-            lib.gridOptions=[];
-            if ($scope.botLibFilter) {
+            if ($scope.botLibAction) {
                 var param={
-                    url:'/botsNew?filterBy=action:'+$scope.botLibFilter+'&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                    url:'/botsNew?filterBy=action:'+$scope.botLibAction +'&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
                 };
-            } 
-            if($scope.botLibType) {
+            } else if($scope.botLibType) {
                 var param={
                     url:'/botsNew?filterBy=type:'+$scope.botLibType+'&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
                 };
-            } 
-            if($scope.botLibCategory) {
+            } else if($scope.botLibCategory) {
                 var param={
                     url:'/botsNew?filterBy=category:'+$scope.botLibCategory+'&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
                 }; 
+            } else if($scope.botLibCategory && $scope.botLibAction && $scope.botLibType){
+                var param={
+                    url:'/botsNew?filterBy=action:'+$scope.botLibAction +'+type:'+ $scope.botLibType +'+category:'+ $scope.botLibCategory +'&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                };
             } else {
                 $scope.RefreshBotsLibrary();
             }
             genSevs.promiseGet(param).then(function (result) {
                 if($scope.isCardViewActive){
                     $scope.botLibGridOptions.data = result.bots;
+                    $scope.botSummary = result.botSummary;
                     for(var i=0;i<result.bots.length;i++){
                         $scope.imageForCard(result.bots[i]);
                     }
@@ -367,11 +369,15 @@
         $scope.clearFilter = function(name) {
             if(name === $scope.botLibCategory) {
                 $scope.botLibCategory = false;
+                $scope.botLibCategory = '';
             } else if(name === $scope.botLibAction) {
                 $scope.botLibAction = false;
+                $scope.botLibAction = '';
             } else {
                 $scope.botLibType = false;
+                $scope.botLibType = '';
             }
+            $scope.botStatus();
         };
 
         $scope.RefreshBotsLibrary = function() {
