@@ -242,7 +242,28 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     gitHubService.checkIfGitHubExists(req.params.gitHubId, next);
                 },
                 function(gitHub,next) {
-                    gitHubService.getGitHubSync(req.params.gitHubId, next);
+                    gitHubService.getGitHubSync({gitHubId:req.params.gitHubId,task:'sync'}, next);
+                }
+            ],
+            function(err, results) {
+                if (err) {
+                    res.status(err.status).send(err);
+                } else {
+                    return res.status(200).send(results);
+                }
+            }
+        );
+    }
+
+    app.get('/git-hub/:gitHubId/import', getGitHubImport);
+    function getGitHubImport(req, res) {
+        async.waterfall(
+            [
+                function(next) {
+                    gitHubService.checkIfGitHubExists(req.params.gitHubId, next);
+                },
+                function(gitHub,next) {
+                    gitHubService.getGitHubSync({gitHubId:req.params.gitHubId,task:'import'}, next);
                 }
             ],
             function(err, results) {
@@ -496,4 +517,6 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             }
         );
     }
+
+    
 };
