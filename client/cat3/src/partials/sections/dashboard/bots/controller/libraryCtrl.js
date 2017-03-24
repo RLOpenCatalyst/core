@@ -9,6 +9,8 @@
     "use strict";
     angular.module('dashboard.bots')
     .controller('libraryCtrl',['$scope', '$rootScope', '$state', 'genericServices','$filter', 'confirmbox', 'toastr', 'workzoneUIUtils', '$modal', 'uiGridOptionsService', '$timeout', 'workzoneServices', function ($scope, $rootScope, $state, genSevs, $filter, confirmbox, toastr, workzoneUIUtils, $modal, uiGridOptionsService, $timeout, workzoneServices) {
+
+
         var treeNames = ['BOTs','Library'];
         $rootScope.$emit('treeNameUpdate', treeNames);
         var lib=this;
@@ -24,7 +26,7 @@
         $scope.paginationParams=[];
         $scope.numofCardPages = 0;
         $scope.paginationParams.page = 1;
-        $scope.paginationParams.pageSize = 18;
+        $scope.paginationParams.pageSize = 25;
         $scope.paginationParams.sortBy = 'lastRunTime';
         $scope.paginationParams.sortOrder = 'desc';
         $scope.botLibrarySearch = '';
@@ -44,20 +46,15 @@
                     '<img src="images/bots/openDJ.png" ng-show="row.entity.category==\'OpenDJ LDAP\'" alt="row.entity.category" title="OpenDJ-LDAP" class="task-type-img" />'+
                     '<img src="images/bots/serviceManagement.png" ng-show="row.entity.category==\'Service Management\'" alt="row.entity.category" title="Service Management" class="task-type-img" />'+
                     '<img src="images/bots/upgrade.png" ng-show="row.entity.category==\'Upgrade\'" alt="row.entity.category" title="Upgrade" class="task-type-img" />',cellTooltip: true},
-                { name: 'BOT Name',displayName: 'BOT Name',field:'name',cellTooltip: true},
-                { name: 'BOT Type',displayName: 'BOT Type',field:'id',cellTooltip: true},
+                { name: 'Name',displayName: 'Name',field:'name',cellTooltip: true},
+                { name: 'Type',displayName: 'Type',field:'id',cellTooltip: true},
                 { name: 'Description',field:'desc',cellTooltip: true},
              //   { name: 'BOT Created From',displayName: 'BOT Created From',field:'botLinkedCategory',cellTooltip: true},
                 { name: 'Organization',field:'orgName',cellTooltip: true},
                 { name: 'Last Run',field:'lastRunTime ',cellTemplate:'<span title="{{row.entity.lastRunTime  | timestampToLocaleTime}}">{{row.entity.lastRunTime  | timestampToLocaleTime}}</span>', cellTooltip: true},
                 { name: 'Saved Time',field:'savedTime', cellTemplate:'<span title="{{row.entity.savedTime.hours ? row.entity.savedTime.hours : 0}}h {{row.entity.savedTime.minutes ? row.entity.savedTime.minutes : 0}}m">{{row.entity.savedTime.hours ? row.entity.savedTime.hours : 0}}h {{row.entity.savedTime.minutes ? row.entity.savedTime.minutes : 0}}m</span>', cellTooltip: true},
                 { name: 'Total Runs',field:'executionCount'},
-                   { name: 'BOT Action',width:200,displayName: 'BOT Action',cellTemplate:
-                    '<a title="History"><i class="fa fa-header font-size-16 cursor" ng-click="grid.appScope.botHistory(row.entity);"></i></a>'+
-                    '<a title="Info"><i class="fa fa-info font-size-16 cursor" ng-click="grid.appScope.botInfo(row.entity);"></i></a>'+
-                    '<a title="Schedule"><i class="fa fa-calendar font-size-16 cursor" ng-click="grid.appScope.botSchedule(row.entity);"></i></a>' +
-                    '<a title="Execute"><i class="fa fa-play font-size-16 cursor" ng-click="grid.appScope.launchInstance(row.entity);"></i></a>' +
-                    '<a title="Delete"><i class="fa fa-trash-o font-size-16 cursor" ng-click="grid.appScope.deleteBot(row.entity);"></i></a>'
+                   { name: 'BOT Action',width:100,displayName: 'Details',cellTemplate:'<a title="History"><i class="fa fa-eye font-size-16 cursor" ui-sref="dashboard.bots.botsDescription({botDetail:row.entity,listType:1})" ></i></a>'
                 }
             ];
             $scope.botLibGridOptions.data=[];
@@ -129,7 +126,7 @@
         $scope.botsDetails = function(result) {
             $scope.showLoadRecord();
             $scope.botLibGridOptions.totalItems = result.metaData.totalRecords;
-            if(result.metaData.totalRecords >= 18) {
+            if(result.metaData.totalRecords >= 25) {
                 $scope.showLoadMore = true;
                 $scope.showRecords = true;
             }
@@ -156,7 +153,7 @@
                     $scope.showLoadRecord();
                     $scope.botLibGridOptions.totalItems = result.metaData.totalRecords;
                     $scope.botSummary = result.botSummary;
-                    if(result.metaData.totalRecords >= 18) {
+                    if(result.metaData.totalRecords >= 25) {
                         $scope.showLoadMore = true;
                         $scope.showRecords = true;
                     }
@@ -183,17 +180,7 @@
                 $scope.errorMessage = "No Records found";
             });
         };
-       // $scope.botLibraryGridView();
-        $scope.botTemplateClick = function(templateDetail, serviceNowCheck) {
-            templateDetail.selected = true;
-            $rootScope.templateSelected = templateDetail;
-            if($scope.scheduledBotsSelected) {
-                serviceNowCheck = true;
-                $rootScope.templateSelected.serviceNowCheck = true;
-            }
-            $scope.nextEnabled = true;
-            $rootScope.$emit('BOTS_TEMPLATE_SELECTED',templateDetail);
-        };
+
 
         $scope.botStatus = function() {
             if($scope.totalBotsSelected) {
@@ -263,7 +250,7 @@
             $scope.searchText = false;
             $scope.paginationParams.page = 1;
             $scope.botLibGridOptions.paginationCurrentPage = $scope.paginationParams.page;
-            $scope.paginationParams.pageSize = 18;
+            $scope.paginationParams.pageSize = 25;
             $scope.botStatus();
         };
 
@@ -340,7 +327,7 @@
                 $scope.paginationParams.page = 1;
                 $scope.botLibGridOptions.paginationCurrentPage = $scope.paginationParams.page;
             }
-            $scope.paginationParams.pageSize = 18;
+            $scope.paginationParams.pageSize = 25;
             if($scope.botLibrarySearch){
                 $scope.searchBotNameCategory();    
             } else {
@@ -362,92 +349,8 @@
 
         var gridBottomSpace = 250;
         $scope.gridHeight = workzoneUIUtils.makeTabScrollable('botLibraryPage') - gridBottomSpace;
-        $scope.launchInstance = function(launch){
-            genSevs.executeTask(launch);
-        };
 
-        $scope.botHistory=function(bot) {
-            var serviceNowCheck;
-            if($scope.scheduledBotsSelected) {
-                serviceNowCheck = true;
-                bot.serviceNowCheck = true;
-            }
-            $rootScope.templateSelected = bot;
-            var modalInstance = $modal.open({
-                animation: true,
-                templateUrl: 'src/partials/sections/dashboard/bots/view/botHistory.html',
-                controller: 'botHistoryCtrl',
-                backdrop : 'static',
-                size: 'lg',
-                scope: $scope,
-                keyboard: false
-            });
-            modalInstance.result.then(function(selectedItem) {
-                $scope.selected = selectedItem;
-            }, function() {
-                console.log('Modal Dismissed at ' + new Date());
-            });
-        };
-    
-        $scope.botInfo=function(bot) {
-            var modalInstance = $modal.open({
-                animation: true,
-                templateUrl: 'src/partials/sections/dashboard/bots/view/botInfo.html',
-                controller: 'botInfoCtrl',
-                backdrop : 'static',
-                keyboard: false,
-                resolve: {
-                    items: function() {
-                        return bot;
-                    }
-                }
-            });
-            modalInstance.result.then(function(selectedItem) {
-                $scope.selected = selectedItem;
-            }, function() {
-                console.log('Modal Dismissed at ' + new Date());
-            });
-        };
 
-        $scope.botSchedule = function(bot) {
-            $rootScope.templateSelected = bot;
-            $modal.open({
-                templateUrl: 'src/partials/sections/dashboard/bots/view/botSchedule.html',
-                controller: 'botScheduleCtrl',
-                backdrop: 'static',
-                keyboard: false
-            }).result.then(function () {
-            }, function () {
-                console.log('Dismiss time is ' + new Date());
-            });
-        };
-
-        $scope.deleteBot = function(bot) {
-            var modalOptions = {
-                closeButtonText: 'Cancel',
-                actionButtonText: 'Delete',
-                actionButtonStyle: 'cat-btn-delete',
-                headerText: 'Delete Bot',
-                bodyText: 'Are you sure you want to delete this BOT?'
-            };
-            confirmbox.showModal({}, modalOptions).then(function() {
-                var url;
-                url = '/botsNew/' + bot._id;
-                var param = {
-                    inlineLoader:true,
-                    url:url
-                };
-                genSevs.promiseDelete(param).then(function (response) {
-                    if (response) {
-                        toastr.success('Successfully deleted.');
-                        $scope.botLibGridOptions.data = [];
-                        $scope.botStatus();
-                    }
-                }, function(data) {
-                    toastr.error('error:: ' + data.toString());
-                });
-            });
-        };
         $rootScope.$on('BOTS_LIBRARY_REFRESH', function() {
             $scope.showLoadRecord();
             $scope.isBotLibraryPageLoading = true;
@@ -482,7 +385,7 @@
             $scope.numofCardPages = 0;
             $scope.paginationParams.page = 1;
             $scope.botLibGridOptions.paginationCurrentPage = $scope.paginationParams.page;
-            $scope.paginationParams.pageSize = 18;
+            $scope.paginationParams.pageSize = 25;
             $scope.paginationParams.sortBy = 'lastRunTime';
             $scope.paginationParams.sortOrder = 'desc';
             $scope.botLibrarySearch = '';

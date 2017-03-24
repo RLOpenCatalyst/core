@@ -216,7 +216,7 @@
          <form class="pull-right firefoxForm" novalidate name="library-form" ng-submit="searchBotNameCategory('pageNumber')">
             <span class="bot-library-search">
                <label>&nbsp;
-                  <input type="search" ng-model="botLibrarySearch" class="bot-search" placeholder="Search">
+                  <input type="text" ng-model="botLibrarySearch" class="search-text bot-search" placeholder="Search">
                   <i class="fa fa-search search-icon" ng-show="!searchText" ng-click="searchBotNameCategory('pageNumber')"></i>
                   <i title="Clear Search" class="fa fa-close search-icon cancel-icon ng-hide" ng-show="searchText" ng-click="clearBotSearchText()"></i>
                </label>
@@ -226,7 +226,7 @@
       <loading size="large" name="isBotLibraryPageLoading" type="block" align="center"></loading>
       <div class="col-lg-4 col-md-4 col-sm-6" ng-show="isCardViewActive" ng-repeat="botsDetails in botLibGridOptions.data">
          <div class="agent-card grid-card hoverable col-lg-12 col-md-12 col-xs-12">
-            <a class="appnav" ng-click="botTemplateClick(botsDetails,false)" ui-sref="dashboard.bots.botsDescription">
+            <a class="appnav" ui-sref="dashboard.bots.botsDescription({botDetail:botsDetails,listType:0})">
                <div class="image-cell two-tone-11">
                   <img class="highlight" alt="{{botsDetails.botCategory}}" ng-src="{{botsDetails.imagePath}}">
                </div>
@@ -239,18 +239,26 @@
                <div class="desc-cell">
                   <div title="{{botsDetails.desc ? botsDetails.desc:botsDetails.botDesc}}" class="description">{{botsDetails.desc ? botsDetails.desc:botsDetails.botDesc}}</div>
                </div>
-               <div class="pull-left botsExecution" ng-if="botsDetails.executionCount">Total Runs:&nbsp;<span>{{botsDetails.executionCount}}</div>
+                <div class="pull-left botsExecution" ng-if="botsDetails.executionCount">Total Runs:&nbsp;<span>{{botsDetails.executionCount}}</span></div>
                <!-- <div class="pull-right" style="margin-top:5px;">
                   <a class="margin10 cursor" ng-click="launchInstance(botsDetails);" title="Execute"><i class="fa fa-play font-size-20"></i></a>
                </div> -->
             </a>
          </div>
       </div>
-      
-      <div class="text-center" ng-show="showLoadMore && isCardViewActive"><a class="font-size-16 cursor" ng-model="currentCardPage" ng-click="cardPaginationChange()";>Load More</a></div>
-      <div ng-show="showRecords && isCardViewActive" class="pull-right" style="margin-top:34px;">
-         <div class="alert alert-success pull-left small">{{statusBar}}</div>
-      </div>
+      <div class="clearfix"></div>
+
+        <div class="clearfix"></div>
+        <div class="col-lg-5"></div>
+        <div class="col-lg-2">
+            <div class="text-center" ng-show="showLoadMore && isCardViewActive"><a class="font-size-16 cursor" ng-model="currentCardPage" ng-click="cardPaginationChange()";>Load More</a></div>
+        </div>
+        <div class="col-lg-3"></div>
+        <div class="col-lg-2 pull-right">
+            <div ng-show="showRecords && isCardViewActive">
+                <h4><small>{{statusBar}}</small></h4>
+            </div>
+        </div>
     </div>   
    <!--cards section ends here-->
 
@@ -258,6 +266,6 @@
    <div class="alert alert-info text-center" ng-if="!botLibGridOptions.data.length > 0 && !isBotLibraryPageLoading">
       No data Available
    </div>
-   <div id="grid1" ng-show="!isCardViewActive" ng-if="botLibGridOptions.data.length >0 && !isBotLibraryPageLoading" ui-grid="botLibGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid" style="height: {{gridHeight}}px"></div>
+   <div id="grid1" ng-show="!isCardViewActive" ng-if="botLibGridOptions.data.length >0 && !isBotLibraryPageLoading" ui-grid="botLibGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid"></div>
    <!--table section ends here -->
 </div>

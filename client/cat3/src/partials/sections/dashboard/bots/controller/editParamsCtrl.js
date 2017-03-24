@@ -27,6 +27,8 @@
         $scope.botType = items.type;
         $scope.botInfo = $scope.templateSelected;
         $scope.selectedInstanceList = [];
+        $scope.selectedInstanceIds=[];
+         $scope.originalInstanceList=[];
 
         $scope.IMGNewEnt={
             org:$rootScope.organObject[0],
@@ -37,11 +39,18 @@
 
         $scope.getInstanceList = function() {
             botsCreateService.getCurrentEnvInstances($scope.IMGNewEnt.org.orgid,$scope.IMGNewEnt.buss.rowid,$scope.IMGNewEnt.proj.rowId,$scope.IMGNewEnt.env.rowid).then(function(response){
+                var found = false;
+                $scope.originalInstanceList=[];
                 if(response){
-                    $scope.originalInstanceList = response;    
-                }
-                else {
-                    $scope.originalInstanceList = [];   
+                    console.log('response',response);
+                    //if($scope.selectedInstanceList.length > 0) {
+                        angular.forEach(response, function(value, key) {
+                            console.log(key,'--');
+                            if($scope.selectedInstanceIds.indexOf(value._id) == -1) {
+                                $scope.originalInstanceList.push(value);
+                            }
+                        });
+                    //}
                 }
                 
             });
@@ -49,6 +58,7 @@
 
         $scope.addInstance = function (indexArr) {
             $scope.selectedInstanceList.push($scope.originalInstanceList[indexArr]);
+            $scope.selectedInstanceIds.push($scope.originalInstanceList[indexArr]._id);
             $scope.originalInstanceList.splice(indexArr,1);
         };
 
@@ -71,10 +81,12 @@
             });
         }
 
-        $scope.deSelectInstance = function ($event,indexArr){
+        $scope.deSelectInstance = function ($event,id){
             $event.stopPropagation();
-            $scope.originalInstanceList.push($scope.selectedInstanceList[indexArr]);
-            $scope.selectedInstanceList.splice(indexArr,1);
+            var ind=$scope.selectedInstanceIds.indexOf(id);
+            $scope.selectedInstanceList.splice(ind,1);
+            $scope.selectedInstanceIds.splice(ind,1);
+            $scope.getInstanceList();
         };
 
         $scope.executeTask = function(){
