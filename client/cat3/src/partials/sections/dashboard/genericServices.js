@@ -205,7 +205,7 @@
                 $modal.open({
                     animation: true,
                     templateUrl: 'src/partials/sections/dashboard/bots/view/editParams.html',
-                    controller: 'editParamsCtrl',
+                    controller: 'editParamsCtrl as appDeployCreate',
                     backdrop: 'static',
                     keyboard: false,
                     resolve: {
