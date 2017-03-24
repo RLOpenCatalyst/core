@@ -255,6 +255,27 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         );
     }
 
+    app.get('/git-hub/:gitHubId/import', getGitHubImport);
+    function getGitHubImport(req, res) {
+        async.waterfall(
+            [
+                function(next) {
+                    gitHubService.checkIfGitHubExists(req.params.gitHubId, next);
+                },
+                function(gitHub,next) {
+                    gitHubService.getGitHubSync({gitHubId:req.params.gitHubId,task:'import'}, next);
+                }
+            ],
+            function(err, results) {
+                if (err) {
+                    res.status(err.status).send(err);
+                } else {
+                    return res.status(200).send(results);
+                }
+            }
+        );
+    }
+
     /**
      * @api {post} /git-hub/ Create a Git-Hub Repository
      * @apiName /git-hub
@@ -497,24 +518,5 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         );
     }
 
-    app.get('/git-hub/:gitHubId/import', getGitHubSync);
-    function getGitHubSync(req, res) {
-        async.waterfall(
-            [
-                function(next) {
-                    gitHubService.checkIfGitHubExists(req.params.gitHubId, next);
-                },
-                function(gitHub,next) {
-                    gitHubService.getGitHubSync({gitHubId:req.params.gitHubId,task:'import'}, next);
-                }
-            ],
-            function(err, results) {
-                if (err) {
-                    res.status(err.status).send(err);
-                } else {
-                    return res.status(200).send(results);
-                }
-            }
-        );
-    }
+    
 };
