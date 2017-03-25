@@ -1432,19 +1432,19 @@ label {
     transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
 }
 
-div::-webkit-scrollbar-track
+div::-webkit-scrollbar-track, ul::-webkit-scrollbar-track
 {
     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
     background-color: #F5F5F5;
 }
 
-div::-webkit-scrollbar
+div::-webkit-scrollbar, ul::-webkit-scrollbar
 {
     width: 10px;
     background-color: #F5F5F5;
 }
 
-div::-webkit-scrollbar-thumb
+div::-webkit-scrollbar-thumb, ul::-webkit-scrollbar-thumb
 {
     background-color: #40BAF1;
     background-image: -webkit-linear-gradient(45deg,
@@ -1540,3 +1540,11 @@ input[type="text"].ui-grid-filter-input{
     outline: none;
 }
 
+.marginright6 {
+    margin-right: 6px;
+}
+
+.marginLeftRight10 {
+    margin-left: 10px;
+    margin-right: 10px;
+}

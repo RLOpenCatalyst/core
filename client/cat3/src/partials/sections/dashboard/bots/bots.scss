@@ -12,11 +12,15 @@
   margin-left: 23px;
 }
 
-.marginleft15 {
+.marginleft-15 {
   margin-left: -15px;
 }
 
-.marginleft8 {
+.marginleft-18 {
+  margin-left: -18px!important;
+}
+
+.marginleft-8 {
   margin-left: -8px; 
 }
 
@@ -95,7 +99,7 @@
   overflow-y: auto;
 }
 
-#botLibraryPage, #botAuditTrailPage, #botsDescriptionPage {
+#botLibraryPage, #botAuditTrailPage, #botsDescriptionPage, #newBotPage {
   .page-name {
     font-size: 18px;
     margin: 5px 0 5px 36px;
@@ -622,9 +626,9 @@ body .botDescriptionPage {
   .badge {
     margin-right: 2px; 
     background: #40baf1; 
-    padding: .2em 1.5em .3em;
-    font-size: 15px;
-    margin-top: -5px;
+    padding: .2em 0.9em .2em;
+    font-size: 14px;
+    margin-top: -3px;
   }
 }
 
@@ -650,7 +654,7 @@ body .botDescriptionPage {
   position:relative;
   cursor:pointer;
   float: right;
-  right: -9px;
+  right: -6px;
 }
 
 .bot-card-hero {
@@ -737,6 +741,10 @@ body .botDescriptionPage {
 
 .scheduleBorder {
   border: 1px solid #ddd;
+}
+
+.backColor {
+  background: #fff;
 }
 
 .botsExecution {
@@ -918,3 +926,16 @@ body .botDescriptionPage {
     border-radius: 14px;
 }
 
+#newBotPage .pager {
+  border-top: 1px solid #e5e5e5;
+}
+
+.select-scripts {
+  border: 1px solid #dddddd;
+  list-style: none outside none;
+  height: 150px;
+  overflow-y: auto;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  padding: 5px;
+}

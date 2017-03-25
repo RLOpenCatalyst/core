@@ -94,25 +94,16 @@ var noticeService = module.exports = {
         socketClient.on('disconnect',function(){
             socketClient.emit('leave','server');
         })
-    }
-    // test:function test(){
-    //     socketClient.on('connect',function(){
-    //         socketClient.emit('join','client-2');
-    //     });
-    //     socketClient.emit('onLoad',2);
-    //     socketClient.on('noticelist',function(data){
-    //         console.log(data);
-    //     })
-    //     socketClient.on('notice',function(data){
-    //         console.log(data);
-    //     })
-    //     socketClient.on('update',function(data){
-    //         console.log(data);
-    //     })
-    //     socketClient.on('disconnect',function(){
-    //         socketClient.emit('leave','client-2');
-    //     })
-    // }
+     }/*,
+    test:function test(){
+        var i=0;
+        setInterval(function(){
+            noticeService.notice('superadmin',{title:'msg '+i,body:'Test1234'},"success",function(err,data){
+                console.log(data);
+            });
+            i++;
+         }, 4000000);
+    }*/
 }
 
 
