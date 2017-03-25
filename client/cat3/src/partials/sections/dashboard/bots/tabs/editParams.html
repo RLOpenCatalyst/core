@@ -64,7 +64,7 @@
 	            </div>
 	        </div>
 	        <div class="col-lg-12 col-md-12">
-      		<div class="col-lg-6 col-md-6 col-sm-12 margintop15 marginleft15">
+      		<div class="col-lg-6 col-md-6 col-sm-12 margintop15 marginleft-15">
                <div class="panel-group">
                   <div class="panel panel-default">
                      <div class="panel-heading" style="height: 40px;"> 
@@ -108,7 +108,8 @@
                               dnd-selected="models.selected = selectedInstance"  ng-class=" {'activeLi':selectInstanceId === selectedInstance._id}">
                               	<span class="col-lg-12 col-md-12">
                               	  <span class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="instanceInfo($event,selectedInstance)" ><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>
-	                              <span class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="deSelectInstance($event,selectedInstanceList.indexOf(selectedInstance))" ><i class="fa fa-arrow-left fa-2 white" aria-hidden="true"></i></span>
+                              	  <span title="Clear" class="filterClear pull-right btn btn-xs cat-btn-update bpvicon" ng-click="deSelectInstance($event,selectedInstanceList._id)">×</span>
+	                              <!-- <span  ng-click="deSelectInstance($event,selectedInstanceList.indexOf(selectedInstance))" ><i class="fa fa-arrow-left fa-2 white" aria-hidden="true"></i></span> -->
 	                              <span class="badge pull-left" >{{(+selectedInstanceList.indexOf(selectedInstance)) +1}}</span><img class="layersClassComposite" src="./images/global/chef-import.png"  alt="{{selectedInstance.name}}"/> &nbsp;{{selectedInstance.name}}
                           		</span>
                           		<div class="info-cell">
@@ -122,31 +123,14 @@
                </div>
             </div>
         </div>
-      		</div>
-			<!-- <div class="col-lg-6 col-md-6 param-table">
-				<h4 style="margin-top: 0px;">Edit Parameters:</h4>
-				<loading size="large" name="" type="block" align="center"></loading>
-				<table class="table table-bordered text-center">
-					<thead>
-					</thead>
-					<tbody>
-						<tr ng-repeat="params in botParams">
-			                <td>
-			                	<span>{{params.label}}</span>
-			                </td>
-			                <td ng-init="botEditParams[$index] = params.default" style="text-align: left">
-			                	<input ng-if="params.type==='text'" type="text" class="cookbook-edit-text" ng-model="botEditParams[$index]"/>
-			                	<input ng-if="params.type==='password'" type="password" class="cookbook-edit-text" ng-model="botEditParams[$index]"/>
-			                </td>
-			            </tr>
-					</tbody>
-				</table>
-			</div> -->
-		</fieldset>
-	
+      	</div>
+	    <div class="alert alert-info text-center" ng-if="botType === 'UI'">
+	      No data Available
+	   </div>
+	</fieldset>
 </form>
 	<div class="pager">
-		<button type="button" class="btn cat-btn-update" ng-disabled="editParamsForm.$invalid" ng-click="executeTask()">
+		<button type="button" ng-if="botType === 'script' || botType ==='chef'" class="btn cat-btn-update" ng-disabled="editParamsForm.$invalid" ng-click="executeTask()">
 			<i class="fa fa-check white"></i> Execute
 		</button>
 	</div>

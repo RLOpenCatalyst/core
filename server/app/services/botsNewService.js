@@ -605,6 +605,7 @@ function addYmlFileDetailsForBots(bots,reqData,callback){
                             gitHubId:bot.gitHubId,
                             id:bot.id,
                             desc:bot.desc,
+                            action:bot.action,
                             category:bot.category,
                             type:bot.type,
                             inputFormFields:bot.inputFormFields,

@@ -22,41 +22,41 @@ var address,socketClient;
 var noticeService = module.exports = {};
 
 noticeService.init =function init(io, address) {
-        address = address.address + address.port;
-        socketClient = require('socket.io-client')('http://' + address + '/notify');
-        var nsp = io.of('/notify');
-        nsp.on('connect', function (socket) {
-            socket.on('join', function (roomData) {
-                socket.join(roomData);
-            });
-            socket.on('onLoad', function (userid) {
-                noticeSchema.getAllnotices(userid, function (err, data) {
-                    if (err) {
-                        logger.error(err);
-                    } else {
-                        nsp.in('client-' + userid).emit('noticelist', {data: data, count: data.length});
-                    }
-                });
-            });
-            socket.in('server').on('notice', function (data) {
-                nsp.in('client-' + data.data.user_id).emit('notice', data);
-            })
-            socket.in('server').on('update', function (data) {
-                nsp.in('client-' + data.data.user_id).emit('update', data);
-            })
-            socket.on('noticeack', function (userid) {
-                noticeSchema.deleteNotice(userid, function (err, data) {
-                    if (err)
-                        logger.error(err);
-                })
-            })
-            socket.on('disconnect', function () {
-                socket.on('leave', function (roomData) {
-                    socket.leave(roomData);
-                })
-            })
+    address = address.address + address.port;
+    socketClient = require('socket.io-client')('http://' + address + '/notify');
+    var nsp = io.of('/notify');
+    nsp.on('connect', function (socket) {
+        socket.on('join', function (roomData) {
+            socket.join(roomData);
         });
-    }
+        socket.on('onLoad', function (userid) {
+            noticeSchema.getAllnotices(userid, function (err, data) {
+                if (err) {
+                    logger.error(err);
+                } else {
+                    nsp.in('client-' + userid).emit('noticelist', {data: data, count: data.length});
+                }
+            });
+        });
+        socket.in('server').on('notice', function (data) {
+            nsp.in('client-' + data.data.user_id).emit('notice', data);
+        })
+        socket.in('server').on('update', function (data) {
+            nsp.in('client-' + data.data.user_id).emit('update', data);
+        })
+        socket.on('noticeack', function (userid) {
+            noticeSchema.deleteNotice(userid, function (err, data) {
+                if (err)
+                    logger.error(err);
+            })
+        })
+        socket.on('disconnect', function () {
+            socket.on('leave', function (roomData) {
+                socket.leave(roomData);
+            })
+        })
+    });
+}
 noticeService.notice = function notice(userid, message, severity, callback) {
     socketClient.on('connect', function () {
         socketClient.emit('join', 'server');
@@ -83,6 +83,7 @@ noticeService.notice = function notice(userid, message, severity, callback) {
     socketClient.on('disconnect', function () {
         socketClient.emit('leave', 'server');
     })
+
 }
 
 noticeService.updater = function updater(userid, dataType, updateData, callback) {
