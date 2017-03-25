@@ -31,7 +31,7 @@ function getGlobalcicdDashboardServers(){
         "serverSide": true,
         "destroy":true,
         "createdRow": function( row, data ) {
-           $( row ).attr({"dashboardName": data.dashboardName,"dashboardDesc":data.dashboardDesc,"orgId" : data.orgId ,"orgName" : data.orgName,"dashboardId" : data._id,"dashboardServer":data.dashboardServer,"dashboardServerUserName":data.dashboardServerUserName,"dashboardDbHostName":data.dashboardDbHostName,"jiraServerId":data.jiraServerId,"jenkinsServerId":data.jenkinsServerId,"sonarServerId":data.sonarServerId
+           $( row ).attr({"dashboardName": data.dashboardName,"dashboardDesc":data.dashboardDesc,"orgId" : data.orgId ,"orgName" : data.orgName,"dashboardId" : data._id,"dashboardServer":data.dashboardServer,"catalystUsername":data.catalystUsername,"dashboardServerUserName":data.dashboardServerUserName,"dashboardDbHostName":data.dashboardDbHostName,"jiraServerId":data.jiraServerId,"jenkinsServerId":data.jenkinsServerId,"sonarServerId":data.sonarServerId
             });
         },
         "ajax": '/cicd-dashboardservice',
@@ -260,6 +260,8 @@ $('#cicdDashboardServerTable tbody').on( 'click', 'button.editcicdDashboardServe
     $editModal.find('#dashboardServerUserName').val($this.parents('tr').attr('dashboardServerUserName'));
     $editModal.find('#dashboardDbHostName').val($this.parents('tr').attr('dashboardDbHostName'));
     $editModal.find('#cicddashboardServerEditHiddenInputId').val($this.parents('tr').attr('dashboardId'));
+    
+    $editModal.find('#catalystUsername').val($this.parents('tr').attr('catalystUsername'));
     return false;
 });
 
