@@ -3,6 +3,7 @@ var async = require('async');
 var validate = require('express-validation');
 var cicdDashboardServerValidator = require('_pr/validators/cicdDashboardServerValidator');
 
+
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 	app.all('/cicd-dashboardservice*', sessionVerificationFunc);
 
@@ -13,7 +14,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     function getcicdDashboardList(req, res) {
         async.waterfall([
             function(next) {
-                cicdDashboardService.getcicdDashboardServerList(req.query, next);
+                cicdDashboardService.getcicdDashboardServerList(req.query,req.session.user.cn, next);
             }
         ], function(err, monitors) {
             if (err) {
