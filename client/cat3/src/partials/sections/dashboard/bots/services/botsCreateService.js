@@ -40,6 +40,22 @@
 				};
 				return genericServices.promiseGet(params);
 			};
+
+			botService.postCreateBots = function (bots) {
+				var params = {
+					url: '/botsNew',
+					data: bots
+				};
+				return genericServices.promisePost(params);
+			};
+
+			botService.getScriptList = function (scriptType) {
+				var params = {
+					url: '/scripts?filterBy=scriptType:'+scriptType,
+					inlineLoader: true	
+				}
+				return genericServices.promiseGet(params);
+			};
 			
         }]);
 })(angular);

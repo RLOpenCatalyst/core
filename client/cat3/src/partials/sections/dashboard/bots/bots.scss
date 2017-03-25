@@ -12,8 +12,12 @@
   margin-left: 23px;
 }
 
-.marginleft15 {
+.marginleft-15 {
   margin-left: -15px;
+}
+
+.marginleft-18 {
+  margin-left: -18px!important;
 }
 
 .marginleft-8 {
@@ -95,7 +99,7 @@
   overflow-y: auto;
 }
 
-#botLibraryPage, #botAuditTrailPage, #botsDescriptionPage {
+#botLibraryPage, #botAuditTrailPage, #botsDescriptionPage, #newBotPage {
   .page-name {
     font-size: 18px;
     margin: 5px 0 5px 36px;
@@ -739,6 +743,10 @@ body .botDescriptionPage {
   border: 1px solid #ddd;
 }
 
+.backColor {
+  background: #fff;
+}
+
 .botsExecution {
   margin-left: 12px;
   margin-top: 6px;
@@ -918,3 +926,16 @@ body .botDescriptionPage {
     border-radius: 14px;
 }
 
+#newBotPage .pager {
+  border-top: 1px solid #e5e5e5;
+}
+
+.select-scripts {
+  border: 1px solid #dddddd;
+  list-style: none outside none;
+  height: 150px;
+  overflow-y: auto;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  padding: 5px;
+}

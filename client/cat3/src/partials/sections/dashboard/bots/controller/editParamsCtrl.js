@@ -42,17 +42,12 @@
                 var found = false;
                 $scope.originalInstanceList=[];
                 if(response){
-                    console.log('response',response);
-                    //if($scope.selectedInstanceList.length > 0) {
-                        angular.forEach(response, function(value, key) {
-                            console.log(key,'--');
-                            if($scope.selectedInstanceIds.indexOf(value._id) == -1) {
-                                $scope.originalInstanceList.push(value);
-                            }
-                        });
-                    //}
+                    angular.forEach(response, function(value, key) {
+                        if($scope.selectedInstanceIds.indexOf(value._id) == -1) {
+                            $scope.originalInstanceList.push(value);
+                        }
+                    });
                 }
-                
             });
         };
 
