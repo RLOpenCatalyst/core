@@ -26,6 +26,9 @@ var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var promisify = require("promisify-node");
 var fse = promisify(require("fs-extra"));
 var botsNewService = require("_pr/services/botsNewService.js");
+var fs = require('fs');
+var dircompare = require('dir-compare');
+var glob = require("glob")
 var gitGubService = module.exports = {};
 
 gitGubService.checkIfGitHubExists = function checkIfGitHubExists(gitHubId, callback) {
@@ -102,7 +105,8 @@ gitGubService.deleteGitHub = function deleteGitHub(gitHubId, callback) {
     });
 };
 
-gitGubService.getGitHubSync = function getGitHubSync(gitHubId, callback) {
+gitGubService.getGitHubSync = function getGitHubSync(data, callback) {
+    var gitHubId = data.gitHubId;
     gitHubModel.getGitHubById(gitHubId, function (err, gitHub) {
         if (err) {
             var err = new Error('Internal Server Error');
@@ -114,51 +118,25 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId, callback) {
             return callback(err);
         } else{
             formatGitHubResponse(gitHub,function(formattedGitHub){
+                var cmd;
                 if(formattedGitHub.repositoryType === 'Private' && formattedGitHub.authenticationType === 'token') {
-                    var cmd = 'curl -u '+formattedGitHub.repositoryUserName+':'+formattedGitHub.repositoryToken + ' -L https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/tarball/'+formattedGitHub.repositoryBranch + ' > '+appConfig.gitHubDir+formattedGitHub.repositoryName+'.tgz';
-                    gitHubCloning(formattedGitHub,cmd,function(err,res){
-                        if(err){
-                            callback(err,null);
-                            return;
-                        }else{
-                            callback(null,res);
-                            return;
-                        }
-                    });
+                    cmd = 'curl -u '+formattedGitHub.repositoryUserName+':'+formattedGitHub.repositoryToken + ' -L https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/tarball/'+formattedGitHub.repositoryBranch + ' > '+appConfig.gitHubDir+formattedGitHub.repositoryName+'.tgz';
                 }else if(formattedGitHub.repositoryType === 'Private' && formattedGitHub.authenticationType === 'userName') {
-                    var cmd = 'curl -u '+formattedGitHub.repositoryUserName+':'+formattedGitHub.repositoryPassword + ' -L https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/tarball/'+formattedGitHub.repositoryBranch + ' > '+appConfig.gitHubDir+formattedGitHub.repositoryName+'.tgz';
-                    gitHubCloning(formattedGitHub,cmd,function(err,res){
-                        if(err){
-                            callback(err,null);
-                            return;
-                        }else{
-                            callback(null,res);
-                            return;
-                        }
-                    });
+                    cmd = 'curl -u '+formattedGitHub.repositoryUserName+':'+formattedGitHub.repositoryPassword + ' -L https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/tarball/'+formattedGitHub.repositoryBranch + ' > '+appConfig.gitHubDir+formattedGitHub.repositoryName+'.tgz';
                 }else if(formattedGitHub.repositoryType === 'Private' && formattedGitHub.authenticationType === 'sshKey') {
-                    var cmd = 'curl -u '+formattedGitHub.repositoryUserName+':'+formattedGitHub.repositoryPassword + ' -L https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/tarball/'+formattedGitHub.repositoryBranch + ' > '+appConfig.gitHubDir+formattedGitHub.repositoryName+'.tgz';
-                    gitHubCloning(formattedGitHub,cmd,function(err,res){
-                        if(err){
-                            callback(err,null);
-                            return;
-                        }else{
-                            callback(null,res);
-                            return;
-                        }
-                    });
+                    cmd = 'curl -u '+formattedGitHub.repositoryUserName+':'+formattedGitHub.repositoryPassword + ' -L https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/tarball/'+formattedGitHub.repositoryBranch + ' > '+appConfig.gitHubDir+formattedGitHub.repositoryName+'.tgz';
                 }else{
-                    var cmd = 'curl -L https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/tarball/'+formattedGitHub.repositoryBranch + ' > '+appConfig.gitHubDir+formattedGitHub.repositoryName+'.tgz';
-                    gitHubCloning(formattedGitHub,cmd,function(err,res){
-                        if(err){
-                            callback(err,null);
-                            return;
-                        }else{
-                            callback(null,res);
-                            return;
-                        }
-                    });
+                    cmd = 'curl -L https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/tarball/'+formattedGitHub.repositoryBranch + ' > '+appConfig.gitHubDir+formattedGitHub.repositoryName+'.tgz';
                 }
+                gitHubCloning(formattedGitHub,data.task,cmd,function(err,res){
+                    if(err){
+                        callback(err,null);
+                        return;
+                    }else{
+                        callback(null,res);
+                        return;
+                    }
+                });
             })
         }
     });
@@ -284,47 +262,23 @@ function formatGitHubResponse(gitHub,callback) {
     }
 }
 
-function gitHubCloning(gitHubDetails,cmd,callback){
+function gitHubCloning(gitHubDetails,task,cmd,callback){
     var filePath = appConfig.gitHubDir +gitHubDetails.repositoryName+'.tgz';
-    if(gitHubDetails.isRepoCloned && gitHubDetails.isRepoCloned === true) {
-        fse.remove(filePath).then(function() {
-            execCmd(cmd, function (err, out, code) {
-                if (code === 0) {
-                    fse.remove(appConfig.gitHubDir + gitHubDetails._id).then(function() {
-                        targz.decompress({
-                            src: filePath,
-                            dest: appConfig.gitHubDir + gitHubDetails._id
-                        }, function (err) {
-                            if (err) {
-                                logger.error("Error in Extracting Files ", err);
-                                callback(err, null);
-                            } else {
-                                logger.debug("GIT Repository Clone is Done.");
-                                callback(null, gitHubDetails);
-                                botsNewService.syncBotsWithGitHub(gitHubDetails._id, function (err, data) {
-                                    if (err) {
-                                        logger.error("Error in Syncing GIT-Hub.", err);
-                                    } else {
-                                        logger.debug("Git Hub Sync is Done.");
-                                    }
-                                });
-                            }
-                        });
-                    })
-                }else{
-                    var err = new Error('Invalid Git-Hub Credentials Details');
-                    err.status = 400;
-                    err.msg = 'Invalid Git-Hub Details';
-                    callback(err, null);
-                }
-            });
-        });
-    }else {
+    var destPath = appConfig.gitHubDir + gitHubDetails._id;
+    var botpath = glob.sync(appConfig.gitHubDir + gitHubDetails._id+'/*')[0];
+    var options = {compareContent: true,includeFilter:'*.yaml'};
+    if(fs.existsSync(filePath)){
+        fs.unlinkSync(filePath)
+    }
+    if(task && task === 'sync'){
+        if(fs.existsSync(destPath)){
+            fse.removeSync(destPath)
+        }
         execCmd(cmd, function (err, out, code) {
             if (code === 0) {
                 targz.decompress({
                     src: filePath,
-                    dest: appConfig.gitHubDir + gitHubDetails._id
+                    dest: destPath
                 }, function (err) {
                     if (err) {
                         logger.error("Error in Extracting Files ", err);
@@ -353,6 +307,89 @@ function gitHubCloning(gitHubDetails,cmd,callback){
                 callback(err, null);
             }
         });
+    }else {
+        destPath = appConfig.gitHubDir + gitHubDetails._id + '.temp/';
+        execCmd(cmd, function (err, out, code) {
+            if (code === 0) {
+                if(fs.existsSync(destPath)){
+                    fse.removeSync(destPath)
+                }
+                console.log('decompress');
+                targz.decompress({
+                    src: filePath,
+                    dest: destPath
+                }, function (err) {
+                    if (err) {
+                        logger.error("Error in Extracting Files ", err);
+                        callback(err, null);
+                    } else {
+                        logger.debug("GIT Repository comparing");
+                        dircompare.compare(botpath, glob.sync(appConfig.gitHubDir + gitHubDetails._id + '.temp/*')[0] , options).then(function(res){
+                            var add = [], update = [], dele = [],nochange = [];
+                            res.diffSet.forEach(function (entry) {
+                                if(entry.type1 === 'file' || entry.type2 ==='file'){
+                                    if(entry.state === 'left'){
+                                        dele.push({name:entry.name1,path:entry.path1})
+                                    }else if(entry.state === 'right'){
+                                        add.push({name:entry.name2,path:entry.path2})
+                                    }else if(entry.state === 'distinct'){
+                                        update.push({name:entry.name2,path:entry.path2})
+                                    }else{
+                                        nochange.push({name:entry.name2,path:entry.path2})
+                                    }
+                                }
+                            });
+                            var summary = {same:nochange.length,
+                                new:add.length,
+                                updated:update.length,
+                                deleted:dele.length}
+                                console.log({gitHubDetails,updated:update,added:add,deleted:dele,summary:summary})
+                            callback(null, {gitHubDetails,same:nochange,updated:update,added:add,deleted:dele,summary:summary});
+                        });
+                    }
+                });
+            }else{
+                var err = new Error('Invalid Git-Hub Credentials Details');
+                err.status = 400;
+                err.msg = 'Invalid Git-Hub Details';
+                callback(err, null);
+            }
+        });
     }
+    
 }
-
+    // if(gitHubDetails.isRepoCloned && gitHubDetails.isRepoCloned === true) {
+    //     fse.remove(filePath).then(function() {
+    //         
+    //                 fse.remove(appConfig.gitHubDir + gitHubDetails._id).then(function() {
+    //                     targz.decompress({
+    //                         src: filePath,
+    //                         dest: appConfig.gitHubDir + gitHubDetails._id
+    //                     }, function (err) {
+    //                         if (err) {
+    //                             logger.error("Error in Extracting Files ", err);
+    //                             callback(err, null);
+    //                         } else {
+    //                             logger.debug("GIT Repository Clone is Done.");
+    //                             callback(null, gitHubDetails);
+    //                             botsNewService.syncBotsWithGitHub(gitHubDetails._id, function (err, data) {
+    //                                 if (err) {
+    //                                     logger.error("Error in Syncing GIT-Hub.", err);
+    //                                 } else {
+    //                                     logger.debug("Git Hub Sync is Done.");
+    //                                 }
+    //                             });
+    //                         }
+    //                     });
+    //                 })
+    //             }else{
+    //                 var err = new Error('Invalid Git-Hub Credentials Details');
+    //                 err.status = 400;
+    //                 err.msg = 'Invalid Git-Hub Details';
+    //                 callback(err, null);
+    //             }
+    //         });
+    //     });
+    // }else {
+    //     
+    // }

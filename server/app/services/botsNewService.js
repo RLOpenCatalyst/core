@@ -37,6 +37,10 @@ const errorType = 'botsNewService';
 
 var botsNewService = module.exports = {};
 
+botsNewService.createNew = function createNew(reqBody,callback){
+
+}
+
 botsNewService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,callback) {
     if(botObj.scheduler  && botObj.scheduler !== null && Object.keys(botObj.scheduler).length !== 0) {
         botObj.scheduler = apiUtil.createCronJobPattern(botObj.scheduler);

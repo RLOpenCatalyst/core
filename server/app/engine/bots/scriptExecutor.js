@@ -31,6 +31,7 @@ var credentialCryptography = require('_pr/lib/credentialcryptography');
 var SSHExec = require('_pr/lib/utils/sshexec');
 var SCP = require('_pr/lib/utils/scp');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
+var noticeService = require('_pr/services/noticeService.js');
 
 const errorType = 'scriptExecutor';
 
@@ -65,7 +66,7 @@ scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,execut
 }
 
 
-function executeOnNode(botsScriptDetails,auditTrail,executionType,callback) {
+function executeOnNode(botsScriptDetails,auditTrail,userName,callback) {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var actionId = uuid.v4();
@@ -137,6 +138,7 @@ function executeOnNode(botsScriptDetails,auditTrail,executionType,callback) {
                                             if (err) {
                                                 logger.error("Failed to create or update bots Log: ", err);
                                             }
+                                            noticeService.notice(userName,"Error in Fetching Audit Trails","Error");
                                             timer.stop();
                                             return;
                                         });
@@ -167,6 +169,7 @@ function executeOnNode(botsScriptDetails,auditTrail,executionType,callback) {
                                             }
                                             logger.debug("Task Execution Done");
                                             timer.stop();
+                                            noticeService.notice(userName,result.status.text,"Success");
                                             return;
                                         });
                                     } else {
@@ -201,6 +204,7 @@ function executeOnNode(botsScriptDetails,auditTrail,executionType,callback) {
                                     logger.error("Failed to create or update bots Log: ", err);
                                 }
                                 return;
+                                noticeService.notice(userName,{title:"BOTx Execution",body:"Error in Script executor"},"Error");
                             })
                         }
 
