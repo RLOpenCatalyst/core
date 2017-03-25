@@ -76,7 +76,7 @@ var noticeService = module.exports = {
                 error.status = 500;
                 callback(error,null);
             }else {
-                socketClient.emit('notice',{data})
+                socketClient.emit('notice',data)
                 callback(null,{msg:'successfully noticed'});
             }
         })
