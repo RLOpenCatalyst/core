@@ -23,7 +23,7 @@
 		            </tbody>
 		         </table>
       		</div>
-      		<div ng-if="botType ==='chef'" class="chefExecution scheduleBorder">
+      		<div ng-if="botType ==='chef'" class=" scheduleBorder">
       		<!-- <div class="col-lg-2 col-md-2 margintop8">
             <label class="botsLabel" for="">Organization:<span class="red">*</span> </label>
 	            <div class="input-groups">
@@ -128,6 +128,7 @@
 	      No data Available
 	   </div>
 	</fieldset>
+
 </form>
 	<div class="pager">
 		<button type="button" ng-if="botType === 'script' || botType ==='chef'" class="btn cat-btn-update" ng-disabled="editParamsForm.$invalid" ng-click="executeTask()">
