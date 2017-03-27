@@ -127,8 +127,7 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId,task, callback) {
                 }else{
                     cmd = 'curl -L https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/tarball/'+formattedGitHub.repositoryBranch + ' > '+appConfig.gitHubDir+formattedGitHub.repositoryName+'.tgz';
                 }
-                gitHubDetails = {_id:formattedGitHub._id,repositoryName:formattedGitHub.repositoryName,repositoryDesc:formattedGitHub.repositoryDesc}
-                gitHubCloning(gitHubDetails,task,cmd,function(err,res){
+                gitHubCloning(formattedGitHub,task,cmd,function(err,res){
                     if(err){
                         callback(err,null);
                         return;
@@ -216,10 +215,8 @@ gitGubService.gitHubCopy = function gitHubCopy(gitHubId, reqBody,callback) {
                 if(fileData.status){
                     switch(fileData.state){
                         case 'added':
-
                         break;
                         case 'added':
-                        
                         break;
                     }
                 }
@@ -314,8 +311,7 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
                                 logger.error(err);
                             }
                             logger.debug("GIT Repository Clone is Done.");
-                            
-                            fs.unlinkSync(filePath)
+                            fs.unlinkSync(filePath);
                             botsNewService.syncBotsWithGitHub(gitHubDetails._id, function (err, data) {
                                 if (err) {
                                     logger.error("Error in Syncing GIT-Hub.", err);
@@ -394,7 +390,7 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
                                     
                                 }
                             });
-                            callback(null, {gitHubDetails,result:result});
+                            callback(null, {gitHubDetails:gitHubDetails,result:result});
                             fs.unlinkSync(filePath)
                             fse.removeSync(destPath)
                         }).catch(function(error){
