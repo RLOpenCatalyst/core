@@ -182,7 +182,15 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,callback) {
                                 if (err) {
                                     logger.error("Failed to create or update bots Log: ", err);
                                 }
-                               // noticeService.notice(userName, "Error in Fetching Audit Trails", "Error");
+                                noticeService.notice(userName,
+                                    {
+                                        title: "BOTs Execution",
+                                        body: "Error in Fetching Audit Trails"
+                                    }, "Error",function(err,data){
+                                    if(err){
+                                        logger.error("Error in Notification Service, ",err);
+                                    }
+                                });
                                 timer.stop();
                                 return;
                             });
@@ -213,7 +221,14 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,callback) {
                                 }
                                 logger.debug("BOTs Execution Done");
                                 timer.stop();
-                                //noticeService.notice(userName, result.status.text, "Success");
+                                noticeService.notice(userName,{
+                                    title: "BOTs Execution",
+                                    body: result.status.text
+                                }, "Success",function(err,data){
+                                    if(err){
+                                        logger.error("Error in Notification Service, ",err);
+                                    }
+                                });
                                 return;
                             });
                         } else {
@@ -247,11 +262,15 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,callback) {
                     if (err) {
                         logger.error("Failed to create or update bots Log: ", err);
                     }
-                    return;
-                   /* noticeService.notice(userName, {
-                        title: "BOTx Execution",
+                    noticeService.notice(userName, {
+                        title: "BOTs Execution",
                         body: "Error in Script executor"
-                    }, "Error");*/
+                    }, "Error",function(err,data){
+                        if(err){
+                            logger.error("Error in Notification Service, ",err);
+                        }
+                    });
+                    return;
                 })
             }
         });
@@ -396,6 +415,15 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,callback
                     if (decryptedCredentials.pemFileLocation){
                         removeScriptFile(decryptedCredentials.pemFileLocation);
                     }
+                    noticeService.notice(userName,
+                        {
+                            title: "BOTs Execution",
+                            body: "Error in Script executor"
+                        }, "Error",function(err,data){
+                            if(err){
+                                logger.error("Error in Notification Service, ",err);
+                            }
+                        });
                     return;
                 } else {
                     var every = require('every-moment');
@@ -429,6 +457,15 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,callback
                                     removeScriptFile(decryptedCredentials.pemFileLocation);
                                 }
                                 callback(err, null);
+                                noticeService.notice(userName,
+                                    {
+                                        title: "BOTs Execution",
+                                        body: "Error in Fetching Audit Trails"
+                                    }, "Error",function(err,data){
+                                        if(err){
+                                            logger.error("Error in Notification Service, ",err);
+                                        }
+                                    });
                                 return;
                             } else if (result.state === 'terminated') {
                                 var timestampEnded = new Date().getTime();
@@ -462,6 +499,14 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,callback
                                     removeScriptFile(decryptedCredentials.pemFileLocation);
                                 }
                                 callback(null, result);
+                                noticeService.notice(userName, {
+                                    title: "BOTs Execution",
+                                    body: result.status.text
+                                }, "Success",function(err,data){
+                                    if(err){
+                                        logger.error("Error in Notification Service, ",err);
+                                    }
+                                });
                                 return;
                             } else {
                                 logger.debug("BOTs Execution is going on.");

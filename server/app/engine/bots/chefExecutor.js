@@ -168,7 +168,14 @@ function executeChefOnLocal(botsScriptDetails,auditTrail,userName,callback) {
                                 if (err) {
                                     logger.error("Failed to create or update bots Log: ", err);
                                 }
-                                noticeService.notice(userName, "Error in Fetching Audit Trails", "Error");
+                                noticeService.notice(userName, {
+                                    title: "BOTs Execution",
+                                    body: "Error in Fetching Audit Trails"
+                                }, "Error",function(err,data){
+                                    if(err){
+                                        logger.error("Error in Notification Service, ",err);
+                                    }
+                                });
                                 timer.stop();
                                 return;
                             });
@@ -199,7 +206,14 @@ function executeChefOnLocal(botsScriptDetails,auditTrail,userName,callback) {
                                 }
                                 logger.debug("BOTs Execution Done");
                                 timer.stop();
-                                noticeService.notice(userName, result.status.text, "Success");
+                                noticeService.notice(userName, {
+                                    title: "BOTs Execution",
+                                    body: result.status.text
+                                }, "Success",function(err,data){
+                                    if(err){
+                                        logger.error("Error in Notification Service, ",err);
+                                    }
+                                });
                                 return;
                             });
                         } else {
@@ -233,11 +247,15 @@ function executeChefOnLocal(botsScriptDetails,auditTrail,userName,callback) {
                     if (err) {
                         logger.error("Failed to create or update bots Log: ", err);
                     }
-                    return;
                     noticeService.notice(userName, {
-                        title: "BOTx Execution",
+                        title: "BOTs Execution",
                         body: "Error in Script executor"
-                    }, "Error");
+                    }, "Error",function(err,data){
+                        if(err){
+                            logger.error("Error in Notification Service, ",err);
+                        }
+                    });
+                    return;
                 })
             }
         });
@@ -365,6 +383,14 @@ function executeChefOnRemote(instance,botDetails,actionLogId,userName,callback) 
                             logger.error("Failed to create or update instanceLog: ", err);
                         }
                     });
+                    noticeService.notice(userName, {
+                        title: "BOTs Execution",
+                        body: "Error in Script executor"
+                    }, "Error",function(err,data){
+                        if(err){
+                            logger.error("Error in Notification Service, ",err);
+                        }
+                    });
                     callback(err, null);
                     return;
                 } else {
@@ -395,6 +421,14 @@ function executeChefOnRemote(instance,botDetails,actionLogId,userName,callback) 
                                     }
                                 });
                                 timer.stop();
+                                noticeService.notice(userName, {
+                                    title: "BOTs Execution",
+                                    body: "Error in Fetching Audit Trails"
+                                }, "Error",function(err,data){
+                                    if(err){
+                                        logger.error("Error in Notification Service, ",err);
+                                    }
+                                });
                                 callback(err, null);
                                 return;
                             } else if (result.state === 'terminated') {
@@ -425,6 +459,14 @@ function executeChefOnRemote(instance,botDetails,actionLogId,userName,callback) 
                                     }
                                 });
                                 timer.stop();
+                                noticeService.notice(userName, {
+                                    title: "BOTs Execution",
+                                    body: result.status.text
+                                }, "Success",function(err,data){
+                                    if(err){
+                                        logger.error("Error in Notification Service, ",err);
+                                    }
+                                });
                                 callback(null, result);
                                 return;
                             } else {

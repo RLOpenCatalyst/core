@@ -442,6 +442,7 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                     .ext('yaml')
                     .find().then(function(files){
                     if(files.length > 0){
+                        console.log(files.length);
                         var botObjList = [];
                         for(var i = 0; i < files.length; i++){
                             (function(ymlFile){
@@ -449,9 +450,13 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                     if(result !== null){
                                        fileUpload.uploadFile(result.id,ymlFile,null,function(err,ymlDocFileId){
                                             if(err){
+                                                console.log("Durgesh");
+                                                botObjList.push(err);
                                                 logger.error("Error in uploading yaml documents.",err);
                                                 next(err);
                                             }else{
+                                                console.log("In Result");
+                                                console.log(result.name);
                                                 var botsObj={
                                                     ymlJson:result,
                                                     name:result.name,
@@ -463,7 +468,7 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                                     action:result.action,
                                                     execution:result.execution,
                                                     type:result.type,
-                                                    subType:result.subType,
+                                                    subType:result.subtype,
                                                     inputFormFields:result.input[0].form,
                                                     outputOptions:result.output,
                                                     ymlDocFileId:ymlDocFileId,
@@ -471,6 +476,7 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                                     orgName:gitHubDetails.orgName,
                                                     source:"GitHub"
                                                 }
+                                                console.log(botObjList.length);
                                                 botsDao.getBotsByBotId(result.id,function(err,botsList){
                                                     if(err){
                                                         logger.error(err);
@@ -503,6 +509,7 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                             }
                                         })
                                     }else{
+                                        console.log("Welcome");
                                         botObjList.push(result);
                                         if(botObjList.length === files.length){
                                             next(null,botObjList);
