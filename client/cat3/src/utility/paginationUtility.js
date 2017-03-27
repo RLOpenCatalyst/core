@@ -18,8 +18,8 @@
 						sortOrder: ''
 					},
 					gridOption: {
-						paginationPageSizes: [25, 50, 75,100],
-						paginationPageSize: 25,
+						paginationPageSizes: [10, 20, 50, 75],
+						paginationPageSize: 10,
 						enableColumnMenus: false,
 						enableScrollbars: true,
 						enableHorizontalScrollbar: 0,
