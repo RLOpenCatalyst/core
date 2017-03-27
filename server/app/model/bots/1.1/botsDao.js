@@ -48,6 +48,11 @@ var BotsSchema = new Schema ({
         trim: true,
         required: true
     },
+    subType: {
+        type: String,
+        trim: true,
+        required: false
+    },
     category: {
         type: String,
         trim: true,
@@ -91,11 +96,6 @@ var BotsSchema = new Schema ({
     inputFormFields:Schema.Types.Mixed,
     outputOptions:Schema.Types.Mixed,
     params:Schema.Types.Mixed,
-    ymlDocFilePath:{
-        type: String,
-        trim: true,
-        required: false
-    },
     ymlDocFileId : {
         type: String,
         trim: true,
@@ -185,6 +185,11 @@ var BotsSchema = new Schema ({
     isDeleted: {
         type: Boolean,
         default: false
+    },
+    source: {
+        type: String,
+        required: false,
+        trim: true
     }
 });
 BotsSchema.plugin(mongoosePaginate);

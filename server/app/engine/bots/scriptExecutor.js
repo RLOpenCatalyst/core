@@ -32,27 +32,81 @@ var SSHExec = require('_pr/lib/utils/sshexec');
 var SCP = require('_pr/lib/utils/scp');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var noticeService = require('_pr/services/noticeService.js');
+var fileIo = require('_pr/lib/utils/fileio');
+
 
 const errorType = 'scriptExecutor';
 
 var pythonHost =  process.env.FORMAT_HOST || 'localhost';
-var pythonPort =  process.env.FORMAT_PORT || '2689';
+var pythonPort =  process.env.FORMAT_PORT || '2687';
 var scriptExecutor = module.exports = {};
 
 scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,executionType,callback) {
-    if(botsDetails.env && botsDetails.env !== null){
-        executeOnEnv(botsDetails,auditTrail,botsDetails.env,userName,executionType,function(err,data){
-            if(err){
-                logger.error(err);
-                callback(err,null);
-                return;
-            }else{
-                callback(null,data);
-                return;
-            }
-        });
+    if(botsDetails.params.nodeIds && botsDetails.params.nodeIds.length > 0){
+        var actionLogId = uuid.v4();
+        var parallelScriptExecuteList =[];
+        for(var i = 0 ;i < botsDetails.params.nodeIds.length; i++) {
+            (function (nodeId) {
+                instanceModel.getInstanceById(nodeId, function (err, instances) {
+                    if (err) {
+                        logger.error("Issue with fetching instances By Id ", nodeId, err);
+                        callback(err, null);
+                        return;
+                    } else if (instances.length > 0) {
+                        logsDao.insertLog({
+                            referenceId: [actionLogId,botsDetails._id],
+                            err: false,
+                            log: 'BOTs execution started for script ' + botsDetails.id,
+                            timestamp: new Date().getTime()
+                        });
+                        parallelScriptExecuteList.push(function(callback){executeScriptOnRemote(instances[0],botsDetails,actionLogId,userName,callback);});
+                        if(parallelScriptExecuteList.length === botsDetails.params.nodeIds.length){
+                            var botAuditTrailObj = {
+                                botId: botsDetails._id,
+                                actionId: actionLogId
+                            }
+                            callback(null, botAuditTrailObj);
+                            async.parallel(parallelScriptExecuteList, function (err, results) {
+                                if (err) {
+                                    logger.error("Error in Executor",err);
+                                    var resultTaskExecution = {
+                                        "actionStatus": 'failed',
+                                        "status": 'failed',
+                                        "endedOn": new Date().getTime(),
+                                        "actionLogId": actionLogId
+                                    };
+                                    auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+                                        if (err) {
+                                            logger.error("Failed to create or update bots Log: ", err);
+                                        }
+                                        return;
+                                    });
+                                }else {
+                                    logger.debug("BOTs Execution Done")
+                                    var resultTaskExecution = {
+                                        "actionStatus": 'success',
+                                        "status": 'success',
+                                        "endedOn": new Date().getTime(),
+                                        "actionLogId": actionLogId
+                                    };
+                                    auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+                                        if (err) {
+                                            logger.error("Failed to create or update bots Log: ", err);
+                                        }
+                                        return;
+                                    });
+                                }
+                            })
+                        }
+                    }else{
+                        logger.debug("No Instance Detail Available.");
+                        return;
+                    }
+                })
+            })(botsDetails.params.nodeIds[i])
+        }
     }else{
-        executeOnNode(botsDetails,auditTrail,executionType,function(err,data){
+        executeScriptOnLocal(botsDetails,auditTrail,executionType,function(err,data){
             if(err){
                 logger.error(err);
                 callback(err,null);
@@ -66,7 +120,7 @@ scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,execut
 }
 
 
-function executeOnNode(botsScriptDetails,auditTrail,userName,callback) {
+function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,callback) {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var actionId = uuid.v4();
@@ -83,9 +137,9 @@ function executeOnNode(botsScriptDetails,auditTrail,userName,callback) {
         actionId: actionId
     }
     callback(null, botAuditTrailObj);
-    if (botsScriptDetails.params) {
-        Object.keys(botsScriptDetails.params).forEach(function (key) {
-            var decryptedText = cryptography.decryptText(botsScriptDetails.params[key], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+    if (botsScriptDetails.params.data) {
+        Object.keys(botsScriptDetails.params.data).forEach(function (key) {
+            var decryptedText = cryptography.decryptText(botsScriptDetails.params.data[key], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
             replaceTextObj[key] = decryptedText;
         });
     } else {
@@ -128,7 +182,7 @@ function executeOnNode(botsScriptDetails,auditTrail,userName,callback) {
                                 if (err) {
                                     logger.error("Failed to create or update bots Log: ", err);
                                 }
-                                noticeService.notice(userName, "Error in Fetching Audit Trails", "Error");
+                               // noticeService.notice(userName, "Error in Fetching Audit Trails", "Error");
                                 timer.stop();
                                 return;
                             });
@@ -157,13 +211,13 @@ function executeOnNode(botsScriptDetails,auditTrail,userName,callback) {
                                 if (err) {
                                     logger.error("Failed to create or update bots Log: ", err);
                                 }
-                                logger.debug("Task Execution Done");
+                                logger.debug("BOTs Execution Done");
                                 timer.stop();
-                                noticeService.notice(userName, result.status.text, "Success");
+                                //noticeService.notice(userName, result.status.text, "Success");
                                 return;
                             });
                         } else {
-                            logger.debug("Task Execution is going on.");
+                            logger.debug("BOTs Execution is going on.");
                             var timestampEnded = new Date().getTime();
                             logsDao.insertLog({
                                 referenceId: logsReferenceIds,
@@ -194,79 +248,17 @@ function executeOnNode(botsScriptDetails,auditTrail,userName,callback) {
                         logger.error("Failed to create or update bots Log: ", err);
                     }
                     return;
-                    noticeService.notice(userName, {
+                   /* noticeService.notice(userName, {
                         title: "BOTx Execution",
                         body: "Error in Script executor"
-                    }, "Error");
+                    }, "Error");*/
                 })
             }
-        })
-
+        });
 };
 
-function  executeOnEnv(botsScriptDetails,auditTrail,nodeIds,userName,callback){
-    var actionLogId = uuid.v4();
-    var parallelScriptExecuteList =[];
-    for(var i = 0 ;i < nodeIds.length; i++) {
-        (function (nodeId) {
-            instanceModel.getInstanceById(nodeId, function (err, instances) {
-                if (err) {
-                    logger.error("Issue with fetching instances By Id ", nodeId, err);
-                    callback(err, null);
-                    return;
-                } else if (instances.length > 0) {
-                    logsDao.insertLog({
-                        referenceId: [actionLogId,botsScriptDetails._id],
-                        err: false,
-                        log: 'BOTs execution started for script ' + botsScriptDetails.id,
-                        timestamp: new Date().getTime()
-                    });
-                    parallelScriptExecuteList.push(function(callback){executeScriptOnRemote(instances[0],botsScriptDetails,actionLogId,userName,callback);});
-                    if(parallelScriptExecuteList.length === nodeIds.length){
-                        var botAuditTrailObj = {
-                            botId: botsScriptDetails._id,
-                            actionId: actionLogId
-                        }
-                        callback(null, botAuditTrailObj);
-                        async.parallel(parallelScriptExecuteList, function (err, results) {
-                            if (err) {
-                                logger.error("Error in Executor",err);
-                                var resultTaskExecution = {
-                                    "actionStatus": 'failed',
-                                    "status": 'failed',
-                                    "endedOn": new Date().getTime(),
-                                    "actionLogId": actionLogId
-                                };
-                                auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
-                                    if (err) {
-                                        logger.error("Failed to create or update bots Log: ", err);
-                                    }
-                                    return;
-                                });
-                            }else {
-                                logger.debug("BOTs Execution Done")
-                                var resultTaskExecution = {
-                                    "actionStatus": 'success',
-                                    "status": 'success',
-                                    "endedOn": new Date().getTime(),
-                                    "actionLogId": actionLogId
-                                };
-                                auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
-                                    if (err) {
-                                        logger.error("Failed to create or update bots Log: ", err);
-                                    }
-                                    return;
-                                });
-                            }
-                        })
-                    }
-                }
-            })
-        })(nodeIds[i])
-    }
-}
 
-function executeScriptOnRemote(instance,botDetails,actionLogId,userName,callback){
+function executeScriptOnRemote(instance,botDetails,actionLogId,userName,callback) {
     var timestampStarted = new Date().getTime();
     var actionLog = instanceModel.insertOrchestrationActionLog(instance._id, null, userName, timestampStarted);
     instance.tempActionLogId = actionLog._id;
@@ -290,7 +282,7 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,callback
         createdOn: new Date().getTime(),
         startedOn: new Date().getTime(),
         providerType: instance.providerType,
-        action: "BOTs Script-Execution",
+        action: "BOTs Chef-Execution",
         logs: []
     };
     if (!instance.instanceIP) {
@@ -314,10 +306,11 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,callback
                 logger.error("Failed to create or update instanceLog: ", err);
             }
         });
+        callback(err, null);
         return;
     }
     credentialCryptography.decryptCredential(instance.credentials, function (err, decryptedCredentials) {
-        var authenticationObj = {},envObj ={};
+        var authenticationObj = {}, envObj = {};
         var sshOptions = {
             username: decryptedCredentials.username,
             host: instance.instanceIP,
@@ -335,7 +328,7 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,callback
             envObj.authReference = "Pem_Based_Authentication";
         } else {
             sshOptions.password = decryptedCredentials.password;
-            authenticationObj.id = "Pem_Based_Authentication";
+            authenticationObj.id = "Password_Based_Authentication";
             authenticationObj.authType = "password";
             authenticationObj.auth = {
                 "username": decryptedCredentials.username,
@@ -344,184 +337,159 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,callback
             envObj.hostname = instance.instanceIP;
             envObj.authReference = "Password_Based_Authentication";
         }
+        logsDao.insertLog({
+            referenceId: logsReferenceIds,
+            err: false,
+            log: 'BOTs execution started for script ' + botDetails.id,
+            timestamp: new Date().getTime()
+        });
+        var replaceTextObj = {};
         var cryptoConfig = appConfig.cryptoSettings;
         var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
-        var gitHubDirPath = appConfig.gitHubDir + botDetails.gitHubId;
-        var scp = new SCP(sshOptions);
-        var replaceTextObj = {};
-        sshOptions.os = instance.hardware.os;
-        for (var j = 0; j < botDetails.execution.length; j++) {
-            (function (scriptObj) {
-                fileHound.create()
-                    .paths(gitHubDirPath)
-                    .match(scriptObj.entrypoint)
-                    .find().then(function (files) {
-                    scp.upload(files[0], '/tmp', function (err) {
-                        if (err) {
-                            var timestampEnded = new Date().getTime();
-                            logsDao.insertLog({
-                                referenceId: logsReferenceIds,
-                                err: true,
-                                log: "Unable to upload script file " + scriptObj.start,
-                                timestamp: timestampEnded
-                            });
-                            instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
-                            instanceLog.endedOn = new Date().getTime();
-                            instanceLog.actionStatus = "failed";
-                            instanceLog.logs = {
-                                err: false,
-                                log: "Unable to upload script file " + scriptObj.name,
-                                timestamp: new Date().getTime()
-                            };
-                            instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
-                                if (err) {
-                                    logger.error("Failed to create or update instanceLog: ", err);
-                                }
-                            });
-                            callback(err,null);
-                            return;
-                        }
-                        if(botDetails.params && botDetails.params.length > 0) {
-                            for (var k = 0; k < botDetails.params.length; k++) {
-                                var decryptedText = cryptography.decryptText(botDetails.params[k], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-                                Object.keys(botDetails.inputFormFields[k]).forEach(function(key){
-                                    if(botDetails.inputFormFields[k][key] === null) {
-                                        replaceTextObj[key] = decryptedText;
-                                    }
-                                });
-                            }
-                        }else{
-                            for (var k = 0; k < botDetails.inputFormFields.length; k++) {
-                                Object.keys(botDetails.inputFormFields[k]).forEach(function (key) {
-                                    if (botDetails.inputFormFields[k][key] === null) {
-                                        replaceTextObj[key] = botDetails.inputFormFields[k].default;
-                                    }
-                                });
-                            }
-                        }
-                        logsDao.insertLog({
-                            referenceId: logsReferenceIds,
-                            err: false,
-                            log: 'BOTs execution started for script ' + scriptObj.start,
-                            timestamp: new Date().getTime()
-                        });
-                        var supertest = require("supertest");
-                        var server = supertest.agent("http://"+pythonHost+':'+pythonPort);
-                        var reqBody = {
-                            "data": replaceTextObj,
-                            "authentication": [authenticationObj],
-                            "env": [envObj]
-                        };
-                        var executorUrl = '/bot/'+botDetails.id+'/exec';
-                        server
-                            .post(executorUrl)
-                            .send(reqBody)
-                            .set({'Content-Type': 'application/json'})
-                            .end(function (err, res) {
-                                if (err) {
-                                    logger.error(err);
-                                    var timestampEnded = new Date().getTime();
-                                    logsDao.insertLog({
-                                        referenceId: logsReferenceIds,
-                                        err: true,
-                                        log: "Error in Script executor: ",
-                                        timestamp: timestampEnded
-                                    });
-                                    instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
-                                    instanceLog.endedOn = new Date().getTime();
-                                    instanceLog.actionStatus = "failed";
-                                    instanceLog.logs = {
-                                        err: false,
-                                        log: "Unable to upload script file " + script.name,
-                                        timestamp: new Date().getTime()
-                                    };
-                                    instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
-                                        if (err) {
-                                            logger.error("Failed to create or update instanceLog: ", err);
-                                        }
-                                    });
-                                    callback(err,null);
-                                    return;
-                                }else{
-                                    var every = require('every-moment');
-                                    var serverUrl = "http://" + pythonHost + ':' + pythonPort;
-                                    var timer = every(5, 'seconds', function() {
-                                        schedulerService.getExecutorAuditTrailDetails(serverUrl + res.body.link, function (err, result) {
-                                            if (err) {
-                                                logger.error("In Error for Fetching Executor Audit Trails ", err);
-                                                var timestampEnded = new Date().getTime();
-                                                logsDao.insertLog({
-                                                    referenceId: logsReferenceIds,
-                                                    err: true,
-                                                    log: "Error in Fetching Audit Trails",
-                                                    timestamp: timestampEnded
-                                                });
-                                                instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
-                                                instanceLog.endedOn = new Date().getTime();
-                                                instanceLog.actionStatus = "failed";
-                                                instanceLog.logs = {
-                                                    err: false,
-                                                    log: "Unable to upload script file " + scriptObj.name,
-                                                    timestamp: new Date().getTime()
-                                                };
-                                                instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
-                                                    if (err) {
-                                                        logger.error("Failed to create or update instanceLog: ", err);
-                                                    }
-                                                });
-                                                timer.stop();
-                                                callback(err,null);
-                                                return;
-                                            } else if (result.state === 'terminated') {
-                                                var timestampEnded = new Date().getTime();
-                                                logsDao.insertLog({
-                                                    referenceId: logsReferenceIds,
-                                                    err: false,
-                                                    log: result.status.text,
-                                                    timestamp: timestampEnded
-                                                });
-                                                logsDao.insertLog({
-                                                    referenceId: logsReferenceIds,
-                                                    err: false,
-                                                    log: 'BOTs execution success for  ' + botDetails.id,
-                                                    timestamp: timestampEnded
-                                                });
-                                                instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
-                                                instanceLog.endedOn = new Date().getTime();
-                                                instanceLog.actionStatus = "success";
-                                                instanceLog.logs = {
-                                                    err: false,
-                                                    log: 'BOTs execution success for  ' + botDetails.id,
-                                                    timestamp: new Date().getTime()
-                                                };
-                                                instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
-                                                    if (err) {
-                                                        logger.error("Failed to create or update instanceLog: ", err);
-                                                    }
-                                                });
-                                                timer.stop();
-                                                callback(null,result);
-                                                return;
-                                            } else {
-                                                logger.debug("Task Execution is going on.");
-                                                var timestampEnded = new Date().getTime();
-                                                logsDao.insertLog({
-                                                    referenceId: logsReferenceIds,
-                                                    err: false,
-                                                    log: "Task Execution is going on",
-                                                    timestamp: timestampEnded
-                                                });
-                                            }
-                                        })
-                                    })
-                                }
-                            })
-                    })
-
-                })
-            })(botDetails.execution[j])
+        if (botDetails.params.data) {
+            Object.keys(botDetails.params.data).forEach(function (key) {
+                var decryptedText = cryptography.decryptText(botDetails.params.data[key], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+                replaceTextObj[key] = decryptedText;
+            });
+        } else {
+            for (var j = 0; j < botDetails.inputFormFields.length; j++) {
+                replaceTextObj[botDetails.inputFormFields[j].name] = botDetails.inputFormFields[j].default;
+            }
         }
+        var supertest = require("supertest");
+        var server = supertest.agent("http://" + pythonHost + ':' + pythonPort);
+        var reqBody = {
+            "data": replaceTextObj,
+            "os": instance.hardware.os,
+            "authentication": [authenticationObj],
+            "environment": [envObj]
+        };
+        var executorUrl = '/bot/' + botDetails.id + '/exec';
+        server
+            .post(executorUrl)
+            .send(reqBody)
+            .set({'Content-Type': 'application/json'})
+            .end(function (err, res) {
+                if (err) {
+                    logger.error(err);
+                    var timestampEnded = new Date().getTime();
+                    logsDao.insertLog({
+                        referenceId: logsReferenceIds,
+                        err: true,
+                        log: "Error in Script executor: ",
+                        timestamp: timestampEnded
+                    });
+                    instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
+                    instanceLog.endedOn = new Date().getTime();
+                    instanceLog.actionStatus = "failed";
+                    instanceLog.logs = {
+                        err: false,
+                        log: "Unable to upload script file " + botDetails.id,
+                        timestamp: new Date().getTime()
+                    };
+                    instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
+                        if (err) {
+                            logger.error("Failed to create or update instanceLog: ", err);
+                        }
+                    });
+                    callback(err, null);
+                    if (decryptedCredentials.pemFileLocation){
+                        removeScriptFile(decryptedCredentials.pemFileLocation);
+                    }
+                    return;
+                } else {
+                    var every = require('every-moment');
+                    var serverUrl = "http://" + pythonHost + ':' + pythonPort;
+                    var timer = every(10, 'seconds', function () {
+                        schedulerService.getExecutorAuditTrailDetails(serverUrl + res.body.link, function (err, result) {
+                            if (err) {
+                                logger.error("In Error for Fetching Executor Audit Trails ", err);
+                                var timestampEnded = new Date().getTime();
+                                logsDao.insertLog({
+                                    referenceId: logsReferenceIds,
+                                    err: true,
+                                    log: "Error in Fetching Audit Trails",
+                                    timestamp: timestampEnded
+                                });
+                                instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
+                                instanceLog.endedOn = new Date().getTime();
+                                instanceLog.actionStatus = "failed";
+                                instanceLog.logs = {
+                                    err: false,
+                                    log: "Unable to upload script file " + botDetails.id,
+                                    timestamp: new Date().getTime()
+                                };
+                                instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
+                                    if (err) {
+                                        logger.error("Failed to create or update instanceLog: ", err);
+                                    }
+                                });
+                                timer.stop();
+                                if (decryptedCredentials.pemFileLocation){
+                                    removeScriptFile(decryptedCredentials.pemFileLocation);
+                                }
+                                callback(err, null);
+                                return;
+                            } else if (result.state === 'terminated') {
+                                var timestampEnded = new Date().getTime();
+                                logsDao.insertLog({
+                                    referenceId: logsReferenceIds,
+                                    err: false,
+                                    log: result.status.text,
+                                    timestamp: timestampEnded
+                                });
+                                logsDao.insertLog({
+                                    referenceId: logsReferenceIds,
+                                    err: false,
+                                    log: 'BOTs execution success for  ' + botDetails.id,
+                                    timestamp: timestampEnded
+                                });
+                                instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
+                                instanceLog.endedOn = new Date().getTime();
+                                instanceLog.actionStatus = "success";
+                                instanceLog.logs = {
+                                    err: false,
+                                    log: 'BOTs execution success for  ' + botDetails.id,
+                                    timestamp: new Date().getTime()
+                                };
+                                instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
+                                    if (err) {
+                                        logger.error("Failed to create or update instanceLog: ", err);
+                                    }
+                                });
+                                timer.stop();
+                                if (decryptedCredentials.pemFileLocation){
+                                    removeScriptFile(decryptedCredentials.pemFileLocation);
+                                }
+                                callback(null, result);
+                                return;
+                            } else {
+                                logger.debug("BOTs Execution is going on.");
+                                var timestampEnded = new Date().getTime();
+                                logsDao.insertLog({
+                                    referenceId: logsReferenceIds,
+                                    err: false,
+                                    log: "BOTs Execution is going on",
+                                    timestamp: timestampEnded
+                                });
+                            }
+                        })
+                    })
+                }
+            })
     });
+}
+
+function removeScriptFile(filePath) {
+    fileIo.removeFile(filePath, function(err, result) {
+        if (err) {
+            logger.error(err);
+            return;
+        } else {
+            logger.debug("Successfully Remove file");
+            return
+        }
+    })
 }
 
 

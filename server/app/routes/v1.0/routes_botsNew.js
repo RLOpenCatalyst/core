@@ -123,7 +123,10 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 category:req.body.type,
                 userName: req.session.user.cn,
                 hostProtocol: req.protocol + '://' + req.get('host'),
-                params: req.body.params
+                data: req.body.data
+            }
+            if(req.body.nodeIds){
+                reqBody.nodeIds =  req.body.nodeIds;
             }
         }
         botsNewService.executeBots(req.params.botId,reqBody,req.session.user.cn,executionType,false,function (err, data) {
