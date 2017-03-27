@@ -171,10 +171,11 @@
                 blueprintCreateService.getArtifacts(appDeployCreate.requestData).then(function (artifactsResult) {
                     var artVerObj=[];
                     appDeployCreate.atrifactForVersion = artifactsResult;
+                    $scope.artifactsVersion = artifactsResult;
                     angular.forEach(artifactsResult,function(val){
                         artVerObj[val.version]=val;
-                        $scope.checkArtifactVersion = artVerObj[val.version]; 
                         appDeployCreate.artifactsVersion[val.artifactId]=artVerObj;
+                        $scope.versionURI = appDeployCreate.artifactsVersion[val.artifactId];
                         if (appDeployCreate.artifactsOptions.indexOf(val.artifactId) === -1) {
                             appDeployCreate.artifactsOptions.push(val.artifactId);
                         }
@@ -191,7 +192,11 @@
                 });
             };
             appDeployCreate.getResourceURI = function(){
-                appDeployCreate.newEnt.resourceURI = $scope.checkArtifactVersion.resourceURI;
+                angular.forEach($scope.artifactsVersion,function(val){
+                    if(val.version === appDeployCreate.newEnt.version) {
+                        appDeployCreate.newEnt.resourceURI = val.resourceURI;
+                    }
+                });
             };
             appDeployCreate.init();
         }
