@@ -191,11 +191,11 @@
                 });
             };
             appDeployCreate.getResourceURI = function(){
-                $scope.isLoadingNexusVersion = true;
+                $scope.isLoadingRepoVersion = true;
                 angular.forEach($scope.artifactsVersion,function(val){
                     if(val.version === appDeployCreate.newEnt.version) {
                         appDeployCreate.newEnt.resourceURI = val.resourceURI;
-                        $scope.isLoadingNexusVersion = false;
+                        $scope.isLoadingRepoVersion = false;
                     }
                 });
 
