@@ -1,44 +1,81 @@
 <!DOCTYPE html>
 <html>
+<head>
+  <base >
+</head>
 <link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
 <script src="../../bower_components/angular/angular.js"></script>
 <script src="https://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-2.5.0.min.js"></script>
+
 <script>
+
+
+    
     var app = angular.module('poc', ['ui.bootstrap']);
-    app.controller('pocCtrl', function($scope,$uibModal) {
+
+    app.controller('ServiceNowBOTCtrl', function( $scope, $http,$location,  $uibModal) {
         var crtl=this;
-        crtl.init=function () {
 
+        crtl.getBOTDetail = function (BotName, Token) {
+        
+          console.log(BotName);
+          console.log("http://d4d.rlcatalyst.com/botsNew?filterBy=" + BotName);
+          console.log(Token);
+
+          return $http({
+            method: 'get', 
+           // url:"http://d4d.rlcatalyst.com/botsNew?filterBy=id:rlcatalyst_org_creation",
+            url:"http://d4d.rlcatalyst.com/botsNew?filterBy=" + BotName,
+            headers: {
+              //'x-catalyst-auth': 'ad68e3a3-b971-4181-adef-64485bf87a96',
+              'x-catalyst-auth': Token,
+              'Accept': 'application/json'
+              }
+             }).then(function(response) {
+            $scope.BOTData =  response;
+          
+          });
         };
-        crtl.init();
+        
 
-    });
+        crtl.init=function () {
+           
+            var paramQuery = location.search.substring(1);
+            var BotNameParam = paramQuery.split("&");
+
+            // console.log(BotNameParam[0]);
+            var botName= BotNameParam[0].split("=")[1];
+            var token= BotNameParam[1].split("=")[1];
+           
+
+           crtl.getBOTDetail(botName, token);
+          // console.log("After init BOT data"+ $scope.BOTData);
+           
+        };
+
+        crtl.init();
+    }); 
+   
 
 </script>
+
 <body ng-app="poc">
 
-<div ng-controller="pocCtrl">
-    <div class="container-fluid text-center">
-        <div class="row content">
-            <div class="col-sm-0 col-md-1 col-lg-1" ></div>
-            <div class="col-sm-12 col-md-10 col-lg-10" >
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title">Modal Header</h4>
-                    </div>
-                    <div class="modal-body">
-                        <p>Some text in the modal.</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">OK</button>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-0 col-md-1 col-lg-1" ></div>
-        </div>
-    </div>
+<div ng-controller="ServiceNowBOTCtrl"  browser="html5">
+<!-- <input type="text" ng-model="user.name"> -->
+<p>BOT ID: {{BOTData.data["bots"][0].id}}</p>
+<p>BOT Input Filed 1: {{BOTData.data["bots"][0].inputFormFields[0].label}}</p>
+<p>BOT Input Filed 2: {{BOTData.data["bots"][0].inputFormFields[1].label}}</p>
 
-</div>
+
+
+<div class="pager">
+  <!--       <button type="button" class="btn cat-btn-update"  ng-click="executeTask()">
+            <i class="fa fa-check white"></i> Execute
+        </button> -->
+    </div>
+</div> 
+
 
 </body>
 </html>
