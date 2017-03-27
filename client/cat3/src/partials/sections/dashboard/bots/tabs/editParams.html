@@ -23,7 +23,7 @@
 		            </tbody>
 		         </table>
       		</div>
-      		<div ng-if="botType ==='chef'" class="chefExecution scheduleBorder">
+      		<div ng-if="botType ==='chef'" class=" scheduleBorder">
       		<!-- <div class="col-lg-2 col-md-2 margintop8">
             <label class="botsLabel" for="">Organization:<span class="red">*</span> </label>
 	            <div class="input-groups">
@@ -123,11 +123,29 @@
                </div>
             </div>
         </div>
-      	</div>
-	    <div class="alert alert-info text-center" ng-if="botType === 'UI'">
-	      No data Available
-	   </div>
-	</fieldset>
+				<div class="clearfix"></div>
+      		</div>
+			<!-- <div class="col-lg-6 col-md-6 param-table">
+				<h4 style="margin-top: 0px;">Edit Parameters:</h4>
+				<loading size="large" name="" type="block" align="center"></loading>
+				<table class="table table-bordered text-center">
+					<thead>
+					</thead>
+					<tbody>
+						<tr ng-repeat="params in botParams">
+			                <td>
+			                	<span>{{params.label}}</span>
+			                </td>
+			                <td ng-init="botEditParams[$index] = params.default" style="text-align: left">
+			                	<input ng-if="params.type==='text'" type="text" class="cookbook-edit-text" ng-model="botEditParams[$index]"/>
+			                	<input ng-if="params.type==='password'" type="password" class="cookbook-edit-text" ng-model="botEditParams[$index]"/>
+			                </td>
+			            </tr>
+					</tbody>
+				</table>
+			</div> -->
+		</fieldset>
+		
 </form>
 	<div class="pager">
 		<button type="button" ng-if="botType === 'script' || botType ==='chef'" class="btn cat-btn-update" ng-disabled="editParamsForm.$invalid" ng-click="executeTask()">
