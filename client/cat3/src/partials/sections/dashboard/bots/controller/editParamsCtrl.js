@@ -175,7 +175,6 @@
                     angular.forEach(artifactsResult,function(val){
                         artVerObj[val.version]=val;
                         appDeployCreate.artifactsVersion[val.artifactId]=artVerObj;
-                        $scope.versionURI = appDeployCreate.artifactsVersion[val.artifactId];
                         if (appDeployCreate.artifactsOptions.indexOf(val.artifactId) === -1) {
                             appDeployCreate.artifactsOptions.push(val.artifactId);
                         }
@@ -192,11 +191,14 @@
                 });
             };
             appDeployCreate.getResourceURI = function(){
+                $scope.isLoadingNexusVersion = true;
                 angular.forEach($scope.artifactsVersion,function(val){
                     if(val.version === appDeployCreate.newEnt.version) {
                         appDeployCreate.newEnt.resourceURI = val.resourceURI;
+                        $scope.isLoadingNexusVersion = false;
                     }
                 });
+
             };
             appDeployCreate.init();
         }
