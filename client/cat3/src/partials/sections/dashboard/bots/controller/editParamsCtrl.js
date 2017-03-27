@@ -27,8 +27,11 @@
         $scope.botType = items.type;
         $scope.botInfo = $scope.templateSelected;
         $scope.selectedInstanceList = [];
-        $scope.selectedInstanceIds=[];
-         $scope.originalInstanceList=[];
+        $scope.selectedInstanceIds = [];
+        $scope.originalInstanceList = [];
+        $scope.originalBlueprintList = [];
+        $scope.selectedBlueprintIds = [];
+        $scope.selectedBlueprintList = [];
 
         $scope.IMGNewEnt={
             org:$rootScope.organObject[0],
@@ -39,12 +42,24 @@
 
         $scope.getInstanceList = function() {
             botsCreateService.getCurrentEnvInstances($scope.IMGNewEnt.org.orgid,$scope.IMGNewEnt.buss.rowid,$scope.IMGNewEnt.proj.rowId,$scope.IMGNewEnt.env.rowid).then(function(response){
-                var found = false;
                 $scope.originalInstanceList=[];
                 if(response){
                     angular.forEach(response, function(value, key) {
                         if($scope.selectedInstanceIds.indexOf(value._id) == -1) {
                             $scope.originalInstanceList.push(value);
+                        }
+                    });
+                }
+            });
+        };
+
+        $scope.getBlueprintList = function() {
+            botsCreateService.getBlueprintList($scope.IMGNewEnt.org.orgid,$scope.IMGNewEnt.buss.rowid,$scope.IMGNewEnt.proj.rowId,$scope.botType).then(function(response){
+                $scope.originalBlueprintList=[];
+                if(response){
+                    angular.forEach(response, function(value, key) {
+                        if($scope.selectedBlueprintIds.indexOf(value._id) == -1) {
+                            $scope.originalBlueprintList.push(value);
                         }
                     });
                 }
@@ -87,9 +102,15 @@
         $scope.executeTask = function(){
             var reqBody = {};
             $scope.botParameters = $scope.botParameters.concat($scope.botEditParams);
-            reqBody = {
-                params:$scope.botParameters
-            };
+            if($scope.botType === 'script') {
+                reqBody = {
+                    params:$scope.botParameters
+                };
+            } else if($scope.botType === 'chef') {
+                reqBody.nodeIds = $scope.selectedInstanceIds;
+            } else if ($scope.botType === 'blueprint') {
+                reqBody.nodeIds = $scope.selectedBlueprintIds;
+            }
             var param={
                 inlineLoader:true,
                 url:'/botsNew/' + items.id + '/execute',
@@ -140,7 +161,11 @@
         };
 
         $scope.init = function() {
-            $scope.getInstanceList();
+            if($scope.botType === 'chef') {
+                $scope.getInstanceList();
+            } else if($scope.botType === 'blueprint') {
+                $scope.getBlueprintList();
+            }
         };
         $scope.init();
     }]);

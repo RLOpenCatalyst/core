@@ -2,7 +2,7 @@
 <div id="editParamsPage" ng-controller="editParamsCtrl">
 	<form class="container summary-container" name="editParamsForm" novalidate ng-submit="editParamsForm.$valid && executeBot()">
 		<fieldset id="botExecution">
-			<div ng-if="botType ==='script'" class="scriptExecution param-table bot-info-wrapper">
+			<div ng-if="botType ==='Script'" class="scriptExecution param-table bot-info-wrapper">
 		         <table class="table table-bordered">
 		            <thead>
 		               <tr class="paramRow">
@@ -23,7 +23,7 @@
 		            </tbody>
 		         </table>
       		</div>
-      		<div ng-if="botType ==='chef'" class="chefExecution scheduleBorder">
+      		<div ng-if="botType ==='chef' || botType === 'blueprint'" class="chefExecution scheduleBorder">
       		<!-- <div class="col-lg-2 col-md-2 margintop8">
             <label class="botsLabel" for="">Organization:<span class="red">*</span> </label>
 	            <div class="input-groups">
@@ -53,13 +53,25 @@
 	                </select>
 	            </div>
 	        </div>
-	        <div class="col-lg-2 col-md-2 margintop8">
+	        <div ng-if="botType !== 'blueprint'" class="col-lg-2 col-md-2 margintop8">
 	            <label class="botsLabel" for="">Environment:<span class="red">*</span>
 	            </label>
 	            <div class="input-groups">
 	                <loading size="small" name="isLoadingServer" type="inline" class="ng-scope" style="display: none;"><span class="catloader inline ng-scope small"><i class="fa fa-spinner fa-spin black"></i></span></loading>
 	                <select name="proj" class="chooseProjectExisting width-100 form-control" ng-options="env.name group by env.a for env in IMGNewEnt.proj.environments" ng-model="IMGNewEnt.env" required ng-change="getInstanceList();">
 	                    <option value="">Select</option>
+	                </select>
+	            </div>
+	        </div>
+	        <div ng-if="botType === 'blueprint'" class="col-lg-2 col-md-2 margintop8">
+	            <label class="botsLabel" for="">Type:<span class="red">*</span>
+	            </label>
+	            <div class="input-groups">
+	                <loading size="small" name="isLoadingServer" type="inline" class="ng-scope" style="display: none;"><span class="catloader inline ng-scope small"><i class="fa fa-spinner fa-spin black"></i></span></loading>
+	                <select name="proj" class="chooseProjectExisting width-100 form-control">
+	                    <option value="chef">SoftwareStack </option>
+	                    <option value="ami">OSImage </option>
+	                    <option value="cft">Cloud Formation </option>
 	                </select>
 	            </div>
 	        </div>
@@ -130,7 +142,7 @@
 	</fieldset>
 </form>
 	<div class="pager">
-		<button type="button" ng-if="botType === 'script' || botType ==='chef'" class="btn cat-btn-update" ng-disabled="editParamsForm.$invalid" ng-click="executeTask()">
+		<button type="button" ng-if="botType === 'Script' || botType ==='chef'" class="btn cat-btn-update" ng-disabled="editParamsForm.$invalid" ng-click="executeTask()">
 			<i class="fa fa-check white"></i> Execute
 		</button>
 	</div>

@@ -268,14 +268,17 @@
 }
 
 .notificationCheck.dropdown-menu {
-  top: 0;
   right: 22%;
+  width: 330px;
+  top: 42px; 
+  left: inherit;
 }
 
 .nav .open>a.notificationSetting, .nav .open>a.notificationSetting:focus, .nav .open>a.notificationSetting:hover {
     background : none!important;
     color: #f6f6f6!important;
 }
+
 
 .notificationDisplay.dropdown-menu:before {
 	border-bottom-color: #fff;
@@ -318,8 +321,6 @@
     padding: 10px 10px;
 	display: block;
 	white-space: nowrap;
-	border-bottom: 1px solid #f4f4f4;
-	background: #edecee;
 }
 
 .dropdown-menu>li .menu>li>a>h4 {
@@ -334,7 +335,7 @@
 	color: #999999;
     font-size: 10px;
     position: absolute;
-    top: 0;
+    top: 40px;
     right: 0;
 }
 
@@ -369,22 +370,26 @@
 	border-radius: 2px;
 }
 
-.dropdown-menu>li .menu>li>a.errorStrip {
+.dropdown-menu>li .menu>li.errorStrip {
+	background: #edecee;
 	border-left: 3px solid red;
 	top: 0;
 	bottom: 140px;
 	left: -4px;
 	width: 100%;
 	z-index: 1;	
+	height: 70px;
 }
 
-.dropdown-menu>li .menu>li>a.successStrip {
+.dropdown-menu>li .menu>li.successStrip {
+	background: #edecee;
 	border-left: 3px solid green;
 	top: 0;
 	bottom: 140px;
 	left: -4px;
 	width: 100%;
 	z-index: 1;	
+	height: 70px;
 }
 
 .marginbottom2 {

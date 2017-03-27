@@ -167,6 +167,9 @@
                   <div title="{{botsDetails.desc ? botsDetails.desc:botsDetails.botDesc}}" class="description">{{botsDetails.desc ? botsDetails.desc:botsDetails.botDesc}}</div>
                </div>
                 <div title="{{botsDetails.executionCount}}" class="pull-left botsExecution" ng-if="botsDetails.executionCount">Total Runs:&nbsp;<span>{{botsDetails.executionCount}}</span></div>
+                <div class="pull-right" style="margin-top:5px;">
+                  <a class="margin10 cursor" ng-click="botSync(botsDetails)" title="Sync"><i class="fa fa-refresh"></i></a>
+               </div>
             </a>
          </div>
       </div>

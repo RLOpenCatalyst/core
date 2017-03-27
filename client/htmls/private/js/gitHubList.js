@@ -25,6 +25,26 @@ if (!$.fn.dataTable.isDataTable('#gitTable')) {
 //calling the global track functionality when track params are available..
 $(document).ready(function(e) {
     getGlobalGitServers();
+
+    $('#selectAllCheckbox').on('click',function(){
+        if(this.checked){
+            $('.selectCheckboxForImport').each(function(){
+                this.checked = true;
+            });
+        }else{
+             $('.selectCheckboxForImport').each(function(){
+                this.checked = false;
+            });
+        }
+    });
+
+    $('.selectCheckboxForImport').on('click',function(){
+        if($('.selectCheckboxForImport:checked').length == $('.selectCheckboxForImport').length){
+            $('#selectAllCheckbox').attr('checked',true);
+        }else{
+            $('#selectAllCheckbox').attr('checked',false);
+        }
+    });
 });
 
 function setFileNameCertificate(val) {
@@ -310,14 +330,15 @@ $('#gitTable tbody').on( 'click', 'button.importGitRepo', function(){
     $.ajax({
         url: '../git-hub/'+id+'/import',
         method: 'GET',
-        success: function(impData) {
+        success: function(data) {
             $('#gitImpLoader').hide();
-            for(var i=0;i<impData.same.length; i++) {
-                var html = '<tr><td>' + impData.same[i].botId + '</td><td>' + impData.same[i].name + '</td><td><input type="checkbox"></td></tr>';
+            for(var i=0;i<data.result.length; i++) {
+                var html = '<tr><td>' + data.result[i].botName + '</td><td>' + data.gitHubDetails.repositoryName + '</td><td><input type="checkbox" class="selectCheckboxForImport"></td></tr>';
                 $('#importBotsList').append(html);
             }
         },
         error: function(jxhr) {
+            $('#gitImpLoader').hide();
             console.log(jxhr);
             var msg = "Unable to Fetch GitRepo please try again later";
             if (jxhr.responseJSON && jxhr.responseJSON.message) {
@@ -388,6 +409,11 @@ function saveForm(methodName,url,reqBody) {
         }
     });
 }
+
+//github clone
+$('#gitCloneImport').submit(function(e) {
+
+});
 
 //save form for creating a new gitHub item and updation of the gitHub details.
 $('#gitHubRepoForn').submit(function(e) {

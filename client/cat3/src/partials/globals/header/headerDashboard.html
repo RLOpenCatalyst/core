@@ -49,15 +49,15 @@
 				      <a class="notificationSetting dropdown-toggle" data-toggle="dropdown">
 				      <i class="fa fa-bell white font-size14"></i><span class="label notificationNumber" ng-if="notificationCount > 0">{{notificationCount}}</span>
 				      </a>
-				      <ul class="list-group notificationCheck dropdown-menu btn-block" style="width: 280px;top: 42px; left: inherit;">
-				         <li class="header">You have {{notificationCount}} notification(s)</li>
+				      <ul class="list-group notificationCheck dropdown-menu btn-block">
+				         <li class="header" ng-if="notificationCount > 0">You have {{notificationCount}} notification(s)</li>
 				         <li>
 				            <!-- inner menu: contains the actual data -->
 				            <div class="slimScrollDiv" style="position: relative; overflow: hidden; width: auto; height: auto;">
 				               <ul ng-if="notificationList.length>0" class="menu" style="overflow: auto; width: 100%; height: auto;">
-				                  <li class="marginbottom2" ng-repeat="notificationData in notificationList" ng-show="$index<15">
+				                  <li ng-class="{'errorStrip': notificationData.severity === 'error', 'successStrip': notificationData.severity === 'success'}" class="marginbottom2" ng-repeat="notificationData in notificationList" ng-show="$index<15">
 				                     <!-- start message -->
-				                     <a ng-class="{'errorStrip': notificationData.severity === 'error', 'successStrip': notificationData.severity === 'success'}">
+				                     <a>
 				                        <h4>
 				                           {{notificationData.message.title}}
 				                           <small><i class="fa fa-clock-o"></i>&nbsp;{{notificationData.createdOn | timestampToLocaleTime}}</small>

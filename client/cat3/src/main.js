@@ -121,14 +121,15 @@ angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', 'authenticat
 	$scope.checkForNotification = function() {
 		var socketClient = io('/notify')
         socketClient.on('connect',function(){
-            socketClient.emit('join','client');
+        	authenticationAPI.getUserPermissions().then(function(response){
+				$scope.userName = response.data.cn;
+				socketClient.emit('join','client-'+$scope.userName);
+				socketClient.emit('onLoad',$scope.userName);
+			});
         });
         
         $scope.notificationList = [];
-        authenticationAPI.getUserPermissions().then(function(response){
-			$scope.userName = response.data.cn;
-        	socketClient.emit('onLoad',$scope.userName);
-		});
+        
         
         socketClient.on('noticelist',function(data){
         	$scope.notificationCount = data.count;
@@ -136,12 +137,10 @@ angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', 'authenticat
         });
 
         socketClient.on('notice',function(data){
-        	if(data.data.user_id === $scope.userName){
-        		$scope.notificationList.unshift(data.data);
-        		$scope.$apply(function () {
-		            $scope.notificationCount = $scope.notificationCount + 1;
-		        });
-        	}
+    		$scope.notificationList.unshift(data);
+    		$scope.$apply(function () {
+	            $scope.notificationCount = $scope.notificationCount + 1;
+	        });
         });
 
         socketClient.on('update',function(data){
@@ -153,7 +152,7 @@ angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', 'authenticat
         };
 
         socketClient.on('disconnect',function(){
-            socketClient.emit('leave','server');
+            socketClient.emit('leave','client-'+$scope.userName);
         });
 	};
 
