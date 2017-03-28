@@ -54,11 +54,11 @@ fileUpload.getReadStreamFileByFileId = function getReadStreamFileByFileId(fileId
         if (err) {
             var err = new Error('Internal server error');
             err.status = 500;
-            return callback(err);
+            return callback(err,null);
         } else if (!file) {
             var err = new Error('File not found');
             err.status = 404;
-            return callback(err);
+            return callback(err,null);
         } else {
             var readStream = gfs.createReadStream({
                 _id: file._id
