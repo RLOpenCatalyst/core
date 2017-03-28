@@ -39,10 +39,10 @@ var noticeService = module.exports = {
                 });
             });
             socket.in('server').on('notice',function(data){
-                nsp.in('client-'+data.data.user_id).emit('notice',data);
+                nsp.in('client-'+data.user_id).emit('notice',data);
             })
             socket.in('server').on('update',function(data){
-                nsp.in('client-'+data.data.user_id).emit('update',data);
+                nsp.in('client-'+data.user_id).emit('update',data);
             })
             socket.on('noticeack',function(userid){
                 noticeSchema.deleteNotice(userid,function(err,data){
