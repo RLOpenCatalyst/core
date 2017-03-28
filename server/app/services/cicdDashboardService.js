@@ -164,7 +164,7 @@ cicdDashboardService.getcicdDashboardServerByOrgId = function getcicdDashboardSe
     });
 };
 
-cicdDashboardService.getcicdDashboardServerList = function getcicdDashboardServerList(query, callback) {
+cicdDashboardService.getcicdDashboardServerList = function getcicdDashboardServerList(query,sessionUser, callback) {
     var reqData = {};
     async.waterfall([
         function(next) {
@@ -186,6 +186,8 @@ cicdDashboardService.getcicdDashboardServerList = function getcicdDashboardServe
                 var formattedResponseList = [];
                 for (var i = 0; i < cicdDashboardList.docs.length; i++) {
                     formatcicdDashboardResponse(cicdDashboardList.docs[i],function(formattedData){
+                       // logger.debug(formattedData);
+                        formattedData.catalystUsername = sessionUser;
                         formattedResponseList.push(formattedData);
                         if (formattedResponseList.length === cicdDashboardList.docs.length) {
                             cicdDashboardList.docs = formattedResponseList;
@@ -227,6 +229,7 @@ function formatcicdDashboardResponse(cicdDashboard,callback) {
     formatted.jiraServerId = cicdDashboard.jiraServerId;
     formatted.jenkinsServerId = cicdDashboard.jenkinsServerId;
     formatted.sonarServerId = cicdDashboard.sonarServerId;
+    //logger.debug(req.session.user);
     logger.debug(JSON.stringify(cicdDashboard));
      // var cryptoConfig = appConfig.cryptoSettings;
      //    var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);

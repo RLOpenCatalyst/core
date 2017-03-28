@@ -80,7 +80,7 @@ $('#authenticationType').change(function(e) {
 //when the user clicks on the new button the setting the value to 'new' for the hidden field to know that user is creating the new item..
 $('.addGitHub').click(function(e) {
     $('#gitHubRepoForn').trigger('reset');
-    $('.modal-header').find('.modal-title').html('Create New GitHub Repository');
+    $('#gitHubRepoForn .modal-header').find('.modal-title').html('Create New GitHub Repository');
     $('#gitEditHiddenInput').val('new');
     getOrganizationList();
     $('#orgName,#authenticationType').removeAttr('disabled');
@@ -179,8 +179,26 @@ function getGlobalGitServers() {
             {"data": "repositoryBranch" ,"orderable" : false},
             {"data": "","orderable" : true,
                 "render": function (data) {
-                    var $tdAction = '<div class="btn-group"><button class="btn btn-info pull-left btn-sg tableactionbutton syncGitRepo" data-placement="top" value="Sync" title="Sync"><i class="ace-icon fa fa-refresh bigger-120"></i></button></div><div style="margin-left:14px;" class="btn-group"><button class="btn btn-info pull-left btn-sg tableactionbutton editGitRepo" data-placement="top" value="Update" title="Edit"><i class="ace-icon fa fa-pencil bigger-120"></i></button></div>';
-                    $tdAction = $tdAction + '<div style="margin-left:14px;" class="btn-group"><button class="btn btn-danger pull-left btn-sg tableactionbutton deleteGitRepo" data-placement="top" value="Remove" title="Delete"><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>';
+                    var $tdAction = '<div class="btn-group">' +
+                        '<button class="btn btn-info pull-left btn-sg tableactionbutton syncGitRepo" data-placement="top" value="Sync" title="Sync">' +
+                        '<i class="ace-icon fa fa-refresh bigger-120"></i>' +
+                        '</button>' +
+                        '</div> &nbsp;' +
+                        '<div class="btn-group">' +
+                        '<button class="btn btn-info pull-left btn-sg tableactionbutton importGitRepo" data-placement="top" value="Import" title="Import">' +
+                        '<i class="ace-icon fa fa-download bigger-120"></i>' +
+                        '</button>' +
+                        '</div>' +
+                        '<div style="margin-left:14px;" class="btn-group">' +
+                        '<button class="btn btn-info pull-left btn-sg tableactionbutton editGitRepo" data-placement="top" value="Update" title="Edit">' +
+                        '<i class="ace-icon fa fa-pencil bigger-120"></i>' +
+                        '</button>' +
+                        '</div>';
+                    $tdAction = $tdAction + '<div style="margin-left:14px;" class="btn-group">' +
+                        '<button class="btn btn-danger pull-left btn-sg tableactionbutton deleteGitRepo" data-placement="top" value="Remove" title="Delete">' +
+                        '<i class="ace-icon fa fa-trash-o bigger-120"></i>' +
+                        '</button>' +
+                        '</div>';
                     return $tdAction;
                 }
             }
@@ -195,7 +213,7 @@ $('#gitTable tbody').on( 'click', 'button.editGitRepo', function(){
     var $editModal = $('#modalForGitEdit');
     $editModal.modal('show');
     $editModal.find('#gitEditHiddenInput').val('edit');
-    $editModal.find('h4.modal-title').html('Edit GitHub Repo &nbsp;-&nbsp;&nbsp;' + $this.parents('tr').attr('githubName'));
+    $editModal.find('#gitHubRepoForn h4.modal-title').html('Edit GitHub Repo &nbsp;-&nbsp;&nbsp;' + $this.parents('tr').attr('githubName'));
     $editModal.find('#gitName').val($this.parents('tr').attr('githubName'));
     $editModal.find('#gitDescription').val($this.parents('tr').attr('githubDescription'));
     $editModal.find('#orgName').empty().append('<option value="'+$this.parents('tr').attr("orgId")+'">'+$this.parents('tr').attr("orgName")+'</option>').attr('disabled','disabled');
@@ -274,6 +292,42 @@ $('#gitTable tbody').on( 'click', 'button.deleteGitRepo', function(){
             } else {
                 return;
             }
+        }
+    });
+    return false;
+});
+
+
+//import git
+
+
+$('#gitTable tbody').on( 'click', 'button.importGitRepo', function(){
+    $('#modalForGitImport').modal('show');
+    var $this = $(this);
+    var id=$this.parents('tr').attr('githubId');
+    $('#gitImpLoader').show();
+    $('#importBotsList').html();
+    $.ajax({
+        url: '../git-hub/'+id+'/import',
+        method: 'GET',
+        success: function(impData) {
+            $('#gitImpLoader').hide();
+            for(var i=0;i<impData.same.length; i++) {
+                var html = '<tr><td>' + impData.same[i].botId + '</td><td>' + impData.same[i].name + '</td><td><input type="checkbox"></td></tr>';
+                $('#importBotsList').append(html);
+            }
+        },
+        error: function(jxhr) {
+            console.log(jxhr);
+            var msg = "Unable to Fetch GitRepo please try again later";
+            if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                msg = jxhr.responseJSON.message;
+            } else if (jxhr.responseText) {
+                var msgCheck = JSON.parse(jxhr.responseText);
+                msg = msgCheck.msg;
+            }
+            bootbox.alert(msg);
+            $('#gitHubListLoader').hide();
         }
     });
     return false;

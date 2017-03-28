@@ -45,40 +45,62 @@
 				</li>
 
 				<li class="header-right">
+				   <div id="settings" class="notificationDisplay margintop5Right20 headNavigItem btn-group btn-group-inline" ng-if='settingsBool' ng-click="notificationCheck();">
 
 
-					<div id="settings" class="headNavigItem btn-group btn-group-inline" ng-if='settingsBool' ui-sref-active='activeSection'>
-						<a class="dropdown-toggle" data-toggle="dropdown">
-							<i class="fa fa-bell white font-size-20" style="font-size: 20px;"></i><span style="position: absolute;top: -2px;right: -8px;font-size: 12px;" class="label label-primary">8</span>
-						</a>
-						<div class="list-group dropdown-menu btn-block" style="width: 230px;top: 38px; left: inherit;">
-							<a class="list-group-item" href="#">Reason 1</a>
-							<a class="list-group-item" href="#">Reason 2</a>
-							<a class="list-group-item" href="#">Reason 3</a>
-							<a class="list-group-item" href="#">Reason 2</a>
-							<a class="list-group-item" href="#">Reason 3</a>
-						</div>
-					</div>
-					<div id="header-menu" class="" >
-						<div id="userInfo" class="headNavigItem dropdown-toggle" title="{{appDetails.roleId}}" style="font-size: inherit;"   data-toggle="dropdown">
-							<i class="fa fa-user white"></i>
-							{{appDetails.cn | uppercase}}
-							[{{appDetails.roleId}}]
-						</div>
-						<div class="list-group dropdown-menu" style="top:47px;width: 214px;left: initial;">
+				        <a class="notificationSetting dropdown-toggle" data-toggle="dropdown">
+				      <i class="fa fa-bell white font-size14"></i><span class="label notificationNumber" ng-if="notificationCount > 0">{{notificationCount}}</span>
+				      </a>
+				      <ul class="list-group notificationCheck dropdown-menu btn-block" style="width: 280px;top: 42px; left: inherit;">
+						  <i style="position: absolute;top: -17px;z-index: 99;right: 5px;font-size: 25px;" class="fa fa-caret-up white" aria-hidden="true"></i>
+				         <li class="header">You have {{notificationCount}} notification(s)</li>
+				         <li>
+				            <!-- inner menu: contains the actual data -->
+				            <div class="slimScrollDiv" style="position: relative; overflow: hidden; width: auto; height: auto;">
 
-							<a class="list-group-item" href="/private/index.html#ajax/Settings/Dashboard.html">
-								<i class="fa fa-cog"></i> SETTINGS
-							</a>
-							<a class="list-group-item" href="https://catalyst.readthedocs.org" target="_blank" style="color: #000">
-								<i class="fa fa-question "></i> HELP
-							</a>
+				               <ul ng-if="notificationList.length>0" class="menu" style="overflow: auto; width: 100%; height: auto;">
+				                  <li class="marginbottom2" ng-repeat="notificationData in notificationList" ng-show="$index<15">
+				                     <!-- start message -->
+				                     <a ng-class="{'errorStrip': notificationData.severity === 'error', 'successStrip': notificationData.severity === 'success'}">
+				                        <h4>
+				                           {{notificationData.message.title}}
+				                           <small><i class="fa fa-clock-o"></i>&nbsp;{{notificationData.createdOn | timestampToLocaleTime}}</small>
+				                        </h4>
+				                        <p title="{{notificationData.message.body}}">{{notificationData.message.body}}</p>
+				                     </a>
+				                  </li>
+				                  <!-- end message -->
+				               </ul>
+				               <ul class="alert alert-info text-center" ng-if="!notificationList.length > 0">
+				               		<li>No Data Available</li> 
+				               </ul>
+				            </div>
+				         </li>
+				         <li ui-sref="dashboard.bots.audittrail" class="footer">See All Notifications</li>
+				      </ul>
 
-							<a class="list-group-item cursor" ng-click="logoutConfirmation();" ><i class="fa fa-sign-out"></i> Logout</a>
-
-						</div>
-
-					</div>
+				   </div>
+				   <div id="header-menu" class="" >
+				      <div id="userInfo" class="headNavigItem dropdown-toggle" title="{{appDetails.roleId}}" style="font-size: inherit;"   data-toggle="dropdown">
+						  <i class="fa fa-user white" style="font-size: 20px" aria-hidden="true"></i>
+				      </div>
+				      <div class="list-group dropdown-menu" style="top:47px;width: 214px;left: initial;right: 0;">
+						  <i style="position: absolute;top: -17px;z-index: 99;right: 5px;font-size: 25px;" class="fa fa-caret-up white" aria-hidden="true"></i>
+						  <a style="margin-bottom: 10px">
+							  <span class="badge" style="min-width: 41px;font-size: 13px;border-radius: 21px;height: 37px;"> <i class="fa fa-user white" style="font-size: 25px;"></i></span>
+							  {{appDetails.cn | uppercase}}
+							  [{{appDetails.roleId}}]
+						  </a>
+						  <div class="clearfix margin15" style="height: 20px;"></div>
+				         <a class="list-group-item" href="/private/index.html#ajax/Settings/Dashboard.html">
+				         <i class="fa fa-cog"></i> SETTINGS
+				         </a>
+				         <a class="list-group-item" href="https://catalyst.readthedocs.org" target="_blank" style="color: #000">
+				         <i class="fa fa-question "></i> HELP
+				         </a>
+				         <a class="list-group-item cursor" ng-click="logoutConfirmation();" ><i class="fa fa-sign-out"></i> Logout</a>
+				      </div>
+				   </div>
 				</li>
 			</ul>
 		</div>

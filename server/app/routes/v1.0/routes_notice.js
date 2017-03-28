@@ -14,7 +14,7 @@
 var noticeService = require('_pr/services/noticeService');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
-    app.all('/api/notice/*', sessionVerificationFunc);
+    //app.all('/api/notice/*', sessionVerificationFunc);
 
     app.post('/api/notice/notify',function(req,res){
         if(req.body.userid && req.body.userid !== null){

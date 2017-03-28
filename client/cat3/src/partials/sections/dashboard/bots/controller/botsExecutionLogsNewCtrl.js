@@ -8,12 +8,12 @@
 (function (angular) {
     "use strict";
     angular.module('dashboard.bots')
-    .service('orchestrationSetting', [function() {
+    .service('botPollingSetting', [function() {
         return {
-            orchestrationLogsPollerInterval: 5000
+            botLogsPollerInterval: 5000
         };
     }])
-    .controller('botsExecutionLogsNewCtrl',['$scope', 'items', '$rootScope', 'workzoneServices', 'orchestrationSetting','genericServices', 'toastr', '$modalInstance', '$timeout', function ($scope, items, $rootScope, workzoneServices, orchestrationSetting,genSevs, toastr, $modalInstance, $timeout) {
+    .controller('botsExecutionLogsNewCtrl',['$scope', 'items', '$rootScope', 'botsCreateService', 'botPollingSetting','genericServices', 'toastr', '$modalInstance', '$timeout', function ($scope, items, $rootScope, botsCreateService, botPollingSetting, genSevs, toastr, $modalInstance, $timeout) {
         $scope.isLogsLoading = true;
         angular.extend($scope, {
             logListInitial: [],
@@ -32,10 +32,10 @@
             },
             logsPolling: function() {
                 timerObject = $timeout(function() {
-                    workzoneServices.getBotLogs(items.logDetails.botId,items.logDetails.actionId, helper.lastTimeStamp).then(function (resp) {
-                        if (resp.data.length) {
+                    botsCreateService.getBotLogs(items.logDetails.botId,items.logDetails.actionId, helper.lastTimeStamp).then(function (resp) {
+                        if (resp.length) {
                             var logData = {
-                                logs: resp.data,
+                                logs: resp,
                                 fullLogs: false
                             };
                             helper.lastTimeStamp = helper.getlastTimeStamp(logData.logs);
@@ -45,7 +45,7 @@
                         }
                         helper.logsPolling();
                     });
-                }, orchestrationSetting.orchestrationLogsPollerInterval);
+                }, botPollingSetting.botLogsPollerInterval);
             },
             scrollBottom : function () {
                 $timeout(function () {
@@ -58,11 +58,11 @@
             }
         };
     
-        workzoneServices.getBotLogs(items.logDetails.botId,items.logDetails.actionId, $scope.getCurrentTime).then(function (response) {
-            helper.lastTimeStamp = helper.getlastTimeStamp(response.data);
+        botsCreateService.getBotLogs(items.logDetails.botId,items.logDetails.actionId, $scope.getCurrentTime).then(function (response) {
+            helper.lastTimeStamp = helper.getlastTimeStamp(response);
             helper.logsPolling();
             var logData = {
-                logs: response.data,
+                logs: response,
                 fullLogs: true
             };
             $scope.logListInitial = logData.logs;
