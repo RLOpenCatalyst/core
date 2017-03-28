@@ -420,7 +420,7 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
                                 logger.error(err);
                             }
                             logger.debug("GIT Repository Clone is Done.");
-                            fs.unlinkSync(filePath)
+                            fs.unlinkSync(filePath);
                             botsNewService.syncBotsWithGitHub(gitHubDetails._id, function (err, data) {
                                 if (err) {
                                     callback(err, null);
