@@ -397,6 +397,7 @@ module.exports.setRoutes = function(app) {
                     } else {
                         logger.debug("No Valid Session for User - 403");
                         res.send(403);
+                        // req.session.destroy();
                     }
                 });
             } else {

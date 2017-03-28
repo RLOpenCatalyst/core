@@ -38,8 +38,8 @@ module.exports.setRoutes = function(app, sessionVerification) {
                     logger.error('Error occured getting temporary auth token ', err);
                     return next(err);
                 }
-                var base64 = new Buffer(JSON.stringify(data.params)).toString('base64');
-                res.redirect(data.catalystUrl + '?ttok=' + tokenData.token + '&params=' + base64);
+                //var base64 = new Buffer(JSON.stringify(data.params)).toString('base64');
+                res.redirect(data.catalystUrl + '?Token=' + tokenData.token + '&BotName=id:'+data.params.botId);
             });
         });
     }
