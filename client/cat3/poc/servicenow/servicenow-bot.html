@@ -4,20 +4,24 @@
   <base >
 </head>
 <link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" href="../../src/partials/globals/toaster/angular-toastr.css" />
 <script src="../../bower_components/angular/angular.js"></script>
 <script src="https://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-2.5.0.min.js"></script>
+<script src="../../src/partials/globals/toaster/angular-toastr.tpls.js"></script>
 
 <script>
 
 
     
-    var app = angular.module('poc', ['ui.bootstrap']);
+    var app = angular.module('poc', ['ui.bootstrap','toastr']);
 
-    app.controller('ServiceNowBOTCtrl', function( $scope, $http,$location,  $uibModal) {
+    app.controller('ServiceNowBOTCtrl', function( $scope, $http,$location,$uibModal,toastr,$timeout,$window) {
         var crtl=this;
-        crtl.newEnt=[];
+        crtl.newEnt={};
+        crtl.auth=[];
         crtl.getBOTDetail = function (BotName, Token) {
-
+            crtl.auth.BotName=BotName;
+            crtl.auth.Token=Token;
           return $http({
             method: 'get', 
            // url:"http://d4d.rlcatalyst.com/botsNew?filterBy=id:rlcatalyst_org_creation",
@@ -36,7 +40,23 @@
           });
         };
         crtl.save = function () {
-            console.log(crtl.newEnt);
+            return $http({
+                method: 'POST',
+                // url:"http://d4d.rlcatalyst.com/botsNew?filterBy=id:rlcatalyst_org_creation",
+                url:'../../../botsNew/' + crtl.auth.BotName.split(":")[1] + '/execute',
+                data:crtl.newEnt,
+                headers: {
+                    // 'x-catalyst-auth': '855a95b6-9670-4f40-96c0-2d6e089d07b7',
+                    'x-catalyst-auth': crtl.auth.Token,
+                    'Accept': 'application/json'
+                }
+            }).then(function(response) {
+                toastr.success("Successfully executed");
+                $timeout(function () {
+                  $window.close();
+                },400);
+            });
+
         };
 
         crtl.init=function () {
