@@ -313,9 +313,8 @@ gitGubService.gitHubContentSync = function gitHubContentSync(gitHubId, botId,cal
                 }else{
                     cmd = 'curl -L '
                 }
-                cmdFull = cmd  +'https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/contents/Bots/'+result.botsDetails[0].type+'/'+result.botsDetails[0].id+'?ref='+formattedGitHub.repositoryBranch;
-                gitHubDetails = {_id:formattedGitHub._id,repositoryName:formattedGitHub.repositoryName,repositoryDesc:formattedGitHub.repositoryDesc};
-                gitHubSingleSync(gitHubDetails,cmdFull,cmd,function(err,res){
+                var cmdFull = cmd  +'https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/contents/Bots/'+result.botsDetails[0].type+'/'+result.botsDetails[0].id+'?ref='+formattedGitHub.repositoryBranch;
+                gitHubSingleSync(formattedGitHub,cmdFull,cmd,function(err,res){
                     if(err){
                         callback(err,null);
                         return;
@@ -464,7 +463,7 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
                             res.diffSet.forEach(function (entry) {
                                 if(entry.type1 === 'file' || entry.type2 ==='file'){
                                     var botName = entry.relativePath.split("/").slice(-1)[0]
-                                    var state = '';
+                                    var state = '',fileName = '',path ='';
                                     switch (entry.state) {
                                         case 'left':
                                             state = 'deleted';
