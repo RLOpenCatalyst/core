@@ -27,6 +27,8 @@
         $scope.botType = items.type;
         $scope.botInfo = $scope.templateSelected;
         $scope.selectedInstanceList = [];
+        $scope.selectedInstanceIds=[];
+         $scope.originalInstanceList=[];
 
         $scope.IMGNewEnt={
             org:$rootScope.organObject[0],
@@ -37,24 +39,26 @@
 
         $scope.getInstanceList = function() {
             botsCreateService.getCurrentEnvInstances($scope.IMGNewEnt.org.orgid,$scope.IMGNewEnt.buss.rowid,$scope.IMGNewEnt.proj.rowId,$scope.IMGNewEnt.env.rowid).then(function(response){
+                var found = false;
+                $scope.originalInstanceList=[];
                 if(response){
-                    $scope.originalInstanceList = response;    
+                    angular.forEach(response, function(value, key) {
+                        if($scope.selectedInstanceIds.indexOf(value._id) == -1) {
+                            $scope.originalInstanceList.push(value);
+                        }
+                    });
                 }
-                else {
-                    $scope.originalInstanceList = [];   
-                }
-                
             });
         };
 
         $scope.addInstance = function (indexArr) {
             $scope.selectedInstanceList.push($scope.originalInstanceList[indexArr]);
+            $scope.selectedInstanceIds.push($scope.originalInstanceList[indexArr]._id);
             $scope.originalInstanceList.splice(indexArr,1);
         };
 
         $scope.instanceInfo = function($event,instanceDetails) {
             botsCreateService.getInstanceDetails(instanceDetails._id).then(function(response){
-                console.log(response);
                 $modal.open({
                     animation: true,
                     templateUrl: 'src/partials/sections/dashboard/bots/view/instanceInfo.html',
@@ -72,18 +76,19 @@
             });
         }
 
-        $scope.deSelectInstance = function ($event,indexArr){
+        $scope.deSelectInstance = function ($event,id){
             $event.stopPropagation();
-            $scope.originalInstanceList.push($scope.selectedInstanceList[indexArr]);
-            $scope.selectedInstanceList.splice(indexArr,1);
-
+            var ind=$scope.selectedInstanceIds.indexOf(id);
+            $scope.selectedInstanceList.splice(ind,1);
+            $scope.selectedInstanceIds.splice(ind,1);
+            $scope.getInstanceList();
         };
 
         $scope.executeTask = function(){
             var reqBody = {};
             $scope.botParameters = $scope.botParameters.concat($scope.botEditParams);
             reqBody = {
-                params:$scope.botParameters
+                params:{"hostName":"google.com"}
             };
             var param={
                 inlineLoader:true,
@@ -91,16 +96,34 @@
                 data: reqBody
             };
             genSevs.promisePost(param).then(function (response) {
-                $modalInstance.close(response);
+                $modal.open({
+                    animation: true,
+                    templateUrl: 'src/partials/sections/dashboard/bots/view/botExecutionLogs.html',
+                    controller: 'botsExecutionLogsNewCtrl',
+                    backdrop: 'static',
+                    keyboard: false,
+                    resolve: {
+                        items: function() {
+                            return {
+                                logDetails : response,
+                                isBotNew : items
+                            }
+                        }
+                    }
+                }).result.then(function(response) {
+                }, function() {
+                });
                 $rootScope.$emit('BOTS_LIBRARY_REFRESH');
                 botsCreateService.getBOTDetails(items._id).then(function(response){
-                    for(var i=0;i<response.data.bots.length;i++) {
-                        var botObj = response.data.bots[i];
+                    for(var i=0;i<response.bots.length;i++) {
+                        var botObj = response.bots[i];
                         $rootScope.$emit('BOTS_DESCRIPTION_REFRESH', botObj);   
                     }
-                });    
+                });
+                $scope.botParameters = [];    
             },
             function (error) {
+                $scope.botParameters = [];
                 if(error) {
                     error = error.responseText || error;
                     if (error.message) {

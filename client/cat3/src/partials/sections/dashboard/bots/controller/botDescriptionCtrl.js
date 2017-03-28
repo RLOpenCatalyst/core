@@ -10,12 +10,9 @@
     angular.module('dashboard.bots')
     .controller('botDescriptionCtrl',['$scope', 'uiGridOptionsClient', '$rootScope', '$location', 'toastr', 'confirmbox', '$state', 'genericServices',
     function ($scope, uiGridOptionsClient, $rootScope, $location, toastr,confirmbox, $state, genSevs) {
-            var treeNames = ['BOTs','Bots Description'];
+            var treeNames = ['BOTs','BOTs Description'];
             $rootScope.$emit('treeNameUpdate', treeNames);
-            $rootScope.$on('BOTS_TEMPLATE_SELECTED', function(event,reqParams) {
-                $scope.templateSelected = reqParams;
-            });
-
+            $scope.templateSelected=$state.params.botDetail;
             $rootScope.$on('BOTS_DESCRIPTION_REFRESH', function(event,reqParams) {
                 $scope.templateSelected = reqParams;
             });

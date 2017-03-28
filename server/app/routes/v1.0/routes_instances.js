@@ -222,8 +222,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
      });*/
 
     // Instance list for tagging server
-    app.get('/instancesList', function (req, res, next) {
-
+    app.get('/instances/list', function (req, res, next) {
         var reqData = {};
         async.waterfall(
             [

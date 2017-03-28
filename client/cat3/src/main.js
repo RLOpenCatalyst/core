@@ -72,7 +72,7 @@ angularApp.run(['$rootScope', 'auth', '$state', '$stateParams','$http','$window'
 	}
 ]);
 
-angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', '$http', '$log', '$location', '$window', 'auth', '$state', 'modulePermission', function ($scope, $rootScope, $http, $log, $location, $window, auth, $state, modulePerms) {
+angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', 'authenticationAPI', '$http', '$log', '$location', '$window', 'auth', '$state', 'modulePermission', function ($scope, $rootScope, authenticationAPI,$http, $log, $location, $window, auth, $state, modulePerms) {
 	'use strict';
 	//global Scope Constant Defined;
 	$rootScope.app = $rootScope.app || {};
@@ -117,4 +117,49 @@ angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', '$http', '$l
 	$rootScope.$on('USER_LOGOUT', function () {
 		$scope.doLogout();
 	});
+
+	$scope.checkForNotification = function() {
+		var socketClient = io('/notify')
+        socketClient.on('connect',function(){
+            socketClient.emit('join','client');
+        });
+        
+        $scope.notificationList = [];
+        authenticationAPI.getUserPermissions().then(function(response){
+			$scope.userName = response.data.cn;
+        	socketClient.emit('onLoad',$scope.userName);
+		});
+        
+        socketClient.on('noticelist',function(data){
+        	$scope.notificationCount = data.count;
+            $scope.notificationList = data.data;
+        });
+
+        socketClient.on('notice',function(data){
+        	if(data.data.user_id === $scope.userName){
+        		$scope.notificationList.unshift(data.data);
+        		$scope.$apply(function () {
+		            $scope.notificationCount = $scope.notificationCount + 1;
+		        });
+        	}
+        });
+
+        socketClient.on('update',function(data){
+       
+        });
+
+        $scope.userClick = function() {
+        	socketClient.emit('noticeack',$scope.userName);
+        };
+
+        socketClient.on('disconnect',function(){
+            socketClient.emit('leave','server');
+        });
+	};
+
+	$scope.notificationCheck = function() {
+		$scope.userClick();
+	};
+
+	$scope.checkForNotification();
 }]);

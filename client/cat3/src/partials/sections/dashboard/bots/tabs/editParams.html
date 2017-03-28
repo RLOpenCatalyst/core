@@ -23,7 +23,7 @@
 		            </tbody>
 		         </table>
       		</div>
-      		<div ng-if="botType ==='chef'" class="chefExecution scheduleBorder">
+      		<div ng-if="botType ==='chef'" class=" scheduleBorder">
       		<!-- <div class="col-lg-2 col-md-2 margintop8">
             <label class="botsLabel" for="">Organization:<span class="red">*</span> </label>
 	            <div class="input-groups">
@@ -64,14 +64,14 @@
 	            </div>
 	        </div>
 	        <div class="col-lg-12 col-md-12">
-      		<div class="col-lg-6 col-md-6 col-sm-12 margintop15 marginleft15">
+      		<div class="col-lg-6 col-md-6 col-sm-12 margintop15 marginleft-15">
                <div class="panel-group">
                   <div class="panel panel-default">
                      <div class="panel-heading" style="height: 40px;"> 
 		                  <form class="pull-right firefoxForm" novalidate name="library-form" ng-submit="searchBotNameCategory('pageNumber')">
 				            <span class="bot-library-search">
 				               <label>&nbsp;
-				                  <input type="search" ng-model="searchText.name" class="bot-search marginleft8" placeholder="Search">
+				                  <input type="search" ng-model="searchText.name" class="search-text bot-search marginleft8" placeholder="Search">
 				                  <i class="fa fa-search search-icon" ng-show="!searchText" ng-click="searchBotNameCategory('pageNumber')"></i>
 				                  <i title="Clear Search" class="fa fa-close search-icon cancel-icon ng-hide" ng-show="searchText" ng-click="clearInstanceSearch()"></i>
 				               </label>
@@ -108,7 +108,8 @@
                               dnd-selected="models.selected = selectedInstance"  ng-class=" {'activeLi':selectInstanceId === selectedInstance._id}">
                               	<span class="col-lg-12 col-md-12">
                               	  <span class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="instanceInfo($event,selectedInstance)" ><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>
-	                              <span class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="deSelectInstance($event,selectedInstanceList.indexOf(selectedInstance))" ><i class="fa fa-arrow-left fa-2 white" aria-hidden="true"></i></span>
+                              	  <span title="Clear" class="filterClear pull-right btn btn-xs cat-btn-update bpvicon" ng-click="deSelectInstance($event,selectedInstanceList._id)">×</span>
+	                              <!-- <span  ng-click="deSelectInstance($event,selectedInstanceList.indexOf(selectedInstance))" ><i class="fa fa-arrow-left fa-2 white" aria-hidden="true"></i></span> -->
 	                              <span class="badge pull-left" >{{(+selectedInstanceList.indexOf(selectedInstance)) +1}}</span><img class="layersClassComposite" src="./images/global/chef-import.png"  alt="{{selectedInstance.name}}"/> &nbsp;{{selectedInstance.name}}
                           		</span>
                           		<div class="info-cell">
@@ -122,6 +123,7 @@
                </div>
             </div>
         </div>
+				<div class="clearfix"></div>
       		</div>
 			<!-- <div class="col-lg-6 col-md-6 param-table">
 				<h4 style="margin-top: 0px;">Edit Parameters:</h4>
@@ -143,10 +145,10 @@
 				</table>
 			</div> -->
 		</fieldset>
-	
+		
 </form>
 	<div class="pager">
-		<button type="button" class="btn cat-btn-update" ng-disabled="editParamsForm.$invalid" ng-click="executeTask()">
+		<button type="button" ng-if="botType === 'script' || botType ==='chef'" class="btn cat-btn-update" ng-disabled="editParamsForm.$invalid" ng-click="executeTask()">
 			<i class="fa fa-check white"></i> Execute
 		</button>
 	</div>
