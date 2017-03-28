@@ -320,7 +320,7 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
                                     for(var i=1;i<data.length;i++){
                                         botsDetails.push(data[i].id);
                                     }
-                                    callback(null, {gitHubDetails:gitHubDetails,botsDetails:botsDetails});
+                                    callback(null, {botsDetails:botsDetails});
                                     logger.debug("Git Hub Sync is Done.");
                                 }
                             });
@@ -351,7 +351,7 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
                     } else {
                         logger.debug("GIT Repository comparing");
                         dircompare.compare(botpath, glob.sync(destPath + '/*')[0]+'/Bots', options).then(function(res){
-                            var result = [];
+                            var result = [],fileName =null,path =null;
                             res.diffSet.forEach(function (entry) {
                                 if(entry.type1 === 'file' || entry.type2 ==='file'){
                                     var botName = entry.relativePath.split("/").slice(-1)[0]
