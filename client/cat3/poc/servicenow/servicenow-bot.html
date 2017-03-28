@@ -15,40 +15,39 @@
 
     app.controller('ServiceNowBOTCtrl', function( $scope, $http,$location,  $uibModal) {
         var crtl=this;
-
+        crtl.newEnt=[];
         crtl.getBOTDetail = function (BotName, Token) {
-        
-          console.log(BotName);
-          console.log("http://d4d.rlcatalyst.com/botsNew?filterBy=" + BotName);
-          console.log(Token);
 
           return $http({
             method: 'get', 
            // url:"http://d4d.rlcatalyst.com/botsNew?filterBy=id:rlcatalyst_org_creation",
-            url:"http://d4d.rlcatalyst.com/botsNew?filterBy=" + BotName,
+            url:"../../../botsNew?filterBy=" + BotName,
             headers: {
-              //'x-catalyst-auth': 'ad68e3a3-b971-4181-adef-64485bf87a96',
+             // 'x-catalyst-auth': '855a95b6-9670-4f40-96c0-2d6e089d07b7',
               'x-catalyst-auth': Token,
               'Accept': 'application/json'
               }
              }).then(function(response) {
-            $scope.BOTData =  response;
+              crtl.BOTData =  response.data;
+              angular.forEach(response.data.bots[0].inputFormFields,function (val) {
+                  crtl.newEnt[val.name]=val.default;
+              });
           
           });
         };
-        
+        crtl.save = function () {
+            console.log(crtl.newEnt);
+        };
 
         crtl.init=function () {
-           
             var paramQuery = location.search.substring(1);
-            var BotNameParam = paramQuery.split("&");
-
-            // console.log(BotNameParam[0]);
-            var botName= BotNameParam[0].split("=")[1];
-            var token= BotNameParam[1].split("=")[1];
-           
-
-           crtl.getBOTDetail(botName, token);
+            if(paramQuery) {
+                var BotNameParam = paramQuery.split("&");
+                // console.log(BotNameParam[0]);
+                var botName = BotNameParam[0].split("=")[1];
+                var token = BotNameParam[1].split("=")[1];
+                crtl.getBOTDetail(botName, token);
+            }
           // console.log("After init BOT data"+ $scope.BOTData);
            
         };
@@ -58,22 +57,49 @@
    
 
 </script>
-
+<style>
+  .repo-job-details-wrapper {
+    border: 1px solid #dddddd;
+    margin: 0 2px;
+    padding: 0.35em 0.625em 0.75em;
+  }
+  .repo-job-details-wrapper-inner {
+    border: 0 none;
+    padding: 0;
+    width: auto;
+    margin-bottom: 0;
+    font-size: 15px;
+    color: #666;
+  }
+  .margintop15{
+    margin-top: 15px !important;
+  }
+</style>
 <body ng-app="poc">
-
-<div ng-controller="ServiceNowBOTCtrl"  browser="html5">
-<!-- <input type="text" ng-model="user.name"> -->
-<p>BOT ID: {{BOTData.data["bots"][0].id}}</p>
-<p>BOT Input Filed 1: {{BOTData.data["bots"][0].inputFormFields[0].label}}</p>
-<p>BOT Input Filed 2: {{BOTData.data["bots"][0].inputFormFields[1].label}}</p>
-
-
-
-<div class="pager">
-  <!--       <button type="button" class="btn cat-btn-update"  ng-click="executeTask()">
-            <i class="fa fa-check white"></i> Execute
-        </button> -->
+<div ng-controller="ServiceNowBOTCtrl as serCt"  browser="html5">
+  <div class="">
+    <div class="col-lg-3 col-md-3 col-sm-0"></div>
+    <div class="col-lg-6 col-md-6 col-sm-12">
+      <form>
+      <fieldset class="repo-job-details-wrapper">
+        <legend class="repo-job-details-wrapper-inner">BOTs Details:</legend>
+        <div class="col-lg-6 col-md-6 margintop15" ng-repeat="fild in serCt.BOTData.bots[0].inputFormFields" ng-switch="fild.type">
+          <label>{{fild.label}}:
+          </label>
+          <input ng-switch-when="text" type="text" class="form-control" ng-model="serCt.newEnt[fild.name]" />
+          <input ng-switch-when="password" type="password" class="form-control" ng-model="serCt.newEnt[fild.name]"  />
+        </div>
+        <div class="" style=" clear: both"></div>
+        <div class="pull-right" style="margin: 10px 14px;">
+          <button type="button" class="btn btn-primary" ng-click="serCt.save();"> <i class="fa fa-floppy-o white" aria-hidden="true"></i> Save</button>
+        </div>
+      </fieldset>
+      </form>
     </div>
+    <div class="col-lg-3 col-md-3 col-sm-0"></div>
+  </div>
+
+
 </div> 
 
 
