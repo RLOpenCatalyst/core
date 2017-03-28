@@ -516,6 +516,11 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
                                 callback(null, {gitHubDetails,result:[]});
                             }
                             fs.unlinkSync(filePath)
+                        }).catch(function(error){
+                            var err = new Error('Invalid Files');
+                            err.status = 500;
+                            err.msg = 'Unable to compare';
+                            callback(err, null);
                         })
                     }
                 });
