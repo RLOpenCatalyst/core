@@ -11,6 +11,7 @@
  limitations under the License.
  */
 var gitHubService = require('_pr/services/gitHubService');
+var noticeService = require('_pr/services/noticeService');
 var async = require('async');
 var validate = require('express-validation');
 var gitHubValidator = require('_pr/validators/gitHubValidator');
@@ -312,7 +313,11 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 if (err) {
                     res.status(err.status).send(err);
                 } else {
-                    return res.status(200).send(results);
+                    noticeService.notice(req.session.user.cn,{title:'Bot sync',body:results.botsDetails+ 'synced'},"success",function(err,data){
+                    if(err){
+                        return res.sendStatus(500);
+                    }});
+                    return res.sendStatus(200);
                 }
             }
         );
