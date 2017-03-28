@@ -603,6 +603,7 @@ var Chef = function(settings) {
         // fix for template runlist
         runlist = fixTemplateRunlist(runlist);
         runlist = chefDefaults.defaultChefClientRunCookbooks.concat(runlist);
+
         if (options.instanceOS != 'windows') {
 
             var lockFile = false;
@@ -639,6 +640,7 @@ var Chef = function(settings) {
 
             logger.debug("chef client cmd ==> " + cmd);
             cmd = sudoCmd + " " + cmd;
+
 
             var sshExec = new SSHExec(options);
             logger.debug('***********************', options);
