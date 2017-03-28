@@ -314,8 +314,7 @@ gitGubService.gitHubContentSync = function gitHubContentSync(gitHubId, botId,cal
                     cmd = 'curl -L '
                 }
                 cmdFull = cmd  +'https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/contents/Bots/'+result.botsDetails[0].type+'/'+result.botsDetails[0].id+'?ref='+formattedGitHub.repositoryBranch;
-                gitHubDetails = {_id:formattedGitHub._id,repositoryName:formattedGitHub.repositoryName,repositoryDesc:formattedGitHub.repositoryDesc}
-                console.log(cmdFull);
+                gitHubDetails = {_id:formattedGitHub._id,repositoryName:formattedGitHub.repositoryName,repositoryDesc:formattedGitHub.repositoryDesc};
                 gitHubSingleSync(gitHubDetails,cmdFull,cmd,function(err,res){
                     if(err){
                         callback(err,null);
