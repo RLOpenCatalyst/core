@@ -131,8 +131,7 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId,task, callback) {
                 }else{
                     cmd = 'curl -L https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/tarball/'+formattedGitHub.repositoryBranch + ' > '+appConfig.gitHubDir+formattedGitHub.repositoryName+'.tgz';
                 }
-                gitHubDetails = {_id:formattedGitHub._id,repositoryName:formattedGitHub.repositoryName,repositoryDesc:formattedGitHub.repositoryDesc}
-                gitHubCloning(gitHubDetails,task,cmd,function(err,res){
+                gitHubCloning(formattedGitHub,task,cmd,function(err,res){
                     if(err){
                         callback(err,null);
                         return;
@@ -517,6 +516,11 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
                                 callback(null, {gitHubDetails,result:[]});
                             }
                             fs.unlinkSync(filePath)
+                        }).catch(function(error){
+                            var err = new Error('Invalid Files');
+                            err.status = 500;
+                            err.msg = 'Unable to compare';
+                            callback(err, null);
                         })
                     }
                 });

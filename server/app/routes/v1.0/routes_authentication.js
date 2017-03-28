@@ -377,24 +377,27 @@ module.exports.setRoutes = function(app) {
                     if (authToken) {
                         req.session.user = authToken.sessionData;
                         next();
+                       // req.session.destroy();
+                    } else {
+                        logger.debug("No Valid Session for User - 403");
+                        res.send(403);
+                    }
+                });
+            } else if (tempToken) { //checking for temp token
+                tempAuthToken.findByToken(tempToken, function(err, tempTokenData) {
+                    if (err) {
+                        logger.error('Unable to fetch token from db', err);
+                        res.send(403);
+                        return;
+                    }
+                    if (tempTokenData) {
+                        req.session.user = tempTokenData.sessionData;
+                        next();
+                        //req.session.destroy();
+                    } else {
+                        logger.debug("No Valid Session for User - 403");
+                        res.send(403);
                         // req.session.destroy();
-                    } else { // looking for temp token
-                        tempAuthToken.findByToken(token, function(err, tempTokenData) {
-                            if (err) {
-                                logger.error('Unable to fetch token from db', err);
-                                res.send(403);
-                                return;
-                            }
-                            
-                            if (tempTokenData) {
-                                req.session.user = tempTokenData.sessionData;
-                                next();
-                                //req.session.destroy();
-                            } else {
-                                logger.debug("No Valid Session for User - 403");
-                                res.send(403);
-                            }
-                        });
                     }
                 });
             } else {
