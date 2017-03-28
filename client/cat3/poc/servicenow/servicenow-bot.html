@@ -103,11 +103,11 @@
       <form>
       <fieldset class="repo-job-details-wrapper">
         <legend class="repo-job-details-wrapper-inner">BOTs Details:</legend>
-        <div class="col-lg-6 col-md-6 margintop15" ng-repeat="fild in serCt.BOTData.bots[0].inputFormFields" ng-switch="fild.type">
-          <label>{{fild.label}}:
+        <div class="col-lg-6 col-md-6 margintop15" ng-repeat="field in serCt.BOTData.bots[0].inputFormFields" ng-switch="field.type">
+          <label>{{field.label}}:
           </label>
-          <input ng-switch-when="text" type="text" class="form-control" ng-model="serCt.newEnt[fild.name]" />
-          <input ng-switch-when="password" type="password" class="form-control" ng-model="serCt.newEnt[fild.name]"  />
+          <input ng-switch-when="text" type="text" class="form-control" ng-model="serCt.newEnt[field.name]" />
+          <input ng-switch-when="password" type="password" class="form-control" ng-model="serCt.newEnt[field.name]"  />
         </div>
         <div class="" style=" clear: both"></div>
         <div class="pull-right" style="margin: 10px 14px;">
