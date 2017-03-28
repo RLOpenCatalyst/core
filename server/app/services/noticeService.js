@@ -38,20 +38,20 @@ noticeService.init =function init(io, address) {
                 }
             });
         });
-        socket.in('server').on('notice', function (data) {
-            nsp.in('client-' + data.data.user_id).emit('notice', data);
+        socket.in('server').on('notice',function(data){
+            nsp.in('client-'+data.user_id).emit('notice',data);
         })
-        socket.in('server').on('update', function (data) {
-            nsp.in('client-' + data.data.user_id).emit('update', data);
+        socket.in('server').on('update',function(data){
+            nsp.in('client-'+data.user_id).emit('update',data);
         })
-        socket.on('noticeack', function (userid) {
-            noticeSchema.deleteNotice(userid, function (err, data) {
-                if (err)
-                    logger.error(err);
+        socket.on('noticeack',function(userid){
+            noticeSchema.deleteNotice(userid,function(err,data){
+                if(err)
+                logger.error(err);  
             })
         })
-        socket.on('disconnect', function () {
-            socket.on('leave', function (roomData) {
+        socket.on('disconnect',function(){
+            socket.on('leave',function(roomData){
                 socket.leave(roomData);
             })
         })
