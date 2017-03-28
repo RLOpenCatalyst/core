@@ -18,7 +18,7 @@ var botsNewService = require('_pr/services/botsNewService.js');
 var botsDao = require('_pr/model/bots/1.1/botsDao.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
-    //app.all('/botsNew*', sessionVerificationFunc);
+    app.all('/botsNew*', sessionVerificationFunc);
 
     app.get('/botsNew',function(req,res){
         var actionStatus = null,serviceNowCheck =null;
