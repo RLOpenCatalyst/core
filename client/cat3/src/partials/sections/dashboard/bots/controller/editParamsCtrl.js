@@ -22,8 +22,7 @@
         
         $scope.botName = items.name;
         $scope.botParams = items.inputFormFields;
-        $scope.botEditParams = [];
-        $scope.botParameters = [];
+        $scope.botEditParams = {};
         $scope.botType = items.type;
         $scope.botInfo = $scope.templateSelected;
         $scope.selectedInstanceList = [];
@@ -32,6 +31,25 @@
         $scope.originalBlueprintList = [];
         $scope.selectedBlueprintIds = [];
         $scope.selectedBlueprintList = [];
+        $scope.executeTaskForSave = false;
+        $scope.scriptSelectForRemote = {
+            flag: false
+        }
+
+        if($scope.botType === 'chef' || $scope.botType === 'blueprint') {
+            $scope.botCheck = true;
+        } else if($scope.botType === 'Script') {
+            $scope.botCheck = false;
+        }
+
+        $scope.botStatus = function() {
+            if($scope.scriptSelectForRemote.flag){
+                $scope.botCheck = true;
+                $scope.getInstanceList();
+            }else{
+                $scope.botCheck = false;
+            }
+        };
 
         $scope.IMGNewEnt={
             org:$rootScope.organObject[0],
@@ -99,17 +117,24 @@
             $scope.getInstanceList();
         };
 
-        $scope.executeTask = function(){
+        $scope.executeBot = function(){
+            $scope.executeTaskForSave = true;
             var reqBody = {};
-            $scope.botParameters = $scope.botParameters.concat($scope.botEditParams);
-            if($scope.botType === 'script') {
-                reqBody = {
-                    params:$scope.botParameters
-                };
+            console.log($scope.botEditParams);
+            if($scope.botType === 'Script') {
+                reqBody.data = $scope.botEditParams;
+                if($scope.botCheck === true) {
+                    reqBody.nodeIds = $scope.selectedInstanceIds;
+                }
+                console.log(reqBody);
             } else if($scope.botType === 'chef') {
-                reqBody.nodeIds = $scope.selectedInstanceIds;
+                if($scope.selectedInstanceIds.length>0) {
+                    reqBody.nodeIds = $scope.selectedInstanceIds;
+                } else {
+                    return false;
+                }
             } else if ($scope.botType === 'blueprint') {
-                reqBody.nodeIds = $scope.selectedBlueprintIds;
+                reqBody.blueprintIds = $scope.selectedBlueprintIds;
             }
             var param={
                 inlineLoader:true,
@@ -141,10 +166,10 @@
                         $rootScope.$emit('BOTS_DESCRIPTION_REFRESH', botObj);   
                     }
                 });
-                $scope.botParameters = [];    
+                $scope.botEditParams = {};    
             },
             function (error) {
-                $scope.botParameters = [];
+                $scope.botEditParams = {};
                 if(error) {
                     error = error.responseText || error;
                     if (error.message) {

@@ -229,5 +229,5 @@ catalystSync.executeNewScheduledBots();
 server.listen(app.get('port'), function() {
     logger.debug('Express server listening on port ' + app.get('port'));
     require('_pr/services/noticeService.js').init(io,server.address());
-    
+    require('_pr/services/noticeService.js').test();
 });

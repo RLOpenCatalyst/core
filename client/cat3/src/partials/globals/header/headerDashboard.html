@@ -45,22 +45,27 @@
 				</li>
 
 				<li class="header-right">
-				   <div id="settings" class="notificationDisplay margintop5Right20 headNavigItem btn-group btn-group-inline" ng-if='settingsBool' ng-click="notificationCheck();">
-				      <a class="notificationSetting dropdown-toggle" data-toggle="dropdown">
-				      <i class="fa fa-bell white font-size14"></i><span class="label notificationNumber" ng-if="notificationCount > 0">{{notificationCount}}</span>
+				   <div id="settings" class="notificationDisplay margintop5Right20 headNavigItem btn-group btn-group-inline" ng-if='settingsBool' title="Notifications" ng-click="notificationCheck();">
+
+
+				        <a class="notificationSetting dropdown-toggle" data-toggle="dropdown">
+				      <i class="fa fa-bell white font-size14"></i><span class="label notificationNumber" ng-if="notificationCount > 0 && notificationCount < 99">{{notificationCount}}</span>
+				      <span class="label notificationNumberGreaterValue" ng-if="notificationCount >= 99">99+</span>
 				      </a>
 				      <ul class="list-group notificationCheck dropdown-menu btn-block">
+				      	<i class="fa fa-caret-up white notificationCaret" aria-hidden="true"></i>
 				         <li class="header" ng-if="notificationCount > 0">You have {{notificationCount}} notification(s)</li>
 				         <li>
 				            <!-- inner menu: contains the actual data -->
 				            <div class="slimScrollDiv" style="position: relative; overflow: hidden; width: auto; height: auto;">
+
 				               <ul ng-if="notificationList.length>0" class="menu" style="overflow: auto; width: 100%; height: auto;">
-				                  <li ng-class="{'errorStrip': notificationData.severity === 'error', 'successStrip': notificationData.severity === 'success'}" class="marginbottom2" ng-repeat="notificationData in notificationList" ng-show="$index<15">
+				                  <li ng-class="{'errorStrip': notificationData.severity === 'error', 'successStrip': notificationData.severity === 'success'}" class="marginbottom2" ng-repeat="notificationData in notificationList" ng-show="$index<10">
 				                     <!-- start message -->
 				                     <a>
 				                        <h4>
 				                           {{notificationData.message.title}}
-				                           <small><i class="fa fa-clock-o"></i>&nbsp;{{notificationData.createdOn | timestampToLocaleTime}}</small>
+				                           <small><i class="fa fa-clock-o"></i>&nbsp;{{checkTimeForNotification[notificationData._id]}} sec ago</small>
 				                        </h4>
 				                        <p title="{{notificationData.message.body}}">{{notificationData.message.body}}</p>
 				                     </a>
@@ -74,14 +79,20 @@
 				         </li>
 				         <li ui-sref="dashboard.bots.audittrail" class="footer">See All Notifications</li>
 				      </ul>
+
 				   </div>
 				   <div id="header-menu" class="" >
 				      <div id="userInfo" class="headNavigItem dropdown-toggle" title="{{appDetails.roleId}}" style="font-size: inherit;"   data-toggle="dropdown">
-				         <i class="fa fa-user white"></i>
-				         {{appDetails.cn | uppercase}}
-				         [{{appDetails.roleId}}]
+						  <i class="fa fa-user white" style="font-size: 20px" aria-hidden="true"></i>
 				      </div>
-				      <div class="list-group dropdown-menu" style="top:47px;width: 214px;left: initial;">
+				      <div class="list-group dropdown-menu" style="top:47px;width: 214px;left: initial;right: 0;">
+						  <i class="fa fa-caret-up white notificationCaret" aria-hidden="true"></i>
+						  <a style="margin-bottom: 10px">
+							  <span class="badge" style="min-width: 41px;font-size: 13px;border-radius: 21px;height: 37px;"> <i class="fa fa-user white" style="font-size: 25px;"></i></span>
+							  {{appDetails.cn | uppercase}}
+							  [{{appDetails.roleId}}]
+						  </a>
+						  <div class="clearfix margin15" style="height: 20px;"></div>
 				         <a class="list-group-item" href="/private/index.html#ajax/Settings/Dashboard.html">
 				         <i class="fa fa-cog"></i> SETTINGS
 				         </a>

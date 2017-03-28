@@ -370,6 +370,16 @@
 	border-radius: 2px;
 }
 
+.notificationNumberGreaterValue {
+	position: absolute;
+	top: 4px;
+	right: -15px;
+	font-size: 12px;
+	background: red;
+	padding: 1px 3px;
+	border-radius: 2px;
+}
+
 .dropdown-menu>li .menu>li.errorStrip {
 	background: #edecee;
 	border-left: 3px solid red;
@@ -394,4 +404,12 @@
 
 .marginbottom2 {
 	margin-bottom: 2px;
+}
+
+.notificationCaret {
+	position: absolute;
+	top: -17px;
+	z-index: 99;
+	right: 5px;
+	font-size: 25px;
 }

@@ -30,6 +30,7 @@ var noticeService = module.exports = {
                 socket.join(roomData);
             });
             socket.on('onLoad',function(userid){
+                console.log(userid)
                 noticeSchema.getAllnotices(userid,function(err,data){
                     if(err){
                         logger.error(err);  
@@ -39,10 +40,10 @@ var noticeService = module.exports = {
                 });
             });
             socket.in('server').on('notice',function(data){
-                nsp.in('client-'+data.data.user_id).emit('notice',data);
+                nsp.in('client-'+data.user_id).emit('notice',data);
             })
             socket.in('server').on('update',function(data){
-                nsp.in('client-'+data.data.user_id).emit('update',data);
+                nsp.in('client-'+data.user_id).emit('update',data);
             })
             socket.on('noticeack',function(userid){
                 noticeSchema.deleteNotice(userid,function(err,data){
@@ -69,6 +70,7 @@ var noticeService = module.exports = {
             severity: severity,
             createdOn:new Date().getTime()
         }
+        console.log(noticeDetails)
         noticeSchema.createNew(noticeDetails,function(err,data){
             if(err){
                 logger.error(err);
@@ -94,7 +96,7 @@ var noticeService = module.exports = {
         socketClient.on('disconnect',function(){
             socketClient.emit('leave','server');
         })
-     }/*,
+     },
     test:function test(){
         var i=0;
         setInterval(function(){
@@ -102,8 +104,8 @@ var noticeService = module.exports = {
                 console.log(data);
             });
             i++;
-         }, 4000000);
-    }*/
+         }, 4000);
+    }
 }
 
 

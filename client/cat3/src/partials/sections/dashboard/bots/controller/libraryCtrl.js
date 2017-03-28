@@ -164,6 +164,7 @@
                         }
                         if(result.metaData.totalRecords == $scope.botLibGridOptions.data.length) {
                             $scope.showLoadMore = false;
+                            $scope.showRecords = false;
                         }
                     } else {
                         $scope.botLibGridOptions.data =  result.bots;

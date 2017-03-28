@@ -180,15 +180,16 @@
          </div>
          <div class="modal-body">
             <div class="col-lg-12">
-               <table id="ImpgitTable" class="tableData table table-striped table-bordered table-hover dataTable no-footer textCenter" cellpadding="5px">
+               <table id="gitImportTable" class="tableData table table-striped table-bordered table-hover dataTable no-footer textCenter" cellpadding="5px">
                   <thead>
                      <tr class="rowCustomStyle">
-                        <td style="width:200px;">BOTs Name</td>
+                        <td style="width:200px;">BOT(s) Name</td>
                         <td>Repository Name</td>
                         <td>Action&nbsp;<input type="checkbox" id="selectAllCheckbox"/></td>
                      </tr>
                   </thead>
                   <tbody id="importBotsList">
+                     <input type="hidden" id="gitEditImportHiddenInputId">
                   </tbody>
                </table>
                <div class="clearfix"></div>
@@ -201,7 +202,7 @@
          <div class="modal-footer">
             <label id="saveItemSpinner" class="hidden"><img  style="margin-left:5px;margin-right:25px;" src="img/select2-spinner.gif"></label>
             <a type="button" class="btn btn-default" data-dismiss="modal"><i class="ace-icon fa fa-times bigger-110"></i>&nbsp;Cancel</a>
-            <button type="submit" id="gitCloneImport" disabled class="btn btn-primary" value="Save"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Clone</button>
+            <button type="submit" id="gitCloneImport" class="btn btn-primary" value="Save"><i class="ace-icon fa fa-check bigger-110"></i>&nbsp;Clone</button>
          </div>
      </form>
       </div>
