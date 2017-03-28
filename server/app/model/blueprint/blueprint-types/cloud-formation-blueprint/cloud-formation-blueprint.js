@@ -451,7 +451,39 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                             },
                                                             cloudFormationId: cloudFormation._id
                                                         };
-
+                                                        var botLogFile = appConfig.botLogDir + launchParams.actionId;
+                                                        var fileName = 'BB_Execution.log';
+                                                        var winston = require('winston');
+                                                        var path = require('path');
+                                                        var mkdirp = require('mkdirp');
+                                                        var log_folder = path.normalize(botLogFile);
+                                                        mkdirp.sync(log_folder);
+                                                        var cftLogger = new winston.Logger({
+                                                            transports: [
+                                                                new winston.transports.DailyRotateFile({
+                                                                    level: 'debug',
+                                                                    datePattern: '',
+                                                                    filename: fileName,
+                                                                    dirname:log_folder,
+                                                                    handleExceptions: true,
+                                                                    json: true,
+                                                                    maxsize: 5242880,
+                                                                    maxFiles: 5,
+                                                                    colorize: true,
+                                                                    timestamp:false,
+                                                                    name:'bb-execution-log'
+                                                                }),
+                                                                new winston.transports.Console({
+                                                                    level: 'debug',
+                                                                    handleExceptions: true,
+                                                                    json: false,
+                                                                    colorize: true,
+                                                                    name:'bot-console'
+                                                                })
+                                                            ],
+                                                            exitOnError: false
+                                                        });
+                                                        cftLogger.debug('Creating instance in catalyst');
                                                         logger.debug('Creating instance in catalyst');
                                                         instancesDao.createInstance(instance, function (err, data) {
                                                             if (err) {
@@ -469,7 +501,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                 log: "Waiting for instance ok state",
                                                                 timestamp: timestampStarted
                                                             });
-
+                                                            cftLogger.debug('Waiting for instance ok state');
                                                             nodeIdWithActionLogId.push({
                                                                 nodeId: instance.id,
                                                                 actionLogId: actionLog._id
@@ -535,6 +567,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                         log: "Bootstrap failed",
                                                                         timestamp: timestampEnded
                                                                     });
+                                                                    cftLogger.error("Bootstrap failed");
                                                                     instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                                                     instanceLog.actionStatus = "failed";
                                                                     instanceLog.logs = {
@@ -589,6 +622,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                             log: "Unable to decrpt pem file. Bootstrap failed",
                                                                             timestamp: timestampEnded
                                                                         });
+                                                                        cftLogger.error("Unable to decrpt pem file. Bootstrap failed");
                                                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                                                         instanceLog.actionStatus = "failed";
                                                                         instanceLog.logs = {
@@ -680,6 +714,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                     log: "Bootstrap failed",
                                                                                     timestamp: timestampEnded
                                                                                 });
+                                                                                cftLogger.error("Bootstrap failed");
                                                                                 instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                                                                 instanceLog.logs = {
                                                                                     err: true,
@@ -729,18 +764,21 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                         log: "Instance Bootstraped successfully",
                                                                                         timestamp: timestampEnded
                                                                                     });
+                                                                                    cftLogger.debug("Instance Bootstraped successfully");
                                                                                     logsDao.insertLog({
                                                                                         referenceId: logsReferenceIds,
                                                                                         err: false,
                                                                                         log: "You can access stack using below URL.",
                                                                                         timestamp: timestampEnded
                                                                                     });
+                                                                                    cftLogger.debug("You can access stack using below URL.");
                                                                                     logsDao.insertLog({
                                                                                         referenceId: logsReferenceIds,
                                                                                         err: false,
                                                                                         log: 'http://'+launchParams.stackName+'.rlcatalyst.com',
                                                                                         timestamp: timestampEnded
                                                                                     });
+                                                                                    cftLogger.debug('http://'+launchParams.stackName+'.rlcatalyst.com');
                                                                                     instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
                                                                                     instanceLog.logs = {
                                                                                         err: false,
@@ -844,6 +882,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                         log: "Bootstrap Failed",
                                                                                         timestamp: timestampEnded
                                                                                     });
+                                                                                    cftLogger.error("Bootstrap Failed");
                                                                                     instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                                                                     instanceLog.logs = {
                                                                                         err: true,
@@ -887,6 +926,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                 log: stdOutData.toString('ascii'),
                                                                                 timestamp: new Date().getTime()
                                                                             });
+                                                                            cftLogger.debug(stdOutData.toString('ascii'));
                                                                             instanceLog.logs = {
                                                                                 err: false,
                                                                                 log: stdOutData.toString('ascii'),
@@ -907,6 +947,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                 log: stdErrData.toString('ascii'),
                                                                                 timestamp: new Date().getTime()
                                                                             });
+                                                                            cftLogger.error(stdErrData.toString('ascii'));
                                                                             instanceLog.logs = {
                                                                                 err: true,
                                                                                 log: stdErrData.toString('ascii'),
