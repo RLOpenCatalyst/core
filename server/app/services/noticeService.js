@@ -100,4 +100,3 @@ noticeService.updater = function updater(userid, dataType, updateData, callback)
 
 
 
-

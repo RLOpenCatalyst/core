@@ -85,7 +85,8 @@
     "winston-logstash": "0.1.11",
     "xml": "1.0.0",
     "xml2json": "0.9.0",
-    "yamljs": "0.2.8"
+    "yamljs": "0.2.8",
+    "every-moment":"^0.0.1"
   },
   "devDependencies": {
     "grunt": "0.4.5",
