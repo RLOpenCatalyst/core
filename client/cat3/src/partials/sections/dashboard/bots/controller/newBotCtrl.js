@@ -70,20 +70,6 @@
                         $scope.scriptParamsObj[scriptObj._id] = [];
                     }
                 },
-                yamlFileSelection: function($event) {
-                    if (FileReader) {
-                        var fileContent = new FileReader();
-                        fileContent.onload = function(e) {
-                            $scope.addYamlText(e.target.result);
-                        };
-                        fileContent.onerror = function(e) {
-                            toastr.error(e);
-                        };
-                        fileContent.readAsText($event);
-                    } else {
-                        toastr.error('HTMl5 File Reader is not Supported. Please upgrade your browser');
-                    }
-                },
                 postCreateBots : function() {
                     botsData = {
                         name: $scope.botName,
@@ -101,14 +87,19 @@
                             botsData.attributes = responseFormatter.formatSelectedCookbookAttributes($scope.cookbookAttributes);
                         }
                     }
-                    botsCreateService.postCreateBots(reqbody).then(function(response){
-                        console.log(response);
-                    });
-                    yamlFileSelection($scope.yamlfile);
-                },
-                addYamlText : function(yamlfileText){
-                    botsData.yamlFileId = yamlfileText;
-                    postBotCreate();
+                    if($scope.yamlfile){//will be true if a file chosen by user 
+                        var formdata = new FormData();
+                        formdata.append('file',  $scope.yamlfile);
+                        botsCreateService.fileUpload(formdata,{transformRequest: angular.identity,headers: {'Content-Type': undefined}}).then(function(response){
+                            if(response) {
+                                var yamlfileId = response.fileId;
+                                botsData.yamlFileId = yamlfileId;
+                                botsCreateService.postCreateBots(reqbody).then(function(response){
+                                    console.log(response);
+                                });
+                            }
+                        });
+                    }
                 }
             });
         }
