@@ -68,8 +68,8 @@
 
 			botService.getBlueprintList = function (orgId,bgId,projId,templateType) {
 				var params = {
-					url: '/organizations/' + p.org + '/businessgroups/' + p.bg + 
-					'/projects/' + p.proj + '/blueprintList?templateType='+templateType,
+					url: '/organizations/' + orgId + '/businessgroups/' + bgId + 
+					'/projects/' + projId + '/blueprintList?templateType='+templateType,
 					inlineLoader: true	
 				}
 				return genericServices.promiseGet(params);

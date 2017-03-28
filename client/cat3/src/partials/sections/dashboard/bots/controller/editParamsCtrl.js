@@ -25,6 +25,7 @@
         $scope.botEditParams = {};
         $scope.botType = items.type;
         $scope.botInfo = $scope.templateSelected;
+        console.log($scope.botInfo);
         $scope.selectedInstanceList = [];
         $scope.selectedInstanceIds = [];
         $scope.originalInstanceList = [];
@@ -38,7 +39,7 @@
 
         if($scope.botType === 'chef' || $scope.botType === 'blueprint') {
             $scope.botCheck = true;
-        } else if($scope.botType === 'Script') {
+        } else if($scope.botType === 'script') {
             $scope.botCheck = false;
         }
 
@@ -120,8 +121,7 @@
         $scope.executeBot = function(){
             $scope.executeTaskForSave = true;
             var reqBody = {};
-            console.log($scope.botEditParams);
-            if($scope.botType === 'Script') {
+            if($scope.botType === 'script') {
                 reqBody.data = $scope.botEditParams;
                 if($scope.botCheck === true) {
                     reqBody.nodeIds = $scope.selectedInstanceIds;
@@ -136,6 +136,7 @@
             } else if ($scope.botType === 'blueprint') {
                 reqBody.blueprintIds = $scope.selectedBlueprintIds;
             }
+            reqBody.type = $scope.botType;
             var param={
                 inlineLoader:true,
                 url:'/botsNew/' + items.id + '/execute',
@@ -166,7 +167,7 @@
                         $rootScope.$emit('BOTS_DESCRIPTION_REFRESH', botObj);   
                     }
                 });
-                $scope.botEditParams = {};    
+               // $scope.botEditParams = {};    
             },
             function (error) {
                 $scope.botEditParams = {};

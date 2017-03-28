@@ -1,8 +1,8 @@
 <div id="editParamsPage" ng-controller="editParamsCtrl">
 	<form class="container summary-container" name="editParamsForm" novalidate ng-submit="editParamsForm.$valid && executeBot()">
 		<fieldset id="botExecution">
-			<span ng-if="botType ==='Script'"><input type="checkbox" ng-model="scriptSelectForRemote.flag" ng-click="botStatus()"/><span>&nbsp;Execute on Remote Machine</span></span>
-			<div ng-if="botType ==='Script'" class="scriptExecution param-table bot-info-wrapper">
+			<span ng-if="botType ==='script'"><input type="checkbox" ng-model="scriptSelectForRemote.flag" ng-click="botStatus()"/><span>&nbsp;Execute on Remote Machine</span></span>
+			<div ng-if="botType ==='script'" class="scriptExecution param-table bot-info-wrapper">
 		         <table class="table table-bordered">
 		            <thead>
 		               <tr class="paramRow">
@@ -16,14 +16,14 @@
 		                  <td>{{value.label}}</td>
 		                  <td>{{value.type}}</td>
 		                  <td ng-init="botEditParams[value.name] = value.default" style="text-align: left">
-			                	<input ng-if="value.type==='text'" type="text" class="width100 cookbook-edit-text" ng-model="botEditParams[value.label]"/>
-			                	<input ng-if="value.type==='password'" type="password" class="width100 cookbook-edit-text" ng-model="botEditParams[value.label]"/>
+			                	<input ng-if="value.type==='text'" type="text" class="width100 cookbook-edit-text" ng-model="botEditParams[value.name]"/>
+			                	<input ng-if="value.type==='password'" type="password" class="width100 cookbook-edit-text" ng-model="botEditParams[value.name]"/>
 			               </td>
 		               </tr>
 		            </tbody>
 		         </table>
       		</div>
-      		<div ng-if="botType ==='chef' || botType === 'blueprint' || botType === 'Script'" ng-show="botCheck" class="chefExecution scheduleBorder">
+      		<div ng-if="botType ==='chef' || botType === 'blueprint' || botType === 'script'" ng-show="botCheck" class="chefExecution scheduleBorder">
 	        
 	        <div class="col-lg-12 col-md-12">
       		<div class="col-lg-6 col-md-6 col-sm-12 margintop15 marginleft-15">
@@ -113,7 +113,7 @@
 		
 </form>
 	<div class="pager">
-		<button type="button" ng-if="botType === 'Script' || botType ==='chef'" class="marginright29 btn cat-btn-update" ng-disabled="editParamsForm.$invalid" ng-click="executeBot()">
+		<button type="button" ng-if="botType === 'script' || botType ==='chef'" class="marginright29 btn cat-btn-update" ng-disabled="editParamsForm.$invalid" ng-click="executeBot()">
 			<i class="fa fa-check white"></i> Execute
 		</button>
 	</div>
