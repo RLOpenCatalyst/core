@@ -43,6 +43,11 @@ var BotsSchema = new Schema ({
         trim: true,
         required: true
     },
+    gitHubRepoBranch: {
+        type: String,
+        trim: true,
+        required: true
+    },
     type: {
         type: String,
         trim: true,

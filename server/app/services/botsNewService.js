@@ -408,34 +408,51 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
 botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
     async.waterfall([
         function(next) {
-            botsDao.getBotsByGitHubId(gitHubId,next);
+            async.parallel({
+                gitHub:function(callback){
+                    var  gitHubService = require('_pr/services/gitHubService.js');
+                    gitHubService.getGitHubById(gitHubId,callback);
+                },
+                botsDetails:function(callback){
+                    botsDao.getBotsByGitHubId(gitHubId,callback);
+                }
+            },next);
         },
-        function(botDetails,next) {
-            if(botDetails.length > 0) {
+        function(jsonObt,next) {
+            if(jsonObt.botsDetails.length > 0) {
                 var count = 0;
-                for (var i = 0; i < botDetails.length; i++) {
-                    (function (botDetail) {
-                        fileUpload.removeFileByFileId(botDetail.ymlDocFileId, function (err, data) {
+                for (var i = 0; i < jsonObt.botsDetails.length; i++) {
+                    (function (botsDetail) {
+                        fileUpload.removeFileByFileId(botsDetail.ymlDocFileId, function (err, data) {
                             if (err) {
                                 logger.error("There are some error in deleting yml file.", err, botDetail.ymlDocFileId);
                             }
-                            count++;
-                            if (count === botDetails.length) {
-                                next(null, botDetails);
+                            if(botsDetail.gitHubRepoName !== jsonObt.gitHub.repositoryName && botsDetail.gitHubRepoBranch !== jsonObt.gitHub.repositoryBranch){
+                                botsDao.removeBotsById(botsDetail._id,function(err,data){
+                                    if(err){
+                                        logger.error("There are some error in deleting BOTs : ",err);
+                                    }
+                                    count++;
+                                    if (count === jsonObt.botsDetails.length) {
+                                        next(null, jsonObt.gitHub);
+                                    }
+                                })
+                            }else{
+                                count++;
+                                if (count === jsonObt.botsDetails.length) {
+                                    next(null, jsonObt.gitHub);
+                                }
                             }
                         })
-                    })(botDetails[i]);
+                    })(jsonObt.botsDetails[i]);
                 }
             }else {
-                next(null, botDetails);
+                next(null, jsonObt.gitHub);
             }
-        },
-        function(gitHubSyncStatus,next) {
-            var  gitHubService = require('_pr/services/gitHubService.js');
-            gitHubService.getGitHubById(gitHubId,next);
         },
         function(gitHubDetails,next){
             if(gitHubDetails !== null){
+                process.setMaxListeners(20);
                 var gitHubDirPath = appConfig.gitHubDir + gitHubDetails._id;
                 fileHound.create()
                     .paths(gitHubDirPath)
@@ -443,7 +460,6 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                     .find().then(function(files){
                     if(files.length > 0){
                         var botObjList = [];
-                        process.setMaxListeners(0)
                         for(var i = 0; i < files.length; i++){
                             (function(ymlFile){
                                 yamlJs.load(ymlFile, function(result) {
@@ -461,18 +477,25 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                            if(err){
                                                botObjList.push(err);
                                                logger.error("Error in uploading yaml documents.",err);
-                                               if(botObjList.length === files.length){
-                                                   next(null,botObjList);
-                                                   return;
-                                               }else{
-                                                   return;
-                                               }
-                                            }else{
+                                               fileUpload.removeFileByFileId(ymlDocFileId,function(err,data){
+                                                   if(err){
+                                                       logger.error("Error in removing YAML File. ",err);
+                                                   }
+                                                   logger.debug("Successfully removed YAML File. ",err);
+                                                   if(botObjList.length === files.length){
+                                                       next(null,botObjList);
+                                                       return;
+                                                   }else{
+                                                       return;
+                                                   }
+                                               })
+                                           }else{
                                                 var botsObj={
                                                     ymlJson:result,
                                                     name:result.name,
                                                     gitHubId:gitHubDetails._id,
                                                     gitHubRepoName:gitHubDetails.repositoryName,
+                                                    gitHubRepoBranch:gitHubDetails.repositoryBranch,
                                                     id:result.id,
                                                     desc:result.desc,
                                                     category:result.botCategory?result.botCategory:result.functionality,
@@ -724,48 +747,45 @@ function addYmlFileDetailsForBots(bots,reqData,callback){
             (function(bot){
                 fileUpload.getReadStreamFileByFileId(bot.ymlDocFileId,function(err,file){
                     if(err){
-                        var err = new Error('Internal server error');
-                        err.status = 500;
-                        return callback(err,null);
-                    }else{
-                        botsObj = {
-                            _id:bot._id,
-                            name:bot.name,
-                            gitHubId:bot.gitHubId,
-                            id:bot.id,
-                            desc:bot.desc,
-                            action:bot.action,
-                            category:bot.category,
-                            type:bot.type,
-                            inputFormFields:bot.inputFormFields,
-                            outputOptions:bot.outputOptions,
-                            ymlDocFilePath:bot.ymlDocFilePath,
-                            ymlDocFileId:bot.ymlDocFileId,
-                            orgId:bot.orgId,
-                            orgName:bot.orgName,
-                            ymlFileName: file.fileName,
-                            ymlFileData: file.fileData,
-                            isScheduled:bot.isScheduled,
-                            manualExecutionTime:bot.manualExecutionTime,
-                            executionCount:bot.executionCount,
-                            scheduler:bot.scheduler,
-                            createdOn:bot.createdOn,
-                            lastRunTime:bot.lastRunTime,
-                            savedTime:bot.savedTime
+                        logger.error("Error in fetching YAML Documents for : "+bot.name + " "+err);
+                    }
+                    botsObj = {
+                        _id: bot._id,
+                        name: bot.name,
+                        gitHubId: bot.gitHubId,
+                        id: bot.id,
+                        desc: bot.desc,
+                        action: bot.action,
+                        category: bot.category,
+                        type: bot.type,
+                        inputFormFields: bot.inputFormFields,
+                        outputOptions: bot.outputOptions,
+                        ymlDocFilePath: bot.ymlDocFilePath,
+                        ymlDocFileId: bot.ymlDocFileId,
+                        orgId: bot.orgId,
+                        orgName: bot.orgName,
+                        ymlFileName: file !==null?file.fileName:file,
+                        ymlFileData: file !==null?file.fileData:file,
+                        isScheduled: bot.isScheduled,
+                        manualExecutionTime: bot.manualExecutionTime,
+                        executionCount: bot.executionCount,
+                        scheduler: bot.scheduler,
+                        createdOn: bot.createdOn,
+                        lastRunTime: bot.lastRunTime,
+                        savedTime: bot.savedTime
+                    }
+                    botsList.push(botsObj);
+                    if (botsList.length === bots.docs.length) {
+                        var alaSql = require('alasql');
+                        var sortField = reqData.mirrorSort;
+                        var sortedField = Object.keys(sortField)[0];
+                        var sortedOrder = reqData.mirrorSort ? (sortField[Object.keys(sortField)[0]] == 1 ? 'asc' : 'desc') : '';
+                        if (sortedOrder === 'asc') {
+                            bots.docs = alaSql('SELECT * FROM ? ORDER BY ' + sortedField + ' ASC', [botsList]);
+                        } else {
+                            bots.docs = alaSql('SELECT * FROM ? ORDER BY ' + sortedField + ' DESC', [botsList]);
                         }
-                        botsList.push(botsObj);
-                        if (botsList.length === bots.docs.length) {
-                            var alaSql = require('alasql');
-                            var sortField=reqData.mirrorSort;
-                            var sortedField=Object.keys(sortField)[0];
-                            var sortedOrder = reqData.mirrorSort ? (sortField[Object.keys(sortField)[0]]==1 ?'asc' :'desc') : '';
-                            if(sortedOrder ==='asc'){
-                                bots.docs = alaSql( 'SELECT * FROM ? ORDER BY '+sortedField+' ASC',[botsList]);
-                            }else{
-                                bots.docs = alaSql( 'SELECT * FROM ? ORDER BY '+sortedField+' DESC',[botsList]);
-                            }
-                            return callback(null, bots);
-                        }
+                        return callback(null, bots);
                     }
                 })
             })(bots.docs[i]);
