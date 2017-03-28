@@ -419,41 +419,54 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
             },next);
         },
         function(jsonObt,next) {
-            if(jsonObt.botsDetails.length > 0) {
-                var count = 0;
-                for (var i = 0; i < jsonObt.botsDetails.length; i++) {
-                    (function (botsDetail) {
-                        fileUpload.removeFileByFileId(botsDetail.ymlDocFileId, function (err, data) {
-                            if (err) {
-                                logger.error("There are some error in deleting yml file.", err, botDetail.ymlDocFileId);
-                            }
-                            if(botsDetail.gitHubRepoName !== jsonObt.gitHub.repositoryName && botsDetail.gitHubRepoBranch !== jsonObt.gitHub.repositoryBranch){
-                                botsDao.removeBotsById(botsDetail._id,function(err,data){
-                                    if(err){
-                                        logger.error("There are some error in deleting BOTs : ",err);
+            async.parallel({
+                fileUpload: function (callback) {
+                    if(jsonObt.botsDetails.length > 0) {
+                        var count = 0;
+                        for (var i = 0; i < jsonObt.botsDetails.length; i++) {
+                            (function (botsDetail) {
+                                fileUpload.removeFileByFileId(botsDetail.ymlDocFileId, function (err, data) {
+                                    if (err) {
+                                        logger.error("There are some error in deleting yml file.", err, botsDetail.ymlDocFileId);
                                     }
                                     count++;
                                     if (count === jsonObt.botsDetails.length) {
-                                        next(null, jsonObt.gitHub);
+                                        callback(null, jsonObt.gitHub);
+                                        return;
                                     }
                                 })
-                            }else{
-                                count++;
-                                if (count === jsonObt.botsDetails.length) {
-                                    next(null, jsonObt.gitHub);
+                            })(jsonObt.botsDetails[i]);
+                        }
+                    }else {
+                        callback(null, jsonObt.gitHub);
+                        return;
+                    }
+                },
+                botSync: function (callback) {
+                    if (jsonObt.botsDetails.length > 0){
+                        if (jsonObt.botsDetails[0].gitHubRepoName !== jsonObt.gitHub.repositoryName || jsonObt.botsDetails[0].gitHubRepoBranch !== jsonObt.gitHub.repositoryBranch) {
+                            botsDao.removeBotsByGitHubId(jsonObt.gitHub._id, function (err, data) {
+                                if (err) {
+                                    logger.error("There are some error in deleting BOTs : ", err);
+                                    callback(err, null);
+                                    return;
+                                } else {
+                                    callback(null, jsonObt.gitHub);
+                                    return;
                                 }
-                            }
-                        })
-                    })(jsonObt.botsDetails[i]);
+                            })
+                        }
+                    }else{
+                        callback(null, jsonObt.gitHub);
+                        return;
+                    }
                 }
-            }else {
-                next(null, jsonObt.gitHub);
-            }
+            }, next);
         },
         function(gitHubDetails,next){
-            if(gitHubDetails !== null){
-                process.setMaxListeners(20);
-                var gitHubDirPath = appConfig.gitHubDir + gitHubDetails._id;
+            if(gitHubDetails.botSync !== null){
+                process.setMaxListeners(50);
+                var gitHubDirPath = appConfig.gitHubDir + gitHubDetails.botSync._id;
                 fileHound.create()
                     .paths(gitHubDirPath)
                     .ext('yaml')
@@ -493,9 +506,9 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                                 var botsObj={
                                                     ymlJson:result,
                                                     name:result.name,
-                                                    gitHubId:gitHubDetails._id,
-                                                    gitHubRepoName:gitHubDetails.repositoryName,
-                                                    gitHubRepoBranch:gitHubDetails.repositoryBranch,
+                                                    gitHubId:gitHubDetails.botSync._id,
+                                                    gitHubRepoName:gitHubDetails.botSync.repositoryName,
+                                                    gitHubRepoBranch:gitHubDetails.botSync.repositoryBranch,
                                                     id:result.id,
                                                     desc:result.desc,
                                                     category:result.botCategory?result.botCategory:result.functionality,
@@ -506,8 +519,8 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                                     inputFormFields:result.input[0].form,
                                                     outputOptions:result.output,
                                                     ymlDocFileId:ymlDocFileId,
-                                                    orgId:gitHubDetails.orgId,
-                                                    orgName:gitHubDetails.orgName,
+                                                    orgId:gitHubDetails.botSync.orgId,
+                                                    orgName:gitHubDetails.botSync.orgName,
                                                     source:"GitHub"
                                                 }
                                                 botsDao.getBotsByBotId(result.id,function(err,botsList){
@@ -571,7 +584,7 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                 });
 
             }else{
-                next(null,gitHubDetails);
+                next(null,gitHubDetails.botSync);
             }
         }
     ],function(err, results) {

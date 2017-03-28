@@ -38,6 +38,7 @@ var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var Schema = mongoose.Schema;
 var resourceService = require('_pr/services/resourceService');
 var auditTrailService = require('_pr/services/auditTrailService');
+var noticeService = require('_pr/services/noticeService.js');
 
 var AWSInstanceBlueprintSchema = new Schema({
     keyPairId: {
@@ -415,6 +416,14 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                         log: "Instance ready state wait failed. Unable to bootstrap",
                                         timestamp: timestamp
                                     });
+                                    noticeService.notice(userName, {
+                                        title: "Blueprint BOTs Execution",
+                                        body: "Instance ready state wait failed. Unable to bootstrap"
+                                    }, "Error",function(err,data){
+                                        if(err){
+                                            logger.error("Error in Notification Service, ",err);
+                                        }
+                                    });
                                     awsLogger.error("waitForInstanceRunnnigState returned an error  >>", err);
                                     logger.error("waitForInstanceRunnnigState returned an error  >>", err);
                                     return;
@@ -492,6 +501,14 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                             log: "Instance ok state wait failed. Unable to bootstrap",
                                             timestamp: new Date().getTime()
                                         });
+                                        noticeService.notice(userName, {
+                                            title: "Blueprint BOTs Execution",
+                                            body: "Instance ok state wait failed. Unable to bootstrap"
+                                        }, "Error",function(err,data){
+                                            if(err){
+                                                logger.error("Error in Notification Service, ",err);
+                                            }
+                                        });
                                         awsLogger.error("Instance ok state wait failed. Unable to bootstrap");
                                         logger.error('intance wait failed ==> ', err);
                                         return;
@@ -547,6 +564,14 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                 err: true,
                                                 log: "Unable to decrpt pem file. Bootstrap failed",
                                                 timestamp: timestampEnded
+                                            });
+                                            noticeService.notice(userName, {
+                                                title: "Blueprint BOTs Execution",
+                                                body: "Unable to decrpt pem file. Bootstrap failed"
+                                            }, "Error",function(err,data){
+                                                if(err){
+                                                    logger.error("Error in Notification Service, ",err);
+                                                }
                                             });
                                             awsLogger.error("Unable to decrpt pem file. Bootstrap failed");
                                             instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
@@ -641,6 +666,14 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                         log: "Bootstrap failed",
                                                         timestamp: timestampEnded
                                                     });
+                                                    noticeService.notice(userName, {
+                                                        title: "Blueprint BOTs Execution",
+                                                        body: "Bootstrap failed"
+                                                    }, "Error",function(err,data){
+                                                        if(err){
+                                                            logger.error("Error in Notification Service, ",err);
+                                                        }
+                                                    });
                                                     awsLogger.error("Bootstrap failed");
                                                     instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
 
@@ -691,6 +724,14 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                             err: false,
                                                             log: "Instance Bootstrapped successfully",
                                                             timestamp: timestampEnded
+                                                        });
+                                                        noticeService.notice(userName, {
+                                                            title: "Blueprint BOTs Execution",
+                                                            body: "Instance "+instanceData.InstanceId+" is launched  on "+launchParams.envName,
+                                                        }, "Success",function(err,data){
+                                                            if(err){
+                                                                logger.error("Error in Notification Service, ",err);
+                                                            }
                                                         });
                                                         awsLogger.debug("Instance Bootstrapped successfully");
                                                         if (typeof domainName !== 'undefined' && domainName !== '' && domainName !== null && domainName !== 'null') {
@@ -823,6 +864,14 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                             timestamp: timestampEnded
                                                         });
                                                         awsLogger.error("Bootstrap Failed");
+                                                        noticeService.notice(userName, {
+                                                            title: "Blueprint BOTs Execution",
+                                                            body: "Bootstrap failed"
+                                                        }, "Error",function(err,data){
+                                                            if(err){
+                                                                logger.error("Error in Notification Service, ",err);
+                                                            }
+                                                        });
                                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                                     }
                                                 }
