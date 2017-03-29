@@ -134,8 +134,17 @@ function executeChefOnLocal(botsScriptDetails,auditTrail,userName,callback) {
     }
     callback(null, botAuditTrailObj);
     var serverUrl = "http://" + pythonHost + ':' + pythonPort;
+    var reqData = {
+        runlist :[],
+        attributes:null,
+        node:local
+    }
+    for(var i = 0; i < botsScriptDetails.execution.length; i++){
+        reqData.runlist.push(botsScriptDetails.execution[i].runlist);
+        reqData.attributes = botsScriptDetails.execution[i].attributes
+    }
     var reqBody = {
-        "data": botsScriptDetails.params.data
+        "data": reqData
     };
     var supertest = require("supertest");
     var server = supertest.agent("http://" + pythonHost + ':' + pythonPort);
@@ -349,11 +358,20 @@ function executeChefOnRemote(instance,botDetails,actionLogId,userName,callback) 
         });
         var supertest = require("supertest");
         var server = supertest.agent("http://" + pythonHost + ':' + pythonPort);
+        var reqData = {
+            runlist :[],
+            attributes:null,
+            node:instance.instanceIP
+        }
+        for(var i = 0; i < botDetails.execution.length; i++){
+            reqData.runlist.push(botDetails.execution[i].runlist);
+            reqData.attributes = botDetails.execution[i].attributes
+        }
         var reqBody = {
-            "data": botDetails.params.data,
+            "data": reqData,
             "os": instance.hardware.os,
-            "authentication": [authenticationObj],
-            "environment": [envObj]
+            "authentication": authenticationObj,
+            "environment": envObj
         };
         var executorUrl = '/bot/' + botDetails.id + '/exec';
         server

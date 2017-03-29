@@ -61,11 +61,7 @@ botsNewService.createNew = function createNew(reqBody,callback){
                     }else if(reqBody.type ==='blueprints'){
                         paramObj = {
                             name: reqBody.name,
-                            desc: reqBody.desc,
-                            data: {
-                                runlist: reqBody.runlist,
-                                attributes: reqBody.attributes
-                            }
+                            desc: reqBody.desc
                         }
                     }else if(reqBody.type ==='script'){
                         paramObj = {
@@ -348,7 +344,7 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
                                 }else if(botDetails[0].type === 'chef'){
                                     chefExecutor.execute(botDetails[0],auditTrail, userName, executionType, next);
                                 }else if(botDetails[0].type === 'blueprints'){
-                                    blueprintExecutor.execute(botDetails[0],auditTrail, userName,reqBody,next);
+                                    blueprintExecutor.execute(auditTrail,reqBody,userName,next);
                                 }else{
                                     var err = new Error('Invalid BOTs Type');
                                     err.status = 400;
@@ -735,15 +731,19 @@ function getExecutionTime(endTime, startTime) {
 
 
 function encryptedParam(paramDetails, callback) {
+    console.log(paramDetails);
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var encryptedObj = {};
     if(paramDetails !== null) {
         Object.keys(paramDetails).forEach(function(key){
+            console.log(key);
+            console.log(paramDetails[key]);
             var encryptedText = cryptography.encryptText(paramDetails[key], cryptoConfig.encryptionEncoding,
                 cryptoConfig.decryptionEncoding);
             encryptedObj[key]=encryptedText;
         });
+        console.log(encryptedObj);
         callback(null,encryptedObj);
     }else{
         callback(null,encryptedObj);

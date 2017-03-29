@@ -23,18 +23,57 @@ const errorType = 'blueprintExecutor';
 
 var blueprintExecutor = module.exports = {};
 
-blueprintExecutor.execute = function execute(botsDetails,auditTrail,reqBody,userName,callback) {
+blueprintExecutor.execute = function execute(auditTrail,reqBody,userName,callback) {
     async.waterfall([
         function (next) {
-            usersDao.haspermission(reqBody.userName, reqBody.category, reqBody.permissionTo, null, reqBody.permissionSet,next);
+            usersDao.haspermission(userName, reqBody.category, reqBody.permissionTo, null, reqBody.permissionSet,next);
         },
         function (launchPermission, next) {
             if(launchPermission === true){
-                Blueprints.getById(reqBody.blueprintId,next);
+                var parallelBlueprintList=[];
+                for (var i = 0; i < reqBody.blueprintIds.length; i++) {
+                    (function(blueprintId) {
+                        parallelBlueprintList.push(function(callback){executeBlueprint(blueprintId,auditTrail,reqBody,userName,callback);});
+                        if(parallelBlueprintList.length === reqBody.blueprintIds.length){
+                            if(parallelBlueprintList.length > 0) {
+                                async.parallel(parallelBlueprintList, function (err, results) {
+                                    if (err) {
+                                        logger.error(err);
+                                        next(err,null);
+                                        return;
+                                    }
+                                    logger.debug("Blueprint Execution is completed");
+                                    next(null,results[0]);
+                                    return;
+                                })
+                            }else{
+                                logger.debug("There is no Blueprints right now.");
+                                next(null,reqBody.blueprintIds)
+                                return;
+                            }
+                        }
+                    })(reqBody.blueprintIds[i]);
+                }
             }else{
                 logger.debug('No permission to ' + reqBody.permissionTo + ' on ' + reqBody.category);
                 next({errCode:401,errMsg:'No permission to ' + reqBody.permissionTo + ' on ' + reqBody.category},null);
             }
+        }
+    ],function (err, results) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, results);
+        return;
+    });
+};
+
+
+function executeBlueprint(blueprintId,auditTrail,reqBody,userName,callback){
+    async.waterfall([
+        function (next) {
+            Blueprints.getById(blueprintId,next);
         },
         function(blueprint,next){
             if(blueprint){
@@ -69,7 +108,7 @@ blueprintExecutor.execute = function execute(botsDetails,auditTrail,reqBody,user
                     ver: reqBody.version,
                     stackName: stackName,
                     domainName: domainName,
-                    sessionUser: reqBody.userName,
+                    sessionUser: userName,
                     tagServer: reqBody.tagServer,
                     monitorId: monitorId,
                     auditTrailId: auditTrail._id
@@ -88,4 +127,4 @@ blueprintExecutor.execute = function execute(botsDetails,auditTrail,reqBody,user
         callback(null, results);
         return;
     });
-};
+}

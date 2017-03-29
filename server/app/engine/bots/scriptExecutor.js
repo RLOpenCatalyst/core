@@ -106,7 +106,7 @@ scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,execut
             })(botsDetails.params.nodeIds[i])
         }
     }else{
-        executeScriptOnLocal(botsDetails,auditTrail,executionType,function(err,data){
+        executeScriptOnLocal(botsDetails,auditTrail,userName,executionType,function(err,data){
             if(err){
                 logger.error(err);
                 callback(err,null);
@@ -120,7 +120,7 @@ scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,execut
 }
 
 
-function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,callback) {
+function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,executionType,callback) {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var actionId = uuid.v4();
@@ -140,6 +140,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,callback) {
     if (botsScriptDetails.params.data) {
         Object.keys(botsScriptDetails.params.data).forEach(function (key) {
             var decryptedText = cryptography.decryptText(botsScriptDetails.params.data[key], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+            var text1=cryptography.decryptText("HJrM21EgefCLMx7lUxxRSA==", cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
             replaceTextObj[key] = decryptedText;
         });
     } else {
@@ -380,8 +381,8 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,callback
         var reqBody = {
             "data": replaceTextObj,
             "os": instance.hardware.os,
-            "authentication": [authenticationObj],
-            "environment": [envObj]
+            "authentication": authenticationObj,
+            "environment": envObj
         };
         var executorUrl = '/bot/' + botDetails.id + '/exec';
         server

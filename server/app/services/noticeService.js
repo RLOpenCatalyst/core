@@ -58,6 +58,7 @@ noticeService.init =function init(io, address) {
     });
 }
 noticeService.notice = function notice(userid, message, severity, callback) {
+    console.log(userid,message,severity);
     socketClient.on('connect', function () {
         socketClient.emit('join', 'server');
         logger.debug('notice server room created.');
