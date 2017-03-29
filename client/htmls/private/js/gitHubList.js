@@ -25,6 +25,27 @@ if (!$.fn.dataTable.isDataTable('#gitTable')) {
 //calling the global track functionality when track params are available..
 $(document).ready(function(e) {
     getGlobalGitServers();
+
+    $('#selectAllCheckbox').on('click',function(){
+        if(this.checked){
+            $('.selectCheckboxForImport').each(function(){
+                this.checked = true;
+            });
+        }else{
+             $('.selectCheckboxForImport').each(function(){
+                this.checked = false;
+            });
+        }
+    });
+
+    $('#gitImportTable tbody').on('click', '.selectCheckboxForImport',function(){
+        if($('.selectCheckboxForImport:checked').length == $('.selectCheckboxForImport').length){
+            $('#gitImportTable #selectAllCheckbox').prop('checked',true);
+        }else{
+            $('#gitImportTable #selectAllCheckbox').prop('checked',false);
+        }
+        $('#gitCloneImport').removeAttr('disabled');
+    });
 });
 
 function setFileNameCertificate(val) {
@@ -304,20 +325,23 @@ $('#gitTable tbody').on( 'click', 'button.deleteGitRepo', function(){
 $('#gitTable tbody').on( 'click', 'button.importGitRepo', function(){
     $('#modalForGitImport').modal('show');
     var $this = $(this);
-    var id=$this.parents('tr').attr('githubId');
+    var id = $this.parents('tr').attr('githubId');
     $('#gitImpLoader').show();
     $('#importBotsList').html();
     $.ajax({
         url: '../git-hub/'+id+'/import',
         method: 'GET',
-        success: function(impData) {
+        success: function(data) {
             $('#gitImpLoader').hide();
-            for(var i=0;i<impData.same.length; i++) {
-                var html = '<tr><td>' + impData.same[i].botId + '</td><td>' + impData.same[i].name + '</td><td><input type="checkbox"></td></tr>';
+            for(var i=0;i<data.result.length; i++) {
+                var html = $('<tr><td>' + data.result[i].botName + '</td><td>' + data.gitHubDetails.repositoryName + '</td><td><input value="'+data.result[i].botName+'" type="checkbox" class="selectCheckboxForImport"></td></tr>')
+                .attr({'botNameTable':data.result[i].botName});
+                $('#gitEditImportHiddenInputId').val(data.gitHubDetails._id);
                 $('#importBotsList').append(html);
             }
         },
         error: function(jxhr) {
+            $('#gitImpLoader').hide();
             console.log(jxhr);
             var msg = "Unable to Fetch GitRepo please try again later";
             if (jxhr.responseJSON && jxhr.responseJSON.message) {
@@ -329,6 +353,48 @@ $('#gitTable tbody').on( 'click', 'button.importGitRepo', function(){
             bootbox.alert(msg);
             $('#gitHubListLoader').hide();
         }
+    });
+    return false;
+});
+
+$('#gitCloneImport').submit(function(){
+    var $importBotsList = $('tbody#importBotsList');
+    var $checkbox = $importBotsList.find('input[type="checkbox"]:checked');
+    var $this = $(this);
+
+    var gitHubId = $('#gitEditImportHiddenInputId').val();
+    $checkbox.each(function(){
+        var importData = {
+            'botName':$(this).val(),
+            'status':true
+        }
+        var reqBody = [];
+        reqBody.push(importData);
+        $.ajax({
+        method: 'POST',
+        url: '../git-hub/' + gitHubId + '/copy',
+        async:false,
+        data: reqBody,
+            success: function(data, success) {
+                toastr.success('Import Successful');
+                $('#modalForGitImport').modal('hide');
+                $('#saveItemSpinner').addClass('hidden');
+                $('#gitCloneImport').removeAttr('disabled');
+            },
+            error: function(jxhr) {
+                console.log(jxhr);
+                var msg = "Server Behaved Unexpectedly";
+                if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                    msg = jxhr.responseJSON.message;
+                } else if (jxhr.responseText) {
+                    msg = jxhr.responseText;
+                }
+                bootbox.alert(msg);
+
+                $('#saveItemSpinner').addClass('hidden');
+                $('#gitCloneImport').removeAttr('disabled');
+            }
+        });
     });
     return false;
 });
@@ -388,6 +454,7 @@ function saveForm(methodName,url,reqBody) {
         }
     });
 }
+
 
 //save form for creating a new gitHub item and updation of the gitHub details.
 $('#gitHubRepoForn').submit(function(e) {

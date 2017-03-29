@@ -38,6 +38,7 @@ var AWSKeyPair = require('_pr/model/classes/masters/cloudprovider/keyPair.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var auditTrailService = require('_pr/services/auditTrailService');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
+var noticeService = require('_pr/services/noticeService.js');
 
 
 var CHEFInfraBlueprint = require('./chef-infra-manager/chef-infra-manager');
@@ -567,6 +568,14 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                         log: "Bootstrap failed",
                                                                         timestamp: timestampEnded
                                                                     });
+                                                                    noticeService.notice(userName, {
+                                                                        title: "Blueprint BOTs Execution",
+                                                                        body: "Bootstrap failed"
+                                                                    }, "Error",function(err,data){
+                                                                        if(err){
+                                                                            logger.error("Error in Notification Service, ",err);
+                                                                        }
+                                                                    });
                                                                     cftLogger.error("Bootstrap failed");
                                                                     instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                                                     instanceLog.actionStatus = "failed";
@@ -621,6 +630,14 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                             err: true,
                                                                             log: "Unable to decrpt pem file. Bootstrap failed",
                                                                             timestamp: timestampEnded
+                                                                        });
+                                                                        noticeService.notice(userName, {
+                                                                            title: "Blueprint BOTs Execution",
+                                                                            body: "Unable to decrpt pem file. Bootstrap failed"
+                                                                        }, "Error",function(err,data){
+                                                                            if(err){
+                                                                                logger.error("Error in Notification Service, ",err);
+                                                                            }
                                                                         });
                                                                         cftLogger.error("Unable to decrpt pem file. Bootstrap failed");
                                                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
@@ -721,6 +738,14 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                     log: "Bootstrap failed",
                                                                                     timestamp: new Date().getTime()
                                                                                 };
+                                                                                noticeService.notice(userName, {
+                                                                                    title: "Blueprint BOTs Execution",
+                                                                                    body: "Bootstrap failed"
+                                                                                }, "Error",function(err,data){
+                                                                                    if(err){
+                                                                                        logger.error("Error in Notification Service, ",err);
+                                                                                    }
+                                                                                });
                                                                                 instanceLog.actionStatus = "failed";
                                                                                 instanceLog.endedOn = new Date().getTime();
                                                                                 instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
@@ -763,6 +788,14 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                         err: false,
                                                                                         log: "Instance Bootstraped successfully",
                                                                                         timestamp: timestampEnded
+                                                                                    });
+                                                                                    noticeService.notice(userName, {
+                                                                                        title: "Blueprint BOTs Execution",
+                                                                                        body: "Instance "+instanceData.InstanceId+" is launched  on "+launchParams.envName,
+                                                                                    }, "Success",function(err,data){
+                                                                                        if(err){
+                                                                                            logger.error("Error in Notification Service, ",err);
+                                                                                        }
                                                                                     });
                                                                                     cftLogger.debug("Instance Bootstraped successfully");
                                                                                     logsDao.insertLog({
@@ -883,6 +916,14 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                         timestamp: timestampEnded
                                                                                     });
                                                                                     cftLogger.error("Bootstrap Failed");
+                                                                                    noticeService.notice(userName, {
+                                                                                        title: "Blueprint BOTs Execution",
+                                                                                        body: "Bootstrap failed"
+                                                                                    }, "Error",function(err,data){
+                                                                                        if(err){
+                                                                                            logger.error("Error in Notification Service, ",err);
+                                                                                        }
+                                                                                    });
                                                                                     instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                                                                     instanceLog.logs = {
                                                                                         err: true,

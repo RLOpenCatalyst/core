@@ -16,6 +16,10 @@
   margin-left: -15px;
 }
 
+.marginleft-12 {
+  margin-left: -12px;
+}
+
 .marginleft-18 {
   margin-left: -18px!important;
 }
@@ -26,6 +30,10 @@
 
 .marginleft10 {
   margin-left:10px
+}
+
+.marginleft4 {
+  margin-left: 4px;
 }
 
 .marginleft20 {
@@ -40,6 +48,10 @@
   margin-bottom: 15px;
 }
 
+.marginright29 {
+  margin-right: 29px;
+}
+
 .paddingbottom10 {
   padding-bottom: 10px;
 }
@@ -50,10 +62,6 @@
 
 .paddingbottom20 {
   padding-bottom: 20px;
-}
-
-.margintop8 {
-  margin-top: 8px;
 }
 
 .margintop6 {
@@ -759,7 +767,7 @@ body .botDescriptionPage {
 
 .scriptExecution {
   overflow-y: auto!important;
-  height: 296px;
+  margin-top: 10px;
 }
 
 .width100 {
@@ -768,7 +776,6 @@ body .botDescriptionPage {
 
 .chefExecution {
   overflow-y: auto!important;
-  height:300px;
 }
 
 .btnDescription {
@@ -938,4 +945,15 @@ body .botDescriptionPage {
   margin-top: 5px;
   margin-bottom: 10px;
   padding: 5px;
+}
+
+.margintop-2 {
+  margin-top: -2px;
+}
+
+.dropdownSelect{
+    font-size: 11px !important;
+    height: 28px !important;
+    display: inline !important;
+    width: 19% !important;
 }

@@ -22,13 +22,35 @@
         
         $scope.botName = items.name;
         $scope.botParams = items.inputFormFields;
-        $scope.botEditParams = [];
-        $scope.botParameters = [];
+        $scope.botEditParams = {};
         $scope.botType = items.type;
         $scope.botInfo = $scope.templateSelected;
+        console.log($scope.botInfo);
         $scope.selectedInstanceList = [];
-        $scope.selectedInstanceIds=[];
-         $scope.originalInstanceList=[];
+        $scope.selectedInstanceIds = [];
+        $scope.originalInstanceList = [];
+        $scope.originalBlueprintList = [];
+        $scope.selectedBlueprintIds = [];
+        $scope.selectedBlueprintList = [];
+        $scope.executeTaskForSave = false;
+        $scope.scriptSelectForRemote = {
+            flag: false
+        }
+
+        if($scope.botType === 'chef' || $scope.botType === 'blueprint') {
+            $scope.botCheck = true;
+        } else if($scope.botType === 'script') {
+            $scope.botCheck = false;
+        }
+
+        $scope.botStatus = function() {
+            if($scope.scriptSelectForRemote.flag){
+                $scope.botCheck = true;
+                $scope.getInstanceList();
+            }else{
+                $scope.botCheck = false;
+            }
+        };
 
         $scope.IMGNewEnt={
             org:$rootScope.organObject[0],
@@ -39,12 +61,24 @@
 
         $scope.getInstanceList = function() {
             botsCreateService.getCurrentEnvInstances($scope.IMGNewEnt.org.orgid,$scope.IMGNewEnt.buss.rowid,$scope.IMGNewEnt.proj.rowId,$scope.IMGNewEnt.env.rowid).then(function(response){
-                var found = false;
                 $scope.originalInstanceList=[];
                 if(response){
                     angular.forEach(response, function(value, key) {
                         if($scope.selectedInstanceIds.indexOf(value._id) == -1) {
                             $scope.originalInstanceList.push(value);
+                        }
+                    });
+                }
+            });
+        };
+
+        $scope.getBlueprintList = function() {
+            botsCreateService.getBlueprintList($scope.IMGNewEnt.org.orgid,$scope.IMGNewEnt.buss.rowid,$scope.IMGNewEnt.proj.rowId,$scope.botType).then(function(response){
+                $scope.originalBlueprintList=[];
+                if(response){
+                    angular.forEach(response, function(value, key) {
+                        if($scope.selectedBlueprintIds.indexOf(value._id) == -1) {
+                            $scope.originalBlueprintList.push(value);
                         }
                     });
                 }
@@ -84,12 +118,25 @@
             $scope.getInstanceList();
         };
 
-        $scope.executeTask = function(){
+        $scope.executeBot = function(){
+            $scope.executeTaskForSave = true;
             var reqBody = {};
-            $scope.botParameters = $scope.botParameters.concat($scope.botEditParams);
-            reqBody = {
-                params:{"hostName":"google.com"}
-            };
+            if($scope.botType === 'script') {
+                reqBody.data = $scope.botEditParams;
+                if($scope.botCheck === true) {
+                    reqBody.nodeIds = $scope.selectedInstanceIds;
+                }
+                console.log(reqBody);
+            } else if($scope.botType === 'chef') {
+                if($scope.selectedInstanceIds.length>0) {
+                    reqBody.nodeIds = $scope.selectedInstanceIds;
+                } else {
+                    return false;
+                }
+            } else if ($scope.botType === 'blueprint') {
+                reqBody.blueprintIds = $scope.selectedBlueprintIds;
+            }
+            reqBody.type = $scope.botType;
             var param={
                 inlineLoader:true,
                 url:'/botsNew/' + items.id + '/execute',
@@ -120,10 +167,10 @@
                         $rootScope.$emit('BOTS_DESCRIPTION_REFRESH', botObj);   
                     }
                 });
-                $scope.botParameters = [];    
+               // $scope.botEditParams = {};    
             },
             function (error) {
-                $scope.botParameters = [];
+                $scope.botEditParams = {};
                 if(error) {
                     error = error.responseText || error;
                     if (error.message) {
@@ -140,7 +187,11 @@
         };
 
         $scope.init = function() {
-            $scope.getInstanceList();
+            if($scope.botType === 'chef') {
+                $scope.getInstanceList();
+            } else if($scope.botType === 'blueprint') {
+                $scope.getBlueprintList();
+            }
         };
         $scope.init();
     }]);

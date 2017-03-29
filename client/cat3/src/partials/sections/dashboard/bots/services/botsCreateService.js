@@ -41,6 +41,15 @@
 				return genericServices.promiseGet(params);
 			};
 
+			botService.fileUpload = function (data,postFormat) {
+				var params = {
+					url: '/fileUpload?fileId=',
+					data: data,
+					postFormat: postFormat
+				};
+				return genericServices.promisePost(params);
+			};
+
 			botService.postCreateBots = function (bots) {
 				var params = {
 					url: '/botsNew',
@@ -53,6 +62,31 @@
 				var params = {
 					url: '/scripts?filterBy=scriptType:'+scriptType,
 					inlineLoader: true	
+				}
+				return genericServices.promiseGet(params);
+			};
+
+			botService.getBlueprintList = function (orgId,bgId,projId,templateType) {
+				var params = {
+					url: '/organizations/' + orgId + '/businessgroups/' + bgId + 
+					'/projects/' + projId + '/blueprintList?templateType='+templateType,
+					inlineLoader: true	
+				}
+				return genericServices.promiseGet(params);
+			};
+
+			botService.syncIndividualBot = function(gitHubId,botId) {
+				var params = {
+					url: '/git-hub/' + gitHubId + '/content/' + botId,
+					inlineLoader: true
+				}
+				return genericServices.promiseGet(params);
+			};
+
+			botService.getBotCategoryList = function () {
+				var params = {
+					url: '/config-data/category-type',
+					inlineLoader: true
 				}
 				return genericServices.promiseGet(params);
 			};

@@ -8,7 +8,7 @@
 (function (angular) {
     "use strict";
     angular.module('dashboard.bots')
-    .controller('libraryCtrl',['$scope', '$rootScope', '$state', 'genericServices','$filter', 'confirmbox', 'toastr', 'workzoneUIUtils', '$modal', 'uiGridOptionsService', '$timeout', 'workzoneServices', function ($scope, $rootScope, $state, genSevs, $filter, confirmbox, toastr, workzoneUIUtils, $modal, uiGridOptionsService, $timeout, workzoneServices) {
+    .controller('libraryCtrl',['$scope', '$rootScope', '$state', 'genericServices','$filter', 'confirmbox', 'toastr', 'workzoneUIUtils', '$modal', 'uiGridOptionsService', '$timeout', 'botsCreateService', function ($scope, $rootScope, $state, genSevs, $filter, confirmbox, toastr, workzoneUIUtils, $modal, uiGridOptionsService, $timeout, botsCreateService) {
 
 
         var treeNames = ['BOTs','Library'];
@@ -18,7 +18,7 @@
         $rootScope.isOpenSidebar = false;
         $scope.totalBotsSelected = true;
         $scope.botCategoryList = [];
-        workzoneServices.getBotCategoryList().then(function (catList) {
+        botsCreateService.getBotCategoryList().then(function (catList) {
             $scope.botCategoryList=catList.data;
         });
         var botLibraryUIGridDefaults = uiGridOptionsService.options();
@@ -164,6 +164,7 @@
                         }
                         if(result.metaData.totalRecords == $scope.botLibGridOptions.data.length) {
                             $scope.showLoadMore = false;
+                            $scope.showRecords = false;
                         }
                     } else {
                         $scope.botLibGridOptions.data =  result.bots;
@@ -315,6 +316,13 @@
                 $scope.isBotLibraryPageLoading = false;
                 toastr.error(error);
                 $scope.errorMessage = "No Records found";
+            });
+        };
+
+        $scope.botSync = function(botsDetails) {
+            console.log(botsDetails);
+            botsCreateService.syncIndividualBot(botsDetails.gitHubId,botsDetails.id).then(function(response){
+                console.log(response);
             });
         };
         
