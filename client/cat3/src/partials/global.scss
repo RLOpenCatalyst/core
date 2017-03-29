@@ -1571,7 +1571,22 @@ input[type="text"].ui-grid-filter-input{
         display: block;
     }
     .navbar-top-links .dropdown-menu li a {
-        padding: 3px 20px;
+        
         min-height: 0;
     }
+    .nav>li>a:hover {    
+        text-decoration: none;    
+        background-color: #525961;
+    }
+    .dropdown-menu {
+        color: #000;
+        background: #fff;
+        padding: 6px;
+        min-width: 100px;
+        line-height: 2;
+    }
+}
+
+.pluginBlueprintImageLogo {
+    height: 28px;
 }

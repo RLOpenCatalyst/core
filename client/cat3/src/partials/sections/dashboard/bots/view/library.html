@@ -60,8 +60,7 @@
    <div class="container summary-container containerBox">
        <div class="panel-group text-center">
          <div class="col-lg-2 col-sm-6 width20">
-                     <!-- <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph dark-blue-glyph selected-section" ng-class="{'selected-section':totalBotsSelected}"></span> -->
-               <div class="dashboard-stats__item dashboard-stats__item_blue" ng-click="showAllBots()">
+               <div class="cursor dashboard-stats__item dashboard-stats__item_blue" ng-click="showAllBots()">
                 <i class="fa fa-list"></i>
                 <h3 class="dashboard-stats__title">
                   <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
@@ -69,11 +68,11 @@
                   <small>Total BOTs</small>
                 </h3>
               </div>
+              <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph dark-blue-glyph selected-section" ng-class="{'selected-section':totalBotsSelected}"></span>
            </div>
 
            <div class="col-lg-2 col-sm-6 width20">
-                  <!-- <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph green-glyph" ng-class="{'selected-section':runningBotsselected}"></span> -->
-               <div class="dashboard-stats__item dashboard-stats__item_green" ng-click=" showBotsRunning('resetPage')">
+               <div class="cursor dashboard-stats__item dashboard-stats__item_green" ng-click=" showBotsRunning('resetPage')">
                 <i class="fa fa-cogs"></i>
                 <h3 class="dashboard-stats__title">
                   <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
@@ -81,6 +80,7 @@
                   <small>Running BOTs</small>
                 </h3>
               </div>
+               <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph green-glyph" ng-class="{'selected-section':runningBotsselected}"></span>
            </div>
           
            <div class="col-lg-2 col-sm-6 width20">
@@ -94,8 +94,7 @@
               </div>
            </div>
            <div class="col-lg-2 col-sm-6 width20">
-                  <!-- <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph bg-blue-glyph" ng-class="{'selected-section':scheduledBotsSelected}"></span> -->
-               <div class="dashboard-stats__item dashboard-stats__item_bg-blue" ng-click="showScheduledBots('resetPage')">
+               <div class="cursor dashboard-stats__item dashboard-stats__item_bg-blue" ng-click="showScheduledBots('resetPage')">
                 <i class="fa fa-power-off"></i>
                 <h3 class="dashboard-stats__title">
                   <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
@@ -103,10 +102,10 @@
                   <small>Tickets Resolved</small>
                 </h3>
               </div>
+              <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph bg-blue-glyph" ng-class="{'selected-section':scheduledBotsSelected}"></span>
            </div>  
             <div class="col-lg-2 col-sm-6 width20">
-                  <!-- <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph redcard-glyph" ng-class="{'selected-section':failedBotsselected}"></span> -->
-               <div class="dashboard-stats__item dashboard-stats__item_red" ng-click="showFailedBots('resetPage')">
+               <div class="cursor dashboard-stats__item dashboard-stats__item_red" ng-click="showFailedBots('resetPage')">
                 <i class="fa fa-remove"></i>
                 <h3 class="dashboard-stats__title">
                   <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
@@ -114,6 +113,7 @@
                   <small>Failed BOTs</small>
                 </h3>
               </div>
+              <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph redcard-glyph" ng-class="{'selected-section':failedBotsselected}"></span>
            </div>    
        </div>
    </div>
@@ -139,7 +139,7 @@
          <span ng-if="botLibType" class="marginleft10 box-title font-size-15"><span>Type</span>
          <span class="badge">{{botLibType}}<span title="Clear" class="filterClear" ng-click="clearFilter(botLibType)">×</span></span>
          </span>
-         <form class="pull-right firefoxForm" novalidate name="library-form" ng-submit="searchBotNameCategory('pageNumber')">
+         <form class="pull-right firefoxForm marginright14" novalidate name="library-form" ng-submit="searchBotNameCategory('pageNumber')">
             <span class="bot-library-search">
                <label>&nbsp;
                   <input type="text" ng-model="botLibrarySearch" class="search-text bot-search" placeholder="Search">
