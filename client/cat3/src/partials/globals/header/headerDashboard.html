@@ -80,6 +80,7 @@
 				         <!--<li ui-sref="dashboard.bots.audittrail" class="footer">See All Notifications</li>-->
 				      <!--</ul>-->
 
+<<<<<<< Updated upstream
 
 				   <!--</div>-->
 				   <!--<div id="header-menu" class="" >-->
@@ -201,6 +202,30 @@
 					</li>
 					<!-- /.dropdown -->
 				</ul>
+=======
+				   </div>
+				   <div id="header-menu" class="" >
+				      <div id="userInfo" class="headNavigItem dropdown-toggle" title="{{appDetails.roleId}}" style="font-size: inherit;"   data-toggle="dropdown">
+						  <i class="fa fa-cog white" style="font-size: 20px" aria-hidden="true"></i>
+				      </div>
+				      <div class="list-group dropdown-menu" style="top:47px;width: 214px;left: initial;right: 0;">
+						  <i class="fa fa-caret-up white notificationCaret" aria-hidden="true"></i>
+						  <a class="marginbottom10">
+							  <span class="badge" style="min-width: 41px;font-size: 13px;border-radius: 21px;height: 37px;"> <i class="fa fa-user white" style="font-size: 25px;"></i></span>
+							  {{appDetails.cn | uppercase}}
+							  [{{appDetails.roleId}}]
+						  </a>
+						  <div class="clearfix margin15" style="height: 20px;"></div>
+				         <a class="list-group-item" href="/private/index.html#ajax/Settings/Dashboard.html">
+				         <i class="fa fa-cog"></i> SETTINGS
+				         </a>
+				         <a class="list-group-item" href="https://catalyst.readthedocs.org" target="_blank" style="color: #000">
+				         <i class="fa fa-question "></i> HELP
+				         </a>
+				         <a class="list-group-item cursor" ng-click="logoutConfirmation();" ><i class="fa fa-sign-out"></i> Logout</a>
+				      </div>
+				   </div>
+>>>>>>> Stashed changes
 				</li>
 			</ul>
 		</div>
