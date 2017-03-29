@@ -105,7 +105,7 @@ noticeService.test =function test(){
             console.log(data);
         });
         i++;
-     }, 4000);
+     }, 40000);
 }
 
 

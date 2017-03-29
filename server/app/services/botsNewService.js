@@ -368,7 +368,7 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
                         })
                     },
                     bots: function (callback) {
-                        if(botDetails[0].type === 'script' || botDetails[0].type === 'chef' || botDetails[0].type === 'jenkins' || botDetails[0].type === 'blueprint') {
+                        if(botDetails[0].type === 'script' || botDetails[0].type === 'chef' || botDetails[0].type === 'jenkins' || botDetails[0].type === 'blueprints') {
                             var botExecutionCount = botDetails[0].executionCount + 1;
                             var botUpdateObj = {
                                 executionCount: botExecutionCount,
