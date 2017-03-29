@@ -62,13 +62,20 @@
 				        </span>
                      </div>
                      <div class="panel-body bp-panel-body">
-                        <div class="alert alert-info text-center" ng-if="originalInstanceList.length === 0" align="center">No Data Found</div>
+                        <div class="alert alert-info text-center" ng-if="originalInstanceList.length === 0 || originalBlueprintList.length === 0" align="center">No Data Found</div>
                         <ul ng-if="originalInstanceList.length > 0" class="list-group" ui-sortable>
                            <li class="list-group-item" ng-repeat="instanceDetails in originalInstanceList | filter :searchText">
                               <span class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="addInstance(originalInstanceList.indexOf(instanceDetails))" ><i class="fa fa-arrow-right white fa-2" aria-hidden="true"></i></span>
                               <span class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="instanceInfo($event,instanceDetails)" ><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>
 
                               <img src="./images/global/chef-import.png" alt="{{instanceDetails.name}}"> &nbsp;{{instanceDetails.name}}
+                           </li>
+                        </ul>
+                        <ul ng-if="originalBlueprintList.length > 0" class="list-group" ui-sortable>
+                           <li class="list-group-item" ng-repeat="blueprintDetails in originalBlueprintList | filter :searchText">
+                              <span class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="addInstance(originalBlueprintList.indexOf(blueprintDetails))" ><i class="fa fa-arrow-right white fa-2" aria-hidden="true"></i></span>
+                              <span class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="instanceInfo($event,blueprintDetails)" ><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>
+                              <img src="./images/global/chef-import.png" alt="{{blueprintDetails.name}}"> &nbsp;{{blueprintDetails.name}}
                            </li>
                         </ul>
                      </div>
@@ -78,12 +85,15 @@
             <div class="col-lg-6 col-md-6 col-sm-12 margintop15">
                <div class="panel-group">
                   <div class="panel panel-default">
-                     <div class="panel-heading" style="height: 40px;">
+                     <div ng-if="botType === 'chef'" class="panel-heading" style="height: 40px;">
                         <span>Selected Instances</span> &nbsp;<span class="error red" ng-show="executeTaskForSave && selectedInstanceList.length <= 0">Please select Instance.</span>
                      </div>
+                     <div ng-if="botType === 'blueprint'" class="panel-heading" style="height: 40px;">
+                        <span>Selected Blueprints</span> &nbsp;<span class="error red" ng-show="executeTaskForSave && selectedBlueprintList.length <= 0">Please select Blueprints.</span>
+                     </div>
                      <div class="panel-body bp-panel-body">
-                     	<div class="alert alert-info text-center" ng-if="selectedInstanceList.length === 0" align="center">No Data Found</div>
-                        <ul class="list-group" dnd-list="selectedInstanceList" >
+                     	<div class="alert alert-info text-center" ng-if="selectedInstanceList.length === 0 || selectedBlueprintList.length === 0" align="center">No Data Found</div>
+                        <ul ng-if="botType ==='chef'" class="list-group" dnd-list="selectedInstanceList" >
                            <li class="list-group-item bpListComp botsBadge"  ng-repeat="selectedInstance in selectedInstanceList" dnd-draggable="selectedInstance"
                               dnd-moved="selectedInstanceList.splice($index, 1)"
                               dnd-effect-allowed="move"
@@ -95,6 +105,22 @@
                           		</span>
                           		<div class="info-cell">
                               		<div class="publisherDesc">{{selectedInstance.orgName}} > {{selectedInstance.bgName}} > {{selectedInstance.projectName}} > {{selectedInstance.environmentName}}
+                              		</div>
+                              	</div>
+                           </li>
+                        </ul>
+                        <ul ng-if="botType ==='blueprint'" class="list-group" dnd-list="selectedBlueprintList" >
+                           <li class="list-group-item bpListComp botsBadge"  ng-repeat="selectedBlueprint in selectedBlueprintList" dnd-draggable="selectedBlueprint"
+                              dnd-moved="selectedBlueprintList.splice($index, 1)"
+                              dnd-effect-allowed="move"
+                              dnd-selected="models.selected = selectedBlueprint"  ng-class=" {'activeLi':selectInstanceId === selectedBlueprint._id}">
+                              	<span class="col-lg-12 col-md-12">
+                              	  <span class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="instanceInfo($event,selectedBlueprint)" ><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>
+                              	  <span title="Clear" class="filterClear pull-right btn btn-xs cat-btn-update bpvicon" ng-click="deSelectInstance($event,selectedBlueprintList._id)">×</span>
+	                              <span class="badge pull-left" >{{(+selectedBlueprintList.indexOf(selectedBlueprint)) +1}}</span><img class="layersClassComposite" src="./images/global/chef-import.png"  alt="{{selectedBlueprint.name}}"/> &nbsp;{{selectedBlueprint.name}}
+                          		</span>
+                          		<div class="info-cell">
+                              		<div class="publisherDesc">{{selectedBlueprint.orgName}} > {{selectedBlueprint.bgName}} > {{selectedBlueprint.projectName}} > {{selectedBlueprint.environmentName}}
                               		</div>
                               	</div>
                            </li>

@@ -130,6 +130,7 @@ angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', 'authenticat
         
         $scope.notificationList = [];
         $scope.checkTimeForNotification = [];
+        var timeForEach = 0;
         var actualDate = Date.now();
         socketClient.on('noticelist',function(data){
         	
@@ -139,13 +140,13 @@ angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', 'authenticat
             	$scope.checkTimeForNotification[val._id] = val;
             	var timeDifference = $scope.getNotificationTime(actualDate,val.createdOn);
                 $scope.checkTimeForNotification[val._id] = timeDifference;
-                $scope.getDataForNotification = $scope.checkTimeForNotification[val._id];
+                timeForEach = $scope.getDataForNotification = $scope.checkTimeForNotification[val._id];
             });
             
         });
 
         socketClient.on('notice',function(data){
-    		$scope.notificationList.unshift(data);
+        	$scope.notificationList.unshift(data);
     		$scope.$apply(function () {
 	            $scope.notificationCount = $scope.notificationCount + 1;
 	        });
