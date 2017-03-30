@@ -57,7 +57,7 @@ noticeschema.statics.createNew = function(noticedetails,callback){
     });
 }
 noticeschema.statics.getAllnotices = function(user_id,callback) {
-    notice.find({user_id:user_id},{},{sort:{createdOn:-1}},function(err,data){
+    notice.find({user_id:{$in:[user_id,'system']}},{},{sort:{createdOn:-1}},function(err,data){
         if(err) {
             logger.error(err);
             var error = new Error('Internal server error');
