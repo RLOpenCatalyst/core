@@ -106,7 +106,7 @@ scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,execut
             })(botsDetails.params.nodeIds[i])
         }
     }else{
-        executeScriptOnLocal(botsDetails,auditTrail,executionType,function(err,data){
+        executeScriptOnLocal(botsDetails,auditTrail,userName,function(err,data){
             if(err){
                 logger.error(err);
                 callback(err,null);
@@ -140,6 +140,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,callback) {
     if (botsScriptDetails.params.data) {
         Object.keys(botsScriptDetails.params.data).forEach(function (key) {
             var decryptedText = cryptography.decryptText(botsScriptDetails.params.data[key], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+            var text1=cryptography.decryptText("HJrM21EgefCLMx7lUxxRSA==", cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
             replaceTextObj[key] = decryptedText;
         });
     } else {
@@ -186,7 +187,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,callback) {
                                     {
                                         title: "BOTs Execution",
                                         body: "Error in Fetching Audit Trails"
-                                    }, "Error",function(err,data){
+                                    }, "error",function(err,data){
                                     if(err){
                                         logger.error("Error in Notification Service, ",err);
                                     }
@@ -224,7 +225,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,callback) {
                                 noticeService.notice(userName,{
                                     title: "BOTs Execution",
                                     body: result.status.text
-                                }, "Success",function(err,data){
+                                }, "success",function(err,data){
                                     if(err){
                                         logger.error("Error in Notification Service, ",err);
                                     }
@@ -265,7 +266,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,callback) {
                     noticeService.notice(userName, {
                         title: "BOTs Execution",
                         body: "Error in Script executor"
-                    }, "Error",function(err,data){
+                    }, "error",function(err,data){
                         if(err){
                             logger.error("Error in Notification Service, ",err);
                         }
@@ -301,7 +302,7 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,callback
         createdOn: new Date().getTime(),
         startedOn: new Date().getTime(),
         providerType: instance.providerType,
-        action: "BOTs Chef-Execution",
+        action: "BOTs Script-Execution",
         logs: []
     };
     if (!instance.instanceIP) {
@@ -380,8 +381,8 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,callback
         var reqBody = {
             "data": replaceTextObj,
             "os": instance.hardware.os,
-            "authentication": [authenticationObj],
-            "environment": [envObj]
+            "authentication": authenticationObj,
+            "environment": envObj
         };
         var executorUrl = '/bot/' + botDetails.id + '/exec';
         server
@@ -419,7 +420,7 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,callback
                         {
                             title: "BOTs Execution",
                             body: "Error in Script executor"
-                        }, "Error",function(err,data){
+                        }, "error",function(err,data){
                             if(err){
                                 logger.error("Error in Notification Service, ",err);
                             }
@@ -461,7 +462,7 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,callback
                                     {
                                         title: "BOTs Execution",
                                         body: "Error in Fetching Audit Trails"
-                                    }, "Error",function(err,data){
+                                    }, "error",function(err,data){
                                         if(err){
                                             logger.error("Error in Notification Service, ",err);
                                         }
@@ -502,7 +503,7 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,callback
                                 noticeService.notice(userName, {
                                     title: "BOTs Execution",
                                     body: result.status.text
-                                }, "Success",function(err,data){
+                                }, "success",function(err,data){
                                     if(err){
                                         logger.error("Error in Notification Service, ",err);
                                     }

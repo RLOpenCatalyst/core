@@ -12,7 +12,7 @@
  * All modules/feature will be through
  * */
 
-var angularApp = angular.module('catapp', ['ui.router','ngTouch','toastr','countTo',
+var angularApp = angular.module('catapp', ['ui.router','ngTouch','toastr','countTo','angularMoment',
 	'global.login',
 	'global.breadcrumb',
 	'authentication',
@@ -72,7 +72,7 @@ angularApp.run(['$rootScope', 'auth', '$state', '$stateParams','$http','$window'
 	}
 ]);
 
-angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', 'authenticationAPI', '$http', '$log', '$location', '$window', 'auth', '$state', 'modulePermission', function ($scope, $rootScope, authenticationAPI,$http, $log, $location, $window, auth, $state, modulePerms) {
+angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', 'moment', 'authenticationAPI', '$http', '$log', '$location', '$window', 'auth', '$state', 'modulePermission', function ($scope, $rootScope, moment, authenticationAPI,$http, $log, $location, $window, auth, $state, modulePerms) {
 	'use strict';
 	//global Scope Constant Defined;
 	$rootScope.app = $rootScope.app || {};
@@ -130,22 +130,13 @@ angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', 'authenticat
         
         $scope.notificationList = [];
         $scope.checkTimeForNotification = [];
-        var actualDate = Date.now();
         socketClient.on('noticelist',function(data){
-        	
         	$scope.notificationCount = data.count;
             $scope.notificationList = data.data;
-            angular.forEach(data.data,function(val){
-            	$scope.checkTimeForNotification[val._id] = val;
-            	var timeDifference = $scope.getNotificationTime(actualDate,val.createdOn);
-                $scope.checkTimeForNotification[val._id] = timeDifference;
-                $scope.getDataForNotification = $scope.checkTimeForNotification[val._id];
-            });
-            
         });
 
         socketClient.on('notice',function(data){
-    		$scope.notificationList.unshift(data);
+        	$scope.notificationList.unshift(data);
     		$scope.$apply(function () {
 	            $scope.notificationCount = $scope.notificationCount + 1;
 	        });
@@ -162,12 +153,6 @@ angularApp.controller('HeadNavigatorCtrl', ['$scope', '$rootScope', 'authenticat
         socketClient.on('disconnect',function(){
             socketClient.emit('leave','client-'+$scope.userName);
         });
-	};
-
-	$scope.getNotificationTime = function(endDate,startDate) {
-		var executionTimeInMS = endDate - startDate;
-    	var totalSeconds = Math.floor(executionTimeInMS / 1000);
-    	return totalSeconds;
 	};
 
 	$scope.notificationCheck = function() {

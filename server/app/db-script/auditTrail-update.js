@@ -30,7 +30,7 @@ bots.getAllBots({isDeleted:false}, function(err, bots) {
         var count = 0;
         for (var i = 0; i < bots.length; i++) {
             (function(bot) {
-                botService.updateSavedTimePerBots(bot.botId,function(err,data){
+                botService.updateSavedTimePerBots(bot.botId,'BOTs',function(err,data){
                     if(err){
                         logger.error("Error in updating BOTs Saved Time. ",err);
                     }
