@@ -508,10 +508,10 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
                                 for(var i=0;i<data.length;i++){
                                     botsDetails.push(data[i].botName);
                                 }
-                                callback(null, {gitHubDetails,result:botsDetails});
+                                callback(null, {result:botsDetails});
                             });
                             }else{
-                                callback(null, {gitHubDetails,result:[]});
+                                callback(null, {result:[]});
                             }
                             fs.unlinkSync(filePath)
                         }).catch(function(error){

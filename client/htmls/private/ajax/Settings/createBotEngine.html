@@ -35,12 +35,12 @@
 	                                                </select>
 	                                             </div>
                                                 <div class="col-lg-6 col-md-6 margintop15">
-                                                    <label for="name">Host IP:</label>
-                                                    <input name="hostIP" value="" id="hostIP" class="form-control" type="text"  cdata="catalyst" maxlength="35">
+                                                    <label for="name">Host IP:<span class="control-label redSpan">&nbsp;*</span></label>
+                                                    <input name="hostIP" value="" id="hostIP" class="form-control" type="text"  cdata="catalyst" cat-validation="required,ipAddressCheck">
                                                 </div>
 												<div class="col-lg-6 col-md-6 margintop15">
-													<label for="name">Host Port:</label>
-													<input name="hostPort" value="" id="hostPort" class="form-control" type="text"  cdata="catalyst">
+													<label for="name">Host Port:<span class="control-label redSpan">&nbsp;*</span></label>
+													<input name="hostPort" value="" id="hostPort" class="form-control" type="text"  cdata="catalyst" cat-validation="required">
 												</div>
                                                 <div class="col-lg-6 margintop15 orgactive hidden">
                                                     <label for="name">Bot Engine Status:</label>

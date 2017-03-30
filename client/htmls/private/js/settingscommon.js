@@ -3440,6 +3440,14 @@ function isFormValid(formid) {
 						currCtrl.focus();
 					}
 					break;
+				case "ipAddressCheck":
+					var str = currCtrl.val();
+					if(/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(str) == false && str != '') {
+						isValid = false;
+						errormessageforInput(currCtrl.attr('id'), "Please enter a valid IP Address");
+						currCtrl.focus();
+					}
+					break;
 				case "min8":
 					var str = currCtrl.val();
 					if (str.length < 8) {

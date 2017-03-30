@@ -25,7 +25,6 @@
         $scope.botEditParams = {};
         $scope.botType = items.type;
         $scope.subType = items.subType;
-        console.log(items);
         $scope.botInfo = $scope.templateSelected;
         $scope.selectedInstanceList = [];
         $scope.selectedInstanceIds = [];
