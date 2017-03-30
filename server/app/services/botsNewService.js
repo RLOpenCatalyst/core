@@ -455,6 +455,9 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                     return;
                                 }
                             })
+                        }else{
+                            callback(null, jsonObt.gitHub);
+                            return;
                         }
                     }else{
                         callback(null, jsonObt.gitHub);
@@ -776,6 +779,7 @@ function addYmlFileDetailsForBots(bots,reqData,callback){
                         ymlDocFilePath: bot.ymlDocFilePath,
                         ymlDocFileId: bot.ymlDocFileId,
                         orgId: bot.orgId,
+                        subType: bot.subType,
                         orgName: bot.orgName,
                         ymlFileName: file !==null?file.fileName:file,
                         ymlFileData: file !==null?file.fileData:file,
