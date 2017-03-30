@@ -44,64 +44,162 @@
 					</div>
 				</li>
 
-				<li class="header-right">
-				   <div id="settings" class="notificationDisplay margintop5Right20 headNavigItem btn-group btn-group-inline" ng-if='settingsBool' title="Notifications" ng-click="notificationCheck();">
+				<!--<li class="header-right">-->
+				   <!--<div id="settings" class="notificationDisplay margintop5Right20 headNavigItem btn-group btn-group-inline" ng-if='settingsBool' title="Notifications" ng-click="notificationCheck();">-->
 
 
-				        <a class="notificationSetting dropdown-toggle" data-toggle="dropdown">
-				      <i class="fa fa-bell white font-size14"></i><span class="label notificationNumber" ng-if="notificationCount > 0 && notificationCount < 99">{{notificationCount}}</span>
-				      <span class="label notificationNumberGreaterValue" ng-if="notificationCount >= 99">99+</span>
-				      </a>
-				      <ul class="list-group notificationCheck dropdown-menu btn-block">
-				      	<i class="fa fa-caret-up white notificationCaret" aria-hidden="true"></i>
-				         <li class="header" ng-if="notificationCount > 0">You have {{notificationCount}} notification(s)</li>
-				         <li>
-				            <!-- inner menu: contains the actual data -->
-				            <div class="slimScrollDiv" style="position: relative; overflow: hidden; width: auto; height: auto;">
+				        <!--<a class="notificationSetting dropdown-toggle" data-toggle="dropdown">-->
+				      <!--<i class="fa fa-bell white font-size14"></i><span class="label notificationNumber" ng-if="notificationCount > 0 && notificationCount < 99">{{notificationCount}}</span>-->
+				      <!--<span class="label notificationNumberGreaterValue" ng-if="notificationCount >= 99">99+</span>-->
+				      <!--</a>-->
+				      <!--<ul class="list-group notificationCheck dropdown-menu btn-block">-->
+				      	<!--<i class="fa fa-caret-up white notificationCaret" aria-hidden="true"></i>-->
+				         <!--<li class="header" ng-if="notificationCount > 0">You have {{notificationCount}} notification(s)</li>-->
+				         <!--<li>-->
+				            <!--&lt;!&ndash; inner menu: contains the actual data &ndash;&gt;-->
+				            <!--<div class="slimScrollDiv" style="position: relative; overflow: hidden; width: auto; height: auto;">-->
 
-				               <ul ng-if="notificationList.length>0" class="menu" style="overflow: auto; width: 100%; height: auto;">
-				                  <li ng-class="{'errorStrip': notificationData.severity === 'error', 'successStrip': notificationData.severity === 'success'}" class="marginbottom2" ng-repeat="notificationData in notificationList" ng-show="$index<10">
-				                     <!-- start message -->
-				                     <a>
-				                        <h4>
-				                           {{notificationData.message.title}}
-				                           <small><i class="fa fa-clock-o"></i>&nbsp;{{checkTimeForNotification[notificationData._id]}} sec ago</small>
-				                        </h4>
-				                        <p title="{{notificationData.message.body}}">{{notificationData.message.body}}</p>
-				                     </a>
-				                  </li>
-				                  <!-- end message -->
-				               </ul>
-				               <ul class="alert alert-info text-center" ng-if="!notificationList.length > 0">
-				               		<li>No Data Available</li> 
-				               </ul>
-				            </div>
-				         </li>
-				         <li ui-sref="dashboard.bots.audittrail" class="footer">See All Notifications</li>
-				      </ul>
+				               <!--<ul ng-if="notificationList.length>0" class="menu" style="overflow: auto; width: 100%; height: auto;">-->
+				                  <!--<li ng-class="{'errorStrip': notificationData.severity === 'error', 'successStrip': notificationData.severity === 'success'}" class="marginbottom2" ng-repeat="notificationData in notificationList" ng-show="$index<10">-->
+				                     <!--&lt;!&ndash; start message &ndash;&gt;-->
+				                     <!--<a>-->
+				                        <!--<h4>-->
+				                           <!--{{notificationData.message.title}}-->
+				                           <!--<small><i class="fa fa-clock-o"></i>&nbsp;{{checkTimeForNotification[notificationData._id]}} sec ago</small>-->
+				                        <!--</h4>-->
+				                        <!--<p title="{{notificationData.message.body}}">{{notificationData.message.body}}</p>-->
+				                     <!--</a>-->
+				                  <!--</li>-->
+				                  <!--&lt;!&ndash; end message &ndash;&gt;-->
+				               <!--</ul>-->
+				               <!--<ul class="alert alert-info text-center" ng-if="!notificationList.length > 0">-->
+				               		<!--<li>No Data Available</li> -->
+				               <!--</ul>-->
+				            <!--</div>-->
+				         <!--</li>-->
+				         <!--<li ui-sref="dashboard.bots.audittrail" class="footer">See All Notifications</li>-->
+				      <!--</ul>-->
 
-				   </div>
-				   <div id="header-menu" class="" >
-				      <div id="userInfo" class="headNavigItem dropdown-toggle" title="{{appDetails.roleId}}" style="font-size: inherit;"   data-toggle="dropdown">
-						  <i class="fa fa-user white" style="font-size: 20px" aria-hidden="true"></i>
-				      </div>
-				      <div class="list-group dropdown-menu" style="top:47px;width: 214px;left: initial;right: 0;">
-						  <i class="fa fa-caret-up white notificationCaret" aria-hidden="true"></i>
-						  <a style="margin-bottom: 10px">
-							  <span class="badge" style="min-width: 41px;font-size: 13px;border-radius: 21px;height: 37px;"> <i class="fa fa-user white" style="font-size: 25px;"></i></span>
-							  {{appDetails.cn | uppercase}}
-							  [{{appDetails.roleId}}]
-						  </a>
-						  <div class="clearfix margin15" style="height: 20px;"></div>
-				         <a class="list-group-item" href="/private/index.html#ajax/Settings/Dashboard.html">
-				         <i class="fa fa-cog"></i> SETTINGS
-				         </a>
-				         <a class="list-group-item" href="https://catalyst.readthedocs.org" target="_blank" style="color: #000">
-				         <i class="fa fa-question "></i> HELP
-				         </a>
-				         <a class="list-group-item cursor" ng-click="logoutConfirmation();" ><i class="fa fa-sign-out"></i> Logout</a>
-				      </div>
-				   </div>
+				   <!--</div>-->
+				   <!--<div id="header-menu" class="" >-->
+				      <!--<div id="userInfo" class="headNavigItem dropdown-toggle" title="{{appDetails.roleId}}" style="font-size: inherit;"   data-toggle="dropdown">-->
+						  <!--<i class="fa fa-user white" style="font-size: 20px" aria-hidden="true"></i>-->
+				      <!--</div>-->
+				      <!--<div class="list-group dropdown-menu" style="top:47px;width: 214px;left: initial;right: 0;">-->
+						  <!--<i class="fa fa-caret-up white notificationCaret" aria-hidden="true"></i>-->
+						  <!--<a style="margin-bottom: 10px">-->
+							  <!--<span class="badge" style="min-width: 41px;font-size: 13px;border-radius: 21px;height: 37px;"> <i class="fa fa-user white" style="font-size: 25px;"></i></span>-->
+							  <!--{{appDetails.cn | uppercase}}-->
+							  <!--[{{appDetails.roleId}}]-->
+						  <!--</a>-->
+						  <!--<div class="clearfix margin15" style="height: 20px;"></div>-->
+				         <!--<a class="list-group-item" href="/private/index.html#ajax/Settings/Dashboard.html">-->
+				         <!--<i class="fa fa-cog"></i> SETTINGS-->
+				         <!--</a>-->
+				         <!--<a class="list-group-item" href="https://catalyst.readthedocs.org" target="_blank" style="color: #000">-->
+				         <!--<i class="fa fa-question "></i> HELP-->
+				         <!--</a>-->
+				         <!--<a class="list-group-item cursor" ng-click="logoutConfirmation();" ><i class="fa fa-sign-out"></i> Logout</a>-->
+				      <!--</div>-->
+				   <!--</div>-->
+				<!--</li>-->
+				<li class="navbar-right" id="rightMenu" >
+					<ul  class="nav navbar-top-links">
+
+					<li class="dropdown ">
+						<a  href="/private/index.html#ajax/Settings/Dashboard.html">
+							<i class="fa fa-cog fa-fw white"></i>
+						</a>
+
+						<!-- /.dropdown-tasks -->
+					</li>
+					<!-- /.dropdown -->
+					<li class="dropdown">
+						<a class="dropdown-toggle cursor" data-toggle="dropdown" >
+							<i class="fa fa-bell fa-fw white"></i> <i class="fa fa-caret-down white"></i>
+						</a>
+						<ul class="dropdown-menu dropdown-alerts" style="top:47px;width: 310px;">
+							<i class="fa fa-caret-up white notificationCaret" aria-hidden="true"></i>
+							<li>
+								<a href="#">
+									<div>
+										<i class="fa fa-comment fa-fw"></i> New Comment
+										<span class="pull-right text-muted small">4 minutes ago</span>
+									</div>
+								</a>
+							</li>
+							<li class="divider"></li>
+							<li>
+								<a href="#">
+									<div>
+										<i class="fa fa-twitter fa-fw"></i> 3 New Followers
+										<span class="pull-right text-muted small">12 minutes ago</span>
+									</div>
+								</a>
+							</li>
+							<li class="divider"></li>
+							<li>
+								<a href="#">
+									<div>
+										<i class="fa fa-envelope fa-fw"></i> Message Sent
+										<span class="pull-right text-muted small">4 minutes ago</span>
+									</div>
+								</a>
+							</li>
+							<li class="divider"></li>
+							<li>
+								<a href="#">
+									<div>
+										<i class="fa fa-tasks fa-fw"></i> New Task
+										<span class="pull-right text-muted small">4 minutes ago</span>
+									</div>
+								</a>
+							</li>
+							<li class="divider"></li>
+							<li>
+								<a href="#">
+									<div>
+										<i class="fa fa-upload fa-fw"></i> Server Rebooted
+										<span class="pull-right text-muted small">4 minutes ago</span>
+									</div>
+								</a>
+							</li>
+							<li class="divider"></li>
+							<li>
+								<a class="text-center" href="#">
+									<strong>See All Alerts</strong>
+									<i class="fa fa-angle-right"></i>
+								</a>
+							</li>
+						</ul>
+						<!-- /.dropdown-alerts -->
+					</li>
+					<!-- /.dropdown -->
+					<li class="dropdown">
+						<a class="dropdown-toggle cursor" data-toggle="dropdown">
+							<i class="fa fa-user fa-fw white"></i> <i class="fa fa-caret-down white"></i>
+						</a>
+						<ul class="dropdown-menu dropdown-user" style="top:47px;width: 215px;">
+							<i class="fa fa-caret-up white notificationCaret" aria-hidden="true"></i>
+							<li>
+								<a style="margin-bottom: 10px">
+									{{appDetails.cn | uppercase}}
+									[{{appDetails.roleId}}]
+								</a>
+							</li>
+							<li class="divider" ></li>
+							<li >
+								<a href="https://catalyst.readthedocs.org" target="_blank" >
+								<i class="fa fa-question fa-fw "></i> HELP
+								</a>
+							</li>
+							<li><a class="cursor" ng-click="logoutConfirmation();" ><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+							</li>
+						</ul>
+						<!-- /.dropdown-user -->
+					</li>
+					<!-- /.dropdown -->
+				</ul>
 				</li>
 			</ul>
 		</div>

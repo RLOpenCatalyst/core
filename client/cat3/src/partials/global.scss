@@ -1551,3 +1551,27 @@ input[type="text"].ui-grid-filter-input{
     margin-left: 10px;
     margin-right: 10px;
 }
+
+#rightMenu {
+    .navbar-top-links {
+        margin-right: 0;
+    }
+    .navbar-top-links li {
+        display: inline-block;
+    }
+    .navbar-top-links li a {
+        padding: 15px;
+        min-height: 50px;
+    }
+    .nav .open>a, .nav .open>a:focus, .nav .open>a:hover {
+        background-color: #525961;
+        border-color: #fff;
+    }
+    .navbar-top-links .dropdown-menu li {
+        display: block;
+    }
+    .navbar-top-links .dropdown-menu li a {
+        padding: 3px 20px;
+        min-height: 0;
+    }
+}
