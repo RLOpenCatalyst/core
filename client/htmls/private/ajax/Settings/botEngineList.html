@@ -105,7 +105,7 @@ function isUserTypeSuperAdmin() {
 
 function filterColumn() {
     var filter = $("#filteractive").val();
-    $('#envtable').DataTable().column(2).search(
+    $('#envtable').DataTable().column(4).search(
         filter,
         false,
         false,
@@ -116,7 +116,7 @@ function filterColumn() {
 }
 
 function inLineReady() {
-    CreateTableFromJson(32, 'orgname', 'createBotEngine.html'); //32 is for BotEngine
+    CreateTableFromJson(32, 'name', 'createBotEngine.html'); //32 is for BotEngine
 
     var tab = 'envtable';
     $('#envtable').dataTable({

@@ -167,7 +167,7 @@
                </div>
                 <div title="{{botsDetails.executionCount}}" class="pull-left botsExecution" ng-if="botsDetails.executionCount">Total Runs:&nbsp;<span>{{botsDetails.executionCount}}</span></div>
                 <div class="pull-right" style="margin-top:5px;">
-                  <a class="margin10 cursor" ng-click="botSync(botsDetails)" title="BOT Sync"><i class="fa fa-refresh"></i></a>
+                  <a class="margin10 cursor" title="BOT Sync"><i ng-class="{'fa fa-refresh' : activeClass !== botsDetails, 'fa fa-refresh fa-spin' : activeClass === botsDetails}" ng-click="botSync(botsDetails)"></i></a>
                </div>
             </a>
          </div>

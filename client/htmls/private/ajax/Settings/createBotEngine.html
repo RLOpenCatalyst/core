@@ -95,13 +95,17 @@
 </div>
 
 <script>
+	$(document).ready(function(){
+		getOrganizationList();
+	 	$(".chooseOrganization").select2();
+	});
 
 	 function inLineReady() {
 	 	$("input[type='text']").on("click", function() {
 	 		$(this).select();
 	 		$("#msgOrgName").hide();
 	 	});
-	 	//readform(32);
+	 	readform(32);
 
 	 	//Force opening the left navigation menu
 	 	if ($('#navSettings').is(":visible") == false) {
@@ -117,7 +121,7 @@
 	 			$(this).addClass('active');
 	 	});
 	 	drawBreadCrumb1();
-	 	//enableUniqueCheckingForInputs(32);
+	 	enableUniqueCheckingForInputs(32);
 	 	//enabling active org section
 	 	if (typeof $('#myForm32').find('button').first().attr('rowid') != "undefined")
 	 		$('#myForm32').find('.orgactive').first().removeClass('hidden');
@@ -135,7 +139,7 @@
 	 	if (confirm('You have selected to change the status of this Bot Engine. Proceed?')) {
 	 		var $deactivatebtn = $(this);
 	 		$deactivatebtn.attr('disabled', 'disabled');
-	 		var orgid__ = $('#myForm').find('button').first().attr('rowid');
+	 		var orgid__ = $('#myForm32').find('button').first().attr('rowid');
 	 		var action = "true";
 	 		if ($('#currentorgstatus').is(':checked') == true) {
 	 			action = "false";
@@ -148,7 +152,7 @@
 	 			data1.append("orgid", orgid__);
 
 	 			$.ajax({
-	 				url: '/d4dMasters/deactivateorg/' + action,
+	 				url: '/d4dMasters/deactivateBotEngine/' + action,
 	 				data: data1,
 	 				processData: false,
 	 				contentType: false,
@@ -238,8 +242,18 @@
 	 inLineReady();
 
 	 $(document).ready(function() {
-	 	getOrganizationList();
-	 	$(".chooseOrganization").select2();
+
+	 	var isEditActivate = location.href.toString().split('?')[1] === "new" ? false : true;
+
+        var onEditId = location.href.toString().split('?')[1];
+        if (isEditActivate) {
+          $.get('/d4dMasters/readmasterjsonrecord/32/' + onEditId , function(data){
+            if(data.orgname_rowid) {
+            	$('#orgname').empty().append('<option rowid="'+data.orgname_rowid+'" value="'+data.orgname+'">'+data.orgname+'</option>').select2().attr('disabled','disabled');   
+            }
+          });
+        }
+	 	
 	 	var rowid = $('#myForm32').find('button').first().attr('rowid');
 	 	if (typeof rowid == "undefined") {
 	 		$('#active').val('true');
