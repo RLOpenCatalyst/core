@@ -391,11 +391,12 @@ $('#gitCloneImport').submit(function(){
     var reqBody = [];
     
     reqBody = checkboxValueForImport;
-    console.log(reqBody);
     $.ajax({
         method: 'POST',
         url: '../git-hub/' + gitHubId + '/copy',
-        data: reqBody,
+        data: {
+            gitHubBody :reqBody
+        },
             success: function(data, success) {
                 toastr.success('Import Successful');
                 $('#modalForGitImport').modal('hide');
