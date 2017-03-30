@@ -211,13 +211,13 @@ gitGubService.getGitHubById = function getGitHubById(gitHubId, callback) {
 };
 
 gitGubService.gitHubCopy = function gitHubCopy(gitHubId, reqBody,callback) {
-    var dest = glob.sync(appConfig.gitHubDir + gitHubId +'/*')[0]+'/Bots';
-    var source = glob.sync(appConfig.gitHubDir + gitHubId +'.temp/*')[0]+'/Bots';
-    var bots = [];
+    var dest = glob.sync(appConfig.gitHubDir + gitHubId +'/*')[0];
+    var source = glob.sync(appConfig.gitHubDir + gitHubId +'.temp/*')[0];
     if(reqBody && reqBody.length !== 0) {
-        gitHubTempModel.gitFilesList(function(err,data) {
+        var bots = [];
+        gitHubTempModel.gitFilesList(gitHubId,function(err,data) {
             if(err){
-                callback(err, null);
+                return callback(err, null);
                 logger.error("Error in getting bot data from database.", err);  
             }else {
                 for(var index = 0;index < reqBody.length;index++){
@@ -235,7 +235,7 @@ gitGubService.gitHubCopy = function gitHubCopy(gitHubId, reqBody,callback) {
                                                 var err = new Error();
                                                 err.status = 500;
                                                 err.msg = 'path does not exists'
-                                                return callback(err)
+                                                return callback(err,null)
                                             } else{
                                                 fs.createReadStream(sourceFile).pipe(fs.createWriteStream(destFile));
                                             }
@@ -249,7 +249,7 @@ gitGubService.gitHubCopy = function gitHubCopy(gitHubId, reqBody,callback) {
                                         var err = new Error();
                                         err.status = 500;
                                         err.msg = 'File does not exists'
-                                        return callback(err)
+                                        return callback(err,null);
                                     }
                                 break;
                             }
@@ -264,18 +264,24 @@ gitGubService.gitHubCopy = function gitHubCopy(gitHubId, reqBody,callback) {
                     });
                     bots.push(reqBody[index].botName);
                 }
+                botsNewService.syncBotsWithGitHub(gitHubId, function (err, data) {
+                    if (err) {
+                        callback(err,null)
+                        logger.error("Error in Syncing GIT-Hub.", err);
+                    } else {
+                        gitHubTempModel.gitFilesdelete(gitHubId, function(err){
+                            if(err){
+                                callback(err,null)
+                                logger.error("Error in clearing GIT-Hub data.", err);
+                            }
+                        });
+                        fse.removeSync(appConfig.gitHubDir + gitHubId +'.temp');
+                        logger.debug("Git Hub importing is Done.");
+                        callback(null, {gitHubDetails:gitHubId,botsDetails:bots});
+                    }
+                });
             }
-        });
-        botsNewService.syncBotsWithGitHub(gitHubId, function (err, data) {
-            if (err) {
-                callback(err, null);
-                logger.error("Error in Syncing GIT-Hub.", err);
-            } else {
-                fse.removeSync(appConfig.gitHubDir + gitHubId +'.temp')
-                callback(null, {gitHubDetails:gitHubId,botsDetails:bots});
-                logger.debug("Git Hub importing is Done.");
-            }
-        });
+        }); 
     }else {
         var err = new Error();
         err.status = 400;
@@ -313,8 +319,16 @@ gitGubService.gitHubContentSync = function gitHubContentSync(gitHubId, botId,cal
                 }else{
                     cmd = 'curl -L '
                 }
-                var cmdFull = cmd  +'https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/contents/Bots/'+result.botsDetails[0].type+'/'+result.botsDetails[0].id+'?ref='+formattedGitHub.repositoryBranch;
-                gitHubSingleSync(formattedGitHub,cmdFull,cmd,function(err,res){
+                async.parallel([
+                    function(callback) {
+                        var cmdFull = cmd  +'https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/contents/Code/Script_BOTs/'+result.botsDetails[0].id+'?ref='+formattedGitHub.repositoryBranch;
+                        gitHubSingleSync(formattedGitHub,cmdFull,cmd,callback);
+                    },
+                    function(callback) {
+                        var cmdFull = cmd  +'https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/contents/YAML/'+result.botsDetails[0].id+'?ref='+formattedGitHub.repositoryBranch;
+                        gitHubSingleSync(formattedGitHub,cmdFull,cmd,callback);
+                    }
+                ],function(err,res){
                     if(err){
                         callback(err,null);
                         return;
@@ -394,7 +408,7 @@ function formatGitHubResponse(gitHub,callback) {
 function gitHubCloning(gitHubDetails,task,cmd,callback){
     var filePath = appConfig.gitHubDir +gitHubDetails.repositoryName+'.tgz';
     var destPath = appConfig.gitHubDir + gitHubDetails._id;
-    var botpath = glob.sync(appConfig.gitHubDir + gitHubDetails._id+'/*')[0]+'/Bots';
+    var botpath = glob.sync(appConfig.gitHubDir + gitHubDetails._id+'/*')[0];
     var options = {compareContent: true,excludeFilter:'*.md',skipSymlinks:true};
     if(fs.existsSync(filePath)){
         fs.unlinkSync(filePath)
@@ -428,6 +442,12 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
                                     for(var i=1;i<data.length;i++){
                                         botsDetails.push(data[i].id);
                                     }
+                                    gitHubTempModel.gitFilesdelete(gitHubId, function(err){
+                                        if(err){
+                                            callback(err,null)
+                                            logger.error("Error in clearing GIT-Hub data.", err);
+                                        }
+                                    });
                                     callback(null, {botsDetails:botsDetails});
                                     logger.debug("Git Hub Sync is Done.");
                                 }
@@ -458,12 +478,11 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
                         callback(err, null);
                     } else {
                         logger.debug("GIT Repository comparing");
-                        dircompare.compare(botpath, glob.sync(destPath + '/*')[0]+'/Bots', options).then(function(res){
-                            var result = [],fileName =null,path =null;
+                        dircompare.compare(botpath, glob.sync(destPath + '/*')[0], options).then(function(res){
+                            var result = [];
                             res.diffSet.forEach(function (entry) {
                                 if(entry.type1 === 'file' || entry.type2 ==='file'){
-                                    var botName = entry.relativePath.split("/").slice(-1)[0]
-                                    var state = '',fileName = '',path ='';
+                                    var state = '',fileName = '',path ='',botName = '';
                                     switch (entry.state) {
                                         case 'left':
                                             state = 'deleted';
@@ -489,6 +508,11 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
                                     if(state === 'equal'){
                                         return;
                                     }
+                                    if(fileName.split(".").slice(-1)[0] === 'yaml'){
+                                        botName = fileName.split(".")[0]
+                                    }else {
+                                        botName = entry.relativePath.split("/")[3]
+                                    }
                                     var botdata = result.filter(function(value){ return value.botName == botName;})
                                     if(result.length &&  botdata.length){
                                         botdata[0].files.push({fileName:fileName,state:state,path:path})
@@ -500,6 +524,12 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
                             });
                             var botsDetails = [];
                             if(result.length){
+                                gitHubTempModel.gitFilesdelete(gitHubId, function(err){
+                                    if(err){
+                                        callback(err,null)
+                                        logger.error("Error in clearing GIT-Hub data.", err);
+                                    }
+                                });
                                 gitHubTempModel.gitFilesInsert(result,function(err,data) {
                                 if(err){
                                     callback(err, null);
@@ -508,10 +538,10 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
                                 for(var i=0;i<data.length;i++){
                                     botsDetails.push(data[i].botName);
                                 }
-                                callback(null, {gitHubDetails,result:botsDetails});
+                                callback(null, {result:botsDetails});
                             });
                             }else{
-                                callback(null, {gitHubDetails,result:[]});
+                                callback(null, {result:botsDetails});
                             }
                             fs.unlinkSync(filePath)
                         }).catch(function(error){
