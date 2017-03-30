@@ -106,7 +106,7 @@ scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,execut
             })(botsDetails.params.nodeIds[i])
         }
     }else{
-        executeScriptOnLocal(botsDetails,auditTrail,executionType,function(err,data){
+        executeScriptOnLocal(botsDetails,auditTrail,userName,function(err,data){
             if(err){
                 logger.error(err);
                 callback(err,null);

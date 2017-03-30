@@ -98,5 +98,15 @@ noticeService.updater = function updater(userid, dataType, updateData, callback)
     })
 }
 
+noticeService.test =function test(){
+    var i=0;
+    setInterval(function(){
+        noticeService.notice('superadmin',{title:'msg '+i,body:'Test1234'},"success",function(err,data){
+            console.log(data);
+        });
+        i++;
+     }, 40000);
+}
+
 
 
