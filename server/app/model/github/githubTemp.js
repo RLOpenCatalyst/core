@@ -51,8 +51,8 @@ GitHubTempFileSchema.statics.gitFilesInsert = function gitFilesInsert(tempOject,
         }
     });
 };
-GitHubTempFileSchema.statics.gitFilesList = function gitFilesList(callback) {
-    githubTemp.find( function(err, githubfile) {
+GitHubTempFileSchema.statics.gitFilesList = function gitFilesList(gitHubId,callback) {
+    githubTemp.find({gitHubId:gitHubId},function(err, githubfile) {
         if (err) {
             logger.error(err);
             var error = new Error('Internal server error');
@@ -65,6 +65,14 @@ GitHubTempFileSchema.statics.gitFilesList = function gitFilesList(callback) {
         }
     });
 };
-
+GitHubTempFileSchema.statics.gitFilesdelete = function gitFilesdelete(gitHubId,callback) {
+    githubTemp.remove({gitHubId:gitHubId}, function(err){
+        if (err) {
+            logger.error(err);
+            return callback(err);
+        }else 
+            return callback(null);
+    });
+}
 var githubTemp = mongoose.model('githubTemp', GitHubTempFileSchema);
 module.exports = githubTemp;
