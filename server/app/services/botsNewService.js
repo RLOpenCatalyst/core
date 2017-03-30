@@ -451,6 +451,9 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                     return;
                                 }
                             })
+                        }else{
+                            callback(null, jsonObt.gitHub);
+                            return;
                         }
                     }else{
                         callback(null, jsonObt.gitHub);
@@ -477,8 +480,6 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                         if(botObjList.length === files.length){
                                             next(null,botObjList);
                                             return;
-                                        }else{
-                                            return;
                                         }
                                     });
                                     if(result !== null){
@@ -490,11 +491,8 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                                    if(err){
                                                        logger.error("Error in removing YAML File. ",err);
                                                    }
-                                                   logger.debug("Successfully removed YAML File. ",err);
                                                    if(botObjList.length === files.length){
                                                        next(null,botObjList);
-                                                       return;
-                                                   }else{
                                                        return;
                                                    }
                                                })
@@ -526,8 +524,6 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                                         if(botObjList.length === files.length){
                                                             next(null,botObjList);
                                                             return;
-                                                        }else{
-                                                            return;
                                                         }
                                                     }else if(botsList.length > 0){
                                                         botsDao.updateBotsDetail(botsList[0]._id,botsObj,function(err,updateBots){
@@ -537,8 +533,6 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                                             botObjList.push(botsObj);
                                                             if(botObjList.length === files.length){
                                                                 next(null,botObjList);
-                                                                return;
-                                                            }else{
                                                                 return;
                                                             }
                                                         })
@@ -551,8 +545,6 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                                             if(botObjList.length === files.length){
                                                                 next(null,botObjList);
                                                                 return;
-                                                            }else{
-                                                                return;
                                                             }
                                                         });
                                                     }
@@ -563,8 +555,6 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                         botObjList.push(result);
                                         if(botObjList.length === files.length){
                                             next(null,botObjList);
-                                            return;
-                                        }else{
                                             return;
                                         }
                                     }
@@ -731,19 +721,15 @@ function getExecutionTime(endTime, startTime) {
 
 
 function encryptedParam(paramDetails, callback) {
-    console.log(paramDetails);
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var encryptedObj = {};
     if(paramDetails !== null) {
         Object.keys(paramDetails).forEach(function(key){
-            console.log(key);
-            console.log(paramDetails[key]);
             var encryptedText = cryptography.encryptText(paramDetails[key], cryptoConfig.encryptionEncoding,
                 cryptoConfig.decryptionEncoding);
             encryptedObj[key]=encryptedText;
         });
-        console.log(encryptedObj);
         callback(null,encryptedObj);
     }else{
         callback(null,encryptedObj);
