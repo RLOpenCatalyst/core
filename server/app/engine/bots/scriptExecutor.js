@@ -106,7 +106,7 @@ scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,execut
             })(botsDetails.params.nodeIds[i])
         }
     }else{
-        executeScriptOnLocal(botsDetails,auditTrail,userName,executionType,function(err,data){
+        executeScriptOnLocal(botsDetails,auditTrail,userName,function(err,data){
             if(err){
                 logger.error(err);
                 callback(err,null);
@@ -120,7 +120,7 @@ scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,execut
 }
 
 
-function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,executionType,callback) {
+function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,callback) {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var actionId = uuid.v4();
@@ -187,7 +187,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,executionTyp
                                     {
                                         title: "BOTs Execution",
                                         body: "Error in Fetching Audit Trails"
-                                    }, "Error",function(err,data){
+                                    }, "error",function(err,data){
                                     if(err){
                                         logger.error("Error in Notification Service, ",err);
                                     }
@@ -225,7 +225,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,executionTyp
                                 noticeService.notice(userName,{
                                     title: "BOTs Execution",
                                     body: result.status.text
-                                }, "Success",function(err,data){
+                                }, "success",function(err,data){
                                     if(err){
                                         logger.error("Error in Notification Service, ",err);
                                     }
@@ -266,7 +266,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,executionTyp
                     noticeService.notice(userName, {
                         title: "BOTs Execution",
                         body: "Error in Script executor"
-                    }, "Error",function(err,data){
+                    }, "error",function(err,data){
                         if(err){
                             logger.error("Error in Notification Service, ",err);
                         }
@@ -420,7 +420,7 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,callback
                         {
                             title: "BOTs Execution",
                             body: "Error in Script executor"
-                        }, "Error",function(err,data){
+                        }, "error",function(err,data){
                             if(err){
                                 logger.error("Error in Notification Service, ",err);
                             }
@@ -462,7 +462,7 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,callback
                                     {
                                         title: "BOTs Execution",
                                         body: "Error in Fetching Audit Trails"
-                                    }, "Error",function(err,data){
+                                    }, "error",function(err,data){
                                         if(err){
                                             logger.error("Error in Notification Service, ",err);
                                         }
@@ -503,7 +503,7 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,callback
                                 noticeService.notice(userName, {
                                     title: "BOTs Execution",
                                     body: result.status.text
-                                }, "Success",function(err,data){
+                                }, "success",function(err,data){
                                     if(err){
                                         logger.error("Error in Notification Service, ",err);
                                     }

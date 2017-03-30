@@ -64,7 +64,11 @@ blueprintExecutor.execute = function execute(auditTrail,reqBody,userName,callbac
             callback(err, null);
             return;
         }
-        callback(null, results);
+        var botAuditTrailObj = {
+            botId: auditTrail.auditId,
+            actionId: auditTrail.actionId
+        }
+        callback(null, botAuditTrailObj);
         return;
     });
 };
@@ -103,7 +107,7 @@ function executeBlueprint(blueprintId,auditTrail,reqBody,userName,callback){
                 if (reqBody.monitorId && reqBody.monitorId !== null && reqBody.monitorId !== 'null') {
                     monitorId = reqBody.monitorId;
                 }
-                Blueprints.launch({
+                blueprint.launch({
                     envId: reqBody.envId,
                     ver: reqBody.version,
                     stackName: stackName,
@@ -111,7 +115,9 @@ function executeBlueprint(blueprintId,auditTrail,reqBody,userName,callback){
                     sessionUser: userName,
                     tagServer: reqBody.tagServer,
                     monitorId: monitorId,
-                    auditTrailId: auditTrail._id
+                    auditTrailId: auditTrail._id,
+                    auditType: auditTrail.auditType,
+                    actionLogId:auditTrail.actionId
                 },next);
 
             }else{

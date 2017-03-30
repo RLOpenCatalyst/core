@@ -204,6 +204,24 @@
             }, function() {
             });
         };*/
+        genericServices.showLogsForBots = function(response) {
+            $modal.open({
+                animation: true,
+                templateUrl: 'src/partials/sections/dashboard/bots/view/botExecutionLogs.html',
+                controller: 'botsExecutionLogsNewCtrl',
+                backdrop: 'static',
+                keyboard: false,
+                resolve: {
+                    items: function() {
+                        return {
+                            logDetails : response
+                        }
+                    }
+                }
+            }).result.then(function(response) {
+            }, function() {
+            }); 
+        }
 
         genericServices.launchBlueprint=function(blueprintObj) {
             $modal.open({
@@ -218,7 +236,6 @@
                     }
                 }
             }).result.then(function(bpObj) {
-                console.log(bpObj);
                 if (bpObj.bp.botLinkedSubCategory === "docker") {
                     $modal.open({
                         animate: true,

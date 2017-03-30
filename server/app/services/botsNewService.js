@@ -364,7 +364,7 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
                         })
                     },
                     bots: function (callback) {
-                        if(botDetails[0].type === 'script' || botDetails[0].type === 'chef' || botDetails[0].type === 'jenkins' || botDetails[0].type === 'blueprint') {
+                        if(botDetails[0].type === 'script' || botDetails[0].type === 'chef' || botDetails[0].type === 'jenkins' || botDetails[0].type === 'blueprints') {
                             var botExecutionCount = botDetails[0].executionCount + 1;
                             var botUpdateObj = {
                                 executionCount: botExecutionCount,
@@ -670,48 +670,6 @@ botsNewService.getParticularBotsHistoryLogs= function getParticularBotsHistoryLo
     });
 }
 
-botsNewService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,callback){
-    var query = {
-        auditType: 'BOTsNew',
-        isDeleted: false,
-        auditId: botId
-    };
-    auditTrail.getAuditTrails(query, function (err, botAuditTrail) {
-        if (err) {
-            logger.error("Error in Fetching Audit Trail.", err);
-            callback(err, null);
-        }
-        if (botAuditTrail.length > 0) {
-            var totalTimeInSeconds = 0;
-            for (var m = 0; m < botAuditTrail.length; m++) {
-                if (botAuditTrail[m].endedOn && botAuditTrail[m].endedOn !== null
-                    && botAuditTrail[m].auditTrailConfig.manualExecutionTime
-                    && botAuditTrail[m].auditTrailConfig.manualExecutionTime !== null
-                    && botAuditTrail[m].actionStatus ==='success' ) {
-                    var executionTime = getExecutionTime(botAuditTrail[m].endedOn, botAuditTrail[m].startedOn);
-                    totalTimeInSeconds = totalTimeInSeconds + ((botAuditTrail[m].auditTrailConfig.manualExecutionTime * 60) - executionTime);
-                }
-            }
-            var totalTimeInMinutes = Math.round(totalTimeInSeconds / 60);
-            var result = {
-                hours: Math.floor(totalTimeInMinutes / 60),
-                minutes: totalTimeInMinutes % 60
-            }
-            botsDao.updateBotsDetail(botId, {savedTime: result,executionCount:botAuditTrail.length}, function (err, data) {
-                if (err) {
-                    logger.error(err);
-                    callback(err, null);
-                    return;
-                }
-                callback(null, data);
-                return;
-            })
-        } else {
-            callback(null, botAuditTrail);
-            return;
-        }
-    });
-}
 
 function getExecutionTime(endTime, startTime) {
     var executionTimeInMS = endTime - startTime;
@@ -757,6 +715,7 @@ function addYmlFileDetailsForBots(bots,reqData,callback){
                         action: bot.action,
                         category: bot.category,
                         type: bot.type,
+                        subType: bot.subType,
                         inputFormFields: bot.inputFormFields,
                         outputOptions: bot.outputOptions,
                         ymlDocFilePath: bot.ymlDocFilePath,

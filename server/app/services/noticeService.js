@@ -58,7 +58,6 @@ noticeService.init =function init(io, address) {
     });
 }
 noticeService.notice = function notice(userid, message, severity, callback) {
-    console.log(userid,message,severity);
     socketClient.on('connect', function () {
         socketClient.emit('join', 'server');
         logger.debug('notice server room created.');
@@ -97,6 +96,16 @@ noticeService.updater = function updater(userid, dataType, updateData, callback)
     socketClient.on('disconnect', function () {
         socketClient.emit('leave', 'server');
     })
+}
+
+noticeService.test =function test(){
+    var i=0;
+    setInterval(function(){
+        noticeService.notice('superadmin',{title:'msg '+i,body:'Test1234'},"success",function(err,data){
+            console.log(data);
+        });
+        i++;
+     }, 40000);
 }
 
 
