@@ -1628,6 +1628,66 @@ var d4dMastersCICDDashboard = new mongoose.Schema({
 });
 var d4dModelMastersCICDDashboard = mongoose.model('d4dModelMastersCICDDashboard', d4dMastersCICDDashboard, 'd4dmastersnew');
 
+var d4dMastersRemoteBotServer = new mongoose.Schema({
+    id: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    name: {
+        type: String,
+        trim: true
+    },
+    hostIP: {
+        type: String,
+        required: true,
+        trim: true,
+    },
+    hostCredentialType: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    hostUserName: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    hostPassword: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    hostPemFileLocation: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    active: {
+        type: Boolean,
+        trim: true,
+        default: true
+    },
+    orgname: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    orgname_rowid: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    rowid: {
+        type: String,
+        required: true,
+        trim: true
+    }
+}, {
+    collection: 'd4dmastersnew'
+});
+var d4dModelMastersBOTsRemoteServer = mongoose.model('d4dModelMastersBOTsRemoteServer', d4dMastersRemoteBotServer, 'd4dmastersnew');
+
 module.exports = d4dModelNew;
 module.exports.d4dModelMastersOrg = d4dModelMastersOrg;
 module.exports.d4dModelMastersProductGroup = d4dModelMastersProductGroup;
@@ -1656,4 +1716,5 @@ module.exports.d4dModelOctopusConfig = d4dModelOctopusConfig;
 module.exports.d4dModelFunctionalTestConfig = d4dModelFunctionalTestConfig;
 module.exports.d4dModelMastersCICDDashboard = d4dModelMastersCICDDashboard;
 module.exports.d4dModelSonarqubeConfig = d4dModelSonarqubeConfig;
+module.exports.d4dModelMastersBOTsRemoteServer = d4dModelMastersBOTsRemoteServer;
 

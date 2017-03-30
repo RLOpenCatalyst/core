@@ -302,7 +302,7 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,callback
         createdOn: new Date().getTime(),
         startedOn: new Date().getTime(),
         providerType: instance.providerType,
-        action: "BOTs Chef-Execution",
+        action: "BOTs Script-Execution",
         logs: []
     };
     if (!instance.instanceIP) {

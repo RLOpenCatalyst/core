@@ -129,6 +129,10 @@ function Configmgmt() {
                 logger.log('Exting getDBModelFromID ' + id.toString());
                 callback(null, 'd4dModelSonarqubeConfig');
                 break;
+            case "32":
+                logger.log('Exting getDBModelFromID ' + id.toString());
+                callback(null, 'd4dModelMastersBOTsRemoteServer');
+                break;
                 
         }
     };
@@ -223,6 +227,10 @@ function Configmgmt() {
             case "31":
                 logger.log('Exting getDBModelFromID ' + id.toString());
                 return ('sonarqubeserver');
+                break;
+            case "32":
+                logger.log('Exting getDBModelFromID ' + id.toString());
+                return ('botremoteserver');
                 break;
 
         };
