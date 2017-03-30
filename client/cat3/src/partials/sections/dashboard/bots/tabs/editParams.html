@@ -28,7 +28,7 @@
 	        <div class="col-lg-12 col-md-12">
       		<div class="col-lg-7 col-md-7 col-sm-12 margintop15 marginleft-15">
                <div class="panel-group">
-                  <div class="panel panel-default">
+                  <div class="panel panel-default form-group">
                      <div class="panel-heading" style="height: 40px;"> 
 				            <span class="bot-library-search marginleft-12">
                            <form class="firefoxForm" novalidate name="library-form">
@@ -54,7 +54,7 @@
 			                </select>
 				        </span>
 				        <span ng-if="botType === 'blueprints'" class="margintop8">    
-			                <select name="proj" class="dropdownSelect chooseProjectExisting form-control" ng-model="IMGNewEnt.blueprintType" ng-change="getBlueprintList();">
+			                <select name="proj" class="dropdownSelect chooseProjectExisting form-control" ng-model="IMGNewEnt.blueprintType" disabled ng-change="getBlueprintList();">
 			                    <option value="chef">SoftwareStack </option>
 			                    <option value="ami">OSImage </option>
 			                    <option value="cft">Cloud Formation </option>

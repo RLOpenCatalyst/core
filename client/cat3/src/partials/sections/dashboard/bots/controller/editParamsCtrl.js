@@ -24,6 +24,8 @@
         $scope.botParams = items.inputFormFields;
         $scope.botEditParams = {};
         $scope.botType = items.type;
+        $scope.subType = items.subType;
+        console.log(items);
         $scope.botInfo = $scope.templateSelected;
         $scope.selectedInstanceList = [];
         $scope.selectedInstanceIds = [];
@@ -51,13 +53,15 @@
             }
         };
 
-        $scope.IMGNewEnt={
-            org:$rootScope.organObject[0],
-            buss:$rootScope.organObject[0].businessGroups[0],
-            proj:$rootScope.organObject[0].businessGroups[0].projects[0],
-            env:$rootScope.organObject[0].businessGroups[0].projects[0].environments[0],
-            blueprintType:'chef'
-        };
+        if($rootScope.organObject) {
+            $scope.IMGNewEnt={
+                org:$rootScope.organObject[0],
+                buss:$rootScope.organObject[0].businessGroups[0],
+                proj:$rootScope.organObject[0].businessGroups[0].projects[0],
+                env:$rootScope.organObject[0].businessGroups[0].projects[0].environments[0],
+                blueprintType:items.subType
+            };
+        }
 
         $scope.getInstanceList = function() {
             botsCreateService.getCurrentEnvInstances($scope.IMGNewEnt.org.orgid,$scope.IMGNewEnt.buss.rowid,$scope.IMGNewEnt.proj.rowId,$scope.IMGNewEnt.env.rowid).then(function(response){

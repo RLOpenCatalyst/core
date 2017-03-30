@@ -323,6 +323,9 @@ $('#gitTable tbody').on( 'click', 'button.deleteGitRepo', function(){
 
 
 $('#gitTable tbody').on( 'click', 'button.importGitRepo', function(){
+    $('#gitImportTable').hide();
+    $('#noDataAvailable').hide();
+    $('#gitCloneImportSave').hide();
     $('#modalForGitImport').modal('show');
     var $this = $(this);
     var id = $this.parents('tr').attr('githubId');
@@ -332,16 +335,25 @@ $('#gitTable tbody').on( 'click', 'button.importGitRepo', function(){
         url: '../git-hub/'+id+'/import',
         method: 'GET',
         success: function(data) {
+            $('#gitCloneImportSave').show();
             $('#gitImpLoader').hide();
-            for(var i=0;i<data.result.length; i++) {
-                var html = $('<tr><td>' + data.result[i].botName + '</td><td>' + data.gitHubDetails.repositoryName + '</td><td><input value="'+data.result[i].botName+'" type="checkbox" class="selectCheckboxForImport"></td></tr>')
-                .attr({'botNameTable':data.result[i].botName});
-                $('#gitEditImportHiddenInputId').val(data.gitHubDetails._id);
-                $('#importBotsList').append(html);
+            $('#gitImportTable').show();
+            if(data.result && data.result.length > 0) {
+                for(var i=0;i<data.result.length; i++) {
+                    html = $('<tr><td>' + data.result[i].botName + '</td><td>' + data.gitHubDetails.repositoryName + '</td><td><input value="'+data.result[i].botName+'" type="checkbox" class="selectCheckboxForImport"></td></tr>')
+                    .attr({'botNameTable':data.result[i].botName});
+                    $('#gitEditImportHiddenInputId').val(data.gitHubDetails._id);
+                    $('#importBotsList').append(html);
+                }
+            } else {
+                $('#gitImportTable').addClass('hidden');
+                $('#gitCloneImportSave').hide();
+                $('#noDataAvailable').show();
             }
         },
         error: function(jxhr) {
             $('#gitImpLoader').hide();
+            $('#gitImportTable').hide();
             console.log(jxhr);
             var msg = "Unable to Fetch GitRepo please try again later";
             if (jxhr.responseJSON && jxhr.responseJSON.message) {
