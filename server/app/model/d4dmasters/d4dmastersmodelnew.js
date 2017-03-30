@@ -1643,7 +1643,12 @@ var d4dMastersRemoteBotServer = new mongoose.Schema({
         required: true,
         trim: true,
     },
-    hostCredentialType: {
+    hostPort: {
+        type: String,
+        required: true,
+        trim: true,
+    },
+   /* hostCredentialType: {
         type: String,
         required: false,
         trim: true
@@ -1662,7 +1667,7 @@ var d4dMastersRemoteBotServer = new mongoose.Schema({
         type: String,
         required: false,
         trim: true
-    },
+    },*/
     active: {
         type: Boolean,
         trim: true,
