@@ -341,7 +341,7 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                     logger.error("Failed to create or update instanceLog: ", err);
                                 }
                             });
-                            var botLogFile = appConfig.botLogDir + launchParams.actionId;
+                            var botLogFile = appConfig.botLogDir + launchParams.actionLogId;
                             var fileName = 'BB_Execution.log';
                             var winston = require('winston');
                             var path = require('path');

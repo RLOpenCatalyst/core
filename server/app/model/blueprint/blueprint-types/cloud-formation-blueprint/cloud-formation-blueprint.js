@@ -452,7 +452,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                             },
                                                             cloudFormationId: cloudFormation._id
                                                         };
-                                                        var botLogFile = appConfig.botLogDir + launchParams.actionId;
+                                                        var botLogFile = appConfig.botLogDir + launchParams.actionLogId;
                                                         var fileName = 'BB_Execution.log';
                                                         var winston = require('winston');
                                                         var path = require('path');
