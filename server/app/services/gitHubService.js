@@ -442,7 +442,7 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
                                     for(var i=1;i<data.length;i++){
                                         botsDetails.push(data[i].id);
                                     }
-                                    gitHubTempModel.gitFilesdelete(gitHubId, function(err){
+                                    gitHubTempModel.gitFilesdelete(gitHubDetails._id, function(err){
                                         if(err){
                                             callback(err,null)
                                             logger.error("Error in clearing GIT-Hub data.", err);
@@ -524,7 +524,7 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
                             });
                             var botsDetails = [];
                             if(result.length){
-                                gitHubTempModel.gitFilesdelete(gitHubId, function(err){
+                                gitHubTempModel.gitFilesdelete(gitHubDetails._id, function(err){
                                     if(err){
                                         callback(err,null)
                                         logger.error("Error in clearing GIT-Hub data.", err);
