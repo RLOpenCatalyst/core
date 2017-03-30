@@ -442,12 +442,13 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
                                     for(var i=1;i<data.length;i++){
                                         botsDetails.push(data[i].id);
                                     }
-                                    gitHubTempModel.gitFilesdelete(gitHubDetails._id, function(err){
+                                    /*gitHubTempModel.gitFilesdelete(gitHubDetails._id, function(err){
                                         if(err){
                                             callback(err,null)
                                             logger.error("Error in clearing GIT-Hub data.", err);
                                         }
-                                    });
+                                    });*/
+                                    console.log('narayan>>>',data);
                                     callback(null, {botsDetails:botsDetails});
                                     logger.debug("Git Hub Sync is Done.");
                                 }
