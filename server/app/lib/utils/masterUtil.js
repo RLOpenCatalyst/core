@@ -716,6 +716,21 @@ var MasterUtil = function () {
 
         });
     }
+
+    this.getBotRemoteServerDetailByOrgId = function(orgId, callback) {
+        d4dModelNew.d4dModelMastersBOTsRemoteServer.findOne({
+            orgname_rowid: orgId
+        }, function(err, remoteServerDetails) {
+            if (err){
+                logger.error(err);
+                callback(err, null);
+                return;
+            }else{
+                callback(null,remoteServerDetails);
+                return;
+            }
+        });
+    }
     
     this.getJira = function(orgList, callback) {
         var jiraList = [];

@@ -37,11 +37,11 @@ var noticeService = require('_pr/services/noticeService.js');
 
 const errorType = 'chefExecutor';
 
-var pythonHost =  process.env.FORMAT_HOST || 'localhost';
-var pythonPort =  process.env.FORMAT_PORT || '2687';
+//var pythonHost =  process.env.FORMAT_HOST || 'localhost';
+//var pythonPort =  process.env.FORMAT_PORT || '2687';
 var chefExecutor = module.exports = {};
 
-chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executionType,callback) {
+chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executionType,botHostDetails,callback) {
     if(botsDetails.params.nodeIds && botsDetails.params.nodeIds.length > 0){
         var actionLogId = uuid.v4();
         var parallelChefExecuteList =[];
@@ -59,7 +59,7 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
                             log: 'BOTs execution started for Chef ' + botsDetails.id,
                             timestamp: new Date().getTime()
                         });
-                        parallelChefExecuteList.push(function(callback){executeChefOnRemote(instances[0],botsDetails,actionLogId,userName,callback);});
+                        parallelChefExecuteList.push(function(callback){executeChefOnRemote(instances[0],botsDetails,actionLogId,userName,botHostDetails,callback);});
                         if(parallelChefExecuteList.length === botsDetails.params.nodeIds.length){
                             var botAuditTrailObj = {
                                 botId: botsDetails._id,
@@ -106,7 +106,7 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
             })(botsDetails.params.nodeIds[i])
         }
     }else{
-        executeChefOnLocal(botsDetails,auditTrail,executionType,function(err,data){
+        executeChefOnLocal(botsDetails,auditTrail,userName,botHostDetails,function(err,data){
             if(err){
                 logger.error(err);
                 callback(err,null);
@@ -119,7 +119,7 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
     }
 }
 
-function executeChefOnLocal(botsChefDetails,auditTrail,userName,callback) {
+function executeChefOnLocal(botsChefDetails,auditTrail,userName,botHostDetails,callback) {
     var actionId = uuid.v4();
     var logsReferenceIds = [botsChefDetails._id, actionId];
     logsDao.insertLog({
@@ -133,7 +133,7 @@ function executeChefOnLocal(botsChefDetails,auditTrail,userName,callback) {
         actionId: actionId
     }
     callback(null, botAuditTrailObj);
-    var serverUrl = "http://" + pythonHost + ':' + pythonPort;
+    var serverUrl = "http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort;
     var reqData = {
         runlist :[],
         attributes:null,
@@ -149,7 +149,7 @@ function executeChefOnLocal(botsChefDetails,auditTrail,userName,callback) {
         "data": reqData
     };
     var supertest = require("supertest");
-    var server = supertest.agent("http://" + pythonHost + ':' + pythonPort);
+    var server = supertest.agent("http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort);
     var executorUrl = '/bot/' + botsChefDetails.id + '/exec';
     server
         .post(executorUrl)
@@ -273,7 +273,7 @@ function executeChefOnLocal(botsChefDetails,auditTrail,userName,callback) {
 };
 
 
-function executeChefOnRemote(instance,botDetails,actionLogId,userName,callback) {
+function executeChefOnRemote(instance,botDetails,actionLogId,userName,botHostDetails,callback) {
     var timestampStarted = new Date().getTime();
     var actionLog = instanceModel.insertOrchestrationActionLog(instance._id, null, userName, timestampStarted);
     instance.tempActionLogId = actionLog._id;
@@ -359,7 +359,7 @@ function executeChefOnRemote(instance,botDetails,actionLogId,userName,callback) 
             timestamp: new Date().getTime()
         });
         var supertest = require("supertest");
-        var server = supertest.agent("http://" + pythonHost + ':' + pythonPort);
+        var server = supertest.agent("http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort);
         var reqData = {
             runlist :[],
             attributes:null,
@@ -417,7 +417,7 @@ function executeChefOnRemote(instance,botDetails,actionLogId,userName,callback) 
                     return;
                 } else {
                     var every = require('every-moment');
-                    var serverUrl = "http://" + pythonHost + ':' + pythonPort;
+                    var serverUrl = "http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort;
                     var timer = every(10, 'seconds', function () {
                         schedulerService.getExecutorAuditTrailDetails(serverUrl + res.body.link, function (err, result) {
                             if (err) {
