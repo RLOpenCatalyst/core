@@ -750,7 +750,8 @@ var MasterUtil = function () {
 
     this.getBotRemoteServerDetailByOrgId = function(orgId, callback) {
         d4dModelNew.d4dModelMastersBOTsRemoteServer.findOne({
-            orgname_rowid: orgId
+            orgname_rowid: orgId,
+            id:'32'
         }, function(err, remoteServerDetails) {
             if (err){
                 logger.error(err);

@@ -121,6 +121,7 @@ scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,execut
 
 
 function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetails,callback) {
+    console.log(botHostDetails);
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var actionId = uuid.v4();
