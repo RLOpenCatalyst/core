@@ -52,7 +52,8 @@
             }
         };
 
-        if($rootScope.organObject) {
+        if($rootScope.organObject && $rootScope.organObject[0].businessGroups &&  $rootScope.organObject[0].businessGroups.length > 0
+            && $rootScope.organObject[0].businessGroups[0].projects && $rootScope.organObject[0].businessGroups[0].projects.length >0) {
             $scope.IMGNewEnt={
                 org:$rootScope.organObject[0],
                 buss:$rootScope.organObject[0].businessGroups[0],
