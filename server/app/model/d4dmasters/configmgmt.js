@@ -1182,6 +1182,33 @@ function Configmgmt() {
         });
     };
 
+    this.deactivateBotEngine = function(orgid, action, callback) {
+        logger.debug("Orgid:" + orgid + ' action: ' + action);
+        d4dModelNew.d4dModelMastersGeneric.update({
+            $or: [{
+                orgname_rowid: orgid
+            }, {
+                rowid: orgid
+            }]
+        }, {
+            $set: {
+                active: action
+            }
+        }, {
+            upsert: false,
+            multi: true
+        }, function(err, data) {
+            if (err) {
+                logger.debug(err);
+                callback(err, null);
+                return;
+            }
+            logger.debug('Deactivated ' + orgid + ' in masters. Count: ' + data);
+            callback(null, "done");
+            return;
+        });
+    };
+
     this.deleteCheck = function(rowId,checkDependency, callback) {
         if(checkDependency.length > 0) {
             var results = [];

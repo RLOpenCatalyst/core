@@ -30,6 +30,7 @@
         $scope.paginationParams.sortBy = 'lastRunTime';
         $scope.paginationParams.sortOrder = 'desc';
         $scope.botLibrarySearch = '';
+        $scope.showOriginalSpinner = true;
         $scope.showLoadRecord = function() {
             $scope.showLoadMore = false;
             $scope.showRecords = false;
@@ -320,9 +321,9 @@
         };
 
         $scope.botSync = function(botsDetails) {
-            console.log(botsDetails);
+            $scope.activeClass = botsDetails;
             botsCreateService.syncIndividualBot(botsDetails.gitHubId,botsDetails.id).then(function(response){
-                console.log(response);
+                $scope.activeClass = {};
             });
         };
         

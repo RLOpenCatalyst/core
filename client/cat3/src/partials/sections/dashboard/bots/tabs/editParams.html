@@ -54,7 +54,7 @@
 			                </select>
 				        </span>
 				        <span ng-if="botType === 'blueprints'" class="margintop8">    
-			                <select name="proj" class="dropdownSelect chooseProjectExisting form-control" ng-model="IMGNewEnt.blueprintType" ng-change="getBlueprintList();">
+			                <select name="proj" class="dropdownSelect chooseProjectExisting form-control" ng-model="IMGNewEnt.blueprintType" disabled ng-change="getBlueprintList();">
 			                    <option value="chef">SoftwareStack </option>
 			                    <option value="ami">OSImage </option>
 			                    <option value="cft">Cloud Formation </option>
