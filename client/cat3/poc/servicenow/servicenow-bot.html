@@ -33,6 +33,7 @@
               }
              }).then(function(response) {
               crtl.BOTData =  response.data;
+            crtl.type=response.data.bots[0].type;
               angular.forEach(response.data.bots[0].inputFormFields,function (val) {
                   crtl.newEnt[val.name]=val.default;
               });
@@ -44,7 +45,10 @@
                 method: 'POST',
                 // url:"http://d4d.rlcatalyst.com/botsNew?filterBy=id:rlcatalyst_org_creation",
                 url:'../../../botsNew/' + crtl.auth.BotName.split(":")[1] + '/execute',
-                data:crtl.newEnt,
+                data:{
+                      "data":crtl.newEnt,
+                      "type":crtl.type
+                    },
                 headers: {
                     // 'x-catalyst-auth': '855a95b6-9670-4f40-96c0-2d6e089d07b7',
                     'x-catalyst-auth': crtl.auth.Token,
