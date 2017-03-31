@@ -49,7 +49,7 @@
         };
         $scope.initGrids();
 
-        var gridBottomSpace = 80;
+        var gridBottomSpace = 70;
         $scope.gridHeight = workzoneUIUtils.makeTabScrollable('botAuditTrailPage') - gridBottomSpace;
         
         //for server side(external) pagination.
