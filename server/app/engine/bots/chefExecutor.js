@@ -216,6 +216,12 @@ function executeChefOnLocal(botsChefDetails,auditTrail,userName,botHostDetails,c
                                     logger.error("Failed to create or update bots Log: ", err);
                                 }
                                 logger.debug("BOTs Execution Done");
+                                var botService = require('_pr/services/botsService');
+                                botService.updateSavedTimePerBots(botsChefDetails._id,'BOTsNew',function(err,data){
+                                    if (err) {
+                                        logger.error("Failed to update bots saved Time: ", err);
+                                    }
+                                });
                                 timer.stop();
                                 noticeService.notice(userName, {
                                     title: "BOTs Execution",
@@ -481,6 +487,12 @@ function executeChefOnRemote(instance,botDetails,actionLogId,userName,botHostDet
                                     }
                                 });
                                 timer.stop();
+                                var botService = require('_pr/services/botsService');
+                                botService.updateSavedTimePerBots(botDetails._id,'BOTsNew',function(err,data){
+                                    if (err) {
+                                        logger.error("Failed to update bots saved Time: ", err);
+                                    }
+                                });
                                 noticeService.notice(userName, {
                                     title: "BOTs Execution",
                                     body: result.status.text

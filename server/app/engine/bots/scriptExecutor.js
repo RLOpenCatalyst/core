@@ -121,7 +121,6 @@ scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,execut
 
 
 function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetails,callback) {
-    console.log(botHostDetails);
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var actionId = uuid.v4();
@@ -223,6 +222,12 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
                                 }
                                 logger.debug("BOTs Execution Done");
                                 timer.stop();
+                                var botService = require('_pr/services/botsService');
+                                botService.updateSavedTimePerBots(botsScriptDetails._id,'BOTsNew',function(err,data){
+                                    if (err) {
+                                        logger.error("Failed to update bots saved Time: ", err);
+                                    }
+                                });
                                 noticeService.notice(userName,{
                                     title: "BOTs Execution",
                                     body: result.status.text
@@ -497,6 +502,12 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,botHostD
                                     }
                                 });
                                 timer.stop();
+                                var botService = require('_pr/services/botsService');
+                                botService.updateSavedTimePerBots(botDetails._id,'BOTsNew',function(err,data){
+                                    if (err) {
+                                        logger.error("Failed to update bots saved Time: ", err);
+                                    }
+                                });
                                 if (decryptedCredentials.pemFileLocation){
                                     removeScriptFile(decryptedCredentials.pemFileLocation);
                                 }

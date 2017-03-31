@@ -29,6 +29,7 @@ var chefExecutor = require('_pr/engine/bots/chefExecutor.js');
 var blueprintExecutor = require('_pr/engine/bots/blueprintExecutor.js');
 var fileIo = require('_pr/lib/utils/fileio');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
+var uuid = require('node-uuid');
 
 
 const fileHound= require('filehound');
@@ -39,94 +40,94 @@ const errorType = 'botsNewService';
 
 var botsNewService = module.exports = {};
 
-botsNewService.createNew = function createNew(reqBody,callback){
-    yamlJs.load(reqBody.files.file.path, function(result) {
-        if(result !== null){
-            fileUpload.uploadFile(reqBody.files.file.originalFilename,reqBody.files.file.path,null,function(err,ymlDocFileId){
-                if(err){
-                    logger.error("Error in uploading yaml documents.",err);
-                    callback(err,null);
-                    removeScriptFile(reqBody.files.file.path);
-                    return;
-                }else{
-                    var paramObj = {};
-                    if(reqBody.type ==='chef'){
-                        paramObj = {
-                            name: reqBody.name,
-                            desc: reqBody.desc,
-                            data: {
-                                runlist: reqBody.runlist,
-                                attributes: reqBody.attributes
-                            }
-                        }
-                    }else if(reqBody.type ==='blueprints'){
-                        paramObj = {
-                            name: reqBody.name,
-                            desc: reqBody.desc
-                        }
-                    }else if(reqBody.type ==='script'){
-                        paramObj = {
-                            name: reqBody.name,
-                            desc: reqBody.desc,
-                            scriptId: reqBody.scriptId,
-                            data: reqBody.params
-                        }
-                    }else if(reqBody.type ==='jenkins'){
-                        paramObj = {
-                            name: reqBody.name,
-                            desc: reqBody.desc,
-                            jenkinsServerId: reqBody.jenkinsServerId,
-                            jenkinsBuildName: reqBody.jenkinsBuildName,
-                            data: reqBody.params
-                        }
-                    }else{
-                        paramObj = paramObj;
-                    }
-                    var botsObj={
-                        ymlJson:result,
-                        name:result.name,
-                        id:result.id,
-                        desc:result.desc,
-                        category:result.botCategory?result.botCategory:result.functionality,
-                        action:result.action,
-                        execution:result.execution,
-                        type:reqBody.type,
-                        subType:reqBody.subType,
-                        inputFormFields:result.input[0].form,
-                        outputOptions:result.output,
-                        ymlDocFileId:ymlDocFileId,
-                        orgId:reqBody.orgId,
-                        orgName:reqBody.orgName,
-                        manualExecutionTime:reqBody.standardTime,
-                        params:paramObj,
-                        source:"Catalyst"
-                    }
-                    botsDao.createNew(botsObj,function(err,data) {
-                        if (err) {
-                            logger.error(err);
-                            callback(err,null);
-                            removeScriptFile(reqBody.files.file.path);
-                            return;
-                        }else{
-                            callback(null,data);
-                            removeScriptFile(reqBody.files.file.path);
-                            return;
-                        }
-                    });
-
-                }
-            })
-        }else{
-            var err = new Error();
-            err.code= 400;
-            err.msg="Ingternal Server Error";
-            callback(err,null);
-            removeScriptFile(reqBody.files.file.path);
+botsNewService.createNew = function createNew(reqBody,callback) {
+    fileUpload.getReadStreamFileByFileId(reqBody.fileId, function (err, fileDetail) {
+        if (err) {
+            logger.error("Error in reading YAML File.");
+            callback(err, null);
             return;
+        } else {
+            var fileName = uuid.v4() + '_' + fileDetail.fileName;
+            var desPath = appConfig.scriptDir + fileName;
+            fileIo.writeFile(desPath, fileDetail.fileData, false, function (err) {
+                if (err) {
+                    logger.error("Unable to write file");
+                    callback(err, null);
+                    return;
+                } else {
+                    yamlJs.load(desPath, function (result) {
+                        if (result !== null) {
+                            var paramObj = {};
+                            if (reqBody.type === 'chef') {
+                                paramObj = {
+                                    name: reqBody.name,
+                                    desc: reqBody.desc,
+                                    data: {
+                                        runlist: reqBody.runlist,
+                                        attributes: reqBody.attributes
+                                    }
+                                }
+                            } else if (reqBody.type === 'blueprints') {
+                                paramObj = {
+                                    name: reqBody.name,
+                                    desc: reqBody.desc
+                                }
+                            } else if (reqBody.type === 'script') {
+                                paramObj = {
+                                    name: reqBody.name,
+                                    desc: reqBody.desc,
+                                    scriptId: reqBody.scriptId,
+                                    data: reqBody.params
+                                }
+                            } else if (reqBody.type === 'jenkins') {
+                                paramObj = {
+                                    name: reqBody.name,
+                                    desc: reqBody.desc,
+                                    jenkinsServerId: reqBody.jenkinsServerId,
+                                    jenkinsBuildName: reqBody.jenkinsBuildName,
+                                    data: reqBody.params
+                                }
+                            } else {
+                                paramObj = paramObj;
+                            }
+                            var botsObj = {
+                                ymlJson: result,
+                                name: result.name,
+                                id: result.id,
+                                desc: result.desc,
+                                category: reqBody.category,
+                                action: result.action,
+                                execution: result.execution,
+                                type: reqBody.type,
+                                subType: reqBody.subType,
+                                inputFormFields: result.input[0].form,
+                                outputOptions: result.output,
+                                ymlDocFileId: reqBody.fileId,
+                                orgId: reqBody.orgId,
+                                orgName: reqBody.orgName,
+                                manualExecutionTime: reqBody.standardTime,
+                                params: paramObj,
+                                source: "Catalyst"
+                            }
+                            botsDao.createNew(botsObj, function (err, data) {
+                                if (err) {
+                                    logger.error(err);
+                                    callback(err, null);
+                                    removeScriptFile(desPath);
+                                    return;
+                                } else {
+                                    callback(null, data);
+                                    removeScriptFile(desPath);
+                                    return;
+                                }
+                            });
+
+                        }
+                    })
+                }
+            });
         }
     });
-
-
 }
 
 botsNewService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,callback) {
@@ -523,6 +524,7 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                                     category:result.botCategory?result.botCategory:result.functionality,
                                                     action:result.action,
                                                     execution:result.execution?result.execution:[],
+                                                    manualExecutionTime:result.standardTime?result.standardTime:10,
                                                     type:result.type,
                                                     subType:result.subtype,
                                                     inputFormFields:result.input[0].form,
@@ -733,7 +735,6 @@ function addYmlFileDetailsForBots(bots,reqData,callback){
                         subType: bot.subType,
                         inputFormFields: bot.inputFormFields,
                         outputOptions: bot.outputOptions,
-                        ymlDocFilePath: bot.ymlDocFilePath,
                         ymlDocFileId: bot.ymlDocFileId,
                         orgId: bot.orgId,
                         subType: bot.subType,
@@ -746,7 +747,8 @@ function addYmlFileDetailsForBots(bots,reqData,callback){
                         scheduler: bot.scheduler,
                         createdOn: bot.createdOn,
                         lastRunTime: bot.lastRunTime,
-                        savedTime: bot.savedTime
+                        savedTime: bot.savedTime,
+                        source:bot.source
                     }
                     botsList.push(botsObj);
                     if (botsList.length === bots.docs.length) {
