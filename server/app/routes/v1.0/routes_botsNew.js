@@ -84,6 +84,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
     app.post('/botsNew',function(req,res){
+        console.log(JSON.stringify(req.body));
+        return;
         botsNewService.createNew(req.body, function(err,data){
             if (err) {
                 return res.status(500).send(err);
@@ -112,10 +114,11 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 permissionTo: "execute",
                 permissionSet: req.session.user.permissionset,
                 envId: req.body.envId,
-                monitorId: req.body.monitorId,
-                domainName: req.body.domainName,
-                stackName: req.body.stackName,
-                version: req.body.version,
+                blueprintIds: req.body.blueprintIds,
+                monitorId: req.body.monitorId?req.body.monitorId:null,
+                domainName: req.body.domainName?req.body.domainName:null,
+                stackName: req.body.stackName?req.body.stackName:null,
+                version: req.body.version?req.body.version:"0.1",
                 tagServer: req.body.tagServer
             }
         }else{

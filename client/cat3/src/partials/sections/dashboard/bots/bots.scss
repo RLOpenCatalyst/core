@@ -16,6 +16,10 @@
   margin-left: -15px;
 }
 
+.marginleft-12 {
+  margin-left: -12px;
+}
+
 .marginleft-18 {
   margin-left: -18px!important;
 }
@@ -26,6 +30,10 @@
 
 .marginleft10 {
   margin-left:10px
+}
+
+.marginleft4 {
+  margin-left: 4px;
 }
 
 .marginleft20 {
@@ -40,6 +48,10 @@
   margin-bottom: 15px;
 }
 
+.marginright29 {
+  margin-right: 29px;
+}
+
 .paddingbottom10 {
   padding-bottom: 10px;
 }
@@ -50,10 +62,6 @@
 
 .paddingbottom20 {
   padding-bottom: 20px;
-}
-
-.margintop8 {
-  margin-top: 8px;
 }
 
 .margintop6 {
@@ -154,8 +162,8 @@
 
   .section-bottom-glyph {
     position: absolute;
-    top: 141px; /*140*/
-    left: 118px; /*97*/
+    top: 117px; /*140*/
+    left: 125px; /*97*/
     font-size: 22px;
     display: none;
   }
@@ -212,7 +220,7 @@
   }
 
   .green-glyph {
-    color: #00a65a;
+    color: #66bb6a;
   }
 
   .green {
@@ -228,7 +236,7 @@
   }
 
   .redcard-glyph {
-    color: #e74c3c;
+    color: #ef5350;
   }
 
   .bg-blue {
@@ -511,8 +519,9 @@
 }
 
 body {
-  background : rgba(0, 0, 0, 0.04);
+ /* background : rgba(0, 0, 0, 0.04);*/
   /*background:#F7F7F7;ecf0f5*/
+  background: #F7F7F7;
 }
 
 
@@ -759,7 +768,7 @@ body .botDescriptionPage {
 
 .scriptExecution {
   overflow-y: auto!important;
-  height: 296px;
+  margin-top: 10px;
 }
 
 .width100 {
@@ -768,7 +777,6 @@ body .botDescriptionPage {
 
 .chefExecution {
   overflow-y: auto!important;
-  height:300px;
 }
 
 .btnDescription {
@@ -846,13 +854,8 @@ body .botDescriptionPage {
     .btnDescription {
       padding:4px 10px;font-size:13px;margin-right:42px;
     }
-    .chefExecution {
-      overflow-y: auto!important;
-      height:500px;
-    }
-    .scriptExecution {
-      overflow-y: auto!important;
-      height: 500px;
+    .marginright14 {
+        margin-right: 14px;
     }
 }
 
@@ -938,4 +941,15 @@ body .botDescriptionPage {
   margin-top: 5px;
   margin-bottom: 10px;
   padding: 5px;
+}
+
+.margintop-2 {
+  margin-top: -2px;
+}
+
+.dropdownSelect{
+    font-size: 11px !important;
+    height: 28px !important;
+    display: inline !important;
+    width: 19% !important;
 }

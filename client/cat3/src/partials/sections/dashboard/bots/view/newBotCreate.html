@@ -1,17 +1,17 @@
-<div id='newBotPage' class="marginLeftRight10 scheduleBorder margintop15 backColor">
+<div id='newBotPage' class="container scheduleBorder margintop15 backColor">
    <form name="newBotForm" novalidate ng-submit="newBotForm.$valid && ok()">
       <div class="page-name">
          <span class="marginleft-18">Create {{botTypes[botType].name}} BOT</span>
-         <button type="button" title="Bots List" class="btn cat-btn-update btn-primary pull-right btnDescription" ui-sref="dashboard.bots.library">
+         <!-- <button type="button" title="Bots List" class="btn cat-btn-update btn-primary pull-right btnDescription" ui-sref="dashboard.bots.library">
          <i class="fa fa-chevron-left" style="color: #fff"></i><span style="margin-left:5px;">Back</span>
-         </button>
+         </button> -->
       </div>
       <div class="borderTop"></div>
       <loading name="isNewBotPageLoading" size="large" type="block" align="center"></loading>
       <div class="row new-task-wrapper" ng-show="!isNewBotPageLoading">
          <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 border no-padding">
             <div class="jobDetailsContent">
-               <div class="col-md-4 col-sm-4 col-xs-6 margintop15">
+               <div class="col-md-6 col-sm-6 col-xs-6 margintop15">
                   <label class="control-label botsLabel">Bot Type
                   <span class="control-label red">&nbsp;*</span>
                   <span ng-show="newBotForm.botType.$touched && newBotForm.botType.$invalid" class="inputValidationMsg">Required
@@ -20,10 +20,10 @@
                   <select name="botType" class="form-control" ng-model="botType" required>
                      <option selected="selected" value="chef">{{botTypes['chef'].name}}</option>
                      <option ng-show="!createChefJob" value="blueprint">{{botTypes['blueprint'].name}}</option>
-                     <option ng-show="!createChefJob" value="script">{{botTypes['script'].name}}</option>
+                     <!-- <option ng-show="!createChefJob" value="script">{{botTypes['script'].name}}</option> -->
                   </select>
                </div>
-               <div class="col-md-4 col-sm-4 col-xs-6 margintop15">
+               <div class="col-md-6 col-sm-6 col-xs-6 margintop15">
                   <label class="control-label botsLabel">Bot Name
                   <span class="control-label red">&nbsp;*</span>
                   <span ng-show="newBotForm.botName.$touched && newBotForm.botName.$invalid" class="inputValidationMsg">Required
@@ -32,7 +32,7 @@
                   <br />
                   <input type="text" name="botName" class="form-control" required autofocus ng-model="botName" maxlength="50" />
                </div>
-               <div class="col-lg-4 col-md-4 col-sm-4 col-xs-6 margintop15">
+               <div class="col-lg-6 col-md-6 col-sm-4 col-xs-6 margintop15">
                   <label class="control-label botsLabel">Short Description
                   <span class="control-label red">&nbsp;*</span>
                   <span ng-show="newBotForm.botDesc.$touched && newBotForm.botDesc.$invalid" class="inputValidationMsg">Required
@@ -41,7 +41,7 @@
                   <br />
                   <input type="text" name="botDesc" class="form-control" ng-required="checkBotStatus"  autofocus ng-model="botDesc" maxlength="50" />
                </div>
-               <div class="col-lg-4 col-md-4 col-sm-3 col-xs-6 margintop15">
+               <div class="col-lg-6 col-md-6 col-sm-3 col-xs-6 margintop15">
                   <label class="control-label botsLabel">Standard Time(mins)
                   <span class="control-label red">&nbsp;*</span>
                   <span ng-show="newBotForm.manualExecutionTime.$touched && newBotForm.manualExecutionTime.$invalid" class="inputValidationMsg">Required
@@ -50,7 +50,7 @@
                   <br/>
                   <input type="text" name="manualExecutionTime" class="form-control" ng-required="checkBotStatus" autofocus ng-model="manualExecutionTime" maxlength="10" />
                </div>
-               <div class="col-lg-4 col-md-4 authPemFile margintop15">
+               <div class="col-lg-6 col-md-6 authPemFile margintop15">
                   <label for="autenticationYAMLfile" class="botsLabel">YAML File
                   <span class="control-label red">&nbsp;*</span>
                   <span ng-show="newBotForm.autenticationYAMLfile.$touched && newBotForm.autenticationYAMLfile.$error.required" class="inputValidationMsg">Required
@@ -60,7 +60,7 @@
                      <input type="file" name="autenticationYAMLfile" class="form-control form-controls" ngf-select="" ng-model="$parent.yamlfile" name="file" accept=".yaml" required="">
                   </div>
                </div>
-               <div ng-if="botType==='chef'" class="col-lg-4 col-md-4 col-sm-4 col-xs-12 margintop15">
+               <div ng-if="botType==='chef'" class="col-lg-6 col-md-6 col-sm-4 col-xs-12 margintop15">
                   <label class="control-label botsLabel">Select Runlist</label>
                   <span class="cursor pull-right">
                   <i class="fa fa-plus-circle cursor" title="Add Runlist" ng-click="updateCookbook()"></i>
@@ -84,7 +84,7 @@
                <!--commented will be used in future-->
                <!--job execution details-->
                <!--job execution details ends here-->
-               <div ng-if="botType==='script'" class="col-md-4 col-sm-4 col-xs-12 margintop15">
+               <div ng-if="botType==='script'" class="col-md-6 col-sm-6 col-xs-12 margintop15">
                   <label class="control-label botsLabel">Script Type
                   <span class="control-label red">&nbsp;*</span>
                   <span ng-show="newBotForm.scriptType.$touched && newBotForm.scriptType.$invalid" class="inputValidationMsg">Required
@@ -165,7 +165,7 @@
          <button type="button" class="btn cat-btn-cancel margintop10" ui-sref="dashboard.bots.library">
          <i class="fa fa-times black"></i> Cancel
          </button>
-         <button  type="submit" class="btn cat-btn-update margintop10" ng-disabled="newBotForm.$invalid" ng-click="postCreateBots()">
+         <button  type="submit" class="btn cat-btn-update margintop10 marginleft10" ng-disabled="newBotForm.$invalid" ng-click="postCreateBots()">
          <i class="fa fa-check white"></i> Save
          </button>
       </div>

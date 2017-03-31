@@ -247,7 +247,7 @@ $('#cicdDashboardServerTable tbody').on( 'click', 'button.editcicdDashboardServe
     $editModal.modal('show');
 
     $editModal.find('h4.modal-title').html('Edit CICD Dashboard Server &nbsp;-&nbsp;&nbsp;' + $this.parents('tr').attr('dashboardName'));
-    $editModal.find('#dashboardName').val($this.parents('tr').attr('dashboardName')).attr('disabled','true');
+    $editModal.find('#dashboardName').val($this.parents('tr').attr('dashboardName'));//.attr('disabled','true')
     $editModal.find('#dashboardDesc').val($this.parents('tr').attr('dashboardDesc'));
 
     //setting the saved values into the selects

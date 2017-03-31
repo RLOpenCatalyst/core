@@ -37,11 +37,11 @@ var fileIo = require('_pr/lib/utils/fileio');
 
 const errorType = 'scriptExecutor';
 
-var pythonHost =  process.env.FORMAT_HOST || 'localhost';
-var pythonPort =  process.env.FORMAT_PORT || '2687';
+//var pythonHost =  process.env.FORMAT_HOST || 'localhost';
+//var pythonPort =  process.env.FORMAT_PORT || '2687';
 var scriptExecutor = module.exports = {};
 
-scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,executionType,callback) {
+scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,executionType,botHostDetails,callback) {
     if(botsDetails.params.nodeIds && botsDetails.params.nodeIds.length > 0){
         var actionLogId = uuid.v4();
         var parallelScriptExecuteList =[];
@@ -59,7 +59,7 @@ scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,execut
                             log: 'BOTs execution started for script ' + botsDetails.id,
                             timestamp: new Date().getTime()
                         });
-                        parallelScriptExecuteList.push(function(callback){executeScriptOnRemote(instances[0],botsDetails,actionLogId,userName,callback);});
+                        parallelScriptExecuteList.push(function(callback){executeScriptOnRemote(instances[0],botsDetails,actionLogId,userName,botHostDetails,callback);});
                         if(parallelScriptExecuteList.length === botsDetails.params.nodeIds.length){
                             var botAuditTrailObj = {
                                 botId: botsDetails._id,
@@ -106,7 +106,7 @@ scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,execut
             })(botsDetails.params.nodeIds[i])
         }
     }else{
-        executeScriptOnLocal(botsDetails,auditTrail,executionType,function(err,data){
+        executeScriptOnLocal(botsDetails,auditTrail,userName,botHostDetails,function(err,data){
             if(err){
                 logger.error(err);
                 callback(err,null);
@@ -120,7 +120,8 @@ scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,execut
 }
 
 
-function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,callback) {
+function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetails,callback) {
+    console.log(botHostDetails);
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var actionId = uuid.v4();
@@ -140,6 +141,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,callback) {
     if (botsScriptDetails.params.data) {
         Object.keys(botsScriptDetails.params.data).forEach(function (key) {
             var decryptedText = cryptography.decryptText(botsScriptDetails.params.data[key], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
+            var text1=cryptography.decryptText("HJrM21EgefCLMx7lUxxRSA==", cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
             replaceTextObj[key] = decryptedText;
         });
     } else {
@@ -147,12 +149,12 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,callback) {
             replaceTextObj[botsScriptDetails.inputFormFields[j].name] = botsScriptDetails.inputFormFields[j].default;
         }
     }
-    var serverUrl = "http://" + pythonHost + ':' + pythonPort;
+    var serverUrl = "http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort;
     var reqBody = {
         "data": replaceTextObj
     };
     var supertest = require("supertest");
-    var server = supertest.agent("http://" + pythonHost + ':' + pythonPort);
+    var server = supertest.agent("http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort);
     var executorUrl = '/bot/' + botsScriptDetails.id + '/exec';
     server
         .post(executorUrl)
@@ -186,7 +188,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,callback) {
                                     {
                                         title: "BOTs Execution",
                                         body: "Error in Fetching Audit Trails"
-                                    }, "Error",function(err,data){
+                                    }, "error",function(err,data){
                                     if(err){
                                         logger.error("Error in Notification Service, ",err);
                                     }
@@ -224,7 +226,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,callback) {
                                 noticeService.notice(userName,{
                                     title: "BOTs Execution",
                                     body: result.status.text
-                                }, "Success",function(err,data){
+                                }, "success",function(err,data){
                                     if(err){
                                         logger.error("Error in Notification Service, ",err);
                                     }
@@ -265,7 +267,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,callback) {
                     noticeService.notice(userName, {
                         title: "BOTs Execution",
                         body: "Error in Script executor"
-                    }, "Error",function(err,data){
+                    }, "error",function(err,data){
                         if(err){
                             logger.error("Error in Notification Service, ",err);
                         }
@@ -277,7 +279,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,callback) {
 };
 
 
-function executeScriptOnRemote(instance,botDetails,actionLogId,userName,callback) {
+function executeScriptOnRemote(instance,botDetails,actionLogId,userName,botHostDetails,callback) {
     var timestampStarted = new Date().getTime();
     var actionLog = instanceModel.insertOrchestrationActionLog(instance._id, null, userName, timestampStarted);
     instance.tempActionLogId = actionLog._id;
@@ -301,7 +303,7 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,callback
         createdOn: new Date().getTime(),
         startedOn: new Date().getTime(),
         providerType: instance.providerType,
-        action: "BOTs Chef-Execution",
+        action: "BOTs Script-Execution",
         logs: []
     };
     if (!instance.instanceIP) {
@@ -376,12 +378,12 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,callback
             }
         }
         var supertest = require("supertest");
-        var server = supertest.agent("http://" + pythonHost + ':' + pythonPort);
+        var server = supertest.agent("http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort);
         var reqBody = {
             "data": replaceTextObj,
             "os": instance.hardware.os,
-            "authentication": [authenticationObj],
-            "environment": [envObj]
+            "authentication": authenticationObj,
+            "environment": envObj
         };
         var executorUrl = '/bot/' + botDetails.id + '/exec';
         server
@@ -419,7 +421,7 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,callback
                         {
                             title: "BOTs Execution",
                             body: "Error in Script executor"
-                        }, "Error",function(err,data){
+                        }, "error",function(err,data){
                             if(err){
                                 logger.error("Error in Notification Service, ",err);
                             }
@@ -427,7 +429,7 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,callback
                     return;
                 } else {
                     var every = require('every-moment');
-                    var serverUrl = "http://" + pythonHost + ':' + pythonPort;
+                    var serverUrl = "http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort;
                     var timer = every(10, 'seconds', function () {
                         schedulerService.getExecutorAuditTrailDetails(serverUrl + res.body.link, function (err, result) {
                             if (err) {
@@ -461,7 +463,7 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,callback
                                     {
                                         title: "BOTs Execution",
                                         body: "Error in Fetching Audit Trails"
-                                    }, "Error",function(err,data){
+                                    }, "error",function(err,data){
                                         if(err){
                                             logger.error("Error in Notification Service, ",err);
                                         }
@@ -502,7 +504,7 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,callback
                                 noticeService.notice(userName, {
                                     title: "BOTs Execution",
                                     body: result.status.text
-                                }, "Success",function(err,data){
+                                }, "success",function(err,data){
                                     if(err){
                                         logger.error("Error in Notification Service, ",err);
                                     }

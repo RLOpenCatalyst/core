@@ -12,7 +12,7 @@
         <div class="widget-box">
             <div class="widget-header">
                 <h5 class="widget-title widgetColor">
-                    <strong>List of CICD Dashboard Servers</strong>
+                    <strong>CI CD Servers</strong>
                 </h5>
                 <div class="widget-toolbar no-border">
                     <div>
@@ -30,8 +30,8 @@
                             <thead>
                             <tr class="rowCustomStyle">
                                 <td>Server Name</td>
-                                <td>Catalyst Organization</td>
-                                <td>IP / Location</td>
+                                <td>Organization</td>
+                                <td>Location</td>
                                 <td>DB Host</td>
                                 
                                 <td style="width:180px;">Action</td>
@@ -72,13 +72,13 @@
                         <div class="col-lg-6 col-md-6 col-xs-6 ">
                             <label for="dashboardName">Server Name:<span class="control-label redSpan">&nbsp;*</span></label>
                             <div class="input-groups">
-                                <input type="text" name="dashboardName" autofocus class="required gitName form-control" id="dashboardName">
+                                <input type="text" name="dashboardName" autofocus class="required gitName form-control" id="dashboardName" maxlength="15">
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-6 col-xs-6 ">
                             <label for="dashboardDesc">Description:</label>
                             <div class="input-groups">
-                                <input type="text" name="dashboardDesc" autofocus class="gitDescription form-control" id="dashboardDesc">
+                                <textarea  name="dashboardDesc" autofocus class="gitDescription form-control" id="dashboardDesc"></textarea>
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-6 col-xs-6 margintop15">
@@ -90,26 +90,26 @@
                         <div class="col-lg-6 col-md-6 col-xs-6 margintop15">
                             <label for="dashboardServer">Hostname/IP:Port :<span class="control-label redSpan">&nbsp;*</span></label>
                             <div class="input-groups">
-                            <input type="text" name="dashboardServer" class="required dashboardServer form-control" id="dashboardServer">
+                            <input maxlength="30" type="text" name="dashboardServer" class="required dashboardServer form-control" id="dashboardServer">
                             </div>
                         </div>
 
                         <div class="col-lg-6 col-md-6 col-xs-6 margintop15">
-                            <label for="dashboardServerUserName">Host User Name:<span class="control-label redSpan">&nbsp;*</span></label>
+                            <label for="dashboardServerUserName">CI CD Server User Name:<span class="control-label redSpan">&nbsp;*</span></label>
                             <div class="input-groups">
-                            <input type="text" name="dashboardServerUserName" class="required protocolUser form-control" id="dashboardServerUserName">
+                            <input maxlength="25" type="text" name="dashboardServerUserName" class="required protocolUser form-control" id="dashboardServerUserName">
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-6 col-xs-6 margintop15">
-                            <label for="dashboardServerPassword">Password:<span class="control-label redSpan">&nbsp;*</span></label>
+                            <label for="dashboardServerPassword">CI CD Server Password:<span class="control-label redSpan">&nbsp;*</span></label>
                             <div class="input-groups">
-                            <input type="password" name="dashboardServerPassword" class="required dashboardServerPassword form-control" id="dashboardServerPassword" autocomplete="whatever" >
+                            <input maxlength="25" type="password" name="dashboardServerPassword" class="required dashboardServerPassword form-control" id="dashboardServerPassword" autocomplete="whatever" >
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-6 margintop15">
                             <label for="dashboardDbHostName">RLCatalyst Username:<span class="control-label redSpan">&nbsp;*</span></label>
                             <div class="input-groups">
-                                <input type="text" name="catalystUsername" class="required catalystUsername form-control" id="catalystUsername">
+                                <input maxlength="25" type="text" name="catalystUsername" class="required catalystUsername form-control" id="catalystUsername">
                             </div>
                             
                         </div>
@@ -117,7 +117,7 @@
                         <div class="col-lg-6 col-md-6 col-xs-6 margintop15">
                             <label for="dashboardServerPassword">RLCatalyst Password:<span class="control-label redSpan">&nbsp;*</span></label>
                             <div class="input-groups">
-                            <input type="password" name="catalystPassword" class="required dashboardServerPassword form-control" id="catalystPassword" autocomplete="whatever" >
+                            <input maxlength="25" type="password" name="catalystPassword" class="required dashboardServerPassword form-control" id="catalystPassword" autocomplete="whatever" >
                             </div>
                         </div>
                          
@@ -145,7 +145,7 @@
                         <div class="col-lg-6 col-md-6 margintop15">
                             <label for="dashboardDbHostName">Dashboard DB Hostname:<span class="control-label redSpan">&nbsp;*</span></label>
                             <div class="input-groups">
-                                <input type="text" name="dashboardDbHostName" class="required dashboardDbHostName form-control" id="dashboardDbHostName">
+                                <input maxlength="25" type="text" name="dashboardDbHostName" class="required dashboardDbHostName form-control" id="dashboardDbHostName">
                             </div>
                         </div>                        
                         <input type="hidden" id="cicddashboardServerEditHiddenInputId">

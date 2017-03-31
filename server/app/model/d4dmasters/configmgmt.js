@@ -129,6 +129,10 @@ function Configmgmt() {
                 logger.log('Exting getDBModelFromID ' + id.toString());
                 callback(null, 'd4dModelSonarqubeConfig');
                 break;
+            case "32":
+                logger.log('Exting getDBModelFromID ' + id.toString());
+                callback(null, 'd4dModelMastersBOTsRemoteServer');
+                break;
                 
         }
     };
@@ -223,6 +227,10 @@ function Configmgmt() {
             case "31":
                 logger.log('Exting getDBModelFromID ' + id.toString());
                 return ('sonarqubeserver');
+                break;
+            case "32":
+                logger.log('Exting getDBModelFromID ' + id.toString());
+                return ('botremoteserver');
                 break;
 
         };
@@ -1148,6 +1156,33 @@ function Configmgmt() {
     };
 
     this.deactivateOrg = function(orgid, action, callback) {
+        logger.debug("Orgid:" + orgid + ' action: ' + action);
+        d4dModelNew.d4dModelMastersGeneric.update({
+            $or: [{
+                orgname_rowid: orgid
+            }, {
+                rowid: orgid
+            }]
+        }, {
+            $set: {
+                active: action
+            }
+        }, {
+            upsert: false,
+            multi: true
+        }, function(err, data) {
+            if (err) {
+                logger.debug(err);
+                callback(err, null);
+                return;
+            }
+            logger.debug('Deactivated ' + orgid + ' in masters. Count: ' + data);
+            callback(null, "done");
+            return;
+        });
+    };
+
+    this.deactivateBotEngine = function(orgid, action, callback) {
         logger.debug("Orgid:" + orgid + ' action: ' + action);
         d4dModelNew.d4dModelMastersGeneric.update({
             $or: [{

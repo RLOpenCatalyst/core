@@ -38,6 +38,7 @@ var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var Schema = mongoose.Schema;
 var resourceService = require('_pr/services/resourceService');
 var auditTrailService = require('_pr/services/auditTrailService');
+var noticeService = require('_pr/services/noticeService.js');
 
 var AWSInstanceBlueprintSchema = new Schema({
     keyPairId: {
@@ -281,11 +282,11 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                             logger.debug('Lengths ---- ' + newinstanceIDs.length + '  ' + instancesLength);
                             var timestampStarted = new Date().getTime();
                             var actionLog = instancesDao.insertBootstrapActionLog(instance.id, instance.runlist, launchParams.sessionUser, timestampStarted);
-                            var logsReferenceIds = [instance.id, actionLog._id];
+                            var logsReferenceIds = [instance.id, actionLog._id,launchParams.actionLogId];
 
                             if (launchParams.auditTrailId !== null) {
                                 var resultTaskExecution = {
-                                    "actionLogId": logsReferenceIds[1],
+                                    "actionLogId": launchParams.actionLogId,
                                     "auditTrailConfig.nodeIdsWithActionLog": [{
                                             "actionLogId": logsReferenceIds[1],
                                             "nodeId": logsReferenceIds[0]
@@ -296,7 +297,7 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                     "masterDetails.projectName": launchParams.projectName,
                                     "masterDetails.envName": launchParams.envName
                                 }
-                                auditTrailService.updateAuditTrail('BOTs', launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
                                     if (err) {
                                         logger.error("Failed to create or update bots Log: ", err);
                                     }
@@ -340,7 +341,7 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                     logger.error("Failed to create or update instanceLog: ", err);
                                 }
                             });
-                            var botLogFile = appConfig.botLogDir + launchParams.actionId;
+                            var botLogFile = appConfig.botLogDir + launchParams.actionLogId;
                             var fileName = 'BB_Execution.log';
                             var winston = require('winston');
                             var path = require('path');
@@ -401,9 +402,9 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                             actionStatus: "failed",
                                             status: "failed",
                                             endedOn: new Date().getTime(),
-                                            actionLogId:launchParams.actionId
+                                            actionLogId:launchParams.actionLogId
                                         }
-                                        auditTrailService.updateAuditTrail('BOTs', launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                        auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
                                             if (err) {
                                                 logger.error("Failed to create or update bots Log: ", err);
                                             }
@@ -414,6 +415,14 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                         err: true,
                                         log: "Instance ready state wait failed. Unable to bootstrap",
                                         timestamp: timestamp
+                                    });
+                                    noticeService.notice(launchParams.sessionUser, {
+                                        title: "Blueprint BOTs Execution",
+                                        body: "Instance ready state wait failed. Unable to bootstrap"
+                                    }, "error",function(err,data){
+                                        if(err){
+                                            logger.error("Error in Notification Service, ",err);
+                                        }
                                     });
                                     awsLogger.error("waitForInstanceRunnnigState returned an error  >>", err);
                                     logger.error("waitForInstanceRunnnigState returned an error  >>", err);
@@ -477,9 +486,9 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                 actionStatus: "failed",
                                                 status: "failed",
                                                 endedOn: new Date().getTime(),
-                                                actionLogId:launchParams.actionId
+                                                actionLogId:launchParams.actionLogId
                                             }
-                                            auditTrailService.updateAuditTrail('BOTs', launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                            auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
                                                 if (err) {
                                                     logger.error("Failed to create or update bots Log: ", err);
                                                 }
@@ -491,6 +500,14 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                             err: true,
                                             log: "Instance ok state wait failed. Unable to bootstrap",
                                             timestamp: new Date().getTime()
+                                        });
+                                        noticeService.notice(launchParams.sessionUser, {
+                                            title: "Blueprint BOTs Execution",
+                                            body: "Instance ok state wait failed. Unable to bootstrap"
+                                        }, "error",function(err,data){
+                                            if(err){
+                                                logger.error("Error in Notification Service, ",err);
+                                            }
                                         });
                                         awsLogger.error("Instance ok state wait failed. Unable to bootstrap");
                                         logger.error('intance wait failed ==> ', err);
@@ -532,9 +549,9 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                     actionStatus: "failed",
                                                     status: "failed",
                                                     endedOn: new Date().getTime(),
-                                                    actionLogId:launchParams.actionId
+                                                    actionLogId:launchParams.actionLogId
                                                 }
-                                                auditTrailService.updateAuditTrail('BOTs', launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                                auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
                                                     if (err) {
                                                         logger.error("Failed to create or update bots Log: ", err);
                                                     }
@@ -547,6 +564,14 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                 err: true,
                                                 log: "Unable to decrpt pem file. Bootstrap failed",
                                                 timestamp: timestampEnded
+                                            });
+                                            noticeService.notice(launchParams.sessionUser, {
+                                                title: "Blueprint BOTs Execution",
+                                                body: "Unable to decrpt pem file. Bootstrap failed"
+                                            }, "error",function(err,data){
+                                                if(err){
+                                                    logger.error("Error in Notification Service, ",err);
+                                                }
                                             });
                                             awsLogger.error("Unable to decrpt pem file. Bootstrap failed");
                                             instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
@@ -590,8 +615,6 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                 jsonAttributes: jsonAttributes,
                                                 instancePassword: decryptedCredentials.password
                                             };
-                                            console.log("****************************");
-                                            console.log("params>>>>>>>>",JSON.stringify(bootstrapInstanceParams));
                                             launchParams.infraManager.bootstrapInstance(bootstrapInstanceParams, function (err, code) {
 
                                                 if (decryptedCredentials.pemFileLocation) {
@@ -622,9 +645,9 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                             actionStatus: "failed",
                                                             status: "failed",
                                                             endedOn: new Date().getTime(),
-                                                            actionLogId:launchParams.actionId
+                                                            actionLogId:launchParams.actionLogId
                                                         }
-                                                        auditTrailService.updateAuditTrail('BOTs', launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                                        auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
                                                             if (err) {
                                                                 logger.error("Failed to create or update bot Log: ", err);
                                                             }
@@ -640,6 +663,14 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                         err: true,
                                                         log: "Bootstrap failed",
                                                         timestamp: timestampEnded
+                                                    });
+                                                    noticeService.notice(launchParams.sessionUser, {
+                                                        title: "Blueprint BOTs Execution",
+                                                        body: "Bootstrap failed"
+                                                    }, "error",function(err,data){
+                                                        if(err){
+                                                            logger.error("Error in Notification Service, ",err);
+                                                        }
                                                     });
                                                     awsLogger.error("Bootstrap failed");
                                                     instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
@@ -666,14 +697,14 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                                 actionStatus: "success",
                                                                 status: "success",
                                                                 endedOn: new Date().getTime(),
-                                                                actionLogId:launchParams.actionId
+                                                                actionLogId:launchParams.actionLogId
                                                             }
-                                                            auditTrailService.updateAuditTrail('BOTs', launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                                            auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
                                                                 if (err) {
                                                                     logger.error("Failed to create or update bots Log: ", err);
                                                                 }
                                                                 var botService = require('_pr/services/botsService');
-                                                                botService.updateSavedTimePerBots(launchParams.blueprintData._id,function(err,data){
+                                                                botService.updateSavedTimePerBots(launchParams.blueprintData._id,launchParams.auditType,function(err,data){
                                                                     if (err) {
                                                                         logger.error("Failed to update bots saved Time: ", err);
                                                                     }
@@ -691,6 +722,14 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                             err: false,
                                                             log: "Instance Bootstrapped successfully",
                                                             timestamp: timestampEnded
+                                                        });
+                                                        noticeService.notice(launchParams.sessionUser, {
+                                                            title: "Blueprint BOTs Execution",
+                                                            body: "Instance "+instanceData.InstanceId+" is launched  on "+launchParams.envName,
+                                                        }, "success",function(err,data){
+                                                            if(err){
+                                                                logger.error("Error in Notification Service, ",err);
+                                                            }
                                                         });
                                                         awsLogger.debug("Instance Bootstrapped successfully");
                                                         if (typeof domainName !== 'undefined' && domainName !== '' && domainName !== null && domainName !== 'null') {
@@ -714,14 +753,14 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                                 actionStatus: "success",
                                                                 status: "success",
                                                                 endedOn: new Date().getTime(),
-                                                                actionLogId:launchParams.actionId
+                                                                actionLogId:launchParams.actionLogId
                                                             }
-                                                            auditTrailService.updateAuditTrail('BOTs', launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                                            auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
                                                                 if (err) {
                                                                     logger.error("Failed to create or update bots Log: ", err);
                                                                 }
                                                                 var botService = require('_pr/services/botsService');
-                                                                botService.updateSavedTimePerBots(launchParams.blueprintData.id,function(err,data){
+                                                                botService.updateSavedTimePerBots(launchParams.blueprintData.id,launchParams.auditType,function(err,data){
                                                                     if (err) {
                                                                         logger.error("Failed to update bots saved Time: ", err);
                                                                     }
@@ -807,9 +846,9 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                                 actionStatus: "failed",
                                                                 status: "failed",
                                                                 endedOn: new Date().getTime(),
-                                                                actionLogId:launchParams.actionId
+                                                                actionLogId:launchParams.actionLogId
                                                             }
-                                                            auditTrailService.updateAuditTrail('BOTs', launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                                            auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
                                                                 if (err) {
                                                                     logger.error("Failed to create or update bot Log: ", err);
                                                                 }
@@ -823,6 +862,14 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                             timestamp: timestampEnded
                                                         });
                                                         awsLogger.error("Bootstrap Failed");
+                                                        noticeService.notice(launchParams.sessionUser, {
+                                                            title: "Blueprint BOTs Execution",
+                                                            body: "Bootstrap failed"
+                                                        }, "error",function(err,data){
+                                                            if(err){
+                                                                logger.error("Error in Notification Service, ",err);
+                                                            }
+                                                        });
                                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                                     }
                                                 }

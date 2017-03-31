@@ -8,7 +8,7 @@
 (function (angular) {
     "use strict";
     angular.module('dashboard.bots')
-    .controller('libraryCtrl',['$scope', '$rootScope', '$state', 'genericServices','$filter', 'confirmbox', 'toastr', 'workzoneUIUtils', '$modal', 'uiGridOptionsService', '$timeout', 'workzoneServices', function ($scope, $rootScope, $state, genSevs, $filter, confirmbox, toastr, workzoneUIUtils, $modal, uiGridOptionsService, $timeout, workzoneServices) {
+    .controller('libraryCtrl',['$scope', '$rootScope', '$state', 'genericServices','$filter', 'confirmbox', 'toastr', 'workzoneUIUtils', '$modal', 'uiGridOptionsService', '$timeout', 'botsCreateService', function ($scope, $rootScope, $state, genSevs, $filter, confirmbox, toastr, workzoneUIUtils, $modal, uiGridOptionsService, $timeout, botsCreateService) {
 
 
         var treeNames = ['BOTs','Library'];
@@ -18,7 +18,7 @@
         $rootScope.isOpenSidebar = false;
         $scope.totalBotsSelected = true;
         $scope.botCategoryList = [];
-        workzoneServices.getBotCategoryList().then(function (catList) {
+        botsCreateService.getBotCategoryList().then(function (catList) {
             $scope.botCategoryList=catList.data;
         });
         var botLibraryUIGridDefaults = uiGridOptionsService.options();
@@ -30,6 +30,7 @@
         $scope.paginationParams.sortBy = 'lastRunTime';
         $scope.paginationParams.sortOrder = 'desc';
         $scope.botLibrarySearch = '';
+        $scope.showOriginalSpinner = true;
         $scope.showLoadRecord = function() {
             $scope.showLoadMore = false;
             $scope.showRecords = false;
@@ -54,7 +55,7 @@
                 { name: 'Last Run',field:'lastRunTime ',cellTemplate:'<span title="{{row.entity.lastRunTime  | timestampToLocaleTime}}">{{row.entity.lastRunTime  | timestampToLocaleTime}}</span>', cellTooltip: true},
                 { name: 'Saved Time',field:'savedTime', cellTemplate:'<span title="{{row.entity.savedTime.hours ? row.entity.savedTime.hours : 0}}h {{row.entity.savedTime.minutes ? row.entity.savedTime.minutes : 0}}m">{{row.entity.savedTime.hours ? row.entity.savedTime.hours : 0}}h {{row.entity.savedTime.minutes ? row.entity.savedTime.minutes : 0}}m</span>', cellTooltip: true},
                 { name: 'Total Runs',field:'executionCount'},
-                   { name: 'BOT Action',width:100,displayName: 'Details',cellTemplate:'<a title="History"><i class="fa fa-eye font-size-16 cursor" ui-sref="dashboard.bots.botsDescription({botDetail:row.entity,listType:1})" ></i></a>'
+                   { name: 'BOT Action',width:100,displayName: 'Details',cellTemplate:'<a title="Description"><i class="fa fa-eye font-size-16 cursor" ui-sref="dashboard.bots.botsDescription({botDetail:row.entity,listType:1})" ></i></a>'
                 }
             ];
             $scope.botLibGridOptions.data=[];
@@ -164,6 +165,7 @@
                         }
                         if(result.metaData.totalRecords == $scope.botLibGridOptions.data.length) {
                             $scope.showLoadMore = false;
+                            $scope.showRecords = false;
                         }
                     } else {
                         $scope.botLibGridOptions.data =  result.bots;
@@ -315,6 +317,13 @@
                 $scope.isBotLibraryPageLoading = false;
                 toastr.error(error);
                 $scope.errorMessage = "No Records found";
+            });
+        };
+
+        $scope.botSync = function(botsDetails) {
+            $scope.activeClass = botsDetails;
+            botsCreateService.syncIndividualBot(botsDetails.gitHubId,botsDetails.id).then(function(response){
+                $scope.activeClass = {};
             });
         };
         
