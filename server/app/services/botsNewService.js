@@ -28,6 +28,7 @@ var scriptExecutor = require('_pr/engine/bots/scriptExecutor.js');
 var chefExecutor = require('_pr/engine/bots/chefExecutor.js');
 var blueprintExecutor = require('_pr/engine/bots/blueprintExecutor.js');
 var fileIo = require('_pr/lib/utils/fileio');
+var masterUtil = require('_pr/lib/utils/masterUtil.js');
 
 
 const fileHound= require('filehound');
@@ -337,20 +338,34 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
                                 auditTrailService.insertAuditTrail(botDetails[0],auditTrailObj,actionObj,next);
                             },
                             function(auditTrail,next){
-                                var uuid = require('node-uuid');
-                                auditTrail.actionId = uuid.v4();
-                                if (botDetails[0].type === 'script') {
-                                    scriptExecutor.execute(botDetails[0],auditTrail, userName,executionType, next);
-                                }else if(botDetails[0].type === 'chef'){
-                                    chefExecutor.execute(botDetails[0],auditTrail, userName, executionType, next);
-                                }else if(botDetails[0].type === 'blueprints'){
-                                    blueprintExecutor.execute(auditTrail,reqBody,userName,next);
-                                }else{
-                                    var err = new Error('Invalid BOTs Type');
-                                    err.status = 400;
-                                    err.msg = 'Invalid BOTs Type';
-                                    callback(err, null);
-                                }
+                                var botRemoteServerDetails = {}
+                                masterUtil.getBotRemoteServerDetailByOrgId(botDetails[0].orgId,function(err,botServerDetails) {
+                                    if (err) {
+                                        logger.error("Error while fetching BOTs Server Details");
+                                        callback(err, null);
+                                        return;
+                                    } else if (botServerDetails !== null && botServerDetails.active !== false) {
+                                        botRemoteServerDetails.hostIP = botServerDetails.hostIP;
+                                        botRemoteServerDetails.hostPort = botServerDetails.hostPort;
+                                    } else {
+                                        botRemoteServerDetails.hostIP = "localhost";
+                                        botRemoteServerDetails.hostPort = "2687";
+                                    }
+                                    var uuid = require('node-uuid');
+                                    auditTrail.actionId = uuid.v4();
+                                    if (botDetails[0].type === 'script') {
+                                        scriptExecutor.execute(botDetails[0], auditTrail, userName, executionType,botRemoteServerDetails, next);
+                                    } else if (botDetails[0].type === 'chef') {
+                                        chefExecutor.execute(botDetails[0], auditTrail, userName, executionType,botRemoteServerDetails, next);
+                                    } else if (botDetails[0].type === 'blueprints') {
+                                        blueprintExecutor.execute(auditTrail, reqBody, userName, next);
+                                    } else {
+                                        var err = new Error('Invalid BOTs Type');
+                                        err.status = 400;
+                                        err.msg = 'Invalid BOTs Type';
+                                        callback(err, null);
+                                    }
+                                });
                             }
 
                         ],function(err,executionResult){
