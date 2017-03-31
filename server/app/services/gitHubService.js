@@ -448,7 +448,6 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
                                             logger.error("Error in clearing GIT-Hub data.", err);
                                         }
                                     });*/
-                                    console.log('narayan>>>',data);
                                     callback(null, {botsDetails:botsDetails});
                                     logger.debug("Git Hub Sync is Done.");
                                 }
