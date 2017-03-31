@@ -122,11 +122,11 @@
     <div class="botsWidth">
       <div class="marginleft35 margintop8 botsWidth  box-infobox" style="border-top-color:floralwhite"></div>
       <div class="gallery-header top-stats marginCheck">
-          <button type="button" class="font-size-16 tabReadme btn btn-link {{botsCardViewSelection}}" title="Card View" ng-click="setCardView('pageReset')"  >
+          <button type="button" class="font-size-16 tabReadme btn btn-link {{botsCardViewSelection}}" title="Grid View" ng-click="setCardView('pageReset')"  >
               <i class="fa fa-th black"></i>
               Grid
           </button>
-           <button type="button" class="font-size-16 tabReadme btn btn-link {{botsTableViewSelection}}" title="Table View" ng-click="botsTableView()">
+           <button type="button" class="font-size-16 tabReadme btn btn-link {{botsTableViewSelection}}" title="List View" ng-click="botsTableView()">
             <i class="fa fa-align-justify black"></i>
               List
           </button>
@@ -167,7 +167,7 @@
                </div>
                 <div title="{{botsDetails.executionCount}}" class="pull-left botsExecution" ng-if="botsDetails.executionCount">Total Runs:&nbsp;<span>{{botsDetails.executionCount}}</span></div>
                 <div class="pull-right" style="margin-top:5px;">
-                  <a class="margin10 cursor" ng-click="botSync(botsDetails)" title="BOT Sync"><i class="fa fa-refresh"></i></a>
+                  <a class="margin10 cursor" title="BOT Sync"><i ng-class="{'fa fa-refresh' : activeClass !== botsDetails, 'fa fa-refresh fa-spin' : activeClass === botsDetails}" ng-click="botSync(botsDetails)"></i></a>
                </div>
             </a>
          </div>
@@ -189,9 +189,11 @@
    <!--cards section ends here-->
 
    <!--table section start here-->
+   <div class="col-lg-12" style="padding-left: 2.3%;">
    <div class="alert alert-info text-center" ng-if="!botLibGridOptions.data.length > 0 && !isBotLibraryPageLoading">
       No data Available
    </div>
    <div id="grid1" ng-show="!isCardViewActive" ng-if="botLibGridOptions.data.length >0 && !isBotLibraryPageLoading" ui-grid="botLibGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid"></div>
+ </div>
    <!--table section ends here -->
 </div>

@@ -285,7 +285,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     gitHubService.checkIfGitHubExists(req.params.gitHubId, next);
                 },
                 function(gitHub,next) {
-                    gitHubService.gitHubCopy(req.params.gitHubId, req.body, next);
+                    gitHubService.gitHubCopy(req.params.gitHubId, req.body.gitHubBody, next);
                 }
             ],
             function(err, results) {
@@ -313,7 +313,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 if (err) {
                     res.status(err.status).send(err);
                 } else {
-                    noticeService.notice(req.session.user.cn,{title:'Bot sync',body:results.botsDetails+ 'synced'},"success",function(err,data){
+                    noticeService.notice(req.session.user.cn,{title:'Bot sync',body:results.botsDetails+ ' sync successful'},"success",function(err,data){
                     if(err){
                         return res.sendStatus(500);
                     }});

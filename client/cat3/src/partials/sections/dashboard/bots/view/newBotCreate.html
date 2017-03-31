@@ -57,7 +57,7 @@
                   </span>
                   </label>
                   <div class="input-groups">
-                     <input type="file" name="autenticationYAMLfile" class="form-control form-controls" ngf-select="" ng-model="$parent.yamlfile" name="file" accept=".yaml" required="" onchange="angular.element(this).scope().setFile(this)">
+                     <input type="file" name="autenticationYAMLfile" class="form-control form-controls" ngf-select="" ng-model="$parent.yamlfile" name="file" accept=".yaml" required="">
                   </div>
                </div>
                <div ng-if="botType==='chef'" class="col-lg-6 col-md-6 col-sm-4 col-xs-12 margintop15">
@@ -165,7 +165,7 @@
          <button type="button" class="btn cat-btn-cancel margintop10" ui-sref="dashboard.bots.library">
          <i class="fa fa-times black"></i> Cancel
          </button>
-         <button  type="submit" class="btn cat-btn-update margintop10" ng-disabled="newBotForm.$invalid" ng-click="postCreateBots()">
+         <button  type="submit" class="btn cat-btn-update margintop10 marginleft10" ng-disabled="newBotForm.$invalid" ng-click="postCreateBots()">
          <i class="fa fa-check white"></i> Save
          </button>
       </div>

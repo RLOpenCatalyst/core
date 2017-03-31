@@ -739,6 +739,10 @@ function CreateTableFromJson(formID, idFieldName, createFileName) {
 					if (haspermission('services', 'modify')) {
 						hasEditPermission = true;
 					}
+				}else if (createFileName === 'createBotEngine.html') {
+					if (haspermission('services', 'modify')) {
+						hasEditPermission = true;
+					}
 				}
 				//user has no permission to edit
 				if (!hasEditPermission) {
@@ -860,6 +864,10 @@ function CreateTableFromJson(formID, idFieldName, createFileName) {
 						hasDeletePermission = true;
 					}
 				}else if (createFileName === 'CreateCICDDashboard.html') {
+					if (haspermission('services', 'delete')) {
+						hasDeletePermission = true;
+					}
+				}else if (createFileName === 'createBotEngine.html') {
 					if (haspermission('services', 'delete')) {
 						hasDeletePermission = true;
 					}
@@ -3429,6 +3437,14 @@ function isFormValid(formid) {
 					if (currCtrl.val().length < 6) {
 						isValid = false;
 						errormessageforInput(currCtrl.attr('id'), "Atleast 6 characters required.");
+						currCtrl.focus();
+					}
+					break;
+				case "ipAddressCheck":
+					var str = currCtrl.val();
+					if(/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(str) == false && str != '') {
+						isValid = false;
+						errormessageforInput(currCtrl.attr('id'), "Please enter a valid IP Address");
 						currCtrl.focus();
 					}
 					break;
