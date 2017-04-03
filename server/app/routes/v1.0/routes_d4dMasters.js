@@ -911,6 +911,16 @@ module.exports.setRoutes = function (app, sessionVerification) {
                             res.send(teamList);
                             return;
                         });
+                    } else if (req.params.id === '32') {
+                        // For BOTs Remote Server Detail
+                        masterUtil.getBotRemoteServerDetails(orgList, function(err, botRemoteServerList) {
+                            if (err) {
+                                res.status(500).send('Not able to fetch BOTs Remote Server Details.');
+                            }
+                            res.send(botRemoteServerList);
+                            return;
+                        });
+
                     } else if (req.params.id === '25') {
                         // For Puppet Server
                         masterUtil.getPuppetServers(orgList, function (err, pList) {
@@ -1065,6 +1075,16 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                 res.status(500).send('Not able to fetch Functional Tests.');
                             }
                             res.send(functionaltestlist);
+                            return;
+                        });
+
+                    }else if (req.params.id === '32') {
+                        // For BOTs Remote Server Detail
+                        masterUtil.getBotRemoteServerDetails(orgList, function(err, botRemoteServerList) {
+                            if (err) {
+                                res.status(500).send('Not able to fetch BOTs Remote Server Details.');
+                            }
+                            res.send(botRemoteServerList);
                             return;
                         });
 

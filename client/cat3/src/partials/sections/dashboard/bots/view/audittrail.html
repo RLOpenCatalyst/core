@@ -19,11 +19,12 @@
             </span>
 		</div>
 	</div>
+	<div class="col-lg-12" style="padding-left: 2%;">
+		<loading size="large" name="isBotAuditTrailPageLoading" type="block" align="center"></loading>
+		<div class="alert alert-info text-center" ng-if="!botAuditTrailGridOptions.data.length > 0 && !isBotAuditTrailPageLoading">
+			No data Available
+		</div>
 
-	<loading size="large" name="isBotAuditTrailPageLoading" type="block" align="center"></loading>
-	<div class="alert alert-info text-center" ng-if="!botAuditTrailGridOptions.data.length > 0 && !isBotAuditTrailPageLoading">
-	    No data Available
+		<div id="grid1" class="margintop8" ng-if="botAuditTrailGridOptions.data.length > 0 && !isBotAuditTrailPageLoading" ui-grid="botAuditTrailGridOptions" ui-grid-pagination class="grid" style="height: {{gridHeight}}px"></div>
 	</div>
-
-	<div id="grid1" class="margintop8" ng-if="botAuditTrailGridOptions.data.length > 0 && !isBotAuditTrailPageLoading" ui-grid="botAuditTrailGridOptions" ui-grid-pagination class="grid" style="height: {{gridHeight}}px"></div>
 </div>
