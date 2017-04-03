@@ -385,7 +385,7 @@ $('#gitCloneImport').submit(function(){
         });
     });
     if (!checkboxValueForImport.length) {
-        toastr.error('Please choose a BOT to import');
+        bootbox.alert('Please choose a BOT to import');
         return;
     }
     var reqBody = [];
