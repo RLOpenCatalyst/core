@@ -307,7 +307,7 @@ $('#gitTable tbody').on( 'click', 'button.deleteGitRepo', function(){
                         } else if (jxhr.responseText) {
                             msg = jxhr.responseText;
                         }
-                        bootbox.alert(msg);
+                        toastr.error(msg);
                     }
                 });
             } else {
@@ -364,7 +364,7 @@ $('#gitTable tbody').on( 'click', 'button.importGitRepo', function(){
                 var msgCheck = JSON.parse(jxhr.responseText);
                 msg = msgCheck.msg;
             }
-            bootbox.alert(msg);
+            toastr.error(msg);
             $('#gitHubListLoader').hide();
         }
     });
@@ -411,7 +411,7 @@ $('#gitCloneImport').submit(function(){
                 } else if (jxhr.responseText) {
                     msg = jxhr.responseText;
                 }
-                bootbox.alert(msg);
+                toastr.error(msg);
 
                 $('#saveItemSpinner').addClass('hidden');
                 $('#gitCloneImport').removeAttr('disabled');
@@ -428,7 +428,7 @@ $('#gitTable tbody').on( 'click', 'button.syncGitRepo', function(){
         url: '../git-hub/' + $this.parents('tr').attr('githubId') + '/sync',
         method: 'GET',
         success: function(data) {
-            bootbox.alert('Successfully cloned.');
+            toastr.success('Successfully cloned.');
             $('#gitHubListLoader').hide();
         },
         error: function(jxhr) {
@@ -440,7 +440,7 @@ $('#gitTable tbody').on( 'click', 'button.syncGitRepo', function(){
                 var msgCheck = JSON.parse(jxhr.responseText);
                 msg = msgCheck.msg;
             }
-            bootbox.alert(msg);
+            toastr.error(msg);
             $('#gitHubListLoader').hide();
         }
     });
@@ -469,7 +469,7 @@ function saveForm(methodName,url,reqBody) {
             } else if (jxhr.responseText) {
                 msg = jxhr.responseText;
             }
-            bootbox.alert(msg);
+            toastr.error(msg);
 
             $('#saveItemSpinner').addClass('hidden');
             $('#saveBtnTrack').removeAttr('disabled');
