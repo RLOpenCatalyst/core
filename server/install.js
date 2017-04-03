@@ -40,6 +40,8 @@ function getDefaultsConfig() {
         javaLibDir: currentDirectory + '/app',
         gitHubDirName: 'gitHub',
         botLogDir: currentDirectory + '/app/logs/',
+        botFactory: '.botfactory/',
+        botCurrentFactory: '.botfactory/current',
         catalysHomeDirName: 'catalyst',
         instancePemFilesDirName: 'instance-pemfiles',
         tempDirName: 'temp',
@@ -533,6 +535,12 @@ function getDefaultsConfig() {
         },
         get gitHubDir() {
             return this.catalystHome + this.gitHubDirName + "/";
+        },
+        get botFactoryDir() {
+            return this.catalystHome + this.botFactory + "/";
+        },
+        get botCurrentFactoryDir() {
+            return this.catalystHome + this.botCurrentFactory + "/";
         }
     };
     return config;
@@ -751,6 +759,8 @@ proc.on('close', function(code) {
         mkdirp.sync(config.tempDir);
         mkdirp.sync(config.scriptDir);
         mkdirp.sync(config.gitHubDir);
+        mkdirp.sync(config.botFactoryDir);
+        mkdirp.sync(config.botCurrentFactoryDir);
         mkdirp.sync(config.chef.chefReposLocation);
         mkdirp.sync(config.chef.cookbooksDir);
         mkdirp.sync(config.puppet.puppetReposLocation);

@@ -419,34 +419,84 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
         }
         execCmd(cmd, function (err, out, code) {
             if (code === 0) {
-                targz.decompress({
-                    src: filePath,
-                    dest: destPath
-                }, function (err) {
-                    if (err) {
-                        logger.error("Error in Extracting Files ", err);
-                        callback(err, null);
-                    } else {
-                        gitHubModel.updateGitHub(gitHubDetails._id, {isRepoCloned: true}, function (err, gitHub) {
+                var cmd2 = "tar -tvf "+ filePath+" | head -n 1";
+                execCmd(cmd2,function(err,out2,code2) {
+                    var arr = out2.toString("ascii").split(" ");
+                    var str = arr[arr.length -1].split("/");
+                    if (code2 === 0) {
+                        targz.decompress({
+                            src: filePath,
+                            dest: destPath
+                        }, function (err) {
                             if (err) {
-                                logger.error(err);
-                            }
-                            logger.debug("GIT Repository Clone is Done.");
-                            fs.unlinkSync(filePath);
-                            botsNewService.syncBotsWithGitHub(gitHubDetails._id, function (err, data) {
-                                if (err) {
-                                    callback(err, null);
-                                    logger.error("Error in Syncing GIT-Hub.", err);
-                                } else {
-                                    var botsDetails = [];
-                                    for(var i=1;i<data.length;i++){
-                                        botsDetails.push(data[i].id);
+                                logger.error("Error in Extracting Files ", err);
+                                callback(err, null);
+                            } else {
+                                gitHubModel.updateGitHub(gitHubDetails._id, {isRepoCloned: true}, function (err, gitHub) {
+                                    if (err) {
+                                        logger.error(err);
                                     }
-                                    callback(null, {botsDetails:botsDetails});
-                                    logger.debug("Git Hub Sync is Done.");
-                                }
-                            });
+                                    logger.debug("GIT Repository Clone is Done.");
+                                    fs.unlinkSync(filePath);
+                                    var gitHubDirPath = appConfig.gitHubDir + gitHubDetails._id + '/' + str[0];
+                                    var gitHubDir = appConfig.gitHubDir + gitHubDetails._id;
+                                    var botFactoryDirPath = appConfig.botFactoryDir;
+                                    var botCurrentFactoryDirPath = appConfig.botCurrentFactoryDir;
+                                    var copydir = require('copy-dir');
+                                    async.parallel({
+                                      botSync:  function(callback){
+                                          copydir(gitHubDir, botFactoryDirPath, function (err) {
+                                              if (err) {
+                                                  logger.error("Error in copy Directory  to BOTs. ", err);
+                                                  callback(err, null);
+                                              } else {
+                                                  botsNewService.syncBotsWithGitHub(gitHubDetails._id, function (err, data) {
+                                                      if (err) {
+                                                          callback(err, null);
+                                                          logger.error("Error in Syncing GIT-Hub.", err);
+                                                      } else {
+                                                          var botsDetails = [];
+                                                          for (var i = 1; i < data.length; i++) {
+                                                              botsDetails.push(data[i].id);
+                                                          }
+                                                          callback(null, {botsDetails: botsDetails});
+                                                          logger.debug("Git Hub Sync is Done.");
+                                                      }
+                                                  });
+                                              }
+                                          });
+                                        },
+                                      backUpSync: function(callback) {
+                                          //fs.unlinkSync(botCurrentFactoryDirPath);
+                                          copydir(gitHubDirPath, botCurrentFactoryDirPath, function (err) {
+                                              if (err) {
+                                                  logger.error("Error in copy Directory  to BOTs. ", err);
+                                                  callback(err, null);
+                                              } else {
+                                                  callback(null, true);
+                                                  return;
+                                              }
+                                          })
+                                      }
+
+                                    },function(err,results){
+                                        if(err){
+                                            callback(err, null);
+                                            logger.error("Error in Syncing GIT-Hub.", err);
+                                            return
+                                        }else{
+                                            callback(null,results.backUpSync);
+                                            return;
+                                        }
+                                    })
+                                });
+                            }
                         });
+                    }else{
+                        var err = new Error('Invalid Git-Hub Credentials Details');
+                        err.status = 400;
+                        err.msg = 'Invalid Git-Hub Details';
+                        callback(err, null);
                     }
                 });
             }else{
