@@ -14,9 +14,9 @@
 var noticeService = require('_pr/services/noticeService');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
-    //app.all('/api/notice/*', sessionVerificationFunc);
+    app.all('/notice/*', sessionVerificationFunc);
 
-    app.post('/api/notice/notify',function(req,res){
+    app.post('/notice/notify',function(req,res){
         if(req.body.userid && req.body.userid !== null){
             var message ={title:req.body.title,body:req.body.body}
             noticeService.notice(req.body.userid,message,req.body.severity,function(err,data){
@@ -31,7 +31,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         }
     });
 
-    app.post('/api/notice/update',function(req,res){
+    app.post('/notice/update',function(req,res){
         if(req.body.userid && req.body.userid !== null){
             noticeService.updater(req.body.userid,req.body.type,req.body.data,function(err,msg){
                 return res.json(msg);
@@ -39,5 +39,15 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         }else{
             return res.sendStatus(400);
         }
+    });
+
+    app.get('/notice/',function(req,res){
+        noticeService.getAllNoticeWithPagination(req.query, function(err,data){
+            if (err) {
+                return res.status(500).send(err);
+            } else {
+                return res.status(200).send(data);
+            }
+        })
     });
 }

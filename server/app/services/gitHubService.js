@@ -467,7 +467,7 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
                                           });
                                         },
                                       backUpSync: function(callback) {
-                                          //fs.unlinkSync(botCurrentFactoryDirPath);
+                                          fse.removeSync(botCurrentFactoryDirPath)
                                           copydir(gitHubDirPath, botCurrentFactoryDirPath, function (err) {
                                               if (err) {
                                                   logger.error("Error in copy Directory  to BOTs. ", err);
