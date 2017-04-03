@@ -256,6 +256,8 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                         if(err){
                             logger.error(err);
                         }
+                        var uuid = require('node-uuid');
+                        auditTrail.actionId = uuid.v4();
                         blueprint.launch({
                             envId: reqBody.envId,
                             ver: reqBody.version,
@@ -264,7 +266,9 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                             sessionUser: reqBody.userName,
                             tagServer: reqBody.tagServer,
                             monitorId: monitorId,
-                            auditTrailId: data._id
+                            auditTrailId: data._id,
+                            auditType:data.auditType,
+                            actionLogId:auditTrail.actionId
                         },next);
                     });
                 }else{
@@ -276,7 +280,9 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                         sessionUser: reqBody.userName,
                         tagServer: reqBody.tagServer,
                         monitorId: monitorId,
-                        auditTrailId: null
+                        auditTrailId: null,
+                        auditType:null,
+                        actionLogId:null
                     },next);
                 }
             }else{

@@ -1473,8 +1473,6 @@ input[type="text"].ui-grid-filter-input{
 }
 
 .bp-panel-body {
-    min-height:300px;
-    max-height:300px;
     overflow-y:auto!important;
 }
 
@@ -1488,6 +1486,11 @@ input[type="text"].ui-grid-filter-input{
     color: #fff;
     background-color: #d73a49;
     border: 1px solid #9e1c23;
+}
+
+.boxed-group.schedulerZone>h3 {
+    color: #fff;
+    background-color: #636363;
 }
 
 .boxed-group>h3, .boxed-group .heading {
@@ -1547,4 +1550,43 @@ input[type="text"].ui-grid-filter-input{
 .marginLeftRight10 {
     margin-left: 10px;
     margin-right: 10px;
+}
+
+#rightMenu {
+    .navbar-top-links {
+        margin-right: 0;
+    }
+    .navbar-top-links li {
+        display: inline-block;
+    }
+    .navbar-top-links li a {
+        padding: 15px;
+        min-height: 50px;
+    }
+    .nav .open>a, .nav .open>a:focus, .nav .open>a:hover {
+        background-color: #525961;
+        border-color: #fff;
+    }
+    .navbar-top-links .dropdown-menu li {
+        display: block;
+    }
+    .navbar-top-links .dropdown-menu li a {
+        
+        min-height: 0;
+    }
+    .nav>li>a:hover {    
+        text-decoration: none;    
+        background-color: #525961;
+    }
+    .dropdown-menu {
+        color: #000;
+        background: #fff;
+        padding: 6px;
+        min-width: 100px;
+        line-height: 2;
+    }
+}
+
+.pluginBlueprintImageLogo {
+    height: 28px;
 }

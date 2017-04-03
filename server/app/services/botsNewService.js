@@ -28,6 +28,8 @@ var scriptExecutor = require('_pr/engine/bots/scriptExecutor.js');
 var chefExecutor = require('_pr/engine/bots/chefExecutor.js');
 var blueprintExecutor = require('_pr/engine/bots/blueprintExecutor.js');
 var fileIo = require('_pr/lib/utils/fileio');
+var masterUtil = require('_pr/lib/utils/masterUtil.js');
+var uuid = require('node-uuid');
 
 
 const fileHound= require('filehound');
@@ -38,98 +40,94 @@ const errorType = 'botsNewService';
 
 var botsNewService = module.exports = {};
 
-botsNewService.createNew = function createNew(reqBody,callback){
-    yamlJs.load(reqBody.files.file.path, function(result) {
-        if(result !== null){
-            fileUpload.uploadFile(reqBody.files.file.originalFilename,reqBody.files.file.path,null,function(err,ymlDocFileId){
-                if(err){
-                    logger.error("Error in uploading yaml documents.",err);
-                    callback(err,null);
-                    removeScriptFile(reqBody.files.file.path);
-                    return;
-                }else{
-                    var paramObj = {};
-                    if(reqBody.type ==='chef'){
-                        paramObj = {
-                            name: reqBody.name,
-                            desc: reqBody.desc,
-                            data: {
-                                runlist: reqBody.runlist,
-                                attributes: reqBody.attributes
-                            }
-                        }
-                    }else if(reqBody.type ==='blueprints'){
-                        paramObj = {
-                            name: reqBody.name,
-                            desc: reqBody.desc,
-                            data: {
-                                runlist: reqBody.runlist,
-                                attributes: reqBody.attributes
-                            }
-                        }
-                    }else if(reqBody.type ==='script'){
-                        paramObj = {
-                            name: reqBody.name,
-                            desc: reqBody.desc,
-                            scriptId: reqBody.scriptId,
-                            data: reqBody.params
-                        }
-                    }else if(reqBody.type ==='jenkins'){
-                        paramObj = {
-                            name: reqBody.name,
-                            desc: reqBody.desc,
-                            jenkinsServerId: reqBody.jenkinsServerId,
-                            jenkinsBuildName: reqBody.jenkinsBuildName,
-                            data: reqBody.params
-                        }
-                    }else{
-                        paramObj = paramObj;
-                    }
-                    var botsObj={
-                        ymlJson:result,
-                        name:result.name,
-                        id:result.id,
-                        desc:result.desc,
-                        category:result.botCategory?result.botCategory:result.functionality,
-                        action:result.action,
-                        execution:result.execution,
-                        type:reqBody.type,
-                        subType:reqBody.subType,
-                        inputFormFields:result.input[0].form,
-                        outputOptions:result.output,
-                        ymlDocFileId:ymlDocFileId,
-                        orgId:reqBody.orgId,
-                        orgName:reqBody.orgName,
-                        manualExecutionTime:reqBody.standardTime,
-                        params:paramObj,
-                        source:"Catalyst"
-                    }
-                    botsDao.createNew(botsObj,function(err,data) {
-                        if (err) {
-                            logger.error(err);
-                            callback(err,null);
-                            removeScriptFile(reqBody.files.file.path);
-                            return;
-                        }else{
-                            callback(null,data);
-                            removeScriptFile(reqBody.files.file.path);
-                            return;
-                        }
-                    });
-
-                }
-            })
-        }else{
-            var err = new Error();
-            err.code= 400;
-            err.msg="Ingternal Server Error";
-            callback(err,null);
-            removeScriptFile(reqBody.files.file.path);
+botsNewService.createNew = function createNew(reqBody,callback) {
+    fileUpload.getReadStreamFileByFileId(reqBody.fileId, function (err, fileDetail) {
+        if (err) {
+            logger.error("Error in reading YAML File.");
+            callback(err, null);
             return;
+        } else {
+            var fileName = uuid.v4() + '_' + fileDetail.fileName;
+            var desPath = appConfig.scriptDir + fileName;
+            fileIo.writeFile(desPath, fileDetail.fileData, false, function (err) {
+                if (err) {
+                    logger.error("Unable to write file");
+                    callback(err, null);
+                    return;
+                } else {
+                    yamlJs.load(desPath, function (result) {
+                        if (result !== null) {
+                            var paramObj = {};
+                            if (reqBody.type === 'chef') {
+                                paramObj = {
+                                    name: reqBody.name,
+                                    desc: reqBody.desc,
+                                    data: {
+                                        runlist: reqBody.runlist,
+                                        attributes: reqBody.attributes
+                                    }
+                                }
+                            } else if (reqBody.type === 'blueprints') {
+                                paramObj = {
+                                    name: reqBody.name,
+                                    desc: reqBody.desc
+                                }
+                            } else if (reqBody.type === 'script') {
+                                paramObj = {
+                                    name: reqBody.name,
+                                    desc: reqBody.desc,
+                                    scriptId: reqBody.scriptId,
+                                    data: reqBody.params
+                                }
+                            } else if (reqBody.type === 'jenkins') {
+                                paramObj = {
+                                    name: reqBody.name,
+                                    desc: reqBody.desc,
+                                    jenkinsServerId: reqBody.jenkinsServerId,
+                                    jenkinsBuildName: reqBody.jenkinsBuildName,
+                                    data: reqBody.params
+                                }
+                            } else {
+                                paramObj = paramObj;
+                            }
+                            var botsObj = {
+                                ymlJson: result,
+                                name: result.name,
+                                id: result.id,
+                                desc: result.desc,
+                                category: reqBody.category,
+                                action: result.action,
+                                execution: result.execution,
+                                type: reqBody.type,
+                                subType: reqBody.subType,
+                                inputFormFields: result.input[0].form,
+                                outputOptions: result.output,
+                                ymlDocFileId: reqBody.fileId,
+                                orgId: reqBody.orgId,
+                                orgName: reqBody.orgName,
+                                manualExecutionTime: reqBody.standardTime,
+                                params: paramObj,
+                                source: "Catalyst"
+                            }
+                            botsDao.createNew(botsObj, function (err, data) {
+                                if (err) {
+                                    logger.error(err);
+                                    callback(err, null);
+                                    removeScriptFile(desPath);
+                                    return;
+                                } else {
+                                    callback(null, data);
+                                    removeScriptFile(desPath);
+                                    return;
+                                }
+                            });
+
+                        }
+                    })
+                }
+            });
         }
     });
-
-
 }
 
 botsNewService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,callback) {
@@ -341,20 +339,34 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
                                 auditTrailService.insertAuditTrail(botDetails[0],auditTrailObj,actionObj,next);
                             },
                             function(auditTrail,next){
-                                var uuid = require('node-uuid');
-                                auditTrail.actionId = uuid.v4();
-                                if (botDetails[0].type === 'script') {
-                                    scriptExecutor.execute(botDetails[0],auditTrail, userName,executionType, next);
-                                }else if(botDetails[0].type === 'chef'){
-                                    chefExecutor.execute(botDetails[0],auditTrail, userName, executionType, next);
-                                }else if(botDetails[0].type === 'blueprints'){
-                                    blueprintExecutor.execute(botDetails[0],auditTrail, userName,reqBody,next);
-                                }else{
-                                    var err = new Error('Invalid BOTs Type');
-                                    err.status = 400;
-                                    err.msg = 'Invalid BOTs Type';
-                                    callback(err, null);
-                                }
+                                var botRemoteServerDetails = {}
+                                masterUtil.getBotRemoteServerDetailByOrgId(botDetails[0].orgId,function(err,botServerDetails) {
+                                    if (err) {
+                                        logger.error("Error while fetching BOTs Server Details");
+                                        callback(err, null);
+                                        return;
+                                    } else if (botServerDetails !== null && botServerDetails.active !== false) {
+                                        botRemoteServerDetails.hostIP = botServerDetails.hostIP;
+                                        botRemoteServerDetails.hostPort = botServerDetails.hostPort;
+                                    } else {
+                                        botRemoteServerDetails.hostIP = "localhost";
+                                        botRemoteServerDetails.hostPort = "2687";
+                                    }
+                                    var uuid = require('node-uuid');
+                                    auditTrail.actionId = uuid.v4();
+                                    if (botDetails[0].type === 'script') {
+                                        scriptExecutor.execute(botDetails[0], auditTrail, userName, executionType,botRemoteServerDetails, next);
+                                    } else if (botDetails[0].type === 'chef') {
+                                        chefExecutor.execute(botDetails[0], auditTrail, userName, executionType,botRemoteServerDetails, next);
+                                    } else if (botDetails[0].type === 'blueprints') {
+                                        blueprintExecutor.execute(auditTrail, reqBody, userName, next);
+                                    } else {
+                                        var err = new Error('Invalid BOTs Type');
+                                        err.status = 400;
+                                        err.msg = 'Invalid BOTs Type';
+                                        callback(err, null);
+                                    }
+                                });
                             }
 
                         ],function(err,executionResult){
@@ -368,7 +380,7 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
                         })
                     },
                     bots: function (callback) {
-                        if(botDetails[0].type === 'script' || botDetails[0].type === 'chef' || botDetails[0].type === 'jenkins' || botDetails[0].type === 'blueprint') {
+                        if(botDetails[0].type === 'script' || botDetails[0].type === 'chef' || botDetails[0].type === 'jenkins' || botDetails[0].type === 'blueprints') {
                             var botExecutionCount = botDetails[0].executionCount + 1;
                             var botUpdateObj = {
                                 executionCount: botExecutionCount,
@@ -419,41 +431,57 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
             },next);
         },
         function(jsonObt,next) {
-            if(jsonObt.botsDetails.length > 0) {
-                var count = 0;
-                for (var i = 0; i < jsonObt.botsDetails.length; i++) {
-                    (function (botsDetail) {
-                        fileUpload.removeFileByFileId(botsDetail.ymlDocFileId, function (err, data) {
-                            if (err) {
-                                logger.error("There are some error in deleting yml file.", err, botDetail.ymlDocFileId);
-                            }
-                            if(botsDetail.gitHubRepoName !== jsonObt.gitHub.repositoryName && botsDetail.gitHubRepoBranch !== jsonObt.gitHub.repositoryBranch){
-                                botsDao.removeBotsById(botsDetail._id,function(err,data){
-                                    if(err){
-                                        logger.error("There are some error in deleting BOTs : ",err);
+            async.parallel({
+                fileUpload: function (callback) {
+                    if(jsonObt.botsDetails.length > 0) {
+                        var count = 0;
+                        for (var i = 0; i < jsonObt.botsDetails.length; i++) {
+                            (function (botsDetail) {
+                                fileUpload.removeFileByFileId(botsDetail.ymlDocFileId, function (err, data) {
+                                    if (err) {
+                                        logger.error("There are some error in deleting yml file.", err, botsDetail.ymlDocFileId);
                                     }
                                     count++;
                                     if (count === jsonObt.botsDetails.length) {
-                                        next(null, jsonObt.gitHub);
+                                        callback(null, jsonObt.gitHub);
+                                        return;
                                     }
                                 })
-                            }else{
-                                count++;
-                                if (count === jsonObt.botsDetails.length) {
-                                    next(null, jsonObt.gitHub);
+                            })(jsonObt.botsDetails[i]);
+                        }
+                    }else {
+                        callback(null, jsonObt.gitHub);
+                        return;
+                    }
+                },
+                botSync: function (callback) {
+                    if (jsonObt.botsDetails.length > 0){
+                        if (jsonObt.botsDetails[0].gitHubRepoName !== jsonObt.gitHub.repositoryName || jsonObt.botsDetails[0].gitHubRepoBranch !== jsonObt.gitHub.repositoryBranch) {
+                            botsDao.removeBotsByGitHubId(jsonObt.gitHub._id, function (err, data) {
+                                if (err) {
+                                    logger.error("There are some error in deleting BOTs : ", err);
+                                    callback(err, null);
+                                    return;
+                                } else {
+                                    callback(null, jsonObt.gitHub);
+                                    return;
                                 }
-                            }
-                        })
-                    })(jsonObt.botsDetails[i]);
+                            })
+                        }else{
+                            callback(null, jsonObt.gitHub);
+                            return;
+                        }
+                    }else{
+                        callback(null, jsonObt.gitHub);
+                        return;
+                    }
                 }
-            }else {
-                next(null, jsonObt.gitHub);
-            }
+            }, next);
         },
         function(gitHubDetails,next){
-            if(gitHubDetails !== null){
-                process.setMaxListeners(20);
-                var gitHubDirPath = appConfig.gitHubDir + gitHubDetails._id;
+            if(gitHubDetails.botSync !== null){
+                process.setMaxListeners(50);
+                var gitHubDirPath = appConfig.gitHubDir + gitHubDetails.botSync._id;
                 fileHound.create()
                     .paths(gitHubDirPath)
                     .ext('yaml')
@@ -468,8 +496,6 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                         if(botObjList.length === files.length){
                                             next(null,botObjList);
                                             return;
-                                        }else{
-                                            return;
                                         }
                                     });
                                     if(result !== null){
@@ -481,11 +507,8 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                                    if(err){
                                                        logger.error("Error in removing YAML File. ",err);
                                                    }
-                                                   logger.debug("Successfully removed YAML File. ",err);
                                                    if(botObjList.length === files.length){
                                                        next(null,botObjList);
-                                                       return;
-                                                   }else{
                                                        return;
                                                    }
                                                })
@@ -493,21 +516,22 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                                 var botsObj={
                                                     ymlJson:result,
                                                     name:result.name,
-                                                    gitHubId:gitHubDetails._id,
-                                                    gitHubRepoName:gitHubDetails.repositoryName,
-                                                    gitHubRepoBranch:gitHubDetails.repositoryBranch,
+                                                    gitHubId:gitHubDetails.botSync._id,
+                                                    gitHubRepoName:gitHubDetails.botSync.repositoryName,
+                                                    gitHubRepoBranch:gitHubDetails.botSync.repositoryBranch,
                                                     id:result.id,
                                                     desc:result.desc,
                                                     category:result.botCategory?result.botCategory:result.functionality,
                                                     action:result.action,
                                                     execution:result.execution?result.execution:[],
+                                                    manualExecutionTime:result.standardTime?result.standardTime:10,
                                                     type:result.type,
                                                     subType:result.subtype,
                                                     inputFormFields:result.input[0].form,
                                                     outputOptions:result.output,
                                                     ymlDocFileId:ymlDocFileId,
-                                                    orgId:gitHubDetails.orgId,
-                                                    orgName:gitHubDetails.orgName,
+                                                    orgId:gitHubDetails.botSync.orgId,
+                                                    orgName:gitHubDetails.botSync.orgName,
                                                     source:"GitHub"
                                                 }
                                                 botsDao.getBotsByBotId(result.id,function(err,botsList){
@@ -516,8 +540,6 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                                         botObjList.push(err);
                                                         if(botObjList.length === files.length){
                                                             next(null,botObjList);
-                                                            return;
-                                                        }else{
                                                             return;
                                                         }
                                                     }else if(botsList.length > 0){
@@ -528,8 +550,6 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                                             botObjList.push(botsObj);
                                                             if(botObjList.length === files.length){
                                                                 next(null,botObjList);
-                                                                return;
-                                                            }else{
                                                                 return;
                                                             }
                                                         })
@@ -542,8 +562,6 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                                             if(botObjList.length === files.length){
                                                                 next(null,botObjList);
                                                                 return;
-                                                            }else{
-                                                                return;
                                                             }
                                                         });
                                                     }
@@ -554,8 +572,6 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                         botObjList.push(result);
                                         if(botObjList.length === files.length){
                                             next(null,botObjList);
-                                            return;
-                                        }else{
                                             return;
                                         }
                                     }
@@ -571,7 +587,7 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                 });
 
             }else{
-                next(null,gitHubDetails);
+                next(null,gitHubDetails.botSync);
             }
         }
     ],function(err, results) {
@@ -671,48 +687,6 @@ botsNewService.getParticularBotsHistoryLogs= function getParticularBotsHistoryLo
     });
 }
 
-botsNewService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,callback){
-    var query = {
-        auditType: 'BOTsNew',
-        isDeleted: false,
-        auditId: botId
-    };
-    auditTrail.getAuditTrails(query, function (err, botAuditTrail) {
-        if (err) {
-            logger.error("Error in Fetching Audit Trail.", err);
-            callback(err, null);
-        }
-        if (botAuditTrail.length > 0) {
-            var totalTimeInSeconds = 0;
-            for (var m = 0; m < botAuditTrail.length; m++) {
-                if (botAuditTrail[m].endedOn && botAuditTrail[m].endedOn !== null
-                    && botAuditTrail[m].auditTrailConfig.manualExecutionTime
-                    && botAuditTrail[m].auditTrailConfig.manualExecutionTime !== null
-                    && botAuditTrail[m].actionStatus ==='success' ) {
-                    var executionTime = getExecutionTime(botAuditTrail[m].endedOn, botAuditTrail[m].startedOn);
-                    totalTimeInSeconds = totalTimeInSeconds + ((botAuditTrail[m].auditTrailConfig.manualExecutionTime * 60) - executionTime);
-                }
-            }
-            var totalTimeInMinutes = Math.round(totalTimeInSeconds / 60);
-            var result = {
-                hours: Math.floor(totalTimeInMinutes / 60),
-                minutes: totalTimeInMinutes % 60
-            }
-            botsDao.updateBotsDetail(botId, {savedTime: result,executionCount:botAuditTrail.length}, function (err, data) {
-                if (err) {
-                    logger.error(err);
-                    callback(err, null);
-                    return;
-                }
-                callback(null, data);
-                return;
-            })
-        } else {
-            callback(null, botAuditTrail);
-            return;
-        }
-    });
-}
 
 function getExecutionTime(endTime, startTime) {
     var executionTimeInMS = endTime - startTime;
@@ -758,11 +732,12 @@ function addYmlFileDetailsForBots(bots,reqData,callback){
                         action: bot.action,
                         category: bot.category,
                         type: bot.type,
+                        subType: bot.subType,
                         inputFormFields: bot.inputFormFields,
                         outputOptions: bot.outputOptions,
-                        ymlDocFilePath: bot.ymlDocFilePath,
                         ymlDocFileId: bot.ymlDocFileId,
                         orgId: bot.orgId,
+                        subType: bot.subType,
                         orgName: bot.orgName,
                         ymlFileName: file !==null?file.fileName:file,
                         ymlFileData: file !==null?file.fileData:file,
@@ -772,7 +747,8 @@ function addYmlFileDetailsForBots(bots,reqData,callback){
                         scheduler: bot.scheduler,
                         createdOn: bot.createdOn,
                         lastRunTime: bot.lastRunTime,
-                        savedTime: bot.savedTime
+                        savedTime: bot.savedTime,
+                        source:bot.source
                     }
                     botsList.push(botsObj);
                     if (botsList.length === bots.docs.length) {

@@ -11,6 +11,7 @@
  limitations under the License.
  */
 var gitHubService = require('_pr/services/gitHubService');
+var noticeService = require('_pr/services/noticeService');
 var async = require('async');
 var validate = require('express-validation');
 var gitHubValidator = require('_pr/validators/gitHubValidator');
@@ -284,7 +285,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     gitHubService.checkIfGitHubExists(req.params.gitHubId, next);
                 },
                 function(gitHub,next) {
-                    gitHubService.gitHubCopy(req.params.gitHubId, resBody, next);
+                    gitHubService.gitHubCopy(req.params.gitHubId, req.body.gitHubBody, next);
                 }
             ],
             function(err, results) {
@@ -292,6 +293,31 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     res.status(err.status).send(err);
                 } else {
                     return res.status(200).send(results);
+                }
+            }
+        );
+    }
+
+    app.get('/git-hub/:gitHubId/content/:botId', getGitHubSingleImport);
+    function getGitHubSingleImport(req, res) {
+        async.waterfall(
+            [
+                function(next) {
+                    gitHubService.checkIfGitHubExists(req.params.gitHubId, next);
+                },
+                function(gitHub,next) {
+                    gitHubService.gitHubContentSync(req.params.gitHubId, req.params.botId, next);
+                }
+            ],
+            function(err, results) {
+                if (err) {
+                    res.status(err.status).send(err);
+                } else {
+                    noticeService.notice(req.session.user.cn,{title:'Bot sync',body:results.botsDetails+ ' sync successful'},"success",function(err,data){
+                    if(err){
+                        return res.sendStatus(500);
+                    }});
+                    return res.sendStatus(200);
                 }
             }
         );

@@ -37,14 +37,14 @@ var noticeService = require('_pr/services/noticeService.js');
 
 const errorType = 'chefExecutor';
 
-var pythonHost =  process.env.FORMAT_HOST || 'localhost';
-var pythonPort =  process.env.FORMAT_PORT || '2687';
+//var pythonHost =  process.env.FORMAT_HOST || 'localhost';
+//var pythonPort =  process.env.FORMAT_PORT || '2687';
 var chefExecutor = module.exports = {};
 
-chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executionType,callback) {
+chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executionType,botHostDetails,callback) {
     if(botsDetails.params.nodeIds && botsDetails.params.nodeIds.length > 0){
         var actionLogId = uuid.v4();
-        var parallelScriptExecuteList =[];
+        var parallelChefExecuteList =[];
         for(var i = 0 ;i < botsDetails.params.nodeIds.length; i++) {
             (function (nodeId) {
                 instanceModel.getInstanceById(nodeId, function (err, instances) {
@@ -56,17 +56,17 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
                         logsDao.insertLog({
                             referenceId: [actionLogId,botsDetails._id],
                             err: false,
-                            log: 'BOTs execution started for script ' + botsDetails.id,
+                            log: 'BOTs execution started for Chef ' + botsDetails.id,
                             timestamp: new Date().getTime()
                         });
-                        parallelScriptExecuteList.push(function(callback){executeChefOnRemote(instances[0],botsDetails,actionLogId,userName,callback);});
-                        if(parallelScriptExecuteList.length === botsDetails.params.nodeIds.length){
+                        parallelChefExecuteList.push(function(callback){executeChefOnRemote(instances[0],botsDetails,actionLogId,userName,botHostDetails,callback);});
+                        if(parallelChefExecuteList.length === botsDetails.params.nodeIds.length){
                             var botAuditTrailObj = {
                                 botId: botsDetails._id,
                                 actionId: actionLogId
                             }
                             callback(null, botAuditTrailObj);
-                            async.parallel(parallelScriptExecuteList, function (err, results) {
+                            async.parallel(parallelChefExecuteList, function (err, results) {
                                 if (err) {
                                     logger.error("Error in Executor",err);
                                     var resultTaskExecution = {
@@ -106,7 +106,7 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
             })(botsDetails.params.nodeIds[i])
         }
     }else{
-        executeChefOnLocal(botsDetails,auditTrail,executionType,function(err,data){
+        executeChefOnLocal(botsDetails,auditTrail,userName,botHostDetails,function(err,data){
             if(err){
                 logger.error(err);
                 callback(err,null);
@@ -119,27 +119,38 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
     }
 }
 
-function executeChefOnLocal(botsScriptDetails,auditTrail,userName,callback) {
+function executeChefOnLocal(botsChefDetails,auditTrail,userName,botHostDetails,callback) {
     var actionId = uuid.v4();
-    var logsReferenceIds = [botsScriptDetails._id, actionId];
+    var logsReferenceIds = [botsChefDetails._id, actionId];
     logsDao.insertLog({
         referenceId: logsReferenceIds,
         err: false,
-        log: 'BOTs execution started for script ' + botsScriptDetails.id,
+        log: 'BOTs execution started for Chef ' + botsChefDetails.id,
         timestamp: new Date().getTime()
     });
     var botAuditTrailObj = {
-        botId: botsScriptDetails._id,
+        botId: botsChefDetails._id,
         actionId: actionId
     }
     callback(null, botAuditTrailObj);
-    var serverUrl = "http://" + pythonHost + ':' + pythonPort;
+    var serverUrl = "http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort;
+    var reqData = {
+        runlist :[],
+        attributes:null,
+        node:local
+    }
+    for(var i = 0; i < botsChefDetails.execution.length; i++){
+        for(var j = 0; j < botsChefDetails.execution[i].runlist.length;j++){
+            reqData.runlist.push(botsChefDetails.execution[i].runlist[j]);
+        }
+        reqData.attributes = botsChefDetails.execution[i].attributes
+    }
     var reqBody = {
-        "data": botsScriptDetails.params.data
+        "data": reqData
     };
     var supertest = require("supertest");
-    var server = supertest.agent("http://" + pythonHost + ':' + pythonPort);
-    var executorUrl = '/bot/' + botsScriptDetails.id + '/exec';
+    var server = supertest.agent("http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort);
+    var executorUrl = '/bot/' + botsChefDetails.id + '/exec';
     server
         .post(executorUrl)
         .send(reqBody)
@@ -171,7 +182,7 @@ function executeChefOnLocal(botsScriptDetails,auditTrail,userName,callback) {
                                 noticeService.notice(userName, {
                                     title: "BOTs Execution",
                                     body: "Error in Fetching Audit Trails"
-                                }, "Error",function(err,data){
+                                }, "error",function(err,data){
                                     if(err){
                                         logger.error("Error in Notification Service, ",err);
                                     }
@@ -190,7 +201,7 @@ function executeChefOnLocal(botsScriptDetails,auditTrail,userName,callback) {
                             logsDao.insertLog({
                                 referenceId: logsReferenceIds,
                                 err: false,
-                                log: 'BOTs execution success for  ' + botsScriptDetails.id,
+                                log: 'BOTs execution success for  ' + botsChefDetails.id,
                                 timestamp: timestampEnded
                             });
 
@@ -205,11 +216,17 @@ function executeChefOnLocal(botsScriptDetails,auditTrail,userName,callback) {
                                     logger.error("Failed to create or update bots Log: ", err);
                                 }
                                 logger.debug("BOTs Execution Done");
+                                var botService = require('_pr/services/botsService');
+                                botService.updateSavedTimePerBots(botsChefDetails._id,'BOTsNew',function(err,data){
+                                    if (err) {
+                                        logger.error("Failed to update bots saved Time: ", err);
+                                    }
+                                });
                                 timer.stop();
                                 noticeService.notice(userName, {
                                     title: "BOTs Execution",
                                     body: result.status.text
-                                }, "Success",function(err,data){
+                                }, "success",function(err,data){
                                     if(err){
                                         logger.error("Error in Notification Service, ",err);
                                     }
@@ -234,7 +251,7 @@ function executeChefOnLocal(botsScriptDetails,auditTrail,userName,callback) {
                 logsDao.insertLog({
                     referenceId: logsReferenceIds,
                     err: true,
-                    log: "Error in Script executor",
+                    log: "Error in Chef executor",
                     timestamp: timestampEnded
                 });
                 var resultTaskExecution = {
@@ -249,8 +266,8 @@ function executeChefOnLocal(botsScriptDetails,auditTrail,userName,callback) {
                     }
                     noticeService.notice(userName, {
                         title: "BOTs Execution",
-                        body: "Error in Script executor"
-                    }, "Error",function(err,data){
+                        body: "Error in Chef executor"
+                    }, "error",function(err,data){
                         if(err){
                             logger.error("Error in Notification Service, ",err);
                         }
@@ -262,7 +279,7 @@ function executeChefOnLocal(botsScriptDetails,auditTrail,userName,callback) {
 };
 
 
-function executeChefOnRemote(instance,botDetails,actionLogId,userName,callback) {
+function executeChefOnRemote(instance,botDetails,actionLogId,userName,botHostDetails,callback) {
     var timestampStarted = new Date().getTime();
     var actionLog = instanceModel.insertOrchestrationActionLog(instance._id, null, userName, timestampStarted);
     instance.tempActionLogId = actionLog._id;
@@ -286,7 +303,7 @@ function executeChefOnRemote(instance,botDetails,actionLogId,userName,callback) 
         createdOn: new Date().getTime(),
         startedOn: new Date().getTime(),
         providerType: instance.providerType,
-        action: "BOTs Script-Execution",
+        action: "BOTs Chef-Execution",
         logs: []
     };
     if (!instance.instanceIP) {
@@ -344,16 +361,27 @@ function executeChefOnRemote(instance,botDetails,actionLogId,userName,callback) 
         logsDao.insertLog({
             referenceId: logsReferenceIds,
             err: false,
-            log: 'BOTs execution started for script ' + botDetails.id,
+            log: 'BOTs execution started for Chef ' + botDetails.id,
             timestamp: new Date().getTime()
         });
         var supertest = require("supertest");
-        var server = supertest.agent("http://" + pythonHost + ':' + pythonPort);
+        var server = supertest.agent("http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort);
+        var reqData = {
+            runlist :[],
+            attributes:null,
+            node:instance.instanceIP
+        }
+        for(var i = 0; i < botDetails.execution.length; i++){
+            for(var j = 0; j < botDetails.execution[i].runlist.length;j++){
+                reqData.runlist.push(botDetails.execution[i].runlist[j]);
+            }
+            reqData.attributes = botDetails.execution[i].attributes
+        }
         var reqBody = {
-            "data": botDetails.params.data,
+            "data": reqData,
             "os": instance.hardware.os,
-            "authentication": [authenticationObj],
-            "environment": [envObj]
+            "authentication": authenticationObj,
+            "environment": envObj
         };
         var executorUrl = '/bot/' + botDetails.id + '/exec';
         server
@@ -367,7 +395,7 @@ function executeChefOnRemote(instance,botDetails,actionLogId,userName,callback) 
                     logsDao.insertLog({
                         referenceId: logsReferenceIds,
                         err: true,
-                        log: "Error in Script executor: ",
+                        log: "Error in Chef executor: ",
                         timestamp: timestampEnded
                     });
                     instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
@@ -375,7 +403,7 @@ function executeChefOnRemote(instance,botDetails,actionLogId,userName,callback) 
                     instanceLog.actionStatus = "failed";
                     instanceLog.logs = {
                         err: false,
-                        log: "Unable to upload script file " + botDetails.id,
+                        log: "Unable to upload Chef file " + botDetails.id,
                         timestamp: new Date().getTime()
                     };
                     instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
@@ -385,8 +413,8 @@ function executeChefOnRemote(instance,botDetails,actionLogId,userName,callback) 
                     });
                     noticeService.notice(userName, {
                         title: "BOTs Execution",
-                        body: "Error in Script executor"
-                    }, "Error",function(err,data){
+                        body: "Error in Chef executor"
+                    }, "error",function(err,data){
                         if(err){
                             logger.error("Error in Notification Service, ",err);
                         }
@@ -395,7 +423,7 @@ function executeChefOnRemote(instance,botDetails,actionLogId,userName,callback) 
                     return;
                 } else {
                     var every = require('every-moment');
-                    var serverUrl = "http://" + pythonHost + ':' + pythonPort;
+                    var serverUrl = "http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort;
                     var timer = every(10, 'seconds', function () {
                         schedulerService.getExecutorAuditTrailDetails(serverUrl + res.body.link, function (err, result) {
                             if (err) {
@@ -412,7 +440,7 @@ function executeChefOnRemote(instance,botDetails,actionLogId,userName,callback) 
                                 instanceLog.actionStatus = "failed";
                                 instanceLog.logs = {
                                     err: false,
-                                    log: "Unable to upload script file " + botDetails.id,
+                                    log: "Unable to upload Chef file " + botDetails.id,
                                     timestamp: new Date().getTime()
                                 };
                                 instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
@@ -424,7 +452,7 @@ function executeChefOnRemote(instance,botDetails,actionLogId,userName,callback) 
                                 noticeService.notice(userName, {
                                     title: "BOTs Execution",
                                     body: "Error in Fetching Audit Trails"
-                                }, "Error",function(err,data){
+                                }, "error",function(err,data){
                                     if(err){
                                         logger.error("Error in Notification Service, ",err);
                                     }
@@ -459,10 +487,16 @@ function executeChefOnRemote(instance,botDetails,actionLogId,userName,callback) 
                                     }
                                 });
                                 timer.stop();
+                                var botService = require('_pr/services/botsService');
+                                botService.updateSavedTimePerBots(botDetails._id,'BOTsNew',function(err,data){
+                                    if (err) {
+                                        logger.error("Failed to update bots saved Time: ", err);
+                                    }
+                                });
                                 noticeService.notice(userName, {
                                     title: "BOTs Execution",
                                     body: result.status.text
-                                }, "Success",function(err,data){
+                                }, "success",function(err,data){
                                     if(err){
                                         logger.error("Error in Notification Service, ",err);
                                     }

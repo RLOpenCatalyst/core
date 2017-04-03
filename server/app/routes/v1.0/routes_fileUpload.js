@@ -27,7 +27,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     app.post('/fileUpload', function(req, res) {
         if(req.files && req.files.file) {
-            var fileId = req.query.fileId;
+            var fileId = req.query.fileId?req.query.fileId:null;
             if(fileId === '' || fileId === null){
                 fileId = uuid.v4();
             }else{

@@ -81,17 +81,18 @@
             <span class="navRight">
 
               <li class="left-projects-links">
-                <a>
+                <!-- <a>
                   <i class="fa fa-bell white font-size-16"></i><span style="position: absolute;top: -10px;right: 176px" class="label label-primary">8</span>
+                </a> -->
+              </li>
+              <li class="left-projects-links" title="Settings">
+                <a style="margin-right:24px;" href="#ajax/Settings/Dashboard.html" id="settingsNew" onclick="setleftnavigation(this,'Settings');">
+                  <i style="color:white!important" class="fa fa-cog fa-fw"></i>
                 </a>
               </li>
-              <li class="left-projects-links">&nbsp;&nbsp;</li>
 
-              <li class="left-projects-links active dropdown-toggle" id="liuserinfo" style="font-size: inherit;cursor: pointer;"   data-toggle="dropdown"></li>
-
-
+              <li class="left-projects-links active dropdown-toggle" id="liuserinfo" style="font-size: inherit;cursor: pointer;" data-toggle="dropdown"></li>
               <div class="list-group dropdown-menu" style="top:33px;width: 214px;left: initial;">
-                <a class="list-group-itemHK" href="#ajax/Settings/Dashboard.html" style="color: #000" id="settingsNew"  onclick="setleftnavigation(this,'Settings');"><i class="fa fa-cog"></i>&nbsp;SETTINGS</a>
                  <a class="list-group-itemHK" href="https://catalyst.readthedocs.org" target="_blank" style="color: #000">
                       <i class="fa fa-question "></i> HELP
                  </a>
@@ -1184,7 +1185,7 @@ var SettingTreeJson = [{
                 "icon": "fa fa-lg fa-fw fa-ticket"
             },{
                 "name": "organizations",
-                "text": "CICD Dashboard Server",
+                "text": "CICD Server",
                 "borderColor": "#000",
                 "href": "#ajax/Settings/cicddashboardserverList.html",
                 "selectable": true,
@@ -1275,6 +1276,21 @@ var SettingTreeJson = [{
         "selectable": false,
         "href": "javascript:void(0);",
         "icon": "fa fa-lg fa-fw fa fa-eye"
+    }, {
+        "name": "botEngine",
+        "text": "BOTs",
+        "nodes": [{
+            "name": "organizations",
+            "text": "BOT Engine",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/botEngineList.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-paper-plane-o"
+        }],
+        "borderColor": "#000",
+        "selectable": false,
+        "href": "javascript:void(0);",
+        "icon": "fa fa-lg fa-fw fa-paper-plane-o"
     }
 ];
 

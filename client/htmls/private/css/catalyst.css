@@ -4691,3 +4691,11 @@ input:focus, select:focus, textarea:focus {
     position: absolute;
     background: #ddd;
 }
+
+.white {
+    color: #fff!important;
+}
+
+.margintop15 {
+    margin-top: 15px;
+}

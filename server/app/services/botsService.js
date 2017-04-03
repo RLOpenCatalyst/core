@@ -355,9 +355,9 @@ botsService.getBotsHistory = function getBotsHistory(botId,botsQuery,serviceNowC
     });
 }
 
-botsService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,callback){
+botsService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,auditType,callback){
     var query = {
-        auditType: 'BOTs',
+        auditType: auditType,
         isDeleted: false,
         auditId: botId
     };
@@ -382,15 +382,33 @@ botsService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,callb
                 hours: Math.floor(totalTimeInMinutes / 60),
                 minutes: totalTimeInMinutes % 60
             }
-            bots.updateBotsDetail(botId, {savedTime: result,executionCount:botAuditTrail.length}, function (err, data) {
-                if (err) {
-                    logger.error(err);
-                    callback(err, null);
+            if(auditType==='BOTs') {
+                bots.updateBotsDetail(botId, {
+                    savedTime: result,
+                    executionCount: botAuditTrail.length
+                }, function (err, data) {
+                    if (err) {
+                        logger.error(err);
+                        callback(err, null);
+                        return;
+                    }
+                    callback(null, data);
                     return;
-                }
-                callback(null, data);
-                return;
-            })
+                })
+            }else{
+                botsDao.updateBotsDetail(botId, {
+                    savedTime: result,
+                    executionCount: botAuditTrail.length
+                }, function (err, data) {
+                    if (err) {
+                        logger.error(err);
+                        callback(err, null);
+                        return;
+                    }
+                    callback(null, data);
+                    return;
+                })
+            }
         } else {
             callback(null, botAuditTrail);
             return;

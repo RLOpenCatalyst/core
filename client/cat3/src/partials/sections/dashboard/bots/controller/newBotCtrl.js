@@ -8,19 +8,27 @@
 (function (angular) {
     "use strict";
     angular.module('dashboard.bots')
-    .controller('newBotCtrl',['$scope', '$rootScope', '$timeout', 'genericServices', 'botsCreateService', 'responseFormatter', 'toastr',
-        function($scope, $rootScope, $timeout, genericServices, botsCreateService, responseFormatter, toastr){
+    .controller('newBotCtrl',['$scope', '$rootScope', '$state', '$timeout', 'genericServices', 'botsCreateService', 'responseFormatter', 'toastr','$http',
+        function($scope, $rootScope, $state, $timeout, genericServices, botsCreateService, responseFormatter, toastr,$http){
             var treeNames = ['BOTs','BOTs Create'];
             $rootScope.$emit('treeNameUpdate', treeNames);
             var botsData = {};
             $scope.botType = 'chef';
+            $scope.botSubTypeValue = 'Task';
             $scope.chefrunlist = [];
             $scope.cookbookAttributes = [];
+            $scope.botCategory = 'User Management';
 
             $rootScope.$on('WZ_ORCHESTRATION_REFRESH_CURRENT', function(event,reqParams) {
                 $scope.chefrunlist = reqParams.list;
                 $scope.cookbookAttributes = reqParams.cbAttributes;
             });
+
+            if($rootScope.organObject && $rootScope.organObject.length > 0) {
+                $scope.orgNewEnt = {
+                    org:$rootScope.organObject[0]
+                }
+            }
 
             angular.extend($scope, {    
                 botTypes: {
@@ -70,26 +78,16 @@
                         $scope.scriptParamsObj[scriptObj._id] = [];
                     }
                 },
-                yamlFileSelection: function($event) {
-                    if (FileReader) {
-                        var fileContent = new FileReader();
-                        fileContent.onload = function(e) {
-                            $scope.addYamlText(e.target.result);
-                        };
-                        fileContent.onerror = function(e) {
-                            toastr.error(e);
-                        };
-                        fileContent.readAsText($event);
-                    } else {
-                        toastr.error('HTMl5 File Reader is not Supported. Please upgrade your browser');
-                    }
-                },
                 postCreateBots : function() {
                     botsData = {
                         name: $scope.botName,
                         desc: $scope.botDesc,
                         standardTime: $scope.manualExecutionTime,
-                        type: $scope.botType
+                        type: $scope.botType,
+                        subType: $scope.botSubTypeValue,
+                        category: $scope.botCategory,
+                        orgId:$scope.orgNewEnt.org.orgid,
+                        orgName:$scope.orgNewEnt.org.name
                     };
                     var reqbody = {
                         bots: botsData
@@ -101,14 +99,20 @@
                             botsData.attributes = responseFormatter.formatSelectedCookbookAttributes($scope.cookbookAttributes);
                         }
                     }
-                    botsCreateService.postCreateBots(reqbody).then(function(response){
-                        console.log(response);
-                    });
-                    yamlFileSelection($scope.yamlfile);
-                },
-                addYamlText : function(yamlfileText){
-                    botsData.yamlFileId = yamlfileText;
-                    postBotCreate();
+                    if($scope.yamlfile){//will be true if a file chosen by user 
+                        var formData = new FormData();
+                        formData.append('file',  $scope.yamlfile);
+                        $http.post('/fileUpload', formData, { transformRequest: angular.identity,headers: {'Content-Type': undefined}}).then(function (response) {
+                            if(response) {
+                                var yamlfileId = response.data.fileId;
+                                botsData.fileId = yamlfileId;
+                                botsCreateService.postCreateBots(reqbody).then(function(response){
+                                    toastr.success('BOT created successfully');
+                                    $state.go('dashboard.bots.library');
+                                });
+                            }
+                        });
+                    }
                 }
             });
         }

@@ -15,7 +15,7 @@
 
 			botService.getBOTDetails = function(botId) {
 				var params = {
-					url: '/botsNew?filterBy=_id:' + botId,
+					url: '/botsNew?filterBy=id:' + botId,
 					inlineLoader:true
 				};
 				return genericServices.promiseGet(params);
@@ -41,6 +41,15 @@
 				return genericServices.promiseGet(params);
 			};
 
+			botService.fileUpload = function (data,postFormat) {
+				var params = {
+					url: '/fileUpload?fileId=',
+					data: data,
+					postFormat: postFormat
+				};
+				return genericServices.promisePost(params);
+			};
+
 			botService.postCreateBots = function (bots) {
 				var params = {
 					url: '/botsNew',
@@ -56,6 +65,47 @@
 				}
 				return genericServices.promiseGet(params);
 			};
+
+			botService.getBlueprintList = function (orgId,bgId,projId,templateType) {
+				var params = {
+					url: '/organizations/' + orgId + '/businessgroups/' + bgId + 
+					'/projects/' + projId + '/blueprintList?templateType='+templateType,
+					inlineLoader: true	
+				}
+				return genericServices.promiseGet(params);
+			};
+
+			botService.syncIndividualBot = function(gitHubId,botId) {
+				var params = {
+					url: '/git-hub/' + gitHubId + '/content/' + botId,
+					inlineLoader: true
+				}
+				return genericServices.promiseGet(params);
+			};
+
+			botService.getBotCategoryList = function () {
+				var params = {
+					url: '/config-data/category-type',
+					inlineLoader: true
+				}
+				return genericServices.promiseGet(params);
+			};
+
+			botService.getBlueprintDetails = function(blueprintId) {
+				var params = {
+					url: '/blueprints/' + blueprintId,
+					inlineLoader: true
+				}
+				return genericServices.promiseGet(params);
+			};
+
+			botService.botExecute = function(botId,reqBody) {
+				var params = {
+					url: '/botsNew/' + botId + '/execute',
+					data: reqBody
+				}
+				return genericServices.promisePost(params);
+			}
 			
         }]);
 })(angular);

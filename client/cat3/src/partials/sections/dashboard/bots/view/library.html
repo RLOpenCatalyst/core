@@ -1,4 +1,3 @@
-<link rel='stylesheet' href='catalyst/partials/sections/dashboard/bots/bots.css'>
 <!--top description, name along with filter and refresh-->
 <div id="botLibraryPage">
    <div class="page-name">
@@ -61,8 +60,7 @@
    <div class="container summary-container containerBox">
        <div class="panel-group text-center">
          <div class="col-lg-2 col-sm-6 width20">
-                     <!-- <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph dark-blue-glyph selected-section" ng-class="{'selected-section':totalBotsSelected}"></span> -->
-               <div class="dashboard-stats__item dashboard-stats__item_blue" ng-click="showAllBots()">
+               <div class="cursor dashboard-stats__item dashboard-stats__item_blue" ng-click="showAllBots()">
                 <i class="fa fa-list"></i>
                 <h3 class="dashboard-stats__title">
                   <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
@@ -70,11 +68,11 @@
                   <small>Total BOTs</small>
                 </h3>
               </div>
+              <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph dark-blue-glyph selected-section" ng-class="{'selected-section':totalBotsSelected}"></span>
            </div>
 
            <div class="col-lg-2 col-sm-6 width20">
-                  <!-- <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph green-glyph" ng-class="{'selected-section':runningBotsselected}"></span> -->
-               <div class="dashboard-stats__item dashboard-stats__item_green" ng-click=" showBotsRunning('resetPage')">
+               <div class="cursor dashboard-stats__item dashboard-stats__item_green" ng-click=" showBotsRunning('resetPage')">
                 <i class="fa fa-cogs"></i>
                 <h3 class="dashboard-stats__title">
                   <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
@@ -82,6 +80,7 @@
                   <small>Running BOTs</small>
                 </h3>
               </div>
+               <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph green-glyph" ng-class="{'selected-section':runningBotsselected}"></span>
            </div>
           
            <div class="col-lg-2 col-sm-6 width20">
@@ -95,8 +94,7 @@
               </div>
            </div>
            <div class="col-lg-2 col-sm-6 width20">
-                  <!-- <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph bg-blue-glyph" ng-class="{'selected-section':scheduledBotsSelected}"></span> -->
-               <div class="dashboard-stats__item dashboard-stats__item_bg-blue" ng-click="showScheduledBots('resetPage')">
+               <div class="cursor dashboard-stats__item dashboard-stats__item_bg-blue" ng-click="showScheduledBots('resetPage')">
                 <i class="fa fa-power-off"></i>
                 <h3 class="dashboard-stats__title">
                   <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
@@ -104,10 +102,10 @@
                   <small>Tickets Resolved</small>
                 </h3>
               </div>
+              <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph bg-blue-glyph" ng-class="{'selected-section':scheduledBotsSelected}"></span>
            </div>  
             <div class="col-lg-2 col-sm-6 width20">
-                  <!-- <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph redcard-glyph" ng-class="{'selected-section':failedBotsselected}"></span> -->
-               <div class="dashboard-stats__item dashboard-stats__item_red" ng-click="showFailedBots('resetPage')">
+               <div class="cursor dashboard-stats__item dashboard-stats__item_red" ng-click="showFailedBots('resetPage')">
                 <i class="fa fa-remove"></i>
                 <h3 class="dashboard-stats__title">
                   <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
@@ -115,6 +113,7 @@
                   <small>Failed BOTs</small>
                 </h3>
               </div>
+              <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph redcard-glyph" ng-class="{'selected-section':failedBotsselected}"></span>
            </div>    
        </div>
    </div>
@@ -123,11 +122,11 @@
     <div class="botsWidth">
       <div class="marginleft35 margintop8 botsWidth  box-infobox" style="border-top-color:floralwhite"></div>
       <div class="gallery-header top-stats marginCheck">
-          <button type="button" class="font-size-16 tabReadme btn btn-link {{botsCardViewSelection}}" title="Card View" ng-click="setCardView('pageReset')"  >
+          <button type="button" class="font-size-16 tabReadme btn btn-link {{botsCardViewSelection}}" title="Grid View" ng-click="setCardView('pageReset')"  >
               <i class="fa fa-th black"></i>
               Grid
           </button>
-           <button type="button" class="font-size-16 tabReadme btn btn-link {{botsTableViewSelection}}" title="Table View" ng-click="botsTableView()">
+           <button type="button" class="font-size-16 tabReadme btn btn-link {{botsTableViewSelection}}" title="List View" ng-click="botsTableView()">
             <i class="fa fa-align-justify black"></i>
               List
           </button>
@@ -140,7 +139,7 @@
          <span ng-if="botLibType" class="marginleft10 box-title font-size-15"><span>Type</span>
          <span class="badge">{{botLibType}}<span title="Clear" class="filterClear" ng-click="clearFilter(botLibType)">×</span></span>
          </span>
-         <form class="pull-right firefoxForm" novalidate name="library-form" ng-submit="searchBotNameCategory('pageNumber')">
+         <form class="pull-right firefoxForm marginright14" novalidate name="library-form" ng-submit="searchBotNameCategory('pageNumber')">
             <span class="bot-library-search">
                <label>&nbsp;
                   <input type="text" ng-model="botLibrarySearch" class="search-text bot-search" placeholder="Search">
@@ -167,6 +166,9 @@
                   <div title="{{botsDetails.desc ? botsDetails.desc:botsDetails.botDesc}}" class="description">{{botsDetails.desc ? botsDetails.desc:botsDetails.botDesc}}</div>
                </div>
                 <div title="{{botsDetails.executionCount}}" class="pull-left botsExecution" ng-if="botsDetails.executionCount">Total Runs:&nbsp;<span>{{botsDetails.executionCount}}</span></div>
+                <div class="pull-right" style="margin-top:5px;">
+                  <a ng-if="botsDetails.source ==='GitHub'" class="margin10 cursor" title="BOT Sync"><i ng-class="{'fa fa-refresh' : activeClass !== botsDetails, 'fa fa-refresh fa-spin' : activeClass === botsDetails}" ng-click="botSync(botsDetails)"></i></a>
+               </div>
             </a>
          </div>
       </div>
@@ -180,16 +182,18 @@
         <div class="col-lg-3"></div>
         <div class="col-lg-2 pull-right">
             <div ng-show="showRecords && isCardViewActive">
-                <h4><small>{{statusBar}}</small></h4>
+                <h4 class="margintop-2"><small>{{statusBar}}</small></h4>
             </div>
         </div>
     </div>   
    <!--cards section ends here-->
 
    <!--table section start here-->
+   <div class="col-lg-12" style="padding-left: 2.3%;">
    <div class="alert alert-info text-center" ng-if="!botLibGridOptions.data.length > 0 && !isBotLibraryPageLoading">
       No data Available
    </div>
    <div id="grid1" ng-show="!isCardViewActive" ng-if="botLibGridOptions.data.length >0 && !isBotLibraryPageLoading" ui-grid="botLibGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid"></div>
+ </div>
    <!--table section ends here -->
 </div>
