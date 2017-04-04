@@ -8,8 +8,8 @@
 (function (angular) {
     "use strict";
     angular.module('dashboard.bots')
-    .controller('botDescriptionCtrl',['$scope', 'uiGridOptionsClient', '$rootScope', '$location', 'toastr', 'confirmbox', '$state', 'genericServices',
-    function ($scope, uiGridOptionsClient, $rootScope, $location, toastr,confirmbox, $state, genSevs) {
+    .controller('botDescriptionCtrl',['$scope', 'uiGridOptionsClient', 'moment','botsCreateService', '$rootScope', '$location', 'toastr', 'confirmbox', '$state', 'genericServices',
+    function ($scope, uiGridOptionsClient, moment,botsCreateService, $rootScope, $location, toastr,confirmbox, $state, genSevs) {
             var treeNames = ['BOTs','BOTs Description'];
             $rootScope.$emit('treeNameUpdate', treeNames);
             $scope.templateSelected=$state.params.botDetail;
@@ -67,9 +67,16 @@
                 });
             };
             $scope.botInfo = $scope.templateSelected;
+
+            $scope.botSync = function(botsDetails) {
+                $scope.activeClass = botsDetails;
+                botsCreateService.syncIndividualBot(botsDetails.gitHubId,botsDetails.id).then(function(response){
+                    $scope.activeClass = {};
+                });
+            };
          
             var botsTab = {
-                tab : "ReadMe",
+                tab : "Execute",
                 setTab : function (tabId) {
                     botsTab.tab = tabId;   
                 },

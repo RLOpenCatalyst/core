@@ -60,8 +60,8 @@ botsNewService.createNew = function createNew(reqBody,callback) {
                             var paramObj = {};
                             if (reqBody.type === 'chef') {
                                 paramObj = {
-                                    name: reqBody.name,
-                                    desc: reqBody.desc,
+                                    //name: reqBody.name,
+                                    //desc: reqBody.desc,
                                     data: {
                                         runlist: reqBody.runlist,
                                         attributes: reqBody.attributes
@@ -69,20 +69,20 @@ botsNewService.createNew = function createNew(reqBody,callback) {
                                 }
                             } else if (reqBody.type === 'blueprints') {
                                 paramObj = {
-                                    name: reqBody.name,
-                                    desc: reqBody.desc
+                                    //name: reqBody.name,
+                                    //desc: reqBody.desc
                                 }
                             } else if (reqBody.type === 'script') {
                                 paramObj = {
-                                    name: reqBody.name,
-                                    desc: reqBody.desc,
+                                    //name: reqBody.name,
+                                    //desc: reqBody.desc,
                                     scriptId: reqBody.scriptId,
                                     data: reqBody.params
                                 }
                             } else if (reqBody.type === 'jenkins') {
                                 paramObj = {
-                                    name: reqBody.name,
-                                    desc: reqBody.desc,
+                                    //name: reqBody.name,
+                                    //desc: reqBody.desc,
                                     jenkinsServerId: reqBody.jenkinsServerId,
                                     jenkinsBuildName: reqBody.jenkinsBuildName,
                                     data: reqBody.params
