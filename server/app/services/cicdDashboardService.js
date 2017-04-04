@@ -16,6 +16,8 @@
 
 var logger = require('_pr/logger')(module);
 var cicdDashboardModel = require('_pr/model/cicd-dashboards/cicdDashboard.js');
+var d4dMastersNewModel = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
+var configmgmtDao = require('_pr/model/d4dmasters/configmgmt.js');
 var appConfig = require('_pr/config');
 var Cryptography = require('_pr/lib/utils/cryptography');
 
@@ -44,6 +46,22 @@ cicdDashboardService.checkIfcicdDashboardServerExists = function checkIfcicdDash
         }
     });
 };
+
+
+
+cicdDashboardService.checkForDashboardDependency = function checkForDashboardDependency(cicdDashboardServerId, callback) {
+    d4dMastersNewModel.d4dModelMastersCICDDashboard.getDependentDashboard(cicdDashboardServerId, function (err, cicdDashboard) {
+        if (err) {
+            var err = new Error('Internal server error');
+            err.status = 500;
+            return callback(err);
+        } else {
+            return callback(null, cicdDashboard);
+        }
+    });
+};
+
+
 
 cicdDashboardService.createcicdDashboardServer = function createcicdDashboardServer(cicdDashboardObj, callback) {
     
@@ -90,6 +108,23 @@ cicdDashboardService.updatecicdDashboardServer = function updatecicdDashboardSer
 };
 
 cicdDashboardService.deletecicdDashboardServer = function deletecicdDashboardServer(cicdDashboardServerId, callback) {
+
+    cicdDashboardModel.getcicdDashboardId(cicdDashboardId, function (err, cicdDashboard) {
+        if (err) {
+            var err = new Error('Internal Server Error');
+            err.status = 500;
+            return callback(err);
+        } else if (!cicdDashboard) {
+            var err = new Error('CICD Dashboard server not found');
+            err.status = 404;
+            return callback(err);
+        } else{
+            formatcicdDashboardResponse(cicdDashboard,function(formattedData){
+                callback(null, formattedData);
+            });
+        }
+    });
+
     cicdDashboardModel.deletecicdDashboad(cicdDashboardServerId, function (err, cicdDashboard) {
         if (err) {
             var err = new Error('Internal server error');
@@ -163,6 +198,8 @@ cicdDashboardService.getcicdDashboardServerByOrgId = function getcicdDashboardSe
         }
     });
 };
+
+
 
 cicdDashboardService.getcicdDashboardServerList = function getcicdDashboardServerList(query,sessionUser, callback) {
     var reqData = {};
