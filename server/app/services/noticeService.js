@@ -17,6 +17,8 @@
 
 var logger = require('_pr/logger')(module);
 var noticeSchema = require('_pr/model/push-notice/push-notice.js');
+var async = require("async");
+var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var address,socketClient;
 
 var noticeService = module.exports = {};
@@ -30,7 +32,7 @@ noticeService.init =function init(io, address) {
             socket.join(roomData);
         });
         socket.on('onLoad', function (userid) {
-            noticeSchema.getAllnotices(userid, function (err, data) {
+            noticeSchema.getAllNotices(userid, function (err, data) {
                 if (err) {
                     logger.error(err);
                 } else {
@@ -45,7 +47,7 @@ noticeService.init =function init(io, address) {
             nsp.in('client-'+data.user_id).emit('update',data);
         })
         socket.on('noticeack',function(userid){
-            noticeSchema.deleteNotice(userid,function(err,data){
+            noticeSchema.updateNotice(userid,function(err,data){
                 if(err)
                 logger.error(err);  
             })
@@ -98,7 +100,35 @@ noticeService.updater = function updater(userid, dataType, updateData, callback)
     })
 }
 
-noticeService.test =function test(){
+noticeService.getAllNoticeWithPagination = function getAllNoticeWithPagination(reqBody,callback) {
+    var reqData = {};
+    async.waterfall([
+        function(next) {
+            apiUtil.paginationRequest(reqBody, 'notice', next);
+        },
+        function(paginationReq, next) {
+            paginationReq['searchColumns'] = ['user_id', 'severity', 'read_Flag','message.title'];
+            reqData = paginationReq;
+            apiUtil.databaseUtil(paginationReq, next);
+        },
+        function(queryObj, next) {
+            noticeSchema.getAllNoticeWithPagination(queryObj, next);
+        },
+        function(noticeList, next) {
+            apiUtil.paginationResponse(noticeList, reqData, next);
+        }
+    ],function(err, results) {
+        if (err){
+            logger.error(err);
+            callback(err,null);
+            return;
+        }
+        callback(null,results);
+        return;
+    });
+}
+
+/*noticeService.test =function test(){
     var i=0;
     setInterval(function(){
         noticeService.notice('superadmin',{title:'msg '+i,body:'Test1234'},"success",function(err,data){
@@ -106,7 +136,7 @@ noticeService.test =function test(){
         });
         i++;
      }, 40000);
-}
+}*/
 
 
 
