@@ -417,6 +417,102 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
     });
 }
 
+botsNewService.syncSingleBotsWithGitHub = function syncSingleBotsWithGitHub(botId,callback){
+    async.waterfall([
+        function(next) {
+            botsDao.getBotsByBotId(botId,next);
+        },
+        function(botsDetails,next){
+            if(botsDetails.length > 0) {
+                fileUpload.getReadStreamFileByFileId(botsDetails[0].ymlDocFileId, function (err, fileData) {
+                    if (err) {
+                        next(err, null);
+                        return;
+                    } else {
+                        fileUpload.removeFileByFileId(botsDetails[0].ymlDocFileId, function (err, data) {
+                            if (err) {
+                                next(err, null);
+                                return;
+                            } else {
+                                next(null, fileData, botsDetails);
+                                return;
+                            }
+                        })
+                    }
+                });
+            }else{
+                next({errCode:400,errMsg:"BOTs is not available"},null);
+                return;
+            }
+        },
+        function(ymlFileDetails,botsDetails,next) {
+            var botFactoryDirPath = appConfig.botCurrentFactoryDir;
+            fileHound.create()
+                .paths(botFactoryDirPath)
+                .match(ymlFileDetails.fileName+'.yaml')
+                .find().then(function (files) {
+                if (files.length > 0) {
+                    yamlJs.load(files[0], function (result) {
+                        if (result !== null) {
+                            fileUpload.uploadFile(result.id, files[0], null, function (err, ymlDocFileId) {
+                                if (err) {
+                                    logger.error("Error in uploading yaml documents.", err);
+                                    next(err, null);
+                                } else {
+                                    var botsObj = {
+                                        ymlJson: result,
+                                        name: result.name,
+                                        id: result.id,
+                                        desc: result.desc,
+                                        category: result.botCategory ? result.botCategory : result.functionality,
+                                        action: result.action,
+                                        execution: result.execution ? result.execution : [],
+                                        manualExecutionTime: result.standardTime ? result.standardTime : 10,
+                                        type: result.type,
+                                        subType: result.subtype,
+                                        inputFormFields: result.input[0].form,
+                                        outputOptions: result.output,
+                                        ymlDocFileId: ymlDocFileId,
+                                        source: "GitHub"
+                                    }
+
+                                    botsDao.updateBotsDetail(botsDetails[0]._id, botsObj, function (err, updateBots) {
+                                        if (err) {
+                                            logger.error(err);
+                                            callback(err,null);
+                                            return;
+                                        }else{
+                                            callback(null,updateBots);
+                                            return;
+                                        }
+                                    })
+
+                                }
+                            });
+                        } else {
+                            next({errCode:400,errMsg:"Error in Uploading YML."},null);
+                            return;
+                        }
+                    });
+                } else {
+                    next({errCode:400,errMsg:"YML is not available there."},null);
+                    return;
+                }
+            })
+        }
+    ],function(err, results) {
+        if (err){
+            logger.error(err);
+            callback(err,null);
+            return;
+        }else {
+            callback(null, results)
+            return;
+        }
+    });
+}
+
+
 botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
     async.waterfall([
         function(next) {
@@ -481,7 +577,7 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
         function(gitHubDetails,next){
             if(gitHubDetails.botSync !== null){
                 process.setMaxListeners(50);
-                var botFactoryDirPath = appConfig.botFactoryDir;
+                var botFactoryDirPath = appConfig.botCurrentFactoryDir;
                 fileHound.create()
                     .paths(botFactoryDirPath)
                     .ext('yaml')

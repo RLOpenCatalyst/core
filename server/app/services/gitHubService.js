@@ -333,14 +333,15 @@ gitGubService.gitHubContentSync = function gitHubContentSync(gitHubId, botId,cal
                         callback(err,null);
                         return;
                     }else{
-                        botsNewService.syncBotsWithGitHub(gitHubId, function (err, data) {
+                        botsNewService.syncSingleBotsWithGitHub(botId, function (err, data) {
                             if (err) {
-                                callback(err, null);
                                 logger.error("Error in Syncing GIT-Hub.", err);
+                                callback(err, null);
+                                return;
                             } else {
-                                
-                                callback(null, {gitHubDetails:gitHubId,botsDetails:botId});
                                 logger.debug("Git Hub importing is Done.");
+                                callback(null, {gitHubDetails:gitHubId,botsDetails:botId});
+                                return;
                             }
                         });
                     }
