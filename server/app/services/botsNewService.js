@@ -481,9 +481,9 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
         function(gitHubDetails,next){
             if(gitHubDetails.botSync !== null){
                 process.setMaxListeners(50);
-                var gitHubDirPath = appConfig.gitHubDir + gitHubDetails.botSync._id;
+                var botFactoryDirPath = appConfig.botFactoryDir;
                 fileHound.create()
-                    .paths(gitHubDirPath)
+                    .paths(botFactoryDirPath)
                     .ext('yaml')
                     .find().then(function(files){
                     if(files.length > 0){

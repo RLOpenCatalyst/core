@@ -17,8 +17,9 @@
 var mongoose = require('mongoose');
 var logger = require('_pr/logger')(module);
 var Schema = mongoose.Schema;
+var mongoosePaginate = require('mongoose-paginate');
 
-var noticeschema = new Schema({
+var noticeSchema = new Schema({
     user_id : {
         type: String,
         required: true
@@ -37,13 +38,19 @@ var noticeschema = new Schema({
         type:String,
         required:false
     },
+    read_Flag: {
+        type: Boolean,
+        default: false,
+        required: false
+    },
     createdOn: {
         type: Number,
         default: Date.now()
     }
 });
+noticeSchema.plugin(mongoosePaginate);
 
-noticeschema.statics.createNew = function(noticedetails,callback){
+noticeSchema.statics.createNew = function(noticedetails,callback){
     var noticedata = new notice(noticedetails);
     noticedata.save(function(err,data){
         if (err) {
@@ -56,19 +63,32 @@ noticeschema.statics.createNew = function(noticedetails,callback){
         }
     });
 }
-noticeschema.statics.getAllnotices = function(user_id,callback) {
-    notice.find({user_id:{$in:[user_id,'system']}},{},{sort:{createdOn:-1}},function(err,data){
+noticeSchema.statics.getAllNotices = function(user_id,callback) {
+    notice.find({user_id:{$in:[user_id,'system']},read_Flag:false},{},{sort:{createdOn:-1}},function(err,noticeList){
         if(err) {
             logger.error(err);
             var error = new Error('Internal server error');
             error.status = 500;
             return callback(error);
         }else {
-            return callback(null,data);
+            return callback(null,noticeList);
         }
     });
 }
-noticeschema.statics.deleteNotice = function(userid,callback) {
+
+noticeSchema.statics.getAllNoticeWithPagination = function(filterQuey,callback) {
+    notice.paginate(filterQuey.queryObj, filterQuey.options, function(err, noticeList) {
+        if (err) {
+            logger.error(err);
+            var error = new Error('Internal server error');
+            error.status = 500;
+            return callback(error);
+        }
+        return callback(null, noticeList);
+    });
+}
+
+noticeSchema.statics.deleteNotice = function(userid,callback) {
     notice.remove({user_id:userid},function(err,data){
         if(err) {
             logger.error(err);
@@ -80,5 +100,19 @@ noticeschema.statics.deleteNotice = function(userid,callback) {
         }
     });
 }
-var notice = mongoose.model('notice',noticeschema);
+
+noticeSchema.statics.updateNotice = function(userid,callback) {
+    notice.update({user_id:userid},{$set:{read_Flag:true}},{multi:true},function(err,data){
+        if(err) {
+            logger.error(err);
+            var error = new Error('Internal server error');
+            error.status = 500;
+            return callback(error);
+        }else {
+            return callback(null,data);
+        }
+    });
+}
+
+var notice = mongoose.model('notice',noticeSchema);
 module.exports = notice;
