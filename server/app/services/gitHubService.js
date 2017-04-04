@@ -123,13 +123,13 @@ gitGubService.getGitHubSync = function getGitHubSync(gitHubId,task, callback) {
             formatGitHubResponse(gitHub,function(formattedGitHub){
                 var cmd;
                 if(formattedGitHub.repositoryType === 'Private' && formattedGitHub.authenticationType === 'token') {
-                    cmd = 'curl -u '+formattedGitHub.repositoryUserName+':'+formattedGitHub.repositoryToken + ' -L https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/tarball/'+formattedGitHub.repositoryBranch + ' > '+appConfig.gitHubDir+formattedGitHub.repositoryName+'.tgz';
+                    cmd = 'curl -u '+formattedGitHub.repositoryUserName+':'+formattedGitHub.repositoryToken + ' -L https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/tarball/'+formattedGitHub.repositoryBranch + ' > '+appConfig.botFactoryDir+formattedGitHub.repositoryName+'.tgz';
                 }else if(formattedGitHub.repositoryType === 'Private' && formattedGitHub.authenticationType === 'userName') {
-                    cmd = 'curl -u '+formattedGitHub.repositoryUserName+':'+formattedGitHub.repositoryPassword + ' -L https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/tarball/'+formattedGitHub.repositoryBranch + ' > '+appConfig.gitHubDir+formattedGitHub.repositoryName+'.tgz';
+                    cmd = 'curl -u '+formattedGitHub.repositoryUserName+':'+formattedGitHub.repositoryPassword + ' -L https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/tarball/'+formattedGitHub.repositoryBranch + ' > '+appConfig.botFactoryDir+formattedGitHub.repositoryName+'.tgz';
                 }else if(formattedGitHub.repositoryType === 'Private' && formattedGitHub.authenticationType === 'sshKey') {
-                    cmd = 'curl -u '+formattedGitHub.repositoryUserName+':'+formattedGitHub.repositoryPassword + ' -L https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/tarball/'+formattedGitHub.repositoryBranch + ' > '+appConfig.gitHubDir+formattedGitHub.repositoryName+'.tgz';
+                    cmd = 'curl -u '+formattedGitHub.repositoryUserName+':'+formattedGitHub.repositoryPassword + ' -L https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/tarball/'+formattedGitHub.repositoryBranch + ' > '+appConfig.botFactoryDir+formattedGitHub.repositoryName+'.tgz';
                 }else{
-                    cmd = 'curl -L https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/tarball/'+formattedGitHub.repositoryBranch + ' > '+appConfig.gitHubDir+formattedGitHub.repositoryName+'.tgz';
+                    cmd = 'curl -L https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/tarball/'+formattedGitHub.repositoryBranch + ' > '+appConfig.botFactoryDir+formattedGitHub.repositoryName+'.tgz';
                 }
                 gitHubCloning(formattedGitHub,task,cmd,function(err,res){
                     if(err){
@@ -211,8 +211,8 @@ gitGubService.getGitHubById = function getGitHubById(gitHubId, callback) {
 };
 
 gitGubService.gitHubCopy = function gitHubCopy(gitHubId, reqBody,callback) {
-    var dest = glob.sync(appConfig.gitHubDir + gitHubId +'/*')[0];
-    var source = glob.sync(appConfig.gitHubDir + gitHubId +'.temp/*')[0];
+    var dest = appConfig.botCurrentFactoryDir;
+    var source = glob.sync(appConfig.botFactoryDir + gitHubId +'.temp/*')[0];
     if(reqBody && reqBody.length !== 0) {
         var bots = [];
         gitHubTempModel.gitFilesList(gitHubId,function(err,data) {
@@ -325,7 +325,7 @@ gitGubService.gitHubContentSync = function gitHubContentSync(gitHubId, botId,cal
                         gitHubSingleSync(formattedGitHub,cmdFull,cmd,callback);
                     },
                     function(callback) {
-                        var cmdFull = cmd  +'https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/contents/YAML/'+result.botsDetails[0].id+'?ref='+formattedGitHub.repositoryBranch;
+                        var cmdFull = cmd  +'https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/contents/YAML/'+result.botsDetails[0].id+'.yaml?ref='+formattedGitHub.repositoryBranch;
                         gitHubSingleSync(formattedGitHub,cmdFull,cmd,callback);
                     }
                 ],function(err,res){
@@ -406,97 +406,57 @@ function formatGitHubResponse(gitHub,callback) {
 }
 
 function gitHubCloning(gitHubDetails,task,cmd,callback){
-    var filePath = appConfig.gitHubDir +gitHubDetails.repositoryName+'.tgz';
-    var destPath = appConfig.gitHubDir + gitHubDetails._id;
-    var botpath = glob.sync(appConfig.gitHubDir + gitHubDetails._id+'/*')[0];
+    var filePath = appConfig.botFactoryDir +gitHubDetails.repositoryName+'.tgz';
+    var destPath = appConfig.botFactoryDir + gitHubDetails._id;
+    var botFactoryDirPath = appConfig.botFactoryDir;
+    var botCurrentFactoryDirPath = appConfig.botCurrentFactoryDir;                                
     var options = {compareContent: true,excludeFilter:'*.md',skipSymlinks:true};
     if(fs.existsSync(filePath)){
         fs.unlinkSync(filePath)
     }
     if(task && task === 'sync'){
-        if(fs.existsSync(destPath)){
-            fse.removeSync(destPath)
-        }
         execCmd(cmd, function (err, out, code) {
             if (code === 0) {
-                var cmd2 = "tar -tvf "+ filePath+" | head -n 1";
-                execCmd(cmd2,function(err,out2,code2) {
-                    var arr = out2.toString("ascii").split(" ");
-                    var str = arr[arr.length -1].split("/");
-                    if (code2 === 0) {
-                        targz.decompress({
-                            src: filePath,
-                            dest: destPath
-                        }, function (err) {
+                targz.decompress({
+                    src: filePath,
+                    dest: destPath
+                }, function (err) {
+                    if (err) {
+                        logger.error("Error in Extracting Files ", err);
+                        callback(err, null);
+                    } else {
+                        gitHubModel.updateGitHub(gitHubDetails._id, {isRepoCloned: true}, function (err, gitHub) {
                             if (err) {
-                                logger.error("Error in Extracting Files ", err);
-                                callback(err, null);
-                            } else {
-                                gitHubModel.updateGitHub(gitHubDetails._id, {isRepoCloned: true}, function (err, gitHub) {
-                                    if (err) {
-                                        logger.error(err);
+                                logger.error(err);
+                            }
+                            logger.debug("GIT Repository Clone is Done.");
+                            fs.unlinkSync(filePath);
+                            fse.removeSync(botCurrentFactoryDirPath)
+                            var copydir = require('copy-dir');
+                            copydir(glob.sync(destPath+'/*')[0], botCurrentFactoryDirPath, function (err) {
+                                if (err) {
+                                    logger.error("Error in copy Directory  to BOTs. ", err);
+                                    callback(err, null);
+                                } else {
+                                    if(fs.existsSync(destPath)){
+                                        fse.removeSync(destPath)
                                     }
-                                    logger.debug("GIT Repository Clone is Done.");
-                                    fs.unlinkSync(filePath);
-                                    var gitHubDirPath = appConfig.gitHubDir + gitHubDetails._id + '/' + str[0];
-                                    var gitHubDir = appConfig.gitHubDir + gitHubDetails._id;
-                                    var botFactoryDirPath = appConfig.botFactoryDir;
-                                    var botCurrentFactoryDirPath = appConfig.botCurrentFactoryDir;
-                                    var copydir = require('copy-dir');
-                                    async.parallel({
-                                      botSync:  function(callback){
-                                          copydir(gitHubDir, botFactoryDirPath, function (err) {
-                                              if (err) {
-                                                  logger.error("Error in copy Directory  to BOTs. ", err);
-                                                  callback(err, null);
-                                              } else {
-                                                  botsNewService.syncBotsWithGitHub(gitHubDetails._id, function (err, data) {
-                                                      if (err) {
-                                                          callback(err, null);
-                                                          logger.error("Error in Syncing GIT-Hub.", err);
-                                                      } else {
-                                                          var botsDetails = [];
-                                                          for (var i = 1; i < data.length; i++) {
-                                                              botsDetails.push(data[i].id);
-                                                          }
-                                                          callback(null, {botsDetails: botsDetails});
-                                                          logger.debug("Git Hub Sync is Done.");
-                                                      }
-                                                  });
-                                              }
-                                          });
-                                        },
-                                      backUpSync: function(callback) {
-                                          fse.removeSync(botCurrentFactoryDirPath)
-                                          copydir(gitHubDirPath, botCurrentFactoryDirPath, function (err) {
-                                              if (err) {
-                                                  logger.error("Error in copy Directory  to BOTs. ", err);
-                                                  callback(err, null);
-                                              } else {
-                                                  callback(null, true);
-                                                  return;
-                                              }
-                                          })
-                                      }
-
-                                    },function(err,results){
-                                        if(err){
+                                    botsNewService.syncBotsWithGitHub(gitHubDetails._id, function (err, data) {
+                                        if (err) {
                                             callback(err, null);
                                             logger.error("Error in Syncing GIT-Hub.", err);
-                                            return
-                                        }else{
-                                            callback(null,results.backUpSync);
-                                            return;
+                                        } else {
+                                            var botsDetails = [];
+                                            for (var i = 1; i < data.length; i++) {
+                                                botsDetails.push(data[i].id);
+                                            }
+                                            callback(null, {botsDetails: botsDetails});
+                                            logger.debug("Git Hub Sync is Done.");
                                         }
-                                    })
-                                });
-                            }
+                                    });
+                                }
+                            });
                         });
-                    }else{
-                        var err = new Error('Invalid Git-Hub Credentials Details');
-                        err.status = 400;
-                        err.msg = 'Invalid Git-Hub Details';
-                        callback(err, null);
                     }
                 });
             }else{
@@ -522,7 +482,7 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
                         callback(err, null);
                     } else {
                         logger.debug("GIT Repository comparing");
-                        dircompare.compare(botpath, glob.sync(destPath + '/*')[0], options).then(function(res){
+                        dircompare.compare(botCurrentFactoryDirPath, glob.sync(destPath + '/*')[0], options).then(function(res){
                             var result = [];
                             res.diffSet.forEach(function (entry) {
                                 if(entry.type1 === 'file' || entry.type2 ==='file'){
@@ -607,7 +567,7 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
 }
 function gitHubSingleSync(gitHubDetails,cmdFull,cmd,callback) {
     execCmd(cmdFull, function (err, out, code) {
-        var filepath = glob.sync(appConfig.gitHubDir + gitHubDetails._id+'/*')[0]+'/';
+        var filepath = appConfig.botCurrentFactoryDir;
         if(code === 0 && out.trim() !== '404: Not Found'){
             var response = JSON.parse(out);
             for (var index = 0; index < response.length; index++) {
