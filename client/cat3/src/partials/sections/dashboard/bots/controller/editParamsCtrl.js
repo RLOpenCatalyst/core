@@ -201,6 +201,7 @@
                         reqBody.domainName = blueprintObj.domainName;
                         reqBody.envId = blueprintObj.launchEnv;
                         reqBody.tagServer = blueprintObj.tagServer;
+                        reqBody.stackName = blueprintObj.stackName;
                         console.log(reqBody);
                         $scope.botExecuteMethod(items.id,reqBody);
                     }, function() {

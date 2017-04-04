@@ -1,28 +1,25 @@
 <div id='newBotPage' class="container scheduleBorder margintop15 backColor">
    <form name="newBotForm" novalidate ng-submit="newBotForm.$valid && ok()">
       <div class="page-name">
-         <span class="marginleft-18">Create {{botTypes[botType].name}} BOT</span>
-         <!-- <button type="button" title="Bots List" class="btn cat-btn-update btn-primary pull-right btnDescription" ui-sref="dashboard.bots.library">
-         <i class="fa fa-chevron-left" style="color: #fff"></i><span style="margin-left:5px;">Back</span>
-         </button> -->
+         <span class="marginleft-18">Create New BOT</span>
       </div>
       <div class="borderTop"></div>
       <loading name="isNewBotPageLoading" size="large" type="block" align="center"></loading>
       <div class="row new-task-wrapper" ng-show="!isNewBotPageLoading">
          <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 border no-padding">
             <div class="jobDetailsContent">
-               <div class="col-md-6 col-sm-6 col-xs-6 margintop15">
-                  <label class="control-label botsLabel">Organization
-                     <span class="control-label red">&nbsp;*</span>
-                     <span ng-show="newBotForm.botOrg.$touched && newBotForm.botOrg.$invalid" class="inputValidationMsg">Required
+               <!-- <div class="col-md-6 col-sm-6 col-xs-6 margintop15">
+                  <label class="control-label botsLabel">Name
+                  <span class="control-label red">&nbsp;*</span>
+                  <span ng-show="newBotForm.botName.$touched && newBotForm.botName.$invalid" class="inputValidationMsg">Required
                   </span>
                   </label>
-                  <select name="botOrg"  ng-model="orgNewEnt.org" ng-options="org.name group by org.a for org in organObject" class="chooseProjectExisting width-100 form-control"  required>
-                     <option value="">Select Organization</option>
-                  </select>
-               </div>
+                  <br />
+                  <input type="text" name="botName" placeholder="Enter the BOT Name" class="form-control" required autofocus ng-model="botName" maxlength="50" />
+               </div> -->
+               
                <div class="col-md-6 col-sm-6 col-xs-6 margintop15">
-                  <label class="control-label botsLabel">BOT Type
+                  <label class="control-label botsLabel">Type
                   <span class="control-label red">&nbsp;*</span>
                   <span ng-show="newBotForm.botType.$touched && newBotForm.botType.$invalid" class="inputValidationMsg">Required
                   </span>
@@ -33,17 +30,9 @@
                      <!-- <option ng-show="!createChefJob" value="script">{{botTypes['script'].name}}</option> -->
                   </select>
                </div>
-               <div class="col-md-6 col-sm-6 col-xs-6 margintop15">
-                  <label class="control-label botsLabel">BOT Name
-                  <span class="control-label red">&nbsp;*</span>
-                  <span ng-show="newBotForm.botName.$touched && newBotForm.botName.$invalid" class="inputValidationMsg">Required
-                  </span>
-                  </label>
-                  <br />
-                  <input type="text" name="botName" class="form-control" required autofocus ng-model="botName" maxlength="50" />
-               </div>
+               
                <div class="col-lg-6 col-md-6 margintop15">
-                  <label class="botsLabel" for="">BOT Sub Type:<span class="red">*</span>
+                  <label class="botsLabel" for="">Action:<span class="red">*</span>
                      <span ng-show="newBotForm.botSubTypeValue.$touched && newBotForm.botSubTypeValue.$invalid" class="inputValidationMsg">Required
                   </span>
                   </label>
@@ -56,7 +45,7 @@
                   </select>
                </div>
                <div class="col-lg-6 col-md-6 margintop15">
-                  <label class="botsLabel"  for="">BOT Category:<span class="red">*</span>
+                  <label class="botsLabel"  for="">Category:<span class="red">*</span>
                      <span ng-show="newBotForm.botCategory.$touched && newBotForm.botCategory.$invalid" class="inputValidationMsg">Required
                   </span>
                   </label>
@@ -67,14 +56,24 @@
                      <option value="Application Management">Application Management</option>
                   </select>
                </div>
-               <div class="col-lg-6 col-md-6 col-sm-4 col-xs-6 margintop15">
-                  <label class="control-label botsLabel">Short Description
+               <!-- <div class="col-lg-6 col-md-6 col-sm-4 col-xs-6 margintop15">
+                  <label class="control-label botsLabel">Description
                   <span class="control-label red">&nbsp;*</span>
                   <span ng-show="newBotForm.botDesc.$touched && newBotForm.botDesc.$invalid" class="inputValidationMsg">Required
                   </span>
                   </label>
                   <br />
-                  <input type="text" name="botDesc" class="form-control" ng-required="checkBotStatus"  autofocus ng-model="botDesc" maxlength="50" />
+                  <input type="text" name="botDesc" placeholder="Enter the BOT Description" class="form-control" ng-required="checkBotStatus"  autofocus ng-model="botDesc" maxlength="50" />
+               </div> -->
+               <div class="col-md-6 col-sm-6 col-xs-6 margintop15">
+                  <label class="control-label botsLabel">Organization
+                     <span class="control-label red">&nbsp;*</span>
+                     <span ng-show="newBotForm.botOrg.$touched && newBotForm.botOrg.$invalid" class="inputValidationMsg">Required
+                  </span>
+                  </label>
+                  <select name="botOrg"  ng-model="orgNewEnt.org" ng-options="org.name group by org.a for org in organObject" class="chooseProjectExisting width-100 form-control"  required>
+                     <option value="">Select Organization</option>
+                  </select>
                </div>
                <div class="col-lg-6 col-md-6 col-sm-3 col-xs-6 margintop15">
                   <label class="control-label botsLabel">Standard Time(mins)
@@ -83,7 +82,7 @@
                   </span>
                   </label>
                   <br/>
-                  <input type="text" name="manualExecutionTime" class="form-control" ng-required="checkBotStatus" autofocus ng-model="manualExecutionTime" maxlength="10" />
+                  <input type="text" name="manualExecutionTime" placeholder="Enter the Manual Execution Time" class="form-control" ng-required="checkBotStatus" autofocus ng-model="manualExecutionTime" maxlength="10" />
                </div>
                <div class="col-lg-6 col-md-6 authPemFile margintop15">
                   <label for="autenticationYAMLfile" class="botsLabel">YAML File

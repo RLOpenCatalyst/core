@@ -158,8 +158,8 @@
                </div>
                <div class="info-cell">
                   <div title="{{botsDetails.name ? botsDetails.name:botsDetails.botName}}" class="title">{{botsDetails.name ? botsDetails.name:botsDetails.botName}}</div>
-                  <div class="publisher">
-                      {{botsDetails.lastRunTime | timestampToLocaleTime}} &nbsp;&nbsp;
+                  <div class="publisher"><i ng-if="botsDetails.lastRunTime" class="fa fa-clock-o"></i>&nbsp;<span title="{{botsDetails.lastRunTime | timestampToLocaleTime}}" am-time-ago="botsDetails.lastRunTime">
+                      {{botsDetails.lastRunTime}} &nbsp;&nbsp;</span>
                   </div>
                </div>
                <div class="desc-cell">
