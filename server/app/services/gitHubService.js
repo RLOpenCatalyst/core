@@ -431,7 +431,7 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
                             }
                             logger.debug("GIT Repository Clone is Done.");
                             fs.unlinkSync(filePath);
-                            fse.removeSync(botCurrentFactoryDirPath)
+                            fse.removeSync(botCurrentFactoryDirPath);
                             var copydir = require('copy-dir');
                             copydir(glob.sync(destPath+'/*')[0], botCurrentFactoryDirPath, function (err) {
                                 if (err) {
@@ -566,46 +566,26 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
     }
 }
 function gitHubSingleSync(gitHubDetails,cmdFull,cmd,callback) {
+    var filepath = appConfig.botCurrentFactoryDir;
     execCmd(cmdFull, function (err, out, code) {
-        var filepath = appConfig.botCurrentFactoryDir;
         if(code === 0 && out.trim() !== '404: Not Found'){
             var response = JSON.parse(out);
-            for (var index = 0; index < response.length; index++) {
-                if(response[index].type === 'dir'){
-                    gitHubSingleSync(gitHubDetails,cmd+response[index].url,cmd,function(err,data){
-                        if(err) {
-                            callback(err,null)
-                        } else{
-                            callback(null,data)
-                        }
-                    });
-                }else{
-                    execCmd(cmd+response[index].url,function(err,out,code) {
-                        if(code === 0 && out.trim() !== '404: Not Found'){
-                            var fileres = JSON.parse(out);
-                            var destFile = filepath+fileres.path;
-                            if(!fs.existsSync(destFile)) {
-                                mkdirp(getDirName(destFile), function (err) {
-                                    if(err){
-                                        var err = new Error();
-                                        err.status = 500;
-                                        err.msg = 'path does not exists'
-                                        return callback(err)
-                                    } else{
-                                        fs.writeFileSync(destFile,new Buffer(fileres.content, fileres.encoding).toString())
-                                    }
-                                });
-                            } else {
-                                fs.writeFileSync(destFile,new Buffer(fileres.content, fileres.encoding).toString());
+            if(response.length){
+                for (var index = 0; index < response.length; index++) {
+                    if(response[index].type === 'dir'){
+                        gitHubSingleSync(gitHubDetails,cmd+response[index].url,cmd,function(err,data){
+                            if(err) {
+                                callback(err,null)
+                            } else{
+                                callback(null,data)
                             }
-                        }else{
-                            var err = new Error();
-                            err.status = 400;
-                            err.msg = 'File not found';
-                            callback(err, null);
-                        }
-                    });
+                        });
+                    }else{
+                        writeFile(cmd+response[index].url,callback)
+                    }
                 }
+            }else {
+                writeFile(cmd+response.url,callback)
             }
             callback(null,gitHubDetails)
         }else{
@@ -615,4 +595,31 @@ function gitHubSingleSync(gitHubDetails,cmdFull,cmd,callback) {
             callback(err, null);
         }
     });
+    function writeFile(cmd,callback){
+        execCmd(cmd,function(err,out,code) {
+            if(code === 0 && out.trim() !== '404: Not Found'){
+                var fileres = JSON.parse(out);
+                var destFile = filepath+fileres.path;
+                if(!fs.existsSync(destFile)) {
+                    mkdirp(getDirName(destFile), function (err) {
+                        if(err){
+                            var err = new Error();
+                            err.status = 500;
+                            err.msg = 'path does not exists'
+                            return callback(err)
+                        } else{
+                            fs.writeFileSync(destFile,new Buffer(fileres.content, fileres.encoding).toString())
+                        }
+                    });
+                } else {
+                    fs.writeFileSync(destFile,new Buffer(fileres.content, fileres.encoding).toString());
+                }
+            }else{
+                var err = new Error();
+                err.status = 400;
+                err.msg = 'File not found';
+                callback(err, null);
+            }
+        });
+    }
 }
