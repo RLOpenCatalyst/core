@@ -275,7 +275,11 @@ $('#cicdDashboardServerTable tbody').on( 'click', 'button.deletecicdDashboardSer
                 $.ajax({
                     url: '../cicd-dashboardservice/' + $this.parents('tr').attr('dashboardId'),
                     method: 'DELETE',
-                    success: function() {
+                    success: function(data) {
+                        if(data)
+                        {
+                            bootbox.alert(data.warning);
+                        }
                         getGlobalcicdDashboardServers();
                     },
                     error: function(jxhr) {
