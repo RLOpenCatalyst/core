@@ -582,21 +582,22 @@ function gitHubSingleSync(gitHubDetails,cmdFull,cmd,callback) {
                             }
                         });
                     }else{
-                        writeFile(cmd+response[index].url,callback)
+                        writeFile(cmd+response[index].url)
                     }
                 }
             }else {
-                writeFile(cmd+response.url,callback)
+                writeFile(cmd+response.url)
             }
-            callback(null,gitHubDetails)
+            callback(null,gitHubDetails);
         }else{
             var err = new Error('Invalid Git-Hub Credentials Details');
             err.status = 400;
             err.msg = 'Invalid Git-Hub Details';
             callback(err, null);
+            return;
         }
     });
-    function writeFile(cmd,callback){
+    function writeFile(cmd){
         execCmd(cmd,function(err,out,code) {
             if(code === 0 && out.trim() !== '404: Not Found'){
                 var fileres = JSON.parse(out);
@@ -604,22 +605,18 @@ function gitHubSingleSync(gitHubDetails,cmdFull,cmd,callback) {
                 if(!fs.existsSync(destFile)) {
                     mkdirp(getDirName(destFile), function (err) {
                         if(err){
-                            var err = new Error();
-                            err.status = 500;
-                            err.msg = 'path does not exists'
-                            return callback(err)
+                            logger.error(err);
                         } else{
-                            fs.writeFileSync(destFile,new Buffer(fileres.content, fileres.encoding).toString())
+                            fs.writeFileSync(destFile,new Buffer(fileres.content, fileres.encoding).toString());
+                            return;
                         }
                     });
                 } else {
                     fs.writeFileSync(destFile,new Buffer(fileres.content, fileres.encoding).toString());
+                    return;
                 }
             }else{
-                var err = new Error();
-                err.status = 400;
-                err.msg = 'File not found';
-                callback(err, null);
+                logger.debug("Individual Sync is going on");
             }
         });
     }
