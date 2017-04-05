@@ -1,0 +1,53 @@
+<div id="editParamsPage">
+	<div class="modal-header">
+		<span class="close" ng-click="cancel()">×</span>
+		<h4 class="modal-title">
+			Instance Info - {{instanceInfo.name}}
+		</h4>
+	</div>
+
+	<div class="modal-body">
+		<fieldset>
+			<div class="bot-info-wrapper">
+				<table class="table table-bordered">
+					<thead>
+						<tr class="paramRow">
+							<th class="th-parameters">Parameters</th>
+							<th class="th-values">Values</th>
+						</tr>
+					</thead>
+		            <tbody>
+		            	<tr>
+		               	  <td class="td-padding">IP Address</td>
+		                  <td>{{instanceInfo.instanceIP}}</td>
+		               </tr>
+		               <tr>
+		               	  <td class="td-padding">Organization</td>
+		                  <td>{{instanceInfo.orgName}}</td>
+		               </tr>
+		               <tr>
+		               	  <td class="td-padding">Business Group</td>
+		                  <td>{{instanceInfo.bgName}}</td>
+		               </tr>
+		               <tr>
+		               	  <td class="td-padding">Project</td>
+		                  <td>{{instanceInfo.projectName}}</td>
+		               </tr>
+		               <tr>
+		               	  <td class="td-padding">Environment</td>
+		                  <td>{{instanceInfo.environmentName}}</td>
+		               </tr>
+		               <tr>
+		               	  <td class="td-padding">Bootstrap Status</td>
+		                  <td>{{instanceInfo.bootStrapStatus}}</td>
+		               </tr>
+				</table>
+			</div>
+		</fieldset>
+	</div>	
+	<div class="modal-footer">
+		<button type="button" class="btn cat-btn-close" ng-click="cancel()">
+			<i class="fa fa-times black"></i> Close
+		</button>
+	</div>
+</div>

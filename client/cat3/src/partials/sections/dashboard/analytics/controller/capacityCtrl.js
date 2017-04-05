@@ -321,6 +321,8 @@
                     $rootScope.$emit('treeNameUpdate', treeNames);
                 },500);
             };
+
+
             capaCtr.init();
 
         }]);

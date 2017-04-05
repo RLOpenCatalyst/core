@@ -19,8 +19,10 @@ var logger = require('_pr/logger')(module);
 var async = require('async');
 var analyticsService = require('_pr/services/analyticsService');
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
-	
-	/**
+    app.all('/analytics/*', sessionVerificationFunc);
+
+
+    /**
      * @api {get} /analytics/trend/usage?resource=<resourceId>&fromTimeStamp=<startDate>&toTimeStamp=<endDate>&interval=<INTERVAL>&metric=<METRIC>
      * 										                    									Get usage trend.
      * @apiName getTrendUsage

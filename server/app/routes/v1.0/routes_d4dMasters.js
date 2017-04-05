@@ -840,6 +840,37 @@ module.exports.setRoutes = function (app, sessionVerification) {
                         return;
                     });
 
+                }
+                else if (req.params.id === '30') {
+                    // For QA Portal
+                    masterUtil.getCICDDashboard(orgList, function(err, cicdlist) {
+                        if (err) {
+                            res.status(500).send('Not able to fetch cicdlist.');
+                        }
+                        res.send(cicdlist);
+                        return;
+                    });
+
+                }else if (req.params.id === '31') {
+                    // For QA Portal
+                    masterUtil.getSonarqube(orgList, function(err, sonarqubelist) {
+                        if (err) {
+                            res.status(500).send('Not able to fetch Sonar Tests.');
+                        }
+                        res.send(sonarqubelist);
+                        return;
+                    });
+
+                }else if (req.params.id === '32') {
+                    // For BOTs Remote Server Detail
+                    masterUtil.getBotRemoteServerDetails(orgList, function(err, botRemoteServerList) {
+                        if (err) {
+                            res.status(500).send('Not able to fetch BOTs Remote Server Details');
+                        }
+                        res.send(botRemoteServerList);
+                        return;
+                    });
+
                 }else if (req.params.id === '23') {
                     // For Jira
                     logger.debug("Entering getJira");
@@ -880,6 +911,16 @@ module.exports.setRoutes = function (app, sessionVerification) {
                             res.send(teamList);
                             return;
                         });
+                    } else if (req.params.id === '32') {
+                        // For BOTs Remote Server Detail
+                        masterUtil.getBotRemoteServerDetails(orgList, function(err, botRemoteServerList) {
+                            if (err) {
+                                res.status(500).send('Not able to fetch BOTs Remote Server Details.');
+                            }
+                            res.send(botRemoteServerList);
+                            return;
+                        });
+
                     } else if (req.params.id === '25') {
                         // For Puppet Server
                         masterUtil.getPuppetServers(orgList, function (err, pList) {
@@ -1037,6 +1078,16 @@ module.exports.setRoutes = function (app, sessionVerification) {
                             return;
                         });
 
+                    }else if (req.params.id === '32') {
+                        // For BOTs Remote Server Detail
+                        masterUtil.getBotRemoteServerDetails(orgList, function(err, botRemoteServerList) {
+                            if (err) {
+                                res.status(500).send('Not able to fetch BOTs Remote Server Details.');
+                            }
+                            res.send(botRemoteServerList);
+                            return;
+                        });
+
                     }else if (req.params.id === '23') {
                         // For Jira
                         masterUtil.getJira(orgList, function(err, jiraList) {
@@ -1094,6 +1145,16 @@ module.exports.setRoutes = function (app, sessionVerification) {
                             res.send(pList);
                             return;
                         });
+                    }else if (req.params.id === '32') {
+                    // For BOTs Remote Server Detail
+                        masterUtil.getBotRemoteServerDetails(orgList, function(err, botRemoteServerList) {
+                            if (err) {
+                                res.status(500).send('Not able to fetch BOTs Remote Server Details');
+                            }
+                            res.send(botRemoteServerList);
+                            return;
+                        });
+
                     } else {
                         logger.debug('nothin here');
                         res.send([]);
@@ -2456,9 +2517,29 @@ module.exports.setRoutes = function (app, sessionVerification) {
         }
     });
 
+    app.post('/d4dMasters/deactivateBotEngine/:action', function (req, res) {
+        logger.debug("Enter post() for /d4dMasters/deactivateBotEngine/%s", req.params.action);
+        var bodyJson = JSON.parse(JSON.stringify(req.body));
+        if (!req.orgid) {
+            logger.debug('Org ID found %s', bodyJson.orgid);
+            configmgmtDao.deactivateBotEngine(bodyJson.orgid, req.params.action, function (err, data) {
+                if (err) {
+                    logger.error('Error: ', err);
+                    res.send(500);
+                }
+                logger.debug('=== %s', data);
+                res.send(200);
+                logger.debug("Exit post() for /d4dMasters/deactivateBotEngine/%s", req.params.action);
+            });
+        }
+    });
+
     app.post('/d4dMasters/savemasterjsonrownew/:id/:fileinputs/:orgname', function (req, res) {
         logger.debug("Enter post() for /d4dMasters/savemasterjsonrownew/%s/%s/%s", req.params.id, req.params.fileinputs, req.params.orgname);
         var bodyJson = JSON.parse(JSON.stringify(req.body));
+        console.log("********************");
+        console.log(JSON.parse(JSON.stringify(req.body)));
+        console.log("********************");
         //pushing the rowid field
         var editMode = false; //to identify if in edit mode.
         var rowtoedit = null;

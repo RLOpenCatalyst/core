@@ -33,6 +33,7 @@ var GlobalSettings = require('_pr/model/global-settings/global-settings');
 var AuthToken = require('_pr/model/auth-token');
 var LDAPUser = require('_pr/model/ldap-user/ldap-user.js');
 var aws = require('aws-sdk');
+var tempAuthToken = require('_pr/model/temp-auth-token');
 
 module.exports.setRoutes = function(app) {
     app.post('/auth/createldapUser', function(req, res) {
@@ -81,26 +82,26 @@ module.exports.setRoutes = function(app) {
     });
     app.post('/auth/signin', function(req, res, next) {
         if (req.body && req.body.username && req.body.pass) {
-            if(req.body.username ==='ec2-user') {
+            if (req.body.username === 'ec2-user') {
                 var awsMetaData = new aws.MetadataService();
                 awsMetaData.request('/latest/meta-data/instance-id', function(err, data) {
                     if (err) {
                         logger.error(err, err.stack);
                         next(err);
                     } else {
-                        logger.debug("Instance Id is "+data);
-                        var instanceId=data;
+                        logger.debug("Instance Id is " + data);
+                        var instanceId = data;
                         var user = {
                             "cn": req.body.username,
                             "password": req.body.pass
                         };
                         req.session.user = user;
-                        if(req.body.username ==='ec2-user' && req.body.pass === instanceId) {
+                        if (req.body.username === 'ec2-user' && req.body.pass === instanceId) {
                             user.roleName = "Admin";
                             user.authorizedfiles = 'Track,Workspace,blueprints,Settings';
 
                             if (req.body.authType === 'token') {
-                                AuthToken.createNew(req.session.user, function (err, authToken) {
+                                AuthToken.createNew(req.session.user, function(err, authToken) {
                                     req.session.destroy();
                                     if (err) {
                                         return next(err);
@@ -112,7 +113,7 @@ module.exports.setRoutes = function(app) {
                                     return;
                                 });
                             } else {
-                                req.logIn(user, function (err) {
+                                req.logIn(user, function(err) {
                                     if (err) {
                                         return next(err);
                                     }
@@ -120,7 +121,7 @@ module.exports.setRoutes = function(app) {
                                     return res.redirect('/private/index.html');
                                 });
                             }
-                        }else{
+                        } else {
                             req.session.destroy();
                             if (req.body.authType === 'token') {
                                 return res.status(400).send({
@@ -132,7 +133,7 @@ module.exports.setRoutes = function(app) {
                     }
                 });
 
-            }else if (appConfig.authStrategy.externals) {
+            } else if (appConfig.authStrategy.externals) {
                 logger.debug("LDAP Authentication>>>>>");
                 passport.authenticate('ldap-custom-auth', function(err, user, info) {
                     logger.debug('passport error ==>', err);
@@ -365,6 +366,7 @@ module.exports.setRoutes = function(app) {
             next();
         } else {
             var token = req.headers[appConfig.catalystAuthHeaderName];
+            var tempToken = req.query.ttok; // getting temp token
             if (token) {
                 AuthToken.findByToken(token, function(err, authToken) {
                     if (err) {
@@ -375,9 +377,27 @@ module.exports.setRoutes = function(app) {
                     if (authToken) {
                         req.session.user = authToken.sessionData;
                         next();
+                       // req.session.destroy();
                     } else {
                         logger.debug("No Valid Session for User - 403");
                         res.send(403);
+                    }
+                });
+            } else if (tempToken) { //checking for temp token
+                tempAuthToken.findByToken(tempToken, function(err, tempTokenData) {
+                    if (err) {
+                        logger.error('Unable to fetch token from db', err);
+                        res.send(403);
+                        return;
+                    }
+                    if (tempTokenData) {
+                        req.session.user = tempTokenData.sessionData;
+                        next();
+                        //req.session.destroy();
+                    } else {
+                        logger.debug("No Valid Session for User - 403");
+                        res.send(403);
+                        // req.session.destroy();
                     }
                 });
             } else {

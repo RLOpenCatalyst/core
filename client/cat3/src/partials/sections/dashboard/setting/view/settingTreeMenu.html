@@ -1,0 +1,48 @@
+<link rel="stylesheet" type="text/css" href="catalyst/partials/sections/dashboard/analytics/view/analyticsTreeMenu.css"/>
+<link rel="stylesheet" type="text/css" href="catalyst/partials/globals/treeComponent/treeDirective.css"/>
+
+<div id='analyticsTreeMenuPage'>
+	<div id='navigPage' ng-mouseover="showTreeOverlay()" ng-mouseleave="hideTreeOverlay()" ng-class="{'show-left-tree':showTree}">
+		<div id='navigPage-inner'>
+			<div id="treeParent">
+				<ul class="tree-ul">
+					<li ng-repeat="parentMenu in treeResult" class="cursor" ng-click="isTreeOpen = !isTreeOpen">
+						<div class="liContents">
+							<i class="label-spacing" ng-class="parentMenu.icon"></i>
+							<span >{{parentMenu.text}}</span>
+							<div ng-class="{'show-providers':isTreeOpen !== true}" data-ng-hide="node.collapsed" data-tree-id="relevancelab" data-analytics-tree-model="node.nodes" data-node-id="rowid" data-node-label="text" data-node-children="nodes">
+								<ul class="tree-ul">
+									<li ng-repeat="childmenu in parentMenu.nodes" class="pointer-cursor" ng-if="!childmenu.diplayType" >
+										<div class="liContents">
+											<div class="liContents-wrapper">
+												<a href="/private/index.html{{childmenu.href}}"> <i class="icon label-spacing" ng-class="childmenu.icon"></i>
+													<span>{{childmenu.text}}</span>
+													<!--<i class="caret-spacing pull-right" ng-class="childmenu.icon"></i>-->
+												</a>
+											</div>
+										</div>
+									</li>
+									<li ng-repeat="childmenu in parentMenu.nodes" class="pointer-cursor" ng-if="childmenu.diplayType" ui-sref="dashboard.settings.dashboardList" class="pointer-cursor" >
+										<div class="liContents">
+											<div class="liContents-wrapper">
+												 <i class="icon label-spacing" ng-class="childmenu.icon"></i>
+													<span>{{childmenu.text}}</span>
+													<!--<i class="caret-spacing pull-right" ng-class="childmenu.icon"></i>-->
+											</div>
+										</div>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
+
+<style>
+	.show-providers {
+		display: none; }
+</style>
+

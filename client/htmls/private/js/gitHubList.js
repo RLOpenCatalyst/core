@@ -25,6 +25,27 @@ if (!$.fn.dataTable.isDataTable('#gitTable')) {
 //calling the global track functionality when track params are available..
 $(document).ready(function(e) {
     getGlobalGitServers();
+
+    $('#selectAllCheckbox').on('click',function(){
+        if(this.checked){
+            $('.selectCheckboxForImport').each(function(){
+                this.checked = true;
+            });
+        }else{
+             $('.selectCheckboxForImport').each(function(){
+                this.checked = false;
+            });
+        }
+    });
+
+    $('#gitImportTable tbody').on('click', '.selectCheckboxForImport',function(){
+        if($('.selectCheckboxForImport:checked').length == $('.selectCheckboxForImport').length){
+            $('#gitImportTable #selectAllCheckbox').prop('checked',true);
+        }else{
+            $('#gitImportTable #selectAllCheckbox').prop('checked',false);
+        }
+        $('#gitCloneImport').removeAttr('disabled');
+    });
 });
 
 function setFileNameCertificate(val) {
@@ -56,18 +77,22 @@ $('#authenticationType').change(function(e) {
     var val = $(this).val();
     if (val === 'userName') {
         $('.showForUser').removeClass('hidden');
+        $('.showForUserToken').removeClass('hidden');
         $('.showForSSH').addClass('hidden');
         $('.showForToken').addClass('hidden');
     } else if(val === 'sshKey') {
         $('.showForUser').addClass('hidden');
+        $('.showForUserToken').addClass('hidden');
         $('.showForSSH').removeClass('hidden');
         $('.showForToken').addClass('hidden');
     } else if(val === 'token') {
         $('.showForUser').addClass('hidden');
         $('.showForSSH').addClass('hidden');
+        $('.showForUserToken').removeClass('hidden');
         $('.showForToken').removeClass('hidden');
     } else {
         $('.showForUser').addClass('hidden');
+        $('.showForUserToken').addClass('hidden');
         $('.showForSSH').addClass('hidden');
         $('.showForToken').addClass('hidden');
     }
@@ -76,7 +101,7 @@ $('#authenticationType').change(function(e) {
 //when the user clicks on the new button the setting the value to 'new' for the hidden field to know that user is creating the new item..
 $('.addGitHub').click(function(e) {
     $('#gitHubRepoForn').trigger('reset');
-    $('.modal-header').find('.modal-title').html('Create New GitHub Repository');
+    $('#gitHubRepoForn .modal-header').find('.modal-title').html('Create New GitHub Repository');
     $('#gitEditHiddenInput').val('new');
     getOrganizationList();
     $('#orgName,#authenticationType').removeAttr('disabled');
@@ -117,10 +142,7 @@ var validator = $('#gitHubRepoForn').validate({
             extension: "pem|txt|sh"
         },
         gitName: {
-            maxlength: 15
-        },
-        token: {
-            number: true
+            maxlength: 30
         }
     },
     messages: {
@@ -131,7 +153,7 @@ var validator = $('#gitHubRepoForn').validate({
             extension: "Only .pem/.txt/.sh files"
         },
         gitName: {
-            maxlength: "Limited to 15 chars"
+            maxlength: "Limited to 30 chars"
         }
     },
     onkeyup: false,
@@ -165,7 +187,8 @@ function getGlobalGitServers() {
                 "githubDescription" : data.repositoryDesc, "orgId" : data.orgId ,"orgName" : data.orgName,
                 "repositoryUserName" : data.repositoryUserName,"repositoryPassword" : data.repositoryPassword,
                 "repositorySSHPublicKeyFileId" : data.repositorySSHPublicKeyFileId,"repositorySSHPrivateKeyFileId":data.repositorySSHPrivateKeyFileId,
-                "repositorySSHPublicKeyFileName": data.repositorySSHPublicKeyFileName,"repositorySSHPrivateKeyFileName": data.repositorySSHPrivateKeyFileName
+                "repositorySSHPublicKeyFileName": data.repositorySSHPublicKeyFileName,"repositorySSHPrivateKeyFileName": data.repositorySSHPrivateKeyFileName,
+                "repositoryBranch": data.repositoryBranch
             });
         },
         "ajax": '/git-hub',
@@ -174,10 +197,29 @@ function getGlobalGitServers() {
             {"data": "orgName","orderable" : false  },
             {"data": "repositoryOwner" ,"orderable" : false },
             {"data": "repositoryType" ,"orderable" : false},
+            {"data": "repositoryBranch" ,"orderable" : false},
             {"data": "","orderable" : true,
                 "render": function (data) {
-                    var $tdAction = '<div class="btn-group"><button class="btn btn-info pull-left btn-sg tableactionbutton syncGitRepo" data-placement="top" value="Sync" title="Sync"><i class="ace-icon fa fa-refresh bigger-120"></i></button></div><div style="margin-left:14px;" class="btn-group"><button class="btn btn-info pull-left btn-sg tableactionbutton editGitRepo" data-placement="top" value="Update" title="Edit"><i class="ace-icon fa fa-pencil bigger-120"></i></button></div>';
-                    $tdAction = $tdAction + '<div style="margin-left:14px;" class="btn-group"><button class="btn btn-danger pull-left btn-sg tableactionbutton deleteGitRepo" data-placement="top" value="Remove" title="Delete"><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>';
+                    var $tdAction = '<div class="btn-group">' +
+                        '<button class="btn btn-info pull-left btn-sg tableactionbutton syncGitRepo" data-placement="top" value="Sync" title="Sync">' +
+                        '<i class="ace-icon fa fa-refresh bigger-120"></i>' +
+                        '</button>' +
+                        '</div> &nbsp;' +
+                        '<div class="btn-group">' +
+                        '<button class="btn btn-info pull-left btn-sg tableactionbutton importGitRepo" data-placement="top" value="Import" title="Import">' +
+                        '<i class="ace-icon fa fa-download bigger-120"></i>' +
+                        '</button>' +
+                        '</div>' +
+                        '<div style="margin-left:14px;" class="btn-group">' +
+                        '<button class="btn btn-info pull-left btn-sg tableactionbutton editGitRepo" data-placement="top" value="Update" title="Edit">' +
+                        '<i class="ace-icon fa fa-pencil bigger-120"></i>' +
+                        '</button>' +
+                        '</div>';
+                    $tdAction = $tdAction + '<div style="margin-left:14px;" class="btn-group">' +
+                        '<button class="btn btn-danger pull-left btn-sg tableactionbutton deleteGitRepo" data-placement="top" value="Remove" title="Delete">' +
+                        '<i class="ace-icon fa fa-trash-o bigger-120"></i>' +
+                        '</button>' +
+                        '</div>';
                     return $tdAction;
                 }
             }
@@ -192,12 +234,13 @@ $('#gitTable tbody').on( 'click', 'button.editGitRepo', function(){
     var $editModal = $('#modalForGitEdit');
     $editModal.modal('show');
     $editModal.find('#gitEditHiddenInput').val('edit');
-    $editModal.find('h4.modal-title').html('Edit GitHub Repo &nbsp;-&nbsp;&nbsp;' + $this.parents('tr').attr('githubName'));
+    $editModal.find('#gitHubRepoForn h4.modal-title').html('Edit GitHub Repo &nbsp;-&nbsp;&nbsp;' + $this.parents('tr').attr('githubName'));
     $editModal.find('#gitName').val($this.parents('tr').attr('githubName'));
     $editModal.find('#gitDescription').val($this.parents('tr').attr('githubDescription'));
     $editModal.find('#orgName').empty().append('<option value="'+$this.parents('tr').attr("orgId")+'">'+$this.parents('tr').attr("orgName")+'</option>').attr('disabled','disabled');
     $editModal.find('#gitRepoOwner').val($this.parents('tr').attr('repositoryOwner'));
     $editModal.find('#gitEditHiddenInputId').val($this.parents('tr').attr('githubId'));
+    $editModal.find('#gitRepoBranch').val($this.parents('tr').attr('repositoryBranch'));
     var repoType = $this.parents('tr').attr('repositoryType');
     var authType = $this.parents('tr').attr('authenticationType');
 
@@ -223,6 +266,9 @@ $('#gitTable tbody').on( 'click', 'button.editGitRepo', function(){
             $editModal.find('#privateFileNameDisplay').append($this.parents('tr').attr('repositorySSHPrivateKeyFileName'));
         } else {
             $editModal.find('#authenticationType').val('token').change().attr('disabled','disabled');
+            $editModal.find('#protocolUser').val($this.parents('tr').attr('repositoryUserName'));
+            $editModal.find('#token').removeAttr('type');
+            $editModal.find('#token').attr('type', 'password');
             $editModal.find('#token').val($this.parents('tr').attr('repositoryToken'));
         }
     }else{
@@ -233,6 +279,7 @@ $('#gitTable tbody').on( 'click', 'button.editGitRepo', function(){
         $editModal.find('#protocolUser').val('');
         $editModal.find('#protocolPassword').val('');
         $('.showForUser').addClass('hidden');
+        $('.showForUserToken').addClass('hidden');
         $('.showForSSH').addClass('hidden');
         $('.showForToken').addClass('hidden');
     }
@@ -260,7 +307,7 @@ $('#gitTable tbody').on( 'click', 'button.deleteGitRepo', function(){
                         } else if (jxhr.responseText) {
                             msg = jxhr.responseText;
                         }
-                        bootbox.alert(msg);
+                        toastr.error(msg);
                     }
                 });
             } else {
@@ -271,14 +318,117 @@ $('#gitTable tbody').on( 'click', 'button.deleteGitRepo', function(){
     return false;
 });
 
+
+//import git
+
+
+$('#gitTable tbody').on( 'click', 'button.importGitRepo', function(){
+    $('#selectAllCheckbox').removeAttr('checked',false);
+    $('#importBotsList').empty();
+    $('#gitImportTable').hide();
+    $('#noDataAvailable').hide();
+    $('#gitCloneImportSave').hide();
+    $('#modalForGitImport').modal('show');
+    var $this = $(this);
+    var id = $this.parents('tr').attr('githubId');
+    $('#gitImpLoader').show();
+    $('#importBotsList').html();
+    $.ajax({
+        url: '../git-hub/'+id+'/import',
+        method: 'GET',
+        success: function(data) {
+            $('#gitCloneImportSave').show();
+            $('#gitImpLoader').hide();
+            $('#gitImportTable').show();
+            if(data.result && data.result.length > 0) {
+                for(var i=0;i<data.result.length; i++) {
+                    html = $('<tr><td>' + data.result[i].botName + '</td><td>' + data.gitHub.repoName + '</td><td><input value="'+data.result[i].botName+'" type="checkbox" class="selectCheckboxForImport"></td></tr>')
+                    .attr({'botNameTable':data.result[i].botName});
+                    $('#gitEditImportHiddenInputId').val(data.gitHub.Id);
+                    $('#importBotsList').append(html);
+                }
+            } else {
+                $('#gitImportTable').addClass('hidden');
+                $('#gitCloneImportSave').hide();
+                $('#noDataAvailable').show();
+            }
+        },
+        error: function(jxhr) {
+            $('#gitImpLoader').hide();
+            $('#gitImportTable').hide();
+            console.log(jxhr);
+            var msg = "Unable to Fetch GitRepo please try again later";
+            if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                msg = jxhr.responseJSON.message;
+            } else if (jxhr.responseText) {
+                var msgCheck = JSON.parse(jxhr.responseText);
+                msg = msgCheck.msg;
+            }
+            toastr.error(msg);
+            $('#gitHubListLoader').hide();
+        }
+    });
+    return false;
+});
+
+$('#gitCloneImport').submit(function(){
+    var $importBotsList = $('tbody#importBotsList');
+    var $checkbox = $importBotsList.find('input[type="checkbox"]:checked');
+    var $this = $(this);
+    var checkboxValueForImport = [];
+    var importData = {};
+    var gitHubId = $('#gitEditImportHiddenInputId').val();
+    $checkbox.each(function(){
+        checkboxValueForImport.push({
+            'botName':$(this).val(),
+            'status':true
+        });
+    });
+    if (!checkboxValueForImport.length) {
+        bootbox.alert('Please choose a BOT to import');
+        return;
+    }
+    var reqBody = [];
+    
+    reqBody = checkboxValueForImport;
+    $.ajax({
+        method: 'POST',
+        url: '../git-hub/' + gitHubId + '/copy',
+        data: {
+            gitHubBody :reqBody
+        },
+            success: function(data, success) {
+                toastr.success('Import Successful');
+                $('#modalForGitImport').modal('hide');
+                $('#saveItemSpinner').addClass('hidden');
+                $('#gitCloneImport').removeAttr('disabled');
+            },
+            error: function(jxhr) {
+                console.log(jxhr);
+                var msg = "Server Behaved Unexpectedly";
+                if (jxhr.responseJSON && jxhr.responseJSON.message) {
+                    msg = jxhr.responseJSON.message;
+                } else if (jxhr.responseText) {
+                    msg = jxhr.responseText;
+                }
+                toastr.error(msg);
+
+                $('#saveItemSpinner').addClass('hidden');
+                $('#gitCloneImport').removeAttr('disabled');
+            }
+    });
+    
+    return false;
+});
+
 $('#gitTable tbody').on( 'click', 'button.syncGitRepo', function(){
     $('#gitHubListLoader').show();
     var $this = $(this);
     $.ajax({
         url: '../git-hub/' + $this.parents('tr').attr('githubId') + '/sync',
         method: 'GET',
-        success: function() {
-            bootbox.alert('Sucessfully cloned');
+        success: function(data) {
+            toastr.success('Successfully cloned.');
             $('#gitHubListLoader').hide();
         },
         error: function(jxhr) {
@@ -290,7 +440,7 @@ $('#gitTable tbody').on( 'click', 'button.syncGitRepo', function(){
                 var msgCheck = JSON.parse(jxhr.responseText);
                 msg = msgCheck.msg;
             }
-            bootbox.alert(msg);
+            toastr.error(msg);
             $('#gitHubListLoader').hide();
         }
     });
@@ -319,13 +469,14 @@ function saveForm(methodName,url,reqBody) {
             } else if (jxhr.responseText) {
                 msg = jxhr.responseText;
             }
-            bootbox.alert(msg);
+            toastr.error(msg);
 
             $('#saveItemSpinner').addClass('hidden');
             $('#saveBtnTrack').removeAttr('disabled');
         }
     });
 }
+
 
 //save form for creating a new gitHub item and updation of the gitHub details.
 $('#gitHubRepoForn').submit(function(e) {
@@ -339,7 +490,8 @@ $('#gitHubRepoForn').submit(function(e) {
         var $form = $('#gitHubRepoForn');
         $this = $(this);
         var repositoryName, orgValue, description, authenticationType, repositoryOwner, repositoryType,
-            passwordName, userName, certChainFileId, privateKeyFileId, certChainFileName, privateKeyFileName, repositoryToken;
+            passwordName, userName, certChainFileId, privateKeyFileId, certChainFileName, privateKeyFileName,
+            repositoryToken, repositoryBranch;
 
         repositoryName = $this.find('.gitName').val().trim();
         orgValue = $this.find('#orgName').val();
@@ -350,6 +502,7 @@ $('#gitHubRepoForn').submit(function(e) {
         userName = $this.find('#protocolUser').val().trim();
         repositoryToken = $this.find('#token').val().trim();
         passwordName = $this.find('#protocolPassword').val().trim();
+        repositoryBranch = $this.find('#gitRepoBranch').val().trim();
         certChainFileId = $this.find('#gitHiddenPublicFile').val();
         privateKeyFileId = $this.find('#gitHiddenPrivateFile').val();
         var dashboardEditNew = $this.find('#gitEditHiddenInput').val();
@@ -394,6 +547,7 @@ $('#gitHubRepoForn').submit(function(e) {
                                     "orgId": orgValue,
                                     "repositoryDesc": description,
                                     "repositoryOwner": repositoryOwner,
+                                    "repositoryBranch": repositoryBranch,
                                     "repositoryType": repositoryType,
                                     "authenticationType": authenticationType,
                                     "repositorySSHPublicKeyFileId": dataCertificate.fileId,
@@ -411,6 +565,7 @@ $('#gitHubRepoForn').submit(function(e) {
                     "orgId": orgValue,
                     "repositoryDesc": description,
                     "repositoryOwner": repositoryOwner,
+                    "repositoryBranch": repositoryBranch,
                     "repositoryType": repositoryType,
                     "authenticationType": authenticationType,
                     "repositorySSHPublicKeyFileId": certChainFileId,
@@ -425,6 +580,7 @@ $('#gitHubRepoForn').submit(function(e) {
                     "orgId": orgValue,
                     "repositoryDesc": description,
                     "repositoryOwner": repositoryOwner,
+                    "repositoryBranch": repositoryBranch,
                     "repositoryType": repositoryType,
                     "authenticationType": authenticationType,
                     "repositoryUserName": userName,
@@ -437,6 +593,7 @@ $('#gitHubRepoForn').submit(function(e) {
                     "orgId": orgValue,
                     "repositoryDesc": description,
                     "repositoryOwner": repositoryOwner,
+                    "repositoryBranch": repositoryBranch,
                     "repositoryType": repositoryType,
                     "authenticationType": authenticationType,
                     "repositoryUserName": userName,
@@ -451,8 +608,10 @@ $('#gitHubRepoForn').submit(function(e) {
                     "orgId": orgValue,
                     "repositoryDesc": description,
                     "repositoryOwner": repositoryOwner,
+                    "repositoryBranch": repositoryBranch,
                     "repositoryType": repositoryType,
                     "authenticationType": authenticationType,
+                    "repositoryUserName": userName,
                     "repositoryToken": repositoryToken
                 }
             } else {
@@ -462,8 +621,10 @@ $('#gitHubRepoForn').submit(function(e) {
                     "orgId": orgValue,
                     "repositoryDesc": description,
                     "repositoryOwner": repositoryOwner,
+                    "repositoryBranch": repositoryBranch,
                     "repositoryType": repositoryType,
                     "authenticationType": authenticationType,
+                    "repositoryUserName": userName,
                     "repositoryToken": repositoryToken
                 }
             }
@@ -475,6 +636,7 @@ $('#gitHubRepoForn').submit(function(e) {
                     "orgId": orgValue,
                     "repositoryDesc": description,
                     "repositoryOwner": repositoryOwner,
+                    "repositoryBranch": repositoryBranch,
                     "repositoryType": repositoryType
                 }
             } else {
@@ -484,6 +646,7 @@ $('#gitHubRepoForn').submit(function(e) {
                     "orgId": orgValue,
                     "repositoryDesc": description,
                     "repositoryOwner": repositoryOwner,
+                    "repositoryBranch": repositoryBranch,
                     "repositoryType": repositoryType
                 }
             }
