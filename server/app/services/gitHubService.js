@@ -321,8 +321,12 @@ gitGubService.gitHubContentSync = function gitHubContentSync(gitHubId, botId,cal
                 }
                 async.parallel([
                     function(callback) {
-                        var cmdFull = cmd  +'https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/contents/Code/Script_BOTs/'+result.botsDetails[0].id+'?ref='+formattedGitHub.repositoryBranch;
-                        gitHubSingleSync(formattedGitHub,cmdFull,cmd,callback);
+                        if(result.botsDetails[0].type ==='script') {
+                            var cmdFull = cmd + 'https://api.github.com/repos/' + formattedGitHub.repositoryOwner + '/' + formattedGitHub.repositoryName + '/contents/Code/Script_BOTs/' + result.botsDetails[0].id + '?ref=' + formattedGitHub.repositoryBranch;
+                            gitHubSingleSync(formattedGitHub, cmdFull, cmd, callback);
+                        }else{
+                            callback(null,result.botsDetails[0]);
+                        }
                     },
                     function(callback) {
                         var cmdFull = cmd  +'https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/contents/YAML/'+result.botsDetails[0].id+'.yaml?ref='+formattedGitHub.repositoryBranch;
@@ -582,13 +586,24 @@ function gitHubSingleSync(gitHubDetails,cmdFull,cmd,callback) {
                             }
                         });
                     }else{
-                        writeFile(cmd+response[index].url)
+                        writeFile(cmd+response[index].url,function(err,res){
+                            if(err) {
+                                callback(err,null)
+                            } else{
+                                callback(null,res)
+                            }
+                        })
                     }
                 }
             }else {
-                writeFile(cmd+response.url)
+                writeFile(cmd+response.url,function(err,res){
+                    if(err) {
+                        callback(err,null)
+                    } else{
+                        callback(null,res)
+                    }
+                })
             }
-            callback(null,gitHubDetails);
         }else{
             var err = new Error('Invalid Git-Hub Credentials Details');
             err.status = 400;
@@ -597,7 +612,7 @@ function gitHubSingleSync(gitHubDetails,cmdFull,cmd,callback) {
             return;
         }
     });
-    function writeFile(cmd){
+    function writeFile(cmd,callback){
         execCmd(cmd,function(err,out,code) {
             if(code === 0 && out.trim() !== '404: Not Found'){
                 var fileres = JSON.parse(out);
@@ -607,13 +622,27 @@ function gitHubSingleSync(gitHubDetails,cmdFull,cmd,callback) {
                         if(err){
                             logger.error(err);
                         } else{
-                            fs.writeFileSync(destFile,new Buffer(fileres.content, fileres.encoding).toString());
-                            return;
+                            fs.writeFile(destFile,new Buffer(fileres.content, fileres.encoding).toString(),function(err){
+                                if(err){
+                                    callback(err,null);
+                                    return;
+                                }else{
+                                    callback(null,gitHubDetails);
+                                    return;
+                                }
+                            });
                         }
                     });
                 } else {
-                    fs.writeFileSync(destFile,new Buffer(fileres.content, fileres.encoding).toString());
-                    return;
+                    fs.writeFile(destFile,new Buffer(fileres.content, fileres.encoding).toString(),function(err){
+                        if(err){
+                            callback(err,null);
+                            return;
+                        }else{
+                            callback(null,gitHubDetails);
+                            return;
+                        }
+                    });
                 }
             }else{
                 logger.debug("Individual Sync is going on");
