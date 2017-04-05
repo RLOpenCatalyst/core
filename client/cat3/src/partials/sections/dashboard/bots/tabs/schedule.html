@@ -1,33 +1,19 @@
-<link rel='stylesheet' href='catalyst/partials/sections/dashboard/bots/bots.css'>
-
 <div id="botLibraryPage" ng-controller="botScheduleCtrl">
-   
-
-	<div class="container summary-container marginleft35">
-	    <form name="newSchedule" novalidate>
-      <div class="modal-header">
-         <h4 class="modal-title"><i class="fa fa-calendar"></i>&nbsp;Schedule Your BOT</h4>
-      </div>
-
-      <div class="modal-body">
-              <div class="col-lg-6 col-md-6 margintop15">
-              <label>Do you want to Schedule BOTs? </label>
-              </div>
-              <div class="col-lg-6 col-md-6 margintop15">
-                  <input type="radio" ng-value="true"  ng-model="isScheduled" name="isScheduled" ng-click="selectBotCheckbox()" />
-                  <label for="isScheduled" class="paddingright15">Yes&nbsp;</label>
-                  <input type="radio" ng-value="false"  ng-model="isScheduled" name="isScheduled" ng-click="selectBotCheckbox()" />
-                  <label for="isScheduled" class="paddingright15">No</label>
-              </div>
-
+  
+  <div class="container summary-container marginleft35 alert alert-info text-center" ng-if="scheduleDeatils.type === 'UI' || scheduleDeatils.type === 'jenkins'" align="center">Under Construction</div> 
+  <div class="container summary-container marginleft35 alert alert-info text-center" ng-show="showForBlueprints" align="center">Execute the BOT atleast once for the Scheduler to activate(Applicable only for Blueprints)</div>
+  <div ng-if="scheduleDeatils.type ==='script' || scheduleDeatils.type === 'chef' || scheduleDeatils.type ==='blueprints'" ng-show="showForAll" class="container summary-container marginleft35 scheduleBorder">
+      <div class="boxed-group schedulerZone">
+        <h3>Scheduler</h3>
+      <form name="newSchedule" novalidate>
          <!--dropdown for selecting the repeat type-->
 
-         <div class="col-lg-6 col-md-6 " ng-show="_isEventSelected">
+         <div class="col-lg-6 col-md-6">
             <label>Starts on: <span class="red">*</span>
             </label>
             <input id="date-start"  ng-change="dateChange()"   type="text"  ng-model="schedulerStartOn" class="form-control-date"  >
          </div>
-         <div class="col-lg-6 col-md-6 " ng-show="_isEventSelected">
+         <div class="col-lg-6 col-md-6">
             <label>Ends on: <span class="red">*</span>
             </label>
             <input ng-change="dateChange()" type="text"   id="date-end" ng-model="schedulerEndOn" class="form-control-date"  >
@@ -35,7 +21,7 @@
          </div>
          <div class="clearfix margintop15 "></div>
          <div class="clearfix margintop15"></div>
-          <div ng-show="_isEventSelected">
+          <div>
          <fieldset class="repo-job-details-wrapper">
             <legend class="repo-job-details-wrapper-inner"><i class="fa fa-hourglass-start" ></i> Interval </legend>
             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
@@ -58,22 +44,6 @@
                   <option ng-repeat="repeatBy in repeatCount(30)" value="{{repeatBy}}" title="Repeat Every {{repeatBy}}">{{repeatBy}}</option>
                </select>
             </div>
-            <!--repeat on yearly for month starts -->
-            <!-- <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 margintop10" ng-show=" repeatsType==='Yearly'">
-               <label class="col-lg-3 col-md-3 col-sm-3 col-xs-3 text-padding control-label">Choose Month:
-                <span class="control-label red">&nbsp;*</span>
-               <span ng-show="newSchedule.selectedMonth.$touched && newSchedule.selectedMonth.$invalid" class="inputValidationMsg">required
-               </span>
-               </label>
-               <div class="col-lg-9 col-md-9 col-sm-9 col-xs-9">
-               <select id="selectedMonth" name="selectedMonth" class="ng-pristine ng-valid ng-touched" aria-invalid="false" ng-model="selectedMonth">
-                 <option value="" selected="selected">Choose the Month</option>
-                 <option ng-repeat="selectedMonth in monthOfYear" value="{{selectedMonth}}" title="Repeats every {{day}} {{repeatsType}}">{{selectedMonth}}</option>
-               </select>
-               </div>
-               </div> -->
-            <!--repeat on yearly for month ends-->
-            <!--starts at dropdown-->
             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 margintop10" ng-show="repeatsType!=='Minutes'">
                <label>Time(Hrs):
                <span class="red">&nbsp;*</span>
@@ -126,7 +96,7 @@
             <!--dropdown ends here-->
          </fieldset>
           </div>
-      </div>
+      
       <div class="modal-footer">
          <!-- <button type="button" class="btn cat-btn-close" ng-click="cancel()">
          <i class="fa fa-times black"></i> Cancel
@@ -136,7 +106,8 @@
          </button>      
       </div>
    </form>
-	</div>
+ </div>
+  </div>
 </div>
 
 

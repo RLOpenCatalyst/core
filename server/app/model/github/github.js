@@ -54,6 +54,11 @@ var GitHubSchema = new Schema({
         trim: true,
         required: false
     },
+    repositoryBranch:{
+        type: String,
+        trim: true,
+        required: false
+    },
     repositoryPassword: {
         type: String,
         trim: true,

@@ -3276,7 +3276,7 @@ nav ul {
     #settingsNewClick{
         color:#3276b1!important;
     }
-    #designStyle {
+    #designStyle, #botStyle {
         margin-left: 16px;
     }
     #trackStyle {
@@ -4690,4 +4690,12 @@ input:focus, select:focus, textarea:focus {
     width: 100%;
     position: absolute;
     background: #ddd;
+}
+
+.white {
+    color: #fff!important;
+}
+
+.margintop15 {
+    margin-top: 15px;
 }

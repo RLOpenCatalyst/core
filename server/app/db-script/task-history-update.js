@@ -27,7 +27,7 @@ var Tasks = require('_pr/model/classes/tasks/tasks.js');
 var d4dModelNew = require('../model/d4dmasters/d4dmastersmodelnew.js');
 
 var dboptions = {
-    host: appConfig.db.host,
+    host: process.env.DB_HOST || appConfig.db.host,
     port: appConfig.db.port,
     dbName: appConfig.db.dbName
 };

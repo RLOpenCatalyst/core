@@ -238,7 +238,12 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
         taskHistoryData.nodeIds = this.taskConfig.nodeIds;
         taskHistoryData.runlist = this.taskConfig.runlist;
         //taskHistoryData.attributes = this.taskConfig.attributes;
-        taskHistoryData.attributes = (!self.botParams.cookbookAttributes) ? this.taskConfig.attributes : self.botParams.cookbookAttributes;
+        if(self.botParams && self.botParams.cookbookAttributes){
+            taskHistoryData.attributes = self.botParams.cookbookAttributes;
+        }else{
+            taskHistoryData.attributes = this.taskConfig.attributes;
+        }
+        
     } else if (this.taskType === TASK_TYPE.JENKINS_TASK) {
         task = new JenkinsTask(this.taskConfig);
         taskHistoryData.jenkinsServerId = this.taskConfig.jenkinsServerId;
@@ -360,7 +365,7 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                 });
             });
         }
-        if (taskHistoryData.taskType === TASK_TYPE.CHEF_TASK && self.botParams.cookbookAttributes) {
+        if (taskHistoryData.taskType === TASK_TYPE.CHEF_TASK && self.botParams && self.botParams.cookbookAttributes) {
             var taskConfig = self.taskConfig;
             taskConfig.attributes=self.botParams.cookbookAttributes;
             Tasks.update({
@@ -438,7 +443,7 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                 "auditTrailConfig.jenkinsJobName":taskHistory.jobName,
                 "auditTrailConfig.jobResultURL":taskHistory.jobResultURL
             };
-        }else{
+        }else if(taskHistory){
             resultTaskExecution = {
                 "actionStatus":self.lastTaskStatus,
                 "status":self.lastTaskStatus,
@@ -447,7 +452,7 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                 "auditTrailConfig.nodeIdsWithActionLog":taskHistory.nodeIdsWithActionLog
             };
         }
-        if(taskHistory.id){
+        if(taskHistory && taskHistory.id){
             resultTaskExecution.auditHistoryId=taskHistory.id;
         }
         if(auditTrailId !== null && resultTaskExecution !== null){
@@ -457,7 +462,7 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                 }
                 if(resultTaskExecution.actionStatus === 'success'){
                     var botService = require('_pr/services/botsService');
-                    botService.updateSavedTimePerBots(taskHistoryData.taskId,function(err,data){
+                    botService.updateSavedTimePerBots(taskHistoryData.taskId,'BOTs',function(err,data){
                         if (err) {
                             logger.error("Failed to update bots saved Time: ", err);
                         }

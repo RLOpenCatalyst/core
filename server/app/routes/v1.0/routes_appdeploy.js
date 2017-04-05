@@ -24,7 +24,7 @@ var validate = require('express-validation');
 var taskService = require('_pr/services/taskService.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
-    app.all('/app-deploy/*', sessionVerificationFunc);
+    app.all('/app-deploy*', sessionVerificationFunc);
 
     // Get all AppDeploy
     app.get('/app-deploy', function(req, res) {
@@ -391,7 +391,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     appDeployService.appDeployOrUpgrade(req.body, isUpgrade, next);
                 },
                 function(appData, next) {
-                    taskService.executeTask(taskId, user, hostProtocol, choiceParam, appData, next);
+                    taskService.executeTask(taskId, user, hostProtocol, choiceParam, appData,null,null, next);
                 },
                 function(historyData, next) {
                     var taskRes = {
@@ -425,7 +425,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     appDeployService.appDeployOrUpgrade(req.body, isUpgrade, next);
                 },
                 function(appData, next) {
-                    taskService.executeTask(taskId, user, hostProtocol, choiceParam, appData, next);
+                    taskService.executeTask(taskId, user, hostProtocol, choiceParam, appData,null,null, next);
                 },
                 function(historyData, next) {
                     var taskRes = {
@@ -458,7 +458,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     appDeployService.promoteApp(req.body, next);
                 },
                 function(appData, next) {
-                    taskService.executeTask(taskId, user, hostProtocol, choiceParam, appData, next);
+                    taskService.executeTask(taskId, user, hostProtocol, choiceParam, appData,null,null, next);
                 },
                 function(historyData, next) {
                     var taskRes = {

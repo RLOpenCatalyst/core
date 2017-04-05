@@ -8,7 +8,21 @@
 (function (angular) {
 	"use strict";
 	angular.module('apis.workzone',['authentication', 'utility.pagination'])
-		.service('workzoneEnvironment', [function () {
+		.service('workzoneNode', [function () {
+			var selectedNode = null;
+			var env = {
+				setWorkzoneNode: function (node) {
+					selectedNode = node;
+				},
+				getWorkzoneNode: function () {
+					return selectedNode;
+				}
+			};
+			return {
+				setWorkzoneNode: env.setWorkzoneNode,
+				getWorkzoneNode: env.getWorkzoneNode
+			};
+		}]).service('workzoneEnvironment', [function () {
 			var requestParams;
 			var env = {
 				setParams: function (params) {
@@ -492,7 +506,9 @@
 				},
 				getAllCompsiteBlueprint:function () {
 					var p = workzoneEnvironment.getEnvParams();
-					var url ='/composite-blueprints?filterBy=organizationId:'+p.org+'+businessGroupId:'+p.bg+'+projectId:'+p.proj;
+					//var url ='/composite-blueprints?filterBy=organizationId:'+p.org+'+businessGroupId:'+p.bg+'+projectId:'+p.proj;
+					var url = '/organizations/' + p.org + '/businessgroups/' + p.bg + 
+					'/projects/' + p.proj + '/blueprintList?pagination=true&templateType=composite&providerType='
 					return $http.get(fullUrl(url),Auth.getHeaderObject());
 				},
 				getCompsiteBlueprintInfo:function (compositeBlueprintId) {

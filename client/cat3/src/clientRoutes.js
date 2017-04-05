@@ -19,11 +19,11 @@ function routeConfig($stateProvider, $urlRouterProvider, $httpProvider, modulePe
 	$stateProvider.state('signinDefault', {
 		url: "",
 		templateUrl: "src/partials/sections/login/login.html",
-		controller: "loginCtrl"
+		controller: "loginCtrl as logD"
 	}).state('signin', {
 		url: "/signin",
 		templateUrl: "src/partials/sections/login/login.html",
-		controller: "loginCtrl"
+		controller: "loginCtrl as logD"
 	}).state('dashboard', {
 		url: "/dashboard",
 		template: "<div ui-view></div>",

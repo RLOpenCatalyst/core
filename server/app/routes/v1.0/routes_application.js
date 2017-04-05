@@ -44,9 +44,7 @@ module.exports.setRoutes = function(app, sessionVerification) {
         res.send(appVersion);
         return;
     });
-    
     app.all('/applications/*', sessionVerification);
-
     app.get('/applications/:applicationId', function(req, res) {
         Application.getApplicationById(req.params.applicationId, function(err, application) {
             if (err) {
