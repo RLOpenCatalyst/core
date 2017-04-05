@@ -42,7 +42,7 @@ const errorType = 'chefExecutor';
 var chefExecutor = module.exports = {};
 
 chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executionType,botHostDetails,callback) {
-    if(botsDetails.params.nodeIds && botsDetails.params.nodeIds.length > 0){
+    if(botsDetails.params && botsDetails.params.nodeIds && botsDetails.params.nodeIds.length > 0){
         var actionLogId = uuid.v4();
         var parallelChefExecuteList =[];
         for(var i = 0 ;i < botsDetails.params.nodeIds.length; i++) {

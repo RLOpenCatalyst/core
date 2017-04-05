@@ -42,7 +42,7 @@ const errorType = 'scriptExecutor';
 var scriptExecutor = module.exports = {};
 
 scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,executionType,botHostDetails,callback) {
-    if(botsDetails.params.nodeIds && botsDetails.params.nodeIds.length > 0){
+    if(botsDetails.params && botsDetails.params.nodeIds && botsDetails.params.nodeIds.length > 0){
         var actionLogId = uuid.v4();
         var parallelScriptExecuteList =[];
         for(var i = 0 ;i < botsDetails.params.nodeIds.length; i++) {
@@ -137,7 +137,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
         actionId: actionId
     }
     callback(null, botAuditTrailObj);
-    if (botsScriptDetails.params.data) {
+    if (botsScriptDetails.params && botsScriptDetails.params.data) {
         Object.keys(botsScriptDetails.params.data).forEach(function (key) {
             var decryptedText = cryptography.decryptText(botsScriptDetails.params.data[key], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
             replaceTextObj[key] = decryptedText;

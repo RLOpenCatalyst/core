@@ -291,8 +291,10 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
                 encryptedParam(reqBody.data,next);
             }else if(bots[0].type === 'blueprints'){
                 next(null,reqBody);
-            }else {
-                next(null,reqBody.params);
+            }else if(schedulerCallCheck === false){
+                next(null,reqBody.data);
+            }else{
+                next(null,reqBody);
             }
         },
         function(paramObj,next) {
@@ -322,7 +324,7 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
                             function(next){
                                 var actionObj={
                                     auditType:'BOTsNew',
-                                    auditCategory:reqBody.category,
+                                    auditCategory:botDetails[0].type,
                                     status:'running',
                                     action:'BOTs Execution',
                                     actionStatus:'running',
@@ -359,6 +361,9 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
                                     } else if (botDetails[0].type === 'chef') {
                                         chefExecutor.execute(botDetails[0], auditTrail, userName, executionType,botRemoteServerDetails, next);
                                     } else if (botDetails[0].type === 'blueprints') {
+                                        if(schedulerCallCheck === true){
+                                            reqBody = botDetails[0].params.data;
+                                        }
                                         blueprintExecutor.execute(auditTrail, reqBody, userName, next);
                                     } else {
                                         var err = new Error('Invalid BOTs Type');
@@ -625,7 +630,7 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                                     manualExecutionTime:result.standardTime?result.standardTime:10,
                                                     type:result.type,
                                                     subType:result.subtype,
-                                                    inputFormFields:result.input[0].form,
+                                                    inputFormFields:result.input !==null ?result.input[0].form:result.input,
                                                     outputOptions:result.output,
                                                     ymlDocFileId:ymlDocFileId,
                                                     orgId:gitHubDetails.botSync.orgId,
