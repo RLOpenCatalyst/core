@@ -137,7 +137,7 @@ function executeChefOnLocal(botsChefDetails,auditTrail,userName,botHostDetails,c
     var reqData = {
         runlist :[],
         attributes:null,
-        node:local
+        node:"local"
     }
     for(var i = 0; i < botsChefDetails.execution.length; i++){
         for(var j = 0; j < botsChefDetails.execution[i].runlist.length;j++){
