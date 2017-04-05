@@ -321,8 +321,12 @@ gitGubService.gitHubContentSync = function gitHubContentSync(gitHubId, botId,cal
                 }
                 async.parallel([
                     function(callback) {
-                        var cmdFull = cmd  +'https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/contents/Code/Script_BOTs/'+result.botsDetails[0].id+'?ref='+formattedGitHub.repositoryBranch;
-                        gitHubSingleSync(formattedGitHub,cmdFull,cmd,callback);
+                        if(result.botsDetails[0].type ==='script') {
+                            var cmdFull = cmd + 'https://api.github.com/repos/' + formattedGitHub.repositoryOwner + '/' + formattedGitHub.repositoryName + '/contents/Code/Script_BOTs/' + result.botsDetails[0].id + '?ref=' + formattedGitHub.repositoryBranch;
+                            gitHubSingleSync(formattedGitHub, cmdFull, cmd, callback);
+                        }else{
+                            callback(null,result.botsDetails[0]);
+                        }
                     },
                     function(callback) {
                         var cmdFull = cmd  +'https://api.github.com/repos/'+formattedGitHub.repositoryOwner+'/'+formattedGitHub.repositoryName+'/contents/YAML/'+result.botsDetails[0].id+'.yaml?ref='+formattedGitHub.repositoryBranch;
@@ -333,14 +337,15 @@ gitGubService.gitHubContentSync = function gitHubContentSync(gitHubId, botId,cal
                         callback(err,null);
                         return;
                     }else{
-                        botsNewService.syncBotsWithGitHub(gitHubId, function (err, data) {
+                        botsNewService.syncSingleBotsWithGitHub(botId, function (err, data) {
                             if (err) {
-                                callback(err, null);
                                 logger.error("Error in Syncing GIT-Hub.", err);
+                                callback(err, null);
+                                return;
                             } else {
-                                
-                                callback(null, {gitHubDetails:gitHubId,botsDetails:botId});
                                 logger.debug("Git Hub importing is Done.");
+                                callback(null, {gitHubDetails:gitHubId,botsDetails:botId});
+                                return;
                             }
                         });
                     }
@@ -581,18 +586,30 @@ function gitHubSingleSync(gitHubDetails,cmdFull,cmd,callback) {
                             }
                         });
                     }else{
-                        writeFile(cmd+response[index].url,callback)
+                        writeFile(cmd+response[index].url,function(err,res){
+                            if(err) {
+                                callback(err,null)
+                            } else{
+                                callback(null,res)
+                            }
+                        })
                     }
                 }
             }else {
-                writeFile(cmd+response.url,callback)
+                writeFile(cmd+response.url,function(err,res){
+                    if(err) {
+                        callback(err,null)
+                    } else{
+                        callback(null,res)
+                    }
+                })
             }
-            callback(null,gitHubDetails)
         }else{
             var err = new Error('Invalid Git-Hub Credentials Details');
             err.status = 400;
             err.msg = 'Invalid Git-Hub Details';
             callback(err, null);
+            return;
         }
     });
     function writeFile(cmd,callback){
@@ -603,22 +620,32 @@ function gitHubSingleSync(gitHubDetails,cmdFull,cmd,callback) {
                 if(!fs.existsSync(destFile)) {
                     mkdirp(getDirName(destFile), function (err) {
                         if(err){
-                            var err = new Error();
-                            err.status = 500;
-                            err.msg = 'path does not exists'
-                            return callback(err)
+                            logger.error(err);
                         } else{
-                            fs.writeFileSync(destFile,new Buffer(fileres.content, fileres.encoding).toString())
+                            fs.writeFile(destFile,new Buffer(fileres.content, fileres.encoding).toString(),function(err){
+                                if(err){
+                                    callback(err,null);
+                                    return;
+                                }else{
+                                    callback(null,gitHubDetails);
+                                    return;
+                                }
+                            });
                         }
                     });
                 } else {
-                    fs.writeFileSync(destFile,new Buffer(fileres.content, fileres.encoding).toString());
+                    fs.writeFile(destFile,new Buffer(fileres.content, fileres.encoding).toString(),function(err){
+                        if(err){
+                            callback(err,null);
+                            return;
+                        }else{
+                            callback(null,gitHubDetails);
+                            return;
+                        }
+                    });
                 }
             }else{
-                var err = new Error();
-                err.status = 400;
-                err.msg = 'File not found';
-                callback(err, null);
+                logger.debug("Individual Sync is going on");
             }
         });
     }

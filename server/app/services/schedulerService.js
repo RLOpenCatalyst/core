@@ -183,7 +183,7 @@ schedulerService.executeNewScheduledBots = function executeNewScheduledBots(bots
                     logger.error("Error in updating cron job Ids. "+err);
                 }
             });
-            botsNewService.executeBots(bots._id,null,'system','bots-console',true,function (err, historyData) {
+            botsNewService.executeBots(bots.id,null,'system','bots-console',true,function (err, historyData) {
                 if (err) {
                     logger.error("Failed to execute New Bots.", err);
                     return;

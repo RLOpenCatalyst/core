@@ -42,7 +42,7 @@ const errorType = 'scriptExecutor';
 var scriptExecutor = module.exports = {};
 
 scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,executionType,botHostDetails,callback) {
-    if(botsDetails.params.nodeIds && botsDetails.params.nodeIds.length > 0){
+    if(botsDetails.params && botsDetails.params.nodeIds && botsDetails.params.nodeIds.length > 0){
         var actionLogId = uuid.v4();
         var parallelScriptExecuteList =[];
         for(var i = 0 ;i < botsDetails.params.nodeIds.length; i++) {
@@ -137,10 +137,9 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
         actionId: actionId
     }
     callback(null, botAuditTrailObj);
-    if (botsScriptDetails.params.data) {
+    if (botsScriptDetails.params && botsScriptDetails.params.data) {
         Object.keys(botsScriptDetails.params.data).forEach(function (key) {
             var decryptedText = cryptography.decryptText(botsScriptDetails.params.data[key], cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
-            var text1=cryptography.decryptText("HJrM21EgefCLMx7lUxxRSA==", cryptoConfig.decryptionEncoding, cryptoConfig.encryptionEncoding);
             replaceTextObj[key] = decryptedText;
         });
     } else {
@@ -162,6 +161,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
         .end(function (err, res) {
             if (!err) {
                 var every = require('every-moment');
+                var wait = require('wait-one-moment');
                 var timer = every(5, 'seconds', function () {
                     schedulerService.getExecutorAuditTrailDetails(serverUrl + res.body.link, function (err, result) {
                         if (err) {
@@ -187,11 +187,11 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
                                     {
                                         title: "BOTs Execution",
                                         body: "Error in Fetching Audit Trails"
-                                    }, "error",function(err,data){
-                                    if(err){
-                                        logger.error("Error in Notification Service, ",err);
-                                    }
-                                });
+                                    }, "error", function (err, data) {
+                                        if (err) {
+                                            logger.error("Error in Notification Service, ", err);
+                                        }
+                                    });
                                 timer.stop();
                                 return;
                             });
@@ -223,31 +223,57 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
                                 logger.debug("BOTs Execution Done");
                                 timer.stop();
                                 var botService = require('_pr/services/botsService');
-                                botService.updateSavedTimePerBots(botsScriptDetails._id,'BOTsNew',function(err,data){
+                                botService.updateSavedTimePerBots(botsScriptDetails._id, 'BOTsNew', function (err, data) {
                                     if (err) {
                                         logger.error("Failed to update bots saved Time: ", err);
                                     }
                                 });
-                                noticeService.notice(userName,{
+                                noticeService.notice(userName, {
                                     title: "BOTs Execution",
                                     body: result.status.text
-                                }, "success",function(err,data){
-                                    if(err){
-                                        logger.error("Error in Notification Service, ",err);
+                                }, "success", function (err, data) {
+                                    if (err) {
+                                        logger.error("Error in Notification Service, ", err);
                                     }
                                 });
                                 return;
                             });
                         } else {
                             logger.debug("BOTs Execution is going on.");
-                            var timestampEnded = new Date().getTime();
-                            logsDao.insertLog({
-                                referenceId: logsReferenceIds,
-                                err: false,
-                                log: "Task Execution is going on",
-                                timestamp: timestampEnded
-                            });
                         }
+
+                    })
+                });
+                wait(botsScriptDetails.manualExecutionTime * 60, 'seconds', function() {
+                    logger.debug('Stop the Audit Trail clock!');
+                    timer.stop();
+                    var timestampEnded = new Date().getTime();
+                    logsDao.insertLog({
+                        referenceId: logsReferenceIds,
+                        err: true,
+                        log: "Error in fetching Audit Trails(Timer is Completed)",
+                        timestamp: timestampEnded
+                    });
+                    var resultTaskExecution = {
+                        "actionStatus": 'failed',
+                        "status": 'failed',
+                        "endedOn": new Date().getTime(),
+                        "actionLogId": actionId
+                    };
+                    timer.stop();
+                    auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+                        if (err) {
+                            logger.error("Failed to create or update bots Log: ", err);
+                        }
+                        noticeService.notice(userName, {
+                            title: "BOTs Execution",
+                            body: "Error in fetching Audit Trails(Timer is Completed)"
+                        }, "error",function(err,data){
+                            if(err){
+                                logger.error("Error in Notification Service, ",err);
+                            }
+                        });
+                        return;
                     })
                 });
             } else {
@@ -363,12 +389,6 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,botHostD
             envObj.hostname = instance.instanceIP;
             envObj.authReference = "Password_Based_Authentication";
         }
-        logsDao.insertLog({
-            referenceId: logsReferenceIds,
-            err: false,
-            log: 'BOTs execution started for script ' + botDetails.id,
-            timestamp: new Date().getTime()
-        });
         var replaceTextObj = {};
         var cryptoConfig = appConfig.cryptoSettings;
         var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
@@ -434,8 +454,10 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,botHostD
                     return;
                 } else {
                     var every = require('every-moment');
+                    var wait = require('wait-one-moment');
                     var serverUrl = "http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort;
                     var timer = every(10, 'seconds', function () {
+
                         schedulerService.getExecutorAuditTrailDetails(serverUrl + res.body.link, function (err, result) {
                             if (err) {
                                 logger.error("In Error for Fetching Executor Audit Trails ", err);
@@ -460,7 +482,7 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,botHostD
                                     }
                                 });
                                 timer.stop();
-                                if (decryptedCredentials.pemFileLocation){
+                                if (decryptedCredentials.pemFileLocation) {
                                     removeScriptFile(decryptedCredentials.pemFileLocation);
                                 }
                                 callback(err, null);
@@ -468,9 +490,9 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,botHostD
                                     {
                                         title: "BOTs Execution",
                                         body: "Error in Fetching Audit Trails"
-                                    }, "error",function(err,data){
-                                        if(err){
-                                            logger.error("Error in Notification Service, ",err);
+                                    }, "error", function (err, data) {
+                                        if (err) {
+                                            logger.error("Error in Notification Service, ", err);
                                         }
                                     });
                                 return;
@@ -503,36 +525,40 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,botHostD
                                 });
                                 timer.stop();
                                 var botService = require('_pr/services/botsService');
-                                botService.updateSavedTimePerBots(botDetails._id,'BOTsNew',function(err,data){
+                                botService.updateSavedTimePerBots(botDetails._id, 'BOTsNew', function (err, data) {
                                     if (err) {
                                         logger.error("Failed to update bots saved Time: ", err);
                                     }
                                 });
-                                if (decryptedCredentials.pemFileLocation){
+                                if (decryptedCredentials.pemFileLocation) {
                                     removeScriptFile(decryptedCredentials.pemFileLocation);
                                 }
                                 callback(null, result);
                                 noticeService.notice(userName, {
                                     title: "BOTs Execution",
                                     body: result.status.text
-                                }, "success",function(err,data){
-                                    if(err){
-                                        logger.error("Error in Notification Service, ",err);
+                                }, "success", function (err, data) {
+                                    if (err) {
+                                        logger.error("Error in Notification Service, ", err);
                                     }
                                 });
                                 return;
                             } else {
                                 logger.debug("BOTs Execution is going on.");
-                                var timestampEnded = new Date().getTime();
-                                logsDao.insertLog({
-                                    referenceId: logsReferenceIds,
-                                    err: false,
-                                    log: "BOTs Execution is going on",
-                                    timestamp: timestampEnded
-                                });
                             }
                         })
-                    })
+                    });
+                    wait(botDetails.manualExecutionTime * 60, 'seconds', function() {
+                        var timestampEnded = new Date().getTime();
+                        logsDao.insertLog({
+                            referenceId: logsReferenceIds,
+                            err: true,
+                            log: "Error in fetching Audit Trails(Timer is Completed)",
+                            timestamp: timestampEnded
+                        });
+                        timer.stop();
+                        return;
+                    });
                 }
             })
     });
