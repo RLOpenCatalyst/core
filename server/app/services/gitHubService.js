@@ -30,8 +30,10 @@ var botsNewService = require("_pr/services/botsNewService.js");
 var fs = require('fs');
 var dircompare = require('dir-compare');
 var botsDao = require('_pr/model/bots/1.1/botsDao.js');
+var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var glob = require("glob");
 var mkdirp = require('mkdirp');
+var request = require('request');
 var getDirName = require('path').dirname;
 var gitGubService = module.exports = {};
 
@@ -213,6 +215,9 @@ gitGubService.getGitHubById = function getGitHubById(gitHubId, callback) {
 gitGubService.gitHubCopy = function gitHubCopy(gitHubId, reqBody,callback) {
     var dest = appConfig.botCurrentFactoryDir;
     var source = glob.sync(appConfig.botFactoryDir + gitHubId +'.temp/*')[0];
+    var upload = appConfig.botFactoryDir+'upload';
+    if(!fs.existsSync(upload))
+        mkdirp.sync(upload);
     if(reqBody && reqBody.length !== 0) {
         var bots = [];
         gitHubTempModel.gitFilesList(gitHubId,function(err,data) {
@@ -227,6 +232,7 @@ gitGubService.gitHubCopy = function gitHubCopy(gitHubId, reqBody,callback) {
                         if(reqBody[index].status){
                             var sourceFile = source+fileData.path+'/'+fileData.fileName;
                             var destFile = dest+fileData.path+'/'+fileData.fileName;
+                            var uploadFile = upload+fileData.path+'/'+fileData.fileName;
                             switch(fileData.state){
                                 case 'added':
                                     if(!fs.existsSync(destFile)) {
@@ -253,6 +259,18 @@ gitGubService.gitHubCopy = function gitHubCopy(gitHubId, reqBody,callback) {
                                     }
                                 break;
                             }
+                            if(!fs.existsSync(uploadFile)) {
+                                mkdirp(getDirName(uploadFile), function (err) {
+                                    if(err){
+                                        var err = new Error();
+                                        err.status = 500;
+                                        err.msg = 'path does not exists'
+                                        return callback(err,null)
+                                    } else{
+                                        fs.createReadStream(sourceFile).pipe(fs.createWriteStream(uploadFile));
+                                    }
+                                })
+                            }
                         }else {
                             if(fileData.state === 'deleted'){
                                 var filePath = dest+fileData.path+fileName;
@@ -275,9 +293,73 @@ gitGubService.gitHubCopy = function gitHubCopy(gitHubId, reqBody,callback) {
                                 logger.error("Error in clearing GIT-Hub data.", err);
                             }
                         });
-                        fse.removeSync(appConfig.gitHubDir + gitHubId +'.temp');
+                        fse.removeSync(appConfig.botFactoryDir + gitHubId +'.temp');
                         logger.debug("Git Hub importing is Done.");
                         callback(null, {gitHubDetails:gitHubId,botsDetails:bots});
+                    }
+                });
+                async.waterfall([
+                    function(next) {
+                        gitHubModel.getById(gitHubId,function(err,gitdata){
+                            if(err)
+                                next(err,null);
+                            else {
+                                next(null,gitdata.orgId);
+                            }
+                        });
+                    },
+                    function(orgId,next) {
+                        var botRemoteServerDetails = {}
+                        masterUtil.getBotRemoteServerDetailByOrgId(orgId,function(err,botServerDetails) {
+                            if (err) {
+                                logger.error("Error while fetching BOTs Server Details");
+                                next(err, null);
+                                return;
+                            } else if (botServerDetails !== null && botServerDetails.active !== false) {
+                                botRemoteServerDetails.hostIP = botServerDetails.hostIP;
+                                botRemoteServerDetails.hostPort = botServerDetails.hostPort;
+                            } else {
+                                botRemoteServerDetails.hostIP = "localhost";
+                                botRemoteServerDetails.hostPort = "2687";
+                            }
+                            next(null,botRemoteServerDetails);
+                        });
+                    },
+                    function(botRemoteServerDetails,next){
+                        var uploadCompress=appConfig.botFactoryDir+'upload_compress.tar.gz'
+                        targz.compress({
+                            src: upload,
+                            dest: uploadCompress
+                        }, function(err){
+                            if(err) {
+                                next(err,null);
+                            } else {
+                                var options = {
+                                    url: "http://"+botRemoteServerDetails.hostIP+":"+botRemoteServerDetails.hostPort+"/bot/factory/upload",
+                                    headers: {
+                                        'Content-Type': 'multipart/form-data'
+                                    },
+                                    formData:{
+                                        file:{
+                                            value: fs.readFileSync(uploadCompress),
+                                            options:{
+                                                filename:uploadCompress,
+                                                contentType:'application/tar+gzip'
+                                            }
+                                        }
+                                    }
+                                };
+                                request.post(options,function(err,res,data){
+                                    next(err,res)
+                                    fs.unlinkSync(uploadCompress);
+                                    fse.removeSync(upload);
+                                });
+                            } 
+                        });
+                    }
+                ],function(err,res){
+                    if(err){
+                        logger.error("Unable to connect remote server")
                     }
                 });
             }
@@ -346,6 +428,64 @@ gitGubService.gitHubContentSync = function gitHubContentSync(gitHubId, botId,cal
                                 logger.debug("Git Hub importing is Done.");
                                 callback(null, {gitHubDetails:gitHubId,botsDetails:botId});
                                 return;
+                            }
+                        });
+                        async.waterfall([
+                            function(next) {
+                                var botRemoteServerDetails = {}
+                                masterUtil.getBotRemoteServerDetailByOrgId(formattedGitHub.orgId,function(err,botServerDetails) {
+                                    if (err) {
+                                        logger.error("Error while fetching BOTs Server Details");
+                                        next(err, null);
+                                        return;
+                                    } else if (botServerDetails !== null && botServerDetails.active !== false) {
+                                        botRemoteServerDetails.hostIP = botServerDetails.hostIP;
+                                        botRemoteServerDetails.hostPort = botServerDetails.hostPort;
+                                    } else {
+                                        botRemoteServerDetails.hostIP = "localhost";
+                                        botRemoteServerDetails.hostPort = "2687";
+                                    }
+                                    next(null,botRemoteServerDetails);
+                                });
+                            },
+                            function(botRemoteServerDetails,next){
+                                var upload = appConfig.botFactoryDir +'upload';
+                                var uploadCompress=appConfig.botFactoryDir+'upload_compress.tar.gz'
+                                if(fs.existsSync(uploadCompress))
+                                    fs.unlinkSync(uploadCompress)
+                                targz.compress({
+                                    src: upload,
+                                    dest: uploadCompress
+                                }, function(err){
+                                    if(err) {
+                                        next(err,null);
+                                    } else {
+                                        var options = {
+                                            url: "http://"+botRemoteServerDetails.hostIP+":"+botRemoteServerDetails.hostPort+"/bot/factory/upload",
+                                            headers: {
+                                                'Content-Type': 'multipart/form-data'
+                                            },
+                                            formData:{
+                                                file:{
+                                                    value: fs.readFileSync(uploadCompress),
+                                                    options:{
+                                                        filename:uploadCompress,
+                                                        contentType:'application/tar+gzip'
+                                                    }
+                                                }
+                                            }
+                                        };
+                                        request.post(options,function(err,res,data){
+                                            next(err,res);
+                                            fs.unlinkSync(uploadCompress);
+                                            fse.removeSync(upload);
+                                        });
+                                    } 
+                                });
+                            }
+                        ],function(err,res){
+                            if(err){
+                                logger.error("Unable to connect remote server")
                             }
                         });
                     }
@@ -459,7 +599,48 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
                                             logger.debug("Git Hub Sync is Done.");
                                         }
                                     });
-                                }
+                                    async.waterfall([
+                                        function(next) {
+                                            var botRemoteServerDetails = {}
+                                            masterUtil.getBotRemoteServerDetailByOrgId(gitHubDetails.orgId,function(err,botServerDetails) {
+                                                if (err) {
+                                                    logger.error("Error while fetching BOTs Server Details");
+                                                    next(err, null);
+                                                    return;
+                                                } else if (botServerDetails !== null && botServerDetails.active !== false) {
+                                                    botRemoteServerDetails.hostIP = botServerDetails.hostIP;
+                                                    botRemoteServerDetails.hostPort = botServerDetails.hostPort;
+                                                } else {
+                                                    botRemoteServerDetails.hostIP = "localhost";
+                                                    botRemoteServerDetails.hostPort = "2687";
+                                                }
+                                                next(null,botRemoteServerDetails);
+                                            });
+                                        },
+                                        function(botRemoteServerDetails,next){
+                                            var postData  = {
+                                                "username":gitHubDetails.repositoryUserName, 
+                                                "password":gitHubDetails.repositoryPassword, 
+                                                "branch":gitHubDetails.repositoryBranch, 
+                                                "repo":gitHubDetails.repositoryOwner+'/'+gitHubDetails.repositoryName};
+                                            var options = {
+                                                url: "http://"+botRemoteServerDetails.hostIP+":"+botRemoteServerDetails.hostPort+"/bot/factory",
+                                                headers: {
+                                                    'Content-Type': 'application/json'
+                                                },
+                                                json:postData
+                                            };
+                                            request.post(options,function(err,res,body){
+                                                next(err,res);
+                                            })
+                                            
+                                        }
+                                    ],function(err,res){
+                                        if(err){
+                                            logger.error("Unable to connect remote server")
+                                        }
+                                    });
+                              }
                             });
                         });
                     }
@@ -572,6 +753,9 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
 }
 function gitHubSingleSync(gitHubDetails,cmdFull,cmd,callback) {
     var filepath = appConfig.botCurrentFactoryDir;
+    var upload = appConfig.botFactoryDir+'upload/';
+    if(fs.existsSync(upload))
+        fse.removeSync(upload);
     execCmd(cmdFull, function (err, out, code) {
         if(code === 0 && out.trim() !== '404: Not Found'){
             var response = JSON.parse(out);
@@ -617,33 +801,43 @@ function gitHubSingleSync(gitHubDetails,cmdFull,cmd,callback) {
             if(code === 0 && out.trim() !== '404: Not Found'){
                 var fileres = JSON.parse(out);
                 var destFile = filepath+fileres.path;
-                if(!fs.existsSync(destFile)) {
-                    mkdirp(getDirName(destFile), function (err) {
-                        if(err){
-                            logger.error(err);
-                        } else{
-                            fs.writeFile(destFile,new Buffer(fileres.content, fileres.encoding).toString(),function(err){
+                var uploadFile = upload+fileres.path;
+                async.parallel([
+                    function(callback) {
+                        if(!fs.existsSync(destFile)) {
+                            mkdirp(getDirName(destFile), function (err) {
                                 if(err){
-                                    callback(err,null);
-                                    return;
-                                }else{
-                                    callback(null,gitHubDetails);
-                                    return;
+                                    logger.error(err);
+                                } else{
+                                    fs.writeFile(destFile,new Buffer(fileres.content, fileres.encoding).toString(),callback);
                                 }
                             });
+                        } else {
+                            fs.writeFile(destFile,new Buffer(fileres.content, fileres.encoding).toString(),callback);
                         }
-                    });
-                } else {
-                    fs.writeFile(destFile,new Buffer(fileres.content, fileres.encoding).toString(),function(err){
-                        if(err){
-                            callback(err,null);
-                            return;
-                        }else{
-                            callback(null,gitHubDetails);
-                            return;
+                    },
+                    function(callback) {
+                        if(!fs.existsSync(uploadFile)) {
+                            mkdirp(getDirName(uploadFile), function (err) {
+                                if(err){
+                                    logger.error(err);
+                                } else{
+                                    fs.writeFile(uploadFile,new Buffer(fileres.content, fileres.encoding).toString(),callback);
+                                }
+                            });
+                        } else {
+                            fs.writeFile(uploadFile,new Buffer(fileres.content, fileres.encoding).toString(),callback);
                         }
-                    });
-                }
+                    }
+                ],function(err){
+                    if(err){
+                        callback(err,null);
+                        return;
+                    }else{
+                        callback(null,gitHubDetails);
+                        return;
+                    }
+                });
             }else{
                 logger.debug("Individual Sync is going on");
             }
