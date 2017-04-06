@@ -4,10 +4,9 @@
         .service('botsCreateService',['$rootScope','$http','$q','toastr', 'genericServices', function ($rootScope,$http,$q,toastr,genericServices) {
         	var botService = this;
         	//for getting the list of templates.
-        	botService.getCurrentEnvInstances = function (orgId,bgId,projId,envId) {
+        	botService.getCurrentOrgInstances = function (orgId) {
 				var params = {
-					url: '/organizations/' + orgId + '/businessgroups/' + bgId +
-					'/projects/' + projId + '/environments/' + envId + '/instances',
+					url: '/instances?filterBy=orgId:' + orgId,
 					inlineLoader:true
 				};
 				return genericServices.promiseGet(params);
@@ -66,10 +65,9 @@
 				return genericServices.promiseGet(params);
 			};
 
-			botService.getBlueprintList = function (orgId,bgId,projId,templateType) {
+			botService.getBlueprintList = function (orgId,templateType) {
 				var params = {
-					url: '/organizations/' + orgId + '/businessgroups/' + bgId + 
-					'/projects/' + projId + '/blueprintList?templateType='+templateType,
+					url: '/blueprints/list?filterBy=orgId:'+ orgId + ',templateType:'+templateType,
 					inlineLoader: true	
 				}
 				return genericServices.promiseGet(params);

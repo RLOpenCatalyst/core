@@ -8,7 +8,7 @@
 (function (angular) {
     "use strict";
     angular.module('library.params', [])
-    .controller('editParamsCtrl',['$scope', '$rootScope', '$state', 'genericServices', 'botsCreateService', 'workzoneServices', 'toastr', '$modal', function ($scope, $rootScope, $state, genSevs, botsCreateService,workzoneServices, toastr, $modal) {
+    .controller('editParamsCtrl',['$scope', '$rootScope', '$state', 'genericServices', 'botsCreateService', 'toastr', '$modal', function ($scope, $rootScope, $state, genSevs, botsCreateService, toastr, $modal) {
         
         var items;
 
@@ -64,12 +64,13 @@
         }
 
         $scope.getInstanceList = function() {
-            botsCreateService.getCurrentEnvInstances($scope.IMGNewEnt.org.orgid,$scope.IMGNewEnt.buss.rowid,$scope.IMGNewEnt.proj.rowId,$scope.IMGNewEnt.env.rowid).then(function(response){
+            botsCreateService.getCurrentOrgInstances($scope.IMGNewEnt.org.orgid).then(function(response){
                 $scope.originalInstanceList=[];
-                if(response){
-                    angular.forEach(response, function(value, key) {
+                if(response.instances){
+                    angular.forEach(response.instances, function(value, key) {
                         if($scope.selectedInstanceIds.indexOf(value._id) == -1) {
                             $scope.originalInstanceList.push(value);
+                            console.log($scope.originalInstanceList);
                         }
                     });
                 }
@@ -77,10 +78,10 @@
         };
 
         $scope.getBlueprintList = function() {
-            botsCreateService.getBlueprintList($scope.IMGNewEnt.org.orgid,$scope.IMGNewEnt.buss.rowid,$scope.IMGNewEnt.proj.rowId,$scope.IMGNewEnt.blueprintType).then(function(response){
+            botsCreateService.getBlueprintList($scope.IMGNewEnt.org.orgid,$scope.IMGNewEnt.blueprintType).then(function(response){
                 $scope.originalBlueprintList=[];
-                if(response){
-                    angular.forEach(response, function(value, key) {
+                if(response.blueprints){
+                    angular.forEach(response.blueprints, function(value, key) {
                         if($scope.selectedBlueprintIds.indexOf(value._id) == -1) {
                             $scope.originalBlueprintList.push(value);
                         }
