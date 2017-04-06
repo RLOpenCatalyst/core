@@ -559,6 +559,7 @@ function executeChefOnRemote(instance,botDetails,actionLogId,userName,botHostDet
                             timestamp: timestampEnded
                         });
                         timer.stop();
+                        callback(null,res.body);
                         return;
                     });
                 }

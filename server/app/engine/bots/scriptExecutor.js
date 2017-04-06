@@ -358,7 +358,7 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,botHostD
                 logger.error("Failed to create or update instanceLog: ", err);
             }
         });
-        callback(err, null);
+        callback({errCode:400,errMsg:"Instance IP is not defined. Chef Client run failed"}, null);
         return;
     }
     credentialCryptography.decryptCredential(instance.credentials, function (err, decryptedCredentials) {
@@ -457,7 +457,6 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,botHostD
                     var wait = require('wait-one-moment');
                     var serverUrl = "http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort;
                     var timer = every(10, 'seconds', function () {
-
                         schedulerService.getExecutorAuditTrailDetails(serverUrl + res.body.link, function (err, result) {
                             if (err) {
                                 logger.error("In Error for Fetching Executor Audit Trails ", err);
@@ -557,6 +556,7 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,botHostD
                             timestamp: timestampEnded
                         });
                         timer.stop();
+                        callback(null,res.body);
                         return;
                     });
                 }

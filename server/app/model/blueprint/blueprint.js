@@ -353,6 +353,7 @@ BlueprintSchema.methods.launch = function (opts, callback) {
                             tagServer: opts.tagServer,
                             monitor: monitor,
                             auditTrailId: opts.auditTrailId,
+                            botId: opts.botId,
                             auditType:opts.auditType,
                             actionLogId:opts.actionLogId
                         };

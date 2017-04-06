@@ -267,6 +267,7 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                             tagServer: reqBody.tagServer,
                             monitorId: monitorId,
                             auditTrailId: data._id,
+                            botId:data.auditId,
                             auditType:data.auditType,
                             actionLogId:auditTrail.actionId
                         },next);
@@ -281,6 +282,7 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                         tagServer: reqBody.tagServer,
                         monitorId: monitorId,
                         auditTrailId: null,
+                        botId:null,
                         auditType:null,
                         actionLogId:null
                     },next);

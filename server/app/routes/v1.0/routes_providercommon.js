@@ -397,7 +397,7 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                                                         return;
                                                     }
                                                     var nodeDetails = {
-                                                        nodeIp: unmanagedInstance.ip,
+                                                        nodeIp: unmanagedInstance.ip !== null?unmanagedInstance.ip:unmanagedInstance.privateIpAddress,
                                                         nodeOs: unmanagedInstance.os,
                                                         nodeName: unmanagedInstance.platformId,
                                                         nodeEnv: req.body.environmentName
