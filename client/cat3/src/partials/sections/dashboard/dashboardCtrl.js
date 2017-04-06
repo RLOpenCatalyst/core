@@ -9,7 +9,7 @@
         'dashboard.settings',
         'dashboard.design',
         'dashboard.bots',
-        'apis.workzone', 'dashboard.genericServices'])
+        'apis.workzone', 'dashboard.genericServices','dashboard.demo'])
         .controller('dashboardCtrl', ['$rootScope', '$scope', '$http', 'uac', '$location', '$state', function ($rootScope, $scope, $http, uac, $location, $state) {
                 $rootScope.isBreadCrumbAvailable = true;
                 $rootScope.app.isDashboard = true;
