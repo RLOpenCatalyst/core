@@ -162,9 +162,11 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
             if (!err) {
                 var every = require('every-moment');
                 var wait = require('wait-one-moment');
+                var runningStatus = "pending";
                 var timer = every(5, 'seconds', function () {
                     schedulerService.getExecutorAuditTrailDetails(serverUrl + res.body.link, function (err, result) {
                         if (err) {
+                            runningStatus="failed";
                             logger.error("In Error for Fetching Executor Audit Trails ", err);
                             var timestampEnded = new Date().getTime();
                             logsDao.insertLog({
@@ -196,6 +198,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
                                 return;
                             });
                         } else if (result.state === 'terminated') {
+                            runningStatus="success";
                             var timestampEnded = new Date().getTime();
                             logsDao.insertLog({
                                 referenceId: logsReferenceIds,
@@ -245,36 +248,41 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
                     })
                 });
                 wait(botsScriptDetails.manualExecutionTime * 60, 'seconds', function() {
-                    logger.debug('Stop the Audit Trail clock!');
-                    timer.stop();
-                    var timestampEnded = new Date().getTime();
-                    logsDao.insertLog({
-                        referenceId: logsReferenceIds,
-                        err: true,
-                        log: "Error in fetching Audit Trails(Timer is Completed)",
-                        timestamp: timestampEnded
-                    });
-                    var resultTaskExecution = {
-                        "actionStatus": 'failed',
-                        "status": 'failed',
-                        "endedOn": new Date().getTime(),
-                        "actionLogId": actionId
-                    };
-                    timer.stop();
-                    auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
-                        if (err) {
-                            logger.error("Failed to create or update bots Log: ", err);
-                        }
-                        noticeService.notice(userName, {
-                            title: "BOTs Execution",
-                            body: "Error in fetching Audit Trails(Timer is Completed)"
-                        }, "error",function(err,data){
-                            if(err){
-                                logger.error("Error in Notification Service, ",err);
-                            }
+                    if(runningStatus === 'pending') {
+                        logger.debug('Stop the Audit Trail clock!');
+                        timer.stop();
+                        var timestampEnded = new Date().getTime();
+                        logsDao.insertLog({
+                            referenceId: logsReferenceIds,
+                            err: true,
+                            log: "Error in fetching Audit Trails(Timer is Completed)",
+                            timestamp: timestampEnded
                         });
-                        return;
-                    })
+                        var resultTaskExecution = {
+                            "actionStatus": 'failed',
+                            "status": 'failed',
+                            "endedOn": new Date().getTime(),
+                            "actionLogId": actionId
+                        };
+                        timer.stop();
+                        auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+                            if (err) {
+                                logger.error("Failed to create or update bots Log: ", err);
+                            }
+                            noticeService.notice(userName, {
+                                title: "BOTs Execution",
+                                body: "Error in fetching Audit Trails(Timer is Completed)"
+                            }, "error", function (err, data) {
+                                if (err) {
+                                    logger.error("Error in Notification Service, ", err);
+                                }
+                            });
+                            return;
+                        })
+                    }else{
+                        logger.debug("Timer is stopped for Audit Trails.");
+                        timer.stop();
+                    }
                 });
             } else {
                 logger.error(err);
@@ -358,7 +366,7 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,botHostD
                 logger.error("Failed to create or update instanceLog: ", err);
             }
         });
-        callback(err, null);
+        callback({errCode:400,errMsg:"Instance IP is not defined. Chef Client run failed"}, null);
         return;
     }
     credentialCryptography.decryptCredential(instance.credentials, function (err, decryptedCredentials) {
@@ -456,10 +464,11 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,botHostD
                     var every = require('every-moment');
                     var wait = require('wait-one-moment');
                     var serverUrl = "http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort;
+                    var runningStatus = "pending";
                     var timer = every(10, 'seconds', function () {
-
                         schedulerService.getExecutorAuditTrailDetails(serverUrl + res.body.link, function (err, result) {
                             if (err) {
+                                runningStatus="failed";
                                 logger.error("In Error for Fetching Executor Audit Trails ", err);
                                 var timestampEnded = new Date().getTime();
                                 logsDao.insertLog({
@@ -497,6 +506,7 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,botHostD
                                     });
                                 return;
                             } else if (result.state === 'terminated') {
+                                runningStatus="success";
                                 var timestampEnded = new Date().getTime();
                                 logsDao.insertLog({
                                     referenceId: logsReferenceIds,
@@ -549,15 +559,23 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,botHostD
                         })
                     });
                     wait(botDetails.manualExecutionTime * 60, 'seconds', function() {
-                        var timestampEnded = new Date().getTime();
-                        logsDao.insertLog({
-                            referenceId: logsReferenceIds,
-                            err: true,
-                            log: "Error in fetching Audit Trails(Timer is Completed)",
-                            timestamp: timestampEnded
-                        });
-                        timer.stop();
-                        return;
+                        if(runningStatus === 'pending') {
+                            var timestampEnded = new Date().getTime();
+                            logsDao.insertLog({
+                                referenceId: logsReferenceIds,
+                                err: true,
+                                log: "Error in fetching Audit Trails(Timer is Completed)",
+                                timestamp: timestampEnded
+                            });
+                            timer.stop();
+                            callback(null, res.body);
+                            return;
+                        }else{
+                            logger.debug("Timer is stopped for Audit Trails.");
+                            callback(null, res.body);
+                            timer.stop();
+                            return;
+                        }
                     });
                 }
             })

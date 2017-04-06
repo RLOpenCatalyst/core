@@ -43,6 +43,15 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			}
 		})
 	});
+    app.get('/blueprints/list', function(req, res) {
+        blueprintService.getAllBlueprintsWithFilter(req.query, function(err,data){
+            if (err) {
+                return res.status(500).send(err);
+            } else {
+                return res.status(200).send(data);
+            }
+        })
+    });
 	app.delete('/blueprints/serviceDelivery/:blueprintId', function(req, res) {
 		blueprintService.deleteServiceDeliveryBlueprint(req.params.blueprintId, function(err, data) {
 			if (err) {
