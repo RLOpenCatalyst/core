@@ -622,7 +622,7 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
                                                 "username":gitHubDetails.repositoryUserName, 
                                                 "password":gitHubDetails.repositoryPassword, 
                                                 "branch":gitHubDetails.repositoryBranch, 
-                                                "repo":gitHubDetails.repositoryName};
+                                                "repo":gitHubDetails.repositoryOwner+'/'+gitHubDetails.repositoryName};
                                             var options = {
                                                 url: "http://"+botRemoteServerDetails.hostIP+":"+botRemoteServerDetails.hostPort+"/bot/factory",
                                                 headers: {
