@@ -8,7 +8,7 @@
 (function (angular) {
     "use strict";
     angular.module('library.params', [])
-    .controller('editParamsCtrl',['$scope', '$rootScope', '$state', 'genericServices', 'botsCreateService', 'workzoneServices', 'toastr', '$modal', function ($scope, $rootScope, $state, genSevs, botsCreateService,workzoneServices, toastr, $modal) {
+    .controller('editParamsCtrl',['$scope', '$rootScope', '$state', 'genericServices', 'botsCreateService', 'workzoneServices', 'toastr', '$modal','$modalInstance', function ($scope, $rootScope, $state, genSevs, botsCreateService,workzoneServices, toastr, $modal,$modalInstance) {
         
         var items;
 
@@ -35,7 +35,7 @@
         $scope.executeTaskForSave = false;
         $scope.scriptSelectForRemote = {
             flag: false
-        }
+        };
 
         if($scope.botType === 'chef' || $scope.botType === 'blueprints') {
             $scope.botCheck = true;
@@ -67,8 +67,8 @@
             botsCreateService.getCurrentEnvInstances($scope.IMGNewEnt.org.orgid,$scope.IMGNewEnt.buss.rowid,$scope.IMGNewEnt.proj.rowId,$scope.IMGNewEnt.env.rowid).then(function(response){
                 $scope.originalInstanceList=[];
                 if(response){
-                    angular.forEach(response, function(value, key) {
-                        if($scope.selectedInstanceIds.indexOf(value._id) == -1) {
+                    angular.forEach(response, function(value) {
+                        if($scope.selectedInstanceIds.indexOf(value._id) === -1) {
                             $scope.originalInstanceList.push(value);
                         }
                     });
@@ -80,8 +80,8 @@
             botsCreateService.getBlueprintList($scope.IMGNewEnt.org.orgid,$scope.IMGNewEnt.buss.rowid,$scope.IMGNewEnt.proj.rowId,$scope.IMGNewEnt.blueprintType).then(function(response){
                 $scope.originalBlueprintList=[];
                 if(response){
-                    angular.forEach(response, function(value, key) {
-                        if($scope.selectedBlueprintIds.indexOf(value._id) == -1) {
+                    angular.forEach(response, function(value) {
+                        if($scope.selectedBlueprintIds.indexOf(value._id) === -1) {
                             $scope.originalBlueprintList.push(value);
                         }
                     });
@@ -102,7 +102,7 @@
         };
 
         $scope.instanceInfo = function($event,instanceDetails) {
-            botsCreateService.getInstanceDetails(instanceDetails._id).then(function(response){
+            botsCreateService.getInstanceDetails(instanceDetails._id).then(function(){
                 $modal.open({
                     animation: true,
                     templateUrl: 'src/partials/sections/dashboard/bots/view/instanceInfo.html',
@@ -114,7 +114,7 @@
                             return instanceDetails;
                         }
                     }
-                }).result.then(function(response) {
+                }).result.then(function() {
                 }, function() {
                 });
             });
@@ -133,9 +133,9 @@
                 $scope.selectedInstanceIds.splice(ind,1);
                 $scope.getInstanceList();
             } else if(type === 'blueprints') {
-                var ind = $scope.selectedBlueprintIds.indexOf(id);
-                $scope.selectedBlueprintList.splice(ind,1);
-                $scope.selectedBlueprintIds.splice(ind,1);
+                var indD = $scope.selectedBlueprintIds.indexOf(id);
+                $scope.selectedBlueprintList.splice(indD,1);
+                $scope.selectedBlueprintIds.splice(indD,1);
                 $scope.getBlueprintList();
             }
         };
@@ -161,7 +161,7 @@
                     }
                 }
             }); 
-        }
+        };
 
         $scope.executeBot = function(type){
             $scope.executeTaskForSave = true;
