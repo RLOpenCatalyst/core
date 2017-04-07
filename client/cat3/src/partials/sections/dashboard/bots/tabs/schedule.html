@@ -1,7 +1,8 @@
 <div id="botLibraryPage" ng-controller="botScheduleCtrl">
-   
-
-  <div class="container summary-container marginleft35 scheduleBorder">
+  
+  <div class="container summary-container marginleft35 alert alert-info text-center" ng-if="scheduleDeatils.type === 'UI' || scheduleDeatils.type === 'jenkins'" align="center">Under Construction</div> 
+  <div class="container summary-container marginleft35 alert alert-info text-center" ng-show="showForBlueprints" align="center">Execute the BOT atleast once for the Scheduler to activate(Applicable only for Blueprints)</div>
+  <div ng-if="scheduleDeatils.type ==='script' || scheduleDeatils.type === 'chef' || scheduleDeatils.type ==='blueprints'" ng-show="showForAll" class="container summary-container marginleft35 scheduleBorder">
       <div class="boxed-group schedulerZone">
         <h3>Scheduler</h3>
       <form name="newSchedule" novalidate>

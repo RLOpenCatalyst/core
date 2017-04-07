@@ -23,7 +23,7 @@
 		            </tbody>
 		         </table>
       		</div>
-      		<div ng-if="botType ==='chef' || botType === 'blueprints' || botType === 'script'" ng-show="botCheck" class="chefExecution scheduleBorder">
+      		<div ng-if="botType ==='chef' || botType === 'blueprints' || botType === 'blueprint' || botType === 'script'" ng-show="botCheck" class="chefExecution scheduleBorder">
 	        
 	        <div class="col-lg-12 col-md-12">
       		<div class="col-lg-7 col-md-7 col-sm-12 margintop15 marginleft-15">
@@ -65,8 +65,8 @@
                         <div class="alert alert-info text-center" ng-if="originalInstanceList.length === 0" align="center">No Data Found</div>
                         <ul ng-if="originalInstanceList.length > 0" class="list-group" ui-sortable>
                            <li class="list-group-item" ng-repeat="instanceDetails in originalInstanceList | filter :searchText">
-                              <span class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="addInstanceBP(originalInstanceList.indexOf(instanceDetails),'instance')" ><i class="fa fa-arrow-right white fa-2" aria-hidden="true"></i></span>
-                              <span class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="instanceInfo($event,instanceDetails)" ><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>
+                              <span title="Add to Right" class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="addInstanceBP(originalInstanceList.indexOf(instanceDetails),'instance')" ><i class="fa fa-arrow-right white fa-2" aria-hidden="true"></i></span>
+                              <span title="Info" class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="instanceInfo($event,instanceDetails)" ><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>
 
                               <img src="./images/global/chef-import.png" alt="{{instanceDetails.name}}"> &nbsp;{{instanceDetails.name}}
                            </li>
@@ -76,8 +76,8 @@
                      	<div class="alert alert-info text-center" ng-if="originalBlueprintList.length === 0" align="center">No Data Found</div>
                         <ul ng-if="originalBlueprintList.length > 0" class="list-group" ui-sortable>
                            <li class="list-group-item" ng-repeat="blueprintDetails in originalBlueprintList | filter :searchText">
-                              <span title="Info" class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="addInstanceBP(originalBlueprintList.indexOf(blueprintDetails),'blueprints')" ><i class="fa fa-arrow-right white fa-2" aria-hidden="true"></i></span>
-                              <span class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="selectBpInfo($event,blueprintDetails,IMGNewEnt.blueprintType)" ><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>
+                              <span title="Add to Right" class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="addInstanceBP(originalBlueprintList.indexOf(blueprintDetails),'blueprints')" ><i class="fa fa-arrow-right white fa-2" aria-hidden="true"></i></span>
+                              <span title="Info" class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="selectBpInfo($event,blueprintDetails,IMGNewEnt.blueprintType)" ><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>
                               <img class="pluginBlueprintImageLogo" src="./images/templateicons/imgo.jpg" alt="{{blueprintDetails.name}}"> &nbsp;{{blueprintDetails.name}}
                            </li>
                         </ul>
@@ -102,9 +102,9 @@
                               dnd-effect-allowed="move"
                               dnd-selected="models.selected = selectedInstance"  ng-class=" {'activeLi':selectInstanceId === selectedInstance._id}">
                               	<span class="col-lg-12 col-md-12">
-                              	  <span class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="instanceInfo($event,selectedInstance)" ><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>
+                              	  <span title="Info" class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="instanceInfo($event,selectedInstance)" ><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>
                               	  <span title="Clear" class="filterClear pull-right btn btn-xs cat-btn-update bpvicon" ng-click="deSelectInstanceBP($event,selectedInstanceList._id,'instance')">X</span>
-	                              <span title="Info" class="badge pull-left" >{{(+selectedInstanceList.indexOf(selectedInstance)) +1}}</span><img class="layersClassComposite" src="./images/global/chef-import.png"  alt="{{selectedInstance.name}}"/> &nbsp;{{selectedInstance.name}}
+	                              <span class="badge pull-left" >{{(+selectedInstanceList.indexOf(selectedInstance)) +1}}</span><img class="layersClassComposite" src="./images/global/chef-import.png"  alt="{{selectedInstance.name}}"/> &nbsp;{{selectedInstance.name}}
                           		</span>
                           		<div class="info-cell">
                               		<div class="publisherDesc">{{selectedInstance.orgName}} > {{selectedInstance.bgName}} > {{selectedInstance.projectName}} > {{selectedInstance.environmentName}}
@@ -121,9 +121,9 @@
                               dnd-effect-allowed="move"
                               dnd-selected="models.selected = selectedBlueprint"  ng-class=" {'activeLi':selectInstanceId === selectedBlueprint._id}">
                               	<span class="col-lg-12 col-md-12">
-                              	  <span class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="selectBpInfo($event,selectedBlueprint,IMGNewEnt.blueprintType)" ><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>
+                              	  <span title="Info" class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="selectBpInfo($event,selectedBlueprint,IMGNewEnt.blueprintType)" ><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>
                               	  <span title="Clear" class="filterClear pull-right btn btn-xs cat-btn-update bpvicon" ng-click="deSelectInstanceBP($event,selectedBlueprintList._id,'blueprint')">X</span>
-	                              <span title="Info" class="badge pull-left" >{{(+selectedBlueprintList.indexOf(selectedBlueprint)) +1}}</span>&nbsp;<img class="pluginBlueprintImageLogo" src="./images/templateicons/imgo.jpg"  alt="{{selectedBlueprint.name}}"/> &nbsp;{{selectedBlueprint.name}}
+	                              <span class="badge pull-left" >{{(+selectedBlueprintList.indexOf(selectedBlueprint)) +1}}</span>&nbsp;<img class="pluginBlueprintImageLogo" src="./images/templateicons/imgo.jpg"  alt="{{selectedBlueprint.name}}"/> &nbsp;{{selectedBlueprint.name}}
                           		</span>
                           		<div class="info-cell">
                               		<!-- <div class="publisherDesc">{{selectedBlueprint.orgName}} > {{selectedBlueprint.bgName}} > {{selectedBlueprint.projectName}} > {{selectedBlueprint.environmentName}}

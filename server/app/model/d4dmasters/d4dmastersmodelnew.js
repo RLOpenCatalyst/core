@@ -1625,7 +1625,23 @@ var d4dMastersCICDDashboard = new mongoose.Schema({
     }
 }, {
     collection: 'd4dmastersnew'
-});
+}
+
+);
+
+d4dMastersCICDDashboard.statics.getDependentDashboard = function(dashboardServerId,callback)
+{
+    return this.findOne({"dashboardServerId" : dashboardServerId},
+        function (err, CICDDashboard) {
+            if (err) {
+                logger.error(err);
+                return callback(err, null);
+            } else {
+                return callback(null, CICDDashboard);
+            }
+        });
+};
+
 var d4dModelMastersCICDDashboard = mongoose.model('d4dModelMastersCICDDashboard', d4dMastersCICDDashboard, 'd4dmastersnew');
 
 var d4dMastersRemoteBotServer = new mongoose.Schema({

@@ -11,14 +11,22 @@
     .controller('botScheduleCtrl',['$scope', '$rootScope', 'genericServices', 'workzoneServices', 'toastr', function ($scope, $rootScope, genSevs, workzoneServices, toastr) {
         
         var items;
-
+        $scope.showForAll = true;
         $rootScope.$on('BOTS_TEMPLATE_SELECTED', function(event,reqParams) {
             $scope.templateSelected = reqParams;
         });
         
+
         if($scope.templateSelected) {
             items = $scope.templateSelected;
         }
+
+        $rootScope.$on('BOTS_DESCRIPTION_REFRESH', function(event,reqParams) {
+            $scope.templateSelected = reqParams;
+            items = $scope.templateSelected;
+            $scope.scheduleDeatils = items;
+            $scope.checkForScheduler();
+        });
 
         if(items.isScheduled === true){
             $scope.isScheduled = true;
@@ -27,6 +35,21 @@
         }
         $scope.scheduleDeatils = items;
         $scope.botId = items._id;
+
+        $scope.checkForScheduler = function() {
+            if($scope.scheduleDeatils.type === 'blueprints') {
+                if($scope.scheduleDeatils.executionCount <=0) {
+                    $scope.showForBlueprints = true;
+                    $scope.showForAll = false;
+                } else {
+                    $scope.showForBlueprints = false;
+                    $scope.showForAll = true;
+                }
+            } else {
+                $scope.showForBlueprints = false;
+            }
+        }
+
         $scope.defaultSelection = function() {
             $scope.repeatsType = 'Minutes';//default selection.
             $scope.schedulerStartOn=moment(new Date()).format('MM/DD/YYYY');
@@ -118,5 +141,6 @@
                 }
             });
         };
+        $scope.checkForScheduler();
     }]);
 })(angular);

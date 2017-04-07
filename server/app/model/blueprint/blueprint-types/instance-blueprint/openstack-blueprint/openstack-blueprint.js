@@ -529,7 +529,7 @@ openstackInstanceBlueprintSchema.methods.launch = function(launchParams, callbac
                                                     logger.error("Failed to create or update bots Log: ", err);
                                                 }
                                                 var botService = require('_pr/services/botsService');
-                                                botService.updateSavedTimePerBots(launchParams.blueprintData._id,launchParams,auditType,function(err,data){
+                                                botService.updateSavedTimePerBots(launchParams.botId,launchParams,auditType,function(err,data){
                                                     if (err) {
                                                         logger.error("Failed to update bots saved Time: ", err);
                                                     }

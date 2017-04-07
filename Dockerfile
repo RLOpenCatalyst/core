@@ -9,6 +9,7 @@ RUN npm install -g npm
 RUN npm install forever --global
 RUN gem install sass
 RUN curl -L https://www.opscode.com/chef/install.sh |  bash
+RUN /opt/chef/embedded/bin/gem install knife-windows
 
 RUN mkdir -p /rlc/client
 RUN mkdir -p /rlc/server

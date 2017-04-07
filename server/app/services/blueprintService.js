@@ -18,9 +18,9 @@ var GCP = require('_pr/lib/gcp.js');
 var blueprintModel = require('_pr/model/v2.0/blueprint/blueprint.js');
 var providerService = require('./providerService.js');
 var async = require('async');
+var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var instanceService = require('./instanceService.js');
 var logsDao = require('_pr/model/dao/logsdao.js');
-var instancesModel = require('_pr/model/classes/instance/instance');
 var fs = require('fs');
 var gcpProviderModel = require('_pr/model/v2.0/providers/gcp-providers');
 var gcpNetworkProfileModel = require('_pr/model/v2.0/network-profile/gcp-network-profiles');
@@ -267,6 +267,7 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                             tagServer: reqBody.tagServer,
                             monitorId: monitorId,
                             auditTrailId: data._id,
+                            botId:data.auditId,
                             auditType:data.auditType,
                             actionLogId:auditTrail.actionId
                         },next);
@@ -281,6 +282,7 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                         tagServer: reqBody.tagServer,
                         monitorId: monitorId,
                         auditTrailId: null,
+                        botId:null,
                         auditType:null,
                         actionLogId:null
                     },next);
@@ -645,6 +647,33 @@ blueprintService.deleteBlueprint = function deleteBlueprint(blueprintId, callbac
             // @TODO response to be decided
             return callback(null, {});
         }
+    });
+};
+
+blueprintService.getAllBlueprintsWithFilter = function getAllBlueprintsWithFilter(queryParam,callback){
+    var reqData = {};
+    async.waterfall([
+        function(next) {
+            apiUtil.paginationRequest(queryParam, 'blueprints', next);
+        },
+        function(paginationReq, next) {
+            paginationReq['searchColumns'] = ['botName', 'botType', 'botCategory','botDesc', 'botLinkedCategory','botLinkedSubCategory', 'masterDetails.orgName', 'masterDetails.bgName', 'masterDetails.projectName', 'masterDetails.envName'];
+            reqData = paginationReq;
+            apiUtil.databaseUtil(paginationReq, next);
+        },
+        function(queryObj, next) {
+            Blueprints.getBlueprintByOrgBgProjectProviderType(queryObj,next);
+        },
+        function(filterBlueprintList, next) {
+            apiUtil.paginationResponse(filterBlueprintList, reqData, next);
+        }
+    ],function(err, results) {
+        if (err){
+            callback(err,null);
+            return;
+        }
+        callback(null,results)
+        return;
     });
 };
 

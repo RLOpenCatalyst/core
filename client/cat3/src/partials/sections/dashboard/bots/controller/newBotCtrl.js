@@ -80,8 +80,8 @@
                 },
                 postCreateBots : function() {
                     botsData = {
-                        name: $scope.botName,
-                        desc: $scope.botDesc,
+                        //name: $scope.botName,
+                        //desc: $scope.botDesc,
                         standardTime: $scope.manualExecutionTime,
                         type: $scope.botType,
                         subType: $scope.botSubTypeValue,

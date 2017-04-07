@@ -2,6 +2,7 @@ var cicdDashboardService = require('_pr/services/cicdDashboardService');
 var async = require('async');
 var validate = require('express-validation');
 var cicdDashboardServerValidator = require('_pr/validators/cicdDashboardServerValidator');
+var logger = require('_pr/logger')(module);
 
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
@@ -113,14 +114,24 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 function(next) {
                     cicdDashboardService.checkIfcicdDashboardServerExists(req.params.cicdDashboardServerId, next);
                 },
-                function(monitor, next) {
-                    cicdDashboardService.deletecicdDashboardServer(req.params.cicdDashboardServerId, next);
+                function(dependency, next)
+                {
+                  cicdDashboardService.checkForDashboardDependency(req.params.cicdDashboardServerId, next);
+                },
+                function(monitor, next)
+                {
+                    if(monitor === null) {
+                        cicdDashboardService.deletecicdDashboardServer(req.params.cicdDashboardServerId, next);
+                    }else{
+                        next(null,{warning:"Dependent Dashboard(s) Exists. Unable to Delete"})
+                    }
                 }
             ],
             function(err, results) {
                 if (err) {
                     res.status(err.status).send(err);
                 } else {
+                    logger.info(results.warning);
                     return res.status(200).send(results);
                 }
             }
