@@ -1,7 +1,6 @@
 <div id="editParamsPage" ng-controller="editParamsCtrl">
 	<form class="container summary-container" name="editParamsForm" novalidate ng-submit="editParamsForm.$valid && executeBot()">
 		<fieldset id="botExecution">
-			<span ng-if="botType ==='script'"><input type="checkbox" ng-model="scriptSelectForRemote.flag" ng-click="botStatus()"/><span>&nbsp;Do you want to execute on Remote Server?</span></span>
 			<div ng-if="botType ==='script'" class="scriptExecution param-table bot-info-wrapper">
 		         <table class="table table-bordered">
 		            <thead>
@@ -23,8 +22,11 @@
 		            </tbody>
 		         </table>
       		</div>
+            <div class="margintop-7" ng-if="botType ==='script'"><input type="checkbox" ng-model="scriptSelectForRemote.flag" ng-click="botStatus()"/><span>&nbsp;Do you want to execute on Remote Server?</span></div>
       		<div ng-if="botType ==='chef' || botType === 'blueprints' || botType === 'blueprint' || botType === 'script'" ng-show="botCheck" class="chefExecution">
-      		<div class="col-lg-6 col-md-6 col-sm-12 marginleft-15">
+            <fieldset id="editParamPage">
+            <legend>Remote Machine</legend><br>
+      		<div class="col-lg-6 col-md-6 col-sm-12 margintopBottom">
                <div class="panel-group">
                   <div class="panel panel-default form-group">
                      <div class="panel-heading" style="height: 40px;"> 
@@ -37,8 +39,8 @@
                            </form>
 				            </span>
                      </div>
-                     <div class="panel-body bp-panel-body" ng-if="botType === 'chef' || botType === 'script'" ng-show="botCheck">
-                        <div class="alert alert-info padding6 text-center" ng-if="originalInstanceList.length === 0" align="center">No Data Found</div>
+                     <div class="panel-body bots-panel-body" ng-if="botType === 'chef' || botType === 'script'" ng-show="botCheck">
+                        <div class="alert alert-info padding6 text-center" ng-if="originalInstanceList.length === 0" align="center">No Instances Found</div>
                         <ul ng-if="originalInstanceList.length > 0" class="list-group" ui-sortable>
                            <li class="list-group-item" ng-repeat="instanceDetails in originalInstanceList | filter :searchText">
                               <span title="Add to Right" class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="addInstanceBP(originalInstanceList.indexOf(instanceDetails),'instance')" ><i class="fa fa-arrow-right white fa-2" aria-hidden="true"></i></span>
@@ -48,8 +50,8 @@
                            </li>
                         </ul>
                      </div>
-                     <div class="panel-body bp-panel-body" ng-if="botType === 'blueprints'">
-                     	<div class="alert alert-info padding6 text-center" ng-if="originalBlueprintList.length === 0" align="center">No Data Found</div>
+                     <div class="panel-body bots-panel-body" ng-if="botType === 'blueprints'">
+                     	<div class="alert alert-info padding6 text-center" ng-if="originalBlueprintList.length === 0" align="center">No Blueprints Found</div>
                         <ul ng-if="originalBlueprintList.length > 0" class="list-group" ui-sortable>
                            <li class="list-group-item" ng-repeat="blueprintDetails in originalBlueprintList | filter :searchText">
                               <span title="Add to Right" class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="addInstanceBP(originalBlueprintList.indexOf(blueprintDetails),'blueprints')" ><i class="fa fa-arrow-right white fa-2" aria-hidden="true"></i></span>
@@ -61,7 +63,7 @@
                   </div>
                </div>
              </div>
-            <div class="col-lg-6 col-md-6 col-sm-12">
+            <div class="col-lg-6 col-md-6 col-sm-12 margintopBottom">
                <div class="panel-group">
                   <div class="panel panel-default">
                      <div ng-if="botType === 'chef' || botType === 'script'" ng-show="botCheck" class="panel-heading" style="height: 40px;">
@@ -70,8 +72,8 @@
                      <div ng-if="botType === 'blueprints'" class="panel-heading" style="height: 40px;">
                         <span>Selected Blueprints</span> &nbsp;<span class="error red" ng-show="executeTaskForSave && selectedBlueprintList.length <= 0">Please select Blueprints.</span>
                      </div>
-                     <div class="panel-body bp-panel-body" ng-if="botType === 'chef' || botType === 'script'" ng-show="botCheck">
-                     	<div class="alert alert-info padding6 text-center" ng-if="selectedInstanceList.length === 0" align="center">No Data Found</div>
+                     <div class="panel-body bots-panel-body" ng-if="botType === 'chef' || botType === 'script'" ng-show="botCheck">
+                     	<div class="alert alert-info padding6 text-center" ng-if="selectedInstanceList.length === 0" align="center">No Instances Selected</div>
                         <ul class="list-group" dnd-list="selectedInstanceList" >
                            <li class="list-group-item bpListComp botsBadge"  ng-repeat="selectedInstance in selectedInstanceList" dnd-draggable="selectedInstance"
                               dnd-moved="selectedInstanceList.splice($index, 1)"
@@ -83,8 +85,8 @@
                            </li>
                         </ul>
                      </div>
-                     <div class="panel-body bp-panel-body" ng-if="botType === 'blueprints'">
-                     	<div class="alert alert-info padding6 text-center" ng-if="selectedBlueprintList.length === 0" align="center">No Data Found</div>
+                     <div class="panel-body bots-panel-body" ng-if="botType === 'blueprints'">
+                     	<div class="alert alert-info padding6 text-center" ng-if="selectedBlueprintList.length === 0" align="center">No Blueprints Selected </div>
                         <ul class="list-group" dnd-list="selectedBlueprintList" >
                            <li class="list-group-item bpListComp botsBadge"  ng-repeat="selectedBlueprint in selectedBlueprintList" dnd-draggable="selectedBlueprint"
                               dnd-moved="selectedBlueprintList.splice($index, 1)"
@@ -100,20 +102,19 @@
                </div>
             </div>
 		   <div class="clearfix"></div>
+         </fieldset>
       	</div>
       	<div class="alert alert-info text-center" ng-if="botType === 'UI' || botType ==='jenkins'">
  	          Under Construction
  	      </div>
 		</fieldset>
    </form>
-	<footer class="footer">
-      <div class="clearfix text-center footerAction">
-   		<button type="button" ng-if="botType === 'script' || botType ==='chef'" class="marginright29 btn cat-btn-update" ng-disabled="scriptSelectForRemote.flag && selectedInstanceList.length <= 0 || botType ==='chef' && selectedInstanceList.length <= 0" ng-click="executeBot('instance')">
-   			<i class="fa fa-check white"></i> Execute
-   		</button>
-         <button type="button" ng-if="botType ==='blueprints'" class="marginright29 btn cat-btn-update" ng-disabled="selectedBlueprintList.length <= 0" ng-click="executeBot('blueprints')">
-            <i class="fa fa-check white"></i> Execute
-         </button>
-      </div>
-	</footer>
+	<div id="botEditFooter" class="pager margintop-5">
+		<button type="button" ng-if="botType === 'script' || botType ==='chef'" class="marginright29 btn cat-btn-update" ng-disabled="scriptSelectForRemote.flag && selectedInstanceList.length <= 0 || botType ==='chef' && selectedInstanceList.length <= 0" ng-click="executeBot('instance')">
+			<i class="fa fa-check white"></i> Execute
+		</button>
+      <button type="button" ng-if="botType ==='blueprints'" class="marginright29 btn cat-btn-update" ng-disabled="selectedBlueprintList.length <= 0" ng-click="executeBot('blueprints')">
+         <i class="fa fa-check white"></i> Execute
+      </button>
+	</div>
 </div>

@@ -1472,7 +1472,9 @@ input[type="text"].ui-grid-filter-input{
     font-weight: 500;
 }
 
-.bp-panel-body {
+.bots-panel-body {
+    max-height: 230px;
+    min-height: 230px;
     overflow-y:auto!important;
 }
 
@@ -1599,12 +1601,10 @@ input[type="text"].ui-grid-filter-input{
     padding: 6.5px!important
 }
 
-.footerAction {
-    display: block;
-    padding: 13px 14px 15px;
-    border-top: 1px solid rgba(0, 0, 0, .1);
-    background: rgba(249, 249, 249, .9);
-    margin-left: -13px;
-    margin-right: -13px;
-    margin-bottom: -13px;
+@media (min-width: 1550px) {
+    .bots-panel-body {
+        max-height: 400px;
+        min-height: 400px;
+        overflow-y:auto!important;
+    }
 }

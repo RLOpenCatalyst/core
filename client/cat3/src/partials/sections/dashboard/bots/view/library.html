@@ -154,7 +154,7 @@
          <div class="agent-card grid-card hoverable col-lg-12 col-md-12 col-xs-12">
             <a class="appnav" title="Go to Details" ui-sref="dashboard.bots.botsDescription({botDetail:botsDetails,listType:0})">
                <div class="image-cell two-tone-11">
-                  <img class="highlight" alt="{{botsDetails.botCategory}}" ng-src="{{botsDetails.imagePath}}">
+                  <img class="highlight" title="{{botsDetails.category}}" alt="{{botsDetails.category}}" ng-src="{{botsDetails.imagePath}}">
                </div>
                <div class="info-cell">
                   <div title="{{botsDetails.name ? botsDetails.name:botsDetails.botName}}" class="title">{{botsDetails.name ? botsDetails.name:botsDetails.botName}}</div>

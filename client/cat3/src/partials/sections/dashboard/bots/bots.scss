@@ -44,6 +44,10 @@
   margin-left:35px
 }
 
+.marginleft17 {
+  margin-left: 17px;
+}
+
 .marginbottom15 {
   margin-bottom: 15px;
 }
@@ -760,11 +764,37 @@ body .botDescriptionPage {
 }
 
 .btnDescription {
-  padding:4px 10px;font-size:13px;margin-right:19px;
+  padding:4px 10px;font-size:13px;margin-right:10px;
 }
 
 .paddingForScreen {
   padding-left: 2.4%;
+}
+
+fieldset#editParamPage{
+    border: 1px solid #ddd;
+    padding: 0 1.4em 1.4em 1.4em;
+    margin: 0.5em 0 1.5em 0;
+    -webkit-box-shadow:  0px 0px 0px 0px #000;
+    box-shadow:  0px 0px 0px 0px #000;
+}
+
+fieldset#editParamPage legend {
+    font-size: 14px;
+    font-weight: bold;
+    text-align: left;
+    border:none;
+    width:170px;
+    color: #3a87ad;
+    margin: 0;
+}
+
+#editParamPage legend {
+    display: block;
+    -webkit-padding-start: 2px;
+    -webkit-padding-end: 2px;
+    border: none;
+    width: auto !important;
 }
 
 @-moz-document url-prefix() {
@@ -836,7 +866,7 @@ body .botDescriptionPage {
       overflow-y: auto!important;
     }
     .btnDescription {
-      padding:4px 10px;font-size:13px;margin-right:42px;
+      padding:4px 10px;font-size:13px;margin-right:12px;
     }
     .marginright14 {
         margin-right: 14px;
@@ -929,10 +959,6 @@ body .botDescriptionPage {
   padding: 5px;
 }
 
-.margintop-2 {
-  margin-top: -2px;
-}
-
 .dropdownSelect{
     font-size: 11px !important;
     height: 28px !important;
@@ -944,10 +970,19 @@ body .botDescriptionPage {
   padding: 2px 15px!important;
 }
 
-.footer {
-  background: none repeat scroll 0 0 white;
-  bottom: 0;
-  left: 0;
-  position: fixed;
-  right: 0;
+#botEditFooter.pager {
+    margin-top: -5px!important;
+}
+
+.margintop-2 {
+  margin-top: -2px;
+}
+
+.margintop-7 {
+  margin-top: -7px;
+}
+
+.margintopBottom {
+    margin-top: -10px;
+    margin-bottom: -23px;
 }
