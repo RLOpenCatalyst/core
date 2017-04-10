@@ -20,8 +20,6 @@ var Jenkins = require('_pr/lib/jenkins');
 
 const errorType = 'jenkinsExecutor';
 
-var pythonHost =  process.env.FORMAT_HOST || 'localhost';
-var pythonPort =  process.env.FORMAT_PORT || '2687';
 var jenkinsExecutor = module.exports = {};
 
 jenkinsExecutor.execute = function execute(botsDetails,auditTrail,userName,executionType,jenkinsBotDetails,callback) {

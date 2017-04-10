@@ -60,29 +60,18 @@ botsNewService.createNew = function createNew(reqBody,callback) {
                             var paramObj = {};
                             if (reqBody.type === 'chef') {
                                 paramObj = {
-                                    //name: reqBody.name,
-                                    //desc: reqBody.desc,
                                     data: {
                                         runlist: reqBody.runlist,
                                         attributes: reqBody.attributes
                                     }
                                 }
-                            } else if (reqBody.type === 'blueprints') {
-                                paramObj = {
-                                    //name: reqBody.name,
-                                    //desc: reqBody.desc
-                                }
                             } else if (reqBody.type === 'script') {
                                 paramObj = {
-                                    //name: reqBody.name,
-                                    //desc: reqBody.desc,
                                     scriptId: reqBody.scriptId,
                                     data: reqBody.params
                                 }
                             } else if (reqBody.type === 'jenkins') {
                                 paramObj = {
-                                    //name: reqBody.name,
-                                    //desc: reqBody.desc,
                                     jenkinsServerId: reqBody.jenkinsServerId,
                                     jenkinsBuildName: reqBody.jenkinsBuildName,
                                     data: reqBody.params
@@ -281,18 +270,50 @@ botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,service
 
 botsNewService.executeBots = function executeBots(botsId,reqBody,userName,executionType,schedulerCallCheck,callback){
     var botId = null;
+    var botRemoteServerDetails = {}
     async.waterfall([
         function(next) {
             botsDao.getBotsByBotId(botsId, next);
         },
         function(bots,next){
             botId = bots[0]._id;
-            if(reqBody !== null && reqBody !== '' && bots[0].type === 'script' && schedulerCallCheck === false){
-                encryptedParam(reqBody.data,next);
+            if(reqBody !== null && reqBody !== '' && (bots[0].type === 'script' || bots[0].type === 'chef') && schedulerCallCheck === false){
+                masterUtil.getBotRemoteServerDetailByOrgId(bots[0].orgId,function(err,botServerDetails) {
+                    if (err) {
+                        logger.error("Error while fetching BOTs Server Details");
+                        callback(err, null);
+                        return;
+                    } else if (botServerDetails !== null) {
+                        botRemoteServerDetails.hostIP = botServerDetails.hostIP;
+                        botRemoteServerDetails.hostPort = botServerDetails.hostPort;
+                        encryptedParam(reqBody.data, next);
+                    } else {
+                        var error = new Error();
+                        error.message = 'BOTs Remote Engine is not configured or not in running mode';
+                        error.status = 403;
+                        next(error, null);
+                    }
+                });
+
             }else if(bots[0].type === 'blueprints'){
                 next(null,reqBody);
-            }else if(schedulerCallCheck === false){
-                next(null,reqBody.data);
+            }else if(schedulerCallCheck === false && (bots[0].type === 'script' || bots[0].type === 'chef')){
+                masterUtil.getBotRemoteServerDetailByOrgId(bots[0].orgId,function(err,botServerDetails) {
+                    if (err) {
+                        logger.error("Error while fetching BOTs Server Details");
+                        callback(err, null);
+                        return;
+                    } else if (botServerDetails !== null) {
+                        botRemoteServerDetails.hostIP = botServerDetails.hostIP;
+                        botRemoteServerDetails.hostPort = botServerDetails.hostPort;
+                        next(null,reqBody.data);
+                    } else {
+                        var error = new Error();
+                        error.message = 'BOTs Remote Engine is not configured or not in running mode';
+                        error.status = 403;
+                        next(error, null);
+                    }
+                });
             }else{
                 next(null,reqBody);
             }
@@ -340,40 +361,25 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
                                 };
                                 auditTrailService.insertAuditTrail(botDetails[0],auditTrailObj,actionObj,next);
                             },
-                            function(auditTrail,next){
-                                var botRemoteServerDetails = {}
-                                masterUtil.getBotRemoteServerDetailByOrgId(botDetails[0].orgId,function(err,botServerDetails) {
-                                    if (err) {
-                                        logger.error("Error while fetching BOTs Server Details");
-                                        callback(err, null);
-                                        return;
-                                    } else if (botServerDetails !== null && botServerDetails.active !== false) {
-                                        botRemoteServerDetails.hostIP = botServerDetails.hostIP;
-                                        botRemoteServerDetails.hostPort = botServerDetails.hostPort;
-                                    } else {
-                                        botRemoteServerDetails.hostIP = "localhost";
-                                        botRemoteServerDetails.hostPort = "2687";
+                            function(auditTrail,next) {
+                                var uuid = require('node-uuid');
+                                auditTrail.actionId = uuid.v4();
+                                if (botDetails[0].type === 'script') {
+                                    scriptExecutor.execute(botDetails[0], auditTrail, userName, executionType, botRemoteServerDetails, next);
+                                } else if (botDetails[0].type === 'chef') {
+                                    chefExecutor.execute(botDetails[0], auditTrail, userName, executionType, botRemoteServerDetails, next);
+                                } else if (botDetails[0].type === 'blueprints') {
+                                    if (schedulerCallCheck === true) {
+                                        reqBody = botDetails[0].params.data;
                                     }
-                                    var uuid = require('node-uuid');
-                                    auditTrail.actionId = uuid.v4();
-                                    if (botDetails[0].type === 'script') {
-                                        scriptExecutor.execute(botDetails[0], auditTrail, userName, executionType,botRemoteServerDetails, next);
-                                    } else if (botDetails[0].type === 'chef') {
-                                        chefExecutor.execute(botDetails[0], auditTrail, userName, executionType,botRemoteServerDetails, next);
-                                    } else if (botDetails[0].type === 'blueprints') {
-                                        if(schedulerCallCheck === true){
-                                            reqBody = botDetails[0].params.data;
-                                        }
-                                        blueprintExecutor.execute(auditTrail, reqBody, userName, next);
-                                    } else {
-                                        var err = new Error('Invalid BOTs Type');
-                                        err.status = 400;
-                                        err.msg = 'Invalid BOTs Type';
-                                        callback(err, null);
-                                    }
-                                });
+                                    blueprintExecutor.execute(auditTrail, reqBody, userName, next);
+                                } else {
+                                    var err = new Error('Invalid BOTs Type');
+                                    err.status = 400;
+                                    err.msg = 'Invalid BOTs Type';
+                                    callback(err, null);
+                                }
                             }
-
                         ],function(err,executionResult){
                             if(err){
                                 callback(err,null);

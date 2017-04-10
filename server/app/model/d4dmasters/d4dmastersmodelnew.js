@@ -1686,8 +1686,7 @@ var d4dMastersRemoteBotServer = new mongoose.Schema({
     },*/
     active: {
         type: Boolean,
-        trim: true,
-        default: true
+        default: false
     },
     orgname: {
         type: String,
