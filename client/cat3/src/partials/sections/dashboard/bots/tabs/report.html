@@ -4,7 +4,7 @@
          <!--This table will get use when bot job type will be chef -->
          <loading size="large" name="ischefTaskHistoryPageLoading" type="block" align="center"></loading>
          <div ng-show="!ischefTaskHistoryPageLoading">
-            <div id="grid1" ng-if="taskHistoryData.totalItems > 0" ui-grid="taskHistoryData" ui-grid-pagination ui-grid-auto-resize class="grid"></div>
+            <div id="grid1" ng-if="taskHistoryData.totalItems > 0" ui-grid="taskHistoryData" ui-grid-pagination ui-grid-auto-resize class="grid heightBigCheck"></div>
          </div>
          <!--This table will get use when bot job type will be jenkins -->
          <div class="alert alert-info text-center" ng-show="!ischefTaskHistoryPageLoading" ng-if="taskHistoryData.totalItems <= 0" align="center">No Data Found</div>
