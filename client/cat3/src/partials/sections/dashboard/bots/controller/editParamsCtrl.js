@@ -33,6 +33,7 @@
         $scope.selectedBlueprintIds = [];
         $scope.selectedBlueprintList = [];
         $scope.executeTaskForSave = false;
+        $scope.hideRightButton = true;
         $scope.scriptSelectForRemote = {
             flag: false
         }
@@ -70,7 +71,6 @@
                     angular.forEach(response.instances, function(value, key) {
                         if($scope.selectedInstanceIds.indexOf(value._id) == -1) {
                             $scope.originalInstanceList.push(value);
-                            console.log($scope.originalInstanceList);
                         }
                     });
                 }
@@ -97,6 +97,9 @@
                 $scope.originalInstanceList.splice(indexArr,1);
             } else if(type === 'blueprints') {
                 $scope.selectedBlueprintList.push($scope.originalBlueprintList[indexArr]);
+                if($scope.selectedBlueprintList.length > 0) {
+                    $scope.hideRightButton = false;
+                }
                 $scope.selectedBlueprintIds.push($scope.originalBlueprintList[indexArr]._id);
                 $scope.originalBlueprintList.splice(indexArr,1);
             }
@@ -137,6 +140,9 @@
                 var ind = $scope.selectedBlueprintIds.indexOf(id);
                 $scope.selectedBlueprintList.splice(ind,1);
                 $scope.selectedBlueprintIds.splice(ind,1);
+                if($scope.selectedBlueprintList.length === 0) {
+                    $scope.hideRightButton = true;
+                }
                 $scope.getBlueprintList();
             }
         };
@@ -197,13 +203,11 @@
                             }
                         }
                     }).result.then(function(blueprintObj) {
-                        console.log(blueprintObj);
                         reqBody.monitorId = blueprintObj.monitorId;
                         reqBody.domainName = blueprintObj.domainName;
                         reqBody.envId = blueprintObj.launchEnv;
                         reqBody.tagServer = blueprintObj.tagServer;
                         reqBody.stackName = blueprintObj.stackName;
-                        console.log(reqBody);
                         $scope.botExecuteMethod(items.id,reqBody);
                     }, function() {
 

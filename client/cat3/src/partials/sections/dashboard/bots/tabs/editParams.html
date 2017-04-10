@@ -54,7 +54,7 @@
                      	<div class="alert alert-info padding6 text-center" ng-if="originalBlueprintList.length === 0" align="center">No Blueprints Found</div>
                         <ul ng-if="originalBlueprintList.length > 0" class="list-group" ui-sortable>
                            <li class="list-group-item" ng-repeat="blueprintDetails in originalBlueprintList | filter :searchText">
-                              <span title="Add to Right" class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="addInstanceBP(originalBlueprintList.indexOf(blueprintDetails),'blueprints')" ><i class="fa fa-arrow-right white fa-2" aria-hidden="true"></i></span>
+                              <span title="Add to Right" ng-show="hideRightButton" class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="addInstanceBP(originalBlueprintList.indexOf(blueprintDetails),'blueprints')" ><i class="fa fa-arrow-right white fa-2" aria-hidden="true"></i></span>
                               <span title="Info" class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="selectBpInfo($event,blueprintDetails,IMGNewEnt.blueprintType)" ><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>
                               <img class="pluginBlueprintImageLogo" src="./images/templateicons/imgo.jpg" alt="{{blueprintDetails.name}}"> &nbsp;{{blueprintDetails.name}}
                            </li>
@@ -70,7 +70,7 @@
                         <span>Selected Instances</span> &nbsp;<span class="error red" ng-show="executeTaskForSave && selectedInstanceList.length <= 0">Please select Instance.</span>
                      </div>
                      <div ng-if="botType === 'blueprints'" class="panel-heading" style="height: 40px;">
-                        <span>Selected Blueprints</span> &nbsp;<span class="error red" ng-show="executeTaskForSave && selectedBlueprintList.length <= 0">Please select Blueprints.</span>
+                        <span>Selected Blueprints(Only 1 Blueprint can be executed)</span> &nbsp;<span class="error red" ng-show="executeTaskForSave && selectedBlueprintList.length <= 0">Please select Blueprints.</span>
                      </div>
                      <div class="panel-body bots-panel-body" ng-if="botType === 'chef' || botType === 'script'" ng-show="botCheck">
                      	<div class="alert alert-info padding6 text-center" ng-if="selectedInstanceList.length === 0" align="center">No Instances Selected</div>
