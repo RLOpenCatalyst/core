@@ -464,7 +464,7 @@ $(function() {
 
                         var environment = 'unknown';
                         if (node.environment) {
-                            environment = node.environment;
+                            environment = node.parameters.environment;
                         }
                         /*var $tempenv = $envselect.clone();
                     $tempenv.val(environment).attr('currentEnv', environment);
@@ -664,8 +664,10 @@ $(function() {
         var $checkBoxes = $('.nodeCheckBox:checked');
         var reqBody = {};
         reqBody.orgId = $orgListInput.val();
+        reqBody.orgName = $orgListInput.find("option:selected").text();
         reqBody.bgId = $bgList.val();
         reqBody.projectId = $projectList.val();
+        reqBody.projectName = $projectList.find("option:selected").text();
         reqBody.envID = $envList.val();
         /*if(!reqBody.bgId || !reqBody.bgId.length){
     alert('Please Select Business Groups & Project');

@@ -8,7 +8,7 @@
 (function (angular) {
     "use strict";
     angular.module('library.params', [])
-    .controller('editParamsCtrl',['$scope', '$rootScope', '$state', 'genericServices', 'botsCreateService', 'workzoneServices', 'toastr', '$modal', function ($scope, $rootScope, $state, genSevs, botsCreateService,workzoneServices, toastr, $modal) {
+    .controller('editParamsCtrl',['$scope', '$rootScope', '$state', 'genericServices', 'botsCreateService', 'toastr', '$modal', function ($scope, $rootScope, $state, genSevs, botsCreateService, toastr, $modal) {
         
         var items;
 
@@ -33,6 +33,7 @@
         $scope.selectedBlueprintIds = [];
         $scope.selectedBlueprintList = [];
         $scope.executeTaskForSave = false;
+        $scope.hideRightButton = true;
         $scope.scriptSelectForRemote = {
             flag: false
         }
@@ -64,10 +65,10 @@
         }
 
         $scope.getInstanceList = function() {
-            botsCreateService.getCurrentEnvInstances($scope.IMGNewEnt.org.orgid,$scope.IMGNewEnt.buss.rowid,$scope.IMGNewEnt.proj.rowId,$scope.IMGNewEnt.env.rowid).then(function(response){
+            botsCreateService.getCurrentOrgInstances($scope.IMGNewEnt.org.orgid).then(function(response){
                 $scope.originalInstanceList=[];
-                if(response){
-                    angular.forEach(response, function(value, key) {
+                if(response.instances){
+                    angular.forEach(response.instances, function(value, key) {
                         if($scope.selectedInstanceIds.indexOf(value._id) == -1) {
                             $scope.originalInstanceList.push(value);
                         }
@@ -77,10 +78,10 @@
         };
 
         $scope.getBlueprintList = function() {
-            botsCreateService.getBlueprintList($scope.IMGNewEnt.org.orgid,$scope.IMGNewEnt.buss.rowid,$scope.IMGNewEnt.proj.rowId,$scope.IMGNewEnt.blueprintType).then(function(response){
+            botsCreateService.getBlueprintList($scope.IMGNewEnt.org.orgid,$scope.IMGNewEnt.blueprintType).then(function(response){
                 $scope.originalBlueprintList=[];
-                if(response){
-                    angular.forEach(response, function(value, key) {
+                if(response.blueprints){
+                    angular.forEach(response.blueprints, function(value, key) {
                         if($scope.selectedBlueprintIds.indexOf(value._id) == -1) {
                             $scope.originalBlueprintList.push(value);
                         }
@@ -96,6 +97,9 @@
                 $scope.originalInstanceList.splice(indexArr,1);
             } else if(type === 'blueprints') {
                 $scope.selectedBlueprintList.push($scope.originalBlueprintList[indexArr]);
+                if($scope.selectedBlueprintList.length > 0) {
+                    $scope.hideRightButton = false;
+                }
                 $scope.selectedBlueprintIds.push($scope.originalBlueprintList[indexArr]._id);
                 $scope.originalBlueprintList.splice(indexArr,1);
             }
@@ -136,6 +140,9 @@
                 var ind = $scope.selectedBlueprintIds.indexOf(id);
                 $scope.selectedBlueprintList.splice(ind,1);
                 $scope.selectedBlueprintIds.splice(ind,1);
+                if($scope.selectedBlueprintList.length === 0) {
+                    $scope.hideRightButton = true;
+                }
                 $scope.getBlueprintList();
             }
         };
@@ -196,12 +203,11 @@
                             }
                         }
                     }).result.then(function(blueprintObj) {
-                        console.log(blueprintObj);
                         reqBody.monitorId = blueprintObj.monitorId;
                         reqBody.domainName = blueprintObj.domainName;
                         reqBody.envId = blueprintObj.launchEnv;
                         reqBody.tagServer = blueprintObj.tagServer;
-                        console.log(reqBody);
+                        reqBody.stackName = blueprintObj.stackName;
                         $scope.botExecuteMethod(items.id,reqBody);
                     }, function() {
 

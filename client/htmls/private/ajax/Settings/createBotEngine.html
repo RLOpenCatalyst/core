@@ -10,7 +10,7 @@
             <form action="" id="myForm32">
                 <div class="widget-box">
                     <div class="widget-header">
-                        <h4 class="widget-margin" style="color:black;">BOT Engine Configuration</h4>
+                        <h4 class="widget-margin" style="color:black;">BOT Executor Configuration</h4>
                     </div>
                     <div class="widget-body">
                         <div class="widget-main" style="min-height:200px">
@@ -35,15 +35,15 @@
 	                                                </select>
 	                                             </div>
                                                 <div class="col-lg-6 col-md-6 margintop15">
-                                                    <label for="name">Host IP:<span class="control-label redSpan">&nbsp;*</span></label>
-                                                    <input name="hostIP" value="" id="hostIP" class="form-control" type="text"  cdata="catalyst" cat-validation="required,ipAddressCheck">
+                                                    <label for="name">Engine URL:<span class="control-label redSpan">&nbsp;*</span></label>
+                                                    <input name="hostIP" value="" id="hostIP" class="form-control" type="text"  cdata="catalyst" cat-validation="required">
                                                 </div>
 												<div class="col-lg-6 col-md-6 margintop15">
 													<label for="name">Host Port:<span class="control-label redSpan">&nbsp;*</span></label>
 													<input name="hostPort" value="" id="hostPort" class="form-control" type="text"  cdata="catalyst" cat-validation="required">
 												</div>
                                                 <div class="col-lg-6 margintop15 orgactive hidden">
-                                                    <label for="name">Bot Engine Status:</label>
+                                                    <label for="name">BOT Executor Status:</label>
                                                     <div class="clearfix" style="border:1px solid silver" >
                                                         <div class="btn-group pull-left" style="padding:5px;margin-top:-22px;width:100%">
                                                             <div style="padding-top:5px;">
@@ -136,7 +136,7 @@
 
 	 var btnenablement = function() {
 	 	var data1 = new FormData();
-	 	if (confirm('You have selected to change the status of this Bot Engine. Proceed?')) {
+	 	if (confirm('You have selected to change the status of this BOT Executor. Proceed?')) {
 	 		var $deactivatebtn = $(this);
 	 		$deactivatebtn.attr('disabled', 'disabled');
 	 		var orgid__ = $('#myForm32').find('button').first().attr('rowid');

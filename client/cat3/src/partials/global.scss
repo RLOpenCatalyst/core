@@ -1472,7 +1472,9 @@ input[type="text"].ui-grid-filter-input{
     font-weight: 500;
 }
 
-.bp-panel-body {
+.bots-panel-body {
+    max-height: 230px;
+    min-height: 230px;
     overflow-y:auto!important;
 }
 
@@ -1561,7 +1563,7 @@ input[type="text"].ui-grid-filter-input{
     }
     .navbar-top-links li a {
         padding: 15px;
-        min-height: 50px;
+        min-height: 48px;
     }
     .nav .open>a, .nav .open>a:focus, .nav .open>a:hover {
         background-color: #525961;
@@ -1589,4 +1591,20 @@ input[type="text"].ui-grid-filter-input{
 
 .pluginBlueprintImageLogo {
     height: 28px;
+}
+
+.font-size-16{
+  font-size: 16px !important;
+}
+
+.padding6 {
+    padding: 6.5px!important
+}
+
+@media (min-width: 1550px) {
+    .bots-panel-body {
+        max-height: 400px;
+        min-height: 400px;
+        overflow-y:auto!important;
+    }
 }

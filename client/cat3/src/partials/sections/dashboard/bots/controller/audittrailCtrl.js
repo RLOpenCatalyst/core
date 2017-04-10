@@ -37,10 +37,10 @@
                   '<img class="bot-status-icon" src="images/instance-states/aws-stopped.png" ng-show="row.entity.status === \'failed\'" title="{{row.entity.status}}">' + 
                   '<img class="bot-status-icon" src="images/instance-states/aws-inactive.png" ng-show="row.entity.status === \'running\'" title="{{row.entity.status}}">',
                   cellTooltip: true},
-                { name: 'Organization',field:'masterDetails.orgName'},
+                /*{ name: 'Organization',field:'masterDetails.orgName'},
                 { name: 'Business Group',field:'masterDetails.bgName'},
                 { name: 'Project',field:'masterDetails.projectName'},
-                { name: 'Environment',field:'masterDetails.envName'},
+                { name: 'Environment',field:'masterDetails.envName'},*/
                 { name: 'User',field:'user'},
                 { name: 'Logs',cellTemplate: '<span class="btn cat-btn-update control-panel-button" title="Logs" ng-click="grid.appScope.botAuditTrailLogs(row.entity);"><i class="fa fa-info white"></i></span>'}
             ];

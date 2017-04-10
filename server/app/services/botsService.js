@@ -357,7 +357,7 @@ botsService.getBotsHistory = function getBotsHistory(botId,botsQuery,serviceNowC
 
 botsService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,auditType,callback){
     var query = {
-        auditType: 'BOTs',
+        auditType: auditType,
         isDeleted: false,
         auditId: botId
     };

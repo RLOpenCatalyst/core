@@ -116,6 +116,7 @@ function executeBlueprint(blueprintId,auditTrail,reqBody,userName,callback){
                     tagServer: reqBody.tagServer,
                     monitorId: monitorId,
                     auditTrailId: auditTrail._id,
+                    botId:auditTrail.auditId,
                     auditType: auditTrail.auditType,
                     actionLogId:auditTrail.actionId
                 },next);

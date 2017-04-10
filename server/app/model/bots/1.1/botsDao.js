@@ -36,17 +36,17 @@ var BotsSchema = new Schema ({
     gitHubId: {
         type: String,
         trim: true,
-        required: true
+        required: false
     },
     gitHubRepoName: {
         type: String,
         trim: true,
-        required: true
+        required: false
     },
     gitHubRepoBranch: {
         type: String,
         trim: true,
-        required: true
+        required: false
     },
     type: {
         type: String,

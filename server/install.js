@@ -40,6 +40,8 @@ function getDefaultsConfig() {
         javaLibDir: currentDirectory + '/app',
         gitHubDirName: 'gitHub',
         botLogDir: currentDirectory + '/app/logs/',
+        botFactory: '.botsfactory',
+        botCurrentFactory: '.botsfactory/current',
         catalysHomeDirName: 'catalyst',
         instancePemFilesDirName: 'instance-pemfiles',
         tempDirName: 'temp',
@@ -120,7 +122,8 @@ function getDefaultsConfig() {
                 "compositeBlueprints":"name",
                 "containerLogs":"createdOn",
                 "bots":"createdOn",
-                "gitHub":"createdOn"
+                "gitHub":"createdOn",
+                "notice":"createdOn"
             },
             skip_Records : 1,
             max_record_limit : 200,
@@ -533,6 +536,12 @@ function getDefaultsConfig() {
         },
         get gitHubDir() {
             return this.catalystHome + this.gitHubDirName + "/";
+        },
+        get botFactoryDir() {
+            return this.catalystHome + this.botFactory + "/";
+        },
+        get botCurrentFactoryDir() {
+            return this.catalystHome + this.botCurrentFactory + "/";
         }
     };
     return config;
@@ -751,6 +760,8 @@ proc.on('close', function(code) {
         mkdirp.sync(config.tempDir);
         mkdirp.sync(config.scriptDir);
         mkdirp.sync(config.gitHubDir);
+        mkdirp.sync(config.botFactoryDir);
+        mkdirp.sync(config.botCurrentFactoryDir);
         mkdirp.sync(config.chef.chefReposLocation);
         mkdirp.sync(config.chef.cookbooksDir);
         mkdirp.sync(config.puppet.puppetReposLocation);
