@@ -20,6 +20,8 @@
 
 </head>
 <body>
+  <header><p>Dashboards</p></header>
+  <hr />
 <div class="container-fluid">
   <div class="row">
 
@@ -56,15 +58,15 @@
       <div class="panel-group">
         <div class="panel panel-primary">
           <div class="panel-heading">
-        Dashboard
+        Service Now Dashboard
       </div>
       <div class="panel-body">
       <div class="page-name">
           &nbsp;
           <span class="pull-right">
-          <button type="button" class="pridAct btn btn-xs btn-primary cat-btn-update active" id="getdailyincidents" onclick="periodFilter('getdailyincidents')">DAILY</button>
-          <button type="button" class="pridAct btn btn-xs btn-primary cat-btn-update" id="getweeklyincidents" onclick="periodFilter('getweeklyincidents')">WEEKLY</button>
-          <button type="button" class="pridAct btn btn-xs btn-primary cat-btn-update" id="getmonthlyincidents" onclick="periodFilter('getmonthlyincidents')">MONTHLY</button>
+          <button type="button" class="pridAct btn btn-xs btn-primary cat-btn-update active" id="getdailysummary" onclick="periodFilter('getdailysummary')">DAILY</button>
+          <button type="button" class="pridAct btn btn-xs btn-primary cat-btn-update" id="getweeklysummary" onclick="periodFilter('getweeklysummary')">WEEKLY</button>
+          <button type="button" class="pridAct btn btn-xs btn-primary cat-btn-update" id="getmonthlysummary" onclick="periodFilter('getmonthlysummary')">MONTHLY</button>
           <!-- <button type="button" class="btn btn-xs btn-primary cat-btn-update" title="Refresh">
           <i class="fa fa-refresh white"></i>
           </button> -->
@@ -72,11 +74,21 @@
     </div>
 
     <div class="borderTop"></div>
-
+    <marquee SCROLLDELAY=200 id="marq"></marquee>
     <div class="container-fluid">
            <div class="panel-group text-center">
-             <div class="col-lg-2 col-sm-2 width20" style="width: 180px;">
-                   <div id="totalTickets" class="circle-tile cursor" onclick="tickets('totalTickets')">
+             <div  id="totalTickets" onclick="ticketsList('totalTickets')" class="col-lg-2 col-sm-2 width20" style="width: 180px;">
+                <div class="circle-tile cursor dashboard-stats__item dashboard-stats__item_blue"  >
+                <i class="fa fa-list-ol fa-fw fa-2x white"></i>
+                <h3 class="dashboard-stats__title">
+                  <loading size="medium" type="inline" classes="white"  style="display: none;"><span class="catloader inline medium"><i class="fa fa-spinner fa-spin white"></i></span></loading>
+                  <span id="total" class="count-to" title="Total Tickets">0</span> 
+                  <small>Total Tickets</small>
+                </h3>
+              </div>
+              <span class="act glyphicon glyphicon-triangle-bottom section-bottom-glyph dark-blue-glyph" ></span>
+              
+                   <!-- <div id="totalTickets" class="circle-tile cursor" onclick="ticketsList('totalTickets')">
                       <div>
                           <div class="circle-tile-heading dark-blue">
                               <i class="fa fa-list-ol fa-fw fa-2x white"></i>
@@ -89,12 +101,21 @@
                          <div class="circle-tile-description text-faded" title="Total Tickets">
                              Total Tickets
                          </div>
-                         <span class="act glyphicon glyphicon-triangle-bottom section-bottom-glyph dark-blue-glyph selected-section" ></span>
+                         <span class="act glyphicon glyphicon-triangle-bottom section-bottom-glyph dark-blue-glyph" ></span>
                       </div>
-                   </div>
+                   </div> -->
                </div>
-               <div class="col-lg-2 col-sm-2 width20" style="width: 180px;">
-                   <div id="openTickets" class="circle-tile cursor" onclick="tickets('openTickets')">
+               <div class="col-lg-2 col-sm-2 width20" style="width: 180px;" id="openTickets" class="circle-tile cursor" onclick="ticketsList('openTickets')">
+                  <div class="cursor dashboard-stats__item dashboard-stats__item_green" >
+                    <i class="fa fa-hourglass-start fa-fw fa-2x white"></i>
+                    <h3 class="dashboard-stats__title">
+                      <loading size="medium" type="inline" classes="white" style="display: none;"><span class="catloader inline medium"><i class="fa fa-spinner fa-spin white"></i></span></loading>
+                      <span id="open">0</span>
+                      <small>Open Tickets</small>
+                    </h3>
+                  </div>
+                  <span class="act glyphicon glyphicon-triangle-bottom section-bottom-glyph green-glyph"></span>
+                   <!-- <div id="openTickets" class="circle-tile cursor" onclick="ticketsList('openTickets')">
                       <div>
                         <div class="circle-tile-heading green">
                             <i class="fa fa-hourglass-start fa-fw fa-2x white"></i>
@@ -109,11 +130,20 @@
                            </div>
                            <span class="act glyphicon glyphicon-triangle-bottom section-bottom-glyph green-glyph"></span>
                        </div>
-                   </div>
+                   </div> -->
                </div>
               
-               <div class="col-lg-2 col-sm-2 width20" style="width: 180px;">
-                   <div id="closedTickets" class="circle-tile cursor" onclick="tickets('closedTickets')">            
+               <div class="col-lg-2 col-sm-2 width20" style="width: 180px;" id="closedTickets" class="circle-tile cursor" onclick="ticketsList('closedTickets')">
+                   <div class="dashboard-stats__item dashboard-stats__item_orange">
+                      <i class="fa fa-hourglass-end fa-fw fa-2x white"></i>
+                      <h3 class="dashboard-stats__title">
+                        <loading size="medium" type="inline" classes="white" style="display: none;"><span class="inline medium"><i class="fa fa-spinner fa-spin white"></i></span></loading>
+                        <span id="closed">0</span>
+                        <small>Closed Tickets</small>
+                      </h3>
+                    </div>
+                    <span class="act glyphicon glyphicon-triangle-bottom section-bottom-glyph orange-glyph"></span>
+                   <!-- <div id="closedTickets" class="circle-tile cursor" onclick="ticketsList('closedTickets')">            
                          <div class="circle-tile-heading orange">
                              <i class="fa fa-hourglass-end fa-fw fa-2x white"></i>
 
@@ -127,10 +157,19 @@
                            </div>
                            <span class="act glyphicon glyphicon-triangle-bottom section-bottom-glyph orange-glyph"></span>
                        </div>
-                   </div>
+                   </div> -->
                </div>
-               <div class="col-lg-2  col-sm-2 width20" style="width: 180px;">
-                   <div id="slaabouttomissTickets" class="circle-tile cursor" onclick="tickets('slaabouttomissTickets')">
+               <div class="col-lg-2  col-sm-2 width20" style="width: 180px;"id="slaabouttomissTickets" class="circle-tile cursor" onclick="ticketsList('slaabouttomissTickets')">
+                   <div class="cursor dashboard-stats__item dashboard-stats__item_bg-blue" >
+                      <i class="fa fa-hourglass-half fa-fw fa-2x white"></i>
+                      <h3 class="dashboard-stats__title">
+                        <loading size="medium" type="inline" classes="white"  style="display: none;"><span class="catloader inline  medium"><i class="fa fa-spinner fa-spin white"></i></span></loading>
+                        <span id="about_to_miss_sla">0</span> 
+                        <small>About to miss SLA</small>
+                      </h3>
+                    </div>
+                    <span class="act glyphicon glyphicon-triangle-bottom section-bottom-glyph bg-blue-glyph"></span>
+                   <!-- <div id="slaabouttomissTickets" class="circle-tile cursor" onclick="ticketsList('slaabouttomissTickets')">
                         <div>
                            <div class="circle-tile-heading bg-blue">
                                <i class="fa fa-hourglass-half fa-fw fa-2x white"></i>
@@ -145,10 +184,20 @@
                            </div>
                            <span class="act glyphicon glyphicon-triangle-bottom section-bottom-glyph bg-blue-glyph"></span>
                        </div>
-                   </div>
+                   </div> -->
                </div> 
-               <div class="col-lg-2 col-sm-2 width20" style="width: 180px;">
-                   <div id="slamissedTickets" class="circle-tile cursor" onclick="tickets('slamissedTickets')">
+               <div class="col-lg-2 col-sm-2 width20" style="width: 180px;" id="slamissedTickets" class="circle-tile cursor" onclick="ticketsList('slamissedTickets')">
+                   <div class="cursor dashboard-stats__item dashboard-stats__item_red" >
+                    <i class="fa fa-hourglass-o fa-fw fa-2x white"></i>
+                    <h3 class="dashboard-stats__title">
+                      <loading size="medium" type="inline" classes="white" style="display: none;"><span class="catloader inline medium"><i class="fa fa-spinner fa-spin white"></i></span></loading>
+                      <span id="missedSla">0</span>
+                      <small>Missed SLA</small>
+                    </h3>
+                  </div>
+                  <span class="act glyphicon glyphicon-triangle-bottom section-bottom-glyph redcard-glyph"></span>
+
+                   <!-- <div id="slamissedTickets" class="circle-tile cursor" onclick="ticketsList('slamissedTickets')">
                         <div>
                            <div class="circle-tile-heading redcard">
                                <i class="fa fa-hourglass-o fa-2x white"></i>
@@ -163,10 +212,20 @@
                            </div>
                            <span class="act glyphicon glyphicon-triangle-bottom section-bottom-glyph redcard-glyph"></span>
                        </div>
-                   </div>
+                   </div> -->
                </div>
-               <div class="col-lg-2  col-sm-2 width20" style="width: 180px;">
-                   <div id="unassignedTickets" class="circle-tile cursor" onclick="tickets('unassignedTickets')">
+               <div class="col-lg-2  col-sm-2 width20" style="width: 180px;" id="unassignedTickets" class="circle-tile cursor" onclick="ticketsList('unassignedTickets')">
+                   <div class="cursor dashboard-stats__item dashboard-stats__item_brown" >
+                    <i class="fa fa-user-times fa-fw fa-2x white"></i>
+                    <h3 class="dashboard-stats__title">
+                      <loading size="medium" type="inline" classes="white" style="display: none;"><span class=" inline medium"><i class="fa fa-spinner fa-spin white"></i></span></loading>
+                      <span id="unassigned">0</span>
+                      <small>Unassigned Tickets</small>
+                    </h3>
+                  </div>
+                  <span class="act glyphicon glyphicon-triangle-bottom section-bottom-glyph brown-glyph"></span>
+
+                   <!-- <div id="unassignedTickets" class="circle-tile cursor" onclick="ticketsList('unassignedTickets')">
                         <div>
                            <div class="circle-tile-heading brown">
                                <i class="fa fa-user-times fa-fw fa-2x white"></i>
@@ -181,7 +240,7 @@
                            </div>
                            <span class="act glyphicon glyphicon-triangle-bottom section-bottom-glyph brown-glyph"></span>
                        </div>
-                   </div>
+                   </div> -->
                </div>  
            </div>
           </div>
@@ -190,19 +249,19 @@
             <div class="row">
             <div class="col-md-8">
               <div class="row">
-                <div class="col-md-1">p1</div>
-                <div class="col-md-1">p2</div>
-                <div class="col-md-1">p3</div>
-                <div class="col-md-5">p4</div>
+                <div class="col-md-3">p1</div>
+                <div class="col-md-3">p2</div>
+                <div class="col-md-3">p3</div>
+                <div class="col-md-3">p4</div>
               </div>
             <div class="progress">
-              <div id="p1" class="progress-bar active progress-bar-danger" role="progressbar" style="width:7%;background-color: #a94442;">
+              <div id="p1" class="progress-bar active progress-bar-danger" role="progressbar" style="width:25%;background-color: #a94442;">
               </div>
-              <div id="p2" class="progress-bar active progress-bar-warning" role="progressbar" style="width:10%; background-color: #d9534f;">
+              <div id="p2" class="progress-bar active progress-bar-warning" role="progressbar" style="width:25%; background-color: #d9534f;">
               </div>
-              <div id="p3" class="progress-bar active progress-bar-warning" role="progressbar" style="width:7%">
+              <div id="p3" class="progress-bar active progress-bar-warning" role="progressbar" style="width:25%">
               </div>
-              <div id="p4" class="progress-bar active progress-bar-success" role="progressbar" style="width:76%">
+              <div id="p4" class="progress-bar active progress-bar-success" role="progressbar" style="width:25%">
               </div>
               <!-- <div id="p5" class="progress-bar active progress-bar-success" role="progressbar" style="width:45%; background-color: #00a65a;">
                 P5
@@ -227,35 +286,55 @@
           </div>
         </div>
     </div>
+
+    <!-- <div class="container-fluid">
+      <div class="row">
+        <table class="table table-hover table-bordered" id="snTable">
+          <thead>
+            <tr>
+              <th>Number</th>
+              <th>createdDate</th>
+              <th>assigned_to</th>
+              <th>category</th>
+              <th>priority</th>
+              
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+    </div> -->
+
     </div>
     </div>
   </div>
     </div>
   </div>
   
-  <div class="row row-border">
+  <!-- <div class="row row-border">
     <div class="col-md-6">
       <div class="panel-group">
         <div class="panel panel-primary">
-          <div class="panel-heading">
-        Dashboard
+          <div class="panel-heading">Dashboard</div>
+          <div class="panel-body">Panel Content</div>
         </div>
-        <div class="panel-body">Panel Content</div>
       </div>
-    </div>
     </div>
     <div class="col-md-6 col-border">
-        <div class="panel-group">
+      <div class="panel-group">
         <div class="panel panel-primary">
-          <div class="panel-heading">
-        Service Now Dashboard
+          <div class="panel-heading">Dashboard</div>
+          <div class="panel-body">Panel Content</div>
+        </div>
       </div>
-      <div class="panel-body">Panel Content</div>
     </div>
-    </div>
-</div>
+  </div> -->
 
 <style>
+             
+
+
 .up-status {
     font-size: 22px;
     color: #55bf55;
@@ -284,30 +363,12 @@
     color: #FBFBFB !important;
 }
 
-h2 {
-    color: #fff;
+p {
+    color: #555;
     text-align: center;
+    margin: 6px 0 -20px 0;
+    font-size: 16px;
 }
-
-header {
-    background-color: #555;
-    color: #fff;
-    margin-bottom: 15px;
-    overflow-x: hidden;
-    border-bottom: 1px solid #ddd;
-}
-
-footer {
-    background-color: #555;
-    color: white;
-    padding: 10px;
-    /*margin-top: 15px;*/
-    /*position: fixed;*/
-    bottom: 0;
-    width: 100%;
-    }
-
-
 </style>
 
 <script>
@@ -331,17 +392,6 @@ app.controller('myCtrl', function($scope, $http) {
     .then(function (response) {
       $scope.gridOptions.data = response.data;
     });
-});
-</script>
-
-<script>
-var app = angular.module('myApp1', []);
-app.controller('personCtrl', function($scope) {
-    $scope.firstName = "John";
-    $scope.lastName = "Doe";
-    $scope.fullName = function() {
-        return $scope.firstName + " " + $scope.lastName;
-    };
 });
 </script>
 
