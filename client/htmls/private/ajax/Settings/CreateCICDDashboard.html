@@ -62,7 +62,7 @@
                                                     </div>
                                                     <div class="clearfix"></div>
 
-                                                    <!-- Widget for Jira Starts here -->
+
                                                     <div class="col-lg-6 col-md-6 optionWidget" id="jira-widget" style="margin-top: 25px; ">
                                                         <label for="category">Jira:</label>
                                                         <div id="divjiraprojectciid" class="input-group from-control col-md-12 widthBox" cdata="catalyst" style="height: 165px">
@@ -83,6 +83,30 @@
                                                     <!-- Widget for Jira ends here -->
 
                                                     <!-- Widget for Github Starts here -->
+
+                                                   <!-- <div class="col-lg-6 col-md-6" style="margin-top:25px;">
+                                                        <label for="">Github Configuration:<span class="control-label redSpan">&nbsp;*</span></label>
+                                                        <label id="dashboardServerSpinner" class="hidden" title="Fetching from Dashboard server.."><img class="marginleft5right25" src="img/select2-spinner.gif"></label>
+                                                        &lt;!&ndash; <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardUrl"  onchange="getcollectors($(this).val())" class="form-control" type="text" cdata="catalyst" cat-validation="required"> &ndash;&gt;
+                                                        <select id="gitConfigurationId" class="chooseOrganization width-100" cdata="catalyst" cat-validation="required">
+                                                            <option value="">Select Github Configuration</option>
+                                                        </select>
+
+&lt;!&ndash;
+                                                        <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardLink"   class="form-control hidden" type="text" cdata="catalyst">
+&ndash;&gt;
+
+                                                        <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardId"   class="form-control hidden" type="text" cdata="catalyst">
+&lt;!&ndash;
+                                                        <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardUrl"   class="form-control hidden" type="text" cdata="catalyst">
+&ndash;&gt;
+
+                                                    </div>-->
+
+
+
+                                                    <!-- Widget for Jira Starts here -->
+
                                                     <div class="col-lg-6 col-md-6 optionWidget" id="github-widget" style="margin-top: 25px; ">
                                                         <label for="category">Git Hub:</label>
                                                         <div id="divgitciid"  style="height: 165px" class="widthBox">
@@ -97,6 +121,7 @@
                                                             </div>
                                                         </div>
                                                     </div>
+
 
                                                     <!-- Widget for Jenkins Starts here -->
                                                     <div class="col-lg-6 col-md-6 optionWidget" id="jenkins-widget" style="margin-top: 25px; ">
@@ -284,6 +309,27 @@ $('#dashboardServerId').change(function(e){
     }
 });
 
+/*$('#gitConfigurationId').change(function(e){
+    //updating the url field.
+    var selectedGitConfig = $('#gitConfigurationId').find('option:selected').attr('gitRepoUrl');
+    if(selectedGitConfig)
+    {
+        $('#gitRepoUrl').val(slectedDashboardUrl);
+        dashboardURL = slectedDashboardUrl;
+        //Clearning all previous selections.
+        $('#jiraprojectciid').html('<option value="">Select Project Name</option>').select2();
+        $('#jiraversionciid').html('<option value="">Select Project Version</option>').select2();
+        $('#jenkinsjobciid').html('<option value="">Select Job Name</option>').select2();
+        $('#cookbookciid').html('<option value="">Select Cookbook Name</option>').select2();
+        $('#sonarciid').html('<option value="">Select Job Name</option>').select2();
+        $('#repourl').val('');
+        $('#repobranch').val('');
+
+
+        getcollectors(slectedDashboardUrl);
+    }
+});*/
+
 
 function getDashboardServers(orgId,callback){
     $.get('/cicd-dashboardservice/orgId/' + orgId, function(dashboardServers){
@@ -312,23 +358,25 @@ function getGitServers(orgId,callback){
 
     $.get('/git-hub', function(gitList){
         console.log(JSON.stringify(gitList));
-       /* var str = ' <option value="">Select Git Configuration</option>',
-            len = gitList.length;
+
+        var str = ' <option value="">Select Git Configuration</option>',
+        len = gitList.length;
+
         //alert(JSON.stringify(dashboardServers));
         for (var i = 0; i < gitList.length; i++) {
-            str = str + '<option dashboardurl="' + dashboardServers[i].dashboardServer + '" value="' + dashboardServers[i]._id + '">' + dashboardServers[i].dashboardName + ' [' + dashboardServers[i].dashboardServer + '] </option>';
+            str = str + '<option gitconfig="' + gitList[i].repositoryName + '" value="' + gitList[i]._id + '">' + gitList[i].repositoryName + ' </option>';
         }
-        $('#dashboardServerId').html(str);
-        $('#dashboardServerId').val($('#dashboardServerId').attr('savedvalue')).trigger('change');
-        $('#dashboardServerId').select2();
-        if(!dashboardServers || dashboardServers.length <= 0){
+        $('#gitConfigurationId').html(str);
+       // $('#gitConfigurationId').val($('#gitConfigurationId').attr('savedvalue')).trigger('change');
+        $('#gitConfigurationId').select2();
+        if(!gitList || gitList.length <= 0){
             if(callback)
                 callback(null);
         }
         else{
             if(callback)
-                callback(dashboardServers.length);
-        }*/
+                callback(gitList.length);
+        }
     });
 
 /*var orgList = [];
