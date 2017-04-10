@@ -1472,7 +1472,9 @@ input[type="text"].ui-grid-filter-input{
     font-weight: 500;
 }
 
-.bp-panel-body {
+.bots-panel-body {
+    max-height: 230px;
+    min-height: 230px;
     overflow-y:auto!important;
 }
 
@@ -1591,7 +1593,6 @@ input[type="text"].ui-grid-filter-input{
     height: 28px;
 }
 
-
 // calender
 .dtp > .dtp-content > .dtp-date-view > header.dtp-header {
     background: #40BAF1 !important;
@@ -1620,5 +1621,21 @@ input[type="text"].ui-grid-filter-input{
     }
     circle[Attributes Style] {
          fill: #40BAF1 !important;
+    }
+}
+
+.font-size-16{
+  font-size: 16px !important;
+}
+
+.padding6 {
+    padding: 6.5px!important
+}
+
+@media (min-width: 1550px) {
+    .bots-panel-body {
+        max-height: 400px;
+        min-height: 400px;
+        overflow-y:auto!important;
     }
 }
