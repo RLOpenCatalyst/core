@@ -27,6 +27,7 @@ var auditTrailService = require('_pr/services/auditTrailService.js');
 var scriptExecutor = require('_pr/engine/bots/scriptExecutor.js');
 var chefExecutor = require('_pr/engine/bots/chefExecutor.js');
 var blueprintExecutor = require('_pr/engine/bots/blueprintExecutor.js');
+var jenkinsExecutor = require('_pr/engine/bots/jenkinsExecutor.js');
 var fileIo = require('_pr/lib/utils/fileio');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var uuid = require('node-uuid');
@@ -373,6 +374,8 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
                                         reqBody = botDetails[0].params.data;
                                     }
                                     blueprintExecutor.execute(auditTrail, reqBody, userName, next);
+                                } else if (botDetails[0].type === 'jenkins') {
+                                    jenkinsExecutor.execute(botDetails[0],auditTrail, reqBody, userName, next);
                                 } else {
                                     var err = new Error('Invalid BOTs Type');
                                     err.status = 400;
