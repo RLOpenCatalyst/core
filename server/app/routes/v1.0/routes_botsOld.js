@@ -20,9 +20,9 @@ var Cryptography = require('_pr/lib/utils/cryptography');
 
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
-    app.all('/bots*', sessionVerificationFunc);
+    app.all('/botsOld*', sessionVerificationFunc);
 
-    app.get('/bots',function(req,res){
+    app.get('/botsOld',function(req,res){
         var actionStatus = null,serviceNowCheck = false;
         if(req.query.actionStatus && req.query.actionStatus !== null){
             actionStatus = req.query.actionStatus;
@@ -40,7 +40,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
 
-    app.delete('/bots/:botId',function(req,res){
+    app.delete('/botsOld/:botId',function(req,res){
         botsService.removeSoftBotsById(req.params.botId, function(err,data){
             if (err) {
                 return res.status(500).send(err);
@@ -50,7 +50,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         })
     });
 
-    app.get('/bots/:botId/bots-history',function(req,res){
+    app.get('/botsOld/:botId/bots-history',function(req,res){
         var serviceNowCheck = false;
         if(req.query.serviceNowCheck && req.query.serviceNowCheck !== null && req.query.serviceNowCheck === 'true'){
             serviceNowCheck = true;
@@ -64,7 +64,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         })
     });
 
-    app.get('/bots/:botId/bots-history/:historyId',function(req,res){
+    app.get('/botsOld/:botId/bots-history/:historyId',function(req,res){
         botsService.getPerticularBotsHistory(req.params.botId,req.params.historyId, function(err,data){
             if (err) {
                 return res.status(500).send(err);
@@ -74,7 +74,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         })
     });
 
-    app.post('/bots/:botId/execute',function(req,res){
+    app.post('/botsOld/:botId/execute',function(req,res){
         var reqBody = null;
         if(req.body.category && req.body.category ==='Blueprints') {
             if (!req.body.envId) {
@@ -120,7 +120,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         }
     });
 
-    app.put('/bots/:botId/scheduler',function(req,res){
+    app.put('/botsOld/:botId/scheduler',function(req,res){
         botsService.updateBotsScheduler(req.params.botId,req.body, function(err,data){
             if (err) {
                 return res.status(500).send(err);

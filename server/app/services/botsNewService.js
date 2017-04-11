@@ -27,6 +27,7 @@ var auditTrailService = require('_pr/services/auditTrailService.js');
 var scriptExecutor = require('_pr/engine/bots/scriptExecutor.js');
 var chefExecutor = require('_pr/engine/bots/chefExecutor.js');
 var blueprintExecutor = require('_pr/engine/bots/blueprintExecutor.js');
+var jenkinsExecutor = require('_pr/engine/bots/jenkinsExecutor.js');
 var fileIo = require('_pr/lib/utils/fileio');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var uuid = require('node-uuid');
@@ -60,29 +61,18 @@ botsNewService.createNew = function createNew(reqBody,callback) {
                             var paramObj = {};
                             if (reqBody.type === 'chef') {
                                 paramObj = {
-                                    //name: reqBody.name,
-                                    //desc: reqBody.desc,
                                     data: {
                                         runlist: reqBody.runlist,
                                         attributes: reqBody.attributes
                                     }
                                 }
-                            } else if (reqBody.type === 'blueprints') {
-                                paramObj = {
-                                    //name: reqBody.name,
-                                    //desc: reqBody.desc
-                                }
                             } else if (reqBody.type === 'script') {
                                 paramObj = {
-                                    //name: reqBody.name,
-                                    //desc: reqBody.desc,
                                     scriptId: reqBody.scriptId,
                                     data: reqBody.params
                                 }
                             } else if (reqBody.type === 'jenkins') {
                                 paramObj = {
-                                    //name: reqBody.name,
-                                    //desc: reqBody.desc,
                                     jenkinsServerId: reqBody.jenkinsServerId,
                                     jenkinsBuildName: reqBody.jenkinsBuildName,
                                     data: reqBody.params
@@ -220,7 +210,7 @@ botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,service
                 var query = {
                     auditType: 'BOTsNew',
                     actionStatus: 'success',
-                    user: 'servicenow',
+                    //user: 'servicenow',
                     isDeleted:false
                 };
                 var botsIds = [];
@@ -281,18 +271,50 @@ botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,service
 
 botsNewService.executeBots = function executeBots(botsId,reqBody,userName,executionType,schedulerCallCheck,callback){
     var botId = null;
+    var botRemoteServerDetails = {}
     async.waterfall([
         function(next) {
             botsDao.getBotsByBotId(botsId, next);
         },
         function(bots,next){
             botId = bots[0]._id;
-            if(reqBody !== null && reqBody !== '' && bots[0].type === 'script' && schedulerCallCheck === false){
-                encryptedParam(reqBody.data,next);
+            if(reqBody !== null && reqBody !== '' && (bots[0].type === 'script' || bots[0].type === 'chef') && schedulerCallCheck === false){
+                masterUtil.getBotRemoteServerDetailByOrgId(bots[0].orgId,function(err,botServerDetails) {
+                    if (err) {
+                        logger.error("Error while fetching BOTs Server Details");
+                        callback(err, null);
+                        return;
+                    } else if (botServerDetails !== null) {
+                        botRemoteServerDetails.hostIP = botServerDetails.hostIP;
+                        botRemoteServerDetails.hostPort = botServerDetails.hostPort;
+                        encryptedParam(reqBody.data, next);
+                    } else {
+                        var error = new Error();
+                        error.message = 'BOTs Remote Engine is not configured or not in running mode';
+                        error.status = 403;
+                        next(error, null);
+                    }
+                });
+
             }else if(bots[0].type === 'blueprints'){
                 next(null,reqBody);
-            }else if(schedulerCallCheck === false){
-                next(null,reqBody.data);
+            }else if(schedulerCallCheck === false && (bots[0].type === 'script' || bots[0].type === 'chef')){
+                masterUtil.getBotRemoteServerDetailByOrgId(bots[0].orgId,function(err,botServerDetails) {
+                    if (err) {
+                        logger.error("Error while fetching BOTs Server Details");
+                        callback(err, null);
+                        return;
+                    } else if (botServerDetails !== null) {
+                        botRemoteServerDetails.hostIP = botServerDetails.hostIP;
+                        botRemoteServerDetails.hostPort = botServerDetails.hostPort;
+                        next(null,reqBody.data);
+                    } else {
+                        var error = new Error();
+                        error.message = 'BOTs Remote Engine is not configured or not in running mode';
+                        error.status = 403;
+                        next(error, null);
+                    }
+                });
             }else{
                 next(null,reqBody);
             }
@@ -340,40 +362,27 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
                                 };
                                 auditTrailService.insertAuditTrail(botDetails[0],auditTrailObj,actionObj,next);
                             },
-                            function(auditTrail,next){
-                                var botRemoteServerDetails = {}
-                                masterUtil.getBotRemoteServerDetailByOrgId(botDetails[0].orgId,function(err,botServerDetails) {
-                                    if (err) {
-                                        logger.error("Error while fetching BOTs Server Details");
-                                        callback(err, null);
-                                        return;
-                                    } else if (botServerDetails !== null && botServerDetails.active !== false) {
-                                        botRemoteServerDetails.hostIP = botServerDetails.hostIP;
-                                        botRemoteServerDetails.hostPort = botServerDetails.hostPort;
-                                    } else {
-                                        botRemoteServerDetails.hostIP = "localhost";
-                                        botRemoteServerDetails.hostPort = "2687";
+                            function(auditTrail,next) {
+                                var uuid = require('node-uuid');
+                                auditTrail.actionId = uuid.v4();
+                                if (botDetails[0].type === 'script') {
+                                    scriptExecutor.execute(botDetails[0], auditTrail, userName, executionType, botRemoteServerDetails, next);
+                                } else if (botDetails[0].type === 'chef') {
+                                    chefExecutor.execute(botDetails[0], auditTrail, userName, executionType, botRemoteServerDetails, next);
+                                } else if (botDetails[0].type === 'blueprints') {
+                                    if (schedulerCallCheck === true) {
+                                        reqBody = botDetails[0].params.data;
                                     }
-                                    var uuid = require('node-uuid');
-                                    auditTrail.actionId = uuid.v4();
-                                    if (botDetails[0].type === 'script') {
-                                        scriptExecutor.execute(botDetails[0], auditTrail, userName, executionType,botRemoteServerDetails, next);
-                                    } else if (botDetails[0].type === 'chef') {
-                                        chefExecutor.execute(botDetails[0], auditTrail, userName, executionType,botRemoteServerDetails, next);
-                                    } else if (botDetails[0].type === 'blueprints') {
-                                        if(schedulerCallCheck === true){
-                                            reqBody = botDetails[0].params.data;
-                                        }
-                                        blueprintExecutor.execute(auditTrail, reqBody, userName, next);
-                                    } else {
-                                        var err = new Error('Invalid BOTs Type');
-                                        err.status = 400;
-                                        err.msg = 'Invalid BOTs Type';
-                                        callback(err, null);
-                                    }
-                                });
+                                    blueprintExecutor.execute(auditTrail, reqBody, userName, next);
+                                } else if (botDetails[0].type === 'jenkins') {
+                                    jenkinsExecutor.execute(botDetails[0],auditTrail, reqBody, userName, next);
+                                } else {
+                                    var err = new Error('Invalid BOTs Type');
+                                    err.status = 400;
+                                    err.msg = 'Invalid BOTs Type';
+                                    callback(err, null);
+                                }
                             }
-
                         ],function(err,executionResult){
                             if(err){
                                 callback(err,null);
@@ -627,7 +636,7 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                                     category:result.botCategory?result.botCategory:result.functionality,
                                                     action:result.action,
                                                     execution:result.execution?result.execution:[],
-                                                    manualExecutionTime:result.standardTime?result.standardTime:10,
+                                                    manualExecutionTime:result.manualExecutionTime?result.manualExecutionTime:10,
                                                     type:result.type,
                                                     subType:result.subtype,
                                                     inputFormFields:result.input !==null ?result.input[0].form:result.input,
@@ -828,6 +837,119 @@ botsNewService.getParticularBotsHistoryLogs= function getParticularBotsHistoryLo
             return;
         }
     });
+}
+
+botsNewService.executeSINTLBOTs = function executeSINTLBOTs(botId,reqBody,callback){
+    var actionLogId = null;
+    async.waterfall([
+        function(next) {
+            botsDao.getBotsByBotId(botId, next);
+        },
+        function(botDetails,next) {
+            if(botDetails.length > 0){
+                actionLogId = uuid.v4();
+                async.parallel({
+                    execution:function(callback){
+                        var actionObj={
+                            auditType:'BOTsNew',
+                            auditCategory:botDetails[0].type,
+                            status:'running',
+                            action:'BOTs Execution',
+                            actionStatus:'running',
+                            catUser:reqBody.userName
+                        };
+                        var auditTrailObj = {
+                            name:botDetails[0].name,
+                            type:botDetails[0].action,
+                            description:botDetails[0].desc,
+                            category:botDetails[0].category,
+                            executionType:botDetails[0].type,
+                            manualExecutionTime:botDetails[0].manualExecutionTime,
+                            actionLogId:actionLogId
+                        };
+                        auditTrailService.insertAuditTrail(botDetails[0],auditTrailObj,actionObj,callback);
+                    },
+                    executionCount:function(callback){
+                        var botExecutionCount = botDetails[0].executionCount + 1;
+                        var botUpdateObj = {
+                            executionCount: botExecutionCount,
+                            lastRunTime: new Date().getTime()
+                        }
+                        botsDao.updateBotsDetail(botDetails[0]._id, botUpdateObj, callback);
+                    }
+                },function(err,result){
+                    if(err){
+                        next(err,null);
+                        return;
+                    }else{
+                        var logsReferenceIds =[botDetails[0]._id,actionLogId];
+                        var logsDao = require('_pr/model/dao/logsdao.js');
+                        logsDao.insertLog({
+                            referenceId: logsReferenceIds,
+                            err: false,
+                            log: 'BOTs execution started for script ' + botDetails[0].id,
+                            timestamp: new Date().getTime()
+                        });
+                        var resultObj = {
+                            botId:botId,
+                            actionLogId:actionLogId,
+                            status:"running"
+                        }
+                        next(null,resultObj);
+                        checkSINTLAuditAction(actionLogId,botDetails[0],reqBody.userName,function(err,data){
+                            if(err){
+                                logger.error("Error in check Audit Trails for SINTL");
+                            }
+                        })
+                        return;
+                    }
+                })
+            }else {
+                var error =new Error();
+                error.message=botId+" BOT is not available in DB.";
+                error.status=303
+                next(error,null);
+            }
+        }
+    ],function(err,results){
+        if(err){
+            logger.error(err);
+            callback(err,null);
+            return;
+        }else{
+            callback(null,results);
+            return;
+        }
+    });
+}
+
+function checkSINTLAuditAction(actionLogId,botDetails,userName,callback){
+    var every = require('every-moment');
+    var timer = every(botDetails.manualExecutionTime * 60, 'seconds', function () {
+        auditTrail.getAuditTrails({actionLogId:actionLogId},function(err,botAuditTrails){
+            if(err){
+                callback(err,null);
+                timer.stop();
+                return;
+            }else if(botAuditTrails.length > 0 && botAuditTrails[0].status === 'running'){
+                var reqObj = {
+                    botId:botDetails.id,
+                    actionLogId:actionLogId,
+                    status:"failed",
+                    userName:userName
+                }
+                auditTrailService.updateBOTsAction(reqObj,callback);
+                timer.stop();
+            }else{
+                var error =new Error();
+                error.message="There is no Audit Trails in DB for BOTs "+botDetails.id;
+                error.status=303
+                callback(error,null);
+                timer.stop();
+                return;
+            }
+        });
+    })
 }
 
 

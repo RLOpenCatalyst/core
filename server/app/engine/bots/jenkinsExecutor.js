@@ -20,20 +20,18 @@ var Jenkins = require('_pr/lib/jenkins');
 
 const errorType = 'jenkinsExecutor';
 
-var pythonHost =  process.env.FORMAT_HOST || 'localhost';
-var pythonPort =  process.env.FORMAT_PORT || '2687';
 var jenkinsExecutor = module.exports = {};
 
-jenkinsExecutor.execute = function execute(botsDetails,auditTrail,userName,executionType,jenkinsBotDetails,callback) {
+jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,userName,callback) {
     configmgmtDao.getJenkinsDataFromId(jenkinsBotDetails.jenkinsServerId, function(err, jenkinsData) {
         if (err) {
             logger.error('jenkins list fetch error', err);
             callback(err, null);
             return;
         } else if (!(jenkinsData && jenkinsData.length)) {
-            var err = new Error('Jenkins Data Not Found');
+            var err = new Error();
             err.status = 400;
-            err.msg = 'Jenkins Data Not Found';
+            err.message = 'Jenkins Data Not Found';
             callback(err, null);
             return;
         } else {
@@ -46,9 +44,9 @@ jenkinsExecutor.execute = function execute(botsDetails,auditTrail,userName,execu
             jenkins.getJobInfo(jenkinsBotDetails.jobName, function (err, jobInfo) {
                 if (err) {
                     logger.error(err);
-                    var err = new Error("Unable to fetch jenkins job info of job :- " + jenkinsBotDetails.jobName);
+                    var err = new Error();
                     err.status = 400;
-                    err.msg = "Unable to fetch jenkins job info of job :- " + jenkinsBotDetails.jobName;
+                    err.message = "Unable to fetch jenkins job info of job :- " + jenkinsBotDetails.jobName;
                     callback(err, null);
                     return;
                 }
@@ -66,9 +64,9 @@ jenkinsExecutor.execute = function execute(botsDetails,auditTrail,userName,execu
                                 }
                             }
                         } else {
-                            var err = new Error("No Parameter available for job:- " + jenkinsBotDetails.jobName);
+                            var err = new Error();
                             err.status = 400;
-                            err.msg = "No Parameter available for job:- " + jenkinsBotDetails.jobName;
+                            err.message = "No Parameter available for job:- " + jenkinsBotDetails.jobName;
                             callback(err, null);
                             return;
                         }
@@ -76,9 +74,9 @@ jenkinsExecutor.execute = function execute(botsDetails,auditTrail,userName,execu
                         jenkins.buildJobWithParams(jenkinsBotDetails.jobName, param, function (err, buildRes) {
                             if (err) {
                                 logger.error(err);
-                                var err = new Error("Unable to Build job :- " + jenkinsBotDetails.jobName);
+                                var err = new Error();
                                 err.status = 400;
-                                err.msg = "Unable to Build job :- " + jenkinsBotDetails.jobName;
+                                err.message = "Unable to Build job :- " + jenkinsBotDetails.jobName;
                                 callback(err, null);
                                 return;
                             }
@@ -129,9 +127,9 @@ jenkinsExecutor.execute = function execute(botsDetails,auditTrail,userName,execu
                         jenkins.buildJob(self.jobName, function (err, buildRes) {
                             if (err) {
                                 logger.error(err);
-                                var err = new Error("Unable to Build job :- " + jenkinsBotDetails.jobName);
+                                var err = new Error();
                                 err.status = 400;
-                                err.msg = "Unable to Build job :- " + jenkinsBotDetails.jobName;
+                                err.message = "Unable to Build job :- " + jenkinsBotDetails.jobName;
                                 callback(err, null);
                                 return;
                             }
@@ -180,9 +178,9 @@ jenkinsExecutor.execute = function execute(botsDetails,auditTrail,userName,execu
                         });
                     }
                 } else {
-                    var err = new Error('A build is already in queue');
+                    var err = new Error();
                     err.status = 200;
-                    err.msg = 'A build is already in queue';
+                    err.message = 'A build is already in queue';
                     callback(err, null);
                     return;
                 }
