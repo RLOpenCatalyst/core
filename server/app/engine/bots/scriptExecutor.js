@@ -223,7 +223,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
                                 if (err) {
                                     logger.error("Failed to create or update bots Log: ", err);
                                 }
-                                logger.debug("BOTs Execution Done");
+                                logger.debug("BOTs Execution Done on Local");
                                 timer.stop();
                                 var botService = require('_pr/services/botsService');
                                 botService.updateSavedTimePerBots(botsScriptDetails._id, 'BOTsNew', function (err, data) {
@@ -242,7 +242,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
                                 return;
                             });
                         } else {
-                            logger.debug("BOTs Execution is going on.");
+                            logger.debug("BOTs Execution is going on Local");
                         }
 
                     })
@@ -525,7 +525,7 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,botHostD
                                 instanceLog.actionStatus = "success";
                                 instanceLog.logs = {
                                     err: false,
-                                    log: 'BOTs execution success for  ' + botDetails.id,
+                                    log: 'BOTs execution success for  a Node '+instance.instanceIP,
                                     timestamp: new Date().getTime()
                                 };
                                 instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
@@ -554,7 +554,7 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,botHostD
                                 });
                                 return;
                             } else {
-                                logger.debug("BOTs Execution is going on.");
+                                logger.debug("BOTs Execution is going on a Node "+instance.instanceIP);
                             }
                         })
                     });
