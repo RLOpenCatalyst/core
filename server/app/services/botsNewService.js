@@ -91,6 +91,7 @@ botsNewService.createNew = function createNew(reqBody,callback) {
                                 type: reqBody.type,
                                 subType: reqBody.subType,
                                 inputFormFields: result.input[0].form,
+                                isParameterized:result.isParameterized?result.isParameterized:false,
                                 outputOptions: result.output,
                                 ymlDocFileId: reqBody.fileId,
                                 orgId: reqBody.orgId,
@@ -210,7 +211,7 @@ botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,service
                 var query = {
                     auditType: 'BOTsNew',
                     actionStatus: 'success',
-                    //user: 'servicenow',
+                    user: 'servicenow',
                     isDeleted:false
                 };
                 var botsIds = [];
@@ -324,7 +325,6 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
                 var botObj = {
                     params: {
                         data: paramObj,
-                        nodeIds:[]
                     }
                 }
                 if(reqBody.nodeIds){
@@ -370,11 +370,10 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
                                 } else if (botDetails[0].type === 'chef') {
                                     chefExecutor.execute(botDetails[0], auditTrail, userName, executionType, botRemoteServerDetails, next);
                                 } else if (botDetails[0].type === 'blueprints') {
-                                    if (schedulerCallCheck === true) {
-                                        reqBody = botDetails[0].params.data;
-                                    }
+                                    reqBody = botDetails[0].params.data;
                                     blueprintExecutor.execute(auditTrail, reqBody, userName, next);
                                 } else if (botDetails[0].type === 'jenkins') {
+                                    reqBody = botDetails[0].params.data;
                                     jenkinsExecutor.execute(botDetails[0],auditTrail, reqBody, userName, next);
                                 } else {
                                     var err = new Error('Invalid BOTs Type');
@@ -484,6 +483,7 @@ botsNewService.syncSingleBotsWithGitHub = function syncSingleBotsWithGitHub(botI
                                         manualExecutionTime: result.standardTime ? result.standardTime : 10,
                                         type: result.type,
                                         subType: result.subtype,
+                                        isParameterized:result.isParameterized?result.isParameterized:false,
                                         inputFormFields: result.input[0].form,
                                         outputOptions: result.output,
                                         ymlDocFileId: ymlDocFileId,
@@ -643,6 +643,7 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                                     outputOptions:result.output,
                                                     ymlDocFileId:ymlDocFileId,
                                                     orgId:gitHubDetails.botSync.orgId,
+                                                    isParameterized:result.isParameterized?result.isParameterized:false,
                                                     orgName:gitHubDetails.botSync.orgName,
                                                     source:"GitHub"
                                                 }

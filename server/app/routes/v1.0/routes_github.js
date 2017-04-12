@@ -311,13 +311,13 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             ],
             function(err, results) {
                 if (err) {
-                    noticeService.notice(req.session.user.cn,{title:'Bot sync',body:req.params.botId+ ' sync unsuccessful'},"error",function(err,data){
+                    noticeService.notice(req.session.user.cn,{title:'Bot sync',body:req.params.botId+ ' is synced unsuccessful'},"error",function(err,data){
                     if(err){
                         return res.sendStatus(500);
                     }});
                     res.status(err.status).send(err);
                 } else {
-                    noticeService.notice(req.session.user.cn,{title:'Bot sync',body:req.params.botId+ ' sync successful'},"success",function(err,data){
+                    noticeService.notice(req.session.user.cn,{title:'Bot sync',body:req.params.botId+ ' is synced successful'},"success",function(err,data){
                     if(err){
                         return res.sendStatus(500);
                     }});

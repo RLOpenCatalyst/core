@@ -199,7 +199,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
                                 }
                                 noticeService.notice(userName,
                                     {
-                                        title: "BOTs Execution",
+                                        title: "Script BOT Execution",
                                         body: "Error in Fetching Audit Trails"
                                     }, "error", function (err, data) {
                                         if (err) {
@@ -235,7 +235,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
                                 if (err) {
                                     logger.error("Failed to create or update bots Log: ", err);
                                 }
-                                logger.debug(botsScriptDetails.id+" BOTs Execution Done on Local");
+                                logger.debug(botsScriptDetails.id+" BOTs Execution is Done on Local");
                                 timer.stop();
                                 var botService = require('_pr/services/botsService');
                                 botService.updateSavedTimePerBots(botsScriptDetails._id, 'BOTsNew', function (err, data) {
@@ -244,7 +244,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
                                     }
                                 });
                                 noticeService.notice(userName, {
-                                    title: "BOTs Execution",
+                                    title: "Script BOT Execution",
                                     body: result.status.text
                                 }, "success", function (err, data) {
                                     if (err) {
@@ -282,7 +282,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
                                 logger.error("Failed to create or update bots Log: ", err);
                             }
                             noticeService.notice(userName, {
-                                title: "BOTs Execution",
+                                title: "Script BOT Execution",
                                 body: "Error in fetching Audit Trails(Timer is Completed)"
                             }, "error", function (err, data) {
                                 if (err) {
@@ -316,7 +316,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
                         logger.error("Failed to create or update bots Log: ", err);
                     }
                     noticeService.notice(userName, {
-                        title: "BOTs Execution",
+                        title: "Script BOT Execution",
                         body: "Error in Script executor"
                     }, "error",function(err,data){
                         if(err){
@@ -464,7 +464,7 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,botHostD
                     }
                     noticeService.notice(userName,
                         {
-                            title: "BOTs Execution",
+                            title: "Script BOT Execution",
                             body: "Error in Script executor"
                         }, "error",function(err,data){
                             if(err){
@@ -509,7 +509,7 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,botHostD
                                 callback(err, null);
                                 noticeService.notice(userName,
                                     {
-                                        title: "BOTs Execution",
+                                        title: "Script BOT Execution",
                                         body: "Error in Fetching Audit Trails"
                                     }, "error", function (err, data) {
                                         if (err) {
@@ -557,7 +557,7 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,botHostD
                                 }
                                 callback(null, result);
                                 noticeService.notice(userName, {
-                                    title: "BOTs Execution",
+                                    title: "Script BOT Execution",
                                     body: result.status.text
                                 }, "success", function (err, data) {
                                     if (err) {
