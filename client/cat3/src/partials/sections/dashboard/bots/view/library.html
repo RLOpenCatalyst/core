@@ -88,7 +88,7 @@
                 <i class="fa fa-save"></i>
                 <h3 class="dashboard-stats__title">
                   <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
-                  <span ng-if="!isBotDetailsLoading" class="count-to">{{botSummary.totalSavedTimeForBots.hours ? botSummary.totalSavedTimeForBots.hours : 0}}h {{botSummary.totalSavedTimeForBots.minutes ? botSummary.totalSavedTimeForBots.minutes : 0}}m</span> 
+                  <span ng-if="!isBotDetailsLoading" class="count-to">{{botSummary.totalSavedTimeForBots.hours ? botSummary.totalSavedTimeForBots.hours : 0}}h {{botSummary.totalSavedTimeForBots.minutes ? botSummary.totalSavedTimeForBots.minutes : 0}}m</span>
                   <small>Time saved</small>
                 </h3>
               </div>
@@ -98,7 +98,7 @@
                 <i class="fa fa-power-off"></i>
                 <h3 class="dashboard-stats__title">
                   <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
-                  <span ng-if="!isBotDetailsLoading" class="count-to" count-to="{{botSummary.totalNoOfServiceNowTickets}}" value="0" duration="1">{{botSummary.totalNoOfServiceNowTickets}}</span> 
+                  <span ng-if="!isBotDetailsLoading" class="count-to" count-to="{{botSummary.totalNoOfSuccessBots}}" value="0" duration="1">{{botSummary.totalNoOfSuccessBots}}</span>
                   <small>Tickets Resolved</small>
                 </h3>
               </div>
