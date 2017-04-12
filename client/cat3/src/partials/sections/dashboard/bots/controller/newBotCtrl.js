@@ -8,8 +8,8 @@
 (function (angular) {
     "use strict";
     angular.module('dashboard.bots')
-    .controller('newBotCtrl',['$scope', '$rootScope', '$state', '$timeout', 'genericServices', 'botsCreateService', 'responseFormatter', 'toastr','$http',
-        function($scope, $rootScope, $state, $timeout, genericServices, botsCreateService, responseFormatter, toastr,$http){
+    .controller('newBotCtrl',['$scope', '$rootScope', '$state', '$timeout', 'genericServices', 'botsCreateService', 'responseFormatter', 'toastr','$http','$modal',
+        function($scope, $rootScope, $state, $timeout, genericServices, botsCreateService, responseFormatter, toastr,$http,$modal){
             var treeNames = ['BOTs','BOTs Create'];
             $rootScope.$emit('treeNameUpdate', treeNames);
             var botsData = {};
@@ -27,7 +27,7 @@
             if($rootScope.organObject && $rootScope.organObject.length > 0) {
                 $scope.orgNewEnt = {
                     org:$rootScope.organObject[0]
-                }
+                };
             }
 
             angular.extend($scope, {    
@@ -93,7 +93,8 @@
                         bots: botsData
                     };
                     if($scope.botType === 'chef') {
-                        botsData.runlist, botsData.attributes = [];
+                        botsData.runlist=[];
+                        botsData.attributes = [];
                         if($scope.chefrunlist){
                             botsData.runlist = responseFormatter.formatSelectedChefRunList($scope.chefrunlist);    
                             botsData.attributes = responseFormatter.formatSelectedCookbookAttributes($scope.cookbookAttributes);
@@ -104,9 +105,8 @@
                         formData.append('file',  $scope.yamlfile);
                         $http.post('/fileUpload', formData, { transformRequest: angular.identity,headers: {'Content-Type': undefined}}).then(function (response) {
                             if(response) {
-                                var yamlfileId = response.data.fileId;
-                                botsData.fileId = yamlfileId;
-                                botsCreateService.postCreateBots(reqbody).then(function(response){
+                                botsData.fileId = response.data.fileId;
+                                botsCreateService.postCreateBots(reqbody).then(function(){
                                     toastr.success('BOT created successfully');
                                     $state.go('dashboard.bots.library');
                                 });

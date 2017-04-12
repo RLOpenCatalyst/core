@@ -144,7 +144,11 @@ function routeConfig($stateProvider, $urlRouterProvider, $httpProvider, modulePe
 
 			}]
 		}
-	}).state('dashboard.settings.organization', {
+	}).state('dashboard.demo', {
+        url: "/demo",
+        controller:"demoCtrl",
+        templateUrl: "src/partials/sections/dashboard/demo/demo.html"
+    }).state('dashboard.settings.organization', {
 		url: "/organizations",
 		templateUrl: "src/partials/sections/dashboard/setting/organization/organization.html",
 		controller: "organizationCtrl"

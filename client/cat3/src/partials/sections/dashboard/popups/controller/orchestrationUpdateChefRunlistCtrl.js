@@ -65,7 +65,7 @@
 
 			//promise contain list of cookbooks and roles list
 			$scope.allPromiseMethod = function(c,t,s,a,e) {
-				var allPromise = $q.all([c, t, s, a, e]);
+				//var allPromise = $q.all([c, t, s, a, e]);
 				$q.all([c, t, s, a, e]).then(function (allPromise) {
 					$scope.chefServerID = allPromise[0].serverId;
 					var list = responseFormatter.formatDataForChefClientRun(allPromise[0]);
