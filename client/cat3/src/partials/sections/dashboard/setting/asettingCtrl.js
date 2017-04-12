@@ -36,13 +36,13 @@
                     return deferred.promise;
                 }]
             }
-        })
+        });
     }])
 	.controller('settingCtrl',['$scope', '$rootScope','$state','genericServices', function ($scope, $rootScope,$state,genericServices) {
 		/*Note state params value is passed from routes, while state is already added in rootscope*/
         $rootScope.treeResult=[];
         $scope.isTreeOpen = false;
-;		// create left tree
+	// create left tree
         genericServices.promiseGet({url:"src/partials/sections/dashboard/setting/data/treeMenu.JSON"}).then(function (treeResult) {
             $rootScope.treeResult=treeResult;
         });

@@ -1563,7 +1563,7 @@ input[type="text"].ui-grid-filter-input{
     }
     .navbar-top-links li a {
         padding: 15px;
-        min-height: 48px;
+        min-height: 49px;
     }
     .nav .open>a, .nav .open>a:focus, .nav .open>a:hover {
         background-color: #525961;
@@ -1591,6 +1591,37 @@ input[type="text"].ui-grid-filter-input{
 
 .pluginBlueprintImageLogo {
     height: 28px;
+}
+
+// calender
+.dtp > .dtp-content > .dtp-date-view > header.dtp-header {
+    background: #40BAF1 !important;
+    color: #fff;
+    text-align: center;
+    padding: 0.3em;
+    border-bottom: 1px solid #ccc;
+}
+.dtp table.dtp-picker-days tr > td > a.selected {
+    background: #40BAF1 !important;
+    color: #fff;
+}
+.dtp div.dtp-date, .dtp div.dtp-time {
+    background: #40BAF1 !important;
+    text-align: center;
+    color: #fff;
+    padding: 10px;
+}
+.dtp table.dtp-picker-days tr > td > a.selected {
+    background: #40BAF1 !important;
+    color: #fff;
+}
+#dtp-svg-clock {
+    line[Attributes Style] {
+     stroke: #40BAF1 !important;
+    }
+    circle[Attributes Style] {
+         fill: #40BAF1 !important;
+    }
 }
 
 .font-size-16{

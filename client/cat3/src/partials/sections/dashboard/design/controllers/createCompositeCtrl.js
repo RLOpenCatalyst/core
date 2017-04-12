@@ -8,7 +8,8 @@
             createCBP.selectBlueprintId='';
             createCBP.selectedBPDetails='';
             createCBP.compositeBPType='chef';
-            $scope.chefrunlist,$scope.cookbookAttributes = [];
+            $scope.chefrunlist=[];
+            $scope.cookbookAttributes = [];
             createCBP.onSubmit =false;
             $scope.compositeEnabled = true;
             createCBP.newEnt={
@@ -67,7 +68,7 @@
             $scope.compositeSave =function () {
                 createCBP.onSubmit =true;
                 $scope.compositeEnabled = false;
-                if(!createCBP.newEnt.bpName  || !createCBP.SelectedBPList.length > 0){
+                if(!createCBP.newEnt.bpName  || createCBP.SelectedBPList.length < 0){
                     return true;
                 }
                 if($rootScope.organObject){
