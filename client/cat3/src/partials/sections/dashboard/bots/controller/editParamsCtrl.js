@@ -66,15 +66,9 @@
         $scope.getInstanceList = function() {
             botsCreateService.getCurrentOrgInstances($scope.IMGNewEnt.org.orgid).then(function(response){
                 $scope.originalInstanceList=[];
-<<<<<<< HEAD
                 if(response){
                     angular.forEach(response, function(value) {
                         if($scope.selectedInstanceIds.indexOf(value._id) === -1) {
-=======
-                if(response.instances){
-                    angular.forEach(response.instances, function(value, key) {
-                        if($scope.selectedInstanceIds.indexOf(value._id) == -1) {
->>>>>>> upstream/dev
                             $scope.originalInstanceList.push(value);
                         }
                     });
@@ -85,15 +79,9 @@
         $scope.getBlueprintList = function() {
             botsCreateService.getBlueprintList($scope.IMGNewEnt.org.orgid,$scope.IMGNewEnt.blueprintType).then(function(response){
                 $scope.originalBlueprintList=[];
-<<<<<<< HEAD
                 if(response){
                     angular.forEach(response, function(value) {
                         if($scope.selectedBlueprintIds.indexOf(value._id) === -1) {
-=======
-                if(response.blueprints){
-                    angular.forEach(response.blueprints, function(value, key) {
-                        if($scope.selectedBlueprintIds.indexOf(value._id) == -1) {
->>>>>>> upstream/dev
                             $scope.originalBlueprintList.push(value);
                         }
                     });
@@ -148,18 +136,13 @@
                 $scope.selectedInstanceIds.splice(ind,1);
                 $scope.getInstanceList();
             } else if(type === 'blueprints') {
-<<<<<<< HEAD
                 var indD = $scope.selectedBlueprintIds.indexOf(id);
                 $scope.selectedBlueprintList.splice(indD,1);
                 $scope.selectedBlueprintIds.splice(indD,1);
-=======
-                var ind = $scope.selectedBlueprintIds.indexOf(id);
-                $scope.selectedBlueprintList.splice(ind,1);
-                $scope.selectedBlueprintIds.splice(ind,1);
                 if($scope.selectedBlueprintList.length === 0) {
                     $scope.hideRightButton = true;
                 }
->>>>>>> upstream/dev
+
                 $scope.getBlueprintList();
             }
         };
