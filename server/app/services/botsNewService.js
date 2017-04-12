@@ -210,7 +210,7 @@ botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,service
                 var query = {
                     auditType: 'BOTsNew',
                     actionStatus: 'success',
-                    //user: 'servicenow',
+                    user: 'servicenow',
                     isDeleted:false
                 };
                 var botsIds = [];

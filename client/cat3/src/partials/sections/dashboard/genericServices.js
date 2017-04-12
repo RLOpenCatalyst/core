@@ -215,13 +215,13 @@
                     items: function() {
                         return {
                             logDetails : response
-                        }
+                        };
                     }
                 }
-            }).result.then(function(response) {
+            }).result.then(function() {
             }, function() {
             }); 
-        }
+        };
 
         genericServices.launchBlueprint=function(blueprintObj) {
             $modal.open({

@@ -84,10 +84,10 @@
                         'Dashboard-url':crt.newEnt.dashboardURL
                     },
                     data: [
-                        {"options":{"id":crt.newEnt['Jiraproject'].version},
+                        {"options":{"id":crt.newEnt.Jiraproject.version},
                         "name":"Jiraproject",
                         "componentId":res.application.components[0].id,
-                        "collectorItemIds":[crt.newEnt['Jiraproject'].collecterId]}
+                        "collectorItemIds":[crt.newEnt.Jiraproject.collecterId]}
                         ]
                 };
                 genericServices.promiseOwn(req).then(function (res) {

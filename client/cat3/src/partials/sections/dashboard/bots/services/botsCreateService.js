@@ -61,7 +61,7 @@
 				var params = {
 					url: '/scripts?filterBy=scriptType:'+scriptType,
 					inlineLoader: true	
-				}
+				};
 				return genericServices.promiseGet(params);
 			};
 
@@ -69,7 +69,7 @@
 				var params = {
 					url: '/blueprints/list?filterBy=orgId:'+ orgId + ',templateType:'+templateType,
 					inlineLoader: true	
-				}
+				};
 				return genericServices.promiseGet(params);
 			};
 
@@ -77,7 +77,7 @@
 				var params = {
 					url: '/git-hub/' + gitHubId + '/content/' + botId,
 					inlineLoader: true
-				}
+				};
 				return genericServices.promiseGet(params);
 			};
 
@@ -85,7 +85,7 @@
 				var params = {
 					url: '/config-data/category-type',
 					inlineLoader: true
-				}
+				};
 				return genericServices.promiseGet(params);
 			};
 
@@ -93,7 +93,7 @@
 				var params = {
 					url: '/blueprints/' + blueprintId,
 					inlineLoader: true
-				}
+				};
 				return genericServices.promiseGet(params);
 			};
 
@@ -101,7 +101,7 @@
 				var params = {
 					url: '/botsNew/' + botId + '/execute',
 					data: reqBody
-				}
+				};
 				return genericServices.promisePost(params);
 			}
 			

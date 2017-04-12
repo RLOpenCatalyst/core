@@ -98,8 +98,8 @@
                 <i class="fa fa-power-off"></i>
                 <h3 class="dashboard-stats__title">
                   <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
-                  <span ng-if="!isBotDetailsLoading" class="count-to" count-to="{{botSummary.totalNoOfServiceNowTickets}}" value="0" duration="1">{{botSummary.totalNoOfServiceNowTickets}}</span> 
-                  <small>Tickets Resolved</small>
+                  <span ng-if="!isBotDetailsLoading" class="count-to" count-to="{{botSummary.totalNoOfSuccessBots}}" value="0" duration="1">{{botSummary.totalNoOfSuccessBots}}</span> 
+                  <small>Success BOTs</small>
                 </h3>
               </div>
               <span class="glyphicon glyphicon-triangle-bottom section-bottom-glyph bg-blue-glyph" ng-class="{'selected-section':scheduledBotsSelected}"></span>
@@ -200,5 +200,7 @@
    </div>
    <div id="grid1" ng-show="!isCardViewActive" ng-if="botLibGridOptions.data.length >0 && !isBotLibraryPageLoading" ui-grid="botLibGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid heightBigCheck"></div>
  </div>
+
+ <div class="clearfix" style="height:50px;"></div>
    <!--table section ends here -->
 </div>
