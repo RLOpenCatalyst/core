@@ -231,7 +231,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                         })(instances[i]);
                                     }
                                 }
-                                CloudFormation.removeById(cloudFormation.id, function(err, deletedStack) {
+                                CloudFormation.removeCloudFormationById(cloudFormation.id, function(err, softDeletedStack) {
                                     if (err) {
                                         logger.error("Unable to delete stack from db", err);
                                         res.status(500).send({

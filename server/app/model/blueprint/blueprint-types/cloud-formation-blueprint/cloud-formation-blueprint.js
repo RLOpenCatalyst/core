@@ -60,21 +60,22 @@ var CloudFormationBlueprintSchema = new Schema({
     infraManagerId: String,
     templateFile: String,
     stackParameters: [{
-            _id: false,
-            ParameterKey: {
-                type: String,
-                trim: true
-            },
-            ParameterValue: {
-                type: String,
-                trim: true
-            }
-        }],
+        _id: false,
+        ParameterKey: {
+            type: String,
+            trim: true
+        },
+        ParameterValue: {
+            type: String,
+            trim: true
+        }
+    }],
     instances: [{
-            _id: false,
-            logicalId: String,
-            username: String,
-            runlist: [String]
+        _id: false,
+        logicalId: String,
+        username: String,
+        runlist: [String],
+        attributes: [Schema.Types.Mixed]
         }],
     templateFile: String,
     region: String,
@@ -358,6 +359,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                         var instanceName;
 
                                                         var runlist = [];
+                                                        var attributes = [];
                                                         var instanceUsername;
                                                         var logicalId = ec2Resources[instanceData.InstanceId];
 
@@ -371,6 +373,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                 if (logicalId === self.instances[count].logicalId) {
                                                                     instanceUsername = self.instances[count].username;
                                                                     runlist = self.instances[count].runlist;
+                                                                    attributes = self.instances[count].attributes;
                                                                     break;
                                                                 }
                                                             }
@@ -414,6 +417,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                             region: self.region,
                                                             chefNodeName: instanceData.InstanceId,
                                                             runlist: runlist,
+                                                            attributes: attributes,
                                                             platformId: instanceData.InstanceId,
                                                             appUrls: appUrls,
                                                             instanceIP: instanceData.PublicIpAddress || instanceData.PrivateIpAddress,

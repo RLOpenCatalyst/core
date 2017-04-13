@@ -271,6 +271,19 @@ ARMSchema.statics.findByAutoScaleTopicArn = function(topicArn, callback) {
     });
 };
 
+ARMSchema.statics.getAzureArmList = function(queryObj, callback) {
+    this.find(queryObj, function(err, arm) {
+        if (err) {
+            logger.error(err);
+            callback(err, null);
+            return;
+        }else{
+            callback(null, arm);
+            return;
+        }
+    });
+};
+
 ARMSchema.statics.findByAutoScaleResourceId = function(resourceId, callback) {
     if (!resourceId) {
         process.nextTick(function() {

@@ -79,6 +79,7 @@ var bots = require('./routes_bots');
 var botsNew = require('./routes_botsNew');
 var gitHub = require('./routes_github');
 var routesCICD = require('./routes_d4dMastersCICD');
+var routesServiceMap = require('./routes_serviceMap');
 /*
  * @TODO
  * Change app to router in internal routes files
@@ -196,6 +197,8 @@ module.exports.setRoutes = function(app) {
     gitHub.setRoutes(app, sessionVerificationFunc);
 
     routesCICD.setRoutes(app, sessionVerificationFunc);
+
+    routesServiceMap.setRoutes(app, sessionVerificationFunc);
 
     botsNew.setRoutes(app, sessionVerificationFunc);
 
