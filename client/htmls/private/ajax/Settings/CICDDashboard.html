@@ -23,7 +23,7 @@
                         <table id="templateTable" class="hidden" cellpadding="5px" width="100%">
                             <thead>
                                     <tr class="rowCustomStyle">
-                                        <td>Reference Name</td>
+                                        <td>Dashboard Name</td>
                                         <td>Organization</td>
                                         <td>Business Group</td>
                                         <td>Project</td>
@@ -195,6 +195,7 @@
         // alert(JSON.stringify(formData));
         //Reading row to get schema
         formData = d4ddata.masterjson;
+        console.log('WWWWWWWWWWWWWWWWWWW'+formData);
 
         var formSchema = null;
         $.each(formData.rows.row, function(i, item) {

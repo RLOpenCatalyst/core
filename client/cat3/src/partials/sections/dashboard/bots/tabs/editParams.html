@@ -1,7 +1,6 @@
 <div id="editParamsPage" ng-controller="editParamsCtrl">
 	<form class="container summary-container" name="editParamsForm" novalidate ng-submit="editParamsForm.$valid && executeBot()">
 		<fieldset id="botExecution">
-			<span ng-if="botType ==='script'"><input type="checkbox" ng-model="scriptSelectForRemote.flag" ng-click="botStatus()"/><span>&nbsp;Execute on Remote Machine</span></span>
 			<div ng-if="botType ==='script'" class="scriptExecution param-table bot-info-wrapper">
 		         <table class="table table-bordered">
 		            <thead>
@@ -23,10 +22,11 @@
 		            </tbody>
 		         </table>
       		</div>
-      		<div ng-if="botType ==='chef' || botType === 'blueprints' || botType === 'script'" ng-show="botCheck" class="chefExecution scheduleBorder">
-	        
-	        <div class="col-lg-12 col-md-12">
-      		<div class="col-lg-7 col-md-7 col-sm-12 margintop15 marginleft-15">
+            <div class="margintop-7" ng-if="botType ==='script'"><input type="checkbox" ng-model="scriptSelectForRemote.flag" ng-click="botStatus()"/><span>&nbsp;Do you want to execute on Remote Server?</span></div>
+      		<div ng-if="botType ==='chef' || botType === 'blueprints' || botType === 'blueprint' || botType === 'script'" ng-show="botCheck" class="chefExecution">
+            <fieldset id="editParamPage">
+            <legend>Remote Machine</legend><br>
+      		<div class="col-lg-6 col-md-6 col-sm-12 margintopBottom">
                <div class="panel-group">
                   <div class="panel panel-default form-group">
                      <div class="panel-heading" style="height: 40px;"> 
@@ -38,46 +38,24 @@
 				               </label>
                            </form>
 				            </span>
-				        <span class="margintop8">
-			                <select name="buss" id="bgListInputExisting" class="dropdownSelect chooseBGExisting form-control" ng-options="buss.name group by buss.a for buss in organObject[organObject.indexOf(IMGNewEnt.org)].businessGroups"  ng-model="IMGNewEnt.buss">
-			                    <option value="">Select Business Group</option>
-			                </select>
-				        </span>
-				        <span class="margintop8">
-			                <select name="proj" class="dropdownSelect chooseProjectExisting form-control" ng-options="buss.name group by buss.a for buss in organObject[organObject.indexOf(IMGNewEnt.org)].businessGroups[organObject[organObject.indexOf(IMGNewEnt.org)].businessGroups.indexOf(IMGNewEnt.buss)].projects" ng-model="IMGNewEnt.proj">
-			                    <option value="">Select Project</option>
-			                </select>
-				        </span>
-				        <span ng-if="botType !== 'blueprints'" class="margintop8">    
-			                <select name="proj" class="dropdownSelect chooseProjectExisting form-control" ng-options="env.name group by env.a for env in IMGNewEnt.proj.environments" ng-model="IMGNewEnt.env" required ng-change="getInstanceList();">
-			                    <option value="">Select Environment</option>
-			                </select>
-				        </span>
-				        <span ng-if="botType === 'blueprints'" class="margintop8">    
-			                <select name="proj" class="dropdownSelect chooseProjectExisting form-control" ng-model="IMGNewEnt.blueprintType" disabled ng-change="getBlueprintList();">
-			                    <option value="chef">SoftwareStack </option>
-			                    <option value="ami">OSImage </option>
-			                    <option value="cft">Cloud Formation </option>
-			                </select>
-				        </span>
                      </div>
-                     <div class="panel-body bp-panel-body" ng-if="botType === 'chef' || botType === 'script'" ng-show="botCheck">
-                        <div class="alert alert-info text-center" ng-if="originalInstanceList.length === 0" align="center">No Data Found</div>
+                     <div class="panel-body bots-panel-body" ng-if="botType === 'chef' || botType === 'script'" ng-show="botCheck">
+                        <div class="alert alert-info padding6 text-center" ng-if="originalInstanceList.length === 0" align="center">No Instances Found</div>
                         <ul ng-if="originalInstanceList.length > 0" class="list-group" ui-sortable>
                            <li class="list-group-item" ng-repeat="instanceDetails in originalInstanceList | filter :searchText">
-                              <span class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="addInstanceBP(originalInstanceList.indexOf(instanceDetails),'instance')" ><i class="fa fa-arrow-right white fa-2" aria-hidden="true"></i></span>
-                              <span class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="instanceInfo($event,instanceDetails)" ><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>
+                              <span title="Add to Right" class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="addInstanceBP(originalInstanceList.indexOf(instanceDetails),'instance')" ><i class="fa fa-arrow-right white fa-2" aria-hidden="true"></i></span>
+                              <span title="Info" class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="instanceInfo($event,instanceDetails)" ><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>
 
                               <img src="./images/global/chef-import.png" alt="{{instanceDetails.name}}"> &nbsp;{{instanceDetails.name}}
                            </li>
                         </ul>
                      </div>
-                     <div class="panel-body bp-panel-body" ng-if="botType === 'blueprints'">
-                     	<div class="alert alert-info text-center" ng-if="originalBlueprintList.length === 0" align="center">No Data Found</div>
+                     <div class="panel-body bots-panel-body" ng-if="botType === 'blueprints'">
+                     	<div class="alert alert-info padding6 text-center" ng-if="originalBlueprintList.length === 0" align="center">No Blueprints Found</div>
                         <ul ng-if="originalBlueprintList.length > 0" class="list-group" ui-sortable>
                            <li class="list-group-item" ng-repeat="blueprintDetails in originalBlueprintList | filter :searchText">
-                              <span title="Info" class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="addInstanceBP(originalBlueprintList.indexOf(blueprintDetails),'blueprints')" ><i class="fa fa-arrow-right white fa-2" aria-hidden="true"></i></span>
-                              <span class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="selectBpInfo($event,blueprintDetails,IMGNewEnt.blueprintType)" ><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>
+                              <span title="Add to Right" ng-show="hideRightButton" class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="addInstanceBP(originalBlueprintList.indexOf(blueprintDetails),'blueprints')" ><i class="fa fa-arrow-right white fa-2" aria-hidden="true"></i></span>
+                              <span title="Info" class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="selectBpInfo($event,blueprintDetails,IMGNewEnt.blueprintType)" ><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>
                               <img class="pluginBlueprintImageLogo" src="./images/templateicons/imgo.jpg" alt="{{blueprintDetails.name}}"> &nbsp;{{blueprintDetails.name}}
                            </li>
                         </ul>
@@ -85,70 +63,57 @@
                   </div>
                </div>
              </div>
-            <div class="col-lg-5 col-md-5 col-sm-12 margintop15">
+            <div class="col-lg-6 col-md-6 col-sm-12 margintopBottom">
                <div class="panel-group">
                   <div class="panel panel-default">
                      <div ng-if="botType === 'chef' || botType === 'script'" ng-show="botCheck" class="panel-heading" style="height: 40px;">
                         <span>Selected Instances</span> &nbsp;<span class="error red" ng-show="executeTaskForSave && selectedInstanceList.length <= 0">Please select Instance.</span>
                      </div>
                      <div ng-if="botType === 'blueprints'" class="panel-heading" style="height: 40px;">
-                        <span>Selected Blueprints</span> &nbsp;<span class="error red" ng-show="executeTaskForSave && selectedBlueprintList.length <= 0">Please select Blueprints.</span>
+                        <span>Selected Blueprints(Only 1 Blueprint can be executed)</span> &nbsp;<span class="error red" ng-show="executeTaskForSave && selectedBlueprintList.length <= 0">Please select Blueprints.</span>
                      </div>
-                     <div class="panel-body bp-panel-body" ng-if="botType === 'chef' || botType === 'script'" ng-show="botCheck">
-                     	<div class="alert alert-info text-center" ng-if="selectedInstanceList.length === 0" align="center">No Data Found</div>
+                     <div class="panel-body bots-panel-body" ng-if="botType === 'chef' || botType === 'script'" ng-show="botCheck">
+                     	<div class="alert alert-info padding6 text-center" ng-if="selectedInstanceList.length === 0" align="center">No Instances Selected</div>
                         <ul class="list-group" dnd-list="selectedInstanceList" >
                            <li class="list-group-item bpListComp botsBadge"  ng-repeat="selectedInstance in selectedInstanceList" dnd-draggable="selectedInstance"
                               dnd-moved="selectedInstanceList.splice($index, 1)"
                               dnd-effect-allowed="move"
                               dnd-selected="models.selected = selectedInstance"  ng-class=" {'activeLi':selectInstanceId === selectedInstance._id}">
-                              	<span class="col-lg-12 col-md-12">
-                              	  <span class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="instanceInfo($event,selectedInstance)" ><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>
-                              	  <span title="Clear" class="filterClear pull-right btn btn-xs cat-btn-update bpvicon" ng-click="deSelectInstanceBP($event,selectedInstanceList._id,'instance')">X</span>
-	                              <span title="Info" class="badge pull-left" >{{(+selectedInstanceList.indexOf(selectedInstance)) +1}}</span><img class="layersClassComposite" src="./images/global/chef-import.png"  alt="{{selectedInstance.name}}"/> &nbsp;{{selectedInstance.name}}
-                          		</span>
-                          		<div class="info-cell">
-                              		<div class="publisherDesc">{{selectedInstance.orgName}} > {{selectedInstance.bgName}} > {{selectedInstance.projectName}} > {{selectedInstance.environmentName}}
-                              		</div>
-                              	</div>
+                              	<span title="Info" class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="instanceInfo($event,selectedInstance)" ><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>
+                              	<span title="Clear" class="filterClear pull-right btn btn-xs cat-btn-update bpvicon" ng-click="deSelectInstanceBP($event,selectedInstanceList._id,'instance')">X</span>
+	                              <span class="badge pull-left" >{{(+selectedInstanceList.indexOf(selectedInstance)) +1}}</span><img class="layersClassComposite" src="./images/global/chef-import.png"  alt="{{selectedInstance.name}}"/> &nbsp;{{selectedInstance.name}}
                            </li>
                         </ul>
                      </div>
-                     <div class="panel-body bp-panel-body" ng-if="botType === 'blueprints'">
-                     	<div class="alert alert-info text-center" ng-if="selectedBlueprintList.length === 0" align="center">No Data Found</div>
+                     <div class="panel-body bots-panel-body" ng-if="botType === 'blueprints'">
+                     	<div class="alert alert-info padding6 text-center" ng-if="selectedBlueprintList.length === 0" align="center">No Blueprints Selected </div>
                         <ul class="list-group" dnd-list="selectedBlueprintList" >
                            <li class="list-group-item bpListComp botsBadge"  ng-repeat="selectedBlueprint in selectedBlueprintList" dnd-draggable="selectedBlueprint"
                               dnd-moved="selectedBlueprintList.splice($index, 1)"
                               dnd-effect-allowed="move"
                               dnd-selected="models.selected = selectedBlueprint"  ng-class=" {'activeLi':selectInstanceId === selectedBlueprint._id}">
-                              	<span class="col-lg-12 col-md-12">
-                              	  <span class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="selectBpInfo($event,selectedBlueprint,IMGNewEnt.blueprintType)" ><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>
-                              	  <span title="Clear" class="filterClear pull-right btn btn-xs cat-btn-update bpvicon" ng-click="deSelectInstanceBP($event,selectedBlueprintList._id,'blueprint')">X</span>
-	                              <span title="Info" class="badge pull-left" >{{(+selectedBlueprintList.indexOf(selectedBlueprint)) +1}}</span>&nbsp;<img class="pluginBlueprintImageLogo" src="./images/templateicons/imgo.jpg"  alt="{{selectedBlueprint.name}}"/> &nbsp;{{selectedBlueprint.name}}
-                          		</span>
-                          		<div class="info-cell">
-                              		<!-- <div class="publisherDesc">{{selectedBlueprint.orgName}} > {{selectedBlueprint.bgName}} > {{selectedBlueprint.projectName}} > {{selectedBlueprint.environmentName}}
-                              		</div> -->
-                              </div>
+                              	  <span title="Info" class="pull-right btn btn-xs cat-btn-update bpvicon" ng-click="selectBpInfo($event,selectedBlueprint,IMGNewEnt.blueprintType)" ><i class="fa fa-info fa-2 white" aria-hidden="true"></i></span>
+                              	  <span title="Clear" class="filterClear pull-right btn btn-xs cat-btn-update bpvicon" ng-click="deSelectInstanceBP($event,selectedBlueprintList._id,'blueprints')">X</span>
+	                              <span class="badge pull-left" >{{(+selectedBlueprintList.indexOf(selectedBlueprint)) +1}}</span>&nbsp;<img class="pluginBlueprintImageLogo" src="./images/templateicons/imgo.jpg"  alt="{{selectedBlueprint.name}}"/> &nbsp;{{selectedBlueprint.name}}
                            </li>
                         </ul>
                      </div>
                   </div>
                </div>
             </div>
-        </div>
-		<div class="clearfix"></div>
+		   <div class="clearfix"></div>
+         </fieldset>
       	</div>
       	<div class="alert alert-info text-center" ng-if="botType === 'UI' || botType ==='jenkins'">
- 	      Under Construction
- 	   </div>
+ 	          Under Construction
+ 	      </div>
 		</fieldset>
-		
-</form>
-	<div class="pager">
-		<button type="button" ng-if="botType === 'script' || botType ==='chef'" class="marginright29 btn cat-btn-update" ng-disabled="editParamsForm.$invalid" ng-click="executeBot('instance')">
+   </form>
+	<div id="botEditFooter" class="pager margintop-5">
+		<button type="button" ng-if="botType === 'script' || botType ==='chef'" class="marginright29 btn cat-btn-update" ng-disabled="scriptSelectForRemote.flag && selectedInstanceList.length <= 0 || botType ==='chef' && selectedInstanceList.length <= 0" ng-click="executeBot('instance')">
 			<i class="fa fa-check white"></i> Execute
 		</button>
-      <button type="button" ng-if="botType ==='blueprints'" class="marginright29 btn cat-btn-update" ng-disabled="editParamsForm.$invalid" ng-click="executeBot('blueprints')">
+      <button type="button" ng-if="botType ==='blueprints'" class="marginright29 btn cat-btn-update" ng-disabled="selectedBlueprintList.length <= 0" ng-click="executeBot('blueprints')">
          <i class="fa fa-check white"></i> Execute
       </button>
 	</div>

@@ -16,6 +16,13 @@
                 $scope.templateSelected = reqParams;
             });
 
+            $rootScope.$on('BOTS_DESCRIPTION_REFRESH', function(event,reqParams) {
+                $scope.templateSelected = reqParams;
+                $scope.taskHistoryListView();
+                $scope.getExecutionTime();
+                $scope.getSavedTime();
+            });
+
             if($scope.templateSelected) {
                 items = $scope.templateSelected; 
             } 

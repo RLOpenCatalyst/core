@@ -21,7 +21,7 @@
    <div id="sidebar-wrapper" ng-class="{'show-wrapper':isOpenSidebar === true}">
       <form name="filterForm" class="">
          <div>
-            <div class="repo-job-details-wrapper-inner marginbottom10">BOT Filter:</div>
+            <div class="repo-job-details-wrapper-inner marginbottom10">Filter</div>
             <div class="col-lg-12 col-md-12 form-group">
                <label for="">Functionality:</label>
                <select class="chooseProjectExisting width-100 form-control marginbottom15" ng-model="botLibCategory">
@@ -154,20 +154,25 @@
          <div class="agent-card grid-card hoverable col-lg-12 col-md-12 col-xs-12">
             <a class="appnav" title="Go to Details" ui-sref="dashboard.bots.botsDescription({botDetail:botsDetails,listType:0})">
                <div class="image-cell two-tone-11">
-                  <img class="highlight" alt="{{botsDetails.botCategory}}" ng-src="{{botsDetails.imagePath}}">
+                  <img class="highlight" title="{{botsDetails.category}}" alt="{{botsDetails.category}}" ng-src="{{botsDetails.imagePath}}">
                </div>
                <div class="info-cell">
                   <div title="{{botsDetails.name ? botsDetails.name:botsDetails.botName}}" class="title">{{botsDetails.name ? botsDetails.name:botsDetails.botName}}</div>
-                  <div class="publisher">
-                      {{botsDetails.lastRunTime | timestampToLocaleTime}} &nbsp;&nbsp;
-                  </div>
-               </div>
-               <div class="desc-cell">
+                  <div class="desc-cell">
                   <div title="{{botsDetails.desc ? botsDetails.desc:botsDetails.botDesc}}" class="description">{{botsDetails.desc ? botsDetails.desc:botsDetails.botDesc}}</div>
                </div>
-                <div title="{{botsDetails.executionCount}}" class="pull-left botsExecution" ng-if="botsDetails.executionCount">Total Runs:&nbsp;<span>{{botsDetails.executionCount}}</span></div>
-                <div class="pull-right" style="margin-top:5px;">
-                  <a ng-if="botsDetails.source ==='GitHub'" class="margin10 cursor" title="BOT Sync"><i ng-class="{'fa fa-refresh' : activeClass !== botsDetails, 'fa fa-refresh fa-spin' : activeClass === botsDetails}" ng-click="botSync(botsDetails)"></i></a>
+                  
+               </div>
+               <div class="publisher">
+                  </div>
+                <ul class="ul-vert-bar pull-left botsExecution" ng-if="botsDetails.executionCount">
+                  <li class="publisher" title="{{botsDetails.executionCount}}">Runs:&nbsp;{{botsDetails.executionCount}}</li>
+                  <li class="publisher" title="{{botsDetails.lastRunTime | timestampToLocaleTime}}"><i class="fa fa-clock-o"></i>&nbsp;<span am-time-ago="botsDetails.lastRunTime">
+                      {{botsDetails.lastRunTime}} &nbsp;&nbsp;
+                </ul>
+                <div class="pull-right" style="margin-top:8px;">
+                  <!-- <a ng-if="botsDetails.source ==='GitHub'" class="margin10 cursor" title="BOT Sync"><i ng-class="{'fa fa-refresh' : activeClass !== botsDetails, 'fa fa-refresh fa-spin' : activeClass === botsDetails}" ng-click="botSync(botsDetails)"></i></a> -->
+                  <a class="margin10 cursor" ui-sref="dashboard.bots.botsDescription({botDetail:botsDetails,listType:0})" title="Execute"><i class="fa fa-play font-size-16"></i></a>
                </div>
             </a>
          </div>
@@ -189,11 +194,11 @@
    <!--cards section ends here-->
 
    <!--table section start here-->
-   <div class="col-lg-12" style="padding-left: 2.3%;">
+   <div class="col-lg-12 paddingForScreen" >
    <div class="alert alert-info text-center" ng-if="!botLibGridOptions.data.length > 0 && !isBotLibraryPageLoading">
       No data Available
    </div>
-   <div id="grid1" ng-show="!isCardViewActive" ng-if="botLibGridOptions.data.length >0 && !isBotLibraryPageLoading" ui-grid="botLibGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid"></div>
+   <div id="grid1" ng-show="!isCardViewActive" ng-if="botLibGridOptions.data.length >0 && !isBotLibraryPageLoading" ui-grid="botLibGridOptions" ui-grid-pagination ui-grid-auto-resize class="grid heightBigCheck"></div>
  </div>
    <!--table section ends here -->
 </div>

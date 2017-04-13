@@ -80,6 +80,7 @@ function Env() {
                     }
                 });
             }else if (envdata.projectname_rowid !== '' && envdata.projectname !== '') {
+               
                 var newProjectId = '', newProjectName = '';
                 var projectIds = envdata.projectname_rowid.split(',');
                 var projectNames = envdata.projectname.split(',');

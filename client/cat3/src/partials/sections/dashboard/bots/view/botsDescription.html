@@ -1,46 +1,38 @@
 <div id="botsDescriptionPage">
-   <div class="page-name">
-      BOTs Description&nbsp;
-      <button type="button" title="Bots List" class="btn cat-btn-update btn-primary pull-right btnDescription" ui-sref="dashboard.bots.library">
-      <i class="fa fa-chevron-left" style="color: #fff"></i><span style="margin-left:5px;">Back</span>
-      </button>
-      <!-- <button type="button" title="Refresh" class="btn btn-xs cat-btn-update pull-right refresh-btn" ng-click="RefreshBotsLibrary();">
-      <i class="fa fa-refresh white"></i>
-      </button> -->
-   </div>
    <div class="borderTop"></div>
    <div class="container summary-container marginleft35">
       
       <div class="grid-card-base bot-card-hero no-card-links" style="margin-top:20px;margin-left:0px!important">
          <div class="image-cell two-tone-11">
-            <img class="highlight" alt="{{templateSelected.botCategory}}" ng-src="{{botIcon}}">
+            <img class="highlight" title="{{templateSelected.category}}" alt="{{templateSelected.category}}" ng-src="{{botIcon}}">
          </div>
          <div class="bot-content">
             <h3 title="{{templateSelected.name?templateSelected.name:templateSelected.botName}}">{{templateSelected.name?templateSelected.name:templateSelected.botName}}</h3>
             <ul class="ul-vert-bar">
                <li class="publisher" title="{{templateSelected.desc?templateSelected.desc:templateSelected.botDesc}}">{{templateSelected.desc?templateSelected.desc:templateSelected.botDesc}}</li>
-               <li ng-if="templateSelected.lastRunTime"> {{templateSelected.lastRunTime | timestampToLocaleTime}}</li>
-               <li ng-if="templateSelected.executionCount">Total Runs:&nbsp;<span>{{templateSelected.executionCount}}</li> 
+               <li ng-if="templateSelected.executionCount">Runs:&nbsp;<span>{{templateSelected.executionCount}}</li> 
+               <li ng-if="templateSelected.lastRunTime" title="{{templateSelected.lastRunTime | timestampToLocaleTime}}"><i class="fa fa-clock-o"></i>&nbsp;<span am-time-ago="templateSelected.lastRunTime"> {{templateSelected.lastRunTime}}</span></li>
             </ul>
          </div>
-         <!-- <div class="pull-right" style="margin-top:-26px;">
-            <span style="margin-left:10px;" title="Edit"><i class="fa fa-pencil font-size-20"></i></span> 
-            <button style="margin-right:10px;" type="button" class="btn btn-danger btnPadding" title="Delete" ng-click="deleteBot(templateSelected)"><i class="fa fa-trash font-size-16 white"></i>&nbsp;Delete</button>
-            <button type="button" class="btn cat-btn-update btnPadding" style="margin-right:10px;" ng-click="launchInstance(templateSelected);" title="Execute"><i class="fa fa-play font-size-16 white"></i>&nbsp;Execute</button>
-         </div> --> 
+         <div class="pull-right" style="margin-top:-24px;">
+            <button type="button" ng-if="templateSelected.source ==='GitHub'" class="btn cat-btn-update btn-primary btnDescription" title="BOT Sync" ng-click="botSync(templateSelected)"><i style="color: #fff" ng-class="{'fa fa-refresh' : activeClass !== templateSelected, 'fa fa-refresh fa-spin' : activeClass === templateSelected}"></i><span class="marginleft5">Sync</span></button>
+            <button type="button" title="BOT List" class="btn cat-btn-update btn-primary btnDescription" ui-sref="dashboard.bots.library">
+               <i class="fa fa-chevron-left" style="color: #fff"></i><span class="marginleft5">Back</span>
+            </button>
+         </div> 
       </div>
       <div class="col-lg-12 col-md-12 col-sm-12" style="margin-left:-14px;">
          <ul id="myTab3" class="nav nav-tabs tabs-pull-left">
-            <li ng-class="{active:tab.isSet('ReadMe')}">
-               <a ng-click="tab.setTab('ReadMe')">
-               <i class="fa fa-codepen black"></i>&nbsp;
-               Read Me
-               </a>
-            </li>
             <li ng-class="{active:tab.isSet('Execute')}">
                <a ng-click="tab.setTab('Execute')">
                <i class="fa fa-play black"></i>&nbsp;
                Execute
+               </a>
+            </li>
+            <li ng-class="{active:tab.isSet('ReadMe')}">
+               <a ng-click="tab.setTab('ReadMe')">
+               <i class="fa fa-codepen black"></i>&nbsp;
+               Definition
                </a>
             </li>
             <li ng-class="{active:tab.isSet('Report')}">

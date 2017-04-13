@@ -7,7 +7,7 @@
 
 (function(angular){
 	"use strict";
-	angular.module('global.login',[]).service('loginServices',['$rootScope', '$q', '$http',function($rootScope,$q,$http){
+	angular.module('global.login',[]).service('loginServices',['$rootScope', '$q', '$http','toastr',function($rootScope,$q,$http,toastr){
 	var loginServices=this;
         loginServices.promiseGet = function (paramsObject) {
             if(!paramsObject.inlineLoader){ $rootScope.onBodyLoading=true;}

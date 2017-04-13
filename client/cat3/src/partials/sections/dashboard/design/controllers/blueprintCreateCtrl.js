@@ -391,7 +391,7 @@
                         $scope.isLoadingNexus = false;
                     });
                 } else if(blueprintCreation.newEnt.serverType === 'docker'){
-                    bpCreateSer.getRepoList(bpCreate.serverRepos[bpCreate.newEnt.nexusDockerServer].rowid).then(function (repositoryResult) {
+                    bpCreateSer.getRepoList(blueprintCreation.serverRepos[blueprintCreation.newEnt.nexusDockerServer].rowid).then(function (repositoryResult) {
                         $scope.isLoadingNexus = false;
                         blueprintCreation.repositoryOptions = repositoryResult.data[0].repositories.docker;
                         if(blueprintCreation.repositoryOptions.length === 0){
@@ -425,7 +425,7 @@
                         repository:tagRep,
                         image:blueprintCreation.newEnt.image
                     };
-                    workSvs.getDockerImageTags(requestObject).then(function(tagResult){
+                    genericServices.getDockerImageTags(requestObject).then(function(tagResult){
                         blueprintCreation.tagOptions = tagResult.data;
                         $scope.isLoadingDocTag=false;
                     });
@@ -464,7 +464,7 @@
             };
 
             blueprintCreation.getRepositoryDetails = function() {
-                if(bpCreate.newEnt.nexusDockerRepo.configType === 'nexus') {
+                if(blueprintCreation.newEnt.nexusDockerRepo.configType === 'nexus') {
                     console.log('nexus');
                 }
             };
@@ -532,6 +532,7 @@
             };
 
             blueprintCreation.showVMs= function(test) {
+                test='';
                 $scope.isVMVisible = true;
                 $scope.vmEnabled = true;
                 $scope.armParameters = {};
@@ -791,9 +792,8 @@
                     if($scope.bpTypeName === 'OSImage'){
                         blueprintCreateJSON.instanceOS=blueprintCreation.newEnt.osListing;   
                     }
-
+                    var cftParameters = [];
                     if($scope.bpTypeName === 'CloudFormation'){
-                        var cftParameters = [];
                         angular.forEach(blueprintCreation.newEnt.cftModel , function(value, key) {
                             var parameterObj = {
                                 ParameterKey: key,
@@ -817,7 +817,6 @@
                     }
 
                     if($scope.bpTypeName === 'ARMTemplate'){
-                        var cftParameters = [];
                         angular.forEach($scope.armParameters , function(value, key) {
                             var parameterObj = {
                                 ParameterKey: key,
@@ -850,9 +849,9 @@
                     }
                     if($scope.providerType === 'AWS'){
                         blueprintCreateJSON.securityGroupIds = [];
-                        for(var i =0;i<blueprintCreation.securityGroupListing.length;i++){
-                            if(blueprintCreation.securityGroupListing[i]._isChecked){
-                                blueprintCreateJSON.securityGroupIds.push(blueprintCreation.securityGroupListing[i].GroupId);
+                        for(var ii =0;ii<blueprintCreation.securityGroupListing.length;ii++){
+                            if(blueprintCreation.securityGroupListing[ii]._isChecked){
+                                blueprintCreateJSON.securityGroupIds.push(blueprintCreation.securityGroupListing[ii].GroupId);
                             }
                         }    
                     }

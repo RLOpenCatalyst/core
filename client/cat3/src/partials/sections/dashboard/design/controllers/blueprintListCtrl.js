@@ -24,10 +24,10 @@
                         pbList.blueprintList.list.paginationPageSize= 10;
                         pbList.blueprintList.list.enableGridMenu = true;
                         pbList.blueprintList.list.enableSorting= false;
-                        var bpcolumnDefs = [];
+                        pbList.blueprintList.list.columnDefs = [];
                         angular.forEach(pbList.blueprintList.list.data, function(val){
                             if(val.templateType === 'docker'){
-                                var dockerOptions = [
+                                pbList.blueprintList.list.columnDefs = [
                                     { name:'Name',minWidth:150,field:'name',cellTooltip: true},
                                     { name:'Docker Path',minWidth:150,field:'blueprintConfig.dockerCompose[0].dockercontainerpaths',cellTooltip: true},
                                     { name:'Docker Path Title',minWidth:150,field:'blueprintConfig.dockerCompose[0].dockercontainerpathstitle',cellTooltip: true},
@@ -37,9 +37,8 @@
                                     '&nbsp; <span class="btn btn-xs cat-btn-update bpvicon" title="Launch"  ng-click="grid.appScope.launchInstance($event,row.entity);"><i class="fa fa-location-arrow fa-2 white" aria-hidden="true"></i></span>' +
                                     '&nbsp; <span class="btn btn-xs btn-danger bpvicon" title="Delete"  ng-click="grid.appScope.deleteBp($event,row.entity,null);"><i class="fa fa-trash-o fa-2 white" aria-hidden="true"></i></span>'}
                                 ];
-                                bpcolumnDefs = dockerOptions;
                             } else if(val.templateType === 'chef' || val.templateType === 'ami'){
-                                var bpOptions = [
+                                pbList.blueprintList.list.columnDefs = [
                                     { name:'Name',minWidth:150,field:'name',cellTooltip: true },
                                     { name:'InstanceOs',minWidth:150,field:'blueprintConfig.cloudProviderData.instanceOS',cellTooltip: true},
                                     { name:'vpcId',minWidth:150,field:'blueprintConfig.cloudProviderData.vpcId',cellTooltip: true},
@@ -53,9 +52,8 @@
                                     '&nbsp; <span class="btn btn-xs cat-btn-update bpvicon" title="Launch"  ng-click="grid.appScope.launchInstance($event,row.entity);"><i class="fa fa-location-arrow fa-2 white" aria-hidden="true"></i></span>' +
                                     '&nbsp; <span class="btn btn-xs btn-danger bpvicon" title="Delete"  ng-click="grid.appScope.deleteBp($event,row.entity,null);"><i class="fa fa-trash-o fa-2 white" aria-hidden="true"></i></span>'}
                                 ];
-                                bpcolumnDefs = bpOptions;
                             } else if(val.templateType === 'cft') {
-                                var cftOptions = [
+                                pbList.blueprintList.list.columnDefs = [
                                     { name:'Name',minWidth:150,field:'name',cellTooltip: true },
                                     { name:'Cloud Provider',minWidth:150,field:'blueprintConfig.cloudProviderType'},
                                     { name:'Region',minWidth:150,field:'blueprintConfig.region'},
@@ -65,9 +63,9 @@
                                     '&nbsp; <span class="btn btn-xs cat-btn-update bpvicon" title="Launch"  ng-click="grid.appScope.launchInstance($event,row.entity);"><i class="fa fa-location-arrow fa-2 white" aria-hidden="true"></i></span>' +
                                     '&nbsp; <span class="btn btn-xs btn-danger bpvicon" title="Delete"  ng-click="grid.appScope.deleteBp($event,row.entity,null);"><i class="fa fa-trash-o fa-2 white" aria-hidden="true"></i></span>'}
                                 ];
-                                bpcolumnDefs = cftOptions;
+
                             } else if(val.templateType === 'arm') {
-                                var cftOptions = [
+                                pbList.blueprintList.list.columnDefs = [
                                     { name:'Name',minWidth:150,field:'name',cellTooltip: true },
                                     { name:'Infra Manager Type',minWidth:150,field:'blueprintConfig.infraMangerType'},
                                     { name:'Resource Group',minWidth:150,field:'blueprintConfig.resourceGroup',cellTooltip: true},
@@ -77,11 +75,9 @@
                                     '&nbsp; <span class="btn btn-xs cat-btn-update bpvicon" title="Launch"  ng-click="grid.appScope.launchInstance($event,row.entity);"><i class="fa fa-location-arrow fa-2 white" aria-hidden="true"></i></span>' +
                                     '&nbsp; <span class="btn btn-xs btn-danger bpvicon" title="Delete"  ng-click="grid.appScope.deleteBp($event,row.entity,null);"><i class="fa fa-trash-o fa-2 white" aria-hidden="true"></i></span>'}
                                 ];
-                                bpcolumnDefs = cftOptions;
                             }
                             
                         });
-                        pbList.blueprintList.list.columnDefs = bpcolumnDefs;
                     });
                 }
             };

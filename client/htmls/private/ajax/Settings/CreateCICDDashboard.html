@@ -53,7 +53,7 @@
                                                          <select id="dashboardServerId" class="chooseOrganization width-100" cdata="catalyst" cat-validation="required">
                                                          <option value="">Select Dashboard Server</option>
                                                       </select>
-                                                        IP / Hostname : Port
+                                                      <!-- IP / Hostname : Port-->
                                                         <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardLink"   class="form-control hidden" type="text" cdata="catalyst">
                                                         
                                                         <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardId"   class="form-control hidden" type="text" cdata="catalyst">
@@ -61,39 +61,52 @@
 
                                                     </div>
                                                     <div class="clearfix"></div>
-                                                    <!-- Widget for Jenkins Starts here -->
-                                                    <div class="col-lg-6 col-md-6 optionWidget" id="jenkins-widget" style="margin-top: 25px; ">
-                                                        <label for="category">Jenkins:</label>
-                                                        <div id="divjenkinsjobciid" class="input-group from-control col-md-12 widthBox" cdata="catalyst" style="height: 165px">
-                                                            <div class="col-lg-12 col-md-12" style="margin-top:15px;">
-                                                                <label for="">Job Name:</label>
-                                                                <select id="jenkinsjobciid" class="chooseBG width-100" >
-                                                                 <option value="">Select Job Name</option>
-                                                                </select>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <!-- Widget for Jenkins ends here -->
-                                                    <!-- Widget for Jira Starts here -->
+
+
                                                     <div class="col-lg-6 col-md-6 optionWidget" id="jira-widget" style="margin-top: 25px; ">
                                                         <label for="category">Jira:</label>
                                                         <div id="divjiraprojectciid" class="input-group from-control col-md-12 widthBox" cdata="catalyst" style="height: 165px">
                                                             <div class="col-lg-12 col-md-12" style="margin-top:15px;">
                                                                 <label for="">Project Name:</label>
                                                                 <select onchange="versionOption(this.value);" id="jiraprojectciid" class="chooseBG width-100">
-                                                                 <option value="">Select Project Name</option>
+                                                                    <option value="">Select Project Name</option>
                                                                 </select>
                                                             </div>
                                                             <div class="col-lg-12 col-md-12" style="margin-top:15px;">
                                                                 <label for="">Project Version:</label>
                                                                 <select id="jiraversionciid" class="chooseBG width-100" >
-                                                                 <option value="">Select Project Version</option>
+                                                                    <option value="">Select Project Version</option>
                                                                 </select>
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <!-- Widget for Jira ends here -->
-                                                    <!-- Widget for Bitbucket Starts here -->
+
+                                                    <!-- Widget for Github Starts here -->
+
+                                                   <!-- <div class="col-lg-6 col-md-6" style="margin-top:25px;">
+                                                        <label for="">Github Configuration:<span class="control-label redSpan">&nbsp;*</span></label>
+                                                        <label id="dashboardServerSpinner" class="hidden" title="Fetching from Dashboard server.."><img class="marginleft5right25" src="img/select2-spinner.gif"></label>
+                                                        &lt;!&ndash; <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardUrl"  onchange="getcollectors($(this).val())" class="form-control" type="text" cdata="catalyst" cat-validation="required"> &ndash;&gt;
+                                                        <select id="gitConfigurationId" class="chooseOrganization width-100" cdata="catalyst" cat-validation="required">
+                                                            <option value="">Select Github Configuration</option>
+                                                        </select>
+
+&lt;!&ndash;
+                                                        <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardLink"   class="form-control hidden" type="text" cdata="catalyst">
+&ndash;&gt;
+
+                                                        <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardId"   class="form-control hidden" type="text" cdata="catalyst">
+&lt;!&ndash;
+                                                        <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardUrl"   class="form-control hidden" type="text" cdata="catalyst">
+&ndash;&gt;
+
+                                                    </div>-->
+
+
+
+                                                    <!-- Widget for Jira Starts here -->
+
                                                     <div class="col-lg-6 col-md-6 optionWidget" id="github-widget" style="margin-top: 25px; ">
                                                         <label for="category">Git Hub:</label>
                                                         <div id="divgitciid"  style="height: 165px" class="widthBox">
@@ -108,7 +121,35 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <!-- Widget for Sonar ends here -->
+
+
+                                                    <!-- Widget for Jenkins Starts here -->
+                                                    <div class="col-lg-6 col-md-6 optionWidget" id="jenkins-widget" style="margin-top: 25px; ">
+                                                        <label for="category">Jenkins:</label>
+                                                        <div id="divjenkinsjobciid" class="input-group from-control col-md-12 widthBox" cdata="catalyst" style="height: 165px">
+                                                            <div class="col-lg-12 col-md-12" style="margin-top:15px;">
+                                                                <label for="">Job Name:</label>
+                                                                <select id="jenkinsjobciid" class="chooseBG width-100" >
+                                                                 <option value="">Select Job Name</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <!-- Widget for Jenkins ends here -->
+                                                    <!-- Widget for Chef Starts here -->
+                                                    <div class="col-lg-6 col-md-6 optionWidget" id="chef-widget" style="margin-top: 25px; ">
+                                                        <label for="category">Chef:</label>
+                                                        <div id="divcookbookciid" class="input-group from-control col-md-12 widthBox" style="height: 165px">
+                                                            <div class="col-lg-12 col-md-12" style="margin-top:15px;">
+                                                                <label for="">Deploy Cookbook Name:</label>
+                                                                <select id="cookbookciid" class="chooseBG width-100" >
+                                                                    <option value="">Select Cookbook Name</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <!-- Widget for Chef ends here -->
+                                                    <!-- Widget for Sonar starts here -->
                                                     <div class="col-lg-6 col-md-6 optionWidget" id="sonar-widget" style="margin-top: 25px; ">
                                                         <label for="category">SonarQube:</label>
                                                         <div id="divsonarciid" class="input-group from-control col-md-12 widthBox" style="height: 165px">
@@ -120,19 +161,7 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <!-- Widget for Chef Starts here -->
-                                                    <div class="col-lg-6 col-md-6 optionWidget" id="chef-widget" style="margin-top: 25px; ">
-                                                        <label for="category">Chef:</label>
-                                                        <div id="divcookbookciid" class="input-group from-control col-md-12 widthBox" style="height: 165px">
-                                                            <div class="col-lg-12 col-md-12" style="margin-top:15px;">
-                                                                <label for="">Deploy Cookbook Name:</label>
-                                                                <select id="cookbookciid" class="chooseBG width-100" >
-                                                                 <option value="">Select Cookbook Name</option>
-                                                                </select>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <!-- Widget for Chef ends here -->
+
                                                     <!-- Widget for Test Rail Starts here -->
                                                     <div class="col-lg-6 col-md-6" id="testrail-widget" style="margin-top: 25px;display: none">
                                                         <label for="category">Test Rail:</label>
@@ -244,6 +273,7 @@ $('#orgname').change(function(e){
     var orgId = $('#orgname').find('option:selected').attr('rowid');
     getBusinessGroupDetails(orgId);
     getDashboardServers(orgId);
+    getGitServers(orgId);
 });
 
 $('#productgroupname').change(function(e){
@@ -279,6 +309,27 @@ $('#dashboardServerId').change(function(e){
     }
 });
 
+/*$('#gitConfigurationId').change(function(e){
+    //updating the url field.
+    var selectedGitConfig = $('#gitConfigurationId').find('option:selected').attr('gitRepoUrl');
+    if(selectedGitConfig)
+    {
+        $('#gitRepoUrl').val(slectedDashboardUrl);
+        dashboardURL = slectedDashboardUrl;
+        //Clearning all previous selections.
+        $('#jiraprojectciid').html('<option value="">Select Project Name</option>').select2();
+        $('#jiraversionciid').html('<option value="">Select Project Version</option>').select2();
+        $('#jenkinsjobciid').html('<option value="">Select Job Name</option>').select2();
+        $('#cookbookciid').html('<option value="">Select Cookbook Name</option>').select2();
+        $('#sonarciid').html('<option value="">Select Job Name</option>').select2();
+        $('#repourl').val('');
+        $('#repobranch').val('');
+
+
+        getcollectors(slectedDashboardUrl);
+    }
+});*/
+
 
 function getDashboardServers(orgId,callback){
     $.get('/cicd-dashboardservice/orgId/' + orgId, function(dashboardServers){
@@ -301,6 +352,71 @@ function getDashboardServers(orgId,callback){
                 callback(dashboardServers.length);
         }
     });
+}
+
+function getGitServers(orgId,callback){
+
+    $.get('/git-hub', function(gitList){
+        console.log(JSON.stringify(gitList));
+
+        var str = ' <option value="">Select Git Configuration</option>',
+        len = gitList.length;
+
+        //alert(JSON.stringify(dashboardServers));
+        for (var i = 0; i < gitList.length; i++) {
+            str = str + '<option gitconfig="' + gitList[i].repositoryName + '" value="' + gitList[i]._id + '">' + gitList[i].repositoryName + ' </option>';
+        }
+        $('#gitConfigurationId').html(str);
+       // $('#gitConfigurationId').val($('#gitConfigurationId').attr('savedvalue')).trigger('change');
+        $('#gitConfigurationId').select2();
+        if(!gitList || gitList.length <= 0){
+            if(callback)
+                callback(null);
+        }
+        else{
+            if(callback)
+                callback(gitList.length);
+        }
+    });
+
+/*var orgList = [];
+orgList.push(orgId);
+    masterUtil.getBitbucket(orgList, function(err, bitbucketList) {
+        if (err) {
+            res.status(500).send('Not able to fetch Bitbucket.');
+        }
+        //res.send("test\ntest");
+        var hygProp = '';
+        if (bitbucketList[0]) {
+            hygProp += 'git.username=' + bitbucketList[0].bitbucketusername + '\n';
+            hygProp += 'git.password=' + bitbucketList[0].bitbucketpassword + '\n';
+        }
+        res.send(hygProp);
+        //res.send(bitbucketList);
+        return;
+    });*/
+
+
+   /* $.get('/cicd-dashboardservice/orgId/' + orgId, function(dashboardServers){
+
+        var str = ' <option value="">Select Dashboard Server</option>',
+            len = dashboardServers.length;
+        //alert(JSON.stringify(dashboardServers));
+        for (var i = 0; i < dashboardServers.length; i++) {
+            str = str + '<option dashboardurl="' + dashboardServers[i].dashboardServer + '" value="' + dashboardServers[i]._id + '">' + dashboardServers[i].dashboardName + ' [' + dashboardServers[i].dashboardServer + '] </option>';
+        }
+        $('#dashboardServerId').html(str);
+        $('#dashboardServerId').val($('#dashboardServerId').attr('savedvalue')).trigger('change');
+        $('#dashboardServerId').select2();
+        if(!dashboardServers || dashboardServers.length <= 0){
+            if(callback)
+                callback(null);
+        }
+        else{
+            if(callback)
+                callback(dashboardServers.length);
+        }
+    });*/
 }
 
 

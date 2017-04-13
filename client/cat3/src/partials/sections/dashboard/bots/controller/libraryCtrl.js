@@ -8,7 +8,7 @@
 (function (angular) {
     "use strict";
     angular.module('dashboard.bots')
-    .controller('libraryCtrl',['$scope', '$rootScope', '$state', 'genericServices','$filter', 'confirmbox', 'toastr', 'workzoneUIUtils', '$modal', 'uiGridOptionsService', '$timeout', 'botsCreateService', function ($scope, $rootScope, $state, genSevs, $filter, confirmbox, toastr, workzoneUIUtils, $modal, uiGridOptionsService, $timeout, botsCreateService) {
+    .controller('libraryCtrl',['$scope', '$rootScope', 'moment', '$state', 'genericServices','$filter', 'confirmbox', 'toastr', 'workzoneUIUtils', '$modal', 'uiGridOptionsService', '$timeout', 'botsCreateService', function ($scope, $rootScope, moment, $state, genSevs, $filter, confirmbox, toastr, workzoneUIUtils, $modal, uiGridOptionsService, $timeout, botsCreateService) {
 
 
         var treeNames = ['BOTs','Library'];
@@ -55,7 +55,7 @@
                 { name: 'Last Run',field:'lastRunTime ',cellTemplate:'<span title="{{row.entity.lastRunTime  | timestampToLocaleTime}}">{{row.entity.lastRunTime  | timestampToLocaleTime}}</span>', cellTooltip: true},
                 { name: 'Saved Time',field:'savedTime', cellTemplate:'<span title="{{row.entity.savedTime.hours ? row.entity.savedTime.hours : 0}}h {{row.entity.savedTime.minutes ? row.entity.savedTime.minutes : 0}}m">{{row.entity.savedTime.hours ? row.entity.savedTime.hours : 0}}h {{row.entity.savedTime.minutes ? row.entity.savedTime.minutes : 0}}m</span>', cellTooltip: true},
                 { name: 'Total Runs',field:'executionCount'},
-                   { name: 'BOT Action',width:100,displayName: 'Details',cellTemplate:'<a title="Description"><i class="fa fa-eye font-size-16 cursor" ui-sref="dashboard.bots.botsDescription({botDetail:row.entity,listType:1})" ></i></a>'
+                   { name: 'BOT Action',width:100,displayName: 'Action',cellTemplate:'<a title="Execute"><i class="fa fa-play font-size-16 cursor" ui-sref="dashboard.bots.botsDescription({botDetail:row.entity,listType:1})" ></i></a>'
                 }
             ];
             $scope.botLibGridOptions.data=[];
@@ -81,7 +81,7 @@
                     $scope.currentCardPage = newPage;
                     $scope.botLibraryGridView();
                 });
-            },
+            }
         });
 
         $scope.cardPaginationChange = function() {
@@ -131,7 +131,7 @@
                 $scope.showLoadMore = true;
                 $scope.showRecords = true;
             }
-            if(result.metaData.totalRecords == $scope.botLibGridOptions.data.length) {
+            if(result.metaData.totalRecords === $scope.botLibGridOptions.data.length) {
                 $scope.showLoadRecord();
             }
             $scope.statusBar = "Showing " + ($scope.botLibGridOptions.data.length === 0 ? "0" : "1") + " to " + $filter('number')($scope.botLibGridOptions.data.length) + " of " + $filter('number')(result.metaData.totalRecords) + " entries";
@@ -140,7 +140,7 @@
 
         $scope.clearSearchString = function() {
             $scope.botLibrarySearch = '';
-        }
+        };
 
         $scope.botLibraryGridView = function() {
             $scope.isBotDetailsLoading = true;
@@ -207,23 +207,24 @@
                 $scope.botLibGridOptions.data = [];
                 pageNumber = 1;
             }
+            var param={};
             if($scope.totalBotsSelected) {
-                var param={
+                 param={
                     inlineLoader: true,
                     url:'/botsNew?page=' + pageNumber +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
                 };
             } else if($scope.runningBotsselected) {
-                var param={
+                 param={
                     inlineLoader: true,
                     url:'/botsNew?actionStatus=running&page=' + pageNumber +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
                 };
             } else if($scope.scheduledBotsSelected) {
-                var param={
+                 param={
                     inlineLoader: true,
                     url:'/botsNew?serviceNowCheck=true&page=' + pageNumber +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
                 };
             } else if($scope.failedBotsselected) {
-                var param={
+                 param={
                     inlineLoader: true,
                     url:'/botsNew?actionStatus=failed&page=' + pageNumber +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
                 };
@@ -282,20 +283,21 @@
         };*/
 
         $rootScope.applyFilter = function() {
+            var param={};
             if ($scope.botLibAction) {
-                var param={
+                param={
                     url:'/botsNew?filterBy=action:'+$scope.botLibAction +'&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
                 };
             } else if($scope.botLibType) {
-                var param={
+                param={
                     url:'/botsNew?filterBy=type:'+$scope.botLibType+'&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
                 };
             } else if($scope.botLibCategory) {
-                var param={
+                param={
                     url:'/botsNew?filterBy=category:'+$scope.botLibCategory+'&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
                 }; 
             } else if($scope.botLibCategory && $scope.botLibAction && $scope.botLibType){
-                var param={
+                param={
                     url:'/botsNew?filterBy=action:'+$scope.botLibAction +'+type:'+ $scope.botLibType +'+category:'+ $scope.botLibCategory +'&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
                 };
             } else {
