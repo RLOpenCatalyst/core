@@ -332,12 +332,6 @@
                               Runlist Configuration
                            </accordion-heading>
                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                              <!-- <label>
-                                 <i class="fa fa-list-ul addRunList-icon"></i>
-                                 <lable class="control-label" ng-if="!isEditMode">Add Runlist</lable>
-                                 <lable class="control-label" ng-if="isEditMode && chefrunlist.length==0">Add Runlist</lable>
-                                 <lable class="control-label" ng-if="isEditMode && chefrunlist.length>0">Edit Runlist</lable>
-                              </label> -->
                               <span class="cursor pull-right">
                                  <i class="fa fa-plus-circle cursor" title="Add Runlist" ng-click="updateCookbook()"></i>
                               </span>
@@ -526,19 +520,19 @@
                            <div class="accordionClear"></div>
                            <br/>
                            <accordion ng-repeat="(key,value) in bpCreate.getCFTDetails.Resources">
-                              <accordion-group ng-init="accGroupStatus = {opened: false}" is-open="accGroupStatus.opened">
+                              <accordion-group ng-if="bpCreate.getCFTDetails.Resources[key].Type === 'AWS::EC2::Instance' || bpCreate.getCFTDetails.Resources[key].Type === 'AWS::AutoScaling::AutoScalingGroup'" ng-init="accGroupStatus = {opened: false}" is-open="accGroupStatus.opened">
                                  <accordion-heading>
                                     <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
                                     Configure Resource : {{key}}
                                  </accordion-heading>
                                  <div class="col-lg-6 col-md-6 margintop15">
-                                    <label for="cftUserName">Instance Username<!--<span class="red">&nbsp;*</span>
-                                       <span ng-show="newBlueprintForm.cftUserName.$touched && newBlueprintForm.cftUserName.$invalid" class="inputValidationMsg">Required</span>--></label>
+                                    <label for="cftUserName">Instance Username<span class="red">&nbsp;*</span>
+                                       <span ng-show="newBlueprintForm.cftUserName.$touched && newBlueprintForm.cftUserName.$invalid" class="inputValidationMsg">Required</span></label>
                                     <input type="text" ng-model="bpCreate.newEnt.cftModelResources[key]" name="cftUserName" class="form-control"/>
                                  </div>
-                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 margintop15">
                                     <span class="cursor pull-right">
-                                       <i class="fa fa-plus-circle cursor" title="Edit Runlist" ng-click="updateCookbook()"></i>
+                                       <i class="fa fa-plus-circle cursor" title="Edit Runlist" ng-click="updateCookbook(key)"></i>
                                     </span>
                                     <div class="view-runlist">
                                        <table class="table table-bordered text-center">
@@ -547,11 +541,11 @@
                                                 <th class="text-center">View Runlist</th>
                                              </tr>
                                           </thead>
-                                          <!-- <tbody>
-                                             <tr ng-repeat="item in templateSelected.templatescookbooks.split(',')">
-                                                <td>{{item}}</td>
+                                          <tbody>
+                                             <tr ng-repeat="item in runlistWithKey[key] track by $index">
+                                                <td>{{item.value}}</td>
                                              </tr>
-                                          </tbody> -->
+                                          </tbody>
                                        </table>
                                     </div>
                                  </div>
@@ -601,7 +595,7 @@
                                     <i class="fa fa-fw" ng-class="{'fa-minus-circle red':accGroupStatus.opened,'fa-plus-circle':!accGroupStatus.opened }"></i>
                                     Configure VM : {{vmName.name}}
                                  </accordion-heading>
-                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 margintop15">
                                     <!-- <input type="hidden" ng-model = "bpCreate.newEnt.azureARMTemplate[armVMTemplate]"/> -->
                                     <span class="cursor pull-right">
                                        <i class="fa fa-plus-circle cursor" title="Edit Runlist" ng-click="updateCookbook()"></i>
@@ -613,11 +607,11 @@
                                                 <th class="text-center">View Runlist</th>
                                              </tr>
                                           </thead>
-                                          <!-- <tbody>
-                                             <tr ng-repeat="item in templateSelected.templatescookbooks.split(',')">
-                                                <td>{{item}}</td>
+                                          <tbody>
+                                             <tr ng-repeat="item in chefrunlist">
+                                                <td>{{item.value}}</td>
                                              </tr>
-                                          </tbody> -->
+                                          </tbody>
                                        </table>
                                     </div>
                                  </div>

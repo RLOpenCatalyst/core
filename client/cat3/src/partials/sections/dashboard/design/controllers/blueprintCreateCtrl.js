@@ -549,14 +549,24 @@
                 });
             };
 
-
-            $scope.updateCookbook = function() {
+            $scope.runlistWithKey = [];
+            $scope.cookbookAttributesWithKey = [];
+            $scope.updateCookbook = function(key) {
+                if(key) {
+                    $scope.chefrunlist = $scope.runlistWithKey[key];
+                    if($scope.cookbookAttributesWithKey[key] !== undefined) {
+                        $scope.cookbookAttributes = $scope.cookbookAttributesWithKey[key];
+                    }
+                }
                 genericServices.editRunlist($scope.chefrunlist,$scope.cookbookAttributes);
+                $scope.key = key;
             };
 
             $rootScope.$on('WZ_ORCHESTRATION_REFRESH_CURRENT', function(event,reqParams) {
                 $scope.chefrunlist = reqParams.list;
+                $scope.runlistWithKey[$scope.key] = $scope.chefrunlist;
                 $scope.cookbookAttributes = reqParams.cbAttributes;
+                $scope.cookbookAttributesWithKey[$scope.key] = $scope.cookbookAttributes;
             });
             //modal to show the Docker Parameters Popup                                             
             //on initial load.
@@ -809,7 +819,8 @@
                             var instanceObj = {
                                 logicalId: key,
                                 username: value,
-                                runlist: []
+                                runlist: responseFormatter.formatSelectedChefRunList($scope.runlistWithKey[key]),
+                                attributes: responseFormatter.formatSelectedCookbookAttributes($scope.cookbookAttributesWithKey[key])
                             };
                             cftInstances.push(instanceObj);
                             blueprintCreateJSON.cftInstances = cftInstances;
@@ -842,10 +853,12 @@
                         blueprintCreateJSON.resourceGroup = blueprintCreation.newEnt.resourceGroup;
                     }
 
-                    blueprintCreateJSON.runlist = [];
-                    if($scope.chefrunlist){
-                        blueprintCreateJSON.runlist = responseFormatter.formatSelectedChefRunList($scope.chefrunlist);    
-                        blueprintCreateJSON.attributes = responseFormatter.formatSelectedCookbookAttributes($scope.cookbookAttributes);
+                    if($scope.bpTypeName !== 'CloudFormation') {
+                        blueprintCreateJSON.runlist = [];
+                        if($scope.chefrunlist){
+                            blueprintCreateJSON.runlist = responseFormatter.formatSelectedChefRunList($scope.chefrunlist);    
+                            blueprintCreateJSON.attributes = responseFormatter.formatSelectedCookbookAttributes($scope.cookbookAttributes);
+                        }
                     }
                     if($scope.providerType === 'AWS'){
                         blueprintCreateJSON.securityGroupIds = [];
