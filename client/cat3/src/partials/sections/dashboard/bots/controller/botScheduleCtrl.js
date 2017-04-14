@@ -48,7 +48,7 @@
             } else {
                 $scope.showForBlueprints = false;
             }
-        }
+        };
 
         $scope.defaultSelection = function() {
             $scope.repeatsType = 'Minutes';//default selection.
@@ -128,7 +128,7 @@
             reqBody = {
                 scheduler:$scope.eventParams,
                 isScheduled:true
-            }
+            };
             var param={
                 url:'/botsNew/' + $scope.botId + '/scheduler',
                 data: reqBody

@@ -277,8 +277,10 @@ function readMasterJson(id) {
 function readMasterJsontv(id) {
 	// debugger;
 	//alert(url);
+
 	if ((url.indexOf('List') >= 0 || url.indexOf('Create') >= 0) && url.indexOf('OrgList.html') < 0) {
 		// alert('in 1');
+        console.log('readmasterjsonnew'+url);
 		$.ajax({
 			type: "get",
 			dataType: "text",
@@ -297,6 +299,7 @@ function readMasterJsontv(id) {
 		return (d4ddata);
 	}
 	if (url.indexOf('OrgList.html') > 0) {
+        console.log('readmasterjsonneworglist'+url);
 		//alert('in 1');
 		$.ajax({
 			type: "get",
@@ -315,7 +318,6 @@ function readMasterJsontv(id) {
 		});
 		return (d4ddata);
 	} else {
-
 		$.ajax({
 			type: "get",
 			dataType: "text",
