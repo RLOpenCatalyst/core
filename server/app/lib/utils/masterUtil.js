@@ -617,6 +617,37 @@ var MasterUtil = function () {
         });
     }
 
+    this.getAnsibleServerDetails = function(orgList, callback) {
+        var ansibleServerList = [];
+        var rowIds = [];
+        for (var x = 0; x < orgList.length; x++) {
+            rowIds.push(orgList[x].rowid);
+        }
+        logger.debug("org rowids: ", rowIds);
+        d4dModelNew.d4dModelMastersAnsibleServer.find({
+            orgname_rowid: {
+                $in: rowIds
+            }
+        }, function(err, remoteServerList) {
+            if (remoteServerList) {
+                configmgmtDao.getRowids(function(err, rowidlist) {
+                    for (var i = 0; i < remoteServerList.length; i++) {
+                        if (remoteServerList[i].id === '32') {
+                            var names = configmgmtDao.convertRowIDToValue(remoteServerList[i].orgname_rowid, rowidlist)
+                            remoteServerList[i].orgname = names;
+                            ansibleServerList.push(remoteServerList[i]);
+                        }
+                    }
+                    callback(null, ansibleServerList);
+                    return;
+                });
+            } else {
+                callback(err, null);
+                return;
+            }
+        });
+    }
+
 
 
     // Return all Bitbucket
