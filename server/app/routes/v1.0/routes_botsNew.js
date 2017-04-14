@@ -93,6 +93,18 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         })
     });
 
+    app.post('/botsNew/:botId/exec',function(req,res){
+        req.body.userName = req.session.user.cn;
+        botsNewService.executeSINTLBOTs(req.params.botId,req.body, function(err,data){
+            if (err) {
+                return res.status(500).send(err);
+            } else {
+                return res.status(200).send(data);
+            }
+        })
+    });
+
+
     app.post('/botsNew/:botId/execute',function(req,res){
         var executionType = null;
         if(req.query.executionType && req.query.executionType !== null){
