@@ -148,6 +148,10 @@ function routeConfig($stateProvider, $urlRouterProvider, $httpProvider, modulePe
         url: "/demo",
         controller:"demoCtrl",
         templateUrl: "src/partials/sections/dashboard/demo/demo.html"
+    }).state('dashboard.e-commerce', {
+        url: "/e-commerce",
+        controller:"e-commerceCtrl",
+        templateUrl: "src/partials/sections/dashboard/e-commerce/e-commerce.html"
     }).state('dashboard.settings.organization', {
 		url: "/organizations",
 		templateUrl: "src/partials/sections/dashboard/setting/organization/organization.html",
