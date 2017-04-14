@@ -15,14 +15,14 @@
  */
 
 var logger = require('_pr/logger')(module);
-var serviceMapService = require('_pr/services/serviceMapService.js');
+var resourceMapService = require('_pr/services/resourceMapService.js');
 
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
-    app.all('/serviceMap*', sessionVerificationFunc);
+    app.all('/resourceMap*', sessionVerificationFunc);
 
-    app.get('/serviceMap', function(req, res) {
-        serviceMapService.getAllServices(req.query,function(err,result){
+    app.get('/resourceMap', function(req, res) {
+        resourceMapService.getAllResourcesByFilter(req.query,function(err,result){
             if(err){
                 res.send(500,err);
                 return;

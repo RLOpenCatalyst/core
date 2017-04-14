@@ -64,7 +64,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     };
 
     function getResourceById(req,res){
-        resources.getResourceById(req.params.blueprintId,function(err,resource){
+        resources.getResourceById(req.params.resourceId,function(err,resource){
             if(err){
                 return res.status(500).send(err);
             }else{

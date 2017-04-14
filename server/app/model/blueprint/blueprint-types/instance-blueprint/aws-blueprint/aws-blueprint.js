@@ -653,9 +653,21 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                             resourceService.updateDomainNameForInstance(domainName, instance.instanceIP, instance.id, awsSettings, function (err, updateDomainName) {
                                                                 if (err) {
                                                                     logger.error("resourceService.updateDomainNameForInstance Failed ==>", err);
-                                                                    return;
                                                                 }
                                                                 logger.debug("Domain name is updated successfully");
+                                                            });
+                                                            var resourceMap = require('_pr/model/resourceMap.js');
+                                                            var resourceMapObj = {
+                                                                id: instance.id ,
+                                                                type: "instance",
+                                                                stackName:domainName
+                                                            }
+                                                            resourceMap.createNew(resourceMapObj,function(err,data){
+                                                                if(err){
+                                                                    logger.error("resourceMap.createNew is Failed ==>", err);
+                                                                }else{
+                                                                    logger.debug("ResourceMap is successfully created");
+                                                                }
                                                             });
                                                         }
                                                         instanceLog.endedOn = new Date().getTime();

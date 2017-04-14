@@ -38,6 +38,7 @@ var AWSKeyPair = require('_pr/model/classes/masters/cloudprovider/keyPair.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var auditTrailService = require('_pr/services/auditTrailService');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
+var resourceMap = require('_pr/model/resourceMap.js');
 
 
 var CHEFInfraBlueprint = require('./chef-infra-manager/chef-infra-manager');
@@ -232,6 +233,18 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                 callback(err, null);
                                 return;
                             }
+                            var resourceMapObj = {
+                                stackName:launchParams.stackName,
+                                stackType:"CloudFormation",
+                                stackStatus:"CREATED"
+                            }
+                            resourceMap.createNew(resourceMapObj,function(err,resourceMapData){
+                                if(err){
+                                    logger.error("resourceMap.createNew is Failed ==>", err);
+                                }else{
+                                    logger.debug("ResourceMap is successfully created");
+                                }
+                            });
                             callback(null, {
                                 stackId: cloudFormation._id,
                             });
@@ -478,7 +491,6 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                 nodeId: instance.id,
                                                                 actionLogId: actionLog._id
                                                             });
-
                                                             if (launchParams.auditTrailId !== null) {
                                                                 var resultTaskExecution = {
                                                                     "actionLogId": logsReferenceIds[1],
@@ -753,6 +765,18 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                     };
                                                                                     instanceLog.actionStatus = "success";
                                                                                     instanceLog.endedOn = new Date().getTime();
+                                                                                    var resourceMapObj = {
+                                                                                        stackName:launchParams.stackName,
+                                                                                        stackType:"CloudFormation",
+                                                                                        stackStatus:"CREATED"
+                                                                                    }
+                                                                                    resourceMap.createNew(resourceMapObj,function(err,resourceMapData){
+                                                                                        if(err){
+                                                                                            logger.error("resourceMap.createNew is Failed ==>", err);
+                                                                                        }else{
+                                                                                            logger.debug("ResourceMap is successfully created");
+                                                                                        }
+                                                                                    });
                                                                                     if (nodeIdWithActionLogId.length === instances.length && launchParams.auditTrailId !== null) {
                                                                                         var resultTaskExecution = {
                                                                                             "actionLogId": logsReferenceIds[1],

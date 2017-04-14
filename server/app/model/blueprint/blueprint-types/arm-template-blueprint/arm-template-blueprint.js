@@ -219,6 +219,19 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                         var timestampStarted = new Date().getTime();
                         var actionLog = instancesDao.insertBootstrapActionLog(instance.id, instance.runlist, launchParams.sessionUser, timestampStarted);
                         var logsReferenceIds = [instance.id, actionLog._id];
+                        var resourceMap = require('_pr/model/resourceMap.js');
+                        var resourceMapObj = {
+                            id: instance.id ,
+                            type: "instance",
+                            stackName:launchParams.stackName
+                        }
+                        resourceMap.createNew(resourceMapObj,function(err,data){
+                            if(err){
+                                logger.error("resourceMap.createNew is Failed ==>", err);
+                            }else{
+                                logger.debug("ResourceMap is successfully created");
+                            }
+                        });
                         var instanceLog = {
                             actionId: actionLog._id,
                             instanceId: instance.id,

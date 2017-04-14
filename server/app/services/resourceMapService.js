@@ -21,10 +21,11 @@ var cloudFormation = require('_pr/model/cloud-formation');
 var azureArm = require('_pr/model/azure-arm');
 var instancesDao = require('_pr/model/classes/instance/instance');
 var resources = require('_pr/model/resources/resources');
+var resourceMap = require('_pr/model/resourceMap/resourceMap.js');
 
-var serviceMapService = module.exports = {};
+var resourceMapService = module.exports = {};
 
-serviceMapService.getAllServices = function getAllServices(reqQueryObj,callback){
+resourceMapService.getAllResourcesByFilter = function getAllResourcesByFilter(reqQueryObj,callback){
     var stackNameObj = [];
     async.parallel({
         instances:function(callback){
@@ -171,6 +172,61 @@ serviceMapService.getAllServices = function getAllServices(reqQueryObj,callback)
         }
     })
 
+}
+
+resourceMapService.updateResourceMap = function updateResourceMap(resourceId,resourceObj,callback){
+    async.waterfall([
+        function(next){
+            resourceMap.getResourceMapById(resourceId,next);
+        },
+        function(resourceMapData,next){
+            if(resourceMapData.length > 0 && resourceMapData[0].resources.length === 0){
+                resourceMap.updatedResourceMap(resourceId,resourceObj,next);
+            }else if(resourceMapData.length > 0 && resourceMapData[0].resources.length > 0){
+                resourceMapData[0].resources
+
+            }else{
+                var err =  new Error();
+                err.code = 500;
+                err.message = "No Resource Map is available in DB against Id "+resourceId;
+                next(err,null);
+            }
+        }
+    ],function(err,results){
+        if(err){
+            callback(err,null);
+            return;
+        }else{
+            callback(null,results);
+            return;
+        }
+    })
+}
+
+resourceMapService.getResourceMapByStackName = function getResourceMapByStackName(stackName,callback){
+    async.waterfall([
+        function(next){
+            resourceMap.getResourceMapByStackName(stackName,next);
+        },
+        function(resourceMapData,next){
+            if(resourceMapData.length > 0){
+                var err =  new Error();
+                err.code = 500;
+                err.message = stackName+" is already used by other service. So please enter different and unique";
+                next(err,null);
+            }else{
+               next(null,resourceMapData);
+            }
+        }
+    ],function(err,results){
+        if(err){
+            callback(err,null);
+            return;
+        }else{
+            callback(null,results);
+            return;
+        }
+    })
 }
 
 
