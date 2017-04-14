@@ -107,7 +107,6 @@
 					}else if(items.domainNameCheck === true || items.domainNameCheck === "true") {
 						$scope.showBlueprintInputs = true;
 					}else {
-						console.log("Durgesh");
 						launchHelper.launch();
 					}
 				}

@@ -17,151 +17,31 @@
 const logger = require('_pr/logger')(module);
 var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
-var cloudFormation = require('_pr/model/cloud-formation');
-var azureArm = require('_pr/model/azure-arm');
-var instancesDao = require('_pr/model/classes/instance/instance');
-var resources = require('_pr/model/resources/resources');
 var resourceMap = require('_pr/model/resourceMap/resourceMap.js');
 
 var resourceMapService = module.exports = {};
 
 resourceMapService.getAllResourcesByFilter = function getAllResourcesByFilter(reqQueryObj,callback){
-    var stackNameObj = [];
-    async.parallel({
-        instances:function(callback){
-            var reqData = {};
-            async.waterfall([
-                function (next) {
-                    apiUtil.queryFilterBy(reqQueryObj, next);
-                },
-                function (queryObj, next) {
-                    queryObj["providerId"] = {$ne:null};
-                    var filterByObjKeyList = Object.keys(queryObj);
-                    if (filterByObjKeyList.indexOf('stackName') >= 0) {
-                        async.parallel({
-                            cfs: function (callback) {
-                                cloudFormation.getCloudFormationList({stackName: queryObj.stackName}, function (err, cloudFormationList) {
-                                    if (err) {
-                                        callback(err, null);
-                                        return;
-                                    } else {
-                                        var cfsIds = [];
-                                        cloudFormationList.forEach(function (cfs) {
-                                            cfsIds.push(cfs._id);
-                                        });
-                                        callback(null, cfsIds);
-                                        return;
-                                    }
-                                });
-                            },
-                            arm: function (callback) {
-                                azureArm.getAzureArmList({deploymentName: queryObj.stackName}, function (err, armList) {
-                                    if (err) {
-                                        next(err, null);
-                                        return;
-                                    } else {
-                                        var armIds = [];
-                                        armList.forEach(function (arm) {
-                                            armIds.push(arm._id);
-                                        })
-                                        callback(null, armIds);
-                                        return;
-                                    }
-                                })
-                            }
-                        }, function (err, result) {
-                            if (err) {
-                                next(err, null);
-                                return;
-                            } else {
-                                queryObj["$or"] = [
-                                    {cloudFormationId: {$in: result.cfs}},
-                                    {armId: {$in: result.arm}},
-                                    {domainName: queryObj.stackName}
-                                ];
-                                delete queryObj['stackName'];
-                                instancesDao.getAllInstancesByStackName(queryObj, next);
-                                return;
-                            }
-                        })
-                    }else{
-                        instancesDao.getAllInstancesByStackName(queryObj, next);
-                        return;
-                    }
-                },
-                function (instances, next) {
-                    var instanceIds = [];
-                    instances.forEach(function(instance){
-                        instanceIds.push(instance._id);
-                    })
-                    next(null,instanceIds);
-                }], function (err, results) {
-                if (err) {
-                    callback({
-                        "errorCode": 500,
-                        "message": "Error occured while fetching Instance."
-                    },null);
-                } else {
-                    callback(null,results);
-                    return;
-                }
-            });
+    async.waterfall([
+        function (next) {
+            apiUtil.queryFilterBy(reqQueryObj, next);
         },
-        rds:function(callback){
-            async.waterfall([
-                function (next) {
-                    apiUtil.queryFilterBy(reqQueryObj,next);
-                },
-                function (queryObj, next) {
-                    queryObj['resourceType'] = "RDS";
-                    resources.getResources(queryObj, next)
-                },
-                function (rdsResources, next) {
-                    var rdsIds = [];
-                    rdsResources.forEach(function(rdsResource){
-                        rdsIds.push(rdsResource._id);
-                    })
-                    next(null,rdsIds);
-                }], function (err, results) {
-                if (err) {
-                    callback({
-                        "errorCode": 500,
-                        "message": "Error occured while fetching RDS resources."
-                    },null);
-                } else {
-                    callback(null,results);
-                    return;
-                }
-            });
+        function (queryObj, next) {
+            resourceMap.getAllResourceMapByFilter(queryObj, next);
         },
-        s3:function(callback){
-            async.waterfall([
-                function (next) {
-                    apiUtil.queryFilterBy(reqQueryObj,next);
-                },
-                function (queryObj, next) {
-                    queryObj['resourceType'] = "S3";
-                    resources.getResources(queryObj, next)
-                },
-                function (s3Resources, next) {
-                    var s3Ids = [];
-                    s3Resources.forEach(function(s3Resource){
-                        s3Ids.push(s3Resource._id);
-                    })
-                    next(null,s3Ids);
-                }], function (err, results) {
-                if (err) {
-                    callback({
-                        "errorCode": 500,
-                        "message": "Error occured while fetching S3 resources."
-                    },null);
-                } else {
-                    callback(null,results);
-                    return;
-                }
+        function (serviceMapList,next){
+            var resourceMapList = [];
+            serviceMapList.forEach(function(serviceMap){
+                resourceMapList.push({
+                    name:serviceMap.stackName,
+                    status: serviceMap.stackStatus,
+                    type:serviceMap.stackType,
+                    resources:serviceMap.resources
+                });
             });
+            next(null,resourceMapList);
         }
-    },function(err,results){
+    ],function(err,results){
         if(err){
             logger.error(err);
             callback(err,null);
@@ -172,19 +52,62 @@ resourceMapService.getAllResourcesByFilter = function getAllResourcesByFilter(re
         }
     })
 
+};
+
+resourceMapService.createNewResourceMap = function createNewResourceMap(resourceMapObj,callback){
+    resourceMap.createNew(resourceMapObj,function(err,resourceMapData){
+        if(err){
+            logger.error("resourceMap.createNew is Failed ==>", err);
+            callback(err,null);
+            return;
+        }else{
+            callback(null,resourceMapData);
+            return;
+        }
+    });
 }
 
-resourceMapService.updateResourceMap = function updateResourceMap(resourceId,resourceObj,callback){
+resourceMapService.updateResourceMap = function updateResourceMap(resourceStackName,data,callback){
     async.waterfall([
         function(next){
-            resourceMap.getResourceMapById(resourceId,next);
+            resourceMap.getResourceMapByStackName(resourceStackName,next);
         },
         function(resourceMapData,next){
-            if(resourceMapData.length > 0 && resourceMapData[0].resources.length === 0){
+            if(resourceMapData.length > 0){
+                if(resourceMapData[0].resources.length > 0){
+                    var findCheck = false;
+                    resourceMapData[0].resources.forEach(function(resource){
+                        if(resource.id===data.id){
+                            findCheck = true;
+                        }
+                    })
+                    if(findCheck=== true){
+                        var resourceObj = {
+                            stackStatus:data.stackStatus
+                        }
+                        resourceMap.updatedResourceMap(resourceId,resourceObj,next);
+                    }else{
+                        resourceMapData[0].resources.push({
+                            id:data.id,
+                            type:data.type
+                        })
+                        var resourceObj = {
+                            resources:resourceMapData[0].resources,
+                            stackStatus:data.stackStatus
+                        }
+                        resourceMap.updatedResourceMap(resourceId,resourceObj,next);
+                    }
+                }else{
+                    resourceMapData[0].resources.push({
+                        id:data.id,
+                        type:data.type
+                    })
+                }
+                var resourceObj = {
+                    resources:resourceMapData[0].resources,
+                    stackStatus:data.stackStatus
+                }
                 resourceMap.updatedResourceMap(resourceId,resourceObj,next);
-            }else if(resourceMapData.length > 0 && resourceMapData[0].resources.length > 0){
-                resourceMapData[0].resources
-
             }else{
                 var err =  new Error();
                 err.code = 500;
