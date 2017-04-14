@@ -243,6 +243,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                     var resourceObj = {
                                         stackStatus:"DELETED",
                                     }
+                                    var resourceMapService = require('_pr/services/resourceMapService.js');
                                     resourceMapService.updateResourceMap(cloudFormation.stackName,resourceObj,function(err,resourceMap){
                                         if(err){
                                             logger.error("Error in updating Resource Map.",err);

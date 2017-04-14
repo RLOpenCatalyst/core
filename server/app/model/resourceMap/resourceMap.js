@@ -36,6 +36,7 @@ var resourceMapSchema = new Schema({
         required: true
     },
     resources:[{
+        _id: false,
         id:{
             type: String,
             trim: true,
@@ -62,8 +63,8 @@ resourceMapSchema.statics.createNew = function createNew(resourceMapObj, callbac
     });
 };
 
-resourceMapSchema.statics.updatedResourceMap = function updatedResourceMap(resourceMapId,resourceMapObj,callback) {
-    resourceMap.update({_id:new ObjectId(resourceMapId)},{$set:resourceMapObj},function (err, data) {
+resourceMapSchema.statics.updatedResourceMap = function updatedResourceMap(stackName,resourceMapObj,callback) {
+    resourceMap.update({stackName:stackName},{$set:resourceMapObj},function (err, data) {
         if (err) {
             logger.error(err);
             return callback(err, null);
@@ -74,7 +75,7 @@ resourceMapSchema.statics.updatedResourceMap = function updatedResourceMap(resou
 };
 
 resourceMapSchema.statics.getResourceMapByStackName = function getResourceMapByStackName(stackName,callback) {
-    resourceMap.find({stackName:stackName},function (err, data) {
+    resourceMap.find({stackName:stackName,stackStatus:{$nin:["DELETED","ERROR"]}},function (err, data) {
         if (err) {
             logger.error(err);
             return callback(err, null);

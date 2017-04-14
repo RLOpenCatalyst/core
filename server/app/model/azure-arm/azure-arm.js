@@ -78,6 +78,11 @@ var ARMSchema = new Schema({
     status: String,
     users: [String],
     resourceGroup: String,
+    isDeleted:{
+        type: Boolean,
+        required: false,
+        default:false
+    }
 });
 ARMSchema.plugin(mongoosePaginate);
 
@@ -235,9 +240,9 @@ ARMSchema.statics.findByIds = function(cfIds, callback) {
 
 
 // remove task by id
-ARMSchema.statics.removeById = function(cfId, callback) {
+ARMSchema.statics.removeById = function(armId, callback) {
     this.remove({
-        "_id": new ObjectId(cfId)
+        "_id": new ObjectId(armId)
     }, function(err, deleteCount) {
         if (err) {
             callback(err, null);
@@ -246,6 +251,19 @@ ARMSchema.statics.removeById = function(cfId, callback) {
         
         callback(null, deleteCount);
 
+    });
+};
+
+ARMSchema.statics.removeArmAzureById = function(armId, callback) {
+    this.update({
+        "_id": new ObjectId(armId)
+    },{$set:{isDeleted:true}}, function(err, softDeleteCount) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, softDeleteCount);
+        return;
     });
 };
 

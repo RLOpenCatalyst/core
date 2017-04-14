@@ -373,7 +373,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                         });
                                         return;
                                     }
-                                    AzureArm.removeById(azureArm.id, function(err, deletedStack) {
+                                    AzureArm.removeArmAzureById(azureArm.id, function(err, deletedStack) {
                                         if (err) {
                                             logger.error("Unable to delete stack from db", err);
                                             res.send(500, {
@@ -381,6 +381,15 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                             });
                                             return;
                                         }
+                                        var resourceObj = {
+                                            stackStatus:"DELETED",
+                                        }
+                                        var resourceMapService = require('_pr/services/resourceMapService.js');
+                                        resourceMapService.updateResourceMap(azureArm.deploymentName,resourceObj,function(err,resourceMap){
+                                            if(err){
+                                                logger.error("Error in updating Resource Map.",err);
+                                            }
+                                        });
                                         res.status(200).send({
                                             message: "deleted",
                                             instanceIds: instanceIds

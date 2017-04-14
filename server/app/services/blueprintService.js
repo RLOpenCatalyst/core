@@ -203,8 +203,9 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                 });
                 if (blueprint.blueprintType === 'aws_cf' || blueprint.blueprintType === 'azure_arm') {
                     stackName = reqBody.stackName;
-                    if (!stackName) {
+                    if (stackName === '' || stackName === null) {
                         next({code:400,message:"Invalid Stack name"},null);
+                        return;
                     }else {
                         resourceMapService.getResourceMapByStackName(stackName,function(err,data){
                             if(err){
@@ -216,8 +217,9 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                 }
                 if(blueprint.domainNameCheck === true) {
                     domainName = reqBody.domainName;
-                    if (!domainName) {
+                    if (domainName === '' || domainName === null ) {
                         next({code:400,message:"Invalid Domain name"},null);
+                        return;
                     }else {
                         resourceMapService.getResourceMapByStackName(domainName,function(err,data){
                             if(err){

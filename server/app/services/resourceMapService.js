@@ -85,7 +85,7 @@ resourceMapService.updateResourceMap = function updateResourceMap(resourceStackN
                         var resourceObj = {
                             stackStatus:data.stackStatus
                         }
-                        resourceMap.updatedResourceMap(resourceId,resourceObj,next);
+                        resourceMap.updatedResourceMap(resourceStackName,resourceObj,next);
                     }else{
                         resourceMapData[0].resources.push({
                             id:data.id,
@@ -95,7 +95,7 @@ resourceMapService.updateResourceMap = function updateResourceMap(resourceStackN
                             resources:resourceMapData[0].resources,
                             stackStatus:data.stackStatus
                         }
-                        resourceMap.updatedResourceMap(resourceId,resourceObj,next);
+                        resourceMap.updatedResourceMap(resourceStackName,resourceObj,next);
                     }
                 }else{
                     resourceMapData[0].resources.push({
@@ -107,11 +107,11 @@ resourceMapService.updateResourceMap = function updateResourceMap(resourceStackN
                     resources:resourceMapData[0].resources,
                     stackStatus:data.stackStatus
                 }
-                resourceMap.updatedResourceMap(resourceId,resourceObj,next);
+                resourceMap.updatedResourceMap(resourceStackName,resourceObj,next);
             }else{
                 var err =  new Error();
                 err.code = 500;
-                err.message = "No Resource Map is available in DB against Id "+resourceId;
+                err.message = "No Resource Map is available in DB against stackName "+resourceStackName;
                 next(err,null);
             }
         }
@@ -135,7 +135,7 @@ resourceMapService.getResourceMapByStackName = function getResourceMapByStackNam
             if(resourceMapData.length > 0){
                 var err =  new Error();
                 err.code = 500;
-                err.message = stackName+" is already used by other service. So please enter different and unique";
+                err.message = stackName+" is already used by other service. So please enter different and unique name.";
                 next(err,null);
             }else{
                next(null,resourceMapData);
