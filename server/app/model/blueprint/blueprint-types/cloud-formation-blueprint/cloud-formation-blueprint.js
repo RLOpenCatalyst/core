@@ -253,10 +253,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                             cloudFormation.status = err.stackStatus;
                                             cloudFormation.save();
                                         }
-                                        var resourceObj = {
-                                            stackStatus:"ERROR",
-                                        }
-                                        resourceMapService.updateResourceMap(launchParams.stackName,resourceObj,function(err,resourceMap){
+                                        resourceMapService.updateResourceMap(launchParams.stackName,{stackStatus:"ERROR"},function(err,resourceMap){
                                             if(err){
                                                 logger.error("Error in updating Resource Map.",err);
                                             }
@@ -269,10 +266,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                     awsCF.listAllStackResources(stackData.StackId, function (err, resources) {
                                         if (err) {
                                             logger.error('Unable to fetch stack resources', err);
-                                            var resourceObj = {
-                                                stackStatus:"ERROR",
-                                            }
-                                            resourceMapService.updateResourceMap(launchParams.stackName,resourceObj,function(err,resourceMap){
+                                            resourceMapService.updateResourceMap(launchParams.stackName,{stackStatus:"ERROR"},function(err,resourceMap){
                                                 if(err){
                                                     logger.error("Error in updating Resource Map.",err);
                                                 }
@@ -321,13 +315,14 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
 
                                             if (instanceIds.length) {
                                                 var instances = [];
+                                                var resourceObj = {
+                                                    stackStatus:"COMPLETED",
+                                                    resources:[]
+                                                }
                                                 ec2.describeInstances(instanceIds, function (err, awsRes) {
                                                     if (err) {
                                                         logger.error("Unable to get instance details from aws", err);
-                                                        var resourceObj = {
-                                                            stackStatus:"ERROR",
-                                                        }
-                                                        resourceMapService.updateResourceMap(launchParams.stackName,resourceObj,function(err,resourceMap){
+                                                        resourceMapService.updateResourceMap(launchParams.stackName,{stackStatus:"ERROR"},function(err,resourceMap){
                                                             if(err){
                                                                 logger.error("Error in updating Resource Map.",err);
                                                             }
@@ -349,7 +344,6 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                     var jsonAttributesObj = {
                                                         instances: {}
                                                     };
-
                                                     for (var i = 0; i < instances.length; i++) {
                                                         jsonAttributesObj.instances[ec2Resources[instances[i].InstanceId]] = instances[i].PublicIpAddress;
                                                     }
@@ -364,10 +358,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                     AWSKeyPair.getAWSKeyPairByProviderIdAndKeyPairName(cloudFormation.cloudProviderId, keyPairName, function (err, keyPairs) {
                                                         if (err) {
                                                             logger.error("Unable to get keypairs", err);
-                                                            var resourceObj = {
-                                                                stackStatus:"ERROR",
-                                                            }
-                                                            resourceMapService.updateResourceMap(launchParams.stackName,resourceObj,function(err,resourceMap){
+                                                            resourceMapService.updateResourceMap(launchParams.stackName,{stackStatus:"ERROR"},function(err,resourceMap){
                                                                 if(err){
                                                                     logger.error("Error in updating Resource Map.",err);
                                                                 }
@@ -497,26 +488,24 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                             instancesDao.createInstance(instance, function (err, data) {
                                                                 if (err) {
                                                                     logger.error("Failed to create Instance", err);
-                                                                    var resourceObj = {
-                                                                        stackStatus:"ERROR",
-                                                                    }
-                                                                    resourceMapService.updateResourceMap(launchParams.stackName,resourceObj,function(err,resourceMap){
+                                                                    resourceMapService.updateResourceMap(launchParams.stackName,{stackStatus:"ERROR"},function(err,resourceMap){
                                                                         if(err){
                                                                             logger.error("Error in updating Resource Map.",err);
                                                                         }
                                                                     });
                                                                     return;
                                                                 }
-                                                                var resourceObj = {
-                                                                    stackStatus:"COMPLETED",
+                                                                resourceObj.resources.push({
                                                                     id:data._id,
                                                                     type:"instance"
-                                                                }
-                                                                resourceMapService.updateResourceMap(launchParams.stackName,resourceObj,function(err,resourceMap){
-                                                                    if(err){
-                                                                        logger.error("Error in updating Resource Map.",err);
-                                                                    }
                                                                 });
+                                                                if(resourceObj.resources.length  === instances.length) {
+                                                                    resourceMapService.updateResourceMap(launchParams.stackName, resourceObj, function (err, resourceMap) {
+                                                                        if (err) {
+                                                                            logger.error("Error in updating Resource Map.", err);
+                                                                        }
+                                                                    });
+                                                                }
                                                                 instance.id = data._id;
                                                                 var timestampStarted = new Date().getTime();
                                                                 var actionLog = instancesDao.insertBootstrapActionLog(instance.id, instance.runlist, launchParams.sessionUser, timestampStarted);

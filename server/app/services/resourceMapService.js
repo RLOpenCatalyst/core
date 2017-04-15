@@ -68,46 +68,15 @@ resourceMapService.createNewResourceMap = function createNewResourceMap(resource
 }
 
 resourceMapService.updateResourceMap = function updateResourceMap(resourceStackName,data,callback){
+    console.log(resourceStackName);
+    console.log(JSON.stringify(data));
     async.waterfall([
         function(next){
             resourceMap.getResourceMapByStackName(resourceStackName,next);
         },
         function(resourceMapData,next){
             if(resourceMapData.length > 0){
-                if(resourceMapData[0].resources.length > 0){
-                    var findCheck = false;
-                    resourceMapData[0].resources.forEach(function(resource){
-                        if(resource.id===data.id){
-                            findCheck = true;
-                        }
-                    })
-                    if(findCheck=== true){
-                        var resourceObj = {
-                            stackStatus:data.stackStatus
-                        }
-                        resourceMap.updatedResourceMap(resourceStackName,resourceObj,next);
-                    }else{
-                        resourceMapData[0].resources.push({
-                            id:data.id,
-                            type:data.type
-                        })
-                        var resourceObj = {
-                            resources:resourceMapData[0].resources,
-                            stackStatus:data.stackStatus
-                        }
-                        resourceMap.updatedResourceMap(resourceStackName,resourceObj,next);
-                    }
-                }else{
-                    resourceMapData[0].resources.push({
-                        id:data.id,
-                        type:data.type
-                    })
-                }
-                var resourceObj = {
-                    resources:resourceMapData[0].resources,
-                    stackStatus:data.stackStatus
-                }
-                resourceMap.updatedResourceMap(resourceStackName,resourceObj,next);
+                resourceMap.updatedResourceMap(resourceStackName,data,next);
             }else{
                 var err =  new Error();
                 err.code = 500;

@@ -401,8 +401,12 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                     if (typeof domainName !== 'undefined' && domainName !== '' && domainName !== null && domainName !== 'null') {
                                         var resourceObj = {
                                             stackStatus:"ERROR",
-                                            id:instance.id,
-                                            type:"instance"
+                                            resources:[
+                                                {
+                                                    id:instance.id,
+                                                    type:"instance"
+                                                }
+                                            ]
                                         }
                                         resourceMapService.updateResourceMap(domainName,resourceObj,function(err,resourceMap){
                                             if(err){
@@ -486,8 +490,12 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                         if (typeof domainName !== 'undefined' && domainName !== '' && domainName !== null && domainName !== 'null') {
                                             var resourceObj = {
                                                 stackStatus:"ERROR",
-                                                id:instance.id,
-                                                type:"instance"
+                                                resources:[
+                                                    {
+                                                        id:instance.id,
+                                                        type:"instance"
+                                                    }
+                                                ]
                                             }
                                             resourceMapService.updateResourceMap(domainName,resourceObj,function(err,resourceMap){
                                                 if(err){
@@ -552,8 +560,12 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                             if (typeof domainName !== 'undefined' && domainName !== '' && domainName !== null && domainName !== 'null') {
                                                 var resourceObj = {
                                                     stackStatus:"ERROR",
-                                                    id:instance.id,
-                                                    type:"instance"
+                                                    resources:[
+                                                        {
+                                                            id:instance.id,
+                                                            type:"instance"
+                                                        }
+                                                    ]
                                                 }
                                                 resourceMapService.updateResourceMap(domainName,resourceObj,function(err,resourceMap){
                                                     if(err){
@@ -652,8 +664,12 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                     if (typeof domainName !== 'undefined' && domainName !== '' && domainName !== null && domainName !== 'null') {
                                                         var resourceObj = {
                                                             stackStatus:"ERROR",
-                                                            id:instance.id,
-                                                            type:"instance"
+                                                            resources:[
+                                                                {
+                                                                    id:instance.id,
+                                                                    type:"instance"
+                                                                }
+                                                            ]
                                                         }
                                                         resourceMapService.updateResourceMap(domainName,resourceObj,function(err,resourceMap){
                                                             if(err){
@@ -719,8 +735,12 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                             });
                                                             var resourceObj = {
                                                                 stackStatus:"COMPLETED",
-                                                                id:instance.id,
-                                                                type:"instance"
+                                                                resources:[
+                                                                    {
+                                                                        id:instance.id,
+                                                                        type:"instance"
+                                                                    }
+                                                                ]
                                                             }
                                                             resourceMapService.updateResourceMap(domainName,resourceObj,function(err,resourceMap){
                                                                 if(err){
@@ -842,8 +862,12 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                         if (typeof domainName !== 'undefined' && domainName !== '' && domainName !== null && domainName !== 'null') {
                                                             var resourceObj = {
                                                                 stackStatus:"ERROR",
-                                                                id:instance.id,
-                                                                type:"instance"
+                                                                resources:[
+                                                                    {
+                                                                        id:instance.id,
+                                                                        type:"instance"
+                                                                    }
+                                                                ]
                                                             }
                                                             resourceMapService.updateResourceMap(domainName,resourceObj,function(err,resourceMap){
                                                                 if(err){

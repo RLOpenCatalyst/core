@@ -22,8 +22,7 @@ var resourceMapSchema = new Schema({
     stackName: {
         type: String,
         trim: true,
-        required: true,
-        unique:true
+        required: true
     },
     stackType:{
         type: String,
@@ -64,7 +63,7 @@ resourceMapSchema.statics.createNew = function createNew(resourceMapObj, callbac
 };
 
 resourceMapSchema.statics.updatedResourceMap = function updatedResourceMap(stackName,resourceMapObj,callback) {
-    resourceMap.update({stackName:stackName},{$set:resourceMapObj},function (err, data) {
+    resourceMap.update({stackName:stackName,stackStatus:{$nin:["DELETED","ERROR"]}},{$set:resourceMapObj},function (err, data) {
         if (err) {
             logger.error(err);
             return callback(err, null);
