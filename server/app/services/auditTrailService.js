@@ -273,10 +273,10 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                     var hours = 0, minutes = 0;
                     if(botsList.length > 0) {
                         for (var k = 0; k < botsList.length; k++) {
-                            if(botsList[k].savedTime.hours) {
+                            if(botsList[k].savedTime && botsList[k].savedTime.hours) {
                                 hours = hours + botsList[k].savedTime.hours;
                             }
-                            if(botsList[k].savedTime.minutes){
+                            if(botsList[k].savedTime && botsList[k].savedTime.minutes){
                                 minutes = minutes + botsList[k].savedTime.minutes;
                             }
                         }

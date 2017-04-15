@@ -38,6 +38,7 @@ var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var Schema = mongoose.Schema;
 var resourceService = require('_pr/services/resourceService');
 var auditTrailService = require('_pr/services/auditTrailService');
+var resourceMapService = require('_pr/services/resourceMapService.js');
 
 var AWSInstanceBlueprintSchema = new Schema({
     keyPairId: {
@@ -197,8 +198,22 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                         });
                         return;
                     }
-
-
+                    if (typeof domainName !== 'undefined' && domainName !== '' && domainName !== null && domainName !== 'null') {
+                        var resourceMapObj = {
+                            stackName: domainName,
+                            stackType: "SoftwareStack",
+                            stackStatus: "CREATED",
+                            resources: []
+                        }
+                        if(launchParams.blueprintData.templateType !== 'chef'){
+                            resourceMapObj.stackType = "OSImage";
+                        }
+                        resourceMapService.createNewResourceMap(resourceMapObj, function (err, resourceMapData) {
+                            if (err) {
+                                logger.error("resourceMapService.createNewResourceMap is Failed ==>", err);
+                            }
+                        })
+                    }
                     var newinstanceIDs = [];
 
                     function addinstancewrapper(instanceData, instancesLength) {
@@ -383,6 +398,22 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                         timestamp: timestamp
                                     });
                                     logger.error("waitForInstanceRunnnigState returned an error  >>", err);
+                                    if (typeof domainName !== 'undefined' && domainName !== '' && domainName !== null && domainName !== 'null') {
+                                        var resourceObj = {
+                                            stackStatus:"ERROR",
+                                            resources:[
+                                                {
+                                                    id:instance.id,
+                                                    type:"instance"
+                                                }
+                                            ]
+                                        }
+                                        resourceMapService.updateResourceMap(domainName,resourceObj,function(err,resourceMap){
+                                            if(err){
+                                                logger.error("Error in updating Resource Map.",err);
+                                            }
+                                        });
+                                    }
                                     return;
                                 }
                                 logger.debug("Enter waitForInstanceRunnnigState :", instanceData);
@@ -456,6 +487,22 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                             timestamp: new Date().getTime()
                                         });
                                         logger.error('intance wait failed ==> ', err);
+                                        if (typeof domainName !== 'undefined' && domainName !== '' && domainName !== null && domainName !== 'null') {
+                                            var resourceObj = {
+                                                stackStatus:"ERROR",
+                                                resources:[
+                                                    {
+                                                        id:instance.id,
+                                                        type:"instance"
+                                                    }
+                                                ]
+                                            }
+                                            resourceMapService.updateResourceMap(domainName,resourceObj,function(err,resourceMap){
+                                                if(err){
+                                                    logger.error("Error in updating Resource Map.",err);
+                                                }
+                                            });
+                                        }
                                         return;
                                     }
 
@@ -510,6 +557,22 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                 timestamp: timestampEnded
                                             });
                                             instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
+                                            if (typeof domainName !== 'undefined' && domainName !== '' && domainName !== null && domainName !== 'null') {
+                                                var resourceObj = {
+                                                    stackStatus:"ERROR",
+                                                    resources:[
+                                                        {
+                                                            id:instance.id,
+                                                            type:"instance"
+                                                        }
+                                                    ]
+                                                }
+                                                resourceMapService.updateResourceMap(domainName,resourceObj,function(err,resourceMap){
+                                                    if(err){
+                                                        logger.error("Error in updating Resource Map.",err);
+                                                    }
+                                                });
+                                            }
 
                                             if (instance.hardware.os != 'windows')
                                                 return;
@@ -550,8 +613,6 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                 jsonAttributes: jsonAttributes,
                                                 instancePassword: decryptedCredentials.password
                                             };
-                                            console.log("****************************");
-                                            console.log("params>>>>>>>>",JSON.stringify(bootstrapInstanceParams));
                                             launchParams.infraManager.bootstrapInstance(bootstrapInstanceParams, function (err, code) {
 
                                                 if (decryptedCredentials.pemFileLocation) {
@@ -600,6 +661,22 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                         log: "Bootstrap failed",
                                                         timestamp: timestampEnded
                                                     });
+                                                    if (typeof domainName !== 'undefined' && domainName !== '' && domainName !== null && domainName !== 'null') {
+                                                        var resourceObj = {
+                                                            stackStatus:"ERROR",
+                                                            resources:[
+                                                                {
+                                                                    id:instance.id,
+                                                                    type:"instance"
+                                                                }
+                                                            ]
+                                                        }
+                                                        resourceMapService.updateResourceMap(domainName,resourceObj,function(err,resourceMap){
+                                                            if(err){
+                                                                logger.error("Error in updating Resource Map.",err);
+                                                            }
+                                                        });
+                                                    }
                                                     instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
 
 
@@ -653,9 +730,22 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                             resourceService.updateDomainNameForInstance(domainName, instance.instanceIP, instance.id, awsSettings, function (err, updateDomainName) {
                                                                 if (err) {
                                                                     logger.error("resourceService.updateDomainNameForInstance Failed ==>", err);
-                                                                    return;
                                                                 }
                                                                 logger.debug("Domain name is updated successfully");
+                                                            });
+                                                            var resourceObj = {
+                                                                stackStatus:"COMPLETED",
+                                                                resources:[
+                                                                    {
+                                                                        id:instance.id,
+                                                                        type:"instance"
+                                                                    }
+                                                                ]
+                                                            }
+                                                            resourceMapService.updateResourceMap(domainName,resourceObj,function(err,resourceMap){
+                                                                if(err){
+                                                                    logger.error("Error in updating Resource Map.",err);
+                                                                }
                                                             });
                                                         }
                                                         instanceLog.endedOn = new Date().getTime();
@@ -766,6 +856,22 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                                             auditTrailService.updateAuditTrail('BOTs', launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
                                                                 if (err) {
                                                                     logger.error("Failed to create or update bot Log: ", err);
+                                                                }
+                                                            });
+                                                        }
+                                                        if (typeof domainName !== 'undefined' && domainName !== '' && domainName !== null && domainName !== 'null') {
+                                                            var resourceObj = {
+                                                                stackStatus:"ERROR",
+                                                                resources:[
+                                                                    {
+                                                                        id:instance.id,
+                                                                        type:"instance"
+                                                                    }
+                                                                ]
+                                                            }
+                                                            resourceMapService.updateResourceMap(domainName,resourceObj,function(err,resourceMap){
+                                                                if(err){
+                                                                    logger.error("Error in updating Resource Map.",err);
                                                                 }
                                                             });
                                                         }

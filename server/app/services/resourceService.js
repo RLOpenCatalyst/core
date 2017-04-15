@@ -924,7 +924,7 @@ function getRDSInstancesInfo(provider,orgName,callback) {
 function getResources(query, next) {
     async.parallel([
             function (callback) {
-                resources.getResources(query, callback);
+                resources.getResourcesWithPagination(query, callback);
             }
         ],
         function(err, results) {
