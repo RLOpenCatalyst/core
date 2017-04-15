@@ -170,6 +170,7 @@ ARMSchema.statics.createNew = function(cfData, callback) {
 
 ARMSchema.statics.findByOrgBgProjectAndEnvId = function(jsonData, callback) {
     if(jsonData.pagination) {
+        jsonData.queryObj.isDeleted = false
         azureARM.paginate(jsonData.queryObj, jsonData.options, function (err, azureArms) {
             if (err) {
                 var err = new Error('Internal server error');
@@ -184,7 +185,8 @@ ARMSchema.statics.findByOrgBgProjectAndEnvId = function(jsonData, callback) {
             orgId: jsonData.orgId,
             bgId: jsonData.bgId,
             projectId: jsonData.projectId,
-            envId: jsonData.envId
+            envId: jsonData.envId,
+            isDeleted:false
         }
 
         this.find(queryObj, function(err, data) {
