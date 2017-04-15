@@ -31,11 +31,35 @@ var uuid = require('node-uuid');
 var azureTemplateFunctionEvaluater = require('_pr/lib/azureTemplateFunctionEvaluater');
 var logsDao = require('_pr/model/dao/logsdao.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
+var apiUtil = require('_pr/lib/utils/apiUtil.js');
+var async = require('async');
 
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
-    app.all('/azure-arm/*', sessionVerificationFunc);
+    app.all('/azure-arm*', sessionVerificationFunc);
+
+    app.get('/azure-arm', function(req, res) {
+        async.waterfall([
+            function(next){
+                apiUtil.queryFilterBy(req.query,next);
+            },
+            function(filterObj,next){
+                AzureArm.getAzureArmList(filterObj,next);
+            }
+        ],function(err,azureArmList){
+            if(err){
+                res.status(500).send(errorResponses.db.error);
+                return;
+            }else if(azureArmList.length > 0){
+                res.send(200, azureArmList);
+            }else{
+                res.send(404, {
+                    message: "AzureArm is not found"
+                })
+            }
+        });
+    });
 
     app.post('/azure-arm/evaluateVMs', function(req, res) {
 
