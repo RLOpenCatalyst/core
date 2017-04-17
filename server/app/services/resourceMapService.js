@@ -22,24 +22,34 @@ var resourceMap = require('_pr/model/resourceMap/resourceMap.js');
 var resourceMapService = module.exports = {};
 
 resourceMapService.getAllResourcesByFilter = function getAllResourcesByFilter(reqQueryObj,callback){
+    var reqData = {};
     async.waterfall([
         function (next) {
-            apiUtil.queryFilterBy(reqQueryObj, next);
+            apiUtil.paginationRequest(reqQueryObj, 'resourceMap', next);
+        },
+        function(paginationReq,next){
+            reqData = paginationReq;
+            apiUtil.databaseUtil(paginationReq, next);
         },
         function (queryObj, next) {
             resourceMap.getAllResourceMapByFilter(queryObj, next);
         },
-        function (serviceMapList,next){
+        function (resourceMapData,next){
             var resourceMapList = [];
-            serviceMapList.forEach(function(serviceMap){
+            resourceMapData.docs.forEach(function(serviceMap){
                 resourceMapList.push({
                     name:serviceMap.stackName,
                     status: serviceMap.stackStatus,
                     type:serviceMap.stackType,
-                    resources:serviceMap.resources
+                    resources:serviceMap.resources,
+                    createdOn:serviceMap.createdOn
                 });
             });
-            next(null,resourceMapList);
+            resourceMapData.docs = resourceMapList;
+            next(null,resourceMapData);
+        },
+        function(resourceMapData,next){
+            apiUtil.paginationResponse(resourceMapData, reqData, next);
         }
     ],function(err,results){
         if(err){

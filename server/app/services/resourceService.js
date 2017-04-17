@@ -1179,7 +1179,7 @@ function updateDomainNameForInstance(domainName,publicIP,instanceId,awsSettings,
                     })(hostedZones.HostedZones[i]);
                 }
             }else{
-                next(null,null);
+                next(null,[]);
             }
         },
         function(paramList,next){
