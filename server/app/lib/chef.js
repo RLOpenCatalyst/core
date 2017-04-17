@@ -547,11 +547,8 @@ var Chef = function(settings) {
         if (options.instanceOS != 'windows') {
             logger.debug('cleaning chef from remote host');
             var cmds = ["rm -rf /etc/chef/", "rm -rf /var/chef/"];
-<<<<<<< HEAD
-            var cmdString = cmds.join(' && sudo ');
-=======
             var cmdString = cmds.join(' && sudo');
->>>>>>> master
+
             var sudoCmd = 'sudo ';
             if (options.password) {
                 sudoCmd = 'echo \"' + options.password + '\" | sudo -S ';

@@ -1,12 +1,12 @@
 /*
  Copyright [2016] [Relevance Lab]
- 
+
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
- 
+
  http://www.apache.org/licenses/LICENSE-2.0
- 
+
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -40,7 +40,6 @@ var auditTrailService = require('_pr/services/auditTrailService');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var noticeService = require('_pr/services/noticeService.js');
 var resourceMapService = require('_pr/services/resourceMapService.js');
-
 
 
 var CHEFInfraBlueprint = require('./chef-infra-manager/chef-infra-manager');
@@ -77,9 +76,8 @@ var CloudFormationBlueprintSchema = new Schema({
         _id: false,
         logicalId: String,
         username: String,
-        runlist: [String],
-        attributes: [Schema.Types.Mixed]
-        }],
+        runlist: [String]
+    }],
     templateFile: String,
     region: String,
 });
@@ -235,6 +233,9 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                 callback(err, null);
                                 return;
                             }
+                            callback(null, {
+                                stackId: cloudFormation._id,
+                            });
                             var resourceMapObj = {
                                 stackName: launchParams.stackName,
                                 stackType: "CloudFormation",
@@ -283,8 +284,6 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                 break;
                                             }
                                         }
-
-
                                         var ec2 = new EC2(awsSettings);
                                         var ec2Resources = {};
                                         var autoScaleResourceIds = [];
@@ -307,6 +306,11 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                         AwsAutoScaleInstance.findByAutoScaleResourceId(autoScaleResourceId, function (err, autoScaleInstances) {
                                             if (err) {
                                                 logger.error('Unable to fetch autoscale instance resources', err);
+                                                resourceMapService.updateResourceMap(launchParams.stackName,{stackStatus:"ERROR"},function(err,resourceMap){
+                                                    if(err){
+                                                        logger.error("Error in updating Resource Map.",err);
+                                                    }
+                                                });
                                                 return;
                                             }
                                             for (var i = 0; i < autoScaleInstances.length; i++) {
@@ -336,22 +340,27 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                     }
                                                     var reservations = awsRes.Reservations;
                                                     for (var k = 0; k < reservations.length; k++) {
+
                                                         if (reservations[k].Instances && reservations[k].Instances.length) {
                                                             //instances = reservations[k].Instances;
                                                             instances = instances.concat(reservations[k].Instances);
                                                         }
+
+
                                                     }
                                                     logger.debug('Instances length ==>', instances.length, instanceIds);
                                                     //creating jsonAttributesObj ??? WHY
                                                     var jsonAttributesObj = {
                                                         instances: {}
                                                     };
+
                                                     for (var i = 0; i < instances.length; i++) {
                                                         jsonAttributesObj.instances[ec2Resources[instances[i].InstanceId]] = instances[i].PublicIpAddress;
                                                     }
                                                     for (var i = 0; i < instances.length; i++) {
                                                         addAndBootstrapInstance(instances[i], jsonAttributesObj);
                                                     }
+
                                                 });
 
                                                 function addAndBootstrapInstance(instanceData, jsonAttributesObj) {
@@ -389,7 +398,6 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                             var instanceName;
 
                                                             var runlist = [];
-                                                            var attributes = [];
                                                             var instanceUsername;
                                                             var logicalId = ec2Resources[instanceData.InstanceId];
 
@@ -403,7 +411,6 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                     if (logicalId === self.instances[count].logicalId) {
                                                                         instanceUsername = self.instances[count].username;
                                                                         runlist = self.instances[count].runlist;
-                                                                        attributes = self.instances[count].attributes;
                                                                         break;
                                                                     }
                                                                 }
@@ -422,140 +429,6 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                             if (!instanceUsername) {
                                                                 instanceUsername = 'ubuntu'; // hack for default username
                                                             }
-<<<<<<< HEAD
-                                                        }
-
-                                                        logger.debug("instanceSize: ", instanceSize);
-
-                                                        var instance = {
-                                                            name: instanceName,
-                                                            orgId: launchParams.orgId,
-                                                            orgName: launchParams.orgName,
-                                                            bgId: launchParams.bgId,
-                                                            bgName: launchParams.bgName,
-                                                            projectId: launchParams.projectId,
-                                                            projectName: launchParams.projectName,
-                                                            envId: launchParams.envId,
-                                                            environmentName: launchParams.envName,
-                                                            providerId: cloudFormation.cloudProviderId,
-                                                            providerType: self.cloudProviderType || 'aws',
-                                                            keyPairId: keyPair._id,
-                                                            region: self.region,
-                                                            chefNodeName: instanceData.InstanceId,
-                                                            runlist: runlist,
-                                                            platformId: instanceData.InstanceId,
-                                                            appUrls: appUrls,
-                                                            instanceIP: instanceData.PublicIpAddress || instanceData.PrivateIpAddress,
-                                                            instanceState: instanceData.State.Name,
-                                                            bootStrapStatus: 'waiting',
-                                                            users: launchParams.users,
-                                                            instanceType: instanceSize,
-                                                            catUser: launchParams.sessionUser,
-                                                            monitor: launchParams.monitor,
-                                                            hardware: {
-                                                                platform: 'unknown',
-                                                                platformVersion: 'unknown',
-                                                                architecture: 'unknown',
-                                                                memory: {
-                                                                    total: 'unknown',
-                                                                    free: 'unknown',
-                                                                },
-                                                                os: os
-                                                            },
-                                                            credentials: {
-                                                                username: instanceUsername,
-                                                                pemFileLocation: encryptedPemFileLocation,
-                                                            },
-                                                            chef: {
-                                                                serverId: self.infraManagerId,
-                                                                chefNodeName: instanceData.InstanceId
-                                                            },
-                                                            blueprintData: {
-                                                                blueprintId: launchParams.blueprintData._id,
-                                                                blueprintName: launchParams.blueprintData.name,
-                                                                templateId: launchParams.blueprintData.templateId,
-                                                                templateType: launchParams.blueprintData.templateType,
-                                                                templateComponents: launchParams.blueprintData.templateComponents,
-                                                                iconPath: launchParams.blueprintData.iconpath
-                                                            },
-                                                            cloudFormationId: cloudFormation._id
-                                                        };
-                                                        var botLogFile = appConfig.botLogDir + launchParams.actionLogId;
-                                                        var fileName = 'BB_Execution.log';
-                                                        var winston = require('winston');
-                                                        var path = require('path');
-                                                        var mkdirp = require('mkdirp');
-                                                        var log_folder = path.normalize(botLogFile);
-                                                        mkdirp.sync(log_folder);
-                                                        var cftLogger = new winston.Logger({
-                                                            transports: [
-                                                                new winston.transports.DailyRotateFile({
-                                                                    level: 'debug',
-                                                                    datePattern: '',
-                                                                    filename: fileName,
-                                                                    dirname:log_folder,
-                                                                    handleExceptions: true,
-                                                                    json: true,
-                                                                    maxsize: 5242880,
-                                                                    maxFiles: 5,
-                                                                    colorize: true,
-                                                                    timestamp:false,
-                                                                    name:'bb-execution-log'
-                                                                }),
-                                                                new winston.transports.Console({
-                                                                    level: 'debug',
-                                                                    handleExceptions: true,
-                                                                    json: false,
-                                                                    colorize: true,
-                                                                    name:'bot-console'
-                                                                })
-                                                            ],
-                                                            exitOnError: false
-                                                        });
-                                                        cftLogger.debug('Creating instance in catalyst');
-                                                        logger.debug('Creating instance in catalyst');
-                                                        instancesDao.createInstance(instance, function (err, data) {
-                                                            if (err) {
-                                                                logger.error("Failed to create Instance", err);
-                                                                res.send(500);
-                                                                return;
-                                                            }
-                                                            instance.id = data._id;
-                                                            var timestampStarted = new Date().getTime();
-                                                            var actionLog = instancesDao.insertBootstrapActionLog(instance.id, instance.runlist, launchParams.sessionUser, timestampStarted);
-                                                            var logsReferenceIds = [instance.id, actionLog._id,launchParams.actionLogId];
-                                                            logsDao.insertLog({
-                                                                referenceId: logsReferenceIds,
-                                                                err: false,
-                                                                log: "Waiting for instance ok state",
-                                                                timestamp: timestampStarted
-                                                            });
-                                                            cftLogger.debug('Waiting for instance ok state');
-                                                            nodeIdWithActionLogId.push({
-                                                                nodeId: instance.id,
-                                                                actionLogId: actionLog._id
-                                                            });
-
-                                                            if (launchParams.auditTrailId !== null) {
-                                                                var resultTaskExecution = {
-                                                                    "actionLogId": launchParams.actionLogId,
-                                                                    "auditTrailConfig.nodeIdsWithActionLog": nodeIdWithActionLogId,
-                                                                    "auditTrailConfig.nodeIds": [logsReferenceIds[0]],
-                                                                    "masterDetails.orgName": launchParams.orgName,
-                                                                    "masterDetails.bgName": launchParams.bgName,
-                                                                    "masterDetails.projectName": launchParams.projectName,
-                                                                    "masterDetails.envName": launchParams.envName
-                                                                }
-                                                                auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
-                                                                    if (err) {
-                                                                        logger.error("Failed to create or update bots Log: ", err);
-                                                                    }
-                                                                });
-                                                            }
-                                                            var instanceLog = {
-                                                                actionId: actionLog._id,
-                                                                instanceId: instance.id,
-=======
                                                             var instanceSize;
                                                             for (var i = 0; i < self.stackParameters.length; i++) {
                                                                 if (self.stackParameters[i].ParameterKey == "InstanceType") {
@@ -568,7 +441,6 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                             var instance = {
                                                                 name: instanceName,
                                                                 orgId: launchParams.orgId,
->>>>>>> master
                                                                 orgName: launchParams.orgName,
                                                                 bgId: launchParams.bgId,
                                                                 bgName: launchParams.bgName,
@@ -582,7 +454,6 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                 region: self.region,
                                                                 chefNodeName: instanceData.InstanceId,
                                                                 runlist: runlist,
-                                                                attributes: attributes,
                                                                 platformId: instanceData.InstanceId,
                                                                 appUrls: appUrls,
                                                                 instanceIP: instanceData.PublicIpAddress || instanceData.PrivateIpAddress,
@@ -620,7 +491,39 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                 },
                                                                 cloudFormationId: cloudFormation._id
                                                             };
-
+                                                            var botLogFile = appConfig.botLogDir + launchParams.actionLogId;
+                                                            var fileName = 'BB_Execution.log';
+                                                            var winston = require('winston');
+                                                            var path = require('path');
+                                                            var mkdirp = require('mkdirp');
+                                                            var log_folder = path.normalize(botLogFile);
+                                                            mkdirp.sync(log_folder);
+                                                            var cftLogger = new winston.Logger({
+                                                                transports: [
+                                                                    new winston.transports.DailyRotateFile({
+                                                                        level: 'debug',
+                                                                        datePattern: '',
+                                                                        filename: fileName,
+                                                                        dirname: log_folder,
+                                                                        handleExceptions: true,
+                                                                        json: true,
+                                                                        maxsize: 5242880,
+                                                                        maxFiles: 5,
+                                                                        colorize: true,
+                                                                        timestamp: false,
+                                                                        name: 'bb-execution-log'
+                                                                    }),
+                                                                    new winston.transports.Console({
+                                                                        level: 'debug',
+                                                                        handleExceptions: true,
+                                                                        json: false,
+                                                                        colorize: true,
+                                                                        name: 'bot-console'
+                                                                    })
+                                                                ],
+                                                                exitOnError: false
+                                                            });
+                                                            cftLogger.debug('Creating instance in catalyst');
                                                             logger.debug('Creating instance in catalyst');
                                                             instancesDao.createInstance(instance, function (err, data) {
                                                                 if (err) {
@@ -630,26 +533,6 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                             logger.error("Error in updating Resource Map.",err);
                                                                         }
                                                                     });
-<<<<<<< HEAD
-                                                                    noticeService.notice(launchParams.sessionUser, {
-                                                                        title: "Blueprint BOTs Execution",
-                                                                        body: "Bootstrap failed"
-                                                                    }, "error",function(err,data){
-                                                                        if(err){
-                                                                            logger.error("Error in Notification Service, ",err);
-                                                                        }
-                                                                    });
-                                                                    cftLogger.error("Bootstrap failed");
-                                                                    instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-                                                                    instanceLog.actionStatus = "failed";
-                                                                    instanceLog.logs = {
-                                                                        err: true,
-                                                                        log: "Bootstrap failed",
-                                                                        timestamp: new Date().getTime()
-                                                                    };
-                                                                    instanceLog.endedOn = new Date().getTime();
-                                                                    instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
-=======
                                                                     return;
                                                                 }
                                                                 resourceObj.resources.push({
@@ -658,59 +541,38 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                 });
                                                                 if(resourceObj.resources.length  === instances.length) {
                                                                     resourceMapService.updateResourceMap(launchParams.stackName, resourceObj, function (err, resourceMap) {
->>>>>>> master
                                                                         if (err) {
                                                                             logger.error("Error in updating Resource Map.", err);
                                                                         }
                                                                     });
-<<<<<<< HEAD
-                                                                    if (nodeIdWithActionLogId.length === instances.length && launchParams.auditTrailId !== null) {
-                                                                        var resultTaskExecution = {
-                                                                            "actionLogId": launchParams.actionLogId,
-                                                                            "auditTrailConfig.nodeIdsWithActionLog": nodeIdWithActionLogId,
-                                                                            "auditTrailConfig.nodeIds": [logsReferenceIds[0]],
-                                                                            "masterDetails.orgName": launchParams.orgName,
-                                                                            "masterDetails.bgName": launchParams.bgName,
-                                                                            "masterDetails.projectName": launchParams.projectName,
-                                                                            "masterDetails.envName": launchParams.envName,
-                                                                            "actionStatus": "failed",
-                                                                            "status": "failed",
-                                                                            "endedOn": new Date().getTime()
-                                                                        }
-                                                                        auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
-                                                                            if (err) {
-                                                                                logger.error("Failed to create or update bots Log: ", err);
-                                                                            }
-                                                                        });
-=======
                                                                 }
                                                                 instance.id = data._id;
                                                                 var timestampStarted = new Date().getTime();
                                                                 var actionLog = instancesDao.insertBootstrapActionLog(instance.id, instance.runlist, launchParams.sessionUser, timestampStarted);
-                                                                var logsReferenceIds = [instance.id, actionLog._id];
+                                                                var logsReferenceIds = [instance.id, actionLog._id, launchParams.actionLogId];
                                                                 logsDao.insertLog({
                                                                     referenceId: logsReferenceIds,
                                                                     err: false,
                                                                     log: "Waiting for instance ok state",
                                                                     timestamp: timestampStarted
                                                                 });
-
+                                                                cftLogger.debug('Waiting for instance ok state');
                                                                 nodeIdWithActionLogId.push({
                                                                     nodeId: instance.id,
                                                                     actionLogId: actionLog._id
                                                                 });
+
                                                                 if (launchParams.auditTrailId !== null) {
                                                                     var resultTaskExecution = {
-                                                                        "actionLogId": logsReferenceIds[1],
+                                                                        "actionLogId": launchParams.actionLogId,
                                                                         "auditTrailConfig.nodeIdsWithActionLog": nodeIdWithActionLogId,
                                                                         "auditTrailConfig.nodeIds": [logsReferenceIds[0]],
                                                                         "masterDetails.orgName": launchParams.orgName,
                                                                         "masterDetails.bgName": launchParams.bgName,
                                                                         "masterDetails.projectName": launchParams.projectName,
                                                                         "masterDetails.envName": launchParams.envName
->>>>>>> master
                                                                     }
-                                                                    auditTrailService.updateAuditTrail('BOTs', launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                                                    auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
                                                                         if (err) {
                                                                             logger.error("Failed to create or update bots Log: ", err);
                                                                         }
@@ -762,13 +624,13 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                         });
                                                                         noticeService.notice(launchParams.sessionUser, {
                                                                             title: "Blueprint BOTs Execution",
-                                                                            body: "Unable to decrpt pem file. Bootstrap failed"
-                                                                        }, "error",function(err,data){
-                                                                            if(err){
-                                                                                logger.error("Error in Notification Service, ",err);
+                                                                            body: "Bootstrap failed"
+                                                                        }, "error", function (err, data) {
+                                                                            if (err) {
+                                                                                logger.error("Error in Notification Service, ", err);
                                                                             }
                                                                         });
-                                                                        cftLogger.error("Unable to decrpt pem file. Bootstrap failed");
+                                                                        cftLogger.error("Bootstrap failed");
                                                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                                                         instanceLog.actionStatus = "failed";
                                                                         instanceLog.logs = {
@@ -823,6 +685,15 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                 log: "Unable to decrpt pem file. Bootstrap failed",
                                                                                 timestamp: timestampEnded
                                                                             });
+                                                                            noticeService.notice(launchParams.sessionUser, {
+                                                                                title: "Blueprint BOTs Execution",
+                                                                                body: "Unable to decrpt pem file. Bootstrap failed"
+                                                                            }, "error", function (err, data) {
+                                                                                if (err) {
+                                                                                    logger.error("Error in Notification Service, ", err);
+                                                                                }
+                                                                            });
+                                                                            cftLogger.error("Unable to decrpt pem file. Bootstrap failed");
                                                                             instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                                                             instanceLog.actionStatus = "failed";
                                                                             instanceLog.logs = {
@@ -838,7 +709,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                             });
                                                                             if (nodeIdWithActionLogId.length === instances.length && launchParams.auditTrailId !== null) {
                                                                                 var resultTaskExecution = {
-                                                                                    "actionLogId": logsReferenceIds[1],
+                                                                                    "actionLogId": launchParams.actionLogId,
                                                                                     "auditTrailConfig.nodeIdsWithActionLog": nodeIdWithActionLogId,
                                                                                     "auditTrailConfig.nodeIds": [logsReferenceIds[0]],
                                                                                     "masterDetails.orgName": launchParams.orgName,
@@ -849,7 +720,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                     "status": "failed",
                                                                                     "endedOn": new Date().getTime()
                                                                                 }
-                                                                                auditTrailService.updateAuditTrail('BOTs', launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                                                                auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
                                                                                     if (err) {
                                                                                         logger.error("Failed to create or update bots Log: ", err);
                                                                                     }
@@ -879,39 +750,6 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                 jsonAttributes['sensu-client'] = masterUtil.getSensuCookbookAttributes(launchParams.monitor, instance.id);
                                                                             }
 
-<<<<<<< HEAD
-                                                                            logger.error('process stopped ==> ', err, code);
-                                                                            if (err) {
-                                                                                logger.error("knife launch err ==>", err);
-                                                                                instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function (err, updateData) {
-
-                                                                                });
-                                                                                var timestampEnded = new Date().getTime();
-                                                                                logsDao.insertLog({
-                                                                                    referenceId: logsReferenceIds,
-                                                                                    err: true,
-                                                                                    log: "Bootstrap failed",
-                                                                                    timestamp: timestampEnded
-                                                                                });
-                                                                                cftLogger.error("Bootstrap failed");
-                                                                                instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-                                                                                instanceLog.logs = {
-                                                                                    err: true,
-                                                                                    log: "Bootstrap failed",
-                                                                                    timestamp: new Date().getTime()
-                                                                                };
-                                                                                noticeService.notice(launchParams.sessionUser, {
-                                                                                    title: "Blueprint BOTs Execution",
-                                                                                    body: "Bootstrap failed"
-                                                                                }, "error",function(err,data){
-                                                                                    if(err){
-                                                                                        logger.error("Error in Notification Service, ",err);
-                                                                                    }
-                                                                                });
-                                                                                instanceLog.actionStatus = "failed";
-                                                                                instanceLog.endedOn = new Date().getTime();
-                                                                                instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
-=======
                                                                             logger.debug("runlist: ", JSON.stringify(runlist));
                                                                             launchParams.infraManager.bootstrapInstance({
                                                                                 instanceIp: instance.instanceIP,
@@ -926,35 +764,12 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                             }, function (err, code) {
 
                                                                                 fileIo.removeFile(tempUncryptedPemFileLoc, function (err) {
->>>>>>> master
                                                                                     if (err) {
                                                                                         logger.error("Unable to delete temp pem file =>", err);
                                                                                     } else {
                                                                                         logger.debug("temp pem file deleted =>", err);
                                                                                     }
                                                                                 });
-<<<<<<< HEAD
-                                                                                if (nodeIdWithActionLogId.length === instances.length && launchParams.auditTrailId !== null) {
-                                                                                    var resultTaskExecution = {
-                                                                                        "actionLogId": launchParams.actionLogId,
-                                                                                        "auditTrailConfig.nodeIdsWithActionLog": nodeIdWithActionLogId,
-                                                                                        "auditTrailConfig.nodeIds": [logsReferenceIds[0]],
-                                                                                        "masterDetails.orgName": launchParams.orgName,
-                                                                                        "masterDetails.bgName": launchParams.bgName,
-                                                                                        "masterDetails.projectName": launchParams.projectName,
-                                                                                        "masterDetails.envName": launchParams.envName,
-                                                                                        "actionStatus": "failed",
-                                                                                        "status": "failed",
-                                                                                        "endedOn": new Date().getTime()
-                                                                                    }
-                                                                                    auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
-                                                                                        if (err) {
-                                                                                            logger.error("Failed to create or update bots Log: ", err);
-                                                                                        }
-                                                                                    });
-                                                                                }
-=======
->>>>>>> master
 
 
                                                                                 logger.error('process stopped ==> ', err, code);
@@ -966,47 +781,25 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                     var timestampEnded = new Date().getTime();
                                                                                     logsDao.insertLog({
                                                                                         referenceId: logsReferenceIds,
-<<<<<<< HEAD
-                                                                                        err: false,
-                                                                                        log: "Instance Bootstraped successfully",
-                                                                                        timestamp: timestampEnded
-                                                                                    });
-                                                                                    noticeService.notice(launchParams.sessionUser, {
-                                                                                        title: "Blueprint BOTs Execution",
-                                                                                        body: "Instance "+instanceData.InstanceId+" is launched  on "+launchParams.envName,
-                                                                                    }, "success",function(err,data){
-                                                                                        if(err){
-                                                                                            logger.error("Error in Notification Service, ",err);
-                                                                                        }
-                                                                                    });
-                                                                                    cftLogger.debug("Instance Bootstraped successfully");
-                                                                                    logsDao.insertLog({
-                                                                                        referenceId: logsReferenceIds,
-                                                                                        err: false,
-                                                                                        log: "You can access stack using below URL.",
-                                                                                        timestamp: timestampEnded
-                                                                                    });
-                                                                                    cftLogger.debug("You can access stack using below URL.");
-                                                                                    logsDao.insertLog({
-                                                                                        referenceId: logsReferenceIds,
-                                                                                        err: false,
-                                                                                        log: 'http://'+launchParams.stackName+'.rlcatalyst.com',
-                                                                                        timestamp: timestampEnded
-                                                                                    });
-                                                                                    cftLogger.debug('http://'+launchParams.stackName+'.rlcatalyst.com');
-                                                                                    instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
-=======
                                                                                         err: true,
                                                                                         log: "Bootstrap failed",
                                                                                         timestamp: timestampEnded
                                                                                     });
+                                                                                    cftLogger.error("Bootstrap failed");
                                                                                     instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
->>>>>>> master
                                                                                     instanceLog.logs = {
                                                                                         err: true,
                                                                                         log: "Bootstrap failed",
                                                                                         timestamp: new Date().getTime()
                                                                                     };
+                                                                                    noticeService.notice(launchParams.sessionUser, {
+                                                                                        title: "Blueprint BOTs Execution",
+                                                                                        body: "Bootstrap failed"
+                                                                                    }, "error", function (err, data) {
+                                                                                        if (err) {
+                                                                                            logger.error("Error in Notification Service, ", err);
+                                                                                        }
+                                                                                    });
                                                                                     instanceLog.actionStatus = "failed";
                                                                                     instanceLog.endedOn = new Date().getTime();
                                                                                     instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
@@ -1031,15 +824,6 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                             if (err) {
                                                                                                 logger.error("Failed to create or update bots Log: ", err);
                                                                                             }
-<<<<<<< HEAD
-                                                                                            var botService = require('_pr/services/botsService');
-                                                                                            botService.updateSavedTimePerBots(launchParams.botId,launchParams.auditType,function(err,data){
-                                                                                                if (err) {
-                                                                                                    logger.error("Failed to update bots saved Time: ", err);
-                                                                                                }
-                                                                                            });
-=======
->>>>>>> master
                                                                                         });
                                                                                     }
 
@@ -1059,18 +843,29 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                             log: "Instance Bootstraped successfully",
                                                                                             timestamp: timestampEnded
                                                                                         });
+                                                                                        noticeService.notice(launchParams.sessionUser, {
+                                                                                            title: "Blueprint BOTs Execution",
+                                                                                            body: "Instance " + instanceData.InstanceId + " is launched  on " + launchParams.envName,
+                                                                                        }, "success", function (err, data) {
+                                                                                            if (err) {
+                                                                                                logger.error("Error in Notification Service, ", err);
+                                                                                            }
+                                                                                        });
+                                                                                        cftLogger.debug("Instance Bootstraped successfully");
                                                                                         logsDao.insertLog({
                                                                                             referenceId: logsReferenceIds,
                                                                                             err: false,
                                                                                             log: "You can access stack using below URL.",
                                                                                             timestamp: timestampEnded
                                                                                         });
+                                                                                        cftLogger.debug("You can access stack using below URL.");
                                                                                         logsDao.insertLog({
                                                                                             referenceId: logsReferenceIds,
                                                                                             err: false,
                                                                                             log: 'http://' + launchParams.stackName + '.rlcatalyst.com',
                                                                                             timestamp: timestampEnded
                                                                                         });
+                                                                                        cftLogger.debug('http://' + launchParams.stackName + '.rlcatalyst.com');
                                                                                         instancesDao.updateActionLog(instance.id, actionLog._id, true, timestampEnded);
                                                                                         instanceLog.logs = {
                                                                                             err: false,
@@ -1081,7 +876,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                         instanceLog.endedOn = new Date().getTime();
                                                                                         if (nodeIdWithActionLogId.length === instances.length && launchParams.auditTrailId !== null) {
                                                                                             var resultTaskExecution = {
-                                                                                                "actionLogId": logsReferenceIds[1],
+                                                                                                "actionLogId": launchParams.actionLogId,
                                                                                                 "auditTrailConfig.nodeIdsWithActionLog": nodeIdWithActionLogId,
                                                                                                 "auditTrailConfig.nodeIds": [logsReferenceIds[0]],
                                                                                                 "masterDetails.orgName": launchParams.orgName,
@@ -1092,12 +887,12 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                                 "status": "success",
                                                                                                 "endedOn": new Date().getTime()
                                                                                             }
-                                                                                            auditTrailService.updateAuditTrail('BOTs', launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                                                                            auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
                                                                                                 if (err) {
                                                                                                     logger.error("Failed to create or update bots Log: ", err);
                                                                                                 }
                                                                                                 var botService = require('_pr/services/botsService');
-                                                                                                botService.updateSavedTimePerBots(launchParams.blueprintData._id, function (err, data) {
+                                                                                                botService.updateSavedTimePerBots(launchParams.botId, launchParams.auditType, function (err, data) {
                                                                                                     if (err) {
                                                                                                         logger.error("Failed to update bots saved Time: ", err);
                                                                                                     }
@@ -1174,6 +969,15 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                             log: "Bootstrap Failed",
                                                                                             timestamp: timestampEnded
                                                                                         });
+                                                                                        cftLogger.error("Bootstrap Failed");
+                                                                                        noticeService.notice(launchParams.sessionUser, {
+                                                                                            title: "Blueprint BOTs Execution",
+                                                                                            body: "Bootstrap failed"
+                                                                                        }, "error", function (err, data) {
+                                                                                            if (err) {
+                                                                                                logger.error("Error in Notification Service, ", err);
+                                                                                            }
+                                                                                        });
                                                                                         instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
                                                                                         instanceLog.logs = {
                                                                                             err: true,
@@ -1184,7 +988,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                         instanceLog.endedOn = new Date().getTime();
                                                                                         if (nodeIdWithActionLogId.length === instances.length && launchParams.auditTrailId !== null) {
                                                                                             var resultTaskExecution = {
-                                                                                                "actionLogId": logsReferenceIds[1],
+                                                                                                "actionLogId": launchParams.actionLogId,
                                                                                                 "auditTrailConfig.nodeIdsWithActionLog": nodeIdWithActionLogId,
                                                                                                 "auditTrailConfig.nodeIds": [logsReferenceIds[0]],
                                                                                                 "masterDetails.orgName": launchParams.orgName,
@@ -1195,65 +999,13 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                                 "status": "failed",
                                                                                                 "endedOn": new Date().getTime()
                                                                                             }
-                                                                                            auditTrailService.updateAuditTrail('BOTs', launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
+                                                                                            auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
                                                                                                 if (err) {
                                                                                                     logger.error("Failed to create or update bots Log: ", err);
                                                                                                 }
                                                                                             });
-<<<<<<< HEAD
-
-                                                                                    });
-
-                                                                                } else {
-                                                                                    instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function (err, updateData) {
-                                                                                        if (err) {
-                                                                                            logger.error("Unable to set instance bootstarp status code != 0", err);
-                                                                                        } else {
-                                                                                            logger.debug("Instance bootstrap status set to failed");
-                                                                                        }
-                                                                                    });
-                                                                                    var timestampEnded = new Date().getTime();
-                                                                                    logsDao.insertLog({
-                                                                                        referenceId: logsReferenceIds,
-                                                                                        err: false,
-                                                                                        log: "Bootstrap Failed",
-                                                                                        timestamp: timestampEnded
-                                                                                    });
-                                                                                    cftLogger.error("Bootstrap Failed");
-                                                                                    noticeService.notice(launchParams.sessionUser, {
-                                                                                        title: "Blueprint BOTs Execution",
-                                                                                        body: "Bootstrap failed"
-                                                                                    }, "error",function(err,data){
-                                                                                        if(err){
-                                                                                            logger.error("Error in Notification Service, ",err);
-                                                                                        }
-                                                                                    });
-                                                                                    instancesDao.updateActionLog(instance.id, actionLog._id, false, timestampEnded);
-                                                                                    instanceLog.logs = {
-                                                                                        err: true,
-                                                                                        log: "Bootstrap Failed",
-                                                                                        timestamp: new Date().getTime()
-                                                                                    };
-                                                                                    instanceLog.actionStatus = "failed";
-                                                                                    instanceLog.endedOn = new Date().getTime();
-                                                                                    if (nodeIdWithActionLogId.length === instances.length && launchParams.auditTrailId !== null) {
-                                                                                        var resultTaskExecution = {
-                                                                                            "actionLogId": launchParams.actionLogId,
-                                                                                            "auditTrailConfig.nodeIdsWithActionLog": nodeIdWithActionLogId,
-                                                                                            "auditTrailConfig.nodeIds": [logsReferenceIds[0]],
-                                                                                            "masterDetails.orgName": launchParams.orgName,
-                                                                                            "masterDetails.bgName": launchParams.bgName,
-                                                                                            "masterDetails.projectName": launchParams.projectName,
-                                                                                            "masterDetails.envName": launchParams.envName,
-                                                                                            "actionStatus": "failed",
-                                                                                            "status": "failed",
-                                                                                            "endedOn": new Date().getTime()
-                                                                                        }
-                                                                                        auditTrailService.updateAuditTrail(launchParams.auditType, launchParams.auditTrailId, resultTaskExecution, function (err, auditTrail) {
-=======
                                                                                         }
                                                                                         instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
->>>>>>> master
                                                                                             if (err) {
                                                                                                 logger.error("Failed to create or update instanceLog: ", err);
                                                                                             }
@@ -1263,31 +1015,13 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
 
                                                                             }, function (stdOutData) {
 
-<<<<<<< HEAD
-                                                                            logsDao.insertLog({
-                                                                                referenceId: logsReferenceIds,
-                                                                                err: false,
-                                                                                log: stdOutData.toString('ascii'),
-                                                                                timestamp: new Date().getTime()
-                                                                            });
-                                                                            cftLogger.debug(stdOutData.toString('ascii'));
-                                                                            instanceLog.logs = {
-                                                                                err: false,
-                                                                                log: stdOutData.toString('ascii'),
-                                                                                timestamp: new Date().getTime()
-                                                                            };
-                                                                            instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
-                                                                                if (err) {
-                                                                                    logger.error("Failed to create or update instanceLog: ", err);
-                                                                                }
-                                                                            });
-=======
                                                                                 logsDao.insertLog({
                                                                                     referenceId: logsReferenceIds,
                                                                                     err: false,
                                                                                     log: stdOutData.toString('ascii'),
                                                                                     timestamp: new Date().getTime()
                                                                                 });
+                                                                                cftLogger.debug(stdOutData.toString('ascii'));
                                                                                 instanceLog.logs = {
                                                                                     err: false,
                                                                                     log: stdOutData.toString('ascii'),
@@ -1298,30 +1032,9 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                         logger.error("Failed to create or update instanceLog: ", err);
                                                                                     }
                                                                                 });
->>>>>>> master
 
                                                                             }, function (stdErrData) {
 
-<<<<<<< HEAD
-                                                                            //retrying 4 times before giving up.
-                                                                            logsDao.insertLog({
-                                                                                referenceId: logsReferenceIds,
-                                                                                err: true,
-                                                                                log: stdErrData.toString('ascii'),
-                                                                                timestamp: new Date().getTime()
-                                                                            });
-                                                                            cftLogger.error(stdErrData.toString('ascii'));
-                                                                            instanceLog.logs = {
-                                                                                err: true,
-                                                                                log: stdErrData.toString('ascii'),
-                                                                                timestamp: new Date().getTime()
-                                                                            };
-                                                                            instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function (err, logData) {
-                                                                                if (err) {
-                                                                                    logger.error("Failed to create or update instanceLog: ", err);
-                                                                                }
-                                                                            });
-=======
                                                                                 //retrying 4 times before giving up.
                                                                                 logsDao.insertLog({
                                                                                     referenceId: logsReferenceIds,
@@ -1329,6 +1042,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                     log: stdErrData.toString('ascii'),
                                                                                     timestamp: new Date().getTime()
                                                                                 });
+                                                                                cftLogger.error(stdErrData.toString('ascii'));
                                                                                 instanceLog.logs = {
                                                                                     err: true,
                                                                                     log: stdErrData.toString('ascii'),
@@ -1339,7 +1053,6 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
                                                                                         logger.error("Failed to create or update instanceLog: ", err);
                                                                                     }
                                                                                 });
->>>>>>> master
 
 
                                                                             });
@@ -1365,6 +1078,7 @@ CloudFormationBlueprintSchema.methods.launch = function (launchParams, callback)
 
                             });
                         });
+
                     } else {
                         callback({
                             "message": "Error occured while fetching stack status"
@@ -1415,7 +1129,7 @@ CloudFormationBlueprintSchema.methods.getInfraManagerData = function () {
     return {
         infraMangerType: this.infraManagerType,
         infraManagerId: this.infraManagerId
-            //   infraManagerData: this.infraManagerData
+        //   infraManagerData: this.infraManagerData
     };
 };
 
@@ -1463,7 +1177,7 @@ CloudFormationBlueprintSchema.statics.createNew = function (data) {
         templateFile: data.templateFile,
         region: data.region,
         instances: data.instances
-            // instanceUsername: data.instanceUsername
+        // instanceUsername: data.instanceUsername
     });
 
 
