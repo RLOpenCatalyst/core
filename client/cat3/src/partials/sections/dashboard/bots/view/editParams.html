@@ -1,0 +1,205 @@
+<link rel='stylesheet' href='catalyst/partials/sections/dashboard/bots/bots.css'>
+<div id="editParamsPage">
+<form name="editParamsForm" novalidate ng-submit="editParamsForm.$valid && executeBot()">
+<div class="modal-header">
+   <span class="close" ng-click="cancel()">×</span>
+   <h4 class="modal-title"> <i class="fa fa-share-square-o"></i>&nbsp;&nbsp;Execute BOT - {{botName}}</h4>
+</div>
+<div class="modal-body">
+   <fieldset>
+      <div class="col-lg-12 col-md-12 paddingbottom20" ng-hide="taskType === 'jenkins'">
+         <div class="col-lg-2 col-md-2 no-padding">
+            <label for="" class="margintop8">Tag Server:</label>
+         </div>
+         <div class="col-lg-6 col-md-6">
+            <select class="form-control"  ng-model="tagSerSelected">
+               <option selected="selected" value="">Choose Tag Server</option>
+               <option ng-repeat="(key , value) in taggingServerList" value="{{value}}">{{value}}</option>
+            </select>
+         </div>
+      </div>
+      <div class="col-lg-12 col-md-12 param-table" ng-show="taskType === 'chef'">
+         <div ng-if="botCategory !== 'Application Deployment'">
+            <div ng-show="chefAttributesFlag">
+               <h4 style="margin-top: 0px;">Edit Parameters:</h4>
+               <loading size="large" name="isChefattributesLoading" type="block" align="center"></loading>
+               <table class="table table-bordered text-center" ng-show="!isChefattributesLoading">
+                  <thead>
+                     <tr>
+                        <th class="header-name">Cookbook Name</th>
+                        <th class="header-name">Attributes</th>
+                        <th class="header-name">Values</th>
+                     </tr>
+                  </thead>
+                  <tbody ng-repeat="attr in chefattributes">
+                     <tr ng-repeat="(key, value) in attr.attributes">
+                        <td>
+                           <span>{{attr.cookbookName}}</span>
+                        </td>
+                        <td>
+                           {{value.display_name}}
+                        </td>
+                        <td style="text-align: left">
+                           <input type="text" class="cookbook-edit-text" ng-model="value.default" ng-if="!value.choice.length" />
+                           <select ng-if="value.choice.length" class="cookbook-edit-text pull-left" ng-options="choice for choice in value.choice" ng-model="value.default"></select>
+                        </td>
+                     </tr>
+                  </tbody>
+               </table>
+            </div>
+         </div>
+         <div ng-if="botCategory === 'Application Deployment'">
+            <!-- <loading size="large" name="isChefattributesLoading" type="block" align="center"></loading> -->
+            <div class="col-lg-6 col-md-6 margintop15">
+               <label class="botsLabel" for="">Repository Server:<span class="red">*</span>
+               </label>
+               <select ng-model="appDeployCreate.newEnt.nexusDockerServer" name="" class=" width-100 form-control" ng-change="appDeployCreate.getRepository();">
+                  <option value="">Select Server</option>
+                  <option ng-repeat="serverOption in appDeployCreate.serverRepos" value="{{appDeployCreate.serverRepos.indexOf(serverOption)}}">{{(serverOption.nexusservername) ? serverOption.nexusservername : serverOption.dockerreponame}}</option>
+               </select>
+            </div>
+            <div ng-if="appDeployCreate.newEnt.serverType!=='docker' && appDeployCreate.newEnt.serverType!=='nexus'">
+               <div class="col-lg-6 col-md-6 margintop15">
+                  <label class="botsLabel">Repository:<span class="red">*</span>
+                  </label>
+                  <div class="input-groups">
+                     <select name="" class="form-control" >
+                        <option value="">Choose Repositories</option>
+                     </select>
+                  </div>
+               </div>
+            </div>
+            <div  ng-if="appDeployCreate.newEnt.serverType==='nexus'">
+               <div class="col-lg-6 col-md-6 margintop15" >
+                  <label class="botsLabel">
+                     Repository:<span class="red">*</span>
+                     <loading size="small" name="isLoadingNexus" type="inline"></loading>
+                  </label>
+                  <div class="input-groups">
+                     <select name="repositoryInd" class="form-control" ng-model="appDeployCreate.newEnt.repositoryInd" ng-change="appDeployCreate.changeRepository();" required>
+                        <option value="">Select Repositories</option>
+                        <option ng-repeat="repository in appDeployCreate.repositoryOptions" value="{{appDeployCreate.repositoryOptions.indexOf(repository)}}">{{repository.name}}</option>
+                     </select>
+                  </div>
+               </div>
+               <div class="col-lg-6 col-md-6 margintop15">
+                  <label class="botsLabel">
+                     Group ID:<span class="red">*</span>
+                     <loading size="small" n ame="isLoadingNexus" type="inline"></loading>
+                  </label>
+                  <div class="input-groups">
+                     <select class="form-control" name="groupId" ng-model="appDeployCreate.newEnt.groupId"  ng-change="appDeployCreate.getArtifacts()" required>
+                        <option value="">Select Group ID</option>
+                        <option ng-repeat="(key , val) in appDeployCreate.groupOptions" value="{{val}}">{{val}}</option>
+                     </select>
+                  </div>
+               </div>
+               <div class="col-lg-6 col-md-6 margintop15">
+                  <label class="botsLabel">
+                     Artifacts:<span class="red">*</span>
+                     <loading size="small" name="isLoadingArtifacts" type="inline"></loading>
+                  </label>
+                  <div class="input-groups">
+                     <select class="form-control" name="artifactInd" ng-model="appDeployCreate.newEnt.artifact" ng-change="appDeployCreate.getVersions();" required>
+                        <option value="">Select Artifacts</option>
+                        <option ng-repeat="(key , artifact) in  appDeployCreate.artifactsOptions" value="{{artifact}}">{{artifact}}</option>
+                     </select>
+                  </div>
+               </div>
+               <div class="col-lg-6 col-md-6 margintop15">
+                  <label class="botsLabel" for="">
+                     Versions:<span class="red">*</span>
+                     <loading size="small" name="isLoadingNexusVersion" type="inline"></loading>
+                  </label>
+                  <div class="input-groups">
+                     <select class="form-control" name="version" ng-model="appDeployCreate.newEnt.version" ng-change="appDeployCreate.getResourceURI();" required>
+                        <option value="">Select Versions</option>
+                        <option ng-repeat="(key , values) in appDeployCreate.versionsOptions" value="{{values}}">{{values}}</option>
+                     </select>
+                  </div>
+               </div>
+               <div class="col-lg-6 col-md-6 margintop15">
+                  <label class="botsLabel">Repository URI:<span class="red">*</span>
+                     <loading size="small" name="isLoadingRepoVersion" type="inline"></loading>
+                  </label>
+                  <input type="text" class="form-control" ng-model="appDeployCreate.newEnt.resourceURI" required>
+               </div>
+               <div class="col-lg-6 col-md-6 margintop15">
+                  <label class="botsLabel">Host IP:<span class="red">*</span>
+                  </label>
+                  <input type="text" class="form-control" ng-model="appDeployCreate.newEnt.hostIP" required>
+               </div>
+            </div>
+         </div>
+      </div>
+         <div class="col-lg-12 col-md-12" ng-show="taskType === 'jenkins'">
+            <h4 style="margin-top: 0px;">Edit Parameters:</h4>
+            <table class="table table-bordered text-center">
+               <thead>
+                  <tr>
+                     <th class="header-name">Name</th>
+                     <th class="header-name">Description</th>
+                     <th class="header-name">Value</th>
+                  </tr>
+               </thead>
+               <tbody>
+                  <tr ng-repeat="params in jenkinsparams">
+                     <td>
+                        <span style="vertical-align: -webkit-baseline-middle;">{{params.name}}</span>
+                     </td>
+                     <td>
+                        <span style="vertical-align: -webkit-baseline-middle;">{{params.description}}</span>
+                     </td>
+                     <td ng-init="jenparams[params.name]=params.defaultValue[0]">
+                        <input ng-if="params.parameterName !== 'Choice'" type="text" ng-model="jenparams[params.name]" class="form-control" ng-value="params.defaultValue[0]">
+                        <select  ng-if="params.parameterName === 'Choice'" ng-model="jenparams[params.name]" class="cookbook-edit-text pull-left">
+                           <option ng-repeat="val in params.defaultValue" value="{{val}}">{{val}}</option>
+                        </select>
+                     </td>
+                  </tr>
+               </tbody>
+            </table>
+         </div>
+         <div class="col-lg-12 col-md-12 param-table" ng-if="taskType === 'script' && scriptParamsFlag">
+            <h4 style="margin-top: 0px;">Add Parameters:</h4>
+            <div class="parameter-section">
+               <div class="col-lg-12 col-md-12 margintop15">
+                  <table id="booleanTable" class="table table-striped table-bordered table-hover dataTable no-footer" cellpadding="5px" width="100%">
+                     <thead>
+                        <tr>
+                           <th class="headParamTable" style="width: 110px">Key</th>
+                           <th class="headParamTable">Description</th>
+                           <th class="headParamTable">Value</th>
+                        </tr>
+                     </thead>
+                     <tbody ng-repeat="paramjen in scriptparams">
+                        <tr ng-repeat="params in paramjen.scriptParameters" ng-init="number = countInit()">
+                           <td class="booleanParam">
+                              <label class="control-label" for="choiceName">Parameter{{number+1}}:<span class="red">*</span></label>
+                           </td>
+                           <td>
+                              <input id="description" type="text" class="form-control" name="description" ng-model="params.paramDesc" disabled="disabled">
+                           </td>
+                           <td>
+                              <input  type="text" class="form-control" name="value" ng-if="params.paramType === '' || params.paramType === 'Default'"  ng-model="params.paramVal" required>
+                              <input  type="password" class="form-control" name="value"  ng-if="params.paramType === 'Password'"  ng-model="params.paramVal" required>
+                              <input  type="text" class="form-control" name="value" ng-if="params.paramType === 'Restricted'"  ng-model="params.paramVal" required>
+                           </td>
+                        </tr>
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+   </fieldset>
+   </div>
+   </form>
+   <div class="modal-footer">
+      <button type="button" class="btn cat-btn-cancel" ng-click="cancel()">
+      <i class="fa fa-times black"></i> Cancel
+      </button>
+      <button type="button" class="btn cat-btn-update" ng-disabled="editParamsForm.$invalid" ng-click="executeBot()">
+      <i class="fa fa-check white"></i> Ok
+      </button>
+   </div>
+</div>

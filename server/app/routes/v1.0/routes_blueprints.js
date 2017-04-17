@@ -403,8 +403,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		}
 		blueprintService.launch(req.params.blueprintId,reqBody,function(err,data){
 			if (err) {
-				res.status(500).send({
-					message: "Server Behaved Unexpectedly"
+				res.status(err.code).send({
+					message: err.message
 				});
 				return;
 			}else{

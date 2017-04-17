@@ -82,13 +82,13 @@
 			var _instance = items.cpInstance;
 			console.log(_instance);
 			$scope.instanceName = _instance.name;
+        	$scope.actionItem='';
 			if($scope.botLogs) {
-				var _actionItem = items.actionHistoryData.actionLogId;
+                $scope.actionItem = items.actionHistoryData.actionLogId;
 			}
 			else {
-				var _actionItem = items.actionHistoryData;
+                $scope.actionItem = items.actionHistoryData;
 			}
-			console.log(_actionItem);
 			var helper = {
 				lastTimeStamp: '',
 				getlastTimeStamp: function(logObj) {
@@ -99,7 +99,7 @@
 				logsPolling: function() {
 					$scope.timerObject = $interval(function() {
 						if($scope.botLogs) {
-							workzoneServices.getActionHistoryLogs(_instance.auditTrailConfig.nodeIds[0],_actionItem)
+							workzoneServices.getActionHistoryLogs(_instance.auditTrailConfig.nodeIds[0],$scope.actionItem)
 							.then(function(response) {
 								if (response.data.length) {
 									helper.lastTimeStamp = helper.getlastTimeStamp(response);
@@ -107,7 +107,7 @@
 								}
 							});
 						} else {
-							workzoneServices.getActionHistoryLogs(_instance._id,_actionItem._id)
+							workzoneServices.getActionHistoryLogs(_instance._id,$scope.actionItem._id)
 							.then(function(response) {
 								if (response.data.length) {
 									helper.lastTimeStamp = helper.getlastTimeStamp(response);
@@ -132,7 +132,7 @@
 				timerObject: undefined
 			});
 			if($scope.botLogs) {
-				workzoneServices.getActionHistoryLogs(_instance.auditTrailConfig.nodeIds[0],_actionItem)
+				workzoneServices.getActionHistoryLogs(_instance.auditTrailConfig.nodeIds[0],$scope.actionItem)
 				.then(function(response) {
 					if (response.data.length) {
 						helper.lastTimeStamp = helper.getlastTimeStamp(response);
@@ -141,7 +141,7 @@
 					}
 				});
 			} else {
-				workzoneServices.getActionHistoryLogs(_instance._id,_actionItem._id)
+				workzoneServices.getActionHistoryLogs(_instance._id,$scope.actionItem._id)
 				.then(function(response) {
 					if (response.data.length) {
 						helper.lastTimeStamp = helper.getlastTimeStamp(response);
@@ -151,7 +151,7 @@
 				});
 			}
 
-			/*workzoneServices.getActionHistoryLogs(_instance._id,_actionItem._id).then(function(response) {
+			/*workzoneServices.getActionHistoryLogs(_instance._id,$scope.actionItem._id).then(function(response) {
 				helper.lastTimeStamp = helper.getlastTimeStamp(response.data);
 				$scope.logListInitial = response.data;
 				helper.logsPolling();

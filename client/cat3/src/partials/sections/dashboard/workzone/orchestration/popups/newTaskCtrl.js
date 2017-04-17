@@ -258,7 +258,7 @@
 								return {
 									chefJenkScriptTaskObj:$scope.chefJenkScriptTaskObj,
 									type:$scope.type
-								}
+								};
 							}
 						}
 					}).result.then(function (chefEventDetails) {
@@ -326,9 +326,10 @@
 						return false;
 					}
 					//validating the task selections values and taking selected values from chef components
+                    var selectedList ='';
 					if ($scope.taskType === "composite") {
 						taskJSON.assignTasks = [];
-						var selectedList = compositeSelector.getSelectorList();
+						selectedList = compositeSelector.getSelectorList();
 						if (selectedList && selectedList.length) {
 							for (var i = 0; i < selectedList.length; i++) {
 								taskJSON.assignTasks.push(selectedList[i].data._id);
@@ -344,10 +345,10 @@
 						taskJSON.executionOrder = $scope.isExecution.flag;
 						taskJSON.isTaskScheduled = $scope._isEventSelected.flag;
 						taskJSON.taskScheduler = $scope.cronDetails;
-						var selectedList = instanceSelector.getSelectorList();
+						selectedList = instanceSelector.getSelectorList();
 						if (selectedList && selectedList.length) {
-							for (var i = 0; i < selectedList.length; i++) {
-								taskJSON.nodeIds.push(selectedList[i].data);
+							for (var ii = 0; ii < selectedList.length; ii++) {
+								taskJSON.nodeIds.push(selectedList[ii].data);
 							}
 						}
 					}
