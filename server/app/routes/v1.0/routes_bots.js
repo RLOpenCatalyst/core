@@ -20,7 +20,7 @@ var Cryptography = require('_pr/lib/utils/cryptography');
 
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
-    app.all('/bots/*', sessionVerificationFunc);
+    app.all('/bots*', sessionVerificationFunc);
 
     app.get('/bots',function(req,res){
         var actionStatus = null,serviceNowCheck = false;
