@@ -82,9 +82,9 @@
                 url: paramsObject.url,
                 data:paramsObject.data
             }).success(function(data) {
-                    $rootScope.onBodyLoading=false;
-                    deferred.resolve(data);
-                })
+                $rootScope.onBodyLoading=false;
+                deferred.resolve(data);
+            })
                 .error(function(data) {
                     $rootScope.onBodyLoading=false;
                     deferred.reject();
@@ -124,7 +124,7 @@
                     }
                 });
             } else {
-               $modal.open({
+                $modal.open({
                     animation: true,
                     templateUrl: 'src/partials/sections/dashboard/workzone/blueprint/popups/blueprintInfo.html',
                     controller: 'blueprintInfoCtrl',
@@ -170,40 +170,40 @@
         };
 
         /*genericServices.executeTask =function(task) {
-            $modal.open({
-                animation: true,
-                templateUrl: 'src/partials/sections/dashboard/bots/view/editParams.html',
-                controller: 'editParamsCtrl',
-                backdrop: 'static',
-                keyboard: false,
-                resolve: {
-                    items: function() {
-                        return task;
-                    }
-                }
-            }).result.then(function(response) {
-                $modal.open({
-                    animate: true,
-                    templateUrl: "src/partials/sections/dashboard/bots/view/botExecutionLogs.html",
-                    controller: "botsExecutionLogsNewCtrl",
-                    backdrop: 'static',
-                    keyboard: false,
-                    resolve: {
-                        items: function() {
-                            return {
-                                logDetails : response,
-                                isBotNew : task.isBotsNew
-                            }
-                        }
-                    }
-                }).result.then(function() {
-                    console.log('The modal close is not getting invoked currently. Goes to cancel handler');
-                }, function() {
-                    console.log('Cancel Handler getting invoked');
-                });
-            }, function() {
-            });
-        };*/
+         $modal.open({
+         animation: true,
+         templateUrl: 'src/partials/sections/dashboard/bots/view/editParams.html',
+         controller: 'editParamsCtrl',
+         backdrop: 'static',
+         keyboard: false,
+         resolve: {
+         items: function() {
+         return task;
+         }
+         }
+         }).result.then(function(response) {
+         $modal.open({
+         animate: true,
+         templateUrl: "src/partials/sections/dashboard/bots/view/botExecutionLogs.html",
+         controller: "botsExecutionLogsNewCtrl",
+         backdrop: 'static',
+         keyboard: false,
+         resolve: {
+         items: function() {
+         return {
+         logDetails : response,
+         isBotNew : task.isBotsNew
+         }
+         }
+         }
+         }).result.then(function() {
+         console.log('The modal close is not getting invoked currently. Goes to cancel handler');
+         }, function() {
+         console.log('Cancel Handler getting invoked');
+         });
+         }, function() {
+         });
+         };*/
         genericServices.showLogsForBots = function(response) {
             $modal.open({
                 animation: true,
@@ -220,7 +220,7 @@
                 }
             }).result.then(function() {
             }, function() {
-            }); 
+            });
         };
 
         genericServices.launchBlueprint=function(blueprintObj) {
@@ -267,8 +267,8 @@
                             }
                         }
                     })
-                    .result.then(function() {
-                    
+                        .result.then(function() {
+
                     }, function() {
 
                     });
@@ -287,7 +287,7 @@
                     cookbookRunlistAttr: function(){
                         return {
                             chefrunlist: chefRunlist,
-                            cookbookAttributes: chefAttribute                            
+                            cookbookAttributes: chefAttribute
                         };
                     }
                 }

@@ -34,6 +34,7 @@ var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var async = require('async');
 
+
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
     app.all('/cloudformation*', sessionVerificationFunc);
@@ -231,7 +232,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                         })(instances[i]);
                                     }
                                 }
-                                CloudFormation.removeById(cloudFormation.id, function(err, deletedStack) {
+                                CloudFormation.removeCloudFormationById(cloudFormation.id, function(err, softDeletedStack) {
                                     if (err) {
                                         logger.error("Unable to delete stack from db", err);
                                         res.status(500).send({
@@ -239,6 +240,15 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                         });
                                         return;
                                     }
+                                    var resourceObj = {
+                                        stackStatus:"DELETED"
+                                    }
+                                    var resourceMapService = require('_pr/services/resourceMapService.js');
+                                    resourceMapService.updateResourceMap(cloudFormation.stackName,resourceObj,function(err,resourceMap){
+                                        if(err){
+                                            logger.error("Error in updating Resource Map.",err);
+                                        }
+                                    });
                                     res.send(200, {
                                         message: "deleted",
                                         instanceIds: instanceIds

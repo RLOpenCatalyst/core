@@ -69,7 +69,6 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                 res.send(500);
                 return;
             }
-
             if (data.length) {
                 res.send(data[0]);
                 return;
