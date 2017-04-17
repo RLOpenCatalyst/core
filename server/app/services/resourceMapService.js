@@ -41,7 +41,8 @@ resourceMapService.getAllResourcesByFilter = function getAllResourcesByFilter(re
                     name:serviceMap.stackName,
                     status: serviceMap.stackStatus,
                     type:serviceMap.stackType,
-                    resources:serviceMap.resources
+                    resources:serviceMap.resources,
+                    createdOn:serviceMap.createdOn
                 });
             });
             resourceMapData.docs = resourceMapList;
