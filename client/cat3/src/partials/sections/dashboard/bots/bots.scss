@@ -683,6 +683,8 @@ body .botDescriptionPage {
 .bot-card-hero ul {
   white-space: nowrap;
   text-overflow: ellipsis;
+  overflow:hidden;
+  width:90%;
 }
 
 .bot-card-hero .image-cell {
