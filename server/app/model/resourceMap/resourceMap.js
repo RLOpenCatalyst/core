@@ -18,6 +18,7 @@ var mongoose = require('mongoose');
 var ObjectId = require('mongoose').Types.ObjectId;
 var logger = require('_pr/logger')(module);
 var Schema = mongoose.Schema;
+var mongoosePaginate = require('mongoose-paginate');
 var resourceMapSchema = new Schema({
     stackName: {
         type: String,
@@ -46,8 +47,15 @@ var resourceMapSchema = new Schema({
             trim: true,
             required: false
         }
-    }]
+    }],
+    createdOn:{
+        type: Number,
+        required: false,
+        default:Date.now()
+    },
 });
+
+resourceMapSchema.plugin(mongoosePaginate);
 
 resourceMapSchema.statics.createNew = function createNew(resourceMapObj, callback) {
     var self = this;
@@ -96,7 +104,7 @@ resourceMapSchema.statics.getResourceMapById = function getResourceMapById(resou
 };
 
 resourceMapSchema.statics.getAllResourceMapByFilter = function getAllResourceMapByFilter(filterQueryObj, callback) {
-    this.find(filterQueryObj,function (err, resourceMapList) {
+    this.paginate(filterQueryObj.queryObj, filterQueryObj.options,function (err, resourceMapList) {
         if (err) {
             logger.error(err);
             return callback(err, null);
