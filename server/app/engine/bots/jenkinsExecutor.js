@@ -26,7 +26,6 @@ const errorType = 'jenkinsExecutor';
 var jenkinsExecutor = module.exports = {};
 
 jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,userName,callback) {
-    console.log(JSON.stringify(reqBody));
     configmgmtDao.getJenkinsDataFromId(reqBody.data.jenkinsServerId, function(err, jenkinsData) {
         if (err) {
             logger.error('jenkins list fetch error', err);
