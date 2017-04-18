@@ -38,6 +38,8 @@ var botsService = require('_pr/services/botsService.js');
 var ObjectId = require('mongoose').Types.ObjectId;
 var uuid = require('node-uuid');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
+var resourceMapService = require('_pr/services/resourceMapService.js');
+
 
 
 const errorType = 'blueprint';
@@ -183,12 +185,56 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                 Blueprints.getById(blueprintId,next);
             }else{
                 logger.debug('No permission to ' + reqBody.permissionTo + ' on ' + reqBody.category);
-                next({errCode:401,errMsg:'No permission to ' + reqBody.permissionTo + ' on ' + reqBody.category},null);
+                next({code:401,message:'No permission to ' + reqBody.permissionTo + ' on ' + reqBody.category},null);
             }
         },
+        function (blueprint,next){
+        if(blueprint !== null) {
+            if (blueprint.blueprintType === 'aws_cf' || blueprint.blueprintType === 'azure_arm') {
+                var stackName = reqBody.stackName;
+                if (stackName === '' || stackName === null) {
+                    next({code: 400, message: "Invalid Stack name"}, null);
+                    return;
+                } else {
+                    resourceMapService.getResourceMapByStackName(stackName, function (err, data) {
+                        if (err) {
+                            next(err, null);
+                            return;
+                        } else {
+                            next(null, blueprint);
+                            return;
+                        }
+                    });
+                }
+            }
+            else if (blueprint.domainNameCheck === true) {
+                var domainName = reqBody.domainName;
+                if (domainName === '' || domainName === null) {
+                    next({code: 400, message: "Invalid Domain name"}, null);
+                    return;
+                } else {
+                    resourceMapService.getResourceMapByStackName(domainName, function (err, data) {
+                        if (err) {
+                            next(err, null);
+                            return;
+                        } else {
+                            next(null, blueprint);
+                            return;
+                        }
+                    });
+                }
+            } else {
+                next(null, blueprint);
+                return;
+            }
+        }else{
+            logger.debug("Blueprint Does Not Exist");
+            next({code:404,message:"Blueprint Does Not Exist"},null);
+        }
+    },
         function(blueprint,next){
             if(blueprint){
-                var stackName = null,domainName = null,monitorId = null,blueprintLaunchCount = 0;
+                var monitorId = null,blueprintLaunchCount = 0;
                 if(blueprint.executionCount) {
                     blueprintLaunchCount = blueprint.executionCount + 1;
                 }else{
@@ -199,18 +245,6 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                         logger.error("Error while updating Blueprint Execution Count");
                     }
                 });
-                if (blueprint.blueprintType === 'aws_cf' || blueprint.blueprintType === 'azure_arm') {
-                    stackName = reqBody.stackName;
-                    if (!stackName) {
-                        next({errCode:400,errMsg:"Invalid stack name"},null);
-                    }
-                }
-                if(blueprint.domainNameCheck === true) {
-                    domainName = reqBody.domainName;
-                    if (!domainName) {
-                        next({errCode:400,errMsg:"Invalid Domain name"},null);
-                    }
-                }
                 if (reqBody.monitorId && reqBody.monitorId !== null && reqBody.monitorId !== 'null') {
                     monitorId = reqBody.monitorId;
                 }
@@ -261,8 +295,8 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                         blueprint.launch({
                             envId: reqBody.envId,
                             ver: reqBody.version,
-                            stackName: stackName,
-                            domainName: domainName,
+                            stackName: reqBody.stackName,
+                            domainName: reqBody.domainName,
                             sessionUser: reqBody.userName,
                             tagServer: reqBody.tagServer,
                             monitorId: monitorId,
@@ -276,8 +310,8 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                     blueprint.launch({
                         envId: reqBody.envId,
                         ver: reqBody.version,
-                        stackName: stackName,
-                        domainName: domainName,
+                        stackName: reqBody.stackName,
+                        domainName: reqBody.domainName,
                         sessionUser: reqBody.userName,
                         tagServer: reqBody.tagServer,
                         monitorId: monitorId,
@@ -289,11 +323,12 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                 }
             }else{
                 logger.debug("Blueprint Does Not Exist");
-                next({errCode:404,errMsg:"Blueprint Does Not Exist"},null);
+                next({code:404,message:"Blueprint Does Not Exist"},null);
             }
         }
     ],function (err, results) {
         if (err) {
+            logger.error(err);
             callback(err, null);
             return;
         }

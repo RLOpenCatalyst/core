@@ -46,8 +46,13 @@ var AWSResourcesSchema = function AWSResources() {
             trim: true
         },
         createdOn:{
-            type:String,
+            type:Number,
             default:Date.now
+        },
+        stackName:{
+            type: String,
+            required: false,
+            trim: true
         },
         tags:Schema.Types.Mixed,
         usage:Schema.Types.Mixed,

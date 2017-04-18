@@ -31,11 +31,35 @@ var uuid = require('node-uuid');
 var azureTemplateFunctionEvaluater = require('_pr/lib/azureTemplateFunctionEvaluater');
 var logsDao = require('_pr/model/dao/logsdao.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
+var apiUtil = require('_pr/lib/utils/apiUtil.js');
+var async = require('async');
 
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
-    app.all('/azure-arm/*', sessionVerificationFunc);
+    app.all('/azure-arm*', sessionVerificationFunc);
+
+    app.get('/azure-arm', function(req, res) {
+        async.waterfall([
+            function(next){
+                apiUtil.queryFilterBy(req.query,next);
+            },
+            function(filterObj,next){
+                AzureArm.getAzureArmList(filterObj,next);
+            }
+        ],function(err,azureArmList){
+            if(err){
+                res.status(500).send(errorResponses.db.error);
+                return;
+            }else if(azureArmList.length > 0){
+                res.send(200, azureArmList);
+            }else{
+                res.send(404, {
+                    message: "AzureArm is not found"
+                })
+            }
+        });
+    });
 
     app.post('/azure-arm/evaluateVMs', function(req, res) {
 
@@ -87,8 +111,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             providerdata = JSON.parse(providerdata);
 
             var settings = appConfig;
-            var pemFile = settings.instancePemFilesDir + providerdata._id + providerdata.pemFileName;
-            var keyFile = settings.instancePemFilesDir + providerdata._id + providerdata.keyFileName;
+            var pemFile = settings.instancePemFilesDir + providerdata._id +'_' + providerdata.pemFileName;
+            var keyFile = settings.instancePemFilesDir + providerdata._id +'_' + providerdata.keyFileName;
 
             logger.debug("pemFile path:", pemFile);
             logger.debug("keyFile path:", pemFile);
@@ -126,10 +150,15 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     arm.getResourceGroups(function(err, body) {
                         if (err) {
                             res.status(500).send(err);
+                            apiUtil.removeFile(decryptedPemFile);
+                            apiUtil.removeFile(decryptedKeyFile);
+                            return;
+                        }else {
+                            apiUtil.removeFile(decryptedPemFile);
+                            apiUtil.removeFile(decryptedKeyFile);
+                            res.status(200).send(body);
                             return;
                         }
-                        res.status(200).send(body);
-
                     });
                 });
             });
@@ -146,8 +175,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             providerdata = JSON.parse(providerdata);
 
             var settings = appConfig;
-            var pemFile = settings.instancePemFilesDir + providerdata._id + providerdata.pemFileName;
-            var keyFile = settings.instancePemFilesDir + providerdata._id + providerdata.keyFileName;
+            var pemFile = settings.instancePemFilesDir + providerdata._id  +'_' + providerdata.pemFileName;
+            var keyFile = settings.instancePemFilesDir + providerdata._id  +'_' + providerdata.keyFileName;
 
             logger.debug("pemFile path:", pemFile);
             logger.debug("keyFile path:", pemFile);
@@ -185,10 +214,15 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     arm.createResourceGroup(req.body.name, function(err, body) {
                         if (err) {
                             res.status(500).send(err);
+                            apiUtil.removeFile(decryptedPemFile);
+                            apiUtil.removeFile(decryptedKeyFile);
+                            return;
+                        }else {
+                            res.status(200).send(body);
+                            apiUtil.removeFile(decryptedPemFile);
+                            apiUtil.removeFile(decryptedKeyFile);
                             return;
                         }
-                        res.status(200).send(body);
-
                     });
                 });
             });
@@ -373,7 +407,7 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                         });
                                         return;
                                     }
-                                    AzureArm.removeById(azureArm.id, function(err, deletedStack) {
+                                    AzureArm.removeArmAzureById(azureArm.id, function(err, deletedStack) {
                                         if (err) {
                                             logger.error("Unable to delete stack from db", err);
                                             res.send(500, {
@@ -381,6 +415,15 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                                             });
                                             return;
                                         }
+                                        var resourceObj = {
+                                            stackStatus:"DELETED",
+                                        }
+                                        var resourceMapService = require('_pr/services/resourceMapService.js');
+                                        resourceMapService.updateResourceMap(azureArm.deploymentName,resourceObj,function(err,resourceMap){
+                                            if(err){
+                                                logger.error("Error in updating Resource Map.",err);
+                                            }
+                                        });
                                         res.status(200).send({
                                             message: "deleted",
                                             instanceIds: instanceIds
@@ -544,3 +587,4 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 
 };
+

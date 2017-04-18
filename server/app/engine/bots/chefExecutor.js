@@ -88,7 +88,7 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
                                         return;
                                     });
                                 }else {
-                                    logger.debug(botsDetails.id+" BOTs Execution Done")
+                                    logger.debug(botsDetails.id+" BOTs Execution is Done")
                                     var resultTaskExecution = {
                                         "actionStatus": 'success',
                                         "status": 'success',
@@ -195,7 +195,7 @@ function executeChefOnLocal(botsChefDetails,auditTrail,userName,botHostDetails,c
                                     logger.error("Failed to create or update bots Log: ", err);
                                 }
                                 noticeService.notice(userName, {
-                                    title: "BOTs Execution",
+                                    title: "Chef BOT Execution",
                                     body: "Error in Fetching Audit Trails"
                                 }, "error", function (err, data) {
                                     if (err) {
@@ -231,7 +231,7 @@ function executeChefOnLocal(botsChefDetails,auditTrail,userName,botHostDetails,c
                                 if (err) {
                                     logger.error("Failed to create or update bots Log: ", err);
                                 }
-                                logger.debug(botsChefDetails.id+" BOTs Execution Done");
+                                logger.debug(botsChefDetails.id+" BOTs Execution is Done");
                                 var botService = require('_pr/services/botsService');
                                 botService.updateSavedTimePerBots(botsChefDetails._id, 'BOTsNew', function (err, data) {
                                     if (err) {
@@ -240,7 +240,7 @@ function executeChefOnLocal(botsChefDetails,auditTrail,userName,botHostDetails,c
                                 });
                                 timer.stop();
                                 noticeService.notice(userName, {
-                                    title: "BOTs Execution",
+                                    title: "Chef BOT Execution",
                                     body: result.status.text
                                 }, "success", function (err, data) {
                                     if (err) {
@@ -277,7 +277,7 @@ function executeChefOnLocal(botsChefDetails,auditTrail,userName,botHostDetails,c
                                 logger.error("Failed to create or update bots Log: ", err);
                             }
                             noticeService.notice(userName, {
-                                title: "BOTs Execution",
+                                title: "Chef BOT Execution",
                                 body: "Error in fetching Audit Trails(Timer is Completed)"
                             }, "error", function (err, data) {
                                 if (err) {
@@ -311,7 +311,7 @@ function executeChefOnLocal(botsChefDetails,auditTrail,userName,botHostDetails,c
                         logger.error("Failed to create or update bots Log: ", err);
                     }
                     noticeService.notice(userName, {
-                        title: "BOTs Execution",
+                        title: "Chef BOT Execution",
                         body: "Error in Chef executor"
                     }, "error",function(err,data){
                         if(err){
@@ -452,7 +452,7 @@ function executeChefOnRemote(instance,botDetails,actionLogId,userName,botHostDet
                         }
                     });
                     noticeService.notice(userName, {
-                        title: "BOTs Execution",
+                        title: "Chef BOT Execution",
                         body: "Error in Chef executor"
                     }, "error",function(err,data){
                         if(err){
@@ -493,7 +493,7 @@ function executeChefOnRemote(instance,botDetails,actionLogId,userName,botHostDet
                                 });
                                 timer.stop();
                                 noticeService.notice(userName, {
-                                    title: "BOTs Execution",
+                                    title: "Chef BOT Execution",
                                     body: "Error in Fetching Audit Trails"
                                 }, "error", function (err, data) {
                                     if (err) {
@@ -538,7 +538,7 @@ function executeChefOnRemote(instance,botDetails,actionLogId,userName,botHostDet
                                     }
                                 });
                                 noticeService.notice(userName, {
-                                    title: "BOTs Execution",
+                                    title: "Chef BOT Execution",
                                     body: result.status.text
                                 }, "success", function (err, data) {
                                     if (err) {

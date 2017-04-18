@@ -87,17 +87,6 @@ BotAuditTrailSchema.statics.updateBotAuditTrail = function(auditId,auditTrailObj
         return callback(null, updateAuditTrail);
     });
 };
-BotAuditTrailSchema.statics.updateBotAuditTrailByActionLogId = function(actionLogId,auditTrailObj,callback){
-    BotAuditTrail.update({actionLogId:actionLogId},{$set:auditTrailObj},{upsert:false}, function(err, updateAuditTrail) {
-        if (err) {
-            logger.error(err);
-            var error = new Error('Internal server error');
-            error.status = 500;
-            return callback(error);
-        }
-        return callback(null, updateAuditTrail);
-    });
-};
 
 var BotAuditTrail = AuditTrail.discriminator('botAuditTrail', BotAuditTrailSchema);
 module.exports = BotAuditTrail;
