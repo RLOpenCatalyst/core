@@ -188,9 +188,53 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                 next({code:401,message:'No permission to ' + reqBody.permissionTo + ' on ' + reqBody.category},null);
             }
         },
+        function (blueprint,next){
+        if(blueprint !== null) {
+            if (blueprint.blueprintType === 'aws_cf' || blueprint.blueprintType === 'azure_arm') {
+                var stackName = reqBody.stackName;
+                if (stackName === '' || stackName === null) {
+                    next({code: 400, message: "Invalid Stack name"}, null);
+                    return;
+                } else {
+                    resourceMapService.getResourceMapByStackName(stackName, function (err, data) {
+                        if (err) {
+                            next(err, null);
+                            return;
+                        } else {
+                            next(null, blueprint);
+                            return;
+                        }
+                    });
+                }
+            }
+            else if (blueprint.domainNameCheck === true) {
+                var domainName = reqBody.domainName;
+                if (domainName === '' || domainName === null) {
+                    next({code: 400, message: "Invalid Domain name"}, null);
+                    return;
+                } else {
+                    resourceMapService.getResourceMapByStackName(domainName, function (err, data) {
+                        if (err) {
+                            next(err, null);
+                            return;
+                        } else {
+                            next(null, blueprint);
+                            return;
+                        }
+                    });
+                }
+            } else {
+                next(null, blueprint);
+                return;
+            }
+        }else{
+            logger.debug("Blueprint Does Not Exist");
+            next({code:404,message:"Blueprint Does Not Exist"},null);
+        }
+    },
         function(blueprint,next){
             if(blueprint){
-                var stackName = null,domainName = null,monitorId = null,blueprintLaunchCount = 0;
+                var monitorId = null,blueprintLaunchCount = 0;
                 if(blueprint.executionCount) {
                     blueprintLaunchCount = blueprint.executionCount + 1;
                 }else{
@@ -201,34 +245,6 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                         logger.error("Error while updating Blueprint Execution Count");
                     }
                 });
-                if (blueprint.blueprintType === 'aws_cf' || blueprint.blueprintType === 'azure_arm') {
-                    stackName = reqBody.stackName;
-                    if (stackName === '' || stackName === null) {
-                        next({code:400,message:"Invalid Stack name"},null);
-                        return;
-                    }else {
-                        resourceMapService.getResourceMapByStackName(stackName,function(err,data){
-                            if(err){
-                                next(err,null);
-                                return;
-                            }
-                        });
-                    }
-                }
-                if(blueprint.domainNameCheck === true) {
-                    domainName = reqBody.domainName;
-                    if (domainName === '' || domainName === null ) {
-                        next({code:400,message:"Invalid Domain name"},null);
-                        return;
-                    }else {
-                        resourceMapService.getResourceMapByStackName(domainName,function(err,data){
-                            if(err){
-                                next(err,null);
-                                return;
-                            }
-                        });
-                    }
-                }
                 if (reqBody.monitorId && reqBody.monitorId !== null && reqBody.monitorId !== 'null') {
                     monitorId = reqBody.monitorId;
                 }
@@ -279,8 +295,8 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                         blueprint.launch({
                             envId: reqBody.envId,
                             ver: reqBody.version,
-                            stackName: stackName,
-                            domainName: domainName,
+                            stackName: reqBody.stackName,
+                            domainName: reqBody.domainName,
                             sessionUser: reqBody.userName,
                             tagServer: reqBody.tagServer,
                             monitorId: monitorId,
@@ -294,8 +310,8 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                     blueprint.launch({
                         envId: reqBody.envId,
                         ver: reqBody.version,
-                        stackName: stackName,
-                        domainName: domainName,
+                        stackName: reqBody.stackName,
+                        domainName: reqBody.domainName,
                         sessionUser: reqBody.userName,
                         tagServer: reqBody.tagServer,
                         monitorId: monitorId,
@@ -312,6 +328,7 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
         }
     ],function (err, results) {
         if (err) {
+            logger.error(err);
             callback(err, null);
             return;
         }

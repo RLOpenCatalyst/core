@@ -36,7 +36,18 @@ var ApiUtil = function() {
             errObj['fields']={errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:field};
         }
         return errObj;
-    }
+    };
+    this.removeFile = function(filePath){
+        fileIo.removeFile(filePath, function(err, result) {
+            if (err) {
+                logger.error(err);
+                return;
+            } else {
+                logger.debug("Successfully Remove file");
+                return
+            }
+        })
+    };
     this.createCronJobPattern= function(scheduler){
         scheduler.cronRepeatEvery = parseInt(scheduler.cronRepeatEvery);
         var startOn = null,endOn = null;

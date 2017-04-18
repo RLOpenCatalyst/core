@@ -111,8 +111,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             providerdata = JSON.parse(providerdata);
 
             var settings = appConfig;
-            var pemFile = settings.instancePemFilesDir + providerdata._id + providerdata.pemFileName;
-            var keyFile = settings.instancePemFilesDir + providerdata._id + providerdata.keyFileName;
+            var pemFile = settings.instancePemFilesDir + providerdata._id +'_' + providerdata.pemFileName;
+            var keyFile = settings.instancePemFilesDir + providerdata._id +'_' + providerdata.keyFileName;
 
             logger.debug("pemFile path:", pemFile);
             logger.debug("keyFile path:", pemFile);
@@ -150,10 +150,15 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     arm.getResourceGroups(function(err, body) {
                         if (err) {
                             res.status(500).send(err);
+                            apiUtil.removeFile(decryptedPemFile);
+                            apiUtil.removeFile(decryptedKeyFile);
+                            return;
+                        }else {
+                            apiUtil.removeFile(decryptedPemFile);
+                            apiUtil.removeFile(decryptedKeyFile);
+                            res.status(200).send(body);
                             return;
                         }
-                        res.status(200).send(body);
-
                     });
                 });
             });
@@ -170,8 +175,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             providerdata = JSON.parse(providerdata);
 
             var settings = appConfig;
-            var pemFile = settings.instancePemFilesDir + providerdata._id + providerdata.pemFileName;
-            var keyFile = settings.instancePemFilesDir + providerdata._id + providerdata.keyFileName;
+            var pemFile = settings.instancePemFilesDir + providerdata._id  +'_' + providerdata.pemFileName;
+            var keyFile = settings.instancePemFilesDir + providerdata._id  +'_' + providerdata.keyFileName;
 
             logger.debug("pemFile path:", pemFile);
             logger.debug("keyFile path:", pemFile);
@@ -209,10 +214,15 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     arm.createResourceGroup(req.body.name, function(err, body) {
                         if (err) {
                             res.status(500).send(err);
+                            apiUtil.removeFile(decryptedPemFile);
+                            apiUtil.removeFile(decryptedKeyFile);
+                            return;
+                        }else {
+                            res.status(200).send(body);
+                            apiUtil.removeFile(decryptedPemFile);
+                            apiUtil.removeFile(decryptedKeyFile);
                             return;
                         }
-                        res.status(200).send(body);
-
                     });
                 });
             });
@@ -577,3 +587,4 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 
 };
+

@@ -41,7 +41,8 @@ resourceMapService.getAllResourcesByFilter = function getAllResourcesByFilter(re
                     name:serviceMap.stackName,
                     status: serviceMap.stackStatus,
                     type:serviceMap.stackType,
-                    resources:serviceMap.resources
+                    resources:serviceMap.resources,
+                    createdOn:serviceMap.createdOn
                 });
             });
             resourceMapData.docs = resourceMapList;
@@ -77,8 +78,6 @@ resourceMapService.createNewResourceMap = function createNewResourceMap(resource
 }
 
 resourceMapService.updateResourceMap = function updateResourceMap(resourceStackName,data,callback){
-    console.log(resourceStackName);
-    console.log(JSON.stringify(data));
     async.waterfall([
         function(next){
             resourceMap.getResourceMapByStackName(resourceStackName,next);

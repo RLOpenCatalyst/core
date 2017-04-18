@@ -247,6 +247,7 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                             instanceType: self.instanceType,
                             catUser: launchParams.sessionUser,
                             monitor: launchParams.monitor,
+                            domainName:launchParams.domainName?launchParams.domainName:null,
                             hardware: {
                                 platform: 'unknown',
                                 platformVersion: 'unknown',
@@ -460,7 +461,6 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
                                     }
                                     return;
                                 }
-                                logger.debug("Enter waitForInstanceRunnnigState :", instanceData);
                                 instance.instanceIP = instanceData.PublicIpAddress || instanceData.PrivateIpAddress;
                                 instancesDao.updateInstanceIp(instance.id, instance.instanceIP, function (err, updateCount) {
                                     if (err) {
@@ -1037,8 +1037,6 @@ AWSInstanceBlueprintSchema.methods.launch = function (launchParams, callback) {
 
 
                     for (var ic = 0; ic < instanceDataAll.length; ic++) {
-                        logger.debug('InstanceDataAll ' + JSON.stringify(instanceDataAll));
-                        logger.debug('Length : ' + instanceDataAll.length);
                         addinstancewrapper(instanceDataAll[ic], instanceDataAll.length);
                     }
                 });

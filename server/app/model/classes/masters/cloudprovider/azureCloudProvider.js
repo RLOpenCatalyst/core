@@ -21,9 +21,9 @@ var logger = require('_pr/logger')(module);
 var mongoose = require('mongoose');
 var extend = require('mongoose-schema-extend');
 var ObjectId = require('mongoose').Types.ObjectId;
-var schemaValidator = require('../../../dao/schema-validator');
+var schemaValidator = require('_pr/model/dao/schema-validator');
 var uniqueValidator = require('mongoose-unique-validator');
-var ProviderUtil = require('../../../../lib/utils/providerUtil.js');
+var ProviderUtil = require('_pr/lib/utils/providerUtil.js');
 
 
 var Schema = mongoose.Schema;
@@ -102,22 +102,17 @@ azurecloudProviderSchema.statics.createNew = function(req, providerData, callbac
 			return;
 		}
 		logger.debug(JSON.stringify(aProvider));
-
-		var pemId = aProvider['_id'] + req.files.azurepem.originalFilename;
-
+		var pemId = aProvider['_id'] +'_'+ req.files.azurepem.originalFilename;
 		logger.debug("Saving azure pem file with id as:", pemId);
 		ProviderUtil.saveAwsPemFiles(pemId, req.files.azurepem, function(err, flag) {
-
 			if (err) {
 				logger.debug("Unable to save pem files.");
                 callback(err,null);
 				return;
 			}
 
-			var keyId = aProvider['_id'] + req.files.azurekey.originalFilename;
-
+			var keyId = aProvider['_id'] +'_'+ req.files.azurekey.originalFilename;
 			logger.debug("Saving azure key file with id as:", keyId);
-
 			ProviderUtil.saveAwsPemFiles(keyId, req.files.azurekey, function(err, flag) {
 				if (err) {
 					logger.debug("Unable to save pem files.");
