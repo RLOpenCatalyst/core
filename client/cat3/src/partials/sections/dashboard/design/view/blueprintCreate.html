@@ -586,7 +586,7 @@
                               </select>
                            </div>
                            <br/>
-                           <button class="btn btn-primary margintop15" ng-show="isVMEvalsVisible" ng-click="bpCreate.showVMs();">Configure VMs</button>
+                           <button class="btn btn-primary margintop15" ng-show="isVMEvalsVisible" ng-click="bpCreate.showVMs();" ng-disabled="buttonClickedOnce">Configure VMs</button>
                            <div class="accordionClear"></div>
                            <br/>
                            <accordion ng-if="isVMVisible" ng-repeat="vmName in bpCreate.getAzureVMDetails">
@@ -596,9 +596,8 @@
                                     Configure VM : {{vmName.name}}
                                  </accordion-heading>
                                  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 margintop15">
-                                    <!-- <input type="hidden" ng-model = "bpCreate.newEnt.azureARMTemplate[armVMTemplate]"/> -->
                                     <span class="cursor pull-right">
-                                       <i class="fa fa-plus-circle cursor" title="Edit Runlist" ng-click="updateCookbook()"></i>
+                                       <i class="fa fa-plus-circle cursor" title="Edit Runlist" ng-click="updateCookbook(vmName.name)"></i>
                                     </span>
                                     <div class="view-runlist">
                                        <table class="table table-bordered text-center">
@@ -608,7 +607,7 @@
                                              </tr>
                                           </thead>
                                           <tbody>
-                                             <tr ng-repeat="item in chefrunlist">
+                                             <tr ng-repeat="item in runlistWithKey[vmName.name] track by $index">
                                                 <td>{{item.value}}</td>
                                              </tr>
                                           </tbody>
