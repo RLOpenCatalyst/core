@@ -1205,7 +1205,7 @@ function updateDomainNameForInstance(domainName,publicIP,instanceId,awsSettings,
         },
         function(hostedParamList,next){
             if(hostedParamList.length > 0){
-                instancesModel.updatedRoute53HostedZoneParam(instanceId,hostedParamList,domainName,next);
+                instancesModel.updatedRoute53HostedZoneParam(instanceId,hostedParamList,next);
             }else{
                 next(null,hostedParamList);
             }

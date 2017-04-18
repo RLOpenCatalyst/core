@@ -2281,13 +2281,12 @@ var InstancesDao = function () {
         });
     };
 
-    this.updatedRoute53HostedZoneParam = function (instanceId, route53HostedZoneParams,domainName, callback) {
+    this.updatedRoute53HostedZoneParam = function (instanceId, route53HostedZoneParams, callback) {
         Instances.update({
             "_id": ObjectId(instanceId)
         }, {
             $set: {
-                route53HostedParams: route53HostedZoneParams,
-                domainName:domainName
+                route53HostedParams: route53HostedZoneParams
             }
         }, function (err, data) {
             if (err) {
