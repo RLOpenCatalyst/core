@@ -456,6 +456,18 @@ function instanceSyncWithAWS(ec2Instances,providerId,callback){
                                                    logger.error("Failed to create or update instanceLog: ", err);
                                                }
                                            });
+                                           var domainName = instance.domainName?instance.domainName:null;
+                                           if(domainName !== null) {
+                                               var resourceObj = {
+                                                   stackStatus:"DELETED"
+                                               }
+                                               var resourceMapService = require('_pr/services/resourceMapService.js');
+                                               resourceMapService.updateResourceMap(domainName, resourceObj, function (err, resourceMap) {
+                                                   if (err) {
+                                                       logger.error("Error in updating Resource Map.", err);
+                                                   }
+                                               });
+                                           }
                                            if(instanceCount === instances.length){
                                                callback(null,instances);
                                                return;

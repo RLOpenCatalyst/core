@@ -47,25 +47,18 @@ var ARM = function(options) {
 
 			var resource = 'https://management.azure.com/';
 			var authorityUrl = authorityHostUrl + '/' + tenant;
-
 			logger.debug("authorityUrl: ", authorityUrl);
-
 			var AuthenticationContext = adal.AuthenticationContext;
-
 			var context = new AuthenticationContext(authorityUrl);
-
-			context.acquireTokenWithClientCredentials(resource, clientId,
-				clientSecret,
-				function(err, tokenResponse) {
+			context.acquireTokenWithClientCredentials(resource,clientId,clientSecret, function(err, tokenResponse) {
 					if (err) {
 						callback(err, null);
 						return;
 					} else {
-						logger.debug('token ==> ', tokenResponse);
 						token = tokenResponse.accessToken;
 						callback(null, tokenResponse.accessToken);
 					}
-				});
+			});
 
 		} else {
 			process.nextTick(function() {
@@ -110,7 +103,7 @@ var ARM = function(options) {
 					return;
 				} else {
 					callback({
-						messgae: "Invalid res code"
+						messgae: body.error.details[0].message
 					}, null);
 					return;
 				}
@@ -162,7 +155,8 @@ var ARM = function(options) {
 					return;
 				} else {
 					callback({
-						message: "Invalid Response Code : " + response.statusCode
+                        code:response.statusCode,
+						message: body.error.details[0].message
 					}, null);
 					return;
 				}
@@ -178,7 +172,6 @@ var ARM = function(options) {
 				callback(err, null);
 				return;
 			}
-
 			var opts = {
 				uri: 'https://management.azure.com/subscriptions/' + options.subscriptionId +
 					'/resourcegroups/' + deployParams.resourceGroup +
@@ -197,7 +190,6 @@ var ARM = function(options) {
 				},
 				json: true
 			};
-
 			request.put(opts, function(err, response, body) {
 
 				if (err) {
@@ -206,14 +198,14 @@ var ARM = function(options) {
 				}
 
 				logger.debug("response.statusCode: ", response.statusCode);
-
 				if (response.statusCode == '200' || response.statusCode ==
 					'201') {
 					callback(null, body);
 					return;
 				} else {
 					callback({
-						message: "Invalid Response Code : " + response.statusCode
+                        code:response.statusCode,
+						message: body.error.details[0].message
 					}, null);
 					return;
 				}
@@ -252,7 +244,6 @@ var ARM = function(options) {
 				}
 
 				logger.debug("response.statusCode: ", response.statusCode);
-
 				if (response.statusCode == '200' || response.statusCode ==
 					'201') {
 					if (typeof body === 'string') {
@@ -262,7 +253,8 @@ var ARM = function(options) {
 					return;
 				} else {
 					callback({
-						message: "Invalid Response Code : " + response.statusCode
+                        code:response.statusCode,
+						message: body.error.details[0].message
 					}, null);
 					return;
 				}
@@ -301,14 +293,14 @@ var ARM = function(options) {
 				if(response.statusCode == '404'){
 					return callback(404,null);
 				}
-
 				if (response.statusCode == '200' || response.statusCode ==
 					'202') {
 					callback(null, null);
 					return;
 				} else {
 					callback({
-						message: "Invalid Response Code : " + response.statusCode
+                        code:response.statusCode,
+						message: body.error.details[0].message
 					}, null);
 					return;
 				}
@@ -400,7 +392,8 @@ var ARM = function(options) {
 					return;
 				} else {
 					callback({
-						message: "Invalid Response Code : " + response.statusCode
+                        code:response.statusCode,
+						message: body.error.details[0].message
 					}, null);
 					return;
 				}
@@ -444,8 +437,7 @@ var ARM = function(options) {
 					return;
 				}
 
-				logger.debug("response.statusCode: ", response.statusCode,
-					body);
+				logger.debug("response.statusCode: ", response.statusCode);
 
 				if (response.statusCode == '200' || response.statusCode ==
 					'201') {
@@ -456,7 +448,8 @@ var ARM = function(options) {
 					return;
 				} else {
 					callback({
-						message: "Invalid Response Code : " + response.statusCode
+                        code:response.statusCode,
+						message: body.error.details[0].message
 					}, null);
 					return;
 				}
@@ -503,8 +496,7 @@ var ARM = function(options) {
 					return;
 				}
 
-				logger.debug("response.statusCode: ", response.statusCode,
-					body);
+				logger.debug("response.statusCode: ", response.statusCode);
 
 				if (response.statusCode == '200' || response.statusCode ==
 					'201') {
@@ -515,7 +507,8 @@ var ARM = function(options) {
 					return;
 				} else {
 					callback({
-						message: "Invalid Response Code : " + response.statusCode
+						code:response.statusCode,
+						message: body.error.details[0].message
 					}, null);
 					return;
 				}
@@ -561,8 +554,7 @@ var ARM = function(options) {
 					return;
 				}
 
-				logger.debug("response.statusCode: ", response.statusCode,
-					body);
+				logger.debug("response.statusCode: ", response.statusCode);
 
 				if (response.statusCode == '200' || response.statusCode ==
 					'201') {
@@ -573,7 +565,8 @@ var ARM = function(options) {
 					return;
 				} else {
 					callback({
-						message: "Invalid Response Code : " + response.statusCode
+                        code:response.statusCode,
+						message: body.error.details[0].message
 					}, null);
 					return;
 				}
@@ -621,8 +614,7 @@ var ARM = function(options) {
 					return;
 				}
 
-				logger.debug("response.statusCode: ", response.statusCode,
-					body);
+				logger.debug("response.statusCode: ", response.statusCode);
 
 				if (response.statusCode == '200' || response.statusCode ==
 					'201') {
@@ -649,7 +641,8 @@ var ARM = function(options) {
 					return;
 				} else {
 					callback({
-						message: "Invalid Response Code : " + response.statusCode
+                        code:response.statusCode,
+						message: body.error.details[0].message
 					}, null);
 					return;
 				}
