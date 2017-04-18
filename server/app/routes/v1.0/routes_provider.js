@@ -1636,7 +1636,8 @@ module.exports.setRoutes = function (app, sessionVerificationFunc) {
                             res.status(500).send(errorResponses.db.error);
                             return;
                         }
-                        if (aProvider) {
+                        aProvider = JSON.parse(aProvider);
+                        if (aProvider !== null) {
                             VMImage.getImageByProviderId(providerId, function (err, anImage) {
                                 if (err) {
                                     logger.error(errorResponses.db.error);

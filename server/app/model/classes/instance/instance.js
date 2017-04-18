@@ -406,6 +406,11 @@ var InstanceSchema = new Schema({
         required: false,
         default: false
     },
+    domainName: {
+        type: String,
+        required: false,
+        trim: true
+    },
     monitor: {
         type: Schema.Types.Mixed,
         required: false,
@@ -2277,12 +2282,13 @@ var InstancesDao = function () {
         });
     };
 
-    this.updatedRoute53HostedZoneParam = function (instanceId, route53HostedZoneParams, callback) {
+    this.updatedRoute53HostedZoneParam = function (instanceId, route53HostedZoneParams,domainName, callback) {
         Instances.update({
             "_id": ObjectId(instanceId)
         }, {
             $set: {
-                route53HostedParams: route53HostedZoneParams
+                route53HostedParams: route53HostedZoneParams,
+                domainName:domainName
             }
         }, function (err, data) {
             if (err) {
