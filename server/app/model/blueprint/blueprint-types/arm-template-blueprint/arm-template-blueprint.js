@@ -86,7 +86,7 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
         var keyFile = settings.instancePemFilesDir + providerdata._id  +'_' + providerdata.keyFileName;
 
         logger.debug("pemFile path:", pemFile);
-        logger.debug("keyFile path:", pemFile);
+        logger.debug("keyFile path:", keyFile);
 
         var cryptoConfig = appConfig.cryptoSettings;
         var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
@@ -131,19 +131,11 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
             };
 
             var arm = new ARM(options);
-            var resourceObj = {
-                stackStatus:"COMPLETED",
-                resources :[]
-            }
-
             function addAndBootstrapInstance(instanceData) {
-
-
                 var credentials = {
                     username: instanceData.username,
                     password: instanceData.password
                 };
-
                 credentialcryptography.encryptCredential(credentials, function(err, encryptedCredentials) {
                     if (err) {
                         logger.error('azure encryptCredential error', err);
@@ -158,9 +150,6 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                         return;
                     }
                     logger.debug('Credentials encrypted..');
-
-                    //Creating instance in catalyst
-
                     var instance = {
                         name: instanceData.name,
                         orgId: launchParams.orgId,
@@ -229,17 +218,18 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                             return;
                         }
                         instance.id = data._id;
-                        resourceObj.resources.push({
-                            id:instance.id,
-                            type:"instance"
-                        });
-                        if(resourceObj.resources.length === instanceData.resourceSize) {
-                            resourceMapService.updateResourceMap(launchParams.stackName, resourceObj, function (err, resourceMap) {
+                        var resourceObj = {
+                            stackStatus:"COMPLETED",
+                            resources :[{
+                                id:instance.id,
+                                type:"instance"
+                            }]
+                        }
+                        resourceMapService.updateResourceMap(launchParams.stackName, resourceObj, function (err, resourceMap) {
                                 if (err) {
                                     logger.error("Error in updating Resource Map.", err);
                                 }
-                            });
-                        }
+                        });
                         var timestampStarted = new Date().getTime();
                         var actionLog = instancesDao.insertBootstrapActionLog(instance.id, instance.runlist, launchParams.sessionUser, timestampStarted);
                         var logsReferenceIds = [instance.id, actionLog._id];
@@ -269,7 +259,6 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                 timestamp: new Date().getTime()
                             }]
                         };
-
                         instanceLogModel.createOrUpdate(actionLog._id, instance.id, instanceLog, function(err, logData) {
                             if (err) {
                                 logger.error("Failed to create or update instanceLog: ", err);
@@ -281,8 +270,6 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                             log: "Waiting for instance ok state",
                             timestamp: timestampStarted
                         });
-
-
                         //decrypting pem file
                         var cryptoConfig = appConfig.cryptoSettings;
                         var tempUncryptedPemFileLoc = appConfig.tempDir + uuid.v4();
@@ -396,6 +383,29 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                             };
                                             instanceLog.actionStatus = "success";
                                             instanceLog.endedOn = new Date().getTime();
+                                            instancesDao.getInstancesByARMId(instanceData.armId,function(err,armInstanceList){
+                                                if(err){
+                                                    logger.error("Error in getting ARM Instances ",err);
+                                                }else if(armInstanceList.length > 0){
+                                                    var resourceObj = {
+                                                        stackStatus:"COMPLETED",
+                                                        resources :[]
+                                                    }
+                                                    armInstanceList.forEach(function(armData){
+                                                        resourceObj.resources.push({
+                                                            id:armData._id,
+                                                            type:"instance"
+                                                        })
+                                                    });
+                                                    resourceMapService.updateResourceMap(launchParams.stackName, resourceObj, function (err, resourceMap) {
+                                                        if (err) {
+                                                            logger.error("Error in updating Resource Map.", err);
+                                                        }
+                                                    });
+                                                }else{
+                                                    logger.debug("There is no instance attached with armId:",instanceData.armId);
+                                                }
+                                            })
                                             launchParams.infraManager.getNode(instance.chefNodeName, function(err, nodeData) {
                                                 if (err) {
                                                     logger.error("Failed chef.getNode", err);
@@ -441,20 +451,15 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                                         if (err) {
                                                             logger.error("Failed _docker.checkDockerStatus", err);
                                                             return;
-
-
                                                         }
                                                         logger.debug('Docker Check Returned:' + retCode);
                                                         if (retCode == '0') {
                                                             instancesDao.updateInstanceDockerStatus(instance.id, "success", '', function(data) {
                                                                 logger.debug('Instance Docker Status set to Success');
                                                             });
-
                                                         }
                                                     });
-
                                             });
-
                                         } else {
                                             instancesDao.updateInstanceBootstrapStatus(instance.id, 'failed', function(err, updateData) {
                                                 if (err) {
@@ -485,9 +490,7 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                             });
                                         }
                                     }
-
                                 }, function(stdOutData) {
-
                                     logsDao.insertLog({
                                         referenceId: logsReferenceIds,
                                         err: false,
@@ -506,15 +509,12 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                     });
 
                                 }, function(stdErrData) {
-
-                                    //retrying 4 times before giving up.
                                     logsDao.insertLog({
                                         referenceId: logsReferenceIds,
                                         err: true,
                                         log: stdErrData.toString('ascii'),
                                         timestamp: new Date().getTime()
                                     });
-
                                     instanceLog.logs = {
                                         err: true,
                                         log: stdErrData.toString('ascii'),
@@ -525,19 +525,12 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                             logger.error("Failed to create or update instanceLog: ", err);
                                         }
                                     });
-
-
                                 });
                             });
-
                         });
-
                     });
-
                 });
-
             }
-
             function getVMIPAddress(networksInterfaces, count, callback) {
                 var networkId = networksInterfaces[count].id;
                 arm.getNetworkInterface({
@@ -552,14 +545,13 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                     if (networkResourceData.properties.ipConfigurations) {
                         var ipConfigurations = networkResourceData.properties.ipConfigurations;
                         var ipAddressIdFound = false
-                        for (k = 0; k < ipConfigurations.length; k++) {
+                        for (var k = 0; k < ipConfigurations.length; k++) {
                             if (ipConfigurations[k].properties && ipConfigurations[k].properties.publicIPAddress) {
                                 ipAddressIdFound = true;
                                 var ipAddressId = ipConfigurations[k].properties.publicIPAddress.id;
                                 arm.getPublicIpAddress({
                                     id: ipAddressId
                                 }, function(err, publicIPAddressResource) {
-                                    logger.debug('resource ===>', JSON.stringify(publicIPAddressResource));
                                     if (err) {
                                         logger.error("Unable to fetch azure vm ipaddress");
                                         callback(err, null);
@@ -569,7 +561,6 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                         ip: publicIPAddressResource.properties.ipAddress
                                     });
                                     return;
-
                                 });
                             }
                         }
@@ -579,7 +570,6 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                             } else {
                                 getVMIPAddress(networksInterfaces, count, callback);
                             }
-
                         }
                     } else {
                         if (networksInterfaces.length === count) {
@@ -587,14 +577,10 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                         } else {
                             getVMIPAddress(networksInterfaces, count, callback);
                         }
-
                     }
                 });
-
-
             }
-
-            function processVM(vmResource,resourceSize, armId) {
+            function processVM(vmResource, armId) {
                 var vmName = vmResource.resourceName;
                 var dependsOn = vmResource.dependsOn;
                 var ipFound = false;
@@ -611,11 +597,8 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                         });
                         return;
                     }
-
                     logger.debug('vmdata ==>', JSON.stringify(vmData));
-
                     var networkInterfaces = vmData.properties.networkProfile.networkInterfaces;
-
                     getVMIPAddress(networkInterfaces, 0, function(err, ipAddress) {
                         if (err) {
                             logger.error("Unable to fetch azure vm ipaddress");
@@ -636,7 +619,6 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                 }
                             }
                         }
-
                         var username = vmData.properties.osProfile.adminUsername;
                         var password;
                         var runlist = [];
@@ -646,9 +628,6 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                             password = instances[vmName].password;
                             runlist = instances[vmName].runlist;
                         }
-
-
-
                         addAndBootstrapInstance({
                             name: vmName,
                             username: username,
@@ -656,18 +635,11 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                             runlist: runlist,
                             ip: ipAddress.ip,
                             os: osType,
-                            armId: armId,
-                            resourceSize:resourceSize
+                            armId: armId
                         });
-
-
                     });
                 });
-
             }
-
-
-
             arm.deployTemplate({
                 name: launchParams.stackName,
                 parameters: JSON.parse(JSON.stringify(self.parameters)),
@@ -676,27 +648,18 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
             }, function(err, stackData) {
                 if (err) {
                     logger.error("Unable to launch CloudFormation Stack", err);
-                    callback({
-                        message: "Unable to launch ARM Template"
-                    });
+                    callback(err,null);
                     return;
                 }
-
-
                 arm.getDeployedTemplate({
                     name: launchParams.stackName,
                     resourceGroup: self.resourceGroup
                 }, function(err, deployedTemplateData) {
                     if (err) {
                         logger.error("Unable to get arm deployed template", err);
-                        callback({
-                            message: "Error occured while fetching deployed template status"
-                        });
+                        callback(err,null);
                         return;
                     }
-
-
-
                     AzureARM.createNew({
                         orgId: launchParams.orgId,
                         bgId: launchParams.bgId,
@@ -719,7 +682,7 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                             logger.error("Unable to save arm data in DB", err);
                             callback({
                                 message: "unable to save arm in db"
-                            });
+                            },null);
                             return;
                         }
                         callback(null, {
@@ -752,41 +715,24 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                     });
                                     return;
                                 }
-
                                 azureArmDeployement.status = deployedTemplateData.properties.provisioningState;
                                 azureArmDeployement.save();
-
                                 logger.debug('deployed ==>', JSON.stringify(deployedTemplateData));
-
                                 var dependencies = deployedTemplateData.properties.dependencies;
                                 for (var i = 0; i < dependencies.length; i++) {
                                     var resource = dependencies[i];
                                     if (resource.resourceType == 'Microsoft.Compute/virtualMachines') {
                                         logger.debug('resource name ==>', resource.resourceName);
-                                        processVM(resource, dependencies.length, azureArmDeployement.id);
+                                        processVM(resource, azureArmDeployement.id);
                                     }
                                 }
                             });
                         });
-
-
                     });
-
-
-
                 });
-
-
-
             });
-
-
-
         });
-
     });
-
-
 };
 
 ARMTemplateBlueprintSchema.methods.update = function(updateData) {

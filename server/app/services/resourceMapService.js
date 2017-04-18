@@ -78,8 +78,6 @@ resourceMapService.createNewResourceMap = function createNewResourceMap(resource
 }
 
 resourceMapService.updateResourceMap = function updateResourceMap(resourceStackName,data,callback){
-    console.log(resourceStackName);
-    console.log(JSON.stringify(data));
     async.waterfall([
         function(next){
             resourceMap.getResourceMapByStackName(resourceStackName,next);

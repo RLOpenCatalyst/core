@@ -6,6 +6,7 @@ var logger = require('_pr/logger')(module);
 var appConfig = require('_pr/config');
 var commons=appConfig.constantData;
 var normalizedUtil = require('_pr/lib/utils/normalizedUtil.js');
+var fileIo = require('_pr/lib/utils/fileio');
 
 var ApiUtil = function() {
     this.errorResponse=function(code,field){
@@ -29,7 +30,18 @@ var ApiUtil = function() {
             errObj['fields']={errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:field};
         }
         return errObj;
-    }
+    };
+    this.removeFile = function(filePath){
+        fileIo.removeFile(filePath, function(err, result) {
+            if (err) {
+                logger.error(err);
+                return;
+            } else {
+                logger.debug("Successfully Remove file");
+                return
+            }
+        })
+    };
     this.createCronJobPattern= function(scheduler){
         scheduler.cronRepeatEvery = parseInt(scheduler.cronRepeatEvery);
         var startOn = null,endOn = null;

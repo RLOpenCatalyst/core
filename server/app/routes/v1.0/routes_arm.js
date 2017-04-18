@@ -150,10 +150,15 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     arm.getResourceGroups(function(err, body) {
                         if (err) {
                             res.status(500).send(err);
+                            apiUtil.removeFile(decryptedPemFile);
+                            apiUtil.removeFile(decryptedKeyFile);
+                            return;
+                        }else {
+                            apiUtil.removeFile(decryptedPemFile);
+                            apiUtil.removeFile(decryptedKeyFile);
+                            res.status(200).send(body);
                             return;
                         }
-                        res.status(200).send(body);
-
                     });
                 });
             });
@@ -209,10 +214,15 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     arm.createResourceGroup(req.body.name, function(err, body) {
                         if (err) {
                             res.status(500).send(err);
+                            apiUtil.removeFile(decryptedPemFile);
+                            apiUtil.removeFile(decryptedKeyFile);
+                            return;
+                        }else {
+                            res.status(200).send(body);
+                            apiUtil.removeFile(decryptedPemFile);
+                            apiUtil.removeFile(decryptedKeyFile);
                             return;
                         }
-                        res.status(200).send(body);
-
                     });
                 });
             });
@@ -577,3 +587,4 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
 
 };
+
