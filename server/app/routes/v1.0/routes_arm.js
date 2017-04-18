@@ -111,8 +111,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             providerdata = JSON.parse(providerdata);
 
             var settings = appConfig;
-            var pemFile = settings.instancePemFilesDir + providerdata._id + providerdata.pemFileName;
-            var keyFile = settings.instancePemFilesDir + providerdata._id + providerdata.keyFileName;
+            var pemFile = settings.instancePemFilesDir + providerdata._id +'_' + providerdata.pemFileName;
+            var keyFile = settings.instancePemFilesDir + providerdata._id +'_' + providerdata.keyFileName;
 
             logger.debug("pemFile path:", pemFile);
             logger.debug("keyFile path:", pemFile);
@@ -170,8 +170,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             providerdata = JSON.parse(providerdata);
 
             var settings = appConfig;
-            var pemFile = settings.instancePemFilesDir + providerdata._id + providerdata.pemFileName;
-            var keyFile = settings.instancePemFilesDir + providerdata._id + providerdata.keyFileName;
+            var pemFile = settings.instancePemFilesDir + providerdata._id  +'_' + providerdata.pemFileName;
+            var keyFile = settings.instancePemFilesDir + providerdata._id  +'_' + providerdata.keyFileName;
 
             logger.debug("pemFile path:", pemFile);
             logger.debug("keyFile path:", pemFile);

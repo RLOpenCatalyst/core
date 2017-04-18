@@ -103,15 +103,10 @@ azurecloudProviderSchema.statics.createNew = function(req, providerData, callbac
 		}
 		logger.debug(JSON.stringify(aProvider));
 
-		var pemId = aProvider['_id'] + req.files.azurepem.originalFilename;
-
-		var keyPair = {
-			_id: pemId
-		}
-
+		var pemId = aProvider['_id'] +'_'+ req.files.azurepem.originalFilename;
 		logger.debug("Saving azure pem file with id as:", pemId);
 
-		ProviderUtil.saveAwsPemFiles(keyPair, req.files.azurepem, function(err, flag) {
+		ProviderUtil.saveAwsPemFiles(pemId, req.files.azurepem, function(err, flag) {
 
 			if (err) {
 				logger.debug("Unable to save pem files.");
@@ -119,15 +114,10 @@ azurecloudProviderSchema.statics.createNew = function(req, providerData, callbac
 				return;
 			}
 
-			var keyId = aProvider['_id'] + req.files.azurekey.originalFilename;
+			var keyId = aProvider['_id'] +'_'+ req.files.azurekey.originalFilename;
 
 			logger.debug("Saving azure key file with id as:", keyId);
-
-			keyPair = {
-				_id: keyId
-			}
-
-			ProviderUtil.saveAwsPemFiles(keyPair, req.files.azurekey, function(err, flag) {
+			ProviderUtil.saveAwsPemFiles(keyId, req.files.azurekey, function(err, flag) {
 				if (err) {
 					logger.debug("Unable to save pem files.");
 					res.status(500).send("Unable to save pem files.");
