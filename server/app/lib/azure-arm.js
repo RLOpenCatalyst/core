@@ -55,7 +55,6 @@ var ARM = function(options) {
 						callback(err, null);
 						return;
 					} else {
-						logger.debug('token ==> ', tokenResponse);
 						token = tokenResponse.accessToken;
 						callback(null, tokenResponse.accessToken);
 					}
@@ -438,8 +437,7 @@ var ARM = function(options) {
 					return;
 				}
 
-				logger.debug("response.statusCode: ", response.statusCode,
-					body);
+				logger.debug("response.statusCode: ", response.statusCode);
 
 				if (response.statusCode == '200' || response.statusCode ==
 					'201') {

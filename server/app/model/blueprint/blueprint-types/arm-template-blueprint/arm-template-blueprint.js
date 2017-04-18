@@ -597,7 +597,6 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                         });
                         return;
                     }
-                    logger.debug('vmdata ==>', JSON.stringify(vmData));
                     var networkInterfaces = vmData.properties.networkProfile.networkInterfaces;
                     getVMIPAddress(networkInterfaces, 0, function(err, ipAddress) {
                         if (err) {
@@ -717,7 +716,6 @@ ARMTemplateBlueprintSchema.methods.launch = function(launchParams, callback) {
                                 }
                                 azureArmDeployement.status = deployedTemplateData.properties.provisioningState;
                                 azureArmDeployement.save();
-                                logger.debug('deployed ==>', JSON.stringify(deployedTemplateData));
                                 var dependencies = deployedTemplateData.properties.dependencies;
                                 for (var i = 0; i < dependencies.length; i++) {
                                     var resource = dependencies[i];
