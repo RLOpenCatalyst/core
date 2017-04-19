@@ -406,6 +406,11 @@ var InstanceSchema = new Schema({
         required: false,
         default: false
     },
+    domainName: {
+        type: String,
+        required: false,
+        trim: true
+    },
     monitor: {
         type: Schema.Types.Mixed,
         required: false,
@@ -554,13 +559,7 @@ var InstancesDao = function () {
                     err.status = 500;
                     return callback(err);
                 } else {
-                    databaseCall.queryObj['$or'] = [{
-                            "instanceState": "running"
-                        }, {
-                            "instanceState": "stopped"
-                        }, {
-                            "instanceState": "pending"
-                        }];
+                    databaseCall.queryObj.isDeleted =false;
                     Instances.paginate(databaseCall.queryObj, databaseCall.options, function (err, instances) {
                         if (err) {
                             logger.error(err);
@@ -855,6 +854,17 @@ var InstancesDao = function () {
         );
     };
 
+    this.getAllInstancesByStackName = function getAll(queryObj,callback) {
+        Instances.find(queryObj,
+            function (err, instances) {
+                if (err) {
+                    return callback(err);
+                } else {
+                    return callback(null, instances);
+                }
+            }
+        );
+    };
     this.findByProviderId = function (providerId, callback) {
         var queryObj = {
             providerId: providerId
@@ -880,7 +890,6 @@ var InstancesDao = function () {
                 callback(err, null);
                 return;
             }
-            logger.debug("Exit createInstance : " + JSON.stringify(data));
             callback(null, data);
         });
     };
@@ -1915,7 +1924,7 @@ var InstancesDao = function () {
             "instanceIP": instanceIp
         }, function (err, data) {
             if (err) {
-                logger.error("Failed getInstanceById (%s)", instanceId, err);
+                logger.error("Failed getInstanceByIP (%s)", instanceId, err);
                 callback(err, null);
                 return;
             }
@@ -1979,7 +1988,7 @@ var InstancesDao = function () {
             "projectId": projectId
         }, function (err, data) {
             if (err) {
-                logger.error("Failed getInstanceById (%s)", instanceId, err);
+                logger.error("Failed getInstanceByIPAndProject (%s)", instanceId, err);
                 callback(err, null);
                 return;
             }

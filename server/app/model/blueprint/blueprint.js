@@ -278,7 +278,7 @@ BlueprintSchema.methods.launch = function (opts, callback) {
         if (project.length === 0) {
             callback({
                 "message": "Unable to find Project Information from project id"
-            });
+            },null);
             return;
         }
         configmgmtDao.getEnvNameFromEnvId(opts.envId, function (err, envName) {
@@ -291,7 +291,7 @@ BlueprintSchema.methods.launch = function (opts, callback) {
             if (!envName) {
                 callback({
                     "message": "Unable to find environment name from environment id"
-                });
+                },null);
                 return;
             };
             configmgmtDao.getChefServerDetails(infraManager.infraManagerId, function (err, chefDetails) {
@@ -366,13 +366,6 @@ BlueprintSchema.methods.launch = function (opts, callback) {
                                 }
                                 blueprintConfigType.launch(launchParams, function (err, launchData) {
                                     if (err) {
-                                        err['errObj'] = {
-                                            endedOn: new Date().getTime(),
-                                            orgName: project[0].orgname,
-                                            bgName: project[0].productgroupname,
-                                            projectName: project[0].projectname,
-                                            envName: envName
-                                        };
                                         callback(err, null);
                                         return;
                                     }
@@ -382,17 +375,11 @@ BlueprintSchema.methods.launch = function (opts, callback) {
                         } else {
                             blueprintConfigType.launch(launchParams, function (err, launchData) {
                                 if (err) {
-                                    err['errObj'] = {
-                                        endedOn: new Date().getTime(),
-                                        orgName: project[0].orgname,
-                                        bgName: project[0].productgroupname,
-                                        projectName: project[0].projectname,
-                                        envName: envName
-                                    };
                                     callback(err, null);
                                     return;
                                 }
                                 callback(null, launchData);
+                                return;
                             });
                         }
                     });
@@ -446,8 +433,6 @@ BlueprintSchema.statics.createNew = function (blueprintData, callback) {
         });
         return;
     }
-    logger.debug('blueprint type ', blueprintData);
-    //Set the version if blueprint id is null
     logger.debug('blueprint id ..... ', blueprintData.id);
     this.getCountByParentId(blueprintData.id, function (err, count) {
         if (count <= 0) {
@@ -479,8 +464,6 @@ BlueprintSchema.statics.createNew = function (blueprintData, callback) {
             manualExecutionTime:blueprintData.manualExecutionTime
         };
         var blueprint = new Blueprints(blueprintObj);
-        logger.debug(blueprint);
-        logger.debug('saving');
         blueprint.save(function (err, blueprint) {
             if (err) {
                 logger.error(err);

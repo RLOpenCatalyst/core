@@ -205,6 +205,7 @@ io.sockets.on('connection', function(socket) {
     var month = dt.getMonth() + 1;
     if (month < 10)
         month = '0' + month;
+    logger.debug('file :' + __dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate());
     var tail;
     if (fs.existsSync(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate() + '.2'))
         tail = new Tail(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate() + '.2'); //catalyst.log.2015-06-19

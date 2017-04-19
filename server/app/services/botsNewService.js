@@ -91,6 +91,7 @@ botsNewService.createNew = function createNew(reqBody,callback) {
                                 type: reqBody.type,
                                 subType: reqBody.subType,
                                 inputFormFields: result.input[0].form,
+                                isParameterized:result.isParameterized?result.isParameterized:false,
                                 outputOptions: result.output,
                                 ymlDocFileId: reqBody.fileId,
                                 orgId: reqBody.orgId,
@@ -210,7 +211,7 @@ botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,service
                 var query = {
                     auditType: 'BOTsNew',
                     actionStatus: 'success',
-                    //user: 'servicenow',
+                    user: 'servicenow',
                     isDeleted:false
                 };
                 var botsIds = [];
@@ -324,7 +325,6 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
                 var botObj = {
                     params: {
                         data: paramObj,
-                        nodeIds:[]
                     }
                 }
                 if(reqBody.nodeIds){
@@ -370,11 +370,10 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
                                 } else if (botDetails[0].type === 'chef') {
                                     chefExecutor.execute(botDetails[0], auditTrail, userName, executionType, botRemoteServerDetails, next);
                                 } else if (botDetails[0].type === 'blueprints') {
-                                    if (schedulerCallCheck === true) {
-                                        reqBody = botDetails[0].params.data;
-                                    }
+                                    reqBody = botDetails[0].params.data;
                                     blueprintExecutor.execute(auditTrail, reqBody, userName, next);
                                 } else if (botDetails[0].type === 'jenkins') {
+                                    reqBody = botDetails[0].params.data;
                                     jenkinsExecutor.execute(botDetails[0],auditTrail, reqBody, userName, next);
                                 } else {
                                     var err = new Error('Invalid BOTs Type');
@@ -484,6 +483,7 @@ botsNewService.syncSingleBotsWithGitHub = function syncSingleBotsWithGitHub(botI
                                         manualExecutionTime: result.standardTime ? result.standardTime : 10,
                                         type: result.type,
                                         subType: result.subtype,
+                                        isParameterized:result.isParameterized?result.isParameterized:false,
                                         inputFormFields: result.input[0].form,
                                         outputOptions: result.output,
                                         ymlDocFileId: ymlDocFileId,
@@ -643,6 +643,7 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                                     outputOptions:result.output,
                                                     ymlDocFileId:ymlDocFileId,
                                                     orgId:gitHubDetails.botSync.orgId,
+                                                    isParameterized:result.isParameterized?result.isParameterized:false,
                                                     orgName:gitHubDetails.botSync.orgName,
                                                     source:"GitHub"
                                                 }
@@ -837,126 +838,6 @@ botsNewService.getParticularBotsHistoryLogs= function getParticularBotsHistoryLo
             return;
         }
     });
-}
-
-botsNewService.executeSINTLBOTs = function executeSINTLBOTs(botId,reqBody,callback){
-    var actionLogId = null;
-    async.waterfall([
-        function(next) {
-            botsDao.getBotsByBotId(botId, next);
-        },
-        function(botDetails,next) {
-            if(botDetails.length > 0){
-                actionLogId = uuid.v4();
-                async.parallel({
-                    execution:function(callback){
-                        var actionObj={
-                            auditType:'BOTsNew',
-                            auditCategory:botDetails[0].type,
-                            status:'running',
-                            action:'BOTs Execution',
-                            actionStatus:'running',
-                            catUser:reqBody.userName
-                        };
-                        var auditTrailObj = {
-                            name:botDetails[0].name,
-                            type:botDetails[0].action,
-                            description:botDetails[0].desc,
-                            category:botDetails[0].category,
-                            executionType:botDetails[0].type,
-                            manualExecutionTime:botDetails[0].manualExecutionTime,
-                            actionLogId:actionLogId
-                        };
-                        auditTrailService.insertAuditTrail(botDetails[0],auditTrailObj,actionObj,callback);
-                    },
-                    executionCount:function(callback){
-                        var botExecutionCount = botDetails[0].executionCount + 1;
-                        var botUpdateObj = {
-                            executionCount: botExecutionCount,
-                            lastRunTime: new Date().getTime()
-                        }
-                        botsDao.updateBotsDetail(botDetails[0]._id, botUpdateObj, callback);
-                    }
-                },function(err,result){
-                    if(err){
-                        next(err,null);
-                        return;
-                    }else{
-                        var logsReferenceIds =[botDetails[0]._id,actionLogId];
-                        var logsDao = require('_pr/model/dao/logsdao.js');
-                        logsDao.insertLog({
-                            referenceId: logsReferenceIds,
-                            err: false,
-                            log: 'BOTs execution started for script ' + botDetails[0].id,
-                            timestamp: new Date().getTime()
-                        });
-                        var resultObj = {
-                            botId:botId,
-                            actionLogId:actionLogId,
-                            status:"running"
-                        }
-                        next(null,resultObj);
-                        checkSINTLAuditAction(actionLogId,botDetails[0],reqBody.userName,function(err,data){
-                            if(err){
-                                logger.error("Error in check Audit Trails for SINTL");
-                            }
-                        })
-                        return;
-                    }
-                })
-            }else {
-                var error =new Error();
-                error.message=botId+" BOT is not available in DB.";
-                error.status=303
-                next(error,null);
-            }
-        }
-    ],function(err,results){
-        if(err){
-            logger.error(err);
-            callback(err,null);
-            return;
-        }else{
-            callback(null,results);
-            return;
-        }
-    });
-}
-
-function checkSINTLAuditAction(actionLogId,botDetails,userName,callback){
-    var every = require('every-moment');
-    var timer = every(botDetails.manualExecutionTime * 60, 'seconds', function () {
-        auditTrail.getAuditTrails({actionLogId:actionLogId},function(err,botAuditTrails){
-            if(err){
-                callback(err,null);
-                timer.stop();
-                return;
-            }else if(botAuditTrails.length > 0 && botAuditTrails[0].status === 'running'){
-                var reqObj = {
-                    botId:botDetails.id,
-                    actionLogId:actionLogId,
-                    status:"failed",
-                    userName:userName
-                }
-                auditTrailService.updateBOTsAction(reqObj,callback);
-                timer.stop();
-            }else{
-                var error =new Error();
-                error.message="There is no Audit Trails in DB for BOTs "+botDetails.id;
-                error.status=303
-                callback(error,null);
-                timer.stop();
-                return;
-            }
-        });
-    })
-}
-
-
-function getExecutionTime(endTime, startTime) {
-    var executionTimeInMS = endTime - startTime;
-    var totalSeconds = Math.floor(executionTimeInMS / 1000);
-    return totalSeconds;
 }
 
 

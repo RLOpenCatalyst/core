@@ -1664,26 +1664,6 @@ var d4dMastersRemoteBotServer = new mongoose.Schema({
         required: true,
         trim: true,
     },
-   /* hostCredentialType: {
-        type: String,
-        required: false,
-        trim: true
-    },
-    hostUserName: {
-        type: String,
-        required: false,
-        trim: true
-    },
-    hostPassword: {
-        type: String,
-        required: false,
-        trim: true
-    },
-    hostPemFileLocation: {
-        type: String,
-        required: false,
-        trim: true
-    },*/
     active: {
         type: Boolean,
         default: false
@@ -1707,6 +1687,60 @@ var d4dMastersRemoteBotServer = new mongoose.Schema({
     collection: 'd4dmastersnew'
 });
 var d4dModelMastersBOTsRemoteServer = mongoose.model('d4dModelMastersBOTsRemoteServer', d4dMastersRemoteBotServer, 'd4dmastersnew');
+
+var d4dMastersAnsibleServer = new mongoose.Schema({
+    id: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    name: {
+        type: String,
+        trim: true,
+        validate: nameValidator
+    },
+    orgname: {
+        type: String,
+        required: true,
+        trim: true,
+        validate: nameValidator
+    },
+    orgname_rowid: {
+        type: String,
+        trim: true,
+        required: true,
+    },
+    username: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    password: {
+        type: String,
+        trim: true
+    },
+    pemfile_filename: {
+        type: String,
+        trim: true
+    },
+    folderpath: {
+        type: String,
+        trim: true
+    },
+    hostname: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    rowid: {
+        type: String,
+        required: true,
+        trim: true
+    }
+}, {
+    collection: 'd4dmastersnew'
+});
+var d4dModelMastersAnsibleServer = mongoose.model('d4dModelMastersAnsibleServer', d4dMastersAnsibleServer, 'd4dmastersnew');
 
 module.exports = d4dModelNew;
 module.exports.d4dModelMastersOrg = d4dModelMastersOrg;
@@ -1737,4 +1771,5 @@ module.exports.d4dModelFunctionalTestConfig = d4dModelFunctionalTestConfig;
 module.exports.d4dModelMastersCICDDashboard = d4dModelMastersCICDDashboard;
 module.exports.d4dModelSonarqubeConfig = d4dModelSonarqubeConfig;
 module.exports.d4dModelMastersBOTsRemoteServer = d4dModelMastersBOTsRemoteServer;
+module.exports.d4dModelMastersAnsibleServer = d4dModelMastersAnsibleServer;
 

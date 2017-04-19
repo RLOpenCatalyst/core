@@ -101,6 +101,15 @@ var BotsSchema = new Schema ({
     inputFormFields:Schema.Types.Mixed,
     outputOptions:Schema.Types.Mixed,
     params:Schema.Types.Mixed,
+    isParameterized:{
+        type: Boolean,
+        default: false
+    },
+    lastExecutionStatus:{
+        type: String,
+        trim: true,
+        required: false
+    },
     ymlDocFileId : {
         type: String,
         trim: true,
