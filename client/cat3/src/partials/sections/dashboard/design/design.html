@@ -74,12 +74,12 @@
 
 	<div class="panelRight">
 		<div id='rightPanel' class='container-fluid'>
-			<ul class="nav nav-tabs" >
+			<ul class="nav nav-tabs" style="height: 43px;">
 				<li ng-class="{'active':state.current.name === 'dashboard.design.list'}"  ui-sref="dashboard.design.list({providerName:state.params.providerName,templateObj:state.params.templateObj})"><a style="font-weight:600"><i class="fa fa-list fa-2" aria-hidden="true"></i> List</a></li>
 				<li ng-if="state.params.templateObj.templatetypename !== 'Composite'" ng-class="{'active':state.current.name === 'dashboard.design.add'}" ui-sref="dashboard.design.add({providerName:state.params.providerName,templateObj:state.params.templateObj})"><a style="font-weight:600" ><i class="fa fa-file-text fa-2" aria-hidden="true"></i> New</a></li>
 				<li ng-if="state.params.templateObj.templatetypename === 'Composite'" ng-class="{'active':state.current.name === 'dashboard.design.compositeNew'}" ui-sref="dashboard.design.compositeNew({providerName:state.params.providerName,templateObj:state.params.templateObj})"><a style="font-weight:600" ><i class="fa fa-file-text fa-2" aria-hidden="true"></i> New</a></li>
 				<li class="form-group pull-right filter-btn" style="padding: 8px;" >
-					<button type="button" title="Filter" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ng-click="isOpenSidebar = !isOpenSidebar">
+					<button ng-hide="filterhide" type="button" title="Filter" class="btn btn-xs cat-btn-update ng-scope pull-right margin-left6" ng-click="isOpenSidebar = !isOpenSidebar">
 						<i class="fa fa-filter fa-2 white" aria-hidden="true"></i>&nbsp;Filter
 					</button>
 				</li>

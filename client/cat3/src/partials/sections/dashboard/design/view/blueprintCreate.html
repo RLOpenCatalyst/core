@@ -8,24 +8,31 @@
             </div>
             <form name="newBlueprintForm" novalidate>
                <div ng-show="steps[0].isDisplayed">
-                  <div class="col-sm-3 col-lg-3 col-md-3 blueprintTemplate" ng-repeat="templateDetail in templateList" ng-if="bpTypeName == templateDetail.templatetypename" ng-class="{'blueprintTemplateSelected':templateDetail.selected}" ng-click="blueprintTemplateClick(templateDetail);">
-                     <ul class="list-unstyled system-prop" style="text-align:center;">
-                        <li>
-                           <img style="height:40px;width:auto;" ng-if="templateDetail.templatesicon_filePath" alt="templateLogo" ng-src="{{templateDetail.templatesicon_filePath}}">
-                           <img style="height:40px;width:auto;" ng-if="!templateDetail.templatesicon_filePath" ng-src="{{logo}}">
-                        </li>
-                        <li style="font-size:12px;"><u><b>{{templateDetail.templatename}}</b></u></li>
-                        <li style="font-size:10px;" ng-repeat="item in templateDetail.templatescookbooks.split(',')">{{item}}</li>
-                     </ul>
-                  </div>
-                  <div class="col-sm-3 col-lg-3 col-md-3 blueprintTemplate" ng-repeat="templateDetail in imageList" ng-if="bpTypeName === 'OSImage'" ng-class="{'blueprintTemplateSelected':templateDetail.selected}" ng-click="blueprintTemplateClick(templateDetail);">
-                     <ul class="list-unstyled system-prop" style="text-align:center;">
-                        <li>
-                           <img style="height:40px;width:auto;" ng-if="templateDetail.osType =='linux'" alt="templateLogo" ng-src="{{osImageLogo}}">
-                           <img style="height:40px;width:auto;" ng-if="templateDetail.osType =='windows'" alt="templateLogo" ng-src="{{osImageLogoWindows}}">
-                        </li>
-                        <li style="font-size:12px;"><u><b>{{templateDetail.name}}</b></u></li>
-                     </ul>
+                 <div class="col-sm-12 col-md-12 col-lg-12"> 
+                     <div class="col-sm-2 col-lg-2 col-md-2 " ng-repeat="templateDetail in templateList" ng-if="bpTypeName == templateDetail.templatetypename">
+                        <div class="blueprintTemplate"  ng-class="{'blueprintTemplateSelected':templateDetail.selected}" ng-click="blueprintTemplateClick(templateDetail);">
+                           <ul class="list-unstyled system-prop" style="text-align:center;">
+                              <li>
+                                 <img style="height:40px;width:auto;" ng-if="templateDetail.templatesicon_filePath" alt="templateLogo" ng-src="{{templateDetail.templatesicon_filePath}}">
+                                 <img style="height:40px;width:auto;" ng-if="!templateDetail.templatesicon_filePath" ng-src="{{logo}}">
+                              </li>
+                              <li style="font-size:12px;"><u><b>{{templateDetail.templatename}}</b></u></li>
+                              <li style="font-size:10px;" ng-repeat="item in templateDetail.templatescookbooks.split(',')">{{item}}</li>
+                           </ul>
+                        </div>
+                     </div>
+
+                     <div class="col-sm-2 col-lg-2 col-md-2 " ng-repeat="templateDetail in imageList" ng-if="bpTypeName === 'OSImage'" >
+                        <div class="blueprintTemplate" ng-class="{'blueprintTemplateSelected':templateDetail.selected}" ng-click="blueprintTemplateClick(templateDetail);">
+                           <ul class="list-unstyled system-prop" style="text-align:center;">
+                              <li>
+                                 <img style="height:40px;width:auto;" ng-if="templateDetail.osType =='linux'" alt="templateLogo" ng-src="{{osImageLogo}}">
+                                 <img style="height:40px;width:auto;" ng-if="templateDetail.osType =='windows'" alt="templateLogo" ng-src="{{osImageLogoWindows}}">
+                              </li>
+                              <li style="font-size:12px;"><u><b>{{templateDetail.name}}</b></u></li>
+                           </ul>
+                        </div>
+                     </div>
                   </div>
                </div>
                <div ng-show="steps[1].isDisplayed">
@@ -51,7 +58,7 @@
                              Provider Parameters
                            </accordion-heading>
                            <div class="col-lg-4 col-md-4">
-                              <label for="instanceOS">Select Operating System:<span class="red">&nbsp;*</span>
+                              <label for="instanceOS">Operating System:<span class="red">&nbsp;*</span>
                                  <span ng-show="newBlueprintForm.osListing.$touched && newBlueprintForm.osListing.$invalid" class="inputValidationMsg">Required</span>
                                  <loading size="small" name="isOSLoading" type="inline"></loading>
                               </label>
@@ -64,7 +71,7 @@
                               </select>
                            </div>
                            <div class="col-lg-4 col-md-4">
-                              <label for="providerId">Select Provider:<span class="red">&nbsp;*</span>
+                              <label for="providerId">Provider:<span class="red">&nbsp;*</span>
                                  <span ng-show="newBlueprintForm.providerId.$touched && newBlueprintForm.providerId.$invalid" class="inputValidationMsg">Required</span>
                                  <loading size="small" name="isOSLoading" type="inline"></loading>
                               </label>
@@ -75,7 +82,7 @@
                               </select>
                            </div>
                            <div class="col-lg-4 col-md-4">
-                              <label for="imageId">Select Available Images:<span class="red">&nbsp;*</span>
+                              <label for="imageId">Available Images:<span class="red">&nbsp;*</span>
                                  <span ng-show="newBlueprintForm.imageId.$touched && newBlueprintForm.imageId.$invalid" class="inputValidationMsg">Required</span>
                                  <loading size="small" name="isImageLoading" type="inline"></loading>
                               </label>
@@ -92,7 +99,7 @@
                               <input ng-model="bpCreate.newEnt.blueprintSecurityGroupPort" name="blueprintSecurityGroupPortInput" class="form-control" type="text" autofocus="autofocus" required placeholder="Enter ports separated by comma">
                            </div>
                            <div class="col-lg-4 col-md-4 margintop15" ng-if="providerType === 'AWS'  || providerType === 'AZURE'">
-                              <label for="region">Select Region:<span class="red">&nbsp;*</span>
+                              <label for="region">Region:<span class="red">&nbsp;*</span>
                                  <span ng-show="newBlueprintForm.region.$touched && newBlueprintForm.region.$invalid" class="inputValidationMsg">Required</span>
                                  <loading size="small" name="isRegionKeyPairLoading" type="inline"></loading>
                               </label>
@@ -103,7 +110,7 @@
                               </select>
                            </div>
                            <div class="col-lg-4 col-md-4 margintop15" ng-if="providerType === 'OPENSTACK'">
-                              <label for="flavour">Select Flavour:<span class="red">&nbsp;*</span>
+                              <label for="flavour">Flavour:<span class="red">&nbsp;*</span>
                                  <span ng-show="newBlueprintForm.flavour.$touched && newBlueprintForm.flavour.$invalid" class="inputValidationMsg">Required</span>
                                  <loading size="small" name="isRegionKeyPairLoading" type="inline"></loading>
                               </label>
@@ -113,7 +120,7 @@
                               </select>
                            </div>
                            <div class="col-lg-4 col-md-4 margintop15" ng-if="providerType === 'OPENSTACK'">
-                              <label for="network">Select Network:<span class="red">&nbsp;*</span>
+                              <label for="network">Network:<span class="red">&nbsp;*</span>
                                  <span ng-show="newBlueprintForm.network.$touched && newBlueprintForm.network.$invalid" class="inputValidationMsg">Required</span>
                                  <loading size="small" name="isRegionKeyPairLoading" type="inline"></loading>
                               </label>
@@ -123,7 +130,7 @@
                               </select>
                            </div>
                            <div class="col-lg-4 col-md-4 margintop15" ng-if="providerType === 'AWS'  || providerType === 'AZURE'">
-                              <label for="vpcId">Select VPC:<span class="red">&nbsp;*</span>
+                              <label for="vpcId">VPC:<span class="red">&nbsp;*</span>
                                  <span ng-show="newBlueprintForm.vpcId.$touched && newBlueprintForm.vpcId.$invalid" class="inputValidationMsg">Required</span>
                                  <loading size="small" name="isVPCLoading" type="inline"></loading>
                               </label>
@@ -134,7 +141,7 @@
                               </select>
                            </div>
                            <div class="col-lg-4 col-md-4 margintop15" ng-if="providerType !=='VMWARE'">
-                              <label for="subnetId">Select Subnet:<span class="red">&nbsp;*</span>
+                              <label for="subnetId">Subnet:<span class="red">&nbsp;*</span>
                                  <span ng-show="newBlueprintForm.subnetId.$touched && newBlueprintForm.subnetId.$invalid" class="inputValidationMsg">Required</span>
                                  <loading size="small" name="isSubnetLoading" type="inline"></loading>
                               </label>
@@ -145,7 +152,7 @@
                               </select>
                            </div>
                            <div class="col-lg-4 col-md-4 margintop15" ng-if="providerType === 'AWS'">
-                              <label for="keypairId">Select KeyPair:<span class="red">&nbsp;*</span>
+                              <label for="keypairId">KeyPair:<span class="red">&nbsp;*</span>
                                  <span ng-show="newBlueprintForm.keypairId.$touched && newBlueprintForm.keypairId.$invalid" class="inputValidationMsg">Required</span>
                                  <loading size="small" name="isRegionKeyPairLoading" type="inline"></loading>
                               </label>
@@ -197,7 +204,7 @@
                               </div>
                             </div>
                            <div class="col-lg-4 col-md-4 margintop15" ng-if="providerType === 'VMWARE'">
-                              <label for="dataStore">Select Data Store:<span class="red">&nbsp;*</span>
+                              <label for="dataStore">Data Store:<span class="red">&nbsp;*</span>
                                  <span ng-show="newBlueprintForm.dataStore.$touched && newBlueprintForm.dataStore.$invalid" class="inputValidationMsg">Required</span>
                                  <loading size="small" name="isRegionKeyPairLoading" type="inline"></loading>
                               </label>
@@ -215,7 +222,7 @@
                               Blueprint name & Organization
                            </accordion-heading>
                            <div class="col-lg-4 col-md-4">
-                              <label for="blueprintNameInput">Enter Blueprint Name:<span class="red"  >&nbsp;*</span>
+                              <label for="blueprintNameInput">Blueprint Name:<span class="red"  >&nbsp;*</span>
                                  <span ng-show="newBlueprintForm.blueprintNameInput.$dirty && newBlueprintForm.blueprintNameInput.$error.required" class="inputValidationMsg">Required</span>
                                  <span class="red inputValidationMsg" ng-show="newBlueprintForm.blueprintNameInput.$error.maxlength">
                                  (only 25 chars allowed)</span>
@@ -223,7 +230,7 @@
                               <input ng-model="bpCreate.newEnt.blueprintName" ng-maxlength="25" name="blueprintNameInput" class="form-control" type="text" autofocus="autofocus" required>
                            </div>
                            <div class="col-lg-4 col-md-4">
-                              <label for="orgnameSelect">Select Organization <span class="red">&nbsp;*</span>
+                              <label for="orgnameSelect">Organization <span class="red">&nbsp;*</span>
                                  <span ng-show="newBlueprintForm.orgnameSelect.$touched && newBlueprintForm.orgnameSelect.$invalid" class="inputValidationMsg">Required</span>
                               </label>
                               <select ng-model="bpCreate.newEnt.orgList" name="orgnameSelect" class="chooseOrgselect2 width-100 form-control" required>
@@ -233,7 +240,7 @@
                            </div>
 
                            <div class="col-lg-4 col-md-4">
-                              <label for="bgListInput">Select Business Group <span class="red">&nbsp;*</span>
+                              <label for="bgListInput">Business Group <span class="red">&nbsp;*</span>
                                  <span ng-show="newBlueprintForm.bgListInput.$touched && newBlueprintForm.bgListInput.$invalid" class="inputValidationMsg">Required</span>
                               </label>
                               <select ng-model="bpCreate.newEnt.bgList" name="bgListInput" class="chooseBG width-100 form-control" required>
@@ -242,7 +249,7 @@
                               </select>
                            </div>
                            <div class="col-lg-4 col-md-4 margintop15">
-                              <label for="projectListInput">Select Project <span class="red">&nbsp;*</span>
+                              <label for="projectListInput">Project <span class="red">&nbsp;*</span>
                                  <span ng-show="newBlueprintForm.projectList.$touched && newBlueprintForm.projectList.$invalid" class="inputValidationMsg">Required</span>
                               </label>
                               <select ng-model="bpCreate.newEnt.projectList" name="projectListInput" class="chooseProject width-100 form-control" ng-change="bpCreate.enableAppDeploy();" required>
@@ -495,7 +502,7 @@
                               Configure Stack Parameters
                            </accordion-heading>
                            <div class="col-lg-6 col-md-6">
-                              <label for="region">Select Region:<span class="red">&nbsp;*</span>
+                              <label for="region">Region:<span class="red">&nbsp;*</span>
                                  <span ng-show="newBlueprintForm.region.$touched && newBlueprintForm.region.$invalid" class="inputValidationMsg">Required</span>
                                  <loading size="small" name="isRegionKeyPairLoading" type="inline"></loading>
                               </label>
@@ -505,7 +512,7 @@
                               </select>
                            </div>
                            <div class="col-lg-6 col-md-6">
-                              <label for="orgnameSelect">Select Provider <span class="red">&nbsp;*</span>
+                              <label for="orgnameSelect">Provider <span class="red">&nbsp;*</span>
                                  <span ng-show="newBlueprintForm.providerId.$touched && newBlueprintForm.providerId.$invalid" class="inputValidationMsg">Required</span>
                               </label>
                               <select ng-model="bpCreate.newEnt.providers" ng-change="bpCreate.getProviderImage();" name="providerId" class="chooseOSProvider width-100 form-control" required>
@@ -558,7 +565,7 @@
                               Configure Template Parameters
                            </accordion-heading>
                            <div class="col-lg-6 col-md-6">
-                              <label for="orgnameSelect">Select Provider <span class="red">&nbsp;*</span>
+                              <label for="orgnameSelect">Provider <span class="red">&nbsp;*</span>
                                  <span ng-show="newBlueprintForm.providerId.$touched && newBlueprintForm.providerId.$invalid" class="inputValidationMsg">Required</span>
                               </label>
                               <select ng-model="bpCreate.newEnt.providers" name="providerId" class="chooseOSProvider width-100 form-control" ng-change="bpCreate.getResourceGroups();" required>
@@ -567,7 +574,7 @@
                               </select>
                            </div>
                            <div class="col-lg-6 col-md-6">
-                              <label for="resourceGroup">Select Resource Group:<span class="red">&nbsp;*</span>
+                              <label for="resourceGroup">Resource Group:<span class="red">&nbsp;*</span>
                                  <span ng-show="newBlueprintForm.resourceGroup.$touched && newBlueprintForm.resourceGroup.$invalid" class="inputValidationMsg">Required</span>
                                  <loading size="small" name="isResourceGroupLoading" type="inline"></loading>
                               </label>

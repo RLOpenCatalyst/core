@@ -5,6 +5,7 @@
             var blueprintCreation = this;
             //$rootScope.state = $state;
             //to get the templates listing.
+            $rootScope.filterhide= $state.params.filterhide;
             if($state.params &&  $state.params.templateObj){
                 $scope.providerType = $state.params.providerName.toUpperCase();
                 $scope.bpTypeName = $state.params.templateObj.templatetypename;
