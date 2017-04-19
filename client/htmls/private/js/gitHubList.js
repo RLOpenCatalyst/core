@@ -1,6 +1,7 @@
 
 //initialising the datatable...
 if (!$.fn.dataTable.isDataTable('#gitTable')) {
+    $.fn.dataTable.ext.errMode = 'throw';
     var $gitDatatable = $('#gitTable').DataTable({
         "pagingType": "full_numbers",
         "bInfo": false,
