@@ -784,7 +784,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
                     } else if (req.params.id === '16') {
                         // For Template
                         logger.debug("Id for templateType: ", req.params.id);
-                        masterUtil.getTemplateTypes(orgList, function (err, templateList) {
+                        masterUtil.getFilterTemplateTypes(req.params.id, function (err, templateList) {
                             if (err) {
                                 res.status(500).send('Not able to fetch TemplateType.');
                             }
@@ -1011,7 +1011,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
                     } else if (req.params.id === '16') {
                         // For Template
                         logger.debug("Id for templateType: ", req.params.id);
-                        masterUtil.getTemplateTypes(orgList, function (err, templateList) {
+                        masterUtil.getFilterTemplateTypes(req.params.id, function (err, templateList) {
                             if (err) {
                                 res.status(500).send('Not able to fetch TemplateType.');
                             }

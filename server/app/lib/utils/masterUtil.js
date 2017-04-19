@@ -450,6 +450,48 @@ var MasterUtil = function () {
         });
     }
 
+
+    this.getFilterTemplateTypes = function (id, callback) {
+        var templateTypeList = [];
+        d4dModelNew.d4dModelMastersDesignTemplateTypes.find({
+            id: id
+        }, function (err, templateTypes) {
+            if (err) {
+                callback(err, null);
+            }else if (templateTypes.length > 0) {
+                templateTypes.forEach(function(templateType){
+                    var templateTypeObj = {
+                        templatetypename: templateType.templatetypename,
+                        designtemplateicon_filename: templateType.designtemplateicon_filename,
+                        rowid: templateType.rowid,
+                        id: templateType.id,
+                        active: templateType.active,
+                        templatetype: templateType.templatetype
+                    }
+                    var findTempCheck =false;
+                    if(templateTypeList.length > 0) {
+                        templateTypeList.forEach(function (template) {
+                            if (template.templatetypename === templateTypeObj.templatetypename) {
+                                findTempCheck = true;
+                            }
+                        })
+                        if(findTempCheck === false){
+                            templateTypeList.push(templateTypeObj);
+                        }
+                    }else{
+                        templateTypeList.push(templateTypeObj);
+                    }
+                })
+                callback(null, templateTypeList);
+                return;
+            } else {
+                callback(null, templateTypeList);
+                return;
+            }
+
+        });
+    }
+
     // Return all ServiceCommands
     this.getServiceCommands = function (orgList, callback) {
         var serviceCommandList = [];

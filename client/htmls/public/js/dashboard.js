@@ -225,7 +225,22 @@ $(document).ready(function () {
             "processing": true,
             "serverSide": true,
             "destroy": true,
-            "ajax": '/providers/' + providerId + '/managedInstanceList',
+            "ajax": {
+                "url":'/providers/' + providerId + '/managedInstanceList',
+                "data": function( result ) {
+                    var columnIndex = parseInt(result.order[0].column);
+                    var newResult = {
+                        draw:result.draw,
+                        page:result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
+                        pageSize:result.length,
+                        sortOrder:result.order[0].dir,
+                        sortBy:result.columns[columnIndex].data,
+                        filterBy:result.filterBy,
+                        search:result.search.value
+                    }
+                    return newResult;
+                }
+            },
             "columns": [
                 {"data": "platformId", "orderable": true},
                 {"data": "orgName", "orderable": false,
@@ -280,7 +295,22 @@ $(document).ready(function () {
             "processing": true,
             "serverSide": true,
             "destroy": true,
-            "ajax": '/tracked-instances?category=managed',
+            "ajax": {
+                "url": '/tracked-instances?category=managed',
+                "data": function( result ) {
+                    var columnIndex = parseInt(result.order[0].column);
+                    var newResult = {
+                        draw:result.draw,
+                        page:result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
+                        pageSize:result.length,
+                        sortOrder:result.order[0].dir,
+                        sortBy:result.columns[columnIndex].data,
+                        filterBy:result.filterBy,
+                        search:result.search.value
+                    }
+                    return newResult;
+                }
+            },
             "columns": [
                 {"data": "platformId", "orderable": true},
                 {"data": "orgName", "orderable": false,
@@ -330,7 +360,22 @@ $(document).ready(function () {
             "createdRow": function (row, data) {
                 $(row).attr({"data-id": data._id})
             },
-            "ajax": '/providers/' + providerId + '/unmanagedInstanceList',
+            "ajax": {
+                "url": '/providers/' + providerId + '/unmanagedInstanceList',
+                "data": function( result ) {
+                    var columnIndex = parseInt(result.order[0].column);
+                    var newResult = {
+                        draw:result.draw,
+                        page:result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
+                        pageSize:result.length,
+                        sortOrder:result.order[0].dir,
+                        sortBy:result.columns[columnIndex].data,
+                        filterBy:result.filterBy,
+                        search:result.search.value
+                    }
+                    return newResult;
+                }
+            },
             "columns": [
                 {"data": "platformId", "orderable": true},
                 {"data": "orgName", "orderable": false,
@@ -396,7 +441,22 @@ $(document).ready(function () {
             "createdRow": function (row, data) {
                 $(row).attr({"data-id": data._id})
             },
-            "ajax": '/providers/' + providerId + '/unassigned-instances',
+            "ajax": {
+                "url":'/providers/' + providerId + '/unassigned-instances',
+                "data": function( result ) {
+                    var columnIndex = parseInt(result.order[0].column);
+                    var newResult = {
+                        draw:result.draw,
+                        page:result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
+                        pageSize:result.length,
+                        sortOrder:result.order[0].dir,
+                        sortBy:result.columns[columnIndex].data,
+                        filterBy:result.filterBy,
+                        search:result.search.value
+                    }
+                    return newResult;
+                }
+            },
             "columns": [
                 {"data": "platformId", "orderable": true},
                 {"data": "orgName", "orderable": false,
@@ -447,7 +507,22 @@ $(document).ready(function () {
             "createdRow": function (row, data) {
                 $(row).attr({"data-id": data._id})
             },
-            "ajax": '/tracked-instances?category=assigned',
+            "ajax": {
+                "url": '/tracked-instances?category=assigned',
+                "data": function( result ) {
+                    var columnIndex = parseInt(result.order[0].column);
+                    var newResult = {
+                        draw:result.draw,
+                        page:result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
+                        pageSize:result.length,
+                        sortOrder:result.order[0].dir,
+                        sortBy:result.columns[columnIndex].data,
+                        filterBy:result.filterBy,
+                        search:result.search.value
+                    }
+                    return newResult;
+                }
+            },
             "columns": [
                 {"data": "platformId", "orderable": true},
                 {"data": "orgName", "orderable": false,

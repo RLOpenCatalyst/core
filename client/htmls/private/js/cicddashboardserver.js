@@ -34,7 +34,22 @@ function getGlobalcicdDashboardServers(){
            $( row ).attr({"dashboardName": data.dashboardName,"dashboardDesc":data.dashboardDesc,"orgId" : data.orgId ,"orgName" : data.orgName,"dashboardId" : data._id,"dashboardServer":data.dashboardServer,"catalystUsername":data.catalystUsername,"dashboardServerUserName":data.dashboardServerUserName,"dashboardDbHostName":data.dashboardDbHostName,"jiraServerId":data.jiraServerId,"jenkinsServerId":data.jenkinsServerId,"sonarServerId":data.sonarServerId
             });
         },
-        "ajax": '/cicd-dashboardservice',
+        "ajax": {
+            "url": '/cicd-dashboardservice',
+            "data": function( result ) {
+                var columnIndex = parseInt(result.order[0].column);
+                var newResult = {
+                    draw:result.draw,
+                    page:result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
+                    pageSize:result.length,
+                    sortOrder:result.order[0].dir,
+                    sortBy:result.columns[columnIndex].data,
+                    filterBy:result.filterBy,
+                    search:result.search.value
+                }
+                return newResult;
+            }
+        },
         "columns": [
             {"data": "dashboardName", "orderable" : true},
             {"data": "orgName","orderable" : false  },
