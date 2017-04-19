@@ -56,7 +56,8 @@
             }).then(function(response) {
                 toastr.success("Successfully executed");
                 $timeout(function () {
-                  $window.close();
+                  window.location.href = crtl.urlObject.redirectUrl;
+                  //$window.close();
                 },400);
             });
 
