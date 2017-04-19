@@ -103,7 +103,13 @@ function getScriptList() {
                 "scriptFileName" : data.fileName,"scriptFileId" : data.fileId,
                 "isParametrized" : data.isParametrized,"noOfParams":data.noOfParams});
         },
-        "ajax": '/scripts',
+        "ajax": {            
+            "url": "/scripts",            
+            "data": function( result ) {                
+                var newResult = {"page":"1","pageSize":"100"}                
+                return newResult;            
+            }        
+        },
         "columns": [
             {"data": "name", "orderable" : true},
             {"data": "orgDetails.name" ,"orderable" : false },

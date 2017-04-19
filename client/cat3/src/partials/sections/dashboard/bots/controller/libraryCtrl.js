@@ -26,7 +26,7 @@
         $scope.paginationParams=[];
         $scope.numofCardPages = 0;
         $scope.paginationParams.page = 1;
-        $scope.paginationParams.pageSize = 25;
+        $scope.paginationParams.pageSize = 24;
         $scope.paginationParams.sortBy = 'lastRunTime';
         $scope.paginationParams.sortOrder = 'desc';
         $scope.botLibrarySearch = '';
@@ -127,7 +127,7 @@
         $scope.botsDetails = function(result) {
             $scope.showLoadRecord();
             $scope.botLibGridOptions.totalItems = result.metaData.totalRecords;
-            if(result.metaData.totalRecords >= 25) {
+            if(result.metaData.totalRecords >= 24) {
                 $scope.showLoadMore = true;
                 $scope.showRecords = true;
             }
@@ -154,7 +154,7 @@
                     $scope.showLoadRecord();
                     $scope.botLibGridOptions.totalItems = result.metaData.totalRecords;
                     $scope.botSummary = result.botSummary;
-                    if(result.metaData.totalRecords >= 25) {
+                    if(result.metaData.totalRecords >= 24) {
                         $scope.showLoadMore = true;
                         $scope.showRecords = true;
                     }
@@ -202,6 +202,8 @@
             $scope.isBotLibraryPageLoading = true;
             $scope.searchString = $scope.botLibrarySearch;
             $scope.searchText = true;
+            $scope.showLoadMore = false;
+            $scope.showRecords = false;
             lib.gridOptions=[];
             if(pageNumber) {
                 $scope.botLibGridOptions.data = [];
@@ -251,9 +253,11 @@
             $scope.botLibGridOptions.data = [];
             $scope.isBotLibraryPageLoading = true;
             $scope.searchText = false;
+            $scope.showLoadMore = false;
+            $scope.showRecords = false;
             $scope.paginationParams.page = 1;
             $scope.botLibGridOptions.paginationCurrentPage = $scope.paginationParams.page;
-            $scope.paginationParams.pageSize = 25;
+            $scope.paginationParams.pageSize = 24;
             $scope.botStatus();
         };
 
@@ -340,7 +344,7 @@
                 $scope.paginationParams.page = 1;
                 $scope.botLibGridOptions.paginationCurrentPage = $scope.paginationParams.page;
             }
-            $scope.paginationParams.pageSize = 25;
+            $scope.paginationParams.pageSize = 24;
             if($scope.botLibrarySearch){
                 $scope.searchBotNameCategory();    
             } else {
@@ -394,6 +398,8 @@
         $scope.RefreshBotsLibrary = function() {
             $scope.isBotDetailsLoading = true;
             $scope.isBotLibraryPageLoading = true;
+            $scope.showLoadMore = false;
+            $scope.showRecords = false;
             $scope.botLibGridOptions.data = [];
             $scope.showLoadRecord();
             $scope.botLibAction = '';
@@ -402,7 +408,7 @@
             $scope.numofCardPages = 0;
             $scope.paginationParams.page = 1;
             $scope.botLibGridOptions.paginationCurrentPage = $scope.paginationParams.page;
-            $scope.paginationParams.pageSize = 25;
+            $scope.paginationParams.pageSize = 24;
             $scope.paginationParams.sortBy = 'lastRunTime';
             $scope.paginationParams.sortOrder = 'desc';
             $scope.botLibrarySearch = '';

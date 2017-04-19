@@ -1,27 +1,3 @@
-
-//initialising the datatable...
-if (!$.fn.dataTable.isDataTable('#gitTable')) {
-    var $gitDatatable = $('#gitTable').DataTable({
-        "pagingType": "full_numbers",
-        "bInfo": false,
-        "bLengthChange": false,
-        "paging": true,
-        "bFilter": false,
-        "aoColumns": [{
-            "bSortable": false
-        }, {
-            "bSortable": false
-        }, {
-            "bSortable": false
-        }, {
-            "bSortable": false
-        }, {
-            "bSortable": false
-        }]
-
-    });
-}
-
 //calling the global track functionality when track params are available..
 $(document).ready(function(e) {
     getGlobalGitServers();
@@ -191,7 +167,13 @@ function getGlobalGitServers() {
                 "repositoryBranch": data.repositoryBranch
             });
         },
-        "ajax": '/git-hub',
+        "ajax": {            
+            "url": "/git-hub",            
+            "data": function( result ) {                
+                var newResult = {"page":"1","pageSize":"100"}                
+                return newResult;            
+            }        
+        },
         "columns": [
             {"data": "repositoryName", "orderable" : true},
             {"data": "orgName","orderable" : false  },
