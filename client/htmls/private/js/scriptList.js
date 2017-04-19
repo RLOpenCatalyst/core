@@ -64,6 +64,10 @@ var validator = $('#scriptForm').validate({
         },
         scriptName: {
             maxlength: 30
+        },
+        noOfParams: {
+            maxlength: 2,
+            number: true
         }
     },
     messages: {
@@ -72,6 +76,10 @@ var validator = $('#scriptForm').validate({
         },
         scriptName: {
             maxlength: "Limited to 30 chars"
+        },
+        noOfParams: {
+            maxlength: "Limited to 2 Digit",
+            number: "Only Numbers"
         }
     },
     onkeyup: false,
@@ -271,7 +279,7 @@ $('#scriptForm').submit(function(e) {
     var isParametrized = false, noOfParams=0;
     if($("input[name='isParametrized']:checked").val() === 'Yes'){
         isParametrized =true;
-        noOfParams=parseInt($('#noOfParams').find(":selected").val());
+        noOfParams=parseInt($this.find('#noOfParams').val().trim());
     }
     var name = $this.find('#scriptName').val().trim();
     var description = $this.find('#scriptDescription').val().trim();
