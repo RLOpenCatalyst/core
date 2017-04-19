@@ -7,6 +7,7 @@
         	blueprintServices.getTemplates = function () {
 				var params = {
 					url: '/d4dMasters/readmasterjsonnew/17',
+					//url: 'src/partials/sections/dashboard/design/data/providers.json',
 					inlineLoader:true
 				};
 				return genericServices.promiseGet(params);

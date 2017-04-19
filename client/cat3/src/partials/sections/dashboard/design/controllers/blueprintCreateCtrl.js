@@ -5,6 +5,7 @@
             var blueprintCreation = this;
             //$rootScope.state = $state;
             //to get the templates listing.
+            $rootScope.filterhide= $state.params.filterhide;
             if($state.params &&  $state.params.templateObj){
                 $scope.providerType = $state.params.providerName.toUpperCase();
                 $scope.bpTypeName = $state.params.templateObj.templatetypename;
@@ -533,6 +534,7 @@
 
             blueprintCreation.showVMs= function(test) {
                 test='';
+                $scope.buttonClickedOnce = true;
                 $scope.isVMVisible = true;
                 $scope.vmEnabled = true;
                 $scope.armParameters = {};
@@ -844,8 +846,9 @@
 
                             instanceObj[blueprintCreation.getAzureVMDetails[i].name]= {
                                 username: blueprintCreation.getAzureVMDetails[i].username,
-                                password: blueprintCreation.getAzureVMDetails[i].password
-                                //runlist:[]
+                                password: blueprintCreation.getAzureVMDetails[i].password,
+                                runlist: responseFormatter.formatSelectedChefRunList($scope.runlistWithKey[blueprintCreation.getAzureVMDetails[i].name]),
+                                attributes: responseFormatter.formatSelectedCookbookAttributes($scope.cookbookAttributesWithKey[blueprintCreation.getAzureVMDetails[i].name])
                             };
                             blueprintCreateJSON.cftInstances = instanceObj;
 
@@ -853,7 +856,7 @@
                         blueprintCreateJSON.resourceGroup = blueprintCreation.newEnt.resourceGroup;
                     }
 
-                    if($scope.bpTypeName !== 'CloudFormation') {
+                    if($scope.bpTypeName !== 'CloudFormation' || $scope.bpTypeName !== 'ARMTemplate') {
                         blueprintCreateJSON.runlist = [];
                         if($scope.chefrunlist){
                             blueprintCreateJSON.runlist = responseFormatter.formatSelectedChefRunList($scope.chefrunlist);

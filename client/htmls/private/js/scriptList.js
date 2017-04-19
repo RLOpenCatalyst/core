@@ -112,17 +112,17 @@ function getScriptList() {
                 "isParametrized" : data.isParametrized,"noOfParams":data.noOfParams});
         },
         "ajax": {
-            "url":'/scripts',
-            "data": function( result ) {
+            "url": '/scripts',
+            "data": function (result) {
                 var columnIndex = parseInt(result.order[0].column);
                 var newResult = {
-                    draw:result.draw,
-                    page:result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
-                    pageSize:result.length,
-                    sortOrder:result.order[0].dir,
-                    sortBy:result.columns[columnIndex].data,
-                    filterBy:result.filterBy,
-                    search:result.search.value
+                    draw: result.draw,
+                    page: result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
+                    pageSize: result.length,
+                    sortOrder: result.order[0].dir,
+                    sortBy: result.columns[columnIndex].data,
+                    filterBy: result.filterBy,
+                    search: result.search.value
                 }
                 return newResult;
             }
