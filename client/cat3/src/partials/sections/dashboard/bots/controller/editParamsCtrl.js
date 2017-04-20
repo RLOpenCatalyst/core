@@ -79,8 +79,8 @@
             $scope.getBlueprintList = function() {
                 botsCreateService.getBlueprintList($scope.IMGNewEnt.org.orgid,$scope.IMGNewEnt.blueprintType).then(function(response){
                     $scope.originalBlueprintList=[];
-                    if(response){
-                        angular.forEach(response, function(value) {
+                    if(response.blueprints){
+                        angular.forEach(response.blueprints, function(value) {
                             if($scope.selectedBlueprintIds.indexOf(value._id) === -1) {
                                 $scope.originalBlueprintList.push(value);
                             }
