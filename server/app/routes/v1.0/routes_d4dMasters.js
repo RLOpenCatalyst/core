@@ -773,6 +773,12 @@ module.exports.setRoutes = function (app, sessionVerification) {
                     } else if (req.params.id === '17') {
                         // For Template
                         logger.debug("Id for template: ", req.params.id);
+                        if(req.query.orgId){                            
+                            orgList = [];                            
+                            orgList.push({      
+                                rowid:req.query.orgId                            
+                            })                        
+                        }
                         masterUtil.getTemplates(orgList, function (err, templateList) {
                             if (err) {
                                 res.status(500).send('Not able to fetch Template.');
@@ -1000,6 +1006,12 @@ module.exports.setRoutes = function (app, sessionVerification) {
                     } else if (req.params.id === '17') {
                         // For Template
                         logger.debug("Id for template: ", req.params.id);
+                        if(req.query.orgId){                            
+                            orgList = [];                            
+                            orgList.push({      
+                                rowid:req.query.orgId                            
+                            })                        
+                        }
                         masterUtil.getTemplates(orgList, function (err, templateList) {
                             if (err) {
                                 res.status(500).send('Not able to fetch Template.');
