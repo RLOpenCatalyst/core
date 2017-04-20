@@ -94,7 +94,10 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                         "actionStatus": 'failed',
                         "status": 'failed',
                         "endedOn": new Date().getTime(),
-                        "actionLogId": auditTrail.actionId
+                        "actionLogId": auditTrail.actionId,
+                        "auditTrailConfig.jenkinsBuildNumber":jobInfo.nextBuildNumber,
+                        "auditTrailConfig.jenkinsJobName":reqBody.data.jobName,
+                        "auditTrailConfig.jobResultURL":reqBody.data.jobResultURL
                     };
                     auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
                         if (err) {
@@ -133,7 +136,10 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                                 "actionStatus": 'failed',
                                 "status": 'failed',
                                 "endedOn": new Date().getTime(),
-                                "actionLogId": auditTrail.actionId
+                                "actionLogId": auditTrail.actionId,
+                                "auditTrailConfig.jenkinsBuildNumber":jobInfo.nextBuildNumber,
+                                "auditTrailConfig.jenkinsJobName":reqBody.data.jobName,
+                                "auditTrailConfig.jobResultURL":reqBody.data.jobResultURL
                             };
                             auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
                                 if (err) {
@@ -163,7 +169,10 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                                     "actionStatus": 'failed',
                                     "status": 'failed',
                                     "endedOn": new Date().getTime(),
-                                    "actionLogId": auditTrail.actionId
+                                    "actionLogId": auditTrail.actionId,
+                                    "auditTrailConfig.jenkinsBuildNumber":jobInfo.nextBuildNumber,
+                                    "auditTrailConfig.jenkinsJobName":reqBody.data.jobName,
+                                    "auditTrailConfig.jobResultURL":reqBody.data.jobResultURL
                                 };
                                 auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
                                     if (err) {
@@ -197,7 +206,10 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                                             "actionStatus": 'failed',
                                             "status": 'failed',
                                             "endedOn": new Date().getTime(),
-                                            "actionLogId": auditTrail.actionId
+                                            "actionLogId": auditTrail.actionId,
+                                            "auditTrailConfig.jenkinsBuildNumber":jobInfo.nextBuildNumber,
+                                            "auditTrailConfig.jenkinsJobName":reqBody.data.jobName,
+                                            "auditTrailConfig.jobResultURL":reqBody.data.jobResultURL
                                         };
                                         auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
                                             if (err) {
@@ -224,7 +236,10 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                                                         "actionStatus": 'failed',
                                                         "status": 'failed',
                                                         "endedOn": new Date().getTime(),
-                                                        "actionLogId": auditTrail.actionId
+                                                        "actionLogId": auditTrail.actionId,
+                                                        "auditTrailConfig.jenkinsBuildNumber":jobInfo.nextBuildNumber,
+                                                        "auditTrailConfig.jenkinsJobName":reqBody.data.jobName,
+                                                        "auditTrailConfig.jobResultURL":reqBody.data.jobResultURL
                                                     };
                                                     auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
                                                         if (err) {
@@ -253,7 +268,10 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                                                             "actionStatus": 'success',
                                                             "status": 'success',
                                                             "endedOn": new Date().getTime(),
-                                                            "actionLogId": auditTrail.actionId
+                                                            "actionLogId": auditTrail.actionId,
+                                                            "auditTrailConfig.jenkinsBuildNumber":jobInfo.nextBuildNumber,
+                                                            "auditTrailConfig.jenkinsJobName":reqBody.data.jobName,
+                                                            "auditTrailConfig.jobResultURL":reqBody.data.jobResultURL
                                                         };
 
                                                         auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
@@ -295,7 +313,10 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                                     "actionStatus": 'failed',
                                     "status": 'failed',
                                     "endedOn": new Date().getTime(),
-                                    "actionLogId": auditTrail.actionId
+                                    "actionLogId": auditTrail.actionId,
+                                    "auditTrailConfig.jenkinsBuildNumber":jobInfo.nextBuildNumber,
+                                    "auditTrailConfig.jenkinsJobName":reqBody.data.jobName,
+                                    "auditTrailConfig.jobResultURL":reqBody.data.jobResultURL
                                 };
                                 auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
                                     if (err) {
@@ -329,7 +350,10 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                                             "actionStatus": 'failed',
                                             "status": 'failed',
                                             "endedOn": new Date().getTime(),
-                                            "actionLogId": auditTrail.actionId
+                                            "actionLogId": auditTrail.actionId,
+                                            "auditTrailConfig.jenkinsBuildNumber":jobInfo.nextBuildNumber,
+                                            "auditTrailConfig.jenkinsJobName":reqBody.data.jobName,
+                                            "auditTrailConfig.jobResultURL":reqBody.data.jobResultURL
                                         };
                                         auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
                                             if (err) {
@@ -356,7 +380,10 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                                                         "actionStatus": 'failed',
                                                         "status": 'failed',
                                                         "endedOn": new Date().getTime(),
-                                                        "actionLogId": auditTrail.actionId
+                                                        "actionLogId": auditTrail.actionId,
+                                                        "auditTrailConfig.jenkinsBuildNumber":jobInfo.nextBuildNumber,
+                                                        "auditTrailConfig.jenkinsJobName":reqBody.data.jobName,
+                                                        "auditTrailConfig.jobResultURL":reqBody.data.jobResultURL
                                                     };
                                                     auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
                                                         if (err) {
@@ -385,7 +412,10 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                                                             "actionStatus": 'success',
                                                             "status": 'success',
                                                             "endedOn": new Date().getTime(),
-                                                            "actionLogId": auditTrail.actionId
+                                                            "actionLogId": auditTrail.actionId,
+                                                            "auditTrailConfig.jenkinsBuildNumber":jobInfo.nextBuildNumber,
+                                                            "auditTrailConfig.jenkinsJobName":reqBody.data.jobName,
+                                                            "auditTrailConfig.jobResultURL":reqBody.data.jobResultURL
                                                         };
                                                         auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
                                                             if (err) {
@@ -421,7 +451,10 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                         "actionStatus": 'failed',
                         "status": 'failed',
                         "endedOn": new Date().getTime(),
-                        "actionLogId": auditTrail.actionId
+                        "actionLogId": auditTrail.actionId,
+                        "auditTrailConfig.jenkinsBuildNumber":jobInfo.nextBuildNumber,
+                        "auditTrailConfig.jenkinsJobName":reqBody.data.jobName,
+                        "auditTrailConfig.jobResultURL":reqBody.data.jobResultURL
                     };
                     auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
                         if (err) {
