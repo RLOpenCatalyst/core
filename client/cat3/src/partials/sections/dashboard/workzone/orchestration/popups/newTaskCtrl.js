@@ -595,27 +595,31 @@
 
 			var allBlueprints = workzoneServices.getBlueprints();
 			var allRunlist = workzoneServices.getCookBookListForOrg();
+			$scope.getChefDetails = function(instances,blueprints,roles){
+				$scope.editRunListAttributes = true;
+				$scope.isScriptInstanceLoading = false;
+				$scope.chefInstanceList = responseFormatter.identifyAvailableChefNode(responseFormatter.getChefList	(instances), items.taskConfig.nodeIds);
+				$scope.isNewTaskPageLoading = false;
+				$scope.chefBluePrintList = responseFormatter.identifyAvailableBlueprint(responseFormatter.getBlueprintList(blueprints), items.blueprintIds);
+				$scope.chefComponentSelectorList = responseFormatter.findDataForEditValue(items.taskConfig.runlist);
+				$scope.cookbookAttributes = responseFormatter.formatSavedCookbookAttributes(items.taskConfig.attributes);
+				$scope.chefrunlist = responseFormatter.chefRunlistFormatter($scope.chefComponentSelectorList);
+				$scope.chefRoleList = roles;
+			}
 			$q.all([allInstances,allBlueprints,allRunlist]).then(function(promiseObjs) {
 				$scope.isTargetTypesLoading = false;
 				$scope.isScriptNodesLoading = false;
 				var instances = promiseObjs[0].data;
 				var blueprints = promiseObjs[1].data;
 				var roles = Object.keys(promiseObjs[2].data.roles);
+
 				/*Identifying the chef nodes and adding a flag for identifying the selection in the angular checkbox selection*/
 				if ($scope.taskType === "chef") {
 					if($scope.isEditMode){
 						if(items.taskConfig && items.taskConfig.role) {
 							$scope.role.name = items.taskConfig.role;
 						}
-						$scope.editRunListAttributes = true;
-						$scope.isScriptInstanceLoading = false;
-						$scope.chefInstanceList = responseFormatter.identifyAvailableChefNode(responseFormatter.getChefList	(instances), items.taskConfig.nodeIds);
-						$scope.isNewTaskPageLoading = false;
-						$scope.chefBluePrintList = responseFormatter.identifyAvailableBlueprint(responseFormatter.getBlueprintList(blueprints), items.blueprintIds);
-						$scope.chefComponentSelectorList = responseFormatter.findDataForEditValue(items.taskConfig.runlist);
-						$scope.cookbookAttributes = responseFormatter.formatSavedCookbookAttributes(items.taskConfig.attributes);
-						$scope.chefrunlist = responseFormatter.chefRunlistFormatter($scope.chefComponentSelectorList);
-						$scope.chefRoleList = roles;
+						$scope.getChefDetails(instances,blueprints,roles);
 
 						if (items.blueprintIds.length){
 							$scope.targetType="blueprint";
