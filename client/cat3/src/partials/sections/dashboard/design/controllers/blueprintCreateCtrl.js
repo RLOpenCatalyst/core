@@ -1,4 +1,4 @@
-function ((angular) {
+(function (angular) {
     "use strict";
     angular.module('dashboard.design')
         .controller('blueprintCreateCtrl',['$scope','$rootScope','$modal','toastr','$state', 'blueprintCreateService','responseFormatter','genericServices','confirmbox', function ($scope,$rootScope,$modal,toastr,$state,bpCreateSer,responseFormatter,genericServices,confirmbox) {
