@@ -13,67 +13,59 @@
 
 
     
-    var app = angular.module('poc', ['ui.bootstrap','toastr']);
+    var app = angular.module('poc', ['ui.bootstrap','toastr']).config(['$locationProvider', function($locationProvider){
+            $locationProvider.html5Mode({
+              enabled: true,
+              requireBase: false
+            });
+        }]);
 
     app.controller('ServiceNowBOTCtrl', function( $scope, $http,$location,$uibModal,toastr,$timeout,$window) {
         var crtl=this;
         crtl.newEnt={};
         crtl.auth=[];
+	    crtl.urlObject={};
         crtl.getBOTDetail = function (BotName, Token) {
-            crtl.auth.BotName=BotName;
-            crtl.auth.Token=Token;
           return $http({
-            method: 'get', 
-           // url:"http://d4d.rlcatalyst.com/botsNew?filterBy=id:rlcatalyst_org_creation",
+            method: 'get',
             url:"../../../botsNew?filterBy=" + BotName,
             headers: {
-             // 'x-catalyst-auth': '855a95b6-9670-4f40-96c0-2d6e089d07b7',
               'x-catalyst-auth': Token,
               'Accept': 'application/json'
               }
              }).then(function(response) {
-              crtl.BOTData =  response.data;
-            crtl.type=response.data.bots[0].type;
-              angular.forEach(response.data.bots[0].inputFormFields,function (val) {
-                  crtl.newEnt[val.name]=val.default;
-              });
-          
+                crtl.BOTData =  response.data;
+                crtl.type=response.data.bots[0].type;
+                angular.forEach(response.data.bots[0].inputFormFields,function (val) {
+                    crtl.newEnt[val.name]=val.default;
+                });
           });
         };
         crtl.save = function () {
             return $http({
                 method: 'POST',
-                // url:"http://d4d.rlcatalyst.com/botsNew?filterBy=id:rlcatalyst_org_creation",
-                url:'../../../botsNew/' + crtl.auth.BotName.split(":")[1] + '/execute',
+                url:'../../../botsNew/' + crtl.urlObject.BotName.split(":")[1] + '/execute',
                 data:{
                       "data":crtl.newEnt,
                       "type":crtl.type
                     },
                 headers: {
-                    // 'x-catalyst-auth': '855a95b6-9670-4f40-96c0-2d6e089d07b7',
-                    'x-catalyst-auth': crtl.auth.Token,
+                    'x-catalyst-auth':crtl.urlObject.Token,
                     'Accept': 'application/json'
                 }
             }).then(function(response) {
                 toastr.success("Successfully executed");
                 $timeout(function () {
-                  $window.close();
+                  window.location.href = crtl.urlObject.redirectUrl;
+                  //$window.close();
                 },400);
             });
 
         };
 
         crtl.init=function () {
-            var paramQuery = location.search.substring(1);
-            if(paramQuery) {
-                var BotNameParam = paramQuery.split("&");
-                // console.log(BotNameParam[0]);
-                var botName = BotNameParam[0].split("=")[1];
-                var token = BotNameParam[1].split("=")[1];
-                crtl.getBOTDetail(botName, token);
-            }
-          // console.log("After init BOT data"+ $scope.BOTData);
-           
+            crtl.urlObject = $location.search();
+            crtl.getBOTDetail(crtl.urlObject.BotName, crtl.urlObject.Token);
         };
 
         crtl.init();
