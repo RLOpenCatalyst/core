@@ -596,6 +596,9 @@
 			var allBlueprints = workzoneServices.getBlueprints();
 			var allRunlist = workzoneServices.getCookBookListForOrg();
 			$scope.getChefDetails = function(instances,blueprints,roles){
+				if(items.taskConfig && items.taskConfig.role) {
+					$scope.role.name = items.taskConfig.role;
+				}
 				$scope.editRunListAttributes = true;
 				$scope.isScriptInstanceLoading = false;
 				$scope.chefInstanceList = responseFormatter.identifyAvailableChefNode(responseFormatter.getChefList	(instances), items.taskConfig.nodeIds);
@@ -605,7 +608,21 @@
 				$scope.cookbookAttributes = responseFormatter.formatSavedCookbookAttributes(items.taskConfig.attributes);
 				$scope.chefrunlist = responseFormatter.chefRunlistFormatter($scope.chefComponentSelectorList);
 				$scope.chefRoleList = roles;
-			}
+				if (items.blueprintIds.length){
+					$scope.targetType="blueprint";
+				}else if(items.taskConfig && items.taskConfig.nodeIds && items.taskConfig.nodeIds.length){
+					$scope.targetType="instance";
+				} else {
+					$scope.targetType="role";
+				}
+			};
+			$scope.getScriptDetails = function(instances){
+				$scope.isSudo=items.taskConfig.isSudo;
+				$scope.chefInstanceList = responseFormatter.identifyAvailableChefNode(responseFormatter.getChefList(instances), items.taskConfig.nodeIds);
+				$scope.isScriptInstanceLoading = false;
+				$scope.isNewTaskPageLoading = false;
+				$scope.targetType="instance";
+			};
 			$q.all([allInstances,allBlueprints,allRunlist]).then(function(promiseObjs) {
 				$scope.isTargetTypesLoading = false;
 				$scope.isScriptNodesLoading = false;
@@ -616,18 +633,7 @@
 				/*Identifying the chef nodes and adding a flag for identifying the selection in the angular checkbox selection*/
 				if ($scope.taskType === "chef") {
 					if($scope.isEditMode){
-						if(items.taskConfig && items.taskConfig.role) {
-							$scope.role.name = items.taskConfig.role;
-						}
 						$scope.getChefDetails(instances,blueprints,roles);
-
-						if (items.blueprintIds.length){
-							$scope.targetType="blueprint";
-						}else if(items.taskConfig && items.taskConfig.nodeIds && items.taskConfig.nodeIds.length){
-							$scope.targetType="instance";
-						} else {
-							$scope.targetType="role";
-						}
 					}else{
 						$scope.chefInstanceList = responseFormatter.identifyAvailableChefNode(responseFormatter.getChefList(instances), []);
 						$scope.isNewTaskPageLoading = false;
@@ -648,11 +654,7 @@
 				/*Identifying the nodes and script list and checking for task type to be script*/
 				if ($scope.taskType === "script") {
 					if($scope.isEditMode){
-						$scope.isSudo=items.taskConfig.isSudo;
-						$scope.chefInstanceList = responseFormatter.identifyAvailableChefNode(responseFormatter.getChefList(instances), items.taskConfig.nodeIds);
-						$scope.isScriptInstanceLoading = false;
-						$scope.isNewTaskPageLoading = false;
-						$scope.targetType="instance";
+						$scope.getScriptDetails(instances);
 					}else{
 						$scope.isSudo = false;
 						$scope.chefInstanceList = responseFormatter.identifyAvailableChefNode(responseFormatter.getChefList(instances), []);
