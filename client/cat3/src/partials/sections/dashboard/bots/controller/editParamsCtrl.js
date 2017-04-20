@@ -66,8 +66,8 @@
             $scope.getInstanceList = function() {
                 botsCreateService.getCurrentOrgInstances($scope.IMGNewEnt.org.orgid).then(function(response){
                     $scope.originalInstanceList=[];
-                    if(response){
-                        angular.forEach(response, function(value) {
+                    if(response.instances){
+                        angular.forEach(response.instances, function(value) {
                             if($scope.selectedInstanceIds.indexOf(value._id) === -1) {
                                 $scope.originalInstanceList.push(value);
                             }
