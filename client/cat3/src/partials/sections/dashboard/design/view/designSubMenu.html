@@ -20,7 +20,7 @@
     <li ng-repeat="provider in providersMenu" >
         <a ng-class="{'active':stateItems.params.subItem === provider.name}" data-target="#{{provider.name}}" data-toggle="collapse" data-parent="#stacked-menu">
             <img src="./images/providers/{{provider.icon}}"> &nbsp;{{provider.name}}<span class="caret arrow"></span></a>
-        <ul  class="hidemenu nav nav-stacked collapse left-submenu" id="{{provider.name}}">
+        <ul class="nav nav-stacked collapse left-submenu" id="{{provider.name}}">
             <li ng-repeat='tempType in templateTypes | inArray:provider.filterArray:"templatetype"'>
                 <a ng-class="{'active':stateItems.params.subItem === provider.name && stateItems.params.templateObj._id === tempType._id }" ui-sref="dashboard.designSubView({subItem:provider.name,view:'list',templateObj:tempType})" >
                    <span ng-switch="tempType.templatetype" >
@@ -35,9 +35,3 @@
         </ul>
     </li>
 </ul>
-
-<style type="text/css">
-.hidemenu{
-    display: none;
-}
-</style>
