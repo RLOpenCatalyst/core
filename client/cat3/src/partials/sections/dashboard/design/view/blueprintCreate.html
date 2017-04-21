@@ -230,17 +230,16 @@
                               <input ng-model="bpCreate.newEnt.blueprintName" ng-maxlength="25" name="blueprintNameInput" class="form-control" type="text" autofocus="autofocus" required>
                            </div>
                            <div class="col-lg-4 col-md-4">
-                              <label for="orgnameSelect">Organization <span class="red">&nbsp;*</span>
+                              <label for="orgnameSelect">Select Organization <span class="red">&nbsp;*</span>
                                  <span ng-show="newBlueprintForm.orgnameSelect.$touched && newBlueprintForm.orgnameSelect.$invalid" class="inputValidationMsg">Required</span>
                               </label>
                               <select ng-model="bpCreate.newEnt.orgList" name="orgnameSelect" class="chooseOrgselect2 width-100 form-control" required>
                                  <option value="">Select Organization</option>
-                                 <option ng-repeat="org in organObject"  value="{{organObject.indexOf(org)}}" >{{org.name}}</option>
+                                 <option ng-repeat="org in organObject" ng-if="org.orgid === organNewEnt.org.orgid"  value="{{organObject.indexOf(org)}}" >{{org.name}}</option>
                               </select>
                            </div>
-
                            <div class="col-lg-4 col-md-4">
-                              <label for="bgListInput">Business Group <span class="red">&nbsp;*</span>
+                              <label for="bgListInput">Select Business Group <span class="red">&nbsp;*</span>
                                  <span ng-show="newBlueprintForm.bgListInput.$touched && newBlueprintForm.bgListInput.$invalid" class="inputValidationMsg">Required</span>
                               </label>
                               <select ng-model="bpCreate.newEnt.bgList" name="bgListInput" class="chooseBG width-100 form-control" required>
@@ -249,7 +248,7 @@
                               </select>
                            </div>
                            <div class="col-lg-4 col-md-4 margintop15">
-                              <label for="projectListInput">Project <span class="red">&nbsp;*</span>
+                              <label for="projectListInput">Select Project <span class="red">&nbsp;*</span>
                                  <span ng-show="newBlueprintForm.projectList.$touched && newBlueprintForm.projectList.$invalid" class="inputValidationMsg">Required</span>
                               </label>
                               <select ng-model="bpCreate.newEnt.projectList" name="projectListInput" class="chooseProject width-100 form-control" ng-change="bpCreate.enableAppDeploy();" required>

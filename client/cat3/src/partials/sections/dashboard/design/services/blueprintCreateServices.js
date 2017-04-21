@@ -4,10 +4,9 @@
         .service('blueprintCreateService',['$rootScope','$http','$q','toastr', 'genericServices', function ($rootScope,$http,$q,toastr,genericServices) {
         	var blueprintServices = this;
         	//for getting the list of templates.
-        	blueprintServices.getTemplates = function () {
+        	blueprintServices.getTemplates = function (orgId) {
 				var params = {
-					url: '/d4dMasters/readmasterjsonnew/17',
-					//url: 'src/partials/sections/dashboard/design/data/providers.json',
+					url: '/d4dMasters/readmasterjsonnew/17?orgId='+orgId,
 					inlineLoader:true
 				};
 				return genericServices.promiseGet(params);
