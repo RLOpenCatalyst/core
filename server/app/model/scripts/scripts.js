@@ -65,6 +65,11 @@ var ScriptSchema = new Schema({
         type:Number,
         required:false,
         default:0
+    },
+    createdOn:{
+        type:Number,
+        required:false,
+        default:Date.now()
     }
 });
 ScriptSchema.plugin(mongoosePaginate);

@@ -149,7 +149,22 @@ $(document).ready(function() {
         "processing": true,
         "serverSide": true,
         "destroy":true,
-        "ajax": '/resources?filterBy=providerId:'+ providerId +',resourceType:S3,category:assigned',
+        "ajax": {
+            "url": '/resources?filterBy=providerId:'+ providerId +',resourceType:S3,category:assigned',
+            "data": function( result ) {
+                var columnIndex = parseInt(result.order[0].column);
+                var newResult = {
+                    draw:result.draw,
+                    page:result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
+                    pageSize:result.length,
+                    sortOrder:result.order[0].dir,
+                    sortBy:result.columns[columnIndex].data,
+                    filterBy:result.filterBy,
+                    search:result.search.value
+                }
+                return newResult;
+            }
+        },
         "columns": [
             {"data": "resourceDetails.bucketName", "orderable" : true},
             {"data": "resourceDetails.bucketOwnerName" ,"orderable" : false },
@@ -206,7 +221,22 @@ $(document).ready(function() {
             "processing": true,
             "serverSide": true,
             "destroy":true,
-            "ajax": '/resources?filterBy=resourceType:S3,category:assigned',
+            "ajax": {
+                "url": '/resources?filterBy=resourceType:S3,category:assigned',
+                "data": function( result ) {
+                    var columnIndex = parseInt(result.order[0].column);
+                    var newResult = {
+                        draw:result.draw,
+                        page:result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
+                        pageSize:result.length,
+                        sortOrder:result.order[0].dir,
+                        sortBy:result.columns[columnIndex].data,
+                        filterBy:result.filterBy,
+                        search:result.search.value
+                    }
+                    return newResult;
+                }
+            },
             "columns": [
                 {"data": "resourceDetails.bucketName", "orderable" : true},
                 {"data": "resourceDetails.bucketOwnerName" ,"orderable" : false },
