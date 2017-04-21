@@ -28,7 +28,7 @@ var userRole = require('_pr/model/user-roles.js');
 var LDAPUser = require('../model/ldap-user/ldap-user.js');
 
 var dboptions = {
-    host: appConfig.db.host,
+    host: process.env.DB_HOST || appConfig.db.host,
     port: appConfig.db.port,
     dbName: appConfig.db.dbName
 };

@@ -18,9 +18,9 @@ var GCP = require('_pr/lib/gcp.js');
 var blueprintModel = require('_pr/model/v2.0/blueprint/blueprint.js');
 var providerService = require('./providerService.js');
 var async = require('async');
+var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var instanceService = require('./instanceService.js');
 var logsDao = require('_pr/model/dao/logsdao.js');
-var instancesModel = require('_pr/model/classes/instance/instance');
 var fs = require('fs');
 var gcpProviderModel = require('_pr/model/v2.0/providers/gcp-providers');
 var gcpNetworkProfileModel = require('_pr/model/v2.0/network-profile/gcp-network-profiles');
@@ -38,6 +38,8 @@ var botsService = require('_pr/services/botsService.js');
 var ObjectId = require('mongoose').Types.ObjectId;
 var uuid = require('node-uuid');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
+var resourceMapService = require('_pr/services/resourceMapService.js');
+
 
 
 const errorType = 'blueprint';
@@ -183,12 +185,56 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                 Blueprints.getById(blueprintId,next);
             }else{
                 logger.debug('No permission to ' + reqBody.permissionTo + ' on ' + reqBody.category);
-                next({errCode:401,errMsg:'No permission to ' + reqBody.permissionTo + ' on ' + reqBody.category},null);
+                next({code:401,message:'No permission to ' + reqBody.permissionTo + ' on ' + reqBody.category},null);
             }
         },
+        function (blueprint,next){
+        if(blueprint !== null) {
+            if (blueprint.blueprintType === 'aws_cf' || blueprint.blueprintType === 'azure_arm') {
+                var stackName = reqBody.stackName;
+                if (stackName === '' || stackName === null) {
+                    next({code: 400, message: "Invalid Stack name"}, null);
+                    return;
+                } else {
+                    resourceMapService.getResourceMapByStackName(stackName, function (err, data) {
+                        if (err) {
+                            next(err, null);
+                            return;
+                        } else {
+                            next(null, blueprint);
+                            return;
+                        }
+                    });
+                }
+            }
+            else if (blueprint.domainNameCheck === true) {
+                var domainName = reqBody.domainName;
+                if (domainName === '' || domainName === null) {
+                    next({code: 400, message: "Invalid Domain name"}, null);
+                    return;
+                } else {
+                    resourceMapService.getResourceMapByStackName(domainName, function (err, data) {
+                        if (err) {
+                            next(err, null);
+                            return;
+                        } else {
+                            next(null, blueprint);
+                            return;
+                        }
+                    });
+                }
+            } else {
+                next(null, blueprint);
+                return;
+            }
+        }else{
+            logger.debug("Blueprint Does Not Exist");
+            next({code:404,message:"Blueprint Does Not Exist"},null);
+        }
+    },
         function(blueprint,next){
             if(blueprint){
-                var stackName = null,domainName = null,monitorId = null,blueprintLaunchCount = 0;
+                var monitorId = null,blueprintLaunchCount = 0;
                 if(blueprint.executionCount) {
                     blueprintLaunchCount = blueprint.executionCount + 1;
                 }else{
@@ -199,18 +245,6 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                         logger.error("Error while updating Blueprint Execution Count");
                     }
                 });
-                if (blueprint.blueprintType === 'aws_cf' || blueprint.blueprintType === 'azure_arm') {
-                    stackName = reqBody.stackName;
-                    if (!stackName) {
-                        next({errCode:400,errMsg:"Invalid stack name"},null);
-                    }
-                }
-                if(blueprint.domainNameCheck === true) {
-                    domainName = reqBody.domainName;
-                    if (!domainName) {
-                        next({errCode:400,errMsg:"Invalid Domain name"},null);
-                    }
-                }
                 if (reqBody.monitorId && reqBody.monitorId !== null && reqBody.monitorId !== 'null') {
                     monitorId = reqBody.monitorId;
                 }
@@ -256,36 +290,45 @@ blueprintService.launch = function launch(blueprintId,reqBody, callback) {
                         if(err){
                             logger.error(err);
                         }
+                        var uuid = require('node-uuid');
+                        auditTrail.actionId = uuid.v4();
                         blueprint.launch({
                             envId: reqBody.envId,
                             ver: reqBody.version,
-                            stackName: stackName,
-                            domainName: domainName,
+                            stackName: reqBody.stackName,
+                            domainName: reqBody.domainName,
                             sessionUser: reqBody.userName,
                             tagServer: reqBody.tagServer,
                             monitorId: monitorId,
-                            auditTrailId: data._id
+                            auditTrailId: data._id,
+                            botId:data.auditId,
+                            auditType:data.auditType,
+                            actionLogId:auditTrail.actionId
                         },next);
                     });
                 }else{
                     blueprint.launch({
                         envId: reqBody.envId,
                         ver: reqBody.version,
-                        stackName: stackName,
-                        domainName: domainName,
+                        stackName: reqBody.stackName,
+                        domainName: reqBody.domainName,
                         sessionUser: reqBody.userName,
                         tagServer: reqBody.tagServer,
                         monitorId: monitorId,
-                        auditTrailId: null
+                        auditTrailId: null,
+                        botId:null,
+                        auditType:null,
+                        actionLogId:null
                     },next);
                 }
             }else{
                 logger.debug("Blueprint Does Not Exist");
-                next({errCode:404,errMsg:"Blueprint Does Not Exist"},null);
+                next({code:404,message:"Blueprint Does Not Exist"},null);
             }
         }
     ],function (err, results) {
         if (err) {
+            logger.error(err);
             callback(err, null);
             return;
         }
@@ -639,6 +682,33 @@ blueprintService.deleteBlueprint = function deleteBlueprint(blueprintId, callbac
             // @TODO response to be decided
             return callback(null, {});
         }
+    });
+};
+
+blueprintService.getAllBlueprintsWithFilter = function getAllBlueprintsWithFilter(queryParam,callback){
+    var reqData = {};
+    async.waterfall([
+        function(next) {
+            apiUtil.paginationRequest(queryParam, 'blueprints', next);
+        },
+        function(paginationReq, next) {
+            paginationReq['searchColumns'] = ['botName', 'botType', 'botCategory','botDesc', 'botLinkedCategory','botLinkedSubCategory', 'masterDetails.orgName', 'masterDetails.bgName', 'masterDetails.projectName', 'masterDetails.envName'];
+            reqData = paginationReq;
+            apiUtil.databaseUtil(paginationReq, next);
+        },
+        function(queryObj, next) {
+            Blueprints.getBlueprintByOrgBgProjectProviderType(queryObj,next);
+        },
+        function(filterBlueprintList, next) {
+            apiUtil.paginationResponse(filterBlueprintList, reqData, next);
+        }
+    ],function(err, results) {
+        if (err){
+            callback(err,null);
+            return;
+        }
+        callback(null,results)
+        return;
     });
 };
 

@@ -20,13 +20,14 @@
 var logger = require('_pr/logger')(module);
 var uuid = require('node-uuid');
 var fileUpload = require('_pr/model/file-upload/file-upload');
+var apiUtil = require('_pr/lib/utils/apiUtil.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
-    app.all('/fileUpload/*', sessionVerificationFunc);
+    app.all('/fileUpload*', sessionVerificationFunc);
 
     app.post('/fileUpload', function(req, res) {
         if(req.files && req.files.file) {
-            var fileId = req.query.fileId;
+            var fileId = req.query.fileId?req.query.fileId:null;
             if(fileId === '' || fileId === null){
                 fileId = uuid.v4();
             }else{
@@ -37,11 +38,14 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                     res.send({message: "Unable to upload file"});
                 }
                 res.send({fileId:fileData});
+                apiUtil.removeFile(req.files.file.path);
             })
         } else if(req.query.fileId !== '' && req.query.fileId !== null) {
             res.send({fileId:req.query.fileId});
+            apiUtil.removeFile(req.files.file.path);
         } else{
             res.send({message: "Bad Request"});
+            apiUtil.removeFile(req.files.file.path);
         }
     });
 

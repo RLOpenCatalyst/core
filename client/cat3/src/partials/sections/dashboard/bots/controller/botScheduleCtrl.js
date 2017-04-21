@@ -11,61 +11,76 @@
     .controller('botScheduleCtrl',['$scope', '$rootScope', 'genericServices', 'workzoneServices', 'toastr', function ($scope, $rootScope, genSevs, workzoneServices, toastr) {
         
         var items;
-
+        $scope.showForAll = true;
         $rootScope.$on('BOTS_TEMPLATE_SELECTED', function(event,reqParams) {
             $scope.templateSelected = reqParams;
         });
         
+
         if($scope.templateSelected) {
             items = $scope.templateSelected;
         }
 
-        if(items.isBotScheduled === true){
-            $scope._isEventSelected = true;
+        $rootScope.$on('BOTS_DESCRIPTION_REFRESH', function(event,reqParams) {
+            $scope.templateSelected = reqParams;
+            items = $scope.templateSelected;
+            $scope.scheduleDeatils = items;
+            $scope.checkForScheduler();
+        });
+
+        if(items.isScheduled === true){
             $scope.isScheduled = true;
         }else{
-            $scope._isEventSelected = false;
             $scope.isScheduled = false;
         }
         $scope.scheduleDeatils = items;
-        $scope.botId = items.botId;
+        $scope.botId = items._id;
+
+        $scope.checkForScheduler = function() {
+            if($scope.scheduleDeatils.type === 'blueprints') {
+                if($scope.scheduleDeatils.executionCount <=0) {
+                    $scope.showForBlueprints = true;
+                    $scope.showForAll = false;
+                } else {
+                    $scope.showForBlueprints = false;
+                    $scope.showForAll = true;
+                }
+            } else {
+                $scope.showForBlueprints = false;
+            }
+        };
+
         $scope.defaultSelection = function() {
             $scope.repeatsType = 'Minutes';//default selection.
             $scope.schedulerStartOn=moment(new Date()).format('MM/DD/YYYY');
             $scope.schedulerEndOn=moment(new Date()).format('MM/DD/YYYY');
         };
-        $scope.selectBotCheckbox = function(){
-            if($scope.isScheduled === true || $scope.isScheduled === 'true') {
-                $scope._isEventSelected = true;
-            }else{
-                $scope._isEventSelected = false;
-            }
-        };
-        if(items.botScheduler){
-            if(items.botScheduler.cronStartOn && items.botScheduler.cronEndOn) {
-                var newStartOn = parseInt(items.botScheduler.cronStartOn);
+
+        if(items.isScheduled === true && items.scheduler !== null){
+            if(items.scheduler.cronStartOn && items.scheduler.cronEndOn) {
+                var newStartOn = parseInt(items.scheduler.cronStartOn);
                 var newDate = new Date(newStartOn).toLocaleDateString();
                 var datearray = newDate.split("/");
                 var newdate = datearray[1] + '/' + datearray[0] + '/' + datearray[2];
                 $scope.schedulerStartOn = newdate;
-                var newEndOn = parseInt(items.botScheduler.cronEndOn);
+                var newEndOn = parseInt(items.scheduler.cronEndOn);
                 var newEndData = new Date(newEndOn).toLocaleDateString();   
                 var datearrayNew = newEndData.split("/");
                 var newdateEnd = datearrayNew[1] + '/' + datearrayNew[0] + '/' + datearrayNew[2];
                 $scope.schedulerEndOn = newdateEnd;
             } else {
-                $scope.schedulerStartOn = items.botScheduler.cronStartOn;
-                $scope.schedulerEndOn = items.botScheduler.cronEndOn;    
+                $scope.schedulerStartOn = items.scheduler.cronStartOn;
+                $scope.schedulerEndOn = items.scheduler.cronEndOn;
             }
 
-            $scope.repeatBy = items.botScheduler.repeatBy || items.botScheduler.cronRepeatEvery.toString();
-            $scope.repeatsType = items.botScheduler.repeats || items.botScheduler.cronFrequency;
-            $scope.timeEventType = items.botScheduler.timeEventHour || (items.botScheduler.cronHour && items.botScheduler.cronHour !==null) ? items.botScheduler.cronHour.toString() : '';
-            $scope.timeEventMinute = items.botScheduler.timeEventMinute || (items.botScheduler.cronMinute && items.botScheduler.cronMinute !==null) ? items.botScheduler.cronMinute.toString() : '';
-            $scope.weekOfTheDay = items.botScheduler.weekOfTheDay ||  (items.botScheduler.cronWeekDay && items.botScheduler.cronWeekDay !==null) ?items.botScheduler.cronWeekDay.toString(): '';
-            $scope.selectedDayOfTheMonth = items.botScheduler.selectedDayOfTheMonth || (items.botScheduler.cronDate && items.botScheduler.cronDate !==null) ?items.botScheduler.cronDate.toString() : '';
-            $scope.selectedMonth =  items.botScheduler.selectedMonth || (items.botScheduler.cronMonth && items.botScheduler.cronMonth !==null)  ? items.botScheduler.cronMonth.toString() : '';
-            /*$scope.currentDate = items.botScheduler.startDate;*/
+            $scope.repeatBy = items.scheduler.repeatBy || items.scheduler.cronRepeatEvery.toString();
+            $scope.repeatsType = items.scheduler.repeats || items.scheduler.cronFrequency;
+            $scope.timeEventType = items.scheduler.timeEventHour || (items.scheduler.cronHour && items.scheduler.cronHour !==null) ? items.scheduler.cronHour.toString() : '';
+            $scope.timeEventMinute = items.scheduler.timeEventMinute || (items.scheduler.cronMinute && items.scheduler.cronMinute !==null) ? items.scheduler.cronMinute.toString() : '';
+            $scope.weekOfTheDay = items.scheduler.weekOfTheDay ||  (items.scheduler.cronWeekDay && items.scheduler.cronWeekDay !==null) ?items.scheduler.cronWeekDay.toString(): '';
+            $scope.selectedDayOfTheMonth = items.scheduler.selectedDayOfTheMonth || (items.scheduler.cronDate && items.scheduler.cronDate !==null) ?items.scheduler.cronDate.toString() : '';
+            $scope.selectedMonth =  items.scheduler.selectedMonth || (items.scheduler.cronMonth && items.scheduler.cronMonth !==null)  ? items.scheduler.cronMonth.toString() : '';
+            /*$scope.currentDate = items.scheduler.startDate;*/
         } else {
             $scope.defaultSelection();
         }
@@ -109,19 +124,13 @@
                 cronMonth: $scope.selectedMonth
             };
             var reqBody = null;
-            if($scope.isScheduled === true || $scope.isScheduled === 'true'){
-                reqBody = {
-                    botScheduler:$scope.eventParams,
-                    isBotScheduled:true
-                };
-            }else{
-                reqBody = {
-                    botScheduler:{},
-                    isBotScheduled:false
-                };
-            }
+            
+            reqBody = {
+                scheduler:$scope.eventParams,
+                isScheduled:true
+            };
             var param={
-                url:'/bots/' + $scope.botId + '/scheduler',
+                url:'/botsNew/' + $scope.botId + '/scheduler',
                 data: reqBody
             };
             genSevs.promisePut(param).then(function (response) {
@@ -132,5 +141,6 @@
                 }
             });
         };
+        $scope.checkForScheduler();
     }]);
 })(angular);

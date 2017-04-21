@@ -28,7 +28,7 @@ var bots = require('_pr/model/bots/1.0/bots.js');
 var botsService = require('_pr/services/botsService.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
-	app.all('/blueprints/*', sessionVerificationFunc);
+	app.all('/blueprints*', sessionVerificationFunc);
 
 	app.get('/blueprints', function(req, res) {
 		var queryObj = {
@@ -43,6 +43,15 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 			}
 		})
 	});
+    app.get('/blueprints/list', function(req, res) {
+        blueprintService.getAllBlueprintsWithFilter(req.query, function(err,data){
+            if (err) {
+                return res.status(500).send(err);
+            } else {
+                return res.status(200).send(data);
+            }
+        })
+    });
 	app.delete('/blueprints/serviceDelivery/:blueprintId', function(req, res) {
 		blueprintService.deleteServiceDeliveryBlueprint(req.params.blueprintId, function(err, data) {
 			if (err) {
@@ -394,8 +403,8 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
 		}
 		blueprintService.launch(req.params.blueprintId,reqBody,function(err,data){
 			if (err) {
-				res.status(500).send({
-					message: "Server Behaved Unexpectedly"
+				res.status(err.code).send({
+					message: err.message
 				});
 				return;
 			}else{

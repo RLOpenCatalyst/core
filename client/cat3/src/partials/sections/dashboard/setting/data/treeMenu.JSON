@@ -1,0 +1,302 @@
+[
+  {
+  "name": "organizationsetup",
+  "text": "Org Configuration",
+  "icon": "fa fa-lg fa-fw fa-building",
+  "nodetype": "org",
+  "nodes": [{
+    "name": "organizations",
+    "text": "Organizations",
+    "borderColor": "#000",
+    "href": "#ajax/Settings/OrgList.html",
+    "parent": "org",
+    "nodetype": "OrgList",
+    "selectable": true,
+    "icon": "fa fa-lg fa-fw fa-building"
+
+  }, {
+    "name": "organizations",
+    "text": "Business Groups",
+    "borderColor": "#000",
+    "href": "#ajax/Settings/ProductGroupList.html",
+    "parent": "org",
+    "nodetype": "ProductGroupList",
+    "selectable": true,
+    "icon": "fa fa-lg fa-fw fa-th"
+
+  }, {
+    "name": "organizations",
+    "text": "Projects",
+    "borderColor": "#000",
+    "href": "#ajax/Settings/ProjectList.html",
+    "parent": "org",
+    "nodetype": "ProjectList",
+    "selectable": true,
+    "icon": "fa fa-lg fa-fw fa-tags"
+
+  }],
+  "borderColor": "#000",
+  "selectable": false,
+  "href": "javascript:void(0);"
+
+
+}, {
+  "name": "config setup",
+  "text": "Config Management",
+  "nodes": [{
+    "name": "organizations",
+    "text": "Chef Server",
+    "borderColor": "#000",
+    "href": "#ajax/Settings/ConfigManagementList.html",
+    "selectable": true,
+    "icon": "fa fa-lg fa-fw fa-random"
+  }, {
+    "name": "organizations",
+    "text": "Puppet Server",
+    "borderColor": "#000",
+    "href": "#ajax/Settings/PuppetServerList.html",
+    "selectable": true,
+    "icon": "fa fa-lg fa-fw fa-random"
+
+  }, {
+    "name": "organizations",
+    "text": "Environments",
+    "borderColor": "#000",
+    "href": "#ajax/Settings/EnvironmentConceptList.html",
+    "selectable": true,
+    "icon": "fa fa-lg fa-fw fa-tint",
+    "parent": "devops",
+    "nodetype": "EnvironmentConceptList"
+  }],
+  "borderColor": "#000",
+  "selectable": false,
+  "href": "javascript:void(0);",
+  "icon": "fa-lg fa-fw fa fa-tachometer"
+}, {
+  "name": "user setup",
+  "text": "User Configuration",
+  "nodes": [{
+    "name": "organizations",
+    "text": "Teams",
+    "borderColor": "#000",
+    "href": "#ajax/Settings/TeamsList.html",
+    "selectable": true,
+    "icon": "fa fa-lg fa-fw fa-users"
+
+  }, {
+    "name": "organizations",
+    "text": "User Roles",
+    "borderColor": "#000",
+    "href": "#ajax/Settings/RolesList.html",
+    "selectable": true,
+    "icon": "fa fa-lg fa-fw fa-th-list"
+
+  }, {
+    "name": "organizations",
+    "text": "Users",
+    "borderColor": "#000",
+    "href": "#ajax/Settings/UsersList.html",
+    "selectable": true,
+    "icon": "fa fa-lg fa-fw fa-user"
+
+  }],
+  "borderColor": "#000",
+  "selectable": false,
+  "href": "javascript:void(0);",
+  "icon": "fa fa-lg fa-fw  fa-tasks"
+}, {
+  "name": "provider setup",
+  "text": "Provider Configuration",
+  "nodes": [{
+    "name": "organizations",
+    "text": "Providers",
+    "borderColor": "#000",
+    "href": "#ajax/Settings/ProvidersList.html",
+    "selectable": true,
+    "icon": "fa fa-lg fa-fw fa-sitemap"
+  }, {
+    "name": "organizations",
+    "text": "VMImage",
+    "borderColor": "#000",
+    "href": "#ajax/Settings/ImagesList.html",
+    "selectable": true,
+    "icon": "fa fa-lg fa-fw fa-image"
+
+  }],
+  "borderColor": "#000",
+  "selectable": false,
+  "href": "javascript:void(0);",
+  "icon": "fa fa-lg fa-fw fa-sitemap"
+}, {
+  "name": "gallerysetup",
+  "text": "Gallery Setup",
+  "icon": "fa fa-lg fa-fw fa-building",
+  "nodes": [{
+    "name": "templates",
+    "text": "Template Types",
+    "borderColor": "#000",
+    "href": "#ajax/Settings/DesignTemplateTypesList.html",
+    "selectable": true,
+    "icon": "fa fa-lg fa-fw fa-files-o"
+
+  }, {
+    "name": "organizations",
+    "text": "Templates",
+    "borderColor": "#000",
+    "href": "#ajax/Settings/TemplatesList.html",
+    "selectable": true,
+    "icon": "fa fa-lg fa-fw fa-files-o"
+
+  }, {
+    "name": "organizations",
+    "text": "Service Command",
+    "borderColor": "#000",
+    "href": "#ajax/Settings/ServiceCommandList.html",
+    "selectable": true,
+    "icon": "fa fa-lg fa-fw fa-terminal"
+
+  }, {
+    "name": "organizations",
+    "text": "Script Gallery",
+    "borderColor": "#000",
+    "href": "#ajax/Settings/scriptList.html",
+    "selectable": true,
+    "icon": "fa fa-lg fa fa-folder-o"
+
+  }],
+  "borderColor": "#000",
+  "selectable": false,
+  "href": "javascript:void(0);"
+
+}, {
+  "name": "devopssetup",
+  "text": "DevOps Roles",
+  "icon": "fa fa-lg fa-fw fa-qrcode",
+  "nodetype": "devops",
+  "nodes": [{
+    "name": "organizations",
+    "text": "Nexus Server",
+    "borderColor": "#000",
+    "href": "#ajax/Settings/NexusServerList.html",
+    "selectable": true,
+    "icon": "fa fa-lg fa-fw fa-random"
+
+  }, {
+    "name": "organizations",
+    "text": "Docker",
+    "borderColor": "#000",
+    "href": "#ajax/Settings/DockerTemplatesList.html",
+    "selectable": true,
+    "icon": "fa fa-lg fa-fw fa-hdd-o"
+
+  }, {
+    "name": "organizations",
+    "text": "Jenkins",
+    "borderColor": "#000",
+    "href": "#ajax/Settings/JenkinsConfigList.html",
+    "selectable": true,
+    "icon": "fa fa-lg fa-fw fa-link"
+
+  }, {
+    "name": "organizations",
+    "text": "Bitbucket",
+    "borderColor": "#000",
+    "href": "#ajax/Settings/bitBucketConfigList.html",
+    "selectable": true,
+    "icon": "fa fa-lg fa-fw fa-bitbucket"
+
+  }, {
+    "name": "organizations",
+    "text": "Octopus",
+    "borderColor": "#000",
+    "href": "#ajax/Settings/octopusConfigList.html",
+    "selectable": true,
+    "icon": "fa fa-lg fa-fw fa-code"
+  }, {
+    "name": "organizations",
+    "text": "Jira",
+    "borderColor": "#000",
+    "href": "#ajax/Settings/jiraConfigList.html",
+    "selectable": true,
+    "icon": "fa fa-lg fa-fw fa-ticket"
+  }, {
+    "name": "organizations",
+    "text": "QA Portal",
+    "borderColor": "#000",
+    "href": "#ajax/Settings/functionalTestConfigList.html",
+    "selectable": true,
+    "icon": "fa fa-lg fa-fw fa-check"
+  }, {
+    "text": "Github",
+    "borderColor": "#000",
+    "href": "#ajax/Settings/githubList.html",
+    "selectable": true,
+    "icon": "fa fa-lg fa-fw fa-github"
+
+  }],
+  "borderColor": "#000",
+  "selectable": false,
+  "href": "javascript:void(0);"
+
+}, {
+  "name": "cicd",
+  "text": "CI/CD Dashboard",
+  "nodes": [{
+    "diplayType":"cat3",
+    "name": "templates",
+    "text": "Dashboards",
+    "borderColor": "#000",
+    "href": "../cat3/#/dashboard/setting",
+    "selectable": true,
+    "icon": "fa fa-lg fa-fw fa-files-o"
+  }],
+  "borderColor": "#000",
+  "selectable": false,
+  "href": "javascript:void(0);",
+  "icon": "fa-lg fa-fw fa fa-tachometer"
+}, {
+  "name": "track",
+  "text": "Track Setup",
+  "nodes": [{
+    "name": "templates",
+    "text": "Dashboards",
+    "borderColor": "#000",
+    "href": "#ajax/Settings/DashboardSettings.html",
+    "selectable": true,
+    "icon": "fa fa-lg fa-fw fa-files-o"
+  }],
+  "borderColor": "#000",
+  "selectable": false,
+  "href": "javascript:void(0);",
+  "icon": "fa-lg fa-fw fa fa-tachometer"
+}, {
+  "name": "cmdb",
+  "text": "CMDB Configuration",
+  "nodes": [{
+    "name": "organizations",
+    "text": "CMDB",
+    "borderColor": "#000",
+    "href": "#ajax/Settings/cmdbList.html",
+    "selectable": true,
+    "icon": "fa fa-lg fa-fw fa-database"
+  }],
+  "borderColor": "#000",
+  "selectable": false,
+  "href": "javascript:void(0);",
+  "icon": "fa fa-lg fa-fw fa-database"
+}, {
+  "name": "monitoring",
+  "text": "Monitors",
+  "nodes": [{
+    "name": "organizations",
+    "text": "Monitors",
+    "borderColor": "#000",
+    "href": "#ajax/Settings/monitoringServer.html",
+    "selectable": true,
+    "icon": "fa fa-lg fa-fw fa fa-eye"
+  }],
+  "borderColor": "#000",
+  "selectable": false,
+  "href": "javascript:void(0);",
+  "icon": "fa fa-lg fa-fw fa fa-eye"
+}]

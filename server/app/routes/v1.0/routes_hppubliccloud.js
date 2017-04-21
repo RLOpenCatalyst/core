@@ -25,7 +25,7 @@ var uuid = require('node-uuid');
 
 module.exports.setRoutes = function(app, verificationFunc) {
 
-    app.all('/hppubliccloud/*', verificationFunc);
+    app.all('/hppubliccloud*', verificationFunc);
 
     var gethppubliccloudprovider = function(providerid, callback) {
         var hppubliccloudconfig = {

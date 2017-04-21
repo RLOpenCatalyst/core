@@ -156,7 +156,6 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 var server = http.createServer(app);
 
-
 //getting socket connection
 var io = socketIo.getInstance(server, {
     log: false,
@@ -206,14 +205,14 @@ io.sockets.on('connection', function(socket) {
     var month = dt.getMonth() + 1;
     if (month < 10)
         month = '0' + month;
-    logger.debug('file :' + './logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate());
+    logger.debug('file :' + __dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate());
     var tail;
-    if (fs.existsSync('./logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate() + '.2'))
-        tail = new Tail('./logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate() + '.2'); //catalyst.log.2015-06-19
-    else if (fs.existsSync('./logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate() + '.1'))
-        tail = new Tail('./logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate() + '.1'); //catalyst.log.2015-06-19
+    if (fs.existsSync(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate() + '.2'))
+        tail = new Tail(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate() + '.2'); //catalyst.log.2015-06-19
+    else if (fs.existsSync(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate() + '.1'))
+        tail = new Tail(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate() + '.1'); //catalyst.log.2015-06-19
     else
-        tail = new Tail('./logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate()); //catalyst.log.2015-06-19
+        tail = new Tail(__dirname+'/logs/catalyst.log.' + dt.getFullYear() + '-' + month + '-' + dt.getDate()); //catalyst.log.2015-06-19
     tail.on('line', function(line) {
         socket.emit('log', line);
     });
@@ -226,6 +225,9 @@ catalystSync.executeScheduledInstances();
 catalystSync.executeSerialScheduledTasks();
 catalystSync.executeParallelScheduledTasks();
 catalystSync.executeScheduledBots();
+catalystSync.executeNewScheduledBots();
 server.listen(app.get('port'), function() {
     logger.debug('Express server listening on port ' + app.get('port'));
+    require('_pr/services/noticeService.js').init(io,server.address());
+    //require('_pr/services/noticeService.js').test();
 });

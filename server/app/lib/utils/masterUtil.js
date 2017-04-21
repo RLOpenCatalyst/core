@@ -29,6 +29,7 @@ var Cryptography = require('../utils/cryptography');
 var chefSettings = appConfig.chef;
 var AppDeploy = require('_pr/model/app-deploy/app-deploy');
 var async = require('async');
+var cicdDashboardService = require('_pr/services/cicdDashboardService');
 
 var MasterUtil = function () {
     // Return All Orgs specific to User
@@ -482,6 +483,11 @@ var MasterUtil = function () {
         });
     }
 
+    this.getDashboardServerByHost = function(dashboardServer,callback){
+        cicdDashboardService.getcicdDashboardServerByHost(dashboardServer,callback);
+
+    }
+
     // Return all Jenkins
     this.getJenkins = function (orgList, callback) {
         var jenkinList = [];
@@ -514,6 +520,135 @@ var MasterUtil = function () {
 
         });
     }
+
+    // Return all Sonarqube configured
+    this.getSonarqube = function (orgList, callback) {
+        var sonarqubeList = [];
+        var rowIds = [];
+        for (var x = 0; x < orgList.length; x++) {
+            rowIds.push(orgList[x].rowid);
+        }
+        logger.debug("org rowids: ", rowIds);
+        d4dModelNew.d4dModelSonarqubeConfig.find({
+            orgname_rowid: {
+                $in: rowIds
+            }
+        }, function (err, sonarqube) {
+            if (sonarqube) {
+                configmgmtDao.getRowids(function (err, rowidlist) {
+                    for (var i = 0; i < sonarqube.length; i++) {
+                        if (sonarqube[i].id === '31') {
+                            names = configmgmtDao.convertRowIDToValue(sonarqube[i].orgname_rowid, rowidlist)
+                            sonarqube[i].orgname = names;
+                            sonarqubeList.push(sonarqube[i]);
+                        }
+                    }
+                    callback(null, sonarqubeList);
+                    return;
+                });
+            } else {
+                callback(err, null);
+                return;
+            }
+
+        });
+    }
+
+    this.getCICDDashboard = function (orgList, callback) {
+        var cicdList = [];
+        var rowIds = [];
+        for (var x = 0; x < orgList.length; x++) {
+            rowIds.push(orgList[x].rowid);
+        }
+        logger.debug("org rowids: ", rowIds);
+        d4dModelNew.d4dModelMastersCICDDashboard.find({
+            orgname_rowid: {
+                $in: rowIds
+            }
+        }, function (err, cicd) {
+            if (cicd) {
+                configmgmtDao.getRowids(function (err, rowidlist) {
+                    for (var i = 0; i < cicd.length; i++) {
+                        if (cicd[i].id === '30') {
+                            names = configmgmtDao.convertRowIDToValue(cicd[i].orgname_rowid, rowidlist)
+                            cicd[i].orgname = names;
+                            cicdList.push(cicd[i]);
+                        }
+                    }
+                    callback(null, cicdList);
+                    return;
+                });
+            } else {
+                callback(err, null);
+                return;
+            }
+
+        });
+    }
+
+    this.getBotRemoteServerDetails = function(orgList, callback) {
+        var botRemoteServerList = [];
+        var rowIds = [];
+        for (var x = 0; x < orgList.length; x++) {
+            rowIds.push(orgList[x].rowid);
+        }
+        logger.debug("org rowids: ", rowIds);
+        d4dModelNew.d4dModelMastersBOTsRemoteServer.find({
+            orgname_rowid: {
+                $in: rowIds
+            }
+        }, function(err, remoteServerList) {
+            if (remoteServerList) {
+                configmgmtDao.getRowids(function(err, rowidlist) {
+                    for (var i = 0; i < remoteServerList.length; i++) {
+                        if (remoteServerList[i].id === '32') {
+                            var names = configmgmtDao.convertRowIDToValue(remoteServerList[i].orgname_rowid, rowidlist) 
+                            remoteServerList[i].orgname = names;
+                            botRemoteServerList.push(remoteServerList[i]);
+                        }
+                    }
+                    callback(null, botRemoteServerList);
+                    return;
+                });
+            } else {
+                callback(err, null);
+                return;
+            }
+        });
+    }
+
+    this.getAnsibleServerDetails = function(orgList, callback) {
+        var ansibleServerList = [];
+        var rowIds = [];
+        for (var x = 0; x < orgList.length; x++) {
+            rowIds.push(orgList[x].rowid);
+        }
+        logger.debug("org rowids: ", rowIds);
+        d4dModelNew.d4dModelMastersAnsibleServer.find({
+            orgname_rowid: {
+                $in: rowIds
+            }
+        }, function(err, remoteServerList) {
+            if (remoteServerList) {
+                configmgmtDao.getRowids(function(err, rowidlist) {
+                    for (var i = 0; i < remoteServerList.length; i++) {
+                        if (remoteServerList[i].id === '32') {
+                            var names = configmgmtDao.convertRowIDToValue(remoteServerList[i].orgname_rowid, rowidlist)
+                            remoteServerList[i].orgname = names;
+                            ansibleServerList.push(remoteServerList[i]);
+                        }
+                    }
+                    callback(null, ansibleServerList);
+                    return;
+                });
+            } else {
+                callback(err, null);
+                return;
+            }
+        });
+    }
+
+
 
     // Return all Bitbucket
     this.getBitbucket = function(orgList, callback) {
@@ -609,6 +744,55 @@ var MasterUtil = function () {
                 return;
             }
 
+        });
+    }
+
+    this.getBotRemoteServerDetails = function(orgList, callback) {
+        var botRemoteServerList = [];
+        var rowIds = [];
+        for (var x = 0; x < orgList.length; x++) {
+            rowIds.push(orgList[x].rowid);
+        }
+        logger.debug("org rowids: ", rowIds);
+        d4dModelNew.d4dModelMastersBOTsRemoteServer.find({
+            orgname_rowid: {
+                $in: rowIds
+            }
+        }, function(err, remoteServerList) {
+            if (remoteServerList) {
+                configmgmtDao.getRowids(function(err, rowidlist) {
+                    for (var i = 0; i < remoteServerList.length; i++) {
+                        if (remoteServerList[i].id === '32') {
+                            var names = configmgmtDao.convertRowIDToValue(remoteServerList[i].orgname_rowid, rowidlist)
+                            remoteServerList[i].orgname = names;
+                            botRemoteServerList.push(remoteServerList[i]);
+                        }
+                    }
+                    callback(null, botRemoteServerList);
+                    return;
+                });
+            } else {
+                callback(err, null);
+                return;
+            }
+
+        });
+    }
+
+    this.getBotRemoteServerDetailByOrgId = function(orgId, callback) {
+        d4dModelNew.d4dModelMastersBOTsRemoteServer.findOne({
+            orgname_rowid: orgId,
+            id:'32',
+            active:true
+        }, function(err, remoteServerDetails) {
+            if (err){
+                logger.error(err);
+                callback(err, null);
+                return;
+            }else{
+                callback(null,remoteServerDetails);
+                return;
+            }
         });
     }
     

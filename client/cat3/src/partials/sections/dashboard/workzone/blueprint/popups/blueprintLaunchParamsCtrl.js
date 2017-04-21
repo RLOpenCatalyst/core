@@ -9,7 +9,6 @@
 	"use strict";
 	angular.module('workzone.blueprint')
 		.controller('blueprintLaunchParamsCtrl', ['$scope', '$modalInstance', 'toastr',  'items','workzoneServices','genericServices','workzoneEnvironment', function($scope, $modalInstance, toastr, items,workzoneServices,genericServices,workzoneEnvironment) {
-			console.log(items);
 			$scope.showMonitor = true;
 			if(items.blueprintType === 'azure_arm' || items.blueprintType === 'azure_launch') {
 				$scope.showMonitor = false;
@@ -107,7 +106,6 @@
 					}else if(items.domainNameCheck === true || items.domainNameCheck === "true") {
 						$scope.showBlueprintInputs = true;
 					}else {
-						console.log("Durgesh");
 						launchHelper.launch();
 					}
 				}

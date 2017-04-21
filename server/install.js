@@ -36,8 +36,12 @@ function getDefaultsConfig() {
         catalystAuthHeaderName: 'x-catalyst-auth',
         app_run_port: 3001,
         catalystDataDir: currentDirectory + '/catdata',
+        currentDir:currentDirectory,
         javaLibDir: currentDirectory + '/app',
-        gitHubDir: currentDirectory + '/gitHub/',
+        gitHubDirName: 'gitHub',
+        botLogDir: currentDirectory + '/app/logs/',
+        botFactory: '.botsfactory',
+        botCurrentFactory: '.botsfactory/current',
         catalysHomeDirName: 'catalyst',
         instancePemFilesDirName: 'instance-pemfiles',
         tempDirName: 'temp',
@@ -118,7 +122,9 @@ function getDefaultsConfig() {
                 "compositeBlueprints":"name",
                 "containerLogs":"createdOn",
                 "bots":"createdOn",
-                "gitHub":"createdOn"
+                "gitHub":"createdOn",
+                "notice":"createdOn",
+                "resourceMap":"createdOn"
             },
             skip_Records : 1,
             max_record_limit : 200,
@@ -528,6 +534,15 @@ function getDefaultsConfig() {
         },
         get scriptDir() {
             return this.catalystHome + this.scriptDirName + "/";
+        },
+        get gitHubDir() {
+            return this.catalystHome + this.gitHubDirName + "/";
+        },
+        get botFactoryDir() {
+            return this.catalystHome + this.botFactory + "/";
+        },
+        get botCurrentFactoryDir() {
+            return this.catalystHome + this.botCurrentFactory + "/";
         }
     };
     return config;
@@ -744,6 +759,10 @@ proc.on('close', function(code) {
         mkdirp.sync(config.catalystHome);
         mkdirp.sync(config.instancePemFilesDir);
         mkdirp.sync(config.tempDir);
+        mkdirp.sync(config.scriptDir);
+        mkdirp.sync(config.gitHubDir);
+        mkdirp.sync(config.botFactoryDir);
+        mkdirp.sync(config.botCurrentFactoryDir);
         mkdirp.sync(config.chef.chefReposLocation);
         mkdirp.sync(config.chef.cookbooksDir);
         mkdirp.sync(config.puppet.puppetReposLocation);

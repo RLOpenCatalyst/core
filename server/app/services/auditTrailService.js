@@ -34,6 +34,7 @@ auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,audi
     var auditTrailObj = {
         auditId: auditDetails._id,
         auditType: actionObj.auditType,
+        actionLogId:auditTrailConfig.actionLogId?auditTrailConfig.actionLogId:null,
         masterDetails:{
             orgId: auditDetails.orgId,
             orgName: auditDetails.orgName,
@@ -52,7 +53,7 @@ auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,audi
         providerType: auditDetails.providerType,
         action: actionObj.action
     };
-    if(actionObj.auditType === 'BOTs'){
+    if(actionObj.auditType === 'BOTs' || actionObj.auditType === 'BOTsNew'){
         auditTrailObj.auditTrailConfig = auditTrailConfig;
         botAuditTrail.createNew(auditTrailObj,function(err,data){
             if(err){
@@ -93,7 +94,7 @@ auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,audi
 }
 
 auditTrailService.updateAuditTrail = function updateAuditTrail(auditType,auditId,auditObj,callback) {
-    if(auditType === 'BOTs'){
+    if(auditType === 'BOTs' || auditType === 'BOTsNew'){
         botAuditTrail.updateBotAuditTrail(auditId,auditObj,function(err,data){
             if(err){
                 logger.error(err);
@@ -189,13 +190,17 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
         function(botsList,next){
             var auditIds = [];
             for(var i = 0; i < botsList.length; i++) {
-                auditIds.push(botsList[i].botId);
+                if(BOTSchema === 'BOTs') {
+                    auditIds.push(botsList[i].botId);
+                }else{
+                    auditIds.push(botsList[i]._id);
+                }
             }
             async.parallel({
                 totalNoOfBots: function(callback){
                             callback(null, botsList.length);
                 },
-               /* totalNoOfSuccessBots: function(callback){
+                totalNoOfSuccessBots: function(callback){
                     var query = {
                         auditType: BOTSchema,
                         actionStatus: 'success',
@@ -206,18 +211,13 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                     auditTrail.getAuditTrails(query, function (err, botsAudits) {
                         if (err) {
                             callback(err, null);
-                        } else if (botsAudits.length > 0) {
-                            for (var j = 0; j < botsAudits.length; j++) {
-                                if (botsIds.indexOf(botsAudits[j].auditId) === -1) {
-                                    botsIds.push(botsAudits[j].auditId);
-                                }
-                            }
-                            callback(null, botsIds.length);
-                        } else {
-                            callback(null, botsIds.length);
+                            return;
+                        } else{
+                            callback(null, botsAudits.length);
+                            return;
                         }
                     });
-                },*/
+                },
                 /*totalNoOfScheduledBots: function(callback){
                     var scheduleBotsIds = [];
                     if(botsList.length > 0) {
@@ -270,13 +270,13 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                     });
                 },
                 totalSavedTimeForBots: function(callback){
-                    var hours = 0, minutes = 0;
+                    var days =0,hours = 0, minutes = 0;
                     if(botsList.length > 0) {
                         for (var k = 0; k < botsList.length; k++) {
-                            if(botsList[k].savedTime.hours) {
+                            if(botsList[k].savedTime && botsList[k].savedTime.hours) {
                                 hours = hours + botsList[k].savedTime.hours;
                             }
-                            if(botsList[k].savedTime.minutes){
+                            if(botsList[k].savedTime && botsList[k].savedTime.minutes){
                                 minutes = minutes + botsList[k].savedTime.minutes;
                             }
                         }
@@ -285,7 +285,12 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                         hours = hours + Math.floor(minutes / 60);
                         minutes = minutes % 60;
                     }
+                    if(hours >= 24){
+                        days = days + Math.floor(hours / 60);
+                        hours = minutes % 24
+                    }
                     var result = {
+                        days:days,
                         hours:hours,
                         minutes:minutes
                     }
@@ -377,11 +382,4 @@ auditTrailService.removeAuditTrailById = function removeAuditTrailById(auditId,c
             return callback(null, data);
         }
     });
-}
-
-
-function getExecutionTime(endTime,startTime){
-    var executionTimeInMS = endTime-startTime;
-    var totalSeconds = Math.floor(executionTimeInMS/1000);
-    return totalSeconds;
 }

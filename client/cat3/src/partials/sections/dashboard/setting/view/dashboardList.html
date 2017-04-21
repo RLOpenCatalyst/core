@@ -1,0 +1,26 @@
+<div class="well" id="well" >
+    <b>CICD Dashboard</b> <button type="button" class="btn btn-sm btn-primary cat-btn-update pull-right"  ui-sref="dashboard.settings.cicdDashboard">&nbsp; <i class="fa fa-plus white"  aria-hidden="true"></i> Add &nbsp;</button>
+</div>
+<div style="margin: 10px">
+    <div ui-grid="createDashList.dashboardList" ui-grid-auto-resize ui-grid-resize-columns ui-grid-pagination class="bp-list-grid " style="height:510px"></div>
+</div>
+
+<style>
+    #well {
+        min-height: 35px;
+        padding: 9px;
+        margin: 11px 0 0 0;
+        background-color: #FDFDFD;
+        border-bottom: 1px solid #e3e3e3;
+        border-top: none !important;
+        border-left: none !important;
+        border-right: none !important;
+        border-radius: none !important;
+        -webkit-box-shadow: none !important;
+        box-shadow: none !important;
+    }
+.font-size-16{
+    font-size: 16px !important;
+}
+
+</style>

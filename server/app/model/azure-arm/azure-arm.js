@@ -78,6 +78,11 @@ var ARMSchema = new Schema({
     status: String,
     users: [String],
     resourceGroup: String,
+    isDeleted:{
+        type: Boolean,
+        required: false,
+        default:false
+    }
 });
 ARMSchema.plugin(mongoosePaginate);
 
@@ -165,6 +170,7 @@ ARMSchema.statics.createNew = function(cfData, callback) {
 
 ARMSchema.statics.findByOrgBgProjectAndEnvId = function(jsonData, callback) {
     if(jsonData.pagination) {
+        jsonData.queryObj.isDeleted = false
         azureARM.paginate(jsonData.queryObj, jsonData.options, function (err, azureArms) {
             if (err) {
                 var err = new Error('Internal server error');
@@ -179,7 +185,8 @@ ARMSchema.statics.findByOrgBgProjectAndEnvId = function(jsonData, callback) {
             orgId: jsonData.orgId,
             bgId: jsonData.bgId,
             projectId: jsonData.projectId,
-            envId: jsonData.envId
+            envId: jsonData.envId,
+            isDeleted:false
         }
 
         this.find(queryObj, function(err, data) {
@@ -235,9 +242,9 @@ ARMSchema.statics.findByIds = function(cfIds, callback) {
 
 
 // remove task by id
-ARMSchema.statics.removeById = function(cfId, callback) {
+ARMSchema.statics.removeById = function(armId, callback) {
     this.remove({
-        "_id": new ObjectId(cfId)
+        "_id": new ObjectId(armId)
     }, function(err, deleteCount) {
         if (err) {
             callback(err, null);
@@ -246,6 +253,19 @@ ARMSchema.statics.removeById = function(cfId, callback) {
         
         callback(null, deleteCount);
 
+    });
+};
+
+ARMSchema.statics.removeArmAzureById = function(armId, callback) {
+    this.update({
+        "_id": new ObjectId(armId)
+    },{$set:{isDeleted:true}}, function(err, softDeleteCount) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, softDeleteCount);
+        return;
     });
 };
 
@@ -268,6 +288,19 @@ ARMSchema.statics.findByAutoScaleTopicArn = function(topicArn, callback) {
         
         callback(null, cloudFormations);
 
+    });
+};
+
+ARMSchema.statics.getAzureArmList = function(queryObj, callback) {
+    this.find(queryObj, function(err, arm) {
+        if (err) {
+            logger.error(err);
+            callback(err, null);
+            return;
+        }else{
+            callback(null, arm);
+            return;
+        }
     });
 };
 

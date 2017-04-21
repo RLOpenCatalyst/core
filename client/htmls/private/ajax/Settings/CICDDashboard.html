@@ -4,7 +4,7 @@
             <div class="widget-box">
                 <div class="widget-header">
                     <h5 class="widget-title" style="color:#4e5964;">
-                        <strong>Projects</strong>
+                        <strong>CI CD Dashboards</strong>
                     </h5>
                     <div class="widget-toolbar no-border">
                         <div>
@@ -20,52 +20,54 @@
                 <div class="widget-body">
                     <div class="widget-main widgetHeight">
                         <div class="col-md-12 table-responsive" style="padding-left:0px; padding-right:0px;">
-                            <!-- <table id="templateTable" class="hidden" cellpadding="5px" width="100%">
-                                <thead>
+                        <table id="templateTable" class="hidden" cellpadding="5px" width="100%">
+                            <thead>
                                     <tr class="rowCustomStyle">
-                                        <td>Name</td>
+                                        <td>Dashboard Name</td>
                                         <td>Organization</td>
                                         <td>Business Group</td>
                                         <td>Project</td>
-                                        <td>Bot</td>
-                                        <td>Dashboard URL</td>
+                                        <td>Link</td>
                                         <td>Action</td>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr class="hidden rowtemplate">
-                                        <td datafield="dashboardname"></td>
+                                        <td datafield="dashboardName"></td>
                                         <td datafield="orgname"></td>
                                         <td datafield="productgroupname"></td>
                                         <td datafield="projectname"></td>
-                                        <td datafield="environmentname" datatype="list"></td>
-                                        <td>
+                                        <td datafield="dashboardLink" datatype="link"></td>
+                                       <td>
                                             <div class="btn-group tableactionWidth">
                                                 <a class="btn btn-xs btn-info pull-left" title="Edit">
                                                     <i class="ace-icon fa fa-pencil bigger-120"></i>
                                                 </a>
                                                 <button class="btn btn-xs btn-danger pull-left" value="Remove" title="Delete"><i class="ace-icon fa fa-trash-o bigger-120"></i></button>
+                                                
                                             </div>
                                         </td>
-                                    </tr>
-                                </tbody>
-                            </table> -->
-                            <table id="envtable" class="table table-striped table-bordered table-hover dataTable no-footer" cellpadding="5px" width="100%" style="text-align:center" ;>
-                                <thead>
-                                    <tr class="rowCustomStyle">
-                                        <td>Name</td>
-                                        <td>Description</td>
-                                        <td>Organization</td>
-                                        <td>Business Group</td>
-                                        <td>Bot</td>
-                                        <td>Dashboard URL</td>
-                                        <td class="">Action</td>
-                                    </tr>
-                                </thead>
-                                <tbody>
 
+                                    </tr>
                                 </tbody>
                             </table>
+                                <table id="envtable" class="table table-striped table-bordered table-hover dataTable no-footer" cellpadding="5px" width="100%" style="text-align:center";>
+                                    <thead>
+                                        <tr class="rowCustomStyle">
+                                            <td>Reference Name</td>
+                                            <td>Organization</td>
+                                            <td>Business Group</td>
+                                            <td>Project</td>
+                                            <td>Link</td>
+                                             <td>Action</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        
+                                       
+                                    </tbody>
+                                    
+                                </table> 
                             <div class="col-md-5">
 
                             </div>
@@ -114,7 +116,7 @@
         //   alert('in');
         // CreateTableFromJson(4);
 
-        CreateTableFromJson(4, 'projectname', 'CreateCICDDashboard.html'); //1 is for Org
+        CreateTableFromJson(30, 'dashboardName', 'CreateCICDDashboard.html'); //1 is for Org
         var tab = 'envtable';
         $('#envtable').dataTable({
             "dom": 't<"#tableFooterLeftDataTable"i><"#tableFooterRightDatatable"p>',
@@ -167,25 +169,7 @@
         }
     }
 
-    function readMasterJson_todelete(id) {
-        // debugger;
-        $.ajax({
-            type: "get",
-            dataType: "text",
-
-            async: false,
-            url: serviceURL + "readmasterjson/" + id,
-            success: function(data) {
-                // alert(data.toString());  
-                // debugger;
-                d4ddata = JSON.parse(data);
-            },
-            failure: function(data) {
-                // debugger;
-                //  alert(data.toString());
-            }
-        });
-    }
+    
 
     $.fn.getType = function() {
         if ($(this).length) {
@@ -200,7 +184,7 @@
         // var d4djson = $.parseJSON(d4ddata);
         // alert(d4ddata.sections.section[0].name);
         var formData = null;
-        readMasterJson(4);
+        readMasterJson(30);
 
         /*$.each(d4ddata.sections.section, function (i, item) {
             if (item.name == formName) {
@@ -211,6 +195,7 @@
         // alert(JSON.stringify(formData));
         //Reading row to get schema
         formData = d4ddata.masterjson;
+        console.log('WWWWWWWWWWWWWWWWWWW'+formData);
 
         var formSchema = null;
         $.each(formData.rows.row, function(i, item) {

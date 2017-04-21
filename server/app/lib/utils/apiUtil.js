@@ -6,8 +6,15 @@ var logger = require('_pr/logger')(module);
 var appConfig = require('_pr/config');
 var commons=appConfig.constantData;
 var normalizedUtil = require('_pr/lib/utils/normalizedUtil.js');
+var formatMessage = require('format-message')
+var fileIo = require('_pr/lib/utils/fileio');
 
 var ApiUtil = function() {
+
+    this.messageFormatter=function(formattedMessage,replaceTextObj,callback){
+        var resultMessage = formatMessage(formattedMessage,replaceTextObj);
+        callback(null,resultMessage);
+    }
     this.errorResponse=function(code,field){
         var errObj={};
         if(code==400){
@@ -29,7 +36,18 @@ var ApiUtil = function() {
             errObj['fields']={errorMessage:'The request was a valid request, but the server is refusing to respond to it',attribute:field};
         }
         return errObj;
-    }
+    };
+    this.removeFile = function(filePath){
+        fileIo.removeFile(filePath, function(err, result) {
+            if (err) {
+                logger.error(err);
+                return;
+            } else {
+                logger.debug("Successfully Remove file");
+                return
+            }
+        })
+    };
     this.createCronJobPattern= function(scheduler){
         scheduler.cronRepeatEvery = parseInt(scheduler.cronRepeatEvery);
         var startOn = null,endOn = null;
@@ -276,6 +294,39 @@ var ApiUtil = function() {
         }else{
             callback(null, filterByObj);
         }
+    }
+
+    this.writeLogFile = function(desPath,data,callback){
+        fileIo.exists(desPath,function(err,existFlag){
+            if(err){
+                logger.error("Error in checking File Exists or not.",err);
+                callback(err,null);
+                return;
+            }else if(existFlag === true){
+                fileIo.appendToFile(desPath,data,function(err,dataAppend){
+                    if(err){
+                        logger.error("Error in Appending Data in exist File.",err);
+                        callback(err,null);
+                        return;
+                    }else{
+                        callback(null,dataAppend);
+                        return;
+                    }
+                })
+            }else{
+                fileIo.writeFile(desPath, data, false, function (err, fileWrite) {
+                    if (err) {
+                        logger.error("Error in Writing File.", err);
+                        callback(err, null);
+                        return;
+                    } else {
+                        callback(null, fileWrite);
+                        return;
+                    }
+                });
+            }
+
+        })
     }
 
 

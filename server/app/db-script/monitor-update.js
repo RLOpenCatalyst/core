@@ -25,7 +25,7 @@ var logsDao = require('_pr/model/dao/logsdao.js');
 var monitorsModel = require('_pr/model/monitors/monitors.js');
 
 var dboptions = {
-    host: appConfig.db.host,
+    host: process.env.DB_HOST || appConfig.db.host,
     port: appConfig.db.port,
     dbName: appConfig.db.dbName
 };

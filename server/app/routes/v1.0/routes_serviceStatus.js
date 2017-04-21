@@ -21,7 +21,7 @@ var appConfig = require('_pr/config');
 
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
-    app.all('/serviceAction/*', sessionVerificationFunc);
+    app.all('/serviceAction*', sessionVerificationFunc);
 
     // Check for Service stop
     app.post('/serviceAction', function(req, res) {

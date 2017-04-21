@@ -5,8 +5,13 @@
  * Aug 2015
  */
 
-function workzoneFunct($scope, $rootScope) {
-    'use strict';
+function workzoneFunct($scope, $rootScope, workzoneNode, workzoneServices, workzoneEnvironment,genSevs, $timeout, modulePerms, $window) {
+    //'use strict';
+    $scope.dashboardUrlWZ = "";
+    $scope.d4dData = "";
+
+$rootScope.$on("PutUrlToWorkZone", function(event, data){ $scope.dashboardUrlWZ = data.toString()});
+
     $scope.config = {
         message: '',
         type: ''
@@ -47,6 +52,10 @@ function workzoneFunct($scope, $rootScope) {
             application: {
                 "title": "application",
                 "url": "src/partials/sections/dashboard/workzone/application/application.html"
+            },
+            dashboard:{
+                "title": "dashboard",
+                "url":"http://www.google.com"
             }
         }
     };
@@ -87,18 +96,62 @@ function workzoneFunct($scope, $rootScope) {
 
     $rootScope.selectedNode = null;
 }
-angular.module('dashboard.workzone', ['angularTreeview', 'mgcrea.ngStrap', 'workzone.instance', 'workzone.blueprint', 'workzone.orchestration', 'workzone.container', 'workzone.cloudFormation', 'workzone.azureARM', 'workzone.application', 'apis.workzone', 'workzone.factories', 'nvd3'])
-    .controller('workzoneCtrl', ['$scope', '$rootScope', workzoneFunct])
-    .controller('workzoneTreeCtrl', ['$rootScope', '$scope', 'workzoneServices', 'workzoneEnvironment', 'workzoneNode', '$timeout', 'modulePermission', '$window', function ($rootScope, $scope, workzoneServices, workzoneEnvironment, workzoneNode, $timeout, modulePerms, $window) {
-            'use strict';
+angular.module('dashboard.workzone', ['angularTreeview', 'mgcrea.ngStrap', 'workzone.instance', 'workzone.blueprint', 'workzone.orchestration', 'workzone.container', 'workzone.cloudFormation', 'workzone.azureARM', 'workzone.application', 'apis.workzone', 'workzone.factories', 'nvd3']).filter('trustAsResourceUrl', ['$sce', function($sce) {
+    return function(val) {
+        return $sce.trustAsResourceUrl(val);
+    };
+}]).controller('workzoneCtrl', ['$scope', '$rootScope', 'workzoneNode','workzoneServices','workzoneEnvironment','genericServices','$timeout','modulePermission', '$window', workzoneFunct])
+    .controller('workzoneTreeCtrl', ['$rootScope', '$scope', '$http','workzoneServices', 'workzoneEnvironment','genericServices', 'workzoneNode', '$timeout', 'modulePermission', '$window', function ($rootScope, $scope, $http, workzoneServices, workzoneEnvironment,genSevs, workzoneNode, $timeout, modulePerms, $window, $sce) {
+           // 'use strict';
             //For showing menu icon in menu over breadcrumb without position flickering during load
             $scope.isLoading = true;
+            $scope.dashboardUrl = "";
+            $scope.d4dData = "";
+
             function getParams(str) {
                 var l = str.split('&');
                 var list = [];
                 for (var i = 0; i < l.length; i++) {
                     list.push(l[i].split('=')[1]);
                 }
+
+                var param = {
+                    url: '/d4dMasters/readmasterjsonnew/30'
+                };
+                genSevs.promiseGet(param).then(function (data) {
+                //    alert(data);
+                   $scope.d4dData = data;
+                    angular.forEach($scope.d4dData, function(item) {
+                        /*alert(list[2]);
+                         alert(item.projectname);*/
+
+                        if (item.projectname_rowid == list[2]) {
+                            $scope.dashboardUrl = item.dashboardLink;
+                            $rootScope.$emit("PutUrlToWorkZone", [$scope.dashboardUrl]);
+                        }
+                    });
+                });
+                        /*angular.forEach(item, function(k, v) { //columns
+                            // var inputC = null;
+                            console.log('k:' + k + ' v :' + JSON.stringify(v));
+                            if(JSON.stringify(v)==list[2])
+                            {
+                                //$scope.dashboardUrl =
+
+                            }
+
+                        });
+                    });
+                });
+//alert($scope.dashboardUrl);
+                //alert($scope.d4dData);
+
+               // console.log(d4dData);
+
+               /* $http.get("/d4dMasters/readmasterjsonnew/30")
+                    .success(function(response){ d4dData= response; });
+                console.log(d4dData);*/
+
                 return {
                     org: list[0],
                     bg: list[1],
@@ -117,6 +170,7 @@ angular.module('dashboard.workzone', ['angularTreeview', 'mgcrea.ngStrap', 'work
             }
             function treeDefaultSelection() {
                 var node = workzoneNode.getWorkzoneNode();
+                console.log(node);
                 if (node) {
                     $scope.relevancelab.selectNodeLabel(node);
                 } else if ($('[data-nodetype="env"]').length) {
@@ -132,6 +186,7 @@ angular.module('dashboard.workzone', ['angularTreeview', 'mgcrea.ngStrap', 'work
                     }
                 }
             }
+
             workzoneServices.getTree().then(function (response) {
                 $scope.isLoading = false;
                 $scope.roleList = response.data;
@@ -139,6 +194,7 @@ angular.module('dashboard.workzone', ['angularTreeview', 'mgcrea.ngStrap', 'work
             }, function () {
                 $rootScope.$emit("USER_LOGOUT");
             });
+
             $scope.relevancelab = {};
             $scope.relevancelab.selectNodeLabelCallback = function (node) {
                 if (node.selectable === false) {
@@ -159,5 +215,17 @@ angular.module('dashboard.workzone', ['angularTreeview', 'mgcrea.ngStrap', 'work
                     $scope.relevancelab.selectNodeLabel(node);
                 }
             };
+
+        $scope.trustSrc = function(src) {
+            alert(src);
+            return $sce.trustAsResourceUrl(src);
+        };
         }
     ]);
+/*
+app.config(function($sceDelegateProvider) {
+    $sceDelegateProvider.resourceUrlWhitelist([
+        'http://www.google.com/!**'
+    ]);
+});
+*/

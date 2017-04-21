@@ -16,6 +16,20 @@
     <link rel="stylesheet" type="text/css"  href="css/toastr.min.css">
     <link rel="stylesheet" type="text/css" media="screen" href="css/wizardBg.css">
   </head>
+  <style>
+    .list-group-itemHK {
+      position: relative !important;
+      display: block !important;
+      padding: 10px 15px !important;
+      margin-bottom: -1px !important;
+      background-color: #fff !important;
+      border: 1px solid #ddd !important;
+    }
+    .list-group-itemHK:first-child {
+      border-top-left-radius: 4px !important;
+      border-top-right-radius: 4px !important;
+    }
+  </style>
   <body class="custom-theme">
     <!-- HEADER -->
     <!-- Header starts here -->
@@ -33,6 +47,12 @@
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
           <!--left side navbar-->
           <ul class="nav navbar-nav">
+            <li class="left-projects-links hidden" id="botStyle" data-target="#Workspace" navigation="Workspace,Workspace1">
+              <a class="navigationTab" id="bots" href="#"  onclick="setleftnavigation(this,'bots');" >
+                <i class="fa fa-delicious white"></i>&nbsp; BOTS
+              </a>
+            </li>
+
             <li class="left-projects-links hidden" data-target="#Workspace" navigation="Workspace,Workspace1">
               <a class="active navigationTab" id="workZoneNew" href="#" onclick="setleftnavigation(this,'org');">
               <i class="fa fa-credit-card"></i>&nbsp;WORKZONE 
@@ -48,36 +68,42 @@
             <li class="left-projects-links hidden" id="trackStyle" data-target="#Track" navigation="Track">
               <a class="dropdown-toggle navigationTab" href="#ajax/trackSettings.html" id="trackNew"  onclick="setleftnavigation(this,'Track');"><i class="fa fa-anchor"></i>&nbsp;TRACK</a>
             </li>
- <li class="left-projects-links hidden" data-target="#Workspace" navigation="Workspace,Workspace1">
+            <li class="left-projects-links hidden" data-target="#Workspace" navigation="Workspace,Workspace1">
               <a class="navigationTab" id="analytics" href="#"  onclick="setleftnavigation(this,'analytics');" >
                 <i class="fa fa-cloud white"></i>&nbsp;CLOUD
               </a>
             </li>
 
-<li class="left-projects-links hidden" data-target="#Workspace" navigation="Workspace,Workspace1">
-              <a class="navigationTab" id="bots" href="#"  onclick="setleftnavigation(this,'bots');" >
-              <i class="fa fa-delicious white"></i>&nbsp; BOTS
-              </a>
-            </li>
+
 
             <!--track ends here-->
             <!--right side navbar-->
             <span class="navRight">
-              <li class="left-projects-links active" id="liuserinfo"></li>
+
+              <li class="left-projects-links">
+                <!-- <a>
+                  <i class="fa fa-bell white font-size-16"></i><span style="position: absolute;top: -10px;right: 176px" class="label label-primary">8</span>
+                </a> -->
+              </li>
+              <li class="left-projects-links" title="Settings">
+                <a style="margin-right:24px;" href="#ajax/Settings/Dashboard.html" id="settingsNew" onclick="setleftnavigation(this,'Settings');">
+                  <i style="color:white!important" class="fa fa-cog fa-fw"></i>
+                </a>
+              </li>
+
+              <li class="left-projects-links active dropdown-toggle" id="liuserinfo" style="font-size: inherit;cursor: pointer;" data-toggle="dropdown"></li>
+              <div class="list-group dropdown-menu" style="top:33px;width: 214px;left: initial;">
+                 <a class="list-group-itemHK" href="https://catalyst.readthedocs.org" target="_blank" style="color: #000">
+                      <i class="fa fa-question "></i> HELP
+                 </a>
+
+                <a id="signOut" class="list-group-itemHK cursor" href="#" style="color: #000" logoutlink="/auth/signout" title="Sign Out">
+
+                  <i class="fa fa-sign-out"></i> Logout
+                </a>
+              </div>
               <!--Settings tab-->
-              <li class="left-projects-links hidden" data-target="#Settings"   navigation="Settings">
-                <a class="dropdown-toggle navigationTab" href="#ajax/Settings/Dashboard.html" id="settingsNew"  onclick="setleftnavigation(this,'Settings');"><i class="fa fa-cog"></i>&nbsp;SETTINGS</a>
-              </li>
-              <!--help-->
-              <li class="left-projects-links"><a href="https://catalyst.readthedocs.org" target="_blank" id="dokuNew"><i class="fa fa-question"></i>&nbsp;Help</a>
-              </li>
-              <!--logout-->
-              <li id="logout" class="btn-header transparent pull-right logouttop">
-                <!-- ../auth/signout -->
-                <span><a href="#" logoutlink="/auth/signout" title="Sign Out">
-                <i class="fa fa-sign-out"></i>
-                </a></span>
-              </li>
+
             </span>
           </ul>
         </div>
@@ -1159,6 +1185,20 @@ var SettingTreeJson = [{
                 "icon": "fa fa-lg fa-fw fa-ticket"
             },{
                 "name": "organizations",
+                "text": "CICD Server",
+                "borderColor": "#000",
+                "href": "#ajax/Settings/cicddashboardserverList.html",
+                "selectable": true,
+                "icon": "fa fa-lg fa-fw fa-server"
+            },{
+                "name": "organizations",
+                "text": "Sonarqube",
+                "borderColor": "#000",
+                "href": "#ajax/Settings/SonarqubeList.html",
+                "selectable": true,
+                "icon": "fa fa-lg fa-fw fa-thumbs-o-up"
+            },{
+                "name": "organizations",
                 "text": "QA Portal",
                 "borderColor": "#000",
                 "href": "#ajax/Settings/functionalTestConfigList.html",
@@ -1236,6 +1276,21 @@ var SettingTreeJson = [{
         "selectable": false,
         "href": "javascript:void(0);",
         "icon": "fa fa-lg fa-fw fa fa-eye"
+    }, {
+        "name": "botEngine",
+        "text": "BOTs",
+        "nodes": [{
+            "name": "organizations",
+            "text": "BOT Executor",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/botEngineList.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-paper-plane-o"
+        }],
+        "borderColor": "#000",
+        "selectable": false,
+        "href": "javascript:void(0);",
+        "icon": "fa fa-lg fa-fw fa-paper-plane-o"
     }
 ];
 

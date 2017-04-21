@@ -27,7 +27,7 @@ var appConfig = require('_pr/config');
 var settingsService = require('_pr/services/settingsService');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
-    app.all('/scripts/*', sessionVerificationFunc);
+    app.all('/scripts*', sessionVerificationFunc);
 
 
     app.get('/scripts', function(req, res) {

@@ -3,7 +3,7 @@
 <div class="row">
     <div class="col-md-12">
         <div class="col-md-12">
-            <form id="dashboard-create" >
+            <form id="myForm55" >
                 <div class="widget-box">
                     <div class="widget-header">
                         <h4 class="widget-margin" style="color:black;">Create CICD Dashboard</h4>
@@ -23,107 +23,158 @@
                                                 <div class="widget-body no-padding">
                                                     <div class="col-lg-6 col-md-6">
                                                         <label for="name">Name:<span class="control-label redSpan">&nbsp;*</span></label>
-                                                        <label id="msgOrgName" style="display:none;color:red;float:right;">Required</label>
+                                                        
                                                         <br>
-                                                        <input autofocus name="dashboardName" value="" id="dashboardname" class="form-control" type="text" cdata="catalyst" cat-validation="required,nospecial,max15,nospace">
+                                                        <input autofocus name="dashboardName" value="" id="dashboardName" class="form-control" type="text" cdata="catalyst" cat-validation="required,nospecial,max15,nospace">
                                                     </div>
                                                     <div class="col-lg-6 col-md-6">
-                                                        <label for="">Organization:<span class="control-label redSpan">&nbsp;*</span></label>
-                                                        <select id="orgname" class="chooseOrganization width-100" sourcepath="1" datapath="masterjson.rows.row" linkedfields="['productgroupname','environmentname','teamname']" cdata="catalyst" cat-validation="required">
+                                                      <label for="">Organization:<span class="control-label redSpan">&nbsp;*</span></label>
+                                                      <select id="orgname" class="chooseOrganization width-100" cdata="catalyst" cat-validation="required">
                                                          <option value="">Select Organization</option>
                                                       </select>
-                                                    </div>
-                                                    <div class="col-lg-6 col-md-6" style="margin-top:25px;">
-                                                        <label for="">Business Group:<span class="control-label redSpan">&nbsp;*</span></label>
-                                                        <select id="productgroupname" class="chooseBG width-100" sourcepath="2" datapath="masterjson.rows.row" linkedto="orgname" cdata="catalyst" cat-validation="required">
+                                                   </div>
+                                                   <div class="col-lg-6 col-md-6" style="margin-top:25px;">
+                                                      <label for="">Business Group:<span class="control-label redSpan">&nbsp;*</span></label>
+                                                      <select id="productgroupname" class="chooseBG width-100" cdata="catalyst" cat-validation="required">
                                                          <option value="">Select Business Group</option>
-                                                        </select>
-                                                    </div>
+                                                      </select>
+                                                   </div>
                                                     <div class="col-lg-6 col-md-6" style="margin-top:25px;">
                                                         <label for="">Project:<span class="control-label redSpan">&nbsp;*</span></label>
-                                                        <select id="projectname" class="chooseBG width-100" sourcepath="2" datapath="masterjson.rows.row" linkedto="productgroupname" cdata="catalyst" cat-validation="required">
-                                                         <option value="">Select Project</option>
+                                                        <select id="projectname" class="chooseBG width-100" cdata="catalyst" cat-validation="required">
+                                                            <option value="">Select Project</option>
                                                         </select>
                                                     </div>
+                                                    
                                                     <div class="col-lg-6 col-md-6" style="margin-top:25px;">
-                                                        <label for="">Bot:<span class="control-label redSpan">&nbsp;*</span></label>
-                                                        <select id="productgroupname" class="chooseBG width-100" sourcepath="2" datapath="masterjson.rows.row" linkedto="orgname" cdata="catalyst" cat-validation="required">
-                                                         <option value="">Select Bot</option>
-                                                        </select>
+                                                        <label for="">Dashboard Server:<span class="control-label redSpan">&nbsp;*</span></label>
+                                                        <label id="dashboardServerSpinner" class="hidden" title="Fetching from Dashboard server.."><img class="marginleft5right25" src="img/select2-spinner.gif"></label>
+                                                        <!-- <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardUrl"  onchange="getcollectors($(this).val())" class="form-control" type="text" cdata="catalyst" cat-validation="required"> -->
+                                                         <select id="dashboardServerId" class="chooseOrganization width-100" cdata="catalyst" cat-validation="required">
+                                                         <option value="">Select Dashboard Server</option>
+                                                      </select>
+                                                      <!-- IP / Hostname : Port-->
+                                                        <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardLink"   class="form-control hidden" type="text" cdata="catalyst">
+                                                        
+                                                        <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardId"   class="form-control hidden" type="text" cdata="catalyst">
+                                                        <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardUrl"   class="form-control hidden" type="text" cdata="catalyst">
+
                                                     </div>
-                                                    <div class="col-lg-6 col-md-6" style="margin-top:25px;">
-                                                        <label for="">Dashboard URL:<span class="control-label redSpan">&nbsp;*</span></label>
-                                                        <input autofocus name="ctl00$MainContent$orgname" value="" id="projectname"  onchange="dashboardurl(this)" class="form-control" type="text" cdata="catalyst" cat-validation="required,nospecial,max15,nospace">
-                                                    </div>
-                                                    <!-- Widget for Jenkins Starts here -->
-                                                    <div class="col-lg-6 col-md-6" id="jenkins-widget" style="margin-top: 25px; display:none">
-                                                        <label for="category">Jenkins:</label>
-                                                        <div id="environmentname" multiselect="multiselect" datatype="select" sourcepath="3" datapath="masterjson.rows.row" linkedto="orgname" class="input-group from-control col-md-12 widthBox" cdata="catalyst" style="height: 165px">
+                                                    <div class="clearfix"></div>
+
+
+                                                    <div class="col-lg-6 col-md-6 optionWidget" id="jira-widget" style="margin-top: 25px; ">
+                                                        <label for="category">Jira:</label>
+                                                        <div id="divjiraprojectciid" class="input-group from-control col-md-12 widthBox" cdata="catalyst" style="height: 165px">
                                                             <div class="col-lg-12 col-md-12" style="margin-top:15px;">
-                                                                <label for="">Job Name:<span class="control-label redSpan">&nbsp;*</span></label>
-                                                                <select id="productgroupname" class="chooseBG width-100" sourcepath="2" datapath="masterjson.rows.row" linkedto="orgname" cdata="catalyst" cat-validation="required">
+                                                                <label for="">Project Name:</label>
+                                                                <select onchange="versionOption(this.value);" id="jiraprojectciid" class="chooseBG width-100">
+                                                                    <option value="">Select Project Name</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-lg-12 col-md-12" style="margin-top:15px;">
+                                                                <label for="">Project Version:</label>
+                                                                <select id="jiraversionciid" class="chooseBG width-100" >
+                                                                    <option value="">Select Project Version</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <!-- Widget for Jira ends here -->
+
+                                                    <!-- Widget for Github Starts here -->
+
+                                                   <!-- <div class="col-lg-6 col-md-6" style="margin-top:25px;">
+                                                        <label for="">Github Configuration:<span class="control-label redSpan">&nbsp;*</span></label>
+                                                        <label id="dashboardServerSpinner" class="hidden" title="Fetching from Dashboard server.."><img class="marginleft5right25" src="img/select2-spinner.gif"></label>
+                                                        &lt;!&ndash; <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardUrl"  onchange="getcollectors($(this).val())" class="form-control" type="text" cdata="catalyst" cat-validation="required"> &ndash;&gt;
+                                                        <select id="gitConfigurationId" class="chooseOrganization width-100" cdata="catalyst" cat-validation="required">
+                                                            <option value="">Select Github Configuration</option>
+                                                        </select>
+
+&lt;!&ndash;
+                                                        <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardLink"   class="form-control hidden" type="text" cdata="catalyst">
+&ndash;&gt;
+
+                                                        <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardId"   class="form-control hidden" type="text" cdata="catalyst">
+&lt;!&ndash;
+                                                        <input autofocus name="ctl00$MainContent$orgname" value="" id="dashboardUrl"   class="form-control hidden" type="text" cdata="catalyst">
+&ndash;&gt;
+
+                                                    </div>-->
+
+
+
+                                                    <!-- Widget for Jira Starts here -->
+
+                                                    <div class="col-lg-6 col-md-6 optionWidget" id="github-widget" style="margin-top: 25px; ">
+                                                        <label for="category">Git Hub:</label>
+                                                        <div id="divgitciid"  style="height: 165px" class="widthBox">
+                                                            <div class="col-lg-12 col-md-12" style="margin-top:15px;">
+                                                                <label for="">Repo URL:</label>
+                                                                <input autofocus name="ctl00$MainContent$orgname" value="" id="repourl" class="form-control" type="text">
+                                                            </div>
+                                                            <div class="col-lg-12 col-md-12" style="margin-top:15px;">
+                                                                <label for="">Branch:</label>
+                                                                <input autofocus name="ctl00$MainContent$orgname" value="" id="repobranch" class="form-control" type="text">
+                                                                <input autofocus name="ctl00$MainContent$orgname" value="" id="repocollectorid" class="form-control hidden" type="text">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+
+                                                    <!-- Widget for Jenkins Starts here -->
+                                                    <div class="col-lg-6 col-md-6 optionWidget" id="jenkins-widget" style="margin-top: 25px; ">
+                                                        <label for="category">Jenkins:</label>
+                                                        <div id="divjenkinsjobciid" class="input-group from-control col-md-12 widthBox" cdata="catalyst" style="height: 165px">
+                                                            <div class="col-lg-12 col-md-12" style="margin-top:15px;">
+                                                                <label for="">Job Name:</label>
+                                                                <select id="jenkinsjobciid" class="chooseBG width-100" >
                                                                  <option value="">Select Job Name</option>
                                                                 </select>
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <!-- Widget for Jenkins ends here -->
-                                                    <!-- Widget for Jira Starts here -->
-                                                    <div class="col-lg-6 col-md-6" id="jira-widget" style="margin-top: 25px; display:none">
-                                                        <label for="category">Jira:</label>
-                                                        <div id="environmentname" multiselect="multiselect" datatype="select" sourcepath="3" datapath="masterjson.rows.row" linkedto="orgname" class="input-group from-control col-md-12 widthBox" cdata="catalyst" style="height: 165px">
-                                                            <div class="col-lg-12 col-md-12" style="margin-top:15px;">
-                                                                <label for="">Project Name:<span class="control-label redSpan">&nbsp;*</span></label>
-                                                                <select onchange="versionOption(this);" id="projectNameDropdown" class="chooseBG width-100" sourcepath="2" datapath="masterjson.rows.row" linkedto="orgname" cdata="catalyst" cat-validation="required">
-                                                                 <option value="">Select Project Name</option>
-                                                                </select>
-                                                            </div>
-                                                            <div class="col-lg-12 col-md-12" style="margin-top:15px;">
-                                                                <label for="">Project Version:<span class="control-label redSpan">&nbsp;*</span></label>
-                                                                <select id="versionNameDropdown" class="chooseBG width-100" sourcepath="2" datapath="masterjson.rows.row" linkedto="orgname" cdata="catalyst" cat-validation="required">
-                                                                 <option value="">Select Project Version</option>
-                                                                </select>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <!-- Widget for Jira ends here -->
-                                                    <!-- Widget for Bitbucket Starts here -->
-                                                    <div class="col-lg-6 col-md-6" id="bitbucket-widget" style="margin-top: 25px; display:none">
-                                                        <label for="category">Bitbucket:</label>
-                                                        <div id="environmentname" multiselect="multiselect" datatype="select" sourcepath="3" datapath="masterjson.rows.row" linkedto="orgname" class="input-group from-control col-md-12 widthBox" cdata="catalyst" style="height: 165px">
-                                                            <div class="col-lg-12 col-md-12" style="margin-top:15px;">
-                                                                <label for="">Repo URL:<span class="control-label redSpan">&nbsp;*</span></label>
-                                                                <input autofocus name="ctl00$MainContent$orgname" value="" id="projectname" class="form-control" type="text" cdata="catalyst" cat-validation="required,nospecial,max15,nospace" unique="true" uniqueconditionedby="projectname,orgname,productgroupname">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <!-- Widget for Bitbucket ends here -->
                                                     <!-- Widget for Chef Starts here -->
-                                                    <div class="col-lg-6 col-md-6" id="chef-widget" style="margin-top: 25px; display:none">
+                                                    <div class="col-lg-6 col-md-6 optionWidget" id="chef-widget" style="margin-top: 25px; ">
                                                         <label for="category">Chef:</label>
-                                                        <div id="environmentname" multiselect="multiselect" datatype="select" sourcepath="3" datapath="masterjson.rows.row" linkedto="orgname" class="input-group from-control col-md-12 widthBox" cdata="catalyst" style="height: 165px">
+                                                        <div id="divcookbookciid" class="input-group from-control col-md-12 widthBox" style="height: 165px">
                                                             <div class="col-lg-12 col-md-12" style="margin-top:15px;">
-                                                                <label for="">Deploy Cookbook Name:<span class="control-label redSpan">&nbsp;*</span></label>
-                                                                <select id="productgroupname" class="chooseBG width-100" sourcepath="2" datapath="masterjson.rows.row" linkedto="orgname" cdata="catalyst" cat-validation="required">
-                                                                 <option value="">Select Cookbook Name</option>
+                                                                <label for="">Deploy Cookbook Name:</label>
+                                                                <select id="cookbookciid" class="chooseBG width-100" >
+                                                                    <option value="">Select Cookbook Name</option>
                                                                 </select>
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <!-- Widget for Chef ends here -->
+                                                    <!-- Widget for Sonar starts here -->
+                                                    <div class="col-lg-6 col-md-6 optionWidget" id="sonar-widget" style="margin-top: 25px; ">
+                                                        <label for="category">SonarQube:</label>
+                                                        <div id="divsonarciid" class="input-group from-control col-md-12 widthBox" style="height: 165px">
+                                                            <div class="col-lg-12 col-md-12" style="margin-top:15px;">
+                                                                <label for="">Job Name:</label>
+                                                                <select id="sonarciid" class="chooseBG width-100" >
+                                                                 <option value="">Select Job Name</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
                                                     <!-- Widget for Test Rail Starts here -->
-                                                    <div class="col-lg-6 col-md-6" id="testrail-widget" style="margin-top: 25px; display:none">
+                                                    <div class="col-lg-6 col-md-6" id="testrail-widget" style="margin-top: 25px;display: none">
                                                         <label for="category">Test Rail:</label>
-                                                        <div id="environmentname" multiselect="multiselect" datatype="select" sourcepath="3" datapath="masterjson.rows.row" linkedto="orgname" class="input-group from-control col-md-12 widthBox" cdata="catalyst" style="height: 165px">
+                                                        <div id="divtestrailciid" class="input-group from-control col-md-12 widthBox" cdata="catalyst" style="height: 165px">
                                                             <div class="col-lg-12 col-md-12" style="margin-top:15px;height:">
-                                                                <label for="">Project Name:<span class="control-label redSpan">&nbsp;*</span></label>
-                                                                <select id="productgroupname" class="chooseBG width-100" sourcepath="2" datapath="masterjson.rows.row" linkedto="orgname" cdata="catalyst" cat-validation="required">
+                                                                <label for="">Project Name:</label>
+                                                                <select id="projecttlciid" class="chooseBG width-100" >
                                                                  <option value="">Select Project Name</option>
                                                                 </select>
                                                             </div>
                                                             <div class="col-lg-12 col-md-12" style="margin-top:15px;">
                                                                 <label for="">Milestone:<span class="control-label redSpan">&nbsp;*</span></label>
-                                                                <select id="productgroupname" class="chooseBG width-100" sourcepath="2" datapath="masterjson.rows.row" linkedto="orgname" cdata="catalyst" cat-validation="required">
+                                                                <select id="milestoneciid" class="chooseBG width-100" >
                                                                  <option value="">Select Milestone</option>
                                                                 </select>
                                                             </div>
@@ -146,13 +197,15 @@
                     <!--widget body ends-->
                     <div class="widget-toolbox clearfix">
                         <div class="btn-group pull-right">
+                            <label id="dashboardCreateSpinner" class="pull-left" style="margin-right: 10px;margin-top: 4px;"><img class="marginleft5right25" src="img/select2-spinner.gif" title="Creating and Configuring Dashboard.."></label>
                             <a class="btn btn-default" onclick="window.history.back();" style="margin-right:11px;" id="btncancel">
                                 <i class="ace-icon fa fa-times bigger-110"></i> Cancel
                             </a>
-                            <button type="button" class="btn btn-primary btn-mini" onclick="saveCicdDashboard()" id="savecreateProjectbtn">
+                            <button type="submit" class="btn btn-primary btn-mini">
                             <i class="ace-icon fa fa-check bigger-110"></i>
                             Save
                             </button>
+
                         </div>
                     </div>
                 </div>
@@ -162,11 +215,221 @@
 </div>
 
 <script>
+
+$(document).ready(function(){
+    getOrganizationList();
+});
+
+//to list down the organization for creating the monitoring server item.
+function getOrganizationList() {
+    $.get('/d4dMasters/readmasterjsonnew/1', function(data) {
+        var str = ' <option value="">Select Organization</option>',
+        len = data.length;
+        for (var i = 0; i < data.length; i++) {
+            str = str + '<option rowid="'+ data[i].rowid +'" value="' + data[i].orgname + '">' + data[i].orgname + '</option>';
+        }
+        $('#orgname').html(str);
+    })
+}
+
+var isEditActivateMode = location.href.toString().split('?')[1] === "new" ? false : true;
+var projectDetailsOnEdit = {};
+//to get the businessGroupname corresponding to the organisation.
+function getBusinessGroupDetails(orgId,dataOnEditBG) {
+    $.get('/d4dMasters/readmasterjsonnew/2', function(data) {
+        if(!dataOnEditBG) {
+            var str = ' <option value="">Select Business Group</option>';
+            $('#productgroupname').append(str);
+        }
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].orgname_rowid[0] === orgId) {
+                $('#productgroupname').append('<option rowid="'+data[i].rowid+'" value="'+data[i].productgroupname+'">'+data[i].productgroupname+'</option>').select2();
+            }
+        }
+        if(dataOnEditBG) {
+            projectDetailsOnEdit = dataOnEditBG;
+            $("#productgroupname").val(dataOnEditBG.productgroupname).attr('selected', true).change();
+        }
+    });
+}
+
+function getProjectDetails(businessGroupId,dataOnEditProj) {
+    $.get('/d4dMasters/readmasterjsonnew/4', function(data) {
+        var str = ' <option value="">Select Project</option>';
+        $('#projectname').append(str);
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].productgroupname_rowid === businessGroupId) {
+                $('#projectname').append('<option rowid="'+data[i].rowid+'" value="'+data[i].projectname+'">'+data[i].projectname+'</option>').select2();
+            }
+        }
+        if(dataOnEditProj) {
+            $("#projectname").val(dataOnEditProj.projectname).attr('selected', true).change();
+        }
+    });   
+}
+
+$('#orgname').change(function(e){
+    $('#productgroupname').empty();
+    var orgId = $('#orgname').find('option:selected').attr('rowid');
+    getBusinessGroupDetails(orgId);
+    getDashboardServers(orgId);
+    getGitServers(orgId);
+});
+
+$('#productgroupname').change(function(e){
+    $('#projectname').empty();
+    var businessGroupId = $('#productgroupname').find('option:selected').attr('rowid');
+    if(isEditActivateMode) {
+        getProjectDetails(businessGroupId,projectDetailsOnEdit);
+        return false;
+    } else {
+        getProjectDetails(businessGroupId);    
+    }
+});
+
+
+$('#dashboardServerId').change(function(e){
+    //updating the url field.
+    var slectedDashboardUrl = $('#dashboardServerId').find('option:selected').attr('dashboardurl');
+    if(slectedDashboardUrl)
+    {
+        $('#dashboardUrl').val(slectedDashboardUrl);
+        dashboardURL = slectedDashboardUrl;
+        //Clearning all previous selections.
+        $('#jiraprojectciid').html('<option value="">Select Project Name</option>').select2();
+        $('#jiraversionciid').html('<option value="">Select Project Version</option>').select2();
+        $('#jenkinsjobciid').html('<option value="">Select Job Name</option>').select2();
+        $('#cookbookciid').html('<option value="">Select Cookbook Name</option>').select2();
+        $('#sonarciid').html('<option value="">Select Job Name</option>').select2();
+        $('#repourl').val('');
+        $('#repobranch').val('');
+
+
+        getcollectors(slectedDashboardUrl);
+    }
+});
+
+/*$('#gitConfigurationId').change(function(e){
+    //updating the url field.
+    var selectedGitConfig = $('#gitConfigurationId').find('option:selected').attr('gitRepoUrl');
+    if(selectedGitConfig)
+    {
+        $('#gitRepoUrl').val(slectedDashboardUrl);
+        dashboardURL = slectedDashboardUrl;
+        //Clearning all previous selections.
+        $('#jiraprojectciid').html('<option value="">Select Project Name</option>').select2();
+        $('#jiraversionciid').html('<option value="">Select Project Version</option>').select2();
+        $('#jenkinsjobciid').html('<option value="">Select Job Name</option>').select2();
+        $('#cookbookciid').html('<option value="">Select Cookbook Name</option>').select2();
+        $('#sonarciid').html('<option value="">Select Job Name</option>').select2();
+        $('#repourl').val('');
+        $('#repobranch').val('');
+
+
+        getcollectors(slectedDashboardUrl);
+    }
+});*/
+
+
+function getDashboardServers(orgId,callback){
+    $.get('/cicd-dashboardservice/orgId/' + orgId, function(dashboardServers){
+
+        var str = ' <option value="">Select Dashboard Server</option>',
+        len = dashboardServers.length;
+        //alert(JSON.stringify(dashboardServers));
+        for (var i = 0; i < dashboardServers.length; i++) {
+            str = str + '<option dashboardurl="' + dashboardServers[i].dashboardServer + '" value="' + dashboardServers[i]._id + '">' + dashboardServers[i].dashboardName + ' [' + dashboardServers[i].dashboardServer + '] </option>';
+        }
+        $('#dashboardServerId').html(str);
+        $('#dashboardServerId').val($('#dashboardServerId').attr('savedvalue')).trigger('change');
+        $('#dashboardServerId').select2();
+        if(!dashboardServers || dashboardServers.length <= 0){
+            if(callback)
+                callback(null);
+        }
+        else{
+            if(callback)
+                callback(dashboardServers.length);
+        }
+    });
+}
+
+function getGitServers(orgId,callback){
+
+    $.get('/git-hub', function(gitList){
+        console.log(JSON.stringify(gitList));
+
+        var str = ' <option value="">Select Git Configuration</option>',
+        len = gitList.length;
+
+        //alert(JSON.stringify(dashboardServers));
+        for (var i = 0; i < gitList.length; i++) {
+            str = str + '<option gitconfig="' + gitList[i].repositoryName + '" value="' + gitList[i]._id + '">' + gitList[i].repositoryName + ' </option>';
+        }
+        $('#gitConfigurationId').html(str);
+       // $('#gitConfigurationId').val($('#gitConfigurationId').attr('savedvalue')).trigger('change');
+        $('#gitConfigurationId').select2();
+        if(!gitList || gitList.length <= 0){
+            if(callback)
+                callback(null);
+        }
+        else{
+            if(callback)
+                callback(gitList.length);
+        }
+    });
+
+/*var orgList = [];
+orgList.push(orgId);
+    masterUtil.getBitbucket(orgList, function(err, bitbucketList) {
+        if (err) {
+            res.status(500).send('Not able to fetch Bitbucket.');
+        }
+        //res.send("test\ntest");
+        var hygProp = '';
+        if (bitbucketList[0]) {
+            hygProp += 'git.username=' + bitbucketList[0].bitbucketusername + '\n';
+            hygProp += 'git.password=' + bitbucketList[0].bitbucketpassword + '\n';
+        }
+        res.send(hygProp);
+        //res.send(bitbucketList);
+        return;
+    });*/
+
+
+   /* $.get('/cicd-dashboardservice/orgId/' + orgId, function(dashboardServers){
+
+        var str = ' <option value="">Select Dashboard Server</option>',
+            len = dashboardServers.length;
+        //alert(JSON.stringify(dashboardServers));
+        for (var i = 0; i < dashboardServers.length; i++) {
+            str = str + '<option dashboardurl="' + dashboardServers[i].dashboardServer + '" value="' + dashboardServers[i]._id + '">' + dashboardServers[i].dashboardName + ' [' + dashboardServers[i].dashboardServer + '] </option>';
+        }
+        $('#dashboardServerId').html(str);
+        $('#dashboardServerId').val($('#dashboardServerId').attr('savedvalue')).trigger('change');
+        $('#dashboardServerId').select2();
+        if(!dashboardServers || dashboardServers.length <= 0){
+            if(callback)
+                callback(null);
+        }
+        else{
+            if(callback)
+                callback(dashboardServers.length);
+        }
+    });*/
+}
+
+
 var dashboardURL='';
 var collecterId=[];
 var dashboardFrom=null;
-function dashboardurl(val) {
-    dashboardURL = val.value;
+var collectorItems = null;
+function getcollectors(val) {
+    dashboardURL = val;
+    $('#dashboardLink').val('http://' + dashboardURL); //to be updated after dashboard is created.
+  
+   $('#dashboardServerSpinner').removeClass('hidden');
+   $(".optionWidget").hide();
     $.ajax({
             beforeSend: function(xhrObj){
                     xhrObj.setRequestHeader("Dashboard-url",dashboardURL);
@@ -177,22 +440,50 @@ function dashboardurl(val) {
             dataType: "json",
             contentType:"json",
             success: function(data){
+                    //Hide option widget config if no data
+                    $('#dashboardServerSpinner').addClass('hidden');
+                    if(data.length){
+                        $(".optionWidget").show();
+                    }
+                    else
+                    {
+                        $(".optionWidget").hide();
+                    }
                     for(i=0; i<data.length; i++) {
                         if(data[i].name === "Jiraproject") {
                             $("#jira-widget").show();
-//                            $("#jenkins-widget").show();
                             var a=data[i].name;
                             collecterId[a]=data[i].id;
-                            dashboardoption(a);
+                            dashboardoption(a,collectorItems);
+                        }
+
+                        if(data[i].name === "Hudson"){
+                            jenkinsWidgetOption(data[i].id,collectorItems);
+                        }
+                        if(data[i].name === "Chef"){
+                            chefWidgetOption(data[i].id,collectorItems,collectorItems);
+                        }
+                        if(data[i].name === "Sonar"){
+                            sonarWidgetOption(data[i].id,collectorItems,collectorItems);
+                        }if(data[i].name === "GitHub"){
+                            $('#repocollectorid').val(data[i].id,collectorItems);
+                            if(collectorItems){
+                                if(collectorItems.SCM){
+                                     $('#repourl').val(collectorItems.SCM[0].options.url);
+                                     $('#repobranch').val(collectorItems.SCM[0].options.branch);
+                                }
+                            }
                         }
                     }
+                    
             }
     });
 }
 
-function dashboardoption(name) {
+function dashboardoption(name,collectorItems) {
 
-    $('#projectNameDropdown').html();
+    $('#jiraprojectciid').html('<option value="">Select Project Name</option>').select2();
+    $('#jiraversionciid').html('<option value="">Select Project Version</option>').select2();
 
     $.ajax({
         beforeSend: function(xhrObj){
@@ -224,16 +515,24 @@ function dashboardoption(name) {
 
             
                 }
-                $('#projectNameDropdown').html(str);
+                $('#jiraprojectciid').html(str);
+                if(collectorItems){
+                    if(collectorItems.Jiraproject){
+                        $('#jiraprojectciid').val(collectorItems.Jiraproject[0].options.projectId);
+                        $('#jiraprojectciid').select2();
+                        versionOption(collectorItems.Jiraproject[0].options.projectId,collectorItems.Jiraproject[0].id);
+                        //$('#jiraprojectciid').trigger('change');
+                    }
+                }
             }
         });
 
-
 }
 
- function versionOption(projectname) {
-     $('#versionNameDropdown').html();
-     $('#versionNameDropdown').val('');
+
+function versionOption(projectname,selectedid) {
+     $('#jiraversionciid').html('<option value="">Select Project Version</option>').select2();
+     
      $.ajax({
          beforeSend: function(xhrObj){
              xhrObj.setRequestHeader("Dashboard-url",dashboardURL);
@@ -247,30 +546,154 @@ function dashboardoption(name) {
          success: function(data){
                  //var data=JSON.parse(data_a);
                  var projOption=[];
-                var pName=projectname.value;
+                var pName=$('#jiraprojectciid').val();
+                //alert(pName);
                  var str1 = '<option value=""></option>';
                  for (var j = 0; j < data.length; j++) {
 
                  if (data[j].options.projectId == pName) {
-                     str1 = str1 + '<option value="' + data[j].options.versionId + '">' + data[j].options.versionName + '</option>';
+                     str1 = str1 + '<option value="' + data[j].id + '">' + data[j].options.versionName + '</option>';
                  };
                     
                  }
 
-                 $('#versionNameDropdown').html(str1);
+                 $('#jiraversionciid').html(str1);
+                 if(selectedid){
+                    $('#jiraversionciid').val(selectedid);
+                    $('#jiraversionciid').select2();
+                 }
 
              },error:function(xhr) {
              }
      });
- }
-
-function jenkinsWidgetOption() {
-   
 }
 
- function saveCicdDashboard() {
+function jenkinsWidgetOption(collectorId,collectorItems) {
+   $('#jenkinsjobciid').html('<option value="">Select Job Name</option>').select2();
+   $.ajax({
+        beforeSend: function(xhrObj){
+                xhrObj.setRequestHeader("Dashboard-url",dashboardURL);
+          xhrObj.setRequestHeader("Content-Type","application/json");
+                
+        },
+        type: "GET",
+        url: "/dashboardcicd/collector/"+collectorId,
+        processData: false,
+        dataType: "json",
+        contentType:"json",
+        success: function(data){
+                
+                var str = '<option value=""></option>';
+                var optionJenkins=[];
+                for (var j = 0; j < data.length; j++) {
+                    
+                        //optionJenkins.push(data[j].options.jobName);
+                         str = str + '<option  value="' + data[j].id + '">' + data[j].options.jobName + '</option>';
+                    }
+
+                $('#jenkinsjobciid').html(str);
+                if(collectorItems){
+                    if(collectorItems.Build){
+                        $('#jenkinsjobciid').val(collectorItems.Build[0].id);
+                        $('#jenkinsjobciid').select2();
+                    }
+                }
+        }
+    });
+}
+
+function chefWidgetOption(collectorId,collectorItems) {
+   $('#cookbookciid').html('<option value="">Select Cookbook Name</option>').select2();
+   $.ajax({
+        beforeSend: function(xhrObj){
+                xhrObj.setRequestHeader("Dashboard-url",dashboardURL);
+          xhrObj.setRequestHeader("Content-Type","application/json");
+                
+        },
+        type: "GET",
+        url: "/dashboardcicd/collector/"+collectorId,
+        processData: false,
+        dataType: "json",
+        contentType:"json",
+        success: function(data){
+                
+                var str = '<option value=""></option>';
+                
+                for (var j = 0; j < data.length; j++) {
+                    
+                        //optionJenkins.push(data[j].options.jobName);
+                         str = str + '<option  value="' + data[j].id + '">' + data[j].options.cookbookName + '</option>';
+                    }
+
+                $('#cookbookciid').html(str);
+                if(collectorItems){
+                    if(collectorItems.Chef){
+                        $('#cookbookciid').val(collectorItems.Chef[0].id);
+                        $('#cookbookciid').select2();
+                    }
+                }
+        }
+    });
+}
+
+function sonarWidgetOption(collectorId,collectorItems) {
+   $('#sonarciid').html('<option value="">Select Job Name</option>').select2();
+   $.ajax({
+        beforeSend: function(xhrObj){
+                xhrObj.setRequestHeader("Dashboard-url",dashboardURL);
+          xhrObj.setRequestHeader("Content-Type","application/json");
+                
+        },
+        type: "GET",
+        url: "/dashboardcicd/collector/"+collectorId,
+        processData: false,
+        dataType: "json",
+        contentType:"json",
+        success: function(data){
+                
+                var str = '<option value=""></option>';
+               
+                for (var j = 0; j < data.length; j++) {
+                    
+                        //optionJenkins.push(data[j].options.jobName);
+                         str = str + '<option  value="' + data[j].id + '">' + data[j].options.projectName + '</option>';
+                    }
+
+                $('#sonarciid').html(str);
+                if(collectorItems){
+                    if(collectorItems.CodeQuality){
+                        $('#sonarciid').val(collectorItems.CodeQuality[0].id);
+                        $('#sonarciid').select2();
+                    }
+                }
+        }
+    });
+}
+
+function removeDashboard(dashboardId,callback){
+    $.ajax({
+            beforeSend: function(xhrObj){
+                    xhrObj.setRequestHeader("Dashboard-url",dashboardURL);
+              xhrObj.setRequestHeader("Content-Type","application/json");
+                    
+            },
+            type: "DELETE",
+            url: "/dashboardcicd/dashboard/" + dashboardId,
+            processData: false,
+            dataType: "json",
+            contentType:"json",
+            success: function(json,response){
+                    callback(json);
+            }
+    });
+
+}
+
+ function creteDashboard() {
+     //Remove existing dashboard
+
      dashboardFrom=$("#dashboard-create").serialize();
-     console.log(dashboardFrom);
+     var title = $('#dashboardName').val();
      $.ajax({
          beforeSend: function(xhrObj){
                  xhrObj.setRequestHeader("Dashboard-url",dashboardURL);
@@ -281,21 +704,104 @@ function jenkinsWidgetOption() {
          url: "/dashboardcicd/dashboard",
          processData: false,
          data: JSON.stringify( {"template": "capone",
-         "title": $('#dashboardname').val(),
+         "title": title,
          "type": "team",
-         "applicationName":$('#dashboardname').val(),
-         "componentName":$('#dashboardname').val(),
+         "applicationName":title,
+         "componentName":title,
          "owner": "admin"
          })
            ,  dataType: "json",
          contentType:"json",
              success: function(json){
-                 saveSecLabel(json.application.components[0].id)
+                 $('#dashboardLink').val('http://' + dashboardURL + "#/dashboard/" + json.id);
+                 $('#dashboardId').val(json.id);
+                 if(json && Object.keys(json).length >0){
+                     if(!json.application){
+                        bootbox.alert('Could not create dashboard. Confirm if the dashboard server ' + $('select#dashboardServerId option:selected').text() + ' is online.'); 
+                        $('button:submit').attr('disabled',false);
+                        $("#dashboardCreateSpinner").hide();
+                        return;
+                     }
+                     else{
+                         configureDashboard(json.id,json.application.components[0].id);
+                 }
+                 }
              }
          });
  }
 
- function saveSecLabel(id) {
+ function configureDashboard(id,componentId) {
+    var versionCIID = [];
+    versionCIID.push($('#jiraversionciid').val());
+    var jenkinsCIID = [];
+    jenkinsCIID.push($('#jenkinsjobciid').val());
+    var chefCIID = [];
+    chefCIID.push($('#cookbookciid').val());
+    var sonarCIID = [];
+    sonarCIID.push($('#sonarciid').val());
+    var giturl = $('#repourl').val();
+    var gitbranch = $('#repobranch').val();
+    var gitCollectorId = $('#repocollectorid').val();
+    //option preparation
+    var options = [];
+    if(versionCIID[0] != ''){
+        options.push({
+             "options": {
+                 "id": "projectversion0"
+             },
+             "name": "Jiraproject",
+             "componentId": componentId,
+             "collectorItemIds": versionCIID
+            });
+    }
+    if(jenkinsCIID[0] != ''){
+        options.push({
+            "options": {
+                "id": "build0",
+                "buildDurationThreshold": 3,
+                "consecutiveFailureThreshold": 5
+                },
+            "name": "build",
+            "componentId": componentId,
+            "collectorItemIds": jenkinsCIID
+         });
+    }
+    if(chefCIID[0] !=''){
+        options.push({ 
+            "options":{"id":"chef0"},
+            "name":"chef",
+            "componentId":componentId,
+            "collectorItemIds": chefCIID
+        });
+
+    }
+    if(sonarCIID[0] != ''){
+        options.push({
+            "options":{"id":"codeanalysis0","testJobNames":[]},
+            "name":"codeanalysis",
+            "componentId":componentId,
+            "collectorItemIds":sonarCIID
+        });
+    }
+    if(giturl != '' && gitbranch != '' && gitCollectorId != ''){
+        options.push({
+        "options": {
+            "id": "repo0",
+            "scm": {
+                "name": "GitHub",
+                "value": "GitHub"
+            },
+            "url": giturl,
+            "branch": gitbranch,
+            "collectorId": gitCollectorId
+        },
+        "name": "repo",
+        "componentId": componentId,
+        "collectorItemIds": []
+        });
+    }
+
+
      $.ajax({
          beforeSend: function (xhrObj) {
              xhrObj.setRequestHeader("Dashboard-url", dashboardURL);
@@ -303,151 +809,64 @@ function jenkinsWidgetOption() {
          type: "POST",
          url: "/dashboardcicd/setupdashboard/" + id,
          processData: false,
-         data: JSON.stringify([{
-             "options": {
-                 "id": $('#versionNameDropdown').val()
-             },
-             "name": "Jiraproject",
-             "componentId": id,
-
-             "collectorItemIds": [collecterId['Jiraproject']]
-         }
-         ]),
+         data: JSON.stringify(options),
          dataType: "json",
          contentType: 'application/json',
          success: function (json) {
-             console.log(json);
+             //save the form only after creation of the dashboard
+             $('button:submit').attr('disabled',false);
+             $("#dashboardCreateSpinner").hide();
+             if(json && Object.keys(json).length >0){
+                 saveform('30');
+             }
+
          }
 
      });
  }
 
-</script>
+ function getDashboardConfig(durl,dashboardId,callback){
+    if(dashboardId){
+        $.ajax({
+            beforeSend: function(xhrObj){
+                    xhrObj.setRequestHeader("Dashboard-url",durl);
+              xhrObj.setRequestHeader("Content-Type","application/json");
+                    
+            },
+            type: "GET",
+            url: "/dashboardcicd/dashboard/" + dashboardId,
+            processData: false,
+            dataType: "json",
+            contentType:"json",
+                success: function(data,json){
+                        //To Do set the values based on selection.
+                   
+                        var data = JSON.parse(JSON.stringify(data));
+                        var collectorItems = null;
+                        if(data.application)
+                         collectorItems = data.application.components[0].collectorItems;
+                        
+                        if(collectorItems){
+                            callback(collectorItems);
+                        }
+                        else
+                            callback(null);
+                  
+                }
+        });
+    }
+ }
 
-<script>
     $(document).ready(function() {
         var url = window.location.href;
         var queryString = url.substring(url.indexOf('?') + 1);
         $(".chooseOrganization").select2();
         $(".chooseBG").select2();
         if (queryString == 'new') {} else {
-            $.get('/d4dMasters/readmasterjsonnew/4', function(data) {
-                for (var i = 0; i < data.length; i++) {
-                    (function(i) {
-                        if (queryString == data[i].rowid) {
-                            var repo = data[i].repositories;
-                            if (repo) {
-                                var $repoDeployTbody = $('#repoDeployTbody');
-                                var nexusList = repo.nexus;
-                                var dockerList = repo.docker;
-                                if (nexusList.length) {
-                                    for (var j = 0; j < nexusList.length; j++) {
-                                        (function(j) {
-                                            var $tr = $('<tr class="repoDetailsRow"></tr>');
-                                            var $tdName = $('<td class="tdrepoName" value=' + nexusList[j] + ' style="word-break: break-word;"></td>');
-                                            $tr.data('repoName', nexusList[j]);
-                                            var $tdrepoServerName = $('<td class="tdrepoServerName" value="nexus" style="word-break: break-word;"></td>');
-                                            $tr.data('repoServerName', "nexus");
-
-                                            $tdName.append(nexusList[j]);
-                                            $tdrepoServerName.append("nexus");
-                                            var $tdAction = $('<td/>');
-                                            $tdAction.append('<div style="margin-right:17px;float:right;" class="btn-group"><button class="deleteRow" value="Remove" title="Remove"><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>');
-
-                                            $tdAction.find('.deleteRow').click(function() {
-                                                $repoDetails.row($tr).remove().draw(true);
-                                            });
-
-                                            $tr.append($tdrepoServerName).append($tdName).append($tdAction);
-                                            $repoDeployTbody.append($tr);
-                                            $repoDetails.row.add($tr).draw();
-                                        })(j);
-                                    }
-                                }
-                                if (dockerList.length) {
-                                    for (var k = 0; k < dockerList.length; k++) {
-                                        (function(k) {
-                                            var $tr = $('<tr class="repoDetailsRow"></tr>');
-                                            var $tdName = $('<td class="tdrepoName" value=' + dockerList[k] + ' style="word-break: break-word;"></td>');
-                                            $tr.data('repoName', dockerList[k]);
-                                            var $tdrepoServerName = $('<td class="tdrepoServerName" value="docker" style="word-break: break-word;"></td>');
-                                            $tr.data('repoServerName', "docker");
-
-                                            $tdName.append(dockerList[k]);
-                                            $tdrepoServerName.append("docker");
-                                            var $tdAction = $('<td/>');
-                                            $tdAction.append('<div style="margin-right:17px;float:right;" class="btn-group"><button class="deleteRow" value="Remove" title="Remove"><i class="ace-icon fa fa-trash-o bigger-120"></i></button></div>');
-
-                                            $tdAction.find('.deleteRow').click(function() {
-                                                $repoDetails.row($tr).remove().draw(true);
-                                            });
-
-                                            $tr.append($tdrepoServerName).append($tdName).append($tdAction);
-                                            $repoDeployTbody.append($tr);
-                                            $repoDetails.row.add($tr).draw();
-                                        })(k);
-                                    }
-                                }
-                            }
-                        }
-                    })(i);
-                }
-            });
+            
         }
     });
-    // $('#repoanchorDetails').click(function(e) {
-    //     $("#repodetailsModal").show();
-    //     $('#repoDetailsCreate').trigger("reset");
-    //     $('#repoNameCreate').empty();
-    //     $('#repoNameCreate').append('<option value = "" > Choose Repository </option>');
-    // });
-    // $('#appanchorDetails').click(function(e) {
-    //     $("#appdetailsModal").show();
-    //     $('#appDetailsCreate').trigger("reset");
-    // });
-
-    // if (!$.fn.dataTable.isDataTable('#tableappDetails')) {
-    //     $appDetails = $('#tableappDetails').DataTable({
-    //         "pagingType": "full_numbers",
-    //         "iDisplayLength": 5,
-    //         "aLengthMenu": [
-    //             [5, 40, 100, -1],
-    //             [5, 40, 100, "All"]
-    //         ],
-    //         "aoColumns": [{
-    //             "bSortable": true
-    //         }, {
-    //             "bSortable": true
-    //         }, {
-    //             "bSortable": true
-    //         }]
-    //     });
-    // }
-    // $("#tableappDetails_length").hide();
-    // $("#tableappDetails_filter").hide();
-
-
-    // $("#savecreateProjectbtn").click(function(e) {
-    //     var repositories = {
-    //         nexus: [],
-    //         docker: []
-    //     };
-    //     var nexusList = [];
-    //     var dockerList = [];
-    //     var tableData = $repoDetails.data();
-    //     for (var i = 0; i < tableData.length; i++) {
-    //         if (tableData[i][0] === 'nexus') {
-    //             nexusList.push(tableData[i][1]);
-    //         }
-    //         if (tableData[i][0] === 'docker') {
-    //             dockerList.push(tableData[i][1]);
-    //         }
-    //     }
-    //     repositories.nexus = nexusList;
-    //     repositories.docker = dockerList;
-    //     //alert(JSON.stringify(repositories));
-    //     $('#repositories').val(JSON.stringify(repositories));
-    // });
+   
 
     function isUserTypeSuperAdmin() {
         $.get('/d4dMasters/loggedInUser', function(data) {
@@ -462,7 +881,9 @@ function jenkinsWidgetOption() {
             $(this).select();
             $("#msgOrgName").hide();
         });
-        readform(4);
+        readform(30);
+        $("#dashboardCreateSpinner").hide();
+
         //Force opening the left navigation menu
         if ($('#navSettings').is(":visible") == false) {
             $('#navSettings').css("display", '');
@@ -477,7 +898,17 @@ function jenkinsWidgetOption() {
                 $(this).addClass('active');
         });
         drawBreadCrumb1();
-        enableUniqueCheckingForInputs(4);
+        enableUniqueCheckingForInputs(30);
+        
+        if($('#dashboardUrl').val() != ""){
+            collectorItems = null;
+            getDashboardConfig($('#dashboardUrl').val(),$('#dashboardId').val(),
+                function(cis){
+                   collectorItems = cis;
+                   // getcollectors($('#dashboardUrl').val(),collectorItems)
+                });
+        
+        }
     }
 
     function readform_todelete(formName) {
@@ -521,62 +952,10 @@ function jenkinsWidgetOption() {
                     });
                 }
             }
-            //alert("Reading" + JSON.stringify(temp));
         });
 
-        // $('input[sourcepath]').each(function() {
-        //     //debugger;
-        //     if ($(this).attr('sourcepath') && $(this).attr('datapath')) {
-        //         var tempJSON = JSON.parse(readMasterJson($(this).attr('sourcepath')));
-        //         var curInput = $(this);
-        //         //   alert(JSON.stringify(tempJSON));
-        //         $.each(eval('tempJSON.' + curInput.attr('datapath')), function(i, item) {
-        //             //     alert(item.field[0].values.value);
-        //             // debugger;
-        //             for (var k = 0; k < item.field.length; k++) {
-        //                 if (item.field[k].name == curInput.attr("id")) {
-        //                     // curSelect.append('<option value="' + item.field[k].values.value + '">' + item.field[k].values.value + '</option>');
-        //                     // alert("Added:" + item.field[i].values.value);
-        //                     addToCodeList(item.field[k].values.value, curInput);
-        //                 }
-        //             }
-        //         });
-        //     }
-        // });
-
-        // $('div[datatype="select"]').each(function() {
-        //     //debugger;
-        //     if ($(this).attr('linkedfields') || ($(this).attr('linkedfields') == null && $(this).attr('linkedto') == null)) {
-        //         if ($(this).attr('sourcepath') && $(this).attr('datapath')) {
-        //             var tempJSON = JSON.parse(JSON.stringify(readMasterJson($(this).attr('sourcepath'))));
-        //             var curInput = $(this);
-        //             //   alert(JSON.stringify(tempJSON));
-        //             $.each(eval('tempJSON.' + curInput.attr('datapath')), function(i, item) {
-        //                 //     alert(item.field[0].values.value);
-        //                 // debugger;
-        //                 for (var k = 0; k < item.field.length; k++) {
-        //                     if (item.field[k].name == curInput.attr("id")) {
-        //                         // curSelect.append('<option value="' + item.field[k].values.value + '">' + item.field[k].values.value + '</option>');
-        //                         // alert("Added:" + item.field[i].values.value);
-        //                         addToSelectList(item.field[k].values.value, curInput);
-        //                     }
-        //                 }
-        //             });
-        //         }
-        //     }
-        // });
-
-        // End Prefilling dropdowns
-        //  alert("before d4d" + JSON.stringify(d4ddata));
-        readMasterJson(4);
-        //   alert("after d4d" + JSON.stringify(d4ddata));
-
-        /* $.each(d4ddata.sections.section, function (i, item) {
-             if (item.name == formName) {
-                 formData = item;
-             }
-         });*/
-        // alert(JSON.stringify(formData));
+        readMasterJson(30);
+        
         //Reading row to get schema
         var formSchema = null;
         var orgName = url.substr(url.indexOf("?") + 1);
@@ -638,261 +1017,71 @@ function jenkinsWidgetOption() {
         }
     }
 
-    function readMasterJson_todelete(section) {
-        $.ajax({
-            type: "get",
-            dataType: "text",
-            async: false,
-            url: serviceURL + "readmasterjson/" + section,
-            success: function(data) {
-                // alert(data.toString());   
-                d4ddata = JSON.parse(data);
-            },
-            failure: function(data) {
-                alert(data.toString());
-            }
-        });
-        return (d4ddata);
-    }
-
-    function saveform_todelete(formName) {
-        $(".savespinner").show();
-        $('.widget-box').css('opacity', '1');
-        //  debugger;
-        //To Do SAve...
-        // var d4djson = $.parseJSON(d4ddata);
-        // alert(d4ddata.sections.section[0].name);
-        var formData = null;
-        //   alert("before d4d" + d4ddata);
-        readMasterJson(4);
-        //    alert("after d4d" + JSON.stringify(d4ddata));
-        /*$.each(d4ddata.sections.section, function (i, item) {
    
-           if (item.name == formName) {
-               formData = item;
-           }
-       });*/
-        // alert(JSON.stringify(formData));
-        //Reading row to get schema
-        var formSchema = null;
-        var orgName = url.substr(url.indexOf("?") + 1);
-        //    alert(orgName);
-        var editMode = false;
-        formData = d4ddata.masterjson;
-        $.each(formData.rows.row, function(i, item) {
-            // alert('Expanded field ' + JSON.stringify(item.field[0].values.value.toLowerCase()));
-            if (item.field[0].values.value.toLowerCase() == orgName.toLowerCase()) {
-                formSchema = item.field;
-                editMode = true;
-                return (false);
-            }
-            formSchema = item.field;
-        });
-        // alert(JSON.stringify(formSchema));
-        //Read current form values with the field names
-        var formSchemaNew = null;
-        if (editMode == false)
-            formSchemaNew = JSON.parse(JSON.stringify(formSchema));
-        else
-            formSchemaNew = formSchema;
-        //     alert(JSON.stringify(formSchemaNew));
-        $.each(formSchemaNew, function(i, item) {
-            var inputC = null;
-            $.each(item, function(k, v) {
-                if (k == "name") {
-                    inputC = $("#" + v);
-                    //   alert(v);
-                    //   alert(inputC == null);
-                }
-            });
-            $.each(item, function(k, v) {
-                if (k == "values") {
-                    if (inputC) {
-                        $.each(v, function(k1, v1) {
-                            //   debugger;
-                            if (inputC.attr("datatype")) {
-                                if (inputC.attr("datatype") == "select") {
-                                    // v.value.length = 0;
-                                    // alert(v.value);
-                                    v.value = '';
-                                    v.value = [];
-                                    inputC.find("input").each(function() {
-                                        if ($(this).is(":checked")) {
-                                            //   debugger;
-                                            v.value.push($(this).val());
-                                        }
-                                        //alert($(this).val());
-                                    });
-                                }
-                            } else {
-                                if (inputC.getType().toLowerCase() == "text") {
-                                    //alert(inputC.attr("datavalues"));
-                                    if (inputC.attr('datavalues')) {
-
-                                        var itms = '';
-
-                                        v1.splice(0, v1.length);
-                                        $('.' + inputC.attr('datavalues')).each(function() {
-                                            v1.push($(this).text());
-                                        });
-                                        //  alert(v1.length);
-                                        // v[k1] = '';
-                                        //   v[k1].push(v1);
-                                    } else
-                                        v[k1] = inputC.val();
-                                }
-                                if (inputC.getType().toLowerCase() == "select") {
-                                    v[k1] = inputC.val();
-                                }
-                            }
-                        });
-                    }
-                    inputC = null;
-                }
-            });
-        });
-
-        if (editMode == false)
-            formData.rows.row.push(JSON.parse('{\"field\":' + JSON.stringify(formSchemaNew) + '}'));
-        // alert(JSON.stringify(formData));
-        //Call the nodejs to save the json
-        $.ajax({
-            type: "post",
-            dataType: "text",
-            data: formData,
-            async: false,
-            url: serviceURL + "savemasterjson/4",
-            success: function(data) {
-                //alert(data.toString());
-                alert('Successfully Saved');
-            },
-            failure: function(data) {
-                alert(data.toString());
-            }
-        });
-        $(".savespinner").hide();
-        $('#btncancel').click();
-    }
-
-    // function addToCodeList_todelete() {
-    //     var imgCheck = "<i class=\'ace-icon fa fa-check bigger-110 green\' style=\'padding-left:10px;padding-right:10px\'></i>";
-    //     var imgDed = "<button class=\'pull-right bordered btn-danger\' style=\'margin-right:10px\' onClick=\'removeFromCodeList(this);\' ><i class=\'ace-icon fa fa-trash-o bigger-110\'></i></button>";
-    //     if ($('#costcode').val() != '') {
-    //         $('#codelistitems').append('<div class=\'codelistitem \' style=\'margin-top:2px;padding-top:2px;border:1px solid #eeeeee; background-color:#eeeeee !important\'><p class=\'bg-success\'>' + imgCheck + $('#costcode').val() + imgDed + '</p></div>');
-    //         $('#costcode').val('');
-    //         $('.widget-main').css('height', ($('.widget-main').height() + 40) + "px");
-    //         $('#costcode').focus();
-    //     }
-    // }
-
-    // function addToSelectList_todelete(txtVal, inp) {
-    //     var imgCheck = "<i class=\'ace-icon fa fa-check bigger-110 green\' style=\'padding-left:10px;padding-right:10px;visibility:hidden\' ></i>";
-    //     var imgDed = "<button class=\'pull-right bordered btn-danger\' style=\'margin-right:10px\' onClick=\'removeFromCodeList(this);\' ></button>";
-    //     if (txtVal != '') {
-    //         inp.append('<label class=\"toggle font-sm\" ><input onclick=\'if($(this).is(\":checked\")) {$(this).closest(\"label\").css(\"background-color\",\"#eeeeee\");$(this).css(\"border-color\",\"#3b9ff3\");}else{$(this).closest(\"label\").css(\"background-color\",\"#ffffff\");$(this).css(\"border-color\",\"red\");}\' type=\"checkbox\" name=\"checkbox-toggle\" value=\"' + txtVal + '\" style=\"width:100%\"><i data-swchoff-text=\"NO\" data-swchon-text=\"YES\"></i>' + txtVal + '</label>');
-    //         //inp.append('<div class=\'codelistitem\' style=\'margin-top:2px;padding-top:2px;border:1px solid #eeeeee; background-color:#eeeeee !important;height:26px;width:100%;cursor:pointer\'><p class=\'bg-success\'>' + imgCheck + txtVal + '</p></div>');
-    //         $('.widget-main').css('height', ($('.widget-main').height() + 40) + "px");
-    //     }
-    // }
-
-    // function addToCodeList_todelete(txtVal, inp) {
-    //     if (typeof(txtVal) == "undefined" && $('#costcode').val() != '')
-    //         txtVal = $('#costcode').val();
-
-    //     var imgCheck = "<i class=\'ace-icon fa fa-check bigger-110 green\' style=\'padding-left:10px;padding-right:10px\'></i>";
-    //     var imgDed = "<button class=\'pull-right bordered btn-danger\' style=\'margin-right:10px\' onClick=\'removeFromCodeList(this);\' ><i class=\'ace-icon fa fa-trash-o bigger-110\'></i></button>";
-    //     if (txtVal != '') {
-    //         $('#codelistitems').append('<div class=\'codelistitem\' style=\'margin-top:2px;padding-top:2px;border:1px solid #eeeeee; background-color:#eeeeee !important;height:26px;\'><p class=\'bg-success\'>' + imgCheck + txtVal + imgDed + '</p></div>');
-    //         $('.widget-main').css('height', ($('.widget-main').height() + 40) + "px");
-    //         $('#costcode').focus();
-    //     }
-    //     $('#costcode').val('');
-    // }
-
-    // function removeFromCodeList_todelete(btn) {
-    //     if (confirm('Are you sure you wish to remove this Cost Code?')) {
-    //         var closestDiv = $(btn).closest('div');
-    //         closestDiv.detach();
-    //     }
-    // }
-
-    // function validateForm() {
-    //     //Check for required parameter
-    //     return (true);
-    // }
-
-    // function readURL_todelete(input) {
-    //     if (input.files && input.files[0]) {
-    //         var reader = new FileReader();
-    //         reader.onload = function(e) {
-    //             var imgLogoPreview = "<img src='" + e.target.result + "' style='border:0px;height:25px;width:28px'/>";
-    //             $('#logoPreview').empty();
-    //             $('#logoPreview').append(imgLogoPreview);
-    //         }
-    //         reader.readAsDataURL(input.files[0]);
-    //     }
-    // }
-
-    // $("#id-input-file-2").change(function() {
-    //     readURL(this);
-    //     $(".ace-file-name").attr('data-title', '');
-    //     $(".ace-file-name").html('<i class=" ace-icon fa fa-upload"></i>' + this.files[0].name);
-    // });
-
-    // function getRelatedValues_todelete(jsonID, comparedField, filterByValue, outputField) {
-    //     readMasterJson(jsonID);
-    //     formData = d4ddata.masterjson;
-    //     // var comparedField = "orgname";
-    //     //  var filterByValue = "Scholastic";
-    //     //  var outputField = "productgroupname";
-    //     var result = [];
-    //     //debugger;
-    //     $.each(eval(formData.rows.row), function(i, item) {
-    //         $.each(item.field, function(k, item1) {
-
-    //             if (item1.name == comparedField && item1.values.value == filterByValue) {
-    //                 // alert(item1.values.value);
-    //                 //found the row, now get the next column
-    //                 $.each(item.field, function(j, item2) {
-    //                     if (item2.name == outputField) {
-    //                         //  alert(item2.values.value);
-    //                         result.push(item2.values.value);
-    //                     }
-    //                 });
-    //             }
-    //         });
-    //     });
-    //     return (result);
-    // }
     inLineReady();
 
-    function getSettingsNavFor(orgName) {
-        var getBG = getRelatedValues(2, "orgname", orgName, "productgroupname");
-        var getEnv = getRelatedValues(3, "orgname", orgName, "environmentname");
-        var getProj = getRelatedValues(4, "orgname", orgName, "projectname");
-        var retJson = {
-            "Business Group": getBG,
-            "Environments": getEnv,
-            "Projects": getProj
-        };
-        return (retJson);
-    }
 </script>
 
 <script>
-    $(document).ready(function() {
-        $("#projectname").focus();
-        $('#myForm3').submit(function() {
-            $(this).validate();
+function validateandsaveform() {
 
-            if ($(this).valid) {
-                /*alert('valid form submitted'); // for demo*/
-                if (!saveform('4')) return false;;
-            } else {
-                alert('invalid valid form submitted'); // for demo
-            }
-            return false; // for demo
-        });
+  //Include validations
+
+
+  if (validateForm()) {
+    
+    if(isFormValid('30')){
+        $('button:submit').attr('disabled',true);
+        $("#dashboardCreateSpinner").show();
+        //diabling save.
+        if($('#dashboardId').val() != ''){
+            //Remove existing dashboard
+            removeDashboard($('#dashboardId').val(),function(json){
+                
+                creteDashboard();
+            });
+        }
+        else
+            creteDashboard();
+    }
+    return false;
+  }
+
+}
+    $(document).ready(function() {
+       // $("#projectname").focus();
+        $('select').select2();
+       var isEditActivate = location.href.toString().split('?')[1] === "new" ? false : true;
+
+        var onEditId = location.href.toString().split('?')[1];
+        if (isEditActivate) {
+          $('input#sonarqubepassword').removeAttr('type');
+          $('input#sonarqubepassword').attr('type', 'password');
+          $.get('/d4dMasters/readmasterjsonrecord/30/' + onEditId , function(data){
+            
+            $('#orgname').empty().append('<option rowid="'+data.orgname_rowid[0]+'" value="'+data.orgname[0]+'">'+data.orgname[0]+'</option>').select2().attr('disabled','disabled'); 
+
+            var orgIdOnEdit = $('select#orgname option:selected').attr('rowid');
+            getBusinessGroupDetails(orgIdOnEdit,data); 
+            getDashboardServers(orgIdOnEdit,function(count){
+                if(!count){
+                    bootbox.alert('No Dashboard Servers found. Add a server to continue.'); 
+                    window.history.back();
+                }
+                
+            });           
+          });
+        }
+       $('#myForm55').submit(function() {
+         $(this).validate();
+
+         if ($(this).valid) {
+           validateandsaveform();
+         } else {
+           bootbox.alert('Invalid form submitted'); // for demo
+         }
+         return false; // for demo
+       });
     });
 </script>
 

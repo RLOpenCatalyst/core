@@ -22,7 +22,7 @@ var currentDirectory = __dirname;
 var fs = require('fs');
 var path = require('path');
 var appConfig = require('_pr/config');
-var Cryptography = require('../../lib/utils/cryptography');
+var Cryptography = require('_pr/lib/utils/cryptography');
 
 // saveAwsPemFiles() capture all uploaded files from request and save.
 var ProviderUtil = function() {

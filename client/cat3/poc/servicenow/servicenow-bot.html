@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base >
+</head>
+<link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" href="../../src/partials/globals/toaster/angular-toastr.css" />
+<script src="../../bower_components/angular/angular.js"></script>
+<script src="https://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-2.5.0.min.js"></script>
+<script src="../../src/partials/globals/toaster/angular-toastr.tpls.js"></script>
+
+<script>
+
+
+    
+    var app = angular.module('poc', ['ui.bootstrap','toastr']).config(['$locationProvider', function($locationProvider){
+            $locationProvider.html5Mode({
+              enabled: true,
+              requireBase: false
+            });
+        }]);
+
+    app.controller('ServiceNowBOTCtrl', function( $scope, $http,$location,$uibModal,toastr,$timeout,$window) {
+        var crtl=this;
+        crtl.newEnt={};
+        crtl.auth=[];
+	    crtl.urlObject={};
+        crtl.getBOTDetail = function (BotName, Token) {
+          return $http({
+            method: 'get',
+            url:"../../../botsNew?filterBy=" + BotName,
+            headers: {
+              'x-catalyst-auth': Token,
+              'Accept': 'application/json'
+              }
+             }).then(function(response) {
+                crtl.BOTData =  response.data;
+                crtl.type=response.data.bots[0].type;
+                angular.forEach(response.data.bots[0].inputFormFields,function (val) {
+                    crtl.newEnt[val.name]=val.default;
+                });
+          });
+        };
+        crtl.save = function () {
+            return $http({
+                method: 'POST',
+                url:'../../../botsNew/' + crtl.urlObject.BotName.split(":")[1] + '/execute',
+                data:{
+                      "data":crtl.newEnt,
+                      "type":crtl.type
+                    },
+                headers: {
+                    'x-catalyst-auth':crtl.urlObject.Token,
+                    'Accept': 'application/json'
+                }
+            }).then(function(response) {
+                toastr.success("Successfully executed");
+                $timeout(function () {
+                  $window.close();
+                },400);
+            });
+
+        };
+
+        crtl.init=function () {
+            crtl.urlObject = $location.search();
+            crtl.getBOTDetail(crtl.urlObject.BotName, crtl.urlObject.Token);
+        };
+
+        crtl.init();
+    }); 
+   
+
+</script>
+<style>
+  .repo-job-details-wrapper {
+    border: 1px solid #dddddd;
+    margin: 0 2px;
+    padding: 0.35em 0.625em 0.75em;
+  }
+  .repo-job-details-wrapper-inner {
+    border: 0 none;
+    padding: 0;
+    width: auto;
+    margin-bottom: 0;
+    font-size: 15px;
+    color: #666;
+  }
+  .margintop15{
+    margin-top: 15px !important;
+  }
+</style>
+<body ng-app="poc">
+<div ng-controller="ServiceNowBOTCtrl as serCt"  browser="html5">
+  <div class="">
+    <div class="col-lg-3 col-md-3 col-sm-0"></div>
+    <div class="col-lg-6 col-md-6 col-sm-12">
+      <form>
+      <fieldset class="repo-job-details-wrapper">
+        <legend class="repo-job-details-wrapper-inner">BOTs Details:</legend>
+        <div class="col-lg-6 col-md-6 margintop15" ng-repeat="field in serCt.BOTData.bots[0].inputFormFields" ng-switch="field.type">
+          <label>{{field.label}}:
+          </label>
+          <input ng-switch-when="text" type="text" class="form-control" ng-model="serCt.newEnt[field.name]" />
+          <input ng-switch-when="password" type="password" class="form-control" ng-model="serCt.newEnt[field.name]"  />
+        </div>
+        <div class="" style=" clear: both"></div>
+        <div class="pull-right" style="margin: 10px 14px;">
+          <button type="button" class="btn btn-primary" ng-click="serCt.save();"> <i class="fa fa-floppy-o white" aria-hidden="true"></i> Execute</button>
+        </div>
+      </fieldset>
+      </form>
+    </div>
+    <div class="col-lg-3 col-md-3 col-sm-0"></div>
+  </div>
+</div> 
+
+
+</body>
+</html>

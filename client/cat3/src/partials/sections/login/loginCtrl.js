@@ -7,7 +7,28 @@
 
 (function(angular){
 	"use strict";
-	function loginFunct($scope, $location, auth, $timeout) {
+	angular.module('global.login',[]).service('loginServices',['$rootScope', '$q', '$http','toastr',function($rootScope,$q,$http,toastr){
+	var loginServices=this;
+        loginServices.promiseGet = function (paramsObject) {
+            if(!paramsObject.inlineLoader){ $rootScope.onBodyLoading=true;}
+            var deferred = $q.defer();
+            $http.get(paramsObject.url)
+                .success(function(data) {
+                    if(!paramsObject.inlineLoader){$rootScope.onBodyLoading=false;}
+                    deferred.resolve(data);
+                })
+                .error(function(data) {
+                    if(!paramsObject.inlineLoader){ $rootScope.onBodyLoading=false;}
+                    deferred.reject();
+                    toastr.error(data.message, 'Error');
+                });
+            return deferred.promise;
+        };
+	}]).controller('loginCtrl', ['$scope', '$location','auth', '$timeout','loginServices', function ($scope, $location, auth, $timeout,loginServices) {
+		var logD=this;
+		 loginServices.promiseGet({url:"/applications/latest/version"}).then(function(res){
+		 	logD.vers=res.appVersion;
+		 });
 		function changeAddress(){
 			$location.path('/dashboard');
 		}
@@ -27,7 +48,6 @@
 				$scope.inCorrectLoginMessage = reject.error.message;
 			});
 		};
-	}
-	angular.module('global.login', [])
-		.controller('loginCtrl', ['$scope', '$location','auth', '$timeout', loginFunct]);
+		
+	}]);
 })(angular);

@@ -17,6 +17,8 @@
 var logger = require('_pr/logger')(module);
 
 const errorType = 'schedulerService';
+var Client = require('node-rest-client').Client;
+var client = new Client();
 
 var schedulerService = module.exports = {};
 var cronTab = require('node-crontab');
@@ -38,10 +40,16 @@ var fs = require('fs');
 var providerService = require('_pr/services/providerService.js');
 var taskService = require('_pr/services/taskService.js');
 var botsService = require('_pr/services/botsService.js');
+var botsNewService = require('_pr/services/botsNewService.js');
 var gcpProviderModel = require('_pr/model/v2.0/providers/gcp-providers');
 var GCP = require('_pr/lib/gcp.js');
 var crontab = require('node-crontab');
 var botsDao = require('_pr/model/bots/1.0/bots.js');
+var newBotsDao = require('_pr/model/bots/1.1/botsDao.js');
+var logsDao = require('_pr/model/dao/logsdao.js');
+var auditTrailService = require('_pr/services/auditTrailService.js');
+
+
 
 schedulerService.executeSchedulerForInstances = function executeSchedulerForInstances(instance,callback) {
     logger.debug("Instance Scheduler is started for Instance. "+instance.platformId);
@@ -131,6 +139,56 @@ schedulerService.executeParallelScheduledTasks = function executeParallelSchedul
                     return;
                 }
                 logger.debug("Task Execution Success: ", task.name);
+                return;
+            });
+        });
+    }
+}
+
+schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDetails(url,callback) {
+    client.get(url, function (dataObj, response) {
+        if (response.statusCode == 200 && dataObj.state === 'terminated') {
+            callback(null, dataObj);
+            return;
+        } else if (response.statusCode == 200 && dataObj.state === 'active') {
+            callback(null, dataObj);
+            return;
+        } else {
+            logger.error(dataObj);
+            callback(dataObj, null);
+            return;
+        }
+    });
+}
+
+schedulerService.executeNewScheduledBots = function executeNewScheduledBots(bots,callback) {
+    logger.debug("New Bots Scheduler is started for - "+bots.name);
+    var currentDate = new Date().getTime();
+    if(currentDate >= bots.scheduler.cronEndOn){
+        crontab.cancelJob(bots.cronJobId);
+        newBotsDao.updateBotsScheduler(bots._id,function(err, updatedData) {
+            if (err) {
+                logger.error("Failed to update Bots Scheduler: ", err);
+                callback(err,null);
+                return;
+            }
+            logger.debug("Scheduler is ended on for New Bots. "+bots.name);
+            callback(null,updatedData);
+            return;
+        });
+    }else{
+        var cronJobId = cronTab.scheduleJob(bots.scheduler.cronPattern, function () {
+            newBotsDao.updateCronJobIdByBotId(bots._id,cronJobId,function(err,data){
+                if(err){
+                    logger.error("Error in updating cron job Ids. "+err);
+                }
+            });
+            botsNewService.executeBots(bots.id,null,'system','bots-console',true,function (err, historyData) {
+                if (err) {
+                    logger.error("Failed to execute New Bots.", err);
+                    return;
+                }
+                logger.debug("New Bots Execution Success for - ", bots.name);
                 return;
             });
         });

@@ -173,24 +173,55 @@ module.exports.setRoutes = function(app) {
                         });
 
                     } else if (req.params.id === '20') {
+
+                        //Get the host name
+                        logger.debug(JSON.stringify(req.headers["dashboard-host"]));
+                        var hostname = req.headers["dashboard-host"];
+                        //logger.debug(req.ip);
                         // For Jenkins
-                        masterUtil.getJenkins(orgList, function(err, jenkinList) {
-                            if (err) {
-                                res.status(500).send('Not able to fetch Jenkins.');
-                            }
-                            //res.send(jenkinList);
-                            var hygProp = '';
-                            if (jenkinList[0]) {
-                                hygProp += 'jenkins.servers[0]=' + jenkinList[0].jenkinsurl + '\n';
-                                hygProp += 'jenkins.username=' + jenkinList[0].jenkinsusername + '\n';
-                                hygProp += 'jenkins.apiKey=' + jenkinList[0].jenkinspassword + '\n';
-                            }
-                            res.send(hygProp);
-                            return;
+                        masterUtil.getDashboardServerByHost(hostname,function(err,dashboardServer){
+                            logger.debug(JSON.stringify(dashboardServer));
+                            var filterByServer = null;
+                            if(dashboardServer)
+                                filterByServer  = dashboardServer.jenkinsServerId;
+
+                            logger.debug(filterByServer);
+                            masterUtil.getJenkins(orgList, function(err, jenkinList) {
+                                if (err) {
+                                    res.status(500).send('Not able to fetch Jenkins.');
+                                }
+                                //res.send(jenkinList);
+                                var hygProp = '';
+                                logger.debug(JSON.stringify(jenkinList));
+                                if(!filterByServer){
+                                    if (jenkinList[0]) {
+                                        hygProp += 'jenkins.servers[0]=' + jenkinList[0].jenkinsurl + '\n';
+                                        hygProp += 'jenkins.username=' + jenkinList[0].jenkinsusername + '\n';
+                                        hygProp += 'jenkins.apiKey=' + jenkinList[0].jenkinspassword + '\n';
+                                    }
+                                    res.send(hygProp);
+                                }
+                                else{
+                                    for(var i = 0; i < jenkinList.length; i++){
+                                        if(jenkinList[i]['rowid'] == filterByServer){
+                                            logger.debug('hit filter');
+                                            hygProp += 'jenkins.servers[0]=' + jenkinList[i].jenkinsurl + '\n';
+                                            hygProp += 'jenkins.username=' + jenkinList[i].jenkinsusername + '\n';
+                                            hygProp += 'jenkins.apiKey=' + jenkinList[i].jenkinspassword + '\n';
+                                            res.send(hygProp);
+                                            return;
+                                        }
+                                    }
+
+                                }
+                                
+                                return;
+                            });
                         });
 
                     } else if (req.params.id === '27') {
                         // For Jenkins
+
                         masterUtil.getBitbucket(orgList, function(err, bitbucketList) {
                             if (err) {
                                 res.status(500).send('Not able to fetch Bitbucket.');
@@ -250,18 +281,102 @@ module.exports.setRoutes = function(app) {
                     } else if (req.params.id === '23') {
                         // For Jira
                         logger.debug("Entering getJira");
-                        masterUtil.getJira(orgList, function(err, jiraList) {
-                            if (err) {
-                                res.status(500).send('Not able to fetch Jira.');
-                            }
-                            var hygProp = '';
-                            if (jiraList[0]) {
-                                jiraList = JSON.parse(JSON.stringify(jiraList));
-                                hygProp += 'feature.jiraBaseUrl=' + jiraList[0].jiraurl + '\n';
-                                hygProp += 'feature.jiraCredentials=' + jiraList[0].jirakey + '\n';
-                            }
-                            res.send(hygProp);
-                            return;
+
+                        //Get the host name
+                        logger.debug(JSON.stringify(req.headers["dashboard-host"]));
+                        var hostname = req.headers["dashboard-host"];
+                        //logger.debug(req.ip);
+                        // For Jenkins
+                        masterUtil.getDashboardServerByHost(hostname,function(err,dashboardServer){
+                            logger.debug(JSON.stringify(dashboardServer));
+                            var filterByServer = null;
+                            if(dashboardServer)
+                                filterByServer  = dashboardServer.jiraServerId;
+
+                                logger.debug(filterByServer);
+
+                                masterUtil.getJira(orgList, function(err, jiraList) {
+                                    if (err) {
+                                        res.status(500).send('Not able to fetch Jira.');
+                                    }
+                                    var hygProp = '';
+                                    if(!filterByServer){
+                                        if (jiraList[0]) {
+                                            jiraList = JSON.parse(JSON.stringify(jiraList));
+                                            hygProp += 'feature.jiraBaseUrl=' + jiraList[0].jiraurl + '\n';
+                                            hygProp += 'feature.jiraCredentials=' + jiraList[0].jirakey + '\n';
+                                        }
+                                        res.send(hygProp);
+                                    }
+                                    else{
+                                        jiraList = JSON.parse(JSON.stringify(jiraList));
+                                        for(var i = 0; i < jiraList.length; i++){
+                                            if(jiraList[i]['rowid'] == filterByServer){
+                                                logger.debug('hit filter');
+                                           
+                                                hygProp += 'feature.jiraBaseUrl=' + jiraList[i].jiraurl + '\n';
+                                                hygProp += 'feature.jiraCredentials=' + jiraList[i].jirakey + '\n';
+
+                                            }
+                                        }
+                                        res.send(hygProp);
+                                    }
+                                    return;
+                                });
+                        });
+
+                    }else if (req.params.id === '31') {
+                        // For Jira
+                        logger.debug("Entering getSonar");
+                        //Get the host name
+                        logger.debug(JSON.stringify(req.headers["dashboard-host"]));
+                        var hostname = req.headers["dashboard-host"];
+                        //logger.debug(req.ip);
+                        // For Jenkins
+                        masterUtil.getDashboardServerByHost(hostname,function(err,dashboardServer){
+                            logger.debug(JSON.stringify(dashboardServer));
+                            var filterByServer = null;
+                            if(dashboardServer)
+                                filterByServer  = dashboardServer.sonarServerId;
+
+                            logger.debug(filterByServer);
+                            masterUtil.getSonarqube(orgList, function(err, sonarqubeList) {
+                                if (err) {
+                                    res.status(500).send('Not able to fetch Sonarqube.');
+                                }
+                                var hygProp = '';
+                                // if(octopusList[0]){
+                                //   hygProp += 'octopus.url=' + octopusList[0].octopusurl + '\n';
+                                //   hygProp += 'octopus.apiKey=' + octopusList[0].octopuskey + '\n';
+                                // }
+                                if(!filterByServer){
+                                    if (sonarqubeList) {
+
+                                            for (var oi = 0; oi < sonarqubeList.length; oi++) {
+                                                hygProp += 'sonar.servers[' + oi + ']=' + sonarqubeList[oi].sonarqubeurl + '\n';
+                                                hygProp += 'sonar.username=' + sonarqubeList[oi].sonarqubeusername + '\n';
+                                                hygProp += 'octopus.password=' + sonarqubeList[oi].sonarqubepassword + '\n';
+                                            }
+                                    }
+                                    res.send(hygProp);
+                                }else{
+                                    var oi = 0;
+
+                                    if (sonarqubeList) {
+                                        for(var i = 0; i < sonarqubeList.length; i++){
+                                            if(sonarqubeList[i]['rowid'] == filterByServer){
+                                                logger.debug('hit filter');
+                                                hygProp += 'sonar.servers[' + oi + ']=' + sonarqubeList[i].sonarqubeurl + '\n';
+                                                hygProp += 'sonar.username=' + sonarqubeList[i].sonarqubeusername + '\n';
+                                                hygProp += 'octopus.password=' + sonarqubeList[i].sonarqubepassword + '\n';
+                                                oi++;
+                                            }
+                                        }
+                                    }
+                                    res.send(hygProp);
+                                }
+                                return;
+                            });
                         });
 
                     } else if (req.params.id === '6') {
@@ -513,6 +628,29 @@ module.exports.setRoutes = function(app) {
                             res.send(pList);
                             return;
                         });
+                    } else if (req.params.id === '31') {
+                        // For Jira
+                        logger.debug("Entering getSonar");
+                        masterUtil.getSonarqube(orgList, function(err, sonarqubeList) {
+                            if (err) {
+                                res.status(500).send('Not able to fetch Sonarqube.');
+                            }
+                            var hygProp = '';
+                            // if(octopusList[0]){
+                            //   hygProp += 'octopus.url=' + octopusList[0].octopusurl + '\n';
+                            //   hygProp += 'octopus.apiKey=' + octopusList[0].octopuskey + '\n';
+                            // }
+                            if (sonarqubeList) {
+                                for (var oi = 0; oi < sonarqubeList.length; oi++) {
+                                    hygProp += 'sonar.servers[' + oi + ']=' + sonarqubeList[oi].sonarqubeurl + '\n';
+                                    hygProp += 'sonar.username=' + sonarqubeList[oi].sonarqubeusername + '\n';
+                                    hygProp += 'octopus.password=' + sonarqubeList[oi].sonarqubepassword + '\n';
+                                }
+                            }
+                            res.send(hygProp);
+                            return;
+                        });
+
                     } else {
                         logger.debug('nothin here');
                         res.send([]);

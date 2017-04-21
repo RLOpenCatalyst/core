@@ -35,7 +35,7 @@ var settingsService = require('_pr/services/settingsService');
 
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
-    app.all('/vmimages/*', sessionVerificationFunc);
+    app.all('/vmimages*', sessionVerificationFunc);
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
 

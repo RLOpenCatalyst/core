@@ -12,7 +12,7 @@ var botAuditTrail = require('_pr/model/audit-trail/bot-audit-trail.js');
 var async = require('async');
 
 var dbOptions = {
-    host: appConfig.db.host,
+    host: process.env.DB_HOST || appConfig.db.host,
     port: appConfig.db.port,
     dbName: appConfig.db.dbName
 };

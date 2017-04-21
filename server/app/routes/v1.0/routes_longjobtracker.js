@@ -21,6 +21,8 @@ var taskStatusModule = require('_pr/model/long-job-tracker');
 
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
+    app.all('/taskstatus/*', sessionVerificationFunc);
+
 
     app.get('/taskstatus/:taskId/status', sessionVerificationFunc, function(req, res) {
         taskStatusModule.getTaskStatus(req.params.taskId, function(err, taskStatus) {

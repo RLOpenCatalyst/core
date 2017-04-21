@@ -24,7 +24,7 @@ var congigMgmntDao = require('_pr/model/d4dmasters/configmgmt.js');
 
 module.exports.setRoutes = function(app, sessionVerificationFunc) {
 
-    app.get('/users/*', sessionVerificationFunc);
+    app.get('/users*', sessionVerificationFunc);
 
     app.get('/users', function(req, res) {
 
