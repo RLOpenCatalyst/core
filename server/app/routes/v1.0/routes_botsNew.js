@@ -124,7 +124,9 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
                 category:req.body.type,
                 userName: req.session.user.cn,
                 hostProtocol: req.protocol + '://' + req.get('host'),
-                data: req.body.data?req.body.data:null
+                data: req.body.data?req.body.data:null,
+                src: req.query.src?req.query.src:null,
+                ref: req.query.ref?req.query.ref:null
             }
             if(req.body.nodeIds){
                 reqBody.nodeIds =  req.body.nodeIds;
