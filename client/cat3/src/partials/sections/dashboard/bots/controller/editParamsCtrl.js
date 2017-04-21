@@ -66,8 +66,8 @@
             $scope.getInstanceList = function() {
                 botsCreateService.getCurrentOrgInstances($scope.IMGNewEnt.org.orgid).then(function(response){
                     $scope.originalInstanceList=[];
-                    if(response){
-                        angular.forEach(response, function(value) {
+                    if(response.instances){
+                        angular.forEach(response.instances, function(value) {
                             if($scope.selectedInstanceIds.indexOf(value._id) === -1) {
                                 $scope.originalInstanceList.push(value);
                             }
@@ -79,8 +79,8 @@
             $scope.getBlueprintList = function() {
                 botsCreateService.getBlueprintList($scope.IMGNewEnt.org.orgid,$scope.IMGNewEnt.blueprintType).then(function(response){
                     $scope.originalBlueprintList=[];
-                    if(response){
-                        angular.forEach(response, function(value) {
+                    if(response.blueprints){
+                        angular.forEach(response.blueprints, function(value) {
                             if($scope.selectedBlueprintIds.indexOf(value._id) === -1) {
                                 $scope.originalBlueprintList.push(value);
                             }

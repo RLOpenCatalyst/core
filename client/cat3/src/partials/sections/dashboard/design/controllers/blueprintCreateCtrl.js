@@ -59,14 +59,16 @@
             $scope.chefrunlist = [];
             $scope.cookbookAttributes = [];
             blueprintCreation.templateListing = function(){
-                bpCreateSer.getTemplates().then(function(data){
-                    $scope.templateList = data;
-                    for(var i=0;i<$scope.templateList.length;i++){
-                        if($scope.templateList[i].templatesicon_filePath){
-                            $scope.templateList[i].templatesicon_filePath = '/d4dMasters/image/' + $scope.templateList[i].templatesicon_filePath;
+                if($rootScope.organNewEnt) {
+                    bpCreateSer.getTemplates($rootScope.organNewEnt.org.orgid).then(function(data){
+                        $scope.templateList = data;
+                        for(var i=0;i<$scope.templateList.length;i++){
+                            if($scope.templateList[i].templatesicon_filePath){
+                                $scope.templateList[i].templatesicon_filePath = '/d4dMasters/image/' + $scope.templateList[i].templatesicon_filePath;
+                            }
                         }
-                    }
-                });
+                    });
+                }
             };
 
             $scope.blueprintTemplateClick = function(templateDetail) {
@@ -319,29 +321,12 @@
 
 
             blueprintCreation.getOrgBUProjDetails = function() {
-                /*bpCreateSer.getOrgBuProj().then(function(data){
-                 blueprintCreation.orgBUProjListing = data;
-                 });*/
-                blueprintCreation.newEnt.orgList='0';
+                blueprintCreation.newEnt.orgList=$rootScope.organObject.indexOf($rootScope.organNewEnt.org).toString();
                 blueprintCreation.newEnt.bgList='0';
                 blueprintCreation.newEnt.projectList='0';
                 blueprintCreation.getChefServer();
                 blueprintCreation.enableAppDeploy();
             };
-
-            /*blueprintCreation.getBG = function() {
-             if(blueprintCreation.newEnt.orgList) {
-             var buProjDetails = blueprintCreation.orgBUProjListing;
-             blueprintCreation.bgListing = buProjDetails;
-             }
-             };
-
-             blueprintCreation.getProject = function() {
-             if(blueprintCreation.newEnt.orgList && blueprintCreation.newEnt.orgList) {
-             var buProjDetails = blueprintCreation.orgBUProjListing;
-             blueprintCreation.projListing = buProjDetails;
-             }
-             };*/
 
             blueprintCreation.enableAppDeploy = function() {
                 if(blueprintCreation.newEnt.projectList) {
@@ -479,7 +464,7 @@
             blueprintCreation.getChefServer = function() {
                 bpCreateSer.getChefServer().then(function(data){
                     for(var i =0;i<data.length;i++){
-                        if($rootScope.organObject[blueprintCreation.newEnt.orgList].rowid === data[i].orgname_rowid[0]){
+                        if(blueprintCreation.newEnt.orgList === data[i].orgname_rowid[0]){
                             $scope.getChefServerId = data[i].rowid;
                         }
                     }
@@ -907,4 +892,4 @@
                 }
             });
         }]);
-})(angular);
+}(angular));
