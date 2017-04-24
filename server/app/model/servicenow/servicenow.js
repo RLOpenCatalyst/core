@@ -1,18 +1,21 @@
+/**
+ * Created by rle0333 on 24/4/17.
+ */
 /*
-Copyright [2016] [Relevance Lab]
+ Copyright [2016] [Relevance Lab]
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
 
-http://www.apache.org/licenses/LICENSE-2.0
+ http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
 
 
 var Client = require('node-rest-client').Client;
@@ -85,7 +88,7 @@ CMDBConfigSchema.statics.getCMDBServerById = function(serverId, callback) {
     });
 }
 
-CMDBConfigSchema.statics.getConfigItems = function(tableName, options, callback) {
+CMDBConfigSchema.statics.getConfigItems = function(tableName,options, callback) {
     logger.debug("START :: getConfigItems");
 
     var basic_auth = {
@@ -95,10 +98,14 @@ CMDBConfigSchema.statics.getConfigItems = function(tableName, options, callback)
 
     var tmp = options.host;
     var host = tmp.replace(/.*?:\/\//g, "");
-
-    var servicenowURL = 'https://' + options.username + ':' + options.password + '@' + host + '/api/now/table/' + tableName;
+    var serviceNowURL = null;
+    if(options.ticketNo && options.ticketNo !== null) {
+        serviceNowURL = 'https://' + options.username + ':' + options.password + '@' + host + '/api/now/table/' + tableName+"?number="+options.ticketNo;
+    }else{
+        serviceNowURL = 'https://' + options.username + ':' + options.password + '@' + host + '/api/now/table/' + tableName;
+    }
     var options = {
-        url: servicenowURL,
+        url: serviceNowURL,
         headers: {
             'User-Agent': 'request',
             'Accept': 'application/json'

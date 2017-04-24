@@ -18,7 +18,7 @@ limitations under the License.
 // This file act as a Controller which contains service related all end points.
 
 
-var CMDBConfig = require('_pr/lib/servicenow');
+var CMDBConfig = require('_pr/model/servicenow/servicenow.js');
 var logger = require('_pr/logger')(module);
 var instancesDao = require('_pr/model/classes/instance/instance');
 var logsDao = require('_pr/model/dao/logsdao.js');
