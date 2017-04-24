@@ -82,7 +82,6 @@ BotAuditTrailSchema.statics.createNew = function(auditTrail,callback){
     });
 }
 BotAuditTrailSchema.statics.updateBotAuditTrail = function(auditId,auditTrailObj,callback){
-    console.log(auditTrailObj);
     BotAuditTrail.update({_id:new ObjectId(auditId)},{$set:auditTrailObj},{upsert:false}, function(err, updateAuditTrail) {
         if (err) {
             logger.error(err);

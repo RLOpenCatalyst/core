@@ -57,6 +57,16 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
         })
     });
 
+    app.get('/audit-trail/:auditId/srnTicketSync', function(req,res){
+        auditTrailService.syncCatalystWithServiceNow(req.params.auditId,function(err,srnTicketSync){
+            if(err){
+                logger.error(err);
+                return res.status(500).send(err);
+            }
+            return res.status(200).send(srnTicketSync);
+        })
+    });
+
 
     app.get('/audit-trail/instance-action', getInstanceActionList);
 

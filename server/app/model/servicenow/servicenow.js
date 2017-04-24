@@ -145,18 +145,6 @@ CMDBConfigSchema.statics.saveConfig = function(config, callback) {
     })
 }
 
-CMDBConfigSchema.statics.getCMDBServerByOrgId = function(orgId, callback) {
-    this.find({
-        orgname_rowid: orgId
-    }, function(err, data) {
-        if (err) {
-            logger.error(err);
-            callback(err, null);
-            return;
-        }
-        callback(null, data);
-    });
-}
 
 CMDBConfigSchema.statics.removeServerById = function(serverId, callback) {
     this.remove({
