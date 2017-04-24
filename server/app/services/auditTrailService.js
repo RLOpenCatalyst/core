@@ -64,17 +64,40 @@ auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,audi
                 return;
             }
             callback(null,data);
-            var botAuditTrailService = require('_pr/services/auditTrailService.js');
-            botAuditTrailService.syncCatalystWithServiceNow(data._id,function(err,data){
+            async.parallel({
+                botServiceNowSync:function(callback){
+                    var botAuditTrailService = require('_pr/services/auditTrailService.js');
+                    botAuditTrailService.syncCatalystWithServiceNow(data._id,function(err,data){
+                        if(err){
+                            logger.error("Error in updating Service Now Ticket Details:");
+                            callback(err,null);
+                        }else{
+                            logger.debug("ServiceNow sync is Done.")
+                            callback(err,null);
+                        }
+                    });
+                },
+                botExecutionLastStatus:function(callback){
+                    var botsNewService = require('_pr/services/botsNewService.js');
+                    botsNewService.updateLastBotExecutionStatus(auditDetails._id,function(err,data){
+                        if(err){
+                            logger.error("Error in updating Service Now Ticket Details:");
+                            callback(err,null);
+                        }else{
+                            logger.debug("ServiceNow sync is Done.")
+                            callback(err,null);
+                        }
+                    });
+                }
+            },function(err,results){
                 if(err){
-                    logger.error("Error in updating Service Now Ticket Details:");
+                    logger.error(err);
                     return;
                 }else{
-                    logger.debug("ServiceNow sync is Done.")
+                    logger.debug(results);
                     return;
                 }
-            });
-            return;
+            })
         })
     }else if(actionObj.auditType === 'Instances'){
         auditTrailObj.auditTrailConfig = auditTrailConfig;
@@ -114,16 +137,61 @@ auditTrailService.updateAuditTrail = function updateAuditTrail(auditType,auditId
                 return;
             }
             callback(null,data);
-            var botAuditTrailService = require('_pr/services/auditTrailService.js');
-            botAuditTrailService.syncCatalystWithServiceNow(auditId,function(err,data){
+            async.parallel({
+                botServiceNowSync:function(callback){
+                    var botAuditTrailService = require('_pr/services/auditTrailService.js');
+                    botAuditTrailService.syncCatalystWithServiceNow(auditId,function(err,data){
+                        if(err){
+                            logger.error("Error in updating Service Now Ticket Details:");
+                            callback(err,null);
+                        }else{
+                            logger.debug("ServiceNow sync is Done.")
+                            callback(err,null);
+                        }
+                    });
+                },
+                botExecutionLastStatus:function(callback){
+                    async.waterfall([
+                        function(next){
+                            auditTrail.getAuditTrails({_id:new ObjectId(auditId)},next)
+                        },
+                        function(botAuditTrail,next){
+                            if(botAuditTrail.length > 0 && auditObj.status
+                                && (auditObj.status !== null || auditObj.status !== '')){
+                                var botsNewService = require('_pr/services/botsNewService.js');
+                                botsNewService.updateLastBotExecutionStatus(botAuditTrail[0].auditId,auditObj.status,function(err,data){
+                                    if(err){
+                                        logger.error("Error in updating Service Now Ticket Details:");
+                                        callback(err,null);
+                                    }else{
+                                        logger.debug("ServiceNow sync is Done.")
+                                        callback(err,null);
+                                    }
+                                });
+                            }else{
+                                next({code:400,message:"There is no records are available for BOTS Last Execution Status"},null);
+                            }
+                        },
+
+                    ],function(err,results){
+                        if(err){
+                            callback(err,null);
+                            return;
+                        }else{
+                            callback(null,results);
+                            return;
+                        }
+                    })
+                }
+            },function(err,results){
                 if(err){
-                    logger.error("Error in updating Service Now Ticket Details:");
+                    logger.error(err);
                     return;
                 }else{
-                    logger.debug("ServiceNow sync is Done.")
+                    logger.debug(results);
                     return;
                 }
-            });
+            })
         })
     }else if(auditType === 'Instances'){
         instanceAuditTrail.updateInstanceAuditTrail(auditId,auditObj,function(err,data){
@@ -338,7 +406,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                         auditType:BOTSchema,
                         actionStatus:'success',
                         isDeleted:false,
-                        user:'servicenow'
+                        'auditTrailConfig.serviceNowTicketNo':{$ne:null}
                     };
                     auditTrail.getAuditTrails(query, function(err,botsAudits){
                         if(err){
