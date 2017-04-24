@@ -64,6 +64,16 @@ auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,audi
                 return;
             }
             callback(null,data);
+            var botAuditTrailService = require('_pr/services/auditTrailService.js');
+            botAuditTrailService.syncCatalystWithServiceNow(data._id,function(err,data){
+                if(err){
+                    logger.error("Error in updating Service Now Ticket Details:");
+                    return;
+                }else{
+                    logger.debug("ServiceNow sync is Done.")
+                    return;
+                }
+            });
             return;
         })
     }else if(actionObj.auditType === 'Instances'){
@@ -104,7 +114,8 @@ auditTrailService.updateAuditTrail = function updateAuditTrail(auditType,auditId
                 return;
             }
             callback(null,data);
-            auditTrailService.syncCatalystWithServiceNow(auditId,function(err,data){
+            var botAuditTrailService = require('_pr/services/auditTrailService.js');
+            botAuditTrailService.syncCatalystWithServiceNow(auditId,function(err,data){
                 if(err){
                     logger.error("Error in updating Service Now Ticket Details:");
                     return;

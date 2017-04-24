@@ -19,18 +19,17 @@ var logger = require('_pr/logger')(module);
 var mongoose = require('mongoose');
 var extend = require('mongoose-schema-extend');
 var ObjectId = require('mongoose').Types.ObjectId;
-var intanceDao = require('../instance/instance');
-var instancesDao = require('../instance/instance');
-var logsDao = require('../../dao/logsdao.js');
+var instancesDao = require('_pr/model/classes/instance/instance');
+var logsDao = require('_pr/model/dao/logsdao.js');
 var credentialCryptography = require('_pr/lib/credentialcryptography')
 var fileIo = require('_pr/lib/utils/fileio');
 var configmgmtDao = require('_pr/model/d4dmasters/configmgmt.js');
 var Puppet = require('_pr/lib/puppet');
 var taskTypeSchema = require('./taskTypeSchema');
-var utils = require('../utils/utils.js');
+var utils = require('_pr/lib/utils/utils.js');
 var masterUtil = require('_pr/lib/utils/masterUtil');
-
 var puppetTaskSchema = taskTypeSchema.extend({
+    _id:false,
     nodeIds: [String],
 });
 

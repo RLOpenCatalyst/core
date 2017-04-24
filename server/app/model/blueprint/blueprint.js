@@ -21,36 +21,28 @@ var mongoose = require('mongoose');
 var extend = require('mongoose-schema-extend');
 var ObjectId = require('mongoose').Types.ObjectId;
 var mongoosePaginate = require('mongoose-paginate');
-
 var Chef = require('_pr/lib/chef.js');
 var configmgmtDao = require('_pr/model/d4dmasters/configmgmt');
 var appConfig = require('_pr/config');
-
 var schemaValidator = require('_pr/model/utils/schema-validator');
-
 var uniqueValidator = require('mongoose-unique-validator');
-
 var DockerBlueprint = require('./blueprint-types/docker-blueprint/docker-blueprint');
 var InstanceBlueprint = require('./blueprint-types/instance-blueprint/instance-blueprint');
 var OpenstackBlueprint = require('./blueprint-types/instance-blueprint/openstack-blueprint/openstack-blueprint');
 var AzureBlueprint = require('./blueprint-types/instance-blueprint/azure-blueprint/azure-blueprint');
 var VmwareBlueprint = require('./blueprint-types/instance-blueprint/vmware-blueprint/vmware-blueprint');
-
 var CloudFormationBlueprint = require('./blueprint-types/cloud-formation-blueprint/cloud-formation-blueprint');
 var ARMTemplateBlueprint = require('./blueprint-types/arm-template-blueprint/arm-template-blueprint');
 var utils = require('../classes/utils/utils.js');
 var nexus = require('_pr/lib/nexus.js');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
-
 var AWSKeyPair = require('../../model/classes/masters/cloudprovider/keyPair.js');
 var VMImage = require('../../model/classes/masters/vmImage.js');
 var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js');
 var AzureProvider = require('_pr/model/classes/masters/cloudprovider/azureCloudProvider.js');
 var VmwareProvider = require('_pr/model/classes/masters/cloudprovider/vmwareCloudProvider.js');
 var OpenStackProvider = require('_pr/model/classes/masters/cloudprovider/openstackCloudProvider.js');
-
 var monitorsModel = require('_pr/model/monitors/monitors.js');
-
 var uuid = require('node-uuid');
 var AppData = require('_pr/model/app-deploy/app-data');
 
@@ -112,7 +104,6 @@ var BlueprintSchema = new Schema({
     },
     users: [{
             type: String,
-            //required: true,
             trim: true,
             validate: schemaValidator.catalystUsernameValidator
         }],
