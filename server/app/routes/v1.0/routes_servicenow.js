@@ -50,7 +50,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 password: data.servicenowpassword,
                 host: data.url
             };
-            CMDBConfig.getConfigItems(tableName,null,config, function(err, data) {
+            CMDBConfig.getConfigItems(tableName,config, function(err, data) {
                 if (err) {
                     logger.error("Error in Getting Servicenow Config Items:", err);
                     res.status(500).send(err);

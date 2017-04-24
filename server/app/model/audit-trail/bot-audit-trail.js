@@ -66,10 +66,7 @@ var BotAuditTrailSchema = new BaseAuditTrail({
             type: String,
             trim:true
         },
-        serviceNowTicketRefObj:{
-            type: String,
-            trim:true
-        },
+        serviceNowTicketRefObj:Schema.Types.Mixed,
         nodeIdsWithActionLog:[Schema.Types.Mixed]
     }
 });
@@ -85,6 +82,7 @@ BotAuditTrailSchema.statics.createNew = function(auditTrail,callback){
     });
 }
 BotAuditTrailSchema.statics.updateBotAuditTrail = function(auditId,auditTrailObj,callback){
+    console.log(auditTrailObj);
     BotAuditTrail.update({_id:new ObjectId(auditId)},{$set:auditTrailObj},{upsert:false}, function(err, updateAuditTrail) {
         if (err) {
             logger.error(err);

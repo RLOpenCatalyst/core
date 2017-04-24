@@ -166,34 +166,71 @@ auditTrailService.syncCatalystWithServiceNow = function syncCatalystWithServiceN
             logger.error("Error getCMDBServerByOrgId..", err);
             callback(err,null);
             return;
-        }
-        var tableName = 'incident';
-        var config = {
-            username: data.servicenowusername,
-            password: data.servicenowpassword,
-            host: data.url
-        };
-        serviceNow.getConfigItems(tableName, ticketNo, config, function(err, data) {
-            if (err) {
-                logger.error("Error in Getting Servicenow Config Items:", err);
-                callback(err,null);
-                return;
-            }else if (!data.result) {
-                logger.error("ServiceNow CI data fetch error");
-                callback({errCode:300,errMsg:"No Data is available in ServiceNow"},null);
-                return;
-            }else{
-                botAuditTrail.updateBotAuditTrail(auditTrailId,{serviceNowTicketRefObj:data.result},function(err,data){
-                    if(err){
-                        logger.error(err);
-                        callback(err,null);
-                        return;
-                    }
-                    callback(null,data);
+        }else if(data.length > 0) {
+            var tableName = 'incident';
+            var config = {
+                username: data[0].servicenowusername,
+                password: data[0].servicenowpassword,
+                host: data[0].url,
+                ticketNo: ticketNo
+            };
+            serviceNow.getConfigItems(tableName,config,function (err, ticketData) {
+                if (err) {
+                    logger.error("Error in Getting Servicenow Config Items:", err);
+                    callback(err, null);
                     return;
-                })
-            }
-        });
+                } else if (!ticketData.result) {
+                    logger.error("ServiceNow CI data fetch error");
+                    callback({errCode: 300, errMsg: "No Data is available in ServiceNow against ticketNo:"+ticketNo}, null);
+                    return;
+                } else {
+                    var serviceNowObj = {
+                        description:ticketData.result[0].description,
+                        openedAt:toTimestamp(ticketData.result[0].opened_at),
+                        createdOn:toTimestamp(ticketData.result[0].sys_created_on),
+                        closedAt:toTimestamp(ticketData.result[0].closed_at),
+                        updatedOn:toTimestamp(ticketData.result[0].sys_updated_on),
+                        resolvedAt:toTimestamp(ticketData.result[0].resolved_at),
+                        state:checkServiceNowTicketState(ticketData.result[0].state),
+                        category:ticketData.result[0].category
+                    };
+                    var request = require('request');
+                    var host = ticketData.result[0].resolved_by.link.replace(/.*?:\/\//g, "");
+                    var serviceNowURL = 'https://' + config.username + ':' + config.password + '@' + host;
+                    var options = {
+                        url: serviceNowURL,
+                        headers: {
+                            'User-Agent': 'request',
+                            'Accept': 'application/json'
+                        }
+                    };
+                    request(options, function(error, response, body) {
+                        if (!error && response.statusCode == 200) {
+                            var info = JSON.parse(body);
+                            serviceNowObj.resolvedBy = info.result.user_name;
+                        }else {
+                            serviceNowObj.resolvedBy = "admin";
+                        }
+                        botAuditTrail.updateBotAuditTrail(auditTrailId, {
+                            'auditTrailConfig.serviceNowTicketRefObj': serviceNowObj,
+                            'auditTrailConfig.serviceNowTicketNo': ticketNo
+                        }, function (err, data) {
+                            if (err) {
+                                logger.error(err);
+                                callback(err, null);
+                                return;
+                            }
+                            callback(null, data);
+                            return;
+                        })
+                    });
+                }
+            });
+        }else{
+            logger.debug("There is no Service Now Server details available against orgId : ",orgId);
+            callback(null,data);
+            return;
+        }
     });
 }
 
@@ -256,19 +293,6 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                         }
                     });
                 },
-                /*totalNoOfScheduledBots: function(callback){
-                    var scheduleBotsIds = [];
-                    if(botsList.length > 0) {
-                        for (var j = 0; j < botsList.length; j++) {
-                            if(botsList[j].isBotScheduled === true) {
-                                scheduleBotsIds.push(botsList[j]._id);
-                            }
-                        }
-                        callback(null,scheduleBotsIds.length);
-                    }else{
-                        callback(null,scheduleBotsIds.length);
-                    }
-                },*/
                 totalNoOfServiceNowTickets: function(callback){
                     var query={
                         auditType:BOTSchema,
@@ -420,4 +444,43 @@ auditTrailService.removeAuditTrailById = function removeAuditTrailById(auditId,c
             return callback(null, data);
         }
     });
+}
+
+function toTimestamp(strDate){
+    var datum = Date.parse(strDate);
+    return datum/1000;
+}
+
+function checkServiceNowTicketState(state){
+    var status = '';
+    switch (state) {
+        case 1:
+            status = "New";
+            break;
+        case 2:
+            status = "Opened";
+            break;
+        case 3:
+            status = "In Progress";
+            break;
+        case 4:
+            status = "Awaiting User Info";
+            break;
+        case 5:
+            status = "Awaiting Evidence";
+            break;
+        case 6:
+            status = "Resolved";
+            break;
+        case 7:
+            status = "Closed";
+            break;
+        case 8:
+            status = "Failed";
+            break;
+        default:
+            status = "New"
+            break;
+    }
+    return status;
 }

@@ -82,19 +82,19 @@ CMDBConfigSchema.statics.getCMDBServerById = function(serverId, callback) {
         callback(null, data);
     });
 }
-CMDBConfigSchema.statics.getConfigItems = function(tableName,ticketNo, options, callback) {
+CMDBConfigSchema.statics.getConfigItems = function(tableName,srnDetails,callback) {
     logger.debug("START :: getConfigItems");
     var basic_auth = {
-        user: options.username,
-        password: options.password
+        user: srnDetails.username,
+        password: srnDetails.password
     };
-    var tmp = options.host;
+    var tmp = srnDetails.host;
     var host = tmp.replace(/.*?:\/\//g, "");
     var serviceNowURL = null;
-    if(ticketNo !== null) {
-        serviceNowURL = 'https://' + options.username + ':' + options.password + '@' + tmp + '/api/now/table/' + tableName+"?number="+ticketNo;
+    if(srnDetails.ticketNo && srnDetails.ticketNo !== null) {
+        serviceNowURL = 'https://' + srnDetails.username + ':' + srnDetails.password + '@' + host + '/api/now/table/' + tableName+"?number="+srnDetails.ticketNo;
     }else{
-        serviceNowURL = 'https://' + options.username + ':' + options.password + '@' + tmp + '/api/now/table/' + tableName;
+        serviceNowURL = 'https://' + srnDetails.username + ':' + srnDetails.password + '@' + host + '/api/now/table/' + tableName;
     }
     var options = {
         url: serviceNowURL,

@@ -30,7 +30,7 @@ var taskSync = require('_pr/cronjobs/task-sync');
 
 module.exports.start = function start() {
 
-	/*logger.info('Cost aggregation started with interval ==> '+ costAggregation.getInterval());
+	logger.info('Cost aggregation started with interval ==> '+ costAggregation.getInterval());
 	var costAggregationJobId
 		= crontab.scheduleJob(costAggregation.getInterval(), costAggregation.execute);
 
@@ -59,7 +59,7 @@ module.exports.start = function start() {
 
 	logger.info('Chef Sync started with interval ==> '+ chefSync.getInterval());
 	var chefSyncJobId
-		= crontab.scheduleJob(chefSync.getInterval(), chefSync.execute);*/
+		= crontab.scheduleJob(chefSync.getInterval(), chefSync.execute);
 
 	logger.info('Task Sync started with interval ==> '+ taskSync.getInterval());
 	var taskSyncJobId
