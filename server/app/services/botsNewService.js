@@ -358,7 +358,8 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
                                     description:botDetails[0].desc,
                                     category:botDetails[0].category,
                                     executionType:botDetails[0].type,
-                                    manualExecutionTime:botDetails[0].manualExecutionTime
+                                    manualExecutionTime:botDetails[0].manualExecutionTime,
+                                    serviceNowTicketNo:reqBody.ref
                                 };
                                 auditTrailService.insertAuditTrail(botDetails[0],auditTrailObj,actionObj,next);
                             },
@@ -511,7 +512,6 @@ botsNewService.syncSingleBotsWithGitHub = function syncSingleBotsWithGitHub(botI
                 } else {
                     logger.debug("YML is not available there.")
                     botsDao.removeBotsById(botsDetails[0]._id,next);
-                    //next({errCode:400,errMsg:"YML is not available there."},null);
                     return;
                 }
             })

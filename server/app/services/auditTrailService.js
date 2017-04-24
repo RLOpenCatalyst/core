@@ -28,6 +28,7 @@ var auditTrailService = module.exports = {};
 var async = require('async');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var logsDao = require('_pr/model/dao/logsdao.js');
+var serviceNow = require('_pr/model/servicenow/servicenow.js');
 
 
 auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,auditTrailConfig,actionObj,callback) {
@@ -156,6 +157,43 @@ auditTrailService.getAuditTrailList = function getAuditTrailList(auditTrailQuery
         }
         callback(null,results)
         return;
+    });
+}
+
+auditTrailService.syncCatalystWithServiceNow = function syncCatalystWithServiceNow(auditTrailId,orgId,ticketNo,callback){
+    serviceNow.getCMDBServerByOrgId(orgId, function(err, data) {
+        if (err) {
+            logger.error("Error getCMDBServerByOrgId..", err);
+            callback(err,null);
+            return;
+        }
+        var tableName = 'incident';
+        var config = {
+            username: data.servicenowusername,
+            password: data.servicenowpassword,
+            host: data.url
+        };
+        serviceNow.getConfigItems(tableName, ticketNo, config, function(err, data) {
+            if (err) {
+                logger.error("Error in Getting Servicenow Config Items:", err);
+                callback(err,null);
+                return;
+            }else if (!data.result) {
+                logger.error("ServiceNow CI data fetch error");
+                callback({errCode:300,errMsg:"No Data is available in ServiceNow"},null);
+                return;
+            }else{
+                botAuditTrail.updateBotAuditTrail(auditTrailId,{serviceNowTicketRefObj:data.result},function(err,data){
+                    if(err){
+                        logger.error(err);
+                        callback(err,null);
+                        return;
+                    }
+                    callback(null,data);
+                    return;
+                })
+            }
+        });
     });
 }
 

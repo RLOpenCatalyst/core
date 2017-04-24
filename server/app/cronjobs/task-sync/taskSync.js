@@ -5,14 +5,39 @@ var async = require('async');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
 var taskHistory = require('_pr/model/classes/tasks/taskHistory.js');
 var TaskSync = Object.create(CatalystCronJob);
-TaskSync.interval = '*/2 * * * *';
+TaskSync.interval = '*/1 * * * *';
 TaskSync.execute = taskSync;
+var serviceNow = require('_pr/model/servicenow/servicenow.js');
 
 module.exports = TaskSync;
 
 function taskSync(){
     logger.debug("Task Sync is started");
-    async.parallel({
+    serviceNow.getCMDBServerByOrgId("46d1da9a-d927-41dc-8e9e-7e926d927537", function(err, data) {
+        if (err) {
+            logger.error("Error getCMDBServerByOrgId..", err);
+            return;
+        }else if(data.length > 0) {
+            console.log(JSON.stringify(data));
+            var tableName = 'incident';
+            var config = {
+                username: data[0].servicenowusername,
+                password: data[0].servicenowpassword,
+                host: data[0].url
+            };
+            serviceNow.getConfigItems(tableName, "INC0000001", config, function (err, data) {
+                if (err) {
+                    logger.error("Error in Getting Servicenow Config Items:", err);
+                    return;
+                } else {
+                    logger.debug("Data>>>>" + JSON.stringify(data));
+                }
+            });
+        }else{
+            logger.debug("No CMDB Data is there");
+        }
+    })
+   /* async.parallel({
         botSync  : function(callback){
             var query={
                 auditType:'BOTs',
@@ -45,7 +70,7 @@ function taskSync(){
             return;
         }
 
-    })
+    })*/
 }
 
 function executeTaskSyncForBotHistory(query,callback){
