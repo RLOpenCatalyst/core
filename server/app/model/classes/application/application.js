@@ -21,7 +21,7 @@ var mongoosePaginate = require('mongoose-paginate');
 var validate = require('mongoose-validator');
 var logger = require('_pr/logger')(module);
 var schemaValidator = require('_pr/model/dao/schema-validator');
-var utils = require('_pr/lib/utils/utils');
+var utils = require('_pr/model/classes/utils/utils');
 
 var Build = require('./build/build.js');
 var AppInstance = require('./appinstance/appInstance');
