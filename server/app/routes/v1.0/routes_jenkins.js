@@ -229,7 +229,6 @@ module.exports.setRoutes = function(app, verificationFunc) {
 
     app.get('/jenkins/:jenkinsId/jobs/:jobName/builds/:buildNumber', function(req, res) {
         var jenkinsData = req.CATALYST.jenkins;
-
         var jenkins = new Jenkins({
             url: jenkinsData.jenkinsurl,
             username: jenkinsData.jenkinsusername,
@@ -247,7 +246,6 @@ module.exports.setRoutes = function(app, verificationFunc) {
 
     app.get('/jenkins/:jenkinsId/jobs/:jobName/builds/:buildNumber/output', function(req, res) {
         var jenkinsData = req.CATALYST.jenkins;
-
         var jenkins = new Jenkins({
             url: jenkinsData.jenkinsurl,
             username: jenkinsData.jenkinsusername,
@@ -261,8 +259,6 @@ module.exports.setRoutes = function(app, verificationFunc) {
             }
             res.send(jobOutput);
         });
-
-
     });
 
     app.get('/jenkins/:jenkinsId/job/:jobName/lastBuild', function(req, res) {
@@ -281,19 +277,15 @@ module.exports.setRoutes = function(app, verificationFunc) {
             }
             res.send(jobOutput);
         });
-
-
     });
 
     app.get('/jenkins/:jenkinsId/job/:jobName/update/parameter', function(req, res) {
         var jenkinsData = req.CATALYST.jenkins;
-
         var jenkins = new Jenkins({
             url: jenkinsData.jenkinsurl,
             username: jenkinsData.jenkinsusername,
             password: jenkinsData.jenkinspassword
         });
-
         jenkins.updateJob(req.params.jobName, function(err, jobOutput) {
             if (err) {
                 logger.error('jenkins jobs fetch error', err);

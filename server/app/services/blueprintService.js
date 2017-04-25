@@ -53,16 +53,13 @@ blueprintService.getBlueprintById = function getBlueprintById(blueprintId, callb
             var error = new Error("Error to get blueprint.");
             error.status = 500;
             return callback(error, null);
-        }
-        //@TODO Model should return single object
-        if (blueprint && blueprint.length) {
+        }else if (blueprint && blueprint.length) {
             return callback(null, blueprint[0]);
         } else {
             var error = new Error("Blueprint not found.");
             error.status = 404;
             return callback(error, null);
         }
-
     });
 };
 

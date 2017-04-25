@@ -13,65 +13,39 @@ module.exports = TaskSync;
 
 function taskSync(){
     logger.debug("Task Sync is started");
-    serviceNow.getCMDBList(function(err, data) {
-        if (err) {
-            logger.error("Error getCMDBServerByOrgId..", err);
-            return;
-        }else if(data.length > 0) {
-            console.log(JSON.stringify(data));
-            var tableName = 'incident';
-            var config = {
-                username: data[0].servicenowusername,
-                password: data[0].servicenowpassword,
-                host: data[0].url,
-                ticketNo: "INC0000001"
+    async.parallel({
+        botSync: function (callback) {
+            var query = {
+                auditType: 'BOTs',
+                actionStatus: 'running',
+                isDeleted: false
+            }
+            executeTaskSyncForBotHistory(query, callback);
+        },
+        botNewSync: function (callback) {
+            var query = {
+                auditType: 'BOTsNew',
+                actionStatus: 'running',
+                isDeleted: false
             };
-            serviceNow.getConfigItems(tableName, config, function (err, data) {
-                if (err) {
-                    logger.error("Error in Getting Servicenow Config Items:", err);
-                    return;
-                } else {
-                    logger.debug("Data>>>>" + JSON.stringify(data));
-                }
-            });
-        }else{
-            logger.debug("No CMDB Data is there");
+            executeTaskSyncForBotHistory(query, callback);
+        },
+        taskSync: function (callback) {
+            var query = {
+                status: 'running'
+            };
+            executeTaskSyncForTaskHistory(query, callback);
+        }
+
+    },function(err,results) {
+        if (err) {
+            logger.error("There are some error in Task Sync.", err);
+            return;
+        } else {
+            logger.debug("Task Sync is successfully ended");
+            return;
         }
     })
-    /* async.parallel({
-     botSync  : function(callback){
-     var query={
-     auditType:'BOTs',
-     actionStatus:'running',
-     isDeleted:false
-     };
-     executeTaskSyncForBotHistory(query,callback);
-     },
-     botNewSync  : function(callback){
-     var query={
-     auditType:'BOTsNew',
-     actionStatus:'running',
-     isDeleted:false
-     };
-     executeTaskSyncForBotHistory(query,callback);
-     },
-     taskSync : function(callback){
-     var query={
-     status:'running'
-     };
-     executeTaskSyncForTaskHistory(query,callback);
-     }
-
-     },function(err,results){
-     if(err){
-     logger.error("There are some error in Task Sync.",err);
-     return;
-     }else{
-     logger.debug("Task Sync is successfully ended");
-     return;
-     }
-
-     })*/
 }
 
 function executeTaskSyncForBotHistory(query,callback){
