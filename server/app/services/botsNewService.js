@@ -911,6 +911,7 @@ function addYmlFileDetailsForBots(bots,reqData,callback){
                             lastRunTime: bot.lastRunTime,
                             savedTime: bot.savedTime,
                             source: bot.source,
+                            execution:bot.execution,
                             lastExecutionStatus:bot.lastExecutionStatus
                         }
                         botsList.push(botsObj);
@@ -961,6 +962,7 @@ function addYmlFileDetailsForBots(bots,reqData,callback){
                                         lastRunTime: botDetails[0].lastRunTime,
                                         savedTime: botDetails[0].savedTime,
                                         source: botDetails[0].source,
+                                        execution:botDetails[0].execution,
                                         lastExecutionStatus: botDetails[0].lastExecutionStatus,
                                         srnTicketNo: bot.auditTrailConfig.serviceNowTicketRefObj.ticketNo,
                                         srnTicketLink: bot.auditTrailConfig.serviceNowTicketRefObj.ticketLink,
