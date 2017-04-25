@@ -977,7 +977,7 @@ function addYmlFileDetailsForBots(bots,reqData,callback){
                                         srnTicketOpenedAt: bot.auditTrailConfig.serviceNowTicketRefObj.openedAt,
                                         srnTicketUpdatedOn: bot.auditTrailConfig.serviceNowTicketRefObj.updatedOn,
                                         srnTicketCategory: bot.auditTrailConfig.serviceNowTicketRefObj.category,
-                                        lastRunTime: botDetails[0].lastRunTime
+                                        actionLogId: bot.actionLogId
                                     }
                                     botsList.push(botsObj);
                                     if (botsList.length === bots.docs.length) {
