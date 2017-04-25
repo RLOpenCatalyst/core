@@ -64,7 +64,7 @@
                 <i class="fa fa-list"></i>
                 <h3 class="dashboard-stats__title">
                   <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
-                  <span ng-if="!isBotDetailsLoading" class="count-to" count-to="{{botSummary.totalNoOfBots}}" value="0" duration="1">{{botSummary.totalNoOfBots}}</span> 
+                  <span ng-if="!isBotDetailsLoading" class="count-to">{{botSummary.totalNoOfBots}}</span> 
                   <small>Total BOTs</small>
                 </h3>
               </div>
@@ -76,7 +76,7 @@
                 <i class="fa fa-cogs"></i>
                 <h3 class="dashboard-stats__title">
                   <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
-                  <span ng-if="!isBotDetailsLoading" class="count-to" count-to="{{botSummary.totalNoOfRunningBots}}" value="0" duration="1">{{botSummary.totalNoOfRunningBots}}</span> 
+                  <span ng-if="!isBotDetailsLoading" class="count-to">{{botSummary.totalNoOfRunningBots}}</span> 
                   <small>Running BOTs</small>
                 </h3>
               </div>
@@ -98,7 +98,7 @@
                 <i class="fa fa-power-off"></i>
                 <h3 class="dashboard-stats__title">
                   <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
-                  <span ng-if="!isBotDetailsLoading" class="count-to" count-to="{{botSummary.totalNoOfSuccessBots}}" value="0" duration="1">{{botSummary.totalNoOfSuccessBots}}</span>
+                  <span ng-if="!isBotDetailsLoading" class="count-to">{{botSummary.totalNoOfServiceNowTickets}}</span>
                   <small>Tickets Resolved</small>
                 </h3>
               </div>
@@ -109,7 +109,7 @@
                 <i class="fa fa-remove"></i>
                 <h3 class="dashboard-stats__title">
                   <loading size="medium" name="isBotDetailsLoading" type="inline" classes='white' class="ng-scope"></loading>
-                  <span ng-if="!isBotDetailsLoading" class="count-to" count-to="{{botSummary.totalNoOfFailedBots}}" value="0" duration="1">{{botSummary.totalNoOfFailedBots}}</span> 
+                  <span ng-if="!isBotDetailsLoading" class="count-to">{{botSummary.totalNoOfFailedBots}}</span> 
                   <small>Failed BOTs</small>
                 </h3>
               </div>
