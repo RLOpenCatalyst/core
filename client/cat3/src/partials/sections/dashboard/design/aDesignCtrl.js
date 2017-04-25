@@ -42,7 +42,7 @@
 				url: "/:providerName/composite",
 				templateUrl: "src/partials/sections/dashboard/design/view/createComposite.html",
 				controller: "createCompositeCtrl as createCBP",
-				params:{templateObj:{}},
+				params:{filterhide:true, templateObj:{}},
 				resolve: {
 					auth: ["$q", function ($q) {
 						var deferred = $q.defer();

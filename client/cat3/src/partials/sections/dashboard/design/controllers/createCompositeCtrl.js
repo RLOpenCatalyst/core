@@ -3,6 +3,8 @@
     angular.module('dashboard.design')
         .controller('createCompositeCtrl',['$scope','$rootScope','$state','toastr','blueprintService','genericServices','responseFormatter', function ($scope,$rootScope,$state,toastr,bpServ,gencSers,responseFormatter) {
             var createCBP = this;
+
+            $rootScope.filterhide= $state.params.filterhide;
             createCBP.ExBlueprintList=[];
             createCBP.SelectedBPList=[];
             createCBP.selectBlueprintId='';
