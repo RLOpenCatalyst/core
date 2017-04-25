@@ -79,7 +79,7 @@ auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,audi
                 },
                 botExecutionLastStatus:function(callback){
                     var botsNewService = require('_pr/services/botsNewService.js');
-                    botsNewService.updateLastBotExecutionStatus(auditDetails._id,function(err,data){
+                    botsNewService.updateLastBotExecutionStatus(auditDetails._id,actionObj.status,function(err,data){
                         if(err){
                             logger.error("Error in updating Service Now Ticket Details:");
                             callback(err,null);
@@ -290,6 +290,7 @@ auditTrailService.syncCatalystWithServiceNow = function syncCatalystWithServiceN
                             updatedOn:toTimestamp(ticketData.result[0].sys_updated_on),
                             resolvedAt:toTimestamp(ticketData.result[0].resolved_at),
                             state:checkServiceNowTicketState(ticketData.result[0].state),
+                            priority:ticketData.result[0].priority,
                             category:ticketData.result[0].category
                         };
                         var request = require('request');
@@ -406,7 +407,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
                         auditType:BOTSchema,
                         actionStatus:'success',
                         isDeleted:false,
-                        'auditTrailConfig.serviceNowTicketNo':{$ne:null}
+                        'auditTrailConfig.serviceNowTicketRefObj':{$ne:null}
                     };
                     auditTrail.getAuditTrails(query, function(err,botsAudits){
                         if(err){

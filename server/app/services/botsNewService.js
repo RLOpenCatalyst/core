@@ -358,9 +358,13 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
                                     description:botDetails[0].desc,
                                     category:botDetails[0].category,
                                     executionType:botDetails[0].type,
-                                    manualExecutionTime:botDetails[0].manualExecutionTime,
-                                    serviceNowTicketNo:reqBody.ref
+                                    manualExecutionTime:botDetails[0].manualExecutionTime
                                 };
+                                if(reqBody.ref){
+                                    auditTrailObj.serviceNowTicketRefObj =  {
+                                        ticketNo:reqBody.ref
+                                    }
+                                }
                                 auditTrailService.insertAuditTrail(botDetails[0],auditTrailObj,actionObj,next);
                             },
                             function(auditTrail,next) {
