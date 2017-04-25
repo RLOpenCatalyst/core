@@ -38,8 +38,6 @@ var SCP = require('_pr/lib/utils/scp');
 
 const errorType = 'chefExecutor';
 
-//var pythonHost =  process.env.FORMAT_HOST || 'localhost';
-//var pythonPort =  process.env.FORMAT_PORT || '2687';
 var chefExecutor = module.exports = {};
 
 chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executionType,botHostDetails,callback) {
@@ -57,7 +55,7 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
                         logsDao.insertLog({
                             referenceId: [actionLogId,botsDetails._id],
                             err: false,
-                            log: 'BOTs execution is started for Chef BOTs ' + botsDetails.id,
+                            log: 'BOT execution has started for Chef BOTs ' + botsDetails.id,
                             timestamp: new Date().getTime()
                         });
                         parallelChefExecuteList.push(function(callback){executeChefOnRemote(instances[0],botsDetails,actionLogId,userName,botHostDetails,callback);});
@@ -79,7 +77,7 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
                                     logsDao.insertLog({
                                         referenceId: [actionLogId,botsDetails._id],
                                         err: true,
-                                        log: 'BOTs execution is failed for Script BOTs  ' + botsDetails.id +" on Remote",
+                                        log: 'BOT execution has failed for Script BOTs  ' + botsDetails.id +" on Remote",
                                         timestamp: new Date().getTime()
                                     });
                                     auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
@@ -89,7 +87,7 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
                                         return;
                                     });
                                 }else {
-                                    logger.debug(botsDetails.id+" BOTs Execution is Done")
+                                    logger.debug(botsDetails.id+" BOT execution has Done")
                                     var resultTaskExecution = {
                                         "actionStatus": 'success',
                                         "status": 'success',
@@ -99,13 +97,19 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
                                     logsDao.insertLog({
                                         referenceId: [actionLogId,botsDetails._id],
                                         err: false,
-                                        log: 'BOTs execution is success for Script BOTs  ' + botsDetails.id +" on Remote",
+                                        log: 'BOT has been executed successfully for Script BOTs  ' + botsDetails.id +" on Remote",
                                         timestamp: new Date().getTime()
                                     });
                                     auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
                                         if (err) {
                                             logger.error("Failed to create or update bots Log: ", err);
                                         }
+                                        var botService = require('_pr/services/botsService');
+                                        botService.updateSavedTimePerBots(botsDetails._id, 'BOTsNew', function (err, data) {
+                                            if (err) {
+                                                logger.error("Failed to update bots saved Time: ", err);
+                                            }
+                                        });
                                         return;
                                     });
                                 }
@@ -138,7 +142,7 @@ function executeChefOnLocal(botsChefDetails,auditTrail,userName,botHostDetails,c
     logsDao.insertLog({
         referenceId: logsReferenceIds,
         err: false,
-        log: 'BOTs execution is  started for Chef BOTs ' + botsChefDetails.id +" on Local",
+        log: 'BOT execution has  started for Chef BOTs ' + botsChefDetails.id +" on Local",
         timestamp: new Date().getTime()
     });
     var botAuditTrailObj = {
@@ -237,7 +241,7 @@ function executeChefOnLocal(botsChefDetails,auditTrail,userName,botHostDetails,c
                                 logsDao.insertLog({
                                     referenceId: logsReferenceIds,
                                     err: false,
-                                    log: botsChefDetails.id + ' BOTs execution is success on Local',
+                                    log: 'BOT has been executed successfully for Script BOTs  ' + botsChefDetails.id +" on Local",
                                     timestamp: timestampEnded
                                 });
 
@@ -251,7 +255,7 @@ function executeChefOnLocal(botsChefDetails,auditTrail,userName,botHostDetails,c
                                     if (err) {
                                         logger.error("Failed to create or update bots Log: ", err);
                                     }
-                                    logger.debug(botsChefDetails.id + " BOTs Execution is Done");
+                                    logger.debug(botsChefDetails.id + " BOT execution has Done");
                                     var botService = require('_pr/services/botsService');
                                     botService.updateSavedTimePerBots(botsChefDetails._id, 'BOTsNew', function (err, data) {
                                         if (err) {
@@ -273,7 +277,7 @@ function executeChefOnLocal(botsChefDetails,auditTrail,userName,botHostDetails,c
                                     return;
                                 });
                             } else {
-                                logger.debug(botsChefDetails.id + " BOTs Execution is going on Local.");
+                                logger.debug(botsChefDetails.id + " BOT execution has going on Local.");
                             }
                         })
                     });
@@ -587,12 +591,6 @@ function executeChefOnRemote(instance,botDetails,actionLogId,userName,botHostDet
                                         }
                                     });
                                     timer.stop();
-                                    var botService = require('_pr/services/botsService');
-                                    botService.updateSavedTimePerBots(botDetails._id, 'BOTsNew', function (err, data) {
-                                        if (err) {
-                                            logger.error("Failed to update bots saved Time: ", err);
-                                        }
-                                    });
                                     noticeService.notice(userName, {
                                         title: "Chef BOT Execution",
                                         body: result.status.text
@@ -607,7 +605,7 @@ function executeChefOnRemote(instance,botDetails,actionLogId,userName,botHostDet
                                     }
                                     return;
                                 } else {
-                                    logger.debug(botDetails.id + " BOTs Execution is going on  Node " + instance.instanceIP);
+                                    logger.debug(botDetails.id + " BOT execution has going on  Node " + instance.instanceIP);
                                 }
                             })
                         });

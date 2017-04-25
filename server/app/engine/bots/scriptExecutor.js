@@ -20,7 +20,6 @@ var logsDao = require('_pr/model/dao/logsdao.js');
 var instanceModel = require('_pr/model/classes/instance/instance.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var uuid = require('node-uuid');
-var exec = require('exec');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var appConfig = require('_pr/config');
 var auditTrailService = require('_pr/services/auditTrailService.js');
@@ -50,7 +49,7 @@ scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,execut
                         logsDao.insertLog({
                             referenceId: [actionLogId,botsDetails._id],
                             err: false,
-                            log: 'BOTs execution is started for Script BOTs  ' + botsDetails.id +" on Remote",
+                            log: 'BOT execution has started for Script BOTs  ' + botsDetails.id +" on Remote",
                             timestamp: new Date().getTime()
                         });
                         parallelScriptExecuteList.push(function(callback){executeScriptOnRemote(instances[0],botsDetails,actionLogId,userName,botHostDetails,callback);});
@@ -72,7 +71,7 @@ scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,execut
                                     logsDao.insertLog({
                                         referenceId: [actionLogId,botsDetails._id],
                                         err: true,
-                                        log: 'BOTs execution is failed for Script BOTs  ' + botsDetails.id +" on Remote",
+                                        log: 'BOT execution has failed for Script BOTs  ' + botsDetails.id +" on Remote",
                                         timestamp: new Date().getTime()
                                     });
                                     auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
@@ -85,7 +84,7 @@ scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,execut
                                     logsDao.insertLog({
                                         referenceId: [actionLogId,botsDetails._id],
                                         err: false,
-                                        log: 'BOTs execution is success for Script BOTs  ' + botsDetails.id +" on Remote",
+                                        log: 'BOT has been executed successfully for Script BOTs  ' + botsDetails.id +" on Remote",
                                         timestamp: new Date().getTime()
                                     });
                                     logger.debug(botsDetails.id+" BOTs Execution Done")
@@ -99,6 +98,12 @@ scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,execut
                                         if (err) {
                                             logger.error("Failed to create or update bots Log: ", err);
                                         }
+                                        var botService = require('_pr/services/botsService');
+                                        botService.updateSavedTimePerBots(botsDetails._id, 'BOTsNew', function (err, data) {
+                                            if (err) {
+                                                logger.error("Failed to update bots saved Time: ", err);
+                                            }
+                                        });
                                         return;
                                     });
                                 }
@@ -135,7 +140,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
     logsDao.insertLog({
         referenceId: logsReferenceIds,
         err: false,
-        log: 'BOTs execution is started for Script BOTs  ' + botsScriptDetails.id + " on Local",
+        log: 'BOT execution has started for Script BOTs  ' + botsScriptDetails.id + " on Local",
         timestamp: new Date().getTime()
     });
     var botAuditTrailObj = {
@@ -215,7 +220,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
                             logsDao.insertLog({
                                 referenceId: logsReferenceIds,
                                 err: false,
-                                log: botsScriptDetails.id+' BOTs execution success on Local ',
+                                log: 'BOT has been executed successfully for Script BOTs  ' + botsScriptDetails.id +" on Local",
                                 timestamp: timestampEnded
                             });
 
@@ -229,7 +234,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
                                 if (err) {
                                     logger.error("Failed to create or update bots Log: ", err);
                                 }
-                                logger.debug(botsScriptDetails.id+" BOTs Execution is Done on Local");
+                                logger.debug(botsScriptDetails.id+" BOT execution has Done on Local");
                                 timer.stop();
                                 var botService = require('_pr/services/botsService');
                                 botService.updateSavedTimePerBots(botsScriptDetails._id, 'BOTsNew', function (err, data) {
@@ -248,7 +253,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
                                 return;
                             });
                         } else {
-                            logger.debug(botsScriptDetails.id+" BOTs Execution is going on Local.");
+                            logger.debug(botsScriptDetails.id+" BOT execution has going on Local.");
                         }
 
                     })
@@ -540,12 +545,6 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,botHostD
                                     }
                                 });
                                 timer.stop();
-                                var botService = require('_pr/services/botsService');
-                                botService.updateSavedTimePerBots(botDetails._id, 'BOTsNew', function (err, data) {
-                                    if (err) {
-                                        logger.error("Failed to update bots saved Time: ", err);
-                                    }
-                                });
                                 if (decryptedCredentials.pemFileLocation) {
                                     removeScriptFile(decryptedCredentials.pemFileLocation);
                                 }
@@ -560,7 +559,7 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,botHostD
                                 });
                                 return;
                             } else {
-                                logger.debug(botDetails.id+" BOTs Execution is going on  Node "+instance.instanceIP);
+                                logger.debug(botDetails.id+" BOT execution has going on  Node "+instance.instanceIP);
                             }
                         })
                     });

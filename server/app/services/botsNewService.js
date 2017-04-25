@@ -208,29 +208,14 @@ botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,service
                     }
                 });
             }else if(serviceNowCheck === true){
-                var query = {
+                delete queryObj.queryObj;
+                queryObj.queryObj = {
                     auditType: 'BOTsNew',
                     actionStatus: 'success',
-                    'auditTrailConfig.serviceNowTicketNo':{$ne:null},
+                    'auditTrailConfig.serviceNowTicketRefObj':{$ne:null},
                     isDeleted:false
                 };
-                var botsIds = [];
-                auditTrail.getAuditTrails(query, function(err,botsAudits){
-                    if(err){
-                        next(err,null);
-                    }else if (botsAudits.length > 0) {
-                        for (var i = 0; i < botsAudits.length; i++) {
-                            if (botsIds.indexOf(botsAudits[i].auditId) < 0) {
-                                botsIds.push(botsAudits[i].auditId);
-                            }
-                        }
-                        queryObj.queryObj._id = {$in:botsIds};
-                        botsDao.getBotsList(queryObj, next);
-                    } else {
-                        queryObj.queryObj._id = null;
-                        botsDao.getBotsList(queryObj, next);
-                    }
-                });
+                auditTrail.getAuditTrailList(queryObj, next);
             }else{
                 botsDao.getBotsList(queryObj, next);
             }
@@ -317,7 +302,7 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
                     }
                 });
             }else{
-                next(null,reqBody);
+                next(null,reqBody.data);
             }
         },
         function(paramObj,next) {
@@ -376,7 +361,7 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
                                     chefExecutor.execute(botDetails[0], auditTrail, userName, executionType, botRemoteServerDetails, next);
                                 } else if (botDetails[0].type === 'blueprints') {
                                     reqBody = botDetails[0].params.data;
-                                    blueprintExecutor.execute(auditTrail, reqBody, userName, next);
+                                    blueprintExecutor.execute(botDetails[0].id,auditTrail, reqBody, userName, next);
                                 } else if (botDetails[0].type === 'jenkins') {
                                     reqBody = botDetails[0].params.data;
                                     jenkinsExecutor.execute(botDetails[0],auditTrail, reqBody, userName, next);
@@ -596,13 +581,13 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
         },
         function(gitHubDetails,next){
             if(gitHubDetails.botSync !== null){
-                process.setMaxListeners(50);
                 var botFactoryDirPath = appConfig.botCurrentFactoryDir;
                 fileHound.create()
                     .paths(botFactoryDirPath)
                     .ext('yaml')
                     .find().then(function(files){
                     if(files.length > 0){
+                        process.setMaxListeners(files.length);
                         var botObjList = [];
                         for(var i = 0; i < files.length; i++){
                             (function(ymlFile){
@@ -896,51 +881,120 @@ function addYmlFileDetailsForBots(bots,reqData,callback){
         var botsObj={};
         for(var i = 0; i <bots.docs.length; i++){
             (function(bot){
-                fileUpload.getReadStreamFileByFileId(bot.ymlDocFileId,function(err,file){
-                    if(err){
-                        logger.error("Error in fetching YAML Documents for : "+bot.name + " "+err);
-                    }
-                    botsObj = {
-                        _id: bot._id,
-                        name: bot.name,
-                        gitHubId: bot.gitHubId,
-                        id: bot.id,
-                        desc: bot.desc,
-                        action: bot.action,
-                        category: bot.category,
-                        type: bot.type,
-                        subType: bot.subType,
-                        inputFormFields: bot.inputFormFields,
-                        outputOptions: bot.outputOptions,
-                        ymlDocFileId: bot.ymlDocFileId,
-                        orgId: bot.orgId,
-                        subType: bot.subType,
-                        orgName: bot.orgName,
-                        ymlFileName: file !==null?file.fileName:file,
-                        ymlFileData: file !==null?file.fileData:file,
-                        isScheduled: bot.isScheduled,
-                        manualExecutionTime: bot.manualExecutionTime,
-                        executionCount: bot.executionCount,
-                        scheduler: bot.scheduler,
-                        createdOn: bot.createdOn,
-                        lastRunTime: bot.lastRunTime,
-                        savedTime: bot.savedTime,
-                        source:bot.source
-                    }
-                    botsList.push(botsObj);
-                    if (botsList.length === bots.docs.length) {
-                        var alaSql = require('alasql');
-                        var sortField = reqData.mirrorSort;
-                        var sortedField = Object.keys(sortField)[0];
-                        var sortedOrder = reqData.mirrorSort ? (sortField[Object.keys(sortField)[0]] == 1 ? 'asc' : 'desc') : '';
-                        if (sortedOrder === 'asc') {
-                            bots.docs = alaSql('SELECT * FROM ? ORDER BY ' + sortedField + ' ASC', [botsList]);
-                        } else {
-                            bots.docs = alaSql('SELECT * FROM ? ORDER BY ' + sortedField + ' DESC', [botsList]);
+                if(bot.ymlDocFileId && bot.ymlDocFileId !== null) {
+                    fileUpload.getReadStreamFileByFileId(bot.ymlDocFileId, function (err, file) {
+                        if (err) {
+                            logger.error("Error in fetching YAML Documents for : " + bot.name + " " + err);
                         }
-                        return callback(null, bots);
-                    }
-                })
+                        botsObj = {
+                            _id: bot._id,
+                            name: bot.name,
+                            gitHubId: bot.gitHubId,
+                            id: bot.id,
+                            desc: bot.desc,
+                            action: bot.action,
+                            category: bot.category,
+                            type: bot.type,
+                            subType: bot.subType,
+                            inputFormFields: bot.inputFormFields,
+                            outputOptions: bot.outputOptions,
+                            ymlDocFileId: bot.ymlDocFileId,
+                            orgId: bot.orgId,
+                            orgName: bot.orgName,
+                            ymlFileName: file !== null ? file.fileName : file,
+                            ymlFileData: file !== null ? file.fileData : file,
+                            isScheduled: bot.isScheduled,
+                            manualExecutionTime: bot.manualExecutionTime,
+                            executionCount: bot.executionCount,
+                            scheduler: bot.scheduler,
+                            createdOn: bot.createdOn,
+                            lastRunTime: bot.lastRunTime,
+                            savedTime: bot.savedTime,
+                            source: bot.source,
+                            lastExecutionStatus:bot.lastExecutionStatus
+                        }
+                        botsList.push(botsObj);
+                        if (botsList.length === bots.docs.length) {
+                            var alaSql = require('alasql');
+                            var sortField = reqData.mirrorSort;
+                            var sortedField = Object.keys(sortField)[0];
+                            var sortedOrder = reqData.mirrorSort ? (sortField[Object.keys(sortField)[0]] == 1 ? 'asc' : 'desc') : '';
+                            if (sortedOrder === 'asc') {
+                                bots.docs = alaSql('SELECT * FROM ? ORDER BY ' + sortedField + ' ASC', [botsList]);
+                            } else {
+                                bots.docs = alaSql('SELECT * FROM ? ORDER BY ' + sortedField + ' DESC', [botsList]);
+                            }
+                            return callback(null, bots);
+                        }
+                    })
+                }else{
+                    botsDao.getBotsById(bot.auditId, function (err, botDetails) {
+                        if (err) {
+                            logger.error("Error in fetching BOT Details for _id: " + bot.auditId + " " + err);
+                        }else {
+                            fileUpload.getReadStreamFileByFileId(botDetails[0].ymlDocFileId, function (err, file) {
+                                if (err) {
+                                    logger.error("Error in fetching YAML Documents for : " + bot.name + " " + err);
+                                } else {
+                                    botsObj = {
+                                        _id: botDetails[0]._id,
+                                        name: botDetails[0].name,
+                                        gitHubId: botDetails[0].gitHubId,
+                                        id: botDetails[0].id,
+                                        desc: botDetails[0].desc,
+                                        action: botDetails[0].action,
+                                        category: botDetails[0].category,
+                                        type: botDetails[0].type,
+                                        subType: botDetails[0].subType,
+                                        inputFormFields: botDetails[0].inputFormFields,
+                                        outputOptions: botDetails[0].outputOptions,
+                                        ymlDocFileId: botDetails[0].ymlDocFileId,
+                                        orgId: botDetails[0].orgId,
+                                        orgName: botDetails[0].orgName,
+                                        ymlFileName: file !== null ? file.fileName : file,
+                                        ymlFileData: file !== null ? file.fileData : file,
+                                        isScheduled: botDetails[0].isScheduled,
+                                        manualExecutionTime: botDetails[0].manualExecutionTime,
+                                        executionCount: botDetails[0].executionCount,
+                                        scheduler: botDetails[0].scheduler,
+                                        createdOn: botDetails[0].createdOn,
+                                        lastRunTime: botDetails[0].lastRunTime,
+                                        savedTime: botDetails[0].savedTime,
+                                        source: botDetails[0].source,
+                                        lastExecutionStatus: botDetails[0].lastExecutionStatus,
+                                        srnTicketNo: bot.auditTrailConfig.serviceNowTicketRefObj.ticketNo,
+                                        srnTicketLink: bot.auditTrailConfig.serviceNowTicketRefObj.ticketLink,
+                                        srnTicketShortDesc: bot.auditTrailConfig.serviceNowTicketRefObj.shortDesc,
+                                        srnTicketDesc: bot.auditTrailConfig.serviceNowTicketRefObj.desc,
+                                        srnTicketStatus: bot.auditTrailConfig.serviceNowTicketRefObj.state,
+                                        srnTicketPriority: bot.auditTrailConfig.serviceNowTicketRefObj.priority,
+                                        srnTicketResolvedBy: bot.auditTrailConfig.serviceNowTicketRefObj.resolvedBy,
+                                        srnTicketResolvedAt: bot.auditTrailConfig.serviceNowTicketRefObj.resolvedAt,
+                                        srnTicketCreatedOn: bot.auditTrailConfig.serviceNowTicketRefObj.createdOn,
+                                        srnTicketClosedAt: bot.auditTrailConfig.serviceNowTicketRefObj.closedAt,
+                                        srnTicketOpenedAt: bot.auditTrailConfig.serviceNowTicketRefObj.openedAt,
+                                        srnTicketUpdatedOn: bot.auditTrailConfig.serviceNowTicketRefObj.updatedOn,
+                                        srnTicketCategory: bot.auditTrailConfig.serviceNowTicketRefObj.category,
+                                        lastRunTime: botDetails[0].lastRunTime
+                                    }
+                                    botsList.push(botsObj);
+                                    if (botsList.length === bots.docs.length) {
+                                        var alaSql = require('alasql');
+                                        var sortField = reqData.mirrorSort;
+                                        var sortedField = Object.keys(sortField)[0];
+                                        var sortedOrder = reqData.mirrorSort ? (sortField[Object.keys(sortField)[0]] == 1 ? 'asc' : 'desc') : '';
+                                        if (sortedOrder === 'asc') {
+                                            bots.docs = alaSql('SELECT * FROM ? ORDER BY ' + sortedField + ' ASC', [botsList]);
+                                        } else {
+                                            bots.docs = alaSql('SELECT * FROM ? ORDER BY ' + sortedField + ' DESC', [botsList]);
+                                        }
+                                        return callback(null, bots);
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
             })(bots.docs[i]);
         }
     }

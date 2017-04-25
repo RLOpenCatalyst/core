@@ -64,40 +64,7 @@ auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,audi
                 return;
             }
             callback(null,data);
-            async.parallel({
-                botServiceNowSync:function(callback){
-                    var botAuditTrailService = require('_pr/services/auditTrailService.js');
-                    botAuditTrailService.syncCatalystWithServiceNow(data._id,function(err,data){
-                        if(err){
-                            logger.error("Error in updating Service Now Ticket Details:");
-                            callback(err,null);
-                        }else{
-                            logger.debug("ServiceNow sync is Done.")
-                            callback(err,null);
-                        }
-                    });
-                },
-                botExecutionLastStatus:function(callback){
-                    var botsNewService = require('_pr/services/botsNewService.js');
-                    botsNewService.updateLastBotExecutionStatus(auditDetails._id,actionObj.status,function(err,data){
-                        if(err){
-                            logger.error("Error in updating Service Now Ticket Details:");
-                            callback(err,null);
-                        }else{
-                            logger.debug("ServiceNow sync is Done.")
-                            callback(err,null);
-                        }
-                    });
-                }
-            },function(err,results){
-                if(err){
-                    logger.error(err);
-                    return;
-                }else{
-                    logger.debug(results);
-                    return;
-                }
-            })
+            return;
         })
     }else if(actionObj.auditType === 'Instances'){
         auditTrailObj.auditTrailConfig = auditTrailConfig;
@@ -161,7 +128,7 @@ auditTrailService.updateAuditTrail = function updateAuditTrail(auditType,auditId
                                 var botsNewService = require('_pr/services/botsNewService.js');
                                 botsNewService.updateLastBotExecutionStatus(botAuditTrail[0].auditId,auditObj.status,function(err,data){
                                     if(err){
-                                        logger.error("Error in updating Service Now Ticket Details:");
+                                        logger.error("Error in updating Last Execution Time Details:");
                                         callback(err,null);
                                     }else{
                                         logger.debug("ServiceNow sync is Done.")
@@ -185,7 +152,7 @@ auditTrailService.updateAuditTrail = function updateAuditTrail(auditType,auditId
                 }
             },function(err,results){
                 if(err){
-                    logger.error(err);
+                    logger.error(JSON.stringify(err));
                     return;
                 }else{
                     logger.debug(results);
@@ -252,12 +219,12 @@ auditTrailService.syncCatalystWithServiceNow = function syncCatalystWithServiceN
     var srnTicketNo = null;
     async.waterfall([
         function(next){
-            auditTrail.getAuditTrails({_id:new ObjectId(auditTrailId)},next)
+            auditTrail.getAuditTrailsById(auditTrailId,next)
         },
         function(botAuditTrail,next){
-            if(botAuditTrail.length > 0 && botAuditTrail[0].auditTrailConfig.serviceNowTicketNo
-            && (botAuditTrail[0].auditTrailConfig.serviceNowTicketNo !== null || botAuditTrail[0].auditTrailConfig.serviceNowTicketNo !== '')){
-                srnTicketNo = botAuditTrail[0].auditTrailConfig.serviceNowTicketNo;
+            if(botAuditTrail.length > 0 && botAuditTrail[0].auditTrailConfig.serviceNowTicketRefObj
+            && (botAuditTrail[0].auditTrailConfig.serviceNowTicketRefObj !== null || botAuditTrail[0].auditTrailConfig.serviceNowTicketRefObj !== '')){
+                srnTicketNo = botAuditTrail[0].auditTrailConfig.serviceNowTicketRefObj.ticketNo;
                 serviceNow.getCMDBList(next);
             }else{
                 next({code:400,message:"There is no records are available for Service Now Ticket Sync"},null);
@@ -283,14 +250,17 @@ auditTrailService.syncCatalystWithServiceNow = function syncCatalystWithServiceN
                         return;
                     } else {
                         var serviceNowObj = {
-                            description:ticketData.result[0].description,
+                            ticketNo:srnTicketNo,
+                            ticketLink:srnServerDetails[0].url+'/api/now/table/' + tableName+"?number="+srnTicketNo,
+                            shortDesc:ticketData.result[0].short_description,
+                            desc:ticketData.result[0].description,
                             openedAt:toTimestamp(ticketData.result[0].opened_at),
                             createdOn:toTimestamp(ticketData.result[0].sys_created_on),
                             closedAt:toTimestamp(ticketData.result[0].closed_at),
                             updatedOn:toTimestamp(ticketData.result[0].sys_updated_on),
                             resolvedAt:toTimestamp(ticketData.result[0].resolved_at),
                             state:checkServiceNowTicketState(ticketData.result[0].state),
-                            priority:ticketData.result[0].priority,
+                            priority:checkServiceNowTicketPriority(ticketData.result[0].priority),
                             category:ticketData.result[0].category
                         };
                         var request = require('request');
@@ -311,8 +281,7 @@ auditTrailService.syncCatalystWithServiceNow = function syncCatalystWithServiceN
                                 serviceNowObj.resolvedBy = "admin";
                             }
                             botAuditTrail.updateBotAuditTrail(auditTrailId, {
-                                'auditTrailConfig.serviceNowTicketRefObj': serviceNowObj,
-                                'auditTrailConfig.serviceNowTicketNo': srnTicketNo
+                                'auditTrailConfig.serviceNowTicketRefObj': serviceNowObj
                             }, function (err, data) {
                                 if (err) {
                                     logger.error(err);
@@ -592,4 +561,29 @@ function checkServiceNowTicketState(state){
             break;
     }
     return status;
+}
+
+function checkServiceNowTicketPriority(priority){
+    var priorityState = '';
+    switch (parseInt(priority)) {
+        case 1:
+            priorityState = "1-Critical";
+            break;
+        case 2:
+            priorityState = "2-High";
+            break;
+        case 3:
+            priorityState = "3-Moderate";
+            break;
+        case 4:
+            priorityState = "4-Low";
+            break;
+        case 5:
+            priorityState = "5-Planning";
+            break;
+        default:
+            priorityState = "1-Critical";
+            break;
+    }
+    return priorityState;
 }
