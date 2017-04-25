@@ -1,6 +1,4 @@
-/**
- * Created by rle0333 on 24/4/17.
- */
+
 /*
  Copyright [2016] [Relevance Lab]
 
@@ -34,7 +32,6 @@ var CMDBConfigSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true,
-        //validate: nameValidator
     },
     url: {
         type: String,
@@ -45,7 +42,6 @@ var CMDBConfigSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true,
-        //validate: nameValidator
     },
     servicenowpassword: {
         type: String,
@@ -53,13 +49,12 @@ var CMDBConfigSchema = new mongoose.Schema({
         trim: true
     },
     orgname: {
-        type: [String],
+        type: String,
         required: true,
         trim: true,
-        //validate: nameValidator
     },
     orgname_rowid: {
-        type: [String],
+        type: String,
         required: true,
         trim: true
     },
@@ -67,15 +62,16 @@ var CMDBConfigSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true
+    },
+    createdOn: {
+        type: Number,
+        required: false,
+        default: Date.now()
     }
 });
 
 
 CMDBConfigSchema.statics.getCMDBServerById = function(serverId, callback) {
-
-    logger.debug("START :: getCMDBServerById ");
-    logger.debug("Servcer Id:", serverId);
-
     this.findOne({
         _id: serverId
     }, function(err, data) {
@@ -88,21 +84,19 @@ CMDBConfigSchema.statics.getCMDBServerById = function(serverId, callback) {
     });
 }
 
-CMDBConfigSchema.statics.getConfigItems = function(tableName,options, callback) {
+CMDBConfigSchema.statics.getConfigItems = function(tableName,srnDetails,callback) {
     logger.debug("START :: getConfigItems");
-
     var basic_auth = {
-        user: options.username,
-        password: options.password
+        user: srnDetails.username,
+        password: srnDetails.password
     };
-
-    var tmp = options.host;
+    var tmp = srnDetails.host;
     var host = tmp.replace(/.*?:\/\//g, "");
     var serviceNowURL = null;
-    if(options.ticketNo && options.ticketNo !== null) {
-        serviceNowURL = 'https://' + options.username + ':' + options.password + '@' + host + '/api/now/table/' + tableName+"?number="+options.ticketNo;
+    if(srnDetails.ticketNo && srnDetails.ticketNo !== null) {
+        serviceNowURL = 'https://' + srnDetails.username + ':' + srnDetails.password + '@' + host + '/api/now/table/' + tableName+"?number="+srnDetails.ticketNo;
     }else{
-        serviceNowURL = 'https://' + options.username + ':' + options.password + '@' + host + '/api/now/table/' + tableName;
+        serviceNowURL = 'https://' + srnDetails.username + ':' + srnDetails.password + '@' + host + '/api/now/table/' + tableName;
     }
     var options = {
         url: serviceNowURL,
@@ -111,18 +105,14 @@ CMDBConfigSchema.statics.getConfigItems = function(tableName,options, callback) 
             'Accept': 'application/json'
         }
     };
-
     logger.debug("options", options);
-
     request(options, function(error, response, body) {
-        //logger.debug("response.statusCode", response.statusCode);
         if (!error && response.statusCode == 200) {
             logger.debug("success");
             var info = JSON.parse(body);
             callback(null, info);
-
         } else {
-            logger.error("Error");
+            logger.error("Error",error,response);
             callback("Error in getting CMDB data", null);
         }
     });
@@ -145,7 +135,6 @@ CMDBConfigSchema.statics.saveConfig = function(config, callback) {
     var configObj = config;
     var that = this;
     var obj = that(configObj);
-
     obj.save(function(err, data) {
         if (err) {
             logger.error(err);
@@ -156,8 +145,8 @@ CMDBConfigSchema.statics.saveConfig = function(config, callback) {
         callback(null, data);
         return;
     })
-
 }
+
 
 CMDBConfigSchema.statics.removeServerById = function(serverId, callback) {
     this.remove({
@@ -175,27 +164,21 @@ CMDBConfigSchema.statics.removeServerById = function(serverId, callback) {
 
 CMDBConfigSchema.statics.getConfigItemByName = function(name, tableName, options, callback) {
     logger.debug("START getConfigItemByName..");
-
     this.getConfigItems(tableName, options, function(err, data) {
-
-        for (i = 0; i < data.result.length; i++) {
+        for (var i = 0; i < data.result.length; i++) {
             if (data.result[i].name == name) {
-                logger.debug("Node found >>>", data.result[i]);
                 callback(null, data.result[i]);
                 return;
             }
-
         }
         callback({
             erroMsg: "Selected Node not found"
         }, null);
-
         return;
     });
 }
 
 CMDBConfigSchema.statics.updateConfigItemById = function(configData, callback) {
-
     logger.debug("Enter updateConfigItemById");
     this.update({
         "_id": new ObjectId(configData._id)
@@ -218,11 +201,7 @@ CMDBConfigSchema.statics.updateConfigItemById = function(configData, callback) {
         logger.debug("Exit updateConfigItemById with update success.");
         callback(null, updateCount);
         return;
-
     });
-
 }
-
 var CMDBConfig = mongoose.model('CMDBConfig', CMDBConfigSchema);
-
 module.exports = CMDBConfig;

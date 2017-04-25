@@ -21,9 +21,9 @@ var logger = require('_pr/logger')(module);
 var mongoose = require('mongoose');
 var extend = require('mongoose-schema-extend');
 var ObjectId = require('mongoose').Types.ObjectId;
-var schemaValidator = require('../../../dao/schema-validator');
+var schemaValidator = require('_pr/model/dao/schema-validator');
 var uniqueValidator = require('mongoose-unique-validator');
-var ProviderUtil = require('../../../../lib/utils/providerUtil.js');
+var ProviderUtil = require('_pr/lib/utils/providerUtil.js');
 
 
 var Schema = mongoose.Schema;

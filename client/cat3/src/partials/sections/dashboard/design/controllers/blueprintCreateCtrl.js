@@ -92,7 +92,7 @@
                         dockerlaunchparameters : '',
                         dockerreponame : $scope.templateSelected.dockerreponame
                     };
-                    dockerParams.dockerlaunchparameters = ' --name ' + dockerParams.dockercontainerpathstitle;
+                    dockerParams.dockerlaunchparameters = ' -name ' + dockerParams.dockercontainerpathstitle;
                     dockerParams.dockerrepotags = 'latest';
                     //gives the dockerParams details to show up the image in the first step of wizard.
                     $scope.dockerDetails.push(dockerParams);

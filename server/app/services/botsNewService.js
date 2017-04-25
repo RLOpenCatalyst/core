@@ -211,7 +211,7 @@ botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,service
                 var query = {
                     auditType: 'BOTsNew',
                     actionStatus: 'success',
-                    user: 'servicenow',
+                    'auditTrailConfig.serviceNowTicketNo':{$ne:null},
                     isDeleted:false
                 };
                 var botsIds = [];
@@ -360,6 +360,11 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
                                     executionType:botDetails[0].type,
                                     manualExecutionTime:botDetails[0].manualExecutionTime
                                 };
+                                if(reqBody.ref){
+                                    auditTrailObj.serviceNowTicketRefObj =  {
+                                        ticketNo:reqBody.ref
+                                    }
+                                }
                                 auditTrailService.insertAuditTrail(botDetails[0],auditTrailObj,actionObj,next);
                             },
                             function(auditTrail,next) {
@@ -511,7 +516,6 @@ botsNewService.syncSingleBotsWithGitHub = function syncSingleBotsWithGitHub(botI
                 } else {
                     logger.debug("YML is not available there.")
                     botsDao.removeBotsById(botsDetails[0]._id,next);
-                    //next({errCode:400,errMsg:"YML is not available there."},null);
                     return;
                 }
             })
@@ -826,6 +830,33 @@ botsNewService.getParticularBotsHistoryLogs= function getParticularBotsHistoryLo
                 logsDao.getLogsByReferenceId(historyId, timestamp,next);
             }else{
                 next({errCode:400, errMsg:"Bots is not exist in DB"},null)
+            }
+        }
+    ],function(err,results){
+        if(err){
+            logger.error(err);
+            callback(err,null);
+            return;
+        }else{
+            callback(null,results);
+            return;
+        }
+    });
+}
+
+botsNewService.updateLastBotExecutionStatus= function updateLastBotExecutionStatus(botId,status,callback){
+    async.waterfall([
+        function(next){
+            botsDao.getBotsById(botId,next);
+        },
+        function(bots,next){
+            if(bots.length > 0) {
+                var botObj = {
+                    lastExecutionStatus:status
+                }
+                botsDao.updateBotsDetail(botId,botObj,next);
+            }else{
+                next({code:400, message:"Bots is not exist in DB"},null)
             }
         }
     ],function(err,results){

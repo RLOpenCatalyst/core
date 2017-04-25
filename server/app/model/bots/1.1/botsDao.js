@@ -204,6 +204,11 @@ var BotsSchema = new Schema ({
         type: String,
         required: false,
         trim: true
+    },
+    lastExecutionStatus: {
+        type: String,
+        required: false,
+        trim: true
     }
 });
 BotsSchema.plugin(mongoosePaginate);

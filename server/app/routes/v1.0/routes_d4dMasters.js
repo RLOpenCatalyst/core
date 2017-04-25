@@ -1010,7 +1010,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
                             orgList = [];                            
                             orgList.push({      
                                 rowid:req.query.orgId                            
-                            })                        
+                            })
                         }
                         masterUtil.getTemplates(orgList, function (err, templateList) {
                             if (err) {

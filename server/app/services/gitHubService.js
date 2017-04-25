@@ -553,8 +553,7 @@ function formatGitHubResponse(gitHub,callback) {
 function gitHubCloning(gitHubDetails,task,cmd,callback){
     var filePath = appConfig.botFactoryDir +gitHubDetails.repositoryName+'.tgz';
     var destPath = appConfig.botFactoryDir + gitHubDetails._id;
-    var botFactoryDirPath = appConfig.botFactoryDir;
-    var botCurrentFactoryDirPath = appConfig.botCurrentFactoryDir;                                
+    var botCurrentFactoryDirPath = appConfig.botCurrentFactoryDir;
     var options = {compareContent: true,excludeFilter:'*.md',skipSymlinks:true};
     if(fs.existsSync(filePath)){
         fs.unlinkSync(filePath)
@@ -624,7 +623,7 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
                                                 "branch":gitHubDetails.repositoryBranch, 
                                                 "repo":gitHubDetails.repositoryOwner+'/'+gitHubDetails.repositoryName};
                                             var options = {
-                                                url: "http://"+botRemoteServerDetails.hostIP+":"+botRemoteServerDetails.hostPort+"/bot/factory",
+                                                url: "http://"+botRemoteServerDetails.hostIP+":"+botRemoteServerDetails.hostPort+"/bot/factory?auth=password",
                                                 headers: {
                                                     'Content-Type': 'application/json'
                                                 },

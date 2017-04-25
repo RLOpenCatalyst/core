@@ -24,23 +24,19 @@ var instancesDao = require('_pr/model/classes/instance/instance');
 var logsDao = require('_pr/model/dao/logsdao.js');
 var credentialCryptography = require('_pr/lib/credentialcryptography');
 var environmentsDao = require('_pr/model/d4dmasters/environments.js');
-var d4dModelNew = require('_pr/model/d4dmasters/d4dmastersmodelnew.js');
-var ObjectId = require('mongoose').Types.ObjectId;
 var uuid = require('node-uuid');
 var configmgmtDao = require('_pr/model/d4dmasters/configmgmt.js');
 var Chef = require('_pr/lib/chef.js');
 var taskStatusModule = require('_pr/model/taskstatus');
-var waitForPort = require('wait-for-port');
-var settingWizard = require('_pr/model/setting-wizard');
 var settingsService = require('_pr/services/settingsService');
 
 module.exports.setRoutes = function(app, verificationFunc) {
 
     app.all('/servicenow*', verificationFunc);
+    app.all('/cmdb*', verificationFunc);
 
     app.get('/servicenow/:serverId/importData', function(req, res) {
         logger.info("ServiceNow Data fetch Call....");
-
         CMDBConfig.getCMDBServerById(req.params.serverId, function(err, data) {
             if (err) {
                 logger.error("Error getCMDBServerById..", err);
@@ -54,30 +50,25 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 password: data.servicenowpassword,
                 host: data.url
             };
-
-            CMDBConfig.getConfigItems(tableName, config, function(err, data) {
+            CMDBConfig.getConfigItems(tableName,config, function(err, data) {
                 if (err) {
                     logger.error("Error in Getting Servicenow Config Items:", err);
                     res.status(500).send(err);
                     return;
                 }
-
                 if (!data.result) {
                     logger.error("ServiceNow CI data fetch error");
                     res.send(data);
                     return;
                 }
-
                 logger.debug("getConfigItems : data.result length..", data.result.length);
                 logger.debug("Success :Getting Servicenow Config Items");
-
                 res.send(data);
             });
         });
     });
 
     app.post('/servicenow/:serverId/instances/import', function(req, res) {
-
         logger.info("ServiceNow Data fetch.");
         var orgId = req.body.orgId;
         var bgId = req.body.bgId;
@@ -89,24 +80,19 @@ module.exports.setRoutes = function(app, verificationFunc) {
         var taskStatusObj = null;
         var chef = null;
         var reqBody = req.body;
-
         CMDBConfig.getCMDBServerById(req.params.serverId, function(err, data) {
             if (err) {
                 logger.error("Error getCMDBServerById", err);
                 res.status(500).send(err);
                 return;
             }
-
             logger.debug("getCMDBServerById is ok..");
             var config = {
                 username: data.servicenowusername,
                 password: data.servicenowpassword,
                 host: data.url
             };
-
             var tableName = 'cmdb_ci_linux_server';
-
-
             var insertNodeInMongo = function(node) {
                 var platformId = '';
 
@@ -128,10 +114,8 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 if (hardwareData.platform === 'windows') {
                     hardwareData.os = "windows";
                 }
-
                 function getCredentialsFromReq(callback) {
                     var credentials = {};
-
                     if (reqBody.credentials && reqBody.credentials.pemFileData) {
                         credentials = reqBody.credentials;
                         credentials.pemFileLocation = appConfig.tempDir + uuid.v4();
@@ -165,13 +149,11 @@ module.exports.setRoutes = function(app, verificationFunc) {
                         }
                     }
                 }
-
                 getCredentialsFromReq(function(err, credentials) {
                     if (err) {
                         logger.debug("unable to get credetials from request ", err);
                         return;
                     }
-
                     configmgmtDao.getChefServerDetailsByOrgname(orgId, function(err, chefData) {
                         if (err) {
                             res.send(500);
@@ -182,7 +164,6 @@ module.exports.setRoutes = function(app, verificationFunc) {
                             res.send(404);
                             return;
                         }
-
                         configmgmtDao.getChefServerDetails(chefData.rowid, function(err, chefDetails) {
                             logger.debug("START getChefServerDetails");
                             if (err) {
@@ -200,7 +181,6 @@ module.exports.setRoutes = function(app, verificationFunc) {
                                 chefValidationPemFile: chefDetails.validatorpemfile,
                                 hostedChefUrl: chefDetails.url,
                             });
-
                             credentialCryptography.encryptCredential(credentials, function(err, encryptedCredentials) {
                                 if (err) {
                                     logger.debug("unable to encrypt credentials == >", err);
@@ -348,7 +328,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
                         res.send(500);
                         return;
                     }
-                    taskstatus = obj;
+                    var taskstatus = obj;
                     for (var i = 0; i < nodeList.length; i++) {
 
                         (function(nodeName) {
@@ -419,7 +399,6 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 });
 
             }
-
             var nodes = [];
             nodes.push(selectedNode);
             if (selectedNode) {
@@ -428,18 +407,14 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 res.send(400);
                 return;
             }
-
         }); //end of getCMDBServerById
     }); //end of post
 
     app.post('/servicenow/saveconfig', function(req, res) {
-
         logger.debug('Starting servicenow saveconfig');
-
         var json = JSON.parse(JSON.stringify(req.body));
         logger.debug("req body:" + req.body);
         logger.debug("orgname:" + req.body.org);
-
         var rowid = uuid.v4();
         var config = {
             "configname": req.body.configname,
@@ -451,9 +426,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
             "orgname_rowid": req.body.orgname_rowid,
             "id": "90"
         };
-
         logger.debug("config" + config);
-
         CMDBConfig.saveConfig(config, function(err, data) {
             logger.debug("Saving config");
             if (err) {
@@ -461,7 +434,6 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 res.status(500).send("Failed to save Org.");
                 return;
             }
-            logger.debug("save response:" + data);
             res.send(data);
             return;
         });
@@ -469,13 +441,9 @@ module.exports.setRoutes = function(app, verificationFunc) {
 
 
     app.post('/servicenow/config/update/:id', function(req, res) {
-
         logger.debug('Starting servicenow update');
-
         var json = JSON.parse(JSON.stringify(req.body));
-
         logger.debug("orgname:" + req.body.org);
-
         var rowid = uuid.v4();
         var config = {
             "_id": req.params.id,
@@ -485,9 +453,7 @@ module.exports.setRoutes = function(app, verificationFunc) {
             "servicenowpassword": req.body.password,
             "orgname": req.body.org
         };
-
         logger.debug("config" + config);
-
         CMDBConfig.updateConfigItemById(config, function(err, data) {
             logger.debug("Upadted config");
             if (err) {
@@ -495,8 +461,6 @@ module.exports.setRoutes = function(app, verificationFunc) {
                 res.status(500).send("Failed to update CMDB config.");
                 return;
             }
-
-            logger.debug("update response:" + data);
             res.send(data);
         });
     });
@@ -504,14 +468,12 @@ module.exports.setRoutes = function(app, verificationFunc) {
 
     app.get('/cmdb/list', function(req, res) {
         logger.debug("getting all the CMDB config docs from mongodb");
-
         CMDBConfig.getCMDBList(function(err, data) {
             if (err) {
                 logger.error(err);
                 res.send(err);
                 return;
             }
-
             logger.debug("Number of CMDB providers:", data.length);
             res.send(data);
         });
@@ -520,14 +482,12 @@ module.exports.setRoutes = function(app, verificationFunc) {
 
     app.get('/cmdb/servers/:serverId', function(req, res) {
         logger.debug("getting servicenow server by Id");
-
         CMDBConfig.getCMDBServerById(req.params.serverId, function(err, data) {
             if (err) {
                 logger.error("Error", err);
                 res.send(err);
                 return;
             }
-            logger.debug("getCMDBServerById response:", data);
             res.send(data);
         });
 
@@ -541,7 +501,6 @@ module.exports.setRoutes = function(app, verificationFunc) {
                res.status(500).send(err);
                return;
         }
-        logger.debug("Exit removeInstancebyId (%s)", req.params.id);
         res.send(servicedata);
      });
    });

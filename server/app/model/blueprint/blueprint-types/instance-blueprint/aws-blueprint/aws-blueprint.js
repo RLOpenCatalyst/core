@@ -43,6 +43,7 @@ var resourceMapService = require('_pr/services/resourceMapService.js');
 
 
 var AWSInstanceBlueprintSchema = new Schema({
+    _id:false,
     keyPairId: {
         type: String,
         required: true,
@@ -70,26 +71,33 @@ var AWSInstanceBlueprintSchema = new Schema({
     },
     instanceType: {
         type: String,
-        //  required: true
+        required: false,
+        trim: true
     },
     instanceOS: {
         type: String,
-        // required: true
+        required: false,
+        trim: true
     },
     instanceCount: {
         type: String,
+        required: false,
+        trim: true
     },
     instanceAmiid: {
         type: String,
-        //  required: true
+        required: false,
+        trim: true
     },
     instanceUsername: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
     imageId: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     }
 });
 

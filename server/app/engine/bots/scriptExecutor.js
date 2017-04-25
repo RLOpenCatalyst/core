@@ -21,24 +21,18 @@ var instanceModel = require('_pr/model/classes/instance/instance.js');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var uuid = require('node-uuid');
 var exec = require('exec');
-const fileHound= require('filehound');
 var Cryptography = require('_pr/lib/utils/cryptography');
 var appConfig = require('_pr/config');
 var auditTrailService = require('_pr/services/auditTrailService.js');
 var schedulerService = require('_pr/services/schedulerService.js');
-
 var credentialCryptography = require('_pr/lib/credentialcryptography');
-var SSHExec = require('_pr/lib/utils/sshexec');
-var SCP = require('_pr/lib/utils/scp');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var noticeService = require('_pr/services/noticeService.js');
 var fileIo = require('_pr/lib/utils/fileio');
+var serviceNow = require('_pr/model/servicenow/servicenow.js');
 
 
 const errorType = 'scriptExecutor';
-
-//var pythonHost =  process.env.FORMAT_HOST || 'localhost';
-//var pythonPort =  process.env.FORMAT_PORT || '2687';
 var scriptExecutor = module.exports = {};
 
 scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,executionType,botHostDetails,callback) {
