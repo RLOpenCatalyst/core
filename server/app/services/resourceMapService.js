@@ -65,6 +65,7 @@ resourceMapService.getAllResourcesByFilter = function getAllResourcesByFilter(re
 };
 
 resourceMapService.createNewResourceMap = function createNewResourceMap(resourceMapObj,callback){
+    resourceMapObj.createdOn = new Date().getTime();
     resourceMap.createNew(resourceMapObj,function(err,resourceMapData){
         if(err){
             logger.error("resourceMap.createNew is Failed ==>", err);
