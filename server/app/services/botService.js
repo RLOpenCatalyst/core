@@ -273,7 +273,7 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
                     } else if (botServerDetails !== null) {
                         botRemoteServerDetails.hostIP = botServerDetails.hostIP;
                         botRemoteServerDetails.hostPort = botServerDetails.hostPort;
-                        encryptedParam(reqBody.data, next);
+                        encryptedParam(reqBody, next);
                     } else {
                         var error = new Error();
                         error.message = 'BOTs Remote Engine is not configured or not in running mode';
@@ -282,27 +282,8 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
                     }
                 });
 
-            }else if(bots[0].type === 'blueprints'){
-                next(null,reqBody);
-            }else if(schedulerCallCheck === false && (bots[0].type === 'script' || bots[0].type === 'chef')){
-                masterUtil.getBotRemoteServerDetailByOrgId(bots[0].orgId,function(err,botServerDetails) {
-                    if (err) {
-                        logger.error("Error while fetching BOTs Server Details");
-                        callback(err, null);
-                        return;
-                    } else if (botServerDetails !== null) {
-                        botRemoteServerDetails.hostIP = botServerDetails.hostIP;
-                        botRemoteServerDetails.hostPort = botServerDetails.hostPort;
-                        next(null,reqBody.data);
-                    } else {
-                        var error = new Error();
-                        error.message = 'BOTs Remote Engine is not configured or not in running mode';
-                        error.status = 403;
-                        next(error, null);
-                    }
-                });
             }else{
-                next(null,reqBody.data);
+                next(null,reqBody);
             }
         },
         function(paramObj,next) {
@@ -330,10 +311,10 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
                         async.waterfall([
                             function(next){
                                 var actionObj={
-                                    auditType:'BOTOLD',
+                                    auditType:'BOT',
                                     auditCategory:botDetails[0].type,
                                     status:'running',
-                                    action:'BOTs Execution',
+                                    action:'BOT Execution',
                                     actionStatus:'running',
                                     catUser:userName
                                 };
@@ -366,9 +347,9 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
                                     reqBody = botDetails[0].params.data;
                                     jenkinsExecutor.execute(botDetails[0],auditTrail, reqBody, userName, next);
                                 } else {
-                                    var err = new Error('Invalid BOTs Type');
+                                    var err = new Error('Invalid BOT Type');
                                     err.status = 400;
-                                    err.msg = 'Invalid BOTs Type';
+                                    err.msg = 'Invalid BOT Type';
                                     callback(err, null);
                                 }
                             }
@@ -391,9 +372,9 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
                             }
                             botDao.updateBotsDetail(botId, botUpdateObj, callback);
                         }else{
-                            var err = new Error('Invalid BOTs Type');
+                            var err = new Error('Invalid BOT Type');
                             err.status = 400;
-                            err.msg = 'Invalid BOTs Type';
+                            err.msg = 'Invalid BOT Type';
                             callback(err, null);
                         }
                     }
@@ -757,7 +738,7 @@ botsNewService.getBotsHistory = function getBotsHistory(botId,botsQuery,callback
         },
         function(queryObj, next) {
             queryObj.queryObj.auditId = botId;
-            queryObj.queryObj.auditType = 'BOTOLD';
+            queryObj.queryObj.auditType = 'BOT';
             auditTrail.getAuditTrailList(queryObj,next)
         },
         function(auditTrailList, next) {
@@ -782,7 +763,7 @@ botsNewService.getParticularBotsHistory = function getParticularBotsHistory(botI
         function(bots,next){
             if(bots.length > 0) {
                 var query = {
-                    auditType: 'BOTOLD',
+                    auditType: 'BOT',
                     auditId: botId,
                     actionLogId: historyId
                 };
@@ -861,15 +842,16 @@ function encryptedParam(paramDetails, callback) {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var encryptedObj = {};
-    if(paramDetails !== null) {
-        Object.keys(paramDetails).forEach(function(key){
-            var encryptedText = cryptography.encryptText(paramDetails[key], cryptoConfig.encryptionEncoding,
-                cryptoConfig.decryptionEncoding);
-            encryptedObj[key]=encryptedText;
-        });
-        callback(null,encryptedObj);
+    if (paramDetails.type === 'script' && paramDetails.data && paramDetails.data !== null) {
+            Object.keys(paramDetails.data).forEach(function (key) {
+                var encryptedText = cryptography.encryptText(paramDetails.data[key], cryptoConfig.encryptionEncoding,
+                    cryptoConfig.decryptionEncoding);
+                encryptedObj[key] = encryptedText;
+            });
+            paramDetails.data = encryptedObj;
+            callback(null, paramDetails);
     }else{
-        callback(null,encryptedObj);
+        callback(null, paramDetails);
     }
 }
 
