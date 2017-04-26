@@ -22,7 +22,7 @@ var Cryptography = require('_pr/lib/utils/cryptography');
 var fileUpload = require('_pr/model/file-upload/file-upload');
 var targz = require('targz');
 var async = require('async');
-var execCmd = require('exec');
+var execCmd = require('child_process').exec;
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var promisify = require("promisify-node");
 var fse = promisify(require("fs-extra"));
@@ -53,7 +53,6 @@ gitGubService.checkIfGitHubExists = function checkIfGitHubExists(gitHubId, callb
         }
     });
 };
-
 
 gitGubService.createGitHub = function createGitHub(gitHubObj, callback) {
     if(gitHubObj.repositoryType === 'Private' && gitHubObj.authenticationType === 'userName'){
@@ -404,7 +403,7 @@ gitGubService.gitHubContentSync = function gitHubContentSync(gitHubId, botId,cal
                 async.parallel([
                     function(callback) {
                         if(result.botsDetails[0].type ==='script') {
-                            var cmdFull = cmd + 'https://api.github.com/repos/' + formattedGitHub.repositoryOwner + '/' + formattedGitHub.repositoryName + '/contents/Code/Script_BOTs/' + result.botsDetails[0].id + '?ref=' + formattedGitHub.repositoryBranch;
+                            var cmdFull = cmd + 'https://api.github.com/repos/' + formattedGitHub.repositoryOwner + '/' + formattedGitHub.repositoryName + '/contents/Code/'+result.botsDetails[0].type+'_BOTs/' + result.botsDetails[0].id + '?ref=' + formattedGitHub.repositoryBranch;
                             gitHubSingleSync(formattedGitHub, cmdFull, cmd, callback);
                         }else{
                             callback(null,result.botsDetails[0]);
@@ -561,7 +560,7 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
     }
     if(task && task === 'sync'){
         execCmd(cmd, function (err, out, code) {
-            if (code === 0) {
+            if (err === null) {
                 targz.decompress({
                     src: filePath,
                     dest: destPath
@@ -655,7 +654,7 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
     }else {
         execCmd(cmd, function (err, out, code) {
             destPath = destPath + '.temp';
-            if (code === 0) {
+            if (err === null) {
                 if(fs.existsSync(destPath)){
                     fse.removeSync(destPath)
                 }
@@ -757,7 +756,7 @@ function gitHubSingleSync(gitHubDetails,cmdFull,cmd,callback) {
     if(fs.existsSync(upload))
         fse.removeSync(upload);
     execCmd(cmdFull, function (err, out, code) {
-        if(code === 0 && out.trim() !== '404: Not Found'){
+        if(err === null && out.trim() !== '404: Not Found'){
             var response = JSON.parse(out);
             if(response.length){
                 for (var index = 0; index < response.length; index++) {
@@ -798,7 +797,7 @@ function gitHubSingleSync(gitHubDetails,cmdFull,cmd,callback) {
     });
     function writeFile(cmd,callback){
         execCmd(cmd,function(err,out,code) {
-            if(code === 0 && out.trim() !== '404: Not Found'){
+            if(err === null && out.trim() !== '404: Not Found'){
                 var fileres = JSON.parse(out);
                 var destFile = filepath+fileres.path;
                 var uploadFile = upload+fileres.path;
