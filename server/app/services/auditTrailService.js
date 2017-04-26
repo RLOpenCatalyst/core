@@ -19,8 +19,8 @@ var instanceAuditTrail = require('_pr/model/audit-trail/instance-audit-trail.js'
 var botAuditTrail = require('_pr/model/audit-trail/bot-audit-trail.js');
 var containerAuditTrail = require('_pr/model/audit-trail/container-audit-trail.js');
 var auditTrail = require('_pr/model/audit-trail/audit-trail.js');
-var bots = require('_pr/model/bots/1.0/bots.js');
-var botsDao = require('_pr/model/bots/1.1/botsDao.js');
+var botOld = require('_pr/model/bots/1.0/botOld.js');
+var botDao = require('_pr/model/bots/1.1/bot.js');
 var ObjectId = require('mongoose').Types.ObjectId;
 
 const errorType = 'auditTrailService';
@@ -55,7 +55,7 @@ auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,audi
         providerType: auditDetails.providerType,
         action: actionObj.action
     };
-    if(actionObj.auditType === 'BOTs' || actionObj.auditType === 'BOTsNew'){
+    if(actionObj.auditType === 'BOTOLD' || actionObj.auditType === 'BOT'){
         auditTrailObj.auditTrailConfig = auditTrailConfig;
         botAuditTrail.createNew(auditTrailObj,function(err,data){
             if(err){
@@ -96,7 +96,7 @@ auditTrailService.insertAuditTrail = function insertAuditTrail(auditDetails,audi
 }
 
 auditTrailService.updateAuditTrail = function updateAuditTrail(auditType,auditId,auditObj,callback) {
-    if(auditType === 'BOTs' || auditType === 'BOTsNew'){
+    if(auditType === 'BOTOLD' || auditType === 'BOT'){
         botAuditTrail.updateBotAuditTrail(auditId,auditObj,function(err,data){
             if(err){
                 logger.error(err);
@@ -125,8 +125,8 @@ auditTrailService.updateAuditTrail = function updateAuditTrail(auditType,auditId
                         function(botAuditTrail,next){
                             if(botAuditTrail.length > 0 && auditObj.status
                                 && (auditObj.status !== null || auditObj.status !== '')){
-                                var botsNewService = require('_pr/services/botsNewService.js');
-                                botsNewService.updateLastBotExecutionStatus(botAuditTrail[0].auditId,auditObj.status,function(err,data){
+                                var botService = require('_pr/services/botService.js');
+                                botService.updateLastBotExecutionStatus(botAuditTrail[0].auditId,auditObj.status,function(err,data){
                                     if(err){
                                         logger.error("Error in updating Last Execution Time Details:");
                                         callback(err,null);
@@ -334,16 +334,16 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
         },
         function(filterQuery,next) {
             filterQuery.isDeleted=false;
-            if(BOTSchema === 'BOTs') {
-                bots.getAllBots(filterQuery, next);
+            if(BOTSchema === 'BOTOLD') {
+                botOld.getAllBots(filterQuery, next);
             }else{
-                botsDao.getAllBots(filterQuery, next);
+                botDao.getAllBots(filterQuery, next);
             }
         },
         function(botsList,next){
             var auditIds = [];
             for(var i = 0; i < botsList.length; i++) {
-                if(BOTSchema === 'BOTs') {
+                if(BOTSchema === 'BOTOLD') {
                     auditIds.push(botsList[i].botId);
                 }else{
                     auditIds.push(botsList[i]._id);
@@ -481,7 +481,7 @@ auditTrailService.getBOTsSummary = function getBOTsSummary(queryParam,BOTSchema,
 
 auditTrailService.getBotsAuditTrailHistory = function getBotsAuditTrailHistory(botId,callback){
     var query={
-        auditType:'BOTs',
+        auditType:'BOTOLD',
         auditId:botId,
         isDeleted:false
     };

@@ -20,7 +20,7 @@ var ObjectId = require('mongoose').Types.ObjectId;
 var mongoosePaginate = require('mongoose-paginate');
 var Schema = mongoose.Schema;
 
-var BotsSchema = new Schema ({
+var BotSchema = new Schema ({
     name: {
         type: String,
         trim: true,
@@ -211,11 +211,11 @@ var BotsSchema = new Schema ({
         trim: true
     }
 });
-BotsSchema.plugin(mongoosePaginate);
+BotSchema.plugin(mongoosePaginate);
 
 
-BotsSchema.statics.createNew = function(botsDetail,callback){
-    var botsData = new Bots(botsDetail);
+BotSchema.statics.createNew = function(botsDetail,callback){
+    var botsData = new bot(botsDetail);
     botsData.save(function(err, data) {
         if (err) {
             logger.error("createNew Failed", err, data);
@@ -226,8 +226,8 @@ BotsSchema.statics.createNew = function(botsDetail,callback){
         return;
     });
 }
-BotsSchema.statics.updateBotsDetail = function(botId,botsDetail,callback){
-    Bots.update({_id:ObjectId(botId)},{$set:botsDetail},{upsert:false}, function(err, updateBotDetail) {
+BotSchema.statics.updateBotsDetail = function(botId,botsDetail,callback){
+    bot.update({_id:ObjectId(botId)},{$set:botsDetail},{upsert:false}, function(err, updateBotDetail) {
         if (err) {
             logger.error(err);
             var error = new Error('Internal server error');
@@ -238,9 +238,9 @@ BotsSchema.statics.updateBotsDetail = function(botId,botsDetail,callback){
     });
 };
 
-BotsSchema.statics.getBotsList = function(botsQuery,callback){
+BotSchema.statics.getBotsList = function(botsQuery,callback){
     botsQuery.queryObj.isDeleted = false;
-    Bots.paginate(botsQuery.queryObj, botsQuery.options, function(err, botsList) {
+    bot.paginate(botsQuery.queryObj, botsQuery.options, function(err, botsList) {
         if (err) {
             logger.error(err);
             var error = new Error('Internal server error');
@@ -251,8 +251,8 @@ BotsSchema.statics.getBotsList = function(botsQuery,callback){
     });
 };
 
-BotsSchema.statics.getBotsById = function(botId,callback){
-    Bots.find({_id:ObjectId(botId)}, function(err, bots) {
+BotSchema.statics.getBotsById = function(botId,callback){
+    bot.find({_id:ObjectId(botId)}, function(err, bots) {
         if (err) {
             logger.error(err);
             var error = new Error('Internal server error');
@@ -266,39 +266,8 @@ BotsSchema.statics.getBotsById = function(botId,callback){
     });
 };
 
-BotsSchema.statics.getBotsByBotId = function(botId,callback){
-    Bots.find({id:botId}, function(err, bots) {
-        if (err) {
-            logger.error(err);
-            var error = new Error('Internal server error');
-            error.status = 500;
-            return callback(error);
-        }else if(bots.length > 0){
-            return callback(null, bots);
-        }else{
-            return callback(null, []);
-        }
-    });
-};
-
-
-BotsSchema.statics.getBotsByGitHubId = function(gitHubId,callback){
-    Bots.find({gitHubId:gitHubId}, function(err, bots) {
-        if (err) {
-            logger.error(err);
-            var error = new Error('Internal server error');
-            error.status = 500;
-            return callback(error);
-        }else if(bots.length > 0){
-            return callback(null, bots);
-        }else{
-            return callback(null, []);
-        }
-    });
-};
-
-BotsSchema.statics.getAllBots = function(queryParam,callback){
-    Bots.find(queryParam, function(err, bots) {
+BotSchema.statics.getBotsByBotId = function(botId,callback){
+    bot.find({id:botId}, function(err, bots) {
         if (err) {
             logger.error(err);
             var error = new Error('Internal server error');
@@ -313,8 +282,39 @@ BotsSchema.statics.getAllBots = function(queryParam,callback){
 };
 
 
-BotsSchema.statics.removeBotsById = function(botId,callback){
-    Bots.remove({_id:ObjectId(botId)}, function(err, bots) {
+BotSchema.statics.getBotsByGitHubId = function(gitHubId,callback){
+    bot.find({gitHubId:gitHubId}, function(err, bots) {
+        if (err) {
+            logger.error(err);
+            var error = new Error('Internal server error');
+            error.status = 500;
+            return callback(error);
+        }else if(bots.length > 0){
+            return callback(null, bots);
+        }else{
+            return callback(null, []);
+        }
+    });
+};
+
+BotSchema.statics.getAllBots = function(queryParam,callback){
+    bot.find(queryParam, function(err, bots) {
+        if (err) {
+            logger.error(err);
+            var error = new Error('Internal server error');
+            error.status = 500;
+            return callback(error);
+        }else if(bots.length > 0){
+            return callback(null, bots);
+        }else{
+            return callback(null, []);
+        }
+    });
+};
+
+
+BotSchema.statics.removeBotsById = function(botId,callback){
+    bot.remove({_id:ObjectId(botId)}, function(err, bots) {
         if (err) {
             logger.error(err);
             var error = new Error('Internal server error');
@@ -326,8 +326,8 @@ BotsSchema.statics.removeBotsById = function(botId,callback){
     });
 };
 
-BotsSchema.statics.removeBotsByGitHubId = function(gitHubId,callback){
-    Bots.remove({gitHubId:gitHubId}, function(err, bots) {
+BotSchema.statics.removeBotsByGitHubId = function(gitHubId,callback){
+    bot.remove({gitHubId:gitHubId}, function(err, bots) {
         if (err) {
             logger.error(err);
             var error = new Error('Internal server error');
@@ -339,8 +339,8 @@ BotsSchema.statics.removeBotsByGitHubId = function(gitHubId,callback){
     });
 };
 
-BotsSchema.statics.getScheduledBots = function getScheduledBots(callback) {
-    Bots.find({
+BotSchema.statics.getScheduledBots = function getScheduledBots(callback) {
+    bot.find({
         isScheduled: true,
         isDeleted:false
     }, function (err, bots) {
@@ -352,8 +352,8 @@ BotsSchema.statics.getScheduledBots = function getScheduledBots(callback) {
     })
 }
 
-BotsSchema.statics.updateCronJobIdByBotId = function updateCronJobIdByBotId(botId, cronJobId, callback) {
-    Bots.update({
+BotSchema.statics.updateCronJobIdByBotId = function updateCronJobIdByBotId(botId, cronJobId, callback) {
+    bot.update({
         "_id": ObjectId(botId),
     }, {
         $set: {
@@ -370,8 +370,8 @@ BotsSchema.statics.updateCronJobIdByBotId = function updateCronJobIdByBotId(botI
     });
 };
 
-BotsSchema.statics.updateBotsScheduler = function updateBotsScheduler(botId, callback) {
-    Bots.update({
+BotSchema.statics.updateBotsScheduler = function updateBotsScheduler(botId, callback) {
+    bot.update({
         "_id": ObjectId(botId),
     }, {
         $set: {
@@ -388,5 +388,5 @@ BotsSchema.statics.updateBotsScheduler = function updateBotsScheduler(botId, cal
     });
 };
 
-var Bots = mongoose.model('botsnew', BotsSchema);
-module.exports = Bots;
+var bot = mongoose.model('bot', BotSchema);
+module.exports = bot;

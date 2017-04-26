@@ -16,7 +16,7 @@
  */
 
 var logger = require('_pr/logger')(module);
-var botsDao = require('_pr/model/bots/1.1/botsDao.js');
+var botDao = require('_pr/model/bots/1.1/bot.js');
 var async = require("async");
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var Cryptography = require('_pr/lib/utils/cryptography');
@@ -100,7 +100,7 @@ botsNewService.createNew = function createNew(reqBody,callback) {
                                 params: paramObj,
                                 source: "Catalyst"
                             }
-                            botsDao.createNew(botsObj, function (err, data) {
+                            botDao.createNew(botsObj, function (err, data) {
                                 if (err) {
                                     logger.error(err);
                                     callback(err, null);
@@ -129,14 +129,14 @@ botsNewService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,c
         botObj.scheduler ={};
         botObj.isScheduled =false;
     }
-    botsDao.updateBotsDetail(botId,botObj,function(err,data) {
+    botDao.updateBotsDetail(botId,botObj,function(err,data) {
         if (err) {
             logger.error("Error in Updating BOTs Scheduler", err);
             callback(err, null);
             return;
         } else {
             callback(null, data);
-            botsDao.getBotsById(botId, function (err, botsList) {
+            botDao.getBotsById(botId, function (err, botsList) {
                 if (err) {
                     logger.error("Error in fetching BOTs", err);
                 } else {
@@ -155,7 +155,7 @@ botsNewService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,c
 botsNewService.removeBotsById = function removeBotsById(botId,callback){
     async.parallel({
         bots: function(callback){
-            botsDao.removeBotsById(botId,callback);
+            botDao.removeBotsById(botId,callback);
         },
         auditTrails: function(callback){
             auditTrail.removeAuditTrails({auditId:botId},callback);
@@ -186,7 +186,7 @@ botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,service
         function(queryObj, next) {
             if(actionStatus !== null){
                 var query = {
-                    auditType: 'BOTsNew',
+                    auditType: 'BOT',
                     actionStatus: actionStatus,
                     isDeleted:false
                 };
@@ -201,23 +201,23 @@ botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,service
                             }
                         }
                         queryObj.queryObj._id = {$in:botsIds};
-                        botsDao.getBotsList(queryObj, next);
+                        botDao.getBotsList(queryObj, next);
                     }else {
                         queryObj.queryObj._id = null;
-                        botsDao.getBotsList(queryObj, next);
+                        botDao.getBotsList(queryObj, next);
                     }
                 });
             }else if(serviceNowCheck === true){
                 delete queryObj.queryObj;
                 queryObj.queryObj = {
-                    auditType: 'BOTsNew',
+                    auditType: 'BOT',
                     actionStatus: 'success',
                     'auditTrailConfig.serviceNowTicketRefObj':{$ne:null},
                     isDeleted:false
                 };
                 auditTrail.getAuditTrailList(queryObj, next);
             }else{
-                botsDao.getBotsList(queryObj, next);
+                botDao.getBotsList(queryObj, next);
             }
         },
         function(botList, next) {
@@ -229,7 +229,7 @@ botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,service
                    apiUtil.paginationResponse(filterBotList, reqData, callback);
                },
                botSummary:function(callback){
-                   auditTrailService.getBOTsSummary(botsQuery,'BOTsNew',callback)
+                   auditTrailService.getBOTsSummary(botsQuery,'BOT',callback)
                }
            },function(err,data){
                if(err){
@@ -260,7 +260,7 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
     var botRemoteServerDetails = {}
     async.waterfall([
         function(next) {
-            botsDao.getBotsByBotId(botsId, next);
+            botDao.getBotsByBotId(botsId, next);
         },
         function(bots,next){
             botId = bots[0]._id;
@@ -315,13 +315,13 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
                 if(reqBody.nodeIds){
                     botObj.params.nodeIds = reqBody.nodeIds;
                 }
-                botsDao.updateBotsDetail(botId,botObj, next);
+                botDao.updateBotsDetail(botId,botObj, next);
             }else{
                 next(null,paramObj);
             }
         },
         function(updateStatus,next) {
-            botsDao.getBotsById(botId, next);
+            botDao.getBotsById(botId, next);
         },
         function(botDetails,next) {
             if(botDetails.length > 0){
@@ -330,7 +330,7 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
                         async.waterfall([
                             function(next){
                                 var actionObj={
-                                    auditType:'BOTsNew',
+                                    auditType:'BOTOLD',
                                     auditCategory:botDetails[0].type,
                                     status:'running',
                                     action:'BOTs Execution',
@@ -389,7 +389,7 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
                                 executionCount: botExecutionCount,
                                 lastRunTime: new Date().getTime()
                             }
-                            botsDao.updateBotsDetail(botId, botUpdateObj, callback);
+                            botDao.updateBotsDetail(botId, botUpdateObj, callback);
                         }else{
                             var err = new Error('Invalid BOTs Type');
                             err.status = 400;
@@ -423,7 +423,7 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
 botsNewService.syncSingleBotsWithGitHub = function syncSingleBotsWithGitHub(botId,callback){
     async.waterfall([
         function(next) {
-            botsDao.getBotsByBotId(botId,next);
+            botDao.getBotsByBotId(botId,next);
         },
         function(botsDetails,next){
             if(botsDetails.length > 0) {
@@ -480,7 +480,7 @@ botsNewService.syncSingleBotsWithGitHub = function syncSingleBotsWithGitHub(botI
                                         source: "GitHub"
                                     }
 
-                                    botsDao.updateBotsDetail(botsDetails[0]._id, botsObj, function (err, updateBots) {
+                                    botDao.updateBotsDetail(botsDetails[0]._id, botsObj, function (err, updateBots) {
                                         if (err) {
                                             logger.error(err);
                                             callback(err,null);
@@ -500,7 +500,7 @@ botsNewService.syncSingleBotsWithGitHub = function syncSingleBotsWithGitHub(botI
                     });
                 } else {
                     logger.debug("YML is not available there.")
-                    botsDao.removeBotsById(botsDetails[0]._id,next);
+                    botDao.removeBotsById(botsDetails[0]._id,next);
                     return;
                 }
             })
@@ -527,7 +527,7 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                     gitHubService.getGitHubById(gitHubId,callback);
                 },
                 botsDetails:function(callback){
-                    botsDao.getBotsByGitHubId(gitHubId,callback);
+                    botDao.getBotsByGitHubId(gitHubId,callback);
                 }
             },next);
         },
@@ -558,7 +558,7 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                 botSync: function (callback) {
                     if (jsonObt.botsDetails.length > 0){
                         if (jsonObt.botsDetails[0].gitHubRepoName !== jsonObt.gitHub.repositoryName || jsonObt.botsDetails[0].gitHubRepoBranch !== jsonObt.gitHub.repositoryBranch) {
-                            botsDao.removeBotsByGitHubId(jsonObt.gitHub._id, function (err, data) {
+                            botDao.removeBotsByGitHubId(jsonObt.gitHub._id, function (err, data) {
                                 if (err) {
                                     logger.error("There are some error in deleting BOTs : ", err);
                                     callback(err, null);
@@ -636,7 +636,7 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                                     orgName:gitHubDetails.botSync.orgName,
                                                     source:"GitHub"
                                                 }
-                                                botsDao.getBotsByBotId(result.id,function(err,botsList){
+                                                botDao.getBotsByBotId(result.id,function(err,botsList){
                                                     if(err){
                                                         logger.error(err);
                                                         botObjList.push(err);
@@ -645,7 +645,7 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                                             return;
                                                         }
                                                     }else if(botsList.length > 0){
-                                                        botsDao.updateBotsDetail(botsList[0]._id,botsObj,function(err,updateBots){
+                                                        botDao.updateBotsDetail(botsList[0]._id,botsObj,function(err,updateBots){
                                                             if(err){
                                                                 logger.error(err);
                                                             }
@@ -656,7 +656,7 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                                             }
                                                         })
                                                     }else{
-                                                        botsDao.createNew(botsObj,function(err,data){
+                                                        botDao.createNew(botsObj,function(err,data){
                                                             if(err){
                                                                 logger.error(err);
                                                             }
@@ -693,7 +693,7 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
             }
         },
         function(botsDetails,next){
-            botsDao.getBotsByGitHubId(gitHubId,function(err,botsList){
+            botDao.getBotsByGitHubId(gitHubId,function(err,botsList){
                 if(err){
                     next(err,null);
                     return;
@@ -712,7 +712,7 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                                         return;
                                     }
                                 } else {
-                                    botsDao.removeBotsById(bots._id, function (err, data) {
+                                    botDao.removeBotsById(bots._id, function (err, data) {
                                         if (err) {
                                             logger.error("Error in Deleting BOTs . ", err);
                                         }
@@ -757,7 +757,7 @@ botsNewService.getBotsHistory = function getBotsHistory(botId,botsQuery,callback
         },
         function(queryObj, next) {
             queryObj.queryObj.auditId = botId;
-            queryObj.queryObj.auditType = 'BOTsNew';
+            queryObj.queryObj.auditType = 'BOTOLD';
             auditTrail.getAuditTrailList(queryObj,next)
         },
         function(auditTrailList, next) {
@@ -777,12 +777,12 @@ botsNewService.getBotsHistory = function getBotsHistory(botId,botsQuery,callback
 botsNewService.getParticularBotsHistory = function getParticularBotsHistory(botId,historyId,callback){
     async.waterfall([
         function(next){
-            botsDao.getBotsById(botId,next);
+            botDao.getBotsById(botId,next);
         },
         function(bots,next){
             if(bots.length > 0) {
                 var query = {
-                    auditType: 'BOTsNew',
+                    auditType: 'BOTOLD',
                     auditId: botId,
                     actionLogId: historyId
                 };
@@ -807,7 +807,7 @@ botsNewService.getParticularBotsHistory = function getParticularBotsHistory(botI
 botsNewService.getParticularBotsHistoryLogs= function getParticularBotsHistoryLogs(botId,historyId,timestamp,callback){
     async.waterfall([
         function(next){
-            botsDao.getBotsById(botId,next);
+            botDao.getBotsById(botId,next);
         },
         function(bots,next){
             if(bots.length > 0) {
@@ -832,14 +832,14 @@ botsNewService.getParticularBotsHistoryLogs= function getParticularBotsHistoryLo
 botsNewService.updateLastBotExecutionStatus= function updateLastBotExecutionStatus(botId,status,callback){
     async.waterfall([
         function(next){
-            botsDao.getBotsById(botId,next);
+            botDao.getBotsById(botId,next);
         },
         function(bots,next){
             if(bots.length > 0) {
                 var botObj = {
                     lastExecutionStatus:status
                 }
-                botsDao.updateBotsDetail(botId,botObj,next);
+                botDao.updateBotsDetail(botId,botObj,next);
             }else{
                 next({code:400, message:"Bots is not exist in DB"},null)
             }
@@ -929,7 +929,7 @@ function addYmlFileDetailsForBots(bots,reqData,callback){
                         }
                     })
                 }else{
-                    botsDao.getBotsById(bot.auditId, function (err, botDetails) {
+                    botDao.getBotsById(bot.auditId, function (err, botDetails) {
                         if (err) {
                             logger.error("Error in fetching BOT Details for _id: " + bot.auditId + " " + err);
                         }else {

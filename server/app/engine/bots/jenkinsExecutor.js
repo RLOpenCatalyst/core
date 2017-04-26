@@ -35,7 +35,7 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                 "endedOn": new Date().getTime(),
                 "actionLogId": reqBody.jenkinsServerId
             };
-            auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+            auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
                 if (err) {
                     logger.error("Failed to create or update bots Log: ", err);
                 }
@@ -61,7 +61,7 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                 "endedOn": new Date().getTime(),
                 "actionLogId": reqBody.jenkinsServerId
             };
-            auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+            auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
                 if (err) {
                     logger.error("Failed to create or update bots Log: ", err);
                 }
@@ -99,7 +99,7 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                         "auditTrailConfig.jenkinsJobName":reqBody.jobName,
                         "auditTrailConfig.jobResultURL":reqBody.jobResultURL
                     };
-                    auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+                    auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
                         if (err) {
                             logger.error("Failed to create or update bots Log: ", err);
                         }
@@ -141,7 +141,7 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                                 "auditTrailConfig.jenkinsJobName":reqBody.jobName,
                                 "auditTrailConfig.jobResultURL":reqBody.jobResultURL
                             };
-                            auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+                            auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
                                 if (err) {
                                     logger.error("Failed to create or update bots Log: ", err);
                                 }
@@ -174,7 +174,7 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                                     "auditTrailConfig.jenkinsJobName":reqBody.jobName,
                                     "auditTrailConfig.jobResultURL":reqBody.jobResultURL
                                 };
-                                auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+                                auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
                                     if (err) {
                                         logger.error("Failed to create or update bots Log: ", err);
                                     }
@@ -211,7 +211,7 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                                             "auditTrailConfig.jenkinsJobName":reqBody.jobName,
                                             "auditTrailConfig.jobResultURL":reqBody.jobResultURL
                                         };
-                                        auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+                                        auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
                                             if (err) {
                                                 logger.error("Failed to create or update bots Log: ", err);
                                             }
@@ -241,7 +241,7 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                                                         "auditTrailConfig.jenkinsJobName":reqBody.jobName,
                                                         "auditTrailConfig.jobResultURL":reqBody.jobResultURL
                                                     };
-                                                    auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+                                                    auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
                                                         if (err) {
                                                             logger.error("Failed to create or update bots Log: ", err);
                                                         }
@@ -274,13 +274,13 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                                                             "auditTrailConfig.jobResultURL":reqBody.jobResultURL
                                                         };
 
-                                                        auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+                                                        auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
                                                             if (err) {
                                                                 logger.error("Failed to create or update bots Log: ", err);
                                                             }
                                                         });
                                                         var botService = require('_pr/services/botsService');
-                                                        botService.updateSavedTimePerBots(jenkinsBotDetails._id, 'BOTsNew', function (err, data) {
+                                                        botService.updateSavedTimePerBots(jenkinsBotDetails._id, 'BOT', function (err, data) {
                                                             if (err) {
                                                                 logger.error("Failed to update bots saved Time: ", err);
                                                             }
@@ -324,7 +324,7 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                                     "auditTrailConfig.jenkinsJobName":reqBody.jobName,
                                     "auditTrailConfig.jobResultURL":reqBody.jobResultURL
                                 };
-                                auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+                                auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
                                     if (err) {
                                         logger.error("Failed to create or update bots Log: ", err);
                                     }
@@ -361,7 +361,7 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                                             "auditTrailConfig.jenkinsJobName":reqBody.jobName,
                                             "auditTrailConfig.jobResultURL":reqBody.jobResultURL
                                         };
-                                        auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+                                        auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
                                             if (err) {
                                                 logger.error("Failed to create or update bots Log: ", err);
                                             }
@@ -391,7 +391,7 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                                                         "auditTrailConfig.jenkinsJobName":reqBody.jobName,
                                                         "auditTrailConfig.jobResultURL":reqBody.jobResultURL
                                                     };
-                                                    auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+                                                    auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
                                                         if (err) {
                                                             logger.error("Failed to create or update bots Log: ", err);
                                                         }
@@ -423,13 +423,13 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                                                             "auditTrailConfig.jenkinsJobName":reqBody.jobName,
                                                             "auditTrailConfig.jobResultURL":reqBody.jobResultURL
                                                         };
-                                                        auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+                                                        auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
                                                             if (err) {
                                                                 logger.error("Failed to create or update bots Log: ", err);
                                                             }
                                                         });
                                                         var botService = require('_pr/services/botsService');
-                                                        botService.updateSavedTimePerBots(jenkinsBotDetails._id, 'BOTsNew', function (err, data) {
+                                                        botService.updateSavedTimePerBots(jenkinsBotDetails._id, 'BOT', function (err, data) {
                                                             if (err) {
                                                                 logger.error("Failed to update bots saved Time: ", err);
                                                             }
@@ -468,7 +468,7 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                         "auditTrailConfig.jenkinsJobName":reqBody.jobName,
                         "auditTrailConfig.jobResultURL":reqBody.jobResultURL
                     };
-                    auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+                    auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
                         if (err) {
                             logger.error("Failed to create or update bots Log: ", err);
                         }

@@ -80,7 +80,7 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
                                         log: 'BOT execution has failed for Script BOTs  ' + botsDetails.id +" on Remote",
                                         timestamp: new Date().getTime()
                                     });
-                                    auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+                                    auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
                                         if (err) {
                                             logger.error("Failed to create or update bots Log: ", err);
                                         }
@@ -100,12 +100,12 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
                                         log: 'BOT has been executed successfully for Script BOTs  ' + botsDetails.id +" on Remote",
                                         timestamp: new Date().getTime()
                                     });
-                                    auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+                                    auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
                                         if (err) {
                                             logger.error("Failed to create or update bots Log: ", err);
                                         }
                                         var botService = require('_pr/services/botsService');
-                                        botService.updateSavedTimePerBots(botsDetails._id, 'BOTsNew', function (err, data) {
+                                        botService.updateSavedTimePerBots(botsDetails._id, 'BOT', function (err, data) {
                                             if (err) {
                                                 logger.error("Failed to update bots saved Time: ", err);
                                             }
@@ -211,7 +211,7 @@ function executeChefOnLocal(botsChefDetails,auditTrail,userName,botHostDetails,c
                                     "endedOn": new Date().getTime(),
                                     "actionLogId": actionId
                                 };
-                                auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+                                auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
                                     if (err) {
                                         logger.error("Failed to create or update bots Log: ", err);
                                     }
@@ -251,13 +251,13 @@ function executeChefOnLocal(botsChefDetails,auditTrail,userName,botHostDetails,c
                                     "endedOn": new Date().getTime(),
                                     "actionLogId": actionId
                                 };
-                                auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+                                auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
                                     if (err) {
                                         logger.error("Failed to create or update bots Log: ", err);
                                     }
                                     logger.debug(botsChefDetails.id + " BOT execution has Done");
                                     var botService = require('_pr/services/botsService');
-                                    botService.updateSavedTimePerBots(botsChefDetails._id, 'BOTsNew', function (err, data) {
+                                    botService.updateSavedTimePerBots(botsChefDetails._id, 'BOT', function (err, data) {
                                         if (err) {
                                             logger.error("Failed to update bots saved Time: ", err);
                                         }
@@ -299,7 +299,7 @@ function executeChefOnLocal(botsChefDetails,auditTrail,userName,botHostDetails,c
                                 "actionLogId": actionId
                             };
                             timer.stop();
-                            auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+                            auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
                                 if (err) {
                                     logger.error("Failed to create or update bots Log: ", err);
                                 }
@@ -333,7 +333,7 @@ function executeChefOnLocal(botsChefDetails,auditTrail,userName,botHostDetails,c
                         "endedOn": new Date().getTime(),
                         "actionLogId": actionId
                     };
-                    auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+                    auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
                         if (err) {
                             logger.error("Failed to create or update bots Log: ", err);
                         }
