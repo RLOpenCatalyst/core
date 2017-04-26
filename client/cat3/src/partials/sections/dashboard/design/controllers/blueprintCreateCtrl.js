@@ -464,7 +464,7 @@
             blueprintCreation.getChefServer = function() {
                 bpCreateSer.getChefServer().then(function(data){
                     for(var i =0;i<data.length;i++){
-                        if(blueprintCreation.newEnt.orgList === data[i].orgname_rowid[0]){
+                        if($rootScope.organObject[blueprintCreation.newEnt.orgList].rowid === data[i].orgname_rowid[0]){
                             $scope.getChefServerId = data[i].rowid;
                         }
                     }

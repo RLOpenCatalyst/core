@@ -1,29 +1,87 @@
 <div id="editParamsPage" ng-controller="editParamsCtrl">
 	<form class="container summary-container" name="editParamsForm" novalidate ng-submit="editParamsForm.$valid && executeBot()">
 		<fieldset id="botExecution">
+         <div ng-if="botType ==='jenkins'" class="param-table bot-info-wrapper marginbottom15">
+            <div class="col-lg-6 col-md-6 col-sm-12">
+            <label class="botsLabel" for="">Select Jenkins Server:&nbsp;</label>
+               <select class="form-controlSelect" name="serverName" ng-model="$parent.jenkinsServerSelect" required>
+                  <option value="">Select Server</option>
+                  <option value="{{jeninsServer.id}}" ng-repeat="jeninsServer in jenkinsServerList">{{jeninsServer.name}}</option>
+               </select>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-12">
+            <label class="botsLabel" for="">Job Name:&nbsp;</label>
+               <input class="form-controlSelect" value="{{jobName}}" disabled/>
+            </div>
+               <div class="add-job-parameters margintop15 col-lg-12 col-md-12" ng-show="showParametersForJenkins">
+                  <label class="pull-left botsLabel">Parameterized Build Data
+                  </label>
+                     <span>
+                        <a class="cursor" title="Add Parameters" ng-click="addJenkinsParams('new')">&nbsp;&nbsp;Add Parameters</a>
+                     </span>
+                     <table ng-if="jenkinsParamsList.length>0" class="table table-striped table-bordered table-hover dataTable no-footer">
+                        <thead>
+                        <tr class="paramRow" role="row">
+                           <td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Name">Name</td>
+                           <td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Job Description">Type
+                           </td>
+                           <td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Job Links">Value</td>
+                           <td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Execute">Description</td>
+                           <td class="sorting_disabled" rowspan="1" colspan="1" aria-label="History">Action</td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="params in jenkinsParamsList">
+                           <td>{{params.name}}</td>
+                           <td>{{params.parameterName}}</td>
+                           <td>{{params.defaultValue}}</td>
+                           <td>{{params.description}}</td>
+                           <td><button type="button" class="fa fa-trash-o btn btn-danger pull-left btn-sg tableactionbutton btnDeleteTask white marginleft10 ng-scope" ng-click="removeJenkinsParams(params);"></button></td>
+                        </tr>
+                        </tbody>
+                     </table>
+               </div>
+         </div>
 			<div ng-if="botType ==='script'" class="scriptExecution param-table bot-info-wrapper">
-		         <table class="table table-bordered">
-		            <thead>
-		               <tr class="paramRow">
-		                  <th class="th-parameters">Label</th>
-		                  <th class="th-values">Type</th>
-		                  <th class="th-values">Default</th>
-		               </tr>
-		            </thead>
-		            <tbody>
-		               <tr ng-repeat = "(key,value) in botInfo.inputFormFields">
-		                  <td>{{value.label}}</td>
-		                  <td>{{value.type}}</td>
-		                  <td ng-init="botEditParams[value.name] = value.default" style="text-align: left">
-			                	<input ng-if="value.type==='text'" type="text" class="width100 cookbook-edit-text" ng-model="botEditParams[value.name]"/>
-			                	<input ng-if="value.type==='password'" type="password" class="width100 cookbook-edit-text" ng-model="botEditParams[value.name]"/>
-			               </td>
-		               </tr>
-		            </tbody>
-		         </table>
-      		</div>
+	         <table class="table table-bordered">
+	            <thead>
+	               <tr class="paramRow">
+	                  <th class="th-parameters">Label</th>
+	                  <th class="th-values">Type</th>
+	                  <th class="th-values">Default</th>
+	               </tr>
+	            </thead>
+	            <tbody>
+	               <tr ng-repeat = "(key,value) in botInfo.inputFormFields">
+	                  <td>{{value.label}}</td>
+	                  <td>{{value.type}}</td>
+	                  <td ng-init="botEditParams[value.name] = value.default" style="text-align: left">
+		                	<input ng-if="value.type==='text'" type="text" class="width100 cookbook-edit-text" ng-model="botEditParams[value.name]"/>
+		                	<input ng-if="value.type==='password'" type="password" class="width100 cookbook-edit-text" ng-model="botEditParams[value.name]"/>
+		               </td>
+	               </tr>
+	            </tbody>
+	         </table>
+      	</div>
             <div class="margintop-7" ng-if="botType ==='script'"><input type="checkbox" ng-model="scriptSelectForRemote.flag" ng-click="botStatus()"/><span>&nbsp;Do you want to execute on Remote Server?</span></div>
       		<div ng-if="botType ==='chef' || botType === 'blueprints' || botType === 'blueprint' || botType === 'script'" ng-show="botCheck" class="chefExecution">
+            <div ng-if="botType ==='chef'" ng-show="showAttributeList" class="param-table">
+               <table class="table table-bordered">
+                  <thead>
+                     <tr class="paramRow">
+                        <th class="th-parameters">Label</th>
+                        <th class="th-values">Default</th>
+                     </tr>
+                  </thead>
+                  <tbody ng-repeat = "attributes in attributeList">
+                     <tr ng-repeat ="(key,value) in attributes">
+                        <td>{{key}}</td>
+                        <td><input type="text" class="width100 cookbook-edit-text" ng-model="attributes[key]"/>
+                        </td> 
+                     </tr>
+                  </tbody>
+               </table>
+            </div>
             <fieldset id="editParamPage">
             <legend>Remote Machine</legend><br>
       		<div class="col-lg-6 col-md-6 col-sm-12 margintopBottom">
@@ -104,13 +162,13 @@
 		   <div class="clearfix"></div>
          </fieldset>
       	</div>
-      	<div class="alert alert-info text-center" ng-if="botType === 'UI' || botType ==='jenkins'">
+      	<div class="alert alert-info text-center" ng-if="botType === 'UI'">
  	          Under Construction
  	      </div>
 		</fieldset>
    </form>
 	<div id="botEditFooter" class="pager margintop-5">
-		<button type="button" ng-if="botType === 'script' || botType ==='chef'" class="marginright29 btn cat-btn-update" ng-disabled="scriptSelectForRemote.flag && selectedInstanceList.length <= 0 || botType ==='chef' && selectedInstanceList.length <= 0" ng-click="executeBot('instance')">
+		<button type="button" ng-if="botType !== 'UI'" class="marginright29 btn cat-btn-update" ng-disabled="scriptSelectForRemote.flag && selectedInstanceList.length <= 0 || botType ==='chef' && selectedInstanceList.length <= 0 || botType ==='jenkins' && editParamsForm.$invalid" ng-click="executeBot('instance')">
 			<i class="fa fa-check white"></i> Execute
 		</button>
       <button type="button" ng-if="botType ==='blueprints'" class="marginright29 btn cat-btn-update" ng-disabled="selectedBlueprintList.length <= 0" ng-click="executeBot('blueprints')">

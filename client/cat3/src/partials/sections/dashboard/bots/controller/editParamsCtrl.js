@@ -8,7 +8,7 @@
 (function (angular) {
     "use strict";
     angular.module('library.params', [])
-        .controller('editParamsCtrl',['$scope', '$rootScope', '$state', 'genericServices', 'botsCreateService', 'toastr', '$modal', function ($scope, $rootScope, $state, genSevs, botsCreateService, toastr, $modal) {
+        .controller('editParamsCtrl',['$scope', '$rootScope', '$state', 'responseFormatter', 'genericServices', 'botsCreateService', 'toastr', '$modal', function ($scope, $rootScope, $state, responseFormatter, genSevs, botsCreateService, toastr, $modal) {
             var items;
 
             $rootScope.$on('BOTS_TEMPLATE_SELECTED', function(event,reqParams) {
@@ -31,16 +31,27 @@
             $scope.originalBlueprintList = [];
             $scope.selectedBlueprintIds = [];
             $scope.selectedBlueprintList = [];
+            $scope.jenkinsParamsList = [];
             $scope.executeTaskForSave = false;
+            $scope.jenkinsServerSelect = '';
             $scope.hideRightButton = true;
+            $scope.showAttributeList = false;
+            $scope.jobName = items.inputFormFields[1].default;
             $scope.scriptSelectForRemote = {
                 flag: false
             };
+            $scope.jenkinsShowParam = {
+                flag: false
+            }
 
             if($scope.botType === 'chef' || $scope.botType === 'blueprints') {
                 $scope.botCheck = true;
             } else if($scope.botType === 'script') {
                 $scope.botCheck = false;
+            }
+
+            if($scope.botType ==='jenkins' && items.isParameterized === true) {
+                $scope.showParametersForJenkins = true;
             }
 
             $scope.botStatus = function() {
@@ -50,6 +61,29 @@
                 }else{
                     $scope.botCheck = false;
                 }
+            };
+
+            if($scope.botType ==='chef') {
+                
+                for(var i=0;i<items.execution.length;i++) {
+                    if('attributes' in items.execution[i] && items.execution[i].attributes !== null) {
+                        $scope.showAttributeList = true;
+                        $scope.attributeList = items.execution[i].attributes;
+                    }
+                }
+            }
+
+            $scope.addJenkinsParams = function () {
+                $modal.open({
+                    templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/addJenkinsParams.html',
+                    controller: 'addJenkinsParamsCtrl',
+                    backdrop: 'static',
+                    keyboard: false
+                }).result.then(function (addJenkinsParams) {
+                    $scope.jenkinsParamsList.push(addJenkinsParams);
+                }, function () {
+                    console.log('Dismiss time is ' + new Date());
+                });
             };
 
             if($rootScope.organObject && $rootScope.organObject[0].businessGroups &&  $rootScope.organObject[0].businessGroups.length > 0
@@ -64,29 +98,52 @@
             }
 
             $scope.getInstanceList = function() {
-                botsCreateService.getCurrentOrgInstances($scope.IMGNewEnt.org.orgid).then(function(response){
-                    $scope.originalInstanceList=[];
-                    if(response.instances){
-                        angular.forEach(response.instances, function(value) {
-                            if($scope.selectedInstanceIds.indexOf(value._id) === -1) {
-                                $scope.originalInstanceList.push(value);
-                            }
-                        });
-                    }
-                });
+                if($scope.IMGNewEnt){
+                    botsCreateService.getCurrentOrgInstances($scope.IMGNewEnt.org.orgid).then(function(response){
+                        $scope.originalInstanceList=[];
+                        if(response.instances){
+                            angular.forEach(response.instances, function(value) {
+                                if($scope.selectedInstanceIds.indexOf(value._id) === -1) {
+                                    $scope.originalInstanceList.push(value);
+                                }
+                            });
+                        }
+                    });
+                }
             };
 
             $scope.getBlueprintList = function() {
-                botsCreateService.getBlueprintList($scope.IMGNewEnt.org.orgid,$scope.IMGNewEnt.blueprintType).then(function(response){
-                    $scope.originalBlueprintList=[];
-                    if(response.blueprints){
-                        angular.forEach(response.blueprints, function(value) {
-                            if($scope.selectedBlueprintIds.indexOf(value._id) === -1) {
-                                $scope.originalBlueprintList.push(value);
-                            }
-                        });
+                if($scope.IMGNewEnt){
+                    botsCreateService.getBlueprintList($scope.IMGNewEnt.org.orgid,$scope.IMGNewEnt.blueprintType).then(function(response){
+                        $scope.originalBlueprintList=[];
+                        if(response.blueprints){
+                            angular.forEach(response.blueprints, function(value) {
+                                if($scope.selectedBlueprintIds.indexOf(value._id) === -1) {
+                                    $scope.originalBlueprintList.push(value);
+                                }
+                            });
+                        }
+                    });
+                }
+            };
+
+            //get jenkins server list 
+            $scope.getJenkinsList =  function() {
+                botsCreateService.getJenkinsServerDetails().then(function(response){
+                    var data;
+                    if (response.data) {
+                        data = response.data;
+                    } else {
+                        data = response;
                     }
+                    $scope.jenkinsServerList = responseFormatter.formatJenkinsServerList(data);
                 });
+            };
+
+            //to delete jenkins params
+            $scope.removeJenkinsParams =  function (params) {
+                var idx = $scope.jenkinsParamsList.indexOf(params);
+                $scope.jenkinsParamsList.splice(idx,1);
             };
 
             $scope.addInstanceBP = function (indexArr,type) {
@@ -149,25 +206,29 @@
 
             $scope.botExecuteMethod = function(itemsId,reqBody) {
                 botsCreateService.botExecute(itemsId,reqBody).then(function (response) {
+                    if($scope.botType === 'jenkins') {
+                        genSevs.showLogsForJenkins(response);
+                    } else {
                         genSevs.showLogsForBots(response);
-                        $rootScope.$emit('BOTS_LIBRARY_REFRESH');
-                        botsCreateService.getBOTDetails(itemsId).then(function(response){
-                            for(var i=0;i<response.bots.length;i++) {
-                                var botObj = response.bots[i];
-                                $rootScope.$emit('BOTS_DESCRIPTION_REFRESH', botObj);
-                            }
-                        });
-                    },
-                    function (error) {
-                        if(error) {
-                            error = error.responseText || error;
-                            if (error.message) {
-                                toastr.error(error.message);
-                            } else {
-                                toastr.error(error);
-                            }
+                    }
+                    $rootScope.$emit('BOTS_LIBRARY_REFRESH');
+                    botsCreateService.getBOTDetails(itemsId).then(function(response){
+                        for(var i=0;i<response.bots.length;i++) {
+                            var botObj = response.bots[i];
+                            $rootScope.$emit('BOTS_DESCRIPTION_REFRESH', botObj);
                         }
                     });
+                },
+                function (error) {
+                    if(error) {
+                        error = error.responseText || error;
+                        if (error.message) {
+                            toastr.error(error.message);
+                        } else {
+                            toastr.error(error);
+                        }
+                    }
+                });
             };
 
             $scope.executeBot = function(type){
@@ -183,9 +244,18 @@
                     } else if($scope.botType === 'chef') {
                         if($scope.selectedInstanceIds.length>0) {
                             reqBody.nodeIds = $scope.selectedInstanceIds;
+                            reqBody.attributes = $scope.attributeList;
                         } else {
                             return false;
                         }
+                    } else if($scope.botType === 'jenkins') {
+                        var jenkinsData = {
+                            jenkinsServerId:$scope.jenkinsServerSelect,
+                            jobName:items.inputFormFields[1].default,
+                            jobURL:items.inputFormFields[2].default
+                        };
+                        reqBody.data = jenkinsData;
+                        reqBody.parameterized = $scope.jenkinsParamsList;
                     }
                     $scope.botExecuteMethod(items.id,reqBody);
                 } else if (type === 'blueprints') {
@@ -220,13 +290,12 @@
                 $modalInstance.dismiss('cancel');
             };
 
-            $scope.init = function() {
-                if($scope.botType === 'chef') {
-                    $scope.getInstanceList();
-                } else if($scope.botType === 'blueprints') {
-                    $scope.getBlueprintList();
-                }
-            };
-            $scope.init();
+            if($scope.botType === 'chef') {
+                $scope.getInstanceList();
+            } else if($scope.botType === 'blueprints') {
+                $scope.getBlueprintList();
+            } else if($scope.botType === 'jenkins') {
+                $scope.getJenkinsList();
+            }
         }]);
 })(angular);

@@ -103,7 +103,23 @@
 					data: reqBody
 				};
 				return genericServices.promisePost(params);
-			}
-			
+			};
+
+			botService.getJenkinsServerDetails = function() {
+				var params = {
+					url: '/jenkins',
+					inlineLoader: true
+				};
+				return genericServices.promiseGet(params);
+			};
+
+			botService.getJenkinsLogs = function(taskId, jobname, buildNumber) {
+				var params = {
+					url: '/jenkins/' + taskId + '/jobs/' + jobname + '/builds/' +
+						buildNumber + '/output',
+					inlineLoader: true
+				}
+				return genericServices.promiseGet(params);
+			};
         }]);
 })(angular);

@@ -1,0 +1,24 @@
+<div id='orchestrationLogPage'>
+    <div class="modal-header">
+        <span class="close" ng-click="cancel()">×</span>
+        <h4 class="modal-title">
+            <i class="fa fa-eraser"></i>
+            Execute Logs
+        </h4>
+    </div>
+
+    <div class="modal-body">
+        <fieldset>
+            <loading size="large" name="isJenkinsLogLoading" type="block" align="center"></loading>
+			<div ng-show="!isJenkinsLogLoading" class="logsArea">
+				<p ng-bind-html="logs.output"></p>
+			</div>
+        </fieldset>
+    </div>
+    
+    <div class="modal-footer">
+        <button type="button" class="btn cat-btn-cancel" ng-click="cancel();">
+            <i class="fa fa-times black"></i> Close
+        </button>
+    </div>
+</div>

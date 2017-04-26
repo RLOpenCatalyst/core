@@ -890,11 +890,15 @@ function addYmlFileDetailsForBots(bots,reqData,callback){
                         isScheduled: bot.isScheduled,
                         manualExecutionTime: bot.manualExecutionTime,
                         executionCount: bot.executionCount,
+                        execution: bot.execution,
                         scheduler: bot.scheduler,
                         createdOn: bot.createdOn,
                         lastRunTime: bot.lastRunTime,
                         savedTime: bot.savedTime,
                         source:bot.source
+                    }
+                    if(bot.type === 'jenkins') {
+                        botsObj.isParameterized = bot.isParameterized;
                     }
                     botsList.push(botsObj);
                     if (botsList.length === bots.docs.length) {

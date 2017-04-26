@@ -10,7 +10,6 @@
     angular.module('dashboard.bots')
     .controller('libraryCtrl',['$scope', '$rootScope', 'moment', '$state', 'genericServices','$filter', 'confirmbox', 'toastr', 'workzoneUIUtils', '$modal', 'uiGridOptionsService', '$timeout', 'botsCreateService', function ($scope, $rootScope, moment, $state, genSevs, $filter, confirmbox, toastr, workzoneUIUtils, $modal, uiGridOptionsService, $timeout, botsCreateService) {
 
-        $rootScope.onBodyLoading = false;
         var treeNames = ['BOTs','Library'];
         $rootScope.$emit('treeNameUpdate', treeNames);
         var lib=this;
@@ -31,6 +30,7 @@
         $scope.paginationParams.sortOrder = 'desc';
         $scope.botLibrarySearch = '';
         $scope.showOriginalSpinner = true;
+        $scope.noShowForServiceNow = true;
         $scope.showLoadRecord = function() {
             $scope.showLoadMore = false;
             $scope.showRecords = false;
@@ -60,6 +60,21 @@
             ];
             $scope.botLibGridOptions.data=[];
             angular.extend($scope.botLibGridOptions,botLibraryUIGridDefaults.gridOption);
+
+            $scope.botServiceNowLibGridOptions = {};
+            $scope.botServiceNowLibGridOptions.columnDefs = [
+                { name:'Ticket No.',displayName: 'Ticket No.',field:'srnTicketNo',cellTemplate:'<a target="_blank" href="{{row.entity.srnTicketLink}}">{{row.entity.srnTicketNo}}</a>',cellTooltip: true},
+                { name: 'Category',displayName: 'Category',field:'srnTicketCategory',cellTooltip: true},
+                { name: 'botName',displayName: 'BOT Name',field:'name',cellTemplate:'<a ui-sref="dashboard.bots.botsDescription({botDetail:row.entity,listType:1})">{{row.entity.name}}</a>',cellTooltip: true},
+                { name: 'Description',field:'srnTicketDesc',cellTooltip: true},
+                { name: 'Status',field:'srnTicketStatus',cellTooltip: true},
+                { name: 'Priority',field:'srnTicketPriority',cellTooltip: true},
+                { name: 'Created',field:'srnTicketCreatedOn ',cellTemplate:'<span title="{{row.entity.srnTicketCreatedOn  | timestampToLocaleTime}}">{{row.entity.srnTicketCreatedOn  | timestampToLocaleTime}}</span>', cellTooltip: true},
+                { name: 'Resolved',field:'srnTicketResolvedAt', cellTemplate:'<span title="{{row.entity.srnTicketResolvedAt  | timestampToLocaleTime}}">{{row.entity.srnTicketResolvedAt  | timestampToLocaleTime}}</span>', cellTooltip: true},
+                { name: 'Resolved By',field:'srnTicketResolvedBy'}
+            ];
+            $scope.botServiceNowLibGridOptions.data=[];
+            angular.extend($scope.botServiceNowLibGridOptions,botLibraryUIGridDefaults.gridOption);
         };
         $scope.initGrids();
         /*APIs registered are triggered as ui-grid is configured 
@@ -80,6 +95,28 @@
                     $scope.paginationParams.pageSize = pageSize;
                     $scope.currentCardPage = newPage;
                     $scope.botLibraryGridView();
+                });
+            }
+        });
+
+        /*APIs registered are triggered as ui-grid is configured 
+        for server side(external) pagination.*/
+        angular.extend($scope.botServiceNowLibGridOptions,botLibraryUIGridDefaults.gridOption, {
+            onRegisterApi :function(gridApi) {
+                $scope.gridApi = gridApi;
+                gridApi.core.on.sortChanged($scope, function(grid, sortColumns) {
+                    if (sortColumns[0] && sortColumns[0].field && sortColumns[0].sort && sortColumns[0].sort.direction) {
+                        $scope.paginationParams.sortBy = sortColumns[0].field;
+                        $scope.paginationParams.sortOrder = sortColumns[0].sort.direction;
+                        $scope.botServiceNowLibraryGridView();
+                    }
+                });
+                //Pagination for page and pageSize
+                gridApi.pagination.on.paginationChanged($scope, function(newPage, pageSize) {
+                    $scope.paginationParams.page = newPage;
+                    $scope.paginationParams.pageSize = pageSize;
+                    $scope.currentCardPage = newPage;
+                    $scope.botServiceNowLibraryGridView();
                 });
             }
         });
@@ -142,7 +179,30 @@
             $scope.botLibrarySearch = '';
         };
 
+        $scope.botServiceNowLibraryGridView = function() {
+            $scope.isBotDetailsLoading = true;
+            lib.gridOptions=[];
+            var param={
+                inlineLoader:true,
+                url:'src/partials/sections/dashboard/bots/serviceNow.json'
+            };
+            genSevs.promiseGet(param).then(function (result) {
+                $timeout(function() {
+                    $scope.showLoadRecord();
+                    $scope.botServiceNowLibGridOptions.data =  result.bots;
+                    $scope.isBotServiceNowPageLoading = false;
+                    $scope.isBotDetailsLoading = false;
+                }, 100);
+            }, function(error) {
+                $scope.isBotServiceNowPageLoading = false;
+                $scope.isBotDetailsLoading = false;
+                toastr.error(error);
+                $scope.errorMessage = "No Records found";
+            });
+        };
+
         $scope.botLibraryGridView = function() {
+            $rootScope.onBodyLoading = false;
             $scope.isBotDetailsLoading = true;
             lib.gridOptions=[];
             var param={
@@ -173,7 +233,6 @@
                     $scope.statusBar = "Showing " + ($scope.botLibGridOptions.data.length === 0 ? "0" : "1") + " to " + $filter('number')($scope.botLibGridOptions.data.length) + " of " + $filter('number')(result.metaData.totalRecords) + " entries";
                     $scope.isBotLibraryPageLoading = false;
                     $scope.isBotDetailsLoading = false;
-                    //$scope.filterBy();
                 }, 100);
             }, function(error) {
                 $scope.isBotLibraryPageLoading = false;
@@ -261,31 +320,6 @@
             $scope.botStatus();
         };
 
-        /*$scope.filterBy = function() {
-            if($scope.botLibFilter === 'botType') {
-                $scope.filterByBotType = true;
-                $scope.filterByTaskType = false;
-                $scope.filterByCategory = false;
-                $scope.subFilterBy = false;
-            } else if($scope.botLibFilter === 'taskType') {
-                $scope.filterByTaskType = true;
-                $scope.filterByBotType = false;
-                $scope.filterByCategory = false;
-                $scope.subFilterBy = false;
-            } else if($scope.botLibFilter === 'category') {
-                $scope.filterByCategory = true;
-                $scope.filterByBotType = false;
-                $scope.filterByTaskType = false;
-                $scope.subFilterBy = false;
-            } else {
-                $scope.subFilterBy = true;
-                $scope.filterByBotType = false;
-                $scope.filterByTaskType = false;
-                $scope.filterByCategory = false;
-                //$scope.showAllBots();
-            }
-        };*/
-
         $rootScope.applyFilter = function() {
             var param={};
             if ($scope.botLibAction) {
@@ -364,6 +398,8 @@
             }
         };
 
+
+
         var gridBottomSpace = 250;
         $scope.gridHeight = workzoneUIUtils.makeTabScrollable('botLibraryPage') - gridBottomSpace;
 
@@ -397,6 +433,7 @@
 
         $scope.RefreshBotsLibrary = function() {
             $scope.isBotDetailsLoading = true;
+            $scope.noShowForServiceNow = true;
             $scope.isBotLibraryPageLoading = true;
             $scope.showLoadMore = false;
             $scope.showRecords = false;
@@ -416,6 +453,7 @@
             $scope.botStatus();
         };
         $scope.showAllBots = function() {
+            $scope.noShowForServiceNow = true;
             $scope.clearSearchString();
             $scope.isBotLibraryPageLoading = true;
             $scope.botLibGridOptions.data = [];
@@ -425,9 +463,11 @@
             $scope.runningBotsselected = false;
             $scope.failedBotsselected = false;
             $scope.scheduledBotsSelected = false;
+            $scope.paginationParams.pageSize = 24;
             $scope.botLibraryGridView();
         };
         $scope.showBotsRunning = function(resetPage) {
+            $scope.noShowForServiceNow = true;
             $scope.clearSearchString();
             $scope.isBotLibraryPageLoading = true;
             $scope.showLoadRecord();
@@ -435,6 +475,7 @@
             $scope.totalBotsSelected = false;
             $scope.failedBotsselected = false;
             $scope.scheduledBotsSelected = false;
+            $scope.paginationParams.pageSize = 24;
             lib.gridOptions.data=[];
             if(resetPage){
                 $scope.botLibGridOptions.data = [];
@@ -459,6 +500,7 @@
             });
         };
         $scope.showFailedBots = function(resetPage) {
+            $scope.noShowForServiceNow = true;
             $scope.clearSearchString();
             $scope.isBotLibraryPageLoading = true;
             $scope.showLoadRecord();
@@ -466,6 +508,7 @@
             $scope.runningBotsselected = false;
             $scope.totalBotsSelected = false;
             $scope.scheduledBotsSelected = false;
+            $scope.paginationParams.pageSize = 24;
             lib.gridOptions.data=[];
             if(resetPage){
                 $scope.botLibGridOptions.data = [];
@@ -491,20 +534,22 @@
         };
         $scope.showScheduledBots = function(resetPage) {
             $scope.clearSearchString();
-           // lib.summary();
-            $scope.isBotLibraryPageLoading = true;
+            $scope.isBotServiceNowPageLoading = true;
             $scope.showLoadRecord();
             $scope.failedBotsselected = false;
             $scope.runningBotsselected = false;
             $scope.totalBotsSelected = false;
             $scope.scheduledBotsSelected = true;
+            $scope.noShowForServiceNow = false;
+            $scope.showForServiceNow = true;
+            $scope.paginationParams.pageSize = 10;
             lib.gridOptions.data=[];
-            if(resetPage){
+            /*if(resetPage){
                 $scope.botLibGridOptions.data = [];
                 $scope.paginationParams.page = 1;
                 $scope.botLibGridOptions.paginationCurrentPage = $scope.paginationParams.page;
-            }
-            var param={
+            }*/
+            /*var param={
                 inlineLoader:true,
                 url:'/botsNew?serviceNowCheck=true&page=' + $scope.botLibGridOptions.paginationCurrentPage +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
             };
@@ -519,7 +564,8 @@
                 }
                 $scope.botsDetails(result);
                 $scope.statusBar = "Showing " + ($scope.botLibGridOptions.data.length === 0 ? "0" : "1") + " to " + $filter('number')($scope.botLibGridOptions.data.length) + " of " + $filter('number')(result.metaData.totalRecords) + " entries";
-            });
+            });*/
+            $scope.botServiceNowLibraryGridView();
         };
         
         $scope.setCardView();
