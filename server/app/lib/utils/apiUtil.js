@@ -182,33 +182,25 @@ var ApiUtil = function() {
     };
 
     this.changeRequestForJqueryPagination=function(req,callback){
-       var reqObj = {};
-
-        if('order' in req) {
-            var columnIndex = parseInt(req.order[0].column);
-        }
-
+        var reqObj = {};
         if ('draw' in req) {
             reqObj = {
-                'pageSize': req.length,
-                'page': req.start === 0 ? 1 : Math.ceil(req.start / req.length) + 1,
+                'pageSize': req.pageSize,
+                'page': req.page,
                 'draw': req.draw,
-                'filterBy': req.filterBy,
-                'sortOrder': req.order[0].dir,
-                'sortBy': req.columns[columnIndex].data
+                'sortOrder': req.sortOrder,
+                'sortBy': req.sortBy
             }
         }
-
-        if(('search' in req) && req.search.value !== ''){
-         reqObj['search'] =   req.search.value;
+        if(('search' in req) && (req.search !== '' || req.search !== null)){
+            reqObj['search'] =   req.search;
         }
-
         if('filterBy' in req){
             reqObj['filterBy'] =   req.filterBy;
         }
-
         callback(null,reqObj);
     };
+    
     this.paginationRequest=function(data,key, callback) {
         var pageSize,page;
         if(data.pageSize) {
