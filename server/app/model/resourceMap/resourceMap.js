@@ -114,6 +114,17 @@ resourceMapSchema.statics.getAllResourceMapByFilter = function getAllResourceMap
     });
 };
 
+resourceMapSchema.statics.deleteAllResourcesByFilter = function deleteAllResourcesByFilter(filterQueryObj, callback) {
+    resourceMap.update(filterQueryObj,{$set:{stackStatus:"DELETED"}},{multi:true},function (err, resourceMapObj) {
+        if (err) {
+            logger.error(err);
+            return callback(err, null);
+        } else {
+            return callback(null, resourceMapObj);
+        }
+    });
+};
+
 
 var resourceMap = mongoose.model('resourceMap', resourceMapSchema);
 module.exports = resourceMap;
