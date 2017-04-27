@@ -21,8 +21,6 @@ var mongoose = require('mongoose');
 var extend = require('mongoose-schema-extend');
 var ObjectId = require('mongoose').Types.ObjectId;
 var CHEFInfraBlueprint = require('../chef-infra-manager/chef-infra-manager');
-
-
 var instancesDao = require('_pr/model/classes/instance/instance');
 var logsDao = require('_pr/model/dao/logsdao.js');
 var Docker = require('_pr/model/docker.js');
@@ -37,9 +35,7 @@ var VMImage = require('_pr/model/classes/masters/vmImage.js');
 var fs = require('fs');
 var instanceLogModel = require('_pr/model/log-trail/instanceLog.js');
 var auditTrailService = require('_pr/services/auditTrailService');
-
 var Schema = mongoose.Schema;
-
 var CLOUD_PROVIDER_TYPE = {
     AWS: 'aws',
     AZURE: 'azure'
@@ -51,6 +47,7 @@ var INFRA_MANAGER_TYPE = {
 };
 
 var azureInstanceBlueprintSchema = new Schema({
+    _id:false,
     cloudProviderType: {
         type: String,
         required: true,
@@ -83,22 +80,28 @@ var azureInstanceBlueprintSchema = new Schema({
     },
     instanceType: {
         type: String,
-        //  required: true
+        required: false,
+        trim: true
     },
     instanceOS: {
         type: String,
-        // required: true
+        required: false,
+        trim: true
     },
     instanceCount: {
         type: String,
+        required: false,
+        trim: true
     },
     instanceAmiid: {
         type: String,
-        //  required: true
+        required: false,
+        trim: true
     },
     imageId: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
     cloudProviderData: Schema.Types.Mixed,
     infraMangerType: String,

@@ -39,13 +39,13 @@ var azureCloud = require('_pr/lib/azure');
 var fs = require('fs');
 var providerService = require('_pr/services/providerService.js');
 var taskService = require('_pr/services/taskService.js');
-var botsService = require('_pr/services/botsService.js');
-var botsNewService = require('_pr/services/botsNewService.js');
+var botOldService = require('_pr/services/botOldService.js');
+var botService = require('_pr/services/botService.js');
 var gcpProviderModel = require('_pr/model/v2.0/providers/gcp-providers');
 var GCP = require('_pr/lib/gcp.js');
 var crontab = require('node-crontab');
-var botsDao = require('_pr/model/bots/1.0/bots.js');
-var newBotsDao = require('_pr/model/bots/1.1/botsDao.js');
+var botOld = require('_pr/model/bots/1.0/botOld.js');
+var botDao = require('_pr/model/bots/1.1/bot.js');
 var logsDao = require('_pr/model/dao/logsdao.js');
 var auditTrailService = require('_pr/services/auditTrailService.js');
 
@@ -166,7 +166,7 @@ schedulerService.executeNewScheduledBots = function executeNewScheduledBots(bots
     var currentDate = new Date().getTime();
     if(currentDate >= bots.scheduler.cronEndOn){
         crontab.cancelJob(bots.cronJobId);
-        newBotsDao.updateBotsScheduler(bots._id,function(err, updatedData) {
+        botDao.updateBotsScheduler(bots._id,function(err, updatedData) {
             if (err) {
                 logger.error("Failed to update Bots Scheduler: ", err);
                 callback(err,null);
@@ -178,12 +178,12 @@ schedulerService.executeNewScheduledBots = function executeNewScheduledBots(bots
         });
     }else{
         var cronJobId = cronTab.scheduleJob(bots.scheduler.cronPattern, function () {
-            newBotsDao.updateCronJobIdByBotId(bots._id,cronJobId,function(err,data){
+            botDao.updateCronJobIdByBotId(bots._id,cronJobId,function(err,data){
                 if(err){
                     logger.error("Error in updating cron job Ids. "+err);
                 }
             });
-            botsNewService.executeBots(bots.id,null,'system','bots-console',true,function (err, historyData) {
+            botService.executeBots(bots.id,null,'system','bots-console',true,function (err, historyData) {
                 if (err) {
                     logger.error("Failed to execute New Bots.", err);
                     return;
@@ -200,7 +200,7 @@ schedulerService.executeScheduledBots = function executeScheduledBots(bots,callb
     var currentDate = new Date().getTime();
     if(currentDate >= bots.botScheduler.cronEndOn){
         crontab.cancelJob(bots.cronJobId);
-        botsDao.updateBotsScheduler(bots._id,function(err, updatedData) {
+        botOld.updateBotsScheduler(bots._id,function(err, updatedData) {
             if (err) {
                 logger.error("Failed to update Bots Scheduler: ", err);
                 callback(err,null);
@@ -212,13 +212,13 @@ schedulerService.executeScheduledBots = function executeScheduledBots(bots,callb
         });
     }else{
         var cronJobId = cronTab.scheduleJob(bots.botScheduler.cronPattern, function () {
-            botsDao.updateCronJobIdByBotId(bots._id,cronJobId,function(err,data){
+            botOld.updateCronJobIdByBotId(bots._id,cronJobId,function(err,data){
                 if(err){
                     logger.error("Error in updating cron job Ids. "+err);
                 }
             })
             if(bots.botLinkedCategory === 'Blueprint') {
-                botsService.executeBots(bots.botId, bots.runTimeParams, function (err, historyData) {
+                botOldService.executeBots(bots.botId, bots.runTimeParams, function (err, historyData) {
                     if (err) {
                         logger.error("Failed to execute Bots.", err);
                         return;
@@ -227,7 +227,7 @@ schedulerService.executeScheduledBots = function executeScheduledBots(bots,callb
                     return;
                 });
             }else{
-                botsService.executeBots(bots.botId,null,function (err, historyData) {
+                botOldService.executeBots(bots.botId,null,function (err, historyData) {
                     if (err) {
                         logger.error("Failed to execute Bots.", err);
                         return;

@@ -46,13 +46,13 @@ var INFRA_MANAGER_TYPE = {
 
 
 var ARMTemplateBlueprintSchema = new Schema({
+    _id:false,
     cloudProviderId: String,
     infraMangerType: String,
     infraManagerId: String,
     templateFile: String,
     parameters: Object,
     instances: Object,
-    //stackName: String,
     resourceGroup: String,
 });
 

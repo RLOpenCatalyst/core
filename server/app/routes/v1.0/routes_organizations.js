@@ -54,7 +54,7 @@ var compositeBlueprintModel = require('_pr/model/composite-blueprints/composite-
 var Cryptography = require('_pr/lib/utils/cryptography');
 var monitorsModel = require('_pr/model/monitors/monitors.js');
 var catalystSync = require('_pr/cronjobs/catalyst-scheduler/catalystScheduler.js');
-var botsService = require('_pr/services/botsService.js');
+var botOldService = require('_pr/services/botOldService.js');
 
 module.exports.setRoutes = function (app, sessionVerification) {
     /*
@@ -686,7 +686,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
                             bluePrintData.orgName = project[0].orgname;
                             bluePrintData.bgName = project[0].productgroupname;
                             bluePrintData.projectName = project[0].projectname;
-                            botsService.createOrUpdateBots(bluePrintData, 'Blueprint', blueprintType, function (err, botsData) {
+                            botOldService.createOrUpdateBots(bluePrintData, 'Blueprint', blueprintType, function (err, botsData) {
                                 if (err) {
                                     logger.error("Error in creating bots entry. " + err);
                                 } else {
@@ -1046,7 +1046,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
                                 }
                                 ;
                                 if (task.serviceDeliveryCheck === true) {
-                                    botsService.createOrUpdateBots(task, 'Task', task.taskType, function (err, data) {
+                                    botOldService.createOrUpdateBots(task, 'Task', task.taskType, function (err, data) {
                                         if (err) {
                                             logger.error("Error in creating bots entry." + err);
                                         }
@@ -1074,7 +1074,7 @@ module.exports.setRoutes = function (app, sessionVerification) {
                         }
                         ;
                         if (task.serviceDeliveryCheck === true) {
-                            botsService.createOrUpdateBots(task, 'Task', task.taskType, function (err, data) {
+                            botOldService.createOrUpdateBots(task, 'Task', task.taskType, function (err, data) {
                                 if (err) {
                                     logger.error("Error in creating bots entry." + err);
                                 }

@@ -92,7 +92,7 @@
                         dockerlaunchparameters : '',
                         dockerreponame : $scope.templateSelected.dockerreponame
                     };
-                    dockerParams.dockerlaunchparameters = ' --name ' + dockerParams.dockercontainerpathstitle;
+                    dockerParams.dockerlaunchparameters = ' -name ' + dockerParams.dockercontainerpathstitle;
                     dockerParams.dockerrepotags = 'latest';
                     //gives the dockerParams details to show up the image in the first step of wizard.
                     $scope.dockerDetails.push(dockerParams);
@@ -464,7 +464,7 @@
             blueprintCreation.getChefServer = function() {
                 bpCreateSer.getChefServer().then(function(data){
                     for(var i =0;i<data.length;i++){
-                        if(blueprintCreation.newEnt.orgList === data[i].orgname_rowid[0]){
+                        if($rootScope.organObject[blueprintCreation.newEnt.orgList].rowid === data[i].orgname_rowid[0]){
                             $scope.getChefServerId = data[i].rowid;
                         }
                     }
