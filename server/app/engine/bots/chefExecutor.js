@@ -106,8 +106,8 @@ chefExecutor.execute = function execute(botsDetails, auditTrail, userName, execu
                                         if (err) {
                                             logger.error("Failed to create or update bots Log: ", err);
                                         }
-                                        var botService = require('_pr/services/botsService');
-                                        botService.updateSavedTimePerBots(botsDetails._id, 'BOT', function (err, data) {
+                                        var botOldService = require('_pr/services/botOldService');
+                                        botOldService.updateSavedTimePerBots(botsDetails._id, 'BOT', function (err, data) {
                                             if (err) {
                                                 logger.error("Failed to update bots saved Time: ", err);
                                             }
@@ -177,7 +177,7 @@ function executeChefOnLocal(botsChefDetails, auditTrail, userName, botHostDetail
         .set({ 'Content-Type': 'application/json' })
         .end(function (err, res) {
             if (!err) {
-                auditQueue.setAudit(userName, botsScriptDetails.id, botsScriptDetails._id, logsReferenceIds, actionId, auditTrail._id, res.body.bot_run_id, res.body.link, 'pending', serverUrl);
+                auditQueue.setAudit(userName, botsScriptDetails.id, botsScriptDetails._id, logsReferenceIds, actionId, auditTrail._id, '','',res.body.bot_run_id, res.body.link, 'pending', serverUrl,'local');
                 return;
             } else {
                 logger.error(err);
@@ -351,7 +351,7 @@ function executeChefOnRemote(instance, botDetails, actionLogId, userName, botHos
                     callback(err, null);
                     return;
                 } else {
-                    auditQueue.setAudit(userName, botsScriptDetails.id, botsScriptDetails._id, logsReferenceIds, actionId, auditTrail._id, res.body.bot_run_id, res.body.link, 'pending', serverUrl);
+                    auditQueue.setAudit(userName, botDetails.id, botDetails._id, logsReferenceIds, '', '',instanceLog,instance.instanceIP, res.body.ref, res.body.link, 'pending', serverUrl,'remote');
                     return;
 
                 }

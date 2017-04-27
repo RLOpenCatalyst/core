@@ -3,18 +3,22 @@ var auditQueueServices = module.exports = {};
 auditQueueServices.init = function init(){
     auditQueue = [];
 }
-auditQueueServices.setAudit = function setAudit(username,botId,bot_id,logRefId,auditId,auditTrailId,remoteAuditId,link,status,serverUrl) {
+auditQueueServices.setAudit = function setAudit(username,botId,bot_id,logRefId,auditId,auditTrailId,instanceLog,instanceIP,remoteAuditId,link,status,serverUrl,env) {
     auditQueue.push({
         userName:username,
         botId:botId,
         bot_id:bot_id,
         logRefId:logRefId,
         auditId:auditId,
+        instanceLog:instanceLog,
+        instanceIP:instanceIP,
         auditTrailId:auditTrailId,
         remoteAuditId:remoteAuditId,
         link:link,
         status:status,
-        serverUrl:serverUrl});
+        serverUrl:serverUrl,
+        env:env
+    });
 };
 auditQueueServices.getAudit = function getAudit() {
     return auditQueue;

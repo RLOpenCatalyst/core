@@ -172,7 +172,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
         .set({'Content-Type': 'application/json'})
         .end(function (err, res) {
             if (!err) {
-                auditQueue.setAudit(userName,botsScriptDetails.id,botsScriptDetails._id,logsReferenceIds,actionId,auditTrail._id,res.body.ref,res.body.link,'pending',serverUrl);
+                auditQueue.setAudit(userName,botsScriptDetails.id,botsScriptDetails._id,logsReferenceIds,actionId,auditTrail._id,'','',res.body.ref,res.body.link,'pending',serverUrl,'local');
                 return;
             } else {
                 logger.error(err);
@@ -352,7 +352,7 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,botHostD
                         });
                     return;
                 } else {
-                    auditQueue.setAudit(userName,botsScriptDetails.id,botsScriptDetails._id,logsReferenceIds,actionId,auditTrail._id,res.body.bot_run_id,res.body.link,'pending',serverUrl);
+                    auditQueue.setAudit(userName,botDetails.id,botDetails._id,logsReferenceIds,'','',instanceLog,instance.instanceIP,res.body.ref,res.body.link,'pending',serverUrl,'remote');
                 }
             })
     });
