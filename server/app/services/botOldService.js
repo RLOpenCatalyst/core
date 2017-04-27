@@ -32,11 +32,11 @@ const fileHound= require('filehound');
 const yamlJs= require('yamljs');
 const gitHubService = require('_pr/services/gitHubService.js');
 
-const errorType = 'botsService';
+const errorType = 'botOldService';
 
-var botsService = module.exports = {};
+var botOldService = module.exports = {};
 
-botsService.createOrUpdateBots = function createOrUpdateBots(botsDetail,linkedCategory,linkedSubCategory,callback) {
+botOldService.createOrUpdateBots = function createOrUpdateBots(botsDetail,linkedCategory,linkedSubCategory,callback) {
     logger.debug("In createOrUpdateBots....");
     var botsObj = {
         botId: botsDetail._id,
@@ -103,7 +103,7 @@ botsService.createOrUpdateBots = function createOrUpdateBots(botsDetail,linkedCa
     });
 }
 
-botsService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,callback) {
+botOldService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,callback) {
     if(botObj.botScheduler  && botObj.botScheduler !== null && Object.keys(botObj.botScheduler).length !== 0) {
         botObj.botScheduler = apiUtil.createCronJobPattern(botObj.botScheduler);
         botObj.isBotScheduled =true;
@@ -165,7 +165,7 @@ botsService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,call
     });
 }
 
-botsService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowCheck,callback) {
+botOldService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowCheck,callback) {
     var reqData = {};
     async.waterfall([
         function(next) {
@@ -270,7 +270,7 @@ botsService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNow
     });
 }
 
-botsService.removeSoftBotsById = function removeSoftBotsById(botId,callback){
+botOldService.removeSoftBotsById = function removeSoftBotsById(botId,callback){
     async.waterfall([
         function(next){
             botOld.getBotsById(botId,next);
@@ -310,7 +310,7 @@ botsService.removeSoftBotsById = function removeSoftBotsById(botId,callback){
         }
     });
 }
-botsService.removeBotsById = function removeBotsById(botId,callback){
+botOldService.removeBotsById = function removeBotsById(botId,callback){
     botOld.removeBotsById(botId,function(err,data){
         if(err){
             logger.error(err);
@@ -322,7 +322,7 @@ botsService.removeBotsById = function removeBotsById(botId,callback){
     });
 }
 
-botsService.getBotsHistory = function getBotsHistory(botId,botsQuery,serviceNowCheck,callback){
+botOldService.getBotsHistory = function getBotsHistory(botId,botsQuery,serviceNowCheck,callback){
     var reqData = {};
     async.waterfall([
         function(next) {
@@ -355,7 +355,7 @@ botsService.getBotsHistory = function getBotsHistory(botId,botsQuery,serviceNowC
     });
 }
 
-botsService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,auditType,callback){
+botOldService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,auditType,callback){
     var query = {
         auditType: auditType,
         isDeleted: false,
@@ -416,7 +416,7 @@ botsService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,audit
     });
 }
 
-botsService.getPerticularBotsHistory = function getPerticularBotsHistory(botId,historyId,callback){
+botOldService.getPerticularBotsHistory = function getPerticularBotsHistory(botId,historyId,callback){
     async.waterfall([
         function(next){
             botOld.getBotsById(botId,next);
@@ -454,7 +454,7 @@ botsService.getPerticularBotsHistory = function getPerticularBotsHistory(botId,h
     });
 }
 
-botsService.executeBots = function executeBots(botId,reqBody,callback){
+botOldService.executeBots = function executeBots(botId,reqBody,callback){
     async.waterfall([
         function(next){
             if(reqBody !== null
@@ -522,7 +522,7 @@ botsService.executeBots = function executeBots(botId,reqBody,callback){
     });
 }
 
-botsService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
+botOldService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
     async.waterfall([
         function(next) {
             gitHubService.getGitHubById(gitHubId,next);

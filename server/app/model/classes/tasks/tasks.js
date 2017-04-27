@@ -461,8 +461,8 @@ taskSchema.methods.execute = function(userName, baseUrl, choiceParam, appData, b
                     logger.error("Failed to create or update bots Log: ", err);
                 }
                 if(resultTaskExecution.actionStatus === 'success'){
-                    var botService = require('_pr/services/botsService');
-                    botService.updateSavedTimePerBots(taskHistoryData.taskId,'BOTOLD',function(err,data){
+                    var botOldService = require('_pr/services/botOldService');
+                    botOldService.updateSavedTimePerBots(taskHistoryData.taskId,'BOTOLD',function(err,data){
                         if (err) {
                             logger.error("Failed to update bots saved Time: ", err);
                         }

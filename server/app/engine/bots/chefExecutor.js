@@ -104,8 +104,8 @@ chefExecutor.execute = function execute(botsDetails,auditTrail,userName,executio
                                         if (err) {
                                             logger.error("Failed to create or update bots Log: ", err);
                                         }
-                                        var botService = require('_pr/services/botsService');
-                                        botService.updateSavedTimePerBots(botsDetails._id, 'BOT', function (err, data) {
+                                        var botOldService = require('_pr/services/botOldService');
+                                        botOldService.updateSavedTimePerBots(botsDetails._id, 'BOT', function (err, data) {
                                             if (err) {
                                                 logger.error("Failed to update bots saved Time: ", err);
                                             }
@@ -160,7 +160,7 @@ function executeChefOnLocal(botsChefDetails,auditTrail,userName,botHostDetails,c
         for(var j = 0; j < botsChefDetails.execution[i].runlist.length;j++){
             reqData.runlist.push(botsChefDetails.execution[i].runlist[j]);
         }
-        reqData.attributes = botsChefDetails.execution[i].attributes
+        reqData.attributes = botsChefDetails.params.attributes
     }
     if(reqData.attributes !== null){
         var fileName = uuid.v4() + '_' + botsChefDetails.id+'.json';
@@ -256,8 +256,8 @@ function executeChefOnLocal(botsChefDetails,auditTrail,userName,botHostDetails,c
                                         logger.error("Failed to create or update bots Log: ", err);
                                     }
                                     logger.debug(botsChefDetails.id + " BOT execution has Done");
-                                    var botService = require('_pr/services/botsService');
-                                    botService.updateSavedTimePerBots(botsChefDetails._id, 'BOT', function (err, data) {
+                                    var botOldService = require('_pr/services/botOldService');
+                                    botOldService.updateSavedTimePerBots(botsChefDetails._id, 'BOT', function (err, data) {
                                         if (err) {
                                             logger.error("Failed to update bots saved Time: ", err);
                                         }
@@ -446,7 +446,7 @@ function executeChefOnRemote(instance,botDetails,actionLogId,userName,botHostDet
             for(var j = 0; j < botDetails.execution[i].runlist.length;j++){
                 reqData.runlist.push(botDetails.execution[i].runlist[j]);
             }
-            reqData.attributes = botDetails.execution[i].attributes
+            reqData.attributes = botDetails.params.attributes
         }
         if(reqData.attributes !== null){
             var fileName = uuid.v4() + '_' + botDetails.id+'.json';

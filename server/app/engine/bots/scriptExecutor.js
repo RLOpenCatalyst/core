@@ -28,8 +28,6 @@ var credentialCryptography = require('_pr/lib/credentialcryptography');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var noticeService = require('_pr/services/noticeService.js');
 var fileIo = require('_pr/lib/utils/fileio');
-var serviceNow = require('_pr/model/servicenow/servicenow.js');
-
 
 const errorType = 'scriptExecutor';
 var scriptExecutor = module.exports = {};
@@ -98,8 +96,8 @@ scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,execut
                                         if (err) {
                                             logger.error("Failed to create or update bots Log: ", err);
                                         }
-                                        var botService = require('_pr/services/botsService');
-                                        botService.updateSavedTimePerBots(botsDetails._id, 'BOT', function (err, data) {
+                                        var botOldService = require('_pr/services/botOldService');
+                                        botOldService.updateSavedTimePerBots(botsDetails._id, 'BOT', function (err, data) {
                                             if (err) {
                                                 logger.error("Failed to update bots saved Time: ", err);
                                             }
@@ -236,8 +234,8 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
                                 }
                                 logger.debug(botsScriptDetails.id+" BOT execution has Done on Local");
                                 timer.stop();
-                                var botService = require('_pr/services/botsService');
-                                botService.updateSavedTimePerBots(botsScriptDetails._id, 'BOT', function (err, data) {
+                                var botOldService = require('_pr/services/botOldService');
+                                botOldService.updateSavedTimePerBots(botsScriptDetails._id, 'BOT', function (err, data) {
                                     if (err) {
                                         logger.error("Failed to update bots saved Time: ", err);
                                     }

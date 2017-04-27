@@ -19,21 +19,18 @@ var configmgmtDao = require('_pr/model/d4dmasters/configmgmt.js');
 var Jenkins = require('_pr/lib/jenkins');
 var auditTrailService = require('_pr/services/auditTrailService.js');
 var noticeService = require('_pr/services/noticeService.js');
-
-
 const errorType = 'jenkinsExecutor';
-
 var jenkinsExecutor = module.exports = {};
 
 jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,userName,callback) {
-    configmgmtDao.getJenkinsDataFromId(reqBody.jenkinsServerId, function(err, jenkinsData) {
+    configmgmtDao.getJenkinsDataFromId(reqBody.data.jenkinsServerId, function(err, jenkinsData) {
         if (err) {
             logger.error('jenkins list fetch error', err);
             var resultTaskExecution = {
                 "actionStatus": 'failed',
                 "status": 'failed',
                 "endedOn": new Date().getTime(),
-                "actionLogId": reqBody.jenkinsServerId
+                "actionLogId": reqBody.data.jenkinsServerId
             };
             auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
                 if (err) {
@@ -59,7 +56,7 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                 "actionStatus": 'failed',
                 "status": 'failed',
                 "endedOn": new Date().getTime(),
-                "actionLogId": reqBody.jenkinsServerId
+                "actionLogId": reqBody.data.jenkinsServerId
             };
             auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
                 if (err) {
@@ -83,21 +80,21 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                 username: jenkinsData.jenkinsusername,
                 password: jenkinsData.jenkinspassword
             });
-            jenkins.getJobInfo(reqBody.jobName, function (err, jobInfo) {
+            jenkins.getJobInfo(reqBody.data.jobName, function (err, jobInfo) {
                 if (err) {
                     logger.error(err);
                     var err = new Error();
                     err.status = 400;
-                    err.message = "Unable to fetch jenkins job info of job :- " + reqBody.jobName;
-                    logger.error("Unable to fetch jenkins job info of job :- " + reqBody.jobName);
+                    err.message = "Unable to fetch jenkins job info of job :- " + reqBody.data.jobName;
+                    logger.error("Unable to fetch jenkins job info of job :- " + reqBody.data.jobName);
                     var resultTaskExecution = {
                         "actionStatus": 'failed',
                         "status": 'failed',
                         "endedOn": new Date().getTime(),
-                        "actionLogId": reqBody.jenkinsServerId,
+                        "actionLogId": reqBody.data.jenkinsServerId,
                         "auditTrailConfig.jenkinsBuildNumber":jobInfo.nextBuildNumber,
-                        "auditTrailConfig.jenkinsJobName":reqBody.jobName,
-                        "auditTrailConfig.jobResultURL":reqBody.jobResultURL
+                        "auditTrailConfig.jenkinsJobName":reqBody.data.jobName,
+                        "auditTrailConfig.jobResultURL":reqBody.data.jobResultURL
                     };
                     auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
                         if (err) {
@@ -106,7 +103,7 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                     });
                     noticeService.notice(userName, {
                         title: "Jenkins BOT Execution",
-                        body:  "Unable to fetch jenkins job info of job :- " + reqBody.jobName
+                        body:  "Unable to fetch jenkins job info of job :- " + reqBody.data.jobName
                     }, "error", function (err, data) {
                         if (err) {
                             logger.error("Error in Notification Service, ", err);
@@ -130,16 +127,16 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                         } else {
                             var err = new Error();
                             err.status = 400;
-                            err.message = "No Parameter available for job:- " + reqBody.jobName;
-                            logger.error("No Parameter available for job:- " + reqBody.jobName);
+                            err.message = "No Parameter available for job:- " + reqBody.data.jobName;
+                            logger.error("No Parameter available for job:- " + reqBody.data.jobName);
                             var resultTaskExecution = {
                                 "actionStatus": 'failed',
                                 "status": 'failed',
                                 "endedOn": new Date().getTime(),
-                                "actionLogId": reqBody.jenkinsServerId,
+                                "actionLogId": reqBody.data.jenkinsServerId,
                                 "auditTrailConfig.jenkinsBuildNumber":jobInfo.nextBuildNumber,
-                                "auditTrailConfig.jenkinsJobName":reqBody.jobName,
-                                "auditTrailConfig.jobResultURL":reqBody.jobResultURL
+                                "auditTrailConfig.jenkinsJobName":reqBody.data.jobName,
+                                "auditTrailConfig.jobResultURL":reqBody.data.jobResultURL
                             };
                             auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
                                 if (err) {
@@ -148,7 +145,7 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                             });
                             noticeService.notice(userName, {
                                 title: "Jenkins BOT Execution",
-                                body:  "No Parameter available for job:- " + reqBody.jobName
+                                body:  "No Parameter available for job:- " + reqBody.data.jobName
                             }, "error", function (err, data) {
                                 if (err) {
                                     logger.error("Error in Notification Service, ", err);
@@ -158,21 +155,21 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                             return;
                         }
                         logger.debug("param object: ", JSON.stringify(param));
-                        jenkins.buildJobWithParams(reqBody.jobName, param, function (err, buildRes) {
+                        jenkins.buildJobWithParams(reqBody.data.jobName, param, function (err, buildRes) {
                             if (err) {
                                 logger.error(err);
                                 var err = new Error();
                                 err.status = 400;
-                                err.message = "Unable to Build job :- " + reqBody.jobName;
-                                logger.error("Unable to Build job :- " + reqBody.jobName);
+                                err.message = "Unable to Build job :- " + reqBody.data.jobName;
+                                logger.error("Unable to Build job :- " + reqBody.data.jobName);
                                 var resultTaskExecution = {
                                     "actionStatus": 'failed',
                                     "status": 'failed',
                                     "endedOn": new Date().getTime(),
-                                    "actionLogId": reqBody.jenkinsServerId,
+                                    "actionLogId": reqBody.data.jenkinsServerId,
                                     "auditTrailConfig.jenkinsBuildNumber":jobInfo.nextBuildNumber,
-                                    "auditTrailConfig.jenkinsJobName":reqBody.jobName,
-                                    "auditTrailConfig.jobResultURL":reqBody.jobResultURL
+                                    "auditTrailConfig.jenkinsJobName":reqBody.data.jobName,
+                                    "auditTrailConfig.jobResultURL":reqBody.data.jobResultURL
                                 };
                                 auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
                                     if (err) {
@@ -181,7 +178,7 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                                 });
                                 noticeService.notice(userName, {
                                     title: "Jenkins BOT Execution",
-                                    body:  "Unable to Build job :- " + reqBody.jobName
+                                    body:  "Unable to Build job :- " + reqBody.data.jobName
                                 }, "error", function (err, data) {
                                     if (err) {
                                         logger.error("Error in Notification Service, ", err);
@@ -193,23 +190,23 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                             logger.debug("buildRes ==> ", JSON.stringify(buildRes));
                             callback(null, {
                                 buildNumber: jobInfo.nextBuildNumber,
-                                jenkinsServerId: reqBody.jenkinsServerId,
-                                jobName: reqBody.jobName,
+                                jenkinsServerId: reqBody.data.jenkinsServerId,
+                                jobName: reqBody.data.jobName,
                                 lastBuildNumber: jobInfo.lastBuild.number,
                                 nextBuildNumber: jobInfo.nextBuildNumber
                             });
                             function pollBuildStarted() {
-                                jenkins.getJobInfo(reqBody.jobName, function (err, latestJobInfo) {
+                                jenkins.getJobInfo(reqBody.data.jobName, function (err, latestJobInfo) {
                                     if (err) {
                                         logger.error(err);
                                         var resultTaskExecution = {
                                             "actionStatus": 'failed',
                                             "status": 'failed',
                                             "endedOn": new Date().getTime(),
-                                            "actionLogId": reqBody.jenkinsServerId,
+                                            "actionLogId": reqBody.data.jenkinsServerId,
                                             "auditTrailConfig.jenkinsBuildNumber":jobInfo.nextBuildNumber,
-                                            "auditTrailConfig.jenkinsJobName":reqBody.jobName,
-                                            "auditTrailConfig.jobResultURL":reqBody.jobResultURL
+                                            "auditTrailConfig.jenkinsJobName":reqBody.data.jobName,
+                                            "auditTrailConfig.jobResultURL":reqBody.data.jobResultURL
                                         };
                                         auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
                                             if (err) {
@@ -218,7 +215,7 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                                         });
                                         noticeService.notice(userName, {
                                             title: "Jenkins BOT Execution",
-                                            body:  "Unable to get Job Info :- " + reqBody.jobName
+                                            body:  "Unable to get Job Info :- " + reqBody.data.jobName
                                         }, "error", function (err, data) {
                                             if (err) {
                                                 logger.error("Error in Notification Service, ", err);
@@ -229,17 +226,17 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                                     }
                                     if (jobInfo.nextBuildNumber <= latestJobInfo.lastBuild.number) {
                                         function pollBuildStatus() {
-                                            jenkins.getBuildInfo(reqBody.jobName, jobInfo.nextBuildNumber, function (err, buildInfo) {
+                                            jenkins.getBuildInfo(reqBody.data.jobName, jobInfo.nextBuildNumber, function (err, buildInfo) {
                                                 if (err) {
                                                     logger.error("Error in Jenkins Executor",err);
                                                     var resultTaskExecution = {
                                                         "actionStatus": 'failed',
                                                         "status": 'failed',
                                                         "endedOn": new Date().getTime(),
-                                                        "actionLogId": reqBody.jenkinsServerId,
+                                                        "actionLogId": reqBody.data.jenkinsServerId,
                                                         "auditTrailConfig.jenkinsBuildNumber":jobInfo.nextBuildNumber,
-                                                        "auditTrailConfig.jenkinsJobName":reqBody.jobName,
-                                                        "auditTrailConfig.jobResultURL":reqBody.jobResultURL
+                                                        "auditTrailConfig.jenkinsJobName":reqBody.data.jobName,
+                                                        "auditTrailConfig.jobResultURL":reqBody.data.jobResultURL
                                                     };
                                                     auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
                                                         if (err) {
@@ -248,7 +245,7 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                                                     });
                                                     noticeService.notice(userName, {
                                                         title: "Jenkins BOT Execution",
-                                                        body:  "Unable to get Job Build Info :- " + reqBody.jobName
+                                                        body:  "Unable to get Job Build Info :- " + reqBody.data.jobName
                                                     }, "error", function (err, data) {
                                                         if (err) {
                                                             logger.error("Error in Notification Service, ", err);
@@ -268,10 +265,10 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                                                             "actionStatus": 'success',
                                                             "status": 'success',
                                                             "endedOn": new Date().getTime(),
-                                                            "actionLogId": reqBody.jenkinsServerId,
+                                                            "actionLogId": reqBody.data.jenkinsServerId,
                                                             "auditTrailConfig.jenkinsBuildNumber":jobInfo.nextBuildNumber,
-                                                            "auditTrailConfig.jenkinsJobName":reqBody.jobName,
-                                                            "auditTrailConfig.jobResultURL":reqBody.jobResultURL
+                                                            "auditTrailConfig.jenkinsJobName":reqBody.data.jobName,
+                                                            "auditTrailConfig.jobResultURL":reqBody.data.jobResultURL
                                                         };
 
                                                         auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
@@ -279,15 +276,15 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                                                                 logger.error("Failed to create or update bots Log: ", err);
                                                             }
                                                         });
-                                                        var botService = require('_pr/services/botsService');
-                                                        botService.updateSavedTimePerBots(jenkinsBotDetails._id, 'BOT', function (err, data) {
+                                                        var botOldService = require('_pr/services/botOldService');
+                                                        botOldService.updateSavedTimePerBots(jenkinsBotDetails._id, 'BOT', function (err, data) {
                                                             if (err) {
                                                                 logger.error("Failed to update bots saved Time: ", err);
                                                             }
                                                         });
                                                         noticeService.notice(userName, {
                                                             title: "BOTs Execution",
-                                                            body: reqBody.jobName+" job is successfully build on "+jenkinsData.jenkinsname
+                                                            body: reqBody.data.jobName+" job is successfully build on "+jenkinsData.jenkinsname
                                                         }, "success", function (err, data) {
                                                             if (err) {
                                                                 logger.error("Error in Notification Service, ", err);
@@ -308,21 +305,21 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                             pollBuildStarted();
                         });
                     } else {
-                        jenkins.buildJob(reqBody.jobName, function (err, buildRes) {
+                        jenkins.buildJob(reqBody.data.jobName, function (err, buildRes) {
                             if (err) {
                                 logger.error(err);
                                 var err = new Error();
                                 err.status = 400;
-                                err.message = "Unable to Build job :- " + reqBody.jobName;
-                                logger.error("Unable to Build job :- " + reqBody.jobName);
+                                err.message = "Unable to Build job :- " + reqBody.data.jobName;
+                                logger.error("Unable to Build job :- " + reqBody.data.jobName);
                                 var resultTaskExecution = {
                                     "actionStatus": 'failed',
                                     "status": 'failed',
                                     "endedOn": new Date().getTime(),
-                                    "actionLogId": reqBody.jenkinsServerId,
+                                    "actionLogId": reqBody.data.jenkinsServerId,
                                     "auditTrailConfig.jenkinsBuildNumber":jobInfo.nextBuildNumber,
-                                    "auditTrailConfig.jenkinsJobName":reqBody.jobName,
-                                    "auditTrailConfig.jobResultURL":reqBody.jobResultURL
+                                    "auditTrailConfig.jenkinsJobName":reqBody.data.jobName,
+                                    "auditTrailConfig.jobResultURL":reqBody.data.jobResultURL
                                 };
                                 auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
                                     if (err) {
@@ -331,7 +328,7 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                                 });
                                 noticeService.notice(userName, {
                                     title: "Jenkins BOT Execution",
-                                    body: "Unable to Build job :- " + reqBody.jobName
+                                    body: "Unable to Build job :- " + reqBody.data.jobName
                                 }, "error", function (err, data) {
                                     if (err) {
                                         logger.error("Error in Notification Service, ", err);
@@ -343,23 +340,23 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                             logger.debug("buildRes ==> ", JSON.stringify(buildRes));
                             callback(null, {
                                 buildNumber: jobInfo.nextBuildNumber,
-                                jenkinsServerId: reqBody.jenkinsServerId,
-                                jobName: reqBody.jobName,
+                                jenkinsServerId: reqBody.data.jenkinsServerId,
+                                jobName: reqBody.data.jobName,
                                 lastBuildNumber: jobInfo.lastBuild.number,
                                 nextBuildNumber: jobInfo.nextBuildNumber
                             });
                             function pollBuildStarted() {
-                                jenkins.getJobInfo(reqBody.jobName, function (err, latestJobInfo) {
+                                jenkins.getJobInfo(reqBody.data.jobName, function (err, latestJobInfo) {
                                     if (err) {
                                         logger.error(err);
                                         var resultTaskExecution = {
                                             "actionStatus": 'failed',
                                             "status": 'failed',
                                             "endedOn": new Date().getTime(),
-                                            "actionLogId": reqBody.jenkinsServerId,
+                                            "actionLogId": reqBody.data.jenkinsServerId,
                                             "auditTrailConfig.jenkinsBuildNumber":jobInfo.nextBuildNumber,
-                                            "auditTrailConfig.jenkinsJobName":reqBody.jobName,
-                                            "auditTrailConfig.jobResultURL":reqBody.jobResultURL
+                                            "auditTrailConfig.jenkinsJobName":reqBody.data.jobName,
+                                            "auditTrailConfig.jobResultURL":reqBody.data.jobResultURL
                                         };
                                         auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
                                             if (err) {
@@ -368,7 +365,7 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                                         });
                                         noticeService.notice(userName, {
                                             title: "Jenkins BOT Execution",
-                                            body: "Unable to get job Info :- " + reqBody.jobName
+                                            body: "Unable to get job Info :- " + reqBody.data.jobName
                                         }, "error", function (err, data) {
                                             if (err) {
                                                 logger.error("Error in Notification Service, ", err);
@@ -379,17 +376,17 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                                     }
                                     if (jobInfo.nextBuildNumber <= latestJobInfo.lastBuild.number) {
                                         function pollBuildStatus() {
-                                            jenkins.getBuildInfo(reqBody.jobName, jobInfo.nextBuildNumber, function (err, buildInfo) {
+                                            jenkins.getBuildInfo(reqBody.data.jobName, jobInfo.nextBuildNumber, function (err, buildInfo) {
                                                 if (err) {
                                                     logger.error("Error in Jenkins Executor",err);
                                                     var resultTaskExecution = {
                                                         "actionStatus": 'failed',
                                                         "status": 'failed',
                                                         "endedOn": new Date().getTime(),
-                                                        "actionLogId": reqBody.jenkinsServerId,
+                                                        "actionLogId": reqBody.data.jenkinsServerId,
                                                         "auditTrailConfig.jenkinsBuildNumber":jobInfo.nextBuildNumber,
-                                                        "auditTrailConfig.jenkinsJobName":reqBody.jobName,
-                                                        "auditTrailConfig.jobResultURL":reqBody.jobResultURL
+                                                        "auditTrailConfig.jenkinsJobName":reqBody.data.jobName,
+                                                        "auditTrailConfig.jobResultURL":reqBody.data.jobResultURL
                                                     };
                                                     auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
                                                         if (err) {
@@ -398,7 +395,7 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                                                     });
                                                     noticeService.notice(userName, {
                                                         title: "Jenkins BOT Execution",
-                                                        body: "Unable to get Job Build Info :- " + reqBody.jobName
+                                                        body: "Unable to get Job Build Info :- " + reqBody.data.jobName
                                                     }, "error", function (err, data) {
                                                         if (err) {
                                                             logger.error("Error in Notification Service, ", err);
@@ -418,25 +415,25 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                                                             "actionStatus": 'success',
                                                             "status": 'success',
                                                             "endedOn": new Date().getTime(),
-                                                            "actionLogId": reqBody.jenkinsServerId,
+                                                            "actionLogId": reqBody.data.jenkinsServerId,
                                                             "auditTrailConfig.jenkinsBuildNumber":jobInfo.nextBuildNumber,
-                                                            "auditTrailConfig.jenkinsJobName":reqBody.jobName,
-                                                            "auditTrailConfig.jobResultURL":reqBody.jobResultURL
+                                                            "auditTrailConfig.jenkinsJobName":reqBody.data.jobName,
+                                                            "auditTrailConfig.jobResultURL":reqBody.data.jobResultURL
                                                         };
                                                         auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
                                                             if (err) {
                                                                 logger.error("Failed to create or update bots Log: ", err);
                                                             }
                                                         });
-                                                        var botService = require('_pr/services/botsService');
-                                                        botService.updateSavedTimePerBots(jenkinsBotDetails._id, 'BOT', function (err, data) {
+                                                        var botOldService = require('_pr/services/botOldService');
+                                                        botOldService.updateSavedTimePerBots(jenkinsBotDetails._id, 'BOT', function (err, data) {
                                                             if (err) {
                                                                 logger.error("Failed to update bots saved Time: ", err);
                                                             }
                                                         });
                                                         noticeService.notice(userName, {
                                                             title: "Jenkins BOT Execution",
-                                                            body: reqBody.jobName+" job is successfully build on "+jenkinsData.jenkinsname
+                                                            body: reqBody.data.jobName+" job is successfully build on "+jenkinsData.jenkinsname
                                                         }, "success", function (err, data) {
                                                             if (err) {
                                                                 logger.error("Error in Notification Service, ", err);
@@ -463,10 +460,10 @@ jenkinsExecutor.execute = function execute(jenkinsBotDetails,auditTrail,reqBody,
                         "actionStatus": 'failed',
                         "status": 'failed',
                         "endedOn": new Date().getTime(),
-                        "actionLogId": reqBody.jenkinsServerId,
+                        "actionLogId": reqBody.data.jenkinsServerId,
                         "auditTrailConfig.jenkinsBuildNumber":jobInfo.nextBuildNumber,
-                        "auditTrailConfig.jenkinsJobName":reqBody.jobName,
-                        "auditTrailConfig.jobResultURL":reqBody.jobResultURL
+                        "auditTrailConfig.jenkinsJobName":reqBody.data.jobName,
+                        "auditTrailConfig.jobResultURL":reqBody.data.jobResultURL
                     };
                     auditTrailService.updateAuditTrail('BOT', auditTrail._id, resultTaskExecution, function (err, data) {
                         if (err) {

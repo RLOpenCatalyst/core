@@ -51,7 +51,7 @@
                 };
                 confirmbox.showModal({}, modalOptions).then(function() {
                     var url;
-                    url = '/botsNew/' + bot._id;  
+                    url = '/bot/' + bot._id;
                     var param = {
                         inlineLoader:true,
                         url:url
