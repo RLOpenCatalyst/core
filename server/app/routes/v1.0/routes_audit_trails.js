@@ -48,12 +48,22 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
     });
 
     app.get('/audit-trail/bots-summary', function(req,res){
-        auditTrailService.getBOTsSummary(req.query,'BOTs',function(err,botSummary){
+        auditTrailService.getBOTsSummary(req.query,'BOTOLD',function(err,botSummary){
             if(err){
                 logger.error(err);
                 return res.status(500).send(err);
             }
             return res.status(200).send(botSummary);
+        })
+    });
+
+    app.get('/audit-trail/:auditId/srnTicketSync', function(req,res){
+        auditTrailService.syncCatalystWithServiceNow(req.params.auditId,function(err,srnTicketSync){
+            if(err){
+                logger.error(err);
+                return res.status(500).send(err);
+            }
+            return res.status(200).send(srnTicketSync);
         })
     });
 

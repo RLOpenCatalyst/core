@@ -48,6 +48,18 @@ AuditTrailSchema.statics.getAuditTrails = function(queryObj,callback){
     });
 };
 
+AuditTrailSchema.statics.getAuditTrailsById = function(auditTrailId,callback){
+    AuditTrail.find({_id:new ObjectId(auditTrailId)}, function(err, auditTrailList) {
+        if (err) {
+            logger.error(err);
+            var error = new Error('Internal server error');
+            error.status = 500;
+            return callback(error);
+        }
+        return callback(null, auditTrailList);
+    });
+};
+
 AuditTrailSchema.statics.removeAuditTrails = function(queryObj,callback){
     AuditTrail.remove(queryObj, function(err, deleteAuditTrail) {
         if (err) {

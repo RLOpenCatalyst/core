@@ -26,10 +26,10 @@ var execCmd = require('exec');
 var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var promisify = require("promisify-node");
 var fse = promisify(require("fs-extra"));
-var botsNewService = require("_pr/services/botsNewService.js");
+var botService = require("_pr/services/botService.js");
 var fs = require('fs');
 var dircompare = require('dir-compare');
-var botsDao = require('_pr/model/bots/1.1/botsDao.js');
+var botDao = require('_pr/model/bots/1.1/bot.js');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
 var glob = require("glob");
 var mkdirp = require('mkdirp');
@@ -282,7 +282,7 @@ gitGubService.gitHubCopy = function gitHubCopy(gitHubId, reqBody,callback) {
                     });
                     bots.push(reqBody[index].botName);
                 }
-                botsNewService.syncBotsWithGitHub(gitHubId, function (err, data) {
+                botService.syncBotsWithGitHub(gitHubId, function (err, data) {
                     if (err) {
                         callback(err,null)
                         logger.error("Error in Syncing GIT-Hub.", err);
@@ -378,7 +378,7 @@ gitGubService.gitHubContentSync = function gitHubContentSync(gitHubId, botId,cal
             gitHubModel.getGitHubById(gitHubId,callback);
         },
         botsDetails:function(callback){
-            botsDao.getBotsByBotId(botId,callback);
+            botDao.getBotsByBotId(botId,callback);
         }
     },function(err,result) {
         if(err){
@@ -419,7 +419,7 @@ gitGubService.gitHubContentSync = function gitHubContentSync(gitHubId, botId,cal
                         callback(err,null);
                         return;
                     }else{
-                        botsNewService.syncSingleBotsWithGitHub(botId, function (err, data) {
+                        botService.syncSingleBotsWithGitHub(botId, function (err, data) {
                             if (err) {
                                 logger.error("Error in Syncing GIT-Hub.", err);
                                 callback(err, null);
@@ -553,8 +553,7 @@ function formatGitHubResponse(gitHub,callback) {
 function gitHubCloning(gitHubDetails,task,cmd,callback){
     var filePath = appConfig.botFactoryDir +gitHubDetails.repositoryName+'.tgz';
     var destPath = appConfig.botFactoryDir + gitHubDetails._id;
-    var botFactoryDirPath = appConfig.botFactoryDir;
-    var botCurrentFactoryDirPath = appConfig.botCurrentFactoryDir;                                
+    var botCurrentFactoryDirPath = appConfig.botCurrentFactoryDir;
     var options = {compareContent: true,excludeFilter:'*.md',skipSymlinks:true};
     if(fs.existsSync(filePath)){
         fs.unlinkSync(filePath)
@@ -586,7 +585,7 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
                                     if(fs.existsSync(destPath)){
                                         fse.removeSync(destPath)
                                     }
-                                    botsNewService.syncBotsWithGitHub(gitHubDetails._id, function (err, data) {
+                                    botService.syncBotsWithGitHub(gitHubDetails._id, function (err, data) {
                                         if (err) {
                                             callback(err, null);
                                             logger.error("Error in Syncing GIT-Hub.", err);
@@ -624,7 +623,7 @@ function gitHubCloning(gitHubDetails,task,cmd,callback){
                                                 "branch":gitHubDetails.repositoryBranch, 
                                                 "repo":gitHubDetails.repositoryOwner+'/'+gitHubDetails.repositoryName};
                                             var options = {
-                                                url: "http://"+botRemoteServerDetails.hostIP+":"+botRemoteServerDetails.hostPort+"/bot/factory",
+                                                url: "http://"+botRemoteServerDetails.hostIP+":"+botRemoteServerDetails.hostPort+"/bot/factory?auth=password",
                                                 headers: {
                                                     'Content-Type': 'application/json'
                                                 },

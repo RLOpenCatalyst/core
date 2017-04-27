@@ -75,8 +75,8 @@ var fileUpload = require('./routes_fileUpload');
 var settingWizard = require('./routes_setting_wizard');
 var configData = require('./routes_config_data');
 var monitors = require('./routes_monitors');
-var bots = require('./routes_botsOld');
-var botsNew = require('./routes_botsNew');
+var botOld = require('./routes_botOld');
+var bot = require('./routes_bot');
 var gitHub = require('./routes_github');
 var routesCICD = require('./routes_d4dMastersCICD');
 var routesDashboardCICD = require('./routes_dashboardcicd');
@@ -197,7 +197,7 @@ module.exports.setRoutes = function(app) {
 
     configData.setRoutes(app, sessionVerificationFunc);
 
-    bots.setRoutes(app, sessionVerificationFunc);
+    botOld.setRoutes(app, sessionVerificationFunc);
 
     gitHub.setRoutes(app, sessionVerificationFunc);
 
@@ -205,7 +205,7 @@ module.exports.setRoutes = function(app) {
 
     routesResourceMap.setRoutes(app, sessionVerificationFunc);
 
-    botsNew.setRoutes(app, sessionVerificationFunc);
+    bot.setRoutes(app, sessionVerificationFunc);
 
     routesDashboardCICD.setRoutes(app,sessionVerificationFunc);
 

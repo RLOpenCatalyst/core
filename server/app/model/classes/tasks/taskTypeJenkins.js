@@ -19,15 +19,14 @@ var logger = require('_pr/logger')(module);
 var mongoose = require('mongoose');
 var extend = require('mongoose-schema-extend');
 var ObjectId = require('mongoose').Types.ObjectId;
-
-var Jenkins = require('../../../lib/jenkins');
-var configmgmtDao = require('../../d4dmasters/configmgmt.js');
-
+var Jenkins = require('_pr/lib/jenkins');
+var configmgmtDao = require('_pr/model/d4dmasters/configmgmt.js');
 var taskTypeSchema = require('./taskTypeSchema');
 var Blueprints = require('_pr/model/blueprint');
 
 
 var jenkinsTaskSchema = taskTypeSchema.extend({
+    _id:false,
     jenkinsServerId: String,
     jobName: String,
     autoSyncFlag: String,
@@ -35,6 +34,7 @@ var jenkinsTaskSchema = taskTypeSchema.extend({
     jobURL: String,
     isParameterized: Boolean,
     parameterized: [{
+        _id:false,
         parameterName: String,
         name: {
             type: String,

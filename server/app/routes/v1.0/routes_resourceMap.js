@@ -32,4 +32,16 @@ module.exports.setRoutes = function(app, sessionVerificationFunc) {
             }
         });
     });
+
+    app.delete('/resourceMap', function(req, res) {
+        resourceMapService.deleteAllResourcesByFilter(req.query,function(err,result){
+            if(err){
+                res.send(500,err);
+                return;
+            }else{
+                res.send(200,result)
+                return
+            }
+        });
+    });
 };

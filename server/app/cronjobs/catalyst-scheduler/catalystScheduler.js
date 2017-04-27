@@ -1,8 +1,8 @@
 var logger = require('_pr/logger')(module);
 var instancesDao = require('_pr/model/classes/instance/instance');
 var taskDao = require('_pr/model/classes/tasks/tasks.js');
-var botsDao = require('_pr/model/bots/1.0/bots.js');
-var newBotsDao = require('_pr/model/bots/1.1/botsDao.js');
+var botOld = require('_pr/model/bots/1.0/botOld.js');
+var botDao = require('_pr/model/bots/1.1/bot.js');
 var schedulerService = require('_pr/services/schedulerService');
 var async = require('async');
 var cronTab = require('node-crontab');
@@ -139,7 +139,7 @@ catalystSync.executeSerialScheduledTasks = function executeSerialScheduledTasks(
 }
 
 catalystSync.executeScheduledBots = function executeScheduledBots() {
-    botsDao.getScheduledBots(function(err, bots) {
+    botOld.getScheduledBots(function(err, bots) {
         if (err) {
             logger.error("Failed to fetch bots: ", err);
             return;
@@ -178,7 +178,7 @@ catalystSync.executeScheduledBots = function executeScheduledBots() {
 
 
 catalystSync.executeNewScheduledBots = function executeNewScheduledBots() {
-    newBotsDao.getScheduledBots(function(err, bots) {
+    botDao.getScheduledBots(function(err, bots) {
         if (err) {
             logger.error("Failed to fetch bots: ", err);
             return;

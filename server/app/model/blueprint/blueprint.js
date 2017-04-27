@@ -21,36 +21,28 @@ var mongoose = require('mongoose');
 var extend = require('mongoose-schema-extend');
 var ObjectId = require('mongoose').Types.ObjectId;
 var mongoosePaginate = require('mongoose-paginate');
-
 var Chef = require('_pr/lib/chef.js');
 var configmgmtDao = require('_pr/model/d4dmasters/configmgmt');
 var appConfig = require('_pr/config');
-
 var schemaValidator = require('_pr/model/utils/schema-validator');
-
 var uniqueValidator = require('mongoose-unique-validator');
-
 var DockerBlueprint = require('./blueprint-types/docker-blueprint/docker-blueprint');
 var InstanceBlueprint = require('./blueprint-types/instance-blueprint/instance-blueprint');
 var OpenstackBlueprint = require('./blueprint-types/instance-blueprint/openstack-blueprint/openstack-blueprint');
 var AzureBlueprint = require('./blueprint-types/instance-blueprint/azure-blueprint/azure-blueprint');
 var VmwareBlueprint = require('./blueprint-types/instance-blueprint/vmware-blueprint/vmware-blueprint');
-
 var CloudFormationBlueprint = require('./blueprint-types/cloud-formation-blueprint/cloud-formation-blueprint');
 var ARMTemplateBlueprint = require('./blueprint-types/arm-template-blueprint/arm-template-blueprint');
 var utils = require('../classes/utils/utils.js');
 var nexus = require('_pr/lib/nexus.js');
 var masterUtil = require('_pr/lib/utils/masterUtil.js');
-
 var AWSKeyPair = require('../../model/classes/masters/cloudprovider/keyPair.js');
 var VMImage = require('../../model/classes/masters/vmImage.js');
 var AWSProvider = require('_pr/model/classes/masters/cloudprovider/awsCloudProvider.js');
 var AzureProvider = require('_pr/model/classes/masters/cloudprovider/azureCloudProvider.js');
 var VmwareProvider = require('_pr/model/classes/masters/cloudprovider/vmwareCloudProvider.js');
 var OpenStackProvider = require('_pr/model/classes/masters/cloudprovider/openstackCloudProvider.js');
-
 var monitorsModel = require('_pr/model/monitors/monitors.js');
-
 var uuid = require('node-uuid');
 var AppData = require('_pr/model/app-deploy/app-data');
 
@@ -112,7 +104,6 @@ var BlueprintSchema = new Schema({
     },
     users: [{
             type: String,
-            //required: true,
             trim: true,
             validate: schemaValidator.catalystUsernameValidator
         }],
@@ -354,6 +345,7 @@ BlueprintSchema.methods.launch = function (opts, callback) {
                             monitor: monitor,
                             auditTrailId: opts.auditTrailId,
                             botId: opts.botId,
+                            bot_id: opts.bot_id,
                             auditType:opts.auditType,
                             actionLogId:opts.actionLogId
                         };
@@ -805,130 +797,6 @@ BlueprintSchema.statics.removeByIds = function (ids, callback) {
     });
 
 };
-
-
-BlueprintSchema.statics.copyByIds = function (ids, orgid, bgid, projid, callback) {
-
-    var copiedBlueprints = [];
-    var objids = [];
-    ids.forEach(function (v) {
-        objids.push(ObjectId(v));
-    });
-    var self = this;
-    logger.debug(objids);
-    logger.debug(ids);
-
-    self.find({
-        $and: [{
-                "orgId": orgid
-            }, {
-                "bgId": bgid
-            }, {
-                "projectId": projid
-            }]
-    }, function (err, dupbp) {
-        if (err) {
-            logger.debug("Error in find", err);
-            return callback({
-                message: "Blueprint not found"
-            }, null);
-        }
-        //$or:[{"_id": {$in:objids}},{"parentId":{$in:ids}}]
-        self.find({
-            $or: [{
-                    "_id": {
-                        $in: objids
-                    }
-                }]
-        }, function (err, data) {
-
-            logger.debug('Found:', data.length);
-            var count = 0;
-            var oldProjId;
-            for (var bpi = 0; bpi < data.length; bpi++) {
-                //Generate a new ID
-                var newBPID = new ObjectId();
-                //set new orgid, buid and projid
-                data[bpi].orgId = orgid;
-                data[bpi].bgId = bgid;
-                oldProjId = data[bpi].projectId;
-                data[bpi].projectId = projid;
-                logger.debug('Name:', data[bpi]["name"]);
-                // for(var _bpi = 0; _bpi < data.length;_bpi++){
-                //     if(data[bpi]["_id"] == data[_bpi]["parentId"]){
-                //         var oldpid = data[_bpi]["parentId"];
-                //         data[_bpi]["parentId"] = newBPID;
-                //         logger.debug("Updated parent for " + data[_bpi]["name"] + ":",data[_bpi]["_id"], "from " , oldpid ," to ", data[_bpi]["parentId"]);
-                //     }
-                // }
-                //UPdate current objects ID
-                logger.debug("Old ID:", data[bpi]["_id"]);
-                data[bpi]["_id"] = newBPID;
-                logger.debug("New ID:", data[bpi]["_id"]);
-                //Including the version field if not present - backward compatibility
-                //if(!data[bpi]["version"])
-                data[bpi]["version"] = "1";
-                data[bpi].parentId = undefined;
-
-
-                logger.debug('About to write', bpi);
-                //finding any duplicates and renaming before save
-                for (var dbpi = 0; dbpi < dupbp.length; dbpi++) {
-                    if (dupbp[dbpi]["name"] == data[bpi]["name"]) {
-                        data[bpi]["name"] = data[bpi]["name"] + '_copy_' + uuid.v4().split('-')[0];
-                        logger.debug('Found a duplicate. Renaming', data[bpi]["name"]);
-                        logger.debug(JSON.stringify([{
-                                "orgId": orgid
-                            }, {
-                                "bgId": bgid
-                            }, {
-                                "projectId": projid
-                            }]));
-                    }
-                }
-
-
-
-                var blueprint = new Blueprints(data[bpi]);
-                if (oldProjId !== blueprint.projectId) {
-                    // checking for nexus and docker
-                    if (blueprint.nexus) {
-                        blueprint.nexus = undefined;
-                    }
-
-                    if (blueprint.docker) {
-                        blueprint.docker = undefined;
-                    }
-                }
-
-                logger.debug('firing');
-                blueprint.save(function (err, docs) {
-                    logger.debug(' docs ==> ', JSON.stringify(docs));
-                    count++;
-                    if (err) {
-                        logger.error(err);
-                        callback(err, null);
-                        return;
-                    } else {
-                        copiedBlueprints.push(docs);
-                        logger.debug('Count:', count, 'Data len', data.length);
-                        if (count >= data.length) {
-                            logger.debug('Count:', count, 'Data len', data.length);
-                            logger.debug('Inserted all documents');
-                            callback(null, copiedBlueprints);
-                        }
-                    }
-                });
-
-
-            }
-
-            //logger.debug(data);
-        });
-    }); //find all blueprints
-};
-
-
 
 
 var findBlueprintVersionObject = function (blueprints, parentId) {
