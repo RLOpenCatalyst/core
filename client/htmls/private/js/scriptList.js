@@ -103,7 +103,22 @@ function getScriptList() {
                 "scriptFileName" : data.fileName,"scriptFileId" : data.fileId,
                 "isParametrized" : data.isParametrized,"noOfParams":data.noOfParams});
         },
-        "ajax": '/scripts',
+        "ajax": {
+            "url": '/scripts',
+            "data": function( result ) {
+                var columnIndex = parseInt(result.order[0].column);
+                var newResult = {
+                    draw:result.draw,
+                    page:result.start === 0 ? 1 : Math.ceil(result.start / result.length) + 1,
+                    pageSize:result.length,
+                    sortOrder:result.order[0].dir,
+                    sortBy:result.columns[columnIndex].data,
+                    filterBy:result.filterBy,
+                    search:result.search.value
+                }
+                return newResult;
+            }
+        },
         "columns": [
             {"data": "name", "orderable" : true},
             {"data": "orgDetails.name" ,"orderable" : false },
