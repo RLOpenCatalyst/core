@@ -6,6 +6,12 @@ var newBotsDao = require('_pr/model/bots/1.1/botsDao.js');
 var schedulerService = require('_pr/services/schedulerService');
 var async = require('async');
 var cronTab = require('node-crontab');
+var request = require('request');
+var auditQueue = require('_pr/config/global-data.js');
+var botService = require('_pr/services/botsService');
+var auditTrailService = require('_pr/services/auditTrailService.js');
+var noticeService = require('_pr/services/noticeService.js');
+var logsDao = require('_pr/model/dao/logsdao.js');
 var catalystSync = module.exports = {};
 
 catalystSync.executeScheduledInstances = function executeScheduledInstances() {
@@ -213,6 +219,158 @@ catalystSync.executeNewScheduledBots = function executeNewScheduledBots() {
             return;
         }
     });
+}
+
+catalystSync.getLogdata = function getLogdata(){
+    logger.debug("log Data updating.....")
+    setInterval( function () {
+        var logQueue = auditQueue.getAudit();
+        if(logQueue.length > 0){
+            var url = logQueue[0].serverUrl;
+            async.waterfall([
+                function(next){
+                    var auditList = [];
+                    for(var i=0;i<logQueue.length;i++){
+                        auditList.push(logQueue[i].remoteAuditId);
+                        if(auditList.count === logQueue.count)
+                            next(null,auditList);
+                    }
+                },
+                function(auditList,next) {
+                    if(auditList.length){
+                        var options = {
+                        url: url+"/bot/audit",
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'charset':'utf-8'
+                        },
+                        json:true,
+                        body:auditList
+                    };
+                    request.post(options, function (err, res, body) {
+                        if(err)
+                            next(err,null)
+                        else {
+                            if(res.statusCode === 200){
+                                for(var index=0;index<body.length;index++) {
+                                    auditData = auditQueue.getAuditDetails(body[index].bot_run_id);
+                                    if (body[index].state === 'terminated') {
+                                        var timestampEnded = new Date(body[index].finished_at).getTime();
+                                        var msg= body[index].status.text
+                                        logsDao.insertLog({
+                                            referenceId: auditData.logRefId,
+                                            err: false,
+                                            log: msg,
+                                            timestamp: timestampEnded
+                                        });
+                                        logsDao.insertLog({
+                                            referenceId: auditData.logRefId,
+                                            err: false,
+                                            log: auditData.botId+' BOTs execution success on Local ',
+                                            timestamp: timestampEnded
+                                        });
+                                        if(body[index].log !== '...'||body[index].log !== '') {
+                                            logsDao.insertLog({
+                                                referenceId: auditData.logRefId,
+                                                err: false,
+                                                log: body[index].log.replace(/\n/g,"\\n"),
+                                                timestamp: timestampEnded
+                                            });
+                                        }
+                                        var resultTaskExecution = {
+                                            "actionStatus": 'success',
+                                            "status": 'success',
+                                            "endedOn": timestampEnded,
+                                            "actionLogId": auditData.auditId
+                                        };
+                                        auditQueue.popAudit(auditData.botId);
+                                        auditTrailService.updateAuditTrail('BOTsNew', auditData.auditTrailId, resultTaskExecution, function (err, data) {
+                                            if (err) {
+                                                logger.error("Failed to create or update bots Log: ", err);
+                                            }
+                                            logger.debug(auditData.botId+" BOTs Execution Done on Local");
+                                            botService.updateSavedTimePerBots(auditData.bot_id, 'BOTsNew', function (err, data) {
+                                                if (err) {
+                                                    logger.error("Failed to update bots saved Time: ", err);
+                                                }
+                                                noticeService.notice(auditData.userName, {
+                                                    title: "BOTs Execution",
+                                                    body: msg
+                                                }, "success", function (err, data) {
+                                                    if (err) {
+                                                        logger.error("Error in Notification Service, ", err);
+                                                    }
+                                                    next(null)
+                                                });
+                                            });
+                                            
+                                        });
+                                    } 
+                                    else if(body[index].state === 'active'){
+                                        continue;
+                                    }
+                                    else {
+                                        var timestampEnded = new Date(body[index].finished_at).getTime();;
+                                        logsDao.insertLog({
+                                            referenceId: auditData.logRefId,
+                                            err: true,
+                                            log: auditData.botId+' BOTs execution unsuccess on Local ',
+                                            timestamp: timestampEnded
+                                        });
+                                        if(body[index].log !== '...'||body[index].log !== '') {
+                                            logsDao.insertLog({
+                                                referenceId: auditData.logRefId,
+                                                err: true,
+                                                log: body[index].log.replace(/\n/g,"\\n"),
+                                                timestamp: timestampEnded
+                                            });
+                                        }
+                                        var resultTaskExecution = {
+                                            "actionStatus": 'failed',
+                                            "status": 'failed',
+                                            "endedOn": timestampEnded,
+                                            "actionLogId": auditData.auditId
+                                        };
+                                        auditQueue.popAudit(auditData.botId);
+                                        auditTrailService.updateAuditTrail('BOTsNew', auditData.auditTrailId, resultTaskExecution, function (err, data) {
+                                            if (err) {
+                                                logger.error("Failed to create or update bots Log: ", err);
+                                            }
+                                            logger.debug(auditData.botId+" BOTs Execution Done on Local");
+                                            botService.updateSavedTimePerBots(auditData.bot_id, 'BOTsNew', function (err, data) {
+                                                if (err) {
+                                                    logger.error("Failed to update bots saved Time: ", err);
+                                                }
+                                                noticeService.notice(auditData.userName, {
+                                                    title: "BOTs Execution",
+                                                    body: auditData.botId+" Failed"
+                                                }, "error", function (err, data) {
+                                                    if (err) {
+                                                        logger.error("Error in Notification Service, ", err);
+                                                    }
+                                                    next(null)
+                                                });
+                                            });
+                                        });
+                                    }
+                                }
+                            }
+                            else {
+                                logger.debug('Bot server is not responding')
+                                next('Error in server',null);
+                            }
+                        }
+                    });
+                    }
+                    else
+                        next(null,'nothing')
+                }
+            ],function(err,result){
+                if(err)
+                    logger.debug('Unable to update audit queue')
+            })
+        }
+    },5000)
 }
 
 function cancelOldCronJobs(ids){
