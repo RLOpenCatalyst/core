@@ -263,27 +263,34 @@ botService.executeBots = function executeBots(botsId,reqBody,userName,executionT
             botDao.getBotsByBotId(botsId, next);
         },
         function(bots,next){
-            botId = bots[0]._id;
-            if(reqBody !== null && reqBody !== '' && (bots[0].type === 'script' || bots[0].type === 'chef') && schedulerCallCheck === false){
-                masterUtil.getBotRemoteServerDetailByOrgId(bots[0].orgId,function(err,botServerDetails) {
-                    if (err) {
-                        logger.error("Error while fetching BOTs Server Details");
-                        callback(err, null);
-                        return;
-                    } else if (botServerDetails !== null) {
-                        botRemoteServerDetails.hostIP = botServerDetails.hostIP;
-                        botRemoteServerDetails.hostPort = botServerDetails.hostPort;
-                        encryptedParam(reqBody, next);
-                    } else {
-                        var error = new Error();
-                        error.message = 'BOTs Remote Engine is not configured or not in running mode';
-                        error.status = 403;
-                        next(error, null);
-                    }
-                });
+            if(bots.length > 0) {
+                botId = bots[0]._id;
+                if (reqBody !== null && reqBody !== '' && (bots[0].type === 'script' || bots[0].type === 'chef') && schedulerCallCheck === false) {
+                    masterUtil.getBotRemoteServerDetailByOrgId(bots[0].orgId, function (err, botServerDetails) {
+                        if (err) {
+                            logger.error("Error while fetching BOTs Server Details");
+                            callback(err, null);
+                            return;
+                        } else if (botServerDetails !== null) {
+                            botRemoteServerDetails.hostIP = botServerDetails.hostIP;
+                            botRemoteServerDetails.hostPort = botServerDetails.hostPort;
+                            encryptedParam(reqBody, next);
+                        } else {
+                            var error = new Error();
+                            error.message = 'BOTs Remote Engine is not configured or not in running mode';
+                            error.status = 403;
+                            next(error, null);
+                        }
+                    });
 
+                } else {
+                    next(null, reqBody);
+                }
             }else{
-                next(null,reqBody);
+                var error = new Error();
+                error.message = 'There is no record available in DB against BOT : '+botsId;
+                error.status = 403;
+                next(error, null);
             }
         },
         function(paramObj,next) {
@@ -559,6 +566,7 @@ botService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
             }, next);
         },
         function(gitHubDetails,next){
+            process.setMaxListeners(100);
             if(gitHubDetails.botSync !== null){
                 var botFactoryDirPath = appConfig.botCurrentFactoryDir;
                 fileHound.create()
@@ -566,7 +574,6 @@ botService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
                     .ext('yaml')
                     .find().then(function(files){
                     if(files.length > 0){
-                        process.setMaxListeners(files.length);
                         var botObjList = [];
                         for(var i = 0; i < files.length; i++){
                             (function(ymlFile){
@@ -840,7 +847,7 @@ function encryptedParam(paramDetails, callback) {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var encryptedObj = {};
-    if (paramDetails.type === 'script' && paramDetails.data && paramDetails.data !== null) {
+    if (paramDetails.category === 'script' && paramDetails.data && paramDetails.data !== null) {
             Object.keys(paramDetails.data).forEach(function (key) {
                 var encryptedText = cryptography.encryptText(paramDetails.data[key], cryptoConfig.encryptionEncoding,
                     cryptoConfig.decryptionEncoding);

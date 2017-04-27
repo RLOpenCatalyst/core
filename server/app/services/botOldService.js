@@ -382,6 +382,7 @@ botOldService.updateSavedTimePerBots = function updateSavedTimePerBots(botId,aud
                 hours: Math.floor(totalTimeInMinutes / 60),
                 minutes: totalTimeInMinutes % 60
             }
+            console.log(JSON.stringify(result));
             if(auditType==='BOTOLD') {
                 botOld.updateBotsDetail(botId, {
                     savedTime: result,
