@@ -894,6 +894,9 @@ function addYmlFileDetailsForBots(bots,reqData,callback){
                             execution:bot.execution,
                             lastExecutionStatus:bot.lastExecutionStatus
                         }
+                        if(bot.type === 'jenkins') {
+                            botsObj.isParameterized = bot.isParameterized;
+                        }
                         botsList.push(botsObj);
                         if (botsList.length === bots.docs.length) {
                             var alaSql = require('alasql');
@@ -958,6 +961,9 @@ function addYmlFileDetailsForBots(bots,reqData,callback){
                                         srnTicketUpdatedOn: bot.auditTrailConfig.serviceNowTicketRefObj.updatedOn,
                                         srnTicketCategory: bot.auditTrailConfig.serviceNowTicketRefObj.category,
                                         actionLogId: bot.actionLogId
+                                    }
+                                    if(bot.type === 'jenkins') {
+                                        botsObj.isParameterized = bot.isParameterized;
                                     }
                                     botsList.push(botsObj);
                                     if (botsList.length === bots.docs.length) {

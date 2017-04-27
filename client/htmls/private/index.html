@@ -1247,21 +1247,6 @@ var SettingTreeJson = [{
         "href": "javascript:void(0);",
         "icon": "fa-lg fa-fw fa fa-tachometer"
     }, {
-        "name": "cmdb",
-        "text": "CMDB Configuration",
-        "nodes": [{
-            "name": "organizations",
-            "text": "CMDB",
-            "borderColor": "#000",
-            "href": "#ajax/Settings/cmdbList.html",
-            "selectable": true,
-            "icon": "fa fa-lg fa-fw fa-database"
-        }],
-        "borderColor": "#000",
-        "selectable": false,
-        "href": "javascript:void(0);",
-        "icon": "fa fa-lg fa-fw fa-database"
-    }, {
         "name": "monitoring",
         "text": "Monitors",
         "nodes": [{
@@ -1286,6 +1271,13 @@ var SettingTreeJson = [{
             "href": "#ajax/Settings/botEngineList.html",
             "selectable": true,
             "icon": "fa fa-lg fa-fw fa-paper-plane-o"
+        },{
+            "name": "organizations",
+            "text": "Service Now Server",
+            "borderColor": "#000",
+            "href": "#ajax/Settings/cmdbList.html",
+            "selectable": true,
+            "icon": "fa fa-lg fa-fw fa-database"
         }],
         "borderColor": "#000",
         "selectable": false,

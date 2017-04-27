@@ -1634,8 +1634,23 @@ input[type="text"].ui-grid-filter-input{
 
 @media (min-width: 1550px) {
     .bots-panel-body {
-        max-height: 400px;
-        min-height: 400px;
+        max-height: 350px;
+        min-height: 350px;
         overflow-y:auto!important;
     }
+}
+
+.form-controlSelect {
+    display: inline;
+    width: 60%;
+    padding: 6px 12px;
+    font-size: 13px;
+    line-height: 1.428571429;
+    color: #555;
+    vertical-align: middle;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #ccc;
+    transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+    height: 30px;
 }
