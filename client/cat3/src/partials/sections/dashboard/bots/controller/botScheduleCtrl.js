@@ -130,7 +130,7 @@
                 isScheduled:true
             };
             var param={
-                url:'/botsNew/' + $scope.botId + '/scheduler',
+                url:'/bot/' + $scope.botId + '/scheduler',
                 data: reqBody
             };
             genSevs.promisePut(param).then(function (response) {

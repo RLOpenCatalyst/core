@@ -53,6 +53,7 @@ var INFRA_MANAGER_TYPE = {
 
 
 var CloudFormationBlueprintSchema = new Schema({
+    _id:false,
     cloudProviderId: String,
     cloudProviderType: {
         type: String,

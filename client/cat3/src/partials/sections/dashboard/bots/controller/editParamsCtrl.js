@@ -53,7 +53,21 @@
             }
 
             if($scope.botType ==='jenkins' && items.isParameterized === true) {
-                $scope.showParametersForJenkins = true;
+                for(var i=0;i<items.execution.length;i++) {
+                    if('parameterized' in items.execution[i] && items.execution[i].parameterized !== null) {
+                        $scope.showParametersForJenkins = true;
+                        $scope.parameterList = items.execution[i].parameterized;
+                    }
+                }
+            }
+
+            $scope.selectValue = function(name,value){
+                var list=$scope.parameterList;
+                for(var i=0;i<list.length;i++){
+                    if(list[i].name===name){
+                        list[i].defaultValue=[value];
+                    }
+                }
             }
 
             $scope.botStatus = function() {
@@ -66,7 +80,6 @@
             };
 
             if($scope.botType ==='chef') {
-                
                 for(var i=0;i<items.execution.length;i++) {
                     if('attributes' in items.execution[i] && items.execution[i].attributes !== null) {
                         $scope.showAttributeList = true;
@@ -74,19 +87,6 @@
                     }
                 }
             }
-
-            $scope.addJenkinsParams = function () {
-                $modal.open({
-                    templateUrl: 'src/partials/sections/dashboard/workzone/orchestration/popups/addJenkinsParams.html',
-                    controller: 'addJenkinsParamsCtrl',
-                    backdrop: 'static',
-                    keyboard: false
-                }).result.then(function (addJenkinsParams) {
-                    $scope.jenkinsParamsList.push(addJenkinsParams);
-                }, function () {
-                    console.log('Dismiss time is ' + new Date());
-                });
-            };
 
             if($rootScope.organObject && $rootScope.organObject[0].businessGroups &&  $rootScope.organObject[0].businessGroups.length > 0
                 && $rootScope.organObject[0].businessGroups[0].projects && $rootScope.organObject[0].businessGroups[0].projects.length >0) {
@@ -141,12 +141,43 @@
                     $scope.jenkinsServerList = responseFormatter.formatJenkinsServerList(data);
                 });
             };
+        
+            if(items.type === 'chef') {
+                console.log('chef');
+                $scope.getInstanceList();
+            } else if(items.type === 'blueprints') {
+                $scope.getBlueprintList();
+            } else if(items.type === 'jenkins') {
+                $scope.getJenkinsList();
+            }
 
-            //to delete jenkins params
-            $scope.removeJenkinsParams =  function (params) {
-                var idx = $scope.jenkinsParamsList.indexOf(params);
-                $scope.jenkinsParamsList.splice(idx,1);
-            };
+            //to check whether the job exists in jenkins server or not
+            $scope.checkForJenkinsServer = function() {
+                $scope.disableJenkinsExecute = false;
+                botsCreateService.getJenkinsServerJobList($scope.jenkinsServerSelect).then(function(response){
+                    if (response) {
+                        $scope.jenkinServerJobList = response;
+                        for(var i=0;i<$scope.jenkinServerJobList.length;i++) {
+                            if($scope.jenkinServerJobList[i].name === $scope.jobName) {
+                                return true;    
+                            }
+                        }
+                        $scope.disableJenkinsExecute = true;
+                        toastr.error('This Job is not associated to this Jenkins server. Please select a different Jenkins Server');
+                        return false;
+                    } 
+                },
+                function (error) {
+                    if(error) {
+                        error = error.responseText || error;
+                        if (error.message) {
+                            toastr.error(error.message);
+                        } else {
+                            toastr.error(error);
+                        }
+                    }
+                });
+            }
 
             $scope.addInstanceBP = function (indexArr,type) {
                 if(type === 'instance') {
@@ -254,10 +285,19 @@
                         var jenkinsData = {
                             jenkinsServerId:$scope.jenkinsServerSelect,
                             jobName:items.inputFormFields[1].default,
-                            jobURL:items.inputFormFields[2].default
+                            jobResultURL:items.inputFormFields[2].default
                         };
                         reqBody.data = jenkinsData;
-                        reqBody.parameterized = $scope.jenkinsParamsList;
+                        if($scope.parameterList) {
+                            angular.element('.choiceParam').each(function(){
+                                $scope.selectValue(this.name,this.value);
+                            });
+                            $scope.choiceParam = {};
+                            for (var i = 0; i < $scope.parameterList.length; i++) {
+                                $scope.choiceParam[$scope.parameterList[i].name] = $scope.parameterList[i].defaultValue[0];
+                            }
+                            reqBody.choiceParam =  $scope.choiceParam;
+                        }
                     }
                     $scope.botExecuteMethod(items.id,reqBody);
                 } else if (type === 'blueprints') {
@@ -291,13 +331,5 @@
             $scope.cancel= function() {
                 $modalInstance.dismiss('cancel');
             };
-
-            if($scope.botType === 'chef') {
-                $scope.getInstanceList();
-            } else if($scope.botType === 'blueprints') {
-                $scope.getBlueprintList();
-            } else if($scope.botType === 'jenkins') {
-                $scope.getJenkinsList();
-            }
         }]);
 })(angular);

@@ -4,7 +4,7 @@
          <div ng-if="botType ==='jenkins'" class="param-table bot-info-wrapper marginbottom15">
             <div class="col-lg-6 col-md-6 col-sm-12 marginleft-8">
             <label class="botsLabel" for="">Select Jenkins Server:&nbsp;</label>
-               <select class="form-controlSelect" name="serverName" ng-model="$parent.jenkinsServerSelect" required>
+               <select class="form-controlSelect" name="serverName" ng-model="$parent.jenkinsServerSelect" ng-change="checkForJenkinsServer();" required>
                   <option value="">Select Server</option>
                   <option value="{{jeninsServer.id}}" ng-repeat="jeninsServer in jenkinsServerList">{{jeninsServer.name}}</option>
                </select>
@@ -16,27 +16,27 @@
                <div class="add-job-parameters margintop15 col-lg-12 col-md-12 marginleft-8" ng-show="showParametersForJenkins">
                   <label class="pull-left botsLabel">Parameterized Build Data
                   </label>
-                     <span>
-                        <a class="cursor" title="Add Parameters" ng-click="addJenkinsParams('new')">&nbsp;&nbsp;Add Parameters</a>
-                     </span>
-                     <table ng-if="jenkinsParamsList.length>0" class="table table-striped table-bordered table-hover dataTable no-footer">
+                     <table class="table table-striped table-bordered table-hover dataTable no-footer">
                         <thead>
                         <tr class="paramRow" role="row">
                            <td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Name">Name</td>
                            <td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Job Description">Type
                            </td>
-                           <td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Job Links">Value</td>
-                           <td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Execute">Description</td>
-                           <td class="sorting_disabled" rowspan="1" colspan="1" aria-label="History">Action</td>
+                           <td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Job Links">Description</td>
+                           <td class="sorting_disabled" rowspan="1" colspan="1" aria-label="Execute">Default Value</td>
                         </tr>
                         </thead>
                         <tbody>
-                        <tr ng-repeat="params in jenkinsParamsList">
+                        <tr ng-repeat="params in parameterList">
                            <td>{{params.name}}</td>
                            <td>{{params.parameterName}}</td>
-                           <td>{{params.defaultValue}}</td>
                            <td>{{params.description}}</td>
-                           <td><button type="button" class="fa fa-trash-o btn btn-danger pull-left btn-sg tableactionbutton btnDeleteTask white marginleft10 ng-scope" ng-click="removeJenkinsParams(params);"></button></td>
+                           <td ng-if=" params.parameterName !=='Choice' ">{{params.defaultValue[0]}}</td>
+                           <td ng-if=" params.parameterName =='Choice' ">
+                             <select class="choiceParam form-control" name="{{params.name}}">
+                                 <option ng-repeat="val in params.defaultValue" value="{{val}}">{{val}}</option>
+                             </select>
+                           </td>
                         </tr>
                         </tbody>
                      </table>
@@ -66,6 +66,7 @@
             <div class="margintop-7" ng-if="botType ==='script'"><input type="checkbox" ng-model="scriptSelectForRemote.flag" ng-click="botStatus()"/><span>&nbsp;Do you want to execute on Remote Server?</span></div>
       		<div ng-if="botType ==='chef' || botType === 'blueprints' || botType === 'blueprint' || botType === 'script'" ng-show="botCheck" class="chefExecution">
             <div ng-if="botType ==='chef'" ng-show="showAttributeList" class="param-table">
+               <label class="pull-left botsLabel">Chef Attributes</label>
                <table class="table table-bordered">
                   <thead>
                      <tr class="paramRow">
@@ -168,7 +169,7 @@
 		</fieldset>
    </form>
 	<div id="botEditFooter" class="pager margintop-5">
-		<button type="button" ng-if="botType !== 'UI'" class="marginright29 btn cat-btn-update" ng-disabled="scriptSelectForRemote.flag && selectedInstanceList.length <= 0 || botType ==='chef' && selectedInstanceList.length <= 0 || botType ==='jenkins' && editParamsForm.$invalid" ng-click="executeBot('instance')">
+		<button type="button" ng-if="botType !== 'UI' && botType !== 'blueprints'" class="marginright29 btn cat-btn-update" ng-disabled="scriptSelectForRemote.flag && selectedInstanceList.length <= 0 || botType ==='chef' && selectedInstanceList.length <= 0 || botType ==='jenkins' && editParamsForm.$invalid || disableJenkinsExecute" ng-click="executeBot('instance')">
 			<i class="fa fa-check white"></i> Execute
 		</button>
       <button type="button" ng-if="botType ==='blueprints'" class="marginright29 btn cat-btn-update" ng-disabled="selectedBlueprintList.length <= 0" ng-click="executeBot('blueprints')">
