@@ -8,7 +8,7 @@ var async = require('async');
 var cronTab = require('node-crontab');
 var request = require('request');
 var auditQueue = require('_pr/config/global-data.js');
-var botService = require('_pr/services/botsService');
+var botService = require('_pr/services/botOldService');
 var auditTrailService = require('_pr/services/auditTrailService.js');
 var noticeService = require('_pr/services/noticeService.js');
 var logsDao = require('_pr/model/dao/logsdao.js');
@@ -284,12 +284,12 @@ catalystSync.getLogdata = function getLogdata(){
                                             "actionLogId": auditData.auditId
                                         };
                                         auditQueue.popAudit(auditData.botId);
-                                        auditTrailService.updateAuditTrail('BOTsNew', auditData.auditTrailId, resultTaskExecution, function (err, data) {
+                                        auditTrailService.updateAuditTrail('BOT', auditData.auditTrailId, resultTaskExecution, function (err, data) {
                                             if (err) {
                                                 logger.error("Failed to create or update bots Log: ", err);
                                             }
                                             logger.debug(auditData.botId+" BOTs Execution Done on Local");
-                                            botService.updateSavedTimePerBots(auditData.bot_id, 'BOTsNew', function (err, data) {
+                                            botService.updateSavedTimePerBots(auditData.bot_id, 'BOT', function (err, data) {
                                                 if (err) {
                                                     logger.error("Failed to update bots saved Time: ", err);
                                                 }
@@ -332,12 +332,12 @@ catalystSync.getLogdata = function getLogdata(){
                                             "actionLogId": auditData.auditId
                                         };
                                         auditQueue.popAudit(auditData.botId);
-                                        auditTrailService.updateAuditTrail('BOTsNew', auditData.auditTrailId, resultTaskExecution, function (err, data) {
+                                        auditTrailService.updateAuditTrail('BOT', auditData.auditTrailId, resultTaskExecution, function (err, data) {
                                             if (err) {
                                                 logger.error("Failed to create or update bots Log: ", err);
                                             }
                                             logger.debug(auditData.botId+" BOTs Execution Done on Local");
-                                            botService.updateSavedTimePerBots(auditData.bot_id, 'BOTsNew', function (err, data) {
+                                            botService.updateSavedTimePerBots(auditData.bot_id, 'BOT', function (err, data) {
                                                 if (err) {
                                                     logger.error("Failed to update bots saved Time: ", err);
                                                 }

@@ -29,10 +29,10 @@ var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var noticeService = require('_pr/services/noticeService.js');
 var fileIo = require('_pr/lib/utils/fileio');
 var auditQueue = require('_pr/config/global-data.js');
+var serviceNow = require('_pr/model/servicenow/servicenow.js');
+var botService = require('_pr/services/botOldService');
 
 const errorType = 'scriptExecutor';
-
-var serviceNow = require('_pr/model/servicenow/servicenow.js');
 
 var scriptExecutor = module.exports = {};
 
@@ -100,7 +100,6 @@ scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,execut
                                         if (err) {
                                             logger.error("Failed to create or update bots Log: ", err);
                                         }
-                                        var botService = require('_pr/services/botsService');
                                         botService.updateSavedTimePerBots(botsDetails._id, 'BOT', function (err, data) {
                                             if (err) {
                                                 logger.error("Failed to update bots saved Time: ", err);
@@ -175,6 +174,7 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
             if (!err) {
                 auditQueue.setAudit(userName,botsScriptDetails.id,botsScriptDetails._id,logsReferenceIds,actionId,auditTrail._id,res.body.ref,res.body.link,'pending',serverUrl);
                 return;
+            } else {
                 logger.error(err);
                 var timestampEnded = new Date().getTime();
                 logsDao.insertLog({

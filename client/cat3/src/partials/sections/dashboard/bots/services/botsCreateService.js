@@ -34,7 +34,7 @@
 					urlParam = 'timestamp=' + timestamp;
 				}
 				var params = {
-					url: '/bot/' + botId + '/bots-History/' + botsHistoryId +'/logs?' + urlParam,
+					url: '/bot/' + botId + '/bot-History/' + botsHistoryId +'/logs?' + urlParam,
 					inlineLoader:true
 				};
 				return genericServices.promiseGet(params);
