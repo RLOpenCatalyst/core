@@ -36,7 +36,9 @@
             $scope.jenkinsServerSelect = '';
             $scope.hideRightButton = true;
             $scope.showAttributeList = false;
-            $scope.jobName = items.inputFormFields[1].default;
+            if($scope.botType === 'jenkins' && items.inputFormFields[1].default) {
+                $scope.jobName = items.inputFormFields[1].default;
+            }
             $scope.scriptSelectForRemote = {
                 flag: false
             };

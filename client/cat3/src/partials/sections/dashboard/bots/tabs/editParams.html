@@ -2,7 +2,7 @@
 	<form class="container summary-container" name="editParamsForm" novalidate ng-submit="editParamsForm.$valid && executeBot()">
 		<fieldset id="botExecution">
          <div ng-if="botType ==='jenkins'" class="param-table bot-info-wrapper marginbottom15">
-            <div class="col-lg-6 col-md-6 col-sm-12">
+            <div class="col-lg-6 col-md-6 col-sm-12 marginleft-8">
             <label class="botsLabel" for="">Select Jenkins Server:&nbsp;</label>
                <select class="form-controlSelect" name="serverName" ng-model="$parent.jenkinsServerSelect" required>
                   <option value="">Select Server</option>
@@ -13,7 +13,7 @@
             <label class="botsLabel" for="">Job Name:&nbsp;</label>
                <input class="form-controlSelect" value="{{jobName}}" disabled/>
             </div>
-               <div class="add-job-parameters margintop15 col-lg-12 col-md-12" ng-show="showParametersForJenkins">
+               <div class="add-job-parameters margintop15 col-lg-12 col-md-12 marginleft-8" ng-show="showParametersForJenkins">
                   <label class="pull-left botsLabel">Parameterized Build Data
                   </label>
                      <span>
