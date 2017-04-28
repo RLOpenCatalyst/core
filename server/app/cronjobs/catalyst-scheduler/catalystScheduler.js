@@ -377,7 +377,7 @@ catalystSync.getLogdata = function getLogdata(){
                                                 if (err) {
                                                     logger.error("Failed to create or update bots Log: ", err);
                                                 }
-                                                logger.debug(auditData.botId+" BOTs Execution Done on Local");
+                                                logger.debug(auditData.botId+" BOTs Execution Done on "+auditData.env);
                                                 botService.updateSavedTimePerBots(auditData.bot_id, 'BOT', function (err, data) {
                                                     if (err) {
                                                         logger.error("Failed to update bots saved Time: ", err);
