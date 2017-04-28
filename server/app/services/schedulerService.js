@@ -145,21 +145,21 @@ schedulerService.executeParallelScheduledTasks = function executeParallelSchedul
     }
 }
 
-schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDetails(url,callback) {
-    client.get(url, function (dataObj, response) {
-        if (response.statusCode == 200 && dataObj.state === 'terminated') {
-            callback(null, dataObj);
-            return;
-        } else if (response.statusCode == 200 && dataObj.state === 'active') {
-            callback(null, dataObj);
-            return;
-        } else {
-            logger.error(dataObj);
-            callback(dataObj, null);
-            return;
-        }
-    });
-}
+// schedulerService.getExecutorAuditTrailDetails = function getExecutorAuditTrailDetails(url,callback) {
+//     client.get(url, function (dataObj, response) {
+//         if (response.statusCode == 200 && dataObj.state === 'terminated') {
+//             callback(null, dataObj);
+//             return;
+//         } else if (response.statusCode == 200 && dataObj.state === 'active') {
+//             callback(null, dataObj);
+//             return;
+//         } else {
+//             logger.error(dataObj);
+//             callback(dataObj, null);
+//             return;
+//         }
+//     });
+// }
 
 schedulerService.executeNewScheduledBots = function executeNewScheduledBots(bots,callback) {
     logger.debug("New Bots Scheduler is started for - "+bots.name);
