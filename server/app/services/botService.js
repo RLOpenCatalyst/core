@@ -289,9 +289,7 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
         function(paramObj,next) {
             if(schedulerCallCheck === false) {
                 var botObj = {
-                    params: {
-                        data: paramObj,
-                    }
+                    params: paramObj
                 }
                 if(reqBody.nodeIds){
                     botObj.params.nodeIds = reqBody.nodeIds;
@@ -842,7 +840,7 @@ function encryptedParam(paramDetails, callback) {
     var cryptoConfig = appConfig.cryptoSettings;
     var cryptography = new Cryptography(cryptoConfig.algorithm, cryptoConfig.password);
     var encryptedObj = {};
-    if (paramDetails.type === 'script' && paramDetails.data && paramDetails.data !== null) {
+    if (paramDetails.category === 'script' && paramDetails.data && paramDetails.data !== null) {
             Object.keys(paramDetails.data).forEach(function (key) {
                 var encryptedText = cryptography.encryptText(paramDetails.data[key], cryptoConfig.encryptionEncoding,
                     cryptoConfig.decryptionEncoding);
