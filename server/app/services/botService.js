@@ -37,11 +37,11 @@ const fileHound= require('filehound');
 const yamlJs= require('yamljs');
 const gitHubService = require('_pr/services/gitHubService.js');
 
-const errorType = 'botsNewService';
+const errorType = 'botService';
 
-var botsNewService = module.exports = {};
+var botService = module.exports = {};
 
-botsNewService.createNew = function createNew(reqBody,callback) {
+botService.createNew = function createNew(reqBody,callback) {
     fileUpload.getReadStreamFileByFileId(reqBody.fileId, function (err, fileDetail) {
         if (err) {
             logger.error("Error in reading YAML File.");
@@ -121,7 +121,7 @@ botsNewService.createNew = function createNew(reqBody,callback) {
     });
 }
 
-botsNewService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,callback) {
+botService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,callback) {
     if(botObj.scheduler  && botObj.scheduler !== null && Object.keys(botObj.scheduler).length !== 0) {
         botObj.scheduler = apiUtil.createCronJobPattern(botObj.scheduler);
         botObj.isScheduled =true;
@@ -152,7 +152,7 @@ botsNewService.updateBotsScheduler = function updateBotsScheduler(botId,botObj,c
     });
 }
 
-botsNewService.removeBotsById = function removeBotsById(botId,callback){
+botService.removeBotsById = function removeBotsById(botId,callback){
     async.parallel({
         bots: function(callback){
             botDao.removeBotsById(botId,callback);
@@ -172,7 +172,7 @@ botsNewService.removeBotsById = function removeBotsById(botId,callback){
     });
 }
 
-botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowCheck,callback) {
+botService.getBotsList = function getBotsList(botsQuery,actionStatus,serviceNowCheck,callback) {
     var reqData = {};
     async.waterfall([
         function(next) {
@@ -255,7 +255,7 @@ botsNewService.getBotsList = function getBotsList(botsQuery,actionStatus,service
     });
 }
 
-botsNewService.executeBots = function executeBots(botsId,reqBody,userName,executionType,schedulerCallCheck,callback){
+botService.executeBots = function executeBots(botsId,reqBody,userName,executionType,schedulerCallCheck,callback){
     var botId = null;
     var botRemoteServerDetails = {}
     async.waterfall([
@@ -263,33 +263,40 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
             botDao.getBotsByBotId(botsId, next);
         },
         function(bots,next){
-            botId = bots[0]._id;
-            if(reqBody !== null && reqBody !== '' && (bots[0].type === 'script' || bots[0].type === 'chef') && schedulerCallCheck === false){
-                masterUtil.getBotRemoteServerDetailByOrgId(bots[0].orgId,function(err,botServerDetails) {
-                    if (err) {
-                        logger.error("Error while fetching BOTs Server Details");
-                        callback(err, null);
-                        return;
-                    } else if (botServerDetails !== null) {
-                        botRemoteServerDetails.hostIP = botServerDetails.hostIP;
-                        botRemoteServerDetails.hostPort = botServerDetails.hostPort;
-                        encryptedParam(reqBody, next);
-                    } else {
-                        var error = new Error();
-                        error.message = 'BOTs Remote Engine is not configured or not in running mode';
-                        error.status = 403;
-                        next(error, null);
-                    }
-                });
+            if(bots.length > 0) {
+                botId = bots[0]._id;
+                if (reqBody !== null && reqBody !== '' && (bots[0].type === 'script' || bots[0].type === 'chef') && schedulerCallCheck === false) {
+                    masterUtil.getBotRemoteServerDetailByOrgId(bots[0].orgId, function (err, botServerDetails) {
+                        if (err) {
+                            logger.error("Error while fetching BOTs Server Details");
+                            callback(err, null);
+                            return;
+                        } else if (botServerDetails !== null) {
+                            botRemoteServerDetails.hostIP = botServerDetails.hostIP;
+                            botRemoteServerDetails.hostPort = botServerDetails.hostPort;
+                            encryptedParam(reqBody, next);
+                        } else {
+                            var error = new Error();
+                            error.message = 'BOTs Remote Engine is not configured or not in running mode';
+                            error.status = 403;
+                            next(error, null);
+                        }
+                    });
 
+                } else {
+                    next(null, reqBody);
+                }
             }else{
-                next(null,reqBody);
+                var error = new Error();
+                error.message = 'There is no record available in DB against BOT : '+botsId;
+                error.status = 403;
+                next(error, null);
             }
         },
         function(paramObj,next) {
             if(schedulerCallCheck === false) {
                 var botObj = {
-                    params: paramObj
+                    params:paramObj
                 }
                 if(reqBody.nodeIds){
                     botObj.params.nodeIds = reqBody.nodeIds;
@@ -339,10 +346,10 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
                                 } else if (botDetails[0].type === 'chef') {
                                     chefExecutor.execute(botDetails[0], auditTrail, userName, executionType, botRemoteServerDetails, next);
                                 } else if (botDetails[0].type === 'blueprints') {
-                                    reqBody = botDetails[0].params.data;
+                                    reqBody = botDetails[0].params;
                                     blueprintExecutor.execute(botDetails[0].id,auditTrail, reqBody, userName, next);
                                 } else if (botDetails[0].type === 'jenkins') {
-                                    reqBody = botDetails[0].params.data;
+                                    reqBody = botDetails[0].params;
                                     jenkinsExecutor.execute(botDetails[0],auditTrail, reqBody, userName, next);
                                 } else {
                                     var err = new Error('Invalid BOT Type');
@@ -399,7 +406,7 @@ botsNewService.executeBots = function executeBots(botsId,reqBody,userName,execut
     });
 }
 
-botsNewService.syncSingleBotsWithGitHub = function syncSingleBotsWithGitHub(botId,callback){
+botService.syncSingleBotsWithGitHub = function syncSingleBotsWithGitHub(botId,callback){
     async.waterfall([
         function(next) {
             botDao.getBotsByBotId(botId,next);
@@ -497,7 +504,7 @@ botsNewService.syncSingleBotsWithGitHub = function syncSingleBotsWithGitHub(botI
 }
 
 
-botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
+botService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callback){
     async.waterfall([
         function(next) {
             async.parallel({
@@ -559,6 +566,7 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
             }, next);
         },
         function(gitHubDetails,next){
+            process.setMaxListeners(100);
             if(gitHubDetails.botSync !== null){
                 var botFactoryDirPath = appConfig.botCurrentFactoryDir;
                 fileHound.create()
@@ -566,7 +574,6 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
                     .ext('yaml')
                     .find().then(function(files){
                     if(files.length > 0){
-                        process.setMaxListeners(files.length);
                         var botObjList = [];
                         for(var i = 0; i < files.length; i++){
                             (function(ymlFile){
@@ -723,7 +730,7 @@ botsNewService.syncBotsWithGitHub = function syncBotsWithGitHub(gitHubId,callbac
     });
 }
 
-botsNewService.getBotsHistory = function getBotsHistory(botId,botsQuery,callback){
+botService.getBotsHistory = function getBotsHistory(botId,botsQuery,callback){
     var reqData = {};
     async.waterfall([
         function(next) {
@@ -753,7 +760,7 @@ botsNewService.getBotsHistory = function getBotsHistory(botId,botsQuery,callback
     });
 }
 
-botsNewService.getParticularBotsHistory = function getParticularBotsHistory(botId,historyId,callback){
+botService.getParticularBotsHistory = function getParticularBotsHistory(botId,historyId,callback){
     async.waterfall([
         function(next){
             botDao.getBotsById(botId,next);
@@ -783,7 +790,7 @@ botsNewService.getParticularBotsHistory = function getParticularBotsHistory(botI
     });
 }
 
-botsNewService.getParticularBotsHistoryLogs= function getParticularBotsHistoryLogs(botId,historyId,timestamp,callback){
+botService.getParticularBotsHistoryLogs= function getParticularBotsHistoryLogs(botId,historyId,timestamp,callback){
     async.waterfall([
         function(next){
             botDao.getBotsById(botId,next);
@@ -808,7 +815,7 @@ botsNewService.getParticularBotsHistoryLogs= function getParticularBotsHistoryLo
     });
 }
 
-botsNewService.updateLastBotExecutionStatus= function updateLastBotExecutionStatus(botId,status,callback){
+botService.updateLastBotExecutionStatus= function updateLastBotExecutionStatus(botId,status,callback){
     async.waterfall([
         function(next){
             botDao.getBotsById(botId,next);

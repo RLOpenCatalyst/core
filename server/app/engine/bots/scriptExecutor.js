@@ -29,8 +29,7 @@ var apiUtil = require('_pr/lib/utils/apiUtil.js');
 var noticeService = require('_pr/services/noticeService.js');
 var fileIo = require('_pr/lib/utils/fileio');
 var auditQueue = require('_pr/config/global-data.js');
-var serviceNow = require('_pr/model/servicenow/servicenow.js');
-var botService = require('_pr/services/botOldService');
+
 
 const errorType = 'scriptExecutor';
 
@@ -100,7 +99,8 @@ scriptExecutor.execute = function execute(botsDetails,auditTrail,userName,execut
                                         if (err) {
                                             logger.error("Failed to create or update bots Log: ", err);
                                         }
-                                        botService.updateSavedTimePerBots(botsDetails._id, 'BOT', function (err, data) {
+                                        var botOldService = require('_pr/services/botOldService');
+                                        botOldService.updateSavedTimePerBots(botsDetails._id, 'BOT', function (err, data) {
                                             if (err) {
                                                 logger.error("Failed to update bots saved Time: ", err);
                                             }
@@ -172,7 +172,22 @@ function executeScriptOnLocal(botsScriptDetails,auditTrail,userName,botHostDetai
         .set({'Content-Type': 'application/json'})
         .end(function (err, res) {
             if (!err) {
-                auditQueue.setAudit(userName,botsScriptDetails.id,botsScriptDetails._id,logsReferenceIds,actionId,auditTrail._id,'','',res.body.ref,res.body.link,'pending',serverUrl,'local');
+                var auditQueueDetails = {
+                    userName:userName,
+                    botId:botsScriptDetails.id,
+                    bot_id:botsScriptDetails._id,
+                    logRefId:logsReferenceIds,
+                    auditId:actionId,
+                    instanceLog:'',
+                    instanceIP:'',
+                    auditTrailId:auditTrail._id,
+                    remoteAuditId:res.body.ref,
+                    link:res.body.link,
+                    status:"pending",
+                    serverUrl:serverUrl,
+                    env:"local"
+                }
+                auditQueue.setAudit(auditQueueDetails);
                 return;
             } else {
                 logger.error(err);
@@ -339,7 +354,7 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,botHostD
                     });
                     callback(err, null);
                     if (decryptedCredentials.pemFileLocation){
-                        removeScriptFile(decryptedCredentials.pemFileLocation);
+                        apiUtil.removeFile(decryptedCredentials.pemFileLocation);
                     }
                     noticeService.notice(userName,
                         {
@@ -352,23 +367,27 @@ function executeScriptOnRemote(instance,botDetails,actionLogId,userName,botHostD
                         });
                     return;
                 } else {
-                    auditQueue.setAudit(userName,botDetails.id,botDetails._id,logsReferenceIds,'','',instanceLog,instance.instanceIP,res.body.ref,res.body.link,'pending',serverUrl,'remote');
+                    var auditQueueDetails = {
+                        userName:userName,
+                        botId:botDetails.id,
+                        bot_id:botDetails._id,
+                        logRefId:logsReferenceIds,
+                        auditId:'',
+                        instanceLog:instanceLog,
+                        instanceIP:instance.instanceIP,
+                        auditTrailId:'',
+                        remoteAuditId:res.body.ref,
+                        link:res.body.link,
+                        status:"pending",
+                        serverUrl:serverUrl,
+                        env:"remote"
+                    }
+                    auditQueue.setAudit(auditQueueDetails);
                 }
             })
     });
 }
 
-function removeScriptFile(filePath) {
-    fileIo.removeFile(filePath, function(err, result) {
-        if (err) {
-            logger.error(err);
-            return;
-        } else {
-            logger.debug("Successfully Remove file");
-            return
-        }
-    })
-}
 
 
 

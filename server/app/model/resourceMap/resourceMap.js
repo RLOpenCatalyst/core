@@ -71,7 +71,7 @@ resourceMapSchema.statics.createNew = function createNew(resourceMapObj, callbac
 };
 
 resourceMapSchema.statics.updatedResourceMap = function updatedResourceMap(stackName,resourceMapObj,callback) {
-    resourceMap.update({stackName:stackName,stackStatus:{$nin:["DELETED","ERROR"]}},{$set:resourceMapObj},function (err, data) {
+    resourceMap.update({stackName:stackName,stackStatus:{$ne:"ERROR"}},{$set:resourceMapObj},function (err, data) {
         if (err) {
             logger.error(err);
             return callback(err, null);
@@ -82,7 +82,7 @@ resourceMapSchema.statics.updatedResourceMap = function updatedResourceMap(stack
 };
 
 resourceMapSchema.statics.getResourceMapByStackName = function getResourceMapByStackName(stackName,callback) {
-    resourceMap.find({stackName:stackName,stackStatus:{$nin:["DELETED","ERROR"]}},function (err, data) {
+    resourceMap.find({stackName:stackName,stackStatus:{$ne:"ERROR"}},function (err, data) {
         if (err) {
             logger.error(err);
             return callback(err, null);
@@ -116,7 +116,7 @@ resourceMapSchema.statics.getAllResourceMapByFilter = function getAllResourceMap
 
 
 resourceMapSchema.statics.deleteAllResourcesByFilter = function deleteAllResourcesByFilter(filterQueryObj, callback) {
-    resourceMap.update(filterQueryObj,{$set:{stackStatus:"DELETED"}},{multi:true},function (err, resourceMapObj) {
+    resourceMap.remove(filterQueryObj,function (err, resourceMapObj) {
         if (err) {
             logger.error(err);
             return callback(err, null);

@@ -76,7 +76,7 @@
             $scope.searchString = $scope.botAuditTrailSearch;
             $scope.botAuditTrailGridOptions.data=[];
                 var param={
-                    url:'/audit-trail?filterBy=auditType:BOTsNew&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
+                    url:'/audit-trail?filterBy=auditType:BOT&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder+'&search=' + $scope.searchString
             };
             genSevs.promiseGet(param).then(function (result) {
                 console.log(result);
@@ -121,7 +121,7 @@
             $scope.isBotAuditTrailPageLoading = true;
             $scope.botAuditTrailGridOptions.data=[];
             var param={
-                url:'/audit-trail?filterBy=auditType:BOTsNew&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
+                url:'/audit-trail?filterBy=auditType:BOT&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
             };
             genSevs.promiseGet(param).then(function (response) {
                 $timeout(function() {
