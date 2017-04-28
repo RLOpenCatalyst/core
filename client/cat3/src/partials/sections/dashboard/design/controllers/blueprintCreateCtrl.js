@@ -803,12 +803,20 @@
                         blueprintCreateJSON.cftTemplateFile = $scope.cftTemplate;
                         var cftInstances = [];
                         angular.forEach(blueprintCreation.newEnt.cftModelResources , function(value, key) {
-                            var instanceObj = {
-                                logicalId: key,
-                                username: value,
-                                runlist: responseFormatter.formatSelectedChefRunList($scope.runlistWithKey[key]),
-                                attributes: responseFormatter.formatSelectedCookbookAttributes($scope.cookbookAttributesWithKey[key])
-                            };
+                            var instanceObj = null;
+                            if($scope.runlistWithKey[key]) {
+                                instanceObj = {
+                                    logicalId: key,
+                                    username: value,
+                                    runlist: responseFormatter.formatSelectedChefRunList($scope.runlistWithKey[key]),
+                                    attributes: responseFormatter.formatSelectedCookbookAttributes($scope.cookbookAttributesWithKey[key])
+                                };
+                            } else {
+                                instanceObj = {
+                                    logicalId: key,
+                                    username: value
+                                };
+                            }
                             cftInstances.push(instanceObj);
                             blueprintCreateJSON.cftInstances = cftInstances;
                         });
@@ -826,15 +834,21 @@
                         });
                         blueprintCreateJSON.blueprintType = 'azure_arm';
                         blueprintCreateJSON.cftTemplateFile = $scope.cftTemplate;
-                        var instanceObj = {};
+                        var instanceObj = null;
                         for(var i =0;i<blueprintCreation.getAzureVMDetails.length;i++){
-
+                        if($scope.runlistWithKey){
                             instanceObj[blueprintCreation.getAzureVMDetails[i].name]= {
                                 username: blueprintCreation.getAzureVMDetails[i].username,
                                 password: blueprintCreation.getAzureVMDetails[i].password,
                                 runlist: responseFormatter.formatSelectedChefRunList($scope.runlistWithKey[blueprintCreation.getAzureVMDetails[i].name]),
                                 attributes: responseFormatter.formatSelectedCookbookAttributes($scope.cookbookAttributesWithKey[blueprintCreation.getAzureVMDetails[i].name])
                             };
+                        } else {
+                            instanceObj[blueprintCreation.getAzureVMDetails[i].name]= {
+                                username: blueprintCreation.getAzureVMDetails[i].username,
+                                password: blueprintCreation.getAzureVMDetails[i].password
+                            };
+                        }
                             blueprintCreateJSON.cftInstances = instanceObj;
 
                         }

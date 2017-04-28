@@ -56,9 +56,9 @@
                 flag: false
             }
 
-            if($scope.botType === 'chef' || $scope.botType === 'blueprints') {
+            if($scope.botType === 'blueprints') {
                 $scope.botCheck = true;
-            } else if($scope.botType === 'script') {
+            } else if($scope.botType === 'script' || $scope.botType === 'chef') {
                 $scope.botCheck = false;
             }
 
@@ -79,15 +79,6 @@
                     }
                 }
             }
-
-            $scope.botStatus = function() {
-                if($scope.scriptSelectForRemote.flag){
-                    $scope.botCheck = true;
-                    $scope.getInstanceList();
-                }else{
-                    $scope.botCheck = false;
-                }
-            };
 
             if($scope.botType ==='chef') {
                 for(var i=0;i<items.execution.length;i++) {
@@ -129,6 +120,15 @@
                 }
             };
 
+            $scope.botStatus = function() {
+                if($scope.scriptSelectForRemote.flag){
+                    $scope.botCheck = true;
+                    $scope.getInstanceList();
+                }else{
+                    $scope.botCheck = false;
+                }
+            };
+
             //get jenkins server list 
             $scope.getJenkinsList =  function() {
                 botsCreateService.getJenkinsServerDetails().then(function(response){
@@ -142,10 +142,7 @@
                 });
             };
         
-            if(items.type === 'chef') {
-                console.log('chef');
-                $scope.getInstanceList();
-            } else if(items.type === 'blueprints') {
+            if(items.type === 'blueprints') {
                 $scope.getBlueprintList();
             } else if(items.type === 'jenkins') {
                 $scope.getJenkinsList();
@@ -271,15 +268,15 @@
                 if(type === 'instance') {
                     if($scope.botType === 'script') {
                         reqBody.data = $scope.botEditParams;
-                        if($scope.botCheck === true) {
+                        if($scope.botCheck === true && $scope.selectedInstanceIds.length>0) {
                             reqBody.nodeIds = $scope.selectedInstanceIds;
                         }
                     } else if($scope.botType === 'chef') {
-                        if($scope.selectedInstanceIds.length>0) {
+                        if($scope.botCheck === true && $scope.selectedInstanceIds.length>0) {
                             reqBody.nodeIds = $scope.selectedInstanceIds;
+                        }
+                        if($scope.attributeList) {
                             reqBody.attributes = $scope.attributeList;
-                        } else {
-                            return false;
                         }
                     } else if($scope.botType === 'jenkins') {
                         var jenkinsData = {
