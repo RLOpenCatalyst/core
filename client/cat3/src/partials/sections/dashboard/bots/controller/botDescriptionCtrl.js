@@ -107,11 +107,11 @@
                     settings: {
                         "title": "Settings",
                         "url": "src/partials/sections/dashboard/bots/tabs/settings.html"
-                    },
+                    }/*,
                     help: {
                         "title": "Help",
                         "url": "src/partials/sections/dashboard/bots/tabs/help.html"
-                    }
+                    }*/
                 }
             };
             $scope.tab = botsTab;

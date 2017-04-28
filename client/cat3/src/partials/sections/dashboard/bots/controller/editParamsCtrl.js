@@ -19,6 +19,16 @@
                 items = $scope.templateSelected;
             }
 
+            if($rootScope.organObject) {
+                $scope.IMGNewEnt={
+                    org:$rootScope.organObject[0],
+                    buss:$rootScope.organObject[0].businessGroups[0],
+                    proj:$rootScope.organObject[0].businessGroups[0].projects[0],
+                    env:$rootScope.organObject[0].businessGroups[0].projects[0].environments[0],
+                    blueprintType:items.subType
+                };
+            }
+
             $scope.botName = items.name;
             $scope.botParams = items.inputFormFields;
             $scope.botEditParams = {};
@@ -88,18 +98,8 @@
                 }
             }
 
-            if($rootScope.organObject && $rootScope.organObject[0].businessGroups &&  $rootScope.organObject[0].businessGroups.length > 0
-                && $rootScope.organObject[0].businessGroups[0].projects && $rootScope.organObject[0].businessGroups[0].projects.length >0) {
-                $scope.IMGNewEnt={
-                    org:$rootScope.organObject[0],
-                    buss:$rootScope.organObject[0].businessGroups[0],
-                    proj:$rootScope.organObject[0].businessGroups[0].projects[0],
-                    env:$rootScope.organObject[0].businessGroups[0].projects[0].environments[0],
-                    blueprintType:items.subType
-                };
-            }
-
             $scope.getInstanceList = function() {
+                console.log($scope.IMGNewEnt);
                 if($scope.IMGNewEnt){
                     botsCreateService.getCurrentOrgInstances($scope.IMGNewEnt.org.orgid).then(function(response){
                         $scope.originalInstanceList=[];
