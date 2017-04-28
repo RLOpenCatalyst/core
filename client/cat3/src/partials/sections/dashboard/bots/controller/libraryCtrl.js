@@ -184,7 +184,7 @@
             lib.gridOptions=[];
             var param={
                 inlineLoader:true,
-                url:'src/partials/sections/dashboard/bots/serviceNow.json'
+                url:'/bot?serviceNowCheck=true&page=' + $scope.paginationParams.page +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
             };
             genSevs.promiseGet(param).then(function (result) {
                 $timeout(function() {
@@ -544,27 +544,6 @@
             $scope.showForServiceNow = true;
             $scope.paginationParams.pageSize = 10;
             lib.gridOptions.data=[];
-            /*if(resetPage){
-                $scope.botLibGridOptions.data = [];
-                $scope.paginationParams.page = 1;
-                $scope.botLibGridOptions.paginationCurrentPage = $scope.paginationParams.page;
-            }*/
-            /*var param={
-                inlineLoader:true,
-                url:'/bot?serviceNowCheck=true&page=' + $scope.botLibGridOptions.paginationCurrentPage +'&pageSize=' + $scope.paginationParams.pageSize +'&sortBy=' + $scope.paginationParams.sortBy +'&sortOrder=' + $scope.paginationParams.sortOrder
-            };
-            genSevs.promiseGet(param).then(function (result) {
-                if($scope.isCardViewActive){
-                    $scope.botLibGridOptions.data = $scope.botLibGridOptions.data.concat(result.bots);
-                    for(var i=0;i<result.bots.length;i++){
-                        $scope.imageForCard(result.bots[i]);
-                    }
-                } else {
-                    $scope.botLibGridOptions.data = result.bots;
-                }
-                $scope.botsDetails(result);
-                $scope.statusBar = "Showing " + ($scope.botLibGridOptions.data.length === 0 ? "0" : "1") + " to " + $filter('number')($scope.botLibGridOptions.data.length) + " of " + $filter('number')(result.metaData.totalRecords) + " entries";
-            });*/
             $scope.botServiceNowLibraryGridView();
         };
         
