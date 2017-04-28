@@ -244,6 +244,10 @@
 
 
         $scope.botStatus = function() {
+            if($scope.botLibAction || $scope.botLibType || $scope.botLibCategory) {
+                $rootScope.applyFilter();
+                return false;
+            }
             if($scope.totalBotsSelected) {
                 $scope.botLibraryGridView();
             } else if($scope.runningBotsselected) {
@@ -345,12 +349,20 @@
                 if($scope.isCardViewActive){
                     $scope.botLibGridOptions.data = result.bots;
                     $scope.botSummary = result.botSummary;
+                    if(result.metaData.totalRecords >= 24) {
+                        $scope.showLoadMore = true;
+                        $scope.showRecords = true;
+                    }
+                    if(result.metaData.totalRecords === $scope.botLibGridOptions.data.length) {
+                        $scope.showLoadRecord();
+                    }
                     for(var i=0;i<result.bots.length;i++){
                         $scope.imageForCard(result.bots[i]);
                     }
                 } else {
                     $scope.botLibGridOptions.data = result.bots;
                 }
+                $scope.botsDetails(result);
                 $scope.isBotLibraryPageLoading = false;
                 $scope.isOpenSidebar = false;
             }, function(error) {
