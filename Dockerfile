@@ -6,7 +6,8 @@ RUN npm install -g kerberos
 ##Client
 RUN npm install -g grunt-cli
 RUN npm install -g npm
-RUN npm install forever --global
+##Its not needed as docker taking its role
+##RUN npm install forever --global
 RUN gem install sass
 RUN curl -L https://www.opscode.com/chef/install.sh |  bash
 RUN /opt/chef/embedded/bin/gem install knife-windows
