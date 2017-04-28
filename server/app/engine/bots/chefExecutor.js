@@ -160,52 +160,87 @@ function executeChefOnLocal(botsChefDetails, auditTrail, userName, botHostDetail
         }
         reqData.attributes = botsChefDetails.params.attributes
     }
-    var reqBody = {
-        "data": reqData
-    };
-    var supertest = require("supertest");
-    var serverUrl = "http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort;
-    var server = supertest.agent();
-    var executorUrl = '/bot/' + botsChefDetails.id + '/exec';
-    server
-        .post(executorUrl)
-        .send(reqBody)
-        .set({ 'Content-Type': 'application/json' })
-        .end(function (err, res) {
-            if (!err) {
-                auditQueue.setAudit(userName, botsScriptDetails.id, botsScriptDetails._id, logsReferenceIds, actionId, auditTrail._id, '','',res.body.bot_run_id, res.body.link, 'pending', serverUrl,'local');
+    if(reqData.attributes !== null){
+        var fileName = uuid.v4() + '_' + botsChefDetails.id+'.json';
+        var desPath = appConfig.tempDir + fileName;
+        fileIo.writeFile(desPath, JSON.stringify(reqData.attributes), false, function (err) {
+            if (err) {
+                logger.error("Unable to write file");
                 return;
             } else {
-                logger.error(err);
-                var timestampEnded = new Date().getTime();
-                logsDao.insertLog({
-                    referenceId: logsReferenceIds,
-                    err: true,
-                    log: "Error in Chef executor",
-                    timestamp: timestampEnded
-                });
-                var resultTaskExecution = {
-                    "actionStatus": 'failed',
-                    "status": 'failed',
-                    "endedOn": new Date().getTime(),
-                    "actionLogId": actionId
-                };
-                auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
-                    if (err) {
-                        logger.error("Failed to create or update bots Log: ", err);
-                    }
-                    noticeService.notice(userName, {
-                        title: "Chef BOT Execution",
-                        body: "Error in Chef executor"
-                    }, "error", function (err, data) {
-                        if (err) {
-                            logger.error("Error in Notification Service, ", err);
-                        }
-                        return;
-                    })
-                });
+                reqData.attributes = desPath;
+                executeChefCookBookOnLocal();
             }
-        });
+        })
+    }else{
+        executeChefCookBookOnLocal();
+    }
+    function executeChefCookBookOnLocal() {
+        var reqBody = {
+            "data": reqData
+        };
+        var supertest = require("supertest");
+        var serverUrl = "http://" + botHostDetails.hostIP + ':' + botHostDetails.hostPort;
+        var server = supertest.agent();
+        var executorUrl = '/bot/' + botsChefDetails.id + '/exec';
+        server
+            .post(executorUrl)
+            .send(reqBody)
+            .set({'Content-Type': 'application/json'})
+            .end(function (err, res) {
+                if (!err) {
+                    var auditQueueDetails = {
+                        userName: userName,
+                        botId: botsChefDetails.id,
+                        bot_id: botsChefDetails._id,
+                        logRefId: logsReferenceIds,
+                        auditId: actionId,
+                        instanceLog: '',
+                        instanceIP: '',
+                        auditTrailId: auditTrail._id,
+                        remoteAuditId: res.body.bot_run_id,
+                        link: res.body.link,
+                        status: "pending",
+                        serverUrl: serverUrl,
+                        env: "local"
+                    }
+                    auditQueue.setAudit(auditQueueDetails);
+                    return;
+                } else {
+                    logger.error(err);
+                    var timestampEnded = new Date().getTime();
+                    logsDao.insertLog({
+                        referenceId: logsReferenceIds,
+                        err: true,
+                        log: "Error in Chef executor",
+                        timestamp: timestampEnded
+                    });
+                    var resultTaskExecution = {
+                        "actionStatus": 'failed',
+                        "status": 'failed',
+                        "endedOn": new Date().getTime(),
+                        "actionLogId": actionId
+                    };
+                    auditTrailService.updateAuditTrail('BOTsNew', auditTrail._id, resultTaskExecution, function (err, data) {
+                        if (err) {
+                            logger.error("Failed to create or update bots Log: ", err);
+                        }
+                        noticeService.notice(userName, {
+                            title: "Chef BOT Execution",
+                            body: "Error in Chef executor"
+                        }, "error", function (err, data) {
+                            if (err) {
+                                logger.error("Error in Notification Service, ", err);
+                            }
+                            if(reqData.attributes !== null) {
+                                apiUtil.removeFile(desPath);
+                            }
+                            return;
+                        })
+                    });
+                }
+            });
+    }
 };
 
 
@@ -302,55 +337,100 @@ function executeChefOnRemote(instance, botDetails, actionLogId, userName, botHos
             }
             reqData.attributes = botDetails.params.attributes
         }
-        var reqBody = {
-            "data": reqData,
-            "os": instance.hardware.os,
-            "authentication": authenticationObj,
-            "environment": envObj
-        };
-        var executorUrl = '/bot/' + botDetails.id + '/exec';
-        server
-            .post(executorUrl)
-            .send(reqBody)
-            .set({ 'Content-Type': 'application/json' })
-            .end(function (err, res) {
+        if(reqData.attributes !== null){
+            var fileName = uuid.v4() + '_' + botDetails.id+'.json';
+            var desPath = appConfig.tempDir + fileName;
+            fileIo.writeFile(desPath, JSON.stringify(reqData.attributes), false, function (err) {
                 if (err) {
-                    logger.error(err);
-                    var timestampEnded = new Date().getTime();
-                    logsDao.insertLog({
-                        referenceId: logsReferenceIds,
-                        err: true,
-                        log: "Error in Chef executor: ",
-                        timestamp: timestampEnded
-                    });
-                    instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
-                    instanceLog.endedOn = new Date().getTime();
-                    instanceLog.actionStatus = "failed";
-                    instanceLog.logs = {
-                        err: false,
-                        log: "Unable to upload Chef file " + botDetails.id,
-                        timestamp: new Date().getTime()
-                    };
-                    instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
-                        if (err) {
-                            logger.error("Failed to create or update instanceLog: ", err);
-                        }
-                    });
-                    noticeService.notice(userName, {
-                        title: "Chef BOT Execution",
-                        body: "Error in Chef executor"
-                    }, "error", function (err, data) {
-                        if (err) {
-                            logger.error("Error in Notification Service, ", err);
-                        }
-                    });
-                    callback(err, null);
+                    logger.error("Unable to write file");
                     return;
                 } else {
-                    auditQueue.setAudit(userName, botDetails.id, botDetails._id, logsReferenceIds, '', '',instanceLog,instance.instanceIP, res.body.ref, res.body.link, 'pending', serverUrl,'remote');
-                    return;
+                    var scp = new SCP(sshOptions);
+                    scp.upload(desPath, '/tmp', function (err) {
+                        if(err) {
+                            logger.error(err);
+                        }else{
+                            reqData.attributes = '/tmp/'+fileName;
+                            executeChefCookBookOnRemote(desPath);
+                        }
+                    })
                 }
             })
+        }else{
+            executeChefCookBookOnRemote(desPath);
+        }
+        function executeChefCookBookOnRemote(desPath) {
+            var reqBody = {
+                "data": reqData,
+                "os": instance.hardware.os,
+                "authentication": authenticationObj,
+                "environment": envObj
+            };
+            var executorUrl = '/bot/' + botDetails.id + '/exec';
+            server
+                .post(executorUrl)
+                .send(reqBody)
+                .set({'Content-Type': 'application/json'})
+                .end(function (err, res) {
+                    if (err) {
+                        logger.error(err);
+                        var timestampEnded = new Date().getTime();
+                        logsDao.insertLog({
+                            referenceId: logsReferenceIds,
+                            err: true,
+                            log: "Error in Chef executor: ",
+                            timestamp: timestampEnded
+                        });
+                        instanceModel.updateActionLog(logsReferenceIds[0], logsReferenceIds[1], false, timestampEnded);
+                        instanceLog.endedOn = new Date().getTime();
+                        instanceLog.actionStatus = "failed";
+                        instanceLog.logs = {
+                            err: false,
+                            log: "Unable to upload Chef file " + botDetails.id,
+                            timestamp: new Date().getTime()
+                        };
+                        instanceLogModel.createOrUpdate(logsReferenceIds[1], logsReferenceIds[0], instanceLog, function (err, logData) {
+                            if (err) {
+                                logger.error("Failed to create or update instanceLog: ", err);
+                            }
+                        });
+                        noticeService.notice(userName, {
+                            title: "Chef BOT Execution",
+                            body: "Error in Chef executor"
+                        }, "error", function (err, data) {
+                            if (err) {
+                                logger.error("Error in Notification Service, ", err);
+                            }
+                        });
+                        callback(err, null);
+                        if(reqData.attributes !== null) {
+                            apiUtil.removeFile(desPath);
+                        }
+                        return;
+                    } else {
+                        var auditQueueDetails = {
+                            userName: userName,
+                            botId: botDetails.id,
+                            bot_id: botDetails._id,
+                            logRefId: logsReferenceIds,
+                            auditId: '',
+                            instanceLog: instanceLog,
+                            instanceIP: instance.instanceIP,
+                            auditTrailId: '',
+                            remoteAuditId: res.body.bot_run_id,
+                            link: res.body.link,
+                            status: "pending",
+                            serverUrl: serverUrl,
+                            env: "remote"
+                        }
+                        auditQueue.setAudit(auditQueueDetails);
+                        if(reqData.attributes !== null) {
+                            apiUtil.removeFile(desPath);
+                        }
+                        return;
+                    }
+                })
+        }
     });
 }
 

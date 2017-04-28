@@ -803,12 +803,20 @@
                         blueprintCreateJSON.cftTemplateFile = $scope.cftTemplate;
                         var cftInstances = [];
                         angular.forEach(blueprintCreation.newEnt.cftModelResources , function(value, key) {
-                            var instanceObj = {
-                                logicalId: key,
-                                username: value,
-                                runlist: responseFormatter.formatSelectedChefRunList($scope.runlistWithKey[key]),
-                                attributes: responseFormatter.formatSelectedCookbookAttributes($scope.cookbookAttributesWithKey[key])
-                            };
+                            var instanceObj = null;
+                            if($scope.runlistWithKey[key]) {
+                                instanceObj = {
+                                    logicalId: key,
+                                    username: value,
+                                    runlist: responseFormatter.formatSelectedChefRunList($scope.runlistWithKey[key]),
+                                    attributes: responseFormatter.formatSelectedCookbookAttributes($scope.cookbookAttributesWithKey[key])
+                                };
+                            } else {
+                                instanceObj = {
+                                    logicalId: key,
+                                    username: value
+                                };
+                            }
                             cftInstances.push(instanceObj);
                             blueprintCreateJSON.cftInstances = cftInstances;
                         });
